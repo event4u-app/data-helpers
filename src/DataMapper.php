@@ -1231,22 +1231,22 @@ class DataMapper
      */
     private static function normalizeWildcardArray(array $array): array
     {
-        $normalized = [];
-        foreach ($array as $key => $value) {
-            if (is_string($key) && str_contains($key, '.') && preg_match(
-                '/(?:^|\.)((?:0|[1-9]\d*))(?:\.|$)/',
-                $key,
-                $matches
-            ) === 1) {
-                $index = (int)$matches[1];
-                $normalized[$index] = $value;
+        // If dot-path keys are present, flatten to a simple list preserving order.
+        // This avoids collisions when multiple wildcards are used in a single path
+        // (e.g., departments.*.users.*.email), where collapsing to a single numeric
+        // index would overwrite values.
+        foreach ($array as $key => $_) {
+            if (is_string($key) && str_contains($key, '.')) {
+                $list = [];
+                foreach ($array as $value) {
+                    $list[] = $value;
+                }
 
-                continue;
+                return $list;
             }
-            $normalized[$key] = $value;
         }
 
-        return $normalized;
+        return $array;
     }
 
     /**
