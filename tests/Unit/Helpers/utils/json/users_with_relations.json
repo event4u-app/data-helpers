@@ -1,0 +1,20 @@
+{
+  "company": {
+    "departments": [
+      {
+        "name": "Engineering",
+        "users": [
+          {"email": "alice@example.com", "profile": {"address": {"city": "Berlin"}}}
+        ]
+      },
+      {
+        "name": "Sales",
+        "users": [
+          {"email": "cara@example.com", "profile": {"address": {"city": "K\u00f6ln"}}},
+          {"email": null, "profile": {"address": {"city": "Hamburg"}}}
+        ]
+      }
+    ]
+  }
+}
+

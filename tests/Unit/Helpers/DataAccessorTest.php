@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Helpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
-describe('DataAccessor', function(): void {
-    describe('Constructor', function(): void {
-        test('works with array input', function(): void {
+describe('DataAccessor', function (): void {
+    describe('Constructor', function (): void {
+        test('works with array input', function (): void {
             $data = [
                 'name' => 'Alice',
                 'age' => 30,
@@ -19,7 +19,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->toArray())->toBe($data);
         });
 
-        test('works with scalar values', function(): void {
+        test('works with scalar values', function (): void {
             $accessor = new DataAccessor('test');
             expect($accessor->toArray())->toBe(['test']);
 
@@ -30,7 +30,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->toArray())->toBe([true]);
         });
 
-        test('works with valid JSON string', function(): void {
+        test('works with valid JSON string', function (): void {
             $json = '{"name": "Alice", "age": 30}';
             $accessor = new DataAccessor($json);
 
@@ -40,14 +40,14 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('treats invalid JSON as plain string', function(): void {
+        test('treats invalid JSON as plain string', function (): void {
             $invalidJson = '{"name": "Alice", "age":}';
             $accessor = new DataAccessor($invalidJson);
 
             expect($accessor->toArray())->toBe([$invalidJson]);
         });
 
-        test('works with valid XML string', function(): void {
+        test('works with valid XML string', function (): void {
             $xml = '<root><name>Alice</name><age>30</age></root>';
             $accessor = new DataAccessor($xml);
 
@@ -58,14 +58,14 @@ describe('DataAccessor', function(): void {
             expect($result['age'])->toBe('30');
         });
 
-        test('treats invalid XML as plain string', function(): void {
+        test('treats invalid XML as plain string', function (): void {
             $invalidXml = '<root><name>Alice</name><age>30</root>';
             $accessor = new DataAccessor($invalidXml);
 
             expect($accessor->toArray())->toBe([$invalidXml]);
         });
 
-        test('works with Arrayable objects', function(): void {
+        test('works with Arrayable objects', function (): void {
             $arrayable = new class implements Arrayable {
                 public function toArray(): array
                 {
@@ -83,7 +83,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('works with JsonSerializable objects', function(): void {
+        test('works with JsonSerializable objects', function (): void {
             $jsonSerializable = new class implements JsonSerializable {
                 /** @return array<string, mixed> */
                 public function jsonSerialize(): array
@@ -102,7 +102,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('works with stdClass objects', function(): void {
+        test('works with stdClass objects', function (): void {
             $obj = new stdClass();
             $obj->name = 'Charlie';
             $obj->age = 35;
@@ -114,7 +114,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('works with Collections', function(): void {
+        test('works with Collections', function (): void {
             $collection = collect([
                 [
                     'name' => 'Alice',
@@ -139,7 +139,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('works with Laravel Models', function(): void {
+        test('works with Laravel Models', function (): void {
             $model = new class extends Model {
                 /** @var array<string, mixed> */
                 protected $attributes = [
@@ -157,7 +157,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('works with nested Collections', function(): void {
+        test('works with nested Collections', function (): void {
             $collection = collect([
                 'users' => collect([
                     [
@@ -183,8 +183,8 @@ describe('DataAccessor', function(): void {
         });
     });
 
-    describe('Get method - Basic functionality', function(): void {
-        test('can get simple paths', function(): void {
+    describe('Get method - Basic functionality', function (): void {
+        test('can get simple paths', function (): void {
             $data = [
                 'name' => 'Alice',
                 'age' => 30,
@@ -195,7 +195,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->get('age'))->toBe(30);
         });
 
-        test('can get nested paths', function(): void {
+        test('can get nested paths', function (): void {
             $data = [
                 'user' => [
                     'profile' => [
@@ -210,7 +210,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->get('user.profile.age'))->toBe(30);
         });
 
-        test('returns default value for non-existent paths', function(): void {
+        test('returns default value for non-existent paths', function (): void {
             $data = [
                 'name' => 'Alice',
             ];
@@ -222,8 +222,8 @@ describe('DataAccessor', function(): void {
         });
     });
 
-    describe('Get method - Wildcard functionality', function(): void {
-        test('works with single wildcard', function(): void {
+    describe('Get method - Wildcard functionality', function (): void {
+        test('works with single wildcard', function (): void {
             $data = [
                 'users' => [
                     [
@@ -247,7 +247,7 @@ describe('DataAccessor', function(): void {
             expect($result)->toBe($expected);
         });
 
-        test('works with multiple wildcards', function(): void {
+        test('works with multiple wildcards', function (): void {
             $data = [
                 'orders' => [
                     [
@@ -287,7 +287,7 @@ describe('DataAccessor', function(): void {
             expect($result)->toBe($expected);
         });
 
-        test('returns null for wildcard on non-array', function(): void {
+        test('returns null for wildcard on non-array', function (): void {
             $data = [
                 'user' => 'Alice',
             ];
@@ -297,7 +297,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->get('user.*', 'default'))->toBe('default');
         });
 
-        test('returns empty array for wildcard on empty array', function(): void {
+        test('returns empty array for wildcard on empty array', function (): void {
             $data = [
                 'users' => [],
             ];
@@ -307,7 +307,7 @@ describe('DataAccessor', function(): void {
             expect($result)->toBe([]);
         });
 
-        test('works with wildcard at root level', function(): void {
+        test('works with wildcard at root level', function (): void {
             $data = [
                 'Alice',
                 'Bob',
@@ -325,7 +325,7 @@ describe('DataAccessor', function(): void {
             expect($result)->toBe($expected);
         });
 
-        test('works with complex nested structures', function(): void {
+        test('works with complex nested structures', function (): void {
             $data = [
                 'companies' => [
                     [
@@ -369,7 +369,7 @@ describe('DataAccessor', function(): void {
             expect($result)->toBe($expected);
         });
 
-        test('works with mixed key types', function(): void {
+        test('works with mixed key types', function (): void {
             $data = [
                 'users' => [
                     'admin' => [
@@ -396,8 +396,8 @@ describe('DataAccessor', function(): void {
         });
     });
 
-    describe('Get method - Return type behavior', function(): void {
-        test('non-wildcard paths return scalar values', function(): void {
+    describe('Get method - Return type behavior', function (): void {
+        test('non-wildcard paths return scalar values', function (): void {
             $data = [
                 'users' => [
                     [
@@ -410,7 +410,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->get('users.0.name'))->toBe('Alice');
         });
 
-        test('wildcard paths always return arrays', function(): void {
+        test('wildcard paths always return arrays', function (): void {
             $data = [
                 'users' => [
                     [
@@ -428,8 +428,8 @@ describe('DataAccessor', function(): void {
         });
     });
 
-    describe('Get method - Special values', function(): void {
-        test('handles null values correctly', function(): void {
+    describe('Get method - Special values', function (): void {
+        test('handles null values correctly', function (): void {
             $data = [
                 'users' => [
                     [
@@ -453,7 +453,7 @@ describe('DataAccessor', function(): void {
             expect($result)->toBe($expected);
         });
 
-        test('handles boolean and numeric values correctly', function(): void {
+        test('handles boolean and numeric values correctly', function (): void {
             $data = [
                 'settings' => [
                     [
@@ -483,8 +483,8 @@ describe('DataAccessor', function(): void {
         });
     });
 
-    describe('toArray method', function(): void {
-        test('returns original data unchanged', function(): void {
+    describe('toArray method', function (): void {
+        test('returns original data unchanged', function (): void {
             $data = [
                 'users' => [
                     [
@@ -503,8 +503,8 @@ describe('DataAccessor', function(): void {
         });
     });
 
-    describe('Collection and Model support', function(): void {
-        test('can access Collection data with wildcards', function(): void {
+    describe('Collection and Model support', function (): void {
+        test('can access Collection data with wildcards', function (): void {
             $collection = collect([
                 [
                     'name' => 'Alice',
@@ -526,7 +526,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('can access nested Collections', function(): void {
+        test('can access nested Collections', function (): void {
             $data = [
                 'departments' => collect([
                     [
@@ -560,7 +560,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('can access Laravel Model attributes', function(): void {
+        test('can access Laravel Model attributes', function (): void {
             $model = new class extends Model {
                 /** @var array<string, mixed> */
                 protected $attributes = [
@@ -579,7 +579,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->get('user.profile.city'))->toBe('Berlin');
         });
 
-        test('can access Models with wildcards', function(): void {
+        test('can access Models with wildcards', function (): void {
             $models = [
                 new class extends Model {
                     /** @var array<string, mixed> */
@@ -607,7 +607,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('can traverse Collection with numeric keys', function(): void {
+        test('can traverse Collection with numeric keys', function (): void {
             $collection = collect([
                 'first' => [
                     'value' => 1,
@@ -626,7 +626,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->get('0.value'))->toBe(3);
         });
 
-        test('handles Collection with has() method', function(): void {
+        test('handles Collection with has() method', function (): void {
             $collection = collect([
                 'name' => 'Alice',
                 'age' => 30,
@@ -639,8 +639,8 @@ describe('DataAccessor', function(): void {
         });
     });
 
-    describe('Deep Wildcards and Complex Structures', function(): void {
-        test('handles deep wildcards with Collections and Models', function(): void {
+    describe('Deep Wildcards and Complex Structures', function (): void {
+        test('handles deep wildcards with Collections and Models', function (): void {
             $data = [
                 'companies' => collect([
                     [
@@ -675,7 +675,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('handles mixed Collection and array structures', function(): void {
+        test('handles mixed Collection and array structures', function (): void {
             $data = [
                 'regions' => collect([
                     [
@@ -704,7 +704,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('handles empty Collections in wildcard paths', function(): void {
+        test('handles empty Collections in wildcard paths', function (): void {
             $data = [
                 'groups' => collect([
                     [
@@ -726,7 +726,7 @@ describe('DataAccessor', function(): void {
             ]);
         });
 
-        test('handles Collection with non-array elements', function(): void {
+        test('handles Collection with non-array elements', function (): void {
             $collection = collect([
                 [
                     'data' => collect([

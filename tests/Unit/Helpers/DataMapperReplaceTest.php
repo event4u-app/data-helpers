@@ -2,27 +2,29 @@
 
 declare(strict_types=1);
 
-use App\Helpers\DataMapper;
+use event4u\DataHelpers\DataMapper;
 
-test('case-insensitive replaces work when enabled via map parameter', function(): void {
+test('case-insensitive replaces work when enabled via map parameter', function (): void {
     $source = [
         'order' => [
             'status' => 'bezahlt',
         ],
     ];
 
-    $result = DataMapper::map(null, [], [[
-        'source' => $source,
-        'target' => [],
-        'mapping' => [
-            'order.status' => 'dto.paymentStatus',
-        ],
-        'replaces' => [
-            'order.status' => [
-                'BEZAHLT' => 'PAID',
+    $result = DataMapper::map(null, [], [
+        [
+            'source' => $source,
+            'target' => [],
+            'mapping' => [
+                'order.status' => 'dto.paymentStatus',
+            ],
+            'replaces' => [
+                'order.status' => [
+                    'BEZAHLT' => 'PAID',
+                ],
             ],
         ],
-    ]], true, false, [], true, true);
+    ], true, false, [], true, true);
 
     expect($result)->toBe([
         'dto' => [
@@ -31,25 +33,27 @@ test('case-insensitive replaces work when enabled via map parameter', function()
     ]);
 });
 
-test('trim-before-replace is applied globally (default true)', function(): void {
+test('trim-before-replace is applied globally (default true)', function (): void {
     $source = [
         'order' => [
             'status' => ' bezahlt ',
         ],
     ];
 
-    $result = DataMapper::map(null, [], [[
-        'source' => $source,
-        'target' => [],
-        'mapping' => [
-            'order.status' => 'dto.paymentStatus',
-        ],
-        'replaces' => [
-            'order.status' => [
-                'bezahlt' => 'PAID',
+    $result = DataMapper::map(null, [], [
+        [
+            'source' => $source,
+            'target' => [],
+            'mapping' => [
+                'order.status' => 'dto.paymentStatus',
+            ],
+            'replaces' => [
+                'order.status' => [
+                    'bezahlt' => 'PAID',
+                ],
             ],
         ],
-    ]]);
+    ]);
 
     expect($result)->toBe([
         'dto' => [
@@ -58,8 +62,8 @@ test('trim-before-replace is applied globally (default true)', function(): void 
     ]);
 });
 
-describe('Replace', function(): void {
-    test('structured associative mapping supports replaces keyed by source path', function(): void {
+describe('Replace', function (): void {
+    test('structured associative mapping supports replaces keyed by source path', function (): void {
         $source = [
             'order' => [
                 'status' => 'bezahlt',
@@ -67,22 +71,24 @@ describe('Replace', function(): void {
             ],
         ];
 
-        $result = DataMapper::map(null, [], [[
-            'source' => $source,
-            'target' => [],
-            'mapping' => [
-                'order.status' => 'dto.paymentStatus',
-                'order.state' => 'dto.orderState',
-            ],
-            'replaces' => [
-                'order.status' => [
-                    'bezahlt' => 'PAID',
+        $result = DataMapper::map(null, [], [
+            [
+                'source' => $source,
+                'target' => [],
+                'mapping' => [
+                    'order.status' => 'dto.paymentStatus',
+                    'order.state' => 'dto.orderState',
                 ],
-                'order.state' => [
-                    'offen' => 'OPEN',
+                'replaces' => [
+                    'order.status' => [
+                        'bezahlt' => 'PAID',
+                    ],
+                    'order.state' => [
+                        'offen' => 'OPEN',
+                    ],
                 ],
             ],
-        ]]);
+        ]);
 
         expect($result)->toBe([
             'dto' => [
@@ -92,7 +98,7 @@ describe('Replace', function(): void {
         ]);
     });
 
-    test('structured list-of-pairs supports replaces aligned by index', function(): void {
+    test('structured list-of-pairs supports replaces aligned by index', function (): void {
         $source = [
             'order' => [
                 'status' => 'bezahlt',
@@ -100,22 +106,24 @@ describe('Replace', function(): void {
             ],
         ];
 
-        $result = DataMapper::map(null, [], [[
-            'source' => $source,
-            'target' => [],
-            'mapping' => [
-                ['order.status', 'dto.paymentStatus'],
-                ['order.state', 'dto.orderState'],
-            ],
-            'replaces' => [
-                [
-                    'bezahlt' => 'PAID',
+        $result = DataMapper::map(null, [], [
+            [
+                'source' => $source,
+                'target' => [],
+                'mapping' => [
+                    ['order.status', 'dto.paymentStatus'],
+                    ['order.state', 'dto.orderState'],
                 ],
-                [
-                    'offen' => 'OPEN',
+                'replaces' => [
+                    [
+                        'bezahlt' => 'PAID',
+                    ],
+                    [
+                        'offen' => 'OPEN',
+                    ],
                 ],
             ],
-        ]]);
+        ]);
 
         expect($result)->toBe([
             'dto' => [
@@ -125,7 +133,7 @@ describe('Replace', function(): void {
         ]);
     });
 
-    test('replaces apply to each wildcard element and respect skipNull/reindex', function(): void {
+    test('replaces apply to each wildcard element and respect skipNull/reindex', function (): void {
         $source = [
             'items' => [
                 [
@@ -140,20 +148,22 @@ describe('Replace', function(): void {
             ],
         ];
 
-        $result = DataMapper::map(null, [], [[
-            'source' => $source,
-            'target' => [],
-            'sourceMapping' => ['items.*.state'],
-            'targetMapping' => ['result.*'],
-            'skipNull' => true,
-            'reindexWildcard' => true,
-            'replaces' => [
-                [
-                    'bezahlt' => 'PAID',
-                    'offen' => 'OPEN',
+        $result = DataMapper::map(null, [], [
+            [
+                'source' => $source,
+                'target' => [],
+                'sourceMapping' => ['items.*.state'],
+                'targetMapping' => ['result.*'],
+                'skipNull' => true,
+                'reindexWildcard' => true,
+                'replaces' => [
+                    [
+                        'bezahlt' => 'PAID',
+                        'offen' => 'OPEN',
+                    ],
                 ],
             ],
-        ]]);
+        ]);
 
         expect($result)->toBe([
             'result' => ['PAID', 'OPEN'],

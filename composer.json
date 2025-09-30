@@ -19,11 +19,11 @@
   "require": {
     "php": "^8.1 || ^8.2 || ^8.3 || ^8.4 || ^8.5",
     "composer-plugin-api": "^2.0",
-    "laravel/framework": "^8 || ^9 || ^10 || ^11 || ^11"
+    "laravel/framework": "^8 || ^9 || ^10 || ^11 || ^12"
   },
   "require-dev": {
-    "composer/composer": "^2.0",
-    "phpunit/phpunit": "^10.5"
+    "composer/composer": "^2",
+    "pestphp/pest": "^3"
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
@@ -48,5 +48,10 @@
   ],
   "scripts": {
     "test": "vendor/bin/phpunit"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
   }
 }
