@@ -139,7 +139,7 @@ class DataAccessor implements Arrayable
             if ($current instanceof Collection) {
                 $current = $current->all();
             } elseif ($current instanceof Model) {
-                $current = $current->toArray();
+                $current = $current->getAttributes();
             }
 
             if (!is_array($current)) {
