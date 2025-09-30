@@ -267,31 +267,6 @@ Alternatively, pass a simple associative array keyed by enum name.
 - trimValues (default true): trim strings prior to replace logic
 - caseInsensitiveReplace (default false): use case-insensitive search for replacements
 
-## API Overview
-
-- `event4u\DataHelpers\DataAccessor`
-    - `__construct(mixed $input)`
-    - `get(string $path, mixed $default = null): mixed`
-    - `toArray(): array`
-- `event4u\DataHelpers\DataMutator`
-    - `set(array|object $target, array|string $pathOrValues, mixed $value = null, bool $merge = false): array|object`
-    - `merge(array|object $target, array|string $pathOrValues, mixed $value = null): array|object`
-    - `unset(array|object $target, array|string $paths): array|object`
-- `event4u\DataHelpers\DataMapper`
-  -
-  `map(mixed $source, mixed $target, array $mapping, bool $skipNull = true, bool $reindexWildcard = false, array $hooks = [], bool $trimValues = true, bool $caseInsensitiveReplace = false): mixed`
-  -
-  `mapMany(array $mappings, bool $skipNull = true, bool $reindexWildcard = false, array $hooks = [], bool $trimValues = true, bool $caseInsensitiveReplace = false): array`
-  -
-  `autoMap(mixed $source, mixed $target, bool $skipNull = true, bool $reindexWildcard = false, array $hooks = [], bool $trimValues = true, bool $caseInsensitiveReplace = false): mixed`
-    - `mapFromTemplate(array|string $template, array $sources, bool $skipNull = true, bool $reindexWildcard = false): array`
-    -
-  `mapToTargetsFromTemplate(array|string $data, array|string $template, array $targets, bool $skipNull = true, bool $reindexWildcard = false): array`
-- `event4u\DataHelpers\DataMapperHooks`
-    - Fluent builder to create hook arrays for DataMapper
-- `event4u\DataHelpers\Enums\DataMapperHook`
-    - Enum cases like `BeforeAll`, `BeforePair`, `PreTransform`, `PostTransform`, `BeforeWrite`, `AfterWrite`
-
 ## Contributing
 
 - Issues and PRs welcome.

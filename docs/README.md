@@ -11,10 +11,10 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 
 ## Quick links
 
-- Accessor: [data-accessor.md](./data-accessor.md)
-- Mutator: [data-mutator.md](./data-mutator.md)
-- Mapper:  [data-mapper.md](./data-mapper.md)
-- Dot Path syntax: [dot-path.md](./dot-path.md)
+- Accessor: [data-accessor.md](data-accessor.md)
+- Mutator: [data-mutator.md](data-mutator.md)
+- Mapper:  [data-mapper.md](data-mapper.md)
+- Dot Path syntax: [dot-path.md](dot-path.md)
 
 ## At a glance
 
@@ -30,8 +30,6 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 - Template-based mapping from named sources (build structures)
 - Inverse template mapping to named targets (apply values into DTOs/Models/arrays)
 - Auto-map by matching names (shallow and deep modes)
-
-
 
 ## Conventions
 
