@@ -37,6 +37,16 @@ Features at a glance:
 - [Contributing](#contributing)
 - [License](#license)
 
+**📖 Full documentation with extensive examples:**
+
+- [Data Accessor](docs/data-handling/data-accessor.md) – Read nested data with wildcards, Collections, and Models
+- [Data Mutator](docs/data-handling/data-mutator.md) – Write, merge, and unset nested values with wildcards
+- [Data Mapper](docs/data-handling/data-mapper.md) – Map between structures with templates, transforms, and hooks
+- [Dot-Path Syntax](docs/data-handling/dot-path.md) – Path notation reference and best practices
+
+💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (snake_case → camelCase), value
+replacement, hooks, and common patterns for each helper.
+
 ## Requirements
 
 - PHP: 8.1 - 8.5
