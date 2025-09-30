@@ -1,0 +1,37 @@
+# editors/ides
+/.fleet
+/.idea
+/.vscode
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.nx
+
+# system files
+.DS_Store
+Thumbs.db
+
+# composer stuff
+/vendor
+composer.phar
+composer.lock
+auth.json
+
+# minicli stuff
+/bin/app/config/
+/bin/app/logs/
+
+# php-cs-fixer
+.php-cs-fixer.cache
+
+# phpactor stuff
+.phpactor.json
+.phpactor.schema.json
+
+## devcontainer secrets
+/**/.secrets/**/*
+!/**/.secrets/.gitkeep
+

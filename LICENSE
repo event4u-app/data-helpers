@@ -1,0 +1,51 @@
+PROPRIETARY LICENSE
+
+Copyright (c) 2025 Galawork - Mathias Berg
+All rights reserved.
+
+TERMS AND CONDITIONS
+
+1. OWNERSHIP
+   This software and associated documentation files (the "Software") are the 
+   exclusive property of Galawork and Mathias Berg. All rights, title, and 
+   interest in and to the Software remain with the copyright holder.
+
+2. PERMITTED USE
+   This Software is licensed for use within Galawork projects and by authorized 
+   Galawork team members only. Any use outside of this scope requires explicit 
+   written permission from the copyright holder.
+
+3. RESTRICTIONS
+   You may NOT:
+   - Distribute, sublicense, or sell copies of the Software
+   - Modify, adapt, or create derivative works based on the Software
+   - Reverse engineer, decompile, or disassemble the Software
+   - Remove or alter any copyright notices or proprietary legends
+   - Use the Software for commercial purposes outside of Galawork
+
+4. INTERNAL USE
+   Authorized users may:
+   - Use the Software for internal Galawork projects
+   - Install the Software on development and production systems
+   - Share the Software with other authorized Galawork team members
+
+5. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+6. TERMINATION
+   This license is effective until terminated. Your rights under this license 
+   will terminate automatically without notice if you fail to comply with any 
+   term(s) of this license.
+
+7. CONTACT
+   For permissions beyond the scope of this license, contact:
+   Mathias Berg - m.berg@galawork.de
+
+This license governs use of the accompanying software. If you use the software, 
+you accept this license. If you do not accept the license, do not use the software.
