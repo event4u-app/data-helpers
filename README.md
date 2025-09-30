@@ -7,16 +7,6 @@
 High-level, well-tested helpers for structured data access, mutation, and mapping using dot-notation paths with wildcard support. Works with
 arrays, DTOs/objects, Laravel Collections, Eloquent Models, JSON, and XML.
 
-**📖 Full documentation with extensive examples:**
-
-- [Data Accessor](docs/data-accessor.md) – Read nested data with wildcards, Collections, and Models
-- [Data Mutator](docs/data-mutator.md) – Write, merge, and unset nested values with wildcards
-- [Data Mapper](docs/data-mapper.md) – Map between structures with templates, transforms, and hooks
-- [Dot-Path Syntax](docs/dot-path.md) – Path notation reference and best practices
-
-💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (snake_case → camelCase), value
-replacement, hooks, and common patterns for each helper.
-
 Features at a glance:
 
 - Dot-notation paths with deep multi-level wildcards (e.g. `users.*.profile.*.city`)
