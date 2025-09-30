@@ -51,6 +51,67 @@ This is consumed by Mapper/Mutator to expand corresponding `*` in target paths.
 
 - Paths with dots in actual keys are not supported via escaping; prefer structured mappings or pass through objects where appropriate.
 
+## Examples
+
+### Simple path
+
+```
+'user.profile.name' // Accesses $data['user']['profile']['name']
+```
+
+### Numeric index
+
+```
+'users.0.email' // Accesses $data['users'][0]['email']
+```
+
+### Single wildcard
+
+```
+'users.*.email' // Matches all emails in users array
+// Returns: ['users.0.email' => 'a@x', 'users.1.email' => 'b@x']
+```
+
+### Deep wildcards
+
+```
+'orders.*.items.*.sku' // Matches all SKUs in all items across all orders
+// Returns: ['orders.0.items.0.sku' => 'A', 'orders.0.items.1.sku' => 'B', 'orders.1.items.0.sku' => 'C']
+```
+
+### Root-level index
+
+```
+'0.name' // Accesses $data[0]['name'] when $data is a numeric array
+```
+
+## Edge cases
+
+### Empty path
+
+An empty path `""` is allowed and yields no segments. Accessor returns the entire data structure.
+
+```php
+$accessor = new DataAccessor(['a' => 1]);
+$result = $accessor->get(''); // ['a' => 1]
+```
+
+### Invalid paths
+
+Paths with leading dots (`.a`), trailing dots (`a.`), or double dots (`a..b`) throw `InvalidArgumentException`.
+
+### Paths with literal dots
+
+Paths with dots in actual keys (e.g., `user.email.address` where `email.address` is a single key) are not supported via escaping. Use structured mappings or nested objects instead.
+
+## Best practices
+
+- **Use explicit indices**: For reproducible behavior in numeric arrays, prefer explicit indices (`users.0.email`) over wildcards when you know the index.
+- **Wildcards for bulk operations**: Use wildcards (`users.*.email`) when you need to extract or update multiple items at once.
+- **Deep wildcards**: Use deep wildcards (`orders.*.items.*.sku`) for complex nested structures, but be aware of performance implications on large datasets.
+- **Validate paths**: Always validate user-provided paths to avoid `InvalidArgumentException` at runtime.
+- **Template-based mapping**: For building new structures from multiple sources, use `mapFromTemplate()` instead of manual path construction.
+
 ## Recommendations
 
 - Prefer explicit indices for reproducible behavior in numeric arrays.

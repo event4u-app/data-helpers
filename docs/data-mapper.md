@@ -2,7 +2,7 @@
 
 Map values between structures using dot-paths and wildcards. Supports simple maps, structured maps, bulk mapping, and template-based mapping from named sources.
 
-Namespace: `App\Helpers\DataMapper`
+Namespace: `event4u\DataHelpers\DataMapper`
 
 ## Overview
 
@@ -488,6 +488,165 @@ $template = ['names' => 'src.users.*.name'];
 
 $out = DataMapper::mapFromTemplate($template, $sources, skipNull: true, reindexWildcard: true);
 // ['names' => ['A', 'B']]
+```
+
+## Best practices
+
+- **Start simple**: Begin with simple associative mappings before moving to structured or template-based approaches.
+- **Use templates for complex transformations**: When mapping from multiple sources or building complex nested structures, templates are clearer than manual mappings.
+- **Leverage hooks**: Use hooks for validation, logging, or custom transformations instead of post-processing.
+- **Prefer typed contexts**: When writing hooks, use the typed context classes (PairContext, WriteContext, etc.) for better IDE support.
+- **AutoMap for DTOs**: When mapping API responses to DTOs, autoMap with `deep: true` saves time and reduces boilerplate.
+- **Test edge cases**: Always test with null values, empty arrays, and missing paths to ensure your mappings handle edge cases gracefully.
+
+## Performance notes
+
+- Wildcards traverse all matching elements, so performance scales with the number of matches.
+- Deep wildcards can be expensive on large nested structures.
+- Hooks add overhead; use them judiciously for performance-critical code.
+- For very large datasets, consider batching operations or using direct array manipulation.
+
+## Common patterns
+
+### Map API response to DTO
+
+```php
+$apiResponse = ['user_name' => 'Alice', 'user_email' => 'alice@example.com'];
+$dto = new #[\AllowDynamicProperties] class {
+  public string $name = '';
+  public string $email = '';
+};
+
+$dto = DataMapper::autoMap($apiResponse, $dto, deep: false);
+// $dto->name === 'Alice', $dto->email === 'alice@example.com'
+```
+
+### Transform and validate with hooks
+
+```php
+use event4u\DataHelpers\Enums\DataMapperHook;
+
+$hooks = [
+  DataMapperHook::PreTransform->value => fn($v) => is_string($v) ? trim($v) : $v,
+  DataMapperHook::AfterWrite->value => function($ctx) {
+    if ($ctx->targetPath === 'email' && !filter_var($ctx->value, FILTER_VALIDATE_EMAIL)) {
+      throw new \InvalidArgumentException("Invalid email: {$ctx->value}");
+    }
+  },
+];
+
+$result = DataMapper::map($source, [], [['user.email' => 'email']], hooks: $hooks);
+```
+
+### Build from multiple sources
+
+```php
+$sources = [
+  'user' => User::first(),
+  'config' => ['currency' => 'EUR', 'timezone' => 'Europe/Berlin'],
+  'stats' => ['orders' => 42],
+];
+
+$template = [
+  'invoice' => [
+    'customer_name' => 'user.name',
+    'currency' => 'config.currency',
+    'total_orders' => 'stats.orders',
+  ],
+];
+
+$invoice = DataMapper::mapFromTemplate($template, $sources);
+```
+
+### Reindex wildcards for clean arrays
+
+```php
+$source = ['users' => [['email' => 'a@x'], ['email' => null], ['email' => 'b@x']]];
+$result = DataMapper::map($source, [], [['users.*.email' => 'emails.*']], skipNull: true, reindexWildcard: true);
+// ['emails' => ['a@x', 'b@x']] // Clean sequential array without gaps
+```
+
+## Troubleshooting
+
+### Null values not skipped
+
+**Problem**: Null values appear in the result even though `skipNull: true` is set.
+
+**Solution**: Ensure `skipNull: true` is passed to the mapping method. For structured mappings, check per-entry overrides.
+
+### Wildcard indices not reindexed
+
+**Problem**: Wildcard results have gaps (e.g., `[0 => 'a', 2 => 'b']`).
+
+**Solution**: Set `reindexWildcard: true` to get sequential indices (`[0 => 'a', 1 => 'b']`).
+
+### Hooks not firing
+
+**Problem**: Hooks are not being called during mapping.
+
+**Solution**: Verify hook keys match enum values (e.g., `DataMapperHook::PreTransform->value`). Use `DataMapperHooks::make()` builder for type safety.
+
+### Template aliases not resolved
+
+**Problem**: Template values appear as literal strings instead of resolved values.
+
+**Solution**: Ensure the alias prefix matches a key in the `$sources` array. Unknown aliases are treated as literals.
+
+## Additional examples
+
+### Chaining multiple mappings
+
+```php
+$step1 = DataMapper::map($source, [], [['a.b' => 'x.y']]);
+$step2 = DataMapper::map($step1, [], [['x.y' => 'final.value']]);
+```
+
+### Using hooks for logging
+
+```php
+$hooks = [
+  DataMapperHook::BeforeWrite->value => function($ctx) {
+    error_log("Writing {$ctx->value} to {$ctx->targetPath}");
+  },
+];
+
+$result = DataMapper::map($source, [], [['a' => 'b']], hooks: $hooks);
+```
+
+### Complex template with nested wildcards
+
+```php
+$sources = [
+  'orders' => [
+    'data' => [
+      ['id' => 1, 'items' => [['sku' => 'A', 'qty' => 2], ['sku' => 'B', 'qty' => 1]]],
+      ['id' => 2, 'items' => [['sku' => 'C', 'qty' => 3]]],
+    ],
+  ],
+];
+
+$template = [
+  'order_items' => 'orders.data.*.items.*.sku',
+];
+
+$result = DataMapper::mapFromTemplate($template, $sources, skipNull: true, reindexWildcard: true);
+// ['order_items' => ['A', 'B', 'C']]
+```
+
+### Conditional mapping with beforePair hook
+
+```php
+$hooks = [
+  DataMapperHook::BeforePair->value => function($ctx) {
+    // Skip mapping if source value is empty string
+    if ($ctx->sourceValue === '') {
+      return false; // Skip this pair
+    }
+  },
+];
+
+$result = DataMapper::map(['name' => '', 'email' => 'a@x'], [], [['name' => 'userName'], ['email' => 'userEmail']], hooks: $hooks);
+// ['userEmail' => 'a@x'] // 'name' was skipped
 ```
 
 ## Notes
