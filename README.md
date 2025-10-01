@@ -248,10 +248,10 @@ $result = DataMapper::map(
 Intercept mapping lifecycle events using enums and typed contexts.
 
 ```php
-use event4u\DataHelpers\DataMapperHooks;
+use event4u\DataHelpers\Hooks;
 use event4u\DataHelpers\Enums\DataMapperHook;
 
-$hooks = DataMapperHooks::make()
+$hooks = Hooks::make()
   ->on(DataMapperHook::BeforeAll, function ($ctx) {
       // $ctx is AllContext
   })

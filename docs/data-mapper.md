@@ -1,6 +1,7 @@
 # Data Mapper
 
-Map values between structures using dot-paths and wildcards. Supports simple maps, structured maps, bulk mapping, and template-based mapping from named sources.
+Map values between structures using dot-paths and wildcards. Supports simple maps, structured maps, bulk mapping, and template-based mapping
+from named sources.
 
 Namespace: `event4u\DataHelpers\DataMapper`
 
@@ -23,7 +24,6 @@ $result = DataMapper::map($source, [], [
 - Wildcard results are expanded into the target; see `reindexWildcard` option
 
 See API: [map](#map)
-
 
 2) Structured mapping entries:
 
@@ -113,8 +113,8 @@ Structured mappings can apply per-field transformations before writing to the ta
 - Provide a `transforms` array on each structured entry
 - For `sourceMapping`/`targetMapping`: use a list aligned by index
 - For `mapping`:
-  - Associative mapping: `transforms` can be associative keyed by source path, or a list aligned by iteration order
-  - List-of-pairs: `transforms` is a list aligned by pair index
+    - Associative mapping: `transforms` can be associative keyed by source path, or a list aligned by iteration order
+    - List-of-pairs: `transforms` is a list aligned by pair index
 - Transforms are callables (e.g. `'strtoupper'`, `['Class', 'method']`, or closures)
 - `skipNull` applies before and after transform: null inputs are skipped, and if a transform returns null it is skipped when `skipNull=true`
 
@@ -165,9 +165,9 @@ Structured mappings can perform value replacements after transforms and optional
 - Declare `replaces` on the structured entry
 - Works with both `sourceMapping`/`targetMapping` arrays and associative/list `mapping`
 - Matching rules:
-  - Exact match for `string|int` keys
-  - Case-insensitive string matching when `caseInsensitiveReplace=true` (map-level parameter)
-  - Arrays/objects are not replaced
+    - Exact match for `string|int` keys
+    - Case-insensitive string matching when `caseInsensitiveReplace=true` (map-level parameter)
+    - Arrays/objects are not replaced
 - Processing order per value: transform → trim (if `trimValues=true`) → replace → postTransform
 
 Example (associative mapping with case-insensitive replace):
@@ -181,7 +181,6 @@ DataMapper::map(null, [], [[
 ]], caseInsensitiveReplace: true);
 // => ['dto' => ['paymentStatus' => 'PAID']]
 ```
-
 
 - Wildcards in targets supported (e.g. `people.*.name`) with `skipNull`/`reindexWildcard`
 
@@ -205,7 +204,9 @@ Supported hook names and preferred signatures:
 - afterWrite: `function(array|object $target, App\Helpers\DataMapper\WriteContext $context, mixed $writtenValue): array|object`
 
 Context helpers and properties:
-- `$context->mode()` returns string; `$context->modeEnum()` returns enum `App\Helpers\DataMapper\Mode` (`Simple`, `Structured`, `StructuredAssoc`, `StructuredPairs`)
+
+- `$context->mode()` returns string; `$context->modeEnum()` returns enum `App\Helpers\DataMapper\Mode` (`Simple`, `Structured`,
+  `StructuredAssoc`, `StructuredPairs`)
 - `PairContext`: `pairIndex`, `srcPath()`, `tgtPath()`, `wildcardIndex`, `source`, `target`
 - `WriteContext`: adds `resolvedTargetPath`
 - `AllContext`: `mapping`, `source`, `target`
@@ -213,10 +214,11 @@ Context helpers and properties:
 - Access members directly via typed properties/methods, e.g. `$ctx->srcPath()` or `$ctx->mode()`
 
 Path-prefix filtering for hooks:
+
 - Provide hooks as an associative array with optional filters as keys:
-  - `src:<prefix>` applies only if `srcPath` matches the prefix (supports trailing `*`)
-  - `tgt:<prefix>` applies only if `tgtPath` matches the prefix (supports trailing `*`)
-  - `mode:<simple|structured|structured-assoc|structured-pairs>` restricts to a mapping mode
+    - `src:<prefix>` applies only if `srcPath` matches the prefix (supports trailing `*`)
+    - `tgt:<prefix>` applies only if `tgtPath` matches the prefix (supports trailing `*`)
+    - `mode:<simple|structured|structured-assoc|structured-pairs>` restricts to a mapping mode
 
 Example with typed contexts:
 
@@ -244,7 +246,8 @@ $hooks = [
 
 ### Safer hook names via enum
 
-Use the enum `App\\Enums\\DataMapperHook` to avoid typos in hook names. Arrays require string keys, so use `->value` when defining the hooks array.
+Use the enum `App\\Enums\\DataMapperHook` to avoid typos in hook names. Arrays require string keys, so use `->value` when defining the hooks
+array.
 
 ### Hook builder utility
 
@@ -256,11 +259,10 @@ Convenience methods help reduce boilerplate for common filters:
 - onForModeEnum(name, App\\Helpers\\DataMapper\\Mode::..., callable)
 - onForPrefix(name, '<prefix>', callable) // matches either srcPath or tgtPath once
 
-
 Example:
 
 ```php
-$hooks = DataMapperHooks::make()
+$hooks = Hooks::make()
   ->onForMode(DataMapperHook::BeforeAll, 'simple', fn(App\Helpers\DataMapper\AllContext $ctx) => null)
   ->onForSrc(DataMapperHook::BeforePair, 'user.name', fn(App\Helpers\DataMapper\PairContext $ctx) => false)
   ->onForTgt(DataMapperHook::BeforeWrite, 'profile.', fn($v, App\Helpers\DataMapper\WriteContext $ctx) => '__skip__')
@@ -271,28 +273,27 @@ $hooks = DataMapperHooks::make()
 use App\Enums\DataMapperHook;
 use App\Helpers\DataMapper\Mode;
 
-$hooks = DataMapperHooks::make()
+$hooks = Hooks::make()
   ->onForModeEnum(DataMapperHook::BeforeAll, Mode::Simple, fn(App\Helpers\DataMapper\AllContext $ctx) => null)
   ->toArray();
 ```
 
 ```php
 // Matches either srcPath or tgtPath with a single predicate (no double-calls)
-$hooks = DataMapperHooks::make()
+$hooks = Hooks::make()
   ->onForPrefix(DataMapperHook::PreTransform, 'users.*.email', fn($v) => is_string($v) ? strtoupper($v) : $v)
   ->onForPrefix(DataMapperHook::BeforeWrite, 'profile.', fn($v) => '__skip__')
   ->toArray();
 ```
 
-
 You can also build with enum keys using the helper and merge sets; later definitions override earlier ones.
 
 Notes:
+
 - Returning `false` from `beforeAll`, `beforeEntry`, or `beforePair` cancels the respective scope.
 - `beforeWrite` can return `'__skip__'` to skip writing the current value.
 - Hooks declared both globally and per-entry are merged; per-entry hooks run after globals.
 - Legacy array context remains supported for backward compatibility. Prefer typed contexts going forward.
-
 
 ## API
 
@@ -312,12 +313,12 @@ map(
 ```
 
 - `skipNull`: skip null values when reading source values
-- `reindexWildcard`: if true, wildcard expansions compact indices (0..n-1). If false, original numeric keys are preserved (e.g. `[0 => 'a', 2 => 'b']`).
+- `reindexWildcard`: if true, wildcard expansions compact indices (0..n-1). If false, original numeric keys are preserved (e.g.
+  `[0 => 'a', 2 => 'b']`).
 - `hooks`: typed hook callbacks as documented above
 - `trimValues` (default `true`): trims string values before replacement matching
 - `caseInsensitiveReplace` (default `false`): enables case-insensitive matching of string replacement keys
 - Structured entries can still override `skipNull`/`reindexWildcard`; see [Replace](#replace) for declaring `replaces` per entry.
-
 
 ### mapToTargetsFromTemplate
 
@@ -364,7 +365,6 @@ mapMany(
 - Global `hooks`, `trimValues`, `caseInsensitiveReplace` apply to all entries
 - Returns an array of updated targets
 
-
 ### autoMap
 
 ```php
@@ -398,8 +398,10 @@ mapFromTemplate(array|string $template, array $sources, bool $skipNull = true, b
 
 ## Wildcards
 
-- In simple/structured mappings, wildcard results from the source (e.g. `users.*.email`) are expanded into the target path's wildcard (e.g. `emails.*`).
-- By default, if a matched value is null and `skipNull=true`, the index is skipped and (unless `reindexWildcard=true`) the numeric position is preserved in the target (e.g. index 1 missing).
+- In simple/structured mappings, wildcard results from the source (e.g. `users.*.email`) are expanded into the target path's wildcard (e.g.
+  `emails.*`).
+- By default, if a matched value is null and `skipNull=true`, the index is skipped and (unless `reindexWildcard=true`) the numeric position
+  is preserved in the target (e.g. index 1 missing).
 
 ## Examples
 
@@ -438,7 +440,6 @@ $json = '{"emails":"src.users.*.email"}';
 DataMapper::mapFromTemplate($json, $sources, skipNull: true, reindexWildcard: true);
 // ['emails' => ['a@example.com', 'b@example.com']]
 ```
-
 
 ## Recipes
 
@@ -493,7 +494,8 @@ $out = DataMapper::mapFromTemplate($template, $sources, skipNull: true, reindexW
 ## Best practices
 
 - **Start simple**: Begin with simple associative mappings before moving to structured or template-based approaches.
-- **Use templates for complex transformations**: When mapping from multiple sources or building complex nested structures, templates are clearer than manual mappings.
+- **Use templates for complex transformations**: When mapping from multiple sources or building complex nested structures, templates are
+  clearer than manual mappings.
 - **Leverage hooks**: Use hooks for validation, logging, or custom transformations instead of post-processing.
 - **Prefer typed contexts**: When writing hooks, use the typed context classes (PairContext, WriteContext, etc.) for better IDE support.
 - **AutoMap for DTOs**: When mapping API responses to DTOs, autoMap with `deep: true` saves time and reduces boilerplate.
@@ -584,7 +586,7 @@ $result = DataMapper::map($source, [], [['users.*.email' => 'emails.*']], skipNu
 
 **Problem**: Hooks are not being called during mapping.
 
-**Solution**: Verify hook keys match enum values (e.g., `DataMapperHook::PreTransform->value`). Use `DataMapperHooks::make()` builder for type safety.
+**Solution**: Verify hook keys match enum values (e.g., `DataMapperHook::PreTransform->value`). Use `Hooks::make()` builder for type safety.
 
 ### Template aliases not resolved
 

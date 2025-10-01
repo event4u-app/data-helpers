@@ -8,12 +8,12 @@ use event4u\DataHelpers\DataMapper\AllContext;
 use event4u\DataHelpers\DataMapper\PairContext;
 use event4u\DataHelpers\DataMapper\WriteContext;
 use event4u\DataHelpers\DataMapper\Mode;
-use event4u\DataHelpers\DataMapperHooks;
+use event4u\DataHelpers\DataMapper\Hooks;
 
 /**
  * @internal
  */
-describe('DataMapperHooks Builder', function (): void {
+describe('DataMapper Hooks Builder', function (): void {
     test('fluent convenience methods onForSrc/onForTgt/onForMode work and integrate', function (): void {
         $src = [
             'user' => [
@@ -24,7 +24,7 @@ describe('DataMapperHooks Builder', function (): void {
 
         $beforeAllCount = 0;
 
-        $hooks = DataMapperHooks::make()
+        $hooks = Hooks::make()
             ->onForMode(DataMapperHook::BeforeAll, 'simple', function (AllContext $ctx) use (&$beforeAllCount): null {
                 $beforeAllCount++;
 
@@ -43,7 +43,7 @@ describe('DataMapperHooks Builder', function (): void {
             ->and($res)->not()->toHaveKey('profile');
     });
     test('build() accepts list-of-pairs with enum names and normalizes', function (): void {
-        $hooks = DataMapperHooks::build([
+        $hooks = Hooks::build([
             [
                 DataMapperHook::BeforeAll,
                 fn(AllContext $ctx): null => null,
@@ -67,7 +67,7 @@ describe('DataMapperHooks Builder', function (): void {
     });
 
     test('merge() merges shallowly and later overrides earlier', function (): void {
-        $a = DataMapperHooks::build([
+        $a = Hooks::build([
             [
                 DataMapperHook::PreTransform,
                 fn($v) => is_string($v) ? trim($v) : $v,
@@ -77,14 +77,14 @@ describe('DataMapperHooks Builder', function (): void {
                 fn($v) => $v,
             ],
         ]);
-        $b = DataMapperHooks::build([
+        $b = Hooks::build([
             [
                 DataMapperHook::BeforeWrite,
                 fn($v) => '' === $v ? '__skip__' : $v,
             ],
         ]);
 
-        $merged = DataMapperHooks::merge($a, $b);
+        $merged = Hooks::merge($a, $b);
 
         expect($merged)
             ->toHaveKey('preTransform')
@@ -95,7 +95,7 @@ describe('DataMapperHooks Builder', function (): void {
     });
 
     test('fluent make()/on()/onMany()/mergeIn()/toArray()', function (): void {
-        $builder = DataMapperHooks::make()
+        $builder = Hooks::make()
             ->on(DataMapperHook::BeforeAll, fn(AllContext $ctx): null => null)
             ->onMany([
                 [
@@ -106,7 +106,7 @@ describe('DataMapperHooks Builder', function (): void {
                 ],
             ])
             ->mergeIn(
-                DataMapperHooks::build([
+                Hooks::build([
                     [
                         DataMapperHook::AfterWrite,
                         fn(WriteContext $ctx, mixed $written, array|object $target): array|object => $target,
@@ -136,7 +136,7 @@ describe('DataMapperHooks Builder', function (): void {
         ];
         $tgt = [];
 
-        $hooks = DataMapperHooks::make()
+        $hooks = Hooks::make()
             ->on(DataMapperHook::PreTransform, fn($v) => is_string($v) ? trim($v) : $v)
             ->on(DataMapperHook::BeforeWrite, fn($v) => '' === $v ? '__skip__' : $v)
             ->toArray();
@@ -159,7 +159,7 @@ describe('DataMapperHooks Builder', function (): void {
         $tgt = [];
 
         $count = 0;
-        $hooks = DataMapperHooks::make()
+        $hooks = Hooks::make()
             ->onForModeEnum(DataMapperHook::BeforeAll, Mode::Simple, function (AllContext $ctx) use (&$count): null {
                 $count++;
 
@@ -187,7 +187,7 @@ describe('DataMapperHooks Builder', function (): void {
         $tgt = [];
 
         $calls = 0;
-        $hooks = DataMapperHooks::make()
+        $hooks = Hooks::make()
             ->onForPrefix(DataMapperHook::PostTransform, 'users.*.email', function ($v) use (&$calls) {
                 $calls++;
 
@@ -212,7 +212,7 @@ describe('DataMapperHooks Builder', function (): void {
         ];
         $tgt = [];
 
-        $hooks = DataMapperHooks::make()
+        $hooks = Hooks::make()
             ->onForPrefix(DataMapperHook::BeforeWrite, 'profile.', fn($v): string => '__skip__')
             ->toArray();
 
