@@ -30,8 +30,7 @@
   "conflict": {},
   "autoload": {
     "psr-4": {
-      "event4u\\DataHelpers\\": "src/",
-      "Examples\\": "examples/"
+      "event4u\\DataHelpers\\": "src/"
     },
     "files": []
   },
