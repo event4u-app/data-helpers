@@ -6,9 +6,15 @@ namespace event4u\DataHelpers;
 
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\DataMapper\AllContext;
+use event4u\DataHelpers\DataMapper\AutoMapper;
 use event4u\DataHelpers\DataMapper\EntryContext;
 use event4u\DataHelpers\DataMapper\HookContext;
+use event4u\DataHelpers\DataMapper\HookInvoker;
+use event4u\DataHelpers\DataMapper\MappingEngine;
 use event4u\DataHelpers\DataMapper\PairContext;
+use event4u\DataHelpers\DataMapper\TemplateMapper;
+use event4u\DataHelpers\DataMapper\ValueTransformer;
+use event4u\DataHelpers\DataMapper\WildcardHandler;
 use event4u\DataHelpers\DataMapper\WriteContext;
 use Illuminate\Contracts\Support\Arrayable;
 use InvalidArgumentException;
@@ -64,14 +70,14 @@ class DataMapper
         assert(is_array($target) || is_object($target));
 
         // Normalize enum keys (if any) to string names
-        $hooks = self::normalizeHooks($hooks);
+        $hooks = HookInvoker::normalizeHooks($hooks);
 
         // Case 1: simple path-to-path mapping like ['a.b' => 'x.y']
-        if (self::isSimpleMapping($mapping)) {
+        if (MappingEngine::isSimpleMapping($mapping)) {
             $accessor = new DataAccessor($source);
 
             // Global hook: beforeAll
-            self::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
+            HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
 
             $mappingIndex = 0;
             foreach ($mapping as $sourcePath => $targetPath) {
@@ -83,7 +89,7 @@ class DataMapper
                     $source,
                     $target
                 );
-                if (self::invokeHooks($hooks, 'beforePair', $pairContext) === false) {
+                if (HookInvoker::invokeHooks($hooks, 'beforePair', $pairContext) === false) {
                     $mappingIndex++;
 
                     continue;
@@ -99,20 +105,22 @@ class DataMapper
                 }
 
                 // preTransform
-                $value = self::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
+                $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
 
                 // Handle wildcard values (always arrays with dot-path keys)
                 if (is_array($value) && str_contains((string)$sourcePath, '*')) {
-                    self::iterateWildcardItems(
+                    // Normalize wildcard array (flatten dot-path keys to simple list)
+                    $value = WildcardHandler::normalizeWildcardArray($value);
+                    WildcardHandler::iterateWildcardItems(
                         $value,
                         $skipNull,
                         $reindexWildcard,
-                        function(int $_i, string $reason) use (&$mappingIndex): void {
+                        function(int|string $_i, string $reason) use (&$mappingIndex): void {
                             if ('null' === $reason) {
                                 $mappingIndex++;
                             }
                         },
-                        function(int $wildcardIndex, mixed $itemValue) use (
+                        function(int|string $wildcardIndex, mixed $itemValue) use (
                             &$target,
                             $hooks,
                             $pairContext,
@@ -122,7 +130,7 @@ class DataMapper
                             $mappingIndex
                         ): bool {
                             $pairContext->wildcardIndex = $wildcardIndex;
-                            $itemValue = self::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
+                            $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
                             $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, (string)$targetPath, 1);
                             $writeContext = new WriteContext(
                                 'simple',
@@ -134,22 +142,22 @@ class DataMapper
                                 (string)$resolvedTargetPath,
                                 $wildcardIndex
                             );
-                            $writeValue = self::invokeValueHook($hooks, 'beforeWrite', $writeContext, $itemValue);
+                            $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $itemValue);
                             if ('__skip__' === $writeValue) {
                                 return false;
                             }
                             $target = DataMutator::set(
-                                self::asTarget($target),
+                                MappingEngine::asTarget($target),
                                 (string)$resolvedTargetPath,
                                 $writeValue
                             );
-                            $target = self::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                            $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
 
                             return true;
                         }
                     );
                 } else {
-                    $value = self::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
+                    $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
                     $writeContext = new WriteContext(
                         'simple',
                         $mappingIndex,
@@ -159,24 +167,24 @@ class DataMapper
                         $target,
                         (string)$targetPath
                     );
-                    $writeValue = self::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
+                    $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
                     if ('__skip__' !== $writeValue) {
-                        $target = DataMutator::set(self::asTarget($target), (string)$targetPath, $writeValue);
-                        $target = self::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                        $target = DataMutator::set(MappingEngine::asTarget($target), (string)$targetPath, $writeValue);
+                        $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
                     }
                 }
 
-                self::invokeHooks($hooks, 'afterPair', $pairContext);
+                HookInvoker::invokeHooks($hooks, 'afterPair', $pairContext);
                 $mappingIndex++;
             }
 
-            self::invokeHooks($hooks, 'afterAll', new AllContext('simple', $mapping, $source, $target));
+            HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('simple', $mapping, $source, $target));
 
             return $target;
         }
 
         // Global hook: beforeAll for structured mode
-        self::invokeHooks($hooks, 'beforeAll', new AllContext('structured', $mapping, $source, $target));
+        HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('structured', $mapping, $source, $target));
 
         // Case 2: structured mapping definitions with source/target objects
         foreach ($mapping as $map) {
@@ -205,9 +213,9 @@ class DataMapper
 
             /** @var array<DataMapperHook|string, mixed> $entryHooks */
             $entryHooks = is_array($map['hooks'] ?? null) ? $map['hooks'] : [];
-            $entryHooks = self::normalizeHooks($entryHooks);
-            $effectiveHooks = self::mergeHooks($hooks, $entryHooks);
-            self::invokeHooks(
+            $entryHooks = HookInvoker::normalizeHooks($entryHooks);
+            $effectiveHooks = HookInvoker::mergeHooks($hooks, $entryHooks);
+            HookInvoker::invokeHooks(
                 $effectiveHooks,
                 'beforeEntry',
                 new EntryContext('structured', $map, $entrySource, $entryTarget)
@@ -248,19 +256,19 @@ class DataMapper
                         $entrySource,
                         $entryTarget
                     );
-                    if (self::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
+                    if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
                         continue;
                     }
 
                     $value = $accessor->get((string)$sourcePath);
                     if ($entrySkipNull && null === $value) {
-                        self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
 
                         continue;
                     }
 
                     // preTransform
-                    $value = self::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
+                    $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
 
                     /** @var null|array<string, mixed> $replaceMap */
                     $replaceMap = null;
@@ -276,12 +284,15 @@ class DataMapper
 
                     // Handle wildcard values (always arrays with dot-path keys)
                     if (is_array($value) && str_contains((string)$sourcePath, '*')) {
-                        self::iterateWildcardItems(
+                        // Normalize wildcard array so indices are numeric (0..n) or original numeric keys
+                        $value = WildcardHandler::normalizeWildcardArray($value);
+
+                        WildcardHandler::iterateWildcardItems(
                             $value,
                             $entrySkipNull,
                             $entryReindex,
                             null,
-                            function(int $wildcardIndex, mixed $itemValue) use (
+                            function(int|string $wildcardIndex, mixed $itemValue) use (
                                 &$entryTarget,
                                 $effectiveHooks,
                                 $pairContext,
@@ -304,14 +315,14 @@ class DataMapper
                                     if ($trimValues && is_string($itemValue)) {
                                         $itemValue = trim($itemValue);
                                     }
-                                    $itemValue = self::applyReplacement(
+                                    $itemValue = ValueTransformer::applyReplacement(
                                         $itemValue,
                                         $replaceMap,
                                         $caseInsensitiveReplace
                                     );
                                 }
 
-                                $itemValue = self::invokeValueHook(
+                                $itemValue = HookInvoker::invokeValueHook(
                                     $effectiveHooks,
                                     'postTransform',
                                     $pairContext,
@@ -338,7 +349,7 @@ class DataMapper
                                     (string)$resolvedTargetPath,
                                     $wildcardIndex
                                 );
-                                $writeValue = self::invokeValueHook(
+                                $writeValue = HookInvoker::invokeValueHook(
                                     $effectiveHooks,
                                     'beforeWrite',
                                     $writeContext,
@@ -349,11 +360,11 @@ class DataMapper
                                 }
 
                                 $entryTarget = DataMutator::set(
-                                    self::asTarget($entryTarget),
+                                    MappingEngine::asTarget($entryTarget),
                                     (string)$resolvedTargetPath,
                                     $writeValue
                                 );
-                                $entryTarget = self::invokeTargetHook(
+                                $entryTarget = HookInvoker::invokeTargetHook(
                                     $effectiveHooks,
                                     'afterWrite',
                                     $writeContext,
@@ -373,12 +384,12 @@ class DataMapper
                             if ($trimValues && is_string($value)) {
                                 $value = trim($value);
                             }
-                            $value = self::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
+                            $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
                         }
 
-                        $value = self::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
+                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
                         if ($entrySkipNull && null === $value) {
-                            self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
 
                             continue;
                         }
@@ -391,14 +402,14 @@ class DataMapper
                             $entryTarget,
                             (string)$targetPath
                         );
-                        $writeValue = self::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
+                        $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
                         if ('__skip__' !== $writeValue) {
                             $entryTarget = DataMutator::set(
-                                self::asTarget($entryTarget),
+                                MappingEngine::asTarget($entryTarget),
                                 (string)$targetPath,
                                 $writeValue
                             );
-                            $entryTarget = self::invokeTargetHook(
+                            $entryTarget = HookInvoker::invokeTargetHook(
                                 $effectiveHooks,
                                 'afterWrite',
                                 $writeContext,
@@ -408,7 +419,7 @@ class DataMapper
                         }
                     }
 
-                    self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
                 }
             } elseif (isset($map['mapping'])) {
                 $pairs = $map['mapping'];
@@ -420,7 +431,7 @@ class DataMapper
                 $replaces = is_array($map['replaces'] ?? null) ? $map['replaces'] : [];
 
                 // Associative mapping: ['src' => 'dst']
-                if (is_array($pairs) && self::isSimpleMapping($pairs)) {
+                if (is_array($pairs) && MappingEngine::isSimpleMapping($pairs)) {
                     $mappingIndexAssoc = 0;
                     foreach ($pairs as $sourcePath => $targetPath) {
                         $pairContext = new PairContext(
@@ -431,7 +442,7 @@ class DataMapper
                             $entrySource,
                             $entryTarget
                         );
-                        if (self::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
+                        if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
                             $mappingIndexAssoc++;
 
                             continue;
@@ -439,14 +450,14 @@ class DataMapper
 
                         $value = $accessor->get((string)$sourcePath);
                         if ($entrySkipNull && null === $value) {
-                            self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
                             $mappingIndexAssoc++;
 
                             continue;
                         }
 
                         // preTransform
-                        $value = self::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
+                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
 
                         $transformFn = null;
                         if (array_key_exists((string)$sourcePath, $transforms)) {
@@ -472,12 +483,14 @@ class DataMapper
                         }
 
                         if (is_array($value) && str_contains((string)$sourcePath, '*')) {
-                            self::iterateWildcardItems(
+                            // Normalize wildcard array so indices are numeric (0..n) or original numeric keys
+                            $value = WildcardHandler::normalizeWildcardArray($value);
+                            WildcardHandler::iterateWildcardItems(
                                 $value,
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function(int $wildcardIndex, mixed $itemValue) use (
+                                function(int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,
@@ -501,14 +514,14 @@ class DataMapper
                                         if ($trimValues && is_string($itemValue)) {
                                             $itemValue = trim($itemValue);
                                         }
-                                        $itemValue = self::applyReplacement(
+                                        $itemValue = ValueTransformer::applyReplacement(
                                             $itemValue,
                                             $replaceMap,
                                             $caseInsensitiveReplace
                                         );
                                     }
 
-                                    $itemValue = self::invokeValueHook(
+                                    $itemValue = HookInvoker::invokeValueHook(
                                         $effectiveHooks,
                                         'postTransform',
                                         $pairContext,
@@ -535,7 +548,7 @@ class DataMapper
                                         (string)$resolvedTargetPath,
                                         $wildcardIndex
                                     );
-                                    $writeValue = self::invokeValueHook(
+                                    $writeValue = HookInvoker::invokeValueHook(
                                         $effectiveHooks,
                                         'beforeWrite',
                                         $writeContext,
@@ -546,11 +559,11 @@ class DataMapper
                                     }
 
                                     $entryTarget = DataMutator::set(
-                                        self::asTarget($entryTarget),
+                                        MappingEngine::asTarget($entryTarget),
                                         (string)$resolvedTargetPath,
                                         $writeValue
                                     );
-                                    $entryTarget = self::invokeTargetHook(
+                                    $entryTarget = HookInvoker::invokeTargetHook(
                                         $effectiveHooks,
                                         'afterWrite',
                                         $writeContext,
@@ -565,7 +578,7 @@ class DataMapper
                             if (is_callable($transformFn)) {
                                 $value = $transformFn($value);
                                 if ($entrySkipNull && null === $value) {
-                                    self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
                                     $mappingIndexAssoc++;
 
                                     continue;
@@ -576,12 +589,12 @@ class DataMapper
                                 if ($trimValues && is_string($value)) {
                                     $value = trim($value);
                                 }
-                                $value = self::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
+                                $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
                             }
 
-                            $value = self::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
+                            $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
                             if ($entrySkipNull && null === $value) {
-                                self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
                                 $mappingIndexAssoc++;
 
                                 continue;
@@ -595,14 +608,14 @@ class DataMapper
                                 $entryTarget,
                                 (string)$targetPath
                             );
-                            $writeValue = self::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
+                            $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
                             if ('__skip__' !== $writeValue) {
                                 $entryTarget = DataMutator::set(
-                                    self::asTarget($entryTarget),
+                                    MappingEngine::asTarget($entryTarget),
                                     (string)$targetPath,
                                     $writeValue
                                 );
-                                $entryTarget = self::invokeTargetHook(
+                                $entryTarget = HookInvoker::invokeTargetHook(
                                     $effectiveHooks,
                                     'afterWrite',
                                     $writeContext,
@@ -611,7 +624,7 @@ class DataMapper
                                 );
                             }
                         }
-                        self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
                         $mappingIndexAssoc++;
                     }
                 } else {
@@ -635,7 +648,7 @@ class DataMapper
                             $entrySource,
                             $entryTarget
                         );
-                        if (self::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
+                        if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
                             $pairIndex++;
 
                             continue;
@@ -643,12 +656,12 @@ class DataMapper
 
                         $value = $accessor->get($sourcePath);
                         if ($entrySkipNull && null === $value) {
-                            self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
                             $pairIndex++;
 
                             continue;
                         }
-                        $value = self::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
+                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
 
                         /** @var null|callable $transformFn */
                         $transformFn = is_array($transforms) && array_is_list(
@@ -662,12 +675,14 @@ class DataMapper
                         }
 
                         if (is_array($value) && str_contains($sourcePath, '*')) {
-                            self::iterateWildcardItems(
+                            // Normalize wildcard array so indices are numeric (0..n) or original numeric keys
+                            $value = WildcardHandler::normalizeWildcardArray($value);
+                            WildcardHandler::iterateWildcardItems(
                                 $value,
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function(int $wildcardIndex, mixed $itemValue) use (
+                                function(int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,
@@ -690,14 +705,14 @@ class DataMapper
                                         if ($trimValues && is_string($itemValue)) {
                                             $itemValue = trim($itemValue);
                                         }
-                                        $itemValue = self::applyReplacement(
+                                        $itemValue = ValueTransformer::applyReplacement(
                                             $itemValue,
                                             $replaceMap,
                                             $caseInsensitiveReplace
                                         );
                                     }
 
-                                    $itemValue = self::invokeValueHook(
+                                    $itemValue = HookInvoker::invokeValueHook(
                                         $effectiveHooks,
                                         'postTransform',
                                         $pairContext,
@@ -719,7 +734,7 @@ class DataMapper
                                         (string)$resolvedTargetPath,
                                         $wildcardIndex
                                     );
-                                    $writeValue = self::invokeValueHook(
+                                    $writeValue = HookInvoker::invokeValueHook(
                                         $effectiveHooks,
                                         'beforeWrite',
                                         $writeContext,
@@ -729,11 +744,11 @@ class DataMapper
                                         return false;
                                     }
                                     $entryTarget = DataMutator::set(
-                                        self::asTarget($entryTarget),
+                                        MappingEngine::asTarget($entryTarget),
                                         (string)$resolvedTargetPath,
                                         $writeValue
                                     );
-                                    $entryTarget = self::invokeTargetHook(
+                                    $entryTarget = HookInvoker::invokeTargetHook(
                                         $effectiveHooks,
                                         'afterWrite',
                                         $writeContext,
@@ -748,7 +763,7 @@ class DataMapper
                             if (is_callable($transformFn)) {
                                 $value = $transformFn($value);
                                 if ($entrySkipNull && null === $value) {
-                                    self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
                                     $pairIndex++;
 
                                     continue;
@@ -758,12 +773,12 @@ class DataMapper
                                 if ($trimValues && is_string($value)) {
                                     $value = trim($value);
                                 }
-                                $value = self::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
+                                $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
                             }
 
-                            $value = self::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
+                            $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
                             if ($entrySkipNull && null === $value) {
-                                self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
                                 $pairIndex++;
 
                                 continue;
@@ -777,10 +792,10 @@ class DataMapper
                                 $entryTarget,
                                 $targetPath
                             );
-                            $writeValue = self::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
+                            $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
                             if ('__skip__' !== $writeValue) {
-                                $entryTarget = DataMutator::set(self::asTarget($entryTarget), $targetPath, $writeValue);
-                                $entryTarget = self::invokeTargetHook(
+                                $entryTarget = DataMutator::set(MappingEngine::asTarget($entryTarget), $targetPath, $writeValue);
+                                $entryTarget = HookInvoker::invokeTargetHook(
                                     $effectiveHooks,
                                     'afterWrite',
                                     $writeContext,
@@ -789,7 +804,7 @@ class DataMapper
                                 );
                             }
                         }
-                        self::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
                         $pairIndex++;
                     }
                 }
@@ -799,7 +814,7 @@ class DataMapper
                 );
             }
 
-            self::invokeHooks(
+            HookInvoker::invokeHooks(
                 $effectiveHooks,
                 'afterEntry',
                 new EntryContext('structured', $map, $entrySource, $entryTarget)
@@ -809,7 +824,7 @@ class DataMapper
         }
 
         // Global hook: afterAll for structured mode
-        self::invokeHooks($hooks, 'afterAll', new AllContext('structured', $mapping, $source, $target));
+        HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('structured', $mapping, $source, $target));
 
         return $target;
     }
@@ -889,78 +904,15 @@ class DataMapper
         bool $caseInsensitiveReplace = false,
         bool $deep = false,
     ): mixed {
-        // Coerce JSON string sources to arrays when possible
-        if (is_string($source)) {
-            $decoded = json_decode($source, true);
-            if (is_array($decoded)) {
-                $source = $decoded;
-            }
-        }
-
-        // Ensure target is a supported type for mutation (same as map())
-        if (!is_array($target) && !is_object($target)) {
-            $target = [];
-        }
-
-        $pairs = [];
-
-        if ($deep) {
-            // Build mapping pairs from deep flattened source paths (use wildcard for numeric indices)
-            foreach (self::flattenSourcePaths($source, true) as $path => $value) {
-                if ($skipNull && null === $value) {
-                    continue;
-                }
-
-                // Build target path: keep segments; if target is object, prefer camelCase for first segment when property exists
-                $segments = explode('.', (string)$path);
-                if (is_object($target) && isset($segments[0])) {
-                    $first = $segments[0];
-                    if ('*' !== $first && is_string($first)) {
-                        $camel = self::toCamelCase($first);
-                        if (self::objectHasProperty($target, $camel)) {
-                            $segments[0] = $camel;
-                        }
-                    }
-                }
-
-                $pairs[(string)$path] = implode('.', $segments);
-            }
-        } else {
-            // Derive simple mapping: ['name' => 'name', 'email' => 'email', ...]
-            foreach (self::topLevelPairs($source) as $key => $value) {
-                if (!is_string($key)) {
-                    // only map string keys automatically
-                    continue;
-                }
-                if ($skipNull && null === $value) {
-                    continue;
-                }
-
-                $targetKey = $key;
-
-                // If target is object, try camel-case bridge when property exists
-                if (is_object($target)) {
-                    $camel = self::toCamelCase($key);
-                    // Only prefer camel if the property exists (avoids creating unexpected props)
-                    if (self::objectHasProperty($target, $camel)) {
-                        $targetKey = $camel;
-                    }
-                }
-
-                $pairs[$key] = $targetKey;
-            }
-        }
-
-        // Delegate to regular map() using the derived mapping
-        return self::map(
+        return AutoMapper::autoMap(
             $source,
             $target,
-            $pairs,
             $skipNull,
             $reindexWildcard,
             $hooks,
             $trimValues,
-            $caseInsensitiveReplace
+            $caseInsensitiveReplace,
+            $deep
         );
     }
 
@@ -1108,17 +1060,7 @@ class DataMapper
         bool $skipNull = true,
         bool $reindexWildcard = false,
     ): array {
-        if (is_string($template)) {
-            $decoded = json_decode($template, true);
-            if (!is_array($decoded)) {
-                throw new InvalidArgumentException('Invalid JSON template provided to DataMapper::mapFromTemplate');
-            }
-            $template = $decoded;
-        }
-
-        $result = self::resolveTemplateNode($template, $sources, $skipNull, $reindexWildcard);
-
-        return is_array($result) ? $result : [$result];
+        return TemplateMapper::mapFromTemplate($template, $sources, $skipNull, $reindexWildcard);
     }
 
     /** @param array<string,mixed> $sources */
@@ -1164,7 +1106,7 @@ class DataMapper
 
         // Normalize arrays keyed by dot-paths from wildcard access (e.g., 'users.0.email' => '...')
         if (is_array($value)) {
-            $value = self::normalizeWildcardArray($value);
+            $value = WildcardHandler::normalizeWildcardArray($value);
         }
 
         if ($skipNull && null === $value) {
@@ -1282,26 +1224,7 @@ class DataMapper
         bool $skipNull = true,
         bool $reindexWildcard = false,
     ): array {
-        if (is_string($data)) {
-            $decoded = json_decode($data, true);
-            if (!is_array($decoded)) {
-                throw new InvalidArgumentException(
-                    'Invalid JSON data provided to DataMapper::mapToTargetsFromTemplate'
-                );
-            }
-            $data = $decoded;
-        }
-        if (is_string($template)) {
-            $decodedT = json_decode($template, true);
-            if (!is_array($decodedT)) {
-                throw new InvalidArgumentException(
-                    'Invalid JSON template provided to DataMapper::mapToTargetsFromTemplate'
-                );
-            }
-            $template = $decodedT;
-        }
-
-        return self::applyTemplateNodeToTargets($data, $template, $targets, $skipNull, $reindexWildcard);
+        return TemplateMapper::mapToTargetsFromTemplate($data, $template, $targets, $skipNull, $reindexWildcard);
     }
 
     /**
@@ -1464,12 +1387,12 @@ class DataMapper
             }
 
             // array value -> iterate via centralized helper
-            self::iterateWildcardItems(
+            WildcardHandler::iterateWildcardItems(
                 $currentValue,
                 $skipNull,
                 $reindexWildcard,
                 null,
-                function(int $wildcardIndex, mixed $item) use (
+                function(int|string $wildcardIndex, mixed $item) use (
                     &$targetInner,
                     $write,
                     $segmentsInner,

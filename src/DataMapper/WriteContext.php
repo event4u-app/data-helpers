@@ -22,7 +22,7 @@ final class WriteContext extends PairContext implements ArrayAccess
         mixed $source,
         mixed $target,
         public ?string $resolvedTargetPath = null,
-        ?int $wildcardIndex = null,
+        int|string|null $wildcardIndex = null,
     ) {
         parent::__construct($mode, $pairIndex, $srcPath, $tgtPath, $source, $target, $wildcardIndex);
     }

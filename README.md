@@ -47,11 +47,6 @@ Features at a glance:
 💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (snake_case → camelCase), value
 replacement, hooks, and common patterns for each helper.
 
-## Requirements
-
-- PHP: 8.1 - 8.5
-- Laravel: 8 - 12
-
 ## Installation
 
 Use as a local path repository during development.

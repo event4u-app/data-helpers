@@ -22,7 +22,7 @@ class PairContext implements HookContext, ArrayAccess
         public string $tgtPath,
         public mixed $source,
         public mixed $target,
-        public ?int $wildcardIndex = null,
+        public int|string|null $wildcardIndex = null,
     ) {}
 
     public function mode(): string
