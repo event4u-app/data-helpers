@@ -189,7 +189,7 @@ DataMapper::map(null, [], [[
 
 Hooks let you observe and customize mapping at various stages. You can pass hooks to `map()`/`mapMany()` via the `$hooks` parameter.
 
-Typed hook contexts are now passed to callbacks by default. Legacy array contexts remain supported. Context classes also implement ArrayAccess so `$ctx['srcPath']` still works.
+Typed hook contexts are passed to callbacks. Use the typed context classes to access hook data and paths.
 
 Supported hook names and preferred signatures:
 
@@ -210,7 +210,7 @@ Context helpers and properties:
 - `WriteContext`: adds `resolvedTargetPath`
 - `AllContext`: `mapping`, `source`, `target`
 - `EntryContext`: `entry`, `source`, `target`
-- ArrayAccess is supported for legacy reads, e.g. `$ctx['srcPath']`
+- Access members directly via typed properties/methods, e.g. `$ctx->srcPath()` or `$ctx->mode()`
 
 Path-prefix filtering for hooks:
 - Provide hooks as an associative array with optional filters as keys:

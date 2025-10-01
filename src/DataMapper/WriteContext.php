@@ -7,12 +7,7 @@ namespace event4u\DataHelpers\DataMapper;
 /**
  * Context for beforeWrite/afterWrite hooks.
  */
-use ArrayAccess;
-
-/**
- * @implements ArrayAccess<(int | string), mixed>
- */
-final class WriteContext extends PairContext implements ArrayAccess
+final class WriteContext extends PairContext
 {
     public function __construct(
         string $mode,
@@ -27,11 +22,5 @@ final class WriteContext extends PairContext implements ArrayAccess
         parent::__construct($mode, $pairIndex, $srcPath, $tgtPath, $source, $target, $wildcardIndex);
     }
 
-    public function toArray(): array
-    {
-        $a = parent::toArray();
-        $a['resolvedTargetPath'] = $this->resolvedTargetPath;
 
-        return $a;
-    }
 }

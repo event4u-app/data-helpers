@@ -202,15 +202,6 @@ class HookInvoker
         return $target;
     }
 
-    /**
-     * Backward-compatible array representation of a HookContext for legacy callbacks.
-     *
-     * @return array<string,mixed>
-     */
-    public static function contextToArray(HookContext $context): array
-    {
-        return $context->toArray();
-    }
 
     /**
      * Simple prefix matcher supporting optional trailing '*' wildcard.
@@ -235,10 +226,6 @@ class HookInvoker
      */
     private static function invokeCallback(callable $callback, HookContext $context): mixed
     {
-        if (self::expectsArrayContext($callback)) {
-            return $callback(self::contextToArray($context));
-        }
-
         return $callback($context);
     }
 
@@ -247,10 +234,6 @@ class HookInvoker
      */
     private static function invokeValueCallback(callable $callback, mixed $value, HookContext $context): mixed
     {
-        if (self::expectsArrayContext($callback, 1)) {
-            return $callback($value, self::contextToArray($context));
-        }
-
         return $callback($value, $context);
     }
 
@@ -263,44 +246,8 @@ class HookInvoker
         HookContext $context,
         mixed $writtenValue
     ): mixed {
-        if (self::expectsArrayContext($callback, 1)) {
-            return $callback($target, self::contextToArray($context), $writtenValue);
-        }
-
         return $callback($target, $context, $writtenValue);
     }
 
-    /**
-     * Check if a callback expects an array context parameter using reflection.
-     *
-     * @param int $paramIndex Parameter index to check (0 for first param, 1 for second, etc.)
-     */
-    private static function expectsArrayContext(callable $callback, int $paramIndex = 0): bool
-    {
-        try {
-            if (is_array($callback)) {
-                $reflection = new \ReflectionMethod($callback[0], $callback[1]);
-            } elseif (is_object($callback) && !$callback instanceof \Closure) {
-                $reflection = new \ReflectionMethod($callback, '__invoke');
-            } else {
-                $reflection = new \ReflectionFunction($callback);
-            }
-
-            $params = $reflection->getParameters();
-            if (!isset($params[$paramIndex])) {
-                return false;
-            }
-
-            $type = $params[$paramIndex]->getType();
-            if (!$type instanceof \ReflectionNamedType) {
-                return false;
-            }
-
-            return 'array' === $type->getName();
-        } catch (\ReflectionException $e) {
-            // If reflection fails, assume modern HookContext
-            return false;
-        }
-    }
 }
 

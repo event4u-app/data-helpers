@@ -1513,11 +1513,7 @@ class DataMapper
         $hookPayload = $hooks[$name];
         $lastResult = null;
         if (is_callable($hookPayload)) {
-            try {
-                return $hookPayload($context);
-            } catch (TypeError) {
-                return $hookPayload(self::ctxToArray($context));
-            }
+            return $hookPayload($context);
         }
         if (is_array($hookPayload)) {
             foreach ($hookPayload as $filterKey => $callback) {
@@ -1542,11 +1538,7 @@ class DataMapper
                     }
                 }
 
-                try {
-                    $result = $callback($context);
-                } catch (TypeError) {
-                    $result = $callback(self::ctxToArray($context));
-                }
+                $result = $callback($context);
                 if (false === $result) {
                     return false;
                 }
@@ -1573,11 +1565,7 @@ class DataMapper
         }
         $hookPayload = $hooks[$name];
         if (is_callable($hookPayload)) {
-            try {
-                return $hookPayload($value, $context);
-            } catch (TypeError) {
-                return $hookPayload($value, self::ctxToArray($context));
-            }
+            return $hookPayload($value, $context);
         }
         if (is_array($hookPayload)) {
             foreach ($hookPayload as $filterKey => $callback) {
@@ -1601,11 +1589,7 @@ class DataMapper
                     }
                 }
 
-                try {
-                    $value = $callback($value, $context);
-                } catch (TypeError) {
-                    $value = $callback($value, self::ctxToArray($context));
-                }
+                $value = $callback($value, $context);
             }
         }
 
@@ -1631,11 +1615,7 @@ class DataMapper
         $hookPayload = $hooks[$name];
         $lastTarget = $target;
         if (is_callable($hookPayload)) {
-            try {
-                return $hookPayload($target, $context, $writtenValue);
-            } catch (TypeError) {
-                return $hookPayload($target, self::ctxToArray($context), $writtenValue);
-            }
+            return $hookPayload($target, $context, $writtenValue);
         }
         if (is_array($hookPayload)) {
             foreach ($hookPayload as $filterKey => $callback) {
@@ -1659,11 +1639,7 @@ class DataMapper
                     }
                 }
 
-                try {
-                    $lastTarget = $callback($lastTarget, $context, $writtenValue);
-                } catch (TypeError) {
-                    $lastTarget = $callback($lastTarget, self::ctxToArray($context), $writtenValue);
-                }
+                $lastTarget = $callback($lastTarget, $context, $writtenValue);
             }
         }
 
@@ -1682,43 +1658,6 @@ class DataMapper
         }
 
         return $candidate;
-    }
-
-    /**
-     * Backward-compatible array representation of a HookContext for legacy callbacks.
-     *
-     * @return array<string,mixed>
-     */
-    private static function ctxToArray(HookContext $context): array
-    {
-        $contextArray = [
-            'mode' => $context->mode(),
-        ];
-        if ($context instanceof PairContext) {
-            $contextArray['pairIndex'] = $context->pairIndex;
-            $contextArray['srcPath'] = $context->srcPath;
-            $contextArray['tgtPath'] = $context->tgtPath;
-            $contextArray['source'] = $context->source;
-            $contextArray['target'] = $context->target;
-            if (null !== $context->wildcardIndex) {
-                $contextArray['wildcardIndex'] = $context->wildcardIndex;
-            }
-        }
-        if ($context instanceof WriteContext) {
-            $contextArray['resolvedTargetPath'] = $context->resolvedTargetPath;
-        }
-        if ($context instanceof EntryContext) {
-            $contextArray['entry'] = $context->entry;
-            $contextArray['source'] = $context->source;
-            $contextArray['target'] = $context->target;
-        }
-        if ($context instanceof AllContext) {
-            $contextArray['mapping'] = $context->mapping;
-            $contextArray['source'] = $context->source;
-            $contextArray['target'] = $context->target;
-        }
-
-        return $contextArray;
     }
 
     /** Simple prefix matcher supporting optional trailing '*' wildcard. */

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Helpers\utils\DTOs;
+namespace Tests\utils\DTOs;
 
 final class ProfileDTO
 {

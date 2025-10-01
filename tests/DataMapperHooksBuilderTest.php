@@ -5,6 +5,8 @@ declare(strict_types=1);
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\AllContext;
+use event4u\DataHelpers\DataMapper\PairContext;
+use event4u\DataHelpers\DataMapper\WriteContext;
 use event4u\DataHelpers\DataMapper\Mode;
 use event4u\DataHelpers\DataMapperHooks;
 
@@ -23,12 +25,12 @@ describe('DataMapperHooks Builder', function (): void {
         $beforeAllCount = 0;
 
         $hooks = DataMapperHooks::make()
-            ->onForMode(DataMapperHook::BeforeAll, 'simple', function (array $ctx) use (&$beforeAllCount): null {
+            ->onForMode(DataMapperHook::BeforeAll, 'simple', function (AllContext $ctx) use (&$beforeAllCount): null {
                 $beforeAllCount++;
 
                 return null;
             })
-            ->onForSrc(DataMapperHook::BeforePair, 'user.name', fn(array $ctx): false => false) // skip this pair
+            ->onForSrc(DataMapperHook::BeforePair, 'user.name', fn(PairContext $ctx): false => false) // skip this pair
             ->onForTgt(DataMapperHook::BeforeWrite, 'profile.', fn($v): string => '__skip__')
             ->toArray();
 
@@ -44,12 +46,12 @@ describe('DataMapperHooks Builder', function (): void {
         $hooks = DataMapperHooks::build([
             [
                 DataMapperHook::BeforeAll,
-                fn(array $ctx): null => null,
+                fn(AllContext $ctx): null => null,
             ],
             [
                 DataMapperHook::BeforePair,
                 [
-                    'src:user.*' => fn(array $ctx): null => null,
+                    'src:user.*' => fn(PairContext $ctx): null => null,
                 ],
             ],
         ]);
@@ -94,12 +96,12 @@ describe('DataMapperHooks Builder', function (): void {
 
     test('fluent make()/on()/onMany()/mergeIn()/toArray()', function (): void {
         $builder = DataMapperHooks::make()
-            ->on(DataMapperHook::BeforeAll, fn(array $ctx): null => null)
+            ->on(DataMapperHook::BeforeAll, fn(AllContext $ctx): null => null)
             ->onMany([
                 [
                     DataMapperHook::BeforePair,
                     [
-                        'mode:simple' => fn(array $ctx): null => null,
+                        'mode:simple' => fn(PairContext $ctx): null => null,
                     ],
                 ],
             ])
@@ -107,7 +109,7 @@ describe('DataMapperHooks Builder', function (): void {
                 DataMapperHooks::build([
                     [
                         DataMapperHook::AfterWrite,
-                        fn(array $ctx, mixed $written, array|object $target): array|object => $target,
+                        fn(WriteContext $ctx, mixed $written, array|object $target): array|object => $target,
                     ],
                 ])
             );

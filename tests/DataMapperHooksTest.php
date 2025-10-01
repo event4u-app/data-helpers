@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\DataMapper\AllContext;
+use event4u\DataHelpers\DataMapper\PairContext;
+use event4u\DataHelpers\DataMapper\WriteContext;
 
 describe('DataMapper Hooks', function (): void {
     test('beforeAll/afterAll are called in simple mapping', function (): void {
@@ -17,11 +20,11 @@ describe('DataMapper Hooks', function (): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'beforeAll' => function (array $ctx) use (&$events): void {
-                $events[] = 'beforeAll:' . ($ctx['mode'] ?? '');
+            'beforeAll' => function (AllContext $ctx) use (&$events): void {
+                $events[] = 'beforeAll:' . $ctx->mode();
             },
-            'afterAll' => function (array $ctx) use (&$events): void {
-                $events[] = 'afterAll:' . ($ctx['mode'] ?? '');
+            'afterAll' => function (AllContext $ctx) use (&$events): void {
+                $events[] = 'afterAll:' . $ctx->mode();
             },
         ];
 
@@ -50,7 +53,7 @@ describe('DataMapper Hooks', function (): void {
         $hooks = [
             'beforePair' => [
                 // skip when srcPath is 'a'
-                'src:a' => function (array $ctx): bool {
+                'src:a' => function (PairContext $ctx): bool {
                     return false; // cancel this pair
                 },
             ],
@@ -76,14 +79,14 @@ describe('DataMapper Hooks', function (): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'preTransform' => function (mixed $v, array $ctx): mixed {
+            'preTransform' => function (mixed $v, PairContext $ctx): mixed {
                 if (is_string($v)) {
                     return 'pre-' . $v;
                 }
 
                 return $v;
             },
-            'postTransform' => function (mixed $v, array $ctx): mixed {
+            'postTransform' => function (mixed $v, PairContext $ctx): mixed {
                 if (is_string($v)) {
                     return $v . '-post';
                 }
@@ -111,7 +114,7 @@ describe('DataMapper Hooks', function (): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'beforeWrite' => function (mixed $v, array $ctx): mixed {
+            'beforeWrite' => function (mixed $v, WriteContext $ctx): mixed {
                 // Skip writing value 'a'
                 if ('a' === $v) {
                     return '__skip__';
@@ -119,10 +122,10 @@ describe('DataMapper Hooks', function (): void {
 
                 return $v;
             },
-            'afterWrite' => function (array|object $tgt, array $ctx, mixed $written): array|object {
+            'afterWrite' => function (array|object $tgt, WriteContext $ctx, mixed $written): array|object {
                 // Uppercase strings after write
                 if (is_string($written)) {
-                    $path = (string)($ctx['resolvedTargetPath'] ?? '');
+                    $path = (string)($ctx->resolvedTargetPath ?? '');
 
                     return DataMutator::set($tgt, $path, strtoupper($written));
                 }
@@ -155,13 +158,13 @@ describe('DataMapper Hooks', function (): void {
         /** @var array<string, mixed> $hooks */
         $hooks = [
             'beforePair' => [
-                'src:a' => function (array $ctx) use (&$calls): void {
+                'src:a' => function (PairContext $ctx) use (&$calls): void {
                     $calls[] = 'src:a';
                 },
-                'tgt:x.b' => function (array $ctx) use (&$calls): void {
+                'tgt:x.b' => function (PairContext $ctx) use (&$calls): void {
                     $calls[] = 'tgt:x.b';
                 },
-                'mode:simple' => function (array $ctx) use (&$calls): void {
+                'mode:simple' => function (PairContext $ctx) use (&$calls): void {
                     $calls[] = 'mode:simple';
                 },
             ],

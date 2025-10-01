@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
-use Tests\Unit\Helpers\utils\DTOs\AddressDTO;
-use Tests\Unit\Helpers\utils\DTOs\ProfileDTO;
-use Tests\Unit\Helpers\utils\DTOs\UserDTO;
-use Tests\Unit\Helpers\utils\Models\Address;
-use Tests\Unit\Helpers\utils\Models\Comment;
-use Tests\Unit\Helpers\utils\Models\Company;
-use Tests\Unit\Helpers\utils\Models\Department;
-use Tests\Unit\Helpers\utils\Models\Post;
-use Tests\Unit\Helpers\utils\Models\Profile;
-use Tests\Unit\Helpers\utils\Models\User;
+use Tests\utils\DTOs\AddressDTO;
+use Tests\utils\DTOs\ProfileDTO;
+use Tests\utils\DTOs\UserDTO;
+use Tests\utils\Models\Address;
+use Tests\utils\Models\Comment;
+use Tests\utils\Models\Company;
+use Tests\utils\Models\Department;
+use Tests\utils\Models\Post;
+use Tests\utils\Models\Profile;
+use Tests\utils\Models\User;
 
 function makeCompanyFixture(): Company
 {

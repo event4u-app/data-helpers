@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Helpers\utils\Models;
+namespace Tests\utils\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-final class Company extends Model
+final class Department extends Model
 {
     protected $guarded = [];
 }
