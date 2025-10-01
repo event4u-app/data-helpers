@@ -8,7 +8,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\DataMapper\AllContext;
 use event4u\DataHelpers\DataMapper\EntryContext;
 use event4u\DataHelpers\DataMapper\HookContext;
-use event4u\DataHelpers\DataMapper\Mode;
+use event4u\DataHelpers\Enums\Mode;
 use event4u\DataHelpers\DataMapper\PairContext;
 use event4u\DataHelpers\DataMapper\WriteContext;
 
