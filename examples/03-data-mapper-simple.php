@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -12,6 +13,7 @@ $map = [
     'user.emails.*' => 'profile.contacts.*',
 ];
 
-$res = DataMapper::map($src, $tgt, $map, skipNull: true, reindex: true);
+$res = DataMapper::map($src, $tgt, $map, skipNull: true, reindexWildcard: true);
 
-var_export($res); echo "\n";
+var_export($res);
+echo "\n";

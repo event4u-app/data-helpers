@@ -1,6 +1,7 @@
 # Architecture
 
-This document describes the internal architecture of the Laravel Data Helpers package with a focus on the DataMapper refactor. The public API remains stable while the implementation is split into small, focused components.
+This document describes the internal architecture of the Laravel Data Helpers package with a focus on the DataMapper refactor. The public
+API remains stable while the implementation is split into small, focused components.
 
 ## Overview
 
@@ -14,6 +15,7 @@ DataMapper acts as a facade and delegates work to specialized components that ea
 - ValueTransformer – Utilities for replacements, case conversion, property checks
 
 High-level flow for `DataMapper::map()`:
+
 1) Normalize hooks (enums → strings, arrays of callables allowed)
 2) For simple mappings: iterate associative pairs (src → tgt)
 3) For each pair: Access source via DataAccessor
@@ -25,21 +27,26 @@ High-level flow for `DataMapper::map()`:
 ## Wildcards
 
 - DataAccessor returns wildcard reads as arrays keyed by dot-paths (e.g., `['users.0.email' => 'a@x', 'users.2.email' => 'b@x']`).
-- WildcardHandler::normalizeWildcardArray() flattens such arrays to a simple list preserving order (e.g., `['a@x','b@x']`). This avoids collisions with deep wildcards while keeping deterministic order.
-- iterateWildcardItems($items, $skipNull, $reindex, $onSkip, $onItem) controls skipping nulls and optional reindexing (0..n-1). When reindex=false, original numeric keys are preserved.
+- WildcardHandler::normalizeWildcardArray() flattens such arrays to a simple list preserving order (e.g., `['a@x','b@x']`). This avoids
+  collisions with deep wildcards while keeping deterministic order.
+- iterateWildcardItems($items, $skipNull, $reindex, $onSkip, $onItem) controls skipping nulls and optional reindexing (0..n-1). When
+  reindex=false, original numeric keys are preserved.
 
 ## Hooks
 
 - Typed contexts (AllContext, EntryContext, PairContext, WriteContext) are passed to callbacks by default.
-- Prefix filtering: use `src:<prefix>`, `tgt:<prefix>`, or `mode:<simple|structured|structured-assoc|structured-pairs>` keys to scope individual callbacks.
+- Prefix filtering: use `src:<prefix>`, `tgt:<prefix>`, or `mode:<simple|structured|structured-assoc|structured-pairs>` keys to scope
+  individual callbacks.
 
 Hook order per pair (simplified):
+
 - beforePair → preTransform → (wildcard? iterate items) → postTransform → beforeWrite → write → afterWrite → afterPair
 
 ## Template mapping
 
 - TemplateMapper resolves strings like `alias.path` against a map of named sources.
-- For wildcard results inside templates, TemplateMapper normalizes arrays, optionally filters nulls (skipNull), and can reindex sequentially.
+- For wildcard results inside templates, TemplateMapper normalizes arrays, optionally filters nulls (skipNull), and can reindex
+  sequentially.
 - Inverse mapping (`mapToTargetsFromTemplate`) writes values back into alias targets and supports wildcards in target paths.
 
 ## AutoMap
@@ -57,7 +64,6 @@ Hook order per pair (simplified):
 - Keep new helpers small and focused; follow existing naming and behavior patterns (immutability, typed contexts, docblocks).
 - When adding hooks, ensure predictable order and prefix-filter handling; extend HookInvoker when necessary.
 - For performance-sensitive cases, consider batching operations and minimizing DataAccessor calls.
-
 
 ## How to extend
 
@@ -81,8 +87,6 @@ $hooks = [
   DataMapperHook::PreTransform->value => fn($v) => is_string($v) ? trim($v) : $v,
 ];
 ```
-
-
 
 ### 3) Extend HookInvoker for new filters
 
@@ -109,7 +113,7 @@ Wrap `WildcardHandler::iterateWildcardItems()` to add metrics, logging, or speci
 function iterateEmails(array $items, callable $onItem): void {
   $items = \event4u\DataHelpers\DataMapper\WildcardHandler::normalizeWildcardArray($items);
   \event4u\DataHelpers\DataMapper\WildcardHandler::iterateWildcardItems(
-    $items, skipNull: true, reindex: true, onSkip: null,
+    $items, skipNull: true, reindexWildcard: true, onSkip: null,
     onItem: function (int $i, $v) use ($onItem) {
       if (!is_string($v)) { return true; }
       return $onItem($i, strtolower($v));
@@ -151,7 +155,6 @@ $entry = [
 - Prefer simple mappings over templates when possible.
 - Combine related transforms into a single callable to reduce overhead.
 - Avoid heavy work in `beforePair`; prefer `preTransform`/`beforeWrite` for value-specific logic.
-
 
 ## How to test extensions
 
