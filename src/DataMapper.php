@@ -524,116 +524,48 @@ class DataMapper
                                 $entrySkipNull,
                                 $pairIndex
                             ): bool {
-                                $pairContext->wildcardIndex = $wildcardIndex;
-
-                                if (is_callable($transformFn)) {
-                                    $itemValue = $transformFn($itemValue);
-                                }
-                                if (is_array($replaceMap)) {
-                                    if ($trimValues && is_string($itemValue)) {
-                                        $itemValue = trim($itemValue);
-                                    }
-                                    $itemValue = ValueTransformer::applyReplacement(
-                                        $itemValue,
-                                        $replaceMap,
-                                        $caseInsensitiveReplace
-                                    );
-                                }
-
-                                $itemValue = HookInvoker::invokeValueHook(
+                                return MappingEngine::processWildcardItem(
+                                    $wildcardIndex,
+                                    $itemValue,
+                                    $entryTarget,
                                     $effectiveHooks,
-                                    'postTransform',
                                     $pairContext,
-                                    $itemValue
-                                );
-
-                                if ($entrySkipNull && null === $itemValue) {
-                                    return false;
-                                }
-
-                                $resolvedTargetPath = preg_replace(
-                                    '/\*/',
-                                    (string)$wildcardIndex,
-                                    (string)$targetPath,
-                                    1
-                                );
-                                $writeContext = new WriteContext(
+                                    $transformFn,
+                                    $replaceMap,
+                                    $trimValues,
+                                    $caseInsensitiveReplace,
                                     'structured',
                                     $pairIndex,
                                     (string)$sourcePath,
                                     (string)$targetPath,
                                     $entrySource,
-                                    $entryTarget,
-                                    (string)$resolvedTargetPath,
-                                    $wildcardIndex
+                                    $entrySkipNull
                                 );
-                                $writeValue = HookInvoker::invokeValueHook(
-                                    $effectiveHooks,
-                                    'beforeWrite',
-                                    $writeContext,
-                                    $itemValue
-                                );
-                                if ('__skip__' === $writeValue) {
-                                    return false;
-                                }
-
-                                $entryTarget = DataMutator::set(
-                                    MappingEngine::asTarget($entryTarget),
-                                    (string)$resolvedTargetPath,
-                                    $writeValue
-                                );
-                                $entryTarget = HookInvoker::invokeTargetHook(
-                                    $effectiveHooks,
-                                    'afterWrite',
-                                    $writeContext,
-                                    $writeValue,
-                                    $entryTarget
-                                );
-
-                                return true;
                             }
                         );
                     } else {
-                        if (is_callable($transformFn)) {
-                            $value = $transformFn($value);
-                        }
-
-                        if (is_array($replaceMap)) {
-                            if ($trimValues && is_string($value)) {
-                                $value = trim($value);
-                            }
-                            $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
-                        }
-
-                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
-                        if ($entrySkipNull && null === $value) {
-                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-
-                            continue;
-                        }
-                        $writeContext = new WriteContext(
+                        // Process single non-wildcard value
+                        $processed = MappingEngine::processSingleValue(
+                            $value,
+                            $entryTarget,
+                            $effectiveHooks,
+                            $pairContext,
+                            $transformFn,
+                            $replaceMap,
+                            $trimValues,
+                            $caseInsensitiveReplace,
                             'structured',
                             $pairIndex,
                             (string)$sourcePath,
                             (string)$targetPath,
                             $entrySource,
-                            $entryTarget,
-                            (string)$targetPath
+                            $entrySkipNull
                         );
-                        $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
-                        if ('__skip__' !== $writeValue) {
-                            $entryTarget = DataMutator::set(
-                                MappingEngine::asTarget($entryTarget),
-                                (string)$targetPath,
-                                $writeValue
-                            );
-                            $entryTarget = HookInvoker::invokeTargetHook(
-                                $effectiveHooks,
-                                'afterWrite',
-                                $writeContext,
-                                $writeValue,
-                                $entryTarget
-                            );
+
+                        if (!$processed) {
+                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+
+                            continue;
                         }
                     }
 
@@ -722,124 +654,49 @@ class DataMapper
                                     $mappingIndexAssoc,
                                     $entrySkipNull
                                 ): bool {
-                                    $pairContext->wildcardIndex = $wildcardIndex;
-
-                                    if (is_callable($transformFn)) {
-                                        $itemValue = $transformFn($itemValue);
-                                    }
-
-                                    if (is_array($replaceMap)) {
-                                        if ($trimValues && is_string($itemValue)) {
-                                            $itemValue = trim($itemValue);
-                                        }
-                                        $itemValue = ValueTransformer::applyReplacement(
-                                            $itemValue,
-                                            $replaceMap,
-                                            $caseInsensitiveReplace
-                                        );
-                                    }
-
-                                    $itemValue = HookInvoker::invokeValueHook(
+                                    return MappingEngine::processWildcardItem(
+                                        $wildcardIndex,
+                                        $itemValue,
+                                        $entryTarget,
                                         $effectiveHooks,
-                                        'postTransform',
                                         $pairContext,
-                                        $itemValue
-                                    );
-
-                                    if ($entrySkipNull && null === $itemValue) {
-                                        return false;
-                                    }
-
-                                    $resolvedTargetPath = preg_replace(
-                                        '/\*/',
-                                        (string)$wildcardIndex,
-                                        (string)$targetPath,
-                                        1
-                                    );
-                                    $writeContext = new WriteContext(
+                                        $transformFn,
+                                        $replaceMap,
+                                        $trimValues,
+                                        $caseInsensitiveReplace,
                                         'structured',
                                         $mappingIndexAssoc,
                                         (string)$sourcePath,
                                         (string)$targetPath,
                                         $entrySource,
-                                        $entryTarget,
-                                        (string)$resolvedTargetPath,
-                                        $wildcardIndex
+                                        $entrySkipNull
                                     );
-                                    $writeValue = HookInvoker::invokeValueHook(
-                                        $effectiveHooks,
-                                        'beforeWrite',
-                                        $writeContext,
-                                        $itemValue
-                                    );
-                                    if ('__skip__' === $writeValue) {
-                                        return false;
-                                    }
-
-                                    $entryTarget = DataMutator::set(
-                                        MappingEngine::asTarget($entryTarget),
-                                        (string)$resolvedTargetPath,
-                                        $writeValue
-                                    );
-                                    $entryTarget = HookInvoker::invokeTargetHook(
-                                        $effectiveHooks,
-                                        'afterWrite',
-                                        $writeContext,
-                                        $writeValue,
-                                        $entryTarget
-                                    );
-
-                                    return true;
                                 }
                             );
                         } else {
-                            if (is_callable($transformFn)) {
-                                $value = $transformFn($value);
-                                if ($entrySkipNull && null === $value) {
-                                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                                    $mappingIndexAssoc++;
-
-                                    continue;
-                                }
-                            }
-
-                            if (is_array($replaceMap)) {
-                                if ($trimValues && is_string($value)) {
-                                    $value = trim($value);
-                                }
-                                $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
-                            }
-
-                            $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
-                            if ($entrySkipNull && null === $value) {
-                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                                $mappingIndexAssoc++;
-
-                                continue;
-                            }
-                            $writeContext = new WriteContext(
+                            // Process single non-wildcard value
+                            $processed = MappingEngine::processSingleValue(
+                                $value,
+                                $entryTarget,
+                                $effectiveHooks,
+                                $pairContext,
+                                $transformFn,
+                                $replaceMap,
+                                $trimValues,
+                                $caseInsensitiveReplace,
                                 'structured',
                                 $mappingIndexAssoc,
                                 (string)$sourcePath,
                                 (string)$targetPath,
                                 $entrySource,
-                                $entryTarget,
-                                (string)$targetPath
+                                $entrySkipNull
                             );
-                            $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
-                            if ('__skip__' !== $writeValue) {
-                                $entryTarget = DataMutator::set(
-                                    MappingEngine::asTarget($entryTarget),
-                                    (string)$targetPath,
-                                    $writeValue
-                                );
-                                $entryTarget = HookInvoker::invokeTargetHook(
-                                    $effectiveHooks,
-                                    'afterWrite',
-                                    $writeContext,
-                                    $writeValue,
-                                    $entryTarget
-                                );
+
+                            if (!$processed) {
+                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                $mappingIndexAssoc++;
+
+                                continue;
                             }
                         }
                         HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
@@ -914,112 +771,49 @@ class DataMapper
                                     $pairIndex,
                                     $entrySkipNull
                                 ): bool {
-                                    $pairContext->wildcardIndex = $wildcardIndex;
-
-                                    if (is_callable($transformFn)) {
-                                        $itemValue = $transformFn($itemValue);
-                                    }
-                                    if (is_array($replaceMap)) {
-                                        if ($trimValues && is_string($itemValue)) {
-                                            $itemValue = trim($itemValue);
-                                        }
-                                        $itemValue = ValueTransformer::applyReplacement(
-                                            $itemValue,
-                                            $replaceMap,
-                                            $caseInsensitiveReplace
-                                        );
-                                    }
-
-                                    $itemValue = HookInvoker::invokeValueHook(
+                                    return MappingEngine::processWildcardItem(
+                                        $wildcardIndex,
+                                        $itemValue,
+                                        $entryTarget,
                                         $effectiveHooks,
-                                        'postTransform',
                                         $pairContext,
-                                        $itemValue
-                                    );
-
-                                    if ($entrySkipNull && null === $itemValue) {
-                                        return false;
-                                    }
-
-                                    $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, $targetPath, 1);
-                                    $writeContext = new WriteContext(
+                                        $transformFn,
+                                        $replaceMap,
+                                        $trimValues,
+                                        $caseInsensitiveReplace,
                                         'structured',
                                         $pairIndex,
                                         $sourcePath,
                                         $targetPath,
                                         $entrySource,
-                                        $entryTarget,
-                                        (string)$resolvedTargetPath,
-                                        $wildcardIndex
+                                        $entrySkipNull
                                     );
-                                    $writeValue = HookInvoker::invokeValueHook(
-                                        $effectiveHooks,
-                                        'beforeWrite',
-                                        $writeContext,
-                                        $itemValue
-                                    );
-                                    if ('__skip__' === $writeValue) {
-                                        return false;
-                                    }
-                                    $entryTarget = DataMutator::set(
-                                        MappingEngine::asTarget($entryTarget),
-                                        (string)$resolvedTargetPath,
-                                        $writeValue
-                                    );
-                                    $entryTarget = HookInvoker::invokeTargetHook(
-                                        $effectiveHooks,
-                                        'afterWrite',
-                                        $writeContext,
-                                        $writeValue,
-                                        $entryTarget
-                                    );
-
-                                    return true;
                                 }
                             );
                         } else {
-                            if (is_callable($transformFn)) {
-                                $value = $transformFn($value);
-                                if ($entrySkipNull && null === $value) {
-                                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                                    $pairIndex++;
-
-                                    continue;
-                                }
-                            }
-                            if (is_array($replaceMap)) {
-                                if ($trimValues && is_string($value)) {
-                                    $value = trim($value);
-                                }
-                                $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
-                            }
-
-                            $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
-                            if ($entrySkipNull && null === $value) {
-                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                                $pairIndex++;
-
-                                continue;
-                            }
-                            $writeContext = new WriteContext(
+                            // Process single non-wildcard value
+                            $processed = MappingEngine::processSingleValue(
+                                $value,
+                                $entryTarget,
+                                $effectiveHooks,
+                                $pairContext,
+                                $transformFn,
+                                $replaceMap,
+                                $trimValues,
+                                $caseInsensitiveReplace,
                                 'structured',
                                 $pairIndex,
                                 $sourcePath,
                                 $targetPath,
                                 $entrySource,
-                                $entryTarget,
-                                $targetPath
+                                $entrySkipNull
                             );
-                            $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
-                            if ('__skip__' !== $writeValue) {
-                                $entryTarget = DataMutator::set(MappingEngine::asTarget($entryTarget), $targetPath, $writeValue);
-                                $entryTarget = HookInvoker::invokeTargetHook(
-                                    $effectiveHooks,
-                                    'afterWrite',
-                                    $writeContext,
-                                    $writeValue,
-                                    $entryTarget
-                                );
+
+                            if (!$processed) {
+                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                $pairIndex++;
+
+                                continue;
                             }
                         }
                         HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);

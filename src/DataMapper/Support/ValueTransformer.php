@@ -77,5 +77,44 @@ class ValueTransformer
             return false;
         }
     }
+
+    /**
+     * Process a value through transformation and replacement pipeline.
+     *
+     * This method applies:
+     * 1. Custom transformation function (if provided)
+     * 2. Trimming (if enabled and value is string)
+     * 3. Replacement mapping (if provided)
+     *
+     * @param mixed $value The value to process
+     * @param callable|null $transformFn Optional transformation function
+     * @param array<int|string, mixed>|null $replaceMap Optional replacement map
+     * @param bool $trimValues Whether to trim string values before replacement
+     * @param bool $caseInsensitiveReplace Whether replacement should be case-insensitive
+     * @return mixed The processed value
+     */
+    public static function processValue(
+        mixed $value,
+        ?callable $transformFn,
+        ?array $replaceMap,
+        bool $trimValues = true,
+        bool $caseInsensitiveReplace = false
+    ): mixed {
+        // Apply custom transformation
+        if (is_callable($transformFn)) {
+            $value = $transformFn($value);
+        }
+
+        // Apply replacement map
+        if (is_array($replaceMap)) {
+            // Trim string values before replacement if requested
+            if ($trimValues && is_string($value)) {
+                $value = trim($value);
+            }
+            $value = self::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
+        }
+
+        return $value;
+    }
 }
 
