@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
+use event4u\DataHelpers\Support\CollectionHelper;
+use event4u\DataHelpers\Support\EntityHelper;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -108,6 +110,22 @@ class DataMutator
             return $target;
         }
 
+        // Support for any collection type (Laravel, Doctrine)
+        if (CollectionHelper::isCollection($target)) {
+            $arr = CollectionHelper::toArray($target);
+            self::setIntoArray($arr, $segments, $value, $merge);
+
+            return CollectionHelper::fromArray($arr);
+        }
+
+        // Support for any entity/model type (Eloquent, Doctrine)
+        if (EntityHelper::isEntity($target)) {
+            EntityHelper::setAttribute($target, implode('.', $segments), $value);
+
+            return $target;
+        }
+
+        // Fallback for Laravel-specific types
         if ($target instanceof Collection) {
             $arr = $target->all();
             self::setIntoArray($arr, $segments, $value, $merge);

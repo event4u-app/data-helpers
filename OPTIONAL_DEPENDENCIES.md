@@ -1,14 +1,17 @@
-# Optional Laravel Dependencies
+# Optional Framework Dependencies
 
 ## Overview
 
-The package works standalone with PHP 8.2+ and provides polyfills for Laravel classes when they're not available.
+The package works standalone with PHP 8.2+ and provides polyfills for framework-specific classes when they're not available.
 
-## What Changed?
+**Supported Frameworks:**
+- **Laravel** (Collections, Eloquent Models)
+- **Symfony/Doctrine** (Collections, Entities)
+- **Standalone PHP** (Arrays, Objects, JSON, XML)
 
 ## Installation Options
 
-### Option 1: Standalone (No Laravel)
+### Option 1: Standalone (No Framework)
 
 ```bash
 composer require event4u/laravel-data-helpers
@@ -21,12 +24,12 @@ composer require event4u/laravel-data-helpers
 - ✅ Full DataMapper functionality
 - ✅ Basic Collection support (via polyfill)
 - ✅ Basic Arrayable support (via polyfill)
-- ⚠️ Limited Model support (via polyfill stub)
+- ⚠️ Limited Model/Entity support (via polyfill stub)
 
 **Limitations:**
 
 - Collection polyfill only provides basic methods (all, has, get, toArray)
-- Model polyfill is a minimal stub for type checking only
+- Model/Entity polyfill is a minimal stub for type checking only
 - No database functionality
 
 ### Option 2: With Laravel Support (Recommended for Laravel Projects)
@@ -44,7 +47,22 @@ composer require illuminate/database
 - ✅ Full Eloquent Model support with database functionality
 - ✅ Full Arrayable interface support
 
-### Option 3: Development/Testing (Automatic)
+### Option 3: With Symfony/Doctrine Support (Recommended for Symfony Projects)
+
+```bash
+composer require event4u/laravel-data-helpers
+composer require doctrine/collections
+composer require doctrine/orm
+```
+
+**What you get:**
+
+- ✅ Everything from Option 1
+- ✅ Full Doctrine Collection support with all methods
+- ✅ Full Doctrine Entity support with ORM functionality
+- ✅ Automatic entity detection via attributes/annotations
+
+### Option 4: Development/Testing (Automatic)
 
 When you install the package for development:
 
@@ -53,15 +71,20 @@ git clone <repo>
 composer install
 ```
 
-Laravel packages are automatically installed as `require-dev` dependencies, ensuring all tests run with full Laravel support.
+Laravel and Doctrine packages are automatically installed as `require-dev` dependencies, ensuring all tests run with full framework support.
 
 ## Polyfills
 
-The package includes polyfills in `src/Polyfills/` that are automatically loaded when Laravel classes are not available:
+The package includes polyfills in `src/Polyfills/` that are automatically loaded when framework classes are not available:
 
+**Laravel Polyfills:**
 - **`Illuminate\Support\Collection`** - Basic collection functionality
 - **`Illuminate\Contracts\Support\Arrayable`** - Arrayable interface
 - **`Illuminate\Database\Eloquent\Model`** - Minimal model stub
+
+**Doctrine Polyfills:**
+- **`Doctrine\Common\Collections\Collection`** - Collection interface
+- **`Doctrine\Common\Collections\ArrayCollection`** - Basic collection implementation
 
 See [src/Polyfills/README.md](src/Polyfills/README.md) for details.
 

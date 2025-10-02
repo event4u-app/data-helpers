@@ -8,7 +8,9 @@ The polyfills allow `laravel-data-helpers` to work without requiring `illuminate
 
 ## Included Polyfills
 
-### 1. `Illuminate\Support\Collection`
+### Laravel Polyfills
+
+#### 1. `Illuminate\Support\Collection`
 - **File**: `Collection.php`
 - **Purpose**: Provides basic Collection functionality when `illuminate/support` is not installed
 - **Features**:
@@ -18,13 +20,13 @@ The polyfills allow `laravel-data-helpers` to work without requiring `illuminate
   - `toArray()` - Convert to array
   - Implements `ArrayAccess`, `Countable`, `IteratorAggregate`
 
-### 2. `Illuminate\Contracts\Support\Arrayable`
+#### 2. `Illuminate\Contracts\Support\Arrayable`
 - **File**: `Arrayable.php`
 - **Purpose**: Provides the Arrayable interface when `illuminate/support` is not installed
 - **Features**:
   - `toArray()` - Convert instance to array
 
-### 3. `Illuminate\Database\Eloquent\Model`
+#### 3. `Illuminate\Database\Eloquent\Model`
 - **File**: `Model.php`
 - **Purpose**: Provides minimal Model stub when `illuminate/database` is not installed
 - **Features**:
@@ -34,6 +36,25 @@ The polyfills allow `laravel-data-helpers` to work without requiring `illuminate
   - `toArray()` - Convert to array
   - Implements `ArrayAccess`
 - **Note**: This is a minimal stub for type checking. For full Eloquent functionality, install `illuminate/database`.
+
+### Doctrine/Symfony Polyfills
+
+#### 4. `Doctrine\Common\Collections\Collection` (Interface)
+- **File**: `DoctrineCollection.php`
+- **Purpose**: Provides Collection interface when `doctrine/collections` is not installed
+- **Features**:
+  - `toArray()` - Get all elements as array
+  - `containsKey($key)` - Check if key exists
+  - `get($key)` - Get element by key
+  - Extends `Countable`, `IteratorAggregate`, `ArrayAccess`
+
+#### 5. `Doctrine\Common\Collections\ArrayCollection`
+- **File**: `DoctrineCollection.php`
+- **Purpose**: Provides ArrayCollection implementation when `doctrine/collections` is not installed
+- **Features**:
+  - Same as Collection interface
+  - Implements `Collection` interface
+- **Note**: This is a minimal implementation. For full Doctrine Collections functionality, install `doctrine/collections`.
 
 ## How It Works
 
@@ -72,6 +93,16 @@ For full Laravel Collection and Eloquent Model support:
 composer require event4u/laravel-data-helpers
 composer require illuminate/support
 composer require illuminate/database
+```
+
+### With Full Doctrine/Symfony Support
+
+For full Doctrine Collections and Entity support:
+
+```bash
+composer require event4u/laravel-data-helpers
+composer require doctrine/collections
+composer require doctrine/orm  # For entity support
 ```
 
 ## Limitations

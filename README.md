@@ -1,27 +1,33 @@
-# Laravel Data Helpers
+# Data Helpers (Framework-Agnostic)
 
-[![PHP](https://img.shields.io/badge/PHP-8.1%E2%80%938.5-777bb3?logo=php&logoColor=white)](#requirements)
+[![PHP](https://img.shields.io/badge/PHP-8.2%E2%80%938.3-777bb3?logo=php&logoColor=white)](#requirements)
 [![Laravel](https://img.shields.io/badge/Laravel-8--12-FF2D20?logo=laravel&logoColor=white)](#requirements)
+[![Symfony](https://img.shields.io/badge/Symfony-Compatible-000000?logo=symfony&logoColor=white)](#requirements)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 
 High-level, well-tested helpers for structured data access, mutation, and mapping using dot-notation paths with wildcard support. Works with
-arrays, DTOs/objects, Laravel Collections, Eloquent Models, JSON, and XML.
+arrays, DTOs/objects, Laravel Collections, Eloquent Models, Doctrine Collections, Doctrine Entities, JSON, and XML.
+
+**Framework-agnostic**: Works with Laravel, Symfony/Doctrine, or standalone PHP. Optional dependencies are automatically detected.
 
 Features at a glance:
 
+- **Framework-agnostic**: Works with Laravel, Symfony/Doctrine, or standalone PHP
 - Dot-notation paths with deep multi-level wildcards (e.g. `users.*.profile.*.city`)
-- Access values consistently across arrays, objects, Collections, Models, JSON, XML
-- Mutate data: set/merge/unset deeply into arrays, DTOs, Collections, and Models
+- Access values consistently across arrays, objects, Collections (Laravel/Doctrine), Models/Entities, JSON, XML
+- Mutate data: set/merge/unset deeply into arrays, DTOs, Collections, Models, and Entities
 - Map between heterogeneous structures (simple pairs, structured mappings)
 - Template-driven mapping (read and write) with alias support
-- AutoMap snake_case to camelCase for DTO/Model targets
+- AutoMap snake_case to camelCase for DTO/Model/Entity targets
 - Replace options: case-insensitive and trimming
 - Hooks system with typed contexts for mapping lifecycle
+- **Optional dependencies**: Laravel and Doctrine packages are optional, polyfills provided
 
 ## Table of Contents
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Framework Support](#framework-support)
 - [Quick Start](#quick-start)
     - [DataAccessor](#dataaccessor)
     - [DataMutator](#datamutator)
@@ -47,6 +53,15 @@ Features at a glance:
 💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (snake_case → camelCase), value
 replacement, hooks, and common patterns for each helper.
 
+
+**💻 Code Examples:**
+
+- [examples/01-data-accessor.php](examples/01-data-accessor.php) – Basic array access with wildcards
+- [examples/02-data-mutator.php](examples/02-data-mutator.php) – Mutating arrays
+- [examples/03-data-mapper-simple.php](examples/03-data-mapper-simple.php) – Simple mapping
+- [examples/04-data-mapper-with-hooks.php](examples/04-data-mapper-with-hooks.php) – Advanced mapping with hooks
+- [examples/05-laravel.php](examples/05-laravel.php) – Laravel Collections, Eloquent Models, Arrayable
+- [examples/06-symfony-doctrine.php](examples/06-symfony-doctrine.php) – Doctrine Collections and Entities
 ## Installation
 
 Use as a local path repository during development.
@@ -74,6 +89,34 @@ composer update event4u/laravel-data-helpers -o
 ```
 
 PSR-4 namespace: `event4u\DataHelpers`
+
+## Framework Support
+
+This package works with **any PHP 8.2+ project** and provides optional support for popular frameworks:
+
+### Standalone PHP
+```bash
+composer require event4u/laravel-data-helpers
+```
+Works out of the box with arrays, objects, JSON, and XML. Polyfills are automatically loaded for Collection and Model types.
+
+### Laravel Projects
+```bash
+composer require event4u/laravel-data-helpers
+composer require illuminate/support      # Usually already installed
+composer require illuminate/database     # For Eloquent Model support
+```
+Full support for Laravel Collections, Eloquent Models, and Arrayable interface.
+
+### Symfony/Doctrine Projects
+```bash
+composer require event4u/laravel-data-helpers
+composer require doctrine/collections    # For Doctrine Collections
+composer require doctrine/orm            # For Doctrine Entities
+```
+Full support for Doctrine Collections and Entities with automatic detection.
+
+**See [OPTIONAL_DEPENDENCIES.md](OPTIONAL_DEPENDENCIES.md) for detailed framework integration guide.**
 
 ## Quick Start
 
