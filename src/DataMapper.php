@@ -74,759 +74,21 @@ class DataMapper
 
         // Case 1: simple path-to-path mapping like ['a.b' => 'x.y']
         if (MappingEngine::isSimpleMapping($mapping)) {
-            $accessor = new DataAccessor($source);
-
-            // Global hook: beforeAll
-            HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
-
-            $mappingIndex = 0;
-            foreach ($mapping as $sourcePath => $targetPath) {
-                $pairContext = new PairContext(
-                    'simple',
-                    $mappingIndex,
-                    (string)$sourcePath,
-                    (string)$targetPath,
-                    $source,
-                    $target
-                );
-                if (HookInvoker::invokeHooks($hooks, 'beforePair', $pairContext) === false) {
-                    $mappingIndex++;
-
-                    continue;
-                }
-
-                $value = $accessor->get((string)$sourcePath);
-
-                // Skip null values by default
-                if ($skipNull && null === $value) {
-                    $mappingIndex++;
-
-                    continue;
-                }
-
-                // preTransform
-                $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
-
-                // Handle wildcard values (always arrays with dot-path keys)
-                if (is_array($value) && str_contains((string)$sourcePath, '*')) {
-                    // Normalize wildcard array (flatten dot-path keys to simple list)
-                    $value = WildcardHandler::normalizeWildcardArray($value);
-                    WildcardHandler::iterateWildcardItems(
-                        $value,
-                        $skipNull,
-                        $reindexWildcard,
-                        function(int|string $_i, string $reason) use (&$mappingIndex): void {
-                            if ('null' === $reason) {
-                                $mappingIndex++;
-                            }
-                        },
-                        function(int|string $wildcardIndex, mixed $itemValue) use (
-                            &$target,
-                            $hooks,
-                            $pairContext,
-                            $sourcePath,
-                            $targetPath,
-                            $source,
-                            $mappingIndex
-                        ): bool {
-                            $pairContext->wildcardIndex = $wildcardIndex;
-                            $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
-                            $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, (string)$targetPath, 1);
-                            $writeContext = new WriteContext(
-                                'simple',
-                                $mappingIndex,
-                                (string)$sourcePath,
-                                (string)$targetPath,
-                                $source,
-                                $target,
-                                (string)$resolvedTargetPath,
-                                $wildcardIndex
-                            );
-                            $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $itemValue);
-                            if ('__skip__' === $writeValue) {
-                                return false;
-                            }
-                            $target = DataMutator::set(
-                                MappingEngine::asTarget($target),
-                                (string)$resolvedTargetPath,
-                                $writeValue
-                            );
-                            $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
-
-                            return true;
-                        }
-                    );
-                } else {
-                    $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
-                    $writeContext = new WriteContext(
-                        'simple',
-                        $mappingIndex,
-                        (string)$sourcePath,
-                        (string)$targetPath,
-                        $source,
-                        $target,
-                        (string)$targetPath
-                    );
-                    $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
-                    if ('__skip__' !== $writeValue) {
-                        $target = DataMutator::set(MappingEngine::asTarget($target), (string)$targetPath, $writeValue);
-                        $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
-                    }
-                }
-
-                HookInvoker::invokeHooks($hooks, 'afterPair', $pairContext);
-                $mappingIndex++;
-            }
-
-            HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('simple', $mapping, $source, $target));
-
-            return $target;
+            return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks);
         }
 
-        // Global hook: beforeAll for structured mode
-        HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('structured', $mapping, $source, $target));
 
         // Case 2: structured mapping definitions with source/target objects
-        foreach ($mapping as $map) {
-            if (!is_array($map)) {
-                throw new InvalidArgumentException('Advanced mapping definitions must be arrays.');
-            }
-
-            $entrySource = $map['source'] ?? $source;
-
-            /** @var array<int|string, mixed>|object $entryTarget */
-            $entryTarget = $map['target'] ?? $target;
-            if (!is_array($entryTarget) && !is_object($entryTarget)) {
-                $entryTarget = [];
-            }
-
-            $entrySkipNull = array_key_exists('skipNull', $map) ? (bool)$map['skipNull'] : $skipNull;
-
-            assert(is_array($entryTarget) || is_object($entryTarget));
-
-            $entryReindex = array_key_exists(
-                'reindexWildcard',
-                $map
-            ) ? (bool)$map['reindexWildcard'] : $reindexWildcard;
-
-            $accessor = new DataAccessor($entrySource);
-
-            /** @var array<DataMapperHook|string, mixed> $entryHooks */
-            $entryHooks = is_array($map['hooks'] ?? null) ? $map['hooks'] : [];
-            $entryHooks = HookInvoker::normalizeHooks($entryHooks);
-            $effectiveHooks = HookInvoker::mergeHooks($hooks, $entryHooks);
-            HookInvoker::invokeHooks(
-                $effectiveHooks,
-                'beforeEntry',
-                new EntryContext('structured', $map, $entrySource, $entryTarget)
-            );
-
-            // Support either explicit source/target mapping arrays, or a single associative/list 'mapping'
-            if (isset($map['sourceMapping']) || isset($map['targetMapping'])) {
-                $sourcePathMapping = $map['sourceMapping'] ?? [];
-                $targetPathMapping = $map['targetMapping'] ?? [];
-
-                /** @var array<int, null|callable>|array<string, null|callable> $transforms */
-                $transforms = is_array($map['transforms'] ?? null) ? $map['transforms'] : [];
-
-                /** @var array<int, null|array<string, mixed>>|array<string, null|array<string, mixed>> $replaces */
-                $replaces = is_array($map['replaces'] ?? null) ? $map['replaces'] : [];
-
-                if (count($sourcePathMapping) !== count($targetPathMapping)) {
-                    $msg = sprintf(
-                        'Source and target path arrays must have the same length. Given: source=%d, target=%d',
-                        count($sourcePathMapping),
-                        count($targetPathMapping)
-                    );
-
-                    throw new InvalidArgumentException($msg);
-                }
-
-                foreach ($sourcePathMapping as $pairIndex => $sourcePath) {
-                    $targetPath = $targetPathMapping[$pairIndex] ?? null;
-                    if (null === $targetPath) {
-                        continue;
-                    }
-
-                    $pairContext = new PairContext(
-                        'structured',
-                        $pairIndex,
-                        (string)$sourcePath,
-                        (string)$targetPath,
-                        $entrySource,
-                        $entryTarget
-                    );
-                    if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
-                        continue;
-                    }
-
-                    $value = $accessor->get((string)$sourcePath);
-                    if ($entrySkipNull && null === $value) {
-                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-
-                        continue;
-                    }
-
-                    // preTransform
-                    $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
-
-                    /** @var null|array<string, mixed> $replaceMap */
-                    $replaceMap = null;
-                    if (is_array($replaces)) {
-                        if (array_is_list($replaces)) {
-                            $replaceMap = $replaces[$pairIndex] ?? null;
-                        } else {
-                            $replaceMap = $replaces[(string)$sourcePath] ?? null;
-                        }
-                    }
-
-                    $transformFn = $transforms[$pairIndex] ?? null;
-
-                    // Handle wildcard values (always arrays with dot-path keys)
-                    if (is_array($value) && str_contains((string)$sourcePath, '*')) {
-                        // Normalize wildcard array so indices are numeric (0..n) or original numeric keys
-                        $value = WildcardHandler::normalizeWildcardArray($value);
-
-                        WildcardHandler::iterateWildcardItems(
-                            $value,
-                            $entrySkipNull,
-                            $entryReindex,
-                            null,
-                            function(int|string $wildcardIndex, mixed $itemValue) use (
-                                &$entryTarget,
-                                $effectiveHooks,
-                                $pairContext,
-                                $transformFn,
-                                $replaceMap,
-                                $trimValues,
-                                $caseInsensitiveReplace,
-                                $sourcePath,
-                                $targetPath,
-                                $entrySource,
-                                $entrySkipNull,
-                                $pairIndex
-                            ): bool {
-                                $pairContext->wildcardIndex = $wildcardIndex;
-
-                                if (is_callable($transformFn)) {
-                                    $itemValue = $transformFn($itemValue);
-                                }
-                                if (is_array($replaceMap)) {
-                                    if ($trimValues && is_string($itemValue)) {
-                                        $itemValue = trim($itemValue);
-                                    }
-                                    $itemValue = ValueTransformer::applyReplacement(
-                                        $itemValue,
-                                        $replaceMap,
-                                        $caseInsensitiveReplace
-                                    );
-                                }
-
-                                $itemValue = HookInvoker::invokeValueHook(
-                                    $effectiveHooks,
-                                    'postTransform',
-                                    $pairContext,
-                                    $itemValue
-                                );
-
-                                if ($entrySkipNull && null === $itemValue) {
-                                    return false;
-                                }
-
-                                $resolvedTargetPath = preg_replace(
-                                    '/\*/',
-                                    (string)$wildcardIndex,
-                                    (string)$targetPath,
-                                    1
-                                );
-                                $writeContext = new WriteContext(
-                                    'structured',
-                                    $pairIndex,
-                                    (string)$sourcePath,
-                                    (string)$targetPath,
-                                    $entrySource,
-                                    $entryTarget,
-                                    (string)$resolvedTargetPath,
-                                    $wildcardIndex
-                                );
-                                $writeValue = HookInvoker::invokeValueHook(
-                                    $effectiveHooks,
-                                    'beforeWrite',
-                                    $writeContext,
-                                    $itemValue
-                                );
-                                if ('__skip__' === $writeValue) {
-                                    return false;
-                                }
-
-                                $entryTarget = DataMutator::set(
-                                    MappingEngine::asTarget($entryTarget),
-                                    (string)$resolvedTargetPath,
-                                    $writeValue
-                                );
-                                $entryTarget = HookInvoker::invokeTargetHook(
-                                    $effectiveHooks,
-                                    'afterWrite',
-                                    $writeContext,
-                                    $writeValue,
-                                    $entryTarget
-                                );
-
-                                return true;
-                            }
-                        );
-                    } else {
-                        if (is_callable($transformFn)) {
-                            $value = $transformFn($value);
-                        }
-
-                        if (is_array($replaceMap)) {
-                            if ($trimValues && is_string($value)) {
-                                $value = trim($value);
-                            }
-                            $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
-                        }
-
-                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
-                        if ($entrySkipNull && null === $value) {
-                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-
-                            continue;
-                        }
-                        $writeContext = new WriteContext(
-                            'structured',
-                            $pairIndex,
-                            (string)$sourcePath,
-                            (string)$targetPath,
-                            $entrySource,
-                            $entryTarget,
-                            (string)$targetPath
-                        );
-                        $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
-                        if ('__skip__' !== $writeValue) {
-                            $entryTarget = DataMutator::set(
-                                MappingEngine::asTarget($entryTarget),
-                                (string)$targetPath,
-                                $writeValue
-                            );
-                            $entryTarget = HookInvoker::invokeTargetHook(
-                                $effectiveHooks,
-                                'afterWrite',
-                                $writeContext,
-                                $writeValue,
-                                $entryTarget
-                            );
-                        }
-                    }
-
-                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                }
-            } elseif (isset($map['mapping'])) {
-                $pairs = $map['mapping'];
-
-                /** @var array<int, null|callable>|array<string, null|callable> $transforms */
-                $transforms = is_array($map['transforms'] ?? null) ? $map['transforms'] : [];
-
-                /** @var array<int, null|array<string, mixed>>|array<string, null|array<string, mixed>> $replaces */
-                $replaces = is_array($map['replaces'] ?? null) ? $map['replaces'] : [];
-
-                // Associative mapping: ['src' => 'dst']
-                if (is_array($pairs) && MappingEngine::isSimpleMapping($pairs)) {
-                    $mappingIndexAssoc = 0;
-                    foreach ($pairs as $sourcePath => $targetPath) {
-                        $pairContext = new PairContext(
-                            'structured-assoc',
-                            $mappingIndexAssoc,
-                            (string)$sourcePath,
-                            (string)$targetPath,
-                            $entrySource,
-                            $entryTarget
-                        );
-                        if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
-                            $mappingIndexAssoc++;
-
-                            continue;
-                        }
-
-                        $value = $accessor->get((string)$sourcePath);
-                        if ($entrySkipNull && null === $value) {
-                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                            $mappingIndexAssoc++;
-
-                            continue;
-                        }
-
-                        // preTransform
-                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
-
-                        $transformFn = null;
-                        if (array_key_exists((string)$sourcePath, $transforms)) {
-                            /** @var null|callable $fn */
-                            $fn = $transforms[(string)$sourcePath];
-                            $transformFn = $fn;
-                        } elseif (array_is_list($transforms)) {
-                            /** @var null|callable $fn2 */
-                            $fn2 = $transforms[$mappingIndexAssoc] ?? null;
-                            $transformFn = $fn2;
-                        }
-
-                        /** @var null|array<string, mixed> $replaceMap */
-                        $replaceMap = null;
-                        if (is_array($replaces)) {
-                            if (array_key_exists((string)$sourcePath, $replaces)) {
-                                $replaceMap = is_array(
-                                    $replaces[(string)$sourcePath]
-                                ) ? $replaces[(string)$sourcePath] : null;
-                            } elseif (array_is_list($replaces)) {
-                                $replaceMap = $replaces[$mappingIndexAssoc] ?? null;
-                            }
-                        }
-
-                        if (is_array($value) && str_contains((string)$sourcePath, '*')) {
-                            // Normalize wildcard array so indices are numeric (0..n) or original numeric keys
-                            $value = WildcardHandler::normalizeWildcardArray($value);
-                            WildcardHandler::iterateWildcardItems(
-                                $value,
-                                $entrySkipNull,
-                                $entryReindex,
-                                null,
-                                function(int|string $wildcardIndex, mixed $itemValue) use (
-                                    &$entryTarget,
-                                    $effectiveHooks,
-                                    $pairContext,
-                                    $transformFn,
-                                    $replaceMap,
-                                    $trimValues,
-                                    $caseInsensitiveReplace,
-                                    $sourcePath,
-                                    $targetPath,
-                                    $entrySource,
-                                    $mappingIndexAssoc,
-                                    $entrySkipNull
-                                ): bool {
-                                    $pairContext->wildcardIndex = $wildcardIndex;
-
-                                    if (is_callable($transformFn)) {
-                                        $itemValue = $transformFn($itemValue);
-                                    }
-
-                                    if (is_array($replaceMap)) {
-                                        if ($trimValues && is_string($itemValue)) {
-                                            $itemValue = trim($itemValue);
-                                        }
-                                        $itemValue = ValueTransformer::applyReplacement(
-                                            $itemValue,
-                                            $replaceMap,
-                                            $caseInsensitiveReplace
-                                        );
-                                    }
-
-                                    $itemValue = HookInvoker::invokeValueHook(
-                                        $effectiveHooks,
-                                        'postTransform',
-                                        $pairContext,
-                                        $itemValue
-                                    );
-
-                                    if ($entrySkipNull && null === $itemValue) {
-                                        return false;
-                                    }
-
-                                    $resolvedTargetPath = preg_replace(
-                                        '/\*/',
-                                        (string)$wildcardIndex,
-                                        (string)$targetPath,
-                                        1
-                                    );
-                                    $writeContext = new WriteContext(
-                                        'structured',
-                                        $mappingIndexAssoc,
-                                        (string)$sourcePath,
-                                        (string)$targetPath,
-                                        $entrySource,
-                                        $entryTarget,
-                                        (string)$resolvedTargetPath,
-                                        $wildcardIndex
-                                    );
-                                    $writeValue = HookInvoker::invokeValueHook(
-                                        $effectiveHooks,
-                                        'beforeWrite',
-                                        $writeContext,
-                                        $itemValue
-                                    );
-                                    if ('__skip__' === $writeValue) {
-                                        return false;
-                                    }
-
-                                    $entryTarget = DataMutator::set(
-                                        MappingEngine::asTarget($entryTarget),
-                                        (string)$resolvedTargetPath,
-                                        $writeValue
-                                    );
-                                    $entryTarget = HookInvoker::invokeTargetHook(
-                                        $effectiveHooks,
-                                        'afterWrite',
-                                        $writeContext,
-                                        $writeValue,
-                                        $entryTarget
-                                    );
-
-                                    return true;
-                                }
-                            );
-                        } else {
-                            if (is_callable($transformFn)) {
-                                $value = $transformFn($value);
-                                if ($entrySkipNull && null === $value) {
-                                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                                    $mappingIndexAssoc++;
-
-                                    continue;
-                                }
-                            }
-
-                            if (is_array($replaceMap)) {
-                                if ($trimValues && is_string($value)) {
-                                    $value = trim($value);
-                                }
-                                $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
-                            }
-
-                            $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
-                            if ($entrySkipNull && null === $value) {
-                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                                $mappingIndexAssoc++;
-
-                                continue;
-                            }
-                            $writeContext = new WriteContext(
-                                'structured',
-                                $mappingIndexAssoc,
-                                (string)$sourcePath,
-                                (string)$targetPath,
-                                $entrySource,
-                                $entryTarget,
-                                (string)$targetPath
-                            );
-                            $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
-                            if ('__skip__' !== $writeValue) {
-                                $entryTarget = DataMutator::set(
-                                    MappingEngine::asTarget($entryTarget),
-                                    (string)$targetPath,
-                                    $writeValue
-                                );
-                                $entryTarget = HookInvoker::invokeTargetHook(
-                                    $effectiveHooks,
-                                    'afterWrite',
-                                    $writeContext,
-                                    $writeValue,
-                                    $entryTarget
-                                );
-                            }
-                        }
-                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                        $mappingIndexAssoc++;
-                    }
-                } else {
-                    // List of pairs: [[sourcePath, targetPath], ...]
-                    $pairIndex = 0;
-                    foreach ($pairs as $mappingPair) {
-                        if (!is_array($mappingPair) || count($mappingPair) !== 2) {
-                            throw new InvalidArgumentException(
-                                'Invalid mapping pair. Expected [sourcePath, targetPath].'
-                            );
-                        }
-                        [$sourcePath, $targetPath] = $mappingPair;
-                        if (!is_string($sourcePath) || !is_string($targetPath)) {
-                            throw new InvalidArgumentException('Mapping paths must be strings.');
-                        }
-                        $pairContext = new PairContext(
-                            'structured-pairs',
-                            $pairIndex,
-                            $sourcePath,
-                            $targetPath,
-                            $entrySource,
-                            $entryTarget
-                        );
-                        if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
-                            $pairIndex++;
-
-                            continue;
-                        }
-
-                        $value = $accessor->get($sourcePath);
-                        if ($entrySkipNull && null === $value) {
-                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                            $pairIndex++;
-
-                            continue;
-                        }
-                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
-
-                        /** @var null|callable $transformFn */
-                        $transformFn = is_array($transforms) && array_is_list(
-                            $transforms
-                        ) ? ($transforms[$pairIndex] ?? null) : null;
-
-                        /** @var null|array<string, mixed> $replaceMap */
-                        $replaceMap = null;
-                        if (is_array($replaces) && array_is_list($replaces)) {
-                            $replaceMap = $replaces[$pairIndex] ?? null;
-                        }
-
-                        if (is_array($value) && str_contains($sourcePath, '*')) {
-                            // Normalize wildcard array so indices are numeric (0..n) or original numeric keys
-                            $value = WildcardHandler::normalizeWildcardArray($value);
-                            WildcardHandler::iterateWildcardItems(
-                                $value,
-                                $entrySkipNull,
-                                $entryReindex,
-                                null,
-                                function(int|string $wildcardIndex, mixed $itemValue) use (
-                                    &$entryTarget,
-                                    $effectiveHooks,
-                                    $pairContext,
-                                    $transformFn,
-                                    $replaceMap,
-                                    $trimValues,
-                                    $caseInsensitiveReplace,
-                                    $sourcePath,
-                                    $targetPath,
-                                    $entrySource,
-                                    $pairIndex,
-                                    $entrySkipNull
-                                ): bool {
-                                    $pairContext->wildcardIndex = $wildcardIndex;
-
-                                    if (is_callable($transformFn)) {
-                                        $itemValue = $transformFn($itemValue);
-                                    }
-                                    if (is_array($replaceMap)) {
-                                        if ($trimValues && is_string($itemValue)) {
-                                            $itemValue = trim($itemValue);
-                                        }
-                                        $itemValue = ValueTransformer::applyReplacement(
-                                            $itemValue,
-                                            $replaceMap,
-                                            $caseInsensitiveReplace
-                                        );
-                                    }
-
-                                    $itemValue = HookInvoker::invokeValueHook(
-                                        $effectiveHooks,
-                                        'postTransform',
-                                        $pairContext,
-                                        $itemValue
-                                    );
-
-                                    if ($entrySkipNull && null === $itemValue) {
-                                        return false;
-                                    }
-
-                                    $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, $targetPath, 1);
-                                    $writeContext = new WriteContext(
-                                        'structured',
-                                        $pairIndex,
-                                        $sourcePath,
-                                        $targetPath,
-                                        $entrySource,
-                                        $entryTarget,
-                                        (string)$resolvedTargetPath,
-                                        $wildcardIndex
-                                    );
-                                    $writeValue = HookInvoker::invokeValueHook(
-                                        $effectiveHooks,
-                                        'beforeWrite',
-                                        $writeContext,
-                                        $itemValue
-                                    );
-                                    if ('__skip__' === $writeValue) {
-                                        return false;
-                                    }
-                                    $entryTarget = DataMutator::set(
-                                        MappingEngine::asTarget($entryTarget),
-                                        (string)$resolvedTargetPath,
-                                        $writeValue
-                                    );
-                                    $entryTarget = HookInvoker::invokeTargetHook(
-                                        $effectiveHooks,
-                                        'afterWrite',
-                                        $writeContext,
-                                        $writeValue,
-                                        $entryTarget
-                                    );
-
-                                    return true;
-                                }
-                            );
-                        } else {
-                            if (is_callable($transformFn)) {
-                                $value = $transformFn($value);
-                                if ($entrySkipNull && null === $value) {
-                                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                                    $pairIndex++;
-
-                                    continue;
-                                }
-                            }
-                            if (is_array($replaceMap)) {
-                                if ($trimValues && is_string($value)) {
-                                    $value = trim($value);
-                                }
-                                $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
-                            }
-
-                            $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
-                            if ($entrySkipNull && null === $value) {
-                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                                $pairIndex++;
-
-                                continue;
-                            }
-                            $writeContext = new WriteContext(
-                                'structured',
-                                $pairIndex,
-                                $sourcePath,
-                                $targetPath,
-                                $entrySource,
-                                $entryTarget,
-                                $targetPath
-                            );
-                            $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
-                            if ('__skip__' !== $writeValue) {
-                                $entryTarget = DataMutator::set(MappingEngine::asTarget($entryTarget), $targetPath, $writeValue);
-                                $entryTarget = HookInvoker::invokeTargetHook(
-                                    $effectiveHooks,
-                                    'afterWrite',
-                                    $writeContext,
-                                    $writeValue,
-                                    $entryTarget
-                                );
-                            }
-                        }
-                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
-                        $pairIndex++;
-                    }
-                }
-            } else {
-                throw new InvalidArgumentException(
-                    'Advanced mapping entry must contain source, target and mapping (or sourceMapping/targetMapping).'
-                );
-            }
-
-            HookInvoker::invokeHooks(
-                $effectiveHooks,
-                'afterEntry',
-                new EntryContext('structured', $map, $entrySource, $entryTarget)
-            );
-
-            $target = $entryTarget;
-        }
-
-        // Global hook: afterAll for structured mode
-        HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('structured', $mapping, $source, $target));
-
-        return $target;
+        return self::mapStructured(
+            $source,
+            $target,
+            $mapping,
+            $skipNull,
+            $reindexWildcard,
+            $hooks,
+            $trimValues,
+            $caseInsensitiveReplace
+        );
     }
 
     /**
@@ -1673,5 +935,802 @@ class DataMapper
         }
 
         return $value === $pattern || str_starts_with($value, $pattern);
+    }
+
+    /**
+     * Handle simple path-to-path mapping.
+     *
+     * @param mixed $source
+     * @param array<int|string, mixed>|object $target
+     * @param array<string, string> $mapping
+     * @param bool $skipNull
+     * @param bool $reindexWildcard
+     * @param array<string, mixed> $hooks
+     * @return array<int|string, mixed>|object
+     */
+    private static function mapSimple(
+        mixed $source,
+        array|object $target,
+        array $mapping,
+        bool $skipNull,
+        bool $reindexWildcard,
+        array $hooks
+    ): array|object {
+        $accessor = new DataAccessor($source);
+
+        // Global hook: beforeAll
+        HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
+
+        $mappingIndex = 0;
+        foreach ($mapping as $sourcePath => $targetPath) {
+            $pairContext = new PairContext(
+                'simple',
+                $mappingIndex,
+                (string)$sourcePath,
+                (string)$targetPath,
+                $source,
+                $target
+            );
+            if (HookInvoker::invokeHooks($hooks, 'beforePair', $pairContext) === false) {
+                $mappingIndex++;
+
+                continue;
+            }
+
+            $value = $accessor->get((string)$sourcePath);
+
+            // Skip null values by default
+            if ($skipNull && null === $value) {
+                $mappingIndex++;
+
+                continue;
+            }
+
+            // preTransform
+            $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
+
+            // Handle wildcard values (always arrays with dot-path keys)
+            if (is_array($value) && str_contains((string)$sourcePath, '*')) {
+                // Normalize wildcard array (flatten dot-path keys to simple list)
+                $value = WildcardHandler::normalizeWildcardArray($value);
+                WildcardHandler::iterateWildcardItems(
+                    $value,
+                    $skipNull,
+                    $reindexWildcard,
+                    function(int|string $_i, string $reason) use (&$mappingIndex): void {
+                        if ('null' === $reason) {
+                            $mappingIndex++;
+                        }
+                    },
+                    function(int|string $wildcardIndex, mixed $itemValue) use (
+                        &$target,
+                        $hooks,
+                        $pairContext,
+                        $sourcePath,
+                        $targetPath,
+                        $source,
+                        $mappingIndex
+                    ): bool {
+                        $pairContext->wildcardIndex = $wildcardIndex;
+                        $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
+                        $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, (string)$targetPath, 1);
+                        $writeContext = new WriteContext(
+                            'simple',
+                            $mappingIndex,
+                            (string)$sourcePath,
+                            (string)$targetPath,
+                            $source,
+                            $target,
+                            (string)$resolvedTargetPath,
+                            $wildcardIndex
+                        );
+                        $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $itemValue);
+                        if ('__skip__' === $writeValue) {
+                            return false;
+                        }
+                        $target = DataMutator::set(
+                            MappingEngine::asTarget($target),
+                            (string)$resolvedTargetPath,
+                            $writeValue
+                        );
+                        $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+
+                        return true;
+                    }
+                );
+            } else {
+                $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
+                $writeContext = new WriteContext(
+                    'simple',
+                    $mappingIndex,
+                    (string)$sourcePath,
+                    (string)$targetPath,
+                    $source,
+                    $target,
+                    (string)$targetPath
+                );
+                $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
+                if ('__skip__' !== $writeValue) {
+                    $target = DataMutator::set(MappingEngine::asTarget($target), (string)$targetPath, $writeValue);
+                    $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                }
+            }
+
+            HookInvoker::invokeHooks($hooks, 'afterPair', $pairContext);
+            $mappingIndex++;
+        }
+
+        HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('simple', $mapping, $source, $target));
+
+        return $target;
+    }
+
+    /**
+     * Handle structured mapping definitions with source/target objects.
+     *
+     * @param mixed $source
+     * @param array<int|string, mixed>|object $target
+     * @param array<int, array<string, mixed>> $mapping
+     * @param bool $skipNull
+     * @param bool $reindexWildcard
+     * @param array<string, mixed> $hooks
+     * @param bool $trimValues
+     * @param bool $caseInsensitiveReplace
+     * @return array<int|string, mixed>|object
+     */
+    private static function mapStructured(
+        mixed $source,
+        array|object $target,
+        array $mapping,
+        bool $skipNull,
+        bool $reindexWildcard,
+        array $hooks,
+        bool $trimValues,
+        bool $caseInsensitiveReplace
+    ): array|object {
+        // Global hook: beforeAll for structured mode
+        HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('structured', $mapping, $source, $target));
+
+        // Case 2: structured mapping definitions with source/target objects
+        foreach ($mapping as $map) {
+            if (!is_array($map)) {
+                throw new InvalidArgumentException('Advanced mapping definitions must be arrays.');
+            }
+
+            $entrySource = $map['source'] ?? $source;
+
+            /** @var array<int|string, mixed>|object $entryTarget */
+            $entryTarget = $map['target'] ?? $target;
+            if (!is_array($entryTarget) && !is_object($entryTarget)) {
+                $entryTarget = [];
+            }
+
+            $entrySkipNull = array_key_exists('skipNull', $map) ? (bool)$map['skipNull'] : $skipNull;
+
+            assert(is_array($entryTarget) || is_object($entryTarget));
+
+            $entryReindex = array_key_exists(
+                'reindexWildcard',
+                $map
+            ) ? (bool)$map['reindexWildcard'] : $reindexWildcard;
+
+            $accessor = new DataAccessor($entrySource);
+
+            /** @var array<DataMapperHook|string, mixed> $entryHooks */
+            $entryHooks = is_array($map['hooks'] ?? null) ? $map['hooks'] : [];
+            $entryHooks = HookInvoker::normalizeHooks($entryHooks);
+            $effectiveHooks = HookInvoker::mergeHooks($hooks, $entryHooks);
+            HookInvoker::invokeHooks(
+                $effectiveHooks,
+                'beforeEntry',
+                new EntryContext('structured', $map, $entrySource, $entryTarget)
+            );
+
+            // Support either explicit source/target mapping arrays, or a single associative/list 'mapping'
+            if (isset($map['sourceMapping']) || isset($map['targetMapping'])) {
+                $sourcePathMapping = $map['sourceMapping'] ?? [];
+                $targetPathMapping = $map['targetMapping'] ?? [];
+
+                /** @var array<int, null|callable>|array<string, null|callable> $transforms */
+                $transforms = is_array($map['transforms'] ?? null) ? $map['transforms'] : [];
+
+                /** @var array<int, null|array<string, mixed>>|array<string, null|array<string, mixed>> $replaces */
+                $replaces = is_array($map['replaces'] ?? null) ? $map['replaces'] : [];
+
+                if (count($sourcePathMapping) !== count($targetPathMapping)) {
+                    $msg = sprintf(
+                        'Source and target path arrays must have the same length. Given: source=%d, target=%d',
+                        count($sourcePathMapping),
+                        count($targetPathMapping)
+                    );
+
+                    throw new InvalidArgumentException($msg);
+                }
+
+                foreach ($sourcePathMapping as $pairIndex => $sourcePath) {
+                    $targetPath = $targetPathMapping[$pairIndex] ?? null;
+                    if (null === $targetPath) {
+                        continue;
+                    }
+
+                    $pairContext = new PairContext(
+                        'structured',
+                        $pairIndex,
+                        (string)$sourcePath,
+                        (string)$targetPath,
+                        $entrySource,
+                        $entryTarget
+                    );
+                    if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
+                        continue;
+                    }
+
+                    $value = $accessor->get((string)$sourcePath);
+                    if ($entrySkipNull && null === $value) {
+                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+
+                        continue;
+                    }
+
+                    // preTransform
+                    $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
+
+                    /** @var null|array<string, mixed> $replaceMap */
+                    $replaceMap = null;
+                    if (is_array($replaces)) {
+                        if (array_is_list($replaces)) {
+                            $replaceMap = $replaces[$pairIndex] ?? null;
+                        } else {
+                            $replaceMap = $replaces[(string)$sourcePath] ?? null;
+                        }
+                    }
+
+                    $transformFn = $transforms[$pairIndex] ?? null;
+
+                    // Handle wildcard values (always arrays with dot-path keys)
+                    if (is_array($value) && str_contains((string)$sourcePath, '*')) {
+                        // Normalize wildcard array so indices are numeric (0..n) or original numeric keys
+                        $value = WildcardHandler::normalizeWildcardArray($value);
+
+                        WildcardHandler::iterateWildcardItems(
+                            $value,
+                            $entrySkipNull,
+                            $entryReindex,
+                            null,
+                            function(int|string $wildcardIndex, mixed $itemValue) use (
+                                &$entryTarget,
+                                $effectiveHooks,
+                                $pairContext,
+                                $transformFn,
+                                $replaceMap,
+                                $trimValues,
+                                $caseInsensitiveReplace,
+                                $sourcePath,
+                                $targetPath,
+                                $entrySource,
+                                $entrySkipNull,
+                                $pairIndex
+                            ): bool {
+                                $pairContext->wildcardIndex = $wildcardIndex;
+
+                                if (is_callable($transformFn)) {
+                                    $itemValue = $transformFn($itemValue);
+                                }
+                                if (is_array($replaceMap)) {
+                                    if ($trimValues && is_string($itemValue)) {
+                                        $itemValue = trim($itemValue);
+                                    }
+                                    $itemValue = ValueTransformer::applyReplacement(
+                                        $itemValue,
+                                        $replaceMap,
+                                        $caseInsensitiveReplace
+                                    );
+                                }
+
+                                $itemValue = HookInvoker::invokeValueHook(
+                                    $effectiveHooks,
+                                    'postTransform',
+                                    $pairContext,
+                                    $itemValue
+                                );
+
+                                if ($entrySkipNull && null === $itemValue) {
+                                    return false;
+                                }
+
+                                $resolvedTargetPath = preg_replace(
+                                    '/\*/',
+                                    (string)$wildcardIndex,
+                                    (string)$targetPath,
+                                    1
+                                );
+                                $writeContext = new WriteContext(
+                                    'structured',
+                                    $pairIndex,
+                                    (string)$sourcePath,
+                                    (string)$targetPath,
+                                    $entrySource,
+                                    $entryTarget,
+                                    (string)$resolvedTargetPath,
+                                    $wildcardIndex
+                                );
+                                $writeValue = HookInvoker::invokeValueHook(
+                                    $effectiveHooks,
+                                    'beforeWrite',
+                                    $writeContext,
+                                    $itemValue
+                                );
+                                if ('__skip__' === $writeValue) {
+                                    return false;
+                                }
+
+                                $entryTarget = DataMutator::set(
+                                    MappingEngine::asTarget($entryTarget),
+                                    (string)$resolvedTargetPath,
+                                    $writeValue
+                                );
+                                $entryTarget = HookInvoker::invokeTargetHook(
+                                    $effectiveHooks,
+                                    'afterWrite',
+                                    $writeContext,
+                                    $writeValue,
+                                    $entryTarget
+                                );
+
+                                return true;
+                            }
+                        );
+                    } else {
+                        if (is_callable($transformFn)) {
+                            $value = $transformFn($value);
+                        }
+
+                        if (is_array($replaceMap)) {
+                            if ($trimValues && is_string($value)) {
+                                $value = trim($value);
+                            }
+                            $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
+                        }
+
+                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
+                        if ($entrySkipNull && null === $value) {
+                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+
+                            continue;
+                        }
+                        $writeContext = new WriteContext(
+                            'structured',
+                            $pairIndex,
+                            (string)$sourcePath,
+                            (string)$targetPath,
+                            $entrySource,
+                            $entryTarget,
+                            (string)$targetPath
+                        );
+                        $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
+                        if ('__skip__' !== $writeValue) {
+                            $entryTarget = DataMutator::set(
+                                MappingEngine::asTarget($entryTarget),
+                                (string)$targetPath,
+                                $writeValue
+                            );
+                            $entryTarget = HookInvoker::invokeTargetHook(
+                                $effectiveHooks,
+                                'afterWrite',
+                                $writeContext,
+                                $writeValue,
+                                $entryTarget
+                            );
+                        }
+                    }
+
+                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                }
+            } elseif (isset($map['mapping'])) {
+                $pairs = $map['mapping'];
+
+                /** @var array<int, null|callable>|array<string, null|callable> $transforms */
+                $transforms = is_array($map['transforms'] ?? null) ? $map['transforms'] : [];
+
+                /** @var array<int, null|array<string, mixed>>|array<string, null|array<string, mixed>> $replaces */
+                $replaces = is_array($map['replaces'] ?? null) ? $map['replaces'] : [];
+
+                // Associative mapping: ['src' => 'dst']
+                if (is_array($pairs) && MappingEngine::isSimpleMapping($pairs)) {
+                    $mappingIndexAssoc = 0;
+                    foreach ($pairs as $sourcePath => $targetPath) {
+                        $pairContext = new PairContext(
+                            'structured-assoc',
+                            $mappingIndexAssoc,
+                            (string)$sourcePath,
+                            (string)$targetPath,
+                            $entrySource,
+                            $entryTarget
+                        );
+                        if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
+                            $mappingIndexAssoc++;
+
+                            continue;
+                        }
+
+                        $value = $accessor->get((string)$sourcePath);
+                        if ($entrySkipNull && null === $value) {
+                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                            $mappingIndexAssoc++;
+
+                            continue;
+                        }
+
+                        // preTransform
+                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
+
+                        $transformFn = null;
+                        if (array_key_exists((string)$sourcePath, $transforms)) {
+                            /** @var null|callable $fn */
+                            $fn = $transforms[(string)$sourcePath];
+                            $transformFn = $fn;
+                        } elseif (array_is_list($transforms)) {
+                            /** @var null|callable $fn2 */
+                            $fn2 = $transforms[$mappingIndexAssoc] ?? null;
+                            $transformFn = $fn2;
+                        }
+
+                        /** @var null|array<string, mixed> $replaceMap */
+                        $replaceMap = null;
+                        if (is_array($replaces)) {
+                            if (array_key_exists((string)$sourcePath, $replaces)) {
+                                $replaceMap = is_array(
+                                    $replaces[(string)$sourcePath]
+                                ) ? $replaces[(string)$sourcePath] : null;
+                            } elseif (array_is_list($replaces)) {
+                                $replaceMap = $replaces[$mappingIndexAssoc] ?? null;
+                            }
+                        }
+
+                        if (is_array($value) && str_contains((string)$sourcePath, '*')) {
+                            // Normalize wildcard array so indices are numeric (0..n) or original numeric keys
+                            $value = WildcardHandler::normalizeWildcardArray($value);
+                            WildcardHandler::iterateWildcardItems(
+                                $value,
+                                $entrySkipNull,
+                                $entryReindex,
+                                null,
+                                function(int|string $wildcardIndex, mixed $itemValue) use (
+                                    &$entryTarget,
+                                    $effectiveHooks,
+                                    $pairContext,
+                                    $transformFn,
+                                    $replaceMap,
+                                    $trimValues,
+                                    $caseInsensitiveReplace,
+                                    $sourcePath,
+                                    $targetPath,
+                                    $entrySource,
+                                    $mappingIndexAssoc,
+                                    $entrySkipNull
+                                ): bool {
+                                    $pairContext->wildcardIndex = $wildcardIndex;
+
+                                    if (is_callable($transformFn)) {
+                                        $itemValue = $transformFn($itemValue);
+                                    }
+
+                                    if (is_array($replaceMap)) {
+                                        if ($trimValues && is_string($itemValue)) {
+                                            $itemValue = trim($itemValue);
+                                        }
+                                        $itemValue = ValueTransformer::applyReplacement(
+                                            $itemValue,
+                                            $replaceMap,
+                                            $caseInsensitiveReplace
+                                        );
+                                    }
+
+                                    $itemValue = HookInvoker::invokeValueHook(
+                                        $effectiveHooks,
+                                        'postTransform',
+                                        $pairContext,
+                                        $itemValue
+                                    );
+
+                                    if ($entrySkipNull && null === $itemValue) {
+                                        return false;
+                                    }
+
+                                    $resolvedTargetPath = preg_replace(
+                                        '/\*/',
+                                        (string)$wildcardIndex,
+                                        (string)$targetPath,
+                                        1
+                                    );
+                                    $writeContext = new WriteContext(
+                                        'structured',
+                                        $mappingIndexAssoc,
+                                        (string)$sourcePath,
+                                        (string)$targetPath,
+                                        $entrySource,
+                                        $entryTarget,
+                                        (string)$resolvedTargetPath,
+                                        $wildcardIndex
+                                    );
+                                    $writeValue = HookInvoker::invokeValueHook(
+                                        $effectiveHooks,
+                                        'beforeWrite',
+                                        $writeContext,
+                                        $itemValue
+                                    );
+                                    if ('__skip__' === $writeValue) {
+                                        return false;
+                                    }
+
+                                    $entryTarget = DataMutator::set(
+                                        MappingEngine::asTarget($entryTarget),
+                                        (string)$resolvedTargetPath,
+                                        $writeValue
+                                    );
+                                    $entryTarget = HookInvoker::invokeTargetHook(
+                                        $effectiveHooks,
+                                        'afterWrite',
+                                        $writeContext,
+                                        $writeValue,
+                                        $entryTarget
+                                    );
+
+                                    return true;
+                                }
+                            );
+                        } else {
+                            if (is_callable($transformFn)) {
+                                $value = $transformFn($value);
+                                if ($entrySkipNull && null === $value) {
+                                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                    $mappingIndexAssoc++;
+
+                                    continue;
+                                }
+                            }
+
+                            if (is_array($replaceMap)) {
+                                if ($trimValues && is_string($value)) {
+                                    $value = trim($value);
+                                }
+                                $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
+                            }
+
+                            $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
+                            if ($entrySkipNull && null === $value) {
+                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                $mappingIndexAssoc++;
+
+                                continue;
+                            }
+                            $writeContext = new WriteContext(
+                                'structured',
+                                $mappingIndexAssoc,
+                                (string)$sourcePath,
+                                (string)$targetPath,
+                                $entrySource,
+                                $entryTarget,
+                                (string)$targetPath
+                            );
+                            $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
+                            if ('__skip__' !== $writeValue) {
+                                $entryTarget = DataMutator::set(
+                                    MappingEngine::asTarget($entryTarget),
+                                    (string)$targetPath,
+                                    $writeValue
+                                );
+                                $entryTarget = HookInvoker::invokeTargetHook(
+                                    $effectiveHooks,
+                                    'afterWrite',
+                                    $writeContext,
+                                    $writeValue,
+                                    $entryTarget
+                                );
+                            }
+                        }
+                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                        $mappingIndexAssoc++;
+                    }
+                } else {
+                    // List of pairs: [[sourcePath, targetPath], ...]
+                    $pairIndex = 0;
+                    foreach ($pairs as $mappingPair) {
+                        if (!is_array($mappingPair) || count($mappingPair) !== 2) {
+                            throw new InvalidArgumentException(
+                                'Invalid mapping pair. Expected [sourcePath, targetPath].'
+                            );
+                        }
+                        [$sourcePath, $targetPath] = $mappingPair;
+                        if (!is_string($sourcePath) || !is_string($targetPath)) {
+                            throw new InvalidArgumentException('Mapping paths must be strings.');
+                        }
+                        $pairContext = new PairContext(
+                            'structured-pairs',
+                            $pairIndex,
+                            $sourcePath,
+                            $targetPath,
+                            $entrySource,
+                            $entryTarget
+                        );
+                        if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
+                            $pairIndex++;
+
+                            continue;
+                        }
+
+                        $value = $accessor->get($sourcePath);
+                        if ($entrySkipNull && null === $value) {
+                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                            $pairIndex++;
+
+                            continue;
+                        }
+                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
+
+                        /** @var null|callable $transformFn */
+                        $transformFn = is_array($transforms) && array_is_list(
+                            $transforms
+                        ) ? ($transforms[$pairIndex] ?? null) : null;
+
+                        /** @var null|array<string, mixed> $replaceMap */
+                        $replaceMap = null;
+                        if (is_array($replaces) && array_is_list($replaces)) {
+                            $replaceMap = $replaces[$pairIndex] ?? null;
+                        }
+
+                        if (is_array($value) && str_contains($sourcePath, '*')) {
+                            // Normalize wildcard array so indices are numeric (0..n) or original numeric keys
+                            $value = WildcardHandler::normalizeWildcardArray($value);
+                            WildcardHandler::iterateWildcardItems(
+                                $value,
+                                $entrySkipNull,
+                                $entryReindex,
+                                null,
+                                function(int|string $wildcardIndex, mixed $itemValue) use (
+                                    &$entryTarget,
+                                    $effectiveHooks,
+                                    $pairContext,
+                                    $transformFn,
+                                    $replaceMap,
+                                    $trimValues,
+                                    $caseInsensitiveReplace,
+                                    $sourcePath,
+                                    $targetPath,
+                                    $entrySource,
+                                    $pairIndex,
+                                    $entrySkipNull
+                                ): bool {
+                                    $pairContext->wildcardIndex = $wildcardIndex;
+
+                                    if (is_callable($transformFn)) {
+                                        $itemValue = $transformFn($itemValue);
+                                    }
+                                    if (is_array($replaceMap)) {
+                                        if ($trimValues && is_string($itemValue)) {
+                                            $itemValue = trim($itemValue);
+                                        }
+                                        $itemValue = ValueTransformer::applyReplacement(
+                                            $itemValue,
+                                            $replaceMap,
+                                            $caseInsensitiveReplace
+                                        );
+                                    }
+
+                                    $itemValue = HookInvoker::invokeValueHook(
+                                        $effectiveHooks,
+                                        'postTransform',
+                                        $pairContext,
+                                        $itemValue
+                                    );
+
+                                    if ($entrySkipNull && null === $itemValue) {
+                                        return false;
+                                    }
+
+                                    $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, $targetPath, 1);
+                                    $writeContext = new WriteContext(
+                                        'structured',
+                                        $pairIndex,
+                                        $sourcePath,
+                                        $targetPath,
+                                        $entrySource,
+                                        $entryTarget,
+                                        (string)$resolvedTargetPath,
+                                        $wildcardIndex
+                                    );
+                                    $writeValue = HookInvoker::invokeValueHook(
+                                        $effectiveHooks,
+                                        'beforeWrite',
+                                        $writeContext,
+                                        $itemValue
+                                    );
+                                    if ('__skip__' === $writeValue) {
+                                        return false;
+                                    }
+                                    $entryTarget = DataMutator::set(
+                                        MappingEngine::asTarget($entryTarget),
+                                        (string)$resolvedTargetPath,
+                                        $writeValue
+                                    );
+                                    $entryTarget = HookInvoker::invokeTargetHook(
+                                        $effectiveHooks,
+                                        'afterWrite',
+                                        $writeContext,
+                                        $writeValue,
+                                        $entryTarget
+                                    );
+
+                                    return true;
+                                }
+                            );
+                        } else {
+                            if (is_callable($transformFn)) {
+                                $value = $transformFn($value);
+                                if ($entrySkipNull && null === $value) {
+                                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                    $pairIndex++;
+
+                                    continue;
+                                }
+                            }
+                            if (is_array($replaceMap)) {
+                                if ($trimValues && is_string($value)) {
+                                    $value = trim($value);
+                                }
+                                $value = ValueTransformer::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
+                            }
+
+                            $value = HookInvoker::invokeValueHook($effectiveHooks, 'postTransform', $pairContext, $value);
+                            if ($entrySkipNull && null === $value) {
+                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                $pairIndex++;
+
+                                continue;
+                            }
+                            $writeContext = new WriteContext(
+                                'structured',
+                                $pairIndex,
+                                $sourcePath,
+                                $targetPath,
+                                $entrySource,
+                                $entryTarget,
+                                $targetPath
+                            );
+                            $writeValue = HookInvoker::invokeValueHook($effectiveHooks, 'beforeWrite', $writeContext, $value);
+                            if ('__skip__' !== $writeValue) {
+                                $entryTarget = DataMutator::set(MappingEngine::asTarget($entryTarget), $targetPath, $writeValue);
+                                $entryTarget = HookInvoker::invokeTargetHook(
+                                    $effectiveHooks,
+                                    'afterWrite',
+                                    $writeContext,
+                                    $writeValue,
+                                    $entryTarget
+                                );
+                            }
+                        }
+                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                        $pairIndex++;
+                    }
+                }
+            } else {
+                throw new InvalidArgumentException(
+                    'Advanced mapping entry must contain source, target and mapping (or sourceMapping/targetMapping).'
+                );
+            }
+
+            HookInvoker::invokeHooks(
+                $effectiveHooks,
+                'afterEntry',
+                new EntryContext('structured', $map, $entrySource, $entryTarget)
+            );
+
+            $target = $entryTarget;
+        }
+
+        // Global hook: afterAll for structured mode
+        HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('structured', $mapping, $source, $target));
+
+        return $target;
     }
 }

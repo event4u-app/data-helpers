@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\Enums\DataMapperHook;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
