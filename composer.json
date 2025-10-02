@@ -1,14 +1,17 @@
 {
   "name": "event4u/laravel-data-helpers",
-  "description": "A universal mapper for Arrays, DTOs, Eloquent, Collections, JSON & XML with dot-notation, wildcards, templates, and hooks.",
+  "description": "Framework-agnostic helpers for structured data access, mutation, and mapping using dot-notation paths with wildcards. Works with Laravel, Symfony/Doctrine, or standalone PHP.",
   "license": "proprietary",
   "type": "library",
   "keywords": [
-    "helpers",
-    "dot-notations",
-    "accassor",
+    "data",
+    "accessor",
     "mutator",
-    "mapper"
+    "mapper",
+    "laravel",
+    "symfony",
+    "doctrine",
+    "php"
   ],
   "authors": [
     {
@@ -27,7 +30,9 @@
   },
   "suggest": {
     "illuminate/support": "Required for Laravel Collection and Arrayable support (^8 || ^9 || ^10 || ^11 || ^12)",
-    "illuminate/database": "Required for Eloquent Model support (^8 || ^9 || ^10 || ^11 || ^12)"
+    "illuminate/database": "Required for Eloquent Model support (^8 || ^9 || ^10 || ^11 || ^12)",
+    "doctrine/collections": "Required for Doctrine Collection support (^1.6 || ^2.0)",
+    "doctrine/orm": "Required for Doctrine Entity support (^2.10 || ^3.0)"
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
