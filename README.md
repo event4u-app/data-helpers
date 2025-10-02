@@ -283,7 +283,7 @@ src/
 ├── DataMapper.php            # Main mapping facade
 ├── DotPathHelper.php         # Dot-notation path utilities
 ├── DataMapper/
-│   ├── AutoMapper.php        # Automatic snake_case → camelCase mapping
+│   ├── AutoMapper.php        # Automatic source → target mapping
 │   ├── TemplateMapper.php    # Template-based mapping operations
 │   ├── Hooks.php             # Fluent hooks builder
 │   ├── Context/              # Typed context objects for hooks
