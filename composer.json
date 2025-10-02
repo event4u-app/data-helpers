@@ -25,6 +25,10 @@
     "composer/composer": "^2",
     "pestphp/pest": "^3"
   },
+  "suggest": {
+    "illuminate/support": "Required for Laravel Collection and Arrayable support (^8 || ^9 || ^10 || ^11 || ^12)",
+    "illuminate/database": "Required for Eloquent Model support (^8 || ^9 || ^10 || ^11 || ^12)"
+  },
   "minimum-stability": "stable",
   "prefer-stable": true,
   "conflict": {},
@@ -32,7 +36,9 @@
     "psr-4": {
       "event4u\\DataHelpers\\": "src/"
     },
-    "files": []
+    "files": [
+      "src/Polyfills/bootstrap.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
