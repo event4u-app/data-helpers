@@ -33,7 +33,7 @@ Features at a glance:
 - [Replace Options](#replace-options)
 - [Hooks](#hooks)
 - [Options & Behavior](#options--behavior)
-- [API Overview](#api-overview)
+- [Package Structure](#package-structure)
 - [Contributing](#contributing)
 - [License](#license)
 
