@@ -77,7 +77,6 @@ class DataMapper
             return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks);
         }
 
-
         // Case 2: structured mapping definitions with source/target objects
         return self::mapStructured(
             $source,
@@ -176,124 +175,6 @@ class DataMapper
             $caseInsensitiveReplace,
             $deep
         );
-    }
-
-    /** @return array<int|string, mixed> */
-    private static function topLevelPairs(mixed $data): array
-    {
-        if (is_array($data)) {
-            return $data;
-        }
-
-        if (is_object($data)) {
-            // Prefer Arrayable/JsonSerializable conversion for models/DTOs
-            if ($data instanceof Arrayable) {
-                $arr = $data->toArray();
-
-                return is_array($arr) ? $arr : [];
-            }
-            if ($data instanceof JsonSerializable) {
-                return (array)$data->jsonSerialize();
-            }
-
-            // Fallback to public properties only
-            /** @var array<string, mixed> $vars */
-            $vars = get_object_vars($data);
-
-            return $vars;
-        }
-
-        // Unsupported → nothing to map
-        return [];
-    }
-
-    /**
-     * Flatten a source structure into dot-notation paths. Numeric indices are replaced by '*'
-     * to allow wildcard-based mapping of lists.
-     *
-     * @return array<string, mixed> Map of path => leaf value
-     */
-    private static function flattenSourcePaths(mixed $data, bool $useWildcards = true, string $prefix = ''): array
-    {
-        $result = [];
-
-        // Scalars and null: treat as leaf value
-        if (!is_array($data) && !is_object($data)) {
-            if ('' !== $prefix) {
-                $result[$prefix] = $data;
-            }
-
-            return $result;
-        }
-
-        // Normalize object into array-like for traversal
-        if (is_object($data)) {
-            if ($data instanceof Arrayable) {
-                $data = $data->toArray();
-            } elseif ($data instanceof JsonSerializable) {
-                $data = (array)$data->jsonSerialize();
-            } else {
-                /** @var array<int|string, mixed> $vars */
-                $vars = get_object_vars($data);
-                $data = $vars;
-            }
-        }
-
-        // Now $data is array<int|string, mixed>
-        foreach ($data as $key => $value) {
-            $segment = is_int($key) && $useWildcards ? '*' : (string)$key;
-            $path = '' === $prefix ? $segment : $prefix . '.' . $segment;
-
-            if (is_array($value) || is_object($value)) {
-                $result += self::flattenSourcePaths($value, $useWildcards, $path);
-            } else {
-                $result[$path] = $value;
-            }
-        }
-
-        return $result;
-    }
-
-    private static function toCamelCase(string $name): string
-    {
-        $name = str_replace(['-', '_'], ' ', $name);
-        $name = ucwords($name);
-        $name = str_replace(' ', '', $name);
-
-        return lcfirst($name);
-    }
-
-    private static function objectHasProperty(object $object, string $property): bool
-    {
-        // Fast path: public prop exists
-        if (property_exists($object, $property)) {
-            return true;
-        }
-
-        // Reflection check for non-public properties
-        try {
-            $ref = new ReflectionClass($object);
-
-            return $ref->hasProperty($property);
-        } catch (ReflectionException) {
-            return false;
-        }
-    }
-
-    /**
-     * Check if mapping is a simple associative array (dot-path → dot-path).
-     *
-     * @param array<int|string, mixed> $mapping
-     */
-    private static function isSimpleMapping(array $mapping): bool
-    {
-        foreach ($mapping as $value) {
-            if (!is_string($value)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -426,34 +307,6 @@ class DataMapper
     }
 
     /**
-     * Normalize arrays returned by wildcard DataAccessor lookups by converting
-     * dot-path keys (e.g., 'users.0.email') to numeric indexes when possible.
-     * Picks the first numeric segment found in the key as the index.
-     *
-     * @param array<int|string,mixed> $array
-     * @return array<int|string,mixed>
-     */
-    private static function normalizeWildcardArray(array $array): array
-    {
-        // If dot-path keys are present, flatten to a simple list preserving order.
-        // This avoids collisions when multiple wildcards are used in a single path
-        // (e.g., departments.*.users.*.email), where collapsing to a single numeric
-        // index would overwrite values.
-        foreach ($array as $key => $_) {
-            if (is_string($key) && str_contains($key, '.')) {
-                $list = [];
-                foreach ($array as $value) {
-                    $list[] = $value;
-                }
-
-                return $list;
-            }
-        }
-
-        return $array;
-    }
-
-    /**
      * Apply values from a data structure to named targets using a template that defines target destinations.
      *
      * Example:
@@ -507,7 +360,7 @@ class DataMapper
         bool $skipNull,
         bool $reindex,
         ?callable $onSkip,
-        callable $onItem
+        callable $onItem,
     ): void {
         $index = 0;
         foreach ($items as $item) {
@@ -620,7 +473,7 @@ class DataMapper
             $target = [];
         }
 
-        $write = function(array|object $targetInner, array $segmentsInner, mixed $currentValue) use (
+        $write = function (array|object $targetInner, array $segmentsInner, mixed $currentValue) use (
             &$write,
             $skipNull,
             $reindexWildcard
@@ -654,7 +507,7 @@ class DataMapper
                 $skipNull,
                 $reindexWildcard,
                 null,
-                function(int|string $wildcardIndex, mixed $item) use (
+                function (int|string $wildcardIndex, mixed $item) use (
                     &$targetInner,
                     $write,
                     $segmentsInner,
@@ -714,199 +567,7 @@ class DataMapper
         return $value;
     }
 
-    /**
-     * Merge global hooks with entry-level hooks.
-     *
-     * @param array<string,mixed> $base
-     * @param array<string,mixed> $override
-     * @return array<string,mixed>
-     */
-    private static function mergeHooks(array $base, array $override): array
-    {
-        foreach ($override as $k => $v) {
-            if (isset($base[$k]) && is_array($base[$k]) && is_array($v)) {
-                $base[$k] = array_merge($base[$k], $v);
-            } else {
-                $base[$k] = $v;
-            }
-        }
 
-        return $base;
-    }
-
-    /**
-     * Normalize hook definitions:
-     * - Accept associative string-keyed hooks (pass-through)
-     * - Accept list of pairs [DataMapperHook|string, mixed] and convert to assoc
-     *
-     * @param array<int|string, mixed> $hooks
-     * @return array<string, mixed>
-     */
-    private static function normalizeHooks(array $hooks): array
-    {
-        $normalized = [];
-        foreach ($hooks as $key => $value) {
-            if (is_int($key) && is_array($value) && array_key_exists(0, $value) && array_key_exists(1, $value)) {
-                $name = $value[0];
-                $payload = $value[1];
-                $hookName = $name instanceof DataMapperHook ? $name->value : (string)$name;
-                $normalized[$hookName] = is_array($payload) ? $payload : $payload;
-
-                continue;
-            }
-            $normalized[(string)$key] = $value;
-        }
-
-        return $normalized;
-    }
-
-    /**
-     * Invoke non-value hooks like beforeAll, afterAll, beforeEntry, afterEntry, beforePair, afterPair.
-     * Returns the last non-null result from invoked hooks.
-     * If any returns false, false is returned (caller may treat as cancel).
-     *
-     * @param array<string,mixed> $hooks
-     */
-    private static function invokeHooks(array $hooks, string $name, HookContext $context): mixed
-    {
-        if (!isset($hooks[$name])) {
-            return null;
-        }
-        $hookPayload = $hooks[$name];
-        $lastResult = null;
-        if (is_callable($hookPayload)) {
-            return $hookPayload($context);
-        }
-        if (is_array($hookPayload)) {
-            foreach ($hookPayload as $filterKey => $callback) {
-                if (!is_callable($callback)) {
-                    continue;
-                }
-                if (is_string($filterKey)) {
-                    // Optional filtering by src:/tgt:/mode:
-                    $matchesFilter = true;
-                    if (str_starts_with($filterKey, 'src:') && null !== $context->srcPath()) {
-                        $pattern = substr($filterKey, 4);
-                        $matchesFilter = self::matchPrefixPattern($context->srcPath(), $pattern);
-                    } elseif (str_starts_with($filterKey, 'tgt:') && null !== $context->tgtPath()) {
-                        $pattern = substr($filterKey, 4);
-                        $matchesFilter = self::matchPrefixPattern($context->tgtPath(), $pattern);
-                    } elseif (str_starts_with($filterKey, 'mode:')) {
-                        $pattern = substr($filterKey, 5);
-                        $matchesFilter = $context->mode() === $pattern;
-                    }
-                    if (!$matchesFilter) {
-                        continue;
-                    }
-                }
-
-                $result = $callback($context);
-                if (false === $result) {
-                    return false;
-                }
-                if (null !== $result) {
-                    $lastResult = $result;
-                }
-            }
-        }
-
-        return $lastResult;
-    }
-
-    /**
-     * Invoke value-transforming hooks like preTransform, postTransform, beforeWrite.
-     * The callable signature should be: function(mixed $value, array|HookContext $context): mixed
-     * When a list or associative list of hooks is provided, they are applied in order.
-     *
-     * @param array<string,mixed> $hooks
-     */
-    private static function invokeValueHook(array $hooks, string $name, HookContext $context, mixed $value): mixed
-    {
-        if (!isset($hooks[$name])) {
-            return $value;
-        }
-        $hookPayload = $hooks[$name];
-        if (is_callable($hookPayload)) {
-            return $hookPayload($value, $context);
-        }
-        if (is_array($hookPayload)) {
-            foreach ($hookPayload as $filterKey => $callback) {
-                if (!is_callable($callback)) {
-                    continue;
-                }
-                if (is_string($filterKey)) {
-                    $matchesFilter = true;
-                    if (str_starts_with($filterKey, 'src:') && null !== $context->srcPath()) {
-                        $pattern = substr($filterKey, 4);
-                        $matchesFilter = self::matchPrefixPattern($context->srcPath(), $pattern);
-                    } elseif (str_starts_with($filterKey, 'tgt:') && null !== $context->tgtPath()) {
-                        $pattern = substr($filterKey, 4);
-                        $matchesFilter = self::matchPrefixPattern($context->tgtPath(), $pattern);
-                    } elseif (str_starts_with($filterKey, 'mode:')) {
-                        $pattern = substr($filterKey, 5);
-                        $matchesFilter = $context->mode() === $pattern;
-                    }
-                    if (!$matchesFilter) {
-                        continue;
-                    }
-                }
-
-                $value = $callback($value, $context);
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * Invoke target-mutating hook like afterWrite. Expected signature:
-     *   function(mixed $target, array|HookContext $context, mixed $writtenValue): mixed
-     *
-     * @param array<string,mixed> $hooks
-     */
-    private static function invokeTargetHook(
-        array $hooks,
-        string $name,
-        HookContext $context,
-        mixed $writtenValue,
-        mixed $target,
-    ): mixed {
-        if (!isset($hooks[$name])) {
-            return $target;
-        }
-        $hookPayload = $hooks[$name];
-        $lastTarget = $target;
-        if (is_callable($hookPayload)) {
-            return $hookPayload($target, $context, $writtenValue);
-        }
-        if (is_array($hookPayload)) {
-            foreach ($hookPayload as $filterKey => $callback) {
-                if (!is_callable($callback)) {
-                    continue;
-                }
-                if (is_string($filterKey)) {
-                    $matchesFilter = true;
-                    if (str_starts_with($filterKey, 'src:') && null !== $context->srcPath()) {
-                        $pattern = substr($filterKey, 4);
-                        $matchesFilter = self::matchPrefixPattern($context->srcPath(), $pattern);
-                    } elseif (str_starts_with($filterKey, 'tgt:') && null !== $context->tgtPath()) {
-                        $pattern = substr($filterKey, 4);
-                        $matchesFilter = self::matchPrefixPattern($context->tgtPath(), $pattern);
-                    } elseif (str_starts_with($filterKey, 'mode:')) {
-                        $pattern = substr($filterKey, 5);
-                        $matchesFilter = $context->mode() === $pattern;
-                    }
-                    if (!$matchesFilter) {
-                        continue;
-                    }
-                }
-
-                $lastTarget = $callback($lastTarget, $context, $writtenValue);
-            }
-        }
-
-        return $lastTarget;
-    }
 
     /**
      * Ensure a mixed value is a valid target (array|object) for DataMutator.
@@ -922,20 +583,7 @@ class DataMapper
         return $candidate;
     }
 
-    /** Simple prefix matcher supporting optional trailing '*' wildcard. */
-    private static function matchPrefixPattern(string $value, string $pattern): bool
-    {
-        if ('*' === $pattern) {
-            return true;
-        }
-        if (str_ends_with($pattern, '*')) {
-            $prefix = substr($pattern, 0, -1);
 
-            return str_starts_with($value, $prefix);
-        }
-
-        return $value === $pattern || str_starts_with($value, $pattern);
-    }
 
     /**
      * Handle simple path-to-path mapping.
@@ -954,7 +602,7 @@ class DataMapper
         array $mapping,
         bool $skipNull,
         bool $reindexWildcard,
-        array $hooks
+        array $hooks,
     ): array|object {
         $accessor = new DataAccessor($source);
 
@@ -997,12 +645,12 @@ class DataMapper
                     $value,
                     $skipNull,
                     $reindexWildcard,
-                    function(int|string $_i, string $reason) use (&$mappingIndex): void {
+                    function (int|string $_i, string $reason) use (&$mappingIndex): void {
                         if ('null' === $reason) {
                             $mappingIndex++;
                         }
                     },
-                    function(int|string $wildcardIndex, mixed $itemValue) use (
+                    function (int|string $wildcardIndex, mixed $itemValue) use (
                         &$target,
                         $hooks,
                         $pairContext,
@@ -1086,7 +734,7 @@ class DataMapper
         bool $reindexWildcard,
         array $hooks,
         bool $trimValues,
-        bool $caseInsensitiveReplace
+        bool $caseInsensitiveReplace,
     ): array|object {
         // Global hook: beforeAll for structured mode
         HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('structured', $mapping, $source, $target));
@@ -1197,7 +845,7 @@ class DataMapper
                             $entrySkipNull,
                             $entryReindex,
                             null,
-                            function(int|string $wildcardIndex, mixed $itemValue) use (
+                            function (int|string $wildcardIndex, mixed $itemValue) use (
                                 &$entryTarget,
                                 $effectiveHooks,
                                 $pairContext,
@@ -1395,7 +1043,7 @@ class DataMapper
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function(int|string $wildcardIndex, mixed $itemValue) use (
+                                function (int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,
@@ -1587,7 +1235,7 @@ class DataMapper
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function(int|string $wildcardIndex, mixed $itemValue) use (
+                                function (int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,

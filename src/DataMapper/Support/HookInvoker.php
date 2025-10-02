@@ -218,7 +218,7 @@ class HookInvoker
             return str_starts_with($value, $prefix);
         }
 
-        return $value === $pattern;
+        return $value === $pattern || str_starts_with($value, $pattern);
     }
 
     /**
