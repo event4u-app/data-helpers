@@ -211,7 +211,7 @@ describe('DataMapper deep fixtures', function (): void {
     });
 
     test('mapFromTemplate using JSON fixture', function (): void {
-        $json = file_get_contents(__DIR__ . '/utils/json/users_with_relations.json');
+        $json = file_get_contents(__DIR__ . '/../../utils/json/users_with_relations.json');
         expect($json)->not->toBeFalse();
 
         $data = json_decode($json ?: '[]', true);

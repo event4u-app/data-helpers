@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\DataMapper;
+namespace event4u\DataHelpers\DataMapper\Support;
 
+use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**

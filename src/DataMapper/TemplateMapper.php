@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper;
 
 use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMutator;
 
 /**

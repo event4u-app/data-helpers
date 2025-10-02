@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper;
 
 use event4u\DataHelpers\Enums\DataMapperHook;
-use event4u\DataHelpers\DataMapper\AllContext;
-use event4u\DataHelpers\DataMapper\EntryContext;
-use event4u\DataHelpers\DataMapper\HookContext;
+use event4u\DataHelpers\DataMapper\Context\AllContext;
+use event4u\DataHelpers\DataMapper\Context\EntryContext;
+use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\Enums\Mode;
-use event4u\DataHelpers\DataMapper\PairContext;
-use event4u\DataHelpers\DataMapper\WriteContext;
+use event4u\DataHelpers\DataMapper\Context\PairContext;
+use event4u\DataHelpers\DataMapper\Context\WriteContext;
 
 /**
  * Helper to build and merge DataMapper hook definitions using the enum safely.

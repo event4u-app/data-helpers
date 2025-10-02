@@ -4,8 +4,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Hooks;
-use event4u\DataHelpers\DataMapper\PairContext;
-use event4u\DataHelpers\DataMapper\AllContext;
+use event4u\DataHelpers\DataMapper\Context\PairContext;
+use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\Enums\DataMapperHook;
 
 $src = ['user' => ['name' => ' Alice ']];

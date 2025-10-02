@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\DataMapper;
+namespace event4u\DataHelpers\DataMapper\Support;
 
 /**
  * Handles value transformations like replacement, trimming, and case conversion.

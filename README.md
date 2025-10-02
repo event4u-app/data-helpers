@@ -272,10 +272,55 @@ Alternatively, pass a simple associative array keyed by enum name.
 - trimValues (default true): trim strings prior to replace logic
 - caseInsensitiveReplace (default false): use case-insensitive search for replacements
 
+## Package Structure
+
+For developers working on this package, here's the internal organization:
+
+```
+src/
+├── DataAccessor.php          # Read nested data with wildcards
+├── DataMutator.php           # Write/merge/unset nested values
+├── DataMapper.php            # Main mapping facade
+├── DotPathHelper.php         # Dot-notation path utilities
+├── DataMapper/
+│   ├── AutoMapper.php        # Automatic snake_case → camelCase mapping
+│   ├── TemplateMapper.php    # Template-based mapping operations
+│   ├── Hooks.php             # Fluent hooks builder
+│   ├── Context/              # Typed context objects for hooks
+│   │   ├── AllContext.php
+│   │   ├── EntryContext.php
+│   │   ├── HookContext.php
+│   │   ├── PairContext.php
+│   │   └── WriteContext.php
+│   └── Support/              # Internal helper classes
+│       ├── HookInvoker.php
+│       ├── MappingEngine.php
+│       ├── ValueTransformer.php
+│       └── WildcardHandler.php
+└── Enums/
+    ├── DataMapperHook.php    # Hook name enum
+    └── Mode.php              # Mapping mode enum
+
+tests/
+└── Unit/
+    ├── DataAccessor/
+    │   └── DataAccessorTest.php
+    ├── DataMapper/
+    │   ├── DataMapperTest.php
+    │   ├── DataMapperAutoMapTest.php
+    │   ├── DataMapperHooksTest.php
+    │   ├── DataMapperReplaceTest.php
+    │   ├── DataMapperDeepFixturesTest.php
+    │   └── HooksBuilderTest.php
+    └── DataMutator/
+        └── DataMutatorTest.php
+```
+
 ## Contributing
 
 - Issues and PRs welcome.
 - Please follow coding standards and add tests for changes.
+- Run tests with `./vendor/bin/pest`
 
 ## License
 

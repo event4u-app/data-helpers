@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\DataMapper;
+namespace event4u\DataHelpers\DataMapper\Context;
 
 interface HookContext
 {

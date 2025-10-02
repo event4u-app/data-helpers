@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\DataMapper;
+namespace event4u\DataHelpers\DataMapper\Support;
 
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMutator;
