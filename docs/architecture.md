@@ -11,7 +11,7 @@ DataMapper acts as a facade and delegates work to specialized components that ea
 - WildcardHandler – Normalization of wildcard results and safe iteration (skip nulls, optional reindex)
 - HookInvoker – Hook normalization, prefix filtering (src:/tgt:/mode:), and legacy array-context compatibility
 - TemplateMapper – Template-based mapping from named sources and inverse writes to named targets
-- AutoMapper – Automatic mapping (snake_case → camelCase) with optional deep mode
+- AutoMapper – Automatic mapping (source → target) with optional deep mode
 - ValueTransformer – Utilities for replacements, case conversion, property checks
 
 High-level flow for `DataMapper::map()`:

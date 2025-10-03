@@ -381,7 +381,7 @@ autoMap(
 ```
 
 - Shallow mode (default): matches top-level field names between source and target
-- Object targets: snake_case source keys map to camelCase top-level properties when available
+- Object targets: automatically maps matching properties (supports snake_case to camelCase conversion)
 - Deep mode (`deep=true`): flattens nested structures to dot-paths and maps nested fields and wildcard lists (numeric indices become `*`)
 - Respects `skipNull`, `reindexWildcard`, `hooks`, `trimValues`, `caseInsensitiveReplace`
 - Source can be a JSON string or array/DTO/Model/Collection

@@ -29,7 +29,7 @@ optional and automatically detected.
 - **Consistent API** across arrays, objects, Collections (Laravel/Doctrine), Models/Entities, JSON, XML
 - **Mutate data**: set/merge/unset deeply into arrays, DTOs, Collections, Models, and Entities
 - **Map between structures**: simple pairs, structured mappings, template-driven
-- **AutoMap**: snake_case ↔ camelCase for DTO/Model/Entity targets
+- **AutoMap**: automatic mapping from source to target properties
 - **Replace options**: case-insensitive and trimming
 - **Hooks system**: typed contexts for mapping lifecycle
 - **Polyfills**: Automatic fallbacks when framework classes are not available
@@ -60,7 +60,7 @@ optional and automatically detected.
 - [Data Mapper](docs/data-mapper.md) – Map between structures with templates, transforms, and hooks
 - [Dot-Path Syntax](docs/dot-path.md) – Path notation reference and best practices
 
-💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (snake_case → camelCase), value
+💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (source → target), value
 replacement, hooks, and common patterns for each helper.
 
 **💻 Code Examples:**
@@ -328,7 +328,7 @@ $updated = DataMapper::mapToTargetsFromTemplate($data, $template, $targets, rein
 
 ## AutoMap
 
-Automatically map snake_case source keys to camelCase DTO/Model targets.
+Automatically map source properties to target properties by matching field names.
 
 ```php
 $src = ['first_name' => 'Alice', 'last_name' => 'Smith'];
