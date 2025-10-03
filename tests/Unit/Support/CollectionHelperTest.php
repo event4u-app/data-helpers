@@ -65,5 +65,63 @@ describe('CollectionHelper', function () {
         expect(CollectionHelper::isCollection($collection))->toBeTrue();
         expect(CollectionHelper::toArray($collection))->toBe(['name' => 'Jane']);
     });
+
+    it('detects Doctrine Collections', function () {
+        $collection = new \Doctrine\Common\Collections\ArrayCollection(['name' => 'Jane']);
+
+        expect(CollectionHelper::isDoctrineCollection($collection))->toBeTrue();
+        expect(CollectionHelper::isCollection($collection))->toBeTrue();
+        expect(CollectionHelper::isLaravelCollection($collection))->toBeFalse();
+    });
+
+    it('converts Doctrine Collection to array', function () {
+        $collection = new \Doctrine\Common\Collections\ArrayCollection(['name' => 'Jane', 'age' => 25]);
+
+        $result = CollectionHelper::toArray($collection);
+
+        expect($result)->toBe(['name' => 'Jane', 'age' => 25]);
+    });
+
+    it('checks if Doctrine Collection has key', function () {
+        $collection = new \Doctrine\Common\Collections\ArrayCollection(['name' => 'Jane', 'age' => 25]);
+
+        expect(CollectionHelper::has($collection, 'name'))->toBeTrue();
+        expect(CollectionHelper::has($collection, 'email'))->toBeFalse();
+    });
+
+    it('gets value from Doctrine Collection', function () {
+        $collection = new \Doctrine\Common\Collections\ArrayCollection(['name' => 'Jane', 'age' => 25]);
+
+        expect(CollectionHelper::get($collection, 'name'))->toBe('Jane');
+        expect(CollectionHelper::get($collection, 'email', 'default'))->toBe('default');
+    });
+
+    it('creates Doctrine Collection from array with fromArrayWithType', function () {
+        $original = new \Doctrine\Common\Collections\ArrayCollection(['name' => 'Jane']);
+        $data = ['name' => 'John', 'age' => 30];
+
+        $result = CollectionHelper::fromArrayWithType($data, $original);
+
+        expect($result)->toBeInstanceOf(\Doctrine\Common\Collections\ArrayCollection::class);
+        expect($result->toArray())->toBe($data);
+    });
+
+    it('creates Laravel Collection from array with fromArrayWithType', function () {
+        $original = new LaravelCollection(['name' => 'Jane']);
+        $data = ['name' => 'John', 'age' => 30];
+
+        $result = CollectionHelper::fromArrayWithType($data, $original);
+
+        expect($result)->toBeInstanceOf(LaravelCollection::class);
+        expect($result->all())->toBe($data);
+    });
+
+    it('returns array when fromArrayWithType gets non-collection', function () {
+        $data = ['name' => 'John', 'age' => 30];
+
+        $result = CollectionHelper::fromArrayWithType($data, 'not a collection');
+
+        expect($result)->toBe($data);
+    });
 });
 

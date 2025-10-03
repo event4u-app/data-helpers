@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\Support\EntityHelper;
 use Tests\utils\Models\User;
+use Tests\utils\Entities\Product;
 
 describe('EntityHelper', function () {
     it('detects Eloquent Models', function () {
@@ -76,6 +77,72 @@ describe('EntityHelper', function () {
         // This test would require a real Doctrine Entity class
         // For now, we just verify the method exists
         expect(method_exists(EntityHelper::class, 'isDoctrineEntity'))->toBeTrue();
+    });
+
+    it('detects Doctrine Entities', function () {
+        $entity = new Product('Laptop', '999.99');
+
+        expect(EntityHelper::isDoctrineEntity($entity))->toBeTrue();
+        expect(EntityHelper::isEntity($entity))->toBeTrue();
+        expect(EntityHelper::isEloquentModel($entity))->toBeFalse();
+    });
+
+    it('converts Doctrine Entity to array', function () {
+        $entity = new Product('Laptop', '999.99');
+        $entity->setDescription('A powerful laptop');
+
+        $result = EntityHelper::toArray($entity);
+
+        expect($result)->toHaveKey('name');
+        expect($result)->toHaveKey('price');
+        expect($result)->toHaveKey('description');
+        expect($result['name'])->toBe('Laptop');
+        expect($result['price'])->toBe('999.99');
+    });
+
+    it('gets attributes from Doctrine Entity', function () {
+        $entity = new Product('Laptop', '999.99');
+
+        $attributes = EntityHelper::getAttributes($entity);
+
+        expect($attributes)->toHaveKey('name');
+        expect($attributes)->toHaveKey('price');
+        expect($attributes['name'])->toBe('Laptop');
+    });
+
+    it('checks if Doctrine Entity has attribute', function () {
+        $entity = new Product('Laptop', '999.99');
+
+        expect(EntityHelper::hasAttribute($entity, 'name'))->toBeTrue();
+        expect(EntityHelper::hasAttribute($entity, 'price'))->toBeTrue();
+        expect(EntityHelper::hasAttribute($entity, 'nonexistent'))->toBeFalse();
+    });
+
+    it('gets attribute from Doctrine Entity', function () {
+        $entity = new Product('Laptop', '999.99');
+
+        expect(EntityHelper::getAttribute($entity, 'name'))->toBe('Laptop');
+        expect(EntityHelper::getAttribute($entity, 'price'))->toBe('999.99');
+        expect(EntityHelper::getAttribute($entity, 'nonexistent'))->toBeNull();
+    });
+
+    it('sets attribute on Doctrine Entity', function () {
+        $entity = new Product('Laptop', '999.99');
+
+        EntityHelper::setAttribute($entity, 'name', 'Desktop');
+        EntityHelper::setAttribute($entity, 'price', '1299.99');
+
+        expect($entity->getName())->toBe('Desktop');
+        expect($entity->getPrice())->toBe('1299.99');
+    });
+
+    it('unsets attribute from Doctrine Entity', function () {
+        $entity = new Product('Laptop', '999.99');
+        $entity->setDescription('A powerful laptop');
+
+        EntityHelper::unsetAttribute($entity, 'description');
+
+        expect($entity->getDescription())->toBeNull();
     });
 });
 
