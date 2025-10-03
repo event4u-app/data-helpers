@@ -6,9 +6,6 @@ namespace event4u\DataHelpers;
 
 use event4u\DataHelpers\Support\CollectionHelper;
 use event4u\DataHelpers\Support\EntityHelper;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use JsonSerializable;
 use ReflectionClass;
@@ -115,7 +112,7 @@ class DataMutator
             $arr = CollectionHelper::toArray($target);
             self::setIntoArray($arr, $segments, $value, $merge);
 
-            return CollectionHelper::fromArray($arr);
+            return CollectionHelper::fromArrayWithType($arr, $target);
         }
 
         // Support for any entity/model type (Eloquent, Doctrine)
@@ -125,21 +122,8 @@ class DataMutator
             return $target;
         }
 
-        // Fallback for Laravel-specific types
-        if ($target instanceof Collection) {
-            $arr = $target->all();
-            self::setIntoArray($arr, $segments, $value, $merge);
-
-            return new Collection($arr);
-        }
-
-        if ($target instanceof Model) {
-            $target->setAttribute(implode('.', $segments), $value);
-
-            return $target;
-        }
-
-        if ($target instanceof Arrayable) {
+        // Fallback for Arrayable interface
+        if (interface_exists(\Illuminate\Contracts\Support\Arrayable::class) && $target instanceof \Illuminate\Contracts\Support\Arrayable) {
             $arr = $target->toArray();
             self::setIntoArray($arr, $segments, $value, $merge);
 
@@ -329,21 +313,33 @@ class DataMutator
                 continue;
             }
 
-            if ($target instanceof Collection) {
-                $arr = $target->all();
+            // Support for any collection type (Laravel, Doctrine)
+            if (CollectionHelper::isCollection($target)) {
+                $arr = CollectionHelper::toArray($target);
                 self::unsetFromArray($arr, $segments);
-                $target = new Collection($arr);
+                $target = CollectionHelper::fromArrayWithType($arr, $target);
 
                 continue;
             }
 
-            if ($target instanceof Model) {
-                self::unsetFromModel($target, $segments);
+            // Support for any entity/model type (Eloquent, Doctrine)
+            if (EntityHelper::isEntity($target)) {
+                if (class_exists(\Illuminate\Database\Eloquent\Model::class) && $target instanceof \Illuminate\Database\Eloquent\Model) {
+                    self::unsetFromModel($target, $segments);
+                } else {
+                    // For Doctrine entities, unset via setAttribute with null
+                    foreach ($segments as $segment) {
+                        if (!DotPathHelper::isWildcard($segment)) {
+                            EntityHelper::unsetAttribute($target, $segment);
+                        }
+                    }
+                }
 
                 continue;
             }
 
-            if ($target instanceof Arrayable) {
+            // Fallback for Arrayable interface
+            if (interface_exists(\Illuminate\Contracts\Support\Arrayable::class) && $target instanceof \Illuminate\Contracts\Support\Arrayable) {
                 $arr = $target->toArray();
                 self::unsetFromArray($arr, $segments);
                 $target = $arr;

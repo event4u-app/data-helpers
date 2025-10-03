@@ -6,15 +6,11 @@ namespace event4u\DataHelpers;
 
 use event4u\DataHelpers\Support\CollectionHelper;
 use event4u\DataHelpers\Support\EntityHelper;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use JsonSerializable;
 use SimpleXMLElement;
 use stdClass;
 
-/** @implements Arrayable<int|string, mixed> */
-class DataAccessor implements Arrayable
+class DataAccessor
 {
     /** @var array<int|string, mixed> */
     private array $data;
@@ -66,20 +62,8 @@ class DataAccessor implements Arrayable
             return;
         }
 
-        // Fallback for Laravel-specific types (backward compatibility)
-        if ($input instanceof Collection) {
-            $this->data = $input->all();
-
-            return;
-        }
-
-        if ($input instanceof Model) {
-            $this->data = $input->toArray();
-
-            return;
-        }
-
-        if ($input instanceof Arrayable) {
+        // Fallback for Arrayable interface (not covered by helpers)
+        if (interface_exists(\Illuminate\Contracts\Support\Arrayable::class) && $input instanceof \Illuminate\Contracts\Support\Arrayable) {
             $this->data = $input->toArray();
 
             return;
@@ -154,10 +138,6 @@ class DataAccessor implements Arrayable
                 $current = CollectionHelper::toArray($current);
             } elseif (EntityHelper::isEntity($current)) {
                 $current = EntityHelper::getAttributes($current);
-            } elseif ($current instanceof Collection) {
-                $current = $current->all();
-            } elseif ($current instanceof Model) {
-                $current = $current->getAttributes();
             }
 
             if (!is_array($current)) {
@@ -185,21 +165,6 @@ class DataAccessor implements Arrayable
         // Traverse collection
         if (CollectionHelper::has($current, $segment)) {
             $value = CollectionHelper::get($current, $segment);
-            $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
-
-            return $this->extract($value, $segments, $newPrefix);
-        }
-
-        // Fallback for Laravel-specific types
-        if ($current instanceof Model && $current->offsetExists($segment)) {
-            $value = $current->getAttribute($segment);
-            $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
-
-            return $this->extract($value, $segments, $newPrefix);
-        }
-
-        if ($current instanceof Collection && $current->has($segment)) {
-            $value = $current->get($segment);
             $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
 
             return $this->extract($value, $segments, $newPrefix);

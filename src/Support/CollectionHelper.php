@@ -103,5 +103,24 @@ class CollectionHelper
 
         return $data;
     }
+
+    /**
+     * Create a collection from array with the same type as the reference collection.
+     *
+     * @param array<int|string, mixed> $data
+     * @param mixed $referenceCollection The collection to match the type of
+     */
+    public static function fromArrayWithType(array $data, mixed $referenceCollection): mixed
+    {
+        if (self::isLaravelCollection($referenceCollection)) {
+            return new \Illuminate\Support\Collection($data);
+        }
+
+        if (self::isDoctrineCollection($referenceCollection)) {
+            return new \Doctrine\Common\Collections\ArrayCollection($data);
+        }
+
+        return $data;
+    }
 }
 
