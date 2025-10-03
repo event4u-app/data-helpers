@@ -1,27 +1,41 @@
-# Laravel Data Helpers
+# Data Helpers (Framework-Agnostic)
 
-[![PHP](https://img.shields.io/badge/PHP-8.1%E2%80%938.5-777bb3?logo=php&logoColor=white)](#requirements)
-[![Laravel](https://img.shields.io/badge/Laravel-8--12-FF2D20?logo=laravel&logoColor=white)](#requirements)
+[![PHP](https://img.shields.io/badge/PHP-8.2%E2%80%938.3-777bb3?logo=php&logoColor=white)](#requirements)
+[![Laravel](https://img.shields.io/badge/Laravel-Compatible-FF2D20?logo=laravel&logoColor=white)](#framework-support)
+[![Symfony](https://img.shields.io/badge/Symfony-Compatible-000000?logo=symfony&logoColor=white)](#framework-support)
+[![Doctrine](https://img.shields.io/badge/Doctrine-Compatible-FC6A31?logo=doctrine&logoColor=white)](#framework-support)
+[![Standalone](https://img.shields.io/badge/Standalone-PHP-8892BF?logo=php&logoColor=white)](#framework-support)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 
 High-level, well-tested helpers for structured data access, mutation, and mapping using dot-notation paths with wildcard support. Works with
-arrays, DTOs/objects, Laravel Collections, Eloquent Models, JSON, and XML.
+arrays, DTOs/objects, Laravel Collections, Eloquent Models, Doctrine Collections, Doctrine Entities, JSON, and XML.
 
-Features at a glance:
+**🚀 Framework-agnostic**: Works seamlessly with **Laravel**, **Symfony/Doctrine**, or **standalone PHP**. All framework dependencies are optional and automatically detected.
 
-- Dot-notation paths with deep multi-level wildcards (e.g. `users.*.profile.*.city`)
-- Access values consistently across arrays, objects, Collections, Models, JSON, XML
-- Mutate data: set/merge/unset deeply into arrays, DTOs, Collections, and Models
-- Map between heterogeneous structures (simple pairs, structured mappings)
-- Template-driven mapping (read and write) with alias support
-- AutoMap snake_case to camelCase for DTO/Model targets
-- Replace options: case-insensitive and trimming
-- Hooks system with typed contexts for mapping lifecycle
+## ✨ Features at a Glance
+
+### 🎯 Framework Support
+- **🔴 Laravel**: Collections, Eloquent Models, Arrayable interface
+- **⚫ Symfony/Doctrine**: Collections, Entities (with automatic detection)
+- **🔧 Standalone PHP**: Arrays, Objects, JSON, XML
+- **🔄 Mixed Environments**: Use Laravel and Doctrine together
+- **📦 Zero Required Dependencies**: All framework packages are optional
+
+### 🚀 Core Features
+- **Dot-notation paths** with deep multi-level wildcards (e.g. `users.*.profile.*.city`)
+- **Consistent API** across arrays, objects, Collections (Laravel/Doctrine), Models/Entities, JSON, XML
+- **Mutate data**: set/merge/unset deeply into arrays, DTOs, Collections, Models, and Entities
+- **Map between structures**: simple pairs, structured mappings, template-driven
+- **AutoMap**: snake_case ↔ camelCase for DTO/Model/Entity targets
+- **Replace options**: case-insensitive and trimming
+- **Hooks system**: typed contexts for mapping lifecycle
+- **Polyfills**: Automatic fallbacks when framework classes are not available
 
 ## Table of Contents
 
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Framework Support](#framework-support)
 - [Quick Start](#quick-start)
     - [DataAccessor](#dataaccessor)
     - [DataMutator](#datamutator)
@@ -47,6 +61,15 @@ Features at a glance:
 💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (snake_case → camelCase), value
 replacement, hooks, and common patterns for each helper.
 
+
+**💻 Code Examples:**
+
+- [examples/01-data-accessor.php](examples/01-data-accessor.php) – Basic array access with wildcards
+- [examples/02-data-mutator.php](examples/02-data-mutator.php) – Mutating arrays
+- [examples/03-data-mapper-simple.php](examples/03-data-mapper-simple.php) – Simple mapping
+- [examples/04-data-mapper-with-hooks.php](examples/04-data-mapper-with-hooks.php) – Advanced mapping with hooks
+- [examples/05-laravel.php](examples/05-laravel.php) – Laravel Collections, Eloquent Models, Arrayable
+- [examples/06-symfony-doctrine.php](examples/06-symfony-doctrine.php) – Doctrine Collections and Entities
 ## Installation
 
 Use as a local path repository during development.
@@ -74,6 +97,80 @@ composer update event4u/laravel-data-helpers -o
 ```
 
 PSR-4 namespace: `event4u\DataHelpers`
+
+## Framework Support
+
+This package works with **any PHP 8.2+ project** and provides optional support for popular frameworks. All framework dependencies are **optional** and **automatically detected** at runtime.
+
+### 🔧 Standalone PHP
+```bash
+composer require event4u/laravel-data-helpers
+```
+**Works out of the box** with arrays, objects, JSON, and XML. Polyfills are automatically loaded when framework classes are not available.
+
+**Supported types:**
+- ✅ Arrays
+- ✅ Objects (stdClass, DTOs)
+- ✅ JSON strings
+- ✅ XML strings
+- ✅ JsonSerializable objects
+
+### 🔴 Laravel Projects
+```bash
+composer require event4u/laravel-data-helpers
+composer require illuminate/support      # Usually already installed
+composer require illuminate/database     # For Eloquent Model support
+```
+**Full support** for Laravel Collections, Eloquent Models, and Arrayable interface.
+
+**Supported types:**
+- ✅ `Illuminate\Support\Collection`
+- ✅ `Illuminate\Database\Eloquent\Model`
+- ✅ `Illuminate\Contracts\Support\Arrayable`
+- ✅ All standalone PHP types
+
+**Example:**
+```php
+$collection = collect(['users' => [['name' => 'John'], ['name' => 'Jane']]]);
+$accessor = new DataAccessor($collection);
+$names = $accessor->get('users.*.name');  // ['John', 'Jane']
+```
+
+### ⚫ Symfony/Doctrine Projects
+```bash
+composer require event4u/laravel-data-helpers
+composer require doctrine/collections    # For Doctrine Collections
+composer require doctrine/orm            # For Doctrine Entities
+```
+**Full support** for Doctrine Collections and Entities with automatic detection.
+
+**Supported types:**
+- ✅ `Doctrine\Common\Collections\Collection`
+- ✅ `Doctrine\Common\Collections\ArrayCollection`
+- ✅ Doctrine Entities (any class with Doctrine attributes)
+- ✅ All standalone PHP types
+
+**Example:**
+```php
+$collection = new ArrayCollection(['users' => [['name' => 'John'], ['name' => 'Jane']]]);
+$accessor = new DataAccessor($collection);
+$names = $accessor->get('users.*.name');  // ['John', 'Jane']
+```
+
+### 🔄 Mixed Environments
+
+You can use Laravel and Doctrine types **together** in the same project. The package automatically detects and handles both:
+
+```php
+// Works with both Laravel and Doctrine Collections
+$laravelCollection = collect([...]);
+$doctrineCollection = new ArrayCollection([...]);
+
+$accessor1 = new DataAccessor($laravelCollection);  // Uses Laravel methods
+$accessor2 = new DataAccessor($doctrineCollection); // Uses Doctrine methods
+```
+
+**📖 See [OPTIONAL_DEPENDENCIES.md](OPTIONAL_DEPENDENCIES.md) for detailed framework integration guide and polyfill information.**
 
 ## Quick Start
 
@@ -297,9 +394,17 @@ src/
 │       ├── MappingEngine.php
 │       ├── ValueTransformer.php
 │       └── WildcardHandler.php
-└── Enums/
-    ├── DataMapperHook.php    # Hook name enum
-    └── Mode.php              # Mapping mode enum
+├── Enums/
+│   ├── DataMapperHook.php    # Hook name enum
+│   └── Mode.php              # Mapping mode enum
+├── Polyfills/                # 🆕 Framework polyfills (auto-loaded when needed)
+│   ├── Arrayable.php         # Laravel Arrayable interface
+│   ├── Collection.php        # Laravel Collection class
+│   ├── Model.php             # Laravel Model class
+│   └── DoctrineCollection.php # Doctrine Collection interface & class
+└── Support/                  # 🆕 Framework abstraction helpers
+    ├── CollectionHelper.php  # Unified API for Laravel/Doctrine Collections
+    └── EntityHelper.php      # Unified API for Eloquent Models/Doctrine Entities
 
 tests/
 └── Unit/
@@ -312,9 +417,17 @@ tests/
     │   ├── DataMapperReplaceTest.php
     │   ├── DataMapperDeepFixturesTest.php
     │   └── HooksBuilderTest.php
-    └── DataMutator/
-        └── DataMutatorTest.php
+    ├── DataMutator/
+    │   └── DataMutatorTest.php
+    └── Support/              # 🆕 Helper tests
+        ├── CollectionHelperTest.php
+        └── EntityHelperTest.php
 ```
+
+**🆕 New in this version:**
+- `Polyfills/` - Automatic fallbacks for Laravel/Doctrine classes when not installed
+- `Support/` - Helper classes for framework-agnostic Collection and Entity handling
+- Framework detection and automatic polyfill loading via `bootstrap.php`
 
 ## Contributing
 

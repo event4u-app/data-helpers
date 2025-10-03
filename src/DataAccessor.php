@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
+use event4u\DataHelpers\Support\CollectionHelper;
+use event4u\DataHelpers\Support\EntityHelper;
 use JsonSerializable;
 use SimpleXMLElement;
 use stdClass;
 
-/** @implements Arrayable<int|string, mixed> */
-class DataAccessor implements Arrayable
+class DataAccessor
 {
     /** @var array<int|string, mixed> */
     private array $data;
@@ -52,20 +50,20 @@ class DataAccessor implements Arrayable
             return;
         }
 
-        if ($input instanceof Collection) {
-            $this->data = $input->all();
+        if (CollectionHelper::isCollection($input)) {
+            $this->data = CollectionHelper::toArray($input);
 
             return;
         }
 
-        if ($input instanceof Model) {
-            // alternative $this->data = $input->getAttributes();
-            $this->data = $input->toArray();
+        if (EntityHelper::isEntity($input)) {
+            $this->data = EntityHelper::toArray($input);
 
             return;
         }
 
-        if ($input instanceof Arrayable) {
+        // Fallback for Arrayable interface (not covered by helpers)
+        if (interface_exists(\Illuminate\Contracts\Support\Arrayable::class) && $input instanceof \Illuminate\Contracts\Support\Arrayable) {
             $this->data = $input->toArray();
 
             return;
@@ -136,10 +134,10 @@ class DataAccessor implements Arrayable
 
         // Wildcard
         if (DotPathHelper::isWildcard($segment)) {
-            if ($current instanceof Collection) {
-                $current = $current->all();
-            } elseif ($current instanceof Model) {
-                $current = $current->getAttributes();
+            if (CollectionHelper::isCollection($current)) {
+                $current = CollectionHelper::toArray($current);
+            } elseif (EntityHelper::isEntity($current)) {
+                $current = EntityHelper::getAttributes($current);
             }
 
             if (!is_array($current)) {
@@ -156,17 +154,17 @@ class DataAccessor implements Arrayable
             return $this->extract($current[$segment], $segments, $newPrefix);
         }
 
-        // Traverse model
-        if ($current instanceof Model && $current->offsetExists($segment)) {
-            $value = $current->getAttribute($segment);
+        // Traverse entity/model
+        if (EntityHelper::hasAttribute($current, $segment)) {
+            $value = EntityHelper::getAttribute($current, $segment);
             $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
 
             return $this->extract($value, $segments, $newPrefix);
         }
 
         // Traverse collection
-        if ($current instanceof Collection && $current->has($segment)) {
-            $value = $current->get($segment);
+        if (CollectionHelper::has($current, $segment)) {
+            $value = CollectionHelper::get($current, $segment);
             $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
 
             return $this->extract($value, $segments, $newPrefix);

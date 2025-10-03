@@ -1,14 +1,17 @@
 {
   "name": "event4u/laravel-data-helpers",
-  "description": "A universal mapper for Arrays, DTOs, Eloquent, Collections, JSON & XML with dot-notation, wildcards, templates, and hooks.",
+  "description": "Framework-agnostic helpers for structured data access, mutation, and mapping using dot-notation paths with wildcards. Works with Laravel, Symfony/Doctrine, or standalone PHP.",
   "license": "proprietary",
   "type": "library",
   "keywords": [
-    "helpers",
-    "dot-notations",
-    "accassor",
+    "data",
+    "accessor",
     "mutator",
-    "mapper"
+    "mapper",
+    "laravel",
+    "symfony",
+    "doctrine",
+    "php"
   ],
   "authors": [
     {
@@ -18,12 +21,20 @@
   ],
   "require": {
     "php": "^8.2 || ^8.3 || ^8.4 || ^8.5",
-    "composer-plugin-api": "^2.0",
-    "laravel/framework": "^8 || ^9 || ^10 || ^11 || ^12"
+    "composer-plugin-api": "^2.0"
   },
   "require-dev": {
     "composer/composer": "^2",
-    "pestphp/pest": "^3"
+    "pestphp/pest": "^3",
+    "illuminate/support": "^8 || ^9 || ^10 || ^11 || ^12",
+    "doctrine/collections": "^1.6 || ^2",
+    "doctrine/orm": "^2.10 || ^3"
+  },
+  "suggest": {
+    "illuminate/support": "Required for Laravel Collection and Arrayable support (^8 || ^9 || ^10 || ^11 || ^12)",
+    "illuminate/database": "Required for Eloquent Model support (^8 || ^9 || ^10 || ^11 || ^12)",
+    "doctrine/collections": "Required for Doctrine Collection support (^1.6 || ^2)",
+    "doctrine/orm": "Required for Doctrine Entity support (^2.10 || ^3)"
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
@@ -32,7 +43,9 @@
     "psr-4": {
       "event4u\\DataHelpers\\": "src/"
     },
-    "files": []
+    "files": [
+      "src/Polyfills/bootstrap.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
