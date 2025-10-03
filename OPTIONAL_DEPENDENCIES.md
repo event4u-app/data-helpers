@@ -5,6 +5,7 @@
 The package works standalone with PHP 8.2+ and provides polyfills for framework-specific classes when they're not available.
 
 **Supported Frameworks:**
+
 - **Laravel** (Collections, Eloquent Models)
 - **Symfony/Doctrine** (Collections, Entities)
 - **Standalone PHP** (Arrays, Objects, JSON, XML)
@@ -78,11 +79,13 @@ Laravel and Doctrine packages are automatically installed as `require-dev` depen
 The package includes polyfills in `src/Polyfills/` that are automatically loaded when framework classes are not available:
 
 **Laravel Polyfills:**
+
 - **`Illuminate\Support\Collection`** - Basic collection functionality
 - **`Illuminate\Contracts\Support\Arrayable`** - Arrayable interface
 - **`Illuminate\Database\Eloquent\Model`** - Minimal model stub
 
 **Doctrine Polyfills:**
+
 - **`Doctrine\Common\Collections\Collection`** - Collection interface
 - **`Doctrine\Common\Collections\ArrayCollection`** - Basic collection implementation
 
@@ -171,26 +174,19 @@ composer test
 
 ## Compatibility Matrix
 
-| Feature                  | Standalone | With illuminate/support | With illuminate/database | With doctrine/collections | With doctrine/orm |
-|--------------------------|------------|-------------------------|--------------------------|---------------------------|-------------------|
-| Arrays                   | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Objects                  | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| JSON/XML                 | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Laravel Collections      | ⚠️ Basic   | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Doctrine Collections     | ⚠️ Basic   | ⚠️ Basic                | ⚠️ Basic                 | ✅ Full                    | ✅ Full            |
-| Arrayable Interface      | ⚠️ Basic   | ✅ Full                  | ✅ Full                   | ⚠️ Basic                  | ⚠️ Basic          |
-| Eloquent Models          | ⚠️ Stub    | ⚠️ Stub                 | ✅ Full                   | ⚠️ Stub                   | ⚠️ Stub           |
-| Doctrine Entities        | ❌ None    | ❌ None                 | ❌ None                  | ⚠️ Basic                  | ✅ Full            |
-| DataAccessor             | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| DataMutator              | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| DataMapper               | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Wildcards (*.path)       | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Deep Wildcards (*.*.*)   | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| AutoMap                  | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Template Mapping         | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Hooks System             | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
+| Feature              | Standalone | With illuminate/support | With illuminate/database | With doctrine/collections | With doctrine/orm |
+|----------------------|------------|-------------------------|--------------------------|---------------------------|-------------------|
+| Arrays               | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
+| Objects              | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
+| JSON/XML             | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
+| Laravel Collections  | ⚠️ Basic   | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
+| Doctrine Collections | ⚠️ Basic   | ⚠️ Basic                | ⚠️ Basic                 | ✅ Full                    | ✅ Full            |
+| Arrayable Interface  | ⚠️ Basic   | ✅ Full                  | ✅ Full                   | ⚠️ Basic                  | ⚠️ Basic          |
+| Eloquent Models      | ⚠️ Stub    | ⚠️ Stub                 | ✅ Full                   | ⚠️ Stub                   | ⚠️ Stub           |
+| Doctrine Entities    | ❌ None     | ❌ None                  | ❌ None                   | ⚠️ Basic                  | ✅ Full            |
 
 **Legend:**
+
 - ✅ **Full** - Complete functionality with all features
 - ⚠️ **Basic** - Limited functionality via polyfill (sufficient for basic use cases)
 - ⚠️ **Stub** - Minimal type checking only, no real functionality
