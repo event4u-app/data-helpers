@@ -1,20 +1,22 @@
 # Data Helpers (Framework-Agnostic)
 
 [![PHP](https://img.shields.io/badge/PHP-8.2%E2%80%938.3-777bb3?logo=php&logoColor=white)](#requirements)
-[![Laravel](https://img.shields.io/badge/Laravel-Compatible-FF2D20?logo=laravel&logoColor=white)](#framework-support)
-[![Symfony](https://img.shields.io/badge/Symfony-Compatible-000000?logo=symfony&logoColor=white)](#framework-support)
-[![Doctrine](https://img.shields.io/badge/Doctrine-Compatible-FC6A31?logo=doctrine&logoColor=white)](#framework-support)
 [![Standalone](https://img.shields.io/badge/Standalone-PHP-8892BF?logo=php&logoColor=white)](#framework-support)
+[![Supports](https://img.shields.io/badge/Supports-Laravel-FF2D20?logo=laravel&logoColor=white)](#framework-support)
+[![Supports](https://img.shields.io/badge/Supports-Symfony-000000?logo=symfony&logoColor=white)](#framework-support)
+[![Supports](https://img.shields.io/badge/Supports-Doctrine-FC6A31?logo=doctrine&logoColor=white)](#framework-support)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 
 High-level, well-tested helpers for structured data access, mutation, and mapping using dot-notation paths with wildcard support. Works with
 arrays, DTOs/objects, Laravel Collections, Eloquent Models, Doctrine Collections, Doctrine Entities, JSON, and XML.
 
-**🚀 Framework-agnostic**: Works seamlessly with **Laravel**, **Symfony/Doctrine**, or **standalone PHP**. All framework dependencies are optional and automatically detected.
+**🚀 Framework-agnostic**: Works seamlessly with **Laravel**, **Symfony/Doctrine**, or **standalone PHP**. All framework dependencies are
+optional and automatically detected.
 
 ## ✨ Features at a Glance
 
 ### 🎯 Framework Support
+
 - **🔴 Laravel**: Collections, Eloquent Models, Arrayable interface
 - **⚫ Symfony/Doctrine**: Collections, Entities (with automatic detection)
 - **🔧 Standalone PHP**: Arrays, Objects, JSON, XML
@@ -22,6 +24,7 @@ arrays, DTOs/objects, Laravel Collections, Eloquent Models, Doctrine Collections
 - **📦 Zero Required Dependencies**: All framework packages are optional
 
 ### 🚀 Core Features
+
 - **Dot-notation paths** with deep multi-level wildcards (e.g. `users.*.profile.*.city`)
 - **Consistent API** across arrays, objects, Collections (Laravel/Doctrine), Models/Entities, JSON, XML
 - **Mutate data**: set/merge/unset deeply into arrays, DTOs, Collections, Models, and Entities
@@ -61,7 +64,6 @@ arrays, DTOs/objects, Laravel Collections, Eloquent Models, Doctrine Collections
 💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (snake_case → camelCase), value
 replacement, hooks, and common patterns for each helper.
 
-
 **💻 Code Examples:**
 
 - [examples/01-data-accessor.php](examples/01-data-accessor.php) – Basic array access with wildcards
@@ -70,6 +72,7 @@ replacement, hooks, and common patterns for each helper.
 - [examples/04-data-mapper-with-hooks.php](examples/04-data-mapper-with-hooks.php) – Advanced mapping with hooks
 - [examples/05-laravel.php](examples/05-laravel.php) – Laravel Collections, Eloquent Models, Arrayable
 - [examples/06-symfony-doctrine.php](examples/06-symfony-doctrine.php) – Doctrine Collections and Entities
+
 ## Installation
 
 Use as a local path repository during development.
@@ -100,15 +103,19 @@ PSR-4 namespace: `event4u\DataHelpers`
 
 ## Framework Support
 
-This package works with **any PHP 8.2+ project** and provides optional support for popular frameworks. All framework dependencies are **optional** and **automatically detected** at runtime.
+This package works with **any PHP 8.2+ project** and provides optional support for popular frameworks. All framework dependencies are *
+*optional** and **automatically detected** at runtime.
 
 ### 🔧 Standalone PHP
+
 ```bash
 composer require event4u/laravel-data-helpers
 ```
+
 **Works out of the box** with arrays, objects, JSON, and XML. Polyfills are automatically loaded when framework classes are not available.
 
 **Supported types:**
+
 - ✅ Arrays
 - ✅ Objects (stdClass, DTOs)
 - ✅ JSON strings
@@ -116,20 +123,24 @@ composer require event4u/laravel-data-helpers
 - ✅ JsonSerializable objects
 
 ### 🔴 Laravel Projects
+
 ```bash
 composer require event4u/laravel-data-helpers
 composer require illuminate/support      # Usually already installed
 composer require illuminate/database     # For Eloquent Model support
 ```
+
 **Full support** for Laravel Collections, Eloquent Models, and Arrayable interface.
 
 **Supported types:**
+
 - ✅ `Illuminate\Support\Collection`
 - ✅ `Illuminate\Database\Eloquent\Model`
 - ✅ `Illuminate\Contracts\Support\Arrayable`
 - ✅ All standalone PHP types
 
 **Example:**
+
 ```php
 $collection = collect(['users' => [['name' => 'John'], ['name' => 'Jane']]]);
 $accessor = new DataAccessor($collection);
@@ -137,20 +148,24 @@ $names = $accessor->get('users.*.name');  // ['John', 'Jane']
 ```
 
 ### ⚫ Symfony/Doctrine Projects
+
 ```bash
 composer require event4u/laravel-data-helpers
 composer require doctrine/collections    # For Doctrine Collections
 composer require doctrine/orm            # For Doctrine Entities
 ```
+
 **Full support** for Doctrine Collections and Entities with automatic detection.
 
 **Supported types:**
+
 - ✅ `Doctrine\Common\Collections\Collection`
 - ✅ `Doctrine\Common\Collections\ArrayCollection`
 - ✅ Doctrine Entities (any class with Doctrine attributes)
 - ✅ All standalone PHP types
 
 **Example:**
+
 ```php
 $collection = new ArrayCollection(['users' => [['name' => 'John'], ['name' => 'Jane']]]);
 $accessor = new DataAccessor($collection);
@@ -425,6 +440,7 @@ tests/
 ```
 
 **🆕 New in this version:**
+
 - `Polyfills/` - Automatic fallbacks for Laravel/Doctrine classes when not installed
 - `Support/` - Helper classes for framework-agnostic Collection and Entity handling
 - Framework detection and automatic polyfill loading via `bootstrap.php`
