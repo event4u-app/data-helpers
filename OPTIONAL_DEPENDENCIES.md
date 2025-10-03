@@ -174,16 +174,16 @@ composer test
 
 ## Compatibility Matrix
 
-| Feature              | Standalone | With illuminate/support | With illuminate/database | With doctrine/collections | With doctrine/orm |
-|----------------------|------------|-------------------------|--------------------------|---------------------------|-------------------|
-| Arrays               | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Objects              | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| JSON/XML             | ✅ Full     | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Laravel Collections  | ⚠️ Basic   | ✅ Full                  | ✅ Full                   | ✅ Full                    | ✅ Full            |
-| Doctrine Collections | ⚠️ Basic   | ⚠️ Basic                | ⚠️ Basic                 | ✅ Full                    | ✅ Full            |
-| Arrayable Interface  | ⚠️ Basic   | ✅ Full                  | ✅ Full                   | ⚠️ Basic                  | ⚠️ Basic          |
-| Eloquent Models      | ⚠️ Stub    | ⚠️ Stub                 | ✅ Full                   | ⚠️ Stub                   | ⚠️ Stub           |
-| Doctrine Entities    | ❌ None     | ❌ None                  | ❌ None                   | ⚠️ Basic                  | ✅ Full            |
+| Feature              | Standalone | With illuminate / support | With illuminate / database | With doctrine / collections | With doctrine / orm |
+|----------------------|------------|---------------------------|----------------------------|-----------------------------|---------------------|
+| Arrays               | ✅ Full     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
+| Objects              | ✅ Full     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
+| JSON/XML             | ✅ Full     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
+| Laravel Collections  | ⚠️ Basic   | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
+| Doctrine Collections | ⚠️ Basic   | ⚠️ Basic                  | ⚠️ Basic                   | ✅ Full                      | ✅ Full              |
+| Arrayable Interface  | ⚠️ Basic   | ✅ Full                    | ✅ Full                     | ⚠️ Basic                    | ⚠️ Basic            |
+| Eloquent Models      | ⚠️ Stub    | ⚠️ Stub                   | ✅ Full                     | ⚠️ Stub                     | ⚠️ Stub             |
+| Doctrine Entities    | ❌ None     | ❌ None                    | ❌ None                     | ⚠️ Basic                    | ✅ Full              |
 
 **Legend:**
 
