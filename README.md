@@ -59,6 +59,7 @@ optional and automatically detected.
 - [Data Accessor](docs/data-accessor.md) – Read nested data with wildcards, Collections, and Models
 - [Data Mutator](docs/data-mutator.md) – Write, merge, and unset nested values with wildcards
 - [Data Mapper](docs/data-mapper.md) – Map between structures with templates, transforms, and hooks
+- [Template Expressions](docs/template-expressions.md) – **NEW:** Powerful expression engine with filters and defaults
 - [Dot-Path Syntax](docs/dot-path.md) – Path notation reference and best practices
 
 💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (source → target), value
@@ -70,9 +71,10 @@ replacement, hooks, and common patterns for each helper.
 - [examples/02-data-mutator.php](examples/02-data-mutator.php) – Mutating arrays
 - [examples/03-data-mapper-simple.php](examples/03-data-mapper-simple.php) – Simple mapping
 - [examples/04-data-mapper-with-hooks.php](examples/04-data-mapper-with-hooks.php) – Advanced mapping with hooks
-- [examples/05-data-mapper-pipeline.php](examples/05-data-mapper-pipeline.php) – **NEW:** Pipeline API with transformers
+- [examples/05-data-mapper-pipeline.php](examples/05-data-mapper-pipeline.php) – Pipeline API with transformers
 - [examples/06-laravel.php](examples/06-laravel.php) – Laravel Collections, Eloquent Models, Arrayable
 - [examples/07-symfony-doctrine.php](examples/07-symfony-doctrine.php) – Doctrine Collections and Entities
+- [examples/08-template-expressions.php](examples/08-template-expressions.php) – **NEW:** Template expressions with filters
 
 ## Installation
 
@@ -452,6 +454,78 @@ $out = DataMapper::mapFromTemplate($template, $sources, skipNull: true, reindexW
 ```
 
 JSON templates supported as well (string input).
+
+### Template Expressions (NEW)
+
+🎯 **Powerful expression engine** for declarative data transformations with filters and defaults.
+
+**Quick Example:**
+
+```php
+$sources = [
+    'user' => [
+        'firstName' => 'alice',
+        'email' => '  ALICE@EXAMPLE.COM  ',
+        'age' => null,
+    ],
+];
+
+$template = [
+    'profile' => [
+        // Simple expression
+        'name' => '{{ user.firstName | ucfirst }}',
+
+        // Expression with default value
+        'age' => '{{ user.age ?? 18 }}',
+
+        // Multiple filters
+        'email' => '{{ user.email | trim | lower }}',
+
+        // Classic reference (still works!)
+        'rawEmail' => 'user.email',
+    ],
+];
+
+$result = DataMapper::mapFromTemplate($template, $sources);
+// [
+//     'profile' => [
+//         'name' => 'Alice',
+//         'age' => 18,
+//         'email' => 'alice@example.com',
+//         'rawEmail' => '  ALICE@EXAMPLE.COM  ',
+//     ]
+// ]
+```
+
+**Expression Syntax:**
+
+- `{{ user.name }}` - Simple variable
+- `{{ user.name ?? 'Unknown' }}` - With default value
+- `{{ user.email | lower }}` - With filter
+- `{{ user.email | trim | lower }}` - Multiple filters
+- `@fieldName` - Alias reference
+
+**Built-in Filters:**
+
+String: `lower`, `upper`, `trim`, `ucfirst`, `ucwords`
+Array: `count`, `first`, `last`, `keys`, `values`, `reverse`, `sort`, `unique`, `join`
+Utility: `json`, `default`
+
+**Custom Filters:**
+
+```php
+use event4u\DataHelpers\DataMapper\Template\FilterEngine;
+
+FilterEngine::registerFilter('currency', fn($v) => number_format($v, 2) . ' EUR');
+FilterEngine::registerFilter('hash', fn($v) => hash('sha256', $v));
+
+$template = [
+    'price' => '{{ product.price | currency }}',
+    'token' => '{{ user.password | hash }}',
+];
+```
+
+**📖 See [Template Expressions Documentation](docs/template-expressions.md) for complete guide with examples.**
 
 ### mapToTargetsFromTemplate
 

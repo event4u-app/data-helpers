@@ -72,6 +72,24 @@ See API: [mapFromTemplate](#mapfromtemplate)
 - Strings that look like `alias.path` are resolved against the given sources
 - Unknown aliases are treated as literals
 - Wildcards allowed (e.g. `src.users.*.email`)
+- **NEW:** Supports template expressions with filters and defaults (see below)
+
+**Template Expressions:**
+
+Templates now support powerful expression syntax:
+
+```php
+$template = [
+  'profile' => [
+    'name' => '{{ user.firstName | ucfirst }}',           // With filter
+    'email' => '{{ user.email | trim | lower }}',         // Multiple filters
+    'age' => '{{ user.age ?? 18 }}',                      // With default
+    'city' => 'address.city',                             // Classic reference
+  ],
+];
+```
+
+**📖 See [Template Expressions Documentation](template-expressions.md) for complete guide.**
 
 4) **Pipeline API (NEW)** - Modern, fluent API with reusable transformers:
 

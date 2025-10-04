@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+namespace event4u\DataHelpers\DataMapper\Template;
+
+use event4u\DataHelpers\DataAccessor;
+
+final class ExpressionEvaluator
+{
+    /**
+     * Evaluate a template expression.
+     *
+     * @param array<string, mixed> $sources Source data
+     * @param array<string, mixed> $aliases Already resolved aliases (for @references)
+     */
+    public static function evaluate(
+        string $value,
+        array $sources,
+        array $aliases = []
+    ): mixed {
+        $parsed = ExpressionParser::parse($value);
+
+        if (null === $parsed) {
+            return $value;
+        }
+
+        // Alias reference: @profile.fullname
+        if ('alias' === $parsed['type']) {
+            return self::resolveAlias($parsed['path'], $aliases);
+        }
+
+        // Expression: {{ user.name ?? 'Unknown' | lower }}
+        if ('expression' === $parsed['type']) {
+            $resolved = self::resolveSourcePath($parsed['path'], $sources);
+
+            // Apply default if value is null
+            if (null === $resolved && null !== $parsed['default']) {
+                $resolved = $parsed['default'];
+            }
+
+            // Apply filters
+            if ([] !== $parsed['filters']) {
+                return FilterEngine::apply($resolved, $parsed['filters']);
+            }
+
+            return $resolved;
+        }
+
+        return $value;
+    }
+
+    /** Resolve an alias reference like @profile.fullname. */
+    private static function resolveAlias(string $path, array $aliases): mixed
+    {
+        $accessor = new DataAccessor($aliases);
+        return $accessor->get($path);
+    }
+
+    /** Resolve a source path like user.name. */
+    private static function resolveSourcePath(string $path, array $sources): mixed
+    {
+        // Parse alias.path
+        $parts = explode('.', $path, 2);
+        $alias = $parts[0];
+        $subPath = $parts[1] ?? null;
+
+        if (!isset($sources[$alias])) {
+            return null;
+        }
+
+        $accessor = new DataAccessor($sources[$alias]);
+        return null === $subPath ? $accessor->toArray() : $accessor->get($subPath);
+    }
+}

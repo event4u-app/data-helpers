@@ -6,6 +6,8 @@ namespace event4u\DataHelpers\DataMapper;
 
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
+use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
+use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
 use event4u\DataHelpers\DataMutator;
 use InvalidArgumentException;
 
@@ -39,7 +41,7 @@ class TemplateMapper
             }
         }
 
-        $result = self::resolveTemplateNode($template, $sources, $skipNull, $reindexWildcard);
+        $result = self::resolveTemplateNode($template, $sources, $skipNull, $reindexWildcard, []);
 
         return is_array($result) ? $result : [$result];
     }
@@ -48,15 +50,22 @@ class TemplateMapper
      * Resolve a template node recursively.
      *
      * @param array<string,mixed> $sources
+     * @param array<string,mixed> $aliases Already resolved aliases (for @references)
      */
     private static function resolveTemplateNode(
         mixed $node,
         array $sources,
         bool $skipNull,
         bool $reindexWildcard,
+        array $aliases,
     ): mixed {
-        // Scalar or null: check if it's a source reference
+        // Scalar or null: check if it's a source reference or expression
         if (is_string($node)) {
+            // Check for template expressions: {{ ... }} or @alias
+            if (ExpressionParser::hasExpression($node)) {
+                return ExpressionEvaluator::evaluate($node, $sources, $aliases);
+            }
+
             [$alias, $path] = self::parseSourceReference($node);
             if (null !== $alias && isset($sources[$alias])) {
                 $accessor = new DataAccessor($sources[$alias]);
@@ -88,7 +97,9 @@ class TemplateMapper
         // Array: recursively resolve each element
         $result = [];
         foreach ($node as $key => $value) {
-            $resolved = self::resolveTemplateNode($value, $sources, $skipNull, $reindexWildcard);
+            // Pass current result as aliases for nested @references
+            $currentAliases = array_merge($aliases, $result);
+            $resolved = self::resolveTemplateNode($value, $sources, $skipNull, $reindexWildcard, $currentAliases);
 
             // Skip null values if requested
             if ($skipNull && null === $resolved) {
