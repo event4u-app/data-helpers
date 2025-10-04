@@ -12,6 +12,43 @@ use ReflectionProperty;
  */
 class EntityHelper
 {
+    /** @var array<class-string, ReflectionClass<object>> */
+    private static array $refClassCache = [];
+
+    /** @var array<class-string, array<string, bool>> */
+    private static array $propertyExistsCache = [];
+
+    /**
+     * Get cached ReflectionClass instance.
+     *
+     * @return ReflectionClass<object>
+     */
+    private static function getReflection(object $entity): ReflectionClass
+    {
+        $class = $entity::class;
+
+        return self::$refClassCache[$class] ??= new ReflectionClass($entity);
+    }
+
+    /**
+     * Check if property exists (cached).
+     */
+    private static function hasProperty(object $entity, string $property): bool
+    {
+        $class = $entity::class;
+
+        if (!isset(self::$propertyExistsCache[$class])) {
+            self::$propertyExistsCache[$class] = [];
+        }
+
+        if (!array_key_exists($property, self::$propertyExistsCache[$class])) {
+            $reflection = self::getReflection($entity);
+            self::$propertyExistsCache[$class][$property] = $reflection->hasProperty($property);
+        }
+
+        return self::$propertyExistsCache[$class][$property];
+    }
+
     /** Check if value is a Laravel Eloquent Model. */
     public static function isEloquentModel(mixed $value): bool
     {
@@ -30,7 +67,7 @@ class EntityHelper
         }
 
         // Check if class has Doctrine annotations/attributes
-        $reflection = new ReflectionClass($value);
+        $reflection = self::getReflection($value);
         $attributes = $reflection->getAttributes();
 
         foreach ($attributes as $attribute) {
@@ -112,9 +149,7 @@ class EntityHelper
             }
 
             if (is_object($entity)) {
-                $reflection = new ReflectionClass($entity);
-
-                return $reflection->hasProperty((string)$key);
+                return self::hasProperty($entity, (string)$key);
             }
         }
 
@@ -137,8 +172,8 @@ class EntityHelper
             }
 
             // Try direct property access
-            $reflection = new ReflectionClass($entity);
-            if ($reflection->hasProperty($key)) {
+            if (self::hasProperty($entity, $key)) {
+                $reflection = self::getReflection($entity);
                 $property = $reflection->getProperty($key);
 
                 return $property->getValue($entity);
@@ -168,8 +203,8 @@ class EntityHelper
             }
 
             // Try direct property access
-            $reflection = new ReflectionClass($entity);
-            if ($reflection->hasProperty($key)) {
+            if (self::hasProperty($entity, $key)) {
+                $reflection = self::getReflection($entity);
                 $property = $reflection->getProperty($key);
                 $property->setValue($entity, $value);
             }
@@ -196,8 +231,8 @@ class EntityHelper
             }
 
             // Try direct property access
-            $reflection = new ReflectionClass($entity);
-            if ($reflection->hasProperty((string)$key)) {
+            if (self::hasProperty($entity, (string)$key)) {
+                $reflection = self::getReflection($entity);
                 $property = $reflection->getProperty((string)$key);
                 $property->setValue($entity, null);
             }
@@ -303,7 +338,7 @@ class EntityHelper
     private static function doctrineEntityToArray(object $entity): array
     {
         $result = [];
-        $reflection = new ReflectionClass($entity);
+        $reflection = self::getReflection($entity);
 
         // Get all properties
         $properties = $reflection->getProperties();

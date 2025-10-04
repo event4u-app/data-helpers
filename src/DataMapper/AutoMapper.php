@@ -17,6 +17,45 @@ use ReflectionProperty;
  */
 class AutoMapper
 {
+    /** @var array<class-string, ReflectionClass<object>> */
+    private static array $refClassCache = [];
+
+    /** @var array<class-string, array<int, string>> */
+    private static array $propertyNamesCache = [];
+
+    /**
+     * Get cached ReflectionClass instance.
+     *
+     * @return ReflectionClass<object>
+     */
+    private static function getReflection(object $object): ReflectionClass
+    {
+        $class = $object::class;
+
+        return self::$refClassCache[$class] ??= new ReflectionClass($object);
+    }
+
+    /**
+     * Get cached property names for an object.
+     *
+     * @return array<int, string>
+     */
+    private static function getPropertyNames(object $object): array
+    {
+        $class = $object::class;
+
+        if (!isset(self::$propertyNamesCache[$class])) {
+            $reflection = self::getReflection($object);
+            $properties = $reflection->getProperties();
+            self::$propertyNamesCache[$class] = array_map(
+                fn(ReflectionProperty $prop): string => $prop->getName(),
+                $properties
+            );
+        }
+
+        return self::$propertyNamesCache[$class];
+    }
+
     /**
      * Automatically map fields from source to target with optional snake_case → camelCase conversion.
      *
@@ -161,10 +200,7 @@ class AutoMapper
         }
 
         if (is_object($target)) {
-            $reflection = new ReflectionClass($target);
-            $properties = $reflection->getProperties();
-
-            return array_map(fn(ReflectionProperty $prop): string => $prop->getName(), $properties);
+            return self::getPropertyNames($target);
         }
 
         return [];
@@ -235,7 +271,7 @@ class AutoMapper
         } elseif ($data instanceof JsonSerializable) {
             $data = $data->jsonSerialize();
         } elseif (is_object($data)) {
-            $reflection = new ReflectionClass($data);
+            $reflection = self::getReflection($data);
             $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
             $arrayData = [];
             foreach ($properties as $property) {
