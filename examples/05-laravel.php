@@ -87,6 +87,7 @@ $mutator = new DataMutator();
 $updated = $mutator->set($data, 'products.*.discount', 0.1);
 
 echo 'Updated collection:' . PHP_EOL;
+
 /** @var Collection<int, mixed> $updated */
 echo json_encode($updated->all(), JSON_PRETTY_PRINT) . PHP_EOL;
 
@@ -171,9 +172,7 @@ echo '----------------------' . PHP_EOL;
  */
 class CustomArrayable implements Arrayable
 {
-    /**
-     * @param array<int|string, mixed> $data
-     */
+    /** @param array<int|string, mixed> $data */
     public function __construct(
         private readonly array $data,
     ) {}

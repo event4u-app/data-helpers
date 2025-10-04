@@ -79,17 +79,13 @@ class Product
         $this->price = $price;
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function getTags(): array
     {
         return $this->tags;
     }
 
-    /**
-     * @param array<int, string> $tags
-     */
+    /** @param array<int, string> $tags */
     public function setTags(array $tags): void
     {
         $this->tags = $tags;

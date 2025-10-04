@@ -113,6 +113,7 @@ class DataMutator
             self::setIntoArray($arr, $segments, $value, $merge);
 
             $result = CollectionHelper::fromArrayWithType($arr, $target);
+
             /** @var array<int|string, mixed>|object $result */
             return $result;
         }
@@ -328,6 +329,7 @@ class DataMutator
                 $arr = CollectionHelper::toArray($target);
                 self::unsetFromArray($arr, $segments);
                 $result = CollectionHelper::fromArrayWithType($arr, $target);
+
                 /** @var array<int|string, mixed>|object $result */
                 $target = $result;
 

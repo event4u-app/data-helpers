@@ -292,12 +292,12 @@ class DataMapper
                     $value,
                     $skipNull,
                     $reindexWildcard,
-                    function (int|string $_i, string $reason) use (&$mappingIndex): void {
+                    function(int|string $_i, string $reason) use (&$mappingIndex): void {
                         if ('null' === $reason) {
                             $mappingIndex++;
                         }
                     },
-                    function (int|string $wildcardIndex, mixed $itemValue) use (
+                    function(int|string $wildcardIndex, mixed $itemValue) use (
                         &$target,
                         $hooks,
                         $pairContext,
@@ -328,6 +328,7 @@ class DataMapper
                             (string)$resolvedTargetPath,
                             $writeValue
                         );
+
                         /** @var array<int|string, mixed>|object $target */
                         $target = HookInvoker::invokeTargetHook(
                             $hooks,
@@ -354,6 +355,7 @@ class DataMapper
                 $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
                 if ('__skip__' !== $writeValue) {
                     $target = DataMutator::set(MappingEngine::asTarget($target), (string)$targetPath, $writeValue);
+
                     /** @var array<int|string, mixed>|object $target */
                     $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
                 }
@@ -404,7 +406,6 @@ class DataMapper
             }
 
             /** @var array<int|string, mixed>|object $entryTarget */
-
             $entrySkipNull = array_key_exists('skipNull', $map) ? (bool)$map['skipNull'] : $skipNull;
 
             $entryReindex = array_key_exists(
@@ -428,6 +429,7 @@ class DataMapper
             if (isset($map['sourceMapping']) || isset($map['targetMapping'])) {
                 /** @var array<int|string, mixed> $sourcePathMapping */
                 $sourcePathMapping = $map['sourceMapping'] ?? [];
+
                 /** @var array<int|string, mixed> $targetPathMapping */
                 $targetPathMapping = $map['targetMapping'] ?? [];
 
@@ -497,7 +499,7 @@ class DataMapper
                             $entrySkipNull,
                             $entryReindex,
                             null,
-                            function (int|string $wildcardIndex, mixed $itemValue) use (
+                            function(int|string $wildcardIndex, mixed $itemValue) use (
                                 &$entryTarget,
                                 $effectiveHooks,
                                 $pairContext,
@@ -627,7 +629,7 @@ class DataMapper
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function (int|string $wildcardIndex, mixed $itemValue) use (
+                                function(int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,
@@ -692,6 +694,7 @@ class DataMapper
                 } else {
                     // List of pairs: [[sourcePath, targetPath], ...]
                     $pairIndex = 0;
+
                     /** @var array<int, mixed> $pairs */
                     foreach ($pairs as $mappingPair) {
                         if (!is_array($mappingPair) || count($mappingPair) !== 2) {
@@ -745,7 +748,7 @@ class DataMapper
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function (int|string $wildcardIndex, mixed $itemValue) use (
+                                function(int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,

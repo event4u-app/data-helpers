@@ -196,11 +196,9 @@ class TemplateMapper
                 if (is_array($target) || is_object($target)) {
                     $target = self::writeToAliasWithWildcards($target, $path, $dataNode, $skipNull, $reindexWildcard);
                 }
-            } else {
+            } elseif (is_array($target) || is_object($target)) {
                 // Simple write
-                if (is_array($target) || is_object($target)) {
-                    $target = DataMutator::set($target, $path ?? '', $dataNode);
-                }
+                $target = DataMutator::set($target, $path ?? '', $dataNode);
             }
 
             $targets[$alias] = $target;

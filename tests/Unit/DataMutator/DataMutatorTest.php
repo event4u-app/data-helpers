@@ -7,9 +7,9 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
-describe('DataMutator', function(): void {
-    describe('Array mutations - Single values', function(): void {
-        test('can set simple values in empty array', function(): void {
+describe('DataMutator', function (): void {
+    describe('Array mutations - Single values', function (): void {
+        test('can set simple values in empty array', function (): void {
             $data = [];
             $result = DataMutator::set($data, 'name', 'Alice');
 
@@ -18,7 +18,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set nested values in empty array', function(): void {
+        test('can set nested values in empty array', function (): void {
             $data = [];
             $result = DataMutator::set($data, 'user.profile.name', 'Alice');
 
@@ -31,7 +31,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set values in existing array', function(): void {
+        test('can set values in existing array', function (): void {
             $data = [
                 'existing' => 'value',
             ];
@@ -43,7 +43,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can overwrite existing values', function(): void {
+        test('can overwrite existing values', function (): void {
             $data = [
                 'name' => 'Bob',
             ];
@@ -54,7 +54,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set deeply nested values', function(): void {
+        test('can set deeply nested values', function (): void {
             $data = [];
             $result = DataMutator::set($data, 'level1.level2.level3.level4.value', 'deep');
 
@@ -71,7 +71,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can overwrite scalar with nested structure', function(): void {
+        test('can overwrite scalar with nested structure', function (): void {
             $data = [
                 'user' => 'scalar_value',
             ];
@@ -87,8 +87,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Array mutations - Multiple values', function(): void {
-        test('can set multiple values with array of paths', function(): void {
+    describe('Array mutations - Multiple values', function (): void {
+        test('can set multiple values with array of paths', function (): void {
             $data = [];
             $result = DataMutator::set($data, [
                 'users.0.name' => 'Alice',
@@ -109,7 +109,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set multiple nested values', function(): void {
+        test('can set multiple nested values', function (): void {
             $data = [];
             $result = DataMutator::set($data, [
                 'config.database.host' => 'localhost',
@@ -132,7 +132,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can overwrite existing values with multiple paths', function(): void {
+        test('can overwrite existing values with multiple paths', function (): void {
             $data = [
                 'users' => [
                     [
@@ -165,7 +165,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can mix simple and nested paths in multiple assignment', function(): void {
+        test('can mix simple and nested paths in multiple assignment', function (): void {
             $data = [];
             $result = DataMutator::set($data, [
                 'name' => 'Alice',
@@ -190,14 +190,14 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set empty array with multiple paths', function(): void {
+        test('can set empty array with multiple paths', function (): void {
             $data = [];
             $result = DataMutator::set($data, []);
 
             expect($result)->toBe([]);
         });
 
-        test('can set multiple values with special types', function(): void {
+        test('can set multiple values with special types', function (): void {
             $data = [];
             $result = DataMutator::set($data, [
                 'string' => 'text',
@@ -219,8 +219,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Array mutations - Merge functionality', function(): void {
-        test('can merge arrays without merge flag (overwrites)', function(): void {
+    describe('Array mutations - Merge functionality', function (): void {
+        test('can merge arrays without merge flag (overwrites)', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -237,7 +237,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge arrays with merge flag', function(): void {
+        test('can merge arrays with merge flag', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -255,7 +255,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can perform deep merge', function(): void {
+        test('can perform deep merge', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -283,7 +283,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge multiple levels deep', function(): void {
+        test('can merge multiple levels deep', function (): void {
             $data = [
                 'config' => [
                     'database' => [
@@ -335,7 +335,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('merge overwrites scalar values', function(): void {
+        test('merge overwrites scalar values', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -354,7 +354,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('merge with non-array values falls back to overwrite', function(): void {
+        test('merge with non-array values falls back to overwrite', function (): void {
             $data = [
                 'user' => 'Alice',
             ];
@@ -369,7 +369,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('merge with non-array new value falls back to overwrite', function(): void {
+        test('merge with non-array new value falls back to overwrite', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -382,7 +382,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge empty arrays', function(): void {
+        test('can merge empty arrays', function (): void {
             $data = [
                 'user' => [],
             ];
@@ -397,7 +397,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge into empty target', function(): void {
+        test('can merge into empty target', function (): void {
             $data = [];
             $result = DataMutator::set($data, 'user', [
                 'name' => 'Alice',
@@ -410,7 +410,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('numeric indices are replaced, not merged', function(): void {
+        test('numeric indices are replaced, not merged', function (): void {
             $data = [
                 'tags' => ['old', 'keep'],
             ];
@@ -421,7 +421,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('numeric indices replacement with multiple values', function(): void {
+        test('numeric indices replacement with multiple values', function (): void {
             $data = [
                 'items' => ['a', 'b', 'c', 'd'],
             ];
@@ -432,7 +432,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('numeric indices replacement preserves higher indices', function(): void {
+        test('numeric indices replacement preserves higher indices', function (): void {
             $data = [
                 'list' => [
                     0 => 'zero',
@@ -456,7 +456,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('mixed associative and numeric keys merge correctly', function(): void {
+        test('mixed associative and numeric keys merge correctly', function (): void {
             $data = [
                 'config' => [
                     'name' => 'app',
@@ -479,7 +479,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('deep merge with numeric indices in nested arrays', function(): void {
+        test('deep merge with numeric indices in nested arrays', function (): void {
             $data = [
                 'users' => [
                     'alice' => [
@@ -506,7 +506,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('empty numeric array merge', function(): void {
+        test('empty numeric array merge', function (): void {
             $data = [
                 'items' => [],
             ];
@@ -517,7 +517,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('numeric merge with non-sequential indices', function(): void {
+        test('numeric merge with non-sequential indices', function (): void {
             $data = [
                 'sparse' => [
                     0 => 'zero',
@@ -541,8 +541,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Array mutations with wildcards', function(): void {
-        test('can set values with single wildcard', function(): void {
+    describe('Array mutations with wildcards', function (): void {
+        test('can set values with single wildcard', function (): void {
             $data = [
                 'users' => [
                     [
@@ -567,14 +567,14 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set values with wildcard at root level', function(): void {
+        test('can set values with wildcard at root level', function (): void {
             $data = ['', '', ''];
             $result = DataMutator::set($data, '*', 'value');
 
             expect($result)->toBe(['value', 'value', 'value']);
         });
 
-        test('can set nested values with wildcards', function(): void {
+        test('can set nested values with wildcards', function (): void {
             $data = [
                 'orders' => [
                     [
@@ -621,7 +621,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard on empty array does nothing', function(): void {
+        test('wildcard on empty array does nothing', function (): void {
             $data = [
                 'users' => [],
             ];
@@ -632,7 +632,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard on non-array elements is ignored', function(): void {
+        test('wildcard on non-array elements is ignored', function (): void {
             $data = [
                 'items' => [
                     'string_value',
@@ -653,7 +653,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge arrays with wildcards', function(): void {
+        test('can merge arrays with wildcards', function (): void {
             $data = [
                 'users' => [
                     [
@@ -696,7 +696,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard merge with non-array elements falls back to overwrite', function(): void {
+        test('wildcard merge with non-array elements falls back to overwrite', function (): void {
             $data = [
                 'items' => [
                     'string_value',
@@ -722,7 +722,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard merge with numeric indices', function(): void {
+        test('wildcard merge with numeric indices', function (): void {
             $data = [
                 'groups' => [
                     [
@@ -757,8 +757,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Object mutations - DTOs', function(): void {
-        test('can set public properties on DTO', function(): void {
+    describe('Object mutations - DTOs', function (): void {
+        test('can set public properties on DTO', function (): void {
             $dto = new class {
                 public string $name = '';
                 public int $age = 0;
@@ -770,7 +770,7 @@ describe('DataMutator', function(): void {
             expect($dto->age)->toBe(0); // unchanged
         });
 
-        test('can set multiple properties on DTO', function(): void {
+        test('can set multiple properties on DTO', function (): void {
             $dto = new class {
                 public string $name = '';
                 public int $age = 0;
@@ -797,7 +797,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set private properties on DTO using reflection', function(): void {
+        test('can set private properties on DTO using reflection', function (): void {
             $dto = new class {
                 private string $name = '';
 
@@ -812,8 +812,9 @@ describe('DataMutator', function(): void {
             expect($dto->getName())->toBe('Charlie');
         });
 
-        test('can create dynamic properties on DTO', function(): void {
-            $dto = new #[AllowDynamicProperties] class {};
+        test('can create dynamic properties on DTO', function (): void {
+            $dto = new #[AllowDynamicProperties] class {
+            };
 
             DataMutator::set($dto, 'dynamicProperty', 'value');
 
@@ -821,7 +822,7 @@ describe('DataMutator', function(): void {
             expect($dto->dynamicProperty)->toBe('value');
         });
 
-        test('can set nested values in DTO properties', function(): void {
+        test('can set nested values in DTO properties', function (): void {
             $dto = new class {
                 /** @var array<string, mixed> */
                 public array $config = [];
@@ -836,7 +837,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge arrays in DTO properties', function(): void {
+        test('can merge arrays in DTO properties', function (): void {
             $dto = new class {
                 /** @var array<string, mixed> */
                 public array $config = [
@@ -867,8 +868,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Laravel Model mutations', function(): void {
-        test('can set attributes on Laravel model', function(): void {
+    describe('Laravel Model mutations', function (): void {
+        test('can set attributes on Laravel model', function (): void {
             $model = new class extends Model {
                 protected $fillable = ['name', 'email'];
             };
@@ -878,7 +879,7 @@ describe('DataMutator', function(): void {
             expect($model->getAttribute('name'))->toBe('Alice');
         });
 
-        test('can set multiple attributes on Laravel model', function(): void {
+        test('can set multiple attributes on Laravel model', function (): void {
             $model = new class extends Model {
                 protected $fillable = ['name', 'email'];
             };
@@ -890,7 +891,7 @@ describe('DataMutator', function(): void {
             expect($model->getAttribute('email'))->toBe('alice@example.com');
         });
 
-        test('can set multiple attributes at once on Laravel model', function(): void {
+        test('can set multiple attributes at once on Laravel model', function (): void {
             $model = new class extends Model {
                 protected $fillable = ['name', 'email', 'age', 'active'];
             };
@@ -909,8 +910,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Arrayable object mutations', function(): void {
-        test('converts Arrayable to array and sets values', function(): void {
+    describe('Arrayable object mutations', function (): void {
+        test('converts Arrayable to array and sets values', function (): void {
             $arrayable = new class implements Arrayable {
                 public function toArray(): array
                 {
@@ -930,7 +931,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set nested values in Arrayable', function(): void {
+        test('can set nested values in Arrayable', function (): void {
             $arrayable = new class implements Arrayable {
                 public function toArray(): array
                 {
@@ -956,7 +957,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set multiple values in Arrayable', function(): void {
+        test('can set multiple values in Arrayable', function (): void {
             $arrayable = new class implements Arrayable {
                 public function toArray(): array
                 {
@@ -984,7 +985,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge arrays in Arrayable objects', function(): void {
+        test('can merge arrays in Arrayable objects', function (): void {
             $arrayable = new class implements Arrayable {
                 public function toArray(): array
                 {
@@ -1008,13 +1009,12 @@ describe('DataMutator', function(): void {
                     'country' => 'Germany',
                 ],
             ]);
-
             /** @return array<string, mixed> */
         });
     });
 
-    describe('JsonSerializable object mutations', function(): void {
-        test('converts JsonSerializable to array and sets values', function(): void {
+    describe('JsonSerializable object mutations', function (): void {
+        test('converts JsonSerializable to array and sets values', function (): void {
             $jsonSerializable = new class implements JsonSerializable {
                 /** @return array<string, mixed> */
                 public function jsonSerialize(): array
@@ -1036,7 +1036,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set multiple values in JsonSerializable', function(): void {
+        test('can set multiple values in JsonSerializable', function (): void {
             $jsonSerializable = new class implements JsonSerializable {
                 /** @return array<string, mixed> */
                 public function jsonSerialize(): array
@@ -1066,7 +1066,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge arrays in JsonSerializable objects', function(): void {
+        test('can merge arrays in JsonSerializable objects', function (): void {
             $jsonSerializable = new class implements JsonSerializable {
                 /** @return array<string, mixed> */
                 public function jsonSerialize(): array
@@ -1094,8 +1094,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Collection mutations', function(): void {
-        test('can set values in Collections', function(): void {
+    describe('Collection mutations', function (): void {
+        test('can set values in Collections', function (): void {
             $collection = collect([
                 [
                     'name' => 'Alice',
@@ -1122,7 +1122,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set values with wildcards in Collections', function(): void {
+        test('can set values with wildcards in Collections', function (): void {
             $collection = collect([
                 [
                     'name' => 'Alice',
@@ -1150,7 +1150,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge values in Collections', function(): void {
+        test('can merge values in Collections', function (): void {
             $collection = collect([
                 [
                     'config' => [
@@ -1177,7 +1177,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set multiple values in Collections', function(): void {
+        test('can set multiple values in Collections', function (): void {
             $collection = collect([[], []]);
             $result = DataMutator::set($collection, [
                 '0.name' => 'Alice',
@@ -1201,7 +1201,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge with numeric indices in Collections', function(): void {
+        test('can merge with numeric indices in Collections', function (): void {
             $collection = collect([
                 [
                     'tags' => ['old1', 'old2'],
@@ -1222,8 +1222,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Special value types', function(): void {
-        test('can set null values', function(): void {
+    describe('Special value types', function (): void {
+        test('can set null values', function (): void {
             $data = [];
             $result = DataMutator::set($data, 'value', null);
 
@@ -1232,7 +1232,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set boolean values', function(): void {
+        test('can set boolean values', function (): void {
             $data = [];
             $result1 = DataMutator::set($data, 'enabled', true);
             $result2 = DataMutator::set($result1, 'disabled', false);
@@ -1243,7 +1243,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set numeric values', function(): void {
+        test('can set numeric values', function (): void {
             $data = [];
             $result1 = DataMutator::set($data, 'count', 42);
             $result2 = DataMutator::set($result1, 'price', 19.99);
@@ -1254,7 +1254,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set array values', function(): void {
+        test('can set array values', function (): void {
             $data = [];
             $result = DataMutator::set($data, 'items', ['a', 'b', 'c']);
 
@@ -1263,7 +1263,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set object values', function(): void {
+        test('can set object values', function (): void {
             $data = [];
             $obj = new stdClass();
             $obj->prop = 'value';
@@ -1276,8 +1276,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Edge cases', function(): void {
-        test('handles empty path segments gracefully', function(): void {
+    describe('Edge cases', function (): void {
+        test('handles empty path segments gracefully', function (): void {
             $data = [];
             $result = DataMutator::set($data, '', 'value');
 
@@ -1285,14 +1285,14 @@ describe('DataMutator', function(): void {
             expect($result)->toBe([]);
         });
 
-        test('handles paths with consecutive dots', function(): void {
+        test('handles paths with consecutive dots', function (): void {
             $data = [];
 
             expect(fn(): array|object => DataMutator::set($data, 'a..b', 'value'))
                 ->toThrow(InvalidArgumentException::class, "Invalid dot-path syntax: double dot in 'a..b'");
         });
 
-        test('can set values in mixed object-array structures', function(): void {
+        test('can set values in mixed object-array structures', function (): void {
             $dto = new class {
                 /** @var array<int, array<string, mixed>> */
                 public array $items = [
@@ -1316,7 +1316,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can handle null properties in objects', function(): void {
+        test('can handle null properties in objects', function (): void {
             $dto = new class {
                 /** @var null|array<string, mixed> */
                 public ?array $config = null;
@@ -1331,7 +1331,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard with mixed object types in array', function(): void {
+        test('wildcard with mixed object types in array', function (): void {
             $data = [
                 'items' => [
                     new class {
@@ -1367,7 +1367,7 @@ describe('DataMutator', function(): void {
             expect($o2->name)->toBe('updated');
         });
 
-        test('can combine wildcards with multiple value assignment', function(): void {
+        test('can combine wildcards with multiple value assignment', function (): void {
             $data = [
                 'users' => [
                     [
@@ -1407,7 +1407,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('multiple values with overlapping paths', function(): void {
+        test('multiple values with overlapping paths', function (): void {
             $data = [];
 
             $result = DataMutator::set($data, [
@@ -1433,7 +1433,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('multiple values can overwrite each other', function(): void {
+        test('multiple values can overwrite each other', function (): void {
             $data = [];
 
             $result = DataMutator::set($data, [
@@ -1452,7 +1452,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can use merge with multiple values', function(): void {
+        test('can use merge with multiple values', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -1483,7 +1483,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('merge with multiple values and deep structures', function(): void {
+        test('merge with multiple values and deep structures', function (): void {
             $data = [
                 'app' => [
                     'database' => [
@@ -1522,7 +1522,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('multiple values merge with numeric indices', function(): void {
+        test('multiple values merge with numeric indices', function (): void {
             $data = [
                 'lists' => [
                     'tags' => ['old1', 'old2'],
@@ -1545,7 +1545,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('complex merge with mixed associative and numeric keys', function(): void {
+        test('complex merge with mixed associative and numeric keys', function (): void {
             $data = [
                 'system' => [
                     'modules' => ['auth', 'cache'],
@@ -1578,7 +1578,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('numeric merge with string keys that look like numbers', function(): void {
+        test('numeric merge with string keys that look like numbers', function (): void {
             $data = [
                 'mixed' => [
                     // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
@@ -1622,7 +1622,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('numeric merge replaces array elements completely', function(): void {
+        test('numeric merge replaces array elements completely', function (): void {
             $data = [
                 'nested' => [
                     'items' => [
@@ -1665,8 +1665,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Merge shortcut method', function(): void {
-        test('merge() is shortcut for set() with merge=true', function(): void {
+    describe('Merge shortcut method', function (): void {
+        test('merge() is shortcut for set() with merge=true', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -1684,7 +1684,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('merge() with single path and value', function(): void {
+        test('merge() with single path and value', function (): void {
             $data = [];
             $result = DataMutator::merge($data, 'user', [
                 'name' => 'Alice',
@@ -1705,7 +1705,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('merge() with array of paths', function(): void {
+        test('merge() with array of paths', function (): void {
             $data = [
                 'user' => [
                     'profile' => [
@@ -1729,7 +1729,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('merge() with numeric indices', function(): void {
+        test('merge() with numeric indices', function (): void {
             $data = [
                 'tags' => ['old1', 'old2'],
             ];
@@ -1740,7 +1740,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('merge() with objects', function(): void {
+        test('merge() with objects', function (): void {
             $dto = new class {
                 /** @var array<string, mixed> */
                 public array $config = [
@@ -1759,8 +1759,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Unset functionality', function(): void {
-        test('can unset simple array values', function(): void {
+    describe('Unset functionality', function (): void {
+        test('can unset simple array values', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -1776,7 +1776,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset nested array values', function(): void {
+        test('can unset nested array values', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -1795,7 +1795,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset multiple paths at once', function(): void {
+        test('can unset multiple paths at once', function (): void {
             $data = [
                 'users' => [
                     [
@@ -1819,7 +1819,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset from DTO objects', function(): void {
+        test('can unset from DTO objects', function (): void {
             $dto = new class {
                 public string $name = 'Alice';
                 public ?string $city = 'Berlin';
@@ -1831,9 +1831,10 @@ describe('DataMutator', function(): void {
             expect($dto->city)->toBeNull();
         });
 
-        test('can unset private properties from objects', function(): void {
+        test('can unset private properties from objects', function (): void {
             $dto = new class {
                 public string $name = 'Alice';
+
                 /** @phpstan-ignore property.unusedType */
                 private ?string $secret = 'hidden';
 
@@ -1849,7 +1850,7 @@ describe('DataMutator', function(): void {
             expect($dto->getSecret())->toBeNull();
         });
 
-        test('unset ignores non-existent paths', function(): void {
+        test('unset ignores non-existent paths', function (): void {
             $data = [
                 'user' => [
                     'name' => 'Alice',
@@ -1864,7 +1865,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('unset ignores non-existent object properties', function(): void {
+        test('unset ignores non-existent object properties', function (): void {
             $dto = new class {
                 public string $name = 'Alice';
             };
@@ -1874,7 +1875,7 @@ describe('DataMutator', function(): void {
             expect($dto->name)->toBe('Alice');
         });
 
-        test('can unset with wildcards', function(): void {
+        test('can unset with wildcards', function (): void {
             $data = [
                 'users' => [
                     [
@@ -1901,7 +1902,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset all items via wildcard', function(): void {
+        test('can unset all items via wildcard', function (): void {
             $data = [
                 'users' => [
                     [
@@ -1919,7 +1920,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard unset clears entire array', function(): void {
+        test('wildcard unset clears entire array', function (): void {
             $data = [
                 'items' => ['a', 'b', 'c', 'd'],
             ];
@@ -1930,7 +1931,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard unset with nested arrays', function(): void {
+        test('wildcard unset with nested arrays', function (): void {
             $data = [
                 'categories' => [
                     'tech' => ['php', 'javascript'],
@@ -1944,7 +1945,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard unset preserves parent structure', function(): void {
+        test('wildcard unset preserves parent structure', function (): void {
             $data = [
                 'config' => [
                     'database' => [
@@ -1969,7 +1970,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard unset with mixed object types', function(): void {
+        test('wildcard unset with mixed object types', function (): void {
             $data = [
                 'items' => [
                     [
@@ -1998,7 +1999,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard unset clears mixed object types array', function(): void {
+        test('wildcard unset clears mixed object types array', function (): void {
             $data = [
                 'items' => [
                     [
@@ -2019,7 +2020,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard unset with empty arrays', function(): void {
+        test('wildcard unset with empty arrays', function (): void {
             $data = [
                 'empty' => [],
                 'filled' => ['a', 'b'],
@@ -2032,7 +2033,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard unset at root level', function(): void {
+        test('wildcard unset at root level', function (): void {
             $data = [
                 'a' => 1,
                 'b' => 2,
@@ -2043,7 +2044,7 @@ describe('DataMutator', function(): void {
             expect($result)->toBe([]);
         });
 
-        test('can unset nested paths with wildcards', function(): void {
+        test('can unset nested paths with wildcards', function (): void {
             $data = [
                 'groups' => [
                     [
@@ -2086,7 +2087,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset from Arrayable objects', function(): void {
+        test('can unset from Arrayable objects', function (): void {
             $arrayable = new class implements Arrayable {
                 public function toArray(): array
                 {
@@ -2106,7 +2107,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset from JsonSerializable objects', function(): void {
+        test('can unset from JsonSerializable objects', function (): void {
             $jsonSerializable = new class implements JsonSerializable {
                 /** @return array<string, mixed> */
                 public function jsonSerialize(): array
@@ -2127,7 +2128,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset nested values from objects in arrays', function(): void {
+        test('can unset nested values from objects in arrays', function (): void {
             $data = [
                 'users' => [
                     new class {
@@ -2156,7 +2157,7 @@ describe('DataMutator', function(): void {
             expect($result['users'][1]->email)->toBeNull();
         });
 
-        test('wildcard unset clears array of objects', function(): void {
+        test('wildcard unset clears array of objects', function (): void {
             $data = [
                 'users' => [
                     new class {
@@ -2175,7 +2176,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard unset with multiple levels', function(): void {
+        test('wildcard unset with multiple levels', function (): void {
             $data = [
                 'departments' => [
                     'engineering' => [
@@ -2233,7 +2234,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('wildcard unset clears nested arrays completely', function(): void {
+        test('wildcard unset clears nested arrays completely', function (): void {
             $data = [
                 'departments' => [
                     'engineering' => [
@@ -2273,7 +2274,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('unset with deep object nesting', function(): void {
+        test('unset with deep object nesting', function (): void {
             $dto = new class {
                 public object $profile;
 
@@ -2294,7 +2295,7 @@ describe('DataMutator', function(): void {
             expect($dto->profile->city)->toBeNull();
         });
 
-        test('can unset values from Collections', function(): void {
+        test('can unset values from Collections', function (): void {
             $collection = collect([
                 [
                     'name' => 'Alice',
@@ -2323,7 +2324,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset values with wildcards from Collections', function(): void {
+        test('can unset values with wildcards from Collections', function (): void {
             $collection = collect([
                 [
                     'name' => 'Alice',
@@ -2351,7 +2352,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset all items from Collection via wildcard', function(): void {
+        test('can unset all items from Collection via wildcard', function (): void {
             $collection = collect([
                 [
                     'name' => 'Alice',
@@ -2370,7 +2371,7 @@ describe('DataMutator', function(): void {
             expect($result->toArray())->toBe([]);
         });
 
-        test('can unset multiple paths from Collections', function(): void {
+        test('can unset multiple paths from Collections', function (): void {
             $collection = collect([
                 [
                     'name' => 'Alice',
@@ -2403,7 +2404,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset nested values from Collections', function(): void {
+        test('can unset nested values from Collections', function (): void {
             $collection = collect([
                 [
                     'user' => [
@@ -2447,7 +2448,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset from empty Collections', function(): void {
+        test('can unset from empty Collections', function (): void {
             $collection = collect([]);
             $result = DataMutator::unset($collection, '*');
 
@@ -2459,7 +2460,7 @@ describe('DataMutator', function(): void {
             expect($result->toArray())->toBe([]);
         });
 
-        test('can unset from Collections with mixed types', function(): void {
+        test('can unset from Collections with mixed types', function (): void {
             $collection = collect([
                 [
                     'name' => 'Alice',
@@ -2490,8 +2491,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Deep Wildcards', function(): void {
-        test('can set values with deep wildcards in arrays', function(): void {
+    describe('Deep Wildcards', function (): void {
+        test('can set values with deep wildcards in arrays', function (): void {
             $data = [
                 'users' => [
                     [
@@ -2548,7 +2549,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset values with deep wildcards in arrays', function(): void {
+        test('can unset values with deep wildcards in arrays', function (): void {
             $data = [
                 'users' => [
                     [
@@ -2605,7 +2606,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge values with deep wildcards', function(): void {
+        test('can merge values with deep wildcards', function (): void {
             $data = [
                 'departments' => [
                     [
@@ -2658,7 +2659,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('deep wildcards with three levels', function(): void {
+        test('deep wildcards with three levels', function (): void {
             $data = [
                 'companies' => [
                     'departments' => [
@@ -2735,7 +2736,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('deep wildcards with mixed array and object structures', function(): void {
+        test('deep wildcards with mixed array and object structures', function (): void {
             $data = [
                 'organizations' => [
                     new class {
@@ -2795,7 +2796,7 @@ describe('DataMutator', function(): void {
             expect($result['organizations'][1]->divisions[0]['locations'][0]['country'])->toBe('USA');
         });
 
-        test('deep wildcards unset clears nested arrays completely', function(): void {
+        test('deep wildcards unset clears nested arrays completely', function (): void {
             $data = [
                 'regions' => [
                     [
@@ -2848,7 +2849,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('deep wildcards with Collections', function(): void {
+        test('deep wildcards with Collections', function (): void {
             $collection = collect([
                 [
                     'groups' => [
@@ -2966,7 +2967,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('deep wildcards with empty nested arrays', function(): void {
+        test('deep wildcards with empty nested arrays', function (): void {
             $data = [
                 'levels' => [
                     [
@@ -3014,7 +3015,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('deep wildcards with non-array elements are ignored', function(): void {
+        test('deep wildcards with non-array elements are ignored', function (): void {
             $data = [
                 'mixed' => [
                     [
@@ -3079,7 +3080,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('deep wildcards unset from Collections', function(): void {
+        test('deep wildcards unset from Collections', function (): void {
             $collection = collect([
                 [
                     'users' => [
@@ -3145,7 +3146,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('deep wildcards with multiple values assignment', function(): void {
+        test('deep wildcards with multiple values assignment', function (): void {
             $data = [
                 'stores' => [
                     [
@@ -3226,8 +3227,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Error handling', function(): void {
-        test('throws TypeError for unsupported target types', function(): void {
+    describe('Error handling', function (): void {
+        test('throws TypeError for unsupported target types', function (): void {
             // @phpstan-ignore-next-line intentional invalid target for error handling test
             expect(fn(): array|object => DataMutator::set('string', 'path', 'value'))
                 ->toThrow(TypeError::class);
@@ -3241,7 +3242,7 @@ describe('DataMutator', function(): void {
                 ->toThrow(TypeError::class);
         });
 
-        test('unset throws TypeError for unsupported target types', function(): void {
+        test('unset throws TypeError for unsupported target types', function (): void {
             // @phpstan-ignore-next-line intentional invalid target for error handling test
             expect(fn(): array|object => DataMutator::unset('string', 'path'))
                 ->toThrow(TypeError::class);
