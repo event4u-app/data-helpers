@@ -100,9 +100,9 @@ $product->setTags(['electronics', 'gadget']);
 
 // DataAccessor works with entities
 $accessor = new DataAccessor($product);
-echo 'Product name: ' . (string)$accessor->get('name') . PHP_EOL;
-echo 'Product price: ' . (string)$accessor->get('price') . PHP_EOL;
-echo 'Product tags: ' . json_encode($accessor->get('tags')) . PHP_EOL;
+echo 'Product name: ' . $accessor->getString('name') . PHP_EOL;
+echo 'Product price: ' . $accessor->getString('price') . PHP_EOL;
+echo 'Product tags: ' . json_encode($accessor->getArray('tags')) . PHP_EOL;
 
 echo PHP_EOL;
 
@@ -143,8 +143,8 @@ echo '----------------------' . PHP_EOL;
 use event4u\DataHelpers\Support\CollectionHelper;
 
 echo 'Laravel Collections available: ' . (CollectionHelper::isLaravelCollection(
-        new stdClass()
-    ) ? 'Yes' : 'No') . PHP_EOL;
+    new stdClass()
+) ? 'Yes' : 'No') . PHP_EOL;
 echo 'Doctrine Collections available: ' . (class_exists(ArrayCollection::class) ? 'Yes' : 'No') . PHP_EOL;
 echo 'Doctrine ORM available: ' . (class_exists(EntityManager::class) ? 'Yes' : 'No') . PHP_EOL;
 
@@ -167,9 +167,9 @@ $mixedData = [
 ];
 
 $accessor = new DataAccessor($mixedData);
-echo 'Array name: ' . (string)$accessor->get('array_data.name') . PHP_EOL;
-echo 'Object name: ' . (string)$accessor->get('object_data.name') . PHP_EOL;
-echo 'Collection name: ' . (string)$accessor->get('collection_data.name') . PHP_EOL;
+echo 'Array name: ' . $accessor->getString('array_data.name') . PHP_EOL;
+echo 'Object name: ' . $accessor->getString('object_data.name') . PHP_EOL;
+echo 'Collection name: ' . $accessor->getString('collection_data.name') . PHP_EOL;
 
 echo PHP_EOL;
 
