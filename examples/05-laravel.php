@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-use Illuminate\Contracts\Support\Arrayable;
-use Tests\utils\Models\User;
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMutator;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
+use Tests\utils\Models\User;
 
 echo '=== Laravel Support Examples ===' . PHP_EOL . PHP_EOL;
 

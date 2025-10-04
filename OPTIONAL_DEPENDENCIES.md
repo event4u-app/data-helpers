@@ -2,7 +2,8 @@
 
 ## Overview
 
-The package works standalone with PHP 8.2+ and provides polyfills for framework-specific classes when they're not available.
+The package works standalone with PHP 8.2+ for arrays, objects, JSON, and XML. Framework-specific features require the respective framework
+packages to be installed.
 
 **Supported Frameworks:**
 
@@ -23,15 +24,15 @@ composer require event4u/laravel-data-helpers
 - ✅ Full DataAccessor functionality with arrays, objects, JSON, XML
 - ✅ Full DataMutator functionality with arrays and objects
 - ✅ Full DataMapper functionality
-- ✅ Basic Collection support (via polyfill)
-- ✅ Basic Arrayable support (via polyfill)
-- ⚠️ Limited Model/Entity support (via polyfill stub)
+- ❌ No Laravel Collection support (requires illuminate/support)
+- ❌ No Eloquent Model support (requires illuminate/database)
+- ❌ No Doctrine Collection support (requires doctrine/collections)
+- ❌ No Doctrine Entity support (requires doctrine/orm)
 
-**Limitations:**
+**Use this option when:**
 
-- Collection polyfill only provides basic methods (all, has, get, toArray)
-- Model/Entity polyfill is a minimal stub for type checking only
-- No database functionality
+- You only work with arrays, objects, JSON, or XML
+- You don't need Laravel or Doctrine features
 
 ### Option 2: With Laravel Support (Recommended for Laravel Projects)
 
@@ -48,6 +49,11 @@ composer require illuminate/database
 - ✅ Full Eloquent Model support with database functionality
 - ✅ Full Arrayable interface support
 
+**Use this option when:**
+
+- You're working in a Laravel project
+- You need to work with Laravel Collections or Eloquent Models
+
 ### Option 3: With Symfony/Doctrine Support (Recommended for Symfony Projects)
 
 ```bash
@@ -63,6 +69,11 @@ composer require doctrine/orm
 - ✅ Full Doctrine Entity support with ORM functionality
 - ✅ Automatic entity detection via attributes/annotations
 
+**Use this option when:**
+
+- You're working in a Symfony project
+- You need to work with Doctrine Collections or Entities
+
 ### Option 4: Development/Testing (Automatic)
 
 When you install the package for development:
@@ -74,45 +85,12 @@ composer install
 
 Laravel and Doctrine packages are automatically installed as `require-dev` dependencies, ensuring all tests run with full framework support.
 
-## Polyfills
-
-The package includes polyfills in `src/Polyfills/` that are automatically loaded when framework classes are not available:
-
-**Laravel Polyfills:**
-
-- **`Illuminate\Support\Collection`** - Basic collection functionality
-- **`Illuminate\Contracts\Support\Arrayable`** - Arrayable interface
-- **`Illuminate\Database\Eloquent\Model`** - Minimal model stub
-
-**Doctrine Polyfills:**
-
-- **`Doctrine\Common\Collections\Collection`** - Collection interface
-- **`Doctrine\Common\Collections\ArrayCollection`** - Basic collection implementation
-
-See [src/Polyfills/README.md](src/Polyfills/README.md) for details.
-
-### Checking Which Implementation Is Used
-
-```php
-use Illuminate\Support\Collection;
-
-// Check if real Laravel Collection is available
-if (class_exists(Collection::class)) {
-    $reflection = new ReflectionClass(Collection::class);
-    if (str_contains($reflection->getFileName(), 'vendor/illuminate')) {
-        echo "Using real Laravel Collection";
-    } else {
-        echo "Using polyfill Collection";
-    }
-}
-```
-
 ## Use Cases
 
 ### Use Case 1: Laravel Project
 
 ```php
-// composer.json already has illuminate/support
+// composer.json has illuminate/support installed
 use event4u\DataHelpers\DataAccessor;
 use Illuminate\Support\Collection;
 
@@ -121,21 +99,20 @@ $accessor = new DataAccessor($collection);
 $name = $accessor->get('name'); // "John"
 ```
 
-**Result:** Uses real Laravel Collection with full functionality.
+**Result:** Works with Laravel Collection with full functionality.
 
 ### Use Case 2: Standalone PHP Project
 
 ```php
-// No illuminate/support installed
+// No illuminate/support installed - use arrays instead
 use event4u\DataHelpers\DataAccessor;
-use Illuminate\Support\Collection; // Polyfill is loaded automatically
 
-$collection = new Collection(['name' => 'John', 'age' => 30]);
-$accessor = new DataAccessor($collection);
+$data = ['name' => 'John', 'age' => 30];
+$accessor = new DataAccessor($data);
 $name = $accessor->get('name'); // "John"
 ```
 
-**Result:** Uses polyfill Collection with basic functionality.
+**Result:** Works with plain arrays - no Laravel dependencies needed.
 
 ### Use Case 3: Symfony Project
 
@@ -166,11 +143,11 @@ composer test
 
 ## Performance
 
-**Polyfills have minimal performance impact:**
+**Framework detection has minimal performance impact:**
 
-- Polyfills are only loaded if Laravel classes don't exist (one-time check)
-- Polyfill implementations are lightweight and optimized
-- No runtime overhead when using real Laravel classes
+- Class existence checks happen once per request
+- No overhead when framework classes are not used
+- Optimal performance with native framework implementations
 
 ## Compatibility Matrix
 
@@ -179,41 +156,41 @@ composer test
 | Arrays               | ✅ Full     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
 | Objects              | ✅ Full     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
 | JSON/XML             | ✅ Full     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
-| Laravel Collections  | ⚠️ Basic   | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
-| Doctrine Collections | ⚠️ Basic   | ⚠️ Basic                  | ⚠️ Basic                   | ✅ Full                      | ✅ Full              |
-| Arrayable Interface  | ⚠️ Basic   | ✅ Full                    | ✅ Full                     | ⚠️ Basic                    | ⚠️ Basic            |
-| Eloquent Models      | ⚠️ Stub    | ⚠️ Stub                   | ✅ Full                     | ⚠️ Stub                     | ⚠️ Stub             |
+| Laravel Collections  | ❌ None     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
+| Doctrine Collections | ❌ None     | ❌ None                    | ❌ None                     | ✅ Full                      | ✅ Full              |
+| Arrayable Interface  | ❌ None     | ✅ Full                    | ✅ Full                     | ❌ None                      | ❌ None              |
+| Eloquent Models      | ❌ None     | ❌ None                    | ✅ Full                     | ❌ None                      | ❌ None              |
 | Doctrine Entities    | ❌ None     | ❌ None                    | ❌ None                     | ⚠️ Basic                    | ✅ Full              |
 
 **Legend:**
 
 - ✅ **Full** - Complete functionality with all features
-- ⚠️ **Basic** - Limited functionality via polyfill (sufficient for basic use cases)
-- ⚠️ **Stub** - Minimal type checking only, no real functionality
+- ⚠️ **Basic** - Limited functionality (e.g., entities without full ORM support)
 - ❌ **None** - Not available without the dependency
 
 ## FAQ
 
 ### Q: Should I install illuminate/support?
 
-**A:** If you're using Laravel, it's already installed. If you're not using Laravel and only need basic functionality, the polyfills are
-sufficient.
+**A:** Only if you need Laravel Collection support. If you're using Laravel, it's already installed. If you're working with plain arrays,
+you don't need it.
 
 ### Q: Can I use Eloquent Models without illuminate/database?
 
-**A:** The polyfill provides a minimal stub for type checking, but for real database functionality, you need `illuminate/database`.
+**A:** No. Eloquent Model support requires `illuminate/database` to be installed. Without it, you can only work with arrays and plain
+objects.
+
+### Q: Can I use Doctrine Collections without doctrine/collections?
+
+**A:** No. Doctrine Collection support requires `doctrine/collections` to be installed. Without it, you can only work with arrays and plain
+objects.
 
 ### Q: What about performance?
 
-**A:** Polyfills have minimal performance impact. The class existence check happens once at autoload time.
-
-### Q: Can I contribute polyfill improvements?
-
-**A:** Yes! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+**A:** Framework detection has minimal performance impact. Class existence checks happen once per request.
 
 ## See Also
 
 - [Main README](README.md)
-- [Polyfills Documentation](src/Polyfills/README.md)
 - [Changelog](CHANGELOG.md)
 

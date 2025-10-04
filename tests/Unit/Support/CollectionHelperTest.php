@@ -72,12 +72,6 @@ describe('CollectionHelper', function(): void {
     });
 
     it('handles Doctrine Collections when available', function(): void {
-        if (!class_exists(ArrayCollection::class)) {
-            expect(true)->toBeTrue(); // Skip if Doctrine not installed
-
-            return;
-        }
-
         $collection = new ArrayCollection([
             'name' => 'Jane',
         ]);

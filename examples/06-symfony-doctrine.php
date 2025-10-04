@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManager;
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManager;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 
@@ -16,28 +15,23 @@ echo '=== Symfony/Doctrine Support Examples ===' . PHP_EOL . PHP_EOL;
 echo '1. Doctrine Collections' . PHP_EOL;
 echo '------------------------' . PHP_EOL;
 
-if (class_exists(ArrayCollection::class)) {
-    $collection = new ArrayCollection([
-        'users' => [
-            [
-                'name' => 'John',
-                'email' => 'john@example.com',
-            ],
-            [
-                'name' => 'Jane',
-                'email' => 'jane@example.com',
-            ],
+$collection = new ArrayCollection([
+    'users' => [
+        [
+            'name' => 'John',
+            'email' => 'john@example.com',
         ],
-    ]);
+        [
+            'name' => 'Jane',
+            'email' => 'jane@example.com',
+        ],
+    ],
+]);
 
-    $accessor = new DataAccessor($collection);
-    $names = $accessor->get('users.*.name');
+$accessor = new DataAccessor($collection);
+$names = $accessor->get('users.*.name');
 
-    echo 'Names from Doctrine Collection: ' . json_encode($names) . PHP_EOL;
-} else {
-    echo 'Doctrine Collections not installed. Using polyfill.' . PHP_EOL;
-    echo 'Install with: composer require doctrine/collections' . PHP_EOL;
-}
+echo 'Names from Doctrine Collection: ' . json_encode($names) . PHP_EOL;
 
 echo PHP_EOL;
 
@@ -163,25 +157,18 @@ $mixedData = [
     'object_data' => (object)[
         'name' => 'Object Item',
     ],
-];
-
-if (class_exists(ArrayCollection::class)) {
-    $mixedData['collection_data'] = new ArrayCollection([
+    'collection_data' => new ArrayCollection([
         'name' => 'Collection Item',
-    ]);
-}
+    ]),
+];
 
 $accessor = new DataAccessor($mixedData);
 echo 'Array name: ' . $accessor->get('array_data.name') . PHP_EOL;
 echo 'Object name: ' . $accessor->get('object_data.name') . PHP_EOL;
-
-if (isset($mixedData['collection_data'])) {
-    echo 'Collection name: ' . $accessor->get('collection_data.name') . PHP_EOL;
-}
+echo 'Collection name: ' . $accessor->get('collection_data.name') . PHP_EOL;
 
 echo PHP_EOL;
 
 echo '=== Examples Complete ===' . PHP_EOL . PHP_EOL;
-echo 'Note: Install Doctrine packages for full functionality:' . PHP_EOL;
-echo '  composer require doctrine/collections' . PHP_EOL;
-echo '  composer require doctrine/orm' . PHP_EOL;
+echo 'Note: These examples use Doctrine Collections and Doctrine ORM.' . PHP_EOL;
+echo 'The package works with or without Doctrine installed.' . PHP_EOL;

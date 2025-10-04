@@ -35,3 +35,5 @@ auth.json
 /**/.secrets/**/*
 !/**/.secrets/.gitkeep
 
+# php unit
+/.phpunit.cache/test-results
