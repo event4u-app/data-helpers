@@ -18,6 +18,9 @@ class DotPathHelper
     /** @var array<string, array<int, string>> */
     private static array $segmentsCache = [];
 
+    /** @var array<string, bool> */
+    private static array $wildcardCache = [];
+
     /**
      * Split a dot-notation string into segments (cached).
      *
@@ -76,16 +79,21 @@ class DotPathHelper
         return '*' === $segment;
     }
 
-    /** Detect if a path contains at least one wildcard. Validates syntax and throws on invalid paths. */
+    /** Detect if a path contains at least one wildcard (cached). Validates syntax and throws on invalid paths. */
     public static function containsWildcard(string $path): bool
     {
+        // Check cache first
+        if (array_key_exists($path, self::$wildcardCache)) {
+            return self::$wildcardCache[$path];
+        }
+
         if ('' === $path) {
-            return false;
+            return self::$wildcardCache[$path] = false;
         }
 
         // Reuse validation logic
         self::segments($path); // will throw on invalid syntax
 
-        return str_contains($path, '*');
+        return self::$wildcardCache[$path] = str_contains($path, '*');
     }
 }

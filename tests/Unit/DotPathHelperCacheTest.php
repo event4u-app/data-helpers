@@ -148,3 +148,66 @@ describe('DotPathHelper Segment Caching', function (): void {
         expect($segments1)->toBe($segments2);
     });
 });
+
+describe('DotPathHelper Wildcard Caching', function (): void {
+    it('caches wildcard detection for repeated paths', function (): void {
+        $path = 'users.*.name';
+
+        // First call should check and cache
+        $hasWildcard1 = DotPathHelper::containsWildcard($path);
+        expect($hasWildcard1)->toBeTrue();
+
+        // Second call should return cached result
+        $hasWildcard2 = DotPathHelper::containsWildcard($path);
+        expect($hasWildcard2)->toBeTrue();
+    });
+
+    it('caches wildcard detection for paths without wildcards', function (): void {
+        $path = 'user.name';
+
+        $hasWildcard1 = DotPathHelper::containsWildcard($path);
+        expect($hasWildcard1)->toBeFalse();
+
+        $hasWildcard2 = DotPathHelper::containsWildcard($path);
+        expect($hasWildcard2)->toBeFalse();
+    });
+
+    it('caches wildcard detection for empty path', function (): void {
+        $path = '';
+
+        $hasWildcard1 = DotPathHelper::containsWildcard($path);
+        expect($hasWildcard1)->toBeFalse();
+
+        $hasWildcard2 = DotPathHelper::containsWildcard($path);
+        expect($hasWildcard2)->toBeFalse();
+    });
+
+    it('caches different wildcard paths separately', function (): void {
+        $path1 = 'users.*.name';
+        $path2 = 'users.*.email';
+        $path3 = 'user.name';
+
+        $hasWildcard1 = DotPathHelper::containsWildcard($path1);
+        $hasWildcard2 = DotPathHelper::containsWildcard($path2);
+        $hasWildcard3 = DotPathHelper::containsWildcard($path3);
+
+        expect($hasWildcard1)->toBeTrue();
+        expect($hasWildcard2)->toBeTrue();
+        expect($hasWildcard3)->toBeFalse();
+    });
+
+    it('benefits from wildcard cache in repeated operations', function (): void {
+        $path = 'users.*.profile.name';
+
+        // Simulate repeated wildcard checks (like in MappingEngine)
+        $results = [];
+        for ($i = 0; $i < 100; $i++) {
+            $results[] = DotPathHelper::containsWildcard($path);
+        }
+
+        // All results should be true (cached)
+        foreach ($results as $result) {
+            expect($result)->toBeTrue();
+        }
+    });
+});

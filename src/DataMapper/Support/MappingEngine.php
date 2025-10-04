@@ -9,6 +9,7 @@ use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\DotPathHelper;
 
 /**
  * Core mapping engine that handles the actual mapping logic.
@@ -61,23 +62,32 @@ class MappingEngine
         bool $trimValues,
         bool $caseInsensitiveReplace,
     ): mixed {
-        $accessor = new DataAccessor($source);
+        // Early return for empty mapping
+        if ([] === $mapping) {
+            return $target;
+        }
 
-        // Global hook: beforeAll
-        HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
+        $accessor = new DataAccessor($source);
+        $hasHooks = !HookInvoker::isEmpty($hooks);
+
+        // Global hook: beforeAll (only if hooks exist)
+        if ($hasHooks) {
+            HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
+        }
 
         $mappingIndex = 0;
         foreach ($mapping as $sourcePath => $targetPath) {
-            $pairContext = new PairContext(
+            // Create context only if hooks exist
+            $pairContext = $hasHooks ? new PairContext(
                 'simple',
                 $mappingIndex,
                 (string)$sourcePath,
                 (string)$targetPath,
                 $source,
                 $target
-            );
+            ) : null;
 
-            if (HookInvoker::invokeHooks($hooks, 'beforePair', $pairContext) === false) {
+            if ($hasHooks && null !== $pairContext && HookInvoker::invokeHooks($hooks, 'beforePair', $pairContext) === false) {
                 $mappingIndex++;
 
                 continue;
@@ -92,11 +102,14 @@ class MappingEngine
                 continue;
             }
 
-            // preTransform
-            $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
+            // preTransform (only if hooks exist)
+            if ($hasHooks && null !== $pairContext) {
+                $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
+            }
 
             // Handle wildcard values (always arrays with dot-path keys)
-            if (is_array($value) && str_contains((string)$sourcePath, '*')) {
+            // Use cached wildcard check
+            if (is_array($value) && DotPathHelper::containsWildcard((string)$sourcePath)) {
                 // Normalize wildcard array (flatten dot-path keys to simple list)
                 $value = WildcardHandler::normalizeWildcardArray($value);
 
@@ -125,11 +138,17 @@ class MappingEngine
                 );
             }
 
-            HookInvoker::invokeHooks($hooks, 'afterPair', $pairContext);
+            // afterPair hook (only if hooks exist)
+            if ($hasHooks && null !== $pairContext) {
+                HookInvoker::invokeHooks($hooks, 'afterPair', $pairContext);
+            }
             $mappingIndex++;
         }
 
-        HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('simple', $mapping, $source, $target));
+        // Global hook: afterAll (only if hooks exist)
+        if ($hasHooks) {
+            HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('simple', $mapping, $source, $target));
+        }
 
         return $target;
     }
@@ -150,7 +169,7 @@ class MappingEngine
         bool $skipNull,
         bool $reindexWildcard,
         array $hooks,
-        PairContext $pairContext
+        ?PairContext $pairContext
     ): mixed {
         WildcardHandler::iterateWildcardItems(
             $value,
@@ -170,8 +189,12 @@ class MappingEngine
                 $source,
                 $mappingIndex
             ): bool {
-                $pairContext->wildcardIndex = $wildcardIndex;
-                $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
+                // Only set wildcardIndex if pairContext exists
+                if (null !== $pairContext) {
+                    $pairContext->wildcardIndex = $wildcardIndex;
+                    $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
+                }
+
                 $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, $targetPath, 1);
                 $writeContext = new WriteContext(
                     'simple',
@@ -183,7 +206,12 @@ class MappingEngine
                     (string)$resolvedTargetPath,
                     $wildcardIndex
                 );
-                $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $itemValue);
+
+                $writeValue = $itemValue;
+                if (!HookInvoker::isEmpty($hooks)) {
+                    $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $itemValue);
+                }
+
                 if ('__skip__' === $writeValue) {
                     return false;
                 }
@@ -192,7 +220,10 @@ class MappingEngine
                     (string)$resolvedTargetPath,
                     $writeValue
                 );
-                $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+
+                if (!HookInvoker::isEmpty($hooks)) {
+                    $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                }
 
                 return true;
             }
@@ -214,9 +245,13 @@ class MappingEngine
         mixed $source,
         int $mappingIndex,
         array $hooks,
-        PairContext $pairContext
+        ?PairContext $pairContext
     ): mixed {
-        $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
+        // Only invoke hooks if pairContext exists (i.e., hooks are configured)
+        if (null !== $pairContext) {
+            $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
+        }
+
         $writeContext = new WriteContext(
             'simple',
             $mappingIndex,
@@ -226,10 +261,18 @@ class MappingEngine
             $target,
             $targetPath
         );
-        $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
+
+        $writeValue = $value;
+        if (!HookInvoker::isEmpty($hooks)) {
+            $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
+        }
+
         if ('__skip__' !== $writeValue) {
             $target = DataMutator::set(self::asTarget($target), $targetPath, $writeValue);
-            $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+
+            if (!HookInvoker::isEmpty($hooks)) {
+                $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+            }
         }
 
         return $target;
