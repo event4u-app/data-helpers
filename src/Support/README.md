@@ -4,7 +4,7 @@ This directory contains helper classes that provide abstraction layers for worki
 
 ## Purpose
 
-The helpers allow `laravel-data-helpers` to work seamlessly with multiple frameworks:
+The helpers allow `data-helpers` to work seamlessly with multiple frameworks:
 - **Laravel** (Eloquent Models, Collections)
 - **Symfony/Doctrine** (Entities, Collections)
 - **Standalone PHP** (Arrays, Objects)

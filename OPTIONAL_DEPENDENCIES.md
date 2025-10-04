@@ -16,7 +16,7 @@ packages to be installed.
 ### Option 1: Standalone (No Framework)
 
 ```bash
-composer require event4u/laravel-data-helpers
+composer require event4u/data-helpers
 ```
 
 **What you get:**
@@ -37,7 +37,7 @@ composer require event4u/laravel-data-helpers
 ### Option 2: With Laravel Support (Recommended for Laravel Projects)
 
 ```bash
-composer require event4u/laravel-data-helpers
+composer require event4u/data-helpers
 composer require illuminate/support
 composer require illuminate/database
 ```
@@ -57,7 +57,7 @@ composer require illuminate/database
 ### Option 3: With Symfony/Doctrine Support (Recommended for Symfony Projects)
 
 ```bash
-composer require event4u/laravel-data-helpers
+composer require event4u/data-helpers
 composer require doctrine/collections
 composer require doctrine/orm
 ```

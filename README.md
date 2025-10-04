@@ -81,12 +81,12 @@ composer.json (of your host application):
 ```json
 {
     "require": {
-        "event4u/laravel-data-helpers": "dev-main"
+        "event4u/data-helpers": "dev-main"
     },
     "repositories": [
         {
             "type": "path",
-            "url": "../galawork-packages/event4u/laravel-data-helpers"
+            "url": "../event4u/data-helpers"
         }
     ]
 }
@@ -95,7 +95,7 @@ composer.json (of your host application):
 Then install:
 
 ```bash
-composer update event4u/laravel-data-helpers -o
+composer update event4u/data-helpers -o
 ```
 
 PSR-4 namespace: `event4u\DataHelpers`
@@ -108,7 +108,7 @@ This package works with **any PHP 8.2+ project** and provides optional support f
 ### 🔧 Standalone PHP
 
 ```bash
-composer require event4u/laravel-data-helpers
+composer require event4u/data-helpers
 ```
 
 **Works out of the box** with arrays, objects, JSON, and XML. No framework dependencies required.
@@ -124,7 +124,7 @@ composer require event4u/laravel-data-helpers
 ### 🔴 Laravel Projects
 
 ```bash
-composer require event4u/laravel-data-helpers
+composer require event4u/data-helpers
 composer require illuminate/support      # Usually already installed
 composer require illuminate/database     # For Eloquent Model support
 ```
@@ -149,7 +149,7 @@ $names = $accessor->get('users.*.name');  // ['John', 'Jane']
 ### ⚫ Symfony/Doctrine Projects
 
 ```bash
-composer require event4u/laravel-data-helpers
+composer require event4u/data-helpers
 composer require doctrine/collections    # For Doctrine Collections
 composer require doctrine/orm            # For Doctrine Entities
 ```
