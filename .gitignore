@@ -37,3 +37,8 @@ auth.json
 
 # php unit
 /.phpunit.cache/test-results
+
+# phpstan
+/build/phpstan/*
+/phpstan-full-output.txt
+/rector.php

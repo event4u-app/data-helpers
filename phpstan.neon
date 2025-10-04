@@ -1,0 +1,102 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/jangregor/phpstan-prophecy/extension.neon
+    - vendor/phpstan/phpstan-mockery/extension.neon
+    - vendor/phpat/phpat/extension.neon
+    - vendor/spaze/phpstan-disallowed-calls/extension.neon
+    - vendor/spaze/phpstan-disallowed-calls/disallowed-dangerous-calls.neon
+    - vendor/spaze/phpstan-disallowed-calls/disallowed-execution-calls.neon
+    - vendor/spaze/phpstan-disallowed-calls/disallowed-insecure-calls.neon
+    - vendor/ergebnis/phpstan-rules/rules.neon
+    - vendor/timeweb/phpstan-enum/extension.neon
+
+parameters:
+    paths:
+        - examples
+        - src
+        - tests
+
+    excludePaths:
+        - '*.stub.php'
+
+    universalObjectCratesClasses:
+        - Pest\Mixins\Expectation
+
+    tmpDir: build/phpstan
+
+    editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+    editorUrlTitle: '%%relFile%%:%%line%%'
+
+    level: 9
+
+    checkMissingCallableSignature: true
+
+    treatPhpDocTypesAsCertain: false
+
+    reportUnmatchedIgnoredErrors: false
+
+    ignoreErrors:
+        - '#^Return type of call to method PHPUnit\\Framework\\TestCase\:\:createMock\(\) contains unresolvable type\.$#'
+        - '#^Cannot cast mixed to#'
+        - '#^Method .* is unused.$#'
+        - message: '#Access to an undefined property PHPUnit\\Framework\\TestCase::\$.*#'
+          paths:
+              - tests/*
+        - message: '#Undefined variable: \$this#'
+          paths:
+              - tests/*
+        - message: '#Variable \$this might not be defined#'
+          paths:
+              - tests/*
+        - message: '#Call to an undefined method Pest#'
+          paths:
+              - tests/*
+
+    disallowedFunctionCalls:
+        -
+            function: 'var_dump()'
+            message: 'use logger instead'
+        -
+            function: 'print_r()'
+            message: 'use logger instead'
+        -
+            function: 'dd()'
+            message: 'use logger instead'
+        -
+            function: 'die()'
+            message: 'Oh my God, they killed Kenny! - You bastards!'
+
+    ergebnis:
+        final:
+            enabled: false
+            allowAbstractClasses: true
+        finalInAbstractClass:
+            enabled: false
+        noExtends:
+            enabled: false
+        testCaseWithSuffix:
+            enabled: true
+        noNullableReturnTypeDeclaration:
+            enabled: false
+        noParameterWithNullableTypeDeclaration:
+            enabled: false
+        noParameterWithNullDefaultValue:
+            enabled: false
+        noParameterWithContainerTypeDeclaration:
+            enabled: false
+        noConstructorParameterWithDefaultValue:
+            enabled: false
+        noCompact:
+            enabled: false
+        noEval:
+            enabled: true
+        noErrorSuppression:
+            enabled: false
+        noIsset:
+            enabled: false
+        noSwitch:
+            enabled: false
+        declareStrictTypes:
+            enabled: false
+        privateInFinalClass:
+            enabled: true

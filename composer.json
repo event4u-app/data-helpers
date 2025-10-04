@@ -24,18 +24,30 @@
     "composer-plugin-api": "^2.0"
   },
   "require-dev": {
-    "composer/composer": "^2",
-    "pestphp/pest": "^3",
-    "illuminate/support": "^8",
-    "doctrine/collections": "^1.6 || ^2",
-    "doctrine/orm": "^2.10 || ^3"
+    "composer/composer": "^2.0",
+    "doctrine/collections": "^2.0",
+    "doctrine/orm": "^3.0",
+    "ergebnis/phpstan-rules": "^2.12",
+    "illuminate/database": "^11.0",
+    "illuminate/support": "^11.0",
+    "jangregor/phpstan-prophecy": "^2.2",
+    "pestphp/pest": "^3.0",
+    "phpat/phpat": "^0.12.0",
+    "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-mockery": "^2.0",
+    "phpstan/phpstan-phpunit": "^2.0",
+    "rector/rector": "^2.1",
+    "spaze/phpstan-disallowed-calls": "^4.6",
+    "symplify/coding-standard": "^12.4",
+    "symplify/easy-coding-standard": "^12.6",
+    "timeweb/phpstan-enum": "^4.0"
   },
   "repositories": [],
   "suggest": {
-    "illuminate/support": "Required for Laravel Collection and Arrayable support (^8.0)",
-    "illuminate/database": "Required for Eloquent Model support (^8.0)",
-    "doctrine/collections": "Required for Doctrine Collection support (^1.6)",
-    "doctrine/orm": "Required for Doctrine Entity support (^2.10)"
+    "illuminate/support": "Required for Laravel Collection and Arrayable support (^11.0)",
+    "illuminate/database": "Required for Eloquent Model support (^11.0)",
+    "doctrine/collections": "Required for Doctrine Collection support (^1.6 || ^2.0)",
+    "doctrine/orm": "Required for Doctrine Entity support (^2.10 || ^3.0)"
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
@@ -53,7 +65,24 @@
   },
   "bin": [],
   "scripts": {
-    "test": "vendor/bin/phpunit"
+    "test": "vendor/bin/pest --no-coverage",
+    "test:coverage": "vendor/bin/pest",
+    "phpstan": "vendor/bin/phpstan analyse --memory-limit=512M",
+    "phpstan:baseline": "vendor/bin/phpstan analyse --memory-limit=512M --generate-baseline",
+    "ecs": "vendor/bin/ecs check",
+    "ecs:fix": "vendor/bin/ecs check --fix",
+    "rector": "vendor/bin/rector process --dry-run",
+    "rector:fix": "vendor/bin/rector process",
+    "quality": [
+      "@phpstan",
+      "@ecs",
+      "@test"
+    ],
+    "quality:fix": [
+      "@ecs:fix",
+      "@rector:fix",
+      "@test"
+    ]
   },
   "config": {
     "allow-plugins": {
