@@ -9,6 +9,8 @@ use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
+use event4u\DataHelpers\DataMapper\Pipeline\DataMapperPipeline;
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 use event4u\DataHelpers\DataMapper\Support\HookInvoker;
 use event4u\DataHelpers\DataMapper\Support\MappingEngine;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
@@ -24,6 +26,23 @@ use InvalidArgumentException;
  */
 class DataMapper
 {
+    /**
+     * Create a pipeline with transformers for fluent mapping.
+     *
+     * Example:
+     *   DataMapper::pipe([
+     *       TrimStrings::class,
+     *       LowercaseEmails::class,
+     *       SkipEmptyValues::class,
+     *   ])->map($source, $target, $mapping);
+     *
+     * @param array<int, TransformerInterface|class-string<TransformerInterface>> $transformers
+     */
+    public static function pipe(array $transformers): DataMapperPipeline
+    {
+        return new DataMapperPipeline($transformers);
+    }
+
     /**
      * Map values from a source to a target using dot-path mappings.
      *

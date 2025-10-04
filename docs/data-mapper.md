@@ -1,13 +1,12 @@
 # Data Mapper
 
-Map values between structures using dot-paths and wildcards. Supports simple maps, structured maps, bulk mapping, and template-based mapping
-from named sources.
+Map values between structures using dot-paths and wildcards. Supports simple maps, structured maps, bulk mapping, template-based mapping, and **modern pipeline API** with reusable transformers.
 
 Namespace: `event4u\DataHelpers\DataMapper`
 
 ## Overview
 
-DataMapper supports three mapping styles:
+DataMapper supports three mapping styles plus the new **Pipeline API**:
 
 1) Simple mapping (associative):
 
@@ -74,7 +73,24 @@ See API: [mapFromTemplate](#mapfromtemplate)
 - Unknown aliases are treated as literals
 - Wildcards allowed (e.g. `src.users.*.email`)
 
-4) Inverse template-based mapping to named targets:
+4) **Pipeline API (NEW)** - Modern, fluent API with reusable transformers:
+
+```php
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
+
+$result = DataMapper::pipe([
+    TrimStrings::class,
+    LowercaseEmails::class,
+    SkipEmptyValues::class,
+])->map($source, [], $mapping);
+```
+
+**📖 See [Pipeline API Documentation](data-mapper-pipeline.md) for detailed guide and examples.**
+
+5) Inverse template-based mapping to named targets:
 
 ```php
 $targets = [ 'user' => $userDto, 'addr' => [] ];

@@ -43,6 +43,7 @@ optional and automatically detected.
     - [DataAccessor](#dataaccessor)
     - [DataMutator](#datamutator)
     - [DataMapper](#datamapper)
+    - [Pipeline API (NEW)](#pipeline-api-new)
 - [Mapping Templates](#mapping-templates)
     - [mapFromTemplate](#mapfromtemplate)
     - [mapToTargetsFromTemplate](#maptotargetsfromtemplate)
@@ -69,8 +70,9 @@ replacement, hooks, and common patterns for each helper.
 - [examples/02-data-mutator.php](examples/02-data-mutator.php) – Mutating arrays
 - [examples/03-data-mapper-simple.php](examples/03-data-mapper-simple.php) – Simple mapping
 - [examples/04-data-mapper-with-hooks.php](examples/04-data-mapper-with-hooks.php) – Advanced mapping with hooks
-- [examples/05-laravel.php](examples/05-laravel.php) – Laravel Collections, Eloquent Models, Arrayable
-- [examples/06-symfony-doctrine.php](examples/06-symfony-doctrine.php) – Doctrine Collections and Entities
+- [examples/05-data-mapper-pipeline.php](examples/05-data-mapper-pipeline.php) – **NEW:** Pipeline API with transformers
+- [examples/06-laravel.php](examples/06-laravel.php) – Laravel Collections, Eloquent Models, Arrayable
+- [examples/07-symfony-doctrine.php](examples/07-symfony-doctrine.php) – Doctrine Collections and Entities
 
 ## Installation
 
@@ -301,6 +303,130 @@ $targets = DataMapper::mapMany([
   [ 'source' => $source, 'target' => [], 'mapping' => [['a.b','x.y']] ],
   [ 'source' => $source, 'target' => [], 'mapping' => [['a.b','flat']] ],
 ]);
+```
+
+### Pipeline API (NEW)
+
+🚀 **Modern, fluent API** for composing reusable data transformers - inspired by Laravel's pipeline pattern.
+
+**Quick Example:**
+
+```php
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
+
+$source = [
+    'user' => [
+        'name' => '  Alice  ',
+        'email' => '  ALICE@EXAMPLE.COM  ',
+        'phone' => '',
+    ],
+];
+
+$mapping = [
+    'user.name' => 'profile.name',
+    'user.email' => 'profile.email',
+    'user.phone' => 'profile.phone',
+];
+
+// Apply transformation pipeline
+$result = DataMapper::pipe([
+    TrimStrings::class,           // Trim whitespace
+    LowercaseEmails::class,       // Lowercase email addresses
+    SkipEmptyValues::class,       // Skip empty values
+])->map($source, [], $mapping);
+
+// Result:
+// {
+//     "profile": {
+//         "name": "Alice",
+//         "email": "alice@example.com"
+//         // phone is skipped (empty)
+//     }
+// }
+```
+
+**Built-in Transformers:**
+
+- `TrimStrings` - Trims whitespace from all string values
+- `LowercaseEmails` - Converts email addresses to lowercase (detects 'email' in path)
+- `SkipEmptyValues` - Skips empty strings and empty arrays from being written
+- `UppercaseStrings` - Converts all strings to uppercase
+- `ConvertToNull` - Converts specific values to null (e.g., 'N/A', 'null', empty strings)
+
+**Create Custom Transformers:**
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use event4u\DataHelpers\DataMapper\Context\HookContext;
+
+class ValidateEmail implements TransformerInterface
+{
+    public function transform(mixed $value, HookContext $context): mixed
+    {
+        if (is_string($value) && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException("Invalid email: $value");
+        }
+        return $value;
+    }
+
+    public function getHook(): string
+    {
+        return 'preTransform'; // Hook to attach to
+    }
+
+    public function getFilter(): ?string
+    {
+        return null; // No filtering (apply to all values)
+    }
+}
+
+// Use your custom transformer
+$result = DataMapper::pipe([
+    TrimStrings::class,
+    ValidateEmail::class,
+])->map($source, [], $mapping);
+```
+
+**Combine with Additional Hooks:**
+
+```php
+$result = DataMapper::pipe([
+    TrimStrings::class,
+    LowercaseEmails::class,
+])
+->withHooks([
+    'afterAll' => fn($ctx) => logger()->info('Mapping completed'),
+])
+->map($source, [], $mapping);
+```
+
+**Reuse Pipelines:**
+
+```php
+// Define once, use multiple times
+$cleanupPipeline = DataMapper::pipe([
+    TrimStrings::class,
+    ConvertToNull::class,
+    SkipEmptyValues::class,
+]);
+
+$users = $cleanupPipeline->map($userSource, [], $userMapping);
+$products = $cleanupPipeline->map($productSource, [], $productMapping);
+```
+
+**💡 Note:** The Pipeline API is **fully compatible** with the classic `DataMapper::map()` API. Both can be used interchangeably:
+
+```php
+// Classic API (still works!)
+$result = DataMapper::map($source, [], $mapping, hooks: [
+    'preTransform' => fn($v) => is_string($v) ? trim($v) : $v,
+]);
+
+// Pipeline API (new, modern)
+$result = DataMapper::pipe([TrimStrings::class])->map($source, [], $mapping);
 ```
 
 ## Mapping Templates
