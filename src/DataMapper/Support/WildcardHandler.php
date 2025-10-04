@@ -19,22 +19,71 @@ class WildcardHandler
      */
     public static function normalizeWildcardArray(array $array): array
     {
-        // If dot-path keys are present, flatten to a simple list preserving order.
-        // This avoids collisions when multiple wildcards are used in a single path
-        // (e.g., departments.*.users.*.email), where collapsing to a single numeric
-        // index would overwrite values.
-        foreach ($array as $key => $_) {
+        // Check if we have dot-path keys (e.g., 'users.0.email')
+        $hasDotPathKeys = false;
+        foreach (array_keys($array) as $key) {
             if (is_string($key) && str_contains($key, '.')) {
-                $list = [];
-                foreach ($array as $value) {
-                    $list[] = $value;
-                }
+                $hasDotPathKeys = true;
 
-                return $list;
+                break;
             }
         }
 
-        return $array;
+        // If no dot-path keys, return as-is
+        if (!$hasDotPathKeys) {
+            return $array;
+        }
+
+        // Extract numeric indices from dot-path keys
+        // For single wildcard: 'users.0.email' -> index 0
+        // For multiple wildcards: keep the full dot-path key to avoid collisions
+        $normalized = [];
+        $hasMultipleWildcards = false;
+
+        foreach ($array as $key => $value) {
+            if (!is_string($key) || !str_contains($key, '.')) {
+                $normalized[$key] = $value;
+
+                continue;
+            }
+
+            // Split the key into segments
+            $segments = explode('.', $key);
+            $numericSegments = array_filter($segments, fn($seg): bool => is_numeric($seg));
+
+            // If we have multiple numeric segments, it's a multi-wildcard path
+            if (count($numericSegments) > 1) {
+                $hasMultipleWildcards = true;
+
+                break;
+            }
+        }
+
+        // For multi-wildcard paths, keep the full dot-path keys to avoid collisions
+        if ($hasMultipleWildcards) {
+            return $array;
+        }
+
+        // For single wildcard, extract the numeric index
+        foreach ($array as $key => $value) {
+            if (!is_string($key) || !str_contains($key, '.')) {
+                $normalized[$key] = $value;
+
+                continue;
+            }
+
+            // Find the first numeric segment
+            $segments = explode('.', $key);
+            foreach ($segments as $segment) {
+                if (is_numeric($segment)) {
+                    $normalized[(int)$segment] = $value;
+
+                    break;
+                }
+            }
+        }
+
+        return $normalized;
     }
 
     /**
@@ -56,7 +105,7 @@ class WildcardHandler
         foreach ($items as $originalIndex => $value) {
             // Skip null values if requested
             if ($skipNull && null === $value) {
-                if ($onSkip) {
+                if (null !== $onSkip) {
                     $onSkip($originalIndex, 'null');
                 }
 
@@ -66,7 +115,7 @@ class WildcardHandler
             // Invoke the item callback; if it returns false, skip this item
             $accepted = $onItem($reindex ? $nextIndex : $originalIndex, $value);
             if (!$accepted) {
-                if ($onSkip) {
+                if (null !== $onSkip) {
                     $onSkip($originalIndex, 'skip');
                 }
 
@@ -80,4 +129,3 @@ class WildcardHandler
         }
     }
 }
-

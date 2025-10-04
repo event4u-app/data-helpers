@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 
-test('case-insensitive replaces work when enabled via map parameter', function (): void {
+test('case-insensitive replaces work when enabled via map parameter', function(): void {
     $source = [
         'order' => [
             'status' => 'bezahlt',
@@ -33,7 +33,7 @@ test('case-insensitive replaces work when enabled via map parameter', function (
     ]);
 });
 
-test('trim-before-replace is applied globally (default true)', function (): void {
+test('trim-before-replace is applied globally (default true)', function(): void {
     $source = [
         'order' => [
             'status' => ' bezahlt ',
@@ -62,8 +62,8 @@ test('trim-before-replace is applied globally (default true)', function (): void
     ]);
 });
 
-describe('Replace', function (): void {
-    test('structured associative mapping supports replaces keyed by source path', function (): void {
+describe('Replace', function(): void {
+    test('structured associative mapping supports replaces keyed by source path', function(): void {
         $source = [
             'order' => [
                 'status' => 'bezahlt',
@@ -98,7 +98,7 @@ describe('Replace', function (): void {
         ]);
     });
 
-    test('structured list-of-pairs supports replaces aligned by index', function (): void {
+    test('structured list-of-pairs supports replaces aligned by index', function(): void {
         $source = [
             'order' => [
                 'status' => 'bezahlt',
@@ -133,7 +133,7 @@ describe('Replace', function (): void {
         ]);
     });
 
-    test('replaces apply to each wildcard element and respect skipNull/reindex', function (): void {
+    test('replaces apply to each wildcard element and respect skipNull/reindex', function(): void {
         $source = [
             'items' => [
                 [

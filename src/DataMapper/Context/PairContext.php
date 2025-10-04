@@ -7,7 +7,6 @@ namespace event4u\DataHelpers\DataMapper\Context;
 /**
  * Context for beforePair/afterPair and pre/post transform hooks.
  */
-
 class PairContext implements HookContext
 {
     public function __construct(
@@ -39,6 +38,4 @@ class PairContext implements HookContext
     {
         return $this->tgtPath;
     }
-
-
 }

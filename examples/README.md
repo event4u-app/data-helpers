@@ -25,15 +25,16 @@ php examples/06-symfony-doctrine.php
 
 ## Running Examples
 
-All examples work out of the box. Framework-specific examples (05, 06) will use polyfills if the framework is not installed, or the real framework classes if available.
+All examples work out of the box. Framework-specific examples (05, 06) require the respective framework packages to be installed.
 
-To see the difference:
+**Note:** Examples 05 and 06 require framework packages:
 
 ```bash
-# Without Laravel (uses polyfills)
-php examples/05-laravel.php
-
-# With Laravel (uses real classes)
+# For Laravel examples (05)
 composer require illuminate/support illuminate/database
 php examples/05-laravel.php
+
+# For Doctrine examples (06)
+composer require doctrine/collections doctrine/orm
+php examples/06-symfony-doctrine.php
 ```

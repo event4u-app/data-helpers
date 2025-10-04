@@ -10,4 +10,3 @@ final class Address extends Model
 {
     protected $guarded = [];
 }
-

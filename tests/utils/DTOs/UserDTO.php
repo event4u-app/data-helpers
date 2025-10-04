@@ -10,4 +10,3 @@ final class UserDTO
     public string $email = '';
     public ?ProfileDTO $profile = null;
 }
-

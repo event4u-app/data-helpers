@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
+use event4u\DataHelpers\Support\ArrayableHelper;
 use event4u\DataHelpers\Support\CollectionHelper;
 use event4u\DataHelpers\Support\EntityHelper;
 use InvalidArgumentException;
@@ -42,7 +43,6 @@ class DataMutator
             return null;
         }
         $prop = $ref->getProperty($name);
-        $prop->setAccessible(true);
         self::$refPropCache[$cls][$name] = $prop;
 
         return $prop;
@@ -123,8 +123,8 @@ class DataMutator
         }
 
         // Fallback for Arrayable interface
-        if (interface_exists(\Illuminate\Contracts\Support\Arrayable::class) && $target instanceof \Illuminate\Contracts\Support\Arrayable) {
-            $arr = $target->toArray();
+        if (ArrayableHelper::isArrayable($target)) {
+            $arr = ArrayableHelper::toArray($target);
             self::setIntoArray($arr, $segments, $value, $merge);
 
             return $arr;
@@ -250,10 +250,15 @@ class DataMutator
             $current = $prop->getValue($object) ?? [];
             if (is_array($current)) {
                 self::setIntoArray($current, $segments, $value, $merge);
-            } elseif ($current instanceof Collection) {
-                $arr = $current->all();
-                self::setIntoArray($arr, $segments, $value, $merge);
-                $prop->setValue($object, new Collection($arr));
+            } elseif (CollectionHelper::isCollection($current)) {
+                $current = CollectionHelper::setIntoCollection(
+                    $current,
+                    $segments,
+                    $value,
+                    $merge,
+                    self::setIntoArray(...)
+                );
+                $prop->setValue($object, $current);
 
                 return;
             } elseif (is_object($current)) {
@@ -324,23 +329,14 @@ class DataMutator
 
             // Support for any entity/model type (Eloquent, Doctrine)
             if (EntityHelper::isEntity($target)) {
-                if (class_exists(\Illuminate\Database\Eloquent\Model::class) && $target instanceof \Illuminate\Database\Eloquent\Model) {
-                    self::unsetFromModel($target, $segments);
-                } else {
-                    // For Doctrine entities, unset via setAttribute with null
-                    foreach ($segments as $segment) {
-                        if (!DotPathHelper::isWildcard($segment)) {
-                            EntityHelper::unsetAttribute($target, $segment);
-                        }
-                    }
-                }
+                EntityHelper::unsetFromEntity($target, $segments);
 
                 continue;
             }
 
             // Fallback for Arrayable interface
-            if (interface_exists(\Illuminate\Contracts\Support\Arrayable::class) && $target instanceof \Illuminate\Contracts\Support\Arrayable) {
-                $arr = $target->toArray();
+            if (ArrayableHelper::isArrayable($target)) {
+                $arr = ArrayableHelper::toArray($target);
                 self::unsetFromArray($arr, $segments);
                 $target = $arr;
 
@@ -390,12 +386,10 @@ class DataMutator
             self::forEachArrayItem($array, function(&$item, int|string $key) use ($segments): void {
                 if (is_array($item)) {
                     self::unsetFromArray($item, $segments);
-                } elseif ($item instanceof Model) {
-                    self::unsetFromModel($item, $segments);
-                } elseif ($item instanceof Collection) {
-                    $arr = $item->all();
-                    self::unsetFromArray($arr, $segments);
-                    $item = new Collection($arr);
+                } elseif (EntityHelper::isEntity($item)) {
+                    EntityHelper::unsetFromEntity($item, $segments);
+                } elseif (CollectionHelper::isCollection($item)) {
+                    $item = CollectionHelper::unsetFromCollection($item, $segments, self::unsetFromArray(...));
                 } elseif (is_object($item)) {
                     self::unsetFromObject($item, $segments);
                 }
@@ -416,71 +410,16 @@ class DataMutator
 
         if (is_array($array[$segment])) {
             self::unsetFromArray($array[$segment], $segments);
-        } elseif ($array[$segment] instanceof Model) {
-            self::unsetFromModel($array[$segment], $segments);
-        } elseif ($array[$segment] instanceof Collection) {
-            $arr = $array[$segment]->all();
-            self::unsetFromArray($arr, $segments);
-            $array[$segment] = new Collection($arr);
+        } elseif (EntityHelper::isEntity($array[$segment])) {
+            EntityHelper::unsetFromEntity($array[$segment], $segments);
+        } elseif (CollectionHelper::isCollection($array[$segment])) {
+            $array[$segment] = CollectionHelper::unsetFromCollection(
+                $array[$segment],
+                $segments,
+                self::unsetFromArray(...)
+            );
         } elseif (is_object($array[$segment])) {
             self::unsetFromObject($array[$segment], $segments);
-        }
-    }
-
-    /**
-     * Recursively unset from models.
-     *
-     * @param array<int, string> $segments
-     */
-    private static function unsetFromModel(Model $model, array $segments): void
-    {
-        $segment = array_shift($segments);
-        if (null === $segment) {
-            return;
-        }
-
-        if (DotPathHelper::isWildcard($segment)) {
-            $attributes = $model->getAttributes();
-            if ([] === $segments) {
-                foreach (array_keys($attributes) as $key) {
-                    $model->offsetUnset($key);
-                }
-
-                return;
-            }
-
-            foreach ($attributes as $key => $value) {
-                if (is_array($value)) {
-                    self::unsetFromArray($value, $segments);
-                    $model->setAttribute($key, $value);
-                } elseif ($value instanceof Model) {
-                    self::unsetFromModel($value, $segments);
-                } elseif ($value instanceof Collection) {
-                    $arr = $value->all();
-                    self::unsetFromArray($arr, $segments);
-                    $model->setAttribute($key, new Collection($arr));
-                }
-            }
-
-            return;
-        }
-
-        if ([] === $segments) {
-            $model->offsetUnset($segment);
-
-            return;
-        }
-
-        $value = $model->getAttribute($segment);
-        if (is_array($value)) {
-            self::unsetFromArray($value, $segments);
-            $model->setAttribute($segment, $value);
-        } elseif ($value instanceof Model) {
-            self::unsetFromModel($value, $segments);
-        } elseif ($value instanceof Collection) {
-            $arr = $value->all();
-            self::unsetFromArray($arr, $segments);
-            $model->setAttribute($segment, new Collection($arr));
         }
     }
 
@@ -491,8 +430,8 @@ class DataMutator
      */
     private static function unsetFromObject(object $object, array $segments): void
     {
-        if ($object instanceof Model) {
-            self::unsetFromModel($object, $segments);
+        if (EntityHelper::isEntity($object)) {
+            EntityHelper::unsetFromEntity($object, $segments);
 
             return;
         }
@@ -522,12 +461,11 @@ class DataMutator
         if (is_array($current)) {
             self::unsetFromArray($current, $segments);
             $prop->setValue($object, $current);
-        } elseif ($current instanceof Collection) {
-            $arr = $current->all();
-            self::unsetFromArray($arr, $segments);
-            $prop->setValue($object, new Collection($arr));
-        } elseif ($current instanceof Model) {
-            self::unsetFromModel($current, $segments);
+        } elseif (CollectionHelper::isCollection($current)) {
+            $current = CollectionHelper::unsetFromCollection($current, $segments, self::unsetFromArray(...));
+            $prop->setValue($object, $current);
+        } elseif (EntityHelper::isEntity($current)) {
+            EntityHelper::unsetFromEntity($current, $segments);
         } elseif (is_object($current)) {
             self::unsetFromObject($current, $segments);
         }

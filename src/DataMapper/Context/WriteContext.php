@@ -21,6 +21,4 @@ final class WriteContext extends PairContext
     ) {
         parent::__construct($mode, $pairIndex, $srcPath, $tgtPath, $source, $target, $wildcardIndex);
     }
-
-
 }

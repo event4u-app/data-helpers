@@ -6,17 +6,14 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 use Illuminate\Database\Eloquent\Model;
 
-describe('DataMapper AutoMap', function (): void {
-    test('automap: JSON array to Eloquent Model (top-level fields)', function (): void {
+describe('DataMapper AutoMap', function(): void {
+    test('automap: JSON array to Eloquent Model (top-level fields)', function(): void {
         $json = json_encode([
             'name' => 'Alice',
             'email' => 'alice@example.com',
         ], JSON_THROW_ON_ERROR);
 
-        $user = new class extends Model {
-            /** @var array<string, mixed> */
-            protected $attributes = [];
-        };
+        $user = new class extends Model {};
 
         $updated = DataMapper::autoMap($json, $user);
 
@@ -25,7 +22,7 @@ describe('DataMapper AutoMap', function (): void {
         expect($acc->get('email'))->toBe('alice@example.com');
     });
 
-    test('automap: snake_case JSON to DTO with camelCase props', function (): void {
+    test('automap: snake_case JSON to DTO with camelCase props', function(): void {
         $source = [
             'payment_status' => 'PAID',
             'order_id' => 42,
@@ -46,7 +43,7 @@ describe('DataMapper AutoMap', function (): void {
         expect($acc->get('orderId'))->toBe(42);
     });
 
-    test('automap: DTO (public props) to Eloquent Model', function (): void {
+    test('automap: DTO (public props) to Eloquent Model', function(): void {
         $dto = new class {
             /** @var string */
             public $name = 'Alice';
@@ -55,10 +52,7 @@ describe('DataMapper AutoMap', function (): void {
             public $email = 'alice@example.com';
         };
 
-        $user = new class extends Model {
-            /** @var array<string, mixed> */
-            protected $attributes = [];
-        };
+        $user = new class extends Model {};
 
         $updated = DataMapper::autoMap($dto, $user);
         $acc = new DataAccessor($updated);
@@ -66,7 +60,7 @@ describe('DataMapper AutoMap', function (): void {
         expect($acc->get('email'))->toBe('alice@example.com');
     });
 
-    test('automap: skipNull=true omits null values by default', function (): void {
+    test('automap: skipNull=true omits null values by default', function(): void {
         $source = [
             'name' => 'Alice',
             'email' => null,
@@ -79,7 +73,7 @@ describe('DataMapper AutoMap', function (): void {
         ]);
     });
 
-    test('automap deep: nested array to array (skips null, keeps structure)', function (): void {
+    test('automap deep: nested array to array (skips null, keeps structure)', function(): void {
         $source = [
             'user' => [
                 'address' => [
@@ -100,7 +94,7 @@ describe('DataMapper AutoMap', function (): void {
         ]);
     });
 
-    test('automap deep: list with wildcard preserves gaps by default', function (): void {
+    test('automap deep: list with wildcard preserves gaps by default', function(): void {
         $source = [
             'users' => [
                 [
@@ -127,7 +121,7 @@ describe('DataMapper AutoMap', function (): void {
         expect($users[2]['name'])->toBe('C');
     });
 
-    test('automap deep: snake_case to DTO with camelCase top-level only', function (): void {
+    test('automap deep: snake_case to DTO with camelCase top-level only', function(): void {
         $source = [
             'shipping_address' => [
                 'street_name' => 'Main',

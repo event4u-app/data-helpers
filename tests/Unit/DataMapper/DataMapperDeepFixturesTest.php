@@ -97,8 +97,8 @@ function makeCompanyFixture(): Company
     return $company;
 }
 
-describe('DataMapper deep fixtures', function (): void {
-    test('Accessor: deep model relations with wildcards', function (): void {
+describe('DataMapper deep fixtures', function(): void {
+    test('Accessor: deep model relations with wildcards', function(): void {
         $company = makeCompanyFixture();
 
         $source = [
@@ -114,7 +114,7 @@ describe('DataMapper deep fixtures', function (): void {
         expect(array_values($cities))->toContain('Berlin', 'Hamburg', 'Köln');
     });
 
-    test('mapFromTemplate with model relations (skipNull + reindex)', function (): void {
+    test('mapFromTemplate with model relations (skipNull + reindex)', function(): void {
         $company = makeCompanyFixture();
         $sources = [
             'company' => $company,
@@ -140,7 +140,7 @@ describe('DataMapper deep fixtures', function (): void {
         expect($res)->toHaveKey('company');
     });
 
-    test('mapToTargetsFromTemplate writes into DTOs and Models (wildcards + nesting)', function (): void {
+    test('mapToTargetsFromTemplate writes into DTOs and Models (wildcards + nesting)', function(): void {
         $userDto = new UserDTO();
         $userDto->profile = new ProfileDTO();
         $userDto->profile->address = new AddressDTO();
@@ -210,7 +210,7 @@ describe('DataMapper deep fixtures', function (): void {
         }
     });
 
-    test('mapFromTemplate using JSON fixture', function (): void {
+    test('mapFromTemplate using JSON fixture', function(): void {
         $json = file_get_contents(__DIR__ . '/../../utils/json/users_with_relations.json');
         expect($json)->not->toBeFalse();
 

@@ -12,12 +12,10 @@ use ReflectionProperty;
  */
 class EntityHelper
 {
-    /**
-     * Check if value is a Laravel Eloquent Model.
-     */
+    /** Check if value is a Laravel Eloquent Model. */
     public static function isEloquentModel(mixed $value): bool
     {
-        return class_exists(\Illuminate\Database\Eloquent\Model::class)
+        return class_exists('\Illuminate\Database\Eloquent\Model')
             && $value instanceof \Illuminate\Database\Eloquent\Model;
     }
 
@@ -37,8 +35,8 @@ class EntityHelper
 
         foreach ($attributes as $attribute) {
             $name = $attribute->getName();
-            if (str_contains($name, 'Doctrine\\ORM\\Mapping\\Entity') ||
-                str_contains($name, 'Doctrine\\ODM\\')) {
+            if (str_contains($name, 'Doctrine\ORM\Mapping\Entity')
+                || str_contains($name, 'Doctrine\ODM\\')) {
                 return true;
             }
         }
@@ -55,9 +53,7 @@ class EntityHelper
         return false;
     }
 
-    /**
-     * Check if value is any supported entity/model type.
-     */
+    /** Check if value is any supported entity/model type. */
     public static function isEntity(mixed $value): bool
     {
         return self::isEloquentModel($value) || self::isDoctrineEntity($value);
@@ -99,10 +95,8 @@ class EntityHelper
         return [];
     }
 
-    /**
-     * Check if entity has an attribute/property.
-     */
-    public static function hasAttribute(mixed $entity, string|int $key): bool
+    /** Check if entity has an attribute/property. */
+    public static function hasAttribute(mixed $entity, int|string $key): bool
     {
         if (self::isEloquentModel($entity)) {
             return $entity->offsetExists($key);
@@ -115,15 +109,14 @@ class EntityHelper
             }
 
             $reflection = new ReflectionClass($entity);
+
             return $reflection->hasProperty((string)$key);
         }
 
         return false;
     }
 
-    /**
-     * Get attribute/property value from entity.
-     */
+    /** Get attribute/property value from entity. */
     public static function getAttribute(mixed $entity, string $key): mixed
     {
         if (self::isEloquentModel($entity)) {
@@ -134,14 +127,14 @@ class EntityHelper
             // Try getter method first
             $getter = 'get' . ucfirst($key);
             if (method_exists($entity, $getter)) {
-                return $entity->$getter();
+                return $entity->{$getter}();
             }
 
             // Try direct property access
             $reflection = new ReflectionClass($entity);
             if ($reflection->hasProperty($key)) {
                 $property = $reflection->getProperty($key);
-                $property->setAccessible(true);
+
                 return $property->getValue($entity);
             }
         }
@@ -149,13 +142,12 @@ class EntityHelper
         return null;
     }
 
-    /**
-     * Set attribute/property value on entity.
-     */
+    /** Set attribute/property value on entity. */
     public static function setAttribute(mixed $entity, string $key, mixed $value): void
     {
         if (self::isEloquentModel($entity)) {
             $entity->setAttribute($key, $value);
+
             return;
         }
 
@@ -163,7 +155,8 @@ class EntityHelper
             // Try setter method first
             $setter = 'set' . ucfirst($key);
             if (method_exists($entity, $setter)) {
-                $entity->$setter($value);
+                $entity->{$setter}($value);
+
                 return;
             }
 
@@ -171,19 +164,17 @@ class EntityHelper
             $reflection = new ReflectionClass($entity);
             if ($reflection->hasProperty($key)) {
                 $property = $reflection->getProperty($key);
-                $property->setAccessible(true);
                 $property->setValue($entity, $value);
             }
         }
     }
 
-    /**
-     * Unset attribute/property from entity.
-     */
-    public static function unsetAttribute(mixed $entity, string|int $key): void
+    /** Unset attribute/property from entity. */
+    public static function unsetAttribute(mixed $entity, int|string $key): void
     {
         if (self::isEloquentModel($entity)) {
             $entity->offsetUnset($key);
+
             return;
         }
 
@@ -191,7 +182,8 @@ class EntityHelper
             // Try setter with null
             $setter = 'set' . ucfirst((string)$key);
             if (method_exists($entity, $setter)) {
-                $entity->$setter(null);
+                $entity->{$setter}(null);
+
                 return;
             }
 
@@ -199,9 +191,95 @@ class EntityHelper
             $reflection = new ReflectionClass($entity);
             if ($reflection->hasProperty((string)$key)) {
                 $property = $reflection->getProperty((string)$key);
-                $property->setAccessible(true);
                 $property->setValue($entity, null);
             }
+        }
+    }
+
+    /**
+     * Unset all attributes from entity (for wildcard unset).
+     *
+     * @param array<int, string> $segments
+     */
+    public static function unsetFromEntity(mixed $entity, array $segments): void
+    {
+        if (!self::isEntity($entity)) {
+            return;
+        }
+
+        if (self::isEloquentModel($entity)) {
+            self::unsetFromEloquentModel($entity, $segments);
+
+            return;
+        }
+
+        // For Doctrine entities, unset via setAttribute with null
+        foreach ($segments as $segment) {
+            if ('*' !== $segment) {
+                self::unsetAttribute($entity, $segment);
+            }
+        }
+    }
+
+    /**
+     * Recursively unset from Eloquent models.
+     *
+     * @param array<int, string> $segments
+     */
+    private static function unsetFromEloquentModel(mixed $model, array $segments): void
+    {
+        if (!self::isEloquentModel($model)) {
+            return;
+        }
+
+        $segment = array_shift($segments);
+        if (null === $segment) {
+            return;
+        }
+
+        if ('*' === $segment) {
+            $attributes = $model->getAttributes();
+            if ([] === $segments) {
+                foreach (array_keys($attributes) as $key) {
+                    $model->offsetUnset($key);
+                }
+
+                return;
+            }
+
+            foreach ($attributes as $value) {
+                if (is_array($value)) {
+                    // Handle nested arrays
+                    continue;
+                }
+                if (self::isEloquentModel($value)) {
+                    self::unsetFromEloquentModel($value, $segments);
+                } elseif (CollectionHelper::isLaravelCollection($value)) {
+                    // Handle nested collections
+                    continue;
+                }
+            }
+
+            return;
+        }
+
+        if ([] === $segments) {
+            $model->offsetUnset($segment);
+
+            return;
+        }
+
+        $value = $model->getAttribute($segment);
+        if (is_array($value)) {
+            // Handle nested arrays
+            return;
+        }
+
+        if (self::isEloquentModel($value)) {
+            self::unsetFromEloquentModel($value, $segments);
+        } elseif (CollectionHelper::isLaravelCollection($value)) {
+            // Handle nested collections
+            return;
         }
     }
 
@@ -219,7 +297,6 @@ class EntityHelper
         $properties = $reflection->getProperties();
 
         foreach ($properties as $property) {
-            $property->setAccessible(true);
             $name = $property->getName();
             $value = $property->getValue($entity);
 
@@ -237,4 +314,3 @@ class EntityHelper
         return $result;
     }
 }
-

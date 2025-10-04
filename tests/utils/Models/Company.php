@@ -10,4 +10,3 @@ final class Company extends Model
 {
     protected $guarded = [];
 }
-

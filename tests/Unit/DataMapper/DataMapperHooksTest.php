@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
+use event4u\DataHelpers\DataMutator;
 
-describe('DataMapper Hooks', function (): void {
-    test('beforeAll/afterAll are called in simple mapping', function (): void {
+describe('DataMapper Hooks', function(): void {
+    test('beforeAll/afterAll are called in simple mapping', function(): void {
         $source = [
             'a' => 1,
             'b' => 2,
@@ -20,10 +20,10 @@ describe('DataMapper Hooks', function (): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'beforeAll' => function (AllContext $ctx) use (&$events): void {
+            'beforeAll' => function(AllContext $ctx) use (&$events): void {
                 $events[] = 'beforeAll:' . $ctx->mode();
             },
-            'afterAll' => function (AllContext $ctx) use (&$events): void {
+            'afterAll' => function(AllContext $ctx) use (&$events): void {
                 $events[] = 'afterAll:' . $ctx->mode();
             },
         ];
@@ -42,7 +42,7 @@ describe('DataMapper Hooks', function (): void {
         expect($events)->toEqual(['beforeAll:simple', 'afterAll:simple']);
     });
 
-    test('beforePair can skip a pair', function (): void {
+    test('beforePair can skip a pair', function(): void {
         $source = [
             'a' => 1,
             'b' => 2,
@@ -53,7 +53,7 @@ describe('DataMapper Hooks', function (): void {
         $hooks = [
             'beforePair' => [
                 // skip when srcPath is 'a'
-                'src:a' => function (PairContext $ctx): bool {
+                'src:a' => function(PairContext $ctx): bool {
                     return false; // cancel this pair
                 },
             ],
@@ -71,7 +71,7 @@ describe('DataMapper Hooks', function (): void {
         ]);
     });
 
-    test('preTransform and postTransform modify values', function (): void {
+    test('preTransform and postTransform modify values', function(): void {
         $source = [
             'name' => 'alice',
         ];
@@ -79,14 +79,14 @@ describe('DataMapper Hooks', function (): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'preTransform' => function (mixed $v, PairContext $ctx): mixed {
+            'preTransform' => function(mixed $v, PairContext $ctx): mixed {
                 if (is_string($v)) {
                     return 'pre-' . $v;
                 }
 
                 return $v;
             },
-            'postTransform' => function (mixed $v, PairContext $ctx): mixed {
+            'postTransform' => function(mixed $v, PairContext $ctx): mixed {
                 if (is_string($v)) {
                     return $v . '-post';
                 }
@@ -106,7 +106,7 @@ describe('DataMapper Hooks', function (): void {
         ]);
     });
 
-    test('beforeWrite can skip and afterWrite can mutate target', function (): void {
+    test('beforeWrite can skip and afterWrite can mutate target', function(): void {
         $source = [
             'items' => ['a', null, 'b'],
         ];
@@ -114,7 +114,7 @@ describe('DataMapper Hooks', function (): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'beforeWrite' => function (mixed $v, WriteContext $ctx): mixed {
+            'beforeWrite' => function(mixed $v, WriteContext $ctx): mixed {
                 // Skip writing value 'a'
                 if ('a' === $v) {
                     return '__skip__';
@@ -122,10 +122,10 @@ describe('DataMapper Hooks', function (): void {
 
                 return $v;
             },
-            'afterWrite' => function (array|object $tgt, WriteContext $ctx, mixed $written): array|object {
+            'afterWrite' => function(array|object $tgt, WriteContext $ctx, mixed $written): array|object {
                 // Uppercase strings after write
                 if (is_string($written)) {
-                    $path = (string)($ctx->resolvedTargetPath ?? '');
+                    $path = $ctx->resolvedTargetPath ?? '';
 
                     return DataMutator::set($tgt, $path, strtoupper($written));
                 }
@@ -146,7 +146,7 @@ describe('DataMapper Hooks', function (): void {
         ]);
     });
 
-    test('path prefix filters for hooks work (src:/tgt:/mode:)', function (): void {
+    test('path prefix filters for hooks work (src:/tgt:/mode:)', function(): void {
         $source = [
             'a' => 1,
             'b' => 2,
@@ -158,13 +158,13 @@ describe('DataMapper Hooks', function (): void {
         /** @var array<string, mixed> $hooks */
         $hooks = [
             'beforePair' => [
-                'src:a' => function (PairContext $ctx) use (&$calls): void {
+                'src:a' => function(PairContext $ctx) use (&$calls): void {
                     $calls[] = 'src:a';
                 },
-                'tgt:x.b' => function (PairContext $ctx) use (&$calls): void {
+                'tgt:x.b' => function(PairContext $ctx) use (&$calls): void {
                     $calls[] = 'tgt:x.b';
                 },
-                'mode:simple' => function (PairContext $ctx) use (&$calls): void {
+                'mode:simple' => function(PairContext $ctx) use (&$calls): void {
                     $calls[] = 'mode:simple';
                 },
             ],

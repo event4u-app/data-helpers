@@ -15,20 +15,15 @@ class Product
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private ?string $name = null;
-
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    private ?string $price = null;
-
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
-    public function __construct(?string $name = null, ?string $price = null)
-    {
-        $this->name = $name;
-        $this->price = $price;
-    }
+    public function __construct(
+        #[ORM\Column(type: 'string', length: 255)]
+        private ?string $name = null,
+        #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+        private ?string $price = null
+    ) {}
 
     public function getId(): ?int
     {
@@ -71,4 +66,3 @@ class Product
         return $this;
     }
 }
-

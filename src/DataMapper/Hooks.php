@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
-use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\HookContext;
-use event4u\DataHelpers\Enums\Mode;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
+use event4u\DataHelpers\Enums\DataMapperHook;
+use event4u\DataHelpers\Enums\Mode;
 
 /**
  * Helper to build and merge DataMapper hook definitions using the enum safely.
@@ -127,7 +127,7 @@ final class Hooks
         /** @var array<int|string, mixed> $bucket */
         $bucket = is_array($this->hooks[$key]) ? $this->hooks[$key] : [];
 
-        $wrapper = function (mixed ...$arguments) use ($prefix, $callback) {
+        $wrapper = function(mixed ...$arguments) use ($prefix, $callback) {
             $context = null;
             foreach ($arguments as $argument) {
                 if ($argument instanceof HookContext) {
@@ -136,16 +136,16 @@ final class Hooks
                     break;
                 }
                 if (is_array($argument) && (array_key_exists('srcPath', $argument) || array_key_exists(
-                            'tgtPath',
-                            $argument
-                        ))) {
+                    'tgtPath',
+                    $argument
+                ))) {
                     $context = $argument;
 
                     break;
                 }
             }
 
-            $matchesPattern = function (?string $value, string $pattern): bool {
+            $matchesPattern = function(?string $value, string $pattern): bool {
                 if (null === $value) {
                     return false;
                 }

@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMutator;
+use InvalidArgumentException;
 
 /**
  * Handles template-based mapping operations.
@@ -34,7 +35,7 @@ class TemplateMapper
         if (is_string($template)) {
             $template = json_decode($template, true);
             if (!is_array($template)) {
-                throw new \InvalidArgumentException('Invalid JSON template');
+                throw new InvalidArgumentException('Invalid JSON template');
             }
         }
 
@@ -66,7 +67,7 @@ class TemplateMapper
                     $value = WildcardHandler::normalizeWildcardArray($value);
                     if ($skipNull) {
                         // Preserve keys; remove only nulls (not false/0/empty string)
-                        $value = array_filter($value, static fn($v) => $v !== null);
+                        $value = array_filter($value, static fn($v): bool => null !== $v);
                     }
                     if ($reindexWildcard) {
                         $value = array_values($value);
@@ -119,9 +120,7 @@ class TemplateMapper
         return [$alias, $path];
     }
 
-    /**
-     * Check if an array looks like a wildcard result (has dot-path keys).
-     */
+    /** Check if an array looks like a wildcard result (has dot-path keys). */
     private static function isWildcardResult(array $array): bool
     {
         foreach (array_keys($array) as $key) {
@@ -151,14 +150,14 @@ class TemplateMapper
         if (is_string($data)) {
             $data = json_decode($data, true);
             if (!is_array($data)) {
-                throw new \InvalidArgumentException('Invalid JSON data');
+                throw new InvalidArgumentException('Invalid JSON data');
             }
         }
 
         if (is_string($template)) {
             $template = json_decode($template, true);
             if (!is_array($template)) {
-                throw new \InvalidArgumentException('Invalid JSON template');
+                throw new InvalidArgumentException('Invalid JSON template');
             }
         }
 
@@ -211,16 +210,20 @@ class TemplateMapper
                     continue;
                 }
 
-                $targets = self::applyTemplateNodeToTargets($dataValue, $templateValue, $targets, $skipNull, $reindexWildcard);
+                $targets = self::applyTemplateNodeToTargets(
+                    $dataValue,
+                    $templateValue,
+                    $targets,
+                    $skipNull,
+                    $reindexWildcard
+                );
             }
         }
 
         return $targets;
     }
 
-    /**
-     * Write array values to target using wildcard path.
-     */
+    /** Write array values to target using wildcard path. */
     private static function writeToAliasWithWildcards(
         mixed $target,
         string $path,
@@ -243,7 +246,7 @@ class TemplateMapper
             $skipNull,
             $reindexWildcard,
             null,
-            function (int $index, mixed $itemValue) use (&$target, $path) {
+            function(int $index, mixed $itemValue) use (&$target, $path): true {
                 $itemPath = str_replace('*', (string)$index, $path);
                 $target = DataMutator::set($target, $itemPath, $itemValue);
 
@@ -254,4 +257,3 @@ class TemplateMapper
         return $target;
     }
 }
-

@@ -32,7 +32,6 @@ optional and automatically detected.
 - **AutoMap**: automatic mapping from source to target properties
 - **Replace options**: case-insensitive and trimming
 - **Hooks system**: typed contexts for mapping lifecycle
-- **Polyfills**: Automatic fallbacks when framework classes are not available
 
 ## Table of Contents
 
@@ -112,7 +111,7 @@ This package works with **any PHP 8.2+ project** and provides optional support f
 composer require event4u/laravel-data-helpers
 ```
 
-**Works out of the box** with arrays, objects, JSON, and XML. Polyfills are automatically loaded when framework classes are not available.
+**Works out of the box** with arrays, objects, JSON, and XML. No framework dependencies required.
 
 **Supported types:**
 
@@ -185,7 +184,7 @@ $accessor1 = new DataAccessor($laravelCollection);  // Uses Laravel methods
 $accessor2 = new DataAccessor($doctrineCollection); // Uses Doctrine methods
 ```
 
-**📖 See [OPTIONAL_DEPENDENCIES.md](OPTIONAL_DEPENDENCIES.md) for detailed framework integration guide and polyfill information.**
+**📖 See [OPTIONAL_DEPENDENCIES.md](OPTIONAL_DEPENDENCIES.md) for detailed framework integration guide.**
 
 ### 📊 Compatibility Matrix
 
@@ -194,17 +193,16 @@ $accessor2 = new DataAccessor($doctrineCollection); // Uses Doctrine methods
 | Arrays               | ✅ Full     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
 | Objects              | ✅ Full     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
 | JSON/XML             | ✅ Full     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
-| Laravel Collections  | ⚠️ Basic   | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
-| Doctrine Collections | ⚠️ Basic   | ⚠️ Basic                  | ⚠️ Basic                   | ✅ Full                      | ✅ Full              |
-| Arrayable Interface  | ⚠️ Basic   | ✅ Full                    | ✅ Full                     | ⚠️ Basic                    | ⚠️ Basic            |
-| Eloquent Models      | ⚠️ Stub    | ⚠️ Stub                   | ✅ Full                     | ⚠️ Stub                     | ⚠️ Stub             |
+| Laravel Collections  | ❌ None     | ✅ Full                    | ✅ Full                     | ✅ Full                      | ✅ Full              |
+| Doctrine Collections | ❌ None     | ❌ None                    | ❌ None                     | ✅ Full                      | ✅ Full              |
+| Arrayable Interface  | ❌ None     | ✅ Full                    | ✅ Full                     | ❌ None                      | ❌ None              |
+| Eloquent Models      | ❌ None     | ❌ None                    | ✅ Full                     | ❌ None                      | ❌ None              |
 | Doctrine Entities    | ❌ None     | ❌ None                    | ❌ None                     | ⚠️ Basic                    | ✅ Full              |
 
 **Legend:**
 
 - ✅ **Full** - Complete functionality with all features
-- ⚠️ **Basic** - Limited functionality via polyfill (sufficient for basic use cases)
-- ⚠️ **Stub** - Minimal type checking only, no real functionality
+- ⚠️ **Basic** - Limited functionality (e.g., entities without full ORM support)
 - ❌ **None** - Not available without the dependency
 
 ## Quick Start
@@ -406,9 +404,8 @@ Alternatively, pass a simple associative array keyed by enum name.
 
 **🆕 New in this version:**
 
-- `Polyfills/` - Automatic fallbacks for Laravel/Doctrine classes when not installed
 - `Support/` - Helper classes for framework-agnostic Collection and Entity handling
-- Framework detection and automatic polyfill loading via `bootstrap.php`
+- Framework detection with automatic runtime checks
 
 ## Contributing
 

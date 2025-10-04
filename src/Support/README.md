@@ -233,7 +233,6 @@ public static function isCollection(mixed $value): bool
 
 ## See Also
 
-- [Polyfills Documentation](../Polyfills/README.md)
 - [Main README](../../README.md)
 - [Optional Dependencies Guide](../../OPTIONAL_DEPENDENCIES.md)
 

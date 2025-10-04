@@ -6,12 +6,18 @@ use Doctrine\Common\Collections\ArrayCollection;
 use event4u\DataHelpers\DataAccessor;
 use Tests\utils\Entities\Product;
 
-describe('DataAccessor with Doctrine', function () {
-    it('can read from Doctrine ArrayCollection', function () {
+describe('DataAccessor with Doctrine', function(): void {
+    it('can read from Doctrine ArrayCollection', function(): void {
         $collection = new ArrayCollection([
             'users' => [
-                ['name' => 'John', 'age' => 30],
-                ['name' => 'Jane', 'age' => 25],
+                [
+                    'name' => 'John',
+                    'age' => 30,
+                ],
+                [
+                    'name' => 'Jane',
+                    'age' => 25,
+                ],
             ],
         ]);
 
@@ -21,11 +27,17 @@ describe('DataAccessor with Doctrine', function () {
         expect($accessor->get('users.1.name'))->toBe('Jane');
     });
 
-    it('can use wildcards with Doctrine Collections', function () {
+    it('can use wildcards with Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
             'users' => [
-                ['name' => 'John', 'age' => 30],
-                ['name' => 'Jane', 'age' => 25],
+                [
+                    'name' => 'John',
+                    'age' => 30,
+                ],
+                [
+                    'name' => 'Jane',
+                    'age' => 25,
+                ],
             ],
         ]);
 
@@ -38,7 +50,7 @@ describe('DataAccessor with Doctrine', function () {
         ]);
     });
 
-    it('can read from Doctrine Entity', function () {
+    it('can read from Doctrine Entity', function(): void {
         $entity = new Product('Laptop', '999.99');
         $entity->setDescription('A powerful laptop');
 
@@ -49,11 +61,17 @@ describe('DataAccessor with Doctrine', function () {
         expect($accessor->get('description'))->toBe('A powerful laptop');
     });
 
-    it('can read nested Doctrine Collections', function () {
+    it('can read nested Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
             'products' => new ArrayCollection([
-                ['name' => 'Laptop', 'price' => '999.99'],
-                ['name' => 'Mouse', 'price' => '29.99'],
+                [
+                    'name' => 'Laptop',
+                    'price' => '999.99',
+                ],
+                [
+                    'name' => 'Mouse',
+                    'price' => '29.99',
+                ],
             ]),
         ]);
 
@@ -63,20 +81,29 @@ describe('DataAccessor with Doctrine', function () {
         expect($accessor->get('products.1.price'))->toBe('29.99');
     });
 
-    it('can use wildcards with nested Doctrine Collections', function () {
+    it('can use wildcards with nested Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
             'categories' => [
                 [
                     'name' => 'Electronics',
                     'products' => new ArrayCollection([
-                        ['name' => 'Laptop', 'price' => '999.99'],
-                        ['name' => 'Mouse', 'price' => '29.99'],
+                        [
+                            'name' => 'Laptop',
+                            'price' => '999.99',
+                        ],
+                        [
+                            'name' => 'Mouse',
+                            'price' => '29.99',
+                        ],
                     ]),
                 ],
                 [
                     'name' => 'Books',
                     'products' => new ArrayCollection([
-                        ['name' => 'PHP Book', 'price' => '49.99'],
+                        [
+                            'name' => 'PHP Book',
+                            'price' => '49.99',
+                        ],
                     ]),
                 ],
             ],
@@ -93,8 +120,10 @@ describe('DataAccessor with Doctrine', function () {
         expect($productNames['categories.1.products.0.name'])->toBe('PHP Book');
     });
 
-    it('returns null for non-existent paths in Doctrine Collections', function () {
-        $collection = new ArrayCollection(['name' => 'John']);
+    it('returns null for non-existent paths in Doctrine Collections', function(): void {
+        $collection = new ArrayCollection([
+            'name' => 'John',
+        ]);
 
         $accessor = new DataAccessor($collection);
 
@@ -102,7 +131,7 @@ describe('DataAccessor with Doctrine', function () {
         expect($accessor->get('name.nested'))->toBeNull();
     });
 
-    it('returns null for non-existent attributes in Doctrine Entities', function () {
+    it('returns null for non-existent attributes in Doctrine Entities', function(): void {
         $entity = new Product('Laptop', '999.99');
 
         $accessor = new DataAccessor($entity);
@@ -110,14 +139,16 @@ describe('DataAccessor with Doctrine', function () {
         expect($accessor->get('nonexistent'))->toBeNull();
     });
 
-    it('can read from array of Doctrine Entities', function () {
+    it('can read from array of Doctrine Entities', function(): void {
         $entities = [
             new Product('Laptop', '999.99'),
             new Product('Mouse', '29.99'),
             new Product('Keyboard', '79.99'),
         ];
 
-        $accessor = new DataAccessor(['products' => $entities]);
+        $accessor = new DataAccessor([
+            'products' => $entities,
+        ]);
         $names = $accessor->get('products.*.name');
 
         expect($names)->toBe([
@@ -127,13 +158,15 @@ describe('DataAccessor with Doctrine', function () {
         ]);
     });
 
-    it('can read from Doctrine Collection of Entities', function () {
+    it('can read from Doctrine Collection of Entities', function(): void {
         $entities = new ArrayCollection([
             new Product('Laptop', '999.99'),
             new Product('Mouse', '29.99'),
         ]);
 
-        $accessor = new DataAccessor(['products' => $entities]);
+        $accessor = new DataAccessor([
+            'products' => $entities,
+        ]);
         $prices = $accessor->get('products.*.price');
 
         expect($prices)->toBe([
@@ -142,4 +175,3 @@ describe('DataAccessor with Doctrine', function () {
         ]);
     });
 });
-

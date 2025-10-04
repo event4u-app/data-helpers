@@ -4,24 +4,17 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
-use event4u\DataHelpers\Enums\DataMapperHook;
-use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\AutoMapper;
+use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
-use event4u\DataHelpers\DataMapper\Context\HookContext;
+use event4u\DataHelpers\DataMapper\Context\PairContext;
+use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMapper\Support\HookInvoker;
 use event4u\DataHelpers\DataMapper\Support\MappingEngine;
-use event4u\DataHelpers\DataMapper\Context\PairContext;
-use event4u\DataHelpers\DataMapper\TemplateMapper;
-use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
-use event4u\DataHelpers\DataMapper\Context\WriteContext;
-use Illuminate\Contracts\Support\Arrayable;
+use event4u\DataHelpers\DataMapper\TemplateMapper;
+use event4u\DataHelpers\Enums\DataMapperHook;
 use InvalidArgumentException;
-use JsonSerializable;
-use ReflectionClass;
-use ReflectionException;
-use TypeError;
 
 /**
  * DataMapper allows mapping values between different data structures
@@ -206,8 +199,6 @@ class DataMapper
         return TemplateMapper::mapFromTemplate($template, $sources, $skipNull, $reindexWildcard);
     }
 
-
-
     /**
      * Apply values from a data structure to named targets using a template that defines target destinations.
      *
@@ -244,20 +235,11 @@ class DataMapper
         return TemplateMapper::mapToTargetsFromTemplate($data, $template, $targets, $skipNull, $reindexWildcard);
     }
 
-
-
-
-
-
-
     /**
      * Handle simple path-to-path mapping.
      *
-     * @param mixed $source
      * @param array<int|string, mixed>|object $target
      * @param array<string, string> $mapping
-     * @param bool $skipNull
-     * @param bool $reindexWildcard
      * @param array<string, mixed> $hooks
      * @return array<int|string, mixed>|object
      */
@@ -310,12 +292,12 @@ class DataMapper
                     $value,
                     $skipNull,
                     $reindexWildcard,
-                    function (int|string $_i, string $reason) use (&$mappingIndex): void {
+                    function(int|string $_i, string $reason) use (&$mappingIndex): void {
                         if ('null' === $reason) {
                             $mappingIndex++;
                         }
                     },
-                    function (int|string $wildcardIndex, mixed $itemValue) use (
+                    function(int|string $wildcardIndex, mixed $itemValue) use (
                         &$target,
                         $hooks,
                         $pairContext,
@@ -346,7 +328,13 @@ class DataMapper
                             (string)$resolvedTargetPath,
                             $writeValue
                         );
-                        $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                        $target = HookInvoker::invokeTargetHook(
+                            $hooks,
+                            'afterWrite',
+                            $writeContext,
+                            $writeValue,
+                            $target
+                        );
 
                         return true;
                     }
@@ -381,14 +369,9 @@ class DataMapper
     /**
      * Handle structured mapping definitions with source/target objects.
      *
-     * @param mixed $source
      * @param array<int|string, mixed>|object $target
      * @param array<int, array<string, mixed>> $mapping
-     * @param bool $skipNull
-     * @param bool $reindexWildcard
      * @param array<string, mixed> $hooks
-     * @param bool $trimValues
-     * @param bool $caseInsensitiveReplace
      * @return array<int|string, mixed>|object
      */
     private static function mapStructured(
@@ -510,7 +493,7 @@ class DataMapper
                             $entrySkipNull,
                             $entryReindex,
                             null,
-                            function (int|string $wildcardIndex, mixed $itemValue) use (
+                            function(int|string $wildcardIndex, mixed $itemValue) use (
                                 &$entryTarget,
                                 $effectiveHooks,
                                 $pairContext,
@@ -640,7 +623,7 @@ class DataMapper
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function (int|string $wildcardIndex, mixed $itemValue) use (
+                                function(int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,
@@ -757,7 +740,7 @@ class DataMapper
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function (int|string $wildcardIndex, mixed $itemValue) use (
+                                function(int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,

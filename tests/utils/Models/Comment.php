@@ -10,4 +10,3 @@ final class Comment extends Model
 {
     protected $guarded = [];
 }
-

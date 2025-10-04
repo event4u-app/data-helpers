@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Support;
 
+use ReflectionClass;
+use ReflectionException;
+
 /**
  * Handles value transformations like replacement, trimming, and case conversion.
  */
@@ -46,9 +49,7 @@ class ValueTransformer
         return $replaceMap[$value] ?? $value;
     }
 
-    /**
-     * Convert snake_case or kebab-case to camelCase.
-     */
+    /** Convert snake_case or kebab-case to camelCase. */
     public static function toCamelCase(string $name): string
     {
         $name = str_replace(['-', '_'], ' ', $name);
@@ -58,9 +59,7 @@ class ValueTransformer
         return lcfirst($name);
     }
 
-    /**
-     * Check if an object has a property (public or private).
-     */
+    /** Check if an object has a property (public or private). */
     public static function objectHasProperty(object $object, string $property): bool
     {
         // Fast path: public prop exists
@@ -70,10 +69,10 @@ class ValueTransformer
 
         // Check private/protected via reflection
         try {
-            $reflection = new \ReflectionClass($object);
+            $reflection = new ReflectionClass($object);
 
             return $reflection->hasProperty($property);
-        } catch (\ReflectionException) {
+        } catch (ReflectionException) {
             return false;
         }
     }
@@ -87,8 +86,8 @@ class ValueTransformer
      * 3. Replacement mapping (if provided)
      *
      * @param mixed $value The value to process
-     * @param callable|null $transformFn Optional transformation function
-     * @param array<int|string, mixed>|null $replaceMap Optional replacement map
+     * @param null|callable $transformFn Optional transformation function
+     * @param null|array<int|string, mixed> $replaceMap Optional replacement map
      * @param bool $trimValues Whether to trim string values before replacement
      * @param bool $caseInsensitiveReplace Whether replacement should be case-insensitive
      * @return mixed The processed value
@@ -117,4 +116,3 @@ class ValueTransformer
         return $value;
     }
 }
-

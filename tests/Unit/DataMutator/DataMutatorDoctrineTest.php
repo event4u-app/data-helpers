@@ -6,11 +6,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use event4u\DataHelpers\DataMutator;
 use Tests\utils\Entities\Product;
 
-describe('DataMutator with Doctrine', function () {
-    it('can set values in Doctrine ArrayCollection', function () {
+describe('DataMutator with Doctrine', function() {
+    it('can set values in Doctrine ArrayCollection', function() {
         $collection = new ArrayCollection([
             'users' => [
-                ['name' => 'John', 'age' => 30],
+                [
+                    'name' => 'John',
+                    'age' => 30,
+                ],
             ],
         ]);
 
@@ -22,11 +25,17 @@ describe('DataMutator with Doctrine', function () {
         expect($array['users'][0]['email'])->toBe('john@example.com');
     });
 
-    it('can use wildcards to set values in Doctrine Collections', function () {
+    it('can use wildcards to set values in Doctrine Collections', function() {
         $collection = new ArrayCollection([
             'users' => [
-                ['name' => 'John', 'age' => 30],
-                ['name' => 'Jane', 'age' => 25],
+                [
+                    'name' => 'John',
+                    'age' => 30,
+                ],
+                [
+                    'name' => 'Jane',
+                    'age' => 25,
+                ],
             ],
         ]);
 
@@ -39,13 +48,17 @@ describe('DataMutator with Doctrine', function () {
         expect($array['users'][1]['active'])->toBeTrue();
     });
 
-    it('can merge values in Doctrine Collections', function () {
+    it('can merge values in Doctrine Collections', function() {
         $collection = new ArrayCollection([
-            'user' => ['name' => 'John'],
+            'user' => [
+                'name' => 'John',
+            ],
         ]);
 
         $mutator = new DataMutator();
-        $result = $mutator->set($collection, 'user', ['age' => 30], merge: true);
+        $result = $mutator->set($collection, 'user', [
+            'age' => 30,
+        ], merge: true);
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
         $array = $result->toArray();
@@ -53,11 +66,19 @@ describe('DataMutator with Doctrine', function () {
         expect($array['user']['age'])->toBe(30);
     });
 
-    it('can unset values from Doctrine Collections', function () {
+    it('can unset values from Doctrine Collections', function() {
         $collection = new ArrayCollection([
             'users' => [
-                ['name' => 'John', 'age' => 30, 'email' => 'john@example.com'],
-                ['name' => 'Jane', 'age' => 25, 'email' => 'jane@example.com'],
+                [
+                    'name' => 'John',
+                    'age' => 30,
+                    'email' => 'john@example.com',
+                ],
+                [
+                    'name' => 'Jane',
+                    'age' => 25,
+                    'email' => 'jane@example.com',
+                ],
             ],
         ]);
 
@@ -72,7 +93,7 @@ describe('DataMutator with Doctrine', function () {
         expect($array['users'][1]['name'])->toBe('Jane');
     });
 
-    it('can set attributes on Doctrine Entity', function () {
+    it('can set attributes on Doctrine Entity', function() {
         $entity = new Product('Laptop', '999.99');
 
         $mutator = new DataMutator();
@@ -82,7 +103,7 @@ describe('DataMutator with Doctrine', function () {
         expect($result->getDescription())->toBe('A powerful laptop');
     });
 
-    it('can unset attributes from Doctrine Entity', function () {
+    it('can unset attributes from Doctrine Entity', function() {
         $entity = new Product('Laptop', '999.99');
         $entity->setDescription('A powerful laptop');
 
@@ -93,8 +114,10 @@ describe('DataMutator with Doctrine', function () {
         expect($result->getDescription())->toBeNull();
     });
 
-    it('preserves Doctrine Collection type after mutation', function () {
-        $collection = new ArrayCollection(['name' => 'John']);
+    it('preserves Doctrine Collection type after mutation', function() {
+        $collection = new ArrayCollection([
+            'name' => 'John',
+        ]);
 
         $mutator = new DataMutator();
         $result = $mutator->set($collection, 'age', 30);
@@ -103,13 +126,16 @@ describe('DataMutator with Doctrine', function () {
         expect($result)->not->toBeArray();
     });
 
-    it('can work with nested Doctrine Collections', function () {
+    it('can work with nested Doctrine Collections', function() {
         $collection = new ArrayCollection([
             'categories' => [
                 [
                     'name' => 'Electronics',
                     'products' => [
-                        ['name' => 'Laptop', 'price' => '999.99'],
+                        [
+                            'name' => 'Laptop',
+                            'price' => '999.99',
+                        ],
                     ],
                 ],
             ],
@@ -123,18 +149,27 @@ describe('DataMutator with Doctrine', function () {
         expect($array['categories'][0]['products'][0]['stock'])->toBe(10);
     });
 
-    it('can use deep wildcards with Doctrine Collections', function () {
+    it('can use deep wildcards with Doctrine Collections', function() {
         $collection = new ArrayCollection([
             'categories' => [
                 [
                     'products' => [
-                        ['name' => 'Laptop', 'price' => '999.99'],
-                        ['name' => 'Mouse', 'price' => '29.99'],
+                        [
+                            'name' => 'Laptop',
+                            'price' => '999.99',
+                        ],
+                        [
+                            'name' => 'Mouse',
+                            'price' => '29.99',
+                        ],
                     ],
                 ],
                 [
                     'products' => [
-                        ['name' => 'Keyboard', 'price' => '79.99'],
+                        [
+                            'name' => 'Keyboard',
+                            'price' => '79.99',
+                        ],
                     ],
                 ],
             ],
@@ -150,14 +185,20 @@ describe('DataMutator with Doctrine', function () {
         expect($array['categories'][1]['products'][0]['inStock'])->toBeTrue();
     });
 
-    it('can unset with deep wildcards in Doctrine Collections', function () {
+    it('can unset with deep wildcards in Doctrine Collections', function() {
         $collection = new ArrayCollection([
             'users' => [
                 [
-                    'profile' => ['email' => 'john@example.com', 'phone' => '123'],
+                    'profile' => [
+                        'email' => 'john@example.com',
+                        'phone' => '123',
+                    ],
                 ],
                 [
-                    'profile' => ['email' => 'jane@example.com', 'phone' => '456'],
+                    'profile' => [
+                        'email' => 'jane@example.com',
+                        'phone' => '456',
+                    ],
                 ],
             ],
         ]);
@@ -173,4 +214,3 @@ describe('DataMutator with Doctrine', function () {
         expect($array['users'][1]['profile']['email'])->toBe('jane@example.com');
     });
 });
-
