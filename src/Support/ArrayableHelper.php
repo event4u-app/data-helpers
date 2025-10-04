@@ -24,6 +24,7 @@ class ArrayableHelper
     public static function toArray(mixed $value): array
     {
         if (self::isArrayable($value)) {
+            /** @phpstan-ignore method.nonObject */
             return $value->toArray();
         }
 

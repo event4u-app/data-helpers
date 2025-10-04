@@ -30,8 +30,8 @@ $name = $acc->get('user.name');
 // Wildcard path (returns list)
 $emails = $acc->get('user.emails.*.value');
 
-var_export([
+echo json_encode([
     'name' => $name,
     'emails' => $emails,
-]);
+], JSON_PRETTY_PRINT);
 echo PHP_EOL;

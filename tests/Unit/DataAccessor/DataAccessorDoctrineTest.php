@@ -115,6 +115,8 @@ describe('DataAccessor with Doctrine', function(): void {
         expect($productNames)->toHaveKey('categories.0.products.0.name');
         expect($productNames)->toHaveKey('categories.0.products.1.name');
         expect($productNames)->toHaveKey('categories.1.products.0.name');
+
+        /** @var array<string, mixed> $productNames */
         expect($productNames['categories.0.products.0.name'])->toBe('Laptop');
         expect($productNames['categories.0.products.1.name'])->toBe('Mouse');
         expect($productNames['categories.1.products.0.name'])->toBe('PHP Book');

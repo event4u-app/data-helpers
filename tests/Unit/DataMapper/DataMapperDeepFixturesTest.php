@@ -130,7 +130,7 @@ describe('DataMapper deep fixtures', function(): void {
             ],
         ];
 
-        $res = DataMapper::mapFromTemplate($template, $sources, skipNull: true, reindexWildcard: true);
+        $res = DataMapper::mapFromTemplate($template, $sources, true, true);
 
         /** @var array<string, mixed> $res */
         /** @var array<string, mixed> $companyRes */
@@ -186,8 +186,8 @@ describe('DataMapper deep fixtures', function(): void {
             $data,
             $template,
             $targets,
-            skipNull: true,
-            reindexWildcard: true
+            true,
+            true
         );
 
         /** @var UserDTO $u */
@@ -226,7 +226,7 @@ describe('DataMapper deep fixtures', function(): void {
             'cities' => 'root.company.departments.*.users.*.profile.address.city',
         ];
 
-        $res = DataMapper::mapFromTemplate($template, $sources, skipNull: true, reindexWildcard: true);
+        $res = DataMapper::mapFromTemplate($template, $sources, true, true);
         // Depending on aggregation strategy, multiple wildcard branches may overwrite previous ones
         expect($res['emails'])->toContain('cara@example.com');
         expect($res['cities'])->toContain('Hamburg');

@@ -45,6 +45,8 @@ class Product
     private ?int $id = null;
     private string $name = '';
     private float $price = 0.0;
+
+    /** @var array<int, string> */
     private array $tags = [];
 
     public function getId(): ?int
@@ -77,11 +79,13 @@ class Product
         $this->price = $price;
     }
 
+    /** @return array<int, string> */
     public function getTags(): array
     {
         return $this->tags;
     }
 
+    /** @param array<int, string> $tags */
     public function setTags(array $tags): void
     {
         $this->tags = $tags;
@@ -96,8 +100,8 @@ $product->setTags(['electronics', 'gadget']);
 
 // DataAccessor works with entities
 $accessor = new DataAccessor($product);
-echo 'Product name: ' . $accessor->get('name') . PHP_EOL;
-echo 'Product price: ' . $accessor->get('price') . PHP_EOL;
+echo 'Product name: ' . (string)$accessor->get('name') . PHP_EOL;
+echo 'Product price: ' . (string)$accessor->get('price') . PHP_EOL;
 echo 'Product tags: ' . json_encode($accessor->get('tags')) . PHP_EOL;
 
 echo PHP_EOL;
@@ -139,8 +143,8 @@ echo '----------------------' . PHP_EOL;
 use event4u\DataHelpers\Support\CollectionHelper;
 
 echo 'Laravel Collections available: ' . (CollectionHelper::isLaravelCollection(
-    new stdClass()
-) ? 'Yes' : 'No') . PHP_EOL;
+        new stdClass()
+    ) ? 'Yes' : 'No') . PHP_EOL;
 echo 'Doctrine Collections available: ' . (class_exists(ArrayCollection::class) ? 'Yes' : 'No') . PHP_EOL;
 echo 'Doctrine ORM available: ' . (class_exists(EntityManager::class) ? 'Yes' : 'No') . PHP_EOL;
 
@@ -163,9 +167,9 @@ $mixedData = [
 ];
 
 $accessor = new DataAccessor($mixedData);
-echo 'Array name: ' . $accessor->get('array_data.name') . PHP_EOL;
-echo 'Object name: ' . $accessor->get('object_data.name') . PHP_EOL;
-echo 'Collection name: ' . $accessor->get('collection_data.name') . PHP_EOL;
+echo 'Array name: ' . (string)$accessor->get('array_data.name') . PHP_EOL;
+echo 'Object name: ' . (string)$accessor->get('object_data.name') . PHP_EOL;
+echo 'Collection name: ' . (string)$accessor->get('collection_data.name') . PHP_EOL;
 
 echo PHP_EOL;
 

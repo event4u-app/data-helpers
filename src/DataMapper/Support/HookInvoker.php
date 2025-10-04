@@ -29,8 +29,8 @@ class HookInvoker
                 $name = $name instanceof DataMapperHook ? $name->value : (string)$name;
                 $normalized[$name] = $value[1];
             } else {
-                $name = $key instanceof DataMapperHook ? $key->value : (string)$key;
-                $normalized[$name] = $value;
+                // $key is always int|string from foreach, never DataMapperHook
+                $normalized[(string)$key] = $value;
             }
         }
 
@@ -221,19 +221,29 @@ class HookInvoker
     /**
      * Invoke a callback with automatic context conversion (array vs object).
      * Uses reflection to detect if callback expects array or HookContext.
+     *
+     * @param callable(HookContext): mixed $callback
      */
     private static function invokeCallback(callable $callback, HookContext $context): mixed
     {
         return $callback($context);
     }
 
-    /** Invoke a value-transforming callback with automatic context conversion. */
+    /**
+     * Invoke a value-transforming callback with automatic context conversion.
+     *
+     * @param callable(mixed, HookContext): mixed $callback
+     */
     private static function invokeValueCallback(callable $callback, mixed $value, HookContext $context): mixed
     {
         return $callback($value, $context);
     }
 
-    /** Invoke a target-mutating callback with automatic context conversion. */
+    /**
+     * Invoke a target-mutating callback with automatic context conversion.
+     *
+     * @param callable(mixed, HookContext, mixed): mixed $callback
+     */
     private static function invokeTargetCallback(
         callable $callback,
         mixed $target,

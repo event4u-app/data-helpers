@@ -46,7 +46,11 @@ class ValueTransformer
         }
 
         // Direct lookup
-        return $replaceMap[$value] ?? $value;
+        if (is_int($value) || is_string($value)) {
+            return $replaceMap[$value] ?? $value;
+        }
+
+        return $value;
     }
 
     /** Convert snake_case or kebab-case to camelCase. */
@@ -86,7 +90,7 @@ class ValueTransformer
      * 3. Replacement mapping (if provided)
      *
      * @param mixed $value The value to process
-     * @param null|callable $transformFn Optional transformation function
+     * @param null|callable(mixed): mixed $transformFn Optional transformation function
      * @param null|array<int|string, mixed> $replaceMap Optional replacement map
      * @param bool $trimValues Whether to trim string values before replacement
      * @param bool $caseInsensitiveReplace Whether replacement should be case-insensitive

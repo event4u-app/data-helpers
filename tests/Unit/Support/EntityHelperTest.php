@@ -96,7 +96,7 @@ describe('EntityHelper', function(): void {
     it('handles Doctrine Entities when available', function(): void {
         // This test would require a real Doctrine Entity class
         // For now, we just verify the method exists
-        expect(method_exists(EntityHelper::class, 'isDoctrineEntity'))->toBeTrue();
+        expect(EntityHelper::class)->toHaveMethod('isDoctrineEntity');
     });
 
     it('detects Doctrine Entities', function(): void {

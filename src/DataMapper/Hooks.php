@@ -167,8 +167,10 @@ final class Hooks
                 $sourcePath = $context->srcPath();
                 $targetPath = $context->tgtPath();
             } elseif (is_array($context)) {
-                $sourcePath = $context['srcPath'] ?? null;
-                $targetPath = $context['tgtPath'] ?? null;
+                $sourcePathValue = $context['srcPath'] ?? null;
+                $targetPathValue = $context['tgtPath'] ?? null;
+                $sourcePath = is_string($sourcePathValue) ? $sourcePathValue : null;
+                $targetPath = is_string($targetPathValue) ? $targetPathValue : null;
             }
 
             if ($matchesPattern($sourcePath, $prefix) || $matchesPattern($targetPath, $prefix)) {

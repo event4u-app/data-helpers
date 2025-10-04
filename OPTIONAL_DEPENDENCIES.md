@@ -16,7 +16,7 @@ packages to be installed.
 ### Option 1: Standalone (No Framework)
 
 ```bash
-composer require event4u/laravel-data-helpers
+composer require event4u/data-helpers
 ```
 
 **What you get:**
@@ -37,36 +37,36 @@ composer require event4u/laravel-data-helpers
 ### Option 2: With Laravel Support (Recommended for Laravel Projects)
 
 ```bash
-composer require event4u/laravel-data-helpers
-composer require illuminate/support
-composer require illuminate/database
+composer require event4u/data-helpers
+composer require illuminate/support:^8
+composer require illuminate/database:^8
 ```
 
 **What you get:**
 
 - ✅ Everything from Option 1
-- ✅ Full Laravel Collection support with all methods
-- ✅ Full Eloquent Model support with database functionality
+- ✅ Full Laravel Collection support with all methods (Laravel 8+)
+- ✅ Full Eloquent Model support with database functionality (Laravel 8+)
 - ✅ Full Arrayable interface support
 
 **Use this option when:**
 
-- You're working in a Laravel project
+- You're working in a Laravel project (Laravel 8 or higher)
 - You need to work with Laravel Collections or Eloquent Models
 
 ### Option 3: With Symfony/Doctrine Support (Recommended for Symfony Projects)
 
 ```bash
-composer require event4u/laravel-data-helpers
-composer require doctrine/collections
-composer require doctrine/orm
+composer require event4u/data-helpers
+composer require doctrine/collections:^1.6
+composer require doctrine/orm:^2.10
 ```
 
 **What you get:**
 
 - ✅ Everything from Option 1
-- ✅ Full Doctrine Collection support with all methods
-- ✅ Full Doctrine Entity support with ORM functionality
+- ✅ Full Doctrine Collection support with all methods (Collections 1.6+)
+- ✅ Full Doctrine Entity support with ORM functionality (ORM 2.10+)
 - ✅ Automatic entity detection via attributes/annotations
 
 **Use this option when:**

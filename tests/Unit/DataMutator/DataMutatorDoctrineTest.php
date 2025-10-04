@@ -6,8 +6,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use event4u\DataHelpers\DataMutator;
 use Tests\utils\Entities\Product;
 
-describe('DataMutator with Doctrine', function() {
-    it('can set values in Doctrine ArrayCollection', function() {
+describe('DataMutator with Doctrine', function(): void {
+    it('can set values in Doctrine ArrayCollection', function(): void {
         $collection = new ArrayCollection([
             'users' => [
                 [
@@ -21,11 +21,15 @@ describe('DataMutator with Doctrine', function() {
         $result = $mutator->set($collection, 'users.0.email', 'john@example.com');
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
+
+        /** @phpstan-ignore method.nonObject */
         $array = $result->toArray();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['email'])->toBe('john@example.com');
     });
 
-    it('can use wildcards to set values in Doctrine Collections', function() {
+    it('can use wildcards to set values in Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
             'users' => [
                 [
@@ -43,12 +47,18 @@ describe('DataMutator with Doctrine', function() {
         $result = $mutator->set($collection, 'users.*.active', true);
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
+
+        /** @phpstan-ignore method.nonObject */
         $array = $result->toArray();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['active'])->toBeTrue();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][1]['active'])->toBeTrue();
     });
 
-    it('can merge values in Doctrine Collections', function() {
+    it('can merge values in Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
             'user' => [
                 'name' => 'John',
@@ -58,15 +68,21 @@ describe('DataMutator with Doctrine', function() {
         $mutator = new DataMutator();
         $result = $mutator->set($collection, 'user', [
             'age' => 30,
-        ], merge: true);
+        ], true);
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
+
+        /** @phpstan-ignore method.nonObject */
         $array = $result->toArray();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['user']['name'])->toBe('John');
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['user']['age'])->toBe(30);
     });
 
-    it('can unset values from Doctrine Collections', function() {
+    it('can unset values from Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
             'users' => [
                 [
@@ -86,24 +102,34 @@ describe('DataMutator with Doctrine', function() {
         $result = $mutator->unset($collection, 'users.*.email');
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
+
+        /** @phpstan-ignore method.nonObject */
         $array = $result->toArray();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0])->not->toHaveKey('email');
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][1])->not->toHaveKey('email');
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['name'])->toBe('John');
         expect($array['users'][1]['name'])->toBe('Jane');
     });
 
-    it('can set attributes on Doctrine Entity', function() {
+    it('can set attributes on Doctrine Entity', function(): void {
         $entity = new Product('Laptop', '999.99');
 
         $mutator = new DataMutator();
         $result = $mutator->set($entity, 'description', 'A powerful laptop');
 
         expect($result)->toBeInstanceOf(Product::class);
+
+        /** @var Product $result */
         expect($result->getDescription())->toBe('A powerful laptop');
     });
 
-    it('can unset attributes from Doctrine Entity', function() {
+    it('can unset attributes from Doctrine Entity', function(): void {
         $entity = new Product('Laptop', '999.99');
         $entity->setDescription('A powerful laptop');
 
@@ -111,10 +137,12 @@ describe('DataMutator with Doctrine', function() {
         $result = $mutator->unset($entity, 'description');
 
         expect($result)->toBeInstanceOf(Product::class);
+
+        /** @var Product $result */
         expect($result->getDescription())->toBeNull();
     });
 
-    it('preserves Doctrine Collection type after mutation', function() {
+    it('preserves Doctrine Collection type after mutation', function(): void {
         $collection = new ArrayCollection([
             'name' => 'John',
         ]);
@@ -126,7 +154,7 @@ describe('DataMutator with Doctrine', function() {
         expect($result)->not->toBeArray();
     });
 
-    it('can work with nested Doctrine Collections', function() {
+    it('can work with nested Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
             'categories' => [
                 [
@@ -145,11 +173,15 @@ describe('DataMutator with Doctrine', function() {
         $result = $mutator->set($collection, 'categories.0.products.0.stock', 10);
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
+
+        /** @phpstan-ignore method.nonObject */
         $array = $result->toArray();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['categories'][0]['products'][0]['stock'])->toBe(10);
     });
 
-    it('can use deep wildcards with Doctrine Collections', function() {
+    it('can use deep wildcards with Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
             'categories' => [
                 [
@@ -179,13 +211,21 @@ describe('DataMutator with Doctrine', function() {
         $result = $mutator->set($collection, 'categories.*.products.*.inStock', true);
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
+
+        /** @phpstan-ignore method.nonObject */
         $array = $result->toArray();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['categories'][0]['products'][0]['inStock'])->toBeTrue();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['categories'][0]['products'][1]['inStock'])->toBeTrue();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['categories'][1]['products'][0]['inStock'])->toBeTrue();
     });
 
-    it('can unset with deep wildcards in Doctrine Collections', function() {
+    it('can unset with deep wildcards in Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
             'users' => [
                 [
@@ -207,10 +247,20 @@ describe('DataMutator with Doctrine', function() {
         $result = $mutator->unset($collection, 'users.*.profile.phone');
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
+
+        /** @phpstan-ignore method.nonObject */
         $array = $result->toArray();
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['profile'])->not->toHaveKey('phone');
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][1]['profile'])->not->toHaveKey('phone');
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['profile']['email'])->toBe('john@example.com');
+
+        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][1]['profile']['email'])->toBe('jane@example.com');
     });
 });

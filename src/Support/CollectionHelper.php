@@ -37,10 +37,12 @@ class CollectionHelper
     public static function toArray(mixed $collection): array
     {
         if (self::isLaravelCollection($collection)) {
+            /** @phpstan-ignore method.nonObject */
             return $collection->all();
         }
 
         if (self::isDoctrineCollection($collection)) {
+            /** @phpstan-ignore method.nonObject */
             return $collection->toArray();
         }
 
@@ -51,10 +53,12 @@ class CollectionHelper
     public static function has(mixed $collection, int|string $key): bool
     {
         if (self::isLaravelCollection($collection)) {
+            /** @phpstan-ignore method.nonObject */
             return $collection->has($key);
         }
 
         if (self::isDoctrineCollection($collection)) {
+            /** @phpstan-ignore method.nonObject */
             return $collection->containsKey($key);
         }
 
@@ -65,10 +69,12 @@ class CollectionHelper
     public static function get(mixed $collection, int|string $key, mixed $default = null): mixed
     {
         if (self::isLaravelCollection($collection)) {
+            /** @phpstan-ignore method.nonObject */
             return $collection->get($key, $default);
         }
 
         if (self::isDoctrineCollection($collection)) {
+            /** @phpstan-ignore method.nonObject */
             $value = $collection->get($key);
 
             return $value ?? $default;

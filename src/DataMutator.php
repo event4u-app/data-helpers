@@ -89,7 +89,7 @@ class DataMutator
      */
     public static function merge(array|object $target, array|string $pathOrValues, mixed $value = null): array|object
     {
-        return self::set($target, $pathOrValues, $value, merge: true);
+        return self::set($target, $pathOrValues, $value, true);
     }
 
     /**
@@ -112,7 +112,10 @@ class DataMutator
             $arr = CollectionHelper::toArray($target);
             self::setIntoArray($arr, $segments, $value, $merge);
 
-            return CollectionHelper::fromArrayWithType($arr, $target);
+            $result = CollectionHelper::fromArrayWithType($arr, $target);
+
+            /** @var array<int|string, mixed>|object $result */
+            return $result;
         }
 
         // Support for any entity/model type (Eloquent, Doctrine)
@@ -151,6 +154,7 @@ class DataMutator
      *
      * @param array<int|string, mixed> $array
      * @param callable(mixed& $item, int|string $key): void $callback
+     * @phpstan-ignore ergebnis.noParameterPassedByReference
      */
     private static function forEachArrayItem(array &$array, callable $callback): void
     {
@@ -165,6 +169,7 @@ class DataMutator
      *
      * @param array<int|string, mixed> $array
      * @param array<int, string> $segments
+     * @phpstan-ignore ergebnis.noParameterPassedByReference
      */
     private static function setIntoArray(array &$array, array $segments, mixed $value, bool $merge): void
     {
@@ -174,6 +179,7 @@ class DataMutator
         }
 
         if (DotPathHelper::isWildcard($segment)) {
+            /** @phpstan-ignore ergebnis.noParameterPassedByReference */
             self::forEachArrayItem($array, function(&$item, int|string $key) use ($segments, $value, $merge): void {
                 if ([] === $segments) {
                     if ($merge && is_array($item) && is_array($value)) {
@@ -322,7 +328,10 @@ class DataMutator
             if (CollectionHelper::isCollection($target)) {
                 $arr = CollectionHelper::toArray($target);
                 self::unsetFromArray($arr, $segments);
-                $target = CollectionHelper::fromArrayWithType($arr, $target);
+                $result = CollectionHelper::fromArrayWithType($arr, $target);
+
+                /** @var array<int|string, mixed>|object $result */
+                $target = $result;
 
                 continue;
             }
@@ -368,6 +377,7 @@ class DataMutator
      *
      * @param array<int|string, mixed> $array
      * @param array<int, string> $segments
+     * @phpstan-ignore ergebnis.noParameterPassedByReference
      */
     private static function unsetFromArray(array &$array, array $segments): void
     {
@@ -383,6 +393,7 @@ class DataMutator
                 return;
             }
 
+            /** @phpstan-ignore ergebnis.noParameterPassedByReference */
             self::forEachArrayItem($array, function(&$item, int|string $key) use ($segments): void {
                 if (is_array($item)) {
                     self::unsetFromArray($item, $segments);

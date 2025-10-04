@@ -26,7 +26,7 @@ $hooks = Hooks::make()
 
 $res = DataMapper::map($src, $tgt, [
     'user.name' => 'profile.name',
-], hooks: $hooks);
+], true, false, $hooks);
 
-var_export($res);
+echo json_encode($res, JSON_PRETTY_PRINT);
 echo PHP_EOL;
