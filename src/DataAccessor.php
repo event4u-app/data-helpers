@@ -108,7 +108,7 @@ class DataAccessor
     public function get(string $path, mixed $default = null): mixed
     {
         // Use static path cache for compiled path information
-        $pathInfo = self::getPathInfo($path);
+        $pathInfo = $this->getPathInfo($path);
 
         $results = $pathInfo['hasWildcard']
             ? $this->extract($this->data, $pathInfo['segments'])
@@ -135,7 +135,7 @@ class DataAccessor
      *
      * @return array{segments: array<int, string>, hasWildcard: bool}
      */
-    private static function getPathInfo(string $path): array
+    private function getPathInfo(string $path): array
     {
         if (isset(self::$pathCache[$path])) {
             return self::$pathCache[$path];

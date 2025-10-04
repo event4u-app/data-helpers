@@ -6,15 +6,15 @@ namespace Tests\Unit;
 
 use event4u\DataHelpers\DataAccessor;
 
-describe('DataAccessor Static Access Methods', function (): void {
-    it('getValue works with simple paths', function (): void {
+describe('DataAccessor Static Access Methods', function(): void {
+    it('getValue works with simple paths', function(): void {
         $data = ['user' => ['name' => 'Alice', 'age' => 30]];
 
         expect(DataAccessor::getValue($data, 'user.name'))->toBe('Alice');
         expect(DataAccessor::getValue($data, 'user.age'))->toBe(30);
     });
 
-    it('getValue works with wildcard paths', function (): void {
+    it('getValue works with wildcard paths', function(): void {
         $data = [
             'users' => [
                 ['name' => 'Alice', 'age' => 30],
@@ -29,14 +29,14 @@ describe('DataAccessor Static Access Methods', function (): void {
         ]);
     });
 
-    it('getValue returns default for non-existent paths', function (): void {
+    it('getValue returns default for non-existent paths', function(): void {
         $data = ['user' => ['name' => 'Alice']];
 
         expect(DataAccessor::getValue($data, 'user.email', 'default'))->toBe('default');
         expect(DataAccessor::getValue($data, 'nonexistent'))->toBeNull();
     });
 
-    it('getStringValue works correctly', function (): void {
+    it('getStringValue works correctly', function(): void {
         $data = ['user' => ['name' => 'Alice', 'age' => 30]];
 
         expect(DataAccessor::getStringValue($data, 'user.name'))->toBe('Alice');
@@ -44,7 +44,7 @@ describe('DataAccessor Static Access Methods', function (): void {
         expect(DataAccessor::getStringValue($data, 'user.email', 'default'))->toBe('default');
     });
 
-    it('getIntValue works correctly', function (): void {
+    it('getIntValue works correctly', function(): void {
         $data = ['user' => ['age' => 30, 'score' => '100']];
 
         expect(DataAccessor::getIntValue($data, 'user.age'))->toBe(30);
@@ -52,7 +52,7 @@ describe('DataAccessor Static Access Methods', function (): void {
         expect(DataAccessor::getIntValue($data, 'user.missing', 0))->toBe(0);
     });
 
-    it('getFloatValue works correctly', function (): void {
+    it('getFloatValue works correctly', function(): void {
         $data = ['product' => ['price' => 19.99, 'discount' => '5.5']];
 
         expect(DataAccessor::getFloatValue($data, 'product.price'))->toBe(19.99);
@@ -60,7 +60,7 @@ describe('DataAccessor Static Access Methods', function (): void {
         expect(DataAccessor::getFloatValue($data, 'product.missing', 0.0))->toBe(0.0);
     });
 
-    it('getBoolValue works correctly', function (): void {
+    it('getBoolValue works correctly', function(): void {
         $data = ['user' => ['active' => true, 'verified' => 'yes']];
 
         expect(DataAccessor::getBoolValue($data, 'user.active'))->toBeTrue();
@@ -68,14 +68,14 @@ describe('DataAccessor Static Access Methods', function (): void {
         expect(DataAccessor::getBoolValue($data, 'user.missing', false))->toBeFalse();
     });
 
-    it('getArrayValue works correctly', function (): void {
+    it('getArrayValue works correctly', function(): void {
         $data = ['user' => ['tags' => ['php', 'laravel'], 'name' => 'Alice']];
 
         expect(DataAccessor::getArrayValue($data, 'user.tags'))->toBe(['php', 'laravel']);
         expect(DataAccessor::getArrayValue($data, 'user.missing', []))->toBe([]);
     });
 
-    it('static methods cache path information', function (): void {
+    it('static methods cache path information', function(): void {
         $data1 = ['user' => ['name' => 'Alice']];
         $data2 = ['user' => ['name' => 'Bob']];
         $data3 = ['user' => ['name' => 'Charlie']];
@@ -92,7 +92,7 @@ describe('DataAccessor Static Access Methods', function (): void {
         expect($result3)->toBe('Charlie');
     });
 
-    it('static methods work with different data types', function (): void {
+    it('static methods work with different data types', function(): void {
         // Array
         $array = ['name' => 'Alice'];
         expect(DataAccessor::getValue($array, 'name'))->toBe('Alice');
@@ -106,14 +106,14 @@ describe('DataAccessor Static Access Methods', function (): void {
         expect(DataAccessor::getValue($json, 'name'))->toBe('Charlie');
     });
 
-    it('performance: static methods benefit from path caching', function (): void {
+    it('performance: static methods benefit from path caching', function(): void {
         $datasets = [];
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; 100 > $i; $i++) {
             $datasets[] = [
                 'user' => [
                     'profile' => [
-                        'name' => "User $i",
-                        'email' => "user$i@example.com",
+                        'name' => 'User ' . $i,
+                        'email' => sprintf('user%d@example.com', $i),
                     ],
                 ],
             ];
@@ -132,7 +132,7 @@ describe('DataAccessor Static Access Methods', function (): void {
         expect($time)->toBeLessThan(1.0); // Should be much faster than 1 second
     });
 
-    it('static methods work with nested paths', function (): void {
+    it('static methods work with nested paths', function(): void {
         $data = [
             'company' => [
                 'departments' => [
@@ -148,7 +148,7 @@ describe('DataAccessor Static Access Methods', function (): void {
         expect(DataAccessor::getIntValue($data, 'company.departments.engineering.members'))->toBe(10);
     });
 
-    it('static methods handle Collections', function (): void {
+    it('static methods handle Collections', function(): void {
         if (!class_exists('Illuminate\Support\Collection')) {
             expect(true)->toBeTrue(); // Skip if Laravel not available
             return;
