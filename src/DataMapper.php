@@ -60,17 +60,17 @@ class DataMapper
         }
 
         /** @var array<int|string, mixed>|object $target */
-        assert(is_array($target) || is_object($target));
-
         // Normalize enum keys (if any) to string names
         $hooks = HookInvoker::normalizeHooks($hooks);
 
         // Case 1: simple path-to-path mapping like ['a.b' => 'x.y']
         if (MappingEngine::isSimpleMapping($mapping)) {
+            /** @var array<string, string> $mapping */
             return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks);
         }
 
         // Case 2: structured mapping definitions with source/target objects
+        /** @var array<int, array<string, mixed>> $mapping */
         return self::mapStructured(
             $source,
             $target,
@@ -292,12 +292,12 @@ class DataMapper
                     $value,
                     $skipNull,
                     $reindexWildcard,
-                    function(int|string $_i, string $reason) use (&$mappingIndex): void {
+                    function (int|string $_i, string $reason) use (&$mappingIndex): void {
                         if ('null' === $reason) {
                             $mappingIndex++;
                         }
                     },
-                    function(int|string $wildcardIndex, mixed $itemValue) use (
+                    function (int|string $wildcardIndex, mixed $itemValue) use (
                         &$target,
                         $hooks,
                         $pairContext,
@@ -328,6 +328,7 @@ class DataMapper
                             (string)$resolvedTargetPath,
                             $writeValue
                         );
+                        /** @var array<int|string, mixed>|object $target */
                         $target = HookInvoker::invokeTargetHook(
                             $hooks,
                             'afterWrite',
@@ -353,6 +354,7 @@ class DataMapper
                 $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
                 if ('__skip__' !== $writeValue) {
                     $target = DataMutator::set(MappingEngine::asTarget($target), (string)$targetPath, $writeValue);
+                    /** @var array<int|string, mixed>|object $target */
                     $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
                 }
             }
@@ -401,9 +403,9 @@ class DataMapper
                 $entryTarget = [];
             }
 
-            $entrySkipNull = array_key_exists('skipNull', $map) ? (bool)$map['skipNull'] : $skipNull;
+            /** @var array<int|string, mixed>|object $entryTarget */
 
-            assert(is_array($entryTarget) || is_object($entryTarget));
+            $entrySkipNull = array_key_exists('skipNull', $map) ? (bool)$map['skipNull'] : $skipNull;
 
             $entryReindex = array_key_exists(
                 'reindexWildcard',
@@ -424,7 +426,9 @@ class DataMapper
 
             // Support either explicit source/target mapping arrays, or a single associative/list 'mapping'
             if (isset($map['sourceMapping']) || isset($map['targetMapping'])) {
+                /** @var array<int|string, mixed> $sourcePathMapping */
                 $sourcePathMapping = $map['sourceMapping'] ?? [];
+                /** @var array<int|string, mixed> $targetPathMapping */
                 $targetPathMapping = $map['targetMapping'] ?? [];
 
                 /** @var array<int, null|callable>|array<string, null|callable> $transforms */
@@ -451,7 +455,7 @@ class DataMapper
 
                     $pairContext = new PairContext(
                         'structured',
-                        $pairIndex,
+                        is_int($pairIndex) ? $pairIndex : 0,
                         (string)$sourcePath,
                         (string)$targetPath,
                         $entrySource,
@@ -493,7 +497,7 @@ class DataMapper
                             $entrySkipNull,
                             $entryReindex,
                             null,
-                            function(int|string $wildcardIndex, mixed $itemValue) use (
+                            function (int|string $wildcardIndex, mixed $itemValue) use (
                                 &$entryTarget,
                                 $effectiveHooks,
                                 $pairContext,
@@ -518,7 +522,7 @@ class DataMapper
                                     $trimValues,
                                     $caseInsensitiveReplace,
                                     'structured',
-                                    $pairIndex,
+                                    is_int($pairIndex) ? $pairIndex : 0,
                                     (string)$sourcePath,
                                     (string)$targetPath,
                                     $entrySource,
@@ -538,7 +542,7 @@ class DataMapper
                             $trimValues,
                             $caseInsensitiveReplace,
                             'structured',
-                            $pairIndex,
+                            is_int($pairIndex) ? $pairIndex : 0,
                             (string)$sourcePath,
                             (string)$targetPath,
                             $entrySource,
@@ -623,7 +627,7 @@ class DataMapper
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function(int|string $wildcardIndex, mixed $itemValue) use (
+                                function (int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,
@@ -688,6 +692,7 @@ class DataMapper
                 } else {
                     // List of pairs: [[sourcePath, targetPath], ...]
                     $pairIndex = 0;
+                    /** @var array<int, mixed> $pairs */
                     foreach ($pairs as $mappingPair) {
                         if (!is_array($mappingPair) || count($mappingPair) !== 2) {
                             throw new InvalidArgumentException(
@@ -740,7 +745,7 @@ class DataMapper
                                 $entrySkipNull,
                                 $entryReindex,
                                 null,
-                                function(int|string $wildcardIndex, mixed $itemValue) use (
+                                function (int|string $wildcardIndex, mixed $itemValue) use (
                                     &$entryTarget,
                                     $effectiveHooks,
                                     $pairContext,
@@ -821,6 +826,7 @@ class DataMapper
         // Global hook: afterAll for structured mode
         HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('structured', $mapping, $source, $target));
 
+        /** @var array<int|string, mixed>|object $target */
         return $target;
     }
 }

@@ -60,7 +60,10 @@ describe('CollectionHelper', function(): void {
         $result = CollectionHelper::fromArray($data);
 
         expect($result)->toBeInstanceOf(LaravelCollection::class);
-        expect($result->all())->toBe($data);
+
+        if ($result instanceof LaravelCollection) {
+            expect($result->all())->toBe($data);
+        }
     });
 
     it('returns empty array for non-collection', function(): void {
@@ -139,7 +142,10 @@ describe('CollectionHelper', function(): void {
         $result = CollectionHelper::fromArrayWithType($data, $original);
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
-        expect($result->toArray())->toBe($data);
+
+        if ($result instanceof ArrayCollection) {
+            expect($result->toArray())->toBe($data);
+        }
     });
 
     it('creates Laravel Collection from array with fromArrayWithType', function(): void {
@@ -154,7 +160,9 @@ describe('CollectionHelper', function(): void {
         $result = CollectionHelper::fromArrayWithType($data, $original);
 
         expect($result)->toBeInstanceOf(LaravelCollection::class);
-        expect($result->all())->toBe($data);
+        if ($result instanceof LaravelCollection) {
+            expect($result->all())->toBe($data);
+        }
     });
 
     it('returns array when fromArrayWithType gets non-collection', function(): void {

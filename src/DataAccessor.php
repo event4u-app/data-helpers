@@ -110,7 +110,8 @@ class DataAccessor
             return $results; // always array with dot-paths
         }
 
-        if (is_array($results) && count($results) === 1) {
+        // Non-wildcard paths: unwrap single-element array
+        if (count($results) === 1) {
             return reset($results);
         }
 

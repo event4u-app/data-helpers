@@ -11,5 +11,5 @@ $tgt = DataMutator::set($tgt, 'profile.name', 'Alice');
 $tgt = DataMutator::set($tgt, 'profile.emails.0', 'alice@work.test');
 $tgt = DataMutator::set($tgt, 'profile.emails.1', 'alice@home.test');
 
-var_export($tgt);
+echo json_encode($tgt, JSON_PRETTY_PRINT);
 echo PHP_EOL;

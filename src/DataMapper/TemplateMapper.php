@@ -120,7 +120,11 @@ class TemplateMapper
         return [$alias, $path];
     }
 
-    /** Check if an array looks like a wildcard result (has dot-path keys). */
+    /**
+     * Check if an array looks like a wildcard result (has dot-path keys).
+     *
+     * @param array<int|string, mixed> $array
+     */
     private static function isWildcardResult(array $array): bool
     {
         foreach (array_keys($array) as $key) {
@@ -189,10 +193,14 @@ class TemplateMapper
 
             // If path contains wildcard and dataNode is array, write each element
             if (null !== $path && str_contains($path, '*') && is_array($dataNode)) {
-                $target = self::writeToAliasWithWildcards($target, $path, $dataNode, $skipNull, $reindexWildcard);
+                if (is_array($target) || is_object($target)) {
+                    $target = self::writeToAliasWithWildcards($target, $path, $dataNode, $skipNull, $reindexWildcard);
+                }
             } else {
                 // Simple write
-                $target = DataMutator::set($target, $path ?? '', $dataNode);
+                if (is_array($target) || is_object($target)) {
+                    $target = DataMutator::set($target, $path ?? '', $dataNode);
+                }
             }
 
             $targets[$alias] = $target;
@@ -232,7 +240,11 @@ class TemplateMapper
         bool $reindexWildcard,
     ): mixed {
         if (!is_array($value)) {
-            return DataMutator::set($target, $path, $value);
+            if (is_array($target) || is_object($target)) {
+                return DataMutator::set($target, $path, $value);
+            }
+
+            return $target;
         }
 
         // Normalize wildcard array if needed
@@ -246,9 +258,11 @@ class TemplateMapper
             $skipNull,
             $reindexWildcard,
             null,
-            function(int $index, mixed $itemValue) use (&$target, $path): true {
+            function(int|string $index, mixed $itemValue) use (&$target, $path): true {
                 $itemPath = str_replace('*', (string)$index, $path);
-                $target = DataMutator::set($target, $itemPath, $itemValue);
+                if (is_array($target) || is_object($target)) {
+                    $target = DataMutator::set($target, $itemPath, $itemValue);
+                }
 
                 return true;
             }

@@ -67,10 +67,11 @@ class EntityHelper
     public static function toArray(mixed $entity): array
     {
         if (self::isEloquentModel($entity)) {
+            /** @phpstan-ignore method.nonObject */
             return $entity->toArray();
         }
 
-        if (self::isDoctrineEntity($entity)) {
+        if (self::isDoctrineEntity($entity) && is_object($entity)) {
             return self::doctrineEntityToArray($entity);
         }
 
@@ -85,10 +86,11 @@ class EntityHelper
     public static function getAttributes(mixed $entity): array
     {
         if (self::isEloquentModel($entity)) {
+            /** @phpstan-ignore method.nonObject */
             return $entity->getAttributes();
         }
 
-        if (self::isDoctrineEntity($entity)) {
+        if (self::isDoctrineEntity($entity) && is_object($entity)) {
             return self::doctrineEntityToArray($entity);
         }
 
@@ -99,18 +101,21 @@ class EntityHelper
     public static function hasAttribute(mixed $entity, int|string $key): bool
     {
         if (self::isEloquentModel($entity)) {
+            /** @phpstan-ignore method.nonObject */
             return $entity->offsetExists($key);
         }
 
         if (self::isDoctrineEntity($entity)) {
             $getter = 'get' . ucfirst((string)$key);
-            if (method_exists($entity, $getter)) {
+            if (is_object($entity) && method_exists($entity, $getter)) {
                 return true;
             }
 
-            $reflection = new ReflectionClass($entity);
+            if (is_object($entity)) {
+                $reflection = new ReflectionClass($entity);
 
-            return $reflection->hasProperty((string)$key);
+                return $reflection->hasProperty((string)$key);
+            }
         }
 
         return false;
@@ -120,10 +125,11 @@ class EntityHelper
     public static function getAttribute(mixed $entity, string $key): mixed
     {
         if (self::isEloquentModel($entity)) {
+            /** @phpstan-ignore method.nonObject */
             return $entity->getAttribute($key);
         }
 
-        if (self::isDoctrineEntity($entity)) {
+        if (self::isDoctrineEntity($entity) && is_object($entity)) {
             // Try getter method first
             $getter = 'get' . ucfirst($key);
             if (method_exists($entity, $getter)) {
@@ -146,12 +152,13 @@ class EntityHelper
     public static function setAttribute(mixed $entity, string $key, mixed $value): void
     {
         if (self::isEloquentModel($entity)) {
+            /** @phpstan-ignore method.nonObject */
             $entity->setAttribute($key, $value);
 
             return;
         }
 
-        if (self::isDoctrineEntity($entity)) {
+        if (self::isDoctrineEntity($entity) && is_object($entity)) {
             // Try setter method first
             $setter = 'set' . ucfirst($key);
             if (method_exists($entity, $setter)) {
@@ -173,12 +180,13 @@ class EntityHelper
     public static function unsetAttribute(mixed $entity, int|string $key): void
     {
         if (self::isEloquentModel($entity)) {
+            /** @phpstan-ignore method.nonObject */
             $entity->offsetUnset($key);
 
             return;
         }
 
-        if (self::isDoctrineEntity($entity)) {
+        if (self::isDoctrineEntity($entity) && is_object($entity)) {
             // Try setter with null
             $setter = 'set' . ucfirst((string)$key);
             if (method_exists($entity, $setter)) {
@@ -238,9 +246,11 @@ class EntityHelper
         }
 
         if ('*' === $segment) {
+            /** @phpstan-ignore method.nonObject */
             $attributes = $model->getAttributes();
             if ([] === $segments) {
                 foreach (array_keys($attributes) as $key) {
+                    /** @phpstan-ignore method.nonObject */
                     $model->offsetUnset($key);
                 }
 
@@ -264,11 +274,13 @@ class EntityHelper
         }
 
         if ([] === $segments) {
+            /** @phpstan-ignore method.nonObject */
             $model->offsetUnset($segment);
 
             return;
         }
 
+        /** @phpstan-ignore method.nonObject */
         $value = $model->getAttribute($segment);
         if (is_array($value)) {
             // Handle nested arrays

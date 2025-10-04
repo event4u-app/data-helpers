@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Context;
 
+use event4u\DataHelpers\Enums\Mode;
+
 /**
  * Context for beforeAll/afterAll hooks.
  */

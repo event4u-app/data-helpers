@@ -45,7 +45,12 @@ class MappingEngine
         return $candidate;
     }
 
-    /** Process simple mapping (associative array of source => target paths). */
+    /**
+     * Process simple mapping (associative array of source => target paths).
+     *
+     * @param array<string, string> $mapping
+     * @param array<string, mixed> $hooks
+     */
     public static function processSimpleMapping(
         mixed $source,
         mixed $target,
@@ -129,7 +134,12 @@ class MappingEngine
         return $target;
     }
 
-    /** Process wildcard mapping (source path contains *). */
+    /**
+     * Process wildcard mapping (source path contains *).
+     *
+     * @param array<int|string, mixed> $value
+     * @param array<string, mixed> $hooks
+     */
     private static function processWildcardMapping(
         array $value,
         mixed $target,
@@ -146,12 +156,12 @@ class MappingEngine
             $value,
             $skipNull,
             $reindexWildcard,
-            function(int $_i, string $reason) use (&$mappingIndex): void {
+            function(int|string $_i, string $reason) use (&$mappingIndex): void {
                 if ('null' === $reason) {
                     $mappingIndex++;
                 }
             },
-            function(int $wildcardIndex, mixed $itemValue) use (
+            function(int|string $wildcardIndex, mixed $itemValue) use (
                 &$target,
                 $hooks,
                 $pairContext,
@@ -191,7 +201,11 @@ class MappingEngine
         return $target;
     }
 
-    /** Process single (non-wildcard) mapping. */
+    /**
+     * Process single (non-wildcard) mapping.
+     *
+     * @param array<string, mixed> $hooks
+     */
     private static function processSingleMapping(
         mixed $value,
         mixed $target,
@@ -238,7 +252,7 @@ class MappingEngine
      * @param mixed $target The target to write to (passed by reference)
      * @param array $hooks Hook configuration
      * @param PairContext $pairContext Context for hooks
-     * @param null|callable $transformFn Optional transformation function
+     * @param null|callable(mixed): mixed $transformFn Optional transformation function
      * @param null|array<int|string, mixed> $replaceMap Optional replacement map
      * @param bool $trimValues Whether to trim string values
      * @param bool $caseInsensitiveReplace Whether replacement is case-insensitive
@@ -248,7 +262,9 @@ class MappingEngine
      * @param string $targetPath Target path (may contain wildcard)
      * @param mixed $source Original source data
      * @param bool $skipNull Whether to skip null values
+     * @param array<string, mixed> $hooks
      * @return bool True if item was processed, false if skipped
+     * @phpstan-ignore ergebnis.noParameterPassedByReference
      */
     public static function processWildcardItem(
         int|string $wildcardIndex,
@@ -328,7 +344,7 @@ class MappingEngine
         // Write value to target
         $target = DataMutator::set(
             self::asTarget($target),
-            $resolvedTargetPath,
+            $resolvedTargetPath ?? '',
             $writeValue
         );
 
@@ -358,9 +374,9 @@ class MappingEngine
      *
      * @param mixed $value The value to process
      * @param mixed $target The target to write to (passed by reference)
-     * @param array $hooks Hook configuration
+     * @param array<string, mixed> $hooks Hook configuration
      * @param PairContext $pairContext Context for hooks
-     * @param null|callable $transformFn Optional transformation function
+     * @param null|callable(mixed): mixed $transformFn Optional transformation function
      * @param null|array<int|string, mixed> $replaceMap Optional replacement map
      * @param bool $trimValues Whether to trim string values
      * @param bool $caseInsensitiveReplace Whether replacement is case-insensitive
@@ -371,6 +387,7 @@ class MappingEngine
      * @param mixed $source Original source data
      * @param bool $skipNull Whether to skip null values
      * @return bool True if value was processed, false if skipped (caller should continue to next iteration)
+     * @phpstan-ignore ergebnis.noParameterPassedByReference
      */
     public static function processSingleValue(
         mixed $value,

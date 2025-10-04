@@ -63,7 +63,7 @@ class AutoMapper
                 $segments = explode('.', (string)$path);
                 if (is_object($target) && isset($segments[0])) {
                     $first = $segments[0];
-                    if ('*' !== $first && is_string($first)) {
+                    if ('*' !== $first) {
                         $camel = ValueTransformer::toCamelCase($first);
                         if (ValueTransformer::objectHasProperty($target, $camel)) {
                             $segments[0] = $camel;
@@ -152,6 +152,7 @@ class AutoMapper
      * Get all keys/properties from target.
      *
      * @return array<int, string>
+     * @phpstan-ignore method.unused
      */
     private static function getTargetKeys(mixed $target): array
     {
@@ -169,7 +170,12 @@ class AutoMapper
         return [];
     }
 
-    /** Find matching target key for source key (with snake_case → camelCase conversion). */
+    /**
+     * Find matching target key for source key (with snake_case → camelCase conversion).
+     *
+     * @param array<int, string> $targetKeys
+     * @phpstan-ignore method.unused
+     */
     private static function findMatchingTargetKey(string $sourceKey, array $targetKeys): ?string
     {
         // Direct match
@@ -186,7 +192,11 @@ class AutoMapper
         return null;
     }
 
-    /** Get nested target for deep mapping. */
+    /**
+     * Get nested target for deep mapping.
+     *
+     * @phpstan-ignore method.unused
+     */
     private static function getNestedTarget(mixed $target, string $key): mixed
     {
         if (is_array($target)) {

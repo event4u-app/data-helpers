@@ -19,7 +19,7 @@ $map = [
     'user.emails.*' => 'profile.contacts.*',
 ];
 
-$res = DataMapper::map($src, $tgt, $map, skipNull: true, reindexWildcard: true);
+$res = DataMapper::map($src, $tgt, $map, true, true);
 
-var_export($res);
+echo json_encode($res, JSON_PRETTY_PRINT);
 echo PHP_EOL;

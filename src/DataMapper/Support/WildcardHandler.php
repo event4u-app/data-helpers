@@ -89,9 +89,10 @@ class WildcardHandler
     /**
      * Iterate over wildcard items with optional null skipping and reindexing.
      *
-     * @param null|callable(int $skipNull, string $reason): void $onSkip optional callback invoked when an item is skipped
+     * @param array<int|string, mixed> $items
+     * @param null|callable(int|string, string): void $onSkip optional callback invoked when an item is skipped
      *        (reason is either 'null' or 'skip')
-     * @param callable(int $skipNull, mixed $value): bool $onItem Should return true when an item was written/accepted,
+     * @param callable(int|string, mixed): bool $onItem Should return true when an item was written/accepted,
      *        false when skipped (e.g. by beforeWrite or postTransform returning null).
      */
     public static function iterateWildcardItems(
