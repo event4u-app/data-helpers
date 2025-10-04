@@ -100,18 +100,24 @@ class DataAccessor
     public function get(string $path, mixed $default = null): mixed
     {
         $segments = DotPathHelper::segments($path);
-        $results = $this->extract($this->data, $segments);
+
+        // Lazy wildcard expansion: check if path contains wildcard
+        $hasWildcard = DotPathHelper::containsWildcard($path);
+
+        $results = $hasWildcard
+            ? $this->extract($this->data, $segments)
+            : $this->extractSimple($this->data, $segments);
 
         if (null === $results) {
             return $default;
         }
 
-        if (DotPathHelper::containsWildcard($path)) {
+        if ($hasWildcard) {
             return $results; // always array with dot-paths
         }
 
         // Non-wildcard paths: unwrap single-element array
-        if (count($results) === 1) {
+        if (is_array($results) && count($results) === 1) {
             return reset($results);
         }
 
@@ -249,6 +255,42 @@ class DataAccessor
         }
 
         return $default;
+    }
+
+    /**
+     * Fast extraction for non-wildcard paths (no wildcard overhead).
+     *
+     * @param array<int, string> $segments
+     */
+    private function extractSimple(mixed $current, array $segments): mixed
+    {
+        foreach ($segments as $segment) {
+            // Traverse array
+            if (is_array($current) && array_key_exists($segment, $current)) {
+                $current = $current[$segment];
+
+                continue;
+            }
+
+            // Traverse entity/model
+            if (EntityHelper::hasAttribute($current, $segment)) {
+                $current = EntityHelper::getAttribute($current, $segment);
+
+                continue;
+            }
+
+            // Traverse collection
+            if (CollectionHelper::has($current, $segment)) {
+                $current = CollectionHelper::get($current, $segment);
+
+                continue;
+            }
+
+            // Path not found
+            return null;
+        }
+
+        return [$current];
     }
 
     /**
