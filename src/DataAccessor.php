@@ -119,6 +119,139 @@ class DataAccessor
     }
 
     /**
+     * Get value as string.
+     *
+     * @param string $path Dot-notation path
+     * @param null|string $default Default if path not found
+     */
+    public function getString(string $path, ?string $default = null): ?string
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if (is_scalar($value)) {
+            return (string)$value;
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get value as integer.
+     *
+     * @param string $path Dot-notation path
+     * @param null|int $default Default if path not found
+     */
+    public function getInt(string $path, ?int $default = null): ?int
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return (int)$value;
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get value as float.
+     *
+     * @param string $path Dot-notation path
+     * @param null|float $default Default if path not found
+     */
+    public function getFloat(string $path, ?float $default = null): ?float
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_float($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return (float)$value;
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get value as boolean.
+     *
+     * @param string $path Dot-notation path
+     * @param null|bool $default Default if path not found
+     */
+    public function getBool(string $path, ?bool $default = null): ?bool
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        // Convert common truthy/falsy values
+        if (is_string($value)) {
+            $lower = strtolower($value);
+            if (in_array($lower, ['true', '1', 'yes', 'on'], true)) {
+                return true;
+            }
+            if (in_array($lower, ['false', '0', 'no', 'off', ''], true)) {
+                return false;
+            }
+        }
+
+        if (is_numeric($value)) {
+            return (bool)$value;
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get value as array.
+     *
+     * @param string $path Dot-notation path
+     * @param null|array<int|string, mixed> $default Default if path not found
+     * @return null|array<int|string, mixed>
+     */
+    public function getArray(string $path, ?array $default = null): ?array
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        return $default;
+    }
+
+    /**
      * Recursive extraction supporting arrays, Models, Collections and wildcards.
      *
      * @param array<int, string> $segments
