@@ -43,9 +43,10 @@ optional and automatically detected.
     - [DataAccessor](#dataaccessor)
     - [DataMutator](#datamutator)
     - [DataMapper](#datamapper)
-    - [Pipeline API (NEW)](#pipeline-api-new)
+    - [Pipeline API](#pipeline-api-new)
 - [Mapping Templates](#mapping-templates)
     - [mapFromTemplate](#mapfromtemplate)
+    - [Template Expressions](#template-expressions-new)
     - [mapToTargetsFromTemplate](#maptotargetsfromtemplate)
 - [AutoMap](#automap)
 - [Replace Options](#replace-options)
@@ -59,7 +60,7 @@ optional and automatically detected.
 - [Data Accessor](docs/data-accessor.md) – Read nested data with wildcards, Collections, and Models
 - [Data Mutator](docs/data-mutator.md) – Write, merge, and unset nested values with wildcards
 - [Data Mapper](docs/data-mapper.md) – Map between structures with templates, transforms, and hooks
-- [Template Expressions](docs/template-expressions.md) – **NEW:** Powerful expression engine with filters and defaults
+- [Template Expressions](docs/template-expressions.md) – Powerful expression engine with filters and defaults
 - [Dot-Path Syntax](docs/dot-path.md) – Path notation reference and best practices
 
 💡 **Tip:** The docs contain many real-world examples including deep wildcards, JSON templates, autoMap (source → target), value
@@ -74,7 +75,7 @@ replacement, hooks, and common patterns for each helper.
 - [examples/05-data-mapper-pipeline.php](examples/05-data-mapper-pipeline.php) – Pipeline API with transformers
 - [examples/06-laravel.php](examples/06-laravel.php) – Laravel Collections, Eloquent Models, Arrayable
 - [examples/07-symfony-doctrine.php](examples/07-symfony-doctrine.php) – Doctrine Collections and Entities
-- [examples/08-template-expressions.php](examples/08-template-expressions.php) – **NEW:** Template expressions with filters
+- [examples/08-template-expressions.php](examples/08-template-expressions.php) – Template expressions with filters
 
 ## Installation
 
@@ -307,7 +308,7 @@ $targets = DataMapper::mapMany([
 ]);
 ```
 
-### Pipeline API (NEW)
+### Pipeline API
 
 🚀 **Modern, fluent API** for composing reusable data transformers - inspired by Laravel's pipeline pattern.
 
@@ -427,7 +428,7 @@ $result = DataMapper::map($source, [], $mapping, hooks: [
     'preTransform' => fn($v) => is_string($v) ? trim($v) : $v,
 ]);
 
-// Pipeline API (new, modern)
+// Pipeline API (modern)
 $result = DataMapper::pipe([TrimStrings::class])->map($source, [], $mapping);
 ```
 
@@ -455,7 +456,7 @@ $out = DataMapper::mapFromTemplate($template, $sources, skipNull: true, reindexW
 
 JSON templates supported as well (string input).
 
-### Template Expressions (NEW)
+### Template Expressions
 
 🎯 **Powerful expression engine** for declarative data transformations with filters and defaults.
 
