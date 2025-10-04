@@ -63,7 +63,7 @@ class DataAccessor
         }
 
         // Fallback for Arrayable interface (not covered by helpers)
-        if (interface_exists(\Illuminate\Contracts\Support\Arrayable::class) && $input instanceof \Illuminate\Contracts\Support\Arrayable) {
+        if (interface_exists('\Illuminate\Contracts\Support\Arrayable') && $input instanceof \Illuminate\Contracts\Support\Arrayable) {
             $this->data = $input->toArray();
 
             return;

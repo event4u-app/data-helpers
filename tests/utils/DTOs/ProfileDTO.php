@@ -8,4 +8,3 @@ final class ProfileDTO
 {
     public ?AddressDTO $address = null;
 }
-

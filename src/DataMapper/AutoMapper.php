@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
-use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
-use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
+use ReflectionClass;
+use ReflectionProperty;
 
 /**
  * Handles automatic field mapping with snake_case to camelCase conversion.
@@ -99,7 +100,7 @@ class AutoMapper
         }
 
         // Delegate to regular map() using the derived mapping
-        return \event4u\DataHelpers\DataMapper::map(
+        return DataMapper::map(
             $source,
             $target,
             $pairs,
@@ -134,8 +135,8 @@ class AutoMapper
 
         if (is_object($data)) {
             // Use reflection to get public properties
-            $reflection = new \ReflectionClass($data);
-            $properties = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
+            $reflection = new ReflectionClass($data);
+            $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
             $result = [];
             foreach ($properties as $property) {
                 $result[$property->getName()] = $property->getValue($data);
@@ -159,18 +160,16 @@ class AutoMapper
         }
 
         if (is_object($target)) {
-            $reflection = new \ReflectionClass($target);
+            $reflection = new ReflectionClass($target);
             $properties = $reflection->getProperties();
 
-            return array_map(fn($prop) => $prop->getName(), $properties);
+            return array_map(fn(ReflectionProperty $prop): string => $prop->getName(), $properties);
         }
 
         return [];
     }
 
-    /**
-     * Find matching target key for source key (with snake_case → camelCase conversion).
-     */
+    /** Find matching target key for source key (with snake_case → camelCase conversion). */
     private static function findMatchingTargetKey(string $sourceKey, array $targetKeys): ?string
     {
         // Direct match
@@ -187,22 +186,17 @@ class AutoMapper
         return null;
     }
 
-    /**
-     * Get nested target for deep mapping.
-     */
+    /** Get nested target for deep mapping. */
     private static function getNestedTarget(mixed $target, string $key): mixed
     {
         if (is_array($target)) {
             return $target[$key] ?? [];
         }
 
-        if (is_object($target)) {
-            if (property_exists($target, $key)) {
-                $reflection = new \ReflectionProperty($target, $key);
-                $reflection->setAccessible(true);
+        if (is_object($target) && property_exists($target, $key)) {
+            $reflection = new ReflectionProperty($target, $key);
 
-                return $reflection->getValue($target);
-            }
+            return $reflection->getValue($target);
         }
 
         return [];
@@ -220,7 +214,9 @@ class AutoMapper
 
         // Scalars and null: treat as leaf value
         if (!is_array($data) && !is_object($data)) {
-            return ['' === $prefix ? '' : $prefix => $data];
+            return [
+                $prefix => $data,
+            ];
         }
 
         // Convert to array-like structure
@@ -229,8 +225,8 @@ class AutoMapper
         } elseif ($data instanceof JsonSerializable) {
             $data = $data->jsonSerialize();
         } elseif (is_object($data)) {
-            $reflection = new \ReflectionClass($data);
-            $properties = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
+            $reflection = new ReflectionClass($data);
+            $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
             $arrayData = [];
             foreach ($properties as $property) {
                 $arrayData[$property->getName()] = $property->getValue($data);
@@ -239,7 +235,9 @@ class AutoMapper
         }
 
         if (!is_array($data)) {
-            return ['' === $prefix ? '' : $prefix => $data];
+            return [
+                $prefix => $data,
+            ];
         }
 
         foreach ($data as $key => $value) {
@@ -257,4 +255,3 @@ class AutoMapper
         return $result;
     }
 }
-

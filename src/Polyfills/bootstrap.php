@@ -10,20 +10,19 @@ declare(strict_types=1);
  */
 
 // Load Laravel polyfills if Laravel is not installed
-if (!interface_exists(\Illuminate\Contracts\Support\Arrayable::class)) {
+if (!interface_exists('\Illuminate\Contracts\Support\Arrayable')) {
     require_once __DIR__ . '/Arrayable.php';
 }
 
-if (!class_exists(\Illuminate\Support\Collection::class)) {
+if (!class_exists('\Illuminate\Support\Collection')) {
     require_once __DIR__ . '/Collection.php';
 }
 
-if (!class_exists(\Illuminate\Database\Eloquent\Model::class)) {
+if (!class_exists('\Illuminate\Database\Eloquent\Model')) {
     require_once __DIR__ . '/Model.php';
 }
 
 // Load Doctrine polyfills if Doctrine is not installed
-if (!interface_exists(\Doctrine\Common\Collections\Collection::class)) {
+if (!interface_exists('\Doctrine\Common\Collections\Collection')) {
     require_once __DIR__ . '/DoctrineCollection.php';
 }
-

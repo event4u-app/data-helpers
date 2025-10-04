@@ -1,11 +1,17 @@
 <?php
 
 declare(strict_types=1);
+
 require __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
 
-$src = ['user' => ['name' => ' Alice ', 'emails' => ['a@work', 'a@home']]];
+$src = [
+    'user' => [
+        'name' => ' Alice ',
+        'emails' => ['a@work', 'a@home'],
+    ],
+];
 $tgt = [];
 
 $map = [
@@ -16,4 +22,4 @@ $map = [
 $res = DataMapper::map($src, $tgt, $map, skipNull: true, reindexWildcard: true);
 
 var_export($res);
-echo "\n";
+echo PHP_EOL;

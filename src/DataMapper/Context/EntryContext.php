@@ -36,6 +36,4 @@ final class EntryContext implements HookContext
     {
         return null;
     }
-
-
 }

@@ -6,9 +6,9 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 use Illuminate\Database\Eloquent\Model;
 
-describe('DataMapper', function (): void {
-    describe('Simple mapping', function (): void {
-        test('maps nested key to deep target (example)', function (): void {
+describe('DataMapper', function(): void {
+    describe('Simple mapping', function(): void {
+        test('maps nested key to deep target (example)', function(): void {
             $source = [
                 'key1' => [
                     'subkey3' => 'Hello World',
@@ -32,7 +32,7 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('maps multiple simple fields', function (): void {
+        test('maps multiple simple fields', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -57,7 +57,7 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('supports wildcards in source and target', function (): void {
+        test('supports wildcards in source and target', function(): void {
             $source = [
                 'users' => [
                     [
@@ -83,7 +83,7 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('root level numeric keys mapping', function (): void {
+        test('root level numeric keys mapping', function(): void {
             $source = ['Alice', 'Bob', 'Charlie'];
             $target = [];
             $mapping = [
@@ -101,7 +101,7 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('mixed key types in source paths', function (): void {
+        test('mixed key types in source paths', function(): void {
             $source = [
                 'string_key' => 'value1',
                 0 => 'value2',
@@ -128,15 +128,13 @@ describe('DataMapper', function (): void {
         });
     });
 
-    describe('Structured mapping (source/target entries)', function (): void {
-        test('maps model and array into shared DTO using source/target mappings', function (): void {
-            $userModel = new class extends Model {
-                /** @var array<string, mixed> */
-                protected $attributes = [
-                    'name' => 'Alice',
-                    'email' => 'alice@example.com',
-                ];
-            };
+    describe('Structured mapping (source/target entries)', function(): void {
+        test('maps model and array into shared DTO using source/target mappings', function(): void {
+            $userModel = new class extends Model {};
+            $userModel->setRawAttributes([
+                'name' => 'Alice',
+                'email' => 'alice@example.com',
+            ]);
             $address = [
                 'street' => 'Main Street 1',
                 'zip' => '10115',
@@ -174,14 +172,12 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('mapMany returns array of results for each mapping', function (): void {
-            $userModel = new class extends Model {
-                /** @var array<string, mixed> */
-                protected $attributes = [
-                    'name' => 'Alice',
-                    'email' => 'alice@example.com',
-                ];
-            };
+        test('mapMany returns array of results for each mapping', function(): void {
+            $userModel = new class extends Model {};
+            $userModel->setRawAttributes([
+                'name' => 'Alice',
+                'email' => 'alice@example.com',
+            ]);
             $resultDTO = [];
 
             $results = DataMapper::mapMany([
@@ -204,14 +200,12 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('mapMany respects global skipNull=false and per-entry override', function (): void {
-            $userModel = new class extends Model {
-                /** @var array<string, mixed> */
-                protected $attributes = [
-                    'name' => 'Alice',
-                    'email' => null,
-                ];
-            };
+        test('mapMany respects global skipNull=false and per-entry override', function(): void {
+            $userModel = new class extends Model {};
+            $userModel->setRawAttributes([
+                'name' => 'Alice',
+                'email' => null,
+            ]);
 
             // Global skipNull=false => null included
             $results = DataMapper::mapMany([
@@ -252,8 +246,8 @@ describe('DataMapper', function (): void {
         });
     });
 
-    describe('New capabilities', function (): void {
-        test('structured mapping supports associative mapping pairs', function (): void {
+    describe('New capabilities', function(): void {
+        test('structured mapping supports associative mapping pairs', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -285,7 +279,7 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('structured mapping supports list of [src, dst] pairs', function (): void {
+        test('structured mapping supports list of [src, dst] pairs', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -317,7 +311,7 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('skips null values by default - simple mapping', function (): void {
+        test('skips null values by default - simple mapping', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => null,
@@ -337,7 +331,7 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('skips null values by default - structured mapping', function (): void {
+        test('skips null values by default - structured mapping', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => null,
@@ -364,7 +358,7 @@ describe('DataMapper', function (): void {
             ]);
         });
 
-        test('throws helpful error for mismatched source/target mapping lengths', function (): void {
+        test('throws helpful error for mismatched source/target mapping lengths', function(): void {
             $structured = [
                 [
                     'source' => [
@@ -381,7 +375,7 @@ describe('DataMapper', function (): void {
                 ->toThrow(InvalidArgumentException::class, 'source=2, target=1');
         });
 
-        test('throws when mapping pair is invalid', function (): void {
+        test('throws when mapping pair is invalid', function(): void {
             $structured = [
                 [
                     'source' => [
@@ -396,7 +390,7 @@ describe('DataMapper', function (): void {
                 ->toThrow(InvalidArgumentException::class, 'Invalid mapping pair');
         });
 
-        test('throws when mapping paths are not strings', function (): void {
+        test('throws when mapping paths are not strings', function(): void {
             $structured = [
                 [
                     'source' => [
@@ -412,7 +406,7 @@ describe('DataMapper', function (): void {
         });
     });
 
-    test('does not skip null when skipNull param is false - simple mapping', function (): void {
+    test('does not skip null when skipNull param is false - simple mapping', function(): void {
         $source = [
             'name' => 'Alice',
             'email' => null,
@@ -433,7 +427,7 @@ describe('DataMapper', function (): void {
         ]);
     });
 
-    test('structured mapping inherits skipNull param=false; can override per entry', function (): void {
+    test('structured mapping inherits skipNull param=false; can override per entry', function(): void {
         $source = [
             'name' => 'Alice',
             'email' => null,
@@ -482,15 +476,13 @@ describe('DataMapper', function (): void {
     });
 });
 
-describe('Template mapping', function (): void {
-    test('builds structure from array template and sources', function (): void {
-        $userModel = new class extends Model {
-            /** @var array<string, mixed> */
-            protected $attributes = [
-                'name' => 'Alice',
-                'email' => 'alice@example.com',
-            ];
-        };
+describe('Template mapping', function(): void {
+    test('builds structure from array template and sources', function(): void {
+        $userModel = new class extends Model {};
+        $userModel->setRawAttributes([
+            'name' => 'Alice',
+            'email' => 'alice@example.com',
+        ]);
         $address = [
             'street' => 'Main Street 1',
             'zip' => '10115',
@@ -526,7 +518,7 @@ describe('Template mapping', function (): void {
         ]);
     });
 
-    test('supports JSON template and wildcard with null skipping', function (): void {
+    test('supports JSON template and wildcard with null skipping', function(): void {
         $sources = [
             'src' => [
                 'users' => [
@@ -557,7 +549,7 @@ describe('Template mapping', function (): void {
         ]);
     });
 
-    test('includes nulls when skipNull=false', function (): void {
+    test('includes nulls when skipNull=false', function(): void {
         $sources = [
             'src' => [
                 'value' => null,
@@ -572,7 +564,7 @@ describe('Template mapping', function (): void {
         ]);
     });
 
-    test('literal values are preserved; unknown alias stays literal', function (): void {
+    test('literal values are preserved; unknown alias stays literal', function(): void {
         $sources = [
             'user' => [
                 'name' => 'Alice',
@@ -592,8 +584,8 @@ describe('Template mapping', function (): void {
     });
 });
 
-describe('Reindexing in map and mapMany', function (): void {
-    test('simple map wildcard preserves gaps by default and reindexes when true', function (): void {
+describe('Reindexing in map and mapMany', function(): void {
+    test('simple map wildcard preserves gaps by default and reindexes when true', function(): void {
         $source = [
             'users' => [
                 [
@@ -626,7 +618,7 @@ describe('Reindexing in map and mapMany', function (): void {
         ]);
     });
 
-    test('mapMany wildcard preserves gaps by default and reindexes when true', function (): void {
+    test('mapMany wildcard preserves gaps by default and reindexes when true', function(): void {
         $source = [
             'users' => [
                 [
@@ -672,8 +664,8 @@ describe('Reindexing in map and mapMany', function (): void {
     });
 });
 
-describe('Structured mapping per-entry reindex override', function (): void {
-    test('entry can enable reindexing when global is false', function (): void {
+describe('Structured mapping per-entry reindex override', function(): void {
+    test('entry can enable reindexing when global is false', function(): void {
         $source = [
             'users' => [
                 [
@@ -704,7 +696,7 @@ describe('Structured mapping per-entry reindex override', function (): void {
         ]);
     });
 
-    test('entry can disable reindexing when global is true', function (): void {
+    test('entry can disable reindexing when global is true', function(): void {
         $source = [
             'users' => [
                 [
@@ -739,7 +731,7 @@ describe('Structured mapping per-entry reindex override', function (): void {
     });
 });
 
-test('JSON template with wildcard can reindex sequentially', function (): void {
+test('JSON template with wildcard can reindex sequentially', function(): void {
     $sources = [
         'src' => [
             'users' => [
@@ -767,8 +759,8 @@ test('JSON template with wildcard can reindex sequentially', function (): void {
     ]);
 });
 
-describe('Inverse template mapping (apply values to targets)', function (): void {
-    test('writes values into DTO and array targets using template aliases', function (): void {
+describe('Inverse template mapping (apply values to targets)', function(): void {
+    test('writes values into DTO and array targets using template aliases', function(): void {
         $userDto = new class {
             /** @var null|string */
             public $name = null;
@@ -807,7 +799,7 @@ describe('Inverse template mapping (apply values to targets)', function (): void
         ]);
     });
 
-    test('wildcard write preserves gaps by default', function (): void {
+    test('wildcard write preserves gaps by default', function(): void {
         $targets = [
             'people' => [],
         ];
@@ -830,7 +822,7 @@ describe('Inverse template mapping (apply values to targets)', function (): void
         ]);
     });
 
-    test('wildcard write can reindex sequentially', function (): void {
+    test('wildcard write can reindex sequentially', function(): void {
         $targets = [
             'people' => [],
         ];
@@ -854,8 +846,8 @@ describe('Inverse template mapping (apply values to targets)', function (): void
     });
 });
 
-describe('Transforms', function (): void {
-    test('structured source/target mappings support transforms by index', function (): void {
+describe('Transforms', function(): void {
+    test('structured source/target mappings support transforms by index', function(): void {
         $source = [
             'name' => 'Alice',
             'email' => 'ALICE@EXAMPLE.COM',
@@ -878,7 +870,7 @@ describe('Transforms', function (): void {
         ]);
     });
 
-    test('structured associative mapping supports transforms keyed by source path', function (): void {
+    test('structured associative mapping supports transforms keyed by source path', function(): void {
         $source = [
             'user' => [
                 'name' => 'Alice',
@@ -909,7 +901,7 @@ describe('Transforms', function (): void {
         ]);
     });
 
-    test('structured list-of-pairs supports transforms aligned by index', function (): void {
+    test('structured list-of-pairs supports transforms aligned by index', function(): void {
         $source = [
             'user' => [
                 'name' => 'Alice',
@@ -937,7 +929,7 @@ describe('Transforms', function (): void {
         ]);
     });
 
-    test('transforms apply to each wildcard element', function (): void {
+    test('transforms apply to each wildcard element', function(): void {
         $source = [
             'users' => [
                 [

@@ -123,7 +123,9 @@ class DataMutator
         }
 
         // Fallback for Arrayable interface
-        if (interface_exists(\Illuminate\Contracts\Support\Arrayable::class) && $target instanceof \Illuminate\Contracts\Support\Arrayable) {
+        if (interface_exists(
+                '\Illuminate\Contracts\Support\Arrayable'
+            ) && $target instanceof \Illuminate\Contracts\Support\Arrayable) {
             $arr = $target->toArray();
             self::setIntoArray($arr, $segments, $value, $merge);
 
@@ -174,7 +176,7 @@ class DataMutator
         }
 
         if (DotPathHelper::isWildcard($segment)) {
-            self::forEachArrayItem($array, function(&$item, int|string $key) use ($segments, $value, $merge): void {
+            self::forEachArrayItem($array, function (&$item, int|string $key) use ($segments, $value, $merge): void {
                 if ([] === $segments) {
                     if ($merge && is_array($item) && is_array($value)) {
                         $item = self::deepMerge($item, $value);
@@ -250,10 +252,10 @@ class DataMutator
             $current = $prop->getValue($object) ?? [];
             if (is_array($current)) {
                 self::setIntoArray($current, $segments, $value, $merge);
-            } elseif ($current instanceof Collection) {
+            } elseif ($current instanceof \Illuminate\Support\Collection) {
                 $arr = $current->all();
                 self::setIntoArray($arr, $segments, $value, $merge);
-                $prop->setValue($object, new Collection($arr));
+                $prop->setValue($object, new \Illuminate\Support\Collection($arr));
 
                 return;
             } elseif (is_object($current)) {
@@ -324,7 +326,9 @@ class DataMutator
 
             // Support for any entity/model type (Eloquent, Doctrine)
             if (EntityHelper::isEntity($target)) {
-                if (class_exists(\Illuminate\Database\Eloquent\Model::class) && $target instanceof \Illuminate\Database\Eloquent\Model) {
+                if (class_exists(
+                        '\Illuminate\Database\Eloquent\Model'
+                    ) && $target instanceof \Illuminate\Database\Eloquent\Model) {
                     self::unsetFromModel($target, $segments);
                 } else {
                     // For Doctrine entities, unset via setAttribute with null
@@ -339,7 +343,9 @@ class DataMutator
             }
 
             // Fallback for Arrayable interface
-            if (interface_exists(\Illuminate\Contracts\Support\Arrayable::class) && $target instanceof \Illuminate\Contracts\Support\Arrayable) {
+            if (interface_exists(
+                    '\Illuminate\Contracts\Support\Arrayable'
+                ) && $target instanceof \Illuminate\Contracts\Support\Arrayable) {
                 $arr = $target->toArray();
                 self::unsetFromArray($arr, $segments);
                 $target = $arr;
@@ -387,15 +393,15 @@ class DataMutator
                 return;
             }
 
-            self::forEachArrayItem($array, function(&$item, int|string $key) use ($segments): void {
+            self::forEachArrayItem($array, function (&$item, int|string $key) use ($segments): void {
                 if (is_array($item)) {
                     self::unsetFromArray($item, $segments);
-                } elseif ($item instanceof Model) {
+                } elseif ($item instanceof \Illuminate\Database\Eloquent\Model) {
                     self::unsetFromModel($item, $segments);
-                } elseif ($item instanceof Collection) {
+                } elseif ($item instanceof \Illuminate\Support\Collection) {
                     $arr = $item->all();
                     self::unsetFromArray($arr, $segments);
-                    $item = new Collection($arr);
+                    $item = new \Illuminate\Support\Collection($arr);
                 } elseif (is_object($item)) {
                     self::unsetFromObject($item, $segments);
                 }
@@ -416,12 +422,12 @@ class DataMutator
 
         if (is_array($array[$segment])) {
             self::unsetFromArray($array[$segment], $segments);
-        } elseif ($array[$segment] instanceof Model) {
+        } elseif ($array[$segment] instanceof \Illuminate\Database\Eloquent\Model) {
             self::unsetFromModel($array[$segment], $segments);
-        } elseif ($array[$segment] instanceof Collection) {
+        } elseif ($array[$segment] instanceof \Illuminate\Support\Collection) {
             $arr = $array[$segment]->all();
             self::unsetFromArray($arr, $segments);
-            $array[$segment] = new Collection($arr);
+            $array[$segment] = new \Illuminate\Support\Collection($arr);
         } elseif (is_object($array[$segment])) {
             self::unsetFromObject($array[$segment], $segments);
         }
@@ -432,7 +438,7 @@ class DataMutator
      *
      * @param array<int, string> $segments
      */
-    private static function unsetFromModel(Model $model, array $segments): void
+    private static function unsetFromModel(\Illuminate\Database\Eloquent\Model $model, array $segments): void
     {
         $segment = array_shift($segments);
         if (null === $segment) {
@@ -453,12 +459,12 @@ class DataMutator
                 if (is_array($value)) {
                     self::unsetFromArray($value, $segments);
                     $model->setAttribute($key, $value);
-                } elseif ($value instanceof Model) {
+                } elseif ($value instanceof \Illuminate\Database\Eloquent\Model) {
                     self::unsetFromModel($value, $segments);
-                } elseif ($value instanceof Collection) {
+                } elseif ($value instanceof \Illuminate\Support\Collection) {
                     $arr = $value->all();
                     self::unsetFromArray($arr, $segments);
-                    $model->setAttribute($key, new Collection($arr));
+                    $model->setAttribute($key, new \Illuminate\Support\Collection($arr));
                 }
             }
 
@@ -475,12 +481,12 @@ class DataMutator
         if (is_array($value)) {
             self::unsetFromArray($value, $segments);
             $model->setAttribute($segment, $value);
-        } elseif ($value instanceof Model) {
+        } elseif ($value instanceof \Illuminate\Database\Eloquent\Model) {
             self::unsetFromModel($value, $segments);
-        } elseif ($value instanceof Collection) {
+        } elseif ($value instanceof \Illuminate\Support\Collection) {
             $arr = $value->all();
             self::unsetFromArray($arr, $segments);
-            $model->setAttribute($segment, new Collection($arr));
+            $model->setAttribute($segment, new \Illuminate\Support\Collection($arr));
         }
     }
 
@@ -491,7 +497,7 @@ class DataMutator
      */
     private static function unsetFromObject(object $object, array $segments): void
     {
-        if ($object instanceof Model) {
+        if ($object instanceof \Illuminate\Database\Eloquent\Model) {
             self::unsetFromModel($object, $segments);
 
             return;
@@ -522,11 +528,11 @@ class DataMutator
         if (is_array($current)) {
             self::unsetFromArray($current, $segments);
             $prop->setValue($object, $current);
-        } elseif ($current instanceof Collection) {
+        } elseif ($current instanceof \Illuminate\Support\Collection) {
             $arr = $current->all();
             self::unsetFromArray($arr, $segments);
-            $prop->setValue($object, new Collection($arr));
-        } elseif ($current instanceof Model) {
+            $prop->setValue($object, new \Illuminate\Support\Collection($arr));
+        } elseif ($current instanceof \Illuminate\Database\Eloquent\Model) {
             self::unsetFromModel($current, $segments);
         } elseif (is_object($current)) {
             self::unsetFromObject($current, $segments);

@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
-use event4u\DataHelpers\Enums\Mode;
 use event4u\DataHelpers\DataMapper\Hooks;
+use event4u\DataHelpers\Enums\DataMapperHook;
+use event4u\DataHelpers\Enums\Mode;
 
 /**
  * @internal
  */
-describe('DataMapper Hooks Builder', function (): void {
-    test('fluent convenience methods onForSrc/onForTgt/onForMode work and integrate', function (): void {
+describe('DataMapper Hooks Builder', function(): void {
+    test('fluent convenience methods onForSrc/onForTgt/onForMode work and integrate', function(): void {
         $src = [
             'user' => [
                 'name' => ' Alice ',
@@ -25,7 +25,7 @@ describe('DataMapper Hooks Builder', function (): void {
         $beforeAllCount = 0;
 
         $hooks = Hooks::make()
-            ->onForMode(DataMapperHook::BeforeAll, 'simple', function (AllContext $ctx) use (&$beforeAllCount): null {
+            ->onForMode(DataMapperHook::BeforeAll, 'simple', function(AllContext $ctx) use (&$beforeAllCount): null {
                 $beforeAllCount++;
 
                 return null;
@@ -42,7 +42,7 @@ describe('DataMapper Hooks Builder', function (): void {
         expect($beforeAllCount)->toBe(1)
             ->and($res)->not()->toHaveKey('profile');
     });
-    test('build() accepts list-of-pairs with enum names and normalizes', function (): void {
+    test('build() accepts list-of-pairs with enum names and normalizes', function(): void {
         $hooks = Hooks::build([
             [
                 DataMapperHook::BeforeAll,
@@ -66,7 +66,7 @@ describe('DataMapper Hooks Builder', function (): void {
         expect(array_key_exists('src:user.*', $hooks['beforePair']))->toBeTrue();
     });
 
-    test('merge() merges shallowly and later overrides earlier', function (): void {
+    test('merge() merges shallowly and later overrides earlier', function(): void {
         $a = Hooks::build([
             [
                 DataMapperHook::PreTransform,
@@ -94,7 +94,7 @@ describe('DataMapper Hooks Builder', function (): void {
             ->and($merged['beforeWrite'])->toBeCallable();
     });
 
-    test('fluent make()/on()/onMany()/mergeIn()/toArray()', function (): void {
+    test('fluent make()/on()/onMany()/mergeIn()/toArray()', function(): void {
         $builder = Hooks::make()
             ->on(DataMapperHook::BeforeAll, fn(AllContext $ctx): null => null)
             ->onMany([
@@ -128,7 +128,7 @@ describe('DataMapper Hooks Builder', function (): void {
             ->toHaveKey('afterWrite');
     });
 
-    test('integration: DataMapper::map works with hooks built by builder', function (): void {
+    test('integration: DataMapper::map works with hooks built by builder', function(): void {
         $src = [
             'user' => [
                 'name' => '  alice  ',
@@ -152,7 +152,7 @@ describe('DataMapper Hooks Builder', function (): void {
             ->toHaveKey('name')
             ->and($res['profile']['name'])->toBe('alice');
     });
-    test('onForModeEnum works with Mode enum', function (): void {
+    test('onForModeEnum works with Mode enum', function(): void {
         $src = [
             'a' => 1,
         ];
@@ -160,7 +160,7 @@ describe('DataMapper Hooks Builder', function (): void {
 
         $count = 0;
         $hooks = Hooks::make()
-            ->onForModeEnum(DataMapperHook::BeforeAll, Mode::Simple, function (AllContext $ctx) use (&$count): null {
+            ->onForModeEnum(DataMapperHook::BeforeAll, Mode::Simple, function(AllContext $ctx) use (&$count): null {
                 $count++;
 
                 return null;
@@ -173,7 +173,7 @@ describe('DataMapper Hooks Builder', function (): void {
         expect($count)->toBe(1);
     });
 
-    test('onForPrefix filters by either src or tgt path without double invocation', function (): void {
+    test('onForPrefix filters by either src or tgt path without double invocation', function(): void {
         $src = [
             'users' => [
                 [
@@ -188,7 +188,7 @@ describe('DataMapper Hooks Builder', function (): void {
 
         $calls = 0;
         $hooks = Hooks::make()
-            ->onForPrefix(DataMapperHook::PostTransform, 'users.*.email', function ($v) use (&$calls) {
+            ->onForPrefix(DataMapperHook::PostTransform, 'users.*.email', function($v) use (&$calls) {
                 $calls++;
 
                 return strtoupper((string)$v);
@@ -204,7 +204,7 @@ describe('DataMapper Hooks Builder', function (): void {
             ->and($res['dest']['mails'])->toEqual(['A@EXAMPLE.COM', 'B@EXAMPLE.COM']);
     });
 
-    test('onForPrefix can target tgt path (beforeWrite)', function (): void {
+    test('onForPrefix can target tgt path (beforeWrite)', function(): void {
         $src = [
             'user' => [
                 'name' => 'Alice',

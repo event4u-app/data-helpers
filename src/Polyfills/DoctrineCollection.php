@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace Doctrine\Common\Collections;
 
-if (!interface_exists(\Doctrine\Common\Collections\Collection::class)) {
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+use Traversable;
+
+if (!interface_exists(Collection::class)) {
     /**
      * Polyfill for Doctrine Collection interface when doctrine/collections is not installed.
      *
      * @template TKey of array-key
      * @template T
      */
-    interface Collection extends \Countable, \IteratorAggregate, \ArrayAccess
+    interface Collection extends Countable, IteratorAggregate, ArrayAccess
     {
         /**
          * Gets all elements.
@@ -23,21 +29,21 @@ if (!interface_exists(\Doctrine\Common\Collections\Collection::class)) {
         /**
          * Checks whether the collection contains an element with the specified key/index.
          *
-         * @param string|int $key
+         * @param int|string $key
          */
         public function containsKey(mixed $key): bool;
 
         /**
          * Gets the element at the specified key/index.
          *
-         * @param string|int $key
-         * @return T|null
+         * @param int|string $key
+         * @return null|T
          */
         public function get(mixed $key): mixed;
     }
 }
 
-if (!class_exists(\Doctrine\Common\Collections\ArrayCollection::class)) {
+if (!class_exists(ArrayCollection::class)) {
     /**
      * Polyfill for Doctrine ArrayCollection when doctrine/collections is not installed.
      * Provides minimal functionality needed by laravel-data-helpers.
@@ -48,20 +54,12 @@ if (!class_exists(\Doctrine\Common\Collections\ArrayCollection::class)) {
      */
     class ArrayCollection implements Collection
     {
-        /** @var array<TKey, T> */
-        private array $elements;
+        /** @param array<TKey, T> $elements */
+        public function __construct(
+            private array $elements = []
+        ) {}
 
-        /**
-         * @param array<TKey, T> $elements
-         */
-        public function __construct(array $elements = [])
-        {
-            $this->elements = $elements;
-        }
-
-        /**
-         * @return array<TKey, T>
-         */
+        /** @return array<TKey, T> */
         public function toArray(): array
         {
             return $this->elements;
@@ -84,9 +82,9 @@ if (!class_exists(\Doctrine\Common\Collections\ArrayCollection::class)) {
         }
 
         // IteratorAggregate
-        public function getIterator(): \Traversable
+        public function getIterator(): Traversable
         {
-            return new \ArrayIterator($this->elements);
+            return new ArrayIterator($this->elements);
         }
 
         // ArrayAccess
@@ -115,4 +113,3 @@ if (!class_exists(\Doctrine\Common\Collections\ArrayCollection::class)) {
         }
     }
 }
-

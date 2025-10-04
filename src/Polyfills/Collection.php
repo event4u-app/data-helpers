@@ -4,19 +4,23 @@ declare(strict_types=1);
 
 namespace Illuminate\Support;
 
-if (!class_exists(\Illuminate\Support\Collection::class)) {
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+use Traversable;
+
+if (!class_exists(Collection::class)) {
     /**
      * Polyfill for Laravel Collection when illuminate/support is not installed.
      * Provides minimal functionality needed by laravel-data-helpers.
      */
-    class Collection implements \ArrayAccess, \Countable, \IteratorAggregate
+    class Collection implements ArrayAccess, Countable, IteratorAggregate
     {
         /** @var array<int|string, mixed> */
         protected array $items = [];
 
-        /**
-         * @param array<int|string, mixed> $items
-         */
+        /** @param array<int|string, mixed> $items */
         public function __construct(array $items = [])
         {
             $this->items = $items;
@@ -32,18 +36,14 @@ if (!class_exists(\Illuminate\Support\Collection::class)) {
             return $this->items;
         }
 
-        /**
-         * Check if key exists.
-         */
-        public function has(string|int $key): bool
+        /** Check if key exists. */
+        public function has(int|string $key): bool
         {
             return array_key_exists($key, $this->items);
         }
 
-        /**
-         * Get item by key.
-         */
-        public function get(string|int $key, mixed $default = null): mixed
+        /** Get item by key. */
+        public function get(int|string $key, mixed $default = null): mixed
         {
             return $this->items[$key] ?? $default;
         }
@@ -90,10 +90,9 @@ if (!class_exists(\Illuminate\Support\Collection::class)) {
         }
 
         // IteratorAggregate implementation
-        public function getIterator(): \Traversable
+        public function getIterator(): Traversable
         {
-            return new \ArrayIterator($this->items);
+            return new ArrayIterator($this->items);
         }
     }
 }
-

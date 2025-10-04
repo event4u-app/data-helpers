@@ -12,12 +12,10 @@ use ReflectionProperty;
  */
 class EntityHelper
 {
-    /**
-     * Check if value is a Laravel Eloquent Model.
-     */
+    /** Check if value is a Laravel Eloquent Model. */
     public static function isEloquentModel(mixed $value): bool
     {
-        return class_exists(\Illuminate\Database\Eloquent\Model::class)
+        return class_exists('\Illuminate\Database\Eloquent\Model')
             && $value instanceof \Illuminate\Database\Eloquent\Model;
     }
 
@@ -37,8 +35,8 @@ class EntityHelper
 
         foreach ($attributes as $attribute) {
             $name = $attribute->getName();
-            if (str_contains($name, 'Doctrine\\ORM\\Mapping\\Entity') ||
-                str_contains($name, 'Doctrine\\ODM\\')) {
+            if (str_contains($name, 'Doctrine\ORM\Mapping\Entity')
+                || str_contains($name, 'Doctrine\ODM\\')) {
                 return true;
             }
         }
@@ -55,9 +53,7 @@ class EntityHelper
         return false;
     }
 
-    /**
-     * Check if value is any supported entity/model type.
-     */
+    /** Check if value is any supported entity/model type. */
     public static function isEntity(mixed $value): bool
     {
         return self::isEloquentModel($value) || self::isDoctrineEntity($value);
@@ -99,10 +95,8 @@ class EntityHelper
         return [];
     }
 
-    /**
-     * Check if entity has an attribute/property.
-     */
-    public static function hasAttribute(mixed $entity, string|int $key): bool
+    /** Check if entity has an attribute/property. */
+    public static function hasAttribute(mixed $entity, int|string $key): bool
     {
         if (self::isEloquentModel($entity)) {
             return $entity->offsetExists($key);
@@ -115,15 +109,14 @@ class EntityHelper
             }
 
             $reflection = new ReflectionClass($entity);
+
             return $reflection->hasProperty((string)$key);
         }
 
         return false;
     }
 
-    /**
-     * Get attribute/property value from entity.
-     */
+    /** Get attribute/property value from entity. */
     public static function getAttribute(mixed $entity, string $key): mixed
     {
         if (self::isEloquentModel($entity)) {
@@ -134,7 +127,7 @@ class EntityHelper
             // Try getter method first
             $getter = 'get' . ucfirst($key);
             if (method_exists($entity, $getter)) {
-                return $entity->$getter();
+                return $entity->{$getter}();
             }
 
             // Try direct property access
@@ -142,6 +135,7 @@ class EntityHelper
             if ($reflection->hasProperty($key)) {
                 $property = $reflection->getProperty($key);
                 $property->setAccessible(true);
+
                 return $property->getValue($entity);
             }
         }
@@ -149,13 +143,12 @@ class EntityHelper
         return null;
     }
 
-    /**
-     * Set attribute/property value on entity.
-     */
+    /** Set attribute/property value on entity. */
     public static function setAttribute(mixed $entity, string $key, mixed $value): void
     {
         if (self::isEloquentModel($entity)) {
             $entity->setAttribute($key, $value);
+
             return;
         }
 
@@ -163,7 +156,8 @@ class EntityHelper
             // Try setter method first
             $setter = 'set' . ucfirst($key);
             if (method_exists($entity, $setter)) {
-                $entity->$setter($value);
+                $entity->{$setter}($value);
+
                 return;
             }
 
@@ -177,13 +171,12 @@ class EntityHelper
         }
     }
 
-    /**
-     * Unset attribute/property from entity.
-     */
-    public static function unsetAttribute(mixed $entity, string|int $key): void
+    /** Unset attribute/property from entity. */
+    public static function unsetAttribute(mixed $entity, int|string $key): void
     {
         if (self::isEloquentModel($entity)) {
             $entity->offsetUnset($key);
+
             return;
         }
 
@@ -191,7 +184,8 @@ class EntityHelper
             // Try setter with null
             $setter = 'set' . ucfirst((string)$key);
             if (method_exists($entity, $setter)) {
-                $entity->$setter(null);
+                $entity->{$setter}(null);
+
                 return;
             }
 
@@ -237,4 +231,3 @@ class EntityHelper
         return $result;
     }
 }
-

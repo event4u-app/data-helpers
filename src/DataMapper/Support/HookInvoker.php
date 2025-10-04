@@ -203,10 +203,7 @@ class HookInvoker
         return $target;
     }
 
-
-    /**
-     * Simple prefix matcher supporting optional trailing '*' wildcard.
-     */
+    /** Simple prefix matcher supporting optional trailing '*' wildcard. */
     public static function matchPrefixPattern(string $value, string $pattern): bool
     {
         if ('*' === $pattern) {
@@ -230,17 +227,13 @@ class HookInvoker
         return $callback($context);
     }
 
-    /**
-     * Invoke a value-transforming callback with automatic context conversion.
-     */
+    /** Invoke a value-transforming callback with automatic context conversion. */
     private static function invokeValueCallback(callable $callback, mixed $value, HookContext $context): mixed
     {
         return $callback($value, $context);
     }
 
-    /**
-     * Invoke a target-mutating callback with automatic context conversion.
-     */
+    /** Invoke a target-mutating callback with automatic context conversion. */
     private static function invokeTargetCallback(
         callable $callback,
         mixed $target,
@@ -249,6 +242,4 @@ class HookInvoker
     ): mixed {
         return $callback($target, $context, $writtenValue);
     }
-
 }
-

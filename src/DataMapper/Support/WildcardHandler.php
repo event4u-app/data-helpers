@@ -23,14 +23,9 @@ class WildcardHandler
         // This avoids collisions when multiple wildcards are used in a single path
         // (e.g., departments.*.users.*.email), where collapsing to a single numeric
         // index would overwrite values.
-        foreach ($array as $key => $_) {
+        foreach (array_keys($array) as $key) {
             if (is_string($key) && str_contains($key, '.')) {
-                $list = [];
-                foreach ($array as $value) {
-                    $list[] = $value;
-                }
-
-                return $list;
+                return $array;
             }
         }
 
@@ -56,7 +51,7 @@ class WildcardHandler
         foreach ($items as $originalIndex => $value) {
             // Skip null values if requested
             if ($skipNull && null === $value) {
-                if ($onSkip) {
+                if (null !== $onSkip) {
                     $onSkip($originalIndex, 'null');
                 }
 
@@ -66,7 +61,7 @@ class WildcardHandler
             // Invoke the item callback; if it returns false, skip this item
             $accepted = $onItem($reindex ? $nextIndex : $originalIndex, $value);
             if (!$accepted) {
-                if ($onSkip) {
+                if (null !== $onSkip) {
                     $onSkip($originalIndex, 'skip');
                 }
 
@@ -80,4 +75,3 @@ class WildcardHandler
         }
     }
 }
-

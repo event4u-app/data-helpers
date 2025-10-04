@@ -36,6 +36,4 @@ final class AllContext implements HookContext
     {
         return null;
     }
-
-
 }

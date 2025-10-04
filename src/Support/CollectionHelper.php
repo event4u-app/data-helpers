@@ -9,27 +9,21 @@ namespace event4u\DataHelpers\Support;
  */
 class CollectionHelper
 {
-    /**
-     * Check if value is a Laravel Collection.
-     */
+    /** Check if value is a Laravel Collection. */
     public static function isLaravelCollection(mixed $value): bool
     {
-        return class_exists(\Illuminate\Support\Collection::class)
+        return class_exists('\Illuminate\Support\Collection')
             && $value instanceof \Illuminate\Support\Collection;
     }
 
-    /**
-     * Check if value is a Doctrine Collection.
-     */
+    /** Check if value is a Doctrine Collection. */
     public static function isDoctrineCollection(mixed $value): bool
     {
-        return interface_exists(\Doctrine\Common\Collections\Collection::class)
+        return interface_exists('\Doctrine\Common\Collections\Collection')
             && $value instanceof \Doctrine\Common\Collections\Collection;
     }
 
-    /**
-     * Check if value is any supported collection type.
-     */
+    /** Check if value is any supported collection type. */
     public static function isCollection(mixed $value): bool
     {
         return self::isLaravelCollection($value) || self::isDoctrineCollection($value);
@@ -53,10 +47,8 @@ class CollectionHelper
         return [];
     }
 
-    /**
-     * Check if collection has a key.
-     */
-    public static function has(mixed $collection, string|int $key): bool
+    /** Check if collection has a key. */
+    public static function has(mixed $collection, int|string $key): bool
     {
         if (self::isLaravelCollection($collection)) {
             return $collection->has($key);
@@ -69,10 +61,8 @@ class CollectionHelper
         return false;
     }
 
-    /**
-     * Get value from collection by key.
-     */
-    public static function get(mixed $collection, string|int $key, mixed $default = null): mixed
+    /** Get value from collection by key. */
+    public static function get(mixed $collection, int|string $key, mixed $default = null): mixed
     {
         if (self::isLaravelCollection($collection)) {
             return $collection->get($key, $default);
@@ -80,6 +70,7 @@ class CollectionHelper
 
         if (self::isDoctrineCollection($collection)) {
             $value = $collection->get($key);
+
             return $value ?? $default;
         }
 
@@ -93,11 +84,11 @@ class CollectionHelper
      */
     public static function fromArray(array $data): mixed
     {
-        if (class_exists(\Illuminate\Support\Collection::class)) {
+        if (class_exists('\Illuminate\Support\Collection')) {
             return new \Illuminate\Support\Collection($data);
         }
 
-        if (class_exists(\Doctrine\Common\Collections\ArrayCollection::class)) {
+        if (class_exists('\Doctrine\Common\Collections\ArrayCollection')) {
             return new \Doctrine\Common\Collections\ArrayCollection($data);
         }
 
@@ -123,4 +114,3 @@ class CollectionHelper
         return $data;
     }
 }
-

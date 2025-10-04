@@ -9,7 +9,6 @@ use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMutator;
-use InvalidArgumentException;
 
 /**
  * Core mapping engine that handles the actual mapping logic.
@@ -29,7 +28,7 @@ class MappingEngine
             }
         }
 
-        return !empty($mapping);
+        return [] !== $mapping;
     }
 
     /**
@@ -46,9 +45,7 @@ class MappingEngine
         return $candidate;
     }
 
-    /**
-     * Process simple mapping (associative array of source => target paths).
-     */
+    /** Process simple mapping (associative array of source => target paths). */
     public static function processSimpleMapping(
         mixed $source,
         mixed $target,
@@ -132,9 +129,7 @@ class MappingEngine
         return $target;
     }
 
-    /**
-     * Process wildcard mapping (source path contains *).
-     */
+    /** Process wildcard mapping (source path contains *). */
     private static function processWildcardMapping(
         array $value,
         mixed $target,
@@ -167,12 +162,12 @@ class MappingEngine
             ): bool {
                 $pairContext->wildcardIndex = $wildcardIndex;
                 $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
-                $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, (string)$targetPath, 1);
+                $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, $targetPath, 1);
                 $writeContext = new WriteContext(
                     'simple',
                     $mappingIndex,
-                    (string)$sourcePath,
-                    (string)$targetPath,
+                    $sourcePath,
+                    $targetPath,
                     $source,
                     $target,
                     (string)$resolvedTargetPath,
@@ -196,9 +191,7 @@ class MappingEngine
         return $target;
     }
 
-    /**
-     * Process single (non-wildcard) mapping.
-     */
+    /** Process single (non-wildcard) mapping. */
     private static function processSingleMapping(
         mixed $value,
         mixed $target,
@@ -213,15 +206,15 @@ class MappingEngine
         $writeContext = new WriteContext(
             'simple',
             $mappingIndex,
-            (string)$sourcePath,
-            (string)$targetPath,
+            $sourcePath,
+            $targetPath,
             $source,
             $target,
-            (string)$targetPath
+            $targetPath
         );
         $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
         if ('__skip__' !== $writeValue) {
-            $target = DataMutator::set(self::asTarget($target), (string)$targetPath, $writeValue);
+            $target = DataMutator::set(self::asTarget($target), $targetPath, $writeValue);
             $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
         }
 
@@ -245,8 +238,8 @@ class MappingEngine
      * @param mixed $target The target to write to (passed by reference)
      * @param array $hooks Hook configuration
      * @param PairContext $pairContext Context for hooks
-     * @param callable|null $transformFn Optional transformation function
-     * @param array<int|string, mixed>|null $replaceMap Optional replacement map
+     * @param null|callable $transformFn Optional transformation function
+     * @param null|array<int|string, mixed> $replaceMap Optional replacement map
      * @param bool $trimValues Whether to trim string values
      * @param bool $caseInsensitiveReplace Whether replacement is case-insensitive
      * @param string $mode Mapping mode ('simple' or 'structured')
@@ -367,8 +360,8 @@ class MappingEngine
      * @param mixed $target The target to write to (passed by reference)
      * @param array $hooks Hook configuration
      * @param PairContext $pairContext Context for hooks
-     * @param callable|null $transformFn Optional transformation function
-     * @param array<int|string, mixed>|null $replaceMap Optional replacement map
+     * @param null|callable $transformFn Optional transformation function
+     * @param null|array<int|string, mixed> $replaceMap Optional replacement map
      * @param bool $trimValues Whether to trim string values
      * @param bool $caseInsensitiveReplace Whether replacement is case-insensitive
      * @param string $mode Mapping mode ('simple' or 'structured')
@@ -442,4 +435,3 @@ class MappingEngine
         return true;
     }
 }
-
