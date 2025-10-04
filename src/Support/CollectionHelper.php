@@ -113,4 +113,48 @@ class CollectionHelper
 
         return $data;
     }
+
+    /**
+     * Set value into collection by converting to array, modifying, and converting back.
+     *
+     * @param array<int, string> $segments
+     * @param callable(array<int|string, mixed> $array, array<int, string> $segments, mixed $value, bool $merge): void $setCallback
+     */
+    public static function setIntoCollection(
+        mixed $collection,
+        array $segments,
+        mixed $value,
+        bool $merge,
+        callable $setCallback,
+    ): mixed {
+        if (!self::isCollection($collection)) {
+            return $collection;
+        }
+
+        $arr = self::toArray($collection);
+        $setCallback($arr, $segments, $value, $merge);
+
+        return self::fromArrayWithType($arr, $collection);
+    }
+
+    /**
+     * Unset value from collection by converting to array, modifying, and converting back.
+     *
+     * @param array<int, string> $segments
+     * @param callable(array<int|string, mixed> $array, array<int, string> $segments): void $unsetCallback
+     */
+    public static function unsetFromCollection(
+        mixed $collection,
+        array $segments,
+        callable $unsetCallback,
+    ): mixed {
+        if (!self::isCollection($collection)) {
+            return $collection;
+        }
+
+        $arr = self::toArray($collection);
+        $unsetCallback($arr, $segments);
+
+        return self::fromArrayWithType($arr, $collection);
+    }
 }

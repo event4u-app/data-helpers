@@ -134,7 +134,6 @@ class EntityHelper
             $reflection = new ReflectionClass($entity);
             if ($reflection->hasProperty($key)) {
                 $property = $reflection->getProperty($key);
-                $property->setAccessible(true);
 
                 return $property->getValue($entity);
             }
@@ -165,7 +164,6 @@ class EntityHelper
             $reflection = new ReflectionClass($entity);
             if ($reflection->hasProperty($key)) {
                 $property = $reflection->getProperty($key);
-                $property->setAccessible(true);
                 $property->setValue($entity, $value);
             }
         }
@@ -193,9 +191,95 @@ class EntityHelper
             $reflection = new ReflectionClass($entity);
             if ($reflection->hasProperty((string)$key)) {
                 $property = $reflection->getProperty((string)$key);
-                $property->setAccessible(true);
                 $property->setValue($entity, null);
             }
+        }
+    }
+
+    /**
+     * Unset all attributes from entity (for wildcard unset).
+     *
+     * @param array<int, string> $segments
+     */
+    public static function unsetFromEntity(mixed $entity, array $segments): void
+    {
+        if (!self::isEntity($entity)) {
+            return;
+        }
+
+        if (self::isEloquentModel($entity)) {
+            self::unsetFromEloquentModel($entity, $segments);
+
+            return;
+        }
+
+        // For Doctrine entities, unset via setAttribute with null
+        foreach ($segments as $segment) {
+            if ('*' !== $segment) {
+                self::unsetAttribute($entity, $segment);
+            }
+        }
+    }
+
+    /**
+     * Recursively unset from Eloquent models.
+     *
+     * @param array<int, string> $segments
+     */
+    private static function unsetFromEloquentModel(mixed $model, array $segments): void
+    {
+        if (!self::isEloquentModel($model)) {
+            return;
+        }
+
+        $segment = array_shift($segments);
+        if (null === $segment) {
+            return;
+        }
+
+        if ('*' === $segment) {
+            $attributes = $model->getAttributes();
+            if ([] === $segments) {
+                foreach (array_keys($attributes) as $key) {
+                    $model->offsetUnset($key);
+                }
+
+                return;
+            }
+
+            foreach ($attributes as $value) {
+                if (is_array($value)) {
+                    // Handle nested arrays
+                    continue;
+                }
+                if (self::isEloquentModel($value)) {
+                    self::unsetFromEloquentModel($value, $segments);
+                } elseif (CollectionHelper::isLaravelCollection($value)) {
+                    // Handle nested collections
+                    continue;
+                }
+            }
+
+            return;
+        }
+
+        if ([] === $segments) {
+            $model->offsetUnset($segment);
+
+            return;
+        }
+
+        $value = $model->getAttribute($segment);
+        if (is_array($value)) {
+            // Handle nested arrays
+            return;
+        }
+
+        if (self::isEloquentModel($value)) {
+            self::unsetFromEloquentModel($value, $segments);
+        } elseif (CollectionHelper::isLaravelCollection($value)) {
+            // Handle nested collections
+            return;
         }
     }
 
@@ -213,7 +297,6 @@ class EntityHelper
         $properties = $reflection->getProperties();
 
         foreach ($properties as $property) {
-            $property->setAccessible(true);
             $name = $property->getName();
             $value = $property->getValue($entity);
 

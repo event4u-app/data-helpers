@@ -7,7 +7,7 @@ namespace event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\Enums\DataMapperHook;
-use Illuminate\Contracts\Support\Arrayable;
+use event4u\DataHelpers\Support\ArrayableHelper;
 use JsonSerializable;
 use ReflectionClass;
 use ReflectionProperty;
@@ -123,8 +123,8 @@ class AutoMapper
             return $data;
         }
 
-        if ($data instanceof Arrayable) {
-            return $data->toArray();
+        if (ArrayableHelper::isArrayable($data)) {
+            return ArrayableHelper::toArray($data);
         }
 
         if ($data instanceof JsonSerializable) {
@@ -220,8 +220,8 @@ class AutoMapper
         }
 
         // Convert to array-like structure
-        if ($data instanceof Arrayable) {
-            $data = $data->toArray();
+        if (ArrayableHelper::isArrayable($data)) {
+            $data = ArrayableHelper::toArray($data);
         } elseif ($data instanceof JsonSerializable) {
             $data = $data->jsonSerialize();
         } elseif (is_object($data)) {

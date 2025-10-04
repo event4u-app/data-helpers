@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
+use event4u\DataHelpers\Support\ArrayableHelper;
 use event4u\DataHelpers\Support\CollectionHelper;
 use event4u\DataHelpers\Support\EntityHelper;
 use JsonSerializable;
@@ -62,9 +63,9 @@ class DataAccessor
             return;
         }
 
-        // Fallback for Arrayable interface (not covered by helpers)
-        if (interface_exists('\Illuminate\Contracts\Support\Arrayable') && $input instanceof \Illuminate\Contracts\Support\Arrayable) {
-            $this->data = $input->toArray();
+        // Fallback for Arrayable interface
+        if (ArrayableHelper::isArrayable($input)) {
+            $this->data = ArrayableHelper::toArray($input);
 
             return;
         }
