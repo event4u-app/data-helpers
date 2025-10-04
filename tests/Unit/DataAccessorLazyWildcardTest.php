@@ -6,8 +6,8 @@ namespace Tests\Unit;
 
 use event4u\DataHelpers\DataAccessor;
 
-describe('DataAccessor Lazy Wildcard Expansion', function (): void {
-    it('uses fast path for non-wildcard access', function (): void {
+describe('DataAccessor Lazy Wildcard Expansion', function(): void {
+    it('uses fast path for non-wildcard access', function(): void {
         $data = [
             'user' => [
                 'profile' => [
@@ -29,7 +29,7 @@ describe('DataAccessor Lazy Wildcard Expansion', function (): void {
         expect($accessor->get('user.profile.address.city'))->toBe('Berlin');
     });
 
-    it('uses wildcard path for wildcard access', function (): void {
+    it('uses wildcard path for wildcard access', function(): void {
         $data = [
             'users' => [
                 ['name' => 'Alice', 'age' => 30],
@@ -47,12 +47,12 @@ describe('DataAccessor Lazy Wildcard Expansion', function (): void {
         ]);
     });
 
-    it('performance: non-wildcard paths are faster', function (): void {
+    it('performance: non-wildcard paths are faster', function(): void {
         $data = [];
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; 100 > $i; $i++) {
             $data['items'][$i] = [
                 'id' => $i,
-                'name' => "Item $i",
+                'name' => 'Item ' . $i,
                 'value' => $i * 10,
             ];
         }
@@ -61,8 +61,8 @@ describe('DataAccessor Lazy Wildcard Expansion', function (): void {
 
         // Measure non-wildcard access (should be fast)
         $start1 = microtime(true);
-        for ($i = 0; $i < 100; $i++) {
-            $accessor->get("items.$i.name");
+        for ($i = 0; 100 > $i; $i++) {
+            $accessor->get(sprintf('items.%d.name', $i));
         }
         $time1 = microtime(true) - $start1;
 
@@ -80,7 +80,7 @@ describe('DataAccessor Lazy Wildcard Expansion', function (): void {
         expect($time2)->toBeGreaterThan(0);
     });
 
-    it('handles nested non-wildcard paths efficiently', function (): void {
+    it('handles nested non-wildcard paths efficiently', function(): void {
         $data = [
             'company' => [
                 'departments' => [
@@ -103,7 +103,7 @@ describe('DataAccessor Lazy Wildcard Expansion', function (): void {
         expect($accessor->get('company.departments.engineering.teams.backend.members'))->toBe(10);
     });
 
-    it('returns null for non-existent non-wildcard paths', function (): void {
+    it('returns null for non-existent non-wildcard paths', function(): void {
         $data = ['user' => ['name' => 'Alice']];
         $accessor = new DataAccessor($data);
 
@@ -112,7 +112,7 @@ describe('DataAccessor Lazy Wildcard Expansion', function (): void {
         expect($accessor->get('nonexistent.path'))->toBeNull();
     });
 
-    it('returns default for non-existent non-wildcard paths', function (): void {
+    it('returns default for non-existent non-wildcard paths', function(): void {
         $data = ['user' => ['name' => 'Alice']];
         $accessor = new DataAccessor($data);
 
@@ -120,7 +120,7 @@ describe('DataAccessor Lazy Wildcard Expansion', function (): void {
         expect($accessor->get('user.age', 0))->toBe(0);
     });
 
-    it('handles mixed wildcard and non-wildcard access', function (): void {
+    it('handles mixed wildcard and non-wildcard access', function(): void {
         $data = [
             'users' => [
                 ['name' => 'Alice', 'email' => 'alice@example.com'],
@@ -140,7 +140,7 @@ describe('DataAccessor Lazy Wildcard Expansion', function (): void {
         expect($names)->toHaveKey('users.1.name');
     });
 
-    it('lazy wildcard check is cached', function (): void {
+    it('lazy wildcard check is cached', function(): void {
         $data = ['user' => ['name' => 'Alice']];
         $accessor = new DataAccessor($data);
 

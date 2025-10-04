@@ -87,7 +87,11 @@ class MappingEngine
                 $target
             ) : null;
 
-            if ($hasHooks && null !== $pairContext && HookInvoker::invokeHooks($hooks, 'beforePair', $pairContext) === false) {
+            if ($hasHooks && $pairContext instanceof PairContext && HookInvoker::invokeHooks(
+                $hooks,
+                'beforePair',
+                $pairContext
+            ) === false) {
                 $mappingIndex++;
 
                 continue;
@@ -103,7 +107,7 @@ class MappingEngine
             }
 
             // preTransform (only if hooks exist)
-            if ($hasHooks && null !== $pairContext) {
+            if ($hasHooks && $pairContext instanceof PairContext) {
                 $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
             }
 
@@ -139,7 +143,7 @@ class MappingEngine
             }
 
             // afterPair hook (only if hooks exist)
-            if ($hasHooks && null !== $pairContext) {
+            if ($hasHooks && $pairContext instanceof PairContext) {
                 HookInvoker::invokeHooks($hooks, 'afterPair', $pairContext);
             }
             $mappingIndex++;
@@ -190,7 +194,7 @@ class MappingEngine
                 $mappingIndex
             ): bool {
                 // Only set wildcardIndex if pairContext exists
-                if (null !== $pairContext) {
+                if ($pairContext instanceof PairContext) {
                     $pairContext->wildcardIndex = $wildcardIndex;
                     $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
                 }
@@ -248,7 +252,7 @@ class MappingEngine
         ?PairContext $pairContext
     ): mixed {
         // Only invoke hooks if pairContext exists (i.e., hooks are configured)
-        if (null !== $pairContext) {
+        if ($pairContext instanceof PairContext) {
             $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
         }
 
