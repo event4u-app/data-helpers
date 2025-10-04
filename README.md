@@ -125,11 +125,11 @@ composer require event4u/data-helpers
 
 ```bash
 composer require event4u/data-helpers
-composer require illuminate/support      # Usually already installed
-composer require illuminate/database     # For Eloquent Model support
+composer require illuminate/support:^8      # Usually already installed
+composer require illuminate/database:^8     # For Eloquent Model support
 ```
 
-**Full support** for Laravel Collections, Eloquent Models, and Arrayable interface.
+**Full support** for Laravel Collections, Eloquent Models, and Arrayable interface (Laravel 8+).
 
 **Supported types:**
 
@@ -150,11 +150,11 @@ $names = $accessor->get('users.*.name');  // ['John', 'Jane']
 
 ```bash
 composer require event4u/data-helpers
-composer require doctrine/collections    # For Doctrine Collections
-composer require doctrine/orm            # For Doctrine Entities
+composer require doctrine/collections:^1.6    # For Doctrine Collections
+composer require doctrine/orm:^2.10           # For Doctrine Entities
 ```
 
-**Full support** for Doctrine Collections and Entities with automatic detection.
+**Full support** for Doctrine Collections and Entities with automatic detection (Doctrine Collections 1.6+, ORM 2.10+).
 
 **Supported types:**
 

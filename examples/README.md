@@ -31,10 +31,10 @@ All examples work out of the box. Framework-specific examples (05, 06) require t
 
 ```bash
 # For Laravel examples (05)
-composer require illuminate/support illuminate/database
+composer require illuminate/support:^8 illuminate/database:^8
 php examples/05-laravel.php
 
 # For Doctrine examples (06)
-composer require doctrine/collections doctrine/orm
+composer require doctrine/collections:^1.6 doctrine/orm:^2.10
 php examples/06-symfony-doctrine.php
 ```
