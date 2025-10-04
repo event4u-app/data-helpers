@@ -15,8 +15,11 @@ use InvalidArgumentException;
  */
 class DotPathHelper
 {
+    /** @var array<string, array<int, string>> */
+    private static array $segmentsCache = [];
+
     /**
-     * Split a dot-notation string into segments.
+     * Split a dot-notation string into segments (cached).
      *
      * Empty segments are not allowed. The following are invalid and will throw InvalidArgumentException:
      * - Leading or trailing dot: ".a", "a."
@@ -28,8 +31,13 @@ class DotPathHelper
      */
     public static function segments(string $path): array
     {
+        // Check cache first
+        if (array_key_exists($path, self::$segmentsCache)) {
+            return self::$segmentsCache[$path];
+        }
+
         if ('' === $path) {
-            return [];
+            return self::$segmentsCache[$path] = [];
         }
 
         // Fast checks for empty segments with specific messages
@@ -52,7 +60,8 @@ class DotPathHelper
             }
         }
 
-        return $segments;
+        // Cache and return
+        return self::$segmentsCache[$path] = $segments;
     }
 
     /** Join prefix and next segment into a new dot-path. */
