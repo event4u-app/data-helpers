@@ -50,14 +50,22 @@ final class ExpressionEvaluator
         return $value;
     }
 
-    /** Resolve an alias reference like @profile.fullname. */
+    /**
+     * Resolve an alias reference like @profile.fullname.
+     *
+     * @param array<string, mixed> $aliases
+     */
     private static function resolveAlias(string $path, array $aliases): mixed
     {
         $accessor = new DataAccessor($aliases);
         return $accessor->get($path);
     }
 
-    /** Resolve a source path like user.name. */
+    /**
+     * Resolve a source path like user.name.
+     *
+     * @param array<string, mixed> $sources
+     */
     private static function resolveSourcePath(string $path, array $sources): mixed
     {
         // Parse alias.path

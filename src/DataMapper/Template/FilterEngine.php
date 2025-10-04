@@ -6,7 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Template;
 
 final class FilterEngine
 {
-    /** @var array<string, callable> */
+    /** @var array<string, callable(mixed): mixed> */
     private static array $customFilters = [];
 
     /**
@@ -23,7 +23,11 @@ final class FilterEngine
         return $value;
     }
 
-    /** Register a custom filter. */
+    /**
+     * Register a custom filter.
+     *
+     * @param callable(mixed): mixed $callback
+     */
     public static function registerFilter(string $name, callable $callback): void
     {
         self::$customFilters[$name] = $callback;
@@ -53,7 +57,10 @@ final class FilterEngine
             'keys' => is_array($value) ? array_keys($value) : [],
             'values' => is_array($value) ? array_values($value) : [],
             'reverse' => is_array($value) ? array_reverse($value) : $value,
-            'sort' => is_array($value) ? (sort($value) ? $value : $value) : $value,
+            'sort' => is_array($value) ? (function() use ($value) {
+                sort($value);
+                return $value;
+            })() : $value,
             'unique' => is_array($value) ? array_unique($value) : $value,
             'join' => is_array($value) ? implode(', ', $value) : $value,
             'default' => $value ?? '',

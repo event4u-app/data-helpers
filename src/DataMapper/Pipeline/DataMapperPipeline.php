@@ -30,6 +30,12 @@ final class DataMapperPipeline
         return $this;
     }
 
+/**
+ * Execute the mapping with the configured pipeline.
+ *
+ * @param array<int|string, mixed> $mapping
+ * @phpstan-return array<string, mixed>
+ */
     public function map(
         mixed $source,
         mixed $target,
@@ -38,9 +44,10 @@ final class DataMapperPipeline
         bool $reindexWildcard = false,
         bool $trimValues = true,
         bool $caseInsensitiveReplace = false,
-    ): mixed {
+    ): array {
         $hooks = $this->buildHooks();
-        return DataMapper::map(
+/** @phpstan-ignore-next-line return.type */
+        return (array)DataMapper::map(
             $source,
             $target,
             $mapping,
@@ -52,7 +59,7 @@ final class DataMapperPipeline
         );
     }
 
-    /** @return array<string, mixed> */
+    /** @phpstan-return array<string, mixed> */
     private function buildHooks(): array
     {
         $hooks = $this->additionalHooks;

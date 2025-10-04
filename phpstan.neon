@@ -51,6 +51,9 @@ parameters:
         - message: '#Call to an undefined method Pest#'
           paths:
               - tests/*
+        - message: '#Cannot access offset .* on mixed#'
+          paths:
+              - tests/*
 
     disallowedFunctionCalls:
         -
