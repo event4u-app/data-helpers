@@ -16,6 +16,14 @@ class DataAccessor
     /** @var array<int|string, mixed> */
     private array $data;
 
+    /**
+     * Static path cache for compiled access paths.
+     * Stores pre-computed path information to avoid repeated parsing.
+     *
+     * @var array<string, array{segments: array<int, string>, hasWildcard: bool}>
+     */
+    private static array $pathCache = [];
+
     /** @param mixed $input Initial input (array, DTO, Model, Collection, JSON, XML, scalar) */
     public function __construct(mixed $input)
     {
@@ -99,20 +107,18 @@ class DataAccessor
      */
     public function get(string $path, mixed $default = null): mixed
     {
-        $segments = DotPathHelper::segments($path);
+        // Use static path cache for compiled path information
+        $pathInfo = self::getPathInfo($path);
 
-        // Lazy wildcard expansion: check if path contains wildcard
-        $hasWildcard = DotPathHelper::containsWildcard($path);
-
-        $results = $hasWildcard
-            ? $this->extract($this->data, $segments)
-            : $this->extractSimple($this->data, $segments);
+        $results = $pathInfo['hasWildcard']
+            ? $this->extract($this->data, $pathInfo['segments'])
+            : $this->extractSimple($this->data, $pathInfo['segments']);
 
         if (null === $results) {
             return $default;
         }
 
-        if ($hasWildcard) {
+        if ($pathInfo['hasWildcard']) {
             return $results; // always array with dot-paths
         }
 
@@ -122,6 +128,118 @@ class DataAccessor
         }
 
         return $results;
+    }
+
+    /**
+     * Get compiled path information from static cache.
+     *
+     * @return array{segments: array<int, string>, hasWildcard: bool}
+     */
+    private static function getPathInfo(string $path): array
+    {
+        if (isset(self::$pathCache[$path])) {
+            return self::$pathCache[$path];
+        }
+
+        $segments = DotPathHelper::segments($path);
+        $hasWildcard = DotPathHelper::containsWildcard($path);
+
+        return self::$pathCache[$path] = [
+            'segments' => $segments,
+            'hasWildcard' => $hasWildcard,
+        ];
+    }
+
+    /**
+     * Static accessor: Get value from data using dot-notation path.
+     *
+     * This is a convenience method that creates a temporary DataAccessor instance.
+     * The path is cached statically for performance.
+     *
+     * Example:
+     *   DataAccessor::getValue($data, 'user.name')
+     *   DataAccessor::getValue($data, 'users.*.email')
+     *
+     * @param mixed $data Source data (array, object, Collection, etc.)
+     * @param string $path Dot-notation path
+     * @param mixed $default Default if path not found
+     */
+    public static function getValue(mixed $data, string $path, mixed $default = null): mixed
+    {
+        $accessor = new self($data);
+
+        return $accessor->get($path, $default);
+    }
+
+    /**
+     * Static accessor: Get value as string.
+     *
+     * @param mixed $data Source data
+     * @param string $path Dot-notation path
+     * @param null|string $default Default if path not found
+     */
+    public static function getStringValue(mixed $data, string $path, ?string $default = null): ?string
+    {
+        $accessor = new self($data);
+
+        return $accessor->getString($path, $default);
+    }
+
+    /**
+     * Static accessor: Get value as integer.
+     *
+     * @param mixed $data Source data
+     * @param string $path Dot-notation path
+     * @param null|int $default Default if path not found
+     */
+    public static function getIntValue(mixed $data, string $path, ?int $default = null): ?int
+    {
+        $accessor = new self($data);
+
+        return $accessor->getInt($path, $default);
+    }
+
+    /**
+     * Static accessor: Get value as float.
+     *
+     * @param mixed $data Source data
+     * @param string $path Dot-notation path
+     * @param null|float $default Default if path not found
+     */
+    public static function getFloatValue(mixed $data, string $path, ?float $default = null): ?float
+    {
+        $accessor = new self($data);
+
+        return $accessor->getFloat($path, $default);
+    }
+
+    /**
+     * Static accessor: Get value as boolean.
+     *
+     * @param mixed $data Source data
+     * @param string $path Dot-notation path
+     * @param null|bool $default Default if path not found
+     */
+    public static function getBoolValue(mixed $data, string $path, ?bool $default = null): ?bool
+    {
+        $accessor = new self($data);
+
+        return $accessor->getBool($path, $default);
+    }
+
+    /**
+     * Static accessor: Get value as array.
+     *
+     * @param mixed $data Source data
+     * @param string $path Dot-notation path
+     * @param null|array<int|string, mixed> $default Default if path not found
+     * @return null|array<int|string, mixed>
+     */
+    public static function getArrayValue(mixed $data, string $path, ?array $default = null): ?array
+    {
+        $accessor = new self($data);
+
+        return $accessor->getArray($path, $default);
     }
 
     /**
