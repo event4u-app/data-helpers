@@ -13,6 +13,16 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 class HookInvoker
 {
     /**
+     * Check if hooks array is empty (zero overhead optimization).
+     *
+     * @param array<string, mixed> $hooks
+     */
+    public static function isEmpty(array $hooks): bool
+    {
+        return [] === $hooks;
+    }
+
+    /**
      * Normalize hooks array: convert enum keys to string names and handle list-of-pairs format.
      *
      * - Accept list of pairs [DataMapperHook|string, mixed] and convert to assoc
@@ -22,6 +32,11 @@ class HookInvoker
      */
     public static function normalizeHooks(array $hooks): array
     {
+        // Zero overhead: return empty array immediately
+        if ([] === $hooks) {
+            return [];
+        }
+
         $normalized = [];
         foreach ($hooks as $key => $value) {
             if (is_int($key) && is_array($value) && array_key_exists(0, $value) && array_key_exists(1, $value)) {
@@ -66,7 +81,8 @@ class HookInvoker
      */
     public static function invokeHooks(array $hooks, string $name, HookContext $context): mixed
     {
-        if (!isset($hooks[$name])) {
+        // Zero overhead: skip if hooks array is empty
+        if ([] === $hooks || !isset($hooks[$name])) {
             return null;
         }
         $hookPayload = $hooks[$name];
@@ -126,7 +142,8 @@ class HookInvoker
      */
     public static function invokeValueHook(array $hooks, string $name, HookContext $context, mixed $value): mixed
     {
-        if (!isset($hooks[$name])) {
+        // Zero overhead: skip if hooks array is empty
+        if ([] === $hooks || !isset($hooks[$name])) {
             return $value;
         }
         $hookPayload = $hooks[$name];
@@ -183,7 +200,8 @@ class HookInvoker
         mixed $writtenValue,
         mixed $target,
     ): mixed {
-        if (!isset($hooks[$name])) {
+        // Zero overhead: skip if hooks array is empty
+        if ([] === $hooks || !isset($hooks[$name])) {
             return $target;
         }
         $hookPayload = $hooks[$name];
