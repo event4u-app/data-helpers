@@ -527,9 +527,6 @@ Alternatively, pass a simple associative array keyed by enum name.
 - reindexWildcard (default false): preserve numeric keys unless enabled
 - trimValues (default true): trim strings prior to replace logic
 - caseInsensitiveReplace (default false): use case-insensitive search for replacements
-
-**🆕 New in this version:**
-
 - `Support/` - Helper classes for framework-agnostic Collection and Entity handling
 - Framework detection with automatic runtime checks
 
