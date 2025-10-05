@@ -41,4 +41,3 @@ auth.json
 # phpstan
 /build/phpstan/*
 /phpstan-full-output.txt
-/rector.php
