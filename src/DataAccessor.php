@@ -415,17 +415,20 @@ class DataAccessor
      * Recursive extraction supporting arrays, Models, Collections and wildcards.
      *
      * @param array<int, string> $segments
+     * @param int $index Current position in segments array (for performance)
      * @return null|array<int|string, mixed>
      */
-    private function extract(mixed $current, array $segments, string $prefix = ''): ?array
+    private function extract(mixed $current, array $segments, string $prefix = '', int $index = 0): ?array
     {
-        if ([] === $segments) {
+        // Base case: reached end of path
+        if (count($segments) <= $index) {
             return [
                 $prefix => $current,
             ];
         }
 
-        $segment = array_shift($segments);
+        // Get current segment using O(1) index access instead of O(n) array_shift
+        $segment = $segments[$index];
 
         // Wildcard
         if (DotPathHelper::isWildcard($segment)) {
@@ -439,14 +442,14 @@ class DataAccessor
                 return null;
             }
 
-            return $this->collectFromIterable($current, $segments, $prefix);
+            return $this->collectFromIterable($current, $segments, $prefix, $index + 1);
         }
 
         // Traverse array
         if (is_array($current) && array_key_exists($segment, $current)) {
             $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
 
-            return $this->extract($current[$segment], $segments, $newPrefix);
+            return $this->extract($current[$segment], $segments, $newPrefix, $index + 1);
         }
 
         // Traverse entity/model
@@ -454,7 +457,7 @@ class DataAccessor
             $value = EntityHelper::getAttribute($current, $segment);
             $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
 
-            return $this->extract($value, $segments, $newPrefix);
+            return $this->extract($value, $segments, $newPrefix, $index + 1);
         }
 
         // Traverse collection
@@ -462,7 +465,7 @@ class DataAccessor
             $value = CollectionHelper::get($current, $segment);
             $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
 
-            return $this->extract($value, $segments, $newPrefix);
+            return $this->extract($value, $segments, $newPrefix, $index + 1);
         }
 
         return null;
@@ -472,15 +475,17 @@ class DataAccessor
      * Merge results from iterating wildcard children.
      *
      * @param array<int|string, mixed> $current
-     * @param array<int, string> $remainingSegments
+     * @param array<int, string> $segments Full segments array
+     * @param int $index Current position in segments (after wildcard)
      * @return array<int|string, mixed>
      */
-    private function collectFromIterable(array $current, array $remainingSegments, string $prefix): array
+    private function collectFromIterable(array $current, array $segments, string $prefix, int $index): array
     {
         $collected = [];
         foreach ($current as $key => $item) {
-            $newPrefix = DotPathHelper::buildPrefix($prefix, (string)$key);
-            $value = $this->extract($item, $remainingSegments, $newPrefix);
+            // Inline prefix building for performance (avoid function call overhead)
+            $newPrefix = '' === $prefix ? (string)$key : $prefix . '.' . $key;
+            $value = $this->extract($item, $segments, $newPrefix, $index);
             if (is_array($value)) {
                 foreach ($value as $k => $v) {
                     $collected[$k] = $v; // avoid array_merge copies
