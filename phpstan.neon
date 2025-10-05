@@ -15,9 +15,13 @@ parameters:
         - examples
         - src
         - tests
+        - types
 
     excludePaths:
         - '*.stub.php'
+
+    scanDirectories:
+        - types
 
     universalObjectCratesClasses:
         - Pest\Mixins\Expectation

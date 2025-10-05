@@ -57,6 +57,7 @@ return RectorConfig::configure()
         __DIR__ . '/examples',
         __DIR__ . '/src',
         __DIR__ . '/tests',
+        __DIR__ . '/types',
     ])
     ->withSkipPath(__DIR__ . '/src/Support')
     ->withRootFiles()
