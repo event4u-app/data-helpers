@@ -454,41 +454,44 @@ $result = DataMapper::pipe([
 All operations are highly optimized and run in microseconds:
 
 <!-- BENCHMARK_RESULTS_START -->
+
 ### DataAccessor
 
-| Operation | Time | Description |
-|-----------|------|-------------|
-| Simple Get | 0.324μs | Get value from flat array |
-| Nested Get | 0.426μs | Get value from nested path |
-| Wildcard Get | 5.275μs | Get values using single wildcard |
+| Operation         | Time     | Description                                                   |
+|-------------------|----------|---------------------------------------------------------------|
+| Simple Get        | 0.324μs  | Get value from flat array                                     |
+| Nested Get        | 0.426μs  | Get value from nested path                                    |
+| Wildcard Get      | 5.275μs  | Get values using single wildcard                              |
 | Deep Wildcard Get | 89.961μs | Get values using multiple wildcards (10 depts × 20 employees) |
-| Typed Get String | 0.365μs | Get typed string value |
-| Typed Get Int | 0.361μs | Get typed int value |
-| Create Accessor | 0.083μs | Instantiate DataAccessor |
+| Typed Get String  | 0.365μs  | Get typed string value                                        |
+| Typed Get Int     | 0.361μs  | Get typed int value                                           |
+| Create Accessor   | 0.083μs  | Instantiate DataAccessor                                      |
 
 ### DataMutator
 
-| Operation | Time | Description |
-|-----------|------|-------------|
-| Simple Set | 0.588μs | Set value in flat array |
-| Nested Set | 0.942μs | Set value in nested path |
-| Deep Set | 1.139μs | Set value creating new nested structure |
-| Multiple Set | 1.706μs | Set multiple values at once |
-| Merge | 0.977μs | Deep merge arrays |
-| Unset | 0.896μs | Remove single value |
-| Multiple Unset | 1.495μs | Remove multiple values |
+| Operation      | Time    | Description                             |
+|----------------|---------|-----------------------------------------|
+| Simple Set     | 0.588μs | Set value in flat array                 |
+| Nested Set     | 0.942μs | Set value in nested path                |
+| Deep Set       | 1.139μs | Set value creating new nested structure |
+| Multiple Set   | 1.706μs | Set multiple values at once             |
+| Merge          | 0.977μs | Deep merge arrays                       |
+| Unset          | 0.896μs | Remove single value                     |
+| Multiple Unset | 1.495μs | Remove multiple values                  |
 
 ### DataMapper
 
-| Operation | Time | Description |
-|-----------|------|-------------|
-| Simple Mapping | 6.252μs | Map flat structure |
-| Nested Mapping | 7.153μs | Map nested structure |
-| Auto Map | 6.793μs | Automatic field mapping |
+| Operation         | Time    | Description                    |
+|-------------------|---------|--------------------------------|
+| Simple Mapping    | 6.252μs | Map flat structure             |
+| Nested Mapping    | 7.153μs | Map nested structure           |
+| Auto Map          | 6.793μs | Automatic field mapping        |
 | Map From Template | 5.007μs | Map using template expressions |
+
 <!-- BENCHMARK_RESULTS_END -->
 
 **Key Insights:**
+
 - Simple and nested access is extremely fast (~0.3-0.4μs)
 - Wildcards add minimal overhead (~5μs for single level)
 - All mutation operations are sub-microsecond
@@ -511,6 +514,32 @@ Contributions are welcome! Please see [docs/contributing.md](docs/contributing.m
 
 ---
 
+## 💖 Sponsoring
+
+This package is part of the **event4u** ecosystem - a comprehensive event management platform. Your sponsorship helps us:
+
+- 🚀 **Develop event4u** - The next-generation event management app
+- 📦 **Maintain open-source packages** - Like this Data Helpers library
+- 🔧 **Build new tools** - More packages and utilities for the PHP community
+- 📚 **Improve documentation** - Better guides and examples
+- 🐛 **Fix bugs faster** - Dedicated time for maintenance and support
+
+### Support the Development
+
+<p align="left">
+  <a href="https://github.com/sponsors/matze4u">
+    <img src="https://img.shields.io/badge/Sponsor-@matze4u-ea5027?style=for-the-badge&logo=github-sponsors&logoColor=white" alt="Sponsor @matze4u" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/sponsors/event4u-app">
+    <img src="https://img.shields.io/badge/Sponsor-event4u--app-ea5027?style=for-the-badge&logo=github-sponsors&logoColor=white" alt="Sponsor event4u-app" />
+  </a>
+</p>
+
+Every contribution, no matter how small, makes a difference and is greatly appreciated! 🙏
+
+---
+
 ## 📄 License
 
 MIT License. See [LICENSE](LICENSE) for details.
@@ -519,4 +548,8 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 🌟 Show Your Support
 
-If this package helps you, please consider giving it a ⭐ on GitHub!
+If this package helps you, please consider:
+
+- ⭐ Giving it a star on GitHub
+- 💖 [Sponsoring the development](https://github.com/sponsors/event4u-app)
+- 📢 Sharing it with others
