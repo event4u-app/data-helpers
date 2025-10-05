@@ -1,37 +1,23 @@
 {
   "name": "event4u/data-helpers",
   "description": "Framework-agnostic helpers for structured data access, mutation, and mapping using dot-notation paths with wildcards. Works with Laravel, Symfony/Doctrine, or standalone PHP.",
-  "license": "MIT",
+  "license": "proprietary",
   "type": "library",
   "keywords": [
     "data",
     "accessor",
     "mutator",
     "mapper",
-    "dot-notation",
-    "wildcards",
-    "data-transformation",
     "laravel",
     "symfony",
     "doctrine",
-    "php",
-    "php8",
-    "event4u"
+    "php"
   ],
-  "homepage": "https://github.com/event4u-app/data-helpers",
-  "support": {
-    "issues": "https://github.com/event4u-app/data-helpers/issues",
-    "source": "https://github.com/event4u-app/data-helpers",
-    "docs": "https://github.com/event4u-app/data-helpers/tree/main/docs",
-    "funding": [
-      "https://github.com/sponsors/event4u-app",
-      "https://github.com/sponsors/matze4u"
-    ]
-  },
   "authors": [
     {
-      "name": "Mathias Berg",
-      "email": "m.berg@event4u.app"
+      "name": "matze4u",
+      "homepage": "https://event4u.app",
+      "role": "Developer"
     }
   ],
   "require": {
@@ -89,10 +75,6 @@
     "ecs:fix": "vendor/bin/ecs check --fix",
     "rector": "vendor/bin/rector process --dry-run",
     "rector:fix": "vendor/bin/rector process",
-    "bench": "vendor/bin/phpbench run --report=table",
-    "bench:baseline": "vendor/bin/phpbench run --report=table --tag=baseline",
-    "bench:compare": "vendor/bin/phpbench run --report=table --ref=baseline",
-    "bench:readme": "php scripts/update-benchmark-results.php",
     "quality": [
       "@phpstan",
       "@ecs",
