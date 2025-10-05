@@ -10,8 +10,6 @@
 [![Packagist Version](https://img.shields.io/packagist/v/event4u/data-helpers.svg?style=flat-square&label=packagist)](https://packagist.org/packages/event4u/data-helpers)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb3?logo=php&logoColor=white&style=flat-square)](#installation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](#license)
-[![Total Downloads](https://img.shields.io/packagist/dt/event4u/data-helpers.svg?style=flat-square)](https://packagist.org/packages/event4u/data-helpers)
-
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/run-tests.yml)
 [![GitHub PHPStan Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/phpstan.yml)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/ecs.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/ecs.yml)
