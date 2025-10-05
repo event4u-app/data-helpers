@@ -1,18 +1,33 @@
 {
   "name": "event4u/data-helpers",
   "description": "Framework-agnostic helpers for structured data access, mutation, and mapping using dot-notation paths with wildcards. Works with Laravel, Symfony/Doctrine, or standalone PHP.",
-  "license": "proprietary",
+  "license": "MIT",
   "type": "library",
   "keywords": [
     "data",
     "accessor",
     "mutator",
     "mapper",
+    "dot-notation",
+    "wildcards",
+    "data-transformation",
     "laravel",
     "symfony",
     "doctrine",
-    "php"
+    "php",
+    "php8",
+    "event4u"
   ],
+  "homepage": "https://github.com/event4u-app/data-helpers",
+  "support": {
+    "issues": "https://github.com/event4u-app/data-helpers/issues",
+    "source": "https://github.com/event4u-app/data-helpers",
+    "docs": "https://github.com/event4u-app/data-helpers/tree/main/docs",
+    "funding": [
+      "https://github.com/sponsors/event4u-app",
+      "https://github.com/sponsors/matze4u"
+    ]
+  },
   "authors": [
     {
       "name": "Mathias Berg",

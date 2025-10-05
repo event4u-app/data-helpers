@@ -41,3 +41,11 @@ auth.json
 # phpstan
 /build/phpstan/*
 /phpstan-full-output.txt
+
+# phpbench
+/.phpbench/
+
+# coverage
+/coverage
+/coverage.xml
+/.phpunit.result.cache
