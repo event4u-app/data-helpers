@@ -77,6 +77,7 @@
     "bench": "vendor/bin/phpbench run --report=table",
     "bench:baseline": "vendor/bin/phpbench run --report=table --tag=baseline",
     "bench:compare": "vendor/bin/phpbench run --report=table --ref=baseline",
+    "bench:readme": "php scripts/update-benchmark-results.php",
     "quality": [
       "@phpstan",
       "@ecs",

@@ -14,6 +14,7 @@ parameters:
     paths:
         - benchmarks
         - examples
+        - scripts
         - src
         - tests
         - types
@@ -59,6 +60,9 @@ parameters:
         - message: '#Cannot access offset .* on mixed#'
           paths:
               - tests/*
+        - message: '#Calling exec\(\) is forbidden#'
+          paths:
+              - scripts/*
 
     disallowedFunctionCalls:
         -

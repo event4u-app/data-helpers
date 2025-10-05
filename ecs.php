@@ -46,6 +46,7 @@ return ECSConfig::configure()
     ->withPaths([
         __DIR__ . '/benchmarks',
         __DIR__ . '/examples',
+        __DIR__ . '/scripts',
         __DIR__ . '/src',
         __DIR__ . '/tests',
         __DIR__ . '/types',
