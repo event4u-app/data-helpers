@@ -6,7 +6,6 @@
 
 # 🚀 Data Helpers
 
-[![Latest Version](https://img.shields.io/github/v/release/event4u-app/data-helpers?style=flat-square&label=version)](https://github.com/event4u-app/data-helpers/releases)
 [![Packagist Version](https://img.shields.io/packagist/v/event4u/data-helpers.svg?style=flat-square&label=packagist)](https://packagist.org/packages/event4u/data-helpers)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb3?logo=php&logoColor=white&style=flat-square)](#installation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](#license)
