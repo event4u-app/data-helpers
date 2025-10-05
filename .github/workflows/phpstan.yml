@@ -1,14 +1,6 @@
 name: PHPStan
 
-on:
-  push:
-    paths:
-      - '**.php'
-      - 'phpstan.neon'
-  pull_request:
-    paths:
-      - '**.php'
-      - 'phpstan.neon'
+on: ['push', 'pull_request']
 
 jobs:
   phpstan:
