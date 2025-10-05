@@ -3,7 +3,8 @@
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb3?logo=php&logoColor=white)](#installation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 
-**Work with complex nested data structures effortlessly.** Access, transform, and map data using intuitive dot-notation paths with powerful wildcard support.
+**Work with complex nested data structures effortlessly.** Access, transform, and map data using intuitive dot-notation paths with powerful
+wildcard support.
 
 ```php
 // From this messy API response...
@@ -29,6 +30,7 @@ $emails = $accessor->get('data.departments.*.users.*.email');
 ## 💡 Why use this?
 
 ### 🎯 **Stop writing nested loops and array checks**
+
 ```php
 // ❌ Without Data Helpers
 $emails = [];
@@ -45,12 +47,15 @@ $emails = $accessor->get('departments.*.users.*.email');
 ```
 
 ### 🔄 **Transform data structures with ease**
+
 Map between different data formats, APIs, or database schemas without writing repetitive transformation code.
 
 ### 🛡️ **Type-safe and well-tested**
+
 PHPStan Level 9 compliant with 400+ tests. Works reliably with arrays, objects, Collections, Models, JSON, and XML.
 
 ### ⚡ **Framework-agnostic with smart detection**
+
 Use it anywhere - Laravel, Symfony, Doctrine, or plain PHP. Framework support is automatically detected at runtime.
 
 ---
@@ -64,6 +69,7 @@ composer require event4u/data-helpers
 **Requirements:** PHP 8.2+
 
 **Framework support** (all optional):
+
 - 🔴 **Laravel** 8+ - Collections, Eloquent Models
 - ⚫ **Symfony/Doctrine** - Collections, Entities
 - 🔧 **Standalone PHP** - Works out of the box
@@ -246,7 +252,7 @@ $result = DataMapper::pipe([
 
 **Built-in transformers:** `TrimStrings`, `LowercaseEmails`, `SkipEmptyValues`, `UppercaseStrings`, `ConvertToNull`
 
-👉 [Create custom transformers](docs/data-mapper.md#pipeline-api)
+👉 [Create custom transformers](docs/data-mapper-pipeline.md#creating-custom-transformers)
 
 ### Template Expressions - Powerful Mapping
 
@@ -288,9 +294,10 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 // }
 ```
 
-**15 built-in filters:** `lower`, `upper`, `trim`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`, `reverse`, `sort`, `unique`, `join`, `json`, `default`
+**15 built-in filters:** `lower`, `upper`, `trim`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`, `reverse`, `sort`,
+`unique`, `join`, `json`, `default`
 
-👉 [See all filters and create custom ones](docs/template-expressions.md)
+👉 [See all filters and create custom ones](docs/template-expressions.md#custom-filters)
 
 ### AutoMap - Automatic Property Mapping
 
@@ -321,24 +328,30 @@ $result = DataMapper::autoMap($source, $target);
 This package works with **any PHP 8.2+ project**. Framework support is **optional** and **automatically detected**.
 
 ### Standalone PHP (No dependencies)
+
 ✅ Arrays, Objects, JSON, XML
 
 ### Laravel 8+ (Optional)
+
 ```bash
 composer require illuminate/support illuminate/database
 ```
+
 ✅ Collections, Eloquent Models, Arrayable interface
 
 ### Symfony/Doctrine (Optional)
+
 ```bash
 composer require doctrine/collections doctrine/orm
 ```
+
 ✅ Doctrine Collections, Entities
 
 ### Mixed Environments
+
 Use Laravel and Doctrine together - automatic detection handles both!
 
-📖 **[Full framework integration guide](OPTIONAL_DEPENDENCIES.md)** with compatibility matrix and examples
+📖 **[Full framework integration guide](docs/optional-dependencies.md)** with compatibility matrix and examples
 
 ---
 
@@ -351,7 +364,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Data Mapper](docs/data-mapper.md)** - Map between structures with templates, transforms, and hooks
 - **[Template Expressions](docs/template-expressions.md)** - Powerful expression engine with filters and defaults
 - **[Dot-Path Syntax](docs/dot-path.md)** - Path notation reference and best practices
-- **[Optional Dependencies](OPTIONAL_DEPENDENCIES.md)** - Framework integration guide
+- **[Optional Dependencies](docs/optional-dependencies.md)** - Framework integration guide
 
 ### Runnable Examples
 
@@ -438,7 +451,7 @@ $result = DataMapper::pipe([
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+Contributions are welcome! Please see [docs/contributing.md](docs/contributing.md) for details.
 
 ---
 

@@ -191,6 +191,6 @@ objects.
 
 ## See Also
 
-- [Main README](README.md)
-- [Changelog](CHANGELOG.md)
+- [Main README](../README.md)
+- [Changelog](../CHANGELOG.md)
 

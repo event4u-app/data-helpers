@@ -41,9 +41,9 @@ $source = [
 ];
 
 $mapping = [
-    'user.name' => 'profile.name',
-    'user.email' => 'profile.email',
-    'user.phone' => 'profile.phone',
+    'profile.name' => 'user.name',
+    'profile.email' => 'user.email',
+    'profile.phone' => 'user.phone',
 ];
 
 // Apply transformation pipeline
@@ -158,7 +158,11 @@ $result = DataMapper::pipe([
 
 ## Creating Custom Transformers
 
-Implement the `TransformerInterface` to create your own transformers:
+Create your own transformers by implementing the `TransformerInterface`. This gives you full control over how values are transformed during the mapping process.
+
+### Basic Structure
+
+Every transformer must implement three methods:
 
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
@@ -166,6 +170,13 @@ use event4u\DataHelpers\DataMapper\Context\HookContext;
 
 class ValidateEmail implements TransformerInterface
 {
+    /**
+     * Transform the value.
+     *
+     * @param mixed $value The value to transform
+     * @param HookContext $context Context information (source path, target path, etc.)
+     * @return mixed The transformed value
+     */
     public function transform(mixed $value, HookContext $context): mixed
     {
         if (is_string($value) && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
@@ -174,11 +185,21 @@ class ValidateEmail implements TransformerInterface
         return $value;
     }
 
+    /**
+     * Which hook to attach to.
+     *
+     * @return string Hook name (e.g., 'preTransform', 'postTransform', 'beforeWrite')
+     */
     public function getHook(): string
     {
         return 'preTransform'; // Hook to attach to
     }
 
+    /**
+     * Optional filter to limit when this transformer applies.
+     *
+     * @return string|null Filter string (e.g., 'src:*.email') or null for all values
+     */
     public function getFilter(): ?string
     {
         return null; // No filtering (apply to all values)
@@ -226,8 +247,105 @@ class LowercaseEmailsFiltered implements TransformerInterface
 
 **Filter formats:**
 - `src:user.email` - Only for source path `user.email`
+- `src:*.email` - Only for paths ending with `email`
 - `tgt:profile.*` - Only for target paths starting with `profile.`
 - `mode:simple` - Only for simple mapping mode
+
+### Transformers with Configuration
+
+You can create transformers that accept configuration in the constructor:
+
+```php
+class ReplaceValue implements TransformerInterface
+{
+    public function __construct(
+        private readonly mixed $search,
+        private readonly mixed $replace,
+    ) {}
+
+    public function transform(mixed $value, HookContext $context): mixed
+    {
+        return $value === $this->search ? $this->replace : $value;
+    }
+
+    public function getHook(): string
+    {
+        return 'preTransform';
+    }
+
+    public function getFilter(): ?string
+    {
+        return null;
+    }
+}
+
+// Usage with configuration
+$result = DataMapper::pipe([
+    new ReplaceValue('N/A', null),
+    new ReplaceValue('unknown', null),
+])->map($source, [], $mapping);
+```
+
+### Complete Example: Custom Transformer
+
+Here's a complete example of a custom transformer that formats phone numbers:
+
+```php
+namespace App\Transformers;
+
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use event4u\DataHelpers\DataMapper\Context\HookContext;
+
+class FormatPhoneNumber implements TransformerInterface
+{
+    public function __construct(
+        private readonly string $countryCode = '+49',
+    ) {}
+
+    public function transform(mixed $value, HookContext $context): mixed
+    {
+        // Only process strings
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        // Remove all non-numeric characters
+        $cleaned = preg_replace('/[^0-9]/', '', $value);
+
+        // Skip if empty
+        if (empty($cleaned)) {
+            return $value;
+        }
+
+        // Add country code if missing
+        if (!str_starts_with($cleaned, '49')) {
+            $cleaned = '49' . ltrim($cleaned, '0');
+        }
+
+        // Format: +49 123 4567890
+        return $this->countryCode . ' ' .
+               substr($cleaned, 2, 3) . ' ' .
+               substr($cleaned, 5);
+    }
+
+    public function getHook(): string
+    {
+        return 'preTransform';
+    }
+
+    public function getFilter(): ?string
+    {
+        // Only apply to fields containing 'phone' or 'mobile'
+        return 'src:*phone*|*mobile*';
+    }
+}
+
+// Usage
+$result = DataMapper::pipe([
+    new FormatPhoneNumber('+49'),
+    TrimStrings::class,
+])->map($source, [], $mapping);
+```
 
 ## Advanced Usage
 

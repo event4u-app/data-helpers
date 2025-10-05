@@ -233,6 +233,6 @@ public static function isCollection(mixed $value): bool
 
 ## See Also
 
-- [Main README](../../README.md)
-- [Optional Dependencies Guide](../../OPTIONAL_DEPENDENCIES.md)
+- [Main README](../README.md)
+- [Optional Dependencies Guide](optional-dependencies.md)
 
