@@ -2,6 +2,9 @@ name: Code Quality
 
 on: [push]
 
+permissions:
+  contents: write
+
 jobs:
   code-quality:
     runs-on: ubuntu-latest
