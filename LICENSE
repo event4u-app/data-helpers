@@ -1,18 +1,18 @@
 PROPRIETARY LICENSE
 
-Copyright (c) 2025 Galawork - Mathias Berg
+Copyright (c) 2025 event4u - Mathias Berg
 All rights reserved.
 
 TERMS AND CONDITIONS
 
 1. OWNERSHIP
-   This software and associated documentation files (the "Software") are the 
-   exclusive property of Galawork and Mathias Berg. All rights, title, and 
+   This software and associated documentation files (the "Software") are the
+   exclusive property of event4u and Mathias Berg. All rights, title, and
    interest in and to the Software remain with the copyright holder.
 
 2. PERMITTED USE
-   This Software is licensed for use within Galawork projects and by authorized 
-   Galawork team members only. Any use outside of this scope requires explicit 
+   This Software is licensed for use within event4u projects and by authorized
+   event4u team members only. Any use outside of this scope requires explicit
    written permission from the copyright holder.
 
 3. RESTRICTIONS
@@ -21,13 +21,13 @@ TERMS AND CONDITIONS
    - Modify, adapt, or create derivative works based on the Software
    - Reverse engineer, decompile, or disassemble the Software
    - Remove or alter any copyright notices or proprietary legends
-   - Use the Software for commercial purposes outside of Galawork
+   - Use the Software for commercial purposes outside of event4u
 
 4. INTERNAL USE
    Authorized users may:
-   - Use the Software for internal Galawork projects
+   - Use the Software for internal event4u projects
    - Install the Software on development and production systems
-   - Share the Software with other authorized Galawork team members
+   - Share the Software with other authorized event4u team members
 
 5. NO WARRANTY
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -39,13 +39,13 @@ TERMS AND CONDITIONS
    SOFTWARE.
 
 6. TERMINATION
-   This license is effective until terminated. Your rights under this license 
-   will terminate automatically without notice if you fail to comply with any 
+   This license is effective until terminated. Your rights under this license
+   will terminate automatically without notice if you fail to comply with any
    term(s) of this license.
 
 7. CONTACT
    For permissions beyond the scope of this license, contact:
-   Mathias Berg - m.berg@galawork.de
+   Mathias Berg (https://github.com/matze4u)
 
-This license governs use of the accompanying software. If you use the software, 
+This license governs use of the accompanying software. If you use the software,
 you accept this license. If you do not accept the license, do not use the software.
