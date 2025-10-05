@@ -1,9 +1,9 @@
-name: Check & fix styling
+name: Code Quality
 
 on: [push]
 
 jobs:
-  ecs:
+  code-quality:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,8 +25,11 @@ jobs:
       - name: Run ECS
         run: composer ecs:fix
 
+      - name: Run Rector
+        run: composer rector:fix
+
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Fix styling
+          commit_message: Fix code quality (ECS + Rector)
 
