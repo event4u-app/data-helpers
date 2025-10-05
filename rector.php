@@ -54,6 +54,7 @@ use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
 
 return RectorConfig::configure()
     ->withPaths([
+        __DIR__ . '/benchmarks',
         __DIR__ . '/examples',
         __DIR__ . '/src',
         __DIR__ . '/tests',

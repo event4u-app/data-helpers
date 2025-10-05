@@ -40,7 +40,8 @@
     "spaze/phpstan-disallowed-calls": "^4.6",
     "symplify/coding-standard": "^12.4",
     "symplify/easy-coding-standard": "^12.6",
-    "timeweb/phpstan-enum": "^4.0"
+    "timeweb/phpstan-enum": "^4.0",
+    "phpbench/phpbench": "^1.4"
   },
   "repositories": [],
   "suggest": {
@@ -73,6 +74,9 @@
     "ecs:fix": "vendor/bin/ecs check --fix",
     "rector": "vendor/bin/rector process --dry-run",
     "rector:fix": "vendor/bin/rector process",
+    "bench": "vendor/bin/phpbench run --report=table",
+    "bench:baseline": "vendor/bin/phpbench run --report=table --tag=baseline",
+    "bench:compare": "vendor/bin/phpbench run --report=table --ref=baseline",
     "quality": [
       "@phpstan",
       "@ecs",

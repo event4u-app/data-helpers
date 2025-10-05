@@ -12,6 +12,7 @@ includes:
 
 parameters:
     paths:
+        - benchmarks
         - examples
         - src
         - tests
