@@ -143,7 +143,7 @@ describe('DataMapper Hooks Builder', function(): void {
 
         /** @var array{profile: array{name: string}} $res */
         $res = DataMapper::map($src, $tgt, [
-            'user.name' => 'profile.name',
+            'profile.name' => 'user.name',
         ], true, false, $hooks);
 
         expect($res)
@@ -197,7 +197,7 @@ describe('DataMapper Hooks Builder', function(): void {
 
         /** @var array{dest: array{mails: array<int,string>}} $res */
         $res = DataMapper::map($src, $tgt, [
-            'users.*.email' => 'dest.mails.*',
+            'dest.mails.*' => 'users.*.email',
         ], false, true, $hooks);
 
         expect($calls)->toBe(2)

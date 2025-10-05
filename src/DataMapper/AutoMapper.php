@@ -110,7 +110,7 @@ class AutoMapper
                     }
                 }
 
-                $pairs[(string)$path] = implode('.', $segments);
+                $pairs[implode('.', $segments)] = (string)$path;
             }
         } else {
             // Derive simple mapping: ['name' => 'name', 'email' => 'email', ...]
@@ -134,7 +134,7 @@ class AutoMapper
                     }
                 }
 
-                $pairs[$key] = $targetKey;
+                $pairs[$targetKey] = $key;
             }
         }
 

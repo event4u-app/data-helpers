@@ -25,7 +25,9 @@ $hooks = Hooks::make()
     ->toArray();
 
 $res = DataMapper::map($src, $tgt, [
-    'user.name' => 'profile.name',
+    'profile' => [
+        'name' => 'user.name',
+    ],
 ], true, false, $hooks);
 
 echo json_encode($res, JSON_PRETTY_PRINT);

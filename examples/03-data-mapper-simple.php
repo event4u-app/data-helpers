@@ -15,8 +15,12 @@ $src = [
 $tgt = [];
 
 $map = [
-    'user.name' => 'profile.name',
-    'user.emails.*' => 'profile.contacts.*',
+    'profile' => [
+        'name' => 'user.name',
+        'contacts' => [
+            '*' => 'user.emails.*',
+        ],
+    ],
 ];
 
 $res = DataMapper::map($src, $tgt, $map, true, true);

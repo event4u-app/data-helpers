@@ -82,13 +82,21 @@ class DataMapper
         // Normalize enum keys (if any) to string names
         $hooks = HookInvoker::normalizeHooks($hooks);
 
-        // Case 1: simple path-to-path mapping like ['a.b' => 'x.y']
+        // Case 1: nested mapping structure like ['profile' => ['name' => 'user.name']]
+        if (MappingEngine::isNestedMapping($mapping)) {
+            // Flatten nested structure to simple source => target format
+            $mapping = MappingEngine::flattenNestedMapping($mapping);
+            /** @var array<string, string> $mapping */
+            return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks);
+        }
+
+        // Case 2: simple path-to-path mapping like ['a.b' => 'x.y']
         if (MappingEngine::isSimpleMapping($mapping)) {
             /** @var array<string, string> $mapping */
             return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks);
         }
 
-        // Case 2: structured mapping definitions with source/target objects
+        // Case 3: structured mapping definitions with source/target objects
         /** @var array<int, array<string, mixed>> $mapping */
         return self::mapStructured(
             $source,
@@ -276,7 +284,7 @@ class DataMapper
         HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
 
         $mappingIndex = 0;
-        foreach ($mapping as $sourcePath => $targetPath) {
+        foreach ($mapping as $targetPath => $sourcePath) {
             $pairContext = new PairContext(
                 'simple',
                 $mappingIndex,

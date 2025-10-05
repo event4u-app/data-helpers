@@ -9,8 +9,8 @@ use event4u\DataHelpers\DataMapper;
 describe('DataMapper Cache Safety', function(): void {
     it('maps different source structures with same mapping', function(): void {
         $mapping = [
-            'user.name' => 'name',
-            'user.email' => 'email',
+            'name' => 'user.name',
+            'email' => 'user.email',
         ];
 
         // First source
@@ -56,7 +56,7 @@ describe('DataMapper Cache Safety', function(): void {
 
     it('handles wildcard mappings on different array sizes', function(): void {
         $mapping = [
-            'users.*.name' => 'names.*',
+            'names.*' => 'users.*.name',
         ];
 
         // Small array
@@ -101,9 +101,9 @@ describe('DataMapper Cache Safety', function(): void {
 
     it('handles sequential batch processing', function(): void {
         $mapping = [
-            'user.id' => 'id',
-            'user.name' => 'name',
-            'user.email' => 'email',
+            'id' => 'user.id',
+            'name' => 'user.name',
+            'email' => 'user.email',
         ];
 
         $sources = [];
@@ -133,7 +133,7 @@ describe('DataMapper Cache Safety', function(): void {
 
     it('handles different source types with same mapping', function(): void {
         $mapping = [
-            'user.name' => 'name',
+            'name' => 'user.name',
         ];
 
         // Array
@@ -158,8 +158,8 @@ describe('DataMapper Cache Safety', function(): void {
 
     it('handles wildcard mappings with different nesting levels', function(): void {
         $mapping = [
-            'items.*.name' => 'names.*',
-            'items.*.value' => 'values.*',
+            'names.*' => 'items.*.name',
+            'values.*' => 'items.*.value',
         ];
 
         // Small structure
@@ -191,8 +191,8 @@ describe('DataMapper Cache Safety', function(): void {
 
     it('handles mapping on different datasets', function(): void {
         $mapping = [
-            'user.name' => 'name',
-            'user.email' => 'email',
+            'name' => 'user.name',
+            'email' => 'user.email',
         ];
 
         // First dataset
@@ -235,8 +235,8 @@ describe('DataMapper Cache Safety', function(): void {
         // First mapping for user structure
         $userMapping = [
             'type' => 'type',
-            'user.name' => 'name',
-            'user.age' => 'age',
+            'name' => 'user.name',
+            'age' => 'user.age',
         ];
 
         $userSource = [
@@ -252,8 +252,8 @@ describe('DataMapper Cache Safety', function(): void {
         // Second mapping for product structure
         $productMapping = [
             'type' => 'type',
-            'product.name' => 'name',
-            'product.price' => 'price',
+            'name' => 'product.name',
+            'price' => 'product.price',
         ];
 
         $productSource = [
@@ -279,9 +279,9 @@ describe('DataMapper Cache Safety', function(): void {
     });
 
     it('handles concurrent mappings with different structures', function(): void {
-        $mapping1 = ['user.name' => 'name'];
-        $mapping2 = ['product.title' => 'title'];
-        $mapping3 = ['address.city' => 'city'];
+        $mapping1 = ['name' => 'user.name'];
+        $mapping2 = ['title' => 'product.title'];
+        $mapping3 = ['city' => 'address.city'];
 
         $source1 = ['user' => ['name' => 'Alice']];
         $source2 = ['product' => ['title' => 'Widget']];
@@ -313,9 +313,9 @@ describe('DataMapper Cache Safety', function(): void {
     it('handles API response processing with varying structures', function(): void {
         $mapping = [
             'status' => 'status',
-            'data.user.id' => 'userId',
-            'data.user.name' => 'userName',
-            'error.message' => 'error',
+            'userId' => 'data.user.id',
+            'userName' => 'data.user.name',
+            'error' => 'error.message',
         ];
 
         // Success response

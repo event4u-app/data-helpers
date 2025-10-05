@@ -21,10 +21,12 @@ $source = [
 
 // Mapping configuration
 $mapping = [
-    'user.name' => 'profile.name',
-    'user.email' => 'profile.email',
-    'user.phone' => 'profile.phone',
-    'user.city' => 'profile.city',
+    'profile' => [
+        'name' => 'user.name',
+        'email' => 'user.email',
+        'phone' => 'user.phone',
+        'city' => 'user.city',
+    ],
 ];
 
 // Apply transformation pipeline

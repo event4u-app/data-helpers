@@ -8,23 +8,39 @@ Namespace: `event4u\DataHelpers\DataMapper`
 
 DataMapper supports three mapping styles plus the new **Pipeline API**:
 
-1) Simple mapping (associative):
+1) **Nested mapping (recommended)** - Define target structure with source paths:
 
 ```php
-// ['source.path' => 'target.path']
+// Nested structure: target => source
+$result = DataMapper::map($source, [], [
+  'profile' => [
+    'fullname' => 'user.name',
+    'contact' => [
+      'email' => 'user.email',
+    ],
+  ],
+]);
+```
+
+- Intuitive: Define the target structure you want
+- Readable: See the output structure at a glance
+- Wildcards: `'emails' => ['*' => 'users.*.email']`
+- Null handling: by default `skipNull=true` (null values are skipped)
+- Wildcard results are expanded into the target; see `reindexWildcard` option
+
+2) **Simple mapping (legacy)** - Flat associative array:
+
+```php
+// Flat format: source => target (still supported)
 $result = DataMapper::map($source, [], [
   'user.name'  => 'profile.fullname',
   'user.email' => 'profile.contact.email',
 ]);
 ```
 
-- Wildcards: `'users.*.email' => 'emails.*'`
-- Null handling: by default `skipNull=true` (null values are skipped)
-- Wildcard results are expanded into the target; see `reindexWildcard` option
-
 See API: [map](#map)
 
-2) Structured mapping entries:
+3) Structured mapping entries:
 
 ```php
 $result = DataMapper::map(null, null, [[
@@ -51,7 +67,7 @@ See API: [map](#map), [mapMany](#mapmany)
 ['mapping' => [ ['name','profile.fullname'], ['email','profile.contact.email'] ]]
 ```
 
-3) Template-based mapping from named sources:
+4) Template-based mapping from named sources:
 
 ```php
 $sources = [ 'user' => $userModel, 'addr' => ['street' => 'Main 1'] ];
@@ -91,7 +107,7 @@ $template = [
 
 **📖 See [Template Expressions Documentation](template-expressions.md) for complete guide.**
 
-4) **Pipeline API (NEW)** - Modern, fluent API with reusable transformers:
+5) **Pipeline API (NEW)** - Modern, fluent API with reusable transformers:
 
 ```php
 use event4u\DataHelpers\DataMapper;
@@ -108,7 +124,7 @@ $result = DataMapper::pipe([
 
 **📖 See [Pipeline API Documentation](data-mapper-pipeline.md) for detailed guide and examples.**
 
-5) Inverse template-based mapping to named targets:
+6) Inverse template-based mapping to named targets:
 
 ```php
 $targets = [ 'user' => $userDto, 'addr' => [] ];

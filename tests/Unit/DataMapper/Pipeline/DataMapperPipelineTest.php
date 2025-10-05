@@ -19,8 +19,8 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $mapping = [
-            'user.name' => 'name',
-            'user.email' => 'email',
+            'name' => 'user.name',
+            'email' => 'user.email',
         ];
 
         $result = DataMapper::pipe([TrimStrings::class])
@@ -39,8 +39,8 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $mapping = [
-            'user.name' => 'name',
-            'user.email' => 'email',
+            'name' => 'user.name',
+            'email' => 'user.email',
         ];
 
         $result = DataMapper::pipe([LowercaseEmails::class])
@@ -60,9 +60,9 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $mapping = [
-            'user.name' => 'name',
-            'user.email' => 'email',
-            'user.phone' => 'phone',
+            'name' => 'user.name',
+            'email' => 'user.email',
+            'phone' => 'user.phone',
         ];
 
         $result = DataMapper::pipe([SkipEmptyValues::class])
@@ -82,8 +82,8 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $mapping = [
-            'user.name' => 'name',
-            'user.email' => 'email',
+            'name' => 'user.name',
+            'email' => 'user.email',
         ];
 
         $result = DataMapper::pipe([
@@ -105,9 +105,9 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $mapping = [
-            'user.name' => 'name',
-            'user.email' => 'email',
-            'user.phone' => 'phone',
+            'name' => 'user.name',
+            'email' => 'user.email',
+            'phone' => 'user.phone',
         ];
 
         $result = DataMapper::pipe([
@@ -129,8 +129,8 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $mapping = [
-            'users.*.name' => 'names.*',
-            'users.*.age' => 'ages.*',
+            'names.*' => 'users.*.name',
+            'ages.*' => 'users.*.age',
         ];
 
         $result = DataMapper::pipe([
@@ -149,7 +149,7 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $mapping = [
-            'user.name' => 'name',
+            'name' => 'user.name',
         ];
 
         $result = DataMapper::pipe([TrimStrings::class])

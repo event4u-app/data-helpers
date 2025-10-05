@@ -17,6 +17,36 @@ use event4u\DataHelpers\DotPathHelper;
 class MappingEngine
 {
     /**
+     * Check if mapping is a nested structure (target structure with source paths as values).
+     *
+     * Example:
+     *   ['profile' => ['name' => 'user.name', 'email' => 'user.email']]
+     *
+     * This is different from structured mapping which has numeric keys and 'source'/'target' keys.
+     *
+     * @param array<int|string, mixed> $mapping
+     */
+    public static function isNestedMapping(array $mapping): bool
+    {
+        // Structured mapping has numeric keys (0, 1, 2, ...)
+        // Nested mapping has string keys (profile, user, ...)
+        foreach ($mapping as $key => $value) {
+            // If key is numeric, it's structured mapping, not nested
+            if (is_int($key)) {
+                return false;
+            }
+
+            // If value is array, it could be nested mapping
+            if (is_array($value)) {
+                // Check if it's a structured mapping entry (has 'source' or 'target' keys)
+                return !(isset($value['source']) || isset($value['target']) || isset($value['mapping']));
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Check if mapping is a simple associative array (dot-path → dot-path).
      *
      * @param array<int|string, mixed> $mapping
@@ -30,6 +60,37 @@ class MappingEngine
         }
 
         return [] !== $mapping;
+    }
+
+    /**
+     * Flatten nested mapping structure to simple target => source format.
+     *
+     * Converts:
+     *   ['profile' => ['name' => 'user.name', 'email' => 'user.email']]
+     * To:
+     *   ['profile.name' => 'user.name', 'profile.email' => 'user.email']
+     *
+     * @param array<int|string, mixed> $mapping
+     * @return array<string, string>
+     */
+    public static function flattenNestedMapping(array $mapping, string $prefix = ''): array
+    {
+        $flattened = [];
+
+        foreach ($mapping as $targetKey => $value) {
+            $targetPath = '' === $prefix ? (string)$targetKey : $prefix . '.' . $targetKey;
+
+            if (is_array($value)) {
+                // Recursively flatten nested arrays
+                $flattened = array_merge($flattened, self::flattenNestedMapping($value, $targetPath));
+            } elseif (is_string($value)) {
+                // Leaf node: value is the source path
+                // Keep target => source format
+                $flattened[$targetPath] = $value;
+            }
+        }
+
+        return $flattened;
     }
 
     /**
@@ -47,7 +108,7 @@ class MappingEngine
     }
 
     /**
-     * Process simple mapping (associative array of source => target paths).
+     * Process simple mapping (associative array of target => source paths).
      *
      * @param array<string, string> $mapping
      * @param array<string, mixed> $hooks
@@ -76,7 +137,7 @@ class MappingEngine
         }
 
         $mappingIndex = 0;
-        foreach ($mapping as $sourcePath => $targetPath) {
+        foreach ($mapping as $targetPath => $sourcePath) {
             // Create context only if hooks exist
             $pairContext = $hasHooks ? new PairContext(
                 'simple',

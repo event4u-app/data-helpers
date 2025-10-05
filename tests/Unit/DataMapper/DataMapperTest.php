@@ -18,7 +18,7 @@ describe('DataMapper', function(): void {
             $target = [];
 
             $mapping = [
-                'key1.subkey3' => 'target2.subtarget4.subsub9',
+                'target2.subtarget4.subsub9' => 'key1.subkey3',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -41,8 +41,37 @@ describe('DataMapper', function(): void {
             ];
             $target = [];
             $mapping = [
-                'user.name' => 'profile.fullname',
-                'user.email' => 'profile.contact.email',
+                'profile.fullname' => 'user.name',
+                'profile.contact.email' => 'user.email',
+            ];
+
+            $result = DataMapper::map($source, $target, $mapping);
+
+            expect($result)->toBe([
+                'profile' => [
+                    'fullname' => 'Alice',
+                    'contact' => [
+                        'email' => 'alice@example.com',
+                    ],
+                ],
+            ]);
+        });
+
+        test('maps multiple nested fields', function(): void {
+            $source = [
+                'user' => [
+                    'name' => 'Alice',
+                    'email' => 'alice@example.com',
+                ],
+            ];
+            $target = [];
+            $mapping = [
+                'profile' => [
+                    'fullname' => 'user.name',
+                    'contact' => [
+                        'email' => 'user.email',
+                    ],
+                ],
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -70,7 +99,7 @@ describe('DataMapper', function(): void {
             ];
             $target = [];
             $mapping = [
-                'users.*.email' => 'emails.*',
+                'emails.*' => 'users.*.email',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -87,9 +116,9 @@ describe('DataMapper', function(): void {
             $source = ['Alice', 'Bob', 'Charlie'];
             $target = [];
             $mapping = [
-                '0' => 'first',
-                '1' => 'second',
-                '2' => 'third',
+                'first' => '0',
+                'second' => '1',
+                'third' => '2',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -111,9 +140,9 @@ describe('DataMapper', function(): void {
             ];
             $target = [];
             $mapping = [
-                'string_key' => 'result.string',
-                '0' => 'result.numeric',
-                'nested.sub' => 'result.nested',
+                'result.string' => 'string_key',
+                'result.numeric' => '0',
+                'result.nested' => 'nested.sub',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -130,7 +159,8 @@ describe('DataMapper', function(): void {
 
     describe('Structured mapping (source/target entries)', function(): void {
         test('maps model and array into shared DTO using source/target mappings', function(): void {
-            $userModel = new class extends Model {};
+            $userModel = new class extends Model {
+            };
             $userModel->setRawAttributes([
                 'name' => 'Alice',
                 'email' => 'alice@example.com',
@@ -173,7 +203,8 @@ describe('DataMapper', function(): void {
         });
 
         test('mapMany returns array of results for each mapping', function(): void {
-            $userModel = new class extends Model {};
+            $userModel = new class extends Model {
+            };
             $userModel->setRawAttributes([
                 'name' => 'Alice',
                 'email' => 'alice@example.com',
@@ -201,7 +232,8 @@ describe('DataMapper', function(): void {
         });
 
         test('mapMany respects global skipNull=false and per-entry override', function(): void {
-            $userModel = new class extends Model {};
+            $userModel = new class extends Model {
+            };
             $userModel->setRawAttributes([
                 'name' => 'Alice',
                 'email' => null,
@@ -318,8 +350,8 @@ describe('DataMapper', function(): void {
             ];
             $target = [];
             $mapping = [
-                'name' => 'user.name',
-                'email' => 'user.email',
+                'user.name' => 'name',
+                'user.email' => 'email',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -413,8 +445,8 @@ describe('DataMapper', function(): void {
         ];
         $target = [];
         $mapping = [
-            'name' => 'user.name',
-            'email' => 'user.email',
+            'user.name' => 'name',
+            'user.email' => 'email',
         ];
 
         $result = DataMapper::map($source, $target, $mapping, false);
@@ -478,7 +510,8 @@ describe('DataMapper', function(): void {
 
 describe('Template mapping', function(): void {
     test('builds structure from array template and sources', function(): void {
-        $userModel = new class extends Model {};
+        $userModel = new class extends Model {
+        };
         $userModel->setRawAttributes([
             'name' => 'Alice',
             'email' => 'alice@example.com',
@@ -601,7 +634,7 @@ describe('Reindexing in map and mapMany', function(): void {
         ];
 
         $mapping = [
-            'users.*.email' => 'emails.*',
+            'emails.*' => 'users.*.email',
         ];
 
         $resultDefault = DataMapper::map($source, [], $mapping, true);
