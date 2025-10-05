@@ -7,7 +7,6 @@ use Rector\CodeQuality\Rector\Identical\SimplifyBoolIdenticalTrueRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\Switch_\SwitchTrueToIfRector;
 use Rector\CodingStyle\Rector\ClassMethod\MakeInheritedMethodVisibilitySameAsParentRector;
-use Rector\CodingStyle\Rector\PostInc\PostIncDecToPreIncDecRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\CodingStyle\Rector\Stmt\RemoveUselessAliasInUseStatementRector;
 use Rector\CodingStyle\Rector\String_\SymplifyQuoteEscapeRector;
@@ -34,7 +33,6 @@ use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableR
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php73\Rector\BooleanOr\IsCountableRector;
 use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
-use Rector\Privatization\Rector\Class_\FinalizeTestCaseClassRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\Set\ValueObject\LevelSetList;
