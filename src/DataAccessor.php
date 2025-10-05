@@ -111,7 +111,7 @@ class DataAccessor
         $pathInfo = $this->getPathInfo($path);
 
         $results = $pathInfo['hasWildcard']
-            ? $this->extract($this->data, $pathInfo['segments'])
+            ? $this->extract($this->data, $pathInfo['segments'], '', 0, count($pathInfo['segments']))
             : $this->extractSimple($this->data, $pathInfo['segments']);
 
         if (null === $results) {
@@ -415,23 +415,29 @@ class DataAccessor
      * Recursive extraction supporting arrays, Models, Collections and wildcards.
      *
      * @param array<int, string> $segments
-     * @param int $index Current position in segments array (for performance)
+     * @param int $index Current position in segments array
+     * @param int $segmentCount Total number of segments (cached for performance)
      * @return null|array<int|string, mixed>
      */
-    private function extract(mixed $current, array $segments, string $prefix = '', int $index = 0): ?array
-    {
+    private function extract(
+        mixed $current,
+        array $segments,
+        string $prefix = '',
+        int $index = 0,
+        int $segmentCount = 0,
+    ): ?array {
         // Base case: reached end of path
-        if (count($segments) <= $index) {
+        if ($segmentCount <= $index) {
             return [
                 $prefix => $current,
             ];
         }
 
-        // Get current segment using O(1) index access instead of O(n) array_shift
+        // Get current segment using O(1) index access
         $segment = $segments[$index];
 
-        // Wildcard
-        if (DotPathHelper::isWildcard($segment)) {
+        // Wildcard - inline check for performance
+        if ('*' === $segment) {
             if (CollectionHelper::isCollection($current)) {
                 $current = CollectionHelper::toArray($current);
             } elseif (EntityHelper::isEntity($current)) {
@@ -442,30 +448,33 @@ class DataAccessor
                 return null;
             }
 
-            return $this->collectFromIterable($current, $segments, $prefix, $index + 1);
+            return $this->collectFromIterable($current, $segments, $prefix, $index + 1, $segmentCount);
         }
 
         // Traverse array
         if (is_array($current) && array_key_exists($segment, $current)) {
-            $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
+            // Inline buildPrefix for performance
+            $newPrefix = '' === $prefix ? $segment : $prefix . '.' . $segment;
 
-            return $this->extract($current[$segment], $segments, $newPrefix, $index + 1);
+            return $this->extract($current[$segment], $segments, $newPrefix, $index + 1, $segmentCount);
         }
 
         // Traverse entity/model
         if (EntityHelper::hasAttribute($current, $segment)) {
             $value = EntityHelper::getAttribute($current, $segment);
-            $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
+            // Inline buildPrefix for performance
+            $newPrefix = '' === $prefix ? $segment : $prefix . '.' . $segment;
 
-            return $this->extract($value, $segments, $newPrefix, $index + 1);
+            return $this->extract($value, $segments, $newPrefix, $index + 1, $segmentCount);
         }
 
         // Traverse collection
         if (CollectionHelper::has($current, $segment)) {
             $value = CollectionHelper::get($current, $segment);
-            $newPrefix = DotPathHelper::buildPrefix($prefix, $segment);
+            // Inline buildPrefix for performance
+            $newPrefix = '' === $prefix ? $segment : $prefix . '.' . $segment;
 
-            return $this->extract($value, $segments, $newPrefix, $index + 1);
+            return $this->extract($value, $segments, $newPrefix, $index + 1, $segmentCount);
         }
 
         return null;
@@ -477,15 +486,21 @@ class DataAccessor
      * @param array<int|string, mixed> $current
      * @param array<int, string> $segments Full segments array
      * @param int $index Current position in segments (after wildcard)
+     * @param int $segmentCount Total number of segments (cached)
      * @return array<int|string, mixed>
      */
-    private function collectFromIterable(array $current, array $segments, string $prefix, int $index): array
-    {
+    private function collectFromIterable(
+        array $current,
+        array $segments,
+        string $prefix,
+        int $index,
+        int $segmentCount,
+    ): array {
         $collected = [];
         foreach ($current as $key => $item) {
             // Inline prefix building for performance (avoid function call overhead)
             $newPrefix = '' === $prefix ? (string)$key : $prefix . '.' . $key;
-            $value = $this->extract($item, $segments, $newPrefix, $index);
+            $value = $this->extract($item, $segments, $newPrefix, $index, $segmentCount);
             if (is_array($value)) {
                 foreach ($value as $k => $v) {
                     $collected[$k] = $v; // avoid array_merge copies
