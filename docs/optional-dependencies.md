@@ -45,13 +45,13 @@ composer require illuminate/database:^8
 **What you get:**
 
 - ✅ Everything from Option 1
-- ✅ Full Laravel Collection support with all methods (Laravel 8+)
-- ✅ Full Eloquent Model support with database functionality (Laravel 8+)
+- ✅ Full Laravel Collection support with all methods (Laravel 9+)
+- ✅ Full Eloquent Model support with database functionality (Laravel 9+)
 - ✅ Full Arrayable interface support
 
 **Use this option when:**
 
-- You're working in a Laravel project (Laravel 8 or higher)
+- You're working in a Laravel project (Laravel 9 or higher)
 - You need to work with Laravel Collections or Eloquent Models
 
 ### Option 3: With Symfony/Doctrine Support (Recommended for Symfony Projects)

@@ -372,7 +372,7 @@ This package works with **any PHP 8.2+ project**. Framework support is **optiona
 
 ✅ Arrays, Objects, JSON, XML
 
-### Laravel 8+ (Optional)
+### Laravel 9+ (Optional)
 
 ```bash
 composer require illuminate/support illuminate/database
@@ -538,7 +538,7 @@ Run benchmarks yourself: `composer bench`
 ## 📋 Requirements
 
 - **PHP 8.2+**
-- **Optional:** Laravel 8+, Symfony 5+, Doctrine Collections 1.6+, Doctrine ORM 2.10+
+- **Optional:** Laravel 9+, Symfony 5+, Doctrine Collections 1.6+, Doctrine ORM 2.10+
 
 ---
 
