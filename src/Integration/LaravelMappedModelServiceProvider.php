@@ -43,12 +43,12 @@ class LaravelMappedModelServiceProvider extends ServiceProvider
     /** Register services. */
     public function register(): void
     {
-        // Register the binding resolver
+        // Register the binding resolver for automatic MappedDataModel filling
         $this->app->resolving(function($object, Application $app): void {
             if ($object instanceof MappedDataModel && !$object->isMapped()) {
                 /** @var Request $request */
-                $request = $app->make(Request::class); // @phpstan-ignore-line class.notFound
-                $object->fill($request->all()); // @phpstan-ignore-line class.notFound
+                $request = $app->make(Request::class);
+                $object->fill($request->all());
             }
         });
     }
@@ -56,22 +56,7 @@ class LaravelMappedModelServiceProvider extends ServiceProvider
     /** Bootstrap services. */
     public function boot(): void
     {
-        // Register route model binding for MappedDataModel subclasses
-        $this->app->afterResolving(function($resolved, Application $app): void {
-            if (!$resolved instanceof MappedDataModel) {
-                return;
-            }
-
-            // If already mapped, skip
-            if ($resolved->isMapped()) {
-                return;
-            }
-
-            // Get request data and fill the model
-            /** @var Request $request */
-            $request = $app->make(Request::class); // @phpstan-ignore-line class.notFound
-            $resolved->fill($request->all()); // @phpstan-ignore-line class.notFound
-        });
+        // No additional bootstrapping needed - resolving hook handles everything
     }
 
     /**

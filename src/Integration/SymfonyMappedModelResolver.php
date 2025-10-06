@@ -114,20 +114,16 @@ class SymfonyMappedModelResolver implements ValueResolverInterface
         $content = $request->getContent();
         if (!empty($content)) {
             try {
-                /** @var array<string, mixed> $json */
-                $json = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
-                if (is_array($json)) {
-                    return $json;
-                }
+                /** @var array<string, mixed> $decoded */
+                $decoded = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+                return $decoded;
             } catch (JsonException) {
-                // Not JSON, continue
+                // Not JSON, continue to form data
             }
         }
 
-        // Fallback to request parameters
-        /** @var array<string, mixed> $params */
-        $params = $request->request->all();
-        return $params;
+        // Fallback to request parameters (form data)
+        return $request->request->all();
     }
 }
 

@@ -26,13 +26,14 @@
   },
   "require-dev": {
     "composer/composer": "^2.0",
-    "doctrine/collections": "^2.0",
-    "doctrine/orm": "^3.0",
+    "doctrine/collections": "^2.0|^3.0",
+    "doctrine/orm": "^2.0|^3.0",
     "ergebnis/phpstan-rules": "^2.12",
-    "illuminate/database": "^11.0",
-    "illuminate/support": "^11.0",
+    "illuminate/database": "^9.0|^10.0|^11.0",
+    "illuminate/http": "^9.0|^10.0|^11.0",
+    "illuminate/support": "^9.0|^10.0|^11.0",
     "jangregor/phpstan-prophecy": "^2.2",
-    "pestphp/pest": "^3.0",
+    "pestphp/pest": "^2.0|^3.0",
     "phpat/phpat": "^0.12.0",
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-mockery": "^2.0",
@@ -43,16 +44,11 @@
     "symplify/easy-coding-standard": "^12.6",
     "timeweb/phpstan-enum": "^4.0",
     "phpbench/phpbench": "^1.4",
-    "symfony/http-kernel": "^7.3",
-    "symfony/http-foundation": "^7.3"
+    "symfony/http-kernel": "^6.0|^7.0",
+    "symfony/http-foundation": "^6.0|^7.0"
   },
   "repositories": [],
-  "suggest": {
-    "illuminate/support": "Required for Laravel Collection and Arrayable support (^11.0)",
-    "illuminate/database": "Required for Eloquent Model support (^11.0)",
-    "doctrine/collections": "Required for Doctrine Collection support (^1.6 || ^2.0)",
-    "doctrine/orm": "Required for Doctrine Entity support (^2.10 || ^3.0)"
-  },
+  "suggest": {},
   "minimum-stability": "stable",
   "prefer-stable": true,
   "conflict": {},
@@ -69,22 +65,79 @@
   },
   "bin": [],
   "scripts": {
+    "composer:update": "composer update php --prefer-dist --no-interaction -W 2>&1",
     "test": "vendor/bin/pest --no-coverage",
     "test:coverage": "vendor/bin/pest",
+    "test:laravel9": [
+      "./scripts/test-with-versions.sh --laravel 9",
+      "@composer:update"
+    ],
+    "test:laravel10": [
+      "./scripts/test-with-versions.sh --laravel 10",
+      "@composer:update"
+    ],
+    "test:laravel11": [
+      "./scripts/test-with-versions.sh --laravel 11",
+      "@composer:update"
+    ],
+    "test:symfony6": [
+      "./scripts/test-with-versions.sh --symfony 6",
+      "@composer:update"
+    ],
+    "test:symfony7": [
+      "./scripts/test-with-versions.sh --symfony 7",
+      "@composer:update"
+    ],
+    "test:doctrine2": [
+      "./scripts/test-with-versions.sh --doctrine 2",
+      "@composer:update"
+    ],
+    "test:doctrine3": [
+      "./scripts/test-with-versions.sh --doctrine 3",
+      "@composer:update"
+    ],
+    "test:all-laravel": [
+      "@test:laravel9",
+      "@test:laravel10",
+      "@test:laravel11"
+    ],
+    "test:all-symfony": [
+      "@test:symfony6",
+      "@test:symfony7"
+    ],
+    "test:all-doctrine": [
+      "@test:doctrine2",
+      "@test:doctrine3"
+    ],
+    "test:all": [
+      "@test:all-laravel",
+      "@test:all-symfony",
+      "@test:all-doctrine"
+    ],
     "phpstan": "vendor/bin/phpstan analyse --memory-limit=512M",
     "phpstan:baseline": "vendor/bin/phpstan analyse --memory-limit=512M --generate-baseline",
     "ecs": "vendor/bin/ecs check",
     "ecs:fix": "vendor/bin/ecs check --fix",
     "rector": "vendor/bin/rector process --dry-run",
     "rector:fix": "vendor/bin/rector process",
-    "quality": [
-      "@phpstan",
+    "refactor": [
       "@ecs",
+      "@rector"
+    ],
+    "refactor:fix": [
+      "@ecs:fix",
+      "@rector:fix"
+    ],
+    "quality": [
+      "@ecs",
+      "@rector",
+      "@phpstan",
       "@test"
     ],
     "quality:fix": [
       "@ecs:fix",
       "@rector:fix",
+      "@phpstan",
       "@test"
     ]
   },

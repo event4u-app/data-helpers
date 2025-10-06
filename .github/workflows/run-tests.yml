@@ -6,13 +6,23 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         php: [8.2, 8.3, 8.4]
+        laravel: [9, 10, 11]
         stability: [prefer-lowest, prefer-stable]
+        exclude:
+          # Laravel 9 requires PHP 8.0-8.2, not compatible with PHP 8.3+
+          - php: 8.3
+            laravel: 9
+          - php: 8.4
+            laravel: 9
+          # Laravel 10 requires PHP 8.1-8.3, not compatible with PHP 8.4
+          - php: 8.4
+            laravel: 10
 
-    name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }}
 
     steps:
       - name: Checkout code
@@ -31,7 +41,9 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Install dependencies
-        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+        run: |
+          composer require "illuminate/support:^${{ matrix.laravel }}.0" "illuminate/database:^${{ matrix.laravel }}.0" "illuminate/http:^${{ matrix.laravel }}.0" --no-update --no-interaction --dev
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --with-all-dependencies
 
       - name: Execute tests
         run: composer test

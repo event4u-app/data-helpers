@@ -130,38 +130,27 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
         // Store original data
         $this->originalData = $data;
 
-        // Apply template mapping with pipes
-        $pipes = $this->pipes();
+        // Apply template mapping
         $template = $this->template();
-
-        // Separate static values from mappings
         [$mappings, $staticValues] = $this->separateStaticValues($template);
 
-        // Apply DataMapper with or without pipes
+        // Apply DataMapper
         if (empty($mappings)) {
-            // Only static values
+            // Only static values - no mapping needed
             $this->mappedData = $staticValues;
-        } elseif ([] === $pipes) {
-            // No pipes - use DataMapper directly
-            $result = DataMapper::map(
-                ['request' => $data],
-                $staticValues,
-                $mappings,
-                false
-            );
-            // DataMapper::map() returns the target (array) when target is array
-            /** @var array<string, mixed> $result */
-            $this->mappedData = $result;
         } else {
-            // With pipes - use DataMapper::pipe()
-            $result = DataMapper::pipe($pipes)->map(
-                ['request' => $data],
-                $staticValues,
-                $mappings,
-                false
-            );
-            // DataMapper::pipe()->map() returns the target (array) when target is array
-            /** @var array<string, mixed> $result */
+            // Map with or without pipes
+            $pipes = $this->pipes();
+            $source = ['request' => $data];
+
+            if ([] === $pipes) {
+                /** @var array<string, mixed> $result */
+                $result = DataMapper::map($source, $staticValues, $mappings, false);
+            } else {
+                /** @var array<string, mixed> $result */
+                $result = DataMapper::pipe($pipes)->map($source, $staticValues, $mappings, false);
+            }
+
             $this->mappedData = $result;
         }
 
@@ -331,17 +320,12 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
      */
     private function objectToArray(object $object): array
     {
-        // Laravel Request
+        // Laravel/Symfony Request (both have all() method)
         if (method_exists($object, 'all')) {
             return $object->all();
         }
 
-        // Symfony Request
-        if (method_exists($object, 'request') && property_exists($object, 'request')) {
-            return $object->request->all();
-        }
-
-        // Arrayable interface
+        // Arrayable interface (Laravel)
         if (method_exists($object, 'toArray')) {
             /** @var array<string, mixed> */
             return $object->toArray();
@@ -367,8 +351,7 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
      */
     public static function fromRequest(array|object $data): static
     {
-        /** @phpstan-ignore-next-line */
-        return (new static($data));
+        return new static($data); // @phpstan-ignore-line new.static
     }
 
     /** String representation - returns JSON. */
