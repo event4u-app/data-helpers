@@ -90,5 +90,15 @@
     "allow-plugins": {
       "pestphp/pest-plugin": true
     }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "event4u\\DataHelpers\\Integration\\LaravelMappedModelServiceProvider"
+      ]
+    },
+    "symfony": {
+      "require": "^6.0|^7.0"
+    }
   }
 }

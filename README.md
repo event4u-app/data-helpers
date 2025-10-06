@@ -330,6 +330,40 @@ $result = DataMapper::autoMap($source, $target);
 
 ---
 
+### MappedDataModel - Laravel-Style Request Binding
+
+Automatically map and transform request data with type safety and validation.
+
+```php
+use event4u\DataHelpers\MappedDataModel;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToInteger;
+
+class ProductModel extends MappedDataModel
+{
+    protected function template(): array
+    {
+        return [
+            'product_id' => 'request.id',
+            'name' => 'request.name',
+            'price' => 'request.price',
+        ];
+    }
+
+    protected function pipes(): array
+    {
+        return [TrimStrings::class, CastToInteger::class];
+    }
+}
+
+// Use in controller
+$product = new ProductModel(['id' => '12345', 'name' => '  Mouse  ']);
+```
+
+📖 **[Full MappedDataModel Documentation](docs/mapped-data-model.md)**
+
+📖 **[All Transformers](docs/transformers.md)**
+
 ## 🔧 Framework Support
 
 This package works with **any PHP 8.2+ project**. Framework support is **optional** and **automatically detected**.
@@ -454,38 +488,40 @@ $result = DataMapper::pipe([
 All operations are highly optimized and run in microseconds:
 
 <!-- BENCHMARK_RESULTS_START -->
+
 ### DataAccessor
 
-| Operation | Time | Description |
-|-----------|------|-------------|
-| Simple Get | 0.321μs | Get value from flat array |
-| Nested Get | 0.424μs | Get value from nested path |
-| Wildcard Get | 4.710μs | Get values using single wildcard |
+| Operation         | Time     | Description                                                   |
+|-------------------|----------|---------------------------------------------------------------|
+| Simple Get        | 0.321μs  | Get value from flat array                                     |
+| Nested Get        | 0.424μs  | Get value from nested path                                    |
+| Wildcard Get      | 4.710μs  | Get values using single wildcard                              |
 | Deep Wildcard Get | 72.335μs | Get values using multiple wildcards (10 depts × 20 employees) |
-| Typed Get String | 0.361μs | Get typed string value |
-| Typed Get Int | 0.361μs | Get typed int value |
-| Create Accessor | 0.083μs | Instantiate DataAccessor |
+| Typed Get String  | 0.361μs  | Get typed string value                                        |
+| Typed Get Int     | 0.361μs  | Get typed int value                                           |
+| Create Accessor   | 0.083μs  | Instantiate DataAccessor                                      |
 
 ### DataMutator
 
-| Operation | Time | Description |
-|-----------|------|-------------|
-| Simple Set | 0.595μs | Set value in flat array |
-| Nested Set | 0.947μs | Set value in nested path |
-| Deep Set | 1.146μs | Set value creating new nested structure |
-| Multiple Set | 1.721μs | Set multiple values at once |
-| Merge | 0.980μs | Deep merge arrays |
-| Unset | 0.898μs | Remove single value |
-| Multiple Unset | 1.485μs | Remove multiple values |
+| Operation      | Time    | Description                             |
+|----------------|---------|-----------------------------------------|
+| Simple Set     | 0.595μs | Set value in flat array                 |
+| Nested Set     | 0.947μs | Set value in nested path                |
+| Deep Set       | 1.146μs | Set value creating new nested structure |
+| Multiple Set   | 1.721μs | Set multiple values at once             |
+| Merge          | 0.980μs | Deep merge arrays                       |
+| Unset          | 0.898μs | Remove single value                     |
+| Multiple Unset | 1.485μs | Remove multiple values                  |
 
 ### DataMapper
 
-| Operation | Time | Description |
-|-----------|------|-------------|
-| Simple Mapping | 6.288μs | Map flat structure |
-| Nested Mapping | 7.129μs | Map nested structure |
-| Auto Map | 6.804μs | Automatic field mapping |
+| Operation         | Time    | Description                    |
+|-------------------|---------|--------------------------------|
+| Simple Mapping    | 6.288μs | Map flat structure             |
+| Nested Mapping    | 7.129μs | Map nested structure           |
+| Auto Map          | 6.804μs | Automatic field mapping        |
 | Map From Template | 5.091μs | Map using template expressions |
+
 <!-- BENCHMARK_RESULTS_END -->
 
 **Key Insights:**
