@@ -88,13 +88,31 @@ class DataMapper
             // Flatten nested structure to simple source => target format
             $mapping = MappingEngine::flattenNestedMapping($mapping);
             /** @var array<string, string> $mapping */
-            return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks, $trimValues, $caseInsensitiveReplace);
+            return self::mapSimple(
+                $source,
+                $target,
+                $mapping,
+                $skipNull,
+                $reindexWildcard,
+                $hooks,
+                $trimValues,
+                $caseInsensitiveReplace
+            );
         }
 
         // Case 2: simple path-to-path mapping like ['a.b' => 'x.y']
         if (MappingEngine::isSimpleMapping($mapping)) {
             /** @var array<string, string> $mapping */
-            return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks, $trimValues, $caseInsensitiveReplace);
+            return self::mapSimple(
+                $source,
+                $target,
+                $mapping,
+                $skipNull,
+                $reindexWildcard,
+                $hooks,
+                $trimValues,
+                $caseInsensitiveReplace
+            );
         }
 
         // Case 3: structured mapping definitions with source/target objects
@@ -266,8 +284,9 @@ class DataMapper
     /**
      * Map with raw paths (no {{ }} required). Used internally by AutoMapper.
      *
-     * @param array<string, string|mixed> $mapping Mapping with raw paths (no {{ }} syntax)
-     * @param array<string, mixed> $hooks
+     * @param array<int|string, mixed>|object $target
+     * @param array<string, string|array{__static__: mixed}> $mapping Mapping with raw paths (no {{ }} syntax)
+     * @param array<int|string, mixed> $hooks
      * @return array<int|string, mixed>|object
      * @internal
      */
@@ -341,7 +360,7 @@ class DataMapper
      *
      * @param array<int|string, mixed>|object $target
      * @param array<string, string|array{__static__: mixed}> $mapping
-     * @param array<string, mixed> $hooks
+     * @param array<int|string, mixed> $hooks
      * @return array<int|string, mixed>|object
      */
     private static function mapSimpleInternal(
@@ -405,7 +424,7 @@ class DataMapper
             }
 
             // Handle wildcard values (always arrays with dot-path keys) - only for dynamic paths
-            if (is_array($value) && !$isStatic && $actualSourcePath !== null && str_contains($actualSourcePath, '*')) {
+            if (is_array($value) && !$isStatic && null !== $actualSourcePath && str_contains($actualSourcePath, '*')) {
                 // Normalize wildcard array (flatten dot-path keys to simple list)
                 $value = WildcardHandler::normalizeWildcardArray($value);
                 WildcardHandler::iterateWildcardItems(

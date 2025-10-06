@@ -48,7 +48,7 @@ final class CastToFloat implements TransformerInterface
 
         // Cast to float if numeric
         if (is_numeric($value)) {
-            return (float) $value;
+            return (float)$value;
         }
 
         return $value;

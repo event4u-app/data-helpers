@@ -15,7 +15,7 @@ class HookInvoker
     /**
      * Check if hooks array is empty (zero overhead optimization).
      *
-     * @param array<string, mixed> $hooks
+     * @param array<int|string, mixed> $hooks
      */
     public static function isEmpty(array $hooks): bool
     {
@@ -77,7 +77,7 @@ class HookInvoker
      * Returns the last non-null result from invoked hooks.
      * If any returns false, false is returned (caller may treat as cancel).
      *
-     * @param array<string,mixed> $hooks
+     * @param array<int|string,mixed> $hooks
      */
     public static function invokeHooks(array $hooks, string $name, HookContext $context): mixed
     {
@@ -138,7 +138,7 @@ class HookInvoker
      * The callable signature should be: function(mixed $value, array|HookContext $context): mixed
      * When a list or associative list of hooks is provided, they are applied in order.
      *
-     * @param array<string,mixed> $hooks
+     * @param array<int|string,mixed> $hooks
      */
     public static function invokeValueHook(array $hooks, string $name, HookContext $context, mixed $value): mixed
     {
@@ -191,7 +191,7 @@ class HookInvoker
      * Invoke target-mutating hook like afterWrite. Expected signature:
      *   function(mixed $target, array|HookContext $context, mixed $writtenValue): mixed
      *
-     * @param array<string,mixed> $hooks
+     * @param array<int|string,mixed> $hooks
      */
     public static function invokeTargetHook(
         array $hooks,

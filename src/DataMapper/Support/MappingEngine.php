@@ -185,7 +185,9 @@ class MappingEngine
 
             // Handle wildcard values (always arrays with dot-path keys)
             // Use cached wildcard check - only for expressions
-            if (is_array($value) && $isExpression && $actualSourcePath !== null && DotPathHelper::containsWildcard($actualSourcePath)) {
+            if (is_array($value) && $isExpression && null !== $actualSourcePath && DotPathHelper::containsWildcard(
+                $actualSourcePath
+            )) {
                 // Normalize wildcard array (flatten dot-path keys to simple list)
                 $value = WildcardHandler::normalizeWildcardArray($value);
 

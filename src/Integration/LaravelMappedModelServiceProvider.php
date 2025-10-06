@@ -40,27 +40,24 @@ use Illuminate\Support\ServiceProvider;
  */
 class LaravelMappedModelServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     */
+    /** Register services. */
     public function register(): void
     {
         // Register the binding resolver
-        $this->app->resolving(function ($object, Application $app): void {
+        $this->app->resolving(function($object, Application $app): void {
             if ($object instanceof MappedDataModel && !$object->isMapped()) {
-                $request = $app->make(Request::class);
-                $object->fill($request->all());
+                /** @var Request $request */
+                $request = $app->make(Request::class); // @phpstan-ignore-line class.notFound
+                $object->fill($request->all()); // @phpstan-ignore-line class.notFound
             }
         });
     }
 
-    /**
-     * Bootstrap services.
-     */
+    /** Bootstrap services. */
     public function boot(): void
     {
         // Register route model binding for MappedDataModel subclasses
-        $this->app->afterResolving(function ($resolved, Application $app): void {
+        $this->app->afterResolving(function($resolved, Application $app): void {
             if (!$resolved instanceof MappedDataModel) {
                 return;
             }
@@ -71,8 +68,9 @@ class LaravelMappedModelServiceProvider extends ServiceProvider
             }
 
             // Get request data and fill the model
-            $request = $app->make(Request::class);
-            $resolved->fill($request->all());
+            /** @var Request $request */
+            $request = $app->make(Request::class); // @phpstan-ignore-line class.notFound
+            $resolved->fill($request->all()); // @phpstan-ignore-line class.notFound
         });
     }
 

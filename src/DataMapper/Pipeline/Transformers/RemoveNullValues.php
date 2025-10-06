@@ -19,7 +19,7 @@ final class RemoveNullValues implements TransformerInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
-        return null === $value ? '__skip__' : $value;
+        return $value ?? '__skip__';
     }
 
     public function getHook(): string

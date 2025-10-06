@@ -66,7 +66,7 @@ describe('Template Expressions', function(): void {
     it('evaluates alias reference', function(): void {
         $template = [
             'fullname' => '{{ user.name }}',
-            'copy' => '@fullname',
+            'copy' => '{{ @fullname }}',
         ];
 
         $sources = [
@@ -76,13 +76,69 @@ describe('Template Expressions', function(): void {
         $result = DataMapper::mapFromTemplate($template, $sources);
 
         expect($result['fullname'])->toBe('Alice');
-        expect($result['copy'])->toBe('Alice');
+        expect($result['copy'])->toBe('Alice'); // Copies value from 'fullname' in target
+    });
+
+    it('evaluates unordered alias reference', function(): void {
+        $template = [
+            'copy' => '{{ @fullname }}',
+            'fullname' => '{{ user.name }}',
+        ];
+
+        $sources = [
+            'user' => ['name' => 'Alice'],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result['fullname'])->toBe('Alice');
+        expect($result['copy'])->toBe('Alice'); // Copies value from 'fullname' in target
+    });
+
+    it('distinguishes between source, target alias, and static values', function(): void {
+        $template = [
+            'name' => '{{ user.name }}',           // Source reference
+            'copyName' => '{{ @name }}',           // Target alias reference
+            'staticValue' => 'hardcoded',          // Static string
+            'anotherStatic' => 'user.name',        // Static string (looks like path but no {{ }})
+        ];
+
+        $sources = [
+            'user' => ['name' => 'Alice'],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result['name'])->toBe('Alice');              // From source
+        expect($result['copyName'])->toBe('Alice');          // Copied from target 'name'
+        expect($result['staticValue'])->toBe('hardcoded');   // Static string
+        expect($result['anotherStatic'])->toBe('user.name'); // Static string (not resolved)
+    });
+
+    it('handles nested alias references', function(): void {
+        $template = [
+            'firstName' => '{{ user.firstName }}',
+            'lastName' => '{{ user.lastName }}',
+            'copyFirstName' => '{{ @firstName }}',
+            'copyLastName' => '{{ @lastName }}',
+        ];
+
+        $sources = [
+            'user' => ['firstName' => 'Alice', 'lastName' => 'Smith'],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result['firstName'])->toBe('Alice');
+        expect($result['lastName'])->toBe('Smith');
+        expect($result['copyFirstName'])->toBe('Alice');  // Copied from target 'firstName'
+        expect($result['copyLastName'])->toBe('Smith');   // Copied from target 'lastName'
     });
 
     it('combines expressions with regular references', function(): void {
         $template = [
             'name' => '{{ user.name | upper }}',
-            'email' => 'user.email',
+            'email' => '{{ user.email }}',
             'city' => '{{ address.city ?? "Unknown" }}',
         ];
 

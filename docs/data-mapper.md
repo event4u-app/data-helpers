@@ -87,9 +87,10 @@ $result = DataMapper::mapFromTemplate($template, $sources, skipNull: true, reind
 See API: [mapFromTemplate](#mapfromtemplate)
 
 - Template may be a JSON string or an array
-- **Template Syntax:** Source paths must be wrapped in `{{ }}` (e.g., `'{{ user.name }}'`)
-- **Static Values:** Values without `{{ }}` are treated as static strings
-- **Alias References:** Simple keys without dots can reference previously resolved values (e.g., `'copy' => 'fullname'`)
+- **Template Syntax:**
+  - **Source paths:** `'{{ user.name }}'` - Fetches value from source
+  - **Target aliases:** `'{{ @fieldName }}'` - Copies value from already resolved target field
+  - **Static values:** `'admin'` - Used as literal string (no `{{ }}`)
 - Unknown source aliases return `null` (skipped if `skipNull=true`)
 - Wildcards allowed (e.g., `'{{ src.users.*.email }}'`)
 - **NEW:** Supports template expressions with filters and defaults (see below)
@@ -101,12 +102,37 @@ Templates now support powerful expression syntax:
 ```php
 $template = [
   'profile' => [
-    'name' => '{{ user.firstName | ucfirst }}',           // With filter
+    'name' => '{{ user.firstName | ucfirst }}',           // Source with filter
     'email' => '{{ user.email | trim | lower }}',         // Multiple filters
     'age' => '{{ user.age ?? 18 }}',                      // With default
-    'city' => 'address.city',                             // Classic reference
+    'copyName' => '{{ @name }}',                          // Copy from target 'name'
+    'role' => 'admin',                                    // Static string
   ],
 ];
+```
+
+**Example with target aliases:**
+
+```php
+$template = [
+  'firstName' => '{{ user.firstName }}',      // From source
+  'lastName' => '{{ user.lastName }}',        // From source
+  'fullName' => '{{ @firstName }}',           // Copy 'firstName' from target
+  'displayName' => '{{ @fullName }}',         // Copy 'fullName' from target
+  'role' => 'user',                           // Static value
+];
+
+$sources = ['user' => ['firstName' => 'Alice', 'lastName' => 'Smith']];
+$result = DataMapper::mapFromTemplate($template, $sources);
+
+// Result:
+// [
+//   'firstName' => 'Alice',
+//   'lastName' => 'Smith',
+//   'fullName' => 'Alice',      // Copied from 'firstName'
+//   'displayName' => 'Alice',   // Copied from 'fullName'
+//   'role' => 'user',           // Static value
+// ]
 ```
 
 **📖 See [Template Expressions Documentation](template-expressions.md) for complete guide.**
@@ -132,17 +158,21 @@ $result = DataMapper::pipe([
 
 ## Template Syntax
 
-**Important:** Source paths in mappings must be wrapped in `{{ }}` to be treated as dynamic paths.
+**Important:** Values in mappings must be wrapped in `{{ }}` to be treated as dynamic paths.
 
-### Dynamic vs. Static Values
+### Three Types of Values
 
 ```php
-// Dynamic: Fetches value from source
+// 1. Source Reference: Fetches value from source
 'name' => '{{ user.name }}'        // Gets $source['user']['name']
 'email' => '{{ user.email }}'      // Gets $source['user']['email']
 'count' => '{{ 0 }}'               // Gets $source[0]
 
-// Static: Used as literal string value
+// 2. Target Alias: Copies value from already resolved target field
+'copyName' => '{{ @name }}'        // Copies value from $result['name']
+'backup' => '{{ @email }}'         // Copies value from $result['email']
+
+// 3. Static Value: Used as literal string value (no {{ }})
 'role' => 'admin'                  // Sets 'admin' as static value
 'status' => 'active'               // Sets 'active' as static value
 'message' => 'Hello World'         // Sets 'Hello World' as static value
@@ -150,17 +180,19 @@ $result = DataMapper::pipe([
 
 ### Examples
 
+#### Example 1: Mix Source, Target Alias, and Static Values
+
 ```php
 $source = [
     'user' => ['name' => 'Alice', 'email' => 'alice@example.com'],
     'role' => 'user',
 ];
 
-// Mix dynamic and static values
 $result = DataMapper::map($source, [], [
     'profile' => [
-        'name' => '{{ user.name }}',      // Dynamic: 'Alice'
-        'email' => '{{ user.email }}',    // Dynamic: 'alice@example.com'
+        'name' => '{{ user.name }}',      // Source: 'Alice'
+        'email' => '{{ user.email }}',    // Source: 'alice@example.com'
+        'copyName' => '{{ @profile.name }}', // Target alias: 'Alice' (copied from profile.name)
         'role' => 'admin',                // Static: 'admin' (overrides source)
         'status' => 'active',             // Static: 'active'
     ],
@@ -171,9 +203,34 @@ $result = DataMapper::map($source, [], [
 //   'profile' => [
 //     'name' => 'Alice',
 //     'email' => 'alice@example.com',
+//     'copyName' => 'Alice',        // Copied from 'profile.name'
 //     'role' => 'admin',
 //     'status' => 'active',
 //   ]
+// ]
+```
+
+#### Example 2: Template Mapping with Target Aliases
+
+```php
+$template = [
+    'firstName' => '{{ user.firstName }}',  // From source
+    'lastName' => '{{ user.lastName }}',    // From source
+    'fullName' => '{{ @firstName }}',       // Copy from target 'firstName'
+    'displayName' => '{{ @fullName }}',     // Copy from target 'fullName'
+    'role' => 'user',                       // Static value
+];
+
+$sources = ['user' => ['firstName' => 'Alice', 'lastName' => 'Smith']];
+$result = DataMapper::mapFromTemplate($template, $sources);
+
+// Result:
+// [
+//   'firstName' => 'Alice',
+//   'lastName' => 'Smith',
+//   'fullName' => 'Alice',      // Copied from 'firstName'
+//   'displayName' => 'Alice',   // Copied from 'fullName'
+//   'role' => 'user',           // Static value
 // ]
 ```
 

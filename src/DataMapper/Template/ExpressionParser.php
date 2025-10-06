@@ -6,9 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Template;
 
 final class ExpressionParser
 {
-    /**
-     * Check if a string contains a template expression {{ ... }}.
-     */
+    /** Check if a string contains a template expression {{ ... }}. */
     public static function hasExpression(string $value): bool
     {
         return str_contains($value, '{{') && str_contains($value, '}}');
@@ -26,6 +24,17 @@ final class ExpressionParser
         // Template expression: {{ ... }}
         if (preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $value, $matches)) {
             $expression = trim($matches[1]);
+
+            // Check for alias reference: {{ @fullname }}
+            if (str_starts_with($expression, '@')) {
+                $path = substr($expression, 1); // Remove @
+                return [
+                    'type' => 'alias',
+                    'path' => $path,
+                    'default' => null,
+                    'filters' => [],
+                ];
+            }
 
             // Parse filters: user.email | lower | trim
             $parts = array_map('trim', explode('|', $expression));

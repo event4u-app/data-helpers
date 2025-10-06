@@ -24,8 +24,9 @@ The Template Expression Engine extends `mapFromTemplate()` with a powerful expre
 - ✅ **Transform values** using filters (e.g., `| lower`, `| trim`)
 - ✅ **Provide defaults** for null/missing values (e.g., `?? 'Unknown'`)
 - ✅ **Chain multiple filters** (e.g., `| trim | lower | ucfirst`)
-- ✅ **Reference other fields** using aliases (e.g., `@fieldName`)
-- ✅ **Mix with classic references** for maximum flexibility
+- ✅ **Reference source fields** (e.g., `{{ user.name }}`)
+- ✅ **Reference target fields** using aliases (e.g., `{{ @fieldName }}`)
+- ✅ **Use static values** (e.g., `'admin'` without `{{ }}`)
 
 **Key Features:**
 
@@ -53,10 +54,10 @@ $template = [
     'profile' => [
         // Simple expression
         'name' => '{{ user.firstName | ucfirst }}',
-        
+
         // Expression with default value
         'age' => '{{ user.age ?? 18 }}',
-        
+
         // Multiple filters
         'email' => '{{ user.email | trim | lower }}',
     ],
@@ -124,10 +125,10 @@ Transform values using filters with the pipe operator `|`:
 $template = [
     // Single filter
     'email' => '{{ user.email | lower }}',
-    
+
     // Multiple filters (executed left to right)
     'name' => '{{ user.name | trim | ucfirst }}',
-    
+
     // Filters with default value
     'email' => '{{ user.email ?? "no-email" | lower }}',
 ];
@@ -140,13 +141,13 @@ $template = [
 
 ### Alias References
 
-Reference other fields in the same template using `@`:
+Reference already resolved target fields using `{{ @fieldName }}`:
 
 ```php
 $template = [
     'fullName' => '{{ user.firstName | ucfirst }}',
-    'displayName' => '@fullName',  // References 'fullName'
-    'greeting' => '@fullName',     // Can reference multiple times
+    'displayName' => '{{ @fullName }}',  // Copies value from 'fullName'
+    'greeting' => '{{ @fullName }}',     // Can reference multiple times
 ];
 
 $sources = [
@@ -156,8 +157,31 @@ $sources = [
 $result = DataMapper::mapFromTemplate($template, $sources);
 // [
 //     'fullName' => 'Alice',
-//     'displayName' => 'Alice',
-//     'greeting' => 'Alice',
+//     'displayName' => 'Alice',    // Copied from 'fullName'
+//     'greeting' => 'Alice',       // Copied from 'fullName'
+// ]
+```
+
+**Important:**
+- Use `{{ @fieldName }}` to reference target fields (already resolved)
+- Use `{{ source.field }}` to reference source fields
+- Without `{{ }}`, values are treated as static strings
+
+**Example with all three types:**
+
+```php
+$template = [
+    'name' => '{{ user.name }}',        // Source reference
+    'copyName' => '{{ @name }}',        // Target alias reference
+    'role' => 'admin',                  // Static value
+];
+
+$sources = ['user' => ['name' => 'Alice']];
+$result = DataMapper::mapFromTemplate($template, $sources);
+// [
+//     'name' => 'Alice',       // From source
+//     'copyName' => 'Alice',   // Copied from target 'name'
+//     'role' => 'admin',       // Static value
 // ]
 ```
 
@@ -288,15 +312,15 @@ $template = [
         // Classic reference (no transformation)
         'id' => 'user.id',
         'rawEmail' => 'user.email',
-        
+
         // Template expression (with transformation)
         'name' => '{{ user.firstName | ucfirst }}',
         'email' => '{{ user.email | trim | lower }}',
         'age' => '{{ user.age ?? 18 }}',
-        
+
         // Classic reference with wildcards
         'tags' => 'user.tags.*',
-        
+
         // Template expression with filter
         'tagCount' => '{{ user.tags | count }}',
     ],
@@ -450,7 +474,7 @@ $template = [
     'firstName' => '{{ user.firstName | ucfirst }}',
     'lastName' => '{{ user.lastName | ucfirst }}',
     'email' => '{{ user.email | lower }}',
-    
+
     // Alias references
     'displayName' => '@firstName',
     'greeting' => '@firstName',

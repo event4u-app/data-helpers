@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
-use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
 use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
@@ -41,9 +40,72 @@ class TemplateMapper
             }
         }
 
-        $result = self::resolveTemplateNode($template, $sources, $skipNull, $reindexWildcard, []);
+        // Resolve template with multi-pass alias resolution
+        return self::resolveTemplateWithAliases($template, $sources, $skipNull, $reindexWildcard);
+    }
 
-        return is_array($result) ? $result : [$result];
+    /**
+     * Resolve template with multi-pass alias resolution.
+     * This allows alias references to work regardless of order.
+     *
+     * @param array<string,mixed> $template
+     * @param array<string,mixed> $sources
+     * @return array<string,mixed>
+     */
+    private static function resolveTemplateWithAliases(
+        array $template,
+        array $sources,
+        bool $skipNull,
+        bool $reindexWildcard,
+    ): array {
+        // First pass: resolve all non-alias references
+        $result = [];
+        $pendingAliases = [];
+
+        foreach ($template as $key => $value) {
+            if (is_string($value) && ExpressionParser::hasExpression($value)) {
+                $parsed = ExpressionParser::parse($value);
+                if (null !== $parsed && 'alias' === $parsed['type']) {
+                    // This is an alias reference - defer it
+                    $pendingAliases[$key] = $value;
+                    continue;
+                }
+            }
+
+            // Resolve non-alias values
+            $resolved = self::resolveTemplateNode($value, $sources, $skipNull, $reindexWildcard, $result);
+            if ($skipNull && null === $resolved) {
+                continue;
+            }
+            $result[$key] = $resolved;
+        }
+
+        // Second pass: resolve alias references (with multiple iterations if needed)
+        $maxIterations = 10; // Prevent infinite loops
+        $iteration = 0;
+        while ([] !== $pendingAliases && $iteration < $maxIterations) {
+            $stillPending = [];
+            foreach ($pendingAliases as $key => $value) {
+                $resolved = self::resolveTemplateNode($value, $sources, $skipNull, $reindexWildcard, $result);
+                if (null === $resolved && $skipNull) {
+                    // Alias not yet resolved - try again in next iteration
+                    $stillPending[$key] = $value;
+                } else {
+                    $result[$key] = $resolved;
+                }
+            }
+            $pendingAliases = $stillPending;
+            $iteration++;
+        }
+
+        // If there are still pending aliases after max iterations, resolve them as null
+        foreach (array_keys($pendingAliases) as $key) {
+            if (!$skipNull) {
+                $result[$key] = null;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -314,7 +376,7 @@ class TemplateMapper
      */
     private static function isWildcardArray(array $array): bool
     {
-        if (empty($array)) {
+        if ([] === $array) {
             return false;
         }
 

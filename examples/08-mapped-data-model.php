@@ -4,17 +4,26 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use event4u\DataHelpers\MappedDataModel;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToInteger;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToFloat;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToBoolean;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToFloat;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToInteger;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\ConvertEmptyToNull;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\RemoveNullValues;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\StripTags;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\MappedDataModel;
 
-// Example 1: User Registration Model
+/**
+ * Example 1: User Registration Model
+ *
+ * @property string $email
+ * @property string $first_name
+ * @property string $last_name
+ * @property int $age
+ * @property bool $is_active
+ * @property int $registered_at
+ */
 class UserRegistrationModel extends MappedDataModel
 {
     protected function template(): array
@@ -42,7 +51,7 @@ class UserRegistrationModel extends MappedDataModel
 
     public function getAge(): int
     {
-        return (int) ($this->age ?? 0);
+        return (int)($this->age ?? 0);
     }
 
     public function getRegisteredAt(): int
@@ -51,7 +60,15 @@ class UserRegistrationModel extends MappedDataModel
     }
 }
 
-// Example 2: Product Update Model
+/**
+ * Example 2: Product Update Model
+ *
+ * @property string $name
+ * @property float $price
+ * @property string $sku
+ * @property int $quantity
+ * @property array<int, string> $tags
+ */
 class ProductUpdateModel extends MappedDataModel
 {
     protected function template(): array
@@ -72,7 +89,7 @@ class ProductUpdateModel extends MappedDataModel
 
     public function getPrice(): float
     {
-        return (float) ($this->price ?? 0);
+        return (float)($this->price ?? 0);
     }
 
     public function getSku(): string
@@ -82,11 +99,19 @@ class ProductUpdateModel extends MappedDataModel
 
     public function isInStock(): bool
     {
-        return ($this->quantity ?? 0) > 0;
+        return 0 < ($this->quantity ?? 0);
     }
 }
 
-// Example 3: Complex Nested Order Model
+/**
+ * Example 3: Complex Nested Order Model
+ *
+ * @property array{email: string, name: string} $customer
+ * @property array<int, mixed> $items
+ * @property float $total
+ * @property string $currency
+ * @property string $status
+ */
 class OrderModel extends MappedDataModel
 {
     protected function template(): array
@@ -111,7 +136,7 @@ class OrderModel extends MappedDataModel
 
     public function getTotal(): float
     {
-        return (float) ($this->total ?? 0);
+        return (float)($this->total ?? 0);
     }
 
     public function getCurrency(): string
@@ -133,12 +158,12 @@ $requestData = [
 $user = new UserRegistrationModel($requestData);
 
 echo "Mapped Data:\n";
-print_r($user->toArray());
+echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nAccess via magic getter (raw):\n";
-echo "Email (raw): {$user->email}\n";
-echo "First name: {$user->first_name}\n";
-echo "Last name: {$user->last_name}\n";
+echo sprintf('Email (raw): %s%s', $user->email, PHP_EOL);
+echo sprintf('First name: %s%s', $user->first_name, PHP_EOL);
+echo sprintf('Last name: %s%s', $user->last_name, PHP_EOL);
 
 echo "\nAccess via custom getters (transformed):\n";
 echo "Email (clean): " . $user->getEmail() . "\n";
@@ -146,7 +171,8 @@ echo "Full name: " . $user->getFullName() . "\n";
 echo "Age (int): " . $user->getAge() . "\n";
 
 echo "\nOriginal Data:\n";
-echo "Original email: " . $user->getOriginal('email') . "\n";
+$originalEmail = $user->getOriginal('email');
+echo "Original email: " . (is_string($originalEmail) ? $originalEmail : '') . "\n";
 echo "Original age type: " . gettype($user->getOriginal('age')) . "\n";
 
 echo "\n=== Example 2: Product Update ===\n\n";
@@ -162,7 +188,7 @@ $productData = [
 $product = new ProductUpdateModel($productData);
 
 echo "Mapped Data:\n";
-print_r($product->toArray());
+echo json_encode($product->toArray(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nJSON Serialization:\n";
 echo json_encode($product, JSON_PRETTY_PRINT) . "\n";
@@ -183,11 +209,15 @@ $orderData = [
 $order = new OrderModel($orderData);
 
 echo "Mapped Data:\n";
-print_r($order->toArray());
+echo json_encode($order->toArray(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\n=== Example 4: Laravel-Style Controller Usage ===\n\n";
 
-// Simulate Laravel controller method
+/**
+ * Simulate Laravel controller method
+ *
+ * @return array<string, mixed>
+ */
 function registerUser(UserRegistrationModel $request): array
 {
     // $request is automatically instantiated and mapped
@@ -201,10 +231,16 @@ function registerUser(UserRegistrationModel $request): array
 // Simulate request
 $result = registerUser(new UserRegistrationModel($requestData));
 echo "Controller Response:\n";
-print_r($result);
+echo json_encode($result, JSON_PRETTY_PRINT) . "\n";
 
 echo "\n=== Example 5: Validation Example ===\n\n";
 
+/**
+ * Validated Model Example
+ *
+ * @property string $email
+ * @property int $age
+ */
 class ValidatedModel extends MappedDataModel
 {
     protected function template(): array
@@ -223,6 +259,7 @@ class ValidatedModel extends MappedDataModel
         ];
     }
 
+    /** @return array<string, string> */
     public function validate(): array
     {
         $errors = [];
@@ -233,7 +270,7 @@ class ValidatedModel extends MappedDataModel
         }
 
         // Validate age
-        if ($this->age < 18) {
+        if (18 > $this->age) {
             $errors['age'] = 'Must be 18 or older';
         }
 
@@ -253,7 +290,7 @@ $validRequest = new ValidatedModel([
 
 echo "Valid Request:\n";
 echo "Is valid: " . ($validRequest->isValid() ? 'Yes' : 'No') . "\n";
-print_r($validRequest->validate());
+echo json_encode($validRequest->validate(), JSON_PRETTY_PRINT) . "\n";
 
 $invalidRequest = new ValidatedModel([
     'email' => 'invalid-email',
@@ -262,7 +299,7 @@ $invalidRequest = new ValidatedModel([
 
 echo "\nInvalid Request:\n";
 echo "Is valid: " . ($invalidRequest->isValid() ? 'Yes' : 'No') . "\n";
-print_r($invalidRequest->validate());
+echo json_encode($invalidRequest->validate(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\n=== Example 6: Debugging with Original Data ===\n\n";
 
@@ -274,16 +311,23 @@ $debugRequest = new UserRegistrationModel([
 ]);
 
 echo "What was sent (original):\n";
-print_r($debugRequest->getOriginalData());
+echo json_encode($debugRequest->getOriginalData(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nWhat was processed (mapped):\n";
-print_r($debugRequest->toArray());
+echo json_encode($debugRequest->toArray(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nTemplate used:\n";
-print_r($debugRequest->getTemplate());
+echo json_encode($debugRequest->getTemplate(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\n=== Example 7: Using Pipes for Data Transformation ===\n\n";
 
+/**
+ * User With Pipes Model
+ *
+ * @property string $email
+ * @property string $name
+ * @property string $company
+ */
 class UserWithPipesModel extends MappedDataModel
 {
     protected function template(): array
@@ -313,10 +357,10 @@ $messyData = [
 $cleanModel = new UserWithPipesModel($messyData);
 
 echo "Original Data (messy):\n";
-print_r($cleanModel->getOriginalData());
+echo json_encode($cleanModel->getOriginalData(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nMapped Data (cleaned by pipes):\n";
-print_r($cleanModel->toArray());
+echo json_encode($cleanModel->toArray(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nNotice how:\n";
 echo "- Email is lowercased: contact@example.com\n";
@@ -325,6 +369,16 @@ echo "- Pipes are applied automatically before mapping\n";
 
 echo "\n=== Example 8: Advanced Pipes - Type Casting ===\n\n";
 
+/**
+ * Product Model with Type Casting
+ *
+ * @property int $product_id
+ * @property string $name
+ * @property float $price
+ * @property int $quantity
+ * @property bool $is_active
+ * @property string $description
+ */
 class ProductModel extends MappedDataModel
 {
     protected function template(): array
@@ -363,10 +417,10 @@ $rawProductData = [
 $product = new ProductModel($rawProductData);
 
 echo "Original Data (raw strings):\n";
-print_r($product->getOriginalData());
+echo json_encode($product->getOriginalData(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nMapped Data (typed and cleaned):\n";
-print_r($product->toArray());
+echo json_encode($product->toArray(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nType verification:\n";
 $data = $product->toArray();
@@ -378,6 +432,14 @@ echo "- description (HTML stripped): " . var_export($data['description'], true) 
 
 echo "\n=== Example 9: Handling Empty Values ===\n\n";
 
+/**
+ * User Profile Model
+ *
+ * @property string $name
+ * @property string $email
+ * @property string|null $phone
+ * @property string|null $bio
+ */
 class UserProfileModel extends MappedDataModel
 {
     protected function template(): array
@@ -410,10 +472,10 @@ $incompleteData = [
 $profile = new UserProfileModel($incompleteData);
 
 echo "Original Data:\n";
-print_r($profile->getOriginalData());
+echo json_encode($profile->getOriginalData(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nMapped Data (empty values removed):\n";
-print_r($profile->toArray());
+echo json_encode($profile->toArray(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nNotice:\n";
 echo "- Empty 'phone' field is not in the result\n";

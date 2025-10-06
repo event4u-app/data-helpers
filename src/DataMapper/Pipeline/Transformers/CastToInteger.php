@@ -48,7 +48,7 @@ final class CastToInteger implements TransformerInterface
 
         // Cast to integer if numeric
         if (is_numeric($value)) {
-            return (int) $value;
+            return (int)$value;
         }
 
         return $value;

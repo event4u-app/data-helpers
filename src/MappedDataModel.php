@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 use JsonSerializable;
+use Stringable;
 
 /**
  * Base class for models with automatic data mapping and template-based transformation.
@@ -52,14 +54,12 @@ use JsonSerializable;
  * - Custom getters for transformation
  * - Immutable by default (can be overridden)
  */
-abstract class MappedDataModel implements JsonSerializable
+abstract class MappedDataModel implements JsonSerializable, Stringable
 {
     /** @var array<string, mixed> Original input data before mapping */
     private array $originalData = [];
-
     /** @var array<string, mixed> Mapped/transformed data after template application */
     private array $mappedData = [];
-
     /** @var bool Whether the model has been mapped */
     private bool $isMapped = false;
 
@@ -108,7 +108,7 @@ abstract class MappedDataModel implements JsonSerializable
      * }
      * ```
      *
-     * @return array<int, class-string> Array of transformer class names
+     * @return array<int, class-string<TransformerInterface>|TransformerInterface> Array of transformer class names or instances
      */
     protected function pipes(): array
     {
@@ -119,7 +119,6 @@ abstract class MappedDataModel implements JsonSerializable
      * Fill the model with data and apply template mapping.
      *
      * @param array<string, mixed>|object $data Input data
-     * @return static
      */
     public function fill(array|object $data): static
     {
@@ -142,22 +141,28 @@ abstract class MappedDataModel implements JsonSerializable
         if (empty($mappings)) {
             // Only static values
             $this->mappedData = $staticValues;
-        } elseif (empty($pipes)) {
+        } elseif ([] === $pipes) {
             // No pipes - use DataMapper directly
-            $this->mappedData = DataMapper::map(
-                source: ['request' => $data],
-                target: $staticValues,
-                mapping: $mappings,
-                skipNull: false
+            $result = DataMapper::map(
+                ['request' => $data],
+                $staticValues,
+                $mappings,
+                false
             );
+            // DataMapper::map() returns the target (array) when target is array
+            /** @var array<string, mixed> $result */
+            $this->mappedData = $result;
         } else {
             // With pipes - use DataMapper::pipe()
-            $this->mappedData = DataMapper::pipe($pipes)->map(
-                source: ['request' => $data],
-                target: $staticValues,
-                mapping: $mappings,
-                skipNull: false
+            $result = DataMapper::pipe($pipes)->map(
+                ['request' => $data],
+                $staticValues,
+                $mappings,
+                false
             );
+            // DataMapper::pipe()->map() returns the target (array) when target is array
+            /** @var array<string, mixed> $result */
+            $this->mappedData = $result;
         }
 
         $this->isMapped = true;
@@ -177,13 +182,18 @@ abstract class MappedDataModel implements JsonSerializable
         $staticValues = [];
 
         foreach ($template as $key => $value) {
+            if (!is_string($key)) {
+                continue;
+            }
+
             if (is_array($value)) {
                 // Nested mapping - recursively separate
+                /** @var array<string, mixed> $value */
                 [$nestedMappings, $nestedStatic] = $this->separateStaticValues($value);
 
                 if (!empty($nestedMappings)) {
                     foreach ($nestedMappings as $nestedKey => $nestedValue) {
-                        $mappings["{$key}.{$nestedKey}"] = $nestedValue;
+                        $mappings[sprintf('%s.%s', $key, $nestedKey)] = $nestedValue;
                     }
                 }
 
@@ -207,7 +217,6 @@ abstract class MappedDataModel implements JsonSerializable
      *
      * @param string $key Field name
      * @param mixed $default Default value if not found
-     * @return mixed
      */
     public function get(string $key, mixed $default = null): mixed
     {
@@ -221,7 +230,6 @@ abstract class MappedDataModel implements JsonSerializable
      *
      * @param string $key Field name
      * @param mixed $default Default value if not found
-     * @return mixed
      */
     public function getOriginal(string $key, mixed $default = null): mixed
     {
@@ -232,7 +240,6 @@ abstract class MappedDataModel implements JsonSerializable
      * Check if a mapped field exists.
      *
      * @param string $key Field name
-     * @return bool
      */
     public function has(string $key): bool
     {
@@ -243,7 +250,6 @@ abstract class MappedDataModel implements JsonSerializable
      * Check if an original field exists.
      *
      * @param string $key Field name
-     * @return bool
      */
     public function hasOriginal(string $key): bool
     {
@@ -282,11 +288,7 @@ abstract class MappedDataModel implements JsonSerializable
         return $this->template();
     }
 
-    /**
-     * Check if the model has been mapped.
-     *
-     * @return bool
-     */
+    /** Check if the model has been mapped. */
     public function isMapped(): bool
     {
         return $this->isMapped;
@@ -296,7 +298,6 @@ abstract class MappedDataModel implements JsonSerializable
      * Magic getter for mapped values.
      *
      * @param string $key Field name
-     * @return mixed
      */
     public function __get(string $key): mixed
     {
@@ -307,7 +308,6 @@ abstract class MappedDataModel implements JsonSerializable
      * Magic isset for mapped values.
      *
      * @param string $key Field name
-     * @return bool
      */
     public function __isset(string $key): bool
     {
@@ -327,7 +327,6 @@ abstract class MappedDataModel implements JsonSerializable
     /**
      * Convert object to array.
      *
-     * @param object $object
      * @return array<string, mixed>
      */
     private function objectToArray(object $object): array
@@ -344,15 +343,18 @@ abstract class MappedDataModel implements JsonSerializable
 
         // Arrayable interface
         if (method_exists($object, 'toArray')) {
+            /** @var array<string, mixed> */
             return $object->toArray();
         }
 
         // JsonSerializable
         if ($object instanceof JsonSerializable) {
-            return (array) $object->jsonSerialize();
+            /** @var array<string, mixed> */
+            return (array)$object->jsonSerialize();
         }
 
         // Fallback: public properties
+        /** @var array<string, mixed> */
         return get_object_vars($object);
     }
 
@@ -362,18 +364,14 @@ abstract class MappedDataModel implements JsonSerializable
      * This static method is used by Laravel/Symfony for automatic dependency injection.
      *
      * @param array<string, mixed>|object $data Request data
-     * @return static
      */
     public static function fromRequest(array|object $data): static
     {
-        return new static($data);
+        /** @phpstan-ignore-next-line */
+        return (new static($data));
     }
 
-    /**
-     * String representation - returns JSON.
-     *
-     * @return string
-     */
+    /** String representation - returns JSON. */
     public function __toString(): string
     {
         return json_encode($this->mappedData, JSON_THROW_ON_ERROR);

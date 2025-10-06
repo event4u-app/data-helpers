@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\Integration;
 
 use event4u\DataHelpers\MappedDataModel;
+use JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -14,6 +15,9 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  *
  * This resolver enables automatic dependency injection of MappedDataModel subclasses
  * in Symfony controllers.
+ *
+ * Note: This class requires Symfony HttpKernel as an optional dependency.
+ * PHPStan errors about missing Symfony classes are expected and can be ignored.
  *
  * ## Automatic Registration (Symfony Flex)
  *
@@ -71,8 +75,6 @@ class SymfonyMappedModelResolver implements ValueResolverInterface
     /**
      * Resolve the argument value.
      *
-     * @param Request $request
-     * @param ArgumentMetadata $argument
      * @return iterable<MappedDataModel>
      */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
@@ -104,7 +106,6 @@ class SymfonyMappedModelResolver implements ValueResolverInterface
     /**
      * Get request data from various sources.
      *
-     * @param Request $request
      * @return array<string, mixed>
      */
     private function getRequestData(Request $request): array
@@ -113,17 +114,20 @@ class SymfonyMappedModelResolver implements ValueResolverInterface
         $content = $request->getContent();
         if (!empty($content)) {
             try {
+                /** @var array<string, mixed> $json */
                 $json = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
                 if (is_array($json)) {
                     return $json;
                 }
-            } catch (\JsonException) {
+            } catch (JsonException) {
                 // Not JSON, continue
             }
         }
 
         // Fallback to request parameters
-        return $request->request->all();
+        /** @var array<string, mixed> $params */
+        $params = $request->request->all();
+        return $params;
     }
 }
 

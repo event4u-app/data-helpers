@@ -42,7 +42,9 @@
     "symplify/coding-standard": "^12.4",
     "symplify/easy-coding-standard": "^12.6",
     "timeweb/phpstan-enum": "^4.0",
-    "phpbench/phpbench": "^1.4"
+    "phpbench/phpbench": "^1.4",
+    "symfony/http-kernel": "^7.3",
+    "symfony/http-foundation": "^7.3"
   },
   "repositories": [],
   "suggest": {
