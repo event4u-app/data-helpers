@@ -15,26 +15,41 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  * This resolver enables automatic dependency injection of MappedDataModel subclasses
  * in Symfony controllers.
  *
- * Installation:
+ * ## Automatic Registration (Symfony Flex)
  *
- * 1. Register in config/services.yaml:
- *    ```yaml
- *    services:
- *        event4u\DataHelpers\Integration\SymfonyMappedModelResolver:
- *            tags:
- *                - { name: controller.argument_value_resolver, priority: 50 }
- *    ```
+ * If you're using **Symfony Flex**, this resolver is automatically registered via the
+ * `SymfonyDataHelpersBundle` configured in `composer.json`.
  *
- * 2. Or use autoconfigure (Symfony 6.1+):
- *    ```yaml
- *    services:
- *        _defaults:
- *            autoconfigure: true
+ * **No manual configuration needed!** Just install the package:
  *
- *        event4u\DataHelpers\Integration\SymfonyMappedModelResolver: ~
- *    ```
+ * ```bash
+ * composer require event4u/data-helpers
+ * ```
  *
- * Usage in controllers:
+ * ## Manual Registration (Without Flex)
+ *
+ * If you're **not using Symfony Flex**, register this resolver in `config/services.yaml`:
+ *
+ * ```yaml
+ * services:
+ *     event4u\DataHelpers\Integration\SymfonyMappedModelResolver:
+ *         tags:
+ *             - { name: controller.argument_value_resolver, priority: 50 }
+ * ```
+ *
+ * Or use autoconfigure (Symfony 6.1+):
+ *
+ * ```yaml
+ * services:
+ *     _defaults:
+ *         autoconfigure: true
+ *
+ *     event4u\DataHelpers\Integration\SymfonyMappedModelResolver: ~
+ * ```
+ *
+ * ## Usage in Controllers
+ *
+ * Simply type-hint your MappedDataModel subclass in controller methods:
  *
  * ```php
  * class UserController extends AbstractController
@@ -48,6 +63,8 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  *     }
  * }
  * ```
+ *
+ * The model will be automatically filled with the current request data (JSON or form data).
  */
 class SymfonyMappedModelResolver implements ValueResolverInterface
 {

@@ -98,7 +98,12 @@
       ]
     },
     "symfony": {
-      "require": "^6.0|^7.0"
+      "require": "^6.0|^7.0",
+      "bundles": {
+        "event4u\\DataHelpers\\Integration\\SymfonyDataHelpersBundle": [
+          "all"
+        ]
+      }
     }
   }
 }

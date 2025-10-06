@@ -255,9 +255,19 @@ public function store(UserRegistrationModel $request)
 
 ### Symfony Setup
 
-1. **Register Value Resolver**
+#### Automatic Setup with Symfony Flex ✅
 
-In `config/services.yaml`:
+If you're using **Symfony Flex**, the resolver is automatically registered via the `SymfonyDataHelpersBundle`.
+
+**No configuration needed!** Just install the package:
+
+```bash
+composer require event4u/data-helpers
+```
+
+#### Manual Setup (Without Flex)
+
+If you're **not using Symfony Flex**, register the value resolver in `config/services.yaml`:
 
 ```yaml
 services:
@@ -276,7 +286,7 @@ services:
     event4u\DataHelpers\Integration\SymfonyMappedModelResolver: ~
 ```
 
-2. **Use in Controllers**
+#### Usage in Controllers
 
 ```php
 #[Route('/register', methods: ['POST'])]

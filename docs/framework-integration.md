@@ -73,9 +73,21 @@ class UserController extends Controller
 
 ## Symfony Integration
 
-### Manual Setup Required
+### Automatic Setup with Symfony Flex ✅
 
-For Symfony, you need to manually register the value resolver in your `config/services.yaml`:
+If you're using **Symfony Flex**, the bundle is automatically registered via the `composer.json` extra configuration.
+
+**No configuration needed!** Just install the package:
+
+```bash
+composer require event4u/data-helpers
+```
+
+The `SymfonyDataHelpersBundle` will be automatically added to `config/bundles.php`.
+
+### Manual Setup (Without Flex)
+
+If you're **not using Symfony Flex**, you need to manually register the value resolver in your `config/services.yaml`:
 
 ```yaml
 services:
@@ -93,7 +105,6 @@ services:
 
     event4u\DataHelpers\Integration\SymfonyMappedModelResolver: ~
 ```
-
 ### Usage in Symfony Controllers
 
 ```php

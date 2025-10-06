@@ -8,8 +8,6 @@ use event4u\DataHelpers\MappedDataModel;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
-use ReflectionClass;
-use ReflectionNamedType;
 
 /**
  * Laravel Service Provider for automatic MappedDataModel binding.
@@ -17,10 +15,14 @@ use ReflectionNamedType;
  * This provider enables automatic dependency injection of MappedDataModel subclasses
  * in Laravel controllers, similar to Form Request validation.
  *
- * This provider is automatically registered via Laravel's package auto-discovery.
- * No manual configuration needed!
+ * ## Automatic Registration
  *
- * Usage in controllers:
+ * This provider is automatically registered via Laravel's package auto-discovery.
+ * No manual configuration or registration needed!
+ *
+ * ## Usage in Controllers
+ *
+ * Simply type-hint your MappedDataModel subclass in controller methods:
  *
  * ```php
  * class UserController extends Controller
@@ -33,6 +35,8 @@ use ReflectionNamedType;
  *     }
  * }
  * ```
+ *
+ * The model will be automatically filled with the current request data.
  */
 class LaravelMappedModelServiceProvider extends ServiceProvider
 {
@@ -82,4 +86,3 @@ class LaravelMappedModelServiceProvider extends ServiceProvider
         return [];
     }
 }
-
