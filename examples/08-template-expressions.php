@@ -36,7 +36,7 @@ $template = [
         'fullName' => '{{ user.firstName | ucfirst }}',
 
         // Regular reference (no expression)
-        'city' => 'address.city',
+        'city' => '{{ address.city }}',
     ],
     'contact' => [
         'email' => '{{ user.email | trim | lower }}',

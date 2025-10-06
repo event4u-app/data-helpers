@@ -20,12 +20,12 @@ class UserRegistrationModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'email' => 'request.email',
-            'first_name' => 'request.first_name',
-            'last_name' => 'request.last_name',
-            'age' => 'request.age',
+            'email' => '{{ request.email }}',
+            'first_name' => '{{ request.first_name }}',
+            'last_name' => '{{ request.last_name }}',
+            'age' => '{{ request.age }}',
             'is_active' => true,
-            'registered_at' => 'request.timestamp',
+            'registered_at' => '{{ request.timestamp }}',
         ];
     }
 
@@ -57,11 +57,11 @@ class ProductUpdateModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'name' => 'request.product_name',
-            'price' => 'request.price',
-            'sku' => 'request.sku',
-            'quantity' => 'request.quantity',
-            'tags' => 'request.tags',
+            'name' => '{{ request.product_name }}',
+            'price' => '{{ request.price }}',
+            'sku' => '{{ request.sku }}',
+            'quantity' => '{{ request.quantity }}',
+            'tags' => '{{ request.tags }}',
         ];
     }
 
@@ -93,12 +93,12 @@ class OrderModel extends MappedDataModel
     {
         return [
             'customer' => [
-                'email' => 'request.customer_email',
-                'name' => 'request.customer_name',
+                'email' => '{{ request.customer_email }}',
+                'name' => '{{ request.customer_name }}',
             ],
-            'items' => 'request.items',
-            'total' => 'request.total',
-            'currency' => 'request.currency',
+            'items' => '{{ request.items }}',
+            'total' => '{{ request.total }}',
+            'currency' => '{{ request.currency }}',
             'status' => 'pending',
         ];
     }
@@ -210,8 +210,8 @@ class ValidatedModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'email' => 'request.email',
-            'age' => 'request.age',
+            'email' => '{{ request.email }}',
+            'age' => '{{ request.age }}',
         ];
     }
 
@@ -289,9 +289,9 @@ class UserWithPipesModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'email' => 'request.email',
-            'name' => 'request.name',
-            'company' => 'request.company',
+            'email' => '{{ request.email }}',
+            'name' => '{{ request.name }}',
+            'company' => '{{ request.company }}',
         ];
     }
 
@@ -330,12 +330,12 @@ class ProductModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'product_id' => 'request.product_id',
-            'name' => 'request.name',
-            'price' => 'request.price',
-            'quantity' => 'request.quantity',
-            'is_active' => 'request.is_active',
-            'description' => 'request.description',
+            'product_id' => '{{ request.product_id }}',
+            'name' => '{{ request.name }}',
+            'price' => '{{ request.price }}',
+            'quantity' => '{{ request.quantity }}',
+            'is_active' => '{{ request.is_active }}',
+            'description' => '{{ request.description }}',
         ];
     }
 
@@ -383,10 +383,10 @@ class UserProfileModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'name' => 'request.name',
-            'email' => 'request.email',
-            'phone' => 'request.phone',
-            'bio' => 'request.bio',
+            'name' => '{{ request.name }}',
+            'email' => '{{ request.email }}',
+            'phone' => '{{ request.phone }}',
+            'bio' => '{{ request.bio }}',
         ];
     }
 

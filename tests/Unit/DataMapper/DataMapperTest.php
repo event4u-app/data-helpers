@@ -18,7 +18,7 @@ describe('DataMapper', function(): void {
             $target = [];
 
             $mapping = [
-                'target2.subtarget4.subsub9' => 'key1.subkey3',
+                'target2.subtarget4.subsub9' => '{{ key1.subkey3 }}',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -41,8 +41,8 @@ describe('DataMapper', function(): void {
             ];
             $target = [];
             $mapping = [
-                'profile.fullname' => 'user.name',
-                'profile.contact.email' => 'user.email',
+                'profile.fullname' => '{{ user.name }}',
+                'profile.contact.email' => '{{ user.email }}',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -67,9 +67,9 @@ describe('DataMapper', function(): void {
             $target = [];
             $mapping = [
                 'profile' => [
-                    'fullname' => 'user.name',
+                    'fullname' => '{{ user.name }}',
                     'contact' => [
-                        'email' => 'user.email',
+                        'email' => '{{ user.email }}',
                     ],
                 ],
             ];
@@ -99,7 +99,7 @@ describe('DataMapper', function(): void {
             ];
             $target = [];
             $mapping = [
-                'emails.*' => 'users.*.email',
+                'emails.*' => '{{ users.*.email }}',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -116,9 +116,9 @@ describe('DataMapper', function(): void {
             $source = ['Alice', 'Bob', 'Charlie'];
             $target = [];
             $mapping = [
-                'first' => '0',
-                'second' => '1',
-                'third' => '2',
+                'first' => '{{ 0 }}',
+                'second' => '{{ 1 }}',
+                'third' => '{{ 2 }}',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -140,9 +140,9 @@ describe('DataMapper', function(): void {
             ];
             $target = [];
             $mapping = [
-                'result.string' => 'string_key',
-                'result.numeric' => '0',
-                'result.nested' => 'nested.sub',
+                'result.string' => '{{ string_key }}',
+                'result.numeric' => '{{ 0 }}',
+                'result.nested' => '{{ nested.sub }}',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -350,8 +350,8 @@ describe('DataMapper', function(): void {
             ];
             $target = [];
             $mapping = [
-                'user.name' => 'name',
-                'user.email' => 'email',
+                'user.name' => '{{ name }}',
+                'user.email' => '{{ email }}',
             ];
 
             $result = DataMapper::map($source, $target, $mapping);
@@ -445,8 +445,8 @@ describe('DataMapper', function(): void {
         ];
         $target = [];
         $mapping = [
-            'user.name' => 'name',
-            'user.email' => 'email',
+            'user.name' => '{{ name }}',
+            'user.email' => '{{ email }}',
         ];
 
         $result = DataMapper::map($source, $target, $mapping, false);
@@ -528,11 +528,11 @@ describe('Template mapping', function(): void {
 
         $template = [
             'profile' => [
-                'fullname' => 'user.name',
-                'email' => 'user.email',
+                'fullname' => '{{ user.name }}',
+                'email' => '{{ user.email }}',
                 'address' => [
-                    'street' => 'addr.street',
-                    'zip' => 'addr.zip',
+                    'street' => '{{ addr.street }}',
+                    'zip' => '{{ addr.zip }}',
                 ],
             ],
         ];
@@ -569,7 +569,7 @@ describe('Template mapping', function(): void {
         ];
 
         $json = json_encode([
-            'emails' => 'src.users.*.email',
+            'emails' => '{{ src.users.*.email }}',
         ], JSON_THROW_ON_ERROR);
 
         $result = DataMapper::mapFromTemplate($json, $sources, true);
@@ -589,7 +589,7 @@ describe('Template mapping', function(): void {
             ],
         ];
         $template = [
-            'out' => 'src.value',
+            'out' => '{{ src.value }}',
         ];
         $result = DataMapper::mapFromTemplate($template, $sources, false);
         expect($result)->toBe([
@@ -597,7 +597,7 @@ describe('Template mapping', function(): void {
         ]);
     });
 
-    test('literal values are preserved; unknown alias stays literal', function(): void {
+    test('literal values are preserved; unknown alias returns null', function(): void {
         $sources = [
             'user' => [
                 'name' => 'Alice',
@@ -605,13 +605,13 @@ describe('Template mapping', function(): void {
         ];
         $template = [
             'title' => 'Hello',
-            'unknown' => 'foo.bar',
-            'fullname' => 'user.name',
+            'unknown' => '{{ foo.bar }}',
+            'fullname' => '{{ user.name }}',
         ];
         $result = DataMapper::mapFromTemplate($template, $sources);
         expect($result)->toBe([
             'title' => 'Hello',
-            'unknown' => 'foo.bar',
+            // 'unknown' is skipped because it's null and skipNull=true (default)
             'fullname' => 'Alice',
         ]);
     });
@@ -634,7 +634,7 @@ describe('Reindexing in map and mapMany', function(): void {
         ];
 
         $mapping = [
-            'emails.*' => 'users.*.email',
+            'emails.*' => '{{ users.*.email }}',
         ];
 
         $resultDefault = DataMapper::map($source, [], $mapping, true);
@@ -782,7 +782,7 @@ test('JSON template with wildcard can reindex sequentially', function(): void {
     ];
 
     $json = json_encode([
-        'emails' => 'src.users.*.email',
+        'emails' => '{{ src.users.*.email }}',
     ], JSON_THROW_ON_ERROR);
 
     $result = DataMapper::mapFromTemplate($json, $sources, true, true);
@@ -808,9 +808,9 @@ describe('Inverse template mapping (apply values to targets)', function(): void 
 
         $template = [
             'profile' => [
-                'fullname' => 'user.name',
-                'email' => 'user.email',
-                'street' => 'addr.street',
+                'fullname' => '{{ user.name }}',
+                'email' => '{{ user.email }}',
+                'street' => '{{ addr.street }}',
             ],
         ];
 
@@ -837,7 +837,7 @@ describe('Inverse template mapping (apply values to targets)', function(): void 
             'people' => [],
         ];
         $template = [
-            'names' => 'people.*.name',
+            'names' => '{{ people.*.name }}',
         ];
         $data = [
             'names' => ['Alice', null, 'Bob'],
@@ -860,7 +860,7 @@ describe('Inverse template mapping (apply values to targets)', function(): void 
             'people' => [],
         ];
         $template = [
-            'names' => 'people.*.name',
+            'names' => '{{ people.*.name }}',
         ];
         $data = [
             'names' => ['Alice', null, 'Bob'],

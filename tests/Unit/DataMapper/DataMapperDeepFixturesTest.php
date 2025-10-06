@@ -122,11 +122,11 @@ describe('DataMapper deep fixtures', function(): void {
 
         $template = [
             'company' => [
-                'name' => 'company.name',
-                'departments' => 'company.departments.*.name',
-                'emails' => 'company.departments.*.users.*.email',
-                'cities' => 'company.departments.*.users.*.profile.address.city',
-                'firstPostComments' => 'company.departments.*.users.*.posts.*.comments.*.text',
+                'name' => '{{ company.name }}',
+                'departments' => '{{ company.departments.*.name }}',
+                'emails' => '{{ company.departments.*.users.*.email }}',
+                'cities' => '{{ company.departments.*.users.*.profile.address.city }}',
+                'firstPostComments' => '{{ company.departments.*.users.*.posts.*.comments.*.text }}',
             ],
         ];
 
@@ -156,15 +156,15 @@ describe('DataMapper deep fixtures', function(): void {
 
         $template = [
             'profile' => [
-                'fullname' => 'user.name',
-                'email' => 'user.email',
+                'fullname' => '{{ user.name }}',
+                'email' => '{{ user.email }}',
                 'address' => [
-                    'city' => 'user.profile.address.city',
+                    'city' => '{{ user.profile.address.city }}',
                 ],
             ],
             'company' => [
-                'hqCity' => 'company.headquarters.city',
-                'employees' => 'company.employees.*.name',
+                'hqCity' => '{{ company.headquarters.city }}',
+                'employees' => '{{ company.employees.*.name }}',
             ],
         ];
 
@@ -222,8 +222,8 @@ describe('DataMapper deep fixtures', function(): void {
         ];
 
         $template = [
-            'emails' => 'root.company.departments.*.users.*.email',
-            'cities' => 'root.company.departments.*.users.*.profile.address.city',
+            'emails' => '{{ root.company.departments.*.users.*.email }}',
+            'cities' => '{{ root.company.departments.*.users.*.profile.address.city }}',
         ];
 
         $res = DataMapper::mapFromTemplate($template, $sources, true, true);

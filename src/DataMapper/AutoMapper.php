@@ -110,6 +110,7 @@ class AutoMapper
                     }
                 }
 
+                // Store path directly (will be used by mapSimpleInternal)
                 $pairs[implode('.', $segments)] = (string)$path;
             }
         } else {
@@ -134,12 +135,13 @@ class AutoMapper
                     }
                 }
 
+                // Store key directly (will be used by mapSimpleInternal)
                 $pairs[$targetKey] = $key;
             }
         }
 
-        // Delegate to regular map() using the derived mapping
-        return DataMapper::map(
+        // Delegate to mapWithRawPaths() - AutoMapper uses raw paths without {{ }}
+        return DataMapper::mapWithRawPaths(
             $source,
             $target,
             $pairs,

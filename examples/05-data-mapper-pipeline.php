@@ -22,10 +22,10 @@ $source = [
 // Mapping configuration
 $mapping = [
     'profile' => [
-        'name' => 'user.name',
-        'email' => 'user.email',
-        'phone' => 'user.phone',
-        'city' => 'user.city',
+        'name' => '{{ user.name }}',
+        'email' => '{{ user.email }}',
+        'phone' => '{{ user.phone }}',
+        'city' => '{{ user.city }}',
     ],
 ];
 

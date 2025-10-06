@@ -29,8 +29,8 @@ describe('DataMapper Hooks', function(): void {
         ];
 
         $res = DataMapper::map($source, $target, [
-            'x.a' => 'a',
-            'x.b' => 'b',
+            'x.a' => '{{ a }}',
+            'x.b' => '{{ b }}',
         ], true, false, $hooks);
 
         expect($res)->toBe([
@@ -60,8 +60,8 @@ describe('DataMapper Hooks', function(): void {
         ];
 
         $res = DataMapper::map($source, $target, [
-            'x.a' => 'a',
-            'x.b' => 'b',
+            'x.a' => '{{ a }}',
+            'x.b' => '{{ b }}',
         ], true, false, $hooks);
 
         expect($res)->toBe([
@@ -96,7 +96,7 @@ describe('DataMapper Hooks', function(): void {
         ];
 
         $res = DataMapper::map($source, $target, [
-            'out.name' => 'name',
+            'out.name' => '{{ name }}',
         ], true, false, $hooks);
 
         expect($res)->toBe([
@@ -135,7 +135,7 @@ describe('DataMapper Hooks', function(): void {
         ];
 
         $res = DataMapper::map($source, $target, [
-            'out.items.*' => 'items.*',
+            'out.items.*' => '{{ items.* }}',
         ], true, true, $hooks);
 
         // 'a' skipped by beforeWrite; 'b' gets uppercased by afterWrite
@@ -171,8 +171,8 @@ describe('DataMapper Hooks', function(): void {
         ];
 
         DataMapper::map($source, $target, [
-            'x.a' => 'a',
-            'x.b' => 'b',
+            'x.a' => '{{ a }}',
+            'x.b' => '{{ b }}',
         ], true, false, $hooks);
 
         // Order is not strictly guaranteed, but all three should have been called at least once

@@ -13,6 +13,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\DataMapperPipeline;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 use event4u\DataHelpers\DataMapper\Support\HookInvoker;
 use event4u\DataHelpers\DataMapper\Support\MappingEngine;
+use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\TemplateMapper;
 use event4u\DataHelpers\Enums\DataMapperHook;
@@ -87,13 +88,13 @@ class DataMapper
             // Flatten nested structure to simple source => target format
             $mapping = MappingEngine::flattenNestedMapping($mapping);
             /** @var array<string, string> $mapping */
-            return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks);
+            return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks, $trimValues, $caseInsensitiveReplace);
         }
 
         // Case 2: simple path-to-path mapping like ['a.b' => 'x.y']
         if (MappingEngine::isSimpleMapping($mapping)) {
             /** @var array<string, string> $mapping */
-            return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks);
+            return self::mapSimple($source, $target, $mapping, $skipNull, $reindexWildcard, $hooks, $trimValues, $caseInsensitiveReplace);
         }
 
         // Case 3: structured mapping definitions with source/target objects
@@ -263,6 +264,37 @@ class DataMapper
     }
 
     /**
+     * Map with raw paths (no {{ }} required). Used internally by AutoMapper.
+     *
+     * @param array<string, string|mixed> $mapping Mapping with raw paths (no {{ }} syntax)
+     * @param array<string, mixed> $hooks
+     * @return array<int|string, mixed>|object
+     * @internal
+     */
+    public static function mapWithRawPaths(
+        mixed $source,
+        array|object $target,
+        array $mapping,
+        bool $skipNull = true,
+        bool $reindexWildcard = false,
+        array $hooks = [],
+        bool $trimValues = true,
+        bool $caseInsensitiveReplace = false,
+    ): array|object {
+        // All paths are treated as dynamic (no static values in AutoMapper)
+        return self::mapSimpleInternal(
+            $source,
+            $target,
+            $mapping,
+            $skipNull,
+            $reindexWildcard,
+            $hooks,
+            $trimValues,
+            $caseInsensitiveReplace
+        );
+    }
+
+    /**
      * Handle simple path-to-path mapping.
      *
      * @param array<int|string, mixed>|object $target
@@ -277,6 +309,50 @@ class DataMapper
         bool $skipNull,
         bool $reindexWildcard,
         array $hooks,
+        bool $trimValues,
+        bool $caseInsensitiveReplace,
+    ): array|object {
+        // Parse mapping: extract {{ }} expressions to actual paths
+        $parsedMapping = [];
+        foreach ($mapping as $targetPath => $sourcePath) {
+            if (is_string($sourcePath) && preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $sourcePath, $matches)) {
+                // Extract path from {{ }}
+                $parsedMapping[$targetPath] = trim($matches[1]);
+            } else {
+                // Static value: use special marker
+                $parsedMapping[$targetPath] = ['__static__' => $sourcePath];
+            }
+        }
+
+        return self::mapSimpleInternal(
+            $source,
+            $target,
+            $parsedMapping,
+            $skipNull,
+            $reindexWildcard,
+            $hooks,
+            $trimValues,
+            $caseInsensitiveReplace
+        );
+    }
+
+    /**
+     * Internal mapping method that works with already-parsed paths (no {{ }} needed).
+     *
+     * @param array<int|string, mixed>|object $target
+     * @param array<string, string|array{__static__: mixed}> $mapping
+     * @param array<string, mixed> $hooks
+     * @return array<int|string, mixed>|object
+     */
+    private static function mapSimpleInternal(
+        mixed $source,
+        array|object $target,
+        array $mapping,
+        bool $skipNull,
+        bool $reindexWildcard,
+        array $hooks,
+        bool $trimValues = true,
+        bool $caseInsensitiveReplace = false,
     ): array|object {
         $accessor = new DataAccessor($source);
 
@@ -284,7 +360,11 @@ class DataMapper
         HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
 
         $mappingIndex = 0;
-        foreach ($mapping as $targetPath => $sourcePath) {
+        foreach ($mapping as $targetPath => $sourcePathOrStatic) {
+            // Check if it's a static value
+            $isStatic = is_array($sourcePathOrStatic) && isset($sourcePathOrStatic['__static__']);
+            $sourcePath = $isStatic ? $sourcePathOrStatic['__static__'] : $sourcePathOrStatic;
+
             $pairContext = new PairContext(
                 'simple',
                 $mappingIndex,
@@ -299,7 +379,15 @@ class DataMapper
                 continue;
             }
 
-            $value = $accessor->get((string)$sourcePath);
+            if ($isStatic) {
+                // Static value: use as-is
+                $value = $sourcePath;
+                $actualSourcePath = null;
+            } else {
+                // Dynamic path: get value from source
+                $actualSourcePath = (string)$sourcePath;
+                $value = $accessor->get($actualSourcePath);
+            }
 
             // Skip null values by default
             if ($skipNull && null === $value) {
@@ -311,8 +399,13 @@ class DataMapper
             // preTransform
             $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
 
-            // Handle wildcard values (always arrays with dot-path keys)
-            if (is_array($value) && str_contains((string)$sourcePath, '*')) {
+            // Apply trimValues (if enabled) - use empty replaceMap to trigger trimming
+            if ($trimValues && !$isStatic) {
+                $value = ValueTransformer::processValue($value, null, [], $trimValues, $caseInsensitiveReplace);
+            }
+
+            // Handle wildcard values (always arrays with dot-path keys) - only for dynamic paths
+            if (is_array($value) && !$isStatic && $actualSourcePath !== null && str_contains($actualSourcePath, '*')) {
                 // Normalize wildcard array (flatten dot-path keys to simple list)
                 $value = WildcardHandler::normalizeWildcardArray($value);
                 WildcardHandler::iterateWildcardItems(

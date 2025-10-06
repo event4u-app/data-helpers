@@ -124,8 +124,8 @@ $sourceData = [
 ];
 
 $mapping = [
-    'products.*.product_name' => 'items.*.name',
-    'products.*.product_price' => 'items.*.price',
+    'products.*.product_name' => '{{ items.*.name }}',
+    'products.*.product_price' => '{{ items.*.price }}',
 ];
 
 $mapper = new DataMapper();

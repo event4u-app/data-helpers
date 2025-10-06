@@ -16,9 +16,9 @@ $tgt = [];
 
 $map = [
     'profile' => [
-        'name' => 'user.name',
+        'name' => '{{ user.name }}',
         'contacts' => [
-            '*' => 'user.emails.*',
+            '*' => '{{ user.emails.* }}',
         ],
     ],
 ];

@@ -111,8 +111,8 @@ $sourceCollection = new Collection([
 ]);
 
 $mapping = [
-    'users.*.user_name' => 'people.*.name',
-    'users.*.user_email' => 'people.*.email',
+    'users.*.user_name' => '{{ people.*.name }}',
+    'users.*.user_email' => '{{ people.*.email }}',
 ];
 
 $mapper = new DataMapper();

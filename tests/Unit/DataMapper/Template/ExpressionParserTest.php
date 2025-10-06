@@ -9,8 +9,9 @@ use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
 describe('ExpressionParser', function(): void {
     it('detects template expressions', function(): void {
         expect(ExpressionParser::hasExpression('{{ user.name }}'))->toBeTrue();
-        expect(ExpressionParser::hasExpression('@profile.fullname'))->toBeTrue();
+        expect(ExpressionParser::hasExpression('{{ profile.fullname }}'))->toBeTrue();
         expect(ExpressionParser::hasExpression('user.name'))->toBeFalse();
+        expect(ExpressionParser::hasExpression('@user.name'))->toBeFalse(); // @ syntax no longer supported
     });
 
     it('parses simple expression', function(): void {
@@ -52,12 +53,12 @@ describe('ExpressionParser', function(): void {
         expect($result['filters'])->toBe(['lower', 'trim']);
     });
 
-    it('parses alias reference', function(): void {
-        $result = ExpressionParser::parse('@profile.fullname');
+    it('parses expression with path', function(): void {
+        $result = ExpressionParser::parse('{{ profile.fullname }}');
 
         expect($result)->not->toBeNull();
         assert(is_array($result));
-        expect($result['type'])->toBe('alias');
+        expect($result['type'])->toBe('expression');
         expect($result['path'])->toBe('profile.fullname');
     });
 });

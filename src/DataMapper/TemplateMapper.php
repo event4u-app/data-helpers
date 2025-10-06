@@ -61,32 +61,41 @@ class TemplateMapper
     ): mixed {
         // Scalar or null: check if it's a source reference or expression
         if (is_string($node)) {
-            // Check for template expressions: {{ ... }} or @alias
+            // Only {{ }} expressions are treated as dynamic source references
             if (ExpressionParser::hasExpression($node)) {
-                return ExpressionEvaluator::evaluate($node, $sources, $aliases);
-            }
+                $result = ExpressionEvaluator::evaluate($node, $sources, $aliases);
 
-            [$alias, $path] = self::parseSourceReference($node);
-            if (null !== $alias && isset($sources[$alias])) {
-                $accessor = new DataAccessor($sources[$alias]);
-                $value = null === $path ? $accessor->toArray() : $accessor->get($path);
+                // Check if result is a wildcard array (has dot-path keys)
+                if (is_array($result) && self::isWildcardArray($result)) {
+                    // First normalize the array (convert dot-path keys to numeric indices)
+                    $normalized = WildcardHandler::normalizeWildcardArray($result);
 
-                // If wildcard result, normalize, optionally drop nulls, and optionally reindex
-                if (is_array($value) && self::isWildcardResult($value)) {
-                    $value = WildcardHandler::normalizeWildcardArray($value);
-                    if ($skipNull) {
-                        // Preserve keys; remove only nulls (not false/0/empty string)
-                        $value = array_filter($value, static fn($v): bool => null !== $v);
-                    }
-                    if ($reindexWildcard) {
-                        $value = array_values($value);
-                    }
+                    // Then apply skipNull and reindex
+                    $filtered = [];
+                    WildcardHandler::iterateWildcardItems(
+                        $normalized,
+                        $skipNull,
+                        $reindexWildcard,
+                        null,
+                        function(int|string $index, mixed $value) use (&$filtered): true {
+                            $filtered[$index] = $value;
+                            return true;
+                        }
+                    );
+
+                    return $filtered;
                 }
 
-                return $value;
+                // Return result (can be null if path doesn't exist)
+                return $result;
             }
 
-            // Not a reference or unknown alias: treat as literal
+            // Check if it's an alias reference (simple key without dots)
+            if (!str_contains($node, '.') && isset($aliases[$node])) {
+                return $aliases[$node];
+            }
+
+            // Not a {{ }} expression and not an alias: treat as static literal string
             return $node;
         }
 
@@ -110,6 +119,21 @@ class TemplateMapper
         }
 
         return $result;
+    }
+
+    /**
+     * Extract path from template string.
+     * Supports both '{{ alias.path }}' and 'alias.path' formats.
+     */
+    private static function extractPathFromTemplate(string $value): string
+    {
+        // If wrapped in {{ }}, extract the inner path
+        if (preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $value, $matches)) {
+            return trim($matches[1]);
+        }
+
+        // Otherwise use as-is
+        return $value;
     }
 
     /**
@@ -194,7 +218,10 @@ class TemplateMapper
     ): array {
         // If template is a string reference, write dataNode to that alias.path
         if (is_string($templateNode)) {
-            [$alias, $path] = self::parseSourceReference($templateNode);
+            // Extract path from {{ }} if present, otherwise use as-is
+            $cleanPath = self::extractPathFromTemplate($templateNode);
+
+            [$alias, $path] = self::parseSourceReference($cleanPath);
             if (null === $alias || !isset($targets[$alias])) {
                 // Unknown alias or no target: skip
                 return $targets;
@@ -278,5 +305,26 @@ class TemplateMapper
         );
 
         return $target;
+    }
+
+    /**
+     * Check if an array is a wildcard result (has dot-path keys).
+     *
+     * @param array<int|string, mixed> $array
+     */
+    private static function isWildcardArray(array $array): bool
+    {
+        if (empty($array)) {
+            return false;
+        }
+
+        // Check if any key contains a dot (indicating a dot-path key)
+        foreach (array_keys($array) as $key) {
+            if (is_string($key) && str_contains($key, '.')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

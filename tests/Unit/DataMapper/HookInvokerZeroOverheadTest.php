@@ -37,8 +37,8 @@ describe('HookInvoker Zero Overhead', function(): void {
         $source = ['name' => 'Alice', 'email' => 'alice@example.com'];
         $target = [];
         $mapping = [
-            'userName' => 'name',
-            'userEmail' => 'email',
+            'userName' => '{{ name }}',
+            'userEmail' => '{{ email }}',
         ];
 
         // Map with empty hooks array
@@ -53,7 +53,7 @@ describe('HookInvoker Zero Overhead', function(): void {
     it('DataMapper without hooks parameter uses empty array', function(): void {
         $source = ['name' => 'Bob'];
         $target = [];
-        $mapping = ['fullName' => 'name'];
+        $mapping = ['fullName' => '{{ name }}'];
 
         // Map without hooks parameter (defaults to [])
         $result = DataMapper::map($source, $target, $mapping);
@@ -64,7 +64,7 @@ describe('HookInvoker Zero Overhead', function(): void {
     it('DataMapper with hooks executes them', function(): void {
         $source = ['name' => '  alice  '];
         $target = [];
-        $mapping = ['userName' => 'name'];
+        $mapping = ['userName' => '{{ name }}'];
 
         $hookCalled = false;
         $hooks = [
@@ -87,8 +87,8 @@ describe('HookInvoker Zero Overhead', function(): void {
         ]];
         $target = [];
         $mapping = [
-            'names.*' => 'users.*.name',
-            'ages.*' => 'users.*.age',
+            'names.*' => '{{ users.*.name }}',
+            'ages.*' => '{{ users.*.age }}',
         ];
 
         // With empty hooks, no hook overhead
@@ -104,8 +104,8 @@ describe('HookInvoker Zero Overhead', function(): void {
         $source = ['items' => array_fill(0, 100, ['name' => 'Item', 'value' => 42])];
         $target = [];
         $mapping = [
-            'names.*' => 'items.*.name',
-            'values.*' => 'items.*.value',
+            'names.*' => '{{ items.*.name }}',
+            'values.*' => '{{ items.*.value }}',
         ];
 
         // Measure with empty hooks (should be fast)

@@ -6,24 +6,23 @@ namespace event4u\DataHelpers\DataMapper\Template;
 
 final class ExpressionParser
 {
+    /**
+     * Check if a string contains a template expression {{ ... }}.
+     */
     public static function hasExpression(string $value): bool
     {
-        return str_contains($value, '{{') || str_starts_with($value, '@');
+        return str_contains($value, '{{') && str_contains($value, '}}');
     }
 
-    /** @return array{type: string, path: string, default: mixed, filters: array<int, string>}|null */
+    /**
+     * Parse a template expression {{ ... }}.
+     *
+     * Returns null if the string is not a valid {{ }} expression.
+     *
+     * @return array{type: string, path: string, default: mixed, filters: array<int, string>}|null
+     */
     public static function parse(string $value): ?array
     {
-        // Alias reference: @profile.fullname
-        if (str_starts_with($value, '@')) {
-            return [
-                'type' => 'alias',
-                'path' => substr($value, 1),
-                'default' => null,
-                'filters' => [],
-            ];
-        }
-
         // Template expression: {{ ... }}
         if (preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $value, $matches)) {
             $expression = trim($matches[1]);

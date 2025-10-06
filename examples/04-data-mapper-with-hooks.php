@@ -26,7 +26,7 @@ $hooks = Hooks::make()
 
 $res = DataMapper::map($src, $tgt, [
     'profile' => [
-        'name' => 'user.name',
+        'name' => '{{ user.name }}',
     ],
 ], true, false, $hooks);
 

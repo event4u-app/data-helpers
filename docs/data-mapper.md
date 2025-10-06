@@ -14,9 +14,9 @@ DataMapper supports three mapping styles plus the new **Pipeline API**:
 // Nested structure: target => source
 $result = DataMapper::map($source, [], [
   'profile' => [
-    'fullname' => 'user.name',
+    'fullname' => '{{ user.name }}',
     'contact' => [
-      'email' => 'user.email',
+      'email' => '{{ user.email }}',
     ],
   ],
 ]);
@@ -24,19 +24,23 @@ $result = DataMapper::map($source, [], [
 
 - Intuitive: Define the target structure you want
 - Readable: See the output structure at a glance
-- Wildcards: `'emails' => ['*' => 'users.*.email']`
+- **Template Syntax:** Source paths must be wrapped in `{{ }}` (e.g., `'{{ user.name }}'`)
+- **Static Values:** Values without `{{ }}` are treated as static strings (e.g., `'admin'`)
+- Wildcards: `'emails' => ['*' => '{{ users.*.email }}']`
 - Null handling: by default `skipNull=true` (null values are skipped)
 - Wildcard results are expanded into the target; see `reindexWildcard` option
 
 2) **Simple mapping (legacy)** - Flat associative array:
 
 ```php
-// Flat format: source => target (still supported)
+// Flat format: target => source (still supported)
 $result = DataMapper::map($source, [], [
-  'user.name'  => 'profile.fullname',
-  'user.email' => 'profile.contact.email',
+  'profile.fullname'       => '{{ user.name }}',
+  'profile.contact.email'  => '{{ user.email }}',
 ]);
 ```
+
+**Note:** Source paths must be wrapped in `{{ }}`. Values without `{{ }}` are treated as static strings.
 
 See API: [map](#map)
 
@@ -57,15 +61,14 @@ $result = DataMapper::map(null, null, [[
 Alternative: single `mapping` key instead of separate arrays
 
 ```php
-// Associative
+// Associative (source => target in structured mappings - no {{ }} needed here)
 ['mapping' => [ 'name' => 'profile.fullname', 'email' => 'profile.contact.email' ]]
-
-
-See API: [map](#map), [mapMany](#mapmany)
 
 // List of pairs
 ['mapping' => [ ['name','profile.fullname'], ['email','profile.contact.email'] ]]
 ```
+
+**Note:** In structured mappings, the format is `source => target` (reversed from simple mappings), and `{{ }}` is not required.
 
 4) Template-based mapping from named sources:
 
@@ -73,21 +76,22 @@ See API: [map](#map), [mapMany](#mapmany)
 $sources = [ 'user' => $userModel, 'addr' => ['street' => 'Main 1'] ];
 $template = [
   'profile' => [
-    'fullname' => 'user.name',
-    'email'    => 'user.email',
-    'street'   => 'addr.street',
+    'fullname' => '{{ user.name }}',
+    'email'    => '{{ user.email }}',
+    'street'   => '{{ addr.street }}',
   ],
 ];
 $result = DataMapper::mapFromTemplate($template, $sources, skipNull: true, reindexWildcard: false);
+```
 
 See API: [mapFromTemplate](#mapfromtemplate)
 
-```
-
 - Template may be a JSON string or an array
-- Strings that look like `alias.path` are resolved against the given sources
-- Unknown aliases are treated as literals
-- Wildcards allowed (e.g. `src.users.*.email`)
+- **Template Syntax:** Source paths must be wrapped in `{{ }}` (e.g., `'{{ user.name }}'`)
+- **Static Values:** Values without `{{ }}` are treated as static strings
+- **Alias References:** Simple keys without dots can reference previously resolved values (e.g., `'copy' => 'fullname'`)
+- Unknown source aliases return `null` (skipped if `skipNull=true`)
+- Wildcards allowed (e.g., `'{{ src.users.*.email }}'`)
 - **NEW:** Supports template expressions with filters and defaults (see below)
 
 **Template Expressions:**
@@ -124,15 +128,83 @@ $result = DataMapper::pipe([
 
 **📖 See [Pipeline API Documentation](data-mapper-pipeline.md) for detailed guide and examples.**
 
+---
+
+## Template Syntax
+
+**Important:** Source paths in mappings must be wrapped in `{{ }}` to be treated as dynamic paths.
+
+### Dynamic vs. Static Values
+
+```php
+// Dynamic: Fetches value from source
+'name' => '{{ user.name }}'        // Gets $source['user']['name']
+'email' => '{{ user.email }}'      // Gets $source['user']['email']
+'count' => '{{ 0 }}'               // Gets $source[0]
+
+// Static: Used as literal string value
+'role' => 'admin'                  // Sets 'admin' as static value
+'status' => 'active'               // Sets 'active' as static value
+'message' => 'Hello World'         // Sets 'Hello World' as static value
+```
+
+### Examples
+
+```php
+$source = [
+    'user' => ['name' => 'Alice', 'email' => 'alice@example.com'],
+    'role' => 'user',
+];
+
+// Mix dynamic and static values
+$result = DataMapper::map($source, [], [
+    'profile' => [
+        'name' => '{{ user.name }}',      // Dynamic: 'Alice'
+        'email' => '{{ user.email }}',    // Dynamic: 'alice@example.com'
+        'role' => 'admin',                // Static: 'admin' (overrides source)
+        'status' => 'active',             // Static: 'active'
+    ],
+]);
+
+// Result:
+// [
+//   'profile' => [
+//     'name' => 'Alice',
+//     'email' => 'alice@example.com',
+//     'role' => 'admin',
+//     'status' => 'active',
+//   ]
+// ]
+```
+
+### Special Cases
+
+**Structured Mappings:** In structured mappings (with `mapping` key), the format is `source => target` and `{{ }}` is **not** required:
+
+```php
+DataMapper::map(null, [], [[
+    'source' => $source,
+    'target' => [],
+    'mapping' => [
+        'user.name' => 'profile.fullname',    // No {{ }} needed here
+        'user.email' => 'profile.email',      // No {{ }} needed here
+    ],
+]]);
+```
+
+**AutoMapper:** AutoMapper automatically maps fields without requiring `{{ }}` syntax.
+
+---
+
 6) Inverse template-based mapping to named targets:
 
 ```php
 $targets = [ 'user' => $userDto, 'addr' => [] ];
 $template = [
   'profile' => [
-    'fullname' => 'user.name',
-    'email'    => 'user.email',
-    'street'   => 'addr.street',
+    'fullname' => '{{ user.name }}',
+    'email'    => '{{ user.email }}',
+    'street'   => '{{ addr.street }}',
   ],
 ];
 $data = [ 'profile' => ['fullname' => 'Alice', 'email' => 'a@example.com', 'street' => 'Main 1'] ];
@@ -601,9 +673,9 @@ $sources = [
 
 $template = [
   'invoice' => [
-    'customer_name' => 'user.name',
-    'currency' => 'config.currency',
-    'total_orders' => 'stats.orders',
+    'customer_name' => '{{ user.name }}',
+    'currency' => '{{ config.currency }}',
+    'total_orders' => '{{ stats.orders }}',
   ],
 ];
 

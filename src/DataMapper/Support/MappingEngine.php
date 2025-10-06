@@ -158,7 +158,18 @@ class MappingEngine
                 continue;
             }
 
-            $value = $accessor->get((string)$sourcePath);
+            // Check if sourcePath is a {{ }} expression or a static value
+            $isExpression = is_string($sourcePath) && preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $sourcePath, $matches);
+
+            if ($isExpression) {
+                // Extract the actual path from {{ }} and get value from source
+                $actualSourcePath = trim($matches[1]);
+                $value = $accessor->get($actualSourcePath);
+            } else {
+                // Not a {{ }} expression: treat as static literal value
+                $value = $sourcePath;
+                $actualSourcePath = null;
+            }
 
             // Skip null values by default
             if ($skipNull && null === $value) {
@@ -173,8 +184,8 @@ class MappingEngine
             }
 
             // Handle wildcard values (always arrays with dot-path keys)
-            // Use cached wildcard check
-            if (is_array($value) && DotPathHelper::containsWildcard((string)$sourcePath)) {
+            // Use cached wildcard check - only for expressions
+            if (is_array($value) && $isExpression && $actualSourcePath !== null && DotPathHelper::containsWildcard($actualSourcePath)) {
                 // Normalize wildcard array (flatten dot-path keys to simple list)
                 $value = WildcardHandler::normalizeWildcardArray($value);
 

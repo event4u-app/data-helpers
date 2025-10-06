@@ -36,7 +36,7 @@ describe('DataMapper Hooks Builder', function(): void {
 
         /** @var array<string, mixed> $res */
         $res = DataMapper::map($src, $tgt, [
-            'user.name' => 'profile.name',
+            'user.name' => '{{ profile.name }}',
         ], false, false, $hooks);
 
         expect($beforeAllCount)->toBe(1)
@@ -143,7 +143,7 @@ describe('DataMapper Hooks Builder', function(): void {
 
         /** @var array{profile: array{name: string}} $res */
         $res = DataMapper::map($src, $tgt, [
-            'profile.name' => 'user.name',
+            'profile.name' => '{{ user.name }}',
         ], true, false, $hooks);
 
         expect($res)
@@ -168,7 +168,7 @@ describe('DataMapper Hooks Builder', function(): void {
             ->toArray();
 
         DataMapper::map($src, $tgt, [
-            'a' => 'x.a',
+            'a' => '{{ x.a }}',
         ], false, false, $hooks);
         expect($count)->toBe(1);
     });
@@ -197,7 +197,7 @@ describe('DataMapper Hooks Builder', function(): void {
 
         /** @var array{dest: array{mails: array<int,string>}} $res */
         $res = DataMapper::map($src, $tgt, [
-            'dest.mails.*' => 'users.*.email',
+            'dest.mails.*' => '{{ users.*.email }}',
         ], false, true, $hooks);
 
         expect($calls)->toBe(2)
@@ -218,7 +218,7 @@ describe('DataMapper Hooks Builder', function(): void {
 
         /** @var array<string,mixed> $res */
         $res = DataMapper::map($src, $tgt, [
-            'user.name' => 'profile.name',
+            'user.name' => '{{ profile.name }}',
         ], false, false, $hooks);
 
         expect($res)->not()->toHaveKey('profile');

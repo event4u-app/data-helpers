@@ -12,13 +12,13 @@ class TestDataModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'email' => 'request.email',
-            'first_name' => 'request.first_name',
-            'last_name' => 'request.last_name',
-            'age' => 'request.age',
+            'email' => '{{ request.email }}',
+            'first_name' => '{{ request.first_name }}',
+            'last_name' => '{{ request.last_name }}',
+            'age' => '{{ request.age }}',
             'is_active' => true,
             'nested' => [
-                'value' => 'request.nested_value',
+                'value' => '{{ request.nested_value }}',
             ],
         ];
     }
