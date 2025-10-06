@@ -10,19 +10,54 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         php: [8.2, 8.3, 8.4]
-        laravel: [9, 10, 11]
+        framework: [laravel, symfony, doctrine]
+        version: [2, 3, 6, 7, 9, 10, 11]
         stability: [prefer-lowest, prefer-stable]
         exclude:
+          # Laravel versions
+          - framework: laravel
+            version: 2
+          - framework: laravel
+            version: 3
+          - framework: laravel
+            version: 6
+          - framework: laravel
+            version: 7
+          # Symfony versions
+          - framework: symfony
+            version: 2
+          - framework: symfony
+            version: 3
+          - framework: symfony
+            version: 9
+          - framework: symfony
+            version: 10
+          - framework: symfony
+            version: 11
+          # Doctrine versions
+          - framework: doctrine
+            version: 6
+          - framework: doctrine
+            version: 7
+          - framework: doctrine
+            version: 9
+          - framework: doctrine
+            version: 10
+          - framework: doctrine
+            version: 11
           # Laravel 9 requires PHP 8.0-8.2, not compatible with PHP 8.3+
           - php: 8.3
-            laravel: 9
+            framework: laravel
+            version: 9
           - php: 8.4
-            laravel: 9
+            framework: laravel
+            version: 9
           # Laravel 10 requires PHP 8.1-8.3, not compatible with PHP 8.4
           - php: 8.4
-            laravel: 10
+            framework: laravel
+            version: 10
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }}
+    name: P${{ matrix.php }} - ${{ matrix.framework }}${{ matrix.version }} - ${{ matrix.stability }}
 
     steps:
       - name: Checkout code
@@ -40,9 +75,22 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
-      - name: Install dependencies
+      - name: Install dependencies (Laravel)
+        if: matrix.framework == 'laravel'
         run: |
-          composer require "illuminate/support:^${{ matrix.laravel }}.0" "illuminate/database:^${{ matrix.laravel }}.0" "illuminate/http:^${{ matrix.laravel }}.0" --no-update --no-interaction --dev
+          composer require "illuminate/support:^${{ matrix.version }}.0" "illuminate/database:^${{ matrix.version }}.0" "illuminate/http:^${{ matrix.version }}.0" --no-update --no-interaction --dev
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --with-all-dependencies
+
+      - name: Install dependencies (Symfony)
+        if: matrix.framework == 'symfony'
+        run: |
+          composer require "symfony/http-kernel:^${{ matrix.version }}.0" "symfony/http-foundation:^${{ matrix.version }}.0" --no-update --no-interaction --dev
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --with-all-dependencies
+
+      - name: Install dependencies (Doctrine)
+        if: matrix.framework == 'doctrine'
+        run: |
+          composer require "doctrine/orm:^${{ matrix.version }}.0" --no-update --no-interaction --dev
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --with-all-dependencies
 
       - name: Execute tests
