@@ -1,0 +1,241 @@
+<?php
+
+declare(strict_types=1);
+
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\UppercaseStrings;
+use Tests\utils\Entities\Company as EntityCompany;
+use Tests\utils\Entities\Department as EntityDepartment;
+use Tests\utils\Models\Company;
+use Tests\utils\Models\Department;
+
+describe('DataMapper::pipe()->mapFromFile()', function(): void {
+    describe('Pipeline with file loading - Array targets', function(): void {
+        it('loads JSON file and applies transformers to array target', function(): void {
+            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+
+            $target = [];
+            $mapping = [
+                'company_name' => '{{ company.name }}',
+                'company_email' => '{{ company.email }}',
+                'dept_names' => '{{ company.departments.*.name }}',
+            ];
+
+            $result = DataMapper::pipe([
+                TrimStrings::class,
+                LowercaseEmails::class,
+            ])->mapFromFile($jsonFile, $target, $mapping);
+
+            expect($result)->toBeArray();
+            expect($result['company_name'])->toBe('TechCorp Solutions');
+            expect($result['company_email'])->toBe('info@techcorp.example'); // Lowercased by transformer
+            expect($result['dept_names'])->toBeArray();
+            expect($result['dept_names'])->toHaveCount(3);
+        });
+
+        it('loads XML file and applies transformers to array target', function(): void {
+            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+
+            $target = [];
+            $mapping = [
+                'company_name' => '{{ name }}',
+                'company_email' => '{{ email }}',
+                'dept_codes' => '{{ departments.department.*.code }}',
+            ];
+
+            $result = DataMapper::pipe([
+                TrimStrings::class,
+                UppercaseStrings::class,
+            ])->mapFromFile($xmlFile, $target, $mapping);
+
+            expect($result)->toBeArray();
+            expect($result['company_name'])->toBe('TECHCORP SOLUTIONS'); // Uppercased by transformer
+            expect($result['company_email'])->toBe('INFO@TECHCORP.EXAMPLE'); // Uppercased by transformer
+            expect($result['dept_codes'])->toBeArray();
+            expect($result['dept_codes'])->toHaveCount(3);
+            expect($result['dept_codes'][0])->toBe('ENG');
+        });
+
+        it('applies multiple transformers in sequence', function(): void {
+            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+
+            $target = [];
+            $mapping = [
+                'email' => '{{ company.email }}',
+                'phone' => '{{ company.phone }}',
+            ];
+
+            $result = DataMapper::pipe([
+                TrimStrings::class,
+                LowercaseEmails::class,
+            ])->mapFromFile($jsonFile, $target, $mapping);
+
+            expect($result['email'])->toBe('info@techcorp.example'); // Trimmed and lowercased
+            expect($result['phone'])->toBe('+1-555-0123'); // Only trimmed
+        });
+    });
+
+    describe('Pipeline with file loading - Model targets', function(): void {
+        it('loads JSON file and maps to Eloquent Model with transformers', function(): void {
+            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+
+            $company = new Company();
+
+            $mapping = [
+                'name' => '{{ company.name }}',
+                'email' => '{{ company.email }}',
+                'founded_year' => '{{ company.founded_year }}',
+                'departments' => [
+                    '*' => [
+                        'name' => '{{ company.departments.*.name }}',
+                        'code' => '{{ company.departments.*.code }}',
+                        'budget' => '{{ company.departments.*.budget }}',
+                        'employee_count' => '{{ company.departments.*.employee_count }}',
+                    ],
+                ],
+            ];
+
+            $result = DataMapper::pipe([
+                TrimStrings::class,
+                LowercaseEmails::class,
+            ])->mapFromFile($jsonFile, $company, $mapping);
+
+            expect($result)->toBeInstanceOf(Company::class);
+            expect($result->name)->toBe('TechCorp Solutions');
+            expect($result->email)->toBe('info@techcorp.example'); // Lowercased
+            expect($result->founded_year)->toBe(2015);
+            expect($result->departments)->toHaveCount(3);
+
+            $dept0 = $result->departments[0];
+            expect($dept0)->toBeInstanceOf(Department::class);
+            expect($dept0->name)->toBe('Engineering');
+            expect($dept0->code)->toBe('ENG');
+        });
+
+        it('loads XML file and maps to Eloquent Model with transformers', function(): void {
+            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+
+            $company = new Company();
+
+            $mapping = [
+                'name' => '{{ name }}',
+                'email' => '{{ email }}',
+                'founded_year' => '{{ founded_year }}',
+                'departments' => [
+                    '*' => [
+                        'name' => '{{ departments.department.*.name }}',
+                        'code' => '{{ departments.department.*.code }}',
+                        'budget' => '{{ departments.department.*.budget }}',
+                        'employee_count' => '{{ departments.department.*.employee_count }}',
+                    ],
+                ],
+            ];
+
+            $result = DataMapper::pipe([
+                TrimStrings::class,
+                LowercaseEmails::class,
+            ])->mapFromFile($xmlFile, $company, $mapping);
+
+            expect($result)->toBeInstanceOf(Company::class);
+            expect($result->name)->toBe('TechCorp Solutions');
+            expect($result->email)->toBe('info@techcorp.example'); // Lowercased
+            expect($result->departments)->toHaveCount(3);
+        });
+    });
+
+    describe('Pipeline with file loading - Entity targets', function(): void {
+        it('loads JSON file and maps to Doctrine Entity with transformers', function(): void {
+            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+
+            $company = new EntityCompany();
+
+            $mapping = [
+                'name' => '{{ company.name }}',
+                'email' => '{{ company.email }}',
+                'founded_year' => '{{ company.founded_year }}',
+                'departments' => [
+                    '*' => [
+                        'name' => '{{ company.departments.*.name }}',
+                        'code' => '{{ company.departments.*.code }}',
+                        'budget' => '{{ company.departments.*.budget }}',
+                        'employee_count' => '{{ company.departments.*.employee_count }}',
+                    ],
+                ],
+            ];
+
+            $result = DataMapper::pipe([
+                TrimStrings::class,
+                LowercaseEmails::class,
+            ])->mapFromFile($jsonFile, $company, $mapping);
+
+            expect($result)->toBeInstanceOf(EntityCompany::class);
+            expect($result->getName())->toBe('TechCorp Solutions');
+            expect($result->getEmail())->toBe('info@techcorp.example'); // Lowercased
+            expect($result->getFoundedYear())->toBe(2015);
+            expect($result->getDepartments()->count())->toBe(3);
+
+            $dept0 = $result->getDepartments()[0];
+            expect($dept0)->toBeInstanceOf(EntityDepartment::class);
+            expect($dept0->getName())->toBe('Engineering');
+            expect($dept0->getCode())->toBe('ENG');
+        });
+
+        it('loads XML file and maps to Doctrine Entity with transformers', function(): void {
+            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+
+            $company = new EntityCompany();
+
+            $mapping = [
+                'name' => '{{ name }}',
+                'email' => '{{ email }}',
+                'founded_year' => '{{ founded_year }}',
+                'departments' => [
+                    '*' => [
+                        'name' => '{{ departments.department.*.name }}',
+                        'code' => '{{ departments.department.*.code }}',
+                        'budget' => '{{ departments.department.*.budget }}',
+                        'employee_count' => '{{ departments.department.*.employee_count }}',
+                    ],
+                ],
+            ];
+
+            $result = DataMapper::pipe([
+                TrimStrings::class,
+                LowercaseEmails::class,
+            ])->mapFromFile($xmlFile, $company, $mapping);
+
+            expect($result)->toBeInstanceOf(EntityCompany::class);
+            expect($result->getName())->toBe('TechCorp Solutions');
+            expect($result->getEmail())->toBe('info@techcorp.example'); // Lowercased
+            expect($result->getDepartments()->count())->toBe(3);
+        });
+    });
+
+    describe('Error handling', function(): void {
+        it('throws exception for non-existent file', function(): void {
+            $target = [];
+            $mapping = ['name' => '{{ name }}'];
+
+            DataMapper::pipe([TrimStrings::class])
+                ->mapFromFile('/non/existent/file.json', $target, $mapping);
+        })->throws(InvalidArgumentException::class, 'File not found');
+
+        it('throws exception for unsupported file format', function(): void {
+            $tempFile = tempnam(sys_get_temp_dir(), 'test') . '.txt';
+            file_put_contents($tempFile, 'test content');
+
+            $target = [];
+            $mapping = ['name' => '{{ name }}'];
+
+            try {
+                DataMapper::pipe([TrimStrings::class])
+                    ->mapFromFile($tempFile, $target, $mapping);
+            } finally {
+                unlink($tempFile);
+            }
+        })->throws(InvalidArgumentException::class, 'Unsupported file format');
+    });
+});
+

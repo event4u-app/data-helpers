@@ -1,0 +1,47 @@
+{
+    "project": {
+        "number": "3&#45;24281",
+        "title": "Sample&#32;&#45;&#32;Swimming&#32;Pool&#32;&#45;",
+        "description": "Sample&#32;&#45;&#32;Swimming&#32;Pool&#32;&#45;",
+        "status": "order"
+    },
+    "customer": {
+        "name1": "Herbert&#32;Meier",
+        "name2": "Petra&#32;Meier",
+        "street": "Gartenweg&#32;23",
+        "zipcode": "12345",
+        "city": "Sample City"
+    },
+    "positions": [
+        {
+            "number": "01",
+            "short_text": "Site Setup",
+            "unit": "-",
+            "type": "N"
+        },
+        {
+            "number": "01&#46;01",
+            "short_text": "Site&#32;Setup&#32;&#45;&#32;Set&#32;up&#32;site&#32;during&#32;construction",
+            "unit": "lump sum",
+            "type": "N"
+        },
+        {
+            "number": "01&#46;02",
+            "short_text": "Surveying&#32;Work",
+            "unit": "lump sum.",
+            "type": "N"
+        },
+        {
+            "number": "01&#46;03",
+            "short_text": "Portable&#32;Toilet&#32;per&#32;Month",
+            "unit": "lump sum.",
+            "type": "N"
+        },
+        {
+            "number": "01&#46;04",
+            "short_text": "Portable&#32;Toilet&#32;per&#32;Week&#32;after&#32;4&#32;Weeks",
+            "unit": "pcs",
+            "type": "N"
+        }
+    ]
+}

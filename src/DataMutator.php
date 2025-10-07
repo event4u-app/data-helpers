@@ -125,6 +125,21 @@ class DataMutator
             return $target;
         }
 
+        // Support for DTOs with public properties (only if the first segment exists as a property)
+        if ([] !== $segments && EntityHelper::hasProperty($target, $segments[0])) {
+            // If merge is true and value is an array, merge with existing value
+            if ($merge && is_array($value)) {
+                $existingValue = EntityHelper::getAttribute($target, implode('.', $segments));
+                if (is_array($existingValue)) {
+                    $value = array_replace_recursive($existingValue, $value);
+                }
+            }
+
+            EntityHelper::setAttribute($target, implode('.', $segments), $value);
+
+            return $target;
+        }
+
         // Fallback for Arrayable interface
         if (ArrayableHelper::isArrayable($target)) {
             $arr = ArrayableHelper::toArray($target);

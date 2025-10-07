@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers;
 
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use InvalidArgumentException;
 use JsonSerializable;
 use Stringable;
 
@@ -66,9 +67,9 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
     /**
      * Create a new mapped model instance.
      *
-     * @param array<string, mixed>|object|null $data Input data (request, array, object)
+     * @param array<string, mixed>|object|string|null $data Input data (request, array, object, JSON string, or XML string)
      */
-    public function __construct(array|object|null $data = null)
+    public function __construct(array|object|string|null $data = null)
     {
         if (null !== $data) {
             $this->fill($data);
@@ -118,10 +119,15 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
     /**
      * Fill the model with data and apply template mapping.
      *
-     * @param array<string, mixed>|object $data Input data
+     * @param array<string, mixed>|object|string $data Input data (array, object, JSON string, or XML string)
      */
-    public function fill(array|object $data): static
+    public function fill(array|object|string $data): static
     {
+        // Convert string (JSON/XML) to array if needed
+        if (is_string($data)) {
+            $data = $this->stringToArray($data);
+        }
+
         // Convert to array if needed
         if (is_object($data)) {
             $data = $this->objectToArray($data);
@@ -314,6 +320,50 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
     }
 
     /**
+     * Convert string (JSON/XML) to array.
+     *
+     * @param string $string JSON or XML string
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException If string is not valid JSON or XML
+     */
+    private function stringToArray(string $string): array
+    {
+        // Try JSON first
+        $trimmed = trim($string);
+        if (str_starts_with($trimmed, '{') || str_starts_with($trimmed, '[')) {
+            $decoded = json_decode($string, true);
+            if (JSON_ERROR_NONE === json_last_error()) {
+                /** @var array<string, mixed> */
+                return $decoded;
+            }
+        }
+
+        // Try XML
+        if (str_starts_with($trimmed, '<?xml') || str_starts_with($trimmed, '<')) {
+            libxml_use_internal_errors(true);
+            $xml = simplexml_load_string($string);
+            libxml_clear_errors();
+
+            if (false !== $xml) {
+                $jsonString = json_encode($xml);
+                if (false === $jsonString) {
+                    throw new InvalidArgumentException('Failed to encode XML to JSON');
+                }
+
+                $result = json_decode($jsonString, true);
+                if (!is_array($result)) {
+                    return [];
+                }
+
+                /** @var array<string, mixed> */
+                return $result;
+            }
+        }
+
+        throw new InvalidArgumentException('Input string is neither valid JSON nor valid XML');
+    }
+
+    /**
      * Convert object to array.
      *
      * @return array<string, mixed>
@@ -347,9 +397,9 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
      *
      * This static method is used by Laravel/Symfony for automatic dependency injection.
      *
-     * @param array<string, mixed>|object $data Request data
+     * @param array<string, mixed>|object|string $data Request data (array, object, JSON string, or XML string)
      */
-    public static function fromRequest(array|object $data): static
+    public static function fromRequest(array|object|string $data): static
     {
         return new static($data); // @phpstan-ignore-line new.static
     }

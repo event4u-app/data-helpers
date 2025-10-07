@@ -155,6 +155,96 @@ $result = DataMapper::map($source, [], $mapping);
 // ]
 ```
 
+
+
+#### 🔥 **Complex Nested Mapping with Automatic Relations**
+
+Map complex nested structures directly to Eloquent Models or Doctrine Entities with **automatic relation detection**:
+
+```php
+use event4u\DataHelpers\DataMapper;
+
+// Source: JSON from API or file
+$jsonData = [
+    'company' => [
+        'name' => 'TechCorp Solutions',
+        'email' => 'info@techcorp.example',
+        'founded_year' => 2015,
+        'departments' => [
+            [
+                'name' => 'Engineering',
+                'code' => 'ENG',
+                'budget' => 5000000.00,
+                'employee_count' => 120,
+            ],
+            [
+                'name' => 'Sales',
+                'code' => 'SAL',
+                'budget' => 3000000.00,
+                'employee_count' => 80,
+            ],
+        ],
+        'projects' => [
+            [
+                'name' => 'Cloud Migration',
+                'code' => 'PROJ-001',
+                'budget' => 2500000.00,
+                'status' => 'active',
+            ],
+        ],
+    ],
+];
+
+// Target: Eloquent Model or Doctrine Entity
+$company = new Company();
+
+// Mapping: Nested structure with wildcards
+$mapping = [
+    'name' => '{{ company.name }}',
+    'email' => '{{ company.email }}',
+    'founded_year' => '{{ company.founded_year }}',
+    // Automatic relation mapping - DataMapper detects HasMany/OneToMany relations!
+    'departments' => [
+        '*' => [
+            'name' => '{{ company.departments.*.name }}',
+            'code' => '{{ company.departments.*.code }}',
+            'budget' => '{{ company.departments.*.budget }}',
+            'employee_count' => '{{ company.departments.*.employee_count }}',
+        ],
+    ],
+    'projects' => [
+        '*' => [
+            'name' => '{{ company.projects.*.name }}',
+            'code' => '{{ company.projects.*.code }}',
+            'budget' => '{{ company.projects.*.budget }}',
+            'status' => '{{ company.projects.*.status }}',
+        ],
+    ],
+];
+
+// Map in one call - relations are automatically created and linked!
+$result = DataMapper::map($jsonData, $company, $mapping);
+
+// Result: Fully populated Company with related Departments and Projects
+$result->getName();                           // 'TechCorp Solutions'
+$result->getDepartments()->count();           // 2
+$result->getDepartments()[0]->getName();      // 'Engineering'
+$result->getDepartments()[0]->getBudget();    // 5000000.00 (auto-casted to float)
+$result->getProjects()->count();              // 1
+$result->getProjects()[0]->getName();         // 'Cloud Migration'
+
+// Works with both Eloquent Models and Doctrine Entities!
+// - Eloquent: Uses setRelation() for HasMany/BelongsTo
+// - Doctrine: Uses Collection methods for OneToMany/ManyToOne
+```
+
+**Key Features:**
+- ✅ **Automatic Relation Detection** - Detects Eloquent/Doctrine relations without configuration
+- ✅ **Type Casting** - Automatically casts values (string → int/float/bool) based on setter types
+- ✅ **Snake_case → camelCase** - Converts `employee_count` → `setEmployeeCount()`
+- ✅ **Nested Wildcards** - Map arrays of objects with `*` notation
+- ✅ **Framework Agnostic** - Works with Laravel, Symfony, or standalone PHP
+
 ---
 
 ## 🎯 Core Features

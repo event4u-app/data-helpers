@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='utf-8'?>
+<lv_nesting>
+    <lvdata>
+        <lv_id>56d3c343-263b-499b-855c-78f22388c943</lv_id>
+        <lv_number>3&amp;#45;24281</lv_number>
+        <lv_status>Order</lv_status>
+        <lv_description>Sample&amp;#32;&amp;#45;&amp;#32;Swimming&amp;#32;Pool&amp;#32;&amp;#45;</lv_description>
+        <project_description>Sample&amp;#32;&amp;#45;&amp;#32;Swimming&amp;#32;Pool&amp;#32;&amp;#45;</project_description>
+        <customer_name>Herbert&amp;#32;Meier</customer_name>
+        <customer_name2>Petra&amp;#32;Meier</customer_name2>
+        <customer_address>Gartenweg&amp;#32;23</customer_address>
+        <customer_zipcode>12345</customer_zipcode>
+        <customer_city>Sample City</customer_city>
+        <lv_adresse/>
+        <lv_hours>748.40</lv_hours>
+        <lv_actual_hours>0</lv_actual_hours>
+        <lv_site_manager>Thomas&amp;#32;Schmidt</lv_site_manager>
+        <lv_foreman>???</lv_foreman>
+        <lv_baubeginn/>
+        <lv_bauende/>
+        <lv_sum>126623.1500</lv_sum>
+        <lv_kosten/>
+        <lv_umsatz/>
+        <lv_travel_time>0</lv_travel_time>
+        <posdata>
+            <pos_id>46e7cd80-d01f-4cfd-88d8-c690ca3ae0b5</pos_id>
+            <pos_number>01</pos_number>
+            <pos_type>Section</pos_type>
+            <pos_text>Site Setup</pos_text>
+            <pos_long_text>Site Setup</pos_long_text>
+            <pos_factor>1</pos_factor>
+            <pos_minutes>0</pos_minutes>
+            <pos_menge/>
+            <pos_unit>-</pos_unit>
+            <pos_sum>0</pos_sum>
+            <pos_adresse/>
+            <pos_plz/>
+            <pos_ort/>
+            <pos_foreman>11</pos_foreman>
+        </posdata>
+        <posdata>
+            <pos_id>14f61487-a922-4067-9a01-835601dea6bc</pos_id>
+            <pos_number>01&amp;#46;01</pos_number>
+            <pos_type>Standard</pos_type>
+            <pos_text>Site&amp;#32;Setup&amp;#32;&amp;#45;&amp;#32;Set&amp;#32;up&amp;#32;site&amp;#32;during&amp;#32;construction</pos_text>
+            <pos_long_text>Site&amp;#32;setup&amp;#32;with&amp;#32;machinery&amp;#32;and&amp;#32;equipment&amp;#46;</pos_long_text>
+            <pos_factor>0.000</pos_factor>
+            <pos_minutes>360.00</pos_minutes>
+            <pos_quantity>1.00000</pos_quantity>
+            <pos_unit>lump sum</pos_unit>
+            <pos_sum>1200.0000</pos_sum>
+            <pos_adresse/>
+            <pos_plz/>
+            <pos_ort/>
+            <pos_foreman>11</pos_foreman>
+        </posdata>
+        <posdata>
+            <pos_id>aea568c1-2967-4ac2-9628-f802c5041ebb</pos_id>
+            <pos_number>01&amp;#46;02</pos_number>
+            <pos_type>Standard</pos_type>
+            <pos_text>Surveying&amp;#32;Work</pos_text>
+            <pos_long_text>Staking&amp;#32;and&amp;#32;surveying&amp;#32;work&amp;#46;</pos_long_text>
+            <pos_factor>0</pos_factor>
+            <pos_minutes>300.00</pos_minutes>
+            <pos_quantity>1</pos_quantity>
+            <pos_unit>lump sum.</pos_unit>
+            <pos_sum>425.0000</pos_sum>
+            <pos_adresse/>
+            <pos_plz/>
+            <pos_ort/>
+            <pos_foreman>11</pos_foreman>
+        </posdata>
+        <posdata>
+            <pos_id>2d3a25c4-6de7-44e1-867b-aea22c1063c6</pos_id>
+            <pos_number>01&amp;#46;03</pos_number>
+            <pos_type>Standard</pos_type>
+            <pos_text>Portable&amp;#32;Toilet&amp;#32;per&amp;#32;Month</pos_text>
+            <pos_long_text>Portable&amp;#32;toilet&amp;#32;for&amp;#32;4&amp;#32;weeks&amp;#46;</pos_long_text>
+            <pos_factor>0</pos_factor>
+            <pos_minutes>0.00</pos_minutes>
+            <pos_quantity>1</pos_quantity>
+            <pos_unit>lump sum.</pos_unit>
+            <pos_sum>169.0000</pos_sum>
+            <pos_adresse/>
+            <pos_plz/>
+            <pos_ort/>
+            <pos_foreman>11</pos_foreman>
+        </posdata>
+        <posdata>
+            <pos_id>969769b6-1de0-4f5c-9231-93a1a85a5320</pos_id>
+            <pos_number>01&amp;#46;04</pos_number>
+            <pos_type>Standard</pos_type>
+            <pos_text>Portable&amp;#32;Toilet&amp;#32;per&amp;#32;Week&amp;#32;after&amp;#32;4&amp;#32;Weeks</pos_text>
+            <pos_long_text>Portable&amp;#32;toilet&amp;#32;per&amp;#32;week&amp;#46;</pos_long_text>
+            <pos_factor>0</pos_factor>
+            <pos_minutes>0.00</pos_minutes>
+            <pos_quantity>2</pos_quantity>
+            <pos_unit>pcs</pos_unit>
+            <pos_sum>84.5000</pos_sum>
+            <pos_adresse/>
+            <pos_plz/>
+            <pos_ort/>
+            <pos_foreman>11</pos_foreman>
+        </posdata>
+    </lvdata>
+</lv_nesting>

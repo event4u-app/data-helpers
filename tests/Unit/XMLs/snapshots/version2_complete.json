@@ -1,0 +1,48 @@
+{
+    "project": {
+        "number": "2608",
+        "title": "Construction of Paving Area South Park",
+        "client_id": "1",
+        "status": "order"
+    },
+    "customer": {
+        "description": [],
+        "name1": "City of Sample City",
+        "name2": "Department of Green Spaces",
+        "name3": "Dept. 42 City Park",
+        "street": "Main Square 5",
+        "zipcode": "54321",
+        "city": "Sample City"
+    },
+    "address": {
+        "street": "Main Square 5",
+        "zipcode": "54321",
+        "city": "Sample City"
+    },
+    "positions": [
+        {
+            "parent_id": [],
+            "type": "N"
+        },
+        {
+            "parent_id": [],
+            "type": "N"
+        },
+        {
+            "parent_id": [],
+            "type": "N"
+        },
+        {
+            "parent_id": "91082",
+            "short_text": "Set up construction site for this section. Access available.",
+            "unit": "lump sum",
+            "type": "N"
+        },
+        {
+            "parent_id": "91082",
+            "short_text": "Clear construction site for this section.",
+            "unit": "lump sum",
+            "type": "N"
+        }
+    ]
+}

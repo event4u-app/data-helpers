@@ -48,6 +48,9 @@ parameters:
         - message: '#Access to an undefined property PHPUnit\\Framework\\TestCase::\$.*#'
           paths:
               - tests/*
+        - message: '#Access to an undefined property .*#'
+          paths:
+              - */Models/*
         - message: '#Undefined variable: \$this#'
           paths:
               - tests/*

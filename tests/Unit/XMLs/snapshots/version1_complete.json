@@ -1,0 +1,55 @@
+{
+    "project": {
+        "number": "98765432",
+        "title": "Sample Company Ltd - Paving Works Test Project",
+        "cost_center": "98765432",
+        "address": [],
+        "total_value": null,
+        "calculated_hours": null,
+        "status": "order_calculation"
+    },
+    "customer": {
+        "name1": "Example Construction Inc",
+        "street": "Sample Street 15",
+        "zipcode": "12345",
+        "city": "Sample City"
+    },
+    "contact_persons": [
+        {
+            "salutation": "Mr",
+            "surname": "Schmidt, Peter",
+            "email": "peter.schmidt@example.com",
+            "phone": "0123-456789"
+        }
+    ],
+    "positions": [
+        {
+            "external_id": "01.",
+            "number": "01.",
+            "parent_id": [],
+            "short_text": "Natural Stone Paving Works Test Area North",
+            "type": "Standard"
+        },
+        {
+            "external_id": "01.01.",
+            "number": "01.01.",
+            "parent_id": "01.",
+            "short_text": "Paving Works",
+            "type": "Standard"
+        },
+        {
+            "external_id": "01.01.0000",
+            "number": "01.01.0000",
+            "parent_id": "01.01.",
+            "type": "Standard"
+        },
+        {
+            "external_id": "01.01.0001",
+            "number": "01.01.0001",
+            "parent_id": "01.01.",
+            "short_text": "Remove and relay existing granite pavement.",
+            "unit": "m2",
+            "type": "Standard"
+        }
+    ]
+}

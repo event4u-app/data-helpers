@@ -108,13 +108,14 @@ class ValueTransformer
             $value = $transformFn($value);
         }
 
+        // Trim string values if requested (before replacement)
+        if ($trimValues && is_string($value)) {
+            $value = trim($value);
+        }
+
         // Apply replacement map
         if (is_array($replaceMap)) {
-            // Trim string values before replacement if requested
-            if ($trimValues && is_string($value)) {
-                $value = trim($value);
-            }
-            $value = self::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
+            return self::applyReplacement($value, $replaceMap, $caseInsensitiveReplace);
         }
 
         return $value;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
+use DOMDocument;
 use event4u\DataHelpers\DataMapper\AutoMapper;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
@@ -17,7 +18,10 @@ use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\TemplateMapper;
 use event4u\DataHelpers\Enums\DataMapperHook;
+use RuntimeException;
+use event4u\DataHelpers\Support\EntityHelper;
 use InvalidArgumentException;
+use SimpleXMLElement;
 
 /**
  * DataMapper allows mapping values between different data structures
@@ -85,6 +89,59 @@ class DataMapper
 
         // Case 1: nested mapping structure like ['profile' => ['name' => 'user.name']]
         if (MappingEngine::isNestedMapping($mapping)) {
+            // Check if target is an entity and if any top-level keys are relations
+            // If so, handle them separately before flattening
+            if (is_object($target) && EntityHelper::isEntity($target)) {
+                $relationMappings = [];
+                $regularMappings = [];
+
+                foreach ($mapping as $key => $value) {
+                    if (is_string($key) && EntityHelper::isRelation($target, $key)) {
+                        $relationMappings[$key] = $value;
+                    } else {
+                        $regularMappings[$key] = $value;
+                    }
+                }
+
+                // Process relation mappings first (without flattening)
+                foreach ($relationMappings as $relationName => $relationMapping) {
+                    if (is_array($relationMapping)) {
+                        // Map the relation data
+                        $relationData = self::map(
+                            $source,
+                            [],
+                            $relationMapping,
+                            $skipNull,
+                            $reindexWildcard,
+                            $hooks,
+                            $trimValues,
+                            $caseInsensitiveReplace
+                        );
+
+                        // Set the relation using EntityHelper
+                        EntityHelper::setAttribute($target, $relationName, $relationData);
+                    }
+                }
+
+                // If there are regular mappings, process them normally
+                if ([] !== $regularMappings) {
+                    $mapping = MappingEngine::flattenNestedMapping($regularMappings);
+                    /** @var array<string, string> $mapping */
+                    return self::mapSimple(
+                        $source,
+                        $target,
+                        $mapping,
+                        $skipNull,
+                        $reindexWildcard,
+                        $hooks,
+                        $trimValues,
+                        $caseInsensitiveReplace
+                    );
+                }
+
+                return $target;
+            }
+
             // Flatten nested structure to simple source => target format
             $mapping = MappingEngine::flattenNestedMapping($mapping);
             /** @var array<string, string> $mapping */
@@ -214,6 +271,148 @@ class DataMapper
             $caseInsensitiveReplace,
             $deep
         );
+    }
+
+    /**
+     * Load data from a file (XML or JSON) and use it as source for mapping.
+     *
+     * Automatically detects file type by extension and parses accordingly:
+     * - .xml: Parses XML and converts to array
+     * - .json: Parses JSON to array
+     *
+     * The parsed data is then used as source in the mapping operation.
+     *
+     * Example:
+     *   $project = DataMapper::mapFromFile(
+     *       'data/project.xml',
+     *       new Project(),
+     *       ['xml.number' => 'number', 'xml.title' => 'title']
+     *   );
+     *
+     * @param string $filePath Path to the XML or JSON file
+     * @param mixed $target The target data (array, object, model, DTO, etc.)
+     * @param array<int|string, mixed> $mapping Mapping definition
+     * @param bool $skipNull Skip null values
+     * @param bool $reindexWildcard Reindex wildcard results
+     * @param array<(DataMapperHook|string), mixed> $hooks Optional hooks
+     * @param bool $trimValues Trim string values
+     * @param bool $caseInsensitiveReplace Case insensitive replace
+     * @return mixed The updated target
+     * @throws InvalidArgumentException If file doesn't exist or has unsupported format
+     */
+    public static function mapFromFile(
+        string $filePath,
+        mixed $target,
+        array $mapping,
+        bool $skipNull = true,
+        bool $reindexWildcard = false,
+        array $hooks = [],
+        bool $trimValues = true,
+        bool $caseInsensitiveReplace = false,
+    ): mixed {
+        if (!file_exists($filePath)) {
+            throw new InvalidArgumentException('File not found: ' . $filePath);
+        }
+
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+        $source = match ($extension) {
+            'xml' => self::loadXmlFile($filePath),
+            'json' => self::loadJsonFile($filePath),
+            default => throw new InvalidArgumentException(
+                sprintf('Unsupported file format: %s. Only XML and JSON are supported.', $extension)
+            ),
+        };
+
+        // Detect if target is a JSON or XML string
+        $isJsonString = is_string($target) && self::isJsonString($target);
+        $isXmlString = is_string($target) && self::isXmlString($target);
+
+        $result = self::map(
+            $source,
+            $target,
+            $mapping,
+            $skipNull,
+            $reindexWildcard,
+            $hooks,
+            $trimValues,
+            $caseInsensitiveReplace
+        );
+
+        // Convert result back to JSON/XML string if target was a string
+        if ($isJsonString) {
+            return json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+
+        if ($isXmlString) {
+            if (!is_array($result)) {
+                throw new InvalidArgumentException('Cannot convert non-array result to XML');
+            }
+
+            return self::arrayToXml($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Load and parse an XML file to array.
+     *
+     * @param string $filePath Path to XML file
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException If XML parsing fails
+     */
+    private static function loadXmlFile(string $filePath): array
+    {
+        $xml = simplexml_load_file($filePath);
+
+        if (false === $xml) {
+            throw new InvalidArgumentException('Failed to parse XML file: ' . $filePath);
+        }
+
+        $jsonString = json_encode($xml);
+        if (false === $jsonString) {
+            throw new InvalidArgumentException('Failed to encode XML to JSON: ' . $filePath);
+        }
+
+        $result = json_decode($jsonString, true);
+        if (!is_array($result)) {
+            return [];
+        }
+
+        /** @var array<string, mixed> */
+        return $result;
+    }
+
+    /**
+     * Load and parse a JSON file to array.
+     *
+     * @param string $filePath Path to JSON file
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException If JSON parsing fails
+     */
+    private static function loadJsonFile(string $filePath): array
+    {
+        $content = file_get_contents($filePath);
+
+        if (false === $content) {
+            throw new InvalidArgumentException('Failed to read file: ' . $filePath);
+        }
+
+        $data = json_decode($content, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new InvalidArgumentException(
+                sprintf('Failed to parse JSON file: %s. Error: ', $filePath) . json_last_error_msg()
+            );
+        }
+
+        if (!is_array($data)) {
+            return [];
+        }
+
+        /** @var array<string, mixed> */
+        return $data;
     }
 
     /**
@@ -360,7 +559,7 @@ class DataMapper
      *
      * @param array<int|string, mixed>|object $target
      * @param array<string, string|array{__static__: mixed}> $mapping
-     * @param array<int|string, mixed> $hooks
+     * @param array<string, mixed> $hooks
      * @return array<int|string, mixed>|object
      */
     private static function mapSimpleInternal(
@@ -427,58 +626,23 @@ class DataMapper
             if (is_array($value) && !$isStatic && null !== $actualSourcePath && str_contains($actualSourcePath, '*')) {
                 // Normalize wildcard array (flatten dot-path keys to simple list)
                 $value = WildcardHandler::normalizeWildcardArray($value);
-                WildcardHandler::iterateWildcardItems(
+
+                // Use centralized wildcard processing from MappingEngine
+                $target = MappingEngine::processWildcardMapping(
                     $value,
+                    $target,
+                    (string)$sourcePath,
+                    (string)$targetPath,
+                    $source,
+                    $mappingIndex,
                     $skipNull,
                     $reindexWildcard,
-                    function(int|string $_i, string $reason) use (&$mappingIndex): void {
-                        if ('null' === $reason) {
-                            $mappingIndex++;
-                        }
-                    },
-                    function(int|string $wildcardIndex, mixed $itemValue) use (
-                        &$target,
-                        $hooks,
-                        $pairContext,
-                        $sourcePath,
-                        $targetPath,
-                        $source,
-                        $mappingIndex
-                    ): bool {
-                        $pairContext->wildcardIndex = $wildcardIndex;
-                        $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
-                        $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, (string)$targetPath, 1);
-                        $writeContext = new WriteContext(
-                            'simple',
-                            $mappingIndex,
-                            (string)$sourcePath,
-                            (string)$targetPath,
-                            $source,
-                            $target,
-                            (string)$resolvedTargetPath,
-                            $wildcardIndex
-                        );
-                        $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $itemValue);
-                        if ('__skip__' === $writeValue) {
-                            return false;
-                        }
-                        $target = DataMutator::set(
-                            MappingEngine::asTarget($target),
-                            (string)$resolvedTargetPath,
-                            $writeValue
-                        );
-
-                        /** @var array<int|string, mixed>|object $target */
-                        $target = HookInvoker::invokeTargetHook(
-                            $hooks,
-                            'afterWrite',
-                            $writeContext,
-                            $writeValue,
-                            $target
-                        );
-
-                        return true;
-                    }
+                    $hooks,
+                    $pairContext,
+                    null,  // $transformFn - not available in simple mapping
+                    null,  // $replaceMap - not available in simple mapping
+                    $trimValues,
+                    $caseInsensitiveReplace
                 );
             } else {
                 $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
@@ -970,5 +1134,183 @@ class DataMapper
 
         /** @var array<int|string, mixed>|object $target */
         return $target;
+    }
+
+    /**
+     * Check if a string is valid JSON.
+     *
+     * @param string $string The string to check
+     * @return bool True if valid JSON, false otherwise
+     */
+    private static function isJsonString(string $string): bool
+    {
+        if (empty($string)) {
+            return false;
+        }
+
+        json_decode($string);
+
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    /**
+     * Check if a string is valid XML.
+     *
+     * @param string $string The string to check
+     * @return bool True if valid XML, false otherwise
+     */
+    private static function isXmlString(string $string): bool
+    {
+        if (empty($string)) {
+            return false;
+        }
+
+        // Check if string starts with XML declaration or root element
+        $trimmed = trim($string);
+        if (!str_starts_with($trimmed, '<?xml') && !str_starts_with($trimmed, '<')) {
+            return false;
+        }
+
+        // Try to parse as XML
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($string);
+        libxml_clear_errors();
+
+        return false !== $xml;
+    }
+
+    /**
+     * Convert array to XML string.
+     *
+     * @param array<string, mixed> $array The array to convert
+     * @param string $rootElement The root element name
+     * @return string The XML string
+     */
+    private static function arrayToXml(array $array, string $rootElement = 'root'): string
+    {
+        $xml = new SimpleXMLElement(
+            '<?xml version="1.0" encoding="UTF-8"?><' . $rootElement . '></' . $rootElement . '>'
+        );
+        self::arrayToXmlRecursive($array, $xml, null);
+
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+
+        $xmlString = $xml->asXML();
+        if (false === $xmlString) {
+            throw new RuntimeException('Failed to convert SimpleXMLElement to XML string');
+        }
+
+        $dom->loadXML($xmlString);
+
+        $result = $dom->saveXML();
+        if (false === $result) {
+            throw new RuntimeException('Failed to save XML document');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Recursively convert array to XML.
+     *
+     * @param array<string, mixed> $array The array to convert
+     * @param SimpleXMLElement $xml The XML element to append to
+     * @param string|null $parentKey The parent key name for singularization
+     */
+    private static function arrayToXmlRecursive(array $array, SimpleXMLElement $xml, ?string $parentKey): void
+    {
+        foreach ($array as $key => $value) {
+            $elementName = $key;
+
+            // Handle numeric keys - use singular of parent key
+            if (is_numeric($key)) {
+                if (null !== $parentKey) {
+                    $elementName = self::singularize($parentKey);
+                } else {
+                    $elementName = 'item';
+                }
+            }
+
+            // Sanitize key to be valid XML element name
+            $elementName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', (string)$elementName);
+
+            if (is_array($value)) {
+                $subnode = $xml->addChild((string)$elementName);
+                if ($subnode instanceof SimpleXMLElement) {
+                    self::arrayToXmlRecursive($value, $subnode, (string)$key);
+                }
+            } else {
+                $xml->addChild(
+                    (string)$elementName,
+                    htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, 'UTF-8')
+                );
+            }
+        }
+    }
+
+    /**
+     * Convert plural word to singular.
+     *
+     * @param string $word The word to singularize
+     * @return string The singularized word
+     */
+    private static function singularize(string $word): string
+    {
+        // Common irregular plurals
+        $irregulars = [
+            'people' => 'person',
+            'men' => 'man',
+            'women' => 'woman',
+            'children' => 'child',
+            'teeth' => 'tooth',
+            'feet' => 'foot',
+            'mice' => 'mouse',
+            'geese' => 'goose',
+        ];
+
+        $lower = strtolower($word);
+        if (isset($irregulars[$lower])) {
+            return $irregulars[$lower];
+        }
+
+        // Words ending in 'ies' -> 'y' (e.g., categories -> category)
+        if (preg_match('/(.+)ies$/i', $word, $matches)) {
+            return $matches[1] . 'y';
+        }
+
+        // Words ending in 'ves' -> 'fe' or 'f' (e.g., knives -> knife, wolves -> wolf)
+        if (preg_match('/(.+)ves$/i', $word, $matches)) {
+            return $matches[1] . 'f';
+        }
+
+        // Words ending in 'ses' -> 's' (e.g., cases -> case)
+        if (preg_match('/(.+)ses$/i', $word, $matches)) {
+            return $matches[1] . 's';
+        }
+
+        // Words ending in 'xes' -> 'x' (e.g., boxes -> box)
+        if (preg_match('/(.+)xes$/i', $word, $matches)) {
+            return $matches[1] . 'x';
+        }
+
+        // Words ending in 'ches' -> 'ch' (e.g., churches -> church)
+        if (preg_match('/(.+)ches$/i', $word, $matches)) {
+            return $matches[1] . 'ch';
+        }
+
+        // Words ending in 'shes' -> 'sh' (e.g., dishes -> dish)
+        if (preg_match('/(.+)shes$/i', $word, $matches)) {
+            return $matches[1] . 'sh';
+        }
+
+        // Words ending in 's' but not 'ss' -> remove 's' (e.g., departments -> department)
+        if (preg_match('/(.+[^s])s$/i', $word, $matches)) {
+            return $matches[1];
+        }
+
+        // If no rule matches, return the word as-is
+        return $word;
     }
 }

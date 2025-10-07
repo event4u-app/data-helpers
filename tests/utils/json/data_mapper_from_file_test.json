@@ -1,0 +1,90 @@
+{
+  "company": {
+    "name": "TechCorp Solutions",
+    "registration_number": "REG-2024-001",
+    "email": "info@techcorp.example",
+    "phone": "+1-555-0123",
+    "founded_year": 2015,
+    "employee_count": 250,
+    "annual_revenue": 15750000.50,
+    "is_active": true,
+    "departments": [
+      {
+        "name": "Engineering",
+        "code": "ENG",
+        "budget": 5000000.00,
+        "employee_count": 120,
+        "manager_name": "Alice Johnson",
+        "employees": [
+          {
+            "name": "John Doe",
+            "email": "john.doe@techcorp.example",
+            "position": "Senior Developer",
+            "salary": 95000.00,
+            "hire_date": "2018-03-15"
+          },
+          {
+            "name": "Jane Smith",
+            "email": "jane.smith@techcorp.example",
+            "position": "Tech Lead",
+            "salary": 120000.00,
+            "hire_date": "2016-07-01"
+          }
+        ]
+      },
+      {
+        "name": "Sales",
+        "code": "SAL",
+        "budget": 3000000.00,
+        "employee_count": 80,
+        "manager_name": "Bob Smith",
+        "employees": [
+          {
+            "name": "Mike Johnson",
+            "email": "mike.johnson@techcorp.example",
+            "position": "Sales Manager",
+            "salary": 85000.00,
+            "hire_date": "2019-01-10"
+          }
+        ]
+      },
+      {
+        "name": "Human Resources",
+        "code": "HR",
+        "budget": 1500000.00,
+        "employee_count": 50,
+        "manager_name": "Carol Williams",
+        "employees": [
+          {
+            "name": "Sarah Williams",
+            "email": "sarah.williams@techcorp.example",
+            "position": "HR Specialist",
+            "salary": 65000.00,
+            "hire_date": "2020-05-20"
+          }
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Cloud Migration",
+        "code": "PROJ-001",
+        "budget": 2500000.00,
+        "start_date": "2024-01-01",
+        "end_date": "2024-12-31",
+        "status": "active",
+        "employee_ids": [1, 2]
+      },
+      {
+        "name": "Mobile App Development",
+        "code": "PROJ-002",
+        "budget": 1800000.00,
+        "start_date": "2024-03-01",
+        "end_date": "2024-09-30",
+        "status": "active",
+        "employee_ids": [1, 3]
+      }
+    ]
+  }
+}
+

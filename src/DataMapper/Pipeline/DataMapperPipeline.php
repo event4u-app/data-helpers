@@ -12,9 +12,7 @@ final class DataMapperPipeline
     private array $additionalHooks = [];
 
     /** @param array<int, TransformerInterface|class-string<TransformerInterface>> $transformers */
-    public function __construct(private array $transformers = [])
-    {
-    }
+    public function __construct(private array $transformers = []) {}
 
     /** @param TransformerInterface|class-string<TransformerInterface> $transformer */
     public function through(TransformerInterface|string $transformer): self
@@ -30,12 +28,12 @@ final class DataMapperPipeline
         return $this;
     }
 
-/**
- * Execute the mapping with the configured pipeline.
- *
- * @param array<int|string, mixed> $mapping
- * @phpstan-return array<string, mixed>
- */
+    /**
+     * Execute the mapping with the configured pipeline.
+     *
+     * @param array<int|string, mixed> $mapping
+     * @phpstan-return array<string, mixed>
+     */
     public function map(
         mixed $source,
         mixed $target,
@@ -46,9 +44,37 @@ final class DataMapperPipeline
         bool $caseInsensitiveReplace = false,
     ): array {
         $hooks = $this->buildHooks();
-/** @phpstan-ignore-next-line return.type */
+        /** @phpstan-ignore-next-line return.type */
         return (array)DataMapper::map(
             $source,
+            $target,
+            $mapping,
+            $skipNull,
+            $reindexWildcard,
+            $hooks,
+            $trimValues,
+            $caseInsensitiveReplace
+        );
+    }
+
+    /**
+     * Load data from a file (XML or JSON) and use it as source for mapping with the configured pipeline.
+     *
+     * @param array<int|string, mixed> $mapping
+     */
+    public function mapFromFile(
+        string $filePath,
+        mixed $target,
+        array $mapping,
+        bool $skipNull = true,
+        bool $reindexWildcard = false,
+        bool $trimValues = true,
+        bool $caseInsensitiveReplace = false,
+    ): mixed {
+        $hooks = $this->buildHooks();
+
+        return DataMapper::mapFromFile(
+            $filePath,
             $target,
             $mapping,
             $skipNull,

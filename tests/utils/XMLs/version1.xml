@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Datafields>
+    <external_id>PRJ12345678</external_id>
+    <number>98765432</number>
+    <status>2</status>
+    <status_description>Order Calculation</status_description>
+    <title>Sample Company Ltd - Paving Works Test Project</title>
+    <address></address>
+    <cost_center>98765432</cost_center>
+    <client>
+        <name>Example Construction Inc</name>
+        <street>Sample Street 15</street>
+        <zipcode>12345</zipcode>
+        <city>Sample City</city>
+    </client>
+    <contact_persons>
+        <contact_person>
+            <address_id>10000</address_id>
+            <salutation>Mr</salutation>
+            <surname>Schmidt, Peter</surname>
+            <email>peter.schmidt@example.com</email>
+            <phone>0123-456789</phone>
+        </contact_person>
+    </contact_persons>
+    <calculated_time>12</calculated_time>
+    <order_value>15878,22</order_value>
+    <invoices_total>0</invoices_total>
+    <invoices_last_date>30.12.1899</invoices_last_date>
+    <invoices/>
+    <positions>
+        <position>
+            <external_id>01.</external_id>
+            <pos_number>01.</pos_number>
+            <parent_id/>
+            <short_text>Natural Stone Paving Works Test Area North</short_text>
+        </position>
+        <position>
+            <external_id>01.01.</external_id>
+            <pos_number>01.01.</pos_number>
+            <parent_id>01.</parent_id>
+            <short_text>Paving Works</short_text>
+        </position>
+        <position>
+            <external_id>01.01.0000</external_id>
+            <pos_number>01.01.0000</pos_number>
+            <parent_id>01.01.</parent_id>
+            <order_number>0</order_number>
+        </position>
+        <position>
+            <external_id>01.01.0001</external_id>
+            <pos_number>01.01.0001</pos_number>
+            <parent_id>01.01.</parent_id>
+            <order_number>0</order_number>
+            <short_text>Remove and relay existing granite pavement.</short_text>
+            <long_text>Remove existing pavement and relay.
+                Installation on concrete base.
+            </long_text>
+            <amount>30</amount>
+            <estimated_amount>30</estimated_amount>
+            <unit>m2</unit>
+            <unit_price>100,23</unit_price>
+            <minutes>0</minutes>
+            <type>N</type>
+            <type_description>Standard Position</type_description>
+            <measured_amount>0</measured_amount>
+        </position>
+    </positions>
+</Datafields>

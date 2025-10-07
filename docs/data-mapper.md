@@ -584,6 +584,164 @@ mapFromTemplate(array|string $template, array $sources, bool $skipNull = true, b
 
 ## Examples
 
+
+### Complex nested mapping with automatic relation detection
+
+Map complex nested JSON/XML structures directly to Eloquent Models or Doctrine Entities with automatic relation detection:
+
+```php
+use event4u\DataHelpers\DataMapper;
+
+// Source: Complex nested JSON from API
+$jsonData = [
+    'company' => [
+        'name' => 'TechCorp Solutions',
+        'registration_number' => 'REG-2024-001',
+        'email' => 'info@techcorp.example',
+        'phone' => '+1-555-0123',
+        'founded_year' => 2015,
+        'employee_count' => 250,
+        'annual_revenue' => 15750000.50,
+        'is_active' => true,
+        'departments' => [
+            [
+                'name' => 'Engineering',
+                'code' => 'ENG',
+                'budget' => 5000000.00,
+                'employee_count' => 120,
+                'manager_name' => 'Alice Johnson',
+            ],
+            [
+                'name' => 'Sales',
+                'code' => 'SAL',
+                'budget' => 3000000.00,
+                'employee_count' => 80,
+                'manager_name' => 'Bob Smith',
+            ],
+            [
+                'name' => 'Human Resources',
+                'code' => 'HR',
+                'budget' => 1500000.00,
+                'employee_count' => 50,
+                'manager_name' => 'Carol Williams',
+            ],
+        ],
+        'projects' => [
+            [
+                'name' => 'Cloud Migration',
+                'code' => 'PROJ-001',
+                'budget' => 2500000.00,
+                'start_date' => '2024-01-01',
+                'end_date' => '2024-12-31',
+                'status' => 'active',
+            ],
+            [
+                'name' => 'Mobile App Development',
+                'code' => 'PROJ-002',
+                'budget' => 1800000.00,
+                'start_date' => '2024-03-01',
+                'end_date' => '2024-09-30',
+                'status' => 'active',
+            ],
+        ],
+    ],
+];
+
+// Target: Eloquent Model or Doctrine Entity
+$company = new Company();
+
+// Mapping: Nested structure with wildcards
+$mapping = [
+    'name' => '{{ company.name }}',
+    'registration_number' => '{{ company.registration_number }}',
+    'email' => '{{ company.email }}',
+    'phone' => '{{ company.phone }}',
+    'founded_year' => '{{ company.founded_year }}',
+    'employee_count' => '{{ company.employee_count }}',
+    'annual_revenue' => '{{ company.annual_revenue }}',
+    'is_active' => '{{ company.is_active }}',
+    
+    // Automatic relation mapping - DataMapper detects HasMany/OneToMany relations!
+    // The wildcard '*' maps each array element to a separate related entity
+    'departments' => [
+        '*' => [
+            'name' => '{{ company.departments.*.name }}',
+            'code' => '{{ company.departments.*.code }}',
+            'budget' => '{{ company.departments.*.budget }}',
+            'employee_count' => '{{ company.departments.*.employee_count }}',
+            'manager_name' => '{{ company.departments.*.manager_name }}',
+        ],
+    ],
+    'projects' => [
+        '*' => [
+            'name' => '{{ company.projects.*.name }}',
+            'code' => '{{ company.projects.*.code }}',
+            'budget' => '{{ company.projects.*.budget }}',
+            'start_date' => '{{ company.projects.*.start_date }}',
+            'end_date' => '{{ company.projects.*.end_date }}',
+            'status' => '{{ company.projects.*.status }}',
+        ],
+    ],
+];
+
+// Map in one call - relations are automatically created and linked!
+$result = DataMapper::map($jsonData, $company, $mapping);
+
+// Result: Fully populated Company with related Departments and Projects
+echo $result->getName();                           // 'TechCorp Solutions'
+echo $result->getFoundedYear();                    // 2015 (auto-casted from string to int)
+echo $result->getAnnualRevenue();                  // 15750000.50 (auto-casted to float)
+echo $result->getIsActive();                       // true (auto-casted to bool)
+
+// Access relations (Eloquent Collection or Doctrine ArrayCollection)
+echo $result->getDepartments()->count();           // 3
+echo $result->getDepartments()[0]->getName();      // 'Engineering'
+echo $result->getDepartments()[0]->getCode();      // 'ENG'
+echo $result->getDepartments()[0]->getBudget();    // 5000000.00 (auto-casted to float)
+echo $result->getDepartments()[0]->getEmployeeCount(); // 120 (auto-casted to int)
+
+echo $result->getProjects()->count();              // 2
+echo $result->getProjects()[0]->getName();         // 'Cloud Migration'
+echo $result->getProjects()[0]->getCode();         // 'PROJ-001'
+echo $result->getProjects()[0]->getBudget();       // 2500000.00 (auto-casted to float)
+echo $result->getProjects()[0]->getStatus();       // 'active'
+
+// Works with both Eloquent Models and Doctrine Entities!
+// - Eloquent: Uses setRelation() for HasMany/BelongsTo/BelongsToMany
+// - Doctrine: Uses Collection methods for OneToMany/ManyToOne/ManyToMany
+```
+
+**How the nesting resolves:**
+
+1. **Top-level fields** (`name`, `email`, etc.) are mapped directly to the Company entity
+2. **Nested arrays with wildcards** (`departments.*`, `projects.*`) are detected as relations:
+   - DataMapper checks if `departments` is a relation method on the Company entity
+   - For each array element, a new Department/Project entity is created
+   - Each nested field (`name`, `code`, `budget`, etc.) is mapped to the related entity
+   - The wildcard `*` in the source path (`company.departments.*.name`) matches each array index
+   - The wildcard `*` in the nested mapping tells DataMapper to create multiple entities
+3. **Type casting** happens automatically:
+   - `founded_year: "2015"` (string) → `setFoundedYear(2015)` (int)
+   - `budget: "5000000.00"` (string) → `setBudget(5000000.00)` (float)
+   - `is_active: "true"` (string) → `setIsActive(true)` (bool)
+   - `employee_count: "120"` (string) → `setEmployeeCount(120)` (int)
+4. **Snake_case to camelCase** conversion:
+   - `employee_count` → `setEmployeeCount()`
+   - `annual_revenue` → `setAnnualRevenue()`
+   - `manager_name` → `setManagerName()`
+5. **Relations are automatically linked**:
+   - Eloquent: `$company->setRelation('departments', $departmentsCollection)`
+   - Doctrine: `$company->addDepartment($department)` for each department
+
+**Key Features:**
+- ✅ **Automatic Relation Detection** - No configuration needed, detects Eloquent/Doctrine relations
+- ✅ **Type Casting** - Automatically casts values based on setter parameter types
+- ✅ **Snake_case → camelCase** - Converts field names to match PHP naming conventions
+- ✅ **Nested Wildcards** - Map arrays of objects with `*` notation
+- ✅ **Framework Agnostic** - Works with Laravel, Symfony, or standalone PHP
+- ✅ **Deep Nesting** - Supports multiple levels of nested relations
+
+
 ### Simple mapping with wildcards
 
 ```php

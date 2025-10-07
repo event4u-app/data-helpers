@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='utf-8'?>
+<VitaCost>
+    <ConstructionSite>
+        <id_lv>2608</id_lv>
+        <nr_lv>2608</nr_lv>
+        <client_id>1</client_id>
+        <lv_Status>BB</lv_Status>
+        <lv_Status_Description>Order</lv_Status_Description>
+        <description>Construction of Paving Area South Park</description>
+        <description2/>
+        <customer_description/>
+        <customer_firstname/>
+        <customer_name>City of Sample City</customer_name>
+        <customer_name2>Department of Green Spaces</customer_name2>
+        <customer_name3>Dept. 42 City Park</customer_name3>
+        <customer_name4/>
+        <customer_street>Main Square 5</customer_street>
+        <customer_zipcode>54321</customer_zipcode>
+        <customer_city>Sample City</customer_city>
+        <architekt_ID/>
+        <architekt_bezeichnung/>
+        <architekt_vorname/>
+        <architekt_name/>
+        <architekt_name2/>
+        <architekt_name3/>
+        <architekt_strasse/>
+        <architekt_plz/>
+        <architekt_ort/>
+        <construction_hours>406,79</construction_hours>
+        <ist_stunden/>
+        <bauende/>
+        <bauleiter/>
+        <vorarbeiter/>
+        <wegezeit/>
+        <lv_address>Main Square 5,54321 Sample City</lv_address>
+        <lv_lat/>
+        <lv_long/>
+        <mn_hours/>
+        <lv_sum>54618,79</lv_sum>
+        <revenue/>
+        <target_margin_sum/>
+        <contribution_margin/>
+        <result/>
+        <construction_street>Main Square 5</construction_street>
+        <construction_zipcode>54321</construction_zipcode>
+        <construction_city>Sample City</construction_city>
+        <Positions>
+            <Position>
+                <id_position>91080</id_position>
+                <id_lv>2608</id_lv>
+                <nr_position/>
+                <parent_id/>
+                <order_number>1</order_number>
+                <kurztext/>
+                <long_text>Construction of paving areas in two construction phases.
+                    Coordination with other trades required.
+                    Traffic safety measures according to RSA to be implemented.
+                    Access to adjacent properties must be kept clear.
+                </long_text>
+                <quantity>0,00</quantity>
+                <me/>
+                <offer_price>0,00</offer_price>
+                <amount>0,00</amount>
+                <minuten/>
+                <labor_hours>0,00</labor_hours>
+                <menge_abgerechnet/>
+                <position_type>N</position_type>
+            </Position>
+            <Position>
+                <id_position>91081</id_position>
+                <id_lv>2608</id_lv>
+                <nr_position>0</nr_position>
+                <parent_id/>
+                <order_number>2</order_number>
+                <kurztext/>
+                <long_text>Construction Phase 1: Main Path
+                </long_text>
+                <quantity>0,00</quantity>
+                <me/>
+                <offer_price>0,00</offer_price>
+                <amount>0,00</amount>
+                <minuten/>
+                <labor_hours>0,00</labor_hours>
+                <menge_abgerechnet/>
+                <position_type>N</position_type>
+            </Position>
+            <Position>
+                <id_position>91082</id_position>
+                <id_lv>2608</id_lv>
+                <nr_position>0. 0</nr_position>
+                <parent_id/>
+                <order_number>3</order_number>
+                <kurztext/>
+                <long_text>Site Setup and Accompanying Services
+                </long_text>
+                <quantity>0,00</quantity>
+                <me/>
+                <offer_price>0,00</offer_price>
+                <amount>0,00</amount>
+                <minuten/>
+                <labor_hours>0,00</labor_hours>
+                <menge_abgerechnet/>
+                <position_type>N</position_type>
+            </Position>
+            <Position>
+                <id_position>91083</id_position>
+                <id_lv>2608</id_lv>
+                <nr_position>0. 0. 1</nr_position>
+                <parent_id>91082</parent_id>
+                <order_number>4</order_number>
+                <short_text>Set up construction site for this section. Access available.
+                </short_text>
+                <long_text>Site setup with equipment, tools and operating materials.
+                    Provision of connections for electricity, water and disposal.
+                    Access to construction site available.
+                </long_text>
+                <quantity>1,00</quantity>
+                <unit>lump sum</unit>
+                <offer_price>150,00</offer_price>
+                <amount>150,00</amount>
+                <minuten/>
+                <labor_hours>0,00</labor_hours>
+                <menge_abgerechnet/>
+                <position_type>N</position_type>
+            </Position>
+            <Position>
+                <id_position>91084</id_position>
+                <id_lv>2608</id_lv>
+                <nr_position>0. 0. 2</nr_position>
+                <parent_id>91082</parent_id>
+                <order_number>5</order_number>
+                <short_text>Clear construction site for this section.
+                </short_text>
+                <long_text>Clear construction site and restore areas to original condition.
+                </long_text>
+                <quantity>1,00</quantity>
+                <unit>lump sum</unit>
+                <offer_price>100,00</offer_price>
+                <amount>100,00</amount>
+                <minuten/>
+                <labor_hours>0,00</labor_hours>
+                <menge_abgerechnet/>
+                <position_type>N</position_type>
+            </Position>
+        </Positions>
+    </ConstructionSite>
+</VitaCost>

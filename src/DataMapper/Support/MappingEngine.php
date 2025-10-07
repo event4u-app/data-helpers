@@ -10,6 +10,7 @@ use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\DotPathHelper;
+use event4u\DataHelpers\Support\EntityHelper;
 
 /**
  * Core mapping engine that handles the actual mapping logic.
@@ -201,7 +202,11 @@ class MappingEngine
                     $skipNull,
                     $reindexWildcard,
                     $hooks,
-                    $pairContext
+                    $pairContext,
+                    null,  // $transformFn - not available in simple mapping
+                    null,  // $replaceMap - not available in simple mapping
+                    $trimValues,
+                    $caseInsensitiveReplace
                 );
             } else {
                 $target = self::processSingleMapping(
@@ -234,10 +239,28 @@ class MappingEngine
     /**
      * Process wildcard mapping (source path contains *).
      *
-     * @param array<int|string, mixed> $value
-     * @param array<string, mixed> $hooks
+     * This method handles the logic for mapping wildcard values to target paths.
+     * It distinguishes between two cases:
+     * 1. Target path has NO wildcard: collects all values into an array
+     * 2. Target path HAS wildcard: writes each value individually
+     *
+     * @param array<int|string, mixed> $value Normalized wildcard array (numeric indices)
+     * @param mixed $target The target data structure
+     * @param string $sourcePath The source path (for context)
+     * @param string $targetPath The target path (may contain wildcard)
+     * @param mixed $source The source data (for context)
+     * @param int $mappingIndex Current mapping index
+     * @param bool $skipNull Whether to skip null values
+     * @param bool $reindexWildcard Whether to reindex wildcard results
+     * @param array<string, mixed> $hooks Optional hooks
+     * @param PairContext|null $pairContext Optional pair context for hooks
+     * @param (callable(mixed): mixed)|null $transformFn Optional custom transformation function
+     * @param array<string, mixed>|null $replaceMap Optional replacement map
+     * @param bool $trimValues Whether to trim string values
+     * @param bool $caseInsensitiveReplace Whether to use case-insensitive replacement
+     * @return mixed The updated target
      */
-    private static function processWildcardMapping(
+    public static function processWildcardMapping(
         array $value,
         mixed $target,
         string $sourcePath,
@@ -247,8 +270,126 @@ class MappingEngine
         bool $skipNull,
         bool $reindexWildcard,
         array $hooks,
-        ?PairContext $pairContext
+        ?PairContext $pairContext,
+        ?callable $transformFn = null,
+        ?array $replaceMap = null,
+        bool $trimValues = true,
+        bool $caseInsensitiveReplace = false
     ): mixed {
+        // Check if target path contains wildcard
+        $targetHasWildcard = DotPathHelper::containsWildcard($targetPath);
+
+        // If target has no wildcard, collect all values into an array
+        if (!$targetHasWildcard) {
+            $collectedValues = [];
+
+            WildcardHandler::iterateWildcardItems(
+                $value,
+                $skipNull,
+                $reindexWildcard,
+                function(int|string $_i, string $reason) use (&$mappingIndex): void {
+                    if ('null' === $reason) {
+                        $mappingIndex++;
+                    }
+                },
+                function(int|string $wildcardIndex, mixed $itemValue) use (
+                    &$collectedValues,
+                    $hooks,
+                    $pairContext,
+                    $reindexWildcard,
+                    $transformFn,
+                    $replaceMap,
+                    $trimValues,
+                    $caseInsensitiveReplace
+                ): bool {
+                    // Apply all transformations (custom filters, trimming, replacement)
+                    $itemValue = ValueTransformer::processValue(
+                        $itemValue,
+                        $transformFn,
+                        $replaceMap,
+                        $trimValues,
+                        $caseInsensitiveReplace
+                    );
+
+                    // Only set wildcardIndex if pairContext exists
+                    if ($pairContext instanceof PairContext) {
+                        $pairContext->wildcardIndex = $wildcardIndex;
+                        $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
+                    }
+
+                    // Collect values into array
+                    if ($reindexWildcard) {
+                        $collectedValues[] = $itemValue;
+                    } else {
+                        $collectedValues[$wildcardIndex] = $itemValue;
+                    }
+
+                    return true;
+                }
+            );
+
+            // Write the collected array to target
+            $writeContext = new WriteContext(
+                'simple',
+                $mappingIndex,
+                $sourcePath,
+                $targetPath,
+                $source,
+                $target,
+                $targetPath,
+                null
+            );
+
+            $writeValue = $collectedValues;
+            if (!HookInvoker::isEmpty($hooks)) {
+                $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $collectedValues);
+            }
+
+            if ('__skip__' !== $writeValue) {
+                // Check if target is an entity and targetPath is a relation
+                // If so, use EntityHelper::setAttribute which will handle relation mapping
+                if (is_object($target) && EntityHelper::isEntity($target)) {
+                    // Extract first segment of target path (e.g., 'departments' from 'departments.name')
+                    $segments = DotPathHelper::segments($targetPath);
+                    $firstSegment = $segments[0] ?? '';
+
+                    if ($firstSegment && EntityHelper::isRelation(
+                        $target,
+                        $firstSegment
+                    )) {
+                        // This is a relation - let EntityHelper handle it
+                        EntityHelper::setAttribute($target, $firstSegment, $writeValue);
+
+                        if (!HookInvoker::isEmpty($hooks)) {
+                            return HookInvoker::invokeTargetHook(
+                                $hooks,
+                                'afterWrite',
+                                $writeContext,
+                                $writeValue,
+                                $target
+                            );
+                        }
+
+                        return $target;
+                    }
+                }
+
+                // Normal write to target
+                $target = DataMutator::set(
+                    self::asTarget($target),
+                    $targetPath,
+                    $writeValue
+                );
+
+                if (!HookInvoker::isEmpty($hooks)) {
+                    $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                }
+            }
+
+            return $target;
+        }
+
+        // Target has wildcard - write each value individually
         WildcardHandler::iterateWildcardItems(
             $value,
             $skipNull,
@@ -265,8 +406,21 @@ class MappingEngine
                 $sourcePath,
                 $targetPath,
                 $source,
-                $mappingIndex
+                $mappingIndex,
+                $transformFn,
+                $replaceMap,
+                $trimValues,
+                $caseInsensitiveReplace
             ): bool {
+                // Apply all transformations (custom filters, trimming, replacement)
+                $itemValue = ValueTransformer::processValue(
+                    $itemValue,
+                    $transformFn,
+                    $replaceMap,
+                    $trimValues,
+                    $caseInsensitiveReplace
+                );
+
                 // Only set wildcardIndex if pairContext exists
                 if ($pairContext instanceof PairContext) {
                     $pairContext->wildcardIndex = $wildcardIndex;
