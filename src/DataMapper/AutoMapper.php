@@ -6,7 +6,6 @@ namespace event4u\DataHelpers\DataMapper;
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
-use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Support\ArrayableHelper;
 use JsonSerializable;
 use ReflectionClass;
@@ -64,7 +63,7 @@ class AutoMapper
      * - Unknown/unsupported targets are coerced to array
      * - skipNull, reindexWildcard, hooks, trimValues, caseInsensitiveReplace behave as in map()
      *
-     * @param array<(DataMapperHook|string), mixed> $hooks Optional hooks propagated to this mapping
+     * @param array<string, mixed> $hooks Optional hooks propagated to this mapping
      */
     public static function autoMap(
         mixed $source,

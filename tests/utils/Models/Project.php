@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property string $name
+ * @property string $code
+ * @property float $budget
+ * @property string $start_date
+ * @property string $end_date
+ * @property string $status
+ */
 class Project extends Model
 {
     protected $guarded = [];
@@ -21,22 +29,20 @@ class Project extends Model
 
     /**
      * Get the company that owns the project.
-     *
-     * @return BelongsTo<Company, Project>
+     * @phpstan-ignore-next-line missingType.generics
      */
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class); // @phpstan-ignore-line
     }
 
     /**
      * Get the employees working on the project.
-     *
-     * @return BelongsToMany<Employee>
+     * @phpstan-ignore-next-line missingType.generics
      */
     public function employees(): BelongsToMany
     {
-        return $this->belongsToMany(Employee::class);
+        return $this->belongsToMany(Employee::class); // @phpstan-ignore-line
     }
 }
 

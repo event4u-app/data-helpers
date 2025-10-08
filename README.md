@@ -77,7 +77,7 @@ composer require event4u/data-helpers
 
 **Framework support** (all optional):
 
-- 🔴 **Laravel** 8+ - Collections, Eloquent Models
+- 🔴 **Laravel** 9+ - Collections, Eloquent Models
 - ⚫ **Symfony/Doctrine** - Collections, Entities
 - 🔧 **Standalone PHP** - Works out of the box
 
@@ -154,8 +154,6 @@ $result = DataMapper::map($source, [], $mapping);
 //     'email' => 'alice@example.com'
 // ]
 ```
-
-
 
 #### 🔥 **Complex Nested Mapping with Automatic Relations**
 
@@ -239,6 +237,7 @@ $result->getProjects()[0]->getName();         // 'Cloud Migration'
 ```
 
 **Key Features:**
+
 - ✅ **Automatic Relation Detection** - Detects Eloquent/Doctrine relations without configuration
 - ✅ **Type Casting** - Automatically casts values (string → int/float/bool) based on setter types
 - ✅ **Snake_case → camelCase** - Converts `employee_count` → `setEmployeeCount()`

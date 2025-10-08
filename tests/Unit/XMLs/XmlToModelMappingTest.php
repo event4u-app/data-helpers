@@ -25,6 +25,7 @@ function normalizeForSnapshot(mixed $data): mixed
 
 /**
  * Helper function to save or compare snapshot
+ * @param array<string, mixed> $data
  */
 function snapshotTest(string $snapshotDir, string $name, array $data): void
 {
@@ -39,7 +40,12 @@ function snapshotTest(string $snapshotDir, string $name, array $data): void
         expect(true)->toBeTrue(); // Pass test when creating snapshot
     } else {
         // Compare with snapshot
-        $snapshot = json_decode(file_get_contents($snapshotFile), true);
+        $snapshotContent = file_get_contents($snapshotFile);
+        if (false === $snapshotContent) {
+            throw new RuntimeException('Failed to read snapshot file: ' . $snapshotFile);
+        }
+        /** @var array<string, mixed> $snapshot */
+        $snapshot = json_decode($snapshotContent, true);
         expect($normalizedData)->toEqual($snapshot);
     }
 }
@@ -95,7 +101,8 @@ describe('XML to Model Mapping', function(): void {
                 ],
             ];
 
-            $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping, skipNull: false);
+            $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping, false);
+            /** @var array<string, mixed> $completeData */
 
             // Normalize contact_persons (XML single element issue)
             if (isset($completeData['contact_persons']) && !isset($completeData['contact_persons'][0])) {
@@ -103,27 +110,38 @@ describe('XML to Model Mapping', function(): void {
             }
 
             // Convert Enums
-            $completeData['project']['status'] = ProjectStatus::fromVersion1(
-                $completeData['project']['status_raw'] ?? '2'
-            ) ?? ProjectStatus::ORDER;
-            unset($completeData['project']['status_raw']);
+            /** @var array<string, mixed> $project */
+            $project = $completeData['project'] ?? [];
+            /** @var string $statusRaw */
+            $statusRaw = $project['status_raw'] ?? '2';
+            $project['status'] = ProjectStatus::fromVersion1($statusRaw) ?? ProjectStatus::ORDER;
+            unset($project['status_raw']);
+            $completeData['project'] = $project;
 
-            foreach ($completeData['positions'] as &$position) {
-                $position['type'] = PositionType::tryFrom(
-                    $position['type_raw'] ?? 'Standard'
-                ) ?? PositionType::STANDARD;
+            /** @var array<int, array<string, mixed>> $positions */
+            $positions = $completeData['positions'] ?? [];
+            foreach ($positions as $key => $position) {
+                /** @var int|string $typeRaw */
+                $typeRaw = $position['type_raw'] ?? 'Standard';
+                $position['type'] = PositionType::tryFrom($typeRaw) ?? PositionType::STANDARD;
                 unset($position['type_raw']);
+                $positions[$key] = $position;
             }
+            $completeData['positions'] = $positions;
 
             // Snapshot test
             snapshotTest($this->snapshotDir, 'version1_complete', $completeData);
 
             // Validations
-            expect($completeData['project']['number'])->toBe('98765432');
-            expect($completeData['project']['status'])->toBe(ProjectStatus::ORDER_CALCULATION);
-            expect($completeData['customer']['name1'])->toBeString();
+            expect($project['number'])->toBe('98765432');
+            expect($project['status'])->toBe(ProjectStatus::ORDER_CALCULATION);
+            /** @var array<string, mixed> $customer */
+            $customer = $completeData['customer'] ?? [];
+            expect($customer['name1'])->toBeString();
             expect($completeData['contact_persons'])->toBeArray();
-            expect(count($completeData['contact_persons']))->toBeGreaterThan(0);
+            /** @var array<mixed> $contactPersons */
+            $contactPersons = $completeData['contact_persons'];
+            expect(count($contactPersons))->toBeGreaterThan(0);
             expect($completeData['positions'])->toBeArray();
             expect(count($completeData['positions']))->toBe(4);
         });
@@ -192,26 +210,38 @@ describe('XML to Model Mapping', function(): void {
             ];
 
             $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping);
+            /** @var array<string, mixed> $completeData */
 
             // Convert Enums
-            $completeData['project']['status'] = ProjectStatus::fromVersion2(
-                $completeData['project']['status_raw'] ?? 'BB'
-            ) ?? ProjectStatus::ORDER;
-            unset($completeData['project']['status_raw']);
+            /** @var array<string, mixed> $project */
+            $project = $completeData['project'] ?? [];
+            /** @var string $statusRaw */
+            $statusRaw = $project['status_raw'] ?? 'BB';
+            $project['status'] = ProjectStatus::fromVersion2($statusRaw) ?? ProjectStatus::ORDER;
+            unset($project['status_raw']);
+            $completeData['project'] = $project;
 
-            foreach ($completeData['positions'] as &$position) {
-                $position['type'] = PositionType::tryFrom($position['type_raw'] ?? 'N') ?? PositionType::NORMAL;
+            /** @var array<int, array<string, mixed>> $positions */
+            $positions = $completeData['positions'] ?? [];
+            foreach ($positions as $key => $position) {
+                /** @var int|string $typeRaw */
+                $typeRaw = $position['type_raw'] ?? 'N';
+                $position['type'] = PositionType::tryFrom($typeRaw) ?? PositionType::NORMAL;
                 unset($position['type_raw']);
+                $positions[$key] = $position;
             }
+            $completeData['positions'] = $positions;
 
             // Snapshot test
             snapshotTest($this->snapshotDir, 'version2_complete', $completeData);
 
             // Validations
-            expect($completeData['project']['number'])->toBe('2608');
-            expect($completeData['project']['status'])->toBe(ProjectStatus::ORDER);
-            expect($completeData['customer']['name1'])->toBe('City of Sample City');
-            expect($completeData['customer']['name2'])->toBe('Department of Green Spaces');
+            expect($project['number'])->toBe('2608');
+            expect($project['status'])->toBe(ProjectStatus::ORDER);
+            /** @var array<string, mixed> $customer */
+            $customer = $completeData['customer'] ?? [];
+            expect($customer['name1'])->toBe('City of Sample City');
+            expect($customer['name2'])->toBe('Department of Green Spaces');
             expect($completeData['customer']['name3'])->toBe('Dept. 42 City Park');
             expect($completeData['address']['city'])->toBe('Sample City');
             expect($completeData['positions'])->toBeArray();
@@ -268,26 +298,38 @@ describe('XML to Model Mapping', function(): void {
             ];
 
             $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping);
+            /** @var array<string, mixed> $completeData */
 
             // Convert Enums
-            $completeData['project']['status'] = ProjectStatus::fromVersion3(
-                $completeData['project']['status_raw'] ?? 'Order'
-            ) ?? ProjectStatus::ORDER;
-            unset($completeData['project']['status_raw']);
+            /** @var array<string, mixed> $project */
+            $project = $completeData['project'] ?? [];
+            /** @var string $statusRaw */
+            $statusRaw = $project['status_raw'] ?? 'Order';
+            $project['status'] = ProjectStatus::fromVersion3($statusRaw) ?? ProjectStatus::ORDER;
+            unset($project['status_raw']);
+            $completeData['project'] = $project;
 
-            foreach ($completeData['positions'] as &$position) {
-                $position['type'] = PositionType::tryFrom($position['type_raw'] ?? 'N') ?? PositionType::NORMAL;
+            /** @var array<int, array<string, mixed>> $positions */
+            $positions = $completeData['positions'] ?? [];
+            foreach ($positions as $key => $position) {
+                /** @var int|string $typeRaw */
+                $typeRaw = $position['type_raw'] ?? 'N';
+                $position['type'] = PositionType::tryFrom($typeRaw) ?? PositionType::NORMAL;
                 unset($position['type_raw']);
+                $positions[$key] = $position;
             }
+            $completeData['positions'] = $positions;
 
             // Snapshot test
             snapshotTest($this->snapshotDir, 'version3_complete', $completeData);
 
             // Validations
-            expect($completeData['project']['number'])->toBeString();
-            expect($completeData['project']['status'])->toBe(ProjectStatus::ORDER);
-            expect($completeData['customer']['name1'])->toBeString();
-            expect($completeData['customer']['name2'])->toBeString();
+            expect($project['number'])->toBeString();
+            expect($project['status'])->toBe(ProjectStatus::ORDER);
+            /** @var array<string, mixed> $customer */
+            $customer = $completeData['customer'] ?? [];
+            expect($customer['name1'])->toBeString();
+            expect($customer['name2'])->toBeString();
             expect($completeData['positions'])->toBeArray();
             expect(count($completeData['positions']))->toBe(5);
         });

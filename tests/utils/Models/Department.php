@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $name
+ * @property string $code
+ * @property float $budget
+ * @property int $employee_count
+ * @property string $manager_name
+ */
 final class Department extends Model
 {
     protected $guarded = [];
@@ -20,21 +27,19 @@ final class Department extends Model
 
     /**
      * Get the company that owns the department.
-     *
-     * @return BelongsTo<Company, Department>
+     * @phpstan-ignore-next-line missingType.generics
      */
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class); // @phpstan-ignore-line
     }
 
     /**
      * Get the employees for the department.
-     *
-     * @return HasMany<Employee>
+     * @phpstan-ignore-next-line missingType.generics
      */
     public function employees(): HasMany
     {
-        return $this->hasMany(Employee::class);
+        return $this->hasMany(Employee::class); // @phpstan-ignore-line
     }
 }

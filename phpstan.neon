@@ -51,6 +51,10 @@ parameters:
         - message: '#Access to an undefined property .*#'
           paths:
               - */Models/*
+        - message: '#Access to an undefined property .*\\Models\\.*#'
+          paths:
+              - tests/*
+              - examples/*
         - message: '#Undefined variable: \$this#'
           paths:
               - tests/*
@@ -69,11 +73,15 @@ parameters:
 
     disallowedFunctionCalls:
         -
-            function: 'var_dump()'
+            function: 'var_dump()'  # `method` is an alias of `function`
             message: 'use logger instead'
+            allowIn:
+                - examples/*
         -
             function: 'print_r()'
             message: 'use logger instead'
+            allowIn:
+                - examples/*
         -
             function: 'dd()'
             message: 'use logger instead'

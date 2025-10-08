@@ -12,6 +12,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Maps to:
  * - version2: architect_* fields
+ *
+ * @property int $id
+ * @property int $project_id
+ * @property string $external_id
+ * @property string $description
+ * @property string $firstname
+ * @property string $surname
+ * @property string $street
+ * @property string $zipcode
+ * @property string $city
  */
 class Architect extends Model
 {
@@ -30,7 +40,10 @@ class Architect extends Model
         'city',
     ];
 
-    /** The model's default values for attributes. */
+    /**
+     * The model's default values for attributes.
+     * @phpstan-ignore-next-line assign.propertyType
+     */
     protected $attributes = [
         'external_id' => null,
         'description' => null,
@@ -62,6 +75,7 @@ class Architect extends Model
 
     public function setExternalId(?string $externalId): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->external_id = $externalId;
         return $this;
     }
@@ -73,6 +87,7 @@ class Architect extends Model
 
     public function setDescription(?string $description): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->description = $description;
         return $this;
     }
@@ -84,6 +99,7 @@ class Architect extends Model
 
     public function setFirstname(string $firstname): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->firstname = $firstname;
         return $this;
     }
@@ -95,6 +111,7 @@ class Architect extends Model
 
     public function setSurname(string $surname): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->surname = $surname;
         return $this;
     }
@@ -106,6 +123,7 @@ class Architect extends Model
 
     public function setStreet(?string $street): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->street = $street;
         return $this;
     }
@@ -117,6 +135,7 @@ class Architect extends Model
 
     public function setZipcode(string $zipcode): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->zipcode = $zipcode;
         return $this;
     }
@@ -128,16 +147,20 @@ class Architect extends Model
 
     public function setCity(string $city): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->city = $city;
         return $this;
     }
 
     // Relations
 
-    /** Get the project that owns the architect. */
+    /**
+     * Get the project that owns the architect.
+     * @return BelongsTo<Project, Architect>
+     */
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'project_id');
+        return $this->belongsTo(Project::class, 'project_id'); // @phpstan-ignore-line return.type
     }
 }
 

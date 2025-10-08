@@ -93,23 +93,27 @@ describe('DataMapper::mapFromFile() to DTO', function(): void {
             expect($dept2Dto->budget)->toBe(1500000.00);
 
             // Verify projects array
-            expect($result->projects)->toBeArray();
-            expect($result->projects)->toHaveCount(2);
+            expect($companyDto->projects)->toBeArray();
+            expect($companyDto->projects)->toHaveCount(2);
 
-            $proj0 = $result->projects[0];
+            $proj0 = $companyDto->projects[0] ?? null;
             expect($proj0)->toBeInstanceOf(ProjectDto::class);
-            expect($proj0->name)->toBe('Cloud Migration');
-            expect($proj0->code)->toBe('PROJ-001');
-            expect($proj0->budget)->toBe(2500000.00);
-            expect($proj0->start_date)->toBe('2024-01-01');
-            expect($proj0->end_date)->toBe('2024-12-31');
-            expect($proj0->status)->toBe('active');
+            /** @var ProjectDto $proj0Dto */
+            $proj0Dto = $proj0;
+            expect($proj0Dto->name)->toBe('Cloud Migration');
+            expect($proj0Dto->code)->toBe('PROJ-001');
+            expect($proj0Dto->budget)->toBe(2500000.00);
+            expect($proj0Dto->start_date)->toBe('2024-01-01');
+            expect($proj0Dto->end_date)->toBe('2024-12-31');
+            expect($proj0Dto->status)->toBe('active');
 
-            $proj1 = $result->projects[1];
+            $proj1 = $companyDto->projects[1] ?? null;
             expect($proj1)->toBeInstanceOf(ProjectDto::class);
-            expect($proj1->name)->toBe('Mobile App Development');
-            expect($proj1->code)->toBe('PROJ-002');
-            expect($proj1->budget)->toBe(1800000.00);
+            /** @var ProjectDto $proj1Dto */
+            $proj1Dto = $proj1;
+            expect($proj1Dto->name)->toBe('Mobile App Development');
+            expect($proj1Dto->code)->toBe('PROJ-002');
+            expect($proj1Dto->budget)->toBe(1800000.00);
         });
 
         it('maps XML file to Company DTO with nested DTOs', function(): void {
@@ -150,33 +154,39 @@ describe('DataMapper::mapFromFile() to DTO', function(): void {
 
             // Verify Company DTO data
             expect($result)->toBeInstanceOf(CompanyDto::class);
-            expect($result->name)->toBe('TechCorp Solutions');
-            expect($result->registration_number)->toBe('REG-2024-001');
-            expect($result->email)->toBe('info@techcorp.example');
-            expect($result->phone)->toBe('+1-555-0123');
-            expect($result->founded_year)->toBe(2015);
-            expect($result->employee_count)->toBe(250);
-            expect($result->annual_revenue)->toBe(15750000.50);
-            expect($result->is_active)->toBe(true);
+            /** @var CompanyDto $companyDto */
+            $companyDto = $result;
+            expect($companyDto->name)->toBe('TechCorp Solutions');
+            expect($companyDto->registration_number)->toBe('REG-2024-001');
+            expect($companyDto->email)->toBe('info@techcorp.example');
+            expect($companyDto->phone)->toBe('+1-555-0123');
+            expect($companyDto->founded_year)->toBe(2015);
+            expect($companyDto->employee_count)->toBe(250);
+            expect($companyDto->annual_revenue)->toBe(15750000.50);
+            expect($companyDto->is_active)->toBe(true);
 
             // Verify departments (automatically created as DepartmentDto instances)
-            expect($result->departments)->toBeArray();
-            expect($result->departments)->toHaveCount(3);
+            expect($companyDto->departments)->toBeArray();
+            expect($companyDto->departments)->toHaveCount(3);
 
-            $dept0 = $result->departments[0];
+            $dept0 = $companyDto->departments[0] ?? null;
             expect($dept0)->toBeInstanceOf(DepartmentDto::class);
-            expect($dept0->name)->toBe('Engineering');
-            expect($dept0->code)->toBe('ENG');
-            expect($dept0->budget)->toBe(5000000.00);
+            /** @var DepartmentDto $dept0Dto */
+            $dept0Dto = $dept0;
+            expect($dept0Dto->name)->toBe('Engineering');
+            expect($dept0Dto->code)->toBe('ENG');
+            expect($dept0Dto->budget)->toBe(5000000.00);
 
             // Verify projects (automatically created as ProjectDto instances)
-            expect($result->projects)->toBeArray();
-            expect($result->projects)->toHaveCount(2);
+            expect($companyDto->projects)->toBeArray();
+            expect($companyDto->projects)->toHaveCount(2);
 
-            $proj0 = $result->projects[0];
+            $proj0 = $companyDto->projects[0] ?? null;
             expect($proj0)->toBeInstanceOf(ProjectDto::class);
-            expect($proj0->name)->toBe('Cloud Migration');
-            expect($proj0->code)->toBe('PROJ-001');
+            /** @var ProjectDto $proj0Dto */
+            $proj0Dto = $proj0;
+            expect($proj0Dto->name)->toBe('Cloud Migration');
+            expect($proj0Dto->code)->toBe('PROJ-001');
         });
     });
 
@@ -215,15 +225,29 @@ describe('DataMapper::mapFromFile() to DTO', function(): void {
             ];
             $xmlResult = DataMapper::mapFromFile($xmlFile, $xmlCompany, $xmlMapping);
 
+            /** @var CompanyDto $jsonCompanyDto */
+            $jsonCompanyDto = $jsonResult;
+            /** @var CompanyDto $xmlCompanyDto */
+            $xmlCompanyDto = $xmlResult;
+
             // Compare results
-            expect($jsonResult->name)->toBe($xmlResult->name);
-            expect($jsonResult->email)->toBe($xmlResult->email);
-            expect($jsonResult->founded_year)->toBe($xmlResult->founded_year);
-            expect(count($jsonResult->departments))->toBe(count($xmlResult->departments));
-            expect($jsonResult->departments[0])->toBeInstanceOf(DepartmentDto::class);
-            expect($xmlResult->departments[0])->toBeInstanceOf(DepartmentDto::class);
-            expect($jsonResult->departments[0]->name)->toBe($xmlResult->departments[0]->name);
-            expect($jsonResult->departments[0]->code)->toBe($xmlResult->departments[0]->code);
+            expect($jsonCompanyDto->name)->toBe($xmlCompanyDto->name);
+            expect($jsonCompanyDto->email)->toBe($xmlCompanyDto->email);
+            expect($jsonCompanyDto->founded_year)->toBe($xmlCompanyDto->founded_year);
+            expect(count($jsonCompanyDto->departments))->toBe(count($xmlCompanyDto->departments));
+
+            $jsonDept0 = $jsonCompanyDto->departments[0] ?? null;
+            expect($jsonDept0)->toBeInstanceOf(DepartmentDto::class);
+            /** @var DepartmentDto $jsonDept0Dto */
+            $jsonDept0Dto = $jsonDept0;
+
+            $xmlDept0 = $xmlCompanyDto->departments[0] ?? null;
+            expect($xmlDept0)->toBeInstanceOf(DepartmentDto::class);
+            /** @var DepartmentDto $xmlDept0Dto */
+            $xmlDept0Dto = $xmlDept0;
+
+            expect($jsonDept0Dto->name)->toBe($xmlDept0Dto->name);
+            expect($jsonDept0Dto->code)->toBe($xmlDept0Dto->code);
         });
 
         it('maps departments to Department DTOs', function(): void {

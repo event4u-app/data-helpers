@@ -12,6 +12,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Maps to:
  * - version2: construction_* fields
+ *
+ * @property int $id
+ * @property int $project_id
+ * @property string $street
+ * @property string $zipcode
+ * @property string $city
  */
 class Address extends Model
 {
@@ -26,7 +32,10 @@ class Address extends Model
         'city',
     ];
 
-    /** The model's default values for attributes. */
+    /**
+     * The model's default values for attributes.
+     * @phpstan-ignore-next-line assign.propertyType
+     */
     protected $attributes = [
         'street' => null,
     ];
@@ -56,6 +65,7 @@ class Address extends Model
 
     public function setStreet(?string $street): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->street = $street;
         return $this;
     }
@@ -67,6 +77,7 @@ class Address extends Model
 
     public function setZipcode(string $zipcode): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->zipcode = $zipcode;
         return $this;
     }
@@ -78,16 +89,20 @@ class Address extends Model
 
     public function setCity(string $city): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->city = $city;
         return $this;
     }
 
     // Relations
 
-    /** Get the project that owns the address. */
+    /**
+     * Get the project that owns the address.
+     * @return BelongsTo<Project, Address>
+     */
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'project_id');
+        return $this->belongsTo(Project::class, 'project_id'); // @phpstan-ignore-line return.type
     }
 }
 

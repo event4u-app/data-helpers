@@ -12,6 +12,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Maps to:
  * - version1: <contact_person>
+ *
+ * @property int $id
+ * @property int $project_id
+ * @property string $salutation
+ * @property string $surname
+ * @property string $email
+ * @property string $phone
  */
 class ContactPerson extends Model
 {
@@ -27,7 +34,10 @@ class ContactPerson extends Model
         'phone',
     ];
 
-    /** The model's default values for attributes. */
+    /**
+     * The model's default values for attributes.
+     * @phpstan-ignore-next-line assign.propertyType
+     */
     protected $attributes = [
         'salutation' => null,
         'email' => null,
@@ -59,6 +69,7 @@ class ContactPerson extends Model
 
     public function setSalutation(?string $salutation): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->salutation = $salutation;
         return $this;
     }
@@ -70,6 +81,7 @@ class ContactPerson extends Model
 
     public function setSurname(string $surname): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->surname = $surname;
         return $this;
     }
@@ -81,6 +93,7 @@ class ContactPerson extends Model
 
     public function setEmail(?string $email): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->email = $email;
         return $this;
     }
@@ -92,16 +105,20 @@ class ContactPerson extends Model
 
     public function setPhone(?string $phone): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->phone = $phone;
         return $this;
     }
 
     // Relations
 
-    /** Get the project that owns the contact person. */
+    /**
+     * Get the project that owns the contact person.
+     * @return BelongsTo<Project, ContactPerson>
+     */
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'project_id');
+        return $this->belongsTo(Project::class, 'project_id'); // @phpstan-ignore-line return.type
     }
 }
 

@@ -13,10 +13,12 @@ use SimpleXMLElement;
  */
 class MockRequest
 {
+    /** @param array<string, mixed> $data */
     public function __construct(private readonly array $data, private readonly string $contentType = 'application/json')
     {
     }
 
+    /** @return array<string, mixed> */
     public function all(): array
     {
         return $this->data;
@@ -25,7 +27,9 @@ class MockRequest
     public function getContent(): string
     {
         if ('application/json' === $this->contentType) {
-            return json_encode($this->data);
+            /** @var non-empty-string|false $encoded */
+            $encoded = json_encode($this->data);
+            return false !== $encoded ? $encoded : '';
         }
 
         if ('application/xml' === $this->contentType || 'text/xml' === $this->contentType) {
@@ -40,6 +44,7 @@ class MockRequest
         return $this->contentType;
     }
 
+    /** @param array<string, mixed> $data */
     private function arrayToXml(array $data, string $rootElement = 'root'): string
     {
         $xml = new SimpleXMLElement(
@@ -50,11 +55,16 @@ class MockRequest
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->preserveWhiteSpace = false;
         $dom->formatOutput = true;
-        $dom->loadXML($xml->asXML());
+        /** @var string|false $xmlString */
+        $xmlString = $xml->asXML();
+        $dom->loadXML(false !== $xmlString ? $xmlString : '');
 
-        return $dom->saveXML();
+        /** @var string|false $result */
+        $result = $dom->saveXML();
+        return false !== $result ? $result : '';
     }
 
+    /** @param array<string, mixed> $array */
     private function arrayToXmlRecursive(array $array, SimpleXMLElement $xml): void
     {
         foreach ($array as $key => $value) {
@@ -64,7 +74,9 @@ class MockRequest
 
             if (is_array($value)) {
                 $subnode = $xml->addChild($key);
-                $this->arrayToXmlRecursive($value, $subnode);
+                /** @var array<string, mixed> $valueArray */
+                $valueArray = $value;
+                $this->arrayToXmlRecursive($valueArray, $subnode);
             } else {
                 $xml->addChild($key, htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, 'UTF-8'));
             }

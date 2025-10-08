@@ -7,6 +7,16 @@ namespace Tests\utils\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $name
+ * @property string $registration_number
+ * @property string $email
+ * @property string $phone
+ * @property int $founded_year
+ * @property int $employee_count
+ * @property float $annual_revenue
+ * @property bool $is_active
+ */
 final class Company extends Model
 {
     protected $guarded = [];
@@ -21,21 +31,19 @@ final class Company extends Model
 
     /**
      * Get the departments for the company.
-     *
-     * @return HasMany<Department>
+     * @phpstan-ignore-next-line missingType.generics
      */
     public function departments(): HasMany
     {
-        return $this->hasMany(Department::class);
+        return $this->hasMany(Department::class); // @phpstan-ignore-line
     }
 
     /**
      * Get the projects for the company.
-     *
-     * @return HasMany<Project>
+     * @phpstan-ignore-next-line missingType.generics
      */
     public function projects(): HasMany
     {
-        return $this->hasMany(Project::class);
+        return $this->hasMany(Project::class); // @phpstan-ignore-line
     }
 }

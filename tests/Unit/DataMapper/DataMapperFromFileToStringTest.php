@@ -24,7 +24,9 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
 
             // Result should be a JSON string
             expect($result)->toBeString();
-            $decoded = json_decode($result, true);
+            /** @var string $resultString */
+            $resultString = $result;
+            $decoded = json_decode($resultString, true);
             expect($decoded)->toBeArray();
             expect($decoded['company_name'])->toBe('TechCorp Solutions');
             expect($decoded['company_reg'])->toBe('REG-2024-001');
@@ -52,7 +54,9 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
 
             // Result should be a JSON string
             expect($result)->toBeString();
-            $decoded = json_decode($result, true);
+            /** @var string $resultString */
+            $resultString = $result;
+            $decoded = json_decode($resultString, true);
             expect($decoded)->toBeArray();
             expect($decoded['company_name'])->toBe('TechCorp Solutions');
             expect($decoded['company_reg'])->toBe('REG-2024-001');
@@ -82,7 +86,9 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
             $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
 
             expect($result)->toBeString();
-            $decoded = json_decode($result, true);
+            /** @var string $resultString */
+            $resultString = $result;
+            $decoded = json_decode($resultString, true);
             expect($decoded)->toBeArray();
             expect($decoded['company_name'])->toBe('TechCorp Solutions');
             expect($decoded['departments'])->toBeArray();
@@ -104,7 +110,9 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
             $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
 
             expect($result)->toBeString();
-            $decoded = json_decode($result, true);
+            /** @var string $resultString */
+            $resultString = $result;
+            $decoded = json_decode($resultString, true);
             expect($decoded)->toBeArray();
             expect($decoded['dept_names'])->toBeArray();
             expect($decoded['dept_names'])->toHaveCount(3);
@@ -238,7 +246,9 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
 
             // JSON result should be JSON string
             expect($jsonResult)->toBeString();
-            $jsonDecoded = json_decode($jsonResult, true);
+            /** @var string $jsonResultString */
+            $jsonResultString = $jsonResult;
+            $jsonDecoded = json_decode($jsonResultString, true);
             expect($jsonDecoded['company_name'])->toBe('TechCorp Solutions');
             expect($jsonDecoded['company_email'])->toBe('info@techcorp.example');
 
@@ -275,7 +285,9 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
 
             // JSON result should be JSON string with nested structure
             expect($jsonResult)->toBeString();
-            $jsonDecoded = json_decode($jsonResult, true);
+            /** @var string $jsonResultString */
+            $jsonResultString = $jsonResult;
+            $jsonDecoded = json_decode($jsonResultString, true);
             expect($jsonDecoded['company']['name'])->toBe('TechCorp Solutions');
             expect($jsonDecoded['company']['email'])->toBe('info@techcorp.example');
             expect($jsonDecoded['departments'])->toHaveCount(3);

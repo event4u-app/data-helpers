@@ -103,15 +103,19 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ])->mapFromFile($jsonFile, $company, $mapping);
 
             expect($result)->toBeInstanceOf(Company::class);
-            expect($result->name)->toBe('TechCorp Solutions');
-            expect($result->email)->toBe('info@techcorp.example'); // Lowercased
-            expect($result->founded_year)->toBe(2015);
-            expect($result->departments)->toHaveCount(3);
+            /** @var Company $company */
+            $company = $result;
+            expect($company->name)->toBe('TechCorp Solutions');
+            expect($company->email)->toBe('info@techcorp.example'); // Lowercased
+            expect($company->founded_year)->toBe(2015);
+            expect($company->departments)->toHaveCount(3); // @phpstan-ignore-line argument.templateType
 
-            $dept0 = $result->departments[0];
+            $dept0 = $company->departments[0] ?? null;
             expect($dept0)->toBeInstanceOf(Department::class);
-            expect($dept0->name)->toBe('Engineering');
-            expect($dept0->code)->toBe('ENG');
+            /** @var Department $dept0Model */
+            $dept0Model = $dept0;
+            expect($dept0Model->name)->toBe('Engineering');
+            expect($dept0Model->code)->toBe('ENG');
         });
 
         it('loads XML file and maps to Eloquent Model with transformers', function(): void {
@@ -139,9 +143,11 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ])->mapFromFile($xmlFile, $company, $mapping);
 
             expect($result)->toBeInstanceOf(Company::class);
-            expect($result->name)->toBe('TechCorp Solutions');
-            expect($result->email)->toBe('info@techcorp.example'); // Lowercased
-            expect($result->departments)->toHaveCount(3);
+            /** @var Company $company */
+            $company = $result;
+            expect($company->name)->toBe('TechCorp Solutions');
+            expect($company->email)->toBe('info@techcorp.example'); // Lowercased
+            expect($company->departments)->toHaveCount(3); // @phpstan-ignore-line argument.templateType
         });
     });
 
@@ -171,15 +177,19 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ])->mapFromFile($jsonFile, $company, $mapping);
 
             expect($result)->toBeInstanceOf(EntityCompany::class);
-            expect($result->getName())->toBe('TechCorp Solutions');
-            expect($result->getEmail())->toBe('info@techcorp.example'); // Lowercased
-            expect($result->getFoundedYear())->toBe(2015);
-            expect($result->getDepartments()->count())->toBe(3);
+            /** @var EntityCompany $company */
+            $company = $result;
+            expect($company->getName())->toBe('TechCorp Solutions');
+            expect($company->getEmail())->toBe('info@techcorp.example'); // Lowercased
+            expect($company->getFoundedYear())->toBe(2015);
+            expect($company->getDepartments()->count())->toBe(3);
 
-            $dept0 = $result->getDepartments()[0];
+            $dept0 = $company->getDepartments()[0] ?? null;
             expect($dept0)->toBeInstanceOf(EntityDepartment::class);
-            expect($dept0->getName())->toBe('Engineering');
-            expect($dept0->getCode())->toBe('ENG');
+            /** @var EntityDepartment $dept0Entity */
+            $dept0Entity = $dept0;
+            expect($dept0Entity->getName())->toBe('Engineering');
+            expect($dept0Entity->getCode())->toBe('ENG');
         });
 
         it('loads XML file and maps to Doctrine Entity with transformers', function(): void {
@@ -207,9 +217,11 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ])->mapFromFile($xmlFile, $company, $mapping);
 
             expect($result)->toBeInstanceOf(EntityCompany::class);
-            expect($result->getName())->toBe('TechCorp Solutions');
-            expect($result->getEmail())->toBe('info@techcorp.example'); // Lowercased
-            expect($result->getDepartments()->count())->toBe(3);
+            /** @var EntityCompany $company */
+            $company = $result;
+            expect($company->getName())->toBe('TechCorp Solutions');
+            expect($company->getEmail())->toBe('info@techcorp.example'); // Lowercased
+            expect($company->getDepartments()->count())->toBe(3);
         });
     });
 

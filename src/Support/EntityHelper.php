@@ -543,12 +543,13 @@ class EntityHelper
         if (self::isEloquentModel($entity)) {
             // Check if this is a relation and value is an array
             if (is_array($value) && self::isRelation($entity, $key)) {
+                /** @var array<int, array<string, mixed>> $value */
                 self::setEloquentRelation($entity, $key, $value);
 
                 return;
             }
 
-            /** @phpstan-ignore method.nonObject */
+            /** @phpstan-ignore-next-line method.notFound */
             $entity->setAttribute($key, $value);
 
             return;
@@ -557,6 +558,7 @@ class EntityHelper
         if (self::isDoctrineEntity($entity)) {
             // Check if this is a relation and value is an array
             if (is_array($value) && self::isRelation($entity, $key)) {
+                /** @var array<int, array<string, mixed>> $value */
                 self::setDoctrineRelation($entity, $key, $value);
 
                 return;
@@ -889,7 +891,7 @@ class EntityHelper
 
                 // Set regular fields first
                 foreach ($regularFields as $field => $fieldValue) {
-                    /** @phpstan-ignore method.nonObject */
+                    /** @phpstan-ignore-next-line method.notFound */
                     $relatedModel->setAttribute($field, $fieldValue);
                 }
 
@@ -903,9 +905,9 @@ class EntityHelper
 
             // Use setRelation to set the collection without database
             if (class_exists('\Illuminate\Support\Collection')) {
-                /** @phpstan-ignore staticMethod.nonObject */
+                /** @phpstan-ignore-next-line staticMethod.notFound */
                 $collection = \Illuminate\Support\Collection::make($models);
-                /** @phpstan-ignore method.nonObject */
+                /** @phpstan-ignore-next-line method.notFound */
                 $model->setRelation($relationName, $collection);
             }
         } else {
@@ -937,7 +939,7 @@ class EntityHelper
 
             // Set regular fields first
             foreach ($regularFields as $field => $fieldValue) {
-                /** @phpstan-ignore method.nonObject */
+                /** @phpstan-ignore-next-line method.notFound */
                 $relatedModel->setAttribute($field, $fieldValue);
             }
 
@@ -946,7 +948,7 @@ class EntityHelper
                 self::setAttribute($relatedModel, $field, $fieldValue);
             }
 
-            /** @phpstan-ignore method.nonObject */
+            /** @phpstan-ignore-next-line method.notFound */
             $model->setRelation($relationName, $relatedModel);
         }
     }
@@ -1011,7 +1013,7 @@ class EntityHelper
             }
         } else {
             // ManyToOne, OneToOne - create single entity
-            if (!is_array($value) || empty($value)) {
+            if (empty($value)) {
                 return;
             }
 

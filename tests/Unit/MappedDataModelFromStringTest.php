@@ -58,6 +58,7 @@ class CompanyDataModelXml extends MappedDataModel
 describe('MappedDataModel with JSON/XML String Input', function(): void {
     describe('JSON string as input', function(): void {
         it('creates model from JSON string', function(): void {
+            /** @var non-empty-string|false $jsonString */
             $jsonString = json_encode([
                 'company' => [
                     'name' => 'TechCorp Solutions',
@@ -69,6 +70,7 @@ describe('MappedDataModel with JSON/XML String Input', function(): void {
                     ],
                 ],
             ]);
+            $jsonString = false !== $jsonString ? $jsonString : '{}';
 
             $model = new CompanyDataModel($jsonString);
 
@@ -86,6 +88,7 @@ describe('MappedDataModel with JSON/XML String Input', function(): void {
         it('fills model with JSON string', function(): void {
             $model = new CompanyDataModel();
 
+            /** @var non-empty-string|false $jsonString */
             $jsonString = json_encode([
                 'company' => [
                     'name' => 'StartupCo',
@@ -95,6 +98,7 @@ describe('MappedDataModel with JSON/XML String Input', function(): void {
                     ],
                 ],
             ]);
+            $jsonString = false !== $jsonString ? $jsonString : '{}';
 
             $model->fill($jsonString);
 
@@ -106,6 +110,7 @@ describe('MappedDataModel with JSON/XML String Input', function(): void {
         });
 
         it('creates model from JSON string using fromRequest', function(): void {
+            /** @var non-empty-string|false $jsonString */
             $jsonString = json_encode([
                 'company' => [
                     'name' => 'Enterprise Inc',
@@ -116,6 +121,7 @@ describe('MappedDataModel with JSON/XML String Input', function(): void {
                     ],
                 ],
             ]);
+            $jsonString = false !== $jsonString ? $jsonString : '{}';
 
             $model = CompanyDataModel::fromRequest($jsonString);
 
@@ -125,6 +131,7 @@ describe('MappedDataModel with JSON/XML String Input', function(): void {
         });
 
         it('converts model to array after JSON string input', function(): void {
+            /** @var non-empty-string|false $jsonString */
             $jsonString = json_encode([
                 'company' => [
                     'name' => 'TestCorp',
@@ -134,6 +141,7 @@ describe('MappedDataModel with JSON/XML String Input', function(): void {
                     ],
                 ],
             ]);
+            $jsonString = false !== $jsonString ? $jsonString : '{}';
 
             $model = new CompanyDataModel($jsonString);
             $array = $model->toArray();
@@ -145,6 +153,7 @@ describe('MappedDataModel with JSON/XML String Input', function(): void {
         });
 
         it('converts model to JSON after JSON string input', function(): void {
+            /** @var non-empty-string|false $jsonString */
             $jsonString = json_encode([
                 'company' => [
                     'name' => 'JsonCorp',
@@ -152,6 +161,7 @@ describe('MappedDataModel with JSON/XML String Input', function(): void {
                     'departments' => [],
                 ],
             ]);
+            $jsonString = false !== $jsonString ? $jsonString : '{}';
 
             $model = new CompanyDataModel($jsonString);
             $json = (string)$model;

@@ -249,7 +249,7 @@ class DataMapper
      * - Unknown/unsupported targets are coerced to array
      * - skipNull, reindexWildcard, hooks, trimValues, caseInsensitiveReplace behave as in map()
      *
-     * @param array<(DataMapperHook|string), mixed> $hooks Optional hooks propagated to this mapping
+     * @param array<string, mixed> $hooks Optional hooks propagated to this mapping
      */
     public static function autoMap(
         mixed $source,
@@ -349,6 +349,7 @@ class DataMapper
                 throw new InvalidArgumentException('Cannot convert non-array result to XML');
             }
 
+            /** @var array<string, mixed> $result */
             return self::arrayToXml($result);
         }
 
@@ -485,7 +486,7 @@ class DataMapper
      *
      * @param array<int|string, mixed>|object $target
      * @param array<string, string|array{__static__: mixed}> $mapping Mapping with raw paths (no {{ }} syntax)
-     * @param array<int|string, mixed> $hooks
+     * @param array<string, mixed> $hooks
      * @return array<int|string, mixed>|object
      * @internal
      */
@@ -670,6 +671,7 @@ class DataMapper
 
         HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('simple', $mapping, $source, $target));
 
+        /** @var array<int|string, mixed>|object */
         return $target;
     }
 
@@ -1239,6 +1241,7 @@ class DataMapper
             if (is_array($value)) {
                 $subnode = $xml->addChild((string)$elementName);
                 if ($subnode instanceof SimpleXMLElement) {
+                    /** @var array<string, mixed> $value */
                     self::arrayToXmlRecursive($value, $subnode, (string)$key);
                 }
             } else {

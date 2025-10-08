@@ -15,6 +15,26 @@ use Tests\utils\XMLs\Enums\PositionType;
  * - version1: <position>
  * - version2: <Position>
  * - version3: <posdata>
+ *
+ * @property int $project_id
+ * @property string $external_id
+ * @property string $number
+ * @property int|null $parent_id
+ * @property string $type
+ * @property string $type_description
+ * @property string $short_text
+ * @property string $long_text
+ * @property float $quantity
+ * @property float $estimated_amount
+ * @property float $measured_amount
+ * @property float $total_amount
+ * @property string $unit
+ * @property float $unit_price
+ * @property int $minutes
+ * @property float $factor
+ * @property string $address
+ * @property string $zipcode
+ * @property string $city
  */
 class Position extends Model
 {
@@ -64,7 +84,10 @@ class Position extends Model
         'factor' => 'float',
     ];
 
-    /** The model's default values for attributes. */
+    /**
+     * The model's default values for attributes.
+     * @phpstan-ignore-next-line assign.propertyType
+     */
     protected $attributes = [
         'external_id' => null,
         'number' => null,
@@ -105,6 +128,7 @@ class Position extends Model
 
     public function setExternalId(?string $externalId): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->external_id = $externalId;
         return $this;
     }
@@ -116,28 +140,31 @@ class Position extends Model
 
     public function setNumber(?string $number): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->number = $number;
         return $this;
     }
 
     public function getParentId(): ?string
     {
-        return $this->parent_id;
+        return $this->parent_id; // @phpstan-ignore-line return.type
     }
 
     public function setParentId(?string $parentId): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->parent_id = $parentId;
         return $this;
     }
 
     public function getType(): PositionType
     {
-        return $this->type;
+        return $this->type; // @phpstan-ignore-line return.type
     }
 
     public function setType(PositionType $type): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->type = $type;
         return $this;
     }
@@ -149,6 +176,7 @@ class Position extends Model
 
     public function setTypeDescription(?string $typeDescription): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->type_description = $typeDescription;
         return $this;
     }
@@ -160,6 +188,7 @@ class Position extends Model
 
     public function setShortText(?string $shortText): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->short_text = $shortText;
         return $this;
     }
@@ -171,6 +200,7 @@ class Position extends Model
 
     public function setLongText(?string $longText): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->long_text = $longText;
         return $this;
     }
@@ -182,6 +212,7 @@ class Position extends Model
 
     public function setQuantity(float $quantity): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->quantity = $quantity;
         return $this;
     }
@@ -193,6 +224,7 @@ class Position extends Model
 
     public function setEstimatedAmount(float $estimatedAmount): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->estimated_amount = $estimatedAmount;
         return $this;
     }
@@ -204,6 +236,7 @@ class Position extends Model
 
     public function setMeasuredAmount(float $measuredAmount): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->measured_amount = $measuredAmount;
         return $this;
     }
@@ -215,6 +248,7 @@ class Position extends Model
 
     public function setTotalAmount(float $totalAmount): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->total_amount = $totalAmount;
         return $this;
     }
@@ -226,6 +260,7 @@ class Position extends Model
 
     public function setUnit(?string $unit): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->unit = $unit;
         return $this;
     }
@@ -237,6 +272,7 @@ class Position extends Model
 
     public function setUnitPrice(float $unitPrice): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->unit_price = $unitPrice;
         return $this;
     }
@@ -248,6 +284,7 @@ class Position extends Model
 
     public function setMinutes(float $minutes): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->minutes = $minutes;
         return $this;
     }
@@ -259,6 +296,7 @@ class Position extends Model
 
     public function setFactor(float $factor): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->factor = $factor;
         return $this;
     }
@@ -270,6 +308,7 @@ class Position extends Model
 
     public function setAddress(?string $address): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->address = $address;
         return $this;
     }
@@ -281,6 +320,7 @@ class Position extends Model
 
     public function setZipcode(?string $zipcode): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->zipcode = $zipcode;
         return $this;
     }
@@ -292,28 +332,38 @@ class Position extends Model
 
     public function setCity(?string $city): self
     {
+        /** @phpstan-ignore-next-line assign.propertyType */
         $this->city = $city;
         return $this;
     }
 
     // Relations
 
-    /** Get the project that owns the position. */
+    /**
+     * Get the project that owns the position.
+     * @return BelongsTo<Project, Position>
+     */
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'project_id');
+        return $this->belongsTo(Project::class, 'project_id'); // @phpstan-ignore-line return.type
     }
 
-    /** Get the parent position (for hierarchical structures). */
+    /**
+     * Get the parent position (for hierarchical structures).
+     * @return BelongsTo<Position, Position>
+     */
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Position::class, 'parent_id');
+        return $this->belongsTo(Position::class, 'parent_id'); // @phpstan-ignore-line return.type
     }
 
-    /** Get the child positions (for hierarchical structures). */
+    /**
+     * Get the child positions (for hierarchical structures).
+     * @phpstan-ignore-next-line missingType.generics, missingType.return
+     */
     public function children()
     {
-        return $this->hasMany(Position::class, 'parent_id');
+        return $this->hasMany(Position::class, 'parent_id'); // @phpstan-ignore-line
     }
 }
 

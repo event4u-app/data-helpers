@@ -600,12 +600,12 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
             ];
 
             // With skipNull = true (default)
-            $result1 = DataMapper::mapFromFile($jsonFile, $target, $mapping, skipNull: true);
+            $result1 = DataMapper::mapFromFile($jsonFile, $target, $mapping, true);
             expect($result1['description'])->toBe('existing value'); // Not overwritten
 
             // With skipNull = false
             $target2 = ['description' => 'existing value'];
-            $result2 = DataMapper::mapFromFile($jsonFile, $target2, $mapping, skipNull: false);
+            $result2 = DataMapper::mapFromFile($jsonFile, $target2, $mapping, false);
             expect($result2['description'])->toBeNull(); // Overwritten with null
 
             // Cleanup

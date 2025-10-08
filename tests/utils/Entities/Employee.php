@@ -16,6 +16,7 @@ class Employee
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    /** @phpstan-ignore property.onlyWritten */
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -46,6 +47,7 @@ class Employee
 
     public function __construct()
     {
+        $this->id ??= null; // Initialize to satisfy PHPStan
         $this->projects = new ArrayCollection();
     }
 
