@@ -65,6 +65,8 @@ final class ExpressionParser
      *
      * Example: 'user.name | join:" | " | trim' -> ['user.name', 'join:" | "', 'trim']
      *
+     * Note: This method uses FilterEngine's useFastSplit setting to determine parsing mode.
+     *
      * @return array<int, string>
      */
     private static function splitByPipe(string $expression): array
@@ -74,6 +76,55 @@ final class ExpressionParser
             return array_map('trim', explode('|', $expression));
         }
 
+        // Use FilterEngine's fast split setting
+        // Note: We keep quotes in output here - they're removed later by FilterEngine
+        if (FilterEngine::isFastSplitEnabled()) {
+            return self::splitByPipeFast($expression);
+        }
+
+        return self::splitByPipeSafe($expression);
+    }
+
+    /**
+     * Fast pipe split: Simple quote toggle without escape handling.
+     *
+     * @return array<int, string>
+     */
+    public static function splitByPipeFast(string $expression): array
+    {
+        $parts = [];
+        $current = '';
+        $inQuotes = false;
+        $length = strlen($expression);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $expression[$i];
+
+            if ('"' === $char) {
+                $inQuotes = !$inQuotes;
+                $current .= $char;
+            } elseif ('|' === $char && !$inQuotes) {
+                $parts[] = trim($current);
+                $current = '';
+            } else {
+                $current .= $char;
+            }
+        }
+
+        if ('' !== $current) {
+            $parts[] = trim($current);
+        }
+
+        return $parts;
+    }
+
+    /**
+     * Safe pipe split: Full escape handling.
+     *
+     * @return array<int, string>
+     */
+    public static function splitByPipeSafe(string $expression): array
+    {
         // Slow path: Has quotes → char-by-char to preserve quoted content
         // Note: Regex is tricky here because we need to keep quotes with their surrounding text
         $parts = [];
