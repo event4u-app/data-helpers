@@ -1,0 +1,11 @@
+services:
+    # Default configuration for services in this bundle
+    _defaults:
+        autowire: false
+        autoconfigure: false
+        public: false
+
+    # DataMapper service (optional, can be used directly as static class)
+    event4u\DataHelpers\DataMapper:
+        public: true
+

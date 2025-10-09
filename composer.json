@@ -45,7 +45,14 @@
     "timeweb/phpstan-enum": "^4.0",
     "phpbench/phpbench": "^1.4",
     "symfony/http-kernel": "^6.0|^7.0",
-    "symfony/http-foundation": "^6.0|^7.0"
+    "symfony/http-foundation": "^6.0|^7.0",
+    "graham-campbell/result-type": "^1.1",
+    "vlucas/phpdotenv": "^5.6",
+    "symfony/dependency-injection": "^7.3",
+    "symfony/config": "^7.3",
+    "symfony/yaml": "^7.3",
+    "symfony/cache": "^7.3",
+    "illuminate/cache": "^11.46"
   },
   "repositories": [],
   "suggest": {},
@@ -150,13 +157,17 @@
   "extra": {
     "laravel": {
       "providers": [
-        "event4u\\DataHelpers\\Integration\\LaravelMappedModelServiceProvider"
+        "event4u\\DataHelpers\\Laravel\\LaravelMappedModelServiceProvider",
+        "event4u\\DataHelpers\\Laravel\\LaravelConfigDataHelpersServiceProvider"
       ]
     },
     "symfony": {
       "require": "^6.0|^7.0",
       "bundles": {
-        "event4u\\DataHelpers\\Integration\\SymfonyDataHelpersBundle": [
+        "event4u\\DataHelpers\\Symfony\\SymfonyMappedModelResolver": [
+          "all"
+        ],
+        "event4u\\DataHelpers\\Symfony\\SymfonyDataHelpersBundle": [
           "all"
         ]
       }

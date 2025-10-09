@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Support;
 
+use event4u\DataHelpers\Cache\ClassScopedCache;
+
 /**
  * Utility class for parsing template expressions with {{ }} syntax.
  *
@@ -19,6 +21,9 @@ final class TemplateParser
 {
     /** Regular expression pattern for matching {{ }} expressions. */
     private const TEMPLATE_PATTERN = '/^\{\{\s*(.+?)\s*\}\}$/';
+
+    /** Maximum number of cached parsed mappings */
+    private const MAX_CACHE_ENTRIES = 100;
 
     /**
      * Check if a string contains a template expression ({{ }}).
@@ -82,6 +87,16 @@ final class TemplateParser
      */
     public static function parseMapping(array $mapping, string $staticMarker = '__static__'): array
     {
+        // Create cache key from mapping structure
+        $cacheKey = hash('sha256', serialize($mapping) . $staticMarker);
+
+        // Try to get from cache
+        $cached = ClassScopedCache::get(self::class, $cacheKey);
+        if (is_array($cached)) {
+            /** @var array<string, string|array{__static__: mixed}> $cached */
+            return $cached;
+        }
+
         $parsed = [];
 
         foreach ($mapping as $targetPath => $sourcePath) {
@@ -96,7 +111,10 @@ final class TemplateParser
             }
         }
 
-        /** @var array<string, string|array{__static__: mixed}> */
+        // Cache the result
+        ClassScopedCache::set(self::class, $cacheKey, $parsed, null, self::MAX_CACHE_ENTRIES);
+
+        /** @var array<string, string|array{__static__: mixed}> $parsed */
         return $parsed;
     }
 

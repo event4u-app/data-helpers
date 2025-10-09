@@ -1,0 +1,47 @@
+# Data Helpers Configuration
+# Copy this file to your Symfony application's config/packages/ directory
+# or let the bundle auto-configure itself.
+
+data_helpers:
+  # Template Expression Cache
+  # The template expression parser can cache parsed expressions to improve
+  # performance. This setting controls the maximum number of cache entries.
+  # When the limit is reached, the oldest entries will be discarded (LRU).
+  #
+  # Set to 0 to disable caching.
+  # Recommended: 1000 for most applications.
+  cache:
+    # Cache driver: memory, symfony, null
+    # - memory: In-memory LRU cache (no persistence)
+    # - symfony: Symfony cache system (uses your configured cache pool)
+    # - null: No caching (for testing/debugging)
+    driver: '%env(DATA_HELPERS_CACHE_DRIVER)%'
+
+    # Maximum cache entries (for memory driver)
+    max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
+
+    # Default TTL (Time To Live) in seconds
+    # Set to null for no expiration (cache forever)
+    # Can be overridden per cache entry when calling set()
+    # Examples: 3600 (1 hour), 86400 (24 hours), null (forever)
+    default_ttl: '%env(DATA_HELPERS_CACHE_DEFAULT_TTL)%'
+
+    # Symfony cache pool (for symfony driver)
+    # Reference to a service implementing Psr\Cache\CacheItemPoolInterface
+    symfony:
+      pool: '@cache.app'
+  
+  # Performance Mode
+  # Fast mode uses simplified parsing without escape sequence handling.
+  # Safe mode processes all escape sequences (\n, \t, \", \\, etc.).
+  #
+  # Options: 'fast', 'safe'
+  # Default: 'fast' (recommended for most use cases)
+  performance_mode: '%env(DATA_HELPERS_PERFORMANCE_MODE)%'
+
+# Default values for environment variables
+parameters:
+  env(DATA_HELPERS_CACHE_DRIVER): 'symfony'
+  env(DATA_HELPERS_CACHE_MAX_ENTRIES): 1000
+  env(DATA_HELPERS_CACHE_DEFAULT_TTL): null
+  env(DATA_HELPERS_PERFORMANCE_MODE): 'fast'

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\Cache\ClassScopedCache;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 
 describe('TemplateParser', function(): void {
@@ -35,6 +36,11 @@ describe('TemplateParser', function(): void {
     });
 
     describe('parseMapping()', function(): void {
+        beforeEach(function(): void {
+            // Clear cache before each test
+            ClassScopedCache::clearClass(TemplateParser::class);
+        });
+
         it('parses template expressions to paths', function(): void {
             $mapping = [
                 'name' => '{{ user.name }}',
@@ -77,6 +83,41 @@ describe('TemplateParser', function(): void {
                 'name' => 'user.name',
                 'status' => ['__literal__' => 'active'],
             ]);
+        });
+
+        it('caches parsed mappings', function(): void {
+            $mapping = [
+                'name' => '{{ user.name }}',
+                'email' => '{{ user.email }}',
+            ];
+
+            // First call - should parse and cache
+            $result1 = TemplateParser::parseMapping($mapping);
+
+            // Second call - should return from cache
+            $result2 = TemplateParser::parseMapping($mapping);
+
+            expect($result1)->toBe($result2);
+            expect($result1)->toBe([
+                'name' => 'user.name',
+                'email' => 'user.email',
+            ]);
+        });
+
+        it('caches different mappings separately', function(): void {
+            $mapping1 = [
+                'name' => '{{ user.name }}',
+            ];
+
+            $mapping2 = [
+                'email' => '{{ user.email }}',
+            ];
+
+            $result1 = TemplateParser::parseMapping($mapping1);
+            $result2 = TemplateParser::parseMapping($mapping2);
+
+            expect($result1)->toBe(['name' => 'user.name']);
+            expect($result2)->toBe(['email' => 'user.email']);
         });
     });
 

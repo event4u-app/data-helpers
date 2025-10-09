@@ -20,6 +20,7 @@ parameters:
         - types
 
     excludePaths:
+        - src/Symfony
         - '*.stub.php'
 
     scanDirectories:

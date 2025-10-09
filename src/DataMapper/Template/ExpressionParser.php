@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Template;
 
+use event4u\DataHelpers\Cache\LruCache;
+use event4u\DataHelpers\DataHelpersConfig;
+
 final class ExpressionParser
 {
+    private static ?LruCache $cache = null;
     /** Check if a string contains a template expression {{ ... }}. */
     public static function hasExpression(string $value): bool
     {
@@ -21,6 +25,14 @@ final class ExpressionParser
      */
     public static function parse(string $value): ?array
     {
+        // Check cache first
+        if (self::getCache()->has($value)) {
+            $cached = self::getCache()->get($value);
+            // PHPStan: We know it's either the correct array structure or null from cache
+            /** @var array{type: string, path: string, default: mixed, filters: array<int, string>}|null $cached */
+            return $cached;
+        }
+
         // Template expression: {{ ... }}
         if (preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $value, $matches)) {
             $expression = trim($matches[1]);
@@ -28,12 +40,17 @@ final class ExpressionParser
             // Check for alias reference: {{ @fullname }}
             if (str_starts_with($expression, '@')) {
                 $path = substr($expression, 1); // Remove @
-                return [
+                $result = [
                     'type' => 'alias',
                     'path' => $path,
                     'default' => null,
                     'filters' => [],
                 ];
+
+                // Cache result
+                self::getCache()->set($value, $result);
+
+                return $result;
             }
 
             // Parse filters: user.email | lower | trim
@@ -49,13 +66,21 @@ final class ExpressionParser
                 $default = self::parseDefaultValue($defaultStr);
             }
 
-            return [
+            $result = [
                 'type' => 'expression',
                 'path' => $pathWithDefault,
                 'default' => $default,
                 'filters' => $filters,
             ];
+
+            // Cache result
+            self::getCache()->set($value, $result);
+
+            return $result;
         }
+
+        // Cache null result
+        self::getCache()->set($value, null);
 
         return null;
     }
@@ -208,5 +233,32 @@ final class ExpressionParser
         }
 
         return $value;
+    }
+
+    /** Get or initialize cache instance. */
+    private static function getCache(): LruCache
+    {
+        if (!self::$cache instanceof LruCache) {
+            $maxEntries = DataHelpersConfig::getCacheMaxEntries();
+            self::$cache = new LruCache($maxEntries);
+        }
+
+        return self::$cache;
+    }
+
+    /** Clear cache and reset instance (for testing). */
+    public static function clearCache(): void
+    {
+        self::$cache = null;
+    }
+
+    /**
+     * Get cache statistics.
+     *
+     * @return array{size: int, max_size: int, usage_percentage: float}
+     */
+    public static function getCacheStats(): array
+    {
+        return self::getCache()->stats();
     }
 }

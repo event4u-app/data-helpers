@@ -1,0 +1,28 @@
+# Data Helpers Configuration
+# Copy this file to your Symfony application's config/packages/ directory
+# or let the bundle auto-configure itself.
+
+data_helpers:
+  # Template Expression Cache
+  # The template expression parser can cache parsed expressions to improve
+  # performance. This setting controls the maximum number of cache entries.
+  # When the limit is reached, the oldest entries will be discarded (LRU).
+  #
+  # Set to 0 to disable caching.
+  # Recommended: 1000 for most applications.
+  cache:
+    max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
+  
+  # Performance Mode
+  # Fast mode uses simplified parsing without escape sequence handling.
+  # Safe mode processes all escape sequences (\n, \t, \", \\, etc.).
+  #
+  # Options: 'fast', 'safe'
+  # Default: 'fast' (recommended for most use cases)
+  performance_mode: '%env(DATA_HELPERS_PERFORMANCE_MODE)%'
+
+# Default values for environment variables
+parameters:
+  env(DATA_HELPERS_CACHE_MAX_ENTRIES): 1000
+  env(DATA_HELPERS_PERFORMANCE_MODE): 'fast'
+

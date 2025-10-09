@@ -175,3 +175,34 @@ describe('Fast Split Mode', function(): void {
         expect($result3['result'])->not->toBeEmpty();
     });
 });
+
+describe('Performance Comparison', function(): void {
+    it('fast mode is faster than safe mode for quoted strings', function(): void {
+        $template = ['result' => '{{ tags | join:" | " }}'];
+        $sources = ['tags' => ['a', 'b', 'c', 'd', 'e']];
+        $iterations = 1000;
+
+        // Measure safe mode
+        FilterEngine::useFastSplit(false);
+        $start = microtime(true);
+        for ($i = 0; $i < $iterations; $i++) {
+            DataMapper::mapFromTemplate($template, $sources);
+        }
+        $timeSafe = microtime(true) - $start;
+
+        // Measure fast mode (default)
+        FilterEngine::useFastSplit(true);
+        $start = microtime(true);
+        for ($i = 0; $i < $iterations; $i++) {
+            DataMapper::mapFromTemplate($template, $sources);
+        }
+        $timeFast = microtime(true) - $start;
+
+        // Fast mode should be faster (allow some variance)
+        expect($timeFast)->toBeLessThan($timeSafe * 1.1);
+
+        // Reset to default (fast mode)
+        FilterEngine::useFastSplit(true);
+    })->skip('Performance test - enable manually');
+});
+
