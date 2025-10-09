@@ -11,8 +11,8 @@
   - [Default Values](#default-values)
   - [Filters](#filters)
   - [Alias References](#alias-references)
-- [Built-in Filters](#built-in-filters)
-- [Custom Filters](#custom-filters)
+- [Built-in Transformers](#built-in-transformers)
+- [Custom Transformers](#custom-transformers)
 - [Combining with Classic References](#combining-with-classic-references)
 - [Advanced Examples](#advanced-examples)
 - [API Reference](#api-reference)
@@ -21,9 +21,9 @@
 
 The Template Expression Engine extends `mapFromTemplate()` with a powerful expression syntax that allows you to:
 
-- ✅ **Transform values** using filters (e.g., `| lower`, `| trim`)
+- ✅ **Transform values** using filter syntax (e.g., `| lower`, `| trim`)
 - ✅ **Provide defaults** for null/missing values (e.g., `?? 'Unknown'`)
-- ✅ **Chain multiple filters** (e.g., `| trim | lower | ucfirst`)
+- ✅ **Chain multiple transformers** (e.g., `| trim | lower | ucfirst`)
 - ✅ **Reference source fields** (e.g., `{{ user.name }}`)
 - ✅ **Reference target fields** using aliases (e.g., `{{ @fieldName }}`)
 - ✅ **Use static values** (e.g., `'admin'` without `{{ }}`)
@@ -31,9 +31,9 @@ The Template Expression Engine extends `mapFromTemplate()` with a powerful expre
 **Key Features:**
 
 - 🎯 **Declarative syntax** - Define transformations in the template
-- 🔄 **Composable filters** - Chain multiple transformations
-- 📦 **15+ built-in filters** - Common transformations out of the box
-- 🔧 **Extensible** - Register custom filters
+- 🔄 **Composable transformers** - Chain multiple transformations
+- 📦 **15+ built-in transformers** - Common transformations out of the box
+- 🔧 **Extensible** - Register custom transformers
 - ⚡ **Fast** - Optimized expression parsing and evaluation
 - 🔒 **Type-safe** - Full PHPStan Level 9 compliance
 
@@ -117,27 +117,27 @@ $template = [
 - Booleans: `true`, `false`
 - Null: `null`
 
-### Filters
+### Transformers (Filter Syntax)
 
-Transform values using filters with the pipe operator `|`:
+Transform values using transformers with the pipe operator `|`:
 
 ```php
 $template = [
-    // Single filter
+    // Single transformer
     'email' => '{{ user.email | lower }}',
 
-    // Multiple filters (executed left to right)
+    // Multiple transformers (executed left to right)
     'name' => '{{ user.name | trim | ucfirst }}',
 
-    // Filters with default value
+    // Transformers with default value
     'email' => '{{ user.email ?? "no-email" | lower }}',
 ];
 ```
 
-**Filter execution order:**
+**Execution order:**
 1. Resolve variable (`user.email`)
 2. Apply default if null (`?? "default"`)
-3. Apply filters left to right (`| filter1 | filter2`)
+3. Apply transformers left to right (`| transformer1 | transformer2`)
 
 ### Alias References
 
@@ -187,11 +187,13 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 
 **Note:** Alias references work within the same nesting level.
 
-## Built-in Filters
+## Built-in Transformers
 
-### String Filters
+All built-in transformers can be used in template expressions with filter syntax (`| alias`).
 
-| Filter | Description | Example |
+### String Transformers
+
+| Alias | Description | Example |
 |--------|-------------|---------|
 | `lower`, `lowercase` | Convert to lowercase | `'ALICE' → 'alice'` |
 | `upper`, `uppercase` | Convert to uppercase | `'alice' → 'ALICE'` |
@@ -209,9 +211,9 @@ $template = [
 ];
 ```
 
-### Array Filters
+### Array Transformers
 
-| Filter | Description | Example |
+| Alias | Description | Example |
 |--------|-------------|---------|
 | `count` | Count elements | `[1, 2, 3] → 3` |
 | `first` | Get first element | `[1, 2, 3] → 1` |
@@ -234,9 +236,9 @@ $template = [
 ];
 ```
 
-### Utility Filters
+### Utility Transformers
 
-| Filter | Description | Example |
+| Alias | Description | Example |
 |--------|-------------|---------|
 | `json` | JSON encode | `['a' => 1] → '{"a":1}'` |
 | `default` | Return empty string if null | `null → ''` |
@@ -249,56 +251,99 @@ $template = [
 ];
 ```
 
-## Custom Filters
+## Custom Transformers
 
-Register your own filters using `FilterEngine::registerFilter()`:
+Create reusable transformer classes that can be used both in pipelines and template expressions (filter syntax):
 
 ```php
-use event4u\DataHelpers\DataMapper\Template\FilterEngine;
+use event4u\DataHelpers\DataMapper\Context\HookContext;
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerRegistry;
 
-// Register a custom filter
-FilterEngine::registerFilter('encrypt', function($value) {
-    return encrypt($value);
-});
+final class EncryptTransformer implements TransformerInterface
+{
+    public function transform(mixed $value, HookContext $context): mixed
+    {
+        return encrypt($value);
+    }
 
-FilterEngine::registerFilter('hash', function($value) {
-    return hash('sha256', $value);
-});
+    public function getHook(): string
+    {
+        return 'preTransform';
+    }
 
-FilterEngine::registerFilter('truncate', function($value) {
-    return strlen($value) > 50 ? substr($value, 0, 50) . '...' : $value;
-});
+    public function getFilter(): ?string
+    {
+        return null;
+    }
 
-// Use in template
+    /** @return array<int, string> */
+    public function getAliases(): array
+    {
+        return ['encrypt', 'enc'];
+    }
+}
+
+// Register the transformer
+TransformerRegistry::register(EncryptTransformer::class);
+
+// Use in template expressions
 $template = [
-    'password' => '{{ user.password | hash }}',
     'token' => '{{ user.token | encrypt }}',
-    'preview' => '{{ post.content | truncate }}',
 ];
+
+// Or use in pipeline
+DataMapper::pipe([EncryptTransformer::class])->map($source, [], $mapping);
 ```
 
-**Custom filter examples:**
+**Benefits:**
+- ✅ Reusable in both pipelines and template expressions
+- ✅ Type-safe with PHPStan
+- ✅ Testable
+- ✅ Multiple aliases supported
+- ✅ Access to full HookContext
+
+**More examples:**
 
 ```php
-// Date formatting
-FilterEngine::registerFilter('date', function($value) {
-    return date('Y-m-d', strtotime($value));
-});
+// Date formatting transformer
+final class DateFormat implements TransformerInterface
+{
+    public function transform(mixed $value, HookContext $context): mixed
+    {
+        return date('Y-m-d', strtotime($value));
+    }
 
-// Currency formatting
-FilterEngine::registerFilter('currency', function($value) {
-    return number_format($value, 2) . ' EUR';
-});
+    public function getHook(): string { return 'preTransform'; }
+    public function getFilter(): ?string { return null; }
 
-// Slug generation
-FilterEngine::registerFilter('slug', function($value) {
-    return strtolower(preg_replace('/[^a-z0-9]+/i', '-', $value));
-});
+    /** @return array<int, string> */
+    public function getAliases(): array { return ['date']; }
+}
 
+// Currency formatting transformer
+final class CurrencyFormat implements TransformerInterface
+{
+    public function transform(mixed $value, HookContext $context): mixed
+    {
+        return number_format($value, 2) . ' EUR';
+    }
+
+    public function getHook(): string { return 'preTransform'; }
+    public function getFilter(): ?string { return null; }
+
+    /** @return array<int, string> */
+    public function getAliases(): array { return ['currency']; }
+}
+
+// Register transformers
+TransformerRegistry::register(DateFormat::class);
+TransformerRegistry::register(CurrencyFormat::class);
+
+// Use in templates
 $template = [
     'createdAt' => '{{ post.created_at | date }}',
     'price' => '{{ product.price | currency }}',
-    'slug' => '{{ post.title | slug }}',
 ];
 ```
 
@@ -439,15 +484,11 @@ $sources = [
     ],
 ];
 
-// Register custom filters
-FilterEngine::registerFilter('currency', fn($v) => number_format($v, 2) . ' EUR');
-FilterEngine::registerFilter('truncate', fn($v) => strlen($v) > 50 ? substr($v, 0, 50) . '...' : $v);
-
 $template = [
     'product' => [
         'title' => '{{ product.name | ucwords }}',
-        'shortDescription' => '{{ product.description | trim | truncate }}',
-        'price' => '{{ product.price | currency }}',
+        'shortDescription' => '{{ product.description | trim }}',
+        'price' => '{{ product.price }}',
         'inStock' => '{{ product.stock ?? 0 }}',
         'categoryCount' => '{{ product.categories | count }}',
         'primaryCategory' => '{{ product.categories | first | ucfirst }}',
@@ -569,19 +610,20 @@ public static function apply(mixed $value, array $filters): mixed
 
 Apply multiple filters to a value.
 
-### FilterEngine::registerFilter()
+### TransformerRegistry::register()
 
 ```php
-public static function registerFilter(string $name, callable $callback): void
+public static function register(string $transformerClass): void
 ```
 
-Register a custom filter.
+Register a transformer to make it available in template expressions.
 
 **Example:**
 ```php
-FilterEngine::registerFilter('myfilter', function($value) {
-    return strtoupper($value);
-});
+TransformerRegistry::register(MyCustomTransformer::class);
+
+// Now use it in templates
+$template = ['name' => '{{ user.name | my_custom }}'];
 ```
 
 ### ExpressionEvaluator::evaluate()

@@ -37,4 +37,10 @@ final class LowercaseEmails implements TransformerInterface
     {
         return null;
     }
+
+    /** @return array<int, string> */
+    public function getAliases(): array
+    {
+        return [];
+    }
 }

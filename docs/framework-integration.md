@@ -31,9 +31,9 @@ class UserRegistrationModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'email' => 'request.email',
-            'name' => 'request.name',
-            'age' => 'request.age',
+            'email' => '{{ request.email }}',
+            'name' => '{{ request.name }}',
+            'age' => '{{ request.age }}',
         ];
     }
 
@@ -119,9 +119,9 @@ class UserRegistrationModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'email' => 'request.email',
-            'name' => 'request.name',
-            'age' => 'request.age',
+            'email' => '{{ request.email }}',
+            'name' => '{{ request.name }}',
+            'age' => '{{ request.age }}',
         ];
     }
 
@@ -166,9 +166,9 @@ class ProductModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'product_id' => 'request.id',
-            'name' => 'request.name',
-            'price' => 'request.price',
+            'product_id' => '{{ request.id }}',
+            'name' => '{{ request.name }}',
+            'price' => '{{ request.price }}',
         ];
     }
 }

@@ -8,23 +8,22 @@ use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 
 /**
- * Removes null values from being written to target.
- *
- * Returns '__skip__' to prevent writing null values.
+ * Counts elements in an array or countable object.
  *
  * Example:
- *   DataMapper::pipe([RemoveNullValues::class])->map($source, $target, $mapping);
+ *   DataMapper::pipe([Count::class])->map($source, $target, $mapping);
+ *   Template: {{ value | count }}
  */
-final class RemoveNullValues implements TransformerInterface
+final class Count implements TransformerInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
-        return $value ?? '__skip__';
+        return is_countable($value) ? count($value) : 0;
     }
 
     public function getHook(): string
     {
-        return 'beforeWrite';
+        return 'preTransform';
     }
 
     public function getFilter(): ?string
@@ -35,7 +34,7 @@ final class RemoveNullValues implements TransformerInterface
     /** @return array<int, string> */
     public function getAliases(): array
     {
-        return [];
+        return ['count'];
     }
 }
 

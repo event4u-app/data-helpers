@@ -12,6 +12,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
  *
  * Example:
  *   DataMapper::pipe([LowercaseStrings::class])->map($source, $target, $mapping);
+ *   Template: {{ value | lower }} or {{ value | lowercase }}
  */
 final class LowercaseStrings implements TransformerInterface
 {
@@ -29,5 +30,10 @@ final class LowercaseStrings implements TransformerInterface
     {
         return null;
     }
-}
 
+    /** @return array<int, string> */
+    public function getAliases(): array
+    {
+        return ['lower', 'lowercase'];
+    }
+}

@@ -8,23 +8,22 @@ use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 
 /**
- * Removes null values from being written to target.
- *
- * Returns '__skip__' to prevent writing null values.
+ * Capitalizes the first character of each word in a string.
  *
  * Example:
- *   DataMapper::pipe([RemoveNullValues::class])->map($source, $target, $mapping);
+ *   DataMapper::pipe([Ucwords::class])->map($source, $target, $mapping);
+ *   Template: {{ value | ucwords }}
  */
-final class RemoveNullValues implements TransformerInterface
+final class Ucwords implements TransformerInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
-        return $value ?? '__skip__';
+        return is_string($value) ? ucwords($value) : $value;
     }
 
     public function getHook(): string
     {
-        return 'beforeWrite';
+        return 'preTransform';
     }
 
     public function getFilter(): ?string
@@ -35,7 +34,7 @@ final class RemoveNullValues implements TransformerInterface
     /** @return array<int, string> */
     public function getAliases(): array
     {
-        return [];
+        return ['ucwords'];
     }
 }
 

@@ -60,7 +60,7 @@ Example:
 ```php
 test('maps nested data correctly', function(): void {
     $source = ['user' => ['name' => 'Alice']];
-    $mapping = ['name' => 'user.name'];
+    $mapping = ['name' => '{{ user.name }}'];
     
     $result = DataMapper::map($source, [], $mapping);
     
@@ -108,8 +108,8 @@ $mapping = [
 // Or nested format:
 $mapping = [
     'profile' => [
-        'name' => 'user.name',
-        'email' => 'user.email',
+        'name' => '{{ user.name }}',
+        'email' => '{{ user.email }}',
     ],
 ];
 ```

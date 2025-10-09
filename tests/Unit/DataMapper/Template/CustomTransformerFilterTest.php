@@ -1,0 +1,183 @@
+<?php
+
+declare(strict_types=1);
+
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerRegistry;
+use Tests\utils\Transformers\AlternatingCase;
+
+describe('Custom Transformer Filters in Template Expressions', function(): void {
+    beforeEach(function(): void {
+        // Clear and register custom transformer
+        TransformerRegistry::clear();
+        TransformerRegistry::register(AlternatingCase::class);
+    });
+
+    afterEach(function(): void {
+        TransformerRegistry::clear();
+    });
+
+    it('uses custom transformer with single alias', function(): void {
+        $template = [
+            'name' => '{{ user.name | alternating }}',
+        ];
+
+        $sources = [
+            'user' => ['name' => 'hello world'],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result)->toBe([
+            'name' => 'hElLo wOrLd',
+        ]);
+    });
+
+    it('uses custom transformer with alternative alias', function(): void {
+        $template = [
+            'name' => '{{ user.name | alt_case }}',
+        ];
+
+        $sources = [
+            'user' => ['name' => 'test'],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result)->toBe([
+            'name' => 'tEsT',
+        ]);
+    });
+
+    it('uses custom transformer with third alias', function(): void {
+        $template = [
+            'name' => '{{ user.name | zigzag }}',
+        ];
+
+        $sources = [
+            'user' => ['name' => 'abcdef'],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result)->toBe([
+            'name' => 'aBcDeF',
+        ]);
+    });
+
+    it('chains custom transformer with built-in filters', function(): void {
+        $template = [
+            'name' => '{{ user.name | upper | alternating }}',
+        ];
+
+        $sources = [
+            'user' => ['name' => 'hello'],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        // First: upper => 'HELLO'
+        // Then: alternating => 'hElLo'
+        expect($result)->toBe([
+            'name' => 'hElLo',
+        ]);
+    });
+
+    it('works with multiple fields using custom transformer', function(): void {
+        $template = [
+            'firstName' => '{{ user.firstName | alternating }}',
+            'lastName' => '{{ user.lastName | alternating }}',
+            'email' => '{{ user.email | lower }}',
+        ];
+
+        $sources = [
+            'user' => [
+                'firstName' => 'john',
+                'lastName' => 'doe',
+                'email' => 'JOHN@EXAMPLE.COM',
+            ],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result)->toBe([
+            'firstName' => 'jOhN',
+            'lastName' => 'dOe',
+            'email' => 'john@example.com',
+        ]);
+    });
+
+    it('handles empty strings', function(): void {
+        $template = [
+            'name' => '{{ user.name | alternating }}',
+        ];
+
+        $sources = [
+            'user' => ['name' => ''],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result)->toBe([
+            'name' => '',
+        ]);
+    });
+
+    it('handles single character', function(): void {
+        $template = [
+            'name' => '{{ user.name | alternating }}',
+        ];
+
+        $sources = [
+            'user' => ['name' => 'a'],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result)->toBe([
+            'name' => 'a',
+        ]);
+    });
+
+    it('handles unicode characters', function(): void {
+        $template = [
+            'name' => '{{ user.name | alternating }}',
+        ];
+
+        $sources = [
+            'user' => ['name' => 'äöü'],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result)->toBe([
+            'name' => 'äÖü',
+        ]);
+    });
+
+    it('works in nested structures', function(): void {
+        $template = [
+            'profile' => [
+                'name' => '{{ user.name | alternating }}',
+                'bio' => '{{ user.bio | alternating }}',
+            ],
+        ];
+
+        $sources = [
+            'user' => [
+                'name' => 'alice',
+                'bio' => 'developer',
+            ],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, $sources);
+
+        expect($result)->toBe([
+            'profile' => [
+                'name' => 'aLiCe',
+                'bio' => 'dEvElOpEr',
+            ],
+        ]);
+    });
+});
+

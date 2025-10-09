@@ -7,6 +7,13 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Transformers;
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 
+/**
+ * Converts all string values to uppercase.
+ *
+ * Example:
+ *   DataMapper::pipe([UppercaseStrings::class])->map($source, $target, $mapping);
+ *   Template: {{ value | upper }} or {{ value | uppercase }}
+ */
 final class UppercaseStrings implements TransformerInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
@@ -22,5 +29,11 @@ final class UppercaseStrings implements TransformerInterface
     public function getFilter(): ?string
     {
         return null;
+    }
+
+    /** @return array<int, string> */
+    public function getAliases(): array
+    {
+        return ['upper', 'uppercase'];
     }
 }

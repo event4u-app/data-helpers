@@ -31,5 +31,11 @@ final class ConvertEmptyToNull implements TransformerInterface
     {
         return null;
     }
+
+    /** @return array<int, string> */
+    public function getAliases(): array
+    {
+        return [];
+    }
 }
 

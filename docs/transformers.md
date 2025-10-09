@@ -1,6 +1,27 @@
 # Data Transformers
 
-Data transformers are pipeline components that modify values during the mapping process. They can be used with `DataMapper::pipe()` or in `MappedDataModel::pipes()`.
+Data transformers are pipeline components that modify values during the mapping process. They can be used with `DataMapper::pipe()`, in `MappedDataModel::pipes()`, or as filters in template expressions.
+
+## Quick Overview
+
+Transformers can be used in two ways:
+
+1. **Pipeline Mode**: Apply transformations to all mapped values
+2. **Template Expression Mode**: Apply transformations to specific fields using aliases
+
+**Pipeline Example:**
+```php
+DataMapper::pipe([TrimStrings::class, LowercaseStrings::class])
+    ->map($source, $target, $mapping);
+```
+
+**Template Expression Example:**
+```php
+$template = [
+    'name' => '{{ user.name | trim | upper }}',
+    'count' => '{{ items | count }}',
+];
+```
 
 ## Available Transformers
 
@@ -9,13 +30,19 @@ Data transformers are pipeline components that modify values during the mapping 
 #### TrimStrings
 Removes whitespace from the beginning and end of all string values.
 
+**Template Aliases:** `trim`
+
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
 
+// Pipeline usage
 protected function pipes(): array
 {
     return [TrimStrings::class];
 }
+
+// Template expression usage
+$template = ['name' => '{{ user.name | trim }}'];
 ```
 
 **Example:**
@@ -26,13 +53,19 @@ protected function pipes(): array
 #### LowercaseStrings
 Converts all string values to lowercase.
 
+**Template Aliases:** `lower`, `lowercase`
+
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseStrings;
 
+// Pipeline usage
 protected function pipes(): array
 {
     return [LowercaseStrings::class];
 }
+
+// Template expression usage
+$template = ['name' => '{{ user.name | lower }}'];
 ```
 
 **Example:**
@@ -43,17 +76,57 @@ protected function pipes(): array
 #### UppercaseStrings
 Converts all string values to uppercase.
 
+**Template Aliases:** `upper`, `uppercase`
+
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\UppercaseStrings;
 
+// Pipeline usage
 protected function pipes(): array
 {
     return [UppercaseStrings::class];
 }
+
+// Template expression usage
+$template = ['name' => '{{ user.name | upper }}'];
 ```
 
 **Example:**
 - Input: `"hello"` → Output: `"HELLO"`
+
+---
+
+#### Ucfirst
+Capitalizes the first character of a string.
+
+**Template Aliases:** `ucfirst`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Ucfirst;
+
+// Template expression usage
+$template = ['name' => '{{ user.name | ucfirst }}'];
+```
+
+**Example:**
+- Input: `"hello world"` → Output: `"Hello world"`
+
+---
+
+#### Ucwords
+Capitalizes the first character of each word in a string.
+
+**Template Aliases:** `ucwords`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Ucwords;
+
+// Template expression usage
+$template = ['name' => '{{ user.name | ucwords }}'];
+```
+
+**Example:**
+- Input: `"hello world"` → Output: `"Hello World"`
 
 ---
 
@@ -106,6 +179,201 @@ protected function pipes(): array
 
 **Example:**
 - Input: `"Line1\r\nLine2"` → Output: `"Line1\nLine2"`
+
+---
+
+### Array Transformers
+
+#### Count
+Returns the count of elements in an array or characters in a string.
+
+**Template Aliases:** `count`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Count;
+
+// Template expression usage
+$template = ['item_count' => '{{ items | count }}'];
+```
+
+**Example:**
+- Input: `['a', 'b', 'c']` → Output: `3`
+- Input: `"hello"` → Output: `5`
+
+---
+
+#### First
+Returns the first element of an array.
+
+**Template Aliases:** `first`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\First;
+
+// Template expression usage
+$template = ['first_item' => '{{ items | first }}'];
+```
+
+**Example:**
+- Input: `['a', 'b', 'c']` → Output: `'a'`
+
+---
+
+#### Last
+Returns the last element of an array.
+
+**Template Aliases:** `last`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Last;
+
+// Template expression usage
+$template = ['last_item' => '{{ items | last }}'];
+```
+
+**Example:**
+- Input: `['a', 'b', 'c']` → Output: `'c'`
+
+---
+
+#### Keys
+Returns the keys of an array.
+
+**Template Aliases:** `keys`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Keys;
+
+// Template expression usage
+$template = ['field_names' => '{{ data | keys }}'];
+```
+
+**Example:**
+- Input: `['name' => 'John', 'age' => 30]` → Output: `['name', 'age']`
+
+---
+
+#### Values
+Returns the values of an array.
+
+**Template Aliases:** `values`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Values;
+
+// Template expression usage
+$template = ['field_values' => '{{ data | values }}'];
+```
+
+**Example:**
+- Input: `['name' => 'John', 'age' => 30]` → Output: `['John', 30]`
+
+---
+
+#### Reverse
+Reverses the order of elements in an array.
+
+**Template Aliases:** `reverse`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Reverse;
+
+// Template expression usage
+$template = ['reversed_items' => '{{ items | reverse }}'];
+```
+
+**Example:**
+- Input: `['a', 'b', 'c']` → Output: `['c', 'b', 'a']`
+
+---
+
+#### Sort
+Sorts an array in ascending order.
+
+**Template Aliases:** `sort`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Sort;
+
+// Template expression usage
+$template = ['sorted_items' => '{{ items | sort }}'];
+```
+
+**Example:**
+- Input: `[3, 1, 2]` → Output: `[1, 2, 3]`
+
+---
+
+#### Unique
+Removes duplicate values from an array.
+
+**Template Aliases:** `unique`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Unique;
+
+// Template expression usage
+$template = ['unique_items' => '{{ items | unique }}'];
+```
+
+**Example:**
+- Input: `['a', 'b', 'a', 'c']` → Output: `['a', 'b', 'c']`
+
+---
+
+#### Join
+Joins array elements into a string with a separator.
+
+**Template Aliases:** `join`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Join;
+
+// Template expression usage
+$template = ['tags_string' => '{{ tags | join:", " }}'];
+```
+
+**Example:**
+- Input: `['php', 'laravel', 'vue']` with separator `", "` → Output: `"php, laravel, vue"`
+
+---
+
+### Encoding Transformers
+
+#### JsonEncode
+Encodes a value as JSON.
+
+**Template Aliases:** `json`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\JsonEncode;
+
+// Template expression usage
+$template = ['metadata_json' => '{{ metadata | json }}'];
+```
+
+**Example:**
+- Input: `['name' => 'John', 'age' => 30]` → Output: `'{"name":"John","age":30}'`
+
+---
+
+### Utility Transformers
+
+#### DefaultValue
+Returns a default value if the input is null or empty.
+
+**Template Aliases:** `default`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DefaultValue;
+
+// Template expression usage
+$template = ['name' => '{{ user.name | default:"Unknown" }}'];
+```
+
+**Example:**
+- Input: `null` with default `"Unknown"` → Output: `"Unknown"`
+- Input: `"John"` with default `"Unknown"` → Output: `"John"`
 
 ---
 
@@ -271,9 +539,9 @@ class UserRegistrationModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'email' => 'request.email',
-            'name' => 'request.name',
-            'age' => 'request.age',
+            'email' => '{{ request.email }}',
+            'name' => '{{ request.name }}',
+            'age' => '{{ request.age }}',
         ];
     }
 
@@ -312,7 +580,7 @@ class ProductModel extends MappedDataModel
             'product_id' => 'request.id',
             'name' => 'request.name',
             'price' => 'request.price',
-            'is_active' => 'request.active',
+            'is_active' => '{{ request.active }}',
         ];
     }
 
@@ -337,8 +605,8 @@ class UserProfileModel extends MappedDataModel
     {
         return [
             'name' => 'request.name',
-            'bio' => 'request.bio',
-            'website' => 'request.website',
+            'bio' => '{{ request.bio }}',
+            'website' => '{{ request.website }}',
         ];
     }
 
@@ -360,6 +628,7 @@ You can create your own transformers by implementing `TransformerInterface`:
 ```php
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerRegistry;
 
 final class MyCustomTransformer implements TransformerInterface
 {
@@ -380,7 +649,152 @@ final class MyCustomTransformer implements TransformerInterface
         // Optional: filter by field path pattern
         return null;
     }
+
+    /**
+     * Define template expression aliases for this transformer.
+     * @return array<int, string>
+     */
+    public function getAliases(): array
+    {
+        // Return aliases for use in template expressions
+        // Example: ['my_filter', 'my_alias']
+        return ['my_custom'];
+    }
 }
+
+// Register the transformer for use in template expressions
+TransformerRegistry::register(MyCustomTransformer::class);
+
+// Now you can use it in templates
+$template = ['name' => '{{ user.name | my_custom }}'];
+```
+
+### Example: AlternatingCase Transformer
+
+Here's a complete example of a custom transformer that alternates character casing:
+
+```php
+use event4u\DataHelpers\DataMapper\Context\HookContext;
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+
+final class AlternatingCase implements TransformerInterface
+{
+    public function transform(mixed $value, HookContext $context): mixed
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        $result = '';
+        $length = mb_strlen($value);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = mb_substr($value, $i, 1);
+            // Uppercase every 2nd, 4th, 6th character (even positions)
+            if (($i + 1) % 2 === 0) {
+                $result .= mb_strtoupper($char);
+            } else {
+                $result .= mb_strtolower($char);
+            }
+        }
+
+        return $result;
+    }
+
+    public function getHook(): string
+    {
+        return 'preTransform';
+    }
+
+    public function getFilter(): ?string
+    {
+        return null;
+    }
+
+    /** @return array<int, string> */
+    public function getAliases(): array
+    {
+        return ['alternating', 'alt_case', 'zigzag'];
+    }
+}
+
+// Usage in template expressions
+$template = ['name' => '{{ user.name | alternating }}'];
+// Input: "hello world" → Output: "hElLo wOrLd"
+```
+
+## TransformerRegistry
+
+The `TransformerRegistry` manages transformer aliases for use in template expressions. All built-in transformers are automatically registered.
+
+### Registering Custom Transformers
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerRegistry;
+
+// Register a single transformer
+TransformerRegistry::register(MyCustomTransformer::class);
+
+// Register multiple transformers
+TransformerRegistry::registerMany([
+    MyCustomTransformer::class,
+    AnotherTransformer::class,
+]);
+
+// Check if an alias is registered
+if (TransformerRegistry::has('my_custom')) {
+    // Alias is available
+}
+
+// Get the transformer class for an alias
+$transformerClass = TransformerRegistry::get('my_custom');
+
+// Get all registered aliases
+$allAliases = TransformerRegistry::all();
+// Returns: ['trim' => TrimStrings::class, 'upper' => UppercaseStrings::class, ...]
+
+// Clear all registrations (useful for testing)
+TransformerRegistry::clear();
+```
+
+### Built-in Transformer Aliases
+
+All built-in transformers are automatically registered with the following aliases:
+
+**String Transformers:**
+- `trim` → TrimStrings
+- `lower`, `lowercase` → LowercaseStrings
+- `upper`, `uppercase` → UppercaseStrings
+- `ucfirst` → Ucfirst
+- `ucwords` → Ucwords
+
+**Array Transformers:**
+- `count` → Count
+- `first` → First
+- `last` → Last
+- `keys` → Keys
+- `values` → Values
+- `reverse` → Reverse
+- `sort` → Sort
+- `unique` → Unique
+- `join` → Join
+
+**Encoding Transformers:**
+- `json` → JsonEncode
+
+**Utility Transformers:**
+- `default` → DefaultValue
+
+### Error Handling
+
+If you use an unknown filter alias in a template expression, an `InvalidArgumentException` is thrown:
+
+```php
+$template = ['name' => '{{ user.name | unknown_filter }}'];
+// Throws: InvalidArgumentException: Unknown transformer alias 'unknown_filter'.
+//         
+//         create a Transformer class with getAliases() method and register it
+//         using TransformerRegistry::register().
 ```
 
 ## Hook Types

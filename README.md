@@ -325,9 +325,9 @@ $source = [
 
 $mapping = [
     'profile' => [
-        'name' => 'user.name',
-        'email' => 'user.email',
-        'phone' => 'user.phone',
+        'name' => '{{ user.name }}',
+        'email' => '{{ user.email }}',
+        'phone' => '{{ user.phone }}',
     ],
 ];
 
@@ -390,10 +390,10 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 // }
 ```
 
-**15 built-in filters:** `lower`, `upper`, `trim`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`, `reverse`, `sort`,
+**15 built-in transformers:** `lower`, `upper`, `trim`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`, `reverse`, `sort`,
 `unique`, `join`, `json`, `default`
 
-👉 [See all filters and create custom ones](docs/template-expressions.md#custom-filters)
+👉 [See all transformers and create custom ones](docs/template-expressions.md#custom-transformers)
 
 ### AutoMap - Automatic Property Mapping
 
@@ -433,9 +433,9 @@ class ProductModel extends MappedDataModel
     protected function template(): array
     {
         return [
-            'product_id' => 'request.id',
-            'name' => 'request.name',
-            'price' => 'request.price',
+            'product_id' => '{{ request.id }}',
+            'name' => '{{ request.name }}',
+            'price' => '{{ request.price }}',
         ];
     }
 

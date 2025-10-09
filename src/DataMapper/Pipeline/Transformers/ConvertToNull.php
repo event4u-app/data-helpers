@@ -10,9 +10,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 final readonly class ConvertToNull implements TransformerInterface
 {
     /** @param array<int, mixed> $convertValues */
-    public function __construct(private array $convertValues = ['', 'N/A', 'null', 'NULL'])
-    {
-    }
+    public function __construct(private array $convertValues = ['', 'N/A', 'null', 'NULL']) {}
 
     public function transform(mixed $value, HookContext $context): mixed
     {
@@ -27,5 +25,11 @@ final readonly class ConvertToNull implements TransformerInterface
     public function getFilter(): ?string
     {
         return null;
+    }
+
+    /** @return array<int, string> */
+    public function getAliases(): array
+    {
+        return [];
     }
 }

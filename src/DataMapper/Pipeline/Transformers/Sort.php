@@ -8,23 +8,29 @@ use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 
 /**
- * Removes null values from being written to target.
- *
- * Returns '__skip__' to prevent writing null values.
+ * Sorts an array in ascending order.
  *
  * Example:
- *   DataMapper::pipe([RemoveNullValues::class])->map($source, $target, $mapping);
+ *   DataMapper::pipe([Sort::class])->map($source, $target, $mapping);
+ *   Template: {{ value | sort }}
  */
-final class RemoveNullValues implements TransformerInterface
+final class Sort implements TransformerInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
-        return $value ?? '__skip__';
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        $sorted = $value;
+        sort($sorted);
+
+        return $sorted;
     }
 
     public function getHook(): string
     {
-        return 'beforeWrite';
+        return 'preTransform';
     }
 
     public function getFilter(): ?string
@@ -35,7 +41,7 @@ final class RemoveNullValues implements TransformerInterface
     /** @return array<int, string> */
     public function getAliases(): array
     {
-        return [];
+        return ['sort'];
     }
 }
 

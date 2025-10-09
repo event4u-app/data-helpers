@@ -116,6 +116,7 @@
     ],
     "phpstan": "vendor/bin/phpstan analyse --memory-limit=512M",
     "phpstan:baseline": "vendor/bin/phpstan analyse --memory-limit=512M --generate-baseline",
+    "phpstan:clear-cache": "vendor/bin/phpstan --clear-result-cache",
     "ecs": "vendor/bin/ecs check",
     "ecs:fix": "vendor/bin/ecs check --fix",
     "rector": "vendor/bin/rector process --dry-run",

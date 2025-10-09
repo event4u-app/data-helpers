@@ -4,15 +4,25 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Template;
 
+use event4u\DataHelpers\DataMapper\Context\PairContext;
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use event4u\DataHelpers\DataMapper\Pipeline\TransformerRegistry;
+use InvalidArgumentException;
+
+/**
+ * Applies transformers to values in template expressions using filter syntax.
+ *
+ * Example: {{ value | trim | upper }}
+ *
+ * Transformers are registered via TransformerRegistry and can be used
+ * in template expressions with their aliases.
+ */
 final class FilterEngine
 {
-    /** @var array<string, callable(mixed): mixed> */
-    private static array $customFilters = [];
-
     /**
-     * Apply filters to a value.
+     * Apply transformers to a value using filter syntax.
      *
-     * @param array<int, string> $filters
+     * @param array<int, string> $filters Transformer aliases to apply
      */
     public static function apply(mixed $value, array $filters): mixed
     {
@@ -23,48 +33,30 @@ final class FilterEngine
         return $value;
     }
 
-    /**
-     * Register a custom filter.
-     *
-     * @param callable(mixed): mixed $callback
-     */
-    public static function registerFilter(string $name, callable $callback): void
-    {
-        self::$customFilters[$name] = $callback;
-    }
-
-    /** Apply a single filter. */
+    /** Apply a single transformer using its alias. */
     private static function applyFilter(mixed $value, string $filter): mixed
     {
         $filter = trim($filter);
 
-        // Custom filters
-        if (isset(self::$customFilters[$filter])) {
-            return (self::$customFilters[$filter])($value);
+        // Get transformer class from registry
+        $transformerClass = TransformerRegistry::get($filter);
+        if (null !== $transformerClass) {
+            /** @var TransformerInterface $transformer */
+            $transformer = new $transformerClass();
+
+            // Create a minimal context for the transformer
+            $context = new PairContext('template-expression', 0, '', '', [], []);
+
+            return $transformer->transform($value, $context);
         }
 
-        // Built-in filters
-        return match ($filter) {
-            'lower', 'lowercase' => is_string($value) ? strtolower($value) : $value,
-            'upper', 'uppercase' => is_string($value) ? strtoupper($value) : $value,
-            'trim' => is_string($value) ? trim($value) : $value,
-            'ucfirst' => is_string($value) ? ucfirst($value) : $value,
-            'ucwords' => is_string($value) ? ucwords($value) : $value,
-            'json' => json_encode($value),
-            'count' => is_countable($value) ? count($value) : 0,
-            'first' => is_array($value) ? reset($value) : $value,
-            'last' => is_array($value) ? end($value) : $value,
-            'keys' => is_array($value) ? array_keys($value) : [],
-            'values' => is_array($value) ? array_values($value) : [],
-            'reverse' => is_array($value) ? array_reverse($value) : $value,
-            'sort' => is_array($value) ? (function() use ($value) {
-                sort($value);
-                return $value;
-            })() : $value,
-            'unique' => is_array($value) ? array_unique($value) : $value,
-            'join' => is_array($value) ? implode(', ', $value) : $value,
-            'default' => $value ?? '',
-            default => $value,
-        };
+        // Unknown transformer alias - throw exception
+        throw new InvalidArgumentException(
+            sprintf(
+                "Unknown transformer alias '%s'. " .
+                "Create a Transformer class with getAliases() method and register it using TransformerRegistry::register().",
+                $filter
+            )
+        );
     }
 }

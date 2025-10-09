@@ -27,4 +27,10 @@ final class SkipEmptyValues implements TransformerInterface
     {
         return null;
     }
+
+    /** @return array<int, string> */
+    public function getAliases(): array
+    {
+        return [];
+    }
 }
