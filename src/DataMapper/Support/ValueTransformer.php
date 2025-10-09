@@ -56,11 +56,21 @@ class ValueTransformer
     /** Convert snake_case or kebab-case to camelCase. */
     public static function toCamelCase(string $name): string
     {
-        $name = str_replace(['-', '_'], ' ', $name);
-        $name = ucwords($name);
-        $name = str_replace(' ', '', $name);
+        // Cache results for better performance
+        static $cache = [];
 
-        return lcfirst($name);
+        if (isset($cache[$name])) {
+            return $cache[$name];
+        }
+
+        $result = $name;
+        $result = str_replace(['-', '_'], ' ', $result);
+        $result = ucwords($result);
+        $result = str_replace(' ', '', $result);
+        $result = lcfirst($result);
+
+        $cache[$name] = $result;
+        return $result;
     }
 
     /** Check if an object has a property (public or private). */

@@ -11,6 +11,9 @@ use InvalidArgumentException;
  */
 final class FileLoader
 {
+    /** @var array<string, array<string, mixed>> */
+    private static array $cache = [];
+
     /**
      * Load a file (JSON or XML) and return its content as an array.
      *
@@ -20,19 +23,32 @@ final class FileLoader
      */
     public static function loadAsArray(string $filePath): array
     {
+        // Check cache first (using realpath to normalize path)
+        $realPath = realpath($filePath);
+        if (false !== $realPath && isset(self::$cache[$realPath])) {
+            return self::$cache[$realPath];
+        }
+
         if (!file_exists($filePath)) {
             throw new InvalidArgumentException("File not found: {$filePath}");
         }
 
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
 
-        return match ($extension) {
+        $result = match ($extension) {
             'json' => self::loadJsonFile($filePath),
             'xml' => self::loadXmlFile($filePath),
             default => throw new InvalidArgumentException(
                 "Unsupported file format: {$extension}. Only XML and JSON are supported."
             ),
         };
+
+        // Cache the result
+        if (false !== $realPath) {
+            self::$cache[$realPath] = $result;
+        }
+
+        return $result;
     }
 
     /**

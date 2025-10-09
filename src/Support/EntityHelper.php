@@ -18,6 +18,9 @@ class EntityHelper
     /** @var array<class-string, array<string, bool>> */
     private static array $propertyExistsCache = [];
 
+    /** @var array<class-string, array<string, bool>> */
+    private static array $toManyRelationCache = [];
+
     /**
      * Get cached ReflectionClass instance.
      *
@@ -362,15 +365,27 @@ class EntityHelper
      */
     public static function isToManyRelation(object $entity, string $property): bool
     {
+        $class = $entity::class;
+
+        // Check cache first
+        if (isset(self::$toManyRelationCache[$class][$property])) {
+            return self::$toManyRelationCache[$class][$property];
+        }
+
+        if (!isset(self::$toManyRelationCache[$class])) {
+            self::$toManyRelationCache[$class] = [];
+        }
+
+        $result = false;
+
         if (self::isEloquentModel($entity)) {
-            return self::isEloquentToManyRelation($entity, $property);
+            $result = self::isEloquentToManyRelation($entity, $property);
+        } elseif (self::isDoctrineEntity($entity)) {
+            $result = self::isDoctrineToManyRelation($entity, $property);
         }
 
-        if (self::isDoctrineEntity($entity)) {
-            return self::isDoctrineToManyRelation($entity, $property);
-        }
-
-        return false;
+        self::$toManyRelationCache[$class][$property] = $result;
+        return $result;
     }
 
     /**

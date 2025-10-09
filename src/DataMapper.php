@@ -1218,6 +1218,12 @@ class DataMapper
      */
     private static function singularize(string $word): string
     {
+        // Check cache first
+        static $cache = [];
+        if (isset($cache[$word])) {
+            return $cache[$word];
+        }
+
         // Common irregular plurals
         $irregulars = [
             'people' => 'person',
@@ -1232,45 +1238,54 @@ class DataMapper
 
         $lower = strtolower($word);
         if (isset($irregulars[$lower])) {
-            return $irregulars[$lower];
+            $cache[$word] = $irregulars[$lower];
+            return $cache[$word];
         }
 
         // Words ending in 'ies' -> 'y' (e.g., categories -> category)
         if (preg_match('/(.+)ies$/i', $word, $matches)) {
-            return $matches[1] . 'y';
+            $cache[$word] = $matches[1] . 'y';
+            return $cache[$word];
         }
 
         // Words ending in 'ves' -> 'fe' or 'f' (e.g., knives -> knife, wolves -> wolf)
         if (preg_match('/(.+)ves$/i', $word, $matches)) {
-            return $matches[1] . 'f';
+            $cache[$word] = $matches[1] . 'f';
+            return $cache[$word];
         }
 
         // Words ending in 'ses' -> 's' (e.g., cases -> case)
         if (preg_match('/(.+)ses$/i', $word, $matches)) {
-            return $matches[1] . 's';
+            $cache[$word] = $matches[1] . 's';
+            return $cache[$word];
         }
 
         // Words ending in 'xes' -> 'x' (e.g., boxes -> box)
         if (preg_match('/(.+)xes$/i', $word, $matches)) {
-            return $matches[1] . 'x';
+            $cache[$word] = $matches[1] . 'x';
+            return $cache[$word];
         }
 
         // Words ending in 'ches' -> 'ch' (e.g., churches -> church)
         if (preg_match('/(.+)ches$/i', $word, $matches)) {
-            return $matches[1] . 'ch';
+            $cache[$word] = $matches[1] . 'ch';
+            return $cache[$word];
         }
 
         // Words ending in 'shes' -> 'sh' (e.g., dishes -> dish)
         if (preg_match('/(.+)shes$/i', $word, $matches)) {
-            return $matches[1] . 'sh';
+            $cache[$word] = $matches[1] . 'sh';
+            return $cache[$word];
         }
 
         // Words ending in 's' but not 'ss' -> remove 's' (e.g., departments -> department)
         if (preg_match('/(.+[^s])s$/i', $word, $matches)) {
-            return $matches[1];
+            $cache[$word] = $matches[1];
+            return $cache[$word];
         }
 
         // If no rule matches, return the word as-is
+        $cache[$word] = $word;
         return $word;
     }
 }

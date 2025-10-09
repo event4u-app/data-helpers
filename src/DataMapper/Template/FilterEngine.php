@@ -28,6 +28,9 @@ final class FilterEngine
      */
     private static bool $useFastSplit = true;
 
+    /** @var array<class-string, TransformerInterface> */
+    private static array $transformerInstances = [];
+
     /**
      * Enable or disable fast split mode.
      *
@@ -73,8 +76,14 @@ final class FilterEngine
         // Get transformer class from registry
         $transformerClass = TransformerRegistry::get($filterName);
         if (null !== $transformerClass) {
-            /** @var TransformerInterface $transformer */
-            $transformer = new $transformerClass();
+            // Get or create transformer instance (cache instances for reuse)
+            if (!isset(self::$transformerInstances[$transformerClass])) {
+                /** @var TransformerInterface */
+                $newTransformer = new $transformerClass();
+                self::$transformerInstances[$transformerClass] = $newTransformer;
+            }
+
+            $transformer = self::$transformerInstances[$transformerClass];
 
             // Create a context with filter arguments in extra
             $context = new PairContext('template-expression', 0, '', '', [], [], null, $args);
@@ -105,24 +114,35 @@ final class FilterEngine
      */
     private static function parseFilterWithArgs(string $filter): array
     {
+        // Check cache first
+        static $cache = [];
+        $cacheKey = $filter . '|' . (self::$useFastSplit ? 'fast' : 'safe');
+        if (isset($cache[$cacheKey])) {
+            return $cache[$cacheKey];
+        }
+
         // Check if filter has arguments (contains : outside of quotes)
         if (!str_contains($filter, ':')) {
-            return [$filter, []];
+            $cache[$cacheKey] = [$filter, []];
+            return $cache[$cacheKey];
         }
 
         // Fast path: No quotes → simple split
         if (!str_contains($filter, '"') && !str_contains($filter, "'")) {
             $parts = explode(':', $filter);
             $filterName = array_shift($parts);
-            return [$filterName, $parts];
+            $cache[$cacheKey] = [$filterName, $parts];
+            return $cache[$cacheKey];
         }
 
         // Choose parsing mode based on useFastSplit flag
         if (self::$useFastSplit) {
-            return self::parseFilterFast($filter);
+            $cache[$cacheKey] = self::parseFilterFast($filter);
+            return $cache[$cacheKey];
         }
 
-        return self::parseFilterSafe($filter);
+        $cache[$cacheKey] = self::parseFilterSafe($filter);
+        return $cache[$cacheKey];
     }
 
     /**
