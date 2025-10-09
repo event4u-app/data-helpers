@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\Support\ArrayableHelper;
+use event4u\DataHelpers\Support\ReflectionCache;
 use JsonSerializable;
 use ReflectionClass;
 use ReflectionProperty;
@@ -16,9 +17,6 @@ use ReflectionProperty;
  */
 class AutoMapper
 {
-    /** @var array<class-string, ReflectionClass<object>> */
-    private static array $refClassCache = [];
-
     /** @var array<class-string, array<int, string>> */
     private static array $propertyNamesCache = [];
 
@@ -29,9 +27,7 @@ class AutoMapper
      */
     private static function getReflection(object $object): ReflectionClass
     {
-        $class = $object::class;
-
-        return self::$refClassCache[$class] ??= new ReflectionClass($object);
+        return ReflectionCache::getClass($object);
     }
 
     /**
@@ -292,8 +288,10 @@ class AutoMapper
             $path = '' === $prefix ? $segment : $prefix . '.' . $segment;
 
             if (is_array($value) || is_object($value)) {
-                $nested = self::flattenSourcePaths($value, $useWildcards, $path);
-                $result = array_merge($result, $nested);
+                // Avoid array_merge in loop - use foreach instead for better performance
+                foreach (self::flattenSourcePaths($value, $useWildcards, $path) as $k => $v) {
+                    $result[$k] = $v;
+                }
             } else {
                 $result[$path] = $value;
             }

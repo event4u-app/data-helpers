@@ -29,9 +29,7 @@ return [
         'driver' => $_ENV['DATA_HELPERS_CACHE_DRIVER'] ?? 'memory',
         'max_entries' => (int)($_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES'] ?? 1000),
         'prefix' => $_ENV['DATA_HELPERS_CACHE_PREFIX'] ?? 'data_helpers:',
-        'default_ttl' => isset($_ENV['DATA_HELPERS_CACHE_DEFAULT_TTL'])
-            ? (int) $_ENV['DATA_HELPERS_CACHE_DEFAULT_TTL']
-            : null,
+        'default_ttl' => (int)($_ENV['DATA_HELPERS_CACHE_DEFAULT_TTL'] ?? 3600),
     ],
     'performance_mode' => $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] ?? 'fast',
 ];

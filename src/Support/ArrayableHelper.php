@@ -9,11 +9,16 @@ namespace event4u\DataHelpers\Support;
  */
 class ArrayableHelper
 {
+    /** @var null|bool */
+    private static ?bool $arrayableExists = null;
+
     /** Check if value implements Arrayable interface. */
     public static function isArrayable(mixed $value): bool
     {
-        return interface_exists('\Illuminate\Contracts\Support\Arrayable')
-            && $value instanceof \Illuminate\Contracts\Support\Arrayable;
+        // Cache interface_exists check for better performance
+        self::$arrayableExists ??= interface_exists('\Illuminate\Contracts\Support\Arrayable');
+
+        return self::$arrayableExists && $value instanceof \Illuminate\Contracts\Support\Arrayable;
     }
 
     /**

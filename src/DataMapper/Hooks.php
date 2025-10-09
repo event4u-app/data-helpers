@@ -293,7 +293,13 @@ final class Hooks
             $normalized = self::build($set);
             foreach ($normalized as $key => $value) {
                 if (isset($merged[$key]) && is_array($merged[$key]) && is_array($value)) {
-                    $merged[$key] = array_merge($merged[$key], $value);
+                    // Avoid array_merge - use foreach for better performance
+                    /** @var array<int|string, mixed> $mergedArray */
+                    $mergedArray = $merged[$key];
+                    foreach ($value as $vk => $vv) {
+                        $mergedArray[$vk] = $vv;
+                    }
+                    $merged[$key] = $mergedArray;
                 } else {
                     $merged[$key] = $value;
                 }

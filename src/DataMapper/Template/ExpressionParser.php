@@ -13,6 +13,7 @@ final class ExpressionParser
     /** Check if a string contains a template expression {{ ... }}. */
     public static function hasExpression(string $value): bool
     {
+        // Short-circuit: if {{ not found, no need to check for }}
         return str_contains($value, '{{') && str_contains($value, '}}');
     }
 

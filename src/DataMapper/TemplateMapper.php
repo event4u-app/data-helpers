@@ -170,7 +170,8 @@ class TemplateMapper
         $result = [];
         foreach ($node as $key => $value) {
             // Pass current result as aliases for nested @references
-            $currentAliases = array_merge($aliases, $result);
+            // Avoid array_merge in loop - use + operator for better performance
+            $currentAliases = $result + $aliases;
             $resolved = self::resolveTemplateNode($value, $sources, $skipNull, $reindexWildcard, $currentAliases);
 
             // Skip null values if requested

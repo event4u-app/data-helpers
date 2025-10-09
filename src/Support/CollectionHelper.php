@@ -9,18 +9,28 @@ namespace event4u\DataHelpers\Support;
  */
 class CollectionHelper
 {
+    /** @var null|bool */
+    private static ?bool $laravelCollectionExists = null;
+
+    /** @var null|bool */
+    private static ?bool $doctrineCollectionExists = null;
+
     /** Check if value is a Laravel Collection. */
     public static function isLaravelCollection(mixed $value): bool
     {
-        return class_exists('\Illuminate\Support\Collection')
-            && $value instanceof \Illuminate\Support\Collection;
+        // Cache class_exists check for better performance
+        self::$laravelCollectionExists ??= class_exists('\Illuminate\Support\Collection');
+
+        return self::$laravelCollectionExists && $value instanceof \Illuminate\Support\Collection;
     }
 
     /** Check if value is a Doctrine Collection. */
     public static function isDoctrineCollection(mixed $value): bool
     {
-        return interface_exists('\Doctrine\Common\Collections\Collection')
-            && $value instanceof \Doctrine\Common\Collections\Collection;
+        // Cache interface_exists check for better performance
+        self::$doctrineCollectionExists ??= interface_exists('\Doctrine\Common\Collections\Collection');
+
+        return self::$doctrineCollectionExists && $value instanceof \Doctrine\Common\Collections\Collection;
     }
 
     /** Check if value is any supported collection type. */
@@ -90,11 +100,12 @@ class CollectionHelper
      */
     public static function fromArray(array $data): mixed
     {
-        if (class_exists('\Illuminate\Support\Collection')) {
+        // Use cached class_exists checks
+        if (self::$laravelCollectionExists ?? (self::$laravelCollectionExists = class_exists('\Illuminate\Support\Collection'))) {
             return new \Illuminate\Support\Collection($data);
         }
 
-        if (class_exists('\Doctrine\Common\Collections\ArrayCollection')) {
+        if (self::$doctrineCollectionExists ?? (self::$doctrineCollectionExists = class_exists('\Doctrine\Common\Collections\ArrayCollection'))) {
             return new \Doctrine\Common\Collections\ArrayCollection($data);
         }
 

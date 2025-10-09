@@ -213,28 +213,72 @@ FilterEngine::useFastSplit(true);
 ### Cache Management
 
 ```php
+use event4u\DataHelpers\Cache\CacheHelper;
+use event4u\DataHelpers\Cache\ClassScopedCache;
 use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
+use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 
-// Get cache statistics
+// Get cache statistics for ExpressionParser
 $stats = ExpressionParser::getCacheStats();
 // Returns: ['size' => 150, 'max_size' => 1000, 'usage_percentage' => 15.0]
 
-// Clear cache
+// Get cache statistics for TemplateParser (ClassScopedCache)
+$stats = ClassScopedCache::getClassStats(TemplateParser::class);
+// Returns: ['count' => 45, 'keys' => [...]]
+
+// Clear specific caches
 ExpressionParser::clearCache();
+ClassScopedCache::clearClass(TemplateParser::class);
+
+// Clear all caches
+CacheHelper::clear();
 ```
 
 ## Performance Considerations
 
 ### Cache Size
 
-The cache stores parsed template expressions to avoid re-parsing. Each entry contains:
-- Expression string (key)
-- Parsed result (type, path, default, filters)
+The package uses multiple caching layers to optimize performance:
 
-**Memory usage estimation:**
-- ~500 bytes per entry (average)
-- 1000 entries ≈ 500 KB
-- 5000 entries ≈ 2.5 MB
+**1. Template Expression Cache (ExpressionParser)**
+- Stores parsed template expressions to avoid re-parsing
+- Each entry contains: expression string (key), parsed result (type, path, default, filters)
+- Memory usage: ~500 bytes per entry (average)
+
+**2. Template Mapping Cache (TemplateParser)**
+- Stores parsed mapping arrays using ClassScopedCache
+- Max 100 entries per class with LRU eviction
+- Memory usage: ~1-2 KB per entry (depends on mapping complexity)
+
+**3. File Content Cache (FileLoader)**
+- Caches loaded JSON/XML files to avoid repeated I/O
+- Unlimited size (static cache)
+- Memory usage: depends on file size
+
+**4. Transformer Instance Cache (FilterEngine)**
+- Reuses transformer instances instead of creating new ones
+- Unlimited size (static cache)
+- Memory usage: ~1-2 KB per transformer class
+
+**5. String Operation Caches**
+- `toCamelCase()` - caches string transformations
+- `singularize()` - caches pluralization results
+- `parseFilterWithArgs()` - caches filter parsing
+- Memory usage: ~100-200 bytes per entry
+
+**6. Reflection Caches**
+- `ReflectionCache` - caches ReflectionClass and ReflectionProperty instances
+- `EntityHelper` - caches property existence and relation type checks
+- Memory usage: ~500 bytes per class/property
+
+**Total memory usage estimation:**
+- 1000 template expressions ≈ 500 KB
+- 100 template mappings ≈ 100-200 KB
+- 50 loaded files ≈ 50-500 KB (depends on file size)
+- 20 transformer instances ≈ 20-40 KB
+- 500 string operations ≈ 50-100 KB
+- 100 reflection entries ≈ 50 KB
+- **Total: ~1-2 MB for typical applications**
 
 ### Fast vs. Safe Mode Performance
 

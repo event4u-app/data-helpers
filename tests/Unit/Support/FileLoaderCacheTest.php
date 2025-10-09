@@ -70,5 +70,43 @@ describe('FileLoader Caching', function(): void {
             }
         }
     });
+
+    it('returns different results for different files', function(): void {
+        // Load both files
+        $jsonResult = FileLoader::loadAsArray($this->jsonFile);
+        $xmlResult = FileLoader::loadAsArray($this->xmlFile);
+
+        // Should be different
+        expect($jsonResult)->not->toBe($xmlResult);
+        expect($jsonResult['name'])->toBe('John');
+        expect($xmlResult['name'])->toBe('Jane');
+
+        // Load again - should return same cached results
+        $jsonResultAgain = FileLoader::loadAsArray($this->jsonFile);
+        $xmlResultAgain = FileLoader::loadAsArray($this->xmlFile);
+
+        expect($jsonResultAgain)->toBe($jsonResult);
+        expect($xmlResultAgain)->toBe($xmlResult);
+    });
+
+    it('does not mix up cached results for different files', function(): void {
+        // Load both files
+        $result1 = FileLoader::loadAsArray($this->jsonFile);
+        $result2 = FileLoader::loadAsArray($this->xmlFile);
+
+        // Verify they are different
+        expect($result1['name'])->toBe('John');
+        expect($result2['name'])->toBe('Jane');
+
+        // Load again in different order
+        $result2Again = FileLoader::loadAsArray($this->xmlFile);
+        $result1Again = FileLoader::loadAsArray($this->jsonFile);
+
+        // Should still return correct cached values
+        expect($result1Again)->toBe($result1);
+        expect($result1Again['name'])->toBe('John');
+        expect($result2Again)->toBe($result2);
+        expect($result2Again['name'])->toBe('Jane');
+    });
 });
 

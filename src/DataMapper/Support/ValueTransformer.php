@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Support;
 
-use ReflectionClass;
+use event4u\DataHelpers\Support\ReflectionCache;
 use ReflectionException;
 
 /**
@@ -81,9 +81,9 @@ class ValueTransformer
             return true;
         }
 
-        // Check private/protected via reflection
+        // Check private/protected via reflection (use ReflectionCache for better performance)
         try {
-            $reflection = new ReflectionClass($object);
+            $reflection = ReflectionCache::getClass($object);
 
             return $reflection->hasProperty($property);
         } catch (ReflectionException) {

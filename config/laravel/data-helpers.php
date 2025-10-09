@@ -78,9 +78,7 @@ return [
         | - null = forever
         |
         */
-        'default_ttl' => env('DATA_HELPERS_CACHE_DEFAULT_TTL') !== null
-            ? (int)env('DATA_HELPERS_CACHE_DEFAULT_TTL')
-            : null,
+        'default_ttl' => (int)env('DATA_HELPERS_CACHE_DEFAULT_TTL', 3600),
     ],
 
     /*

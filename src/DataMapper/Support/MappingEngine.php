@@ -83,7 +83,10 @@ class MappingEngine
 
             if (is_array($value)) {
                 // Recursively flatten nested arrays
-                $flattened = array_merge($flattened, self::flattenNestedMapping($value, $targetPath));
+                // Avoid array_merge in loop - use foreach instead for better performance
+                foreach (self::flattenNestedMapping($value, $targetPath) as $k => $v) {
+                    $flattened[$k] = $v;
+                }
             } elseif (is_string($value)) {
                 // Leaf node: value is the source path
                 // Keep target => source format

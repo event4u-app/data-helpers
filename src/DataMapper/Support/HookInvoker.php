@@ -63,7 +63,13 @@ class HookInvoker
     {
         foreach ($override as $k => $v) {
             if (isset($base[$k]) && is_array($base[$k]) && is_array($v)) {
-                $base[$k] = array_merge($base[$k], $v);
+                // Avoid array_merge - use foreach for better performance
+                /** @var array<int|string, mixed> $baseArray */
+                $baseArray = $base[$k];
+                foreach ($v as $vk => $vv) {
+                    $baseArray[$vk] = $vv;
+                }
+                $base[$k] = $baseArray;
             } else {
                 $base[$k] = $v;
             }

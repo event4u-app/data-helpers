@@ -11,10 +11,23 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 
 ## Quick links
 
+### Core Features
 - Accessor: [data-accessor.md](data-accessor.md)
 - Mutator: [data-mutator.md](data-mutator.md)
 - Mapper:  [data-mapper.md](data-mapper.md)
 - Dot Path syntax: [dot-path.md](dot-path.md)
+
+### Advanced Features
+- Configuration: [configuration.md](configuration.md)
+- Template Expressions: [template-expressions.md](template-expressions.md)
+- Pipeline API: [data-mapper-pipeline.md](data-mapper-pipeline.md)
+- Transformers: [transformers.md](transformers.md)
+- MappedDataModel: [mapped-data-model.md](mapped-data-model.md)
+
+### Integration & Performance
+- Framework Integration: [framework-integration.md](framework-integration.md)
+- Examples: [examples.md](examples.md)
+- Benchmarks: [benchmarks.md](benchmarks.md)
 
 ## At a glance
 
@@ -37,4 +50,22 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
   `skipNull=true`).
 - Wildcards: Accessor returns associative arrays keyed by resolved dot-paths; Mapper can use those results to expand targets.
 - Performance: Helpers are designed for clarity and testability; prefer batching (Mapper / mapMany) for larger transformations.
+
+## Performance Features
+
+The package includes multiple caching layers for optimal performance:
+
+- **Template Expression Cache** - Parsed expressions are cached (LRU with configurable max entries)
+- **Template Mapping Cache** - Mapping arrays are cached per class (max 100 entries with LRU eviction)
+- **File Content Cache** - Loaded JSON/XML files are cached to avoid repeated I/O
+- **Transformer Instance Cache** - Transformer instances are reused instead of creating new ones
+- **String Operation Caches** - Common string transformations are cached (toCamelCase, singularize, etc.)
+- **Reflection Caches** - ReflectionClass and ReflectionProperty instances are cached
+- **class_exists/interface_exists Caching** - Framework detection is cached
+
+**Performance Modes:**
+- **Fast Mode** (default): ~2x faster parsing, no escape sequence handling
+- **Safe Mode**: Full escape sequence handling for special cases
+
+See [configuration.md](configuration.md) for details on configuring cache size and performance mode.
 

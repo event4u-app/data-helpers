@@ -12,14 +12,14 @@ use ReflectionProperty;
  */
 class EntityHelper
 {
-    /** @var array<class-string, ReflectionClass<object>> */
-    private static array $refClassCache = [];
-
     /** @var array<class-string, array<string, bool>> */
     private static array $propertyExistsCache = [];
 
     /** @var array<class-string, array<string, bool>> */
     private static array $toManyRelationCache = [];
+
+    /** @var null|bool */
+    private static ?bool $eloquentModelExists = null;
 
     /**
      * Get cached ReflectionClass instance.
@@ -28,9 +28,47 @@ class EntityHelper
      */
     private static function getReflection(object $entity): ReflectionClass
     {
-        $class = $entity::class;
+        return ReflectionCache::getClass($entity);
+    }
 
-        return self::$refClassCache[$class] ??= new ReflectionClass($entity);
+    /**
+     * Resolve class name with namespace fallback.
+     * Tries to resolve a class name, optionally using the model's namespace.
+     *
+     * @param string $className Class name to resolve (may be relative)
+     * @param ReflectionClass<object> $modelReflection Reflection of the model for namespace resolution
+     * @return null|string Fully qualified class name if found, null otherwise
+     */
+    private static function resolveClassName(string $className, ReflectionClass $modelReflection): ?string
+    {
+        return self::resolveClassNameWithNamespace($className, $modelReflection->getNamespaceName());
+    }
+
+    /**
+     * Resolve class name with namespace string.
+     * Tries to resolve a class name, optionally using the provided namespace.
+     *
+     * @param string $className Class name to resolve (may be relative)
+     * @param string $namespace Namespace for resolution
+     * @return null|string Fully qualified class name if found, null otherwise
+     */
+    private static function resolveClassNameWithNamespace(string $className, string $namespace): ?string
+    {
+        // Remove leading backslash if present
+        $className = ltrim($className, '\\');
+
+        // Try direct class name first
+        if (class_exists($className)) {
+            return $className;
+        }
+
+        // Try with provided namespace
+        $fullClassName = $namespace . '\\' . $className;
+        if (class_exists($fullClassName)) {
+            return $fullClassName;
+        }
+
+        return null;
     }
 
     /**
@@ -55,8 +93,10 @@ class EntityHelper
     /** Check if value is a Laravel Eloquent Model. */
     public static function isEloquentModel(mixed $value): bool
     {
-        return class_exists('\Illuminate\Database\Eloquent\Model')
-            && $value instanceof \Illuminate\Database\Eloquent\Model;
+        // Cache class_exists check for better performance
+        self::$eloquentModelExists ??= class_exists('\Illuminate\Database\Eloquent\Model');
+
+        return self::$eloquentModelExists && $value instanceof \Illuminate\Database\Eloquent\Model;
     }
 
     /**
@@ -235,21 +275,10 @@ class EntityHelper
             // Look for @return HasMany<ModelClass> or @return \Illuminate\Database\Eloquent\Relations\HasMany<ModelClass>
             if (preg_match('/@return\s+.*?<([^>]+)>/', $docComment, $matches)) {
                 $className = trim($matches[1]);
-                // Remove leading backslash if present
-                $className = ltrim($className, '\\');
-
-                // Try to resolve relative class name
-                if (!class_exists($className)) {
-                    // Try with model's namespace
-                    $modelNamespace = $reflection->getNamespaceName();
-                    $fullClassName = $modelNamespace . '\\' . $className;
-                    if (class_exists($fullClassName)) {
-                        return $fullClassName;
-                    }
-                }
-
-                if (class_exists($className)) {
-                    return $className;
+                $resolved = self::resolveClassName($className, $reflection);
+                if (null !== $resolved) {
+                    /** @var class-string $resolved */
+                    return $resolved;
                 }
             }
         }
@@ -299,21 +328,10 @@ class EntityHelper
                     $matches
                 )) {
                     $className = trim($matches[1]);
-                    // Remove leading backslash if present
-                    $className = ltrim($className, '\\');
-
-                    // Try to resolve relative class name
-                    if (!class_exists($className)) {
-                        // Try with model's namespace
-                        $modelNamespace = $reflection->getNamespaceName();
-                        $fullClassName = $modelNamespace . '\\' . $className;
-                        if (class_exists($fullClassName)) {
-                            return $fullClassName;
-                        }
-                    }
-
-                    if (class_exists($className)) {
-                        return $className;
+                    $resolved = self::resolveClassName($className, $reflection);
+                    if (null !== $resolved) {
+                        /** @var class-string $resolved */
+                        return $resolved;
                     }
                 }
             }
@@ -1091,21 +1109,21 @@ class EntityHelper
                 if (preg_match('/@var\s+array<(?:int|string),\s*([^>]+)>/', $docComment, $matches)) {
                     $className = trim($matches[1]);
 
-                    return self::resolveClassName($className, $reflection->getNamespaceName());
+                    return self::resolveClassNameWithNamespace($className, $reflection->getNamespaceName());
                 }
 
                 // Match: @var array<ClassName>
                 if (preg_match('/@var\s+array<([^>]+)>/', $docComment, $matches)) {
                     $className = trim($matches[1]);
 
-                    return self::resolveClassName($className, $reflection->getNamespaceName());
+                    return self::resolveClassNameWithNamespace($className, $reflection->getNamespaceName());
                 }
 
                 // Match: @var ClassName[]
                 if (preg_match('/@var\s+([^\[\]]+)\[\]/', $docComment, $matches)) {
                     $className = trim($matches[1]);
 
-                    return self::resolveClassName($className, $reflection->getNamespaceName());
+                    return self::resolveClassNameWithNamespace($className, $reflection->getNamespaceName());
                 }
             }
 
@@ -1115,28 +1133,7 @@ class EntityHelper
         }
     }
 
-    /**
-     * Resolve class name to fully qualified class name.
-     *
-     * @param string $className The class name (can be relative or fully qualified)
-     * @param string $namespace The namespace of the entity
-     * @return string The fully qualified class name
-     */
-    private static function resolveClassName(string $className, string $namespace): string
-    {
-        // Already fully qualified
-        if (str_starts_with($className, '\\')) {
-            return ltrim($className, '\\');
-        }
 
-        // Try to resolve relative class name
-        if (!str_contains($className, '\\')) {
-            // Same namespace
-            return $namespace . '\\' . $className;
-        }
-
-        return $className;
-    }
 
     private static function castValueForSetter(object $entity, string $setter, mixed $value): mixed
     {

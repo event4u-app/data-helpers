@@ -19,13 +19,32 @@ class WildcardHandler
      */
     public static function normalizeWildcardArray(array $array): array
     {
-        // Check if we have dot-path keys (e.g., 'users.0.email')
+        // Single pass optimization: check and process in one loop
         $hasDotPathKeys = false;
-        foreach (array_keys($array) as $key) {
-            if (is_string($key) && str_contains($key, '.')) {
-                $hasDotPathKeys = true;
+        $normalized = [];
+        $hasMultipleWildcards = false;
 
-                break;
+        // First pass: detect dot-path keys and check for multiple wildcards
+        foreach ($array as $key => $value) {
+            if (!is_string($key) || !str_contains($key, '.')) {
+                $normalized[$key] = $value;
+                continue;
+            }
+
+            $hasDotPathKeys = true;
+
+            // Split the key into segments (cache for reuse)
+            $segments = explode('.', $key);
+            $numericCount = 0;
+
+            foreach ($segments as $seg) {
+                if (is_numeric($seg)) {
+                    $numericCount++;
+                    if (1 < $numericCount) {
+                        $hasMultipleWildcards = true;
+                        break 2; // Break both loops
+                    }
+                }
             }
         }
 
@@ -34,41 +53,16 @@ class WildcardHandler
             return $array;
         }
 
-        // Extract numeric indices from dot-path keys
-        // For single wildcard: 'users.0.email' -> index 0
-        // For multiple wildcards: keep the full dot-path key to avoid collisions
-        $normalized = [];
-        $hasMultipleWildcards = false;
-
-        foreach ($array as $key => $value) {
-            if (!is_string($key) || !str_contains($key, '.')) {
-                $normalized[$key] = $value;
-
-                continue;
-            }
-
-            // Split the key into segments
-            $segments = explode('.', $key);
-            $numericSegments = array_filter($segments, fn($seg): bool => is_numeric($seg));
-
-            // If we have multiple numeric segments, it's a multi-wildcard path
-            if (count($numericSegments) > 1) {
-                $hasMultipleWildcards = true;
-
-                break;
-            }
-        }
-
         // For multi-wildcard paths, keep the full dot-path keys to avoid collisions
         if ($hasMultipleWildcards) {
             return $array;
         }
 
         // For single wildcard, extract the numeric index
+        $result = [];
         foreach ($array as $key => $value) {
             if (!is_string($key) || !str_contains($key, '.')) {
-                $normalized[$key] = $value;
-
+                $result[$key] = $value;
                 continue;
             }
 
@@ -76,14 +70,13 @@ class WildcardHandler
             $segments = explode('.', $key);
             foreach ($segments as $segment) {
                 if (is_numeric($segment)) {
-                    $normalized[(int)$segment] = $value;
-
+                    $result[(int)$segment] = $value;
                     break;
                 }
             }
         }
 
-        return $normalized;
+        return $result;
     }
 
     /**

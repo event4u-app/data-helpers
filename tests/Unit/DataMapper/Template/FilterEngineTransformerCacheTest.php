@@ -59,5 +59,48 @@ describe('FilterEngine Transformer Caching', function(): void {
         // Should have 3 different transformer instances
         expect(count($instances))->toBeGreaterThanOrEqual(3);
     });
+
+    it('returns different results for different filters', function(): void {
+        // Apply different filters
+        $result1 = FilterEngine::apply('  HELLO  ', ['trim']);
+        $result2 = FilterEngine::apply('  HELLO  ', ['lower']);
+        $result3 = FilterEngine::apply('  HELLO  ', ['upper']);
+
+        // Should be different
+        expect($result1)->toBe('HELLO');
+        expect($result2)->toBe('  hello  ');
+        expect($result3)->toBe('  HELLO  ');
+
+        // Apply again - should return same results (using cached instances)
+        $result1Again = FilterEngine::apply('  HELLO  ', ['trim']);
+        $result2Again = FilterEngine::apply('  HELLO  ', ['lower']);
+        $result3Again = FilterEngine::apply('  HELLO  ', ['upper']);
+
+        expect($result1Again)->toBe($result1);
+        expect($result2Again)->toBe($result2);
+        expect($result3Again)->toBe($result3);
+    });
+
+    it('does not mix up results for different transformers', function(): void {
+        // Apply multiple filters in sequence
+        $result1 = FilterEngine::apply('hello world', ['upper']);
+        $result2 = FilterEngine::apply('HELLO WORLD', ['lower']);
+        $result3 = FilterEngine::apply('  test  ', ['trim']);
+
+        // Verify results
+        expect($result1)->toBe('HELLO WORLD');
+        expect($result2)->toBe('hello world');
+        expect($result3)->toBe('test');
+
+        // Apply again in different order
+        $result3Again = FilterEngine::apply('  test  ', ['trim']);
+        $result1Again = FilterEngine::apply('hello world', ['upper']);
+        $result2Again = FilterEngine::apply('HELLO WORLD', ['lower']);
+
+        // Should still return correct results
+        expect($result1Again)->toBe('HELLO WORLD');
+        expect($result2Again)->toBe('hello world');
+        expect($result3Again)->toBe('test');
+    });
 });
 
