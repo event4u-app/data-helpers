@@ -483,7 +483,7 @@ map(
   mixed $source,
   mixed $target,
   array $mapping,
-  bool $skipNull = true,
+  bool|MappingOptions $skipNull = true,
   bool $reindexWildcard = false,
   array $hooks = [],
   bool $trimValues = true,
@@ -491,13 +491,66 @@ map(
 ): mixed
 ```
 
-- `skipNull`: skip null values when reading source values
-- `reindexWildcard`: if true, wildcard expansions compact indices (0..n-1). If false, original numeric keys are preserved (e.g.
-  `[0 => 'a', 2 => 'b']`).
-- `hooks`: typed hook callbacks as documented above
-- `trimValues` (default `true`): trims string values before replacement matching
-- `caseInsensitiveReplace` (default `false`): enables case-insensitive matching of string replacement keys
+**Modern API (recommended):**
+
+```php
+use event4u\DataHelpers\DataMapper\MappingOptions;
+
+// Using default options
+$result = DataMapper::map($source, $target, $mapping, MappingOptions::default());
+
+// Using factory methods
+$result = DataMapper::map($source, $target, $mapping, MappingOptions::includeNull());
+$result = DataMapper::map($source, $target, $mapping, MappingOptions::reindexed());
+
+// Using fluent API
+$result = DataMapper::map($source, $target, $mapping,
+    MappingOptions::default()
+        ->withSkipNull(false)
+        ->withTrimValues(false)
+        ->withHook(DataMapperHook::beforeAll, fn($ctx) => /* ... */)
+);
+```
+
+**Legacy API (still supported):**
+
+```php
+// Old 8-parameter syntax still works for backward compatibility
+$result = DataMapper::map($source, $target, $mapping, true, false, [], true, false);
+```
+
+**Parameters:**
+
+- `$skipNull`: (bool|MappingOptions) Skip null values when reading source values. Can be a boolean (legacy) or a `MappingOptions` instance (recommended).
+- `$reindexWildcard`: (bool) If true, wildcard expansions compact indices (0..n-1). If false, original numeric keys are preserved (e.g. `[0 => 'a', 2 => 'b']`). Ignored when using `MappingOptions`.
+- `$hooks`: (array) Typed hook callbacks as documented above. Ignored when using `MappingOptions`.
+- `$trimValues`: (bool, default `true`) Trims string values before replacement matching. Ignored when using `MappingOptions`.
+- `$caseInsensitiveReplace`: (bool, default `false`) Enables case-insensitive matching of string replacement keys. Ignored when using `MappingOptions`.
+
+**MappingOptions:**
+
+The `MappingOptions` DTO provides a cleaner, more maintainable API:
+
+```php
+// Factory methods
+MappingOptions::default()        // skipNull=true, reindexWildcard=false, trimValues=true
+MappingOptions::includeNull()    // skipNull=false
+MappingOptions::reindexed()      // reindexWildcard=true
+
+// Fluent API
+$options = MappingOptions::default()
+    ->withSkipNull(false)
+    ->withReindexWildcard(true)
+    ->withHooks([...])
+    ->withHook(DataMapperHook::beforeAll, fn($ctx) => /* ... */)
+    ->withTrimValues(false)
+    ->withCaseInsensitiveReplace(true);
+```
+
+**Notes:**
+
 - Structured entries can still override `skipNull`/`reindexWildcard`; see [Replace](#replace) for declaring `replaces` per entry.
+- When using `MappingOptions`, the individual parameters (`$reindexWildcard`, `$hooks`, `$trimValues`, `$caseInsensitiveReplace`) are ignored.
 
 ### mapToTargetsFromTemplate
 
@@ -531,7 +584,7 @@ $res = DataMapper::mapToTargetsFromTemplate($data, $template, $targets, skipNull
 ```php
 mapMany(
   array $mappings,
-  bool $skipNull = true,
+  bool|MappingOptions $skipNull = true,
   bool $reindexWildcard = false,
   array $hooks = [],
   bool $trimValues = true,
@@ -539,9 +592,19 @@ mapMany(
 ): array
 ```
 
+**Modern API:**
+
+```php
+use event4u\DataHelpers\DataMapper\MappingOptions;
+
+$results = DataMapper::mapMany($mappings, MappingOptions::default());
+```
+
+**Parameters:**
+
 - Accepts an array of structured mapping entries
 - Each entry can override `skipNull` and `reindexWildcard`
-- Global `hooks`, `trimValues`, `caseInsensitiveReplace` apply to all entries
+- Global `hooks`, `trimValues`, `caseInsensitiveReplace` apply to all entries (or use `MappingOptions`)
 - Returns an array of updated targets
 
 ### autoMap
@@ -550,7 +613,7 @@ mapMany(
 autoMap(
   mixed $source,
   mixed $target,
-  bool $skipNull = true,
+  bool|MappingOptions $skipNull = true,
   bool $reindexWildcard = false,
   array $hooks = [],
   bool $trimValues = true,
@@ -559,10 +622,20 @@ autoMap(
 ): mixed
 ```
 
+**Modern API:**
+
+```php
+use event4u\DataHelpers\DataMapper\MappingOptions;
+
+$result = DataMapper::autoMap($source, $target, MappingOptions::default(), deep: true);
+```
+
+**Parameters:**
+
 - Shallow mode (default): matches top-level field names between source and target
 - Object targets: automatically maps matching properties (supports snake_case to camelCase conversion)
 - Deep mode (`deep=true`): flattens nested structures to dot-paths and maps nested fields and wildcard lists (numeric indices become `*`)
-- Respects `skipNull`, `reindexWildcard`, `hooks`, `trimValues`, `caseInsensitiveReplace`
+- Respects `skipNull`, `reindexWildcard`, `hooks`, `trimValues`, `caseInsensitiveReplace` (or use `MappingOptions`)
 - Source can be a JSON string or array/DTO/Model/Collection
 
 ### mapFromTemplate
@@ -660,7 +733,7 @@ $mapping = [
     'employee_count' => '{{ company.employee_count }}',
     'annual_revenue' => '{{ company.annual_revenue }}',
     'is_active' => '{{ company.is_active }}',
-    
+
     // Automatic relation mapping - DataMapper detects HasMany/OneToMany relations!
     // The wildcard '*' maps each array element to a separate related entity
     'departments' => [

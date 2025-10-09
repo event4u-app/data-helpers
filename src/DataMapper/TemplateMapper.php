@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
+use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
 use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
@@ -189,13 +190,7 @@ class TemplateMapper
      */
     private static function extractPathFromTemplate(string $value): string
     {
-        // If wrapped in {{ }}, extract the inner path
-        if (preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $value, $matches)) {
-            return trim($matches[1]);
-        }
-
-        // Otherwise use as-is
-        return $value;
+        return TemplateParser::extractPath($value);
     }
 
     /**

@@ -10,15 +10,19 @@ use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
+use event4u\DataHelpers\DataMapper\MappingOptions;
 use event4u\DataHelpers\DataMapper\Pipeline\DataMapperPipeline;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 use event4u\DataHelpers\DataMapper\Support\HookInvoker;
 use event4u\DataHelpers\DataMapper\Support\MappingEngine;
+use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\TemplateMapper;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Support\EntityHelper;
+use event4u\DataHelpers\Support\FileLoader;
+use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
 use RuntimeException;
 use SimpleXMLElement;
@@ -31,6 +35,12 @@ use SimpleXMLElement;
  */
 class DataMapper
 {
+    /** Marker for static values in mapping arrays. */
+    private const STATIC_VALUE_MARKER = '__static__';
+
+    /** Default root element name for XML conversion. */
+    private const DEFAULT_XML_ROOT = 'root';
+
     /**
      * Create a pipeline with transformers for fluent mapping.
      *
@@ -63,7 +73,7 @@ class DataMapper
      * @param mixed $source The source data (array, object, model, DTO, string, etc.)
      * @param mixed $target The target data (array, object, model, DTO, string, etc.)
      * @param array<int|string, mixed> $mapping Either simple path map or structured mapping
-     * @param bool $skipNull Global default to skip null values (per-entry 'skipNull' can override)
+     * @param bool|MappingOptions $skipNull Global default to skip null values (or MappingOptions object)
      * @param bool $reindexWildcard Global default to reindex wildcard results (per-entry 'reindexWildcard' can override)
      * @param array<(DataMapperHook|string), mixed> $hooks Optional hooks (see App\Enums\DataMapperHook cases)
      * @return mixed The updated target
@@ -72,12 +82,21 @@ class DataMapper
         mixed $source,
         mixed $target,
         array $mapping,
-        bool $skipNull = true,
+        bool|MappingOptions $skipNull = true,
         bool $reindexWildcard = false,
         array $hooks = [],
         bool $trimValues = true,
         bool $caseInsensitiveReplace = false,
     ): mixed {
+        // Support new MappingOptions API
+        if ($skipNull instanceof MappingOptions) {
+            $options = $skipNull;
+            $skipNull = $options->skipNull;
+            $reindexWildcard = $options->reindexWildcard;
+            $hooks = $options->hooks;
+            $trimValues = $options->trimValues;
+            $caseInsensitiveReplace = $options->caseInsensitiveReplace;
+        }
         // Ensure target is a supported type for mutation
         if (!is_array($target) && !is_object($target)) {
             $target = [];
@@ -292,7 +311,7 @@ class DataMapper
      * @param string $filePath Path to the XML or JSON file
      * @param mixed $target The target data (array, object, model, DTO, etc.)
      * @param array<int|string, mixed> $mapping Mapping definition
-     * @param bool $skipNull Skip null values
+     * @param bool|MappingOptions $skipNull Skip null values (or MappingOptions object)
      * @param bool $reindexWildcard Reindex wildcard results
      * @param array<(DataMapperHook|string), mixed> $hooks Optional hooks
      * @param bool $trimValues Trim string values
@@ -304,29 +323,17 @@ class DataMapper
         string $filePath,
         mixed $target,
         array $mapping,
-        bool $skipNull = true,
+        bool|MappingOptions $skipNull = true,
         bool $reindexWildcard = false,
         array $hooks = [],
         bool $trimValues = true,
         bool $caseInsensitiveReplace = false,
     ): mixed {
-        if (!file_exists($filePath)) {
-            throw new InvalidArgumentException('File not found: ' . $filePath);
-        }
-
-        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-
-        $source = match ($extension) {
-            'xml' => self::loadXmlFile($filePath),
-            'json' => self::loadJsonFile($filePath),
-            default => throw new InvalidArgumentException(
-                sprintf('Unsupported file format: %s. Only XML and JSON are supported.', $extension)
-            ),
-        };
+        // Load file using FileLoader
+        $source = FileLoader::loadAsArray($filePath);
 
         // Detect if target is a JSON or XML string
-        $isJsonString = is_string($target) && self::isJsonString($target);
-        $isXmlString = is_string($target) && self::isXmlString($target);
+        $targetFormat = is_string($target) ? StringFormatDetector::detectFormat($target) : null;
 
         $result = self::map(
             $source,
@@ -340,80 +347,31 @@ class DataMapper
         );
 
         // Convert result back to JSON/XML string if target was a string
-        if ($isJsonString) {
-            return json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }
-
-        if ($isXmlString) {
-            if (!is_array($result)) {
-                throw new InvalidArgumentException('Cannot convert non-array result to XML');
-            }
-
-            /** @var array<string, mixed> $result */
-            return self::arrayToXml($result);
+        if (null !== $targetFormat) {
+            return self::convertResultToStringFormat($targetFormat, $result);
         }
 
         return $result;
     }
 
     /**
-     * Load and parse an XML file to array.
+     * Convert result to string format (JSON or XML).
      *
-     * @param string $filePath Path to XML file
-     * @return array<string, mixed>
-     * @throws InvalidArgumentException If XML parsing fails
+     * @param string $format The target format ('json' or 'xml')
+     * @param mixed $result The result to convert
+     * @return string The converted string
+     * @throws InvalidArgumentException If conversion fails
      */
-    private static function loadXmlFile(string $filePath): array
+    private static function convertResultToStringFormat(string $format, mixed $result): string
     {
-        $xml = simplexml_load_file($filePath);
-
-        if (false === $xml) {
-            throw new InvalidArgumentException('Failed to parse XML file: ' . $filePath);
-        }
-
-        $jsonString = json_encode($xml);
-        if (false === $jsonString) {
-            throw new InvalidArgumentException('Failed to encode XML to JSON: ' . $filePath);
-        }
-
-        $result = json_decode($jsonString, true);
-        if (!is_array($result)) {
-            return [];
-        }
-
-        /** @var array<string, mixed> */
-        return $result;
-    }
-
-    /**
-     * Load and parse a JSON file to array.
-     *
-     * @param string $filePath Path to JSON file
-     * @return array<string, mixed>
-     * @throws InvalidArgumentException If JSON parsing fails
-     */
-    private static function loadJsonFile(string $filePath): array
-    {
-        $content = file_get_contents($filePath);
-
-        if (false === $content) {
-            throw new InvalidArgumentException('Failed to read file: ' . $filePath);
-        }
-
-        $data = json_decode($content, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new InvalidArgumentException(
-                sprintf('Failed to parse JSON file: %s. Error: ', $filePath) . json_last_error_msg()
-            );
-        }
-
-        if (!is_array($data)) {
-            return [];
-        }
-
-        /** @var array<string, mixed> */
-        return $data;
+        return match ($format) {
+            'json' => json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
+            // @phpstan-ignore-next-line
+            'xml' => is_array($result) ? self::arrayToXml($result) : throw new InvalidArgumentException(
+                'Cannot convert non-array result to XML'
+            ),
+            default => throw new InvalidArgumentException('Cannot convert result to unknown format: ' . $format),
+        };
     }
 
     /**
@@ -532,16 +490,7 @@ class DataMapper
         bool $caseInsensitiveReplace,
     ): array|object {
         // Parse mapping: extract {{ }} expressions to actual paths
-        $parsedMapping = [];
-        foreach ($mapping as $targetPath => $sourcePath) {
-            if (is_string($sourcePath) && preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $sourcePath, $matches)) {
-                // Extract path from {{ }}
-                $parsedMapping[$targetPath] = trim($matches[1]);
-            } else {
-                // Static value: use special marker
-                $parsedMapping[$targetPath] = ['__static__' => $sourcePath];
-            }
-        }
+        $parsedMapping = TemplateParser::parseMapping($mapping, self::STATIC_VALUE_MARKER);
 
         return self::mapSimpleInternal(
             $source,
@@ -581,8 +530,8 @@ class DataMapper
         $mappingIndex = 0;
         foreach ($mapping as $targetPath => $sourcePathOrStatic) {
             // Check if it's a static value
-            $isStatic = is_array($sourcePathOrStatic) && isset($sourcePathOrStatic['__static__']);
-            $sourcePath = $isStatic ? $sourcePathOrStatic['__static__'] : $sourcePathOrStatic;
+            $isStatic = is_array($sourcePathOrStatic) && isset($sourcePathOrStatic[self::STATIC_VALUE_MARKER]);
+            $sourcePath = $isStatic ? $sourcePathOrStatic[self::STATIC_VALUE_MARKER] : $sourcePathOrStatic;
 
             $pairContext = new PairContext(
                 'simple',
@@ -676,6 +625,63 @@ class DataMapper
     }
 
     /**
+     * Resolve entry-specific options from a mapping entry.
+     *
+     * @param array<string, mixed> $map
+     * @param array<int|string, mixed>|object $target
+     * @param array<string, mixed> $hooks
+     * @return array{
+     *     entrySource: mixed,
+     *     entryTarget: array<int|string, mixed>|object,
+     *     entrySkipNull: bool,
+     *     entryReindex: bool,
+     *     accessor: DataAccessor,
+     *     effectiveHooks: array<string, mixed>
+     * }
+     */
+    private static function resolveEntryOptions(
+        array $map,
+        mixed $source,
+        array|object $target,
+        bool $skipNull,
+        bool $reindexWildcard,
+        array $hooks,
+    ): array {
+        $entrySource = $map['source'] ?? $source;
+
+        /** @var array<int|string, mixed>|object $entryTarget */
+        $entryTarget = $map['target'] ?? $target;
+        if (!is_array($entryTarget) && !is_object($entryTarget)) {
+            $entryTarget = [];
+        }
+
+        /** @var array<int|string, mixed>|object $entryTarget */
+        $entrySkipNull = array_key_exists('skipNull', $map) ? (bool)$map['skipNull'] : $skipNull;
+
+        $entryReindex = array_key_exists(
+            'reindexWildcard',
+            $map
+        ) ? (bool)$map['reindexWildcard'] : $reindexWildcard;
+
+        $accessor = new DataAccessor($entrySource);
+
+        /** @var array<DataMapperHook|string, mixed> $entryHooks */
+        $entryHooks = is_array($map['hooks'] ?? null) ? $map['hooks'] : [];
+        $entryHooks = HookInvoker::normalizeHooks($entryHooks);
+
+        $effectiveHooks = HookInvoker::mergeHooks($hooks, $entryHooks);
+
+        return [
+            'entrySource' => $entrySource,
+            'entryTarget' => $entryTarget,
+            'entrySkipNull' => $entrySkipNull,
+            'entryReindex' => $entryReindex,
+            'accessor' => $accessor,
+            'effectiveHooks' => $effectiveHooks,
+        ];
+    }
+
+    /**
      * Handle structured mapping definitions with source/target objects.
      *
      * @param array<int|string, mixed>|object $target
@@ -702,28 +708,21 @@ class DataMapper
                 throw new InvalidArgumentException('Advanced mapping definitions must be arrays.');
             }
 
-            $entrySource = $map['source'] ?? $source;
+            $entryOptions = self::resolveEntryOptions(
+                $map,
+                $source,
+                $target, // @phpstan-ignore-line argument.type
+                $skipNull,
+                $reindexWildcard,
+                $hooks
+            );
+            $entrySource = $entryOptions['entrySource'];
+            $entryTarget = $entryOptions['entryTarget'];
+            $entrySkipNull = $entryOptions['entrySkipNull'];
+            $entryReindex = $entryOptions['entryReindex'];
+            $accessor = $entryOptions['accessor'];
+            $effectiveHooks = $entryOptions['effectiveHooks'];
 
-            /** @var array<int|string, mixed>|object $entryTarget */
-            $entryTarget = $map['target'] ?? $target;
-            if (!is_array($entryTarget) && !is_object($entryTarget)) {
-                $entryTarget = [];
-            }
-
-            /** @var array<int|string, mixed>|object $entryTarget */
-            $entrySkipNull = array_key_exists('skipNull', $map) ? (bool)$map['skipNull'] : $skipNull;
-
-            $entryReindex = array_key_exists(
-                'reindexWildcard',
-                $map
-            ) ? (bool)$map['reindexWildcard'] : $reindexWildcard;
-
-            $accessor = new DataAccessor($entrySource);
-
-            /** @var array<DataMapperHook|string, mixed> $entryHooks */
-            $entryHooks = is_array($map['hooks'] ?? null) ? $map['hooks'] : [];
-            $entryHooks = HookInvoker::normalizeHooks($entryHooks);
-            $effectiveHooks = HookInvoker::mergeHooks($hooks, $entryHooks);
             HookInvoker::invokeHooks(
                 $effectiveHooks,
                 'beforeEntry',
@@ -1139,56 +1138,13 @@ class DataMapper
     }
 
     /**
-     * Check if a string is valid JSON.
-     *
-     * @param string $string The string to check
-     * @return bool True if valid JSON, false otherwise
-     */
-    private static function isJsonString(string $string): bool
-    {
-        if (empty($string)) {
-            return false;
-        }
-
-        json_decode($string);
-
-        return json_last_error() === JSON_ERROR_NONE;
-    }
-
-    /**
-     * Check if a string is valid XML.
-     *
-     * @param string $string The string to check
-     * @return bool True if valid XML, false otherwise
-     */
-    private static function isXmlString(string $string): bool
-    {
-        if (empty($string)) {
-            return false;
-        }
-
-        // Check if string starts with XML declaration or root element
-        $trimmed = trim($string);
-        if (!str_starts_with($trimmed, '<?xml') && !str_starts_with($trimmed, '<')) {
-            return false;
-        }
-
-        // Try to parse as XML
-        libxml_use_internal_errors(true);
-        $xml = simplexml_load_string($string);
-        libxml_clear_errors();
-
-        return false !== $xml;
-    }
-
-    /**
      * Convert array to XML string.
      *
      * @param array<string, mixed> $array The array to convert
      * @param string $rootElement The root element name
      * @return string The XML string
      */
-    private static function arrayToXml(array $array, string $rootElement = 'root'): string
+    private static function arrayToXml(array $array, string $rootElement = self::DEFAULT_XML_ROOT): string
     {
         $xml = new SimpleXMLElement(
             '<?xml version="1.0" encoding="UTF-8"?><' . $rootElement . '></' . $rootElement . '>'

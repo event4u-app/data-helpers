@@ -231,8 +231,217 @@ public static function isCollection(mixed $value): bool
 
 ---
 
+### 4. StringFormatDetector
+
+**File**: `StringFormatDetector.php`
+
+Detects and validates string formats (JSON, XML).
+
+**Methods:**
+```php
+// Check format
+StringFormatDetector::isJson(string $string): bool
+StringFormatDetector::isXml(string $string): bool
+
+// Detect format
+StringFormatDetector::detectFormat(string $string): ?string  // Returns 'json', 'xml', or null
+```
+
+**Example:**
+```php
+use event4u\DataHelpers\Support\StringFormatDetector;
+
+$jsonString = '{"name": "John"}';
+$xmlString = '<user><name>John</name></user>';
+
+if (StringFormatDetector::isJson($jsonString)) {
+    // Handle JSON
+}
+
+$format = StringFormatDetector::detectFormat($xmlString); // 'xml'
+```
+
+---
+
+### 5. FileLoader
+
+**File**: `FileLoader.php`
+
+Centralized file loading for JSON and XML files.
+
+**Methods:**
+```php
+// Load file as array
+FileLoader::loadAsArray(string $filePath): array
+
+// Load specific formats
+FileLoader::loadJsonFile(string $filePath): array
+FileLoader::loadXmlFile(string $filePath, string $rootName = 'root'): array
+```
+
+**Example:**
+```php
+use event4u\DataHelpers\Support\FileLoader;
+
+// Auto-detect format and load
+$data = FileLoader::loadAsArray('/path/to/data.json');
+$data = FileLoader::loadAsArray('/path/to/data.xml');
+
+// Load specific format
+$jsonData = FileLoader::loadJsonFile('/path/to/data.json');
+$xmlData = FileLoader::loadXmlFile('/path/to/data.xml');
+```
+
+---
+
+### 6. ReflectionCache
+
+**File**: `ReflectionCache.php`
+
+Caches Reflection objects for better performance.
+
+**Methods:**
+```php
+// Get cached ReflectionClass
+ReflectionCache::getClass(object|string $objectOrClass): ReflectionClass
+
+// Get cached ReflectionProperty
+ReflectionCache::getProperty(object $object, string $name): ?ReflectionProperty
+
+// Check if property exists
+ReflectionCache::hasProperty(object|string $objectOrClass, string $name): bool
+
+// Clear cache
+ReflectionCache::clear(): void
+ReflectionCache::clearClass(string $class): void
+```
+
+**Example:**
+```php
+use event4u\DataHelpers\Support\ReflectionCache;
+
+$user = new User();
+
+// Get cached reflection (faster on repeated calls)
+$refClass = ReflectionCache::getClass($user);
+$refProperty = ReflectionCache::getProperty($user, 'name');
+
+// Check property existence
+if (ReflectionCache::hasProperty($user, 'email')) {
+    // Property exists
+}
+```
+
+---
+
+## DataMapper Support Classes
+
+### 7. TemplateParser
+
+**File**: `DataMapper/Support/TemplateParser.php`
+
+Utility class for parsing template expressions with `{{ }}` syntax.
+
+**Methods:**
+```php
+// Check if string is a template
+TemplateParser::isTemplate(string $value): bool
+
+// Extract path from template
+TemplateParser::extractPath(string $template): string
+
+// Parse mapping array
+TemplateParser::parseMapping(array $mapping, string $staticMarker = '__static__'): array
+
+// Wrap path in template syntax
+TemplateParser::wrap(string $path): string
+
+// Check if value is static
+TemplateParser::isStaticValue(mixed $value, string $staticMarker = '__static__'): bool
+
+// Extract static value
+TemplateParser::extractStaticValue(array $value, string $staticMarker = '__static__'): mixed
+
+// Normalize path
+TemplateParser::normalizePath(string $value): string
+```
+
+**Example:**
+```php
+use event4u\DataHelpers\DataMapper\Support\TemplateParser;
+
+// Check if template
+$isTemplate = TemplateParser::isTemplate('{{ user.name }}'); // true
+$isTemplate = TemplateParser::isTemplate('John Doe'); // false
+
+// Extract path
+$path = TemplateParser::extractPath('{{ user.name }}'); // 'user.name'
+
+// Parse mapping
+$mapping = [
+    'name' => '{{ user.name }}',
+    'status' => 'active',
+];
+$parsed = TemplateParser::parseMapping($mapping);
+// [
+//     'name' => 'user.name',
+//     'status' => ['__static__' => 'active'],
+// ]
+
+// Wrap path
+$template = TemplateParser::wrap('user.name'); // '{{ user.name }}'
+```
+
+---
+
+### 8. MappingOptions
+
+**File**: `DataMapper/MappingOptions.php`
+
+Immutable DTO for mapping configuration (replaces 8-parameter API).
+
+**Factory Methods:**
+```php
+MappingOptions::default()        // skipNull=true, reindexWildcard=false, trimValues=true
+MappingOptions::includeNull()    // skipNull=false
+MappingOptions::reindexed()      // reindexWildcard=true
+```
+
+**Fluent API:**
+```php
+$options = MappingOptions::default()
+    ->withSkipNull(false)
+    ->withReindexWildcard(true)
+    ->withHooks([...])
+    ->withHook(DataMapperHook::beforeAll, fn($ctx) => /* ... */)
+    ->withTrimValues(false)
+    ->withCaseInsensitiveReplace(true);
+```
+
+**Example:**
+```php
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MappingOptions;
+
+// Using default options
+$result = DataMapper::map($source, $target, $mapping, MappingOptions::default());
+
+// Using factory methods
+$result = DataMapper::map($source, $target, $mapping, MappingOptions::includeNull());
+
+// Using fluent API
+$result = DataMapper::map($source, $target, $mapping,
+    MappingOptions::default()
+        ->withSkipNull(false)
+        ->withTrimValues(false)
+);
+```
+
+---
+
 ## See Also
 
 - [Main README](../README.md)
 - [Optional Dependencies Guide](optional-dependencies.md)
+- [Data Mapper Documentation](data-mapper.md)
 

@@ -7,47 +7,13 @@ namespace event4u\DataHelpers;
 use event4u\DataHelpers\Support\ArrayableHelper;
 use event4u\DataHelpers\Support\CollectionHelper;
 use event4u\DataHelpers\Support\EntityHelper;
+use event4u\DataHelpers\Support\ReflectionCache;
 use InvalidArgumentException;
 use JsonSerializable;
-use ReflectionClass;
 use ReflectionProperty;
 
 class DataMutator
 {
-    /** @var array<class-string, ReflectionClass<object>> */
-    private static array $refClassCache = [];
-
-    /** @var array<class-string, array<string, null|ReflectionProperty>> */
-    private static array $refPropCache = [];
-
-    /** @return ReflectionClass<object> */
-    private static function getRefClass(object $object): ReflectionClass
-    {
-        $cls = $object::class;
-
-        return self::$refClassCache[$cls] ??= new ReflectionClass($object);
-    }
-
-    private static function getRefProperty(object $object, string $name): ?ReflectionProperty
-    {
-        $cls = $object::class;
-        $map = self::$refPropCache[$cls] ?? null;
-        if (null !== $map && array_key_exists($name, $map)) {
-            return $map[$name];
-        }
-        $ref = self::getRefClass($object);
-        if (!$ref->hasProperty($name)) {
-            // cache negative lookup
-            self::$refPropCache[$cls][$name] = null;
-
-            return null;
-        }
-        $prop = $ref->getProperty($name);
-        self::$refPropCache[$cls][$name] = $prop;
-
-        return $prop;
-    }
-
     /**
      * Set one or multiple values into a target (array, DTO, Laravel model, Collection) using dot-notation.
      *
@@ -248,14 +214,14 @@ class DataMutator
             return;
         }
 
-        $ref = self::getRefClass($object);
+        $ref = ReflectionCache::getClass($object);
         if (!$ref->hasProperty($segment) && [] === $segments) {
             $object->{$segment} = $value;
 
             return;
         }
 
-        $prop = self::getRefProperty($object, $segment);
+        $prop = ReflectionCache::getProperty($object, $segment);
         if ($prop instanceof ReflectionProperty) {
             if ([] === $segments) {
                 $current = $prop->getValue($object);
@@ -466,13 +432,13 @@ class DataMutator
         if (null === $segment) {
             return;
         }
-        $ref = self::getRefClass($object);
+        $ref = ReflectionCache::getClass($object);
 
         if (!$ref->hasProperty($segment)) {
             return;
         }
 
-        $prop = self::getRefProperty($object, $segment);
+        $prop = ReflectionCache::getProperty($object, $segment);
         if (!$prop instanceof ReflectionProperty) {
             return;
         }
