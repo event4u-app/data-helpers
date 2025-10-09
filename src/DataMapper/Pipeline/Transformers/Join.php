@@ -8,17 +8,34 @@ use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 
 /**
- * Joins array elements into a string with comma separator.
+ * Joins array elements into a string with a separator.
  *
- * Example:
- *   DataMapper::pipe([Join::class])->map($source, $target, $mapping);
- *   Template: {{ value | join }}
+ * Examples:
+ *   Pipeline: new Join(', ')
+ *   Template: {{ value | join }}         // Joins with ', ' (default)
+ *   Template: {{ value | join:", " }}    // Joins with ', '
+ *   Template: {{ value | join:" | " }}   // Joins with ' | '
+ *   Template: {{ value | join:"" }}      // Joins with no separator
  */
-final class Join implements TransformerInterface
+final readonly class Join implements TransformerInterface
 {
+    /** @param string $separator Separator to use when joining array elements */
+    public function __construct(
+        private string $separator = ', ',
+    ) {
+    }
+
     public function transform(mixed $value, HookContext $context): mixed
     {
-        return is_array($value) ? implode(', ', $value) : $value;
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        // Get separator from context args (from filter syntax)
+        $args = $context->extra();
+        $separator = isset($args[0]) && is_string($args[0]) ? $args[0] : $this->separator;
+
+        return implode($separator, $value);
     }
 
     public function getHook(): string

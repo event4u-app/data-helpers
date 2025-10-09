@@ -94,7 +94,7 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
     /**
      * Define the data transformation pipeline.
      *
-     * Return an array of transformer classes that will be applied in order.
+     * Return an array of transformer instances that will be applied in order.
      * Transformers are applied before the data is mapped to the template.
      *
      * Example:
@@ -102,14 +102,15 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
      * protected function pipes(): array
      * {
      *     return [
-     *         TrimStrings::class,
-     *         LowercaseEmails::class,
-     *         SkipEmptyValues::class,
+     *         new TrimStrings(),
+     *         new LowercaseEmails(),
+     *         new SkipEmptyValues(),
+     *         new DefaultValue('Unknown'),
      *     ];
      * }
      * ```
      *
-     * @return array<int, class-string<TransformerInterface>|TransformerInterface> Array of transformer class names or instances
+     * @return array<int, TransformerInterface> Array of transformer instances
      */
     protected function pipes(): array
     {

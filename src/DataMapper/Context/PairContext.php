@@ -11,15 +11,10 @@ use event4u\DataHelpers\Enums\Mode;
  */
 class PairContext implements HookContext
 {
-    public function __construct(
-        public string $mode,
-        public int $pairIndex,
-        public string $srcPath,
-        public string $tgtPath,
-        public mixed $source,
-        public mixed $target,
-        public int|string|null $wildcardIndex = null,
-    ) {}
+    /** @param array<int, mixed> $extraData Extra data (e.g., transformer arguments from filter syntax) */
+    public function __construct(public string $mode, public int $pairIndex, public string $srcPath, public string $tgtPath, public mixed $source, public mixed $target, public int|string|null $wildcardIndex = null, private readonly array $extraData = [])
+    {
+    }
 
     public function mode(): string
     {
@@ -39,5 +34,11 @@ class PairContext implements HookContext
     public function tgtPath(): ?string
     {
         return $this->tgtPath;
+    }
+
+    /** @return array<int, mixed> */
+    public function extra(): array
+    {
+        return $this->extraData;
     }
 }

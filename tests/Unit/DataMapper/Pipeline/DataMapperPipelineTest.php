@@ -23,7 +23,7 @@ describe('DataMapper Pipeline', function(): void {
             'email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::pipe([TrimStrings::class])
+        $result = DataMapper::pipe([new TrimStrings()])
             ->map($source, [], $mapping);
 
         expect($result['name'])->toBe('Alice');
@@ -43,7 +43,7 @@ describe('DataMapper Pipeline', function(): void {
             'email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::pipe([LowercaseEmails::class])
+        $result = DataMapper::pipe([new LowercaseEmails()])
             ->map($source, [], $mapping);
 
         expect($result['name'])->toBe('Alice');
@@ -65,7 +65,7 @@ describe('DataMapper Pipeline', function(): void {
             'phone' => '{{ user.phone }}',
         ];
 
-        $result = DataMapper::pipe([SkipEmptyValues::class])
+        $result = DataMapper::pipe([new SkipEmptyValues()])
             ->map($source, [], $mapping);
 
         expect($result['name'])->toBe('Alice');
@@ -87,8 +87,8 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $result = DataMapper::pipe([
-            TrimStrings::class,
-            LowercaseEmails::class,
+            new TrimStrings(),
+            new LowercaseEmails(),
         ])->map($source, [], $mapping);
 
         expect($result['name'])->toBe('Alice');
@@ -111,8 +111,8 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $result = DataMapper::pipe([
-            TrimStrings::class,
-            SkipEmptyValues::class,
+            new TrimStrings(),
+            new SkipEmptyValues(),
         ])->map($source, [], $mapping);
 
         expect($result['name'])->toBe('Alice');
@@ -134,7 +134,7 @@ describe('DataMapper Pipeline', function(): void {
         ];
 
         $result = DataMapper::pipe([
-            TrimStrings::class,
+            new TrimStrings(),
         ])->map($source, [], $mapping);
 
         expect($result['names'])->toBe(['Alice', 'Bob']);
@@ -152,7 +152,7 @@ describe('DataMapper Pipeline', function(): void {
             'name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::pipe([TrimStrings::class])
+        $result = DataMapper::pipe([new TrimStrings()])
             ->withHooks([
                 'postTransform' => fn($value) => is_string($value) ? strtoupper($value) : $value,
             ])

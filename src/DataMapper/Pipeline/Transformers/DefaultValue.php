@@ -8,17 +8,35 @@ use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 
 /**
- * Returns empty string if value is null.
+ * Returns a default value if the input is null or blank.
  *
- * Example:
- *   DataMapper::pipe([DefaultValue::class])->map($source, $target, $mapping);
- *   Template: {{ value | default }}
+ * Examples:
+ *   Pipeline: new DefaultValue('Unknown')
+ *   Template: {{ value | default }}           // Returns '' if null/blank
+ *   Template: {{ value | default:"Unknown" }} // Returns 'Unknown' if null/blank
+ *   Template: {{ value | default:"0" }}       // Returns '0' (string) if null/blank
+ *   Template: {{ value | default:0 }}         // Returns 0 if null/blank
  */
-final class DefaultValue implements TransformerInterface
+final readonly class DefaultValue implements TransformerInterface
 {
+    /** @param mixed $defaultValue Default value to return if input is null/blank */
+    public function __construct(
+        private mixed $defaultValue = '',
+    ) {
+    }
+
     public function transform(mixed $value, HookContext $context): mixed
     {
-        return $value ?? '';
+        // If value is not null and not empty, return it
+        if (null !== $value && '' !== $value) {
+            return $value;
+        }
+
+        // Get default value from context args (from filter syntax)
+        $args = $context->extra();
+
+        // Fallback to constructor parameter
+        return $args[0] ?? $this->defaultValue;
     }
 
     public function getHook(): string

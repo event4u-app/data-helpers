@@ -40,8 +40,8 @@ class UserRegistrationModel extends MappedDataModel
     protected function pipes(): array
     {
         return [
-            TrimStrings::class,
-            CastToInteger::class,
+            new TrimStrings(),
+            new CastToInteger(),
         ];
     }
 }
@@ -127,7 +127,7 @@ class UserRegistrationModel extends MappedDataModel
 
     protected function pipes(): array
     {
-        return [TrimStrings::class];
+        return [new TrimStrings()];
     }
 }
 

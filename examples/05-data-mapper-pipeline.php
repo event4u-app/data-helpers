@@ -31,9 +31,9 @@ $mapping = [
 
 // Apply transformation pipeline
 $result = DataMapper::pipe([
-    TrimStrings::class,           // Trim whitespace
-    LowercaseEmails::class,       // Lowercase email addresses
-    SkipEmptyValues::class,       // Skip empty values
+    new TrimStrings(),           // Trim whitespace
+    new LowercaseEmails(),       // Lowercase email addresses
+    new SkipEmptyValues(),       // Skip empty values
 ])->map($source, [], $mapping);
 
 echo json_encode($result, JSON_PRETTY_PRINT);

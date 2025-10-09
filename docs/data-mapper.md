@@ -146,9 +146,9 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
 
 $result = DataMapper::pipe([
-    TrimStrings::class,
-    LowercaseEmails::class,
-    SkipEmptyValues::class,
+    new TrimStrings(),
+    new LowercaseEmails(),
+    new SkipEmptyValues(),
 ])->map($source, [], $mapping);
 ```
 

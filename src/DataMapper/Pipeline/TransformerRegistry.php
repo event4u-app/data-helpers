@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Pipeline;
 
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Between;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Count;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DefaultValue;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\First;
@@ -138,6 +139,7 @@ final class TransformerRegistry
             // Other transformers
             JsonEncode::class,
             DefaultValue::class,
+            Between::class,
         ];
 
         foreach ($builtInTransformers as $transformerClass) {

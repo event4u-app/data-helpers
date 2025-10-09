@@ -15,4 +15,11 @@ interface HookContext
     public function srcPath(): ?string;
 
     public function tgtPath(): ?string;
+
+    /**
+     * Get extra data (e.g., transformer arguments from filter syntax).
+     *
+     * @return array<int, mixed>
+     */
+    public function extra(): array;
 }

@@ -37,13 +37,14 @@ final class ExpressionParser
             }
 
             // Parse filters: user.email | lower | trim
-            $parts = array_map('trim', explode('|', $expression));
-            $pathWithDefault = array_shift($parts);
+            // Split by | but respect quoted strings
+            $parts = self::splitByPipe($expression);
+            $pathWithDefault = array_shift($parts) ?? '';
             $filters = $parts;
 
             // Parse default value: user.name ?? 'Unknown'
             $default = null;
-            if (str_contains($pathWithDefault, '??')) {
+            if ('' !== $pathWithDefault && str_contains($pathWithDefault, '??')) {
                 [$pathWithDefault, $defaultStr] = array_map('trim', explode('??', $pathWithDefault, 2));
                 $default = self::parseDefaultValue($defaultStr);
             }
@@ -57,6 +58,73 @@ final class ExpressionParser
         }
 
         return null;
+    }
+
+    /**
+     * Split expression by pipe (|) but respect quoted strings.
+     *
+     * Example: 'user.name | join:" | " | trim' -> ['user.name', 'join:" | "', 'trim']
+     *
+     * @return array<int, string>
+     */
+    private static function splitByPipe(string $expression): array
+    {
+        // Fast path: No quotes → simple split
+        if (!str_contains($expression, '"') && !str_contains($expression, "'")) {
+            return array_map('trim', explode('|', $expression));
+        }
+
+        // Slow path: Has quotes → char-by-char to preserve quoted content
+        // Note: Regex is tricky here because we need to keep quotes with their surrounding text
+        $parts = [];
+        $current = '';
+        $inQuotes = false;
+        $quoteChar = null;
+        $escaped = false;
+
+        for ($i = 0; strlen($expression) > $i; $i++) {
+            $char = $expression[$i];
+
+            if ($escaped) {
+                $current .= $char;
+                $escaped = false;
+                continue;
+            }
+
+            if ('\\' === $char) {
+                $escaped = true;
+                $current .= $char;
+                continue;
+            }
+
+            if (('"' === $char || "'" === $char) && !$inQuotes) {
+                $inQuotes = true;
+                $quoteChar = $char;
+                $current .= $char;
+                continue;
+            }
+
+            if ($char === $quoteChar && $inQuotes) {
+                $inQuotes = false;
+                $quoteChar = null;
+                $current .= $char;
+                continue;
+            }
+
+            if ('|' === $char && !$inQuotes) {
+                $parts[] = trim($current);
+                $current = '';
+                continue;
+            }
+
+            $current .= $char;
+        }
+
+        if ('' !== $current) {
+            $parts[] = trim($current);
+        }
+
+        return $parts;
     }
 
     private static function parseDefaultValue(string $value): mixed

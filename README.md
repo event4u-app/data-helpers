@@ -332,9 +332,9 @@ $mapping = [
 ];
 
 $result = DataMapper::pipe([
-    TrimStrings::class,
-    LowercaseEmails::class,
-    SkipEmptyValues::class,
+    new TrimStrings(),
+    new LowercaseEmails(),
+    new SkipEmptyValues(),
 ])->map($source, [], $mapping);
 
 // Result: {
@@ -441,7 +441,7 @@ class ProductModel extends MappedDataModel
 
     protected function pipes(): array
     {
-        return [TrimStrings::class, CastToInteger::class];
+        return [new TrimStrings(), new CastToInteger()];
     }
 }
 
@@ -554,9 +554,9 @@ foreach ($oldData as $row) {
 // Clean and normalize user input
 $formData = $_POST;
 $result = DataMapper::pipe([
-    TrimStrings::class,
-    LowercaseEmails::class,
-    SkipEmptyValues::class,
+    new TrimStrings(),
+    new LowercaseEmails(),
+    new SkipEmptyValues(),
 ])->map($formData, [], $mapping);
 ```
 

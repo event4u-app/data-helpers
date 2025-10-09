@@ -38,14 +38,21 @@ final class FilterEngine
     {
         $filter = trim($filter);
 
+        if ('' === $filter || '"' === $filter) {
+            return $value;
+        }
+
+        // Parse filter name and arguments: default:"Unknown" or join:", "
+        [$filterName, $args] = self::parseFilterWithArgs($filter);
+
         // Get transformer class from registry
-        $transformerClass = TransformerRegistry::get($filter);
+        $transformerClass = TransformerRegistry::get($filterName);
         if (null !== $transformerClass) {
             /** @var TransformerInterface $transformer */
             $transformer = new $transformerClass();
 
-            // Create a minimal context for the transformer
-            $context = new PairContext('template-expression', 0, '', '', [], []);
+            // Create a context with filter arguments in extra
+            $context = new PairContext('template-expression', 0, '', '', [], [], null, $args);
 
             return $transformer->transform($value, $context);
         }
@@ -55,8 +62,64 @@ final class FilterEngine
             sprintf(
                 "Unknown transformer alias '%s'. " .
                 "Create a Transformer class with getAliases() method and register it using TransformerRegistry::register().",
-                $filter
+                $filterName
             )
         );
+    }
+
+    /**
+     * Parse filter with arguments.
+     *
+     * Examples:
+     * - "trim" → ["trim", []]
+     * - "default:\"Unknown\"" → ["default", ["Unknown"]]
+     * - "join:\", \"" → ["join", [", "]]
+     * - "between:1:10" → ["between", ["1", "10"]]
+     *
+     * @return array{0: string, 1: array<int, string>}
+     */
+    private static function parseFilterWithArgs(string $filter): array
+    {
+        // Check if filter has arguments (contains : outside of quotes)
+        if (!str_contains($filter, ':')) {
+            return [$filter, []];
+        }
+
+        // Fast path: No quotes → simple split
+        if (!str_contains($filter, '"') && !str_contains($filter, "'")) {
+            $parts = explode(':', $filter);
+            $filterName = array_shift($parts);
+            return [$filterName, $parts];
+        }
+
+        // Regex path: Has quotes → use regex to split respecting quoted strings
+        // Match: "..." or '...' (with escape support) or non-colon sequences
+        preg_match_all('/
+            (?:
+                "(?:[^"\\\\]|\\\\.)*"     # Double quoted string with escapes
+                |
+                \'(?:[^\'\\\\]|\\\\.)*\'  # Single quoted string with escapes
+                |
+                [^:]+                     # Non-colon characters
+            )
+        /x', $filter, $matches);
+
+        $parts = $matches[0];
+
+        // Remove quotes from arguments
+        $parts = array_map(function(string $part): string {
+            $part = trim($part);
+            // Remove surrounding quotes if present
+            if ((str_starts_with($part, '"') && str_ends_with($part, '"'))
+                || (str_starts_with($part, "'") && str_ends_with($part, "'"))) {
+                return substr($part, 1, -1);
+            }
+            return $part;
+        }, $parts);
+
+        $filterName = array_shift($parts) ?? '';
+        $args = $parts;
+
+        return [$filterName, $args];
     }
 }

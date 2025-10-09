@@ -11,7 +11,7 @@ Transformers can be used in two ways:
 
 **Pipeline Example:**
 ```php
-DataMapper::pipe([TrimStrings::class, LowercaseStrings::class])
+DataMapper::pipe([new TrimStrings(), new LowercaseStrings()])
     ->map($source, $target, $mapping);
 ```
 
@@ -38,7 +38,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
 // Pipeline usage
 protected function pipes(): array
 {
-    return [TrimStrings::class];
+    return [new TrimStrings()];
 }
 
 // Template expression usage
@@ -61,7 +61,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseStrings;
 // Pipeline usage
 protected function pipes(): array
 {
-    return [LowercaseStrings::class];
+    return [new LowercaseStrings()];
 }
 
 // Template expression usage
@@ -84,7 +84,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\UppercaseStrings;
 // Pipeline usage
 protected function pipes(): array
 {
-    return [UppercaseStrings::class];
+    return [new UppercaseStrings()];
 }
 
 // Template expression usage
@@ -138,7 +138,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
 
 protected function pipes(): array
 {
-    return [LowercaseEmails::class];
+    return [new LowercaseEmails()];
 }
 ```
 
@@ -156,7 +156,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\StripTags;
 
 protected function pipes(): array
 {
-    return [StripTags::class];
+    return [new StripTags()];
 }
 ```
 
@@ -387,7 +387,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToInteger;
 
 protected function pipes(): array
 {
-    return [CastToInteger::class];
+    return [new CastToInteger()];
 }
 ```
 
@@ -405,7 +405,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToFloat;
 
 protected function pipes(): array
 {
-    return [CastToFloat::class];
+    return [new CastToFloat()];
 }
 ```
 
@@ -423,7 +423,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToBoolean;
 
 protected function pipes(): array
 {
-    return [CastToBoolean::class];
+    return [new CastToBoolean()];
 }
 ```
 
@@ -448,7 +448,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
 
 protected function pipes(): array
 {
-    return [SkipEmptyValues::class];
+    return [new SkipEmptyValues()];
 }
 ```
 
@@ -467,7 +467,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\RemoveNullValues;
 
 protected function pipes(): array
 {
-    return [RemoveNullValues::class];
+    return [new RemoveNullValues()];
 }
 ```
 
@@ -485,7 +485,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\ConvertEmptyToNull;
 
 protected function pipes(): array
 {
-    return [ConvertEmptyToNull::class];
+    return [new ConvertEmptyToNull()];
 }
 ```
 
@@ -503,7 +503,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\ConvertToNull;
 
 protected function pipes(): array
 {
-    return [ConvertToNull::class];
+    return [new ConvertToNull()];
 }
 ```
 
@@ -517,14 +517,14 @@ Transformers are applied in the order they are defined. This allows for powerful
 protected function pipes(): array
 {
     return [
-        TrimStrings::class,          // 1. Trim whitespace first
-        StripTags::class,            // 2. Remove HTML tags
-        ConvertEmptyToNull::class,   // 3. Convert empty strings to null
-        LowercaseEmails::class,      // 4. Lowercase email fields
-        CastToInteger::class,        // 5. Cast numeric IDs to integers
-        CastToFloat::class,          // 6. Cast prices to floats
-        CastToBoolean::class,        // 7. Cast boolean fields
-        RemoveNullValues::class,     // 8. Remove null values from result
+        new TrimStrings(),          // 1. Trim whitespace first
+        new StripTags(),            // 2. Remove HTML tags
+        new ConvertEmptyToNull(),   // 3. Convert empty strings to null
+        new LowercaseEmails(),      // 4. Lowercase email fields
+        new CastToInteger(),        // 5. Cast numeric IDs to integers
+        new CastToFloat(),          // 6. Cast prices to floats
+        new CastToBoolean(),        // 7. Cast boolean fields
+        new RemoveNullValues(),     // 8. Remove null values from result
     ];
 }
 ```
@@ -548,9 +548,9 @@ class UserRegistrationModel extends MappedDataModel
     protected function pipes(): array
     {
         return [
-            TrimStrings::class,
-            LowercaseEmails::class,
-            CastToInteger::class,
+            new TrimStrings(),
+            new LowercaseEmails(),
+            new CastToInteger(),
         ];
     }
 }
@@ -587,10 +587,10 @@ class ProductModel extends MappedDataModel
     protected function pipes(): array
     {
         return [
-            TrimStrings::class,
-            CastToInteger::class,
-            CastToFloat::class,
-            CastToBoolean::class,
+            new TrimStrings(),
+            new CastToInteger(),
+            new CastToFloat(),
+            new CastToBoolean(),
         ];
     }
 }
@@ -613,9 +613,9 @@ class UserProfileModel extends MappedDataModel
     protected function pipes(): array
     {
         return [
-            TrimStrings::class,
-            ConvertEmptyToNull::class,
-            RemoveNullValues::class,  // Only include fields with values
+            new TrimStrings(),
+            new ConvertEmptyToNull(),
+            new RemoveNullValues(),  // Only include fields with values
         ];
     }
 }
@@ -751,7 +751,7 @@ $transformerClass = TransformerRegistry::get('my_custom');
 
 // Get all registered aliases
 $allAliases = TransformerRegistry::all();
-// Returns: ['trim' => TrimStrings::class, 'upper' => UppercaseStrings::class, ...]
+// Returns: ['trim' => new TrimStrings(), 'upper' => new UppercaseStrings(), ...]
 
 // Clear all registrations (useful for testing)
 TransformerRegistry::clear();

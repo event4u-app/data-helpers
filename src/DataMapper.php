@@ -46,12 +46,13 @@ class DataMapper
      *
      * Example:
      *   DataMapper::pipe([
-     *       TrimStrings::class,
-     *       LowercaseEmails::class,
-     *       SkipEmptyValues::class,
+     *       new TrimStrings(),
+     *       new LowercaseEmails(),
+     *       new SkipEmptyValues(),
+     *       new DefaultValue('Unknown'),
      *   ])->map($source, $target, $mapping);
      *
-     * @param array<int, TransformerInterface|class-string<TransformerInterface>> $transformers
+     * @param array<int, TransformerInterface> $transformers Transformer instances
      */
     public static function pipe(array $transformers): DataMapperPipeline
     {

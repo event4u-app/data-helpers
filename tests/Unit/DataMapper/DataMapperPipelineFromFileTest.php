@@ -24,8 +24,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ];
 
             $result = DataMapper::pipe([
-                TrimStrings::class,
-                LowercaseEmails::class,
+                new TrimStrings(),
+                new LowercaseEmails(),
             ])->mapFromFile($jsonFile, $target, $mapping);
 
             expect($result)->toBeArray();
@@ -46,8 +46,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ];
 
             $result = DataMapper::pipe([
-                TrimStrings::class,
-                UppercaseStrings::class,
+                new TrimStrings(),
+                new UppercaseStrings(),
             ])->mapFromFile($xmlFile, $target, $mapping);
 
             expect($result)->toBeArray();
@@ -68,8 +68,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ];
 
             $result = DataMapper::pipe([
-                TrimStrings::class,
-                LowercaseEmails::class,
+                new TrimStrings(),
+                new LowercaseEmails(),
             ])->mapFromFile($jsonFile, $target, $mapping);
 
             expect($result['email'])->toBe('info@techcorp.example'); // Trimmed and lowercased
@@ -98,8 +98,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ];
 
             $result = DataMapper::pipe([
-                TrimStrings::class,
-                LowercaseEmails::class,
+                new TrimStrings(),
+                new LowercaseEmails(),
             ])->mapFromFile($jsonFile, $company, $mapping);
 
             expect($result)->toBeInstanceOf(Company::class);
@@ -138,8 +138,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ];
 
             $result = DataMapper::pipe([
-                TrimStrings::class,
-                LowercaseEmails::class,
+                new TrimStrings(),
+                new LowercaseEmails(),
             ])->mapFromFile($xmlFile, $company, $mapping);
 
             expect($result)->toBeInstanceOf(Company::class);
@@ -172,8 +172,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ];
 
             $result = DataMapper::pipe([
-                TrimStrings::class,
-                LowercaseEmails::class,
+                new TrimStrings(),
+                new LowercaseEmails(),
             ])->mapFromFile($jsonFile, $company, $mapping);
 
             expect($result)->toBeInstanceOf(EntityCompany::class);
@@ -212,8 +212,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             ];
 
             $result = DataMapper::pipe([
-                TrimStrings::class,
-                LowercaseEmails::class,
+                new TrimStrings(),
+                new LowercaseEmails(),
             ])->mapFromFile($xmlFile, $company, $mapping);
 
             expect($result)->toBeInstanceOf(EntityCompany::class);
@@ -230,7 +230,7 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             $target = [];
             $mapping = ['name' => '{{ name }}'];
 
-            DataMapper::pipe([TrimStrings::class])
+            DataMapper::pipe([new TrimStrings()])
                 ->mapFromFile('/non/existent/file.json', $target, $mapping);
         })->throws(InvalidArgumentException::class, 'File not found');
 
@@ -242,7 +242,7 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             $mapping = ['name' => '{{ name }}'];
 
             try {
-                DataMapper::pipe([TrimStrings::class])
+                DataMapper::pipe([new TrimStrings()])
                     ->mapFromFile($tempFile, $target, $mapping);
             } finally {
                 unlink($tempFile);

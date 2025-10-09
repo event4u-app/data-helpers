@@ -48,9 +48,9 @@ $mapping = [
 
 // Apply transformation pipeline
 $result = DataMapper::pipe([
-    TrimStrings::class,
-    LowercaseEmails::class,
-    SkipEmptyValues::class,
+    new TrimStrings(),
+    new LowercaseEmails(),
+    new SkipEmptyValues(),
 ])->map($source, [], $mapping);
 
 // Result:
@@ -72,7 +72,7 @@ Trims whitespace from all string values.
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
 
-$result = DataMapper::pipe([TrimStrings::class])
+$result = DataMapper::pipe([new TrimStrings()])
     ->map($source, [], $mapping);
 ```
 
@@ -89,7 +89,7 @@ Converts email addresses to lowercase. Automatically detects fields containing '
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
 
-$result = DataMapper::pipe([LowercaseEmails::class])
+$result = DataMapper::pipe([new LowercaseEmails()])
     ->map($source, [], $mapping);
 ```
 
@@ -106,7 +106,7 @@ Skips empty strings and empty arrays from being written to the target.
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
 
-$result = DataMapper::pipe([SkipEmptyValues::class])
+$result = DataMapper::pipe([new SkipEmptyValues()])
     ->map($source, [], $mapping);
 ```
 
@@ -123,7 +123,7 @@ Converts all string values to uppercase.
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\UppercaseStrings;
 
-$result = DataMapper::pipe([UppercaseStrings::class])
+$result = DataMapper::pipe([new UppercaseStrings()])
     ->map($source, [], $mapping);
 ```
 
@@ -141,7 +141,7 @@ Converts specific values to null (e.g., 'N/A', 'null', empty strings).
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\ConvertToNull;
 
 // Use default values ('', 'N/A', 'null', 'NULL')
-$result = DataMapper::pipe([ConvertToNull::class])
+$result = DataMapper::pipe([new ConvertToNull()])
     ->map($source, [], $mapping);
 
 // Or specify custom values
@@ -343,7 +343,7 @@ class FormatPhoneNumber implements TransformerInterface
 // Usage
 $result = DataMapper::pipe([
     new FormatPhoneNumber('+49'),
-    TrimStrings::class,
+    new TrimStrings(),
 ])->map($source, [], $mapping);
 ```
 
@@ -354,9 +354,9 @@ $result = DataMapper::pipe([
 ```php
 // Define once
 $cleanupPipeline = DataMapper::pipe([
-    TrimStrings::class,
-    ConvertToNull::class,
-    SkipEmptyValues::class,
+    new TrimStrings(),
+    new ConvertToNull(),
+    new SkipEmptyValues(),
 ]);
 
 // Use multiple times
@@ -369,8 +369,8 @@ $orders = $cleanupPipeline->map($orderSource, [], $orderMapping);
 
 ```php
 $result = DataMapper::pipe([
-    TrimStrings::class,
-    LowercaseEmails::class,
+    new TrimStrings(),
+    new LowercaseEmails(),
 ])
 ->withHooks([
     'afterAll' => fn($ctx) => logger()->info('Mapping completed'),
@@ -385,9 +385,9 @@ $result = DataMapper::pipe([
 
 ```php
 $result = DataMapper::pipe([
-    TrimStrings::class,                              // Class name
+    new TrimStrings(),                              // Class name
     new ConvertToNull(['N/A', 'null', '-']),        // Instance with custom config
-    LowercaseEmails::class,                          // Class name
+    new LowercaseEmails(),                          // Class name
 ])->map($source, [], $mapping);
 ```
 
@@ -397,9 +397,9 @@ Transformers are executed in order:
 
 ```php
 $result = DataMapper::pipe([
-    TrimStrings::class,        // 1. Trim whitespace
-    ConvertToNull::class,      // 2. Convert 'N/A' to null
-    SkipEmptyValues::class,    // 3. Skip empty values
+    new TrimStrings(),        // 1. Trim whitespace
+    new ConvertToNull(),      // 2. Convert 'N/A' to null
+    new SkipEmptyValues(),    // 3. Skip empty values
 ])->map($source, [], $mapping);
 ```
 
@@ -494,10 +494,10 @@ $mapping = [
 ];
 
 $result = DataMapper::pipe([
-    TrimStrings::class,
-    ConvertToNull::class,
-    LowercaseEmails::class,
-    SkipEmptyValues::class,
+    new TrimStrings(),
+    new ConvertToNull(),
+    new LowercaseEmails(),
+    new SkipEmptyValues(),
 ])->map($source, [], $mapping);
 
 // Result:
@@ -548,10 +548,10 @@ class ApiResponseCleaner
     public function __construct()
     {
         $this->pipeline = DataMapper::pipe([
-            TrimStrings::class,
-            ConvertToNull::class,
-            LowercaseEmails::class,
-            SkipEmptyValues::class,
+            new TrimStrings(),
+            new ConvertToNull(),
+            new LowercaseEmails(),
+            new SkipEmptyValues(),
         ]);
     }
 
@@ -580,8 +580,8 @@ $result = DataMapper::map($source, [], $mapping, hooks: [
 
 // Pipeline API (new, modern)
 $result = DataMapper::pipe([
-    TrimStrings::class,
-    SkipEmptyValues::class,
+    new TrimStrings(),
+    new SkipEmptyValues(),
 ])->map($source, [], $mapping);
 
 // Both produce the same result!

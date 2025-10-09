@@ -38,4 +38,10 @@ final class AllContext implements HookContext
     {
         return null;
     }
+
+    /** @return array<int, mixed> */
+    public function extra(): array
+    {
+        return [];
+    }
 }

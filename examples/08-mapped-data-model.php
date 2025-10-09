@@ -254,8 +254,8 @@ class ValidatedModel extends MappedDataModel
     protected function pipes(): array
     {
         return [
-            TrimStrings::class,
-            LowercaseEmails::class,
+            new TrimStrings(),
+            new LowercaseEmails(),
         ];
     }
 
@@ -342,8 +342,8 @@ class UserWithPipesModel extends MappedDataModel
     protected function pipes(): array
     {
         return [
-            TrimStrings::class,      // Trim all strings
-            LowercaseEmails::class,  // Lowercase email fields
+            new TrimStrings(),      // Trim all strings
+            new LowercaseEmails(),  // Lowercase email fields
         ];
     }
 }
@@ -396,11 +396,11 @@ class ProductModel extends MappedDataModel
     protected function pipes(): array
     {
         return [
-            TrimStrings::class,        // Trim all strings first
-            StripTags::class,          // Remove HTML tags
-            CastToInteger::class,      // Cast id, quantity to int
-            CastToFloat::class,        // Cast price to float
-            CastToBoolean::class,      // Cast is_active to bool
+            new TrimStrings(),        // Trim all strings first
+            new StripTags(),          // Remove HTML tags
+            new CastToInteger(),      // Cast id, quantity to int
+            new CastToFloat(),        // Cast price to float
+            new CastToBoolean(),      // Cast is_active to bool
         ];
     }
 }
@@ -455,9 +455,9 @@ class UserProfileModel extends MappedDataModel
     protected function pipes(): array
     {
         return [
-            TrimStrings::class,
-            ConvertEmptyToNull::class,  // Convert empty strings to null
-            RemoveNullValues::class,    // Don't include null values in result
+            new TrimStrings(),
+            new ConvertEmptyToNull(),  // Convert empty strings to null
+            new RemoveNullValues(),    // Don't include null values in result
         ];
     }
 }
