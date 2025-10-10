@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Between;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Clamp;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Count;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DecodeHtmlEntities;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DefaultValue;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\First;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Join;
@@ -125,6 +126,7 @@ final class TransformerRegistry
             UppercaseStrings::class,
             Ucfirst::class,
             Ucwords::class,
+            DecodeHtmlEntities::class,
 
             // Array transformers
             Count::class,

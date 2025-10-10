@@ -82,6 +82,35 @@ $result = DataMapper::pipe([new TrimStrings()])
 - Input: `'  Alice  '`
 - Output: `'Alice'`
 
+### DecodeHtmlEntities
+
+Decodes HTML entities in string values, including numeric entities (e.g., `&#32;`, `&#45;`) and named entities (e.g., `&amp;`, `&lt;`, `&gt;`). Handles double-encoded and triple-encoded entities automatically.
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DecodeHtmlEntities;
+
+$result = DataMapper::pipe([new DecodeHtmlEntities()])
+    ->map($source, [], $mapping);
+```
+
+**Template Aliases:** `decode_html`, `html_decode`, `decode_entities`
+
+**Hook:** `preTransform`
+
+**Examples:**
+- Input: `'Herbert&#32;Meier'` → Output: `'Herbert Meier'`
+- Input: `'Sample&amp;#32;&amp;#45;&amp;#32;Pool'` → Output: `'Sample - Pool'` (double-encoded)
+- Input: `'&lt;div&gt;'` → Output: `'<div>'`
+- Input: `'&quot;Hello&quot;'` → Output: `'"Hello"'`
+
+**Template Usage:**
+```php
+$mapping = [
+    'name' => '{{ customer.name | decode_html }}',
+    'description' => '{{ product.description | decode_html | trim }}',
+];
+```
+
 ### LowercaseEmails
 
 Converts email addresses to lowercase. Automatically detects fields containing 'email' in the path.

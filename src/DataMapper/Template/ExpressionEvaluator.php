@@ -68,6 +68,13 @@ final class ExpressionEvaluator
      */
     private static function resolveSourcePath(string $path, array $sources): mixed
     {
+        // Special case: if sources has a single entry with empty key, use it as the direct source
+        // This allows {{ customer_name }} instead of requiring {{ source.customer_name }}
+        if (1 === count($sources) && isset($sources[''])) {
+            $accessor = new DataAccessor($sources['']);
+            return $accessor->get($path);
+        }
+
         // Parse alias.path
         $parts = explode('.', $path, 2);
         $alias = $parts[0];

@@ -22,25 +22,30 @@
     "positions": [
         {
             "parent_id": [],
+            "long_text": "Construction of paving areas in two construction phases.\n                    Coordination with other trades required.\n                    Traffic safety measures according to RSA to be implemented.\n                    Access to adjacent properties must be kept clear.",
             "type": "N"
         },
         {
             "parent_id": [],
+            "long_text": "Construction Phase 1: Main Path",
             "type": "N"
         },
         {
             "parent_id": [],
+            "long_text": "Site Setup and Accompanying Services",
             "type": "N"
         },
         {
             "parent_id": "91082",
             "short_text": "Set up construction site for this section. Access available.",
+            "long_text": "Site setup with equipment, tools and operating materials.\n                    Provision of connections for electricity, water and disposal.\n                    Access to construction site available.",
             "unit": "lump sum",
             "type": "N"
         },
         {
             "parent_id": "91082",
             "short_text": "Clear construction site for this section.",
+            "long_text": "Clear construction site and restore areas to original condition.",
             "unit": "lump sum",
             "type": "N"
         }

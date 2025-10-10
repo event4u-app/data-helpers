@@ -18,6 +18,9 @@ use event4u\DataHelpers\DataMapper\Support\MappingEngine;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
+use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
+use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
+use event4u\DataHelpers\DataMapper\Template\FilterEngine;
 use event4u\DataHelpers\DataMapper\TemplateMapper;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Support\EntityHelper;
@@ -548,6 +551,17 @@ class DataMapper
                 continue;
             }
 
+            // Extract filters from source path if present
+            $filters = [];
+            if (!$isStatic && is_string($sourcePath) && str_contains($sourcePath, '|')) {
+                $parts = explode('|', $sourcePath, 2);
+                $sourcePath = trim($parts[0]);
+                $filtersPart = trim($parts[1] ?? '');
+                if ('' !== $filtersPart) {
+                    $filters = array_map('trim', explode('|', $filtersPart));
+                }
+            }
+
             if ($isStatic) {
                 // Static value: use as-is
                 $value = $sourcePath;
@@ -556,6 +570,11 @@ class DataMapper
                 // Dynamic path: get value from source
                 $actualSourcePath = (string)$sourcePath;
                 $value = $accessor->get($actualSourcePath);
+
+                // Apply filters to non-wildcard values
+                if ([] !== $filters && !is_array($value)) {
+                    $value = FilterEngine::apply($value, $filters);
+                }
             }
 
             // Skip null values by default
@@ -578,6 +597,14 @@ class DataMapper
                 // Normalize wildcard array (flatten dot-path keys to simple list)
                 $value = WildcardHandler::normalizeWildcardArray($value);
 
+                // Create transform function for filters if present
+                $transformFn = null;
+                if ([] !== $filters) {
+                    $transformFn = function(mixed $itemValue) use ($filters): mixed {
+                        return FilterEngine::apply($itemValue, $filters);
+                    };
+                }
+
                 // Use centralized wildcard processing from MappingEngine
                 $target = MappingEngine::processWildcardMapping(
                     $value,
@@ -590,7 +617,7 @@ class DataMapper
                     $reindexWildcard,
                     $hooks,
                     $pairContext,
-                    null,  // $transformFn - not available in simple mapping
+                    $transformFn,  // Apply filters to each wildcard item
                     null,  // $replaceMap - not available in simple mapping
                     $trimValues,
                     $caseInsensitiveReplace

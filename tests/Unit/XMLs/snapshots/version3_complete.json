@@ -1,14 +1,15 @@
 {
     "project": {
         "number": "3&#45;24281",
-        "title": "Sample&#32;&#45;&#32;Swimming&#32;Pool&#32;&#45;",
-        "description": "Sample&#32;&#45;&#32;Swimming&#32;Pool&#32;&#45;",
+        "title": "Sample - Swimming Pool -",
+        "description": "Sample - Swimming Pool -",
         "status": "order"
     },
     "customer": {
-        "name1": "Herbert&#32;Meier",
-        "name2": "Petra&#32;Meier",
-        "street": "Gartenweg&#32;23",
+        "name1": "Herbert Meier",
+        "name2": "Petra Meier",
+        "name3": "",
+        "street": "Gartenweg 23",
         "zipcode": "12345",
         "city": "Sample City"
     },
@@ -16,30 +17,35 @@
         {
             "number": "01",
             "short_text": "Site Setup",
+            "long_text": "Site Setup",
             "unit": "-",
             "type": "N"
         },
         {
             "number": "01&#46;01",
-            "short_text": "Site&#32;Setup&#32;&#45;&#32;Set&#32;up&#32;site&#32;during&#32;construction",
+            "short_text": "Site Setup - Set up site during construction",
+            "long_text": "Site setup with machinery and equipment.",
             "unit": "lump sum",
             "type": "N"
         },
         {
             "number": "01&#46;02",
-            "short_text": "Surveying&#32;Work",
+            "short_text": "Surveying Work",
+            "long_text": "Staking and surveying work.",
             "unit": "lump sum.",
             "type": "N"
         },
         {
             "number": "01&#46;03",
-            "short_text": "Portable&#32;Toilet&#32;per&#32;Month",
+            "short_text": "Portable Toilet per Month",
+            "long_text": "Portable toilet for 4 weeks.",
             "unit": "lump sum.",
             "type": "N"
         },
         {
             "number": "01&#46;04",
-            "short_text": "Portable&#32;Toilet&#32;per&#32;Week&#32;after&#32;4&#32;Weeks",
+            "short_text": "Portable Toilet per Week after 4 Weeks",
+            "long_text": "Portable toilet per week.",
             "unit": "pcs",
             "type": "N"
         }

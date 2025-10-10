@@ -408,7 +408,7 @@ $result = DataMapper::pipe([
 // }
 ```
 
-**Built-in transformers:** `TrimStrings`, `LowercaseEmails`, `SkipEmptyValues`, `UppercaseStrings`, `ConvertToNull`
+**Built-in transformers:** `TrimStrings`, `DecodeHtmlEntities`, `LowercaseEmails`, `SkipEmptyValues`, `UppercaseStrings`, `ConvertToNull`
 
 👉 [Create custom transformers](docs/data-mapper-pipeline.md#creating-custom-transformers)
 
@@ -452,8 +452,8 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 // }
 ```
 
-**15 built-in transformers:** `lower`, `upper`, `trim`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`, `reverse`, `sort`,
-`unique`, `join`, `json`, `default`
+**18 built-in transformers:** `lower`, `upper`, `trim`, `decode_html`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`, `reverse`, `sort`,
+`unique`, `join`, `json`, `default`, `between`, `strip_tags`
 
 👉 [See all transformers and create custom ones](docs/template-expressions.md#custom-transformers)
 
