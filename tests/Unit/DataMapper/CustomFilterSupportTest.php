@@ -7,6 +7,16 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
 use Tests\utils\Filters\AlternatingCase;
 use Tests\utils\Filters\ReverseString;
 
+beforeEach(function(): void {
+    FilterRegistry::clear();
+    FilterRegistry::register(AlternatingCase::class);
+    FilterRegistry::register(ReverseString::class);
+});
+
+afterEach(function(): void {
+    FilterRegistry::clear();
+});
+
 /**
  * Comprehensive tests for CUSTOM filter support across ALL mapping methods.
  *
@@ -16,16 +26,6 @@ use Tests\utils\Filters\ReverseString;
  * - mapFromTemplate()
  */
 describe('Custom Filter Support Across All Mapping Methods', function(): void {
-    beforeEach(function(): void {
-        FilterRegistry::clear();
-        FilterRegistry::register(AlternatingCase::class);
-        FilterRegistry::register(ReverseString::class);
-    });
-
-    afterEach(function(): void {
-        FilterRegistry::clear();
-    });
-
     describe('mapFromFile() - Custom Filter Support', function(): void {
         it('applies custom filter to simple field', function(): void {
             $tempFile = sys_get_temp_dir() . '/test_custom_filter.json';
