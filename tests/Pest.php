@@ -1,10 +1,5 @@
 <?php
 
-use Illuminate\Cache\ArrayStore;
-use Illuminate\Cache\Repository;
-use Illuminate\Container\Container;
-use Illuminate\Support\Facades\Facade;
-
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -42,39 +37,4 @@ expect()->extend('toBeOne', fn() => $this->toBe(1));
 |
 */
 
-/*
-|--------------------------------------------------------------------------
-| Setup Laravel Cache for Testing
-|--------------------------------------------------------------------------
-|
-| Setup a minimal Laravel environment for cache testing.
-|
-*/
-function setupLaravelCache(): void
-{
-    $app = new Container();
-    $app->singleton('app', fn(): Container => $app);
-
-    // Setup cache
-    // @phpstan-ignore-next-line - Test helper for Laravel cache
-    $app->singleton('cache', fn(): Repository => // @phpstan-ignore-next-line - Test helper
-    new Repository(new ArrayStore())
-    );
-
-    // Setup cache store
-    $app->singleton('cache.store', fn($app) => $app['cache']);
-
-    // Set facade application
-    // @phpstan-ignore-next-line - Test helper for Laravel facades
-    Facade::setFacadeApplication($app);
-
-    // Make app() function work
-    Container::setInstance($app);
-}
-
-function teardownLaravelCache(): void
-{
-    Facade::clearResolvedInstances();
-    Facade::setFacadeApplication(null);
-    Container::setInstance(null);
-}
+// Helper functions are loaded via Composer autoload from tests/helpers-laravel.php

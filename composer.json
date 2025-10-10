@@ -71,7 +71,10 @@
     "psr-4": {
       "Tests\\": "tests/",
       "Examples\\": "examples/"
-    }
+    },
+    "files": [
+      "tests/helpers-laravel.php"
+    ]
   },
   "bin": [],
   "scripts": {

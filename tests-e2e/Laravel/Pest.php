@@ -34,6 +34,7 @@ if (!function_exists('setupLaravelCache')) {
         $app->singleton('app', fn(): \Illuminate\Container\Container => $app);
         $app->singleton('cache', fn(): \Illuminate\Cache\Repository => new \Illuminate\Cache\Repository(new \Illuminate\Cache\ArrayStore()));
         $app->singleton('cache.store', fn($app) => $app['cache']);
+        // @phpstan-ignore-next-line - Container is compatible with Application for testing
         \Illuminate\Support\Facades\Facade::setFacadeApplication($app);
         \Illuminate\Container\Container::setInstance($app);
     }
