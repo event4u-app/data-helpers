@@ -160,7 +160,7 @@ echo "Applying 'trim' filter to multiple values:\n";
 foreach ($values as $value) {
     $result = FilterEngine::apply($value, ['trim']);
     $resultStr = is_string($result) ? $result : (string)$result;
-    echo "  '{$value}' -> '{$resultStr}'\n";
+    echo "  '" . $value . "' -> '" . $resultStr . "'\n";
 }
 
 echo "\n✓ Transformer instances are reused (not created each time)\n";
@@ -205,7 +205,7 @@ echo "Before clearing:\n";
 echo sprintf('  - ExpressionParser cache size: %d%s', $stats['size'], PHP_EOL);
 
 $stats = ClassScopedCache::getClassStats(TemplateParser::class);
-echo "  - TemplateParser cache size: {$stats['count']}\n\n";
+echo '  - TemplateParser cache size: ' . $stats['count'] . "\n\n";
 
 // Clear specific caches
 ExpressionParser::clearCache();
@@ -236,7 +236,7 @@ for ($i = 1; 105 >= $i; $i++) {
 
 $stats = ClassScopedCache::getClassStats(TemplateParser::class);
 echo "After creating 105 mappings:\n";
-echo "  - Cache size: {$stats['count']} (max: 100)\n";
+echo '  - Cache size: ' . $stats['count'] . " (max: 100)\n";
 echo "  - Oldest 5 entries were evicted (LRU)\n\n";
 
 // ============================================================================

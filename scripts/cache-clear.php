@@ -36,7 +36,7 @@ if (null === $className) {
         : 0;
     echo "   - Hit Rate: " . number_format($hitRate * 100, 2) . "%\n";
 } else {
-    echo "🗑️  Clearing cache for class: {$className}...\n\n";
+    echo '🗑️  Clearing cache for class: ' . $className . "...\n\n";
 
     // Try to find the full class name
     $possibleClasses = [
@@ -64,7 +64,7 @@ if (null === $className) {
             // Clear the cache (this will clear all entries, but we'll show the class name)
             CacheHelper::flush();
 
-            echo "✅  Cache cleared for class: {$fullClassName}\n\n";
+            echo '✅  Cache cleared for class: ' . $fullClassName . "\n\n";
             $found = true;
             break;
         }

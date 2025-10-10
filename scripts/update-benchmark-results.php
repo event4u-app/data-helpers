@@ -26,7 +26,7 @@ $benchCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run 
 exec($benchCommand, $outputLines, $returnCode);
 
 if (0 !== $returnCode) {
-    echo "❌  Failed to run benchmarks (exit code: {$returnCode})\n";
+    echo '❌  Failed to run benchmarks (exit code: ' . $returnCode . ")\n";
     exit(1);
 }
 
@@ -90,7 +90,7 @@ foreach ($results['DataAccessor'] as $result) {
     $name = trim((string)$name);
     $time = formatTime($result['time']);
     $desc = $descriptions[$result['name']] ?? '';
-    $markdown .= "| {$name} | {$time} | {$desc} |\n";
+    $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
 }
 
 $markdown .= "\n### DataMutator\n\n";
@@ -113,7 +113,7 @@ foreach ($results['DataMutator'] as $result) {
     $name = trim((string)$name);
     $time = formatTime($result['time']);
     $desc = $descriptions[$result['name']] ?? '';
-    $markdown .= "| {$name} | {$time} | {$desc} |\n";
+    $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
 }
 
 $markdown .= "\n### DataMapper\n\n";
@@ -133,7 +133,7 @@ foreach ($results['DataMapper'] as $result) {
     $name = trim((string)$name);
     $time = formatTime($result['time']);
     $desc = $descriptions[$result['name']] ?? '';
-    $markdown .= "| {$name} | {$time} | {$desc} |\n";
+    $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
 }
 
 // Read README
