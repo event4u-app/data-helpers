@@ -56,7 +56,9 @@
     "vlucas/phpdotenv": "^5.6"
   },
   "repositories": [],
-  "suggest": {},
+  "suggest": {
+    "nesbot/carbon": "Required for EnvHelper::carbon() method to parse date/time environment variables"
+  },
   "minimum-stability": "stable",
   "prefer-stable": true,
   "conflict": {},

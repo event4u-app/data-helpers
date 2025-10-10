@@ -1,0 +1,160 @@
+<?php
+
+namespace event4u\DataHelpers\Helpers;
+
+use event4u\DataHelpers\Traits\EnvHelperCarbonTrait;
+use InvalidArgumentException;
+use Stringable;
+
+final class EnvHelper
+{
+    use EnvHelperCarbonTrait;
+
+    /**
+     * Get an environment variable value.
+     *
+     * Automatically detects the environment:
+     * - Laravel: Uses env() function
+     * - Symfony: Uses $_ENV (Symfony's env() is different)
+     * - Plain PHP: Uses $_ENV
+     */
+    public static function get(string $key, mixed $default = null): mixed
+    {
+        // Check if Laravel's env() function exists
+        if (function_exists('env')) {
+            return env($key, $default);
+        }
+
+        // Fallback to $_ENV for Symfony and Plain PHP
+        return $_ENV[$key] ?? $default;
+    }
+
+    public static function string(
+        string $key,
+        mixed $default = null,
+        bool $forceCast = true,
+    ): string {
+        $value = self::get($key, $default);
+
+        if ($forceCast) {
+            if (is_numeric($value) || is_string($value)) {
+                return (string)$value;
+            }
+
+            if (
+                is_object($value)
+                && (
+                    $value instanceof Stringable
+                    || method_exists($value, '__toString')
+                )
+            ) {
+                return (string)$value;
+            }
+
+            if (is_bool($value)) {
+                return $value ? 'true' : 'false';
+            }
+        }
+
+        if (null !== $value) {
+            self::checkTypeAndThrowException('string', $key, $value);
+        }
+
+        return (string)$value;
+    }
+
+    public static function integer(
+        string $key,
+        mixed $default = null,
+        bool $forceCast = true,
+    ): int {
+        $value = self::get($key, $default);
+
+        if ($forceCast) {
+            if (is_numeric($value) || is_string($value)) {
+                return (int)$value;
+            }
+
+            if (is_bool($value)) {
+                return $value ? 1 : 0;
+            }
+        }
+
+        if (null !== $value) {
+            self::checkTypeAndThrowException('integer', $key, $value);
+        }
+
+        return (int)$value;
+    }
+
+    public static function float(
+        string $key,
+        mixed $default = null,
+        bool $forceCast = true,
+    ): float {
+        $value = self::get($key, $default);
+
+        if ($forceCast) {
+            if (is_numeric($value) || is_string($value)) {
+                return (float)$value;
+            }
+
+            if (is_bool($value)) {
+                return $value ? 1.0 : 0.0;
+            }
+        }
+
+        if (null !== $value) {
+            self::checkTypeAndThrowException('float', $key, $value);
+        }
+
+        return (float)$value;
+    }
+
+    public static function boolean(
+        string $key,
+        mixed $default = null,
+        bool $forceCast = true,
+    ): bool {
+        $value = self::get($key, $default);
+
+        if ($forceCast) {
+            if (is_numeric($value)) {
+                return (bool)$value;
+            }
+
+            if (is_string($value)) {
+                return 'true' === strtolower($value);
+            }
+        }
+
+        if (null !== $value) {
+            self::checkTypeAndThrowException('boolean', $key, $value);
+        }
+
+        return (bool)$value;
+    }
+
+    private static function checkTypeAndThrowException(
+        string $expectedType,
+        string $key,
+        mixed $value,
+    ): void {
+        if (is_object($value)) {
+            $valueType = $value::class;
+        } else {
+            $valueType = gettype($value);
+        }
+
+        if ($expectedType !== $valueType) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Configuration value for key [%s] must be a %s, %s given.',
+                    $key,
+                    $expectedType,
+                    $valueType
+                )
+            );
+        }
+    }
+}

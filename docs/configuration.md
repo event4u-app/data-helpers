@@ -2,6 +2,8 @@
 
 The Data Helpers package can be configured via environment variables or framework-specific configuration files.
 
+**New in v1.x:** All frameworks (Laravel, Symfony, Plain PHP) now use a **unified configuration file** (`config/data-helpers.php`) with the `EnvHelper` class for automatic environment detection. This eliminates code duplication and provides consistent type-casting across all environments.
+
 ## Quick Setup
 
 ### Laravel
@@ -34,18 +36,48 @@ DATA_HELPERS_CACHE_TTL=3600
 ### Plain PHP
 
 ```php
-// config/data-helpers.php
-return [
-    'cache' => [
-        'max_entries' => 1000,
-        'default_ttl' => 3600,
-    ],
-];
-
 // bootstrap.php
+$config = require __DIR__ . '/vendor/event4u/data-helpers/config/data-helpers.php';
+event4u\DataHelpers\DataHelpersConfig::initialize($config);
+
+// Or use custom config
 $config = require __DIR__ . '/config/data-helpers.php';
 event4u\DataHelpers\DataHelpersConfig::initialize($config);
 ```
+
+---
+
+## EnvHelper - Unified Environment Variable Handling
+
+The `EnvHelper` class provides a **framework-agnostic** way to read environment variables with automatic type-casting:
+
+```php
+use event4u\DataHelpers\Helpers\EnvHelper;
+
+// Automatically detects Laravel env(), Symfony $_ENV, or Plain PHP $_ENV
+$driver = EnvHelper::string('DATA_HELPERS_CACHE_DRIVER', 'memory');
+$maxEntries = EnvHelper::integer('DATA_HELPERS_CACHE_MAX_ENTRIES', 1000);
+$ttl = EnvHelper::integer('DATA_HELPERS_CACHE_DEFAULT_TTL', 3600);
+$enabled = EnvHelper::boolean('DATA_HELPERS_CACHE_ENABLED', true);
+```
+
+**Available Methods:**
+- `EnvHelper::get($key, $default)` - Raw value (auto-detects environment)
+- `EnvHelper::string($key, $default, $forceCast)` - String with type-casting
+- `EnvHelper::integer($key, $default, $forceCast)` - Integer with type-casting
+- `EnvHelper::float($key, $default, $forceCast)` - Float with type-casting
+- `EnvHelper::boolean($key, $default, $forceCast)` - Boolean with type-casting
+- `EnvHelper::carbon($key, $default)` - Carbon date/time instance *(requires nesbot/carbon)*
+- `EnvHelper::hasCarbonSupport()` - Check if Carbon is available
+
+**How it works:**
+1. **Laravel:** Uses `env()` function if available
+2. **Symfony/Plain PHP:** Falls back to `$_ENV` superglobal
+
+**Carbon Support (Optional):**
+The `carbon()` method is only available when `nesbot/carbon` is installed. If Carbon is not available, calling `EnvHelper::carbon()` will throw an `InvalidArgumentException`. Use `EnvHelper::hasCarbonSupport()` to check availability before calling.
+
+This allows the **same configuration file** to work across all frameworks! 🎉
 
 ---
 
@@ -65,7 +97,9 @@ php artisan vendor:publish --tag=data-helpers-config
 
 This copies `config/laravel/data-helpers.php` to `config/data-helpers.php` in your Laravel application.
 
-**Note:** Publishing is optional. The package works with default values if you don't publish the config.
+**Note:**
+- Publishing is optional. The package works with default values if you don't publish the config.
+- The Laravel config file loads the shared `config/data-helpers.php` and sets Laravel-specific defaults (e.g., `cache.driver = 'laravel'`).
 
 ### 3. Configure via Environment Variables
 
