@@ -110,9 +110,9 @@ The configuration is auto-discovered. Create `config/packages/data_helpers.yaml`
 
 ```yaml
 data_helpers:
-  cache:
-    max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
-    default_ttl: '%env(int:DATA_HELPERS_CACHE_TTL)%'
+    cache:
+        max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
+        default_ttl: '%env(int:DATA_HELPERS_CACHE_TTL)%'
 ```
 
 Add to `.env`:
@@ -557,6 +557,11 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Template Expressions](docs/template-expressions.md)** - Powerful expression engine with filters and defaults
 - **[Dot-Path Syntax](docs/dot-path.md)** - Path notation reference and best practices
 - **[Optional Dependencies](docs/optional-dependencies.md)** - Framework integration guide
+
+### Helpers
+
+- **[EnvHelper](docs/envhelper.md)** - Framework-agnostic environment variable access with type casting
+- **[MathHelper](docs/mathhelper.md)** - High-precision mathematical operations using BCMath
 
 ### Runnable Examples
 

@@ -21,18 +21,26 @@ if (class_exists('Carbon\Carbon')) {
         /**
          * Get an environment variable as Carbon instance.
          *
+         * @return \Carbon\Carbon
          * @throws InvalidArgumentException If the value cannot be parsed as a date/time
-         * @return Carbon
          */
-        public static function carbon(string $key, mixed $default = null): mixed
+        public static function carbon(string $key, mixed $default = null): Carbon
         {
             $value = self::get($key, $default);
 
+            if (!is_string($value) && !is_int($value) && !is_float($value) && null !== $value) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'Configuration value for key [%s] must be a string, int, float or null for Carbon parsing, %s given.',
+                        $key,
+                        get_debug_type($value)
+                    )
+                );
+            }
+
             try {
-                /** @var class-string $carbonClass */
-                $carbonClass = 'Carbon\Carbon';
-                /** @var Carbon $carbon */
-                $carbon = new $carbonClass($value);
+                /** @var string|int|float|null $value */
+                $carbon = new Carbon($value);
             } catch (Exception $exception) {
                 throw new InvalidArgumentException(
                     sprintf(
@@ -44,8 +52,6 @@ if (class_exists('Carbon\Carbon')) {
                     $exception
                 );
             }
-
-            self::checkTypeAndThrowException('Carbon\Carbon', $key, $carbon);
 
             return $carbon;
         }
@@ -67,7 +73,7 @@ if (class_exists('Carbon\Carbon')) {
          *
          * @throws InvalidArgumentException Always throws because Carbon is not available
          */
-        public static function carbon(string $key, mixed $default = null): mixed
+        public static function carbon(string $key, mixed $default = null): void
         {
             throw new InvalidArgumentException(
                 'Carbon support is not available. Install nesbot/carbon to use EnvHelper::carbon()'
