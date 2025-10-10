@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToBoolean;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToFloat;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToInteger;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\ConvertEmptyToNull;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\RemoveNullValues;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\StripTags;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToBoolean;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToFloat;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToInteger;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\ConvertEmptyToNull;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\RemoveNullValues;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\StripTags;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\MappedDataModel;
 
 /**

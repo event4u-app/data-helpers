@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\DataMapper\Pipeline;
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\SkipEmptyValues;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 
 describe('DataMapper Pipeline', function(): void {
     it('works with TrimStrings transformer', function(): void {

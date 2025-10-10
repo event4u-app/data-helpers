@@ -11,13 +11,13 @@ final class DataMapperPipeline
     /** @var array<string, mixed> */
     private array $additionalHooks = [];
 
-    /** @param array<int, TransformerInterface|class-string<TransformerInterface>> $transformers */
-    public function __construct(private array $transformers = []) {}
+    /** @param array<int, FilterInterface|class-string<FilterInterface>> $filters */
+    public function __construct(private array $filters = []) {}
 
-    /** @param TransformerInterface|class-string<TransformerInterface> $transformer */
-    public function through(TransformerInterface|string $transformer): self
+    /** @param FilterInterface|class-string<FilterInterface> $filter */
+    public function through(FilterInterface|string $filter): self
     {
-        $this->transformers[] = $transformer;
+        $this->filters[] = $filter;
         return $this;
     }
 
@@ -90,23 +90,23 @@ final class DataMapperPipeline
     {
         $hooks = $this->additionalHooks;
 
-        foreach ($this->transformers as $transformer) {
-            if (is_string($transformer)) {
-                $transformer = new $transformer();
+        foreach ($this->filters as $filter) {
+            if (is_string($filter)) {
+                $filter = new $filter();
             }
 
-            $hookName = $transformer->getHook();
-            $filter = $transformer->getFilter();
-            $callback = fn($value, $context) => $transformer->transform($value, $context);
+            $hookName = $filter->getHook();
+            $filterName = $filter->getFilter();
+            $callback = fn($value, $context) => $filter->transform($value, $context);
 
-            if (null !== $filter) {
+            if (null !== $filterName) {
                 if (!isset($hooks[$hookName])) {
                     $hooks[$hookName] = [];
                 }
                 if (!is_array($hooks[$hookName])) {
                     $hooks[$hookName] = [$hooks[$hookName]];
                 }
-                $hooks[$hookName][$filter] = $callback;
+                $hooks[$hookName][$filterName] = $callback;
             } elseif (!isset($hooks[$hookName])) {
                 $hooks[$hookName] = $callback;
             } elseif (is_callable($hooks[$hookName])) {

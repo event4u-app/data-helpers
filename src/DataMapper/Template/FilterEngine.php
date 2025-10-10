@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper\Template;
 
 use event4u\DataHelpers\DataMapper\Context\PairContext;
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerRegistry;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
 use InvalidArgumentException;
 
 /**
@@ -14,7 +14,7 @@ use InvalidArgumentException;
  *
  * Example: {{ value | trim | upper }}
  *
- * Transformers are registered via TransformerRegistry and can be used
+ * Transformers are registered via FilterRegistry and can be used
  * in template expressions with their aliases.
  */
 final class FilterEngine
@@ -28,8 +28,8 @@ final class FilterEngine
      */
     private static bool $useFastSplit = true;
 
-    /** @var array<class-string, TransformerInterface> */
-    private static array $transformerInstances = [];
+    /** @var array<class-string, FilterInterface> */
+    private static array $filterInstances = [];
 
     /**
      * Enable or disable fast split mode.
@@ -64,7 +64,7 @@ final class FilterEngine
     /**
      * Apply transformers to a value using filter syntax.
      *
-     * @param array<int, string> $filters Transformer aliases to apply
+     * @param array<int, string> $filters Filter aliases to apply
      */
     public static function apply(mixed $value, array $filters): mixed
     {
@@ -87,29 +87,29 @@ final class FilterEngine
         // Parse filter name and arguments: default:"Unknown" or join:", "
         [$filterName, $args] = self::parseFilterWithArgs($filter);
 
-        // Get transformer class from registry
-        $transformerClass = TransformerRegistry::get($filterName);
-        if (null !== $transformerClass) {
+        // Get filter class from registry
+        $filterClass = FilterRegistry::get($filterName);
+        if (null !== $filterClass) {
             // Get or create transformer instance (cache instances for reuse)
-            if (!isset(self::$transformerInstances[$transformerClass])) {
-                /** @var TransformerInterface */
-                $newTransformer = new $transformerClass();
-                self::$transformerInstances[$transformerClass] = $newTransformer;
+            if (!isset(self::$filterInstances[$filterClass])) {
+                /** @var FilterInterface */
+                $newTransformer = new $filterClass();
+                self::$filterInstances[$filterClass] = $newTransformer;
             }
 
-            $transformer = self::$transformerInstances[$transformerClass];
+            $filter = self::$filterInstances[$filterClass];
 
             // Create a context with filter arguments in extra
             $context = new PairContext('template-expression', 0, '', '', [], [], null, $args);
 
-            return $transformer->transform($value, $context);
+            return $filter->transform($value, $context);
         }
 
-        // Unknown transformer alias - throw exception
+        // Unknown filter alias - throw exception
         throw new InvalidArgumentException(
             sprintf(
-                "Unknown transformer alias '%s'. " .
-                "Create a Transformer class with getAliases() method and register it using TransformerRegistry::register().",
+                "Unknown filter alias '%s'. " .
+                "Create a Filter class with getAliases() method and register it using FilterRegistry::register().",
                 $filterName
             )
         );

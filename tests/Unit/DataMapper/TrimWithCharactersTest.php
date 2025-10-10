@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 
 describe('Trim Transformer with Custom Characters', function(): void {
     describe('Default Behavior (Whitespace)', function(): void {

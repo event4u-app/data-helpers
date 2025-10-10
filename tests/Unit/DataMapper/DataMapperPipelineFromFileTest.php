@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\UppercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 use Tests\utils\Entities\Company as EntityCompany;
 use Tests\utils\Entities\Department as EntityDepartment;
 use Tests\utils\Models\Company;

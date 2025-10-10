@@ -374,7 +374,7 @@ Build reusable data transformation pipelines:
 
 ```php
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\{TrimStrings, LowercaseEmails, SkipEmptyValues};
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\{TrimStrings, LowercaseEmails, SkipEmptyValues};
 
 $source = [
     'user' => [
@@ -407,9 +407,9 @@ $result = DataMapper::pipe([
 // }
 ```
 
-**Built-in transformers:** `TrimStrings`, `DecodeHtmlEntities`, `LowercaseEmails`, `SkipEmptyValues`, `UppercaseStrings`, `ConvertToNull`
+**Built-in filters:** `TrimStrings`, `DecodeHtmlEntities`, `LowercaseEmails`, `SkipEmptyValues`, `UppercaseStrings`, `ConvertToNull`
 
-👉 [Create custom transformers](docs/data-mapper-pipeline.md#creating-custom-transformers)
+👉 [Create custom filters](docs/data-mapper-pipeline.md#creating-custom-transformers)
 
 ### Template Expressions - Powerful Mapping
 
@@ -451,7 +451,7 @@ $result = DataMapper::map($source, [], $mapping);
 // ['name' => 'Alice', 'email' => 'no-email@example.com']
 ```
 
-**18 built-in transformers:** `lower`, `upper`, `trim`, `decode_html`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`,
+**18 built-in filters:** `lower`, `upper`, `trim`, `decode_html`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`,
 `reverse`, `sort`,
 `unique`, `join`, `json`, `default`, `between`, `strip_tags`
 
@@ -487,8 +487,8 @@ Automatically map and transform request data with type safety and validation.
 
 ```php
 use event4u\DataHelpers\MappedDataModel;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToInteger;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToInteger;
 
 class ProductModel extends MappedDataModel
 {

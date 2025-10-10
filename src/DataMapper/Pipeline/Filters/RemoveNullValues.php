@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
+
+use event4u\DataHelpers\DataMapper\Context\HookContext;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+
+/**
+ * Removes null values from being written to target.
+ *
+ * Returns '__skip__' to prevent writing null values.
+ *
+ * Example:
+ *   DataMapper::pipe([RemoveNullValues::class])->map($source, $target, $mapping);
+ */
+final class RemoveNullValues implements FilterInterface
+{
+    public function transform(mixed $value, HookContext $context): mixed
+    {
+        return $value ?? '__skip__';
+    }
+
+    public function getHook(): string
+    {
+        return 'beforeWrite';
+    }
+
+    public function getFilter(): ?string
+    {
+        return null;
+    }
+
+    /** @return array<int, string> */
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+

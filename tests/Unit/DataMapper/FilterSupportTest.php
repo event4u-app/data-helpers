@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerRegistry;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 
 /**
  * Comprehensive tests for filter support across ALL mapping methods.
@@ -25,11 +25,11 @@ use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
 describe('Filter Support Across All Mapping Methods', function(): void {
     beforeEach(function(): void {
         // Clear transformer registry before each test
-        TransformerRegistry::clear();
+        FilterRegistry::clear();
     });
 
     afterEach(function(): void {
-        TransformerRegistry::clear();
+        FilterRegistry::clear();
     });
 
     describe('mapFromFile() - Filter Support', function(): void {

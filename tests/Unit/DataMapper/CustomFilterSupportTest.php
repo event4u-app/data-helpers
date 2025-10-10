@@ -3,27 +3,27 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerRegistry;
-use Tests\utils\Transformers\AlternatingCase;
-use Tests\utils\Transformers\ReverseString;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
+use Tests\utils\Filters\AlternatingCase;
+use Tests\utils\Filters\ReverseString;
 
 /**
  * Comprehensive tests for CUSTOM filter support across ALL mapping methods.
  *
- * This ensures custom transformers work consistently in:
+ * This ensures custom filters work consistently in:
  * - mapFromFile()
  * - map()
  * - mapFromTemplate()
  */
 describe('Custom Filter Support Across All Mapping Methods', function(): void {
     beforeEach(function(): void {
-        TransformerRegistry::clear();
-        TransformerRegistry::register(AlternatingCase::class);
-        TransformerRegistry::register(ReverseString::class);
+        FilterRegistry::clear();
+        FilterRegistry::register(AlternatingCase::class);
+        FilterRegistry::register(ReverseString::class);
     });
 
     afterEach(function(): void {
-        TransformerRegistry::clear();
+        FilterRegistry::clear();
     });
 
     describe('mapFromFile() - Custom Filter Support', function(): void {

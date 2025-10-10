@@ -5,9 +5,9 @@ declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\SkipEmptyValues;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 
 // Source data with messy values
 $source = [

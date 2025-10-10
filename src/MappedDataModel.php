@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use InvalidArgumentException;
 use JsonSerializable;
 use Stringable;
@@ -110,7 +110,7 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
      * }
      * ```
      *
-     * @return array<int, TransformerInterface> Array of transformer instances
+     * @return array<int, FilterInterface> Array of filter instances
      */
     protected function pipes(): array
     {

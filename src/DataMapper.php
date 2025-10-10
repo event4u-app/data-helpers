@@ -12,7 +12,7 @@ use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMapper\MappingOptions;
 use event4u\DataHelpers\DataMapper\Pipeline\DataMapperPipeline;
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Support\HookInvoker;
 use event4u\DataHelpers\DataMapper\Support\MappingEngine;
 use event4u\DataHelpers\DataMapper\Support\MappingParser;
@@ -54,11 +54,11 @@ class DataMapper
      *       new DefaultValue('Unknown'),
      *   ])->map($source, $target, $mapping);
      *
-     * @param array<int, TransformerInterface> $transformers Transformer instances
+     * @param array<int, FilterInterface> $filters Filter instances
      */
-    public static function pipe(array $transformers): DataMapperPipeline
+    public static function pipe(array $filters): DataMapperPipeline
     {
-        return new DataMapperPipeline($transformers);
+        return new DataMapperPipeline($filters);
     }
 
     /**
