@@ -784,6 +784,106 @@ All built-in transformers are automatically registered with the following aliase
 
 **Utility Transformers:**
 - `default` → DefaultValue
+- `between` → Between
+- `clamp`, `limit` → Clamp
+
+---
+
+#### Between
+Checks if a numeric value is within a range (inclusive by default).
+
+**Template Aliases:** `between`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Between;
+
+// Template expression usage
+$template = [
+    'is_valid_age' => '{{ user.age | between:18:65 }}',
+    'is_in_range' => '{{ value | between:0:100 }}',
+];
+```
+
+**Modes:**
+- **Inclusive (default)**: Uses `>=` and `<=` operators (like Laravel, MySQL, etc.)
+- **Strict mode**: Uses `>` and `<` operators (exclusive boundaries)
+
+**Examples:**
+```php
+// Inclusive mode (default)
+{{ value | between:3:5 }}
+// 3 → true, 4 → true, 5 → true
+// 2 → false, 6 → false
+
+// Strict mode (exclusive boundaries)
+{{ value | between:3:5:strict }}
+// 3 → false, 4 → true, 5 → false
+// Only values > 3 AND < 5 return true
+
+// Negative ranges
+{{ value | between:-10:10 }}
+// -10 → true, 0 → true, 10 → true
+
+// Decimal values
+{{ value | between:0.5:1.5 }}
+// 0.5 → true, 1.0 → true, 1.5 → true
+```
+
+**Non-numeric values:**
+- Input: `"abc"` → Output: `false`
+- Input: `null` → Output: `false`
+
+---
+
+#### Clamp
+Limits a numeric value to a specified range.
+
+**Template Aliases:** `clamp`, `limit`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Clamp;
+
+// Template expression usage
+$template = [
+    'age' => '{{ user.age | clamp:18:65 }}',
+    'percentage' => '{{ value | clamp:0:100 }}',
+];
+```
+
+**Examples:**
+```php
+// Clamp to range
+{{ value | clamp:3:5 }}
+// 2 → 3 (below min, returns min)
+// 4 → 4 (within range, unchanged)
+// 6 → 5 (above max, returns max)
+
+// Negative ranges
+{{ value | clamp:-10:10 }}
+// -15 → -10, 0 → 0, 15 → 10
+
+// Decimal values
+{{ value | clamp:0:1 }}
+// -0.5 → 0.0, 0.75 → 0.75, 1.5 → 1.0
+```
+
+**Non-numeric values:**
+- Input: `"abc"` → Output: `"abc"` (unchanged)
+- Input: `null` → Output: `null` (unchanged)
+
+**Difference between Between and Clamp:**
+- `between` returns a **boolean** (true/false) indicating if the value is in range
+- `clamp` returns a **modified value** limited to the range
+
+```php
+// Between (boolean check)
+{{ 150 | between:0:100 }}  // → false
+
+// Clamp (value limiting)
+{{ 150 | clamp:0:100 }}    // → 100.0
+```
+
+---
 
 ### Error Handling
 
@@ -792,7 +892,7 @@ If you use an unknown filter alias in a template expression, an `InvalidArgument
 ```php
 $template = ['name' => '{{ user.name | unknown_filter }}'];
 // Throws: InvalidArgumentException: Unknown transformer alias 'unknown_filter'.
-//         
+//
 //         create a Transformer class with getAliases() method and register it
 //         using TransformerRegistry::register().
 ```

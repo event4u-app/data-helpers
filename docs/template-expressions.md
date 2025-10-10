@@ -242,13 +242,47 @@ $template = [
 |--------|-------------|---------|
 | `json` | JSON encode | `['a' => 1] → '{"a":1}'` |
 | `default` | Return empty string if null | `null → ''` |
+| `between` | Check if value is in range (boolean) | `50 \| between:0:100 → true` |
+| `clamp`, `limit` | Limit value to range | `150 \| clamp:0:100 → 100.0` |
 
 **Examples:**
 ```php
 $template = [
     'metadata' => '{{ post.meta | json }}',
     'fallback' => '{{ user.name | default }}',
+
+    // Range validation
+    'isValidAge' => '{{ user.age | between:18:65 }}',
+    'isInRange' => '{{ score | between:0:100 }}',
+
+    // Value clamping
+    'normalizedAge' => '{{ user.age | clamp:18:65 }}',
+    'percentage' => '{{ score | clamp:0:100 }}',
 ];
+```
+
+**Between vs Clamp:**
+- `between` returns a **boolean** (true/false) - useful for validation
+- `clamp` returns a **modified value** - useful for normalization
+
+```php
+// Between (validation)
+{{ 150 | between:0:100 }}  // → false (out of range)
+{{ 50 | between:0:100 }}   // → true (in range)
+
+// Clamp (normalization)
+{{ 150 | clamp:0:100 }}    // → 100.0 (limited to max)
+{{ 50 | clamp:0:100 }}     // → 50.0 (unchanged)
+```
+
+**Strict Mode (Between only):**
+```php
+// Inclusive (default): >= and <=
+{{ 3 | between:3:5 }}        // → true (3 is included)
+
+// Strict mode: > and <
+{{ 3 | between:3:5:strict }} // → false (3 is excluded)
+{{ 4 | between:3:5:strict }} // → true (only 4 is in range)
 ```
 
 ## Custom Transformers

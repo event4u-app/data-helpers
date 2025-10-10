@@ -60,7 +60,7 @@ describe('Fast Split Mode', function(): void {
 
     it('works with numeric arguments in fast mode (default)', function(): void {
         // Fast mode is default
-        $template = ['result' => '{{ data.value | between:0:100 }}'];
+        $template = ['result' => '{{ data.value | clamp:0:100 }}'];
         $sources = ['data' => ['value' => 50]];
 
         $result = DataMapper::mapFromTemplate($template, $sources);
@@ -134,7 +134,7 @@ describe('Fast Split Mode', function(): void {
 
         $template = [
             'name' => '{{ user.name | trim | upper }}',
-            'age' => '{{ user.age | between:18:65 }}',
+            'age' => '{{ user.age | clamp:18:65 }}',
             'tags' => '{{ user.tags | join:", " }}',
         ];
 

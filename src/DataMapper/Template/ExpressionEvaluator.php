@@ -77,7 +77,13 @@ final class ExpressionEvaluator
             return null;
         }
 
+        // If no subpath, return the source value directly
+        if (null === $subPath) {
+            return $sources[$alias];
+        }
+
+        // Otherwise, use DataAccessor to get the nested value
         $accessor = new DataAccessor($sources[$alias]);
-        return null === $subPath ? $accessor->toArray() : $accessor->get($subPath);
+        return $accessor->get($subPath);
     }
 }

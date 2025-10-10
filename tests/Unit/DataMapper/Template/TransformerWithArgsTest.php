@@ -127,40 +127,63 @@ describe('Transformers with Arguments', function(): void {
     });
 
     describe('Between Transformer', function(): void {
-        it('clamps value to maximum', function(): void {
-            $template = ['result' => '{{ data.value | between:0:100 }}'];
-            $sources = ['data' => ['value' => 150]];
-
-            $result = DataMapper::mapFromTemplate($template, $sources);
-
-            expect($result['result'])->toBe(100.0);
-        });
-
-        it('clamps value to minimum', function(): void {
-            $template = ['result' => '{{ data.value | between:0:100 }}'];
-            $sources = ['data' => ['value' => -50]];
-
-            $result = DataMapper::mapFromTemplate($template, $sources);
-
-            expect($result['result'])->toBe(0.0);
-        });
-
-        it('returns value when within range', function(): void {
+        it('returns true when value is within range (inclusive)', function(): void {
             $template = ['result' => '{{ data.value | between:0:100 }}'];
             $sources = ['data' => ['value' => 50]];
 
             $result = DataMapper::mapFromTemplate($template, $sources);
 
-            expect($result['result'])->toBe(50.0);
+            expect($result['result'])->toBeTrue();
+        });
+
+        it('returns false when value exceeds maximum', function(): void {
+            $template = ['result' => '{{ data.value | between:0:100 }}'];
+            $sources = ['data' => ['value' => 150]];
+
+            $result = DataMapper::mapFromTemplate($template, $sources);
+
+            expect($result['result'])->toBeFalse();
+        });
+
+        it('returns false when value is below minimum', function(): void {
+            $template = ['result' => '{{ data.value | between:0:100 }}'];
+            $sources = ['data' => ['value' => -50]];
+
+            $result = DataMapper::mapFromTemplate($template, $sources);
+
+            expect($result['result'])->toBeFalse();
+        });
+
+        it('returns true for boundary values (inclusive)', function(): void {
+            $template = ['result' => '{{ data.value | between:0:100 }}'];
+
+            $result1 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 0]]);
+            $result2 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 100]]);
+
+            expect($result1['result'])->toBeTrue();
+            expect($result2['result'])->toBeTrue();
+        });
+
+        it('works with strict mode (exclusive boundaries)', function(): void {
+            $template = ['result' => '{{ data.value | between:0:100:strict }}'];
+
+            $result1 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 0]]);
+            $result2 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 50]]);
+            $result3 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 100]]);
+
+            expect($result1['result'])->toBeFalse(); // 0 is not > 0
+            expect($result2['result'])->toBeTrue();  // 50 is > 0 and < 100
+            expect($result3['result'])->toBeFalse(); // 100 is not < 100
         });
 
         it('works with negative ranges', function(): void {
             $template = ['result' => '{{ data.value | between:-10:10 }}'];
-            $sources = ['data' => ['value' => -15]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result1 = DataMapper::mapFromTemplate($template, ['data' => ['value' => -15]]);
+            $result2 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 0]]);
 
-            expect($result['result'])->toBe(-10.0);
+            expect($result1['result'])->toBeFalse();
+            expect($result2['result'])->toBeTrue();
         });
 
         it('works with decimal values', function(): void {
@@ -169,11 +192,76 @@ describe('Transformers with Arguments', function(): void {
 
             $result = DataMapper::mapFromTemplate($template, $sources);
 
+            expect($result['result'])->toBeTrue();
+        });
+
+        it('returns false for non-numeric values', function(): void {
+            $template = ['result' => '{{ data.value | between:0:100 }}'];
+            $sources = ['data' => ['value' => 'not-a-number']];
+
+            $result = DataMapper::mapFromTemplate($template, $sources);
+
+            expect($result['result'])->toBeFalse();
+        });
+
+        it('returns false when insufficient arguments', function(): void {
+            $template = ['result' => '{{ data.value | between:0 }}'];
+            $sources = ['data' => ['value' => 150]];
+
+            $result = DataMapper::mapFromTemplate($template, $sources);
+
+            expect($result['result'])->toBeFalse();
+        });
+    });
+
+    describe('Clamp Transformer', function(): void {
+        it('clamps value to maximum', function(): void {
+            $template = ['result' => '{{ data.value | clamp:0:100 }}'];
+            $sources = ['data' => ['value' => 150]];
+
+            $result = DataMapper::mapFromTemplate($template, $sources);
+
+            expect($result['result'])->toBe(100.0);
+        });
+
+        it('clamps value to minimum', function(): void {
+            $template = ['result' => '{{ data.value | clamp:0:100 }}'];
+            $sources = ['data' => ['value' => -50]];
+
+            $result = DataMapper::mapFromTemplate($template, $sources);
+
+            expect($result['result'])->toBe(0.0);
+        });
+
+        it('returns value when within range', function(): void {
+            $template = ['result' => '{{ data.value | clamp:0:100 }}'];
+            $sources = ['data' => ['value' => 50]];
+
+            $result = DataMapper::mapFromTemplate($template, $sources);
+
+            expect($result['result'])->toBe(50.0);
+        });
+
+        it('works with negative ranges', function(): void {
+            $template = ['result' => '{{ data.value | clamp:-10:10 }}'];
+            $sources = ['data' => ['value' => -15]];
+
+            $result = DataMapper::mapFromTemplate($template, $sources);
+
+            expect($result['result'])->toBe(-10.0);
+        });
+
+        it('works with decimal values', function(): void {
+            $template = ['result' => '{{ data.value | clamp:0:1 }}'];
+            $sources = ['data' => ['value' => 0.75]];
+
+            $result = DataMapper::mapFromTemplate($template, $sources);
+
             expect($result['result'])->toBe(0.75);
         });
 
         it('returns non-numeric value unchanged', function(): void {
-            $template = ['result' => '{{ data.value | between:0:100 }}'];
+            $template = ['result' => '{{ data.value | clamp:0:100 }}'];
             $sources = ['data' => ['value' => 'not-a-number']];
 
             $result = DataMapper::mapFromTemplate($template, $sources);
@@ -182,7 +270,7 @@ describe('Transformers with Arguments', function(): void {
         });
 
         it('returns value unchanged when insufficient arguments', function(): void {
-            $template = ['result' => '{{ data.value | between:0 }}'];
+            $template = ['result' => '{{ data.value | clamp:0 }}'];
             $sources = ['data' => ['value' => 150]];
 
             $result = DataMapper::mapFromTemplate($template, $sources);
@@ -210,8 +298,8 @@ describe('Transformers with Arguments', function(): void {
             expect($result['result'])->toBe('php - laravel');
         });
 
-        it('chains between and default transformers', function(): void {
-            $template = ['result' => '{{ data.value | between:0:100 | default:"N/A" }}'];
+        it('chains clamp and default transformers', function(): void {
+            $template = ['result' => '{{ data.value | clamp:0:100 | default:"N/A" }}'];
             $sources = ['data' => ['value' => 50]];
 
             $result = DataMapper::mapFromTemplate($template, $sources);

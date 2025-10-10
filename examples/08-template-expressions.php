@@ -13,6 +13,8 @@ $sources = [
         'lastName' => 'SMITH',
         'email' => '  ALICE@EXAMPLE.COM  ',
         'age' => null,
+        'score' => 150,
+        'rating' => 2.5,
     ],
     'address' => [
         'city' => 'Berlin',
@@ -37,6 +39,14 @@ $template = [
 
         // Regular reference (no expression)
         'city' => '{{ address.city }}',
+
+        // Range validation (between returns boolean)
+        'isValidScore' => '{{ user.score | between:0:100 }}',
+        'isValidRating' => '{{ user.rating | between:1:5 }}',
+
+        // Value clamping (clamp limits value to range)
+        'normalizedScore' => '{{ user.score | clamp:0:100 }}',
+        'normalizedRating' => '{{ user.rating | clamp:1:5 }}',
     ],
     'contact' => [
         'email' => '{{ user.email | trim | lower }}',

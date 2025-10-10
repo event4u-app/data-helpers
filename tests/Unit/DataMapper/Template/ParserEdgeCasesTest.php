@@ -176,7 +176,7 @@ describe('Parser Edge Cases', function(): void {
 
     describe('Numeric Arguments', function(): void {
         it('handles integer arguments', function(): void {
-            $template = ['result' => '{{ data.value | between:0:100 }}'];
+            $template = ['result' => '{{ data.value | clamp:0:100 }}'];
             $sources = ['data' => ['value' => 150]];
 
             $result = DataMapper::mapFromTemplate($template, $sources);
@@ -185,7 +185,7 @@ describe('Parser Edge Cases', function(): void {
         });
 
         it('handles negative numbers', function(): void {
-            $template = ['result' => '{{ data.value | between:-10:10 }}'];
+            $template = ['result' => '{{ data.value | clamp:-10:10 }}'];
             $sources = ['data' => ['value' => -20]];
 
             $result = DataMapper::mapFromTemplate($template, $sources);
@@ -194,7 +194,7 @@ describe('Parser Edge Cases', function(): void {
         });
 
         it('handles decimal numbers', function(): void {
-            $template = ['result' => '{{ data.value | between:0.5:1.5 }}'];
+            $template = ['result' => '{{ data.value | clamp:0.5:1.5 }}'];
             $sources = ['data' => ['value' => 2.0]];
 
             $result = DataMapper::mapFromTemplate($template, $sources);
