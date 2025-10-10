@@ -1,5 +1,10 @@
 <?php
 
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\Repository;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Facade;
+
 /*
 |--------------------------------------------------------------------------
 | Functions
@@ -15,20 +20,24 @@
 if (!function_exists('setupLaravelCache')) {
     function setupLaravelCache(): void
     {
-        $app = new \Illuminate\Container\Container();
-        $app->singleton('app', fn(): \Illuminate\Container\Container => $app);
-        $app->singleton('cache', fn(): \Illuminate\Cache\Repository => new \Illuminate\Cache\Repository(new \Illuminate\Cache\ArrayStore()));
+        $app = new Container();
+        $app->singleton('app', fn(): Container => $app);
+        $app->singleton(
+            'cache',
+            fn(): Repository => new Repository(new ArrayStore())
+        );
         $app->singleton('cache.store', fn($app) => $app['cache']);
-        \Illuminate\Support\Facades\Facade::setFacadeApplication($app);
-        \Illuminate\Container\Container::setInstance($app);
+        // @phpstan-ignore-next-line - Container is compatible with Application for testing
+        Facade::setFacadeApplication($app);
+        Container::setInstance($app);
     }
 }
 
 if (!function_exists('teardownLaravelCache')) {
     function teardownLaravelCache(): void
     {
-        \Illuminate\Support\Facades\Facade::clearResolvedInstances();
-        \Illuminate\Support\Facades\Facade::setFacadeApplication(null);
-        \Illuminate\Container\Container::setInstance(null);
+        Facade::clearResolvedInstances();
+        Facade::setFacadeApplication(null);
+        Container::setInstance(null);
     }
 }
