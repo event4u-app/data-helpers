@@ -51,12 +51,10 @@ function snapshotTest(string $snapshotDir, string $name, array $data): void
 }
 
 describe('XML to Model Mapping', function(): void {
-    beforeEach(function(): void {
-        $this->snapshotDir = __DIR__ . '/snapshots';
-    });
+    $snapshotDir = __DIR__ . '/snapshots';
 
-    describe('Version 1 (DataFields)', function(): void {
-        it('maps complete project with all relations from version1 XML', function(): void {
+    describe('Version 1 (DataFields)', function() use ($snapshotDir): void {
+        it('maps complete project with all relations from version1 XML', function() use ($snapshotDir): void {
             // Load XML file
             $xmlFile = __DIR__ . '/../../utils/XMLs/version1.xml';
 
@@ -130,7 +128,7 @@ describe('XML to Model Mapping', function(): void {
             $completeData['positions'] = $positions;
 
             // Snapshot test
-            snapshotTest($this->snapshotDir, 'version1_complete', $completeData);
+            snapshotTest($snapshotDir, 'version1_complete', $completeData);
 
             // Validations
             expect($project['number'])->toBe('98765432');
@@ -147,8 +145,8 @@ describe('XML to Model Mapping', function(): void {
         });
     });
 
-    describe('Version 2 (VitaCost/ConstructionSite)', function(): void {
-        it('maps complete project with all relations from version2 XML', function(): void {
+    describe('Version 2 (VitaCost/ConstructionSite)', function() use ($snapshotDir): void {
+        it('maps complete project with all relations from version2 XML', function() use ($snapshotDir): void {
             // Load XML file
             $xmlFile = __DIR__ . '/../../utils/XMLs/version2.xml';
 
@@ -233,7 +231,7 @@ describe('XML to Model Mapping', function(): void {
             $completeData['positions'] = $positions;
 
             // Snapshot test
-            snapshotTest($this->snapshotDir, 'version2_complete', $completeData);
+            snapshotTest($snapshotDir, 'version2_complete', $completeData);
 
             // Validations
             expect($project['number'])->toBe('2608');
@@ -249,8 +247,8 @@ describe('XML to Model Mapping', function(): void {
         });
     });
 
-    describe('Version 3 (lv_nesting/lvdata)', function(): void {
-        it('maps complete project with all relations from version3 XML', function(): void {
+    describe('Version 3 (lv_nesting/lvdata)', function() use ($snapshotDir): void {
+        it('maps complete project with all relations from version3 XML', function() use ($snapshotDir): void {
             // Load XML file
             $xmlFile = __DIR__ . '/../../utils/XMLs/version3.xml';
 
@@ -321,7 +319,7 @@ describe('XML to Model Mapping', function(): void {
             $completeData['positions'] = $positions;
 
             // Snapshot test
-            snapshotTest($this->snapshotDir, 'version3_complete', $completeData);
+            snapshotTest($snapshotDir, 'version3_complete', $completeData);
 
             // Validations
             expect($project['number'])->toBeString();

@@ -93,26 +93,29 @@ describe('CacheHelper', function(): void {
         });
 
         it('remembers values with callback', function(): void {
+            // Ensure key doesn't exist
+            CacheHelper::delete('remember-callback-key');
+
             $called = false;
-            $result = CacheHelper::remember('key1', function() use (&$called): string {
+            $result = CacheHelper::remember('remember-callback-key', function() use (&$called): string {
                 $called = true;
                 return 'computed-value';
             });
-            
+
             expect($result)->toBe('computed-value');
             expect($called)->toBeTrue();
-            expect(CacheHelper::get('key1'))->toBe('computed-value');
+            expect(CacheHelper::get('remember-callback-key'))->toBe('computed-value');
         });
 
         it('does not call callback if value exists', function(): void {
             CacheHelper::set('key1', 'existing-value');
-            
+
             $called = false;
             $result = CacheHelper::remember('key1', function() use (&$called): string {
                 $called = true;
                 return 'new-value';
             });
-            
+
             expect($result)->toBe('existing-value');
             expect($called)->toBeFalse();
         });
@@ -120,7 +123,7 @@ describe('CacheHelper', function(): void {
         it('pulls value and deletes it', function(): void {
             CacheHelper::set('key1', 'value1');
             $value = CacheHelper::pull('key1');
-            
+
             expect($value)->toBe('value1');
             expect(CacheHelper::has('key1'))->toBeFalse();
         });
@@ -135,9 +138,9 @@ describe('CacheHelper', function(): void {
         it('gets multiple values', function(): void {
             CacheHelper::set('key1', 'value1');
             CacheHelper::set('key2', 'value2');
-            
+
             $result = CacheHelper::getMultiple(['key1', 'key2', 'key3'], 'default');
-            
+
             expect($result)->toBe([
                 'key1' => 'value1',
                 'key2' => 'value2',
@@ -150,7 +153,7 @@ describe('CacheHelper', function(): void {
                 'key1' => 'value1',
                 'key2' => 'value2',
             ]);
-            
+
             expect(CacheHelper::get('key1'))->toBe('value1');
             expect(CacheHelper::get('key2'))->toBe('value2');
         });
@@ -159,9 +162,9 @@ describe('CacheHelper', function(): void {
             CacheHelper::set('key1', 'value1');
             CacheHelper::set('key2', 'value2');
             CacheHelper::set('key3', 'value3');
-            
+
             CacheHelper::deleteMultiple(['key1', 'key2']);
-            
+
             expect(CacheHelper::has('key1'))->toBeFalse();
             expect(CacheHelper::has('key2'))->toBeFalse();
             expect(CacheHelper::has('key3'))->toBeTrue();
@@ -172,7 +175,7 @@ describe('CacheHelper', function(): void {
         it('increments values', function(): void {
             CacheHelper::set('counter', 5);
             $result = CacheHelper::increment('counter');
-            
+
             expect($result)->toBe(6);
             expect(CacheHelper::get('counter'))->toBe(6);
         });
@@ -180,22 +183,25 @@ describe('CacheHelper', function(): void {
         it('increments by custom amount', function(): void {
             CacheHelper::set('counter', 5);
             $result = CacheHelper::increment('counter', 10);
-            
+
             expect($result)->toBe(15);
             expect(CacheHelper::get('counter'))->toBe(15);
         });
 
         it('increments from zero if key does not exist', function(): void {
-            $result = CacheHelper::increment('counter');
-            
+            // Ensure key doesn't exist
+            CacheHelper::delete('increment-new-counter');
+
+            $result = CacheHelper::increment('increment-new-counter');
+
             expect($result)->toBe(1);
-            expect(CacheHelper::get('counter'))->toBe(1);
+            expect(CacheHelper::get('increment-new-counter'))->toBe(1);
         });
 
         it('decrements values', function(): void {
             CacheHelper::set('counter', 10);
             $result = CacheHelper::decrement('counter');
-            
+
             expect($result)->toBe(9);
             expect(CacheHelper::get('counter'))->toBe(9);
         });
@@ -203,7 +209,7 @@ describe('CacheHelper', function(): void {
         it('decrements by custom amount', function(): void {
             CacheHelper::set('counter', 10);
             $result = CacheHelper::decrement('counter', 5);
-            
+
             expect($result)->toBe(5);
             expect(CacheHelper::get('counter'))->toBe(5);
         });
@@ -213,9 +219,9 @@ describe('CacheHelper', function(): void {
         it('returns cache statistics', function(): void {
             CacheHelper::set('key1', 'value1');
             CacheHelper::get('key1');
-            
+
             $stats = CacheHelper::getStats();
-            
+
             expect($stats)->toHaveKey('hits');
             expect($stats)->toHaveKey('misses');
             expect($stats)->toHaveKey('size');

@@ -19,6 +19,10 @@ describe('Parser Edge Cases', function(): void {
     });
     describe('Escaped Quotes in Arguments', function(): void {
         it('handles escaped double quotes in double-quoted string', function(): void {
+            // Ensure safe mode is active
+            FilterEngine::useFastSplit(false);
+            expect(FilterEngine::isFastSplitEnabled())->toBeFalse();
+
             $template = ['result' => '{{ data.value | default:"Say \"Hello\"" }}'];
             $sources = ['data' => ['value' => null]];
 
