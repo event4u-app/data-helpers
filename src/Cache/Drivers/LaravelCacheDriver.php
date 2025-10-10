@@ -40,7 +40,10 @@ final class LaravelCacheDriver implements CacheInterface
         $effectiveTtl = $ttl ?? $this->defaultTtl;
 
         if (null !== $effectiveTtl) {
-            Cache::put($this->prefix . $key, $value, $effectiveTtl);
+            // Convert seconds to DateInterval for better compatibility with older Carbon versions
+            // Laravel's Cache::put() accepts int (seconds), DateInterval, or DateTimeInterface
+            $ttlInterval = new \DateInterval('PT' . $effectiveTtl . 'S');
+            Cache::put($this->prefix . $key, $value, $ttlInterval);
         } else {
             Cache::forever($this->prefix . $key, $value);
         }
