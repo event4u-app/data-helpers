@@ -1,6 +1,7 @@
 # Data Transformers
 
-Data transformers are pipeline components that modify values during the mapping process. They can be used with `DataMapper::pipe()`, in `MappedDataModel::pipes()`, or as filters in template expressions.
+Data transformers are pipeline components that modify values during the mapping process. They can be used with `DataMapper::pipe()`, in
+`MappedDataModel::pipes()`, or as filters in template expressions.
 
 ## Quick Overview
 
@@ -10,12 +11,14 @@ Transformers can be used in two ways:
 2. **Template Expression Mode**: Apply transformations to specific fields using aliases
 
 **Pipeline Example:**
+
 ```php
 DataMapper::pipe([new TrimStrings(), new LowercaseStrings()])
     ->map($source, $target, $mapping);
 ```
 
 **Template Expression Example:**
+
 ```php
 $template = [
     'name' => '{{ user.name | trim | upper }}',
@@ -28,6 +31,7 @@ $template = [
 ### String Transformers
 
 #### TrimStrings
+
 Removes whitespace from the beginning and end of all string values.
 
 **Template Aliases:** `trim`
@@ -46,11 +50,13 @@ $template = ['name' => '{{ user.name | trim }}'];
 ```
 
 **Example:**
+
 - Input: `"  hello  "` → Output: `"hello"`
 
 ---
 
 #### LowercaseStrings
+
 Converts all string values to lowercase.
 
 **Template Aliases:** `lower`, `lowercase`
@@ -69,11 +75,13 @@ $template = ['name' => '{{ user.name | lower }}'];
 ```
 
 **Example:**
+
 - Input: `"HELLO"` → Output: `"hello"`
 
 ---
 
 #### UppercaseStrings
+
 Converts all string values to uppercase.
 
 **Template Aliases:** `upper`, `uppercase`
@@ -92,11 +100,13 @@ $template = ['name' => '{{ user.name | upper }}'];
 ```
 
 **Example:**
+
 - Input: `"hello"` → Output: `"HELLO"`
 
 ---
 
 #### Ucfirst
+
 Capitalizes the first character of a string.
 
 **Template Aliases:** `ucfirst`
@@ -109,11 +119,13 @@ $template = ['name' => '{{ user.name | ucfirst }}'];
 ```
 
 **Example:**
+
 - Input: `"hello world"` → Output: `"Hello world"`
 
 ---
 
 #### Ucwords
+
 Capitalizes the first character of each word in a string.
 
 **Template Aliases:** `ucwords`
@@ -126,11 +138,13 @@ $template = ['name' => '{{ user.name | ucwords }}'];
 ```
 
 **Example:**
+
 - Input: `"hello world"` → Output: `"Hello World"`
 
 ---
 
 #### LowercaseEmails
+
 Converts email addresses to lowercase. Only applies to fields containing "email" in the path.
 
 ```php
@@ -143,12 +157,14 @@ protected function pipes(): array
 ```
 
 **Example:**
+
 - Input: `"USER@EXAMPLE.COM"` (in email field) → Output: `"user@example.com"`
 - Input: `"HELLO"` (in name field) → Output: `"HELLO"` (unchanged)
 
 ---
 
 #### StripTags
+
 Removes HTML and PHP tags from string values.
 
 ```php
@@ -161,11 +177,13 @@ protected function pipes(): array
 ```
 
 **Example:**
+
 - Input: `"<p>Hello</p>"` → Output: `"Hello"`
 
 ---
 
 #### NormalizeLineEndings
+
 Converts Windows (`\r\n`) and Mac (`\r`) line endings to Unix (`\n`).
 
 ```php
@@ -178,6 +196,7 @@ protected function pipes(): array
 ```
 
 **Example:**
+
 - Input: `"Line1\r\nLine2"` → Output: `"Line1\nLine2"`
 
 ---
@@ -185,6 +204,7 @@ protected function pipes(): array
 ### Array Transformers
 
 #### Count
+
 Returns the count of elements in an array or characters in a string.
 
 **Template Aliases:** `count`
@@ -197,12 +217,14 @@ $template = ['item_count' => '{{ items | count }}'];
 ```
 
 **Example:**
+
 - Input: `['a', 'b', 'c']` → Output: `3`
 - Input: `"hello"` → Output: `5`
 
 ---
 
 #### First
+
 Returns the first element of an array.
 
 **Template Aliases:** `first`
@@ -215,11 +237,13 @@ $template = ['first_item' => '{{ items | first }}'];
 ```
 
 **Example:**
+
 - Input: `['a', 'b', 'c']` → Output: `'a'`
 
 ---
 
 #### Last
+
 Returns the last element of an array.
 
 **Template Aliases:** `last`
@@ -232,11 +256,13 @@ $template = ['last_item' => '{{ items | last }}'];
 ```
 
 **Example:**
+
 - Input: `['a', 'b', 'c']` → Output: `'c'`
 
 ---
 
 #### Keys
+
 Returns the keys of an array.
 
 **Template Aliases:** `keys`
@@ -249,11 +275,13 @@ $template = ['field_names' => '{{ data | keys }}'];
 ```
 
 **Example:**
+
 - Input: `['name' => 'John', 'age' => 30]` → Output: `['name', 'age']`
 
 ---
 
 #### Values
+
 Returns the values of an array.
 
 **Template Aliases:** `values`
@@ -266,11 +294,13 @@ $template = ['field_values' => '{{ data | values }}'];
 ```
 
 **Example:**
+
 - Input: `['name' => 'John', 'age' => 30]` → Output: `['John', 30]`
 
 ---
 
 #### Reverse
+
 Reverses the order of elements in an array.
 
 **Template Aliases:** `reverse`
@@ -283,11 +313,13 @@ $template = ['reversed_items' => '{{ items | reverse }}'];
 ```
 
 **Example:**
+
 - Input: `['a', 'b', 'c']` → Output: `['c', 'b', 'a']`
 
 ---
 
 #### Sort
+
 Sorts an array in ascending order.
 
 **Template Aliases:** `sort`
@@ -300,11 +332,13 @@ $template = ['sorted_items' => '{{ items | sort }}'];
 ```
 
 **Example:**
+
 - Input: `[3, 1, 2]` → Output: `[1, 2, 3]`
 
 ---
 
 #### Unique
+
 Removes duplicate values from an array.
 
 **Template Aliases:** `unique`
@@ -317,11 +351,13 @@ $template = ['unique_items' => '{{ items | unique }}'];
 ```
 
 **Example:**
+
 - Input: `['a', 'b', 'a', 'c']` → Output: `['a', 'b', 'c']`
 
 ---
 
 #### Join
+
 Joins array elements into a string with a separator.
 
 **Template Aliases:** `join`
@@ -334,6 +370,7 @@ $template = ['tags_string' => '{{ tags | join:", " }}'];
 ```
 
 **Example:**
+
 - Input: `['php', 'laravel', 'vue']` with separator `", "` → Output: `"php, laravel, vue"`
 
 ---
@@ -341,6 +378,7 @@ $template = ['tags_string' => '{{ tags | join:", " }}'];
 ### Encoding Transformers
 
 #### JsonEncode
+
 Encodes a value as JSON.
 
 **Template Aliases:** `json`
@@ -353,6 +391,7 @@ $template = ['metadata_json' => '{{ metadata | json }}'];
 ```
 
 **Example:**
+
 - Input: `['name' => 'John', 'age' => 30]` → Output: `'{"name":"John","age":30}'`
 
 ---
@@ -360,6 +399,7 @@ $template = ['metadata_json' => '{{ metadata | json }}'];
 ### Utility Transformers
 
 #### DefaultValue
+
 Returns a default value if the input is null or empty.
 
 **Template Aliases:** `default`
@@ -372,6 +412,7 @@ $template = ['name' => '{{ user.name | default:"Unknown" }}'];
 ```
 
 **Example:**
+
 - Input: `null` with default `"Unknown"` → Output: `"Unknown"`
 - Input: `"John"` with default `"Unknown"` → Output: `"John"`
 
@@ -380,6 +421,7 @@ $template = ['name' => '{{ user.name | default:"Unknown" }}'];
 ### Type Casting Transformers
 
 #### CastToInteger
+
 Casts numeric values to integers. Applies to fields containing: `id`, `count`, `quantity`, `age`, `year`, `number`.
 
 ```php
@@ -392,12 +434,14 @@ protected function pipes(): array
 ```
 
 **Example:**
+
 - Input: `"123"` (in product_id field) → Output: `123` (integer)
 - Input: `"hello"` (in product_id field) → Output: `"hello"` (unchanged, not numeric)
 
 ---
 
 #### CastToFloat
+
 Casts numeric values to floats. Applies to fields containing: `price`, `amount`, `total`, `rate`, `percentage`, `cost`, `fee`.
 
 ```php
@@ -410,12 +454,14 @@ protected function pipes(): array
 ```
 
 **Example:**
+
 - Input: `"49.99"` (in price field) → Output: `49.99` (float)
 - Input: `"100"` (in price field) → Output: `100.0` (float)
 
 ---
 
 #### CastToBoolean
+
 Casts values to booleans. Applies to fields containing: `is_`, `has_`, `can_`, `should_`, `active`, `enabled`, `disabled`.
 
 ```php
@@ -428,10 +474,12 @@ protected function pipes(): array
 ```
 
 **Conversion rules:**
+
 - `true`: `'1'`, `'true'`, `'yes'`, `'on'`, `1`, `true`
 - `false`: `'0'`, `'false'`, `'no'`, `'off'`, `''`, `0`, `false`
 
 **Example:**
+
 - Input: `"1"` (in is_active field) → Output: `true` (boolean)
 - Input: `"yes"` (in is_active field) → Output: `true` (boolean)
 - Input: `"0"` (in is_active field) → Output: `false` (boolean)
@@ -441,6 +489,7 @@ protected function pipes(): array
 ### Value Filtering Transformers
 
 #### SkipEmptyValues
+
 Prevents empty strings and empty arrays from being written to the target.
 
 ```php
@@ -453,6 +502,7 @@ protected function pipes(): array
 ```
 
 **Example:**
+
 - Input: `""` → Skipped (not written to target)
 - Input: `[]` → Skipped (not written to target)
 - Input: `"hello"` → Output: `"hello"`
@@ -460,6 +510,7 @@ protected function pipes(): array
 ---
 
 #### RemoveNullValues
+
 Prevents null values from being written to the target.
 
 ```php
@@ -472,12 +523,14 @@ protected function pipes(): array
 ```
 
 **Example:**
+
 - Input: `null` → Skipped (not written to target)
 - Input: `"hello"` → Output: `"hello"`
 
 ---
 
 #### ConvertEmptyToNull
+
 Converts empty strings to null values.
 
 ```php
@@ -490,12 +543,14 @@ protected function pipes(): array
 ```
 
 **Example:**
+
 - Input: `""` → Output: `null`
 - Input: `"hello"` → Output: `"hello"`
 
 ---
 
 #### ConvertToNull
+
 Converts specific values to null. Can be configured with custom values.
 
 ```php
@@ -725,7 +780,8 @@ $template = ['name' => '{{ user.name | alternating }}'];
 
 ## TransformerRegistry
 
-The `TransformerRegistry` manages transformer aliases for use in template expressions. All built-in transformers are automatically registered.
+The `TransformerRegistry` manages transformer aliases for use in template expressions. All built-in transformers are automatically
+registered.
 
 ### Registering Custom Transformers
 
@@ -762,6 +818,7 @@ TransformerRegistry::clear();
 All built-in transformers are automatically registered with the following aliases:
 
 **String Transformers:**
+
 - `trim` → TrimStrings
 - `lower`, `lowercase` → LowercaseStrings
 - `upper`, `uppercase` → UppercaseStrings
@@ -769,6 +826,7 @@ All built-in transformers are automatically registered with the following aliase
 - `ucwords` → Ucwords
 
 **Array Transformers:**
+
 - `count` → Count
 - `first` → First
 - `last` → Last
@@ -780,16 +838,19 @@ All built-in transformers are automatically registered with the following aliase
 - `join` → Join
 
 **Encoding Transformers:**
+
 - `json` → JsonEncode
 
 **Utility Transformers:**
+
 - `default` → DefaultValue
 - `between` → Between
-- `clamp`, `limit` → Clamp
+- `clamp` → Clamp
 
 ---
 
 #### Between
+
 Checks if a numeric value is within a range (inclusive by default).
 
 **Template Aliases:** `between`
@@ -805,10 +866,12 @@ $template = [
 ```
 
 **Modes:**
+
 - **Inclusive (default)**: Uses `>=` and `<=` operators (like Laravel, MySQL, etc.)
 - **Strict mode**: Uses `>` and `<` operators (exclusive boundaries)
 
 **Examples:**
+
 ```php
 // Inclusive mode (default)
 {{ value | between:3:5 }}
@@ -830,15 +893,17 @@ $template = [
 ```
 
 **Non-numeric values:**
+
 - Input: `"abc"` → Output: `false`
 - Input: `null` → Output: `false`
 
 ---
 
 #### Clamp
+
 Limits a numeric value to a specified range.
 
-**Template Aliases:** `clamp`, `limit`
+**Template Aliases:** `clamp`
 
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Clamp;
@@ -851,6 +916,7 @@ $template = [
 ```
 
 **Examples:**
+
 ```php
 // Clamp to range
 {{ value | clamp:3:5 }}
@@ -868,10 +934,12 @@ $template = [
 ```
 
 **Non-numeric values:**
+
 - Input: `"abc"` → Output: `"abc"` (unchanged)
 - Input: `null` → Output: `null` (unchanged)
 
 **Difference between Between and Clamp:**
+
 - `between` returns a **boolean** (true/false) indicating if the value is in range
 - `clamp` returns a **modified value** limited to the range
 

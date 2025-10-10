@@ -1,16 +1,17 @@
 # Template Expressions
 
-🚀 **Powerful template expression engine** for declarative data transformations - inspired by Twig, but designed specifically for data mapping.
+🚀 **Powerful template expression engine** for declarative data transformations - inspired by Twig, but designed specifically for data
+mapping.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Quick Start](#quick-start)
 - [Expression Syntax](#expression-syntax)
-  - [Simple Variables](#simple-variables)
-  - [Default Values](#default-values)
-  - [Filters](#filters)
-  - [Alias References](#alias-references)
+    - [Simple Variables](#simple-variables)
+    - [Default Values](#default-values)
+    - [Filters](#filters)
+    - [Alias References](#alias-references)
 - [Built-in Transformers](#built-in-transformers)
 - [Custom Transformers](#custom-transformers)
 - [Combining with Classic References](#combining-with-classic-references)
@@ -90,6 +91,7 @@ $template = [
 ```
 
 **Equivalent to classic reference:**
+
 ```php
 $template = [
     'name' => 'user.name',
@@ -112,6 +114,7 @@ $template = [
 ```
 
 **Supported default types:**
+
 - Strings: `'text'` or `"text"`
 - Numbers: `123`, `12.5`
 - Booleans: `true`, `false`
@@ -135,6 +138,7 @@ $template = [
 ```
 
 **Execution order:**
+
 1. Resolve variable (`user.email`)
 2. Apply default if null (`?? "default"`)
 3. Apply transformers left to right (`| transformer1 | transformer2`)
@@ -163,6 +167,7 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 ```
 
 **Important:**
+
 - Use `{{ @fieldName }}` to reference target fields (already resolved)
 - Use `{{ source.field }}` to reference source fields
 - Without `{{ }}`, values are treated as static strings
@@ -193,15 +198,16 @@ All built-in transformers can be used in template expressions with filter syntax
 
 ### String Transformers
 
-| Alias | Description | Example |
-|--------|-------------|---------|
-| `lower`, `lowercase` | Convert to lowercase | `'ALICE' → 'alice'` |
-| `upper`, `uppercase` | Convert to uppercase | `'alice' → 'ALICE'` |
-| `trim` | Remove whitespace | `'  text  ' → 'text'` |
-| `ucfirst` | Uppercase first character | `'alice' → 'Alice'` |
-| `ucwords` | Uppercase first character of each word | `'alice smith' → 'Alice Smith'` |
+| Alias                | Description                            | Example                         |
+|----------------------|----------------------------------------|---------------------------------|
+| `lower`, `lowercase` | Convert to lowercase                   | `'ALICE' → 'alice'`             |
+| `upper`, `uppercase` | Convert to uppercase                   | `'alice' → 'ALICE'`             |
+| `trim`               | Remove whitespace                      | `'  text  ' → 'text'`           |
+| `ucfirst`            | Uppercase first character              | `'alice' → 'Alice'`             |
+| `ucwords`            | Uppercase first character of each word | `'alice smith' → 'Alice Smith'` |
 
 **Examples:**
+
 ```php
 $template = [
     'email' => '{{ user.email | lower }}',
@@ -213,19 +219,20 @@ $template = [
 
 ### Array Transformers
 
-| Alias | Description | Example |
-|--------|-------------|---------|
-| `count` | Count elements | `[1, 2, 3] → 3` |
-| `first` | Get first element | `[1, 2, 3] → 1` |
-| `last` | Get last element | `[1, 2, 3] → 3` |
-| `keys` | Get array keys | `['a' => 1] → ['a']` |
-| `values` | Get array values | `['a' => 1] → [1]` |
-| `reverse` | Reverse array | `[1, 2, 3] → [3, 2, 1]` |
-| `sort` | Sort array | `[3, 1, 2] → [1, 2, 3]` |
-| `unique` | Remove duplicates | `[1, 2, 1] → [1, 2]` |
-| `join` | Join to string | `['a', 'b'] → 'a, b'` |
+| Alias     | Description       | Example                 |
+|-----------|-------------------|-------------------------|
+| `count`   | Count elements    | `[1, 2, 3] → 3`         |
+| `first`   | Get first element | `[1, 2, 3] → 1`         |
+| `last`    | Get last element  | `[1, 2, 3] → 3`         |
+| `keys`    | Get array keys    | `['a' => 1] → ['a']`    |
+| `values`  | Get array values  | `['a' => 1] → [1]`      |
+| `reverse` | Reverse array     | `[1, 2, 3] → [3, 2, 1]` |
+| `sort`    | Sort array        | `[3, 1, 2] → [1, 2, 3]` |
+| `unique`  | Remove duplicates | `[1, 2, 1] → [1, 2]`    |
+| `join`    | Join to string    | `['a', 'b'] → 'a, b'`   |
 
 **Examples:**
+
 ```php
 $template = [
     'tagCount' => '{{ post.tags | count }}',
@@ -238,14 +245,15 @@ $template = [
 
 ### Utility Transformers
 
-| Alias | Description | Example |
-|--------|-------------|---------|
-| `json` | JSON encode | `['a' => 1] → '{"a":1}'` |
-| `default` | Return empty string if null | `null → ''` |
+| Alias     | Description                          | Example                      |
+|-----------|--------------------------------------|------------------------------|
+| `json`    | JSON encode                          | `['a' => 1] → '{"a":1}'`     |
+| `default` | Return empty string if null          | `null → ''`                  |
 | `between` | Check if value is in range (boolean) | `50 \| between:0:100 → true` |
-| `clamp`, `limit` | Limit value to range | `150 \| clamp:0:100 → 100.0` |
+| `clamp`   | Limit value to range                 | `150 \| clamp:0:100 → 100.0` |
 
 **Examples:**
+
 ```php
 $template = [
     'metadata' => '{{ post.meta | json }}',
@@ -262,6 +270,7 @@ $template = [
 ```
 
 **Between vs Clamp:**
+
 - `between` returns a **boolean** (true/false) - useful for validation
 - `clamp` returns a **modified value** - useful for normalization
 
@@ -276,6 +285,7 @@ $template = [
 ```
 
 **Strict Mode (Between only):**
+
 ```php
 // Inclusive (default): >= and <=
 {{ 3 | between:3:5 }}        // → true (3 is included)
@@ -331,6 +341,7 @@ DataMapper::pipe([EncryptTransformer::class])->map($source, [], $mapping);
 ```
 
 **Benefits:**
+
 - ✅ Reusable in both pipelines and template expressions
 - ✅ Type-safe with PHPStan
 - ✅ Testable
@@ -408,13 +419,13 @@ $template = [
 
 **When to use which:**
 
-| Use Case | Syntax | Example |
-|----------|--------|---------|
-| Simple mapping | Classic | `'user.name'` |
-| With wildcards | Classic | `'users.*.email'` |
-| With transformation | Expression | `'{{ user.name \| upper }}'` |
-| With default value | Expression | `'{{ user.age ?? 18 }}'` |
-| Multiple filters | Expression | `'{{ user.email \| trim \| lower }}'` |
+| Use Case            | Syntax     | Example                               |
+|---------------------|------------|---------------------------------------|
+| Simple mapping      | Classic    | `'user.name'`                         |
+| With wildcards      | Classic    | `'users.*.email'`                     |
+| With transformation | Expression | `'{{ user.name \| upper }}'`          |
+| With default value  | Expression | `'{{ user.age ?? 18 }}'`              |
+| Multiple filters    | Expression | `'{{ user.email \| trim \| lower }}'` |
 
 ## Advanced Examples
 
@@ -457,6 +468,7 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 ```
 
 **Result:**
+
 ```json
 {
     "user": {
@@ -469,7 +481,11 @@ $result = DataMapper::mapFromTemplate($template, $sources);
         "createdAt": "2024-01-01 10:30:00"
     },
     "metadata": {
-        "tags": ["laravel", "php", "symfony"],
+        "tags": [
+            "laravel",
+            "php",
+            "symfony"
+        ],
         "tagCount": 3,
         "firstTag": "PHP"
     }
@@ -603,6 +619,7 @@ public static function mapFromTemplate(
 Build a new array from a template with expression support.
 
 **Parameters:**
+
 - `$template` - Template array or JSON string with expressions
 - `$sources` - Map of source name => source data
 - `$skipNull` - Skip null values (default: true)
@@ -619,6 +636,7 @@ public static function parse(string $value): ?array
 Parse a template expression.
 
 **Returns:**
+
 ```php
 [
     'type' => 'expression' | 'alias',
@@ -653,6 +671,7 @@ public static function register(string $transformerClass): void
 Register a transformer to make it available in template expressions.
 
 **Example:**
+
 ```php
 TransformerRegistry::register(MyCustomTransformer::class);
 
@@ -676,15 +695,15 @@ Evaluate a template expression.
 
 ## Comparison: Classic vs Expression Syntax
 
-| Feature | Classic | Expression |
-|---------|---------|------------|
-| Simple mapping | `'user.name'` | `'{{ user.name }}'` |
-| Default value | ❌ Not supported | `'{{ user.name ?? "Unknown" }}'` |
-| Transformation | ❌ Not supported | `'{{ user.name \| upper }}'` |
-| Multiple filters | ❌ Not supported | `'{{ user.name \| trim \| upper }}'` |
-| Wildcards | ✅ `'users.*.email'` | ❌ Not supported in expressions |
-| Performance | ⚡ Faster | 🔄 Slightly slower (parsing) |
-| Readability | ✅ Simple | ✅ Declarative |
+| Feature          | Classic             | Expression                           |
+|------------------|---------------------|--------------------------------------|
+| Simple mapping   | `'user.name'`       | `'{{ user.name }}'`                  |
+| Default value    | ❌ Not supported     | `'{{ user.name ?? "Unknown" }}'`     |
+| Transformation   | ❌ Not supported     | `'{{ user.name \| upper }}'`         |
+| Multiple filters | ❌ Not supported     | `'{{ user.name \| trim \| upper }}'` |
+| Wildcards        | ✅ `'users.*.email'` | ❌ Not supported in expressions       |
+| Performance      | ⚡ Faster            | 🔄 Slightly slower (parsing)         |
+| Readability      | ✅ Simple            | ✅ Declarative                        |
 
 **Best Practice:** Use classic references for simple mappings and wildcards, use expressions for transformations and defaults.
 
@@ -698,6 +717,7 @@ Evaluate a template expression.
 4. **Classic References:** Use classic references when no transformation is needed (faster)
 
 **Optimization tips:**
+
 - Use classic references for simple mappings
 - Minimize filter chains (combine filters when possible)
 - Register custom filters for complex transformations (avoid inline logic)
@@ -710,6 +730,7 @@ Evaluate a template expression.
 ### From Classic References
 
 **Before:**
+
 ```php
 $template = [
     'name' => 'user.name',
@@ -723,6 +744,7 @@ $result['email'] = strtolower($result['email']);
 ```
 
 **After:**
+
 ```php
 $template = [
     'name' => '{{ user.name | ucfirst }}',
@@ -736,6 +758,7 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 ### From Hooks
 
 **Before:**
+
 ```php
 $hooks = [
     'postTransform' => function($value, $context) {
@@ -750,6 +773,7 @@ $result = DataMapper::map($source, [], $mapping, hooks: $hooks);
 ```
 
 **After:**
+
 ```php
 $template = [
     'email' => '{{ user.email | lower }}',
@@ -761,6 +785,7 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 ---
 
 **See also:**
+
 - [DataMapper Documentation](data-mapper.md)
 - [Template Mapping Guide](data-mapper.md#mapping-templates)
 - [Example: 08-template-expressions.php](../examples/08-template-expressions.php)
