@@ -255,9 +255,9 @@ describe('XML to Model Mapping', function(): void {
             // Complete mapping in one call
             $mapping = [
                 'project' => [
-                    'number' => '{{ lvdata.lv_number }}',
-                    'title' => '{{ lvdata.lv_description | decode_html }}',
-                    'description' => '{{ lvdata.project_description | decode_html }}',
+                    'number' => '{{ lvdata.lv_number | decode_html }}',
+                    'title' => '{{ lvdata.lv_description | decode_html | trim:" -" }}',
+                    'description' => '{{ lvdata.project_description | decode_html | trim:" -" }}',
                     'total_value' => '{{ lvdata.lv_sum ?? 0.0 }}',
                     'calculated_hours' => '{{ lvdata.lv_hours ?? 0.0 }}',
                     'actual_hours' => '{{ lvdata.lv_actual_hours ?? 0.0 }}',

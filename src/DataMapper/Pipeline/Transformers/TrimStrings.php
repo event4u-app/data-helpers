@@ -8,17 +8,49 @@ use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 
 /**
- * Trims whitespace from string values.
+ * Trims characters from the beginning and end of string values.
  *
- * Example:
- *   DataMapper::pipe([TrimStrings::class])->map($source, $target, $mapping);
- *   Template: {{ value | trim }}
+ * By default trims whitespace. You can specify custom characters to trim.
+ *
+ * Examples:
+ *   Pipeline: new TrimStrings()                    // Trim whitespace (default)
+ *   Pipeline: new TrimStrings('-')                 // Trim only '-'
+ *   Pipeline: new TrimStrings(' -')                // Trim space and '-'
+ *   Template: {{ value | trim }}                   // Trim whitespace (default)
+ *   Template: {{ value | trim:"-" }}               // Trim only '-'
+ *   Template: {{ value | trim:" -" }}              // Trim space and '-'
+ *   Template: {{ value | trim:" \t\n\r" }}         // Trim space, tab, newline, carriage return
+ *
+ * Note: Uses PHP's trim() function. See https://www.php.net/manual/en/function.trim.php
  */
-final class TrimStrings implements TransformerInterface
+final readonly class TrimStrings implements TransformerInterface
 {
+    /** @param string|null $characters Characters to trim (null = whitespace) */
+    public function __construct(
+        private ?string $characters = null,
+    ) {}
+
     public function transform(mixed $value, HookContext $context): mixed
     {
-        return is_string($value) ? trim($value) : $value;
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        // Get characters from context args (from filter syntax) or constructor
+        $args = $context->extra();
+        $characters = $this->characters;
+
+        if (count($args) >= 1 && is_string($args[0])) {
+            $characters = $args[0];
+        }
+
+        // Use default PHP trim if no characters specified
+        if (null === $characters) {
+            return trim($value);
+        }
+
+        // Trim specific characters
+        return trim($value, $characters);
     }
 
     public function getHook(): string

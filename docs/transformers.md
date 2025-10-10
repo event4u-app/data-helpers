@@ -32,26 +32,42 @@ $template = [
 
 #### TrimStrings
 
-Removes whitespace from the beginning and end of all string values.
+Removes characters from the beginning and end of string values.
+
+By default trims whitespace. You can specify custom characters to trim.
 
 **Template Aliases:** `trim`
 
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
 
-// Pipeline usage
+// Pipeline usage - default (whitespace)
 protected function pipes(): array
 {
     return [new TrimStrings()];
 }
 
+// Pipeline usage - custom characters
+protected function pipes(): array
+{
+    return [new TrimStrings(' -')];  // Trim space and dash
+}
+
 // Template expression usage
-$template = ['name' => '{{ user.name | trim }}'];
+$template = [
+    'name' => '{{ user.name | trim }}',                    // Trim whitespace (default)
+    'title' => '{{ product.title | trim:"-" }}',           // Trim only dash
+    'description' => '{{ item.description | trim:" -" }}', // Trim space and dash
+];
 ```
 
-**Example:**
+**Examples:**
 
-- Input: `"  hello  "` → Output: `"hello"`
+- Input: `"  hello  "` → Output: `"hello"` (default whitespace)
+- Input: `"- Sample - Swimming Pool -"` with `trim:" -"` → Output: `"Sample - Swimming Pool"`
+- Input: `"---Sample---"` with `trim:"-"` → Output: `"Sample"`
+
+**Note:** Uses PHP's `trim()` function. See [PHP trim() documentation](https://www.php.net/manual/en/function.trim.php) for character list syntax.
 
 ---
 
