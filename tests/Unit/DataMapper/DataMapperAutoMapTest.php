@@ -138,4 +138,4 @@ describe('DataMapper AutoMap', function(): void {
         $acc = new DataAccessor($res);
         expect($acc->get('shippingAddress.street_name'))->toBe('Main');
     });
-});
+})->group('laravel');

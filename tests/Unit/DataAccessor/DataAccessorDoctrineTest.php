@@ -6,6 +6,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use event4u\DataHelpers\DataAccessor;
 use Tests\utils\Entities\Product;
 
+/**
+ * @group doctrine
+ */
 describe('DataAccessor with Doctrine', function(): void {
     it('can read from Doctrine ArrayCollection', function(): void {
         $collection = new ArrayCollection([
@@ -176,4 +179,4 @@ describe('DataAccessor with Doctrine', function(): void {
             'products.1.price' => '29.99',
         ]);
     });
-});
+})->group('doctrine');

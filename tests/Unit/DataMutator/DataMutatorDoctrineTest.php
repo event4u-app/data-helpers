@@ -263,4 +263,4 @@ describe('DataMutator with Doctrine', function(): void {
         /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][1]['profile']['email'])->toBe('jane@example.com');
     });
-});
+})->group('doctrine');

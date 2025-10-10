@@ -59,5 +59,5 @@ describe('EnvHelper Carbon Support', function(): void {
 
         unset($_ENV['TEST_ISO_DATE']);
     });
-});
+})->group('carbon');
 

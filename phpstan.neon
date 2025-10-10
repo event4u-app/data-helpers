@@ -22,6 +22,7 @@ parameters:
     excludePaths:
         - src/Symfony
         - '*.stub.php'
+        - tests-e2e/*/vendor
 
     scanDirectories:
         - types
@@ -71,6 +72,9 @@ parameters:
         - message: '#Calling exec\(\) is forbidden#'
           paths:
               - scripts/*
+        - message: '#Calling putenv\(\) is forbidden#'
+          paths:
+              - tests/*
 
     disallowedFunctionCalls:
         -

@@ -9,6 +9,9 @@ use event4u\DataHelpers\DataHelpersConfig;
 use event4u\DataHelpers\Laravel\DataHelpersServiceProvider;
 use Illuminate\Container\Container;
 
+/**
+ * @group laravel
+ */
 describe('Laravel Config Integration', function(): void {
     beforeEach(function(): void {
         // Skip if Laravel is not available
@@ -123,7 +126,7 @@ describe('Laravel Config Integration', function(): void {
         expect($config)->toHaveKey('cache');
         expect($config)->toHaveKey('performance_mode');
     });
-})->skip(
+})->group('laravel')->skip(
     !class_exists('Illuminate\Container\Container'),
     'Laravel is not available'
 );

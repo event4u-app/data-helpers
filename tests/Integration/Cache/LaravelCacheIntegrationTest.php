@@ -7,6 +7,9 @@ use event4u\DataHelpers\Cache\Drivers\LaravelCacheDriver;
 use event4u\DataHelpers\DataHelpersConfig;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * @group laravel
+ */
 describe('Laravel Cache Integration', function(): void {
     beforeEach(function(): void {
         setupLaravelCache();
@@ -80,5 +83,5 @@ describe('Laravel Cache Integration', function(): void {
 
         expect($cache->get('ttl_key'))->toBe('ttl_value');
     });
-});
+})->group('laravel');
 

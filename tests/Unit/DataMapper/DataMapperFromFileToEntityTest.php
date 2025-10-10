@@ -349,5 +349,5 @@ describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
             expect($jsonDept->getEmployeeCount())->toBe(120);
         });
     });
-});
+})->group('doctrine');
 

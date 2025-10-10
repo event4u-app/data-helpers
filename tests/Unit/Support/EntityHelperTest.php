@@ -16,7 +16,7 @@ describe('EntityHelper', function(): void {
         expect(EntityHelper::isEloquentModel($model))->toBeTrue();
         expect(EntityHelper::isEntity($model))->toBeTrue();
         expect(EntityHelper::isDoctrineEntity($model))->toBeFalse();
-    });
+    })->group('laravel');
 
     it('converts Eloquent Model to array', function(): void {
         $model = new User([
@@ -29,7 +29,7 @@ describe('EntityHelper', function(): void {
         expect($result)->toHaveKey('name');
         expect($result)->toHaveKey('email');
         expect($result['name'])->toBe('John');
-    });
+    })->group('laravel');
 
     it('gets attributes from Eloquent Model', function(): void {
         $model = new User([
@@ -41,7 +41,7 @@ describe('EntityHelper', function(): void {
 
         expect($attributes)->toHaveKey('name');
         expect($attributes)->toHaveKey('email');
-    });
+    })->group('laravel');
 
     it('checks if Eloquent Model has attribute', function(): void {
         $model = new User([
@@ -51,7 +51,7 @@ describe('EntityHelper', function(): void {
 
         expect(EntityHelper::hasAttribute($model, 'name'))->toBeTrue();
         expect(EntityHelper::hasAttribute($model, 'nonexistent'))->toBeFalse();
-    });
+    })->group('laravel');
 
     it('gets attribute from Eloquent Model', function(): void {
         $model = new User([
@@ -61,7 +61,7 @@ describe('EntityHelper', function(): void {
 
         expect(EntityHelper::getAttribute($model, 'name'))->toBe('John');
         expect(EntityHelper::getAttribute($model, 'email'))->toBe('john@example.com');
-    });
+    })->group('laravel');
 
     it('sets attribute on Eloquent Model', function(): void {
         $model = new User([
@@ -71,7 +71,7 @@ describe('EntityHelper', function(): void {
         EntityHelper::setAttribute($model, 'name', 'Jane');
 
         expect($model->getAttribute('name'))->toBe('Jane');
-    });
+    })->group('laravel');
 
     it('unsets attribute from Eloquent Model', function(): void {
         $model = new User([
@@ -82,7 +82,7 @@ describe('EntityHelper', function(): void {
         EntityHelper::unsetAttribute($model, 'email');
 
         expect($model->getAttribute('email'))->toBeNull();
-    });
+    })->group('laravel');
 
     it('returns empty array for non-entity', function(): void {
         $notEntity = 'not an entity';
@@ -97,7 +97,7 @@ describe('EntityHelper', function(): void {
         // This test would require a real Doctrine Entity class
         // For now, we just verify the method exists
         expect(EntityHelper::class)->toHaveMethod('isDoctrineEntity');
-    });
+    })->group('doctrine');
 
     it('detects Doctrine Entities', function(): void {
         $entity = new Product('Laptop', '999.99');
@@ -105,7 +105,7 @@ describe('EntityHelper', function(): void {
         expect(EntityHelper::isDoctrineEntity($entity))->toBeTrue();
         expect(EntityHelper::isEntity($entity))->toBeTrue();
         expect(EntityHelper::isEloquentModel($entity))->toBeFalse();
-    });
+    })->group('doctrine');
 
     it('converts Doctrine Entity to array', function(): void {
         $entity = new Product('Laptop', '999.99');
@@ -118,7 +118,7 @@ describe('EntityHelper', function(): void {
         expect($result)->toHaveKey('description');
         expect($result['name'])->toBe('Laptop');
         expect($result['price'])->toBe('999.99');
-    });
+    })->group('doctrine');
 
     it('gets attributes from Doctrine Entity', function(): void {
         $entity = new Product('Laptop', '999.99');
@@ -128,7 +128,7 @@ describe('EntityHelper', function(): void {
         expect($attributes)->toHaveKey('name');
         expect($attributes)->toHaveKey('price');
         expect($attributes['name'])->toBe('Laptop');
-    });
+    })->group('doctrine');
 
     it('checks if Doctrine Entity has attribute', function(): void {
         $entity = new Product('Laptop', '999.99');
@@ -136,7 +136,7 @@ describe('EntityHelper', function(): void {
         expect(EntityHelper::hasAttribute($entity, 'name'))->toBeTrue();
         expect(EntityHelper::hasAttribute($entity, 'price'))->toBeTrue();
         expect(EntityHelper::hasAttribute($entity, 'nonexistent'))->toBeFalse();
-    });
+    })->group('doctrine');
 
     it('gets attribute from Doctrine Entity', function(): void {
         $entity = new Product('Laptop', '999.99');
@@ -144,7 +144,7 @@ describe('EntityHelper', function(): void {
         expect(EntityHelper::getAttribute($entity, 'name'))->toBe('Laptop');
         expect(EntityHelper::getAttribute($entity, 'price'))->toBe('999.99');
         expect(EntityHelper::getAttribute($entity, 'nonexistent'))->toBeNull();
-    });
+    })->group('doctrine');
 
     it('sets attribute on Doctrine Entity', function(): void {
         $entity = new Product('Laptop', '999.99');
@@ -154,7 +154,7 @@ describe('EntityHelper', function(): void {
 
         expect($entity->getName())->toBe('Desktop');
         expect($entity->getPrice())->toBe('1299.99');
-    });
+    })->group('doctrine');
 
     it('unsets attribute from Doctrine Entity', function(): void {
         $entity = new Product('Laptop', '999.99');
@@ -163,5 +163,5 @@ describe('EntityHelper', function(): void {
         EntityHelper::unsetAttribute($entity, 'description');
 
         expect($entity->getDescription())->toBeNull();
-    });
+    })->group('doctrine');
 });

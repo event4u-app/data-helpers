@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         colors="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         cacheDirectory=".phpunit.cache"
+>
+    <testsuites>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory suffix="Test.php">./tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <!-- Exclude Laravel-specific, Doctrine, and Carbon tests in Symfony E2E environment -->
+    <groups>
+        <exclude>
+            <group>laravel</group>
+            <group>doctrine</group>
+            <group>carbon</group>
+        </exclude>
+    </groups>
+
+    <php>
+        <ini name="memory_limit" value="-1"/>
+        <ini name="error_reporting" value="-1"/>
+        <ini name="display_errors" value="0"/>
+        <ini name="display_startup_errors" value="0"/>
+        <ini name="opcache.memory_consumption" value="256"/>
+        <ini name="opcache.interned_strings_buffer" value="16"/>
+        <ini name="opcache.max_accelerated_files" value="20000"/>
+        <ini name="opcache.validate_timestamps" value="1"/>
+        <ini name="opcache.save_comments" value="1"/>
+        <ini name="opcache.fast_shutdown" value="1"/>
+    </php>
+
+    <source>
+        <include>
+            <directory suffix=".php">./app</directory>
+        </include>
+    </source>
+</phpunit>

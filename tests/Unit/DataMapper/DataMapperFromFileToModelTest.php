@@ -400,5 +400,5 @@ describe('DataMapper::mapFromFile() to Model', function(): void {
             expect($project->title)->toBe('Construction of Paving Area South Park');
         });
     });
-});
+})->group('laravel');
 

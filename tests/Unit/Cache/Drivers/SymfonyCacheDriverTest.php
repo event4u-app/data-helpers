@@ -5,6 +5,9 @@ declare(strict_types=1);
 use event4u\DataHelpers\Cache\Drivers\SymfonyCacheDriver;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
+/**
+ * @group symfony
+ */
 describe('SymfonyCacheDriver', function(): void {
     beforeEach(function(): void {
         $this->pool = new ArrayAdapter();
@@ -57,7 +60,7 @@ describe('SymfonyCacheDriver', function(): void {
         $this->driver->set('key:with:colons', 'value1');
         $this->driver->set('key{with}braces', 'value2');
         $this->driver->set('key/with/slashes', 'value3');
-        
+
         expect($this->driver->get('key:with:colons'))->toBe('value1');
         expect($this->driver->get('key{with}braces'))->toBe('value2');
         expect($this->driver->get('key/with/slashes'))->toBe('value3');
@@ -67,9 +70,9 @@ describe('SymfonyCacheDriver', function(): void {
         $this->driver->set('key1', 'value1');
         $this->driver->get('key1'); // Hit
         $this->driver->get('non-existent'); // Miss
-        
+
         $stats = $this->driver->getStats();
-        
+
         expect($stats)->toHaveKey('hits');
         expect($stats)->toHaveKey('misses');
         expect($stats)->toHaveKey('size');
@@ -77,5 +80,5 @@ describe('SymfonyCacheDriver', function(): void {
         expect($stats['hits'])->toBe(1);
         expect($stats['misses'])->toBe(1);
     });
-});
+})->group('symfony');
 

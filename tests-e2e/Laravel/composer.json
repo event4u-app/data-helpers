@@ -1,0 +1,39 @@
+{
+  "name": "event4u/data-helpers-e2e-laravel",
+  "description": "E2E tests for Data Helpers with Laravel",
+  "type": "project",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.2",
+    "laravel/framework": "^11.0",
+    "event4u/data-helpers": "*"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3.0",
+    "pestphp/pest-plugin-laravel": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "E2E\\Laravel\\": "app/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../../"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
+

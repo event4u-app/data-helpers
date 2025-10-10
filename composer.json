@@ -155,7 +155,10 @@
     ],
     "cache:clear": "php scripts/cache-clear.php",
     "cache:stats": "php scripts/cache-stats.php",
-    "sort-deps": "php scripts/sort-dependencies.php"
+    "sort-deps": "php scripts/sort-dependencies.php",
+    "test:e2e": "bash tests-e2e/run-e2e-tests.sh",
+    "test:e2e-laravel": "cd tests-e2e/Laravel && composer install --quiet && vendor/bin/pest",
+    "test:e2e-symfony": "cd tests-e2e/Symfony && composer install --quiet && vendor/bin/pest"
   },
   "config": {
     "allow-plugins": {
@@ -164,6 +167,7 @@
   },
   "extra": {
     "laravel": {
+      "require": "^9.0|^10.0|^11.0",
       "providers": [
         "event4u\\DataHelpers\\Laravel\\DataHelpersServiceProvider"
       ]

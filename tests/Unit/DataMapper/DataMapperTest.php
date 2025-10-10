@@ -200,7 +200,7 @@ describe('DataMapper', function(): void {
                     ],
                 ],
             ]);
-        });
+        })->group('laravel');
 
         test('mapMany returns array of results for each mapping', function(): void {
             $userModel = new class extends Model {
@@ -275,8 +275,8 @@ describe('DataMapper', function(): void {
                     'fullname' => 'Alice',
                 ],
             ]);
-        });
-    });
+        })->group('laravel');
+    })->group('laravel');
 
     describe('New capabilities', function(): void {
         test('structured mapping supports associative mapping pairs', function(): void {
@@ -549,7 +549,7 @@ describe('Template mapping', function(): void {
                 ],
             ],
         ]);
-    });
+    })->group('laravel');
 
     test('supports JSON template and wildcard with null skipping', function(): void {
         $sources = [

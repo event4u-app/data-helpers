@@ -1,0 +1,42 @@
+{
+  "name": "event4u/data-helpers-e2e-symfony",
+  "description": "E2E tests for Data Helpers with Symfony",
+  "type": "project",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.2",
+    "symfony/framework-bundle": "^7.0",
+    "symfony/http-kernel": "^7.0",
+    "symfony/config": "^7.0",
+    "symfony/dependency-injection": "^7.0",
+    "symfony/cache": "^7.0",
+    "event4u/data-helpers": "*"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3.0",
+    "symfony/yaml": "^7.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "E2E\\Symfony\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../../"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}

@@ -908,7 +908,7 @@ describe('DataMutator', function(): void {
             expect($model->getAttribute('age'))->toBe(25);
             expect($model->getAttribute('active'))->toBe(true);
         });
-    });
+    })->group('laravel');
 
     describe('Arrayable object mutations', function(): void {
         test('converts Arrayable to array and sets values', function(): void {
@@ -1011,7 +1011,7 @@ describe('DataMutator', function(): void {
             ]);
             /** @return array<string, mixed> */
         });
-    });
+    })->group('laravel');
 
     describe('JsonSerializable object mutations', function(): void {
         test('converts JsonSerializable to array and sets values', function(): void {
@@ -1220,7 +1220,7 @@ describe('DataMutator', function(): void {
                 ],
             ]);
         });
-    });
+    })->group('laravel');
 
     describe('Special value types', function(): void {
         test('can set null values', function(): void {
@@ -2103,7 +2103,7 @@ describe('DataMutator', function(): void {
                 'name' => 'Alice',
                 'city' => 'Berlin',
             ]);
-        });
+        })->group('laravel');
 
         test('can unset from JsonSerializable objects', function(): void {
             $jsonSerializable = new class implements JsonSerializable {
@@ -2320,7 +2320,7 @@ describe('DataMutator', function(): void {
                     'age' => 25,
                 ],
             ]);
-        });
+        })->group('laravel');
 
         test('can unset values with wildcards from Collections', function(): void {
             $collection = collect([
@@ -2348,7 +2348,7 @@ describe('DataMutator', function(): void {
                     'age' => 25,
                 ],
             ]);
-        });
+        })->group('laravel');
 
         test('can unset all items from Collection via wildcard', function(): void {
             $collection = collect([
@@ -2367,7 +2367,7 @@ describe('DataMutator', function(): void {
             assert($result instanceof Collection);
 
             expect($result->toArray())->toBe([]);
-        });
+        })->group('laravel');
 
         test('can unset multiple paths from Collections', function(): void {
             $collection = collect([
@@ -2400,7 +2400,7 @@ describe('DataMutator', function(): void {
                     'age' => 25,
                 ],
             ]);
-        });
+        })->group('laravel');
 
         test('can unset nested values from Collections', function(): void {
             $collection = collect([
@@ -2444,7 +2444,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ]);
-        });
+        })->group('laravel');
 
         test('can unset from empty Collections', function(): void {
             $collection = collect([]);
@@ -2456,7 +2456,7 @@ describe('DataMutator', function(): void {
             assert($result instanceof Collection);
 
             expect($result->toArray())->toBe([]);
-        });
+        })->group('laravel');
 
         test('can unset from Collections with mixed types', function(): void {
             $collection = collect([
@@ -2486,7 +2486,7 @@ describe('DataMutator', function(): void {
                     'name' => 'Bob',
                 ],
             ]);
-        });
+        })->group('laravel');
     });
 
     describe('Deep Wildcards', function(): void {
@@ -2963,7 +2963,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ]);
-        });
+        })->group('laravel');
 
         test('deep wildcards with empty nested arrays', function(): void {
             $data = [
@@ -3142,7 +3142,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ]);
-        });
+        })->group('laravel');
 
         test('deep wildcards with multiple values assignment', function(): void {
             $data = [

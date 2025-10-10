@@ -232,4 +232,4 @@ describe('DataMapper deep fixtures', function(): void {
         expect($res['cities'])->toContain('Hamburg');
         expect($res['cities'])->toContain('Köln');
     });
-});
+})->group('laravel');

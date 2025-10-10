@@ -62,6 +62,8 @@ return RectorConfig::configure()
         __DIR__ . '/types',
     ])
     ->withSkipPath(__DIR__ . '/src/Support')
+    ->withSkipPath(__DIR__ . '/tests-e2e/*/vendor')
+    ->withSkipPath(__DIR__ . '/tests-e2e/*/composer.lock')
     ->withRootFiles()
     ->withPhpSets(php82: true)
     ->withSets([

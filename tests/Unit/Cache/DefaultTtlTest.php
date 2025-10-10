@@ -40,7 +40,7 @@ describe('Default TTL', function(): void {
         expect($cache->get('key1'))->toBe('value1');
 
         teardownLaravelCache();
-    });
+    })->group('laravel');
 
     it('allows overriding default TTL for framework driver (Laravel)', function(): void {
         setupLaravelCache();
@@ -62,7 +62,7 @@ describe('Default TTL', function(): void {
         expect($cache->get('key1'))->toBe('value1');
 
         teardownLaravelCache();
-    });
+    })->group('laravel');
 
     it('uses default TTL from config for Symfony driver', function(): void {
         $pool = new ArrayAdapter();
@@ -73,7 +73,7 @@ describe('Default TTL', function(): void {
 
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
-    });
+    })->group('symfony');
 
     it('allows overriding default TTL for Symfony driver', function(): void {
         $pool = new ArrayAdapter();
@@ -84,7 +84,7 @@ describe('Default TTL', function(): void {
 
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
-    });
+    })->group('symfony');
 
     it('caches forever when default TTL is null', function(): void {
         setupLaravelCache();
@@ -106,7 +106,7 @@ describe('Default TTL', function(): void {
         expect($cache->get('key1'))->toBe('value1');
 
         teardownLaravelCache();
-    });
+    })->group('laravel');
 
     it('uses provided TTL over null default TTL', function(): void {
         setupLaravelCache();
@@ -128,6 +128,6 @@ describe('Default TTL', function(): void {
         expect($cache->get('key1'))->toBe('value1');
 
         teardownLaravelCache();
-    });
+    })->group('laravel');
 });
 

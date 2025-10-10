@@ -5,6 +5,9 @@ declare(strict_types=1);
 use event4u\DataHelpers\Cache\Drivers\LaravelCacheDriver;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * @group laravel
+ */
 describe('LaravelCacheDriver', function(): void {
     beforeEach(function(): void {
         setupLaravelCache();
@@ -80,5 +83,5 @@ describe('LaravelCacheDriver', function(): void {
         expect($stats['hits'])->toBe(1);
         expect($stats['misses'])->toBe(1);
     });
-});
+})->group('laravel');
 

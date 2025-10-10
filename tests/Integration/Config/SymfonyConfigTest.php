@@ -11,6 +11,9 @@ use Exception;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @group symfony
+ */
 describe('Symfony Config Integration', function(): void {
     beforeEach(function(): void {
         // Skip if Symfony is not available
@@ -217,7 +220,7 @@ describe('Symfony Config Integration', function(): void {
         expect($config['cache']['max_entries'])->toBe(500);
         expect($config['performance_mode'])->toBe('fast'); // default
     });
-})->skip(
+})->group('symfony')->skip(
     !class_exists('Symfony\Component\DependencyInjection\ContainerBuilder'),
     'Symfony is not available'
 );

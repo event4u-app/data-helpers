@@ -7,6 +7,9 @@ use event4u\DataHelpers\Cache\Drivers\SymfonyCacheDriver;
 use event4u\DataHelpers\DataHelpersConfig;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
+/**
+ * @group symfony
+ */
 describe('Symfony Cache Integration', function(): void {
     beforeEach(function(): void {
         CacheManager::reset();
@@ -71,4 +74,4 @@ describe('Symfony Cache Integration', function(): void {
         $cache = CacheManager::getInstance();
         expect($cache)->toBeInstanceOf(SymfonyCacheDriver::class);
     });
-});
+})->group('symfony');

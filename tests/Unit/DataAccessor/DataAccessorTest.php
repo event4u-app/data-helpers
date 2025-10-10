@@ -81,7 +81,7 @@ describe('DataAccessor', function(): void {
                 'name' => 'Alice',
                 'age' => 30,
             ]);
-        });
+        })->group('laravel');
 
         test('works with JsonSerializable objects', function(): void {
             $jsonSerializable = new class implements JsonSerializable {
@@ -137,7 +137,7 @@ describe('DataAccessor', function(): void {
                     'age' => 25,
                 ],
             ]);
-        });
+        })->group('laravel');
 
         test('works with Laravel Models', function(): void {
             $model = new class extends Model {
@@ -155,7 +155,7 @@ describe('DataAccessor', function(): void {
                 'email' => 'alice@example.com',
                 'age' => 30,
             ]);
-        });
+        })->group('laravel');
 
         test('works with nested Collections', function(): void {
             $collection = collect([
@@ -180,7 +180,7 @@ describe('DataAccessor', function(): void {
             expect($result)->toHaveKey('settings');
             expect($result['users'])->toBeInstanceOf(Collection::class);
             expect($result['settings'])->toBeInstanceOf(Collection::class);
-        });
+        })->group('laravel');
     });
 
     describe('Get method - Basic functionality', function(): void {
@@ -524,7 +524,7 @@ describe('DataAccessor', function(): void {
                 'users.0.name' => 'Alice',
                 'users.1.name' => 'Bob',
             ]);
-        });
+        })->group('laravel');
 
         test('can access nested Collections', function(): void {
             $data = [
@@ -558,7 +558,7 @@ describe('DataAccessor', function(): void {
                 'departments.0.employees.1.name' => 'Bob',
                 'departments.1.employees.0.name' => 'Charlie',
             ]);
-        });
+        })->group('laravel');
 
         test('can access Laravel Model attributes', function(): void {
             $model = new class extends Model {
@@ -577,7 +577,7 @@ describe('DataAccessor', function(): void {
 
             expect($accessor->get('user.name'))->toBe('Alice');
             expect($accessor->get('user.profile.city'))->toBe('Berlin');
-        });
+        })->group('laravel');
 
         test('can access Models with wildcards', function(): void {
             $models = [
@@ -605,7 +605,7 @@ describe('DataAccessor', function(): void {
                 'users.0.name' => 'Alice',
                 'users.1.name' => 'Bob',
             ]);
-        });
+        })->group('laravel');
 
         test('can traverse Collection with numeric keys', function(): void {
             $collection = collect([
@@ -624,7 +624,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->get('first.value'))->toBe(1);
             expect($accessor->get('second.value'))->toBe(2);
             expect($accessor->get('0.value'))->toBe(3);
-        });
+        })->group('laravel');
 
         test('handles Collection with has() method', function(): void {
             $collection = collect([
@@ -636,7 +636,7 @@ describe('DataAccessor', function(): void {
             expect($accessor->get('name'))->toBe('Alice');
             expect($accessor->get('age'))->toBe(30);
             expect($accessor->get('nonexistent', 'default'))->toBe('default');
-        });
+        })->group('laravel');
     });
 
     describe('Deep Wildcards and Complex Structures', function(): void {
@@ -673,7 +673,7 @@ describe('DataAccessor', function(): void {
                 'companies.0.departments.0.employees.0.name' => 'Alice',
                 'companies.0.departments.0.employees.1.name' => 'Bob',
             ]);
-        });
+        })->group('laravel');
 
         test('handles mixed Collection and array structures', function(): void {
             $data = [
@@ -702,7 +702,7 @@ describe('DataAccessor', function(): void {
                 'regions.0.countries.1.cities.0' => 'Paris',
                 'regions.0.countries.1.cities.1' => 'Lyon',
             ]);
-        });
+        })->group('laravel');
 
         test('handles empty Collections in wildcard paths', function(): void {
             $data = [
@@ -724,7 +724,7 @@ describe('DataAccessor', function(): void {
                 'groups.1.items.0' => 'item1',
                 'groups.1.items.1' => 'item2',
             ]);
-        });
+        })->group('laravel');
 
         test('handles Collection with non-array elements', function(): void {
             $collection = collect([
@@ -749,6 +749,6 @@ describe('DataAccessor', function(): void {
                 '0.data.value' => 1,
                 '2.data.value' => 2,
             ]);
-        });
+        })->group('laravel');
     });
 });

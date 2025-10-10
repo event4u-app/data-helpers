@@ -116,7 +116,7 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             $dept0Model = $dept0;
             expect($dept0Model->name)->toBe('Engineering');
             expect($dept0Model->code)->toBe('ENG');
-        });
+        })->group('laravel');
 
         it('loads XML file and maps to Eloquent Model with transformers', function(): void {
             $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
@@ -148,8 +148,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             expect($company->name)->toBe('TechCorp Solutions');
             expect($company->email)->toBe('info@techcorp.example'); // Lowercased
             expect($company->departments)->toHaveCount(3); // @phpstan-ignore-line argument.templateType
-        });
-    });
+        })->group('laravel');
+    })->group('laravel');
 
     describe('Pipeline with file loading - Entity targets', function(): void {
         it('loads JSON file and maps to Doctrine Entity with transformers', function(): void {
@@ -190,7 +190,7 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             $dept0Entity = $dept0;
             expect($dept0Entity->getName())->toBe('Engineering');
             expect($dept0Entity->getCode())->toBe('ENG');
-        });
+        })->group('doctrine');
 
         it('loads XML file and maps to Doctrine Entity with transformers', function(): void {
             $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
@@ -222,8 +222,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             expect($company->getName())->toBe('TechCorp Solutions');
             expect($company->getEmail())->toBe('info@techcorp.example'); // Lowercased
             expect($company->getDepartments()->count())->toBe(3);
-        });
-    });
+        })->group('doctrine');
+    })->group('doctrine');
 
     describe('Error handling', function(): void {
         it('throws exception for non-existent file', function(): void {
@@ -248,6 +248,6 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
                 unlink($tempFile);
             }
         })->throws(InvalidArgumentException::class, 'Unsupported file format');
-    });
+    })->group('doctrine');
 });
 

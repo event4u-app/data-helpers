@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\Symfony;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-
 use function dirname;
 
 /**

@@ -15,7 +15,7 @@ describe('CollectionHelper', function(): void {
         expect(CollectionHelper::isLaravelCollection($collection))->toBeTrue();
         expect(CollectionHelper::isCollection($collection))->toBeTrue();
         expect(CollectionHelper::isDoctrineCollection($collection))->toBeFalse();
-    });
+    })->group('laravel');
 
     it('converts Laravel Collection to array', function(): void {
         $collection = new LaravelCollection([
@@ -29,7 +29,7 @@ describe('CollectionHelper', function(): void {
             'name' => 'John',
             'age' => 30,
         ]);
-    });
+    })->group('laravel');
 
     it('checks if Laravel Collection has key', function(): void {
         $collection = new LaravelCollection([
@@ -39,7 +39,7 @@ describe('CollectionHelper', function(): void {
 
         expect(CollectionHelper::has($collection, 'name'))->toBeTrue();
         expect(CollectionHelper::has($collection, 'email'))->toBeFalse();
-    });
+    })->group('laravel');
 
     it('gets value from Laravel Collection', function(): void {
         $collection = new LaravelCollection([
@@ -49,7 +49,7 @@ describe('CollectionHelper', function(): void {
 
         expect(CollectionHelper::get($collection, 'name'))->toBe('John');
         expect(CollectionHelper::get($collection, 'email', 'default'))->toBe('default');
-    });
+    })->group('laravel');
 
     it('creates Laravel Collection from array', function(): void {
         $data = [
@@ -64,7 +64,7 @@ describe('CollectionHelper', function(): void {
         if ($result instanceof LaravelCollection) {
             expect($result->all())->toBe($data);
         }
-    });
+    })->group('laravel');
 
     it('returns empty array for non-collection', function(): void {
         $notCollection = 'not a collection';
@@ -84,7 +84,7 @@ describe('CollectionHelper', function(): void {
         expect(CollectionHelper::toArray($collection))->toBe([
             'name' => 'Jane',
         ]);
-    });
+    })->group('doctrine');
 
     it('detects Doctrine Collections', function(): void {
         $collection = new ArrayCollection([
@@ -94,7 +94,7 @@ describe('CollectionHelper', function(): void {
         expect(CollectionHelper::isDoctrineCollection($collection))->toBeTrue();
         expect(CollectionHelper::isCollection($collection))->toBeTrue();
         expect(CollectionHelper::isLaravelCollection($collection))->toBeFalse();
-    });
+    })->group('doctrine');
 
     it('converts Doctrine Collection to array', function(): void {
         $collection = new ArrayCollection([
@@ -108,7 +108,7 @@ describe('CollectionHelper', function(): void {
             'name' => 'Jane',
             'age' => 25,
         ]);
-    });
+    })->group('doctrine');
 
     it('checks if Doctrine Collection has key', function(): void {
         $collection = new ArrayCollection([
@@ -118,7 +118,7 @@ describe('CollectionHelper', function(): void {
 
         expect(CollectionHelper::has($collection, 'name'))->toBeTrue();
         expect(CollectionHelper::has($collection, 'email'))->toBeFalse();
-    });
+    })->group('doctrine');
 
     it('gets value from Doctrine Collection', function(): void {
         $collection = new ArrayCollection([
@@ -128,7 +128,7 @@ describe('CollectionHelper', function(): void {
 
         expect(CollectionHelper::get($collection, 'name'))->toBe('Jane');
         expect(CollectionHelper::get($collection, 'email', 'default'))->toBe('default');
-    });
+    })->group('doctrine');
 
     it('creates Doctrine Collection from array with fromArrayWithType', function(): void {
         $original = new ArrayCollection([
@@ -146,7 +146,7 @@ describe('CollectionHelper', function(): void {
         if ($result instanceof ArrayCollection) {
             expect($result->toArray())->toBe($data);
         }
-    });
+    })->group('doctrine');
 
     it('creates Laravel Collection from array with fromArrayWithType', function(): void {
         $original = new LaravelCollection([
@@ -163,7 +163,7 @@ describe('CollectionHelper', function(): void {
         if ($result instanceof LaravelCollection) {
             expect($result->all())->toBe($data);
         }
-    });
+    })->group('laravel');
 
     it('returns array when fromArrayWithType gets non-collection', function(): void {
         $data = [

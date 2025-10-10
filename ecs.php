@@ -149,5 +149,9 @@ return ECSConfig::configure()
 
         // Skip paths - don't replace FQN in Support classes
         __DIR__ . '/src/Support',
+
+        // Skip E2E test vendor directories and lock files
+        __DIR__ . '/tests-e2e/*/vendor',
+        __DIR__ . '/tests-e2e/*/composer.lock',
     ]);
 
