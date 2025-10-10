@@ -584,21 +584,31 @@ protected function pipes(): array
 
 #### ConvertEmptyToNull
 
-Converts empty strings to null values.
+Converts empty strings to null values. Useful for database operations where empty strings should be stored as NULL, or when you want to skip empty fields in the result.
+
+**Template Aliases:** `empty_to_null`
 
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\ConvertEmptyToNull;
 
+// Pipeline usage
 protected function pipes(): array
 {
     return [new ConvertEmptyToNull()];
 }
+
+// Template expression usage
+$template = [
+    'name3' => '{{ customer.name3 | decode_html | empty_to_null }}',
+];
 ```
 
-**Example:**
+**Examples:**
 
-- Input: `""` → Output: `null`
+- Input: `""` → Output: `null` (field will be skipped in mapFromTemplate)
 - Input: `"hello"` → Output: `"hello"`
+
+**Note:** When used in `mapFromTemplate()`, null values are skipped by default, so empty strings will not appear in the result.
 
 ---
 
@@ -877,6 +887,7 @@ All built-in transformers are automatically registered with the following aliase
 - `upper`, `uppercase` → UppercaseStrings
 - `ucfirst` → Ucfirst
 - `ucwords` → Ucwords
+- `decode_html` → DecodeHtmlEntities
 
 **Array Transformers:**
 
@@ -899,6 +910,7 @@ All built-in transformers are automatically registered with the following aliase
 - `default` → DefaultValue
 - `between` → Between
 - `clamp` → Clamp
+- `empty_to_null` → ConvertEmptyToNull
 
 ---
 

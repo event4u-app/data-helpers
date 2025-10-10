@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline;
 
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Between;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Clamp;
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\ConvertEmptyToNull;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\Count;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DecodeHtmlEntities;
 use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DefaultValue;
@@ -144,6 +145,7 @@ final class TransformerRegistry
             DefaultValue::class,
             Between::class,
             Clamp::class,
+            ConvertEmptyToNull::class,
         ];
 
         foreach ($builtInTransformers as $transformerClass) {

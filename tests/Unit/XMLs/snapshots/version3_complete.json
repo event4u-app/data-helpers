@@ -15,7 +15,6 @@
     "customer": {
         "name1": "Herbert Meier",
         "name2": "Petra Meier",
-        "name3": "",
         "street": "Gartenweg 23",
         "zipcode": "12345",
         "city": "Sample City"

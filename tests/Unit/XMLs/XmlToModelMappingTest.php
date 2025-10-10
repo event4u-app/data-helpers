@@ -270,7 +270,7 @@ describe('XML to Model Mapping', function(): void {
                 'customer' => [
                     'name1' => '{{ lvdata.customer_name | default:"" | decode_html }}',
                     'name2' => '{{ lvdata.customer_name2 | default:"" | decode_html }}',
-                    'name3' => '{{ lvdata.customer_name3 | default:"" | decode_html }}',
+                    'name3' => '{{ lvdata.customer_name3 | default:"" | decode_html | empty_to_null }}',
                     'street' => '{{ lvdata.customer_address | default:"" | decode_html }}',
                     'zipcode' => '{{ lvdata.customer_zipcode }}',
                     'city' => '{{ lvdata.customer_city | default:"" | decode_html }}',

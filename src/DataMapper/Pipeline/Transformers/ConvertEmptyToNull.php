@@ -12,8 +12,9 @@ use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
  *
  * Useful for database operations where empty strings should be stored as NULL.
  *
- * Example:
- *   DataMapper::pipe([ConvertEmptyToNull::class])->map($source, $target, $mapping);
+ * Examples:
+ *   Pipeline: DataMapper::pipe([new ConvertEmptyToNull()])->map($source, $target, $mapping);
+ *   Template: {{ value | empty_to_null }}
  */
 final class ConvertEmptyToNull implements TransformerInterface
 {
@@ -35,7 +36,7 @@ final class ConvertEmptyToNull implements TransformerInterface
     /** @return array<int, string> */
     public function getAliases(): array
     {
-        return [];
+        return ['empty_to_null'];
     }
 }
 
