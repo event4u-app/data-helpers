@@ -57,6 +57,7 @@ The package includes multiple caching layers for optimal performance:
 
 - **Template Expression Cache** - Parsed expressions are cached (LRU with configurable max entries)
 - **Template Mapping Cache** - Mapping arrays are cached per class (max 100 entries with LRU eviction)
+- **Hash-Validated Cache** - Automatic cache invalidation when source data changes
 - **File Content Cache** - Loaded JSON/XML files are cached to avoid repeated I/O
 - **Transformer Instance Cache** - Transformer instances are reused instead of creating new ones
 - **String Operation Caches** - Common string transformations are cached (toCamelCase, singularize, etc.)
@@ -67,5 +68,11 @@ The package includes multiple caching layers for optimal performance:
 - **Fast Mode** (default): ~2x faster parsing, no escape sequence handling
 - **Safe Mode**: Full escape sequence handling for special cases
 
-See [configuration.md](configuration.md) for details on configuring cache size and performance mode.
+**Cache Management:**
+```bash
+composer cache:clear  # Clear all caches
+composer cache:stats  # Show cache statistics
+```
+
+See [configuration.md](configuration.md) for details on configuring cache size, performance mode, and hash-validated caching.
 

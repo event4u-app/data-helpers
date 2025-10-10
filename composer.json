@@ -149,7 +149,9 @@
       "@rector:fix",
       "@phpstan",
       "@test"
-    ]
+    ],
+    "cache:clear": "php scripts/cache-clear.php",
+    "cache:stats": "php scripts/cache-stats.php"
   },
   "config": {
     "allow-plugins": {

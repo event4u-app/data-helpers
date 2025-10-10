@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper\Support;
 
 use event4u\DataHelpers\Cache\ClassScopedCache;
+use event4u\DataHelpers\Cache\HashValidatedCache;
 
 /**
  * Utility class for parsing template expressions with {{ }} syntax.
@@ -90,8 +91,9 @@ final class TemplateParser
         // Create cache key from mapping structure
         $cacheKey = hash('sha256', serialize($mapping) . $staticMarker);
 
-        // Try to get from cache
-        $cached = ClassScopedCache::get(self::class, $cacheKey);
+        // Try to get from cache with hash validation
+        // The mapping itself is the source data for hash validation
+        $cached = HashValidatedCache::get(self::class, $cacheKey, $mapping);
         if (is_array($cached)) {
             /** @var array<string, string|array{__static__: mixed}> $cached */
             return $cached;

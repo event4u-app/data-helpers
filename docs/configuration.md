@@ -212,9 +212,25 @@ FilterEngine::useFastSplit(true);
 
 ### Cache Management
 
+#### Composer Commands
+
+```bash
+# Clear all caches
+composer cache:clear
+
+# Show cache statistics
+composer cache:stats
+
+# Clear cache for specific class
+php scripts/cache-clear.php TemplateParser
+```
+
+#### Programmatic Cache Management
+
 ```php
 use event4u\DataHelpers\Cache\CacheHelper;
 use event4u\DataHelpers\Cache\ClassScopedCache;
+use event4u\DataHelpers\Cache\HashValidatedCache;
 use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 
@@ -229,9 +245,78 @@ $stats = ClassScopedCache::getClassStats(TemplateParser::class);
 // Clear specific caches
 ExpressionParser::clearCache();
 ClassScopedCache::clearClass(TemplateParser::class);
+HashValidatedCache::clearClass(TemplateParser::class);
 
 // Clear all caches
 CacheHelper::clear();
+```
+
+#### Hash-Validated Cache
+
+The package includes **automatic cache invalidation** when source data changes:
+
+```php
+use event4u\DataHelpers\Cache\HashValidatedCache;
+
+// Cache with hash validation
+$template = ['name' => '{{ user.name | upper }}'];
+$cacheKey = 'my_template';
+
+// Store with hash validation
+HashValidatedCache::set(
+    TemplateParser::class,
+    $cacheKey,
+    $parsedTemplate,
+    $template  // Source data for hash validation
+);
+
+// Retrieve - automatically invalidates if template changed
+$cached = HashValidatedCache::get(
+    TemplateParser::class,
+    $cacheKey,
+    $template  // Current template for comparison
+);
+
+// If $template changed, $cached will be null
+```
+
+**How it works:**
+1. When storing, calculates hash of source data (template, class file, etc.)
+2. Stores both value and hash in cache
+3. When retrieving, recalculates hash and compares
+4. If hash differs, cache is invalidated and null is returned
+
+**Use cases:**
+- Template caching (invalidate when template changes)
+- Class-based caching (invalidate when class file changes)
+- Configuration caching (invalidate when config changes)
+
+**Supported source data types:**
+- **Strings**: Direct hash of string content
+- **Arrays**: Serialized and hashed
+- **Objects**: Serialized and hashed
+- **File paths**: Reads file content and hashes it
+- **Class names**: Reads class file and hashes it
+
+```php
+// Example: Template caching with auto-invalidation
+$template = ['name' => '{{ user.name }}'];
+
+$parsed = HashValidatedCache::remember(
+    TemplateParser::class,
+    'template_key',
+    $template,  // Source data
+    fn() => TemplateParser::parseMapping($template)
+);
+
+// If template changes, cache is automatically invalidated
+$template = ['name' => '{{ user.fullName }}'];  // Changed!
+$parsed = HashValidatedCache::remember(
+    TemplateParser::class,
+    'template_key',
+    $template,  // New template
+    fn() => TemplateParser::parseMapping($template)  // Recalculated
+);
 ```
 
 ## Performance Considerations
