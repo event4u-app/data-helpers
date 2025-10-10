@@ -4,8 +4,8 @@
         "title": "Sample Company Ltd - Paving Works Test Project",
         "cost_center": "98765432",
         "address": [],
-        "total_value": null,
-        "calculated_hours": null,
+        "total_value": "15878,22",
+        "calculated_hours": "12",
         "status": "order_calculation"
     },
     "customer": {
@@ -49,8 +49,13 @@
             "parent_id": "01.01.",
             "short_text": "Remove and relay existing granite pavement.",
             "long_text": "Remove existing pavement and relay.\n                Installation on concrete base.",
+            "quantity": "30",
+            "estimated_amount": "30",
+            "measured_amount": "0",
             "unit": "m2",
-            "type": "Standard"
+            "unit_price": "100,23",
+            "minutes": "0",
+            "type": "N"
         }
     ]
 }

@@ -414,9 +414,10 @@ $result = DataMapper::pipe([
 
 ### Template Expressions - Powerful Mapping
 
-Use Twig-like expressions in your templates:
+Use Twig-like expressions **in all mapping methods** (`map()`, `mapFromFile()`, `mapFromTemplate()`):
 
 ```php
+// Works in mapFromTemplate()
 $template = [
     'user' => [
         'id' => '{{ user.id }}',
@@ -440,16 +441,15 @@ $sources = [
 ];
 
 $result = DataMapper::mapFromTemplate($template, $sources);
-// {
-//     "user": {
-//         "id": 123,
-//         "name": "Alice Smith",
-//         "email": "alice@example.com",
-//         "role": "USER",
-//         "tags": ["php", "laravel"],
-//         "tagCount": 2
-//     }
-// }
+
+// Also works in map() and mapFromFile()!
+$source = ['name' => 'alice', 'email' => null];
+$mapping = [
+    'name' => '{{ name | ucfirst }}',
+    'email' => '{{ email | default:"no-email@example.com" }}',
+];
+$result = DataMapper::map($source, [], $mapping);
+// ['name' => 'Alice', 'email' => 'no-email@example.com']
 ```
 
 **18 built-in transformers:** `lower`, `upper`, `trim`, `decode_html`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`, `reverse`, `sort`,

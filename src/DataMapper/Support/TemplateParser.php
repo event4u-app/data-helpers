@@ -41,13 +41,18 @@ final class TemplateParser
      * Extract the path from a template expression.
      *
      * If the string is wrapped in {{ }}, extracts and returns the inner path.
-     * Otherwise, returns the string as-is.
+     * This method now properly handles filters and default values.
      *
      * Examples:
      * - '{{ user.name }}' → 'user.name'
+     * - '{{ user.name | upper }}' → 'user.name | upper' (preserves filters)
+     * - '{{ user.name ?? "Unknown" }}' → 'user.name ?? "Unknown"' (preserves default)
      * - '{{ items.* }}' → 'items.*'
      * - 'user.name' → 'user.name'
      * - 'John Doe' → 'John Doe'
+     *
+     * Note: This method preserves the full expression including filters and defaults.
+     * Use TemplateExpressionProcessor for parsing these components.
      *
      * @param string $template The template string
      * @return string The extracted path or original string

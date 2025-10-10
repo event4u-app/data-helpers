@@ -41,6 +41,16 @@ final class ExpressionEvaluator
 
             // Apply filters
             if ([] !== $parsed['filters']) {
+                // Check if this is a wildcard result (array with dot-path keys or numeric keys from wildcard)
+                // If so, apply filters to each element instead of the whole array
+                if (is_array($resolved) && str_contains($parsed['path'], '*')) {
+                    $filtered = [];
+                    foreach ($resolved as $key => $item) {
+                        $filtered[$key] = FilterEngine::apply($item, $parsed['filters']);
+                    }
+                    return $filtered;
+                }
+
                 return FilterEngine::apply($resolved, $parsed['filters']);
             }
 

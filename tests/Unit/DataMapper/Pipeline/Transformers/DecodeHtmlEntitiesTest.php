@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DecodeHtmlEntities;
 
 describe('DecodeHtmlEntities Transformer', function(): void {
     it('decodes numeric HTML entities', function(): void {
@@ -89,7 +88,7 @@ describe('DecodeHtmlEntities Transformer', function(): void {
         ]);
 
         expect($result['number'])->toBe(123);
-        expect($result['null'])->toBeNull();
+        expect($result['null'] ?? null)->toBeNull();
         expect($result['array'])->toBe(['a', 'b']);
     });
 

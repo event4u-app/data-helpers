@@ -15,12 +15,10 @@ use event4u\DataHelpers\DataMapper\Pipeline\DataMapperPipeline;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 use event4u\DataHelpers\DataMapper\Support\HookInvoker;
 use event4u\DataHelpers\DataMapper\Support\MappingEngine;
+use event4u\DataHelpers\DataMapper\Support\TemplateExpressionProcessor;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
-use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
-use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
-use event4u\DataHelpers\DataMapper\Template\FilterEngine;
 use event4u\DataHelpers\DataMapper\TemplateMapper;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Support\EntityHelper;
@@ -551,15 +549,17 @@ class DataMapper
                 continue;
             }
 
-            // Extract filters from source path if present
+            // Extract path, filters, and default value using TemplateExpressionProcessor
             $filters = [];
-            if (!$isStatic && is_string($sourcePath) && str_contains($sourcePath, '|')) {
-                $parts = explode('|', $sourcePath, 2);
-                $sourcePath = trim($parts[0]);
-                $filtersPart = trim($parts[1] ?? '');
-                if ('' !== $filtersPart) {
-                    $filters = array_map('trim', explode('|', $filtersPart));
-                }
+            $defaultValue = null;
+            if (!$isStatic && is_string($sourcePath) && (str_contains($sourcePath, '|') || str_contains(
+                $sourcePath,
+                '??'
+            ))) {
+                $extracted = TemplateExpressionProcessor::extractPathAndFilters($sourcePath);
+                $sourcePath = $extracted['path'];
+                $filters = $extracted['filters'];
+                $defaultValue = $extracted['default'];
             }
 
             if ($isStatic) {
@@ -571,13 +571,20 @@ class DataMapper
                 $actualSourcePath = (string)$sourcePath;
                 $value = $accessor->get($actualSourcePath);
 
-                // Apply filters to non-wildcard values
+                // Apply default value if value is null (from ?? operator)
+                if (null === $value && null !== $defaultValue) {
+                    $value = $defaultValue;
+                }
+
+                // Apply filters to non-wildcard values BEFORE skipNull check
+                // This allows filters like 'default' to replace null values
                 if ([] !== $filters && !is_array($value)) {
-                    $value = FilterEngine::apply($value, $filters);
+                    $value = TemplateExpressionProcessor::applyFilters($value, $filters);
                 }
             }
 
-            // Skip null values by default
+            // Skip null values AFTER filters have been applied
+            // This allows filters like 'default' to prevent skipping
             if ($skipNull && null === $value) {
                 $mappingIndex++;
 
@@ -600,9 +607,7 @@ class DataMapper
                 // Create transform function for filters if present
                 $transformFn = null;
                 if ([] !== $filters) {
-                    $transformFn = function(mixed $itemValue) use ($filters): mixed {
-                        return FilterEngine::apply($itemValue, $filters);
-                    };
+                    $transformFn = (fn(mixed $itemValue): mixed => TemplateExpressionProcessor::applyFilters($itemValue, $filters));
                 }
 
                 // Use centralized wildcard processing from MappingEngine

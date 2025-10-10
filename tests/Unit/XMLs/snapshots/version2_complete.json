@@ -3,6 +3,12 @@
         "number": "2608",
         "title": "Construction of Paving Area South Park",
         "client_id": "1",
+        "total_value": "54618,79",
+        "calculated_hours": "406,79",
+        "actual_hours": "0.0",
+        "revenue": [],
+        "costs": "0.0",
+        "contribution_margin": [],
         "status": "order"
     },
     "customer": {
@@ -23,22 +29,26 @@
         {
             "parent_id": [],
             "long_text": "Construction of paving areas in two construction phases.\n                    Coordination with other trades required.\n                    Traffic safety measures according to RSA to be implemented.\n                    Access to adjacent properties must be kept clear.",
+            "quantity": "0,00",
             "type": "N"
         },
         {
             "parent_id": [],
             "long_text": "Construction Phase 1: Main Path",
+            "quantity": "0,00",
             "type": "N"
         },
         {
             "parent_id": [],
             "long_text": "Site Setup and Accompanying Services",
+            "quantity": "0,00",
             "type": "N"
         },
         {
             "parent_id": "91082",
             "short_text": "Set up construction site for this section. Access available.",
             "long_text": "Site setup with equipment, tools and operating materials.\n                    Provision of connections for electricity, water and disposal.\n                    Access to construction site available.",
+            "quantity": "1,00",
             "unit": "lump sum",
             "type": "N"
         },
@@ -46,6 +56,7 @@
             "parent_id": "91082",
             "short_text": "Clear construction site for this section.",
             "long_text": "Clear construction site and restore areas to original condition.",
+            "quantity": "1,00",
             "unit": "lump sum",
             "type": "N"
         }

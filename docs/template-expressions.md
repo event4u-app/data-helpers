@@ -17,10 +17,17 @@ mapping.
 - [Combining with Classic References](#combining-with-classic-references)
 - [Advanced Examples](#advanced-examples)
 - [API Reference](#api-reference)
+    - [DataMapper::mapFromTemplate()](#datamappermapfromtemplate)
+    - [ExpressionParser](#expressionparser)
+    - [FilterEngine](#filterengine)
+    - [TransformerRegistry](#transformerregistry)
+    - [ExpressionEvaluator](#expressionevaluator)
+    - [TemplateExpressionProcessor](#templateexpressionprocessor)
+- [Usage Across Mapping Methods](#usage-across-mapping-methods)
 
 ## Overview
 
-The Template Expression Engine extends `mapFromTemplate()` with a powerful expression syntax that allows you to:
+The Template Expression Engine provides a powerful expression syntax that works across **all mapping methods** (`map()`, `mapFromFile()`, `mapFromTemplate()`):
 
 - ✅ **Transform values** using filter syntax (e.g., `| lower`, `| trim`)
 - ✅ **Provide defaults** for null/missing values (e.g., `?? 'Unknown'`)
@@ -28,10 +35,12 @@ The Template Expression Engine extends `mapFromTemplate()` with a powerful expre
 - ✅ **Reference source fields** (e.g., `{{ user.name }}`)
 - ✅ **Reference target fields** using aliases (e.g., `{{ @fieldName }}`)
 - ✅ **Use static values** (e.g., `'admin'` without `{{ }}`)
+- ✅ **Wildcard support** - Apply filters to array elements (e.g., `{{ users.*.name | upper }}`)
 
 **Key Features:**
 
 - 🎯 **Declarative syntax** - Define transformations in the template
+- 🔄 **Unified across all methods** - Same syntax in `map()`, `mapFromFile()`, and `mapFromTemplate()`
 - 🔄 **Composable transformers** - Chain multiple transformations
 - 📦 **15+ built-in transformers** - Common transformations out of the box
 - 🔧 **Extensible** - Register custom transformers
@@ -690,6 +699,242 @@ public static function evaluate(
 ```
 
 Evaluate a template expression.
+
+### TemplateExpressionProcessor
+
+**File:** `src/DataMapper/Support/TemplateExpressionProcessor.php`
+
+Central processor for template expressions. This class unifies template expression handling across all mapping methods (`map()`, `mapFromFile()`, `mapFromTemplate()`).
+
+#### TemplateExpressionProcessor::isExpression()
+
+```php
+public static function isExpression(mixed $value): bool
+```
+
+Check if a value is a template expression.
+
+**Example:**
+
+```php
+use event4u\DataHelpers\DataMapper\Support\TemplateExpressionProcessor;
+
+TemplateExpressionProcessor::isExpression('{{ user.name }}'); // true
+TemplateExpressionProcessor::isExpression('user.name'); // false
+TemplateExpressionProcessor::isExpression('{{ user.name | upper }}'); // true
+```
+
+#### TemplateExpressionProcessor::parse()
+
+```php
+public static function parse(string $expression): array
+```
+
+Parse a template expression into components.
+
+**Returns:**
+
+```php
+[
+    'path' => 'user.name',           // Data path
+    'filters' => ['upper', 'trim'],  // Filter names
+    'default' => 'Unknown',          // Default value (from ??)
+    'hasFilters' => true,            // Whether filters are present
+]
+```
+
+**Example:**
+
+```php
+$parsed = TemplateExpressionProcessor::parse('{{ user.name | upper | trim ?? "Unknown" }}');
+
+// Result:
+// [
+//     'path' => 'user.name',
+//     'filters' => ['upper', 'trim'],
+//     'default' => 'Unknown',
+//     'hasFilters' => true,
+// ]
+```
+
+#### TemplateExpressionProcessor::evaluate()
+
+```php
+public static function evaluate(
+    string $expression,
+    mixed $source = null,
+    array $sources = []
+): mixed
+```
+
+Evaluate a template expression against a data source.
+
+**Parameters:**
+
+- `$expression` - Template expression (e.g., `'{{ user.name | upper }}'`)
+- `$source` - Single data source (for `map()`, `mapFromFile()`)
+- `$sources` - Named data sources (for `mapFromTemplate()`)
+
+**Example:**
+
+```php
+// For map() / mapFromFile()
+$source = ['user' => ['name' => 'alice']];
+$result = TemplateExpressionProcessor::evaluate('{{ user.name | upper }}', $source);
+// 'ALICE'
+
+// For mapFromTemplate()
+$sources = ['user' => ['name' => 'alice']];
+$result = TemplateExpressionProcessor::evaluate('{{ user.name | upper }}', null, $sources);
+// 'ALICE'
+```
+
+#### TemplateExpressionProcessor::extractPathAndFilters()
+
+```php
+public static function extractPathAndFilters(string $expression): array
+```
+
+Extract path, filters, and default value from a template expression.
+
+**Returns:**
+
+```php
+[
+    'path' => 'user.name',
+    'filters' => ['upper', 'trim'],
+    'default' => 'Unknown',
+]
+```
+
+**Example:**
+
+```php
+$extracted = TemplateExpressionProcessor::extractPathAndFilters('{{ user.name | upper ?? "Unknown" }}');
+
+// Result:
+// [
+//     'path' => 'user.name',
+//     'filters' => ['upper'],
+//     'default' => 'Unknown',
+// ]
+```
+
+#### TemplateExpressionProcessor::applyFilters()
+
+```php
+public static function applyFilters(mixed $value, array $filters): mixed
+```
+
+Apply filters to a value. This is a convenience wrapper around `FilterEngine::apply()`.
+
+**Example:**
+
+```php
+$value = 'alice';
+$filters = ['upper', 'trim'];
+
+$result = TemplateExpressionProcessor::applyFilters($value, $filters);
+// 'ALICE'
+
+// Works with null values (important for 'default' filter)
+$value = null;
+$filters = ['default:"N/A"', 'upper'];
+
+$result = TemplateExpressionProcessor::applyFilters($value, $filters);
+// 'N/A'
+```
+
+#### TemplateExpressionProcessor::hasFilters()
+
+```php
+public static function hasFilters(string $expression): bool
+```
+
+Check if an expression contains filters.
+
+**Example:**
+
+```php
+TemplateExpressionProcessor::hasFilters('{{ user.name }}'); // false
+TemplateExpressionProcessor::hasFilters('{{ user.name | upper }}'); // true
+```
+
+#### TemplateExpressionProcessor::extractPath()
+
+```php
+public static function extractPath(string $expression): string
+```
+
+Extract the path from a template expression (without filters).
+
+**Example:**
+
+```php
+$path = TemplateExpressionProcessor::extractPath('{{ user.name | upper }}');
+// 'user.name'
+```
+
+---
+
+## Usage Across Mapping Methods
+
+The `TemplateExpressionProcessor` enables consistent template expression support across all mapping methods:
+
+### In `map()` and `mapFromFile()`
+
+```php
+use event4u\DataHelpers\DataMapper;
+
+$source = [
+    'users' => [
+        ['name' => 'alice', 'email' => null],
+        ['name' => 'bob', 'email' => 'bob@example.com'],
+    ],
+];
+
+$mapping = [
+    // Simple filter
+    'names' => '{{ users.*.name | upper }}',
+
+    // Filter with default value
+    'emails' => '{{ users.*.email | default:"no-email@example.com" }}',
+
+    // Filter chain
+    'formatted' => '{{ users.*.name | trim | ucfirst }}',
+];
+
+$result = DataMapper::map($source, [], $mapping);
+
+// Result:
+// [
+//     'names' => ['ALICE', 'BOB'],
+//     'emails' => ['no-email@example.com', 'bob@example.com'],
+//     'formatted' => ['Alice', 'Bob'],
+// ]
+```
+
+### In `mapFromTemplate()`
+
+```php
+$template = [
+    'users' => [
+        '*' => [
+            'name' => '{{ users.*.name | upper }}',
+            'email' => '{{ users.*.email | default:"no-email@example.com" }}',
+        ],
+    ],
+];
+
+$sources = [
+    'users' => [
+        ['name' => 'alice', 'email' => null],
+        ['name' => 'bob', 'email' => 'bob@example.com'],
+    ],
+];
+
+$result = DataMapper::mapFromTemplate($template, $sources);
+```
 
 ---
 

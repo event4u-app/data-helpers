@@ -3,6 +3,13 @@
         "number": "3&#45;24281",
         "title": "Sample - Swimming Pool -",
         "description": "Sample - Swimming Pool -",
+        "total_value": "126623.1500",
+        "calculated_hours": "748.40",
+        "actual_hours": "0",
+        "revenue": "0.0",
+        "costs": "0.0",
+        "contribution_margin": "0.0",
+        "result": "0.0",
         "status": "order"
     },
     "customer": {
@@ -19,35 +26,54 @@
             "short_text": "Site Setup",
             "long_text": "Site Setup",
             "unit": "-",
-            "type": "N"
+            "total_amount": "0",
+            "minutes": "0",
+            "factor": "1",
+            "type": "Section"
         },
         {
             "number": "01&#46;01",
             "short_text": "Site Setup - Set up site during construction",
             "long_text": "Site setup with machinery and equipment.",
+            "quantity": "1.00000",
             "unit": "lump sum",
-            "type": "N"
+            "total_amount": "1200.0000",
+            "minutes": "360.00",
+            "factor": "0.000",
+            "type": "Standard"
         },
         {
             "number": "01&#46;02",
             "short_text": "Surveying Work",
             "long_text": "Staking and surveying work.",
+            "quantity": "1",
             "unit": "lump sum.",
-            "type": "N"
+            "total_amount": "425.0000",
+            "minutes": "300.00",
+            "factor": "0",
+            "type": "Standard"
         },
         {
             "number": "01&#46;03",
             "short_text": "Portable Toilet per Month",
             "long_text": "Portable toilet for 4 weeks.",
+            "quantity": "1",
             "unit": "lump sum.",
-            "type": "N"
+            "total_amount": "169.0000",
+            "minutes": "0.00",
+            "factor": "0",
+            "type": "Standard"
         },
         {
             "number": "01&#46;04",
             "short_text": "Portable Toilet per Week after 4 Weeks",
             "long_text": "Portable toilet per week.",
+            "quantity": "2",
             "unit": "pcs",
-            "type": "N"
+            "total_amount": "84.5000",
+            "minutes": "0.00",
+            "factor": "0",
+            "type": "Standard"
         }
     ]
 }
