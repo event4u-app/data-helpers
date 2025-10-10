@@ -387,10 +387,10 @@ The package uses multiple caching layers to optimize performance:
 - Unlimited size (static cache)
 - Memory usage: depends on file size
 
-**4. Transformer Instance Cache (FilterEngine)**
-- Reuses transformer instances instead of creating new ones
+**4. Filter Instance Cache (FilterEngine)**
+- Reuses filter instances instead of creating new ones
 - Unlimited size (static cache)
-- Memory usage: ~1-2 KB per transformer class
+- Memory usage: ~1-2 KB per filter class
 
 **5. String Operation Caches**
 - `toCamelCase()` - caches string transformations
@@ -407,7 +407,7 @@ The package uses multiple caching layers to optimize performance:
 - 1000 template expressions ≈ 500 KB
 - 100 template mappings ≈ 100-200 KB
 - 50 loaded files ≈ 50-500 KB (depends on file size)
-- 20 transformer instances ≈ 20-40 KB
+- 20 filter instances ≈ 20-40 KB
 - 500 string operations ≈ 50-100 KB
 - 100 reflection entries ≈ 50 KB
 - **Total: ~1-2 MB for typical applications**

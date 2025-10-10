@@ -1,6 +1,6 @@
 # Data Mapper
 
-Map values between structures using dot-paths and wildcards. Supports simple maps, structured maps, bulk mapping, template-based mapping, and **modern pipeline API** with reusable transformers.
+Map values between structures using dot-paths and wildcards. Supports simple maps, structured maps, bulk mapping, template-based mapping, and **modern pipeline API** with reusable filters.
 
 Namespace: `event4u\DataHelpers\DataMapper`
 
@@ -137,13 +137,13 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 
 **📖 See [Template Expressions Documentation](template-expressions.md) for complete guide.**
 
-5) **Pipeline API (NEW)** - Modern, fluent API with reusable transformers:
+5) **Pipeline API (NEW)** - Modern, fluent API with reusable filters:
 
 ```php
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\SkipEmptyValues;
 
 $result = DataMapper::pipe([
     new TrimStrings(),

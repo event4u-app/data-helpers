@@ -12,7 +12,7 @@ DataMapper acts as a facade and delegates work to specialized components that ea
 - HookInvoker – Hook normalization, prefix filtering (src:/tgt:/mode:), and legacy array-context compatibility
 - TemplateMapper – Template-based mapping from named sources and inverse writes to named targets
 - AutoMapper – Automatic mapping (source → target) with optional deep mode
-- ValueTransformer – Utilities for replacements, case conversion, property checks
+- ValueFilter – Utilities for replacements, case conversion, property checks
 
 High-level flow for `DataMapper::map()`:
 

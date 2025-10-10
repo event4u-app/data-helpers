@@ -240,7 +240,7 @@ data-helpers/
 │   ├── DataMapper.php          # Transform data structures
 │   └── DataMapper/
 │       ├── AutoMapper.php      # Automatic field mapping
-│       ├── Pipeline/           # Pipeline transformers
+│       ├── Pipeline/           # Pipeline filters
 │       └── Support/            # Internal helpers
 ├── tests/
 │   └── Unit/                   # Unit tests

@@ -22,7 +22,7 @@ php examples/09-performance-caching.php
 - **02-data-mutator.php** - Writing, merging, and unsetting values (arrays)
 - **03-data-mapper-simple.php** - Simple mapping between structures (arrays)
 - **04-data-mapper-with-hooks.php** - Advanced mapping with hooks (arrays)
-- **05-data-mapper-pipeline.php** - Pipeline API with transformers
+- **05-data-mapper-pipeline.php** - Pipeline API with filters
 - **08-mapped-data-model.php** - MappedDataModel for working with mapped data
 - **08-template-expressions.php** - Template-based mapping with filters
 - **09-performance-caching.php** - Performance optimization and caching features
@@ -55,7 +55,7 @@ The performance example demonstrates:
 - **Template expression caching** - Parsed expressions are cached for reuse
 - **Template mapping cache** - Mapping arrays are cached with LRU eviction
 - **File content caching** - Loaded files are cached to avoid repeated I/O
-- **Transformer instance caching** - Transformer instances are reused
+- **Filter instance caching** - Filter instances are reused
 - **Performance mode switching** - Fast vs. Safe mode for different use cases
 - **Cache management** - Statistics, clearing, and monitoring
 - **LRU eviction** - Automatic eviction of least recently used entries

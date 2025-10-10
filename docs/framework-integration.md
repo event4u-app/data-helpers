@@ -23,8 +23,8 @@ The `LaravelMappedModelServiceProvider` will be automatically loaded and enables
 
 ```php
 use event4u\DataHelpers\MappedDataModel;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\CastToInteger;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToInteger;
 
 class UserRegistrationModel extends MappedDataModel
 {
@@ -109,7 +109,7 @@ services:
 
 ```php
 use event4u\DataHelpers\MappedDataModel;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -313,13 +313,13 @@ If automatic type casting is not applied:
 
 1. Check field names match the patterns (e.g., `is_active`, `product_id`, `price`)
 2. Verify pipes are defined in `pipes()` method
-3. Ensure transformers are in the correct order
+3. Ensure filters are in the correct order
 
 ---
 
 ## See Also
 
 - [MappedDataModel Documentation](mapped-data-model.md)
-- [Transformers Documentation](transformers.md)
+- [Filters Documentation](filters.md)
 - [Examples](../examples/08-mapped-data-model.php)
 

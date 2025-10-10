@@ -21,7 +21,7 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 - Configuration: [configuration.md](configuration.md)
 - Template Expressions: [template-expressions.md](template-expressions.md)
 - Pipeline API: [data-mapper-pipeline.md](data-mapper-pipeline.md)
-- Transformers: [transformers.md](transformers.md)
+- Filters: [filters.md](filters.md)
 - MappedDataModel: [mapped-data-model.md](mapped-data-model.md)
 
 ### Integration & Performance
@@ -59,7 +59,7 @@ The package includes multiple caching layers for optimal performance:
 - **Template Mapping Cache** - Mapping arrays are cached per class (max 100 entries with LRU eviction)
 - **Hash-Validated Cache** - Automatic cache invalidation when source data changes
 - **File Content Cache** - Loaded JSON/XML files are cached to avoid repeated I/O
-- **Transformer Instance Cache** - Transformer instances are reused instead of creating new ones
+- **Filter Instance Cache** - Filter instances are reused instead of creating new ones
 - **String Operation Caches** - Common string transformations are cached (toCamelCase, singularize, etc.)
 - **Reflection Caches** - ReflectionClass and ReflectionProperty instances are cached
 - **class_exists/interface_exists Caching** - Framework detection is cached

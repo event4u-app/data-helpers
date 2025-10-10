@@ -1,26 +1,26 @@
 # DataMapper Pipeline API
 
-🚀 **Modern, fluent API** for composing reusable data transformers - inspired by Laravel's pipeline pattern.
+🚀 **Modern, fluent API** for composing reusable data filters - inspired by Laravel's pipeline pattern.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Quick Start](#quick-start)
-- [Built-in Transformers](#built-in-transformers)
-- [Creating Custom Transformers](#creating-custom-transformers)
+- [Built-in Filters](#built-in-filters)
+- [Creating Custom Filters](#creating-custom-filters)
 - [Advanced Usage](#advanced-usage)
 - [API Reference](#api-reference)
 - [Examples](#examples)
 
 ## Overview
 
-The Pipeline API provides a clean, reusable way to apply data transformations during mapping operations. Instead of writing inline hooks for common transformations, you can compose pipelines from reusable transformer classes.
+The Pipeline API provides a clean, reusable way to apply data transformations during mapping operations. Instead of writing inline hooks for common transformations, you can compose pipelines from reusable filter classes.
 
 **Benefits:**
 
-- ✅ **Reusable** - Define transformers once, use them in multiple mappings
-- ✅ **Composable** - Chain multiple transformers together
-- ✅ **Testable** - Each transformer is a separate, testable class
+- ✅ **Reusable** - Define filters once, use them in multiple mappings
+- ✅ **Composable** - Chain multiple filters together
+- ✅ **Testable** - Each filter is a separate, testable class
 - ✅ **Type-safe** - Full PHPStan Level 9 compliance
 - ✅ **Compatible** - Works alongside the classic hooks API
 
@@ -28,9 +28,9 @@ The Pipeline API provides a clean, reusable way to apply data transformations du
 
 ```php
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\SkipEmptyValues;
 
 $source = [
     'user' => [
@@ -63,14 +63,14 @@ $result = DataMapper::pipe([
 // ]
 ```
 
-## Built-in Transformers
+## Built-in Filters
 
 ### TrimStrings
 
 Trims whitespace from all string values.
 
 ```php
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 
 $result = DataMapper::pipe([new TrimStrings()])
     ->map($source, [], $mapping);
@@ -87,7 +87,7 @@ $result = DataMapper::pipe([new TrimStrings()])
 Decodes HTML entities in string values, including numeric entities (e.g., `&#32;`, `&#45;`) and named entities (e.g., `&amp;`, `&lt;`, `&gt;`). Handles double-encoded and triple-encoded entities automatically.
 
 ```php
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DecodeHtmlEntities;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\DecodeHtmlEntities;
 
 $result = DataMapper::pipe([new DecodeHtmlEntities()])
     ->map($source, [], $mapping);
@@ -116,7 +116,7 @@ $mapping = [
 Converts email addresses to lowercase. Automatically detects fields containing 'email' in the path.
 
 ```php
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
 
 $result = DataMapper::pipe([new LowercaseEmails()])
     ->map($source, [], $mapping);
@@ -133,7 +133,7 @@ $result = DataMapper::pipe([new LowercaseEmails()])
 Skips empty strings and empty arrays from being written to the target.
 
 ```php
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\SkipEmptyValues;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\SkipEmptyValues;
 
 $result = DataMapper::pipe([new SkipEmptyValues()])
     ->map($source, [], $mapping);
@@ -150,7 +150,7 @@ $result = DataMapper::pipe([new SkipEmptyValues()])
 Converts all string values to uppercase.
 
 ```php
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\UppercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
 $result = DataMapper::pipe([new UppercaseStrings()])
     ->map($source, [], $mapping);
@@ -167,7 +167,7 @@ $result = DataMapper::pipe([new UppercaseStrings()])
 Converts specific values to null (e.g., 'N/A', 'null', empty strings).
 
 ```php
-use event4u\DataHelpers\DataMapper\Pipeline\Transformers\ConvertToNull;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\ConvertToNull;
 
 // Use default values ('', 'N/A', 'null', 'NULL')
 $result = DataMapper::pipe([new ConvertToNull()])
@@ -185,19 +185,19 @@ $result = DataMapper::pipe([
 - Input: `'N/A'`
 - Output: `null`
 
-## Creating Custom Transformers
+## Creating Custom Filters
 
-Create your own transformers by implementing the `TransformerInterface`. This gives you full control over how values are transformed during the mapping process.
+Create your own filters by implementing the `FilterInterface`. This gives you full control over how values are transformed during the mapping process.
 
 ### Basic Structure
 
-Every transformer must implement three methods:
+Every filter must implement three methods:
 
 ```php
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 
-class ValidateEmail implements TransformerInterface
+class ValidateEmail implements FilterInterface
 {
     /**
      * Transform the value.
@@ -225,7 +225,7 @@ class ValidateEmail implements TransformerInterface
     }
 
     /**
-     * Optional filter to limit when this transformer applies.
+     * Optional filter to limit when this filter applies.
      *
      * @return string|null Filter string (e.g., 'src:*.email') or null for all values
      */
@@ -249,12 +249,12 @@ class ValidateEmail implements TransformerInterface
 - `beforeWrite` - Before writing to target
 - `afterWrite` - After writing to target
 
-### Filtered Transformers
+### Filtered Filters
 
-Use `getFilter()` to apply transformers conditionally:
+Use `getFilter()` to apply filters conditionally:
 
 ```php
-class LowercaseEmailsFiltered implements TransformerInterface
+class LowercaseEmailsFiltered implements FilterInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
@@ -280,12 +280,12 @@ class LowercaseEmailsFiltered implements TransformerInterface
 - `tgt:profile.*` - Only for target paths starting with `profile.`
 - `mode:simple` - Only for simple mapping mode
 
-### Transformers with Configuration
+### Filters with Configuration
 
-You can create transformers that accept configuration in the constructor:
+You can create filters that accept configuration in the constructor:
 
 ```php
-class ReplaceValue implements TransformerInterface
+class ReplaceValue implements FilterInterface
 {
     public function __construct(
         private readonly mixed $search,
@@ -315,17 +315,17 @@ $result = DataMapper::pipe([
 ])->map($source, [], $mapping);
 ```
 
-### Complete Example: Custom Transformer
+### Complete Example: Custom Filter
 
-Here's a complete example of a custom transformer that formats phone numbers:
+Here's a complete example of a custom filter that formats phone numbers:
 
 ```php
-namespace App\Transformers;
+namespace App\Filters;
 
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 
-class FormatPhoneNumber implements TransformerInterface
+class FormatPhoneNumber implements FilterInterface
 {
     public function __construct(
         private readonly string $countryCode = '+49',
@@ -410,7 +410,7 @@ $result = DataMapper::pipe([
 ->map($source, [], $mapping);
 ```
 
-### Mix Transformer Instances and Classes
+### Mix Filter Instances and Classes
 
 ```php
 $result = DataMapper::pipe([
@@ -420,9 +420,9 @@ $result = DataMapper::pipe([
 ])->map($source, [], $mapping);
 ```
 
-### Chain Multiple Transformers
+### Chain Multiple Filters
 
-Transformers are executed in order:
+Filters are executed in order:
 
 ```php
 $result = DataMapper::pipe([
@@ -437,26 +437,26 @@ $result = DataMapper::pipe([
 ### DataMapper::pipe()
 
 ```php
-public static function pipe(array $transformers): DataMapperPipeline
+public static function pipe(array $filters): DataMapperPipeline
 ```
 
-Creates a new pipeline with the given transformers.
+Creates a new pipeline with the given filters.
 
 **Parameters:**
-- `$transformers` - Array of `TransformerInterface` instances or class names
+- `$filters` - Array of `FilterInterface` instances or class names
 
 **Returns:** `DataMapperPipeline` instance
 
 ### DataMapperPipeline::through()
 
 ```php
-public function through(TransformerInterface|string $transformer): self
+public function through(FilterInterface|string $filter): self
 ```
 
-Adds a transformer to the pipeline.
+Adds a filter to the pipeline.
 
 **Parameters:**
-- `$transformer` - `TransformerInterface` instance or class name
+- `$filter` - `FilterInterface` instance or class name
 
 **Returns:** `$this` for method chaining
 
@@ -489,14 +489,14 @@ public function map(
 
 Executes the mapping with the configured pipeline.
 
-**Parameters:** Same as `DataMapper::map()` (except `hooks` which is built from transformers)
+**Parameters:** Same as `DataMapper::map()` (except `hooks` which is built from filters)
 
 **Returns:** The mapped target
 
-### TransformerInterface
+### FilterInterface
 
 ```php
-interface TransformerInterface
+interface FilterInterface
 {
     public function transform(mixed $value, HookContext $context): mixed;
     public function getHook(): string;
@@ -538,10 +538,10 @@ $result = DataMapper::pipe([
 // ]
 ```
 
-### Example 2: Custom Validation Transformer
+### Example 2: Custom Validation Filter
 
 ```php
-class ValidateAge implements TransformerInterface
+class ValidateAge implements FilterInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {

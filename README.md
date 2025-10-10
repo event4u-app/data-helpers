@@ -368,7 +368,7 @@ $name = $accessor->getString('name', 'Unknown'); // 'Unknown' (default)
 
 ## 🚀 Advanced Features
 
-### Pipeline API - Compose Transformers
+### Pipeline API - Compose Filters
 
 Build reusable data transformation pipelines:
 
@@ -409,7 +409,7 @@ $result = DataMapper::pipe([
 
 **Built-in filters:** `TrimStrings`, `DecodeHtmlEntities`, `LowercaseEmails`, `SkipEmptyValues`, `UppercaseStrings`, `ConvertToNull`
 
-👉 [Create custom filters](docs/data-mapper-pipeline.md#creating-custom-transformers)
+👉 [Create custom filters](docs/data-mapper-pipeline.md#creating-custom-filters)
 
 ### Template Expressions - Powerful Mapping
 
@@ -455,7 +455,7 @@ $result = DataMapper::map($source, [], $mapping);
 `reverse`, `sort`,
 `unique`, `join`, `json`, `default`, `between`, `strip_tags`
 
-👉 [See all transformers and create custom ones](docs/template-expressions.md#custom-transformers)
+👉 [See all filters and create custom ones](docs/filters.md#creating-custom-filters)
 
 ### AutoMap - Automatic Property Mapping
 
@@ -513,7 +513,7 @@ $product = new ProductModel(['id' => '12345', 'name' => '  Mouse  ']);
 
 📖 **[Full MappedDataModel Documentation](docs/mapped-data-model.md)**
 
-📖 **[All Transformers](docs/transformers.md)**
+📖 **[All Filters](docs/filters.md)**
 
 ## 🔧 Framework Support
 
@@ -564,7 +564,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [02-data-mutator.php](examples/02-data-mutator.php) - Mutating arrays
 - [03-data-mapper-simple.php](examples/03-data-mapper-simple.php) - Simple mapping
 - [04-data-mapper-with-hooks.php](examples/04-data-mapper-with-hooks.php) - Advanced mapping with hooks
-- [05-data-mapper-pipeline.php](examples/05-data-mapper-pipeline.php) - Pipeline API with transformers
+- [05-data-mapper-pipeline.php](examples/05-data-mapper-pipeline.php) - Pipeline API with filters
 - [06-laravel.php](examples/06-laravel.php) - Laravel Collections, Eloquent Models
 - [07-symfony-doctrine.php](examples/07-symfony-doctrine.php) - Doctrine Collections and Entities
 - [08-template-expressions.php](examples/08-template-expressions.php) - Template expressions with filters

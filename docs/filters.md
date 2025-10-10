@@ -627,9 +627,9 @@ protected function pipes(): array
 
 ---
 
-## Combining Transformers
+## Combining Filters
 
-Transformers are applied in the order they are defined. This allows for powerful data cleaning pipelines:
+Filters are applied in the order they are defined. This allows for powerful data cleaning pipelines:
 
 ```php
 protected function pipes(): array
@@ -1024,10 +1024,10 @@ If you use an unknown filter alias in a template expression, an `InvalidArgument
 
 ```php
 $template = ['name' => '{{ user.name | unknown_filter }}'];
-// Throws: InvalidArgumentException: Unknown transformer alias 'unknown_filter'.
+// Throws: InvalidArgumentException: Unknown filter alias 'unknown_filter'.
 //
-//         create a Transformer class with getAliases() method and register it
-//         using TransformerRegistry::register().
+//         create a Filter class with getAliases() method and register it
+//         using FilterRegistry::register().
 ```
 
 ## Hook Types
@@ -1035,5 +1035,5 @@ $template = ['name' => '{{ user.name | unknown_filter }}'];
 - **`preTransform`**: Applied before the value is processed
 - **`beforeWrite`**: Applied just before writing to the target
 
-Most transformers use `preTransform` for data cleaning and type conversion.
+Most filters use `preTransform` for data cleaning and type conversion.
 

@@ -12,15 +12,15 @@ mapping.
     - [Default Values](#default-values)
     - [Filters](#filters)
     - [Alias References](#alias-references)
-- [Built-in Transformers](#built-in-transformers)
-- [Custom Transformers](#custom-transformers)
+- [Built-in Filters](#built-in-filters)
+- [Custom Filters](#custom-filters)
 - [Combining with Classic References](#combining-with-classic-references)
 - [Advanced Examples](#advanced-examples)
 - [API Reference](#api-reference)
     - [DataMapper::mapFromTemplate()](#datamappermapfromtemplate)
     - [ExpressionParser](#expressionparser)
     - [FilterEngine](#filterengine)
-    - [TransformerRegistry](#transformerregistry)
+    - [FilterRegistry](#filterregistry)
     - [ExpressionEvaluator](#expressionevaluator)
     - [TemplateExpressionProcessor](#templateexpressionprocessor)
 - [Usage Across Mapping Methods](#usage-across-mapping-methods)
@@ -31,7 +31,7 @@ The Template Expression Engine provides a powerful expression syntax that works 
 
 - ✅ **Transform values** using filter syntax (e.g., `| lower`, `| trim`)
 - ✅ **Provide defaults** for null/missing values (e.g., `?? 'Unknown'`)
-- ✅ **Chain multiple transformers** (e.g., `| trim | lower | ucfirst`)
+- ✅ **Chain multiple filters** (e.g., `| trim | lower | ucfirst`)
 - ✅ **Reference source fields** (e.g., `{{ user.name }}`)
 - ✅ **Reference target fields** using aliases (e.g., `{{ @fieldName }}`)
 - ✅ **Use static values** (e.g., `'admin'` without `{{ }}`)
@@ -41,9 +41,9 @@ The Template Expression Engine provides a powerful expression syntax that works 
 
 - 🎯 **Declarative syntax** - Define transformations in the template
 - 🔄 **Unified across all methods** - Same syntax in `map()`, `mapFromFile()`, and `mapFromTemplate()`
-- 🔄 **Composable transformers** - Chain multiple transformations
-- 📦 **15+ built-in transformers** - Common transformations out of the box
-- 🔧 **Extensible** - Register custom transformers
+- 🔄 **Composable filters** - Chain multiple transformations
+- 📦 **15+ built-in filters** - Common transformations out of the box
+- 🔧 **Extensible** - Register custom filters
 - ⚡ **Fast** - Optimized expression parsing and evaluation
 - 🔒 **Type-safe** - Full PHPStan Level 9 compliance
 
@@ -129,19 +129,19 @@ $template = [
 - Booleans: `true`, `false`
 - Null: `null`
 
-### Transformers (Filter Syntax)
+### Filters (Filter Syntax)
 
-Transform values using transformers with the pipe operator `|`:
+Transform values using filters with the pipe operator `|`:
 
 ```php
 $template = [
-    // Single transformer
+    // Single filter
     'email' => '{{ user.email | lower }}',
 
-    // Multiple transformers (executed left to right)
+    // Multiple filters (executed left to right)
     'name' => '{{ user.name | trim | ucfirst }}',
 
-    // Transformers with default value
+    // Filters with default value
     'email' => '{{ user.email ?? "no-email" | lower }}',
 ];
 ```
@@ -150,7 +150,7 @@ $template = [
 
 1. Resolve variable (`user.email`)
 2. Apply default if null (`?? "default"`)
-3. Apply transformers left to right (`| transformer1 | transformer2`)
+3. Apply filters left to right (`| filter1 | filter2`)
 
 ### Alias References
 
@@ -201,11 +201,11 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 
 **Note:** Alias references work within the same nesting level.
 
-## Built-in Transformers
+## Built-in Filters
 
-All built-in transformers can be used in template expressions with filter syntax (`| alias`).
+All built-in filters can be used in template expressions with filter syntax (`| alias`).
 
-### String Transformers
+### String Filters
 
 | Alias                | Description                            | Example                         |
 |----------------------|----------------------------------------|---------------------------------|
@@ -226,7 +226,7 @@ $template = [
 ];
 ```
 
-### Array Transformers
+### Array Filters
 
 | Alias     | Description       | Example                 |
 |-----------|-------------------|-------------------------|
@@ -252,7 +252,7 @@ $template = [
 ];
 ```
 
-### Utility Transformers
+### Utility Filters
 
 | Alias     | Description                          | Example                      |
 |-----------|--------------------------------------|------------------------------|
@@ -304,16 +304,16 @@ $template = [
 {{ 4 | between:3:5:strict }} // → true (only 4 is in range)
 ```
 
-## Custom Transformers
+## Custom Filters
 
-Create reusable transformer classes that can be used both in pipelines and template expressions (filter syntax):
+Create reusable filter classes that can be used both in pipelines and template expressions (filter syntax):
 
 ```php
 use event4u\DataHelpers\DataMapper\Context\HookContext;
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
-use event4u\DataHelpers\DataMapper\Pipeline\TransformerRegistry;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
 
-final class EncryptTransformer implements TransformerInterface
+final class EncryptFilter implements FilterInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
@@ -337,8 +337,8 @@ final class EncryptTransformer implements TransformerInterface
     }
 }
 
-// Register the transformer
-TransformerRegistry::register(EncryptTransformer::class);
+// Register the filter
+FilterRegistry::register(EncryptFilter::class);
 
 // Use in template expressions
 $template = [
@@ -346,7 +346,7 @@ $template = [
 ];
 
 // Or use in pipeline
-DataMapper::pipe([EncryptTransformer::class])->map($source, [], $mapping);
+DataMapper::pipe([EncryptFilter::class])->map($source, [], $mapping);
 ```
 
 **Benefits:**
@@ -360,8 +360,8 @@ DataMapper::pipe([EncryptTransformer::class])->map($source, [], $mapping);
 **More examples:**
 
 ```php
-// Date formatting transformer
-final class DateFormat implements TransformerInterface
+// Date formatting filter
+final class DateFormat implements FilterInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
@@ -375,8 +375,8 @@ final class DateFormat implements TransformerInterface
     public function getAliases(): array { return ['date']; }
 }
 
-// Currency formatting transformer
-final class CurrencyFormat implements TransformerInterface
+// Currency formatting filter
+final class CurrencyFormat implements FilterInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
@@ -390,9 +390,9 @@ final class CurrencyFormat implements TransformerInterface
     public function getAliases(): array { return ['currency']; }
 }
 
-// Register transformers
-TransformerRegistry::register(DateFormat::class);
-TransformerRegistry::register(CurrencyFormat::class);
+// Register filters
+FilterRegistry::register(DateFormat::class);
+FilterRegistry::register(CurrencyFormat::class);
 
 // Use in templates
 $template = [
@@ -671,18 +671,18 @@ public static function apply(mixed $value, array $filters): mixed
 
 Apply multiple filters to a value.
 
-### TransformerRegistry::register()
+### FilterRegistry::register()
 
 ```php
-public static function register(string $transformerClass): void
+public static function register(string $filterClass): void
 ```
 
-Register a transformer to make it available in template expressions.
+Register a filter to make it available in template expressions.
 
 **Example:**
 
 ```php
-TransformerRegistry::register(MyCustomTransformer::class);
+FilterRegistry::register(MyCustomFilter::class);
 
 // Now use it in templates
 $template = ['name' => '{{ user.name | my_custom }}'];
