@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\Cache\ClassScopedCache;
 use event4u\DataHelpers\Cache\CacheHelper;
+use event4u\DataHelpers\Cache\ClassScopedCache;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 
 beforeEach(function(): void {

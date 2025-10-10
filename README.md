@@ -81,9 +81,71 @@ composer require event4u/data-helpers
 - ⚫ **Symfony/Doctrine** - Collections, Entities
 - 🔧 **Standalone PHP** - Works out of the box
 
+### Configuration (Optional)
+
+The package works out of the box with sensible defaults. Configuration is **optional** but allows you to customize caching behavior.
+
+#### Laravel
+
+Publish the configuration file:
+
+```bash
+php artisan vendor:publish --tag=data-helpers-config
+```
+
+This creates `config/data-helpers.php`. Customize cache settings:
+
+```php
+return [
+    'cache' => [
+        'max_entries' => env('DATA_HELPERS_CACHE_MAX_ENTRIES', 1000),
+        'default_ttl' => env('DATA_HELPERS_CACHE_TTL', 3600),
+    ],
+];
+```
+
+#### Symfony
+
+The configuration is auto-discovered. Create `config/packages/data_helpers.yaml`:
+
+```yaml
+data_helpers:
+  cache:
+    max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
+    default_ttl: '%env(int:DATA_HELPERS_CACHE_TTL)%'
+```
+
+Add to `.env`:
+
+```env
+DATA_HELPERS_CACHE_MAX_ENTRIES=1000
+DATA_HELPERS_CACHE_TTL=3600
+```
+
+#### Plain PHP
+
+Create a config file and load it in your bootstrap:
+
+```php
+// config/data-helpers.php
+return [
+    'cache' => [
+        'max_entries' => 1000,
+        'default_ttl' => 3600,
+    ],
+];
+
+// bootstrap.php
+$config = require __DIR__ . '/config/data-helpers.php';
+event4u\DataHelpers\DataHelpersConfig::initialize($config);
+```
+
+📖 **For detailed configuration options, see:** [docs/configuration.md](docs/configuration.md)
+
 👉 [See detailed framework setup guide](#-framework-support)
 
 ---
+
 
 ## ⚡ Quick Start
 

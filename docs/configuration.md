@@ -2,6 +2,53 @@
 
 The Data Helpers package can be configured via environment variables or framework-specific configuration files.
 
+## Quick Setup
+
+### Laravel
+
+```bash
+# 1. Publish config (optional)
+php artisan vendor:publish --tag=data-helpers-config
+
+# 2. Configure via .env
+DATA_HELPERS_CACHE_MAX_ENTRIES=1000
+DATA_HELPERS_CACHE_TTL=3600
+```
+
+### Symfony
+
+```bash
+# 1. Create config file (auto-discovered with Flex)
+# config/packages/data_helpers.yaml
+
+data_helpers:
+  cache:
+    max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
+    default_ttl: '%env(int:DATA_HELPERS_CACHE_TTL)%'
+
+# 2. Add to .env
+DATA_HELPERS_CACHE_MAX_ENTRIES=1000
+DATA_HELPERS_CACHE_TTL=3600
+```
+
+### Plain PHP
+
+```php
+// config/data-helpers.php
+return [
+    'cache' => [
+        'max_entries' => 1000,
+        'default_ttl' => 3600,
+    ],
+];
+
+// bootstrap.php
+$config = require __DIR__ . '/config/data-helpers.php';
+event4u\DataHelpers\DataHelpersConfig::initialize($config);
+```
+
+---
+
 ## Laravel Configuration
 
 ### 1. Auto-Discovery

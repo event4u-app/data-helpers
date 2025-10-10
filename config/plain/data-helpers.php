@@ -33,3 +33,4 @@ return [
     ],
     'performance_mode' => $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] ?? 'fast',
 ];
+
