@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Integration;
+namespace event4u\DataHelpers\Symfony;
 
 use event4u\DataHelpers\MappedDataModel;
 use JsonException;
@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  * ## Automatic Registration (Symfony Flex)
  *
  * If you're using **Symfony Flex**, this resolver is automatically registered via the
- * `SymfonyDataHelpersBundle` configured in `composer.json`.
+ * `DataHelpersBundle` configured in `composer.json`.
  *
  * **No manual configuration needed!** Just install the package:
  *
@@ -36,7 +36,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  *
  * ```yaml
  * services:
- *     event4u\DataHelpers\Integration\SymfonyMappedModelResolver:
+ *     event4u\DataHelpers\Symfony\MappedModelResolver:
  *         tags:
  *             - { name: controller.argument_value_resolver, priority: 50 }
  * ```
@@ -48,7 +48,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  *     _defaults:
  *         autoconfigure: true
  *
- *     event4u\DataHelpers\Integration\SymfonyMappedModelResolver: ~
+ *     event4u\DataHelpers\Symfony\MappedModelResolver: ~
  * ```
  *
  * ## Usage in Controllers
@@ -70,7 +70,7 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
  *
  * The model will be automatically filled with the current request data (JSON or form data).
  */
-class SymfonyMappedModelResolver implements ValueResolverInterface
+class MappedModelResolver implements ValueResolverInterface
 {
     /**
      * Resolve the argument value.

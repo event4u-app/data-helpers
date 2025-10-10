@@ -257,7 +257,7 @@ public function store(UserRegistrationModel $request)
 
 #### Automatic Setup with Symfony Flex ✅
 
-If you're using **Symfony Flex**, the resolver is automatically registered via the `SymfonyDataHelpersBundle`.
+If you're using **Symfony Flex**, the resolver is automatically registered via the `DataHelpersBundle`.
 
 **No configuration needed!** Just install the package:
 

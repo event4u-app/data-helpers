@@ -14,7 +14,7 @@ The Laravel service provider is **automatically registered** via Laravel's packa
 composer require event4u/data-helpers
 ```
 
-The `LaravelMappedModelServiceProvider` will be automatically loaded and enables:
+The `DataHelpersServiceProvider` will be automatically loaded and enables:
 - ✅ Automatic dependency injection of `MappedDataModel` in controllers
 - ✅ Request data automatically mapped to your models
 - ✅ Type casting and transformation pipelines
@@ -83,7 +83,7 @@ If you're using **Symfony Flex**, the bundle is automatically registered via the
 composer require event4u/data-helpers
 ```
 
-The `SymfonyDataHelpersBundle` will be automatically added to `config/bundles.php`.
+The `DataHelpersBundle` will be automatically added to `config/bundles.php`.
 
 ### Manual Setup (Without Flex)
 

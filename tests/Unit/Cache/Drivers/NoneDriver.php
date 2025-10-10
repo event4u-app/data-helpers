@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\Cache\Drivers\NullDriver;
+use event4u\DataHelpers\Cache\Drivers\NoneDriver;
 
-describe('NullDriver', function(): void {
+describe('NoneDriver', function(): void {
     beforeEach(function(): void {
-        $this->driver = new NullDriver();
+        $this->driver = new NoneDriver();
     });
 
     it('always returns null for get', function(): void {
@@ -31,7 +31,7 @@ describe('NullDriver', function(): void {
 
     it('returns empty stats', function(): void {
         $stats = $this->driver->getStats();
-        
+
         expect($stats['hits'])->toBe(0);
         expect($stats['misses'])->toBe(0);
         expect($stats['size'])->toBe(0);

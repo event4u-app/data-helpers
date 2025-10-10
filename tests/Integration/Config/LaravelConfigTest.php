@@ -6,7 +6,7 @@ namespace Tests\Integration\Config;
 
 use event4u\DataHelpers\Config\ConfigHelper;
 use event4u\DataHelpers\DataHelpersConfig;
-use event4u\DataHelpers\Laravel\LaravelConfigDataHelpersServiceProvider;
+use event4u\DataHelpers\Laravel\DataHelpersServiceProvider;
 use Illuminate\Container\Container;
 
 describe('Laravel Config Integration', function(): void {
@@ -54,8 +54,8 @@ describe('Laravel Config Integration', function(): void {
     });
 
     it('service provider config file exists', function(): void {
-        // Check that the Laravel config file exists
-        $configPath = __DIR__ . '/../../../config/laravel/data-helpers.php';
+        // Check that the config file exists
+        $configPath = __DIR__ . '/../../../config/data-helpers.php';
         expect(file_exists($configPath))->toBeTrue();
 
         // Load and validate config structure
@@ -111,10 +111,10 @@ describe('Laravel Config Integration', function(): void {
     it('provides publishable config path', function(): void {
         $app = new Container();
         // @phpstan-ignore-next-line - Container is compatible with Application for testing
-        $provider = new LaravelConfigDataHelpersServiceProvider($app);
+        $provider = new DataHelpersServiceProvider($app);
 
         // The config file should exist
-        $configPath = __DIR__ . '/../../../config/laravel/data-helpers.php';
+        $configPath = __DIR__ . '/../../../config/data-helpers.php';
         expect(file_exists($configPath))->toBeTrue();
 
         // Load the config file

@@ -19,12 +19,12 @@ describe('Default TTL', function(): void {
         DataHelpersConfig::reset();
     });
 
-    it('uses default TTL from config for Laravel driver', function(): void {
+    it('uses default TTL from config for framework driver (Laravel)', function(): void {
         setupLaravelCache();
-        
+
         DataHelpersConfig::initialize([
             'cache' => [
-                'driver' => 'laravel',
+                'driver' => 'framework',
                 'prefix' => 'test:',
                 'default_ttl' => 3600,
             ],
@@ -32,124 +32,101 @@ describe('Default TTL', function(): void {
 
         $cache = CacheManager::getInstance();
         expect($cache)->toBeInstanceOf(LaravelCacheDriver::class);
-        
+
         // Set without TTL - should use default
         $cache->set('key1', 'value1');
-        
+
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
-        
+
         teardownLaravelCache();
     });
 
-    it('allows overriding default TTL for Laravel driver', function(): void {
+    it('allows overriding default TTL for framework driver (Laravel)', function(): void {
         setupLaravelCache();
-        
+
         DataHelpersConfig::initialize([
             'cache' => [
-                'driver' => 'laravel',
+                'driver' => 'framework',
                 'prefix' => 'test:',
                 'default_ttl' => 3600,
             ],
         ]);
 
         $cache = CacheManager::getInstance();
-        
+
         // Set with custom TTL - should override default
         $cache->set('key1', 'value1', 7200);
-        
+
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
-        
+
         teardownLaravelCache();
     });
 
     it('uses default TTL from config for Symfony driver', function(): void {
         $pool = new ArrayAdapter();
-        
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'symfony',
-                'default_ttl' => 3600,
-                'symfony' => [
-                    'pool' => $pool,
-                ],
-            ],
-        ]);
+        $cache = new SymfonyCacheDriver($pool, 3600);
 
-        $cache = CacheManager::getInstance();
-        expect($cache)->toBeInstanceOf(SymfonyCacheDriver::class);
-        
         // Set without TTL - should use default
         $cache->set('key1', 'value1');
-        
+
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
     });
 
     it('allows overriding default TTL for Symfony driver', function(): void {
         $pool = new ArrayAdapter();
-        
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'symfony',
-                'default_ttl' => 3600,
-                'symfony' => [
-                    'pool' => $pool,
-                ],
-            ],
-        ]);
+        $cache = new SymfonyCacheDriver($pool, 3600);
 
-        $cache = CacheManager::getInstance();
-        
         // Set with custom TTL - should override default
         $cache->set('key1', 'value1', 7200);
-        
+
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
     });
 
     it('caches forever when default TTL is null', function(): void {
         setupLaravelCache();
-        
+
         DataHelpersConfig::initialize([
             'cache' => [
-                'driver' => 'laravel',
+                'driver' => 'framework',
                 'prefix' => 'test:',
                 'default_ttl' => null,
             ],
         ]);
 
         $cache = CacheManager::getInstance();
-        
+
         // Set without TTL - should cache forever
         $cache->set('key1', 'value1');
-        
+
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
-        
+
         teardownLaravelCache();
     });
 
     it('uses provided TTL over null default TTL', function(): void {
         setupLaravelCache();
-        
+
         DataHelpersConfig::initialize([
             'cache' => [
-                'driver' => 'laravel',
+                'driver' => 'framework',
                 'prefix' => 'test:',
                 'default_ttl' => null,
             ],
         ]);
 
         $cache = CacheManager::getInstance();
-        
+
         // Set with custom TTL - should use provided TTL
         $cache->set('key1', 'value1', 3600);
-        
+
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
-        
+
         teardownLaravelCache();
     });
 });

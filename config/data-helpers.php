@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\Enums\CacheDriver;
 use event4u\DataHelpers\Helpers\EnvHelper;
 
 return [
@@ -36,15 +37,15 @@ return [
         |
         | The cache driver to use for storing parsed expressions and other data.
         |
-        | Supported: 'memory', 'laravel', 'symfony', 'null'
+        | Supported: CacheDriver::MEMORY, CacheDriver::FRAMEWORK, CacheDriver::NONE
         |
-        | - memory: In-memory LRU cache (default, fast, no persistence)
-        | - laravel: Laravel cache system (uses your configured cache driver)
-        | - symfony: Symfony cache system (uses your configured cache pool)
-        | - null: No caching (for testing/debugging)
+        | - MEMORY: In-memory LRU cache (fast, no persistence)
+        | - FRAMEWORK: Automatically uses Laravel or Symfony cache if available,
+        |              falls back to memory if no framework is detected
+        | - NONE: No caching (for testing/debugging)
         |
         */
-        'driver' => EnvHelper::string('DATA_HELPERS_CACHE_DRIVER', 'memory'),
+        'driver' => EnvHelper::string('DATA_HELPERS_CACHE_DRIVER', CacheDriver::default()->value),
 
         /*
         |--------------------------------------------------------------------------
@@ -99,4 +100,3 @@ return [
     */
     'performance_mode' => EnvHelper::string('DATA_HELPERS_PERFORMANCE_MODE', 'fast'),
 ];
-

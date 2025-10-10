@@ -9,7 +9,7 @@ use event4u\DataHelpers\Cache\CacheInterface;
 /**
  * Null cache driver - no caching at all.
  */
-final class NullDriver implements CacheInterface
+final class NoneDriver implements CacheInterface
 {
     public function get(string $key): mixed
     {

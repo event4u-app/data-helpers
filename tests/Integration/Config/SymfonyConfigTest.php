@@ -6,8 +6,7 @@ namespace Tests\Integration\Config;
 
 use event4u\DataHelpers\Config\ConfigHelper;
 use event4u\DataHelpers\DataHelpersConfig;
-use event4u\DataHelpers\Symfony\DependencyInjection\Configuration;
-use event4u\DataHelpers\Symfony\DependencyInjection\SymfonyDataHelpersExtension;
+use event4u\DataHelpers\Symfony\DataHelpersExtension;
 use Exception;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -29,11 +28,11 @@ describe('Symfony Config Integration', function(): void {
     });
 
     it('loads config from Symfony Configuration', function(): void {
-        $configuration = new Configuration();
+        $extension = new DataHelpersExtension();
         $processor = new Processor();
 
         // Process empty config (should use defaults)
-        $config = $processor->processConfiguration($configuration, []);
+        $config = $processor->processConfiguration($extension, []);
 
         expect($config)->toBeArray();
         expect($config)->toHaveKey('cache');
@@ -43,11 +42,11 @@ describe('Symfony Config Integration', function(): void {
     });
 
     it('validates config values', function(): void {
-        $configuration = new Configuration();
+        $extension = new DataHelpersExtension();
         $processor = new Processor();
 
         // Process custom config
-        $config = $processor->processConfiguration($configuration, [
+        $config = $processor->processConfiguration($extension, [
             'data_helpers' => [
                 'cache' => [
                     'max_entries' => 5000,
@@ -61,11 +60,11 @@ describe('Symfony Config Integration', function(): void {
     });
 
     it('rejects invalid performance mode', function(): void {
-        $configuration = new Configuration();
+        $extension = new DataHelpersExtension();
         $processor = new Processor();
 
-        expect(function() use ($configuration, $processor): void {
-            $processor->processConfiguration($configuration, [
+        expect(function() use ($extension, $processor): void {
+            $processor->processConfiguration($extension, [
                 'data_helpers' => [
                     'performance_mode' => 'invalid',
                 ],
@@ -75,7 +74,7 @@ describe('Symfony Config Integration', function(): void {
 
     it('extension loads config correctly', function(): void {
         $container = new ContainerBuilder();
-        $extension = new SymfonyDataHelpersExtension();
+        $extension = new DataHelpersExtension();
 
         // Load extension with default config
         $extension->load([], $container);
@@ -89,7 +88,7 @@ describe('Symfony Config Integration', function(): void {
 
     it('extension loads custom config', function(): void {
         $container = new ContainerBuilder();
-        $extension = new SymfonyDataHelpersExtension();
+        $extension = new DataHelpersExtension();
 
         // Load extension with custom config
         // @phpstan-ignore-next-line - Array structure is correct for Symfony config
@@ -107,13 +106,13 @@ describe('Symfony Config Integration', function(): void {
     });
 
     it('extension has correct alias', function(): void {
-        $extension = new SymfonyDataHelpersExtension();
+        $extension = new DataHelpersExtension();
 
         expect($extension->getAlias())->toBe('data_helpers');
     });
 
     it('extension provides config path', function(): void {
-        $extension = new SymfonyDataHelpersExtension();
+        $extension = new DataHelpersExtension();
         $configPath = $extension->getConfigPath();
 
         expect($configPath)->toBeString();
@@ -122,7 +121,7 @@ describe('Symfony Config Integration', function(): void {
 
     it('initializes DataHelpersConfig via extension', function(): void {
         $container = new ContainerBuilder();
-        $extension = new SymfonyDataHelpersExtension();
+        $extension = new DataHelpersExtension();
 
         // Load extension
         // @phpstan-ignore-next-line - Array structure is correct for Symfony config
@@ -147,7 +146,7 @@ describe('Symfony Config Integration', function(): void {
         $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] = 'safe';
 
         $container = new ContainerBuilder();
-        $extension = new SymfonyDataHelpersExtension();
+        $extension = new DataHelpersExtension();
 
         // In real Symfony, ENV variables would be resolved by the container
         // For testing, we simulate this
@@ -186,11 +185,11 @@ describe('Symfony Config Integration', function(): void {
     });
 
     it('validates integer type for max_entries', function(): void {
-        $configuration = new Configuration();
+        $extension = new DataHelpersExtension();
         $processor = new Processor();
 
         // Integer value should be accepted
-        $config = $processor->processConfiguration($configuration, [
+        $config = $processor->processConfiguration($extension, [
             'data_helpers' => [
                 'cache' => [
                     'max_entries' => 2000,
@@ -203,11 +202,11 @@ describe('Symfony Config Integration', function(): void {
     });
 
     it('provides default values when partial config is given', function(): void {
-        $configuration = new Configuration();
+        $extension = new DataHelpersExtension();
         $processor = new Processor();
 
         // Only provide cache config
-        $config = $processor->processConfiguration($configuration, [
+        $config = $processor->processConfiguration($extension, [
             'data_helpers' => [
                 'cache' => [
                     'max_entries' => 500,

@@ -6,11 +6,19 @@ namespace event4u\DataHelpers\Symfony;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-final class SymfonyDataHelpersBundle extends Bundle
+use function dirname;
+
+/**
+ * Symfony Bundle for Data Helpers.
+ *
+ * This bundle provides automatic configuration and service registration
+ * for the Data Helpers package in Symfony applications.
+ */
+final class DataHelpersBundle extends Bundle
 {
     public function getPath(): string
     {
-        return \dirname(__DIR__, 2);
+        return dirname(__DIR__, 2);
     }
 }
 

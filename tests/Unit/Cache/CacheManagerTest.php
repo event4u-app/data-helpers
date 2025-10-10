@@ -5,7 +5,7 @@ declare(strict_types=1);
 use event4u\DataHelpers\Cache\CacheInterface;
 use event4u\DataHelpers\Cache\CacheManager;
 use event4u\DataHelpers\Cache\Drivers\MemoryDriver;
-use event4u\DataHelpers\Cache\Drivers\NullDriver;
+use event4u\DataHelpers\Cache\Drivers\NoneDriver;
 use event4u\DataHelpers\DataHelpersConfig;
 
 describe('CacheManager', function(): void {
@@ -31,15 +31,29 @@ describe('CacheManager', function(): void {
         expect($cache)->toBeInstanceOf(MemoryDriver::class);
     });
 
-    it('creates null driver', function(): void {
+    it('creates none driver', function(): void {
         DataHelpersConfig::initialize([
             'cache' => [
-                'driver' => 'null',
+                'driver' => 'none',
             ],
         ]);
 
         $cache = CacheManager::getInstance();
-        expect($cache)->toBeInstanceOf(NullDriver::class);
+        expect($cache)->toBeInstanceOf(NoneDriver::class);
+    });
+
+    it('creates framework driver (falls back to memory when no framework is active)', function(): void {
+        DataHelpersConfig::initialize([
+            'cache' => [
+                'driver' => 'framework',
+                'max_entries' => 100,
+                'prefix' => 'test:',
+            ],
+        ]);
+
+        $cache = CacheManager::getInstance();
+        // In unit test environment, no framework is active, so it falls back to memory
+        expect($cache)->toBeInstanceOf(MemoryDriver::class);
     });
 
     it('returns same instance on multiple calls', function(): void {
@@ -50,7 +64,7 @@ describe('CacheManager', function(): void {
     });
 
     it('allows setting custom cache instance', function(): void {
-        $customCache = new NullDriver();
+        $customCache = new NoneDriver();
         CacheManager::setInstance($customCache);
 
         $cache = CacheManager::getInstance();
@@ -73,7 +87,10 @@ describe('CacheManager', function(): void {
         ]);
 
         expect(fn(): CacheInterface => CacheManager::getInstance())
-            ->toThrow(InvalidArgumentException::class, 'Unknown cache driver: unknown-driver');
+            ->toThrow(
+                InvalidArgumentException::class,
+                'Unknown cache driver: unknown-driver. Supported: memory, framework, none'
+            );
     });
 });
 

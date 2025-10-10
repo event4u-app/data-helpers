@@ -9,3 +9,8 @@ services:
     event4u\DataHelpers\DataMapper:
         public: true
 
+    # MappedModel Value Resolver for automatic dependency injection
+    event4u\DataHelpers\Symfony\MappedModelResolver:
+        tags:
+            - { name: controller.argument_value_resolver, priority: 50 }
+

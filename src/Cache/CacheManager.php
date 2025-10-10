@@ -6,11 +6,15 @@ namespace event4u\DataHelpers\Cache;
 
 use event4u\DataHelpers\Cache\Drivers\LaravelCacheDriver;
 use event4u\DataHelpers\Cache\Drivers\MemoryDriver;
-use event4u\DataHelpers\Cache\Drivers\NullDriver;
+use event4u\DataHelpers\Cache\Drivers\NoneDriver;
 use event4u\DataHelpers\Cache\Drivers\SymfonyCacheDriver;
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Enums\CacheDriver;
 use InvalidArgumentException;
 use Psr\Cache\CacheItemPoolInterface;
+use ReflectionClass;
+use Throwable;
+use ValueError;
 
 /**
  * Cache manager - creates and manages cache drivers.
@@ -44,22 +48,71 @@ final class CacheManager
     /** Create cache driver based on configuration. */
     private static function createDriver(): CacheInterface
     {
-        $driver = DataHelpersConfig::get('cache.driver', 'memory');
+        $driverString = (string)DataHelpersConfig::get('cache.driver', 'none');
         $maxEntries = DataHelpersConfig::getCacheMaxEntries();
         $defaultTtl = DataHelpersConfig::get('cache.default_ttl');
 
+        // Convert string to enum
+        try {
+            $driver = CacheDriver::from($driverString);
+        } catch (ValueError) {
+            throw new InvalidArgumentException(
+                sprintf('Unknown cache driver: %s. Supported: memory, framework, none', $driverString)
+            );
+        }
+
         return match ($driver) {
-            'memory' => new MemoryDriver($maxEntries),
-            'null', 'none' => new NullDriver(),
-            'laravel' => new LaravelCacheDriver(
+            CacheDriver::MEMORY => new MemoryDriver($maxEntries),
+            CacheDriver::NONE => new NoneDriver(),
+            CacheDriver::FRAMEWORK => self::createFrameworkDriver($maxEntries, $defaultTtl),
+        };
+    }
+
+    /** Create framework-specific driver or fallback to memory. */
+    private static function createFrameworkDriver(int $maxEntries, mixed $defaultTtl): CacheInterface
+    {
+        // Check for Symfony first (if explicitly configured with pool)
+        if (interface_exists('Psr\Cache\CacheItemPoolInterface')) {
+            $pool = DataHelpersConfig::get('cache.symfony.pool');
+            if ($pool instanceof CacheItemPoolInterface) {
+                return self::createSymfonyDriver($defaultTtl);
+            }
+        }
+
+        // Check for Laravel (class exists AND facade root is set)
+        if (self::isLaravelActive()) {
+            return new LaravelCacheDriver(
                 (string)DataHelpersConfig::get('cache.prefix', 'data_helpers:'),
                 is_int($defaultTtl) ? $defaultTtl : null
-            ),
-            'symfony' => self::createSymfonyDriver($defaultTtl),
-            default => throw new InvalidArgumentException(
-                sprintf('Unknown cache driver: %s', (string)$driver)
-            ),
-        };
+            );
+        }
+
+        // No framework detected, fallback to memory
+        if (CacheDriver::fallback() === CacheDriver::MEMORY) {
+            return new MemoryDriver($maxEntries);
+        }
+
+        // No framework detected, fallback to no driver
+        return new NoneDriver();
+    }
+
+    /** Check if Laravel is active (not just installed). */
+    private static function isLaravelActive(): bool
+    {
+        if (!class_exists('Illuminate\Support\Facades\Cache')) {
+            return false;
+        }
+
+        try {
+            // Try to get the facade root - if it throws, Laravel is not active
+            $reflection = new ReflectionClass('Illuminate\Support\Facades\Cache');
+            $method = $reflection->getMethod('getFacadeRoot');
+            $root = $method->invoke(null);
+
+            return null !== $root;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     private static function createSymfonyDriver(mixed $defaultTtl): SymfonyCacheDriver

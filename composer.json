@@ -165,17 +165,13 @@
   "extra": {
     "laravel": {
       "providers": [
-        "event4u\\DataHelpers\\Laravel\\LaravelMappedModelServiceProvider",
-        "event4u\\DataHelpers\\Laravel\\LaravelConfigDataHelpersServiceProvider"
+        "event4u\\DataHelpers\\Laravel\\DataHelpersServiceProvider"
       ]
     },
     "symfony": {
       "require": "^6.0|^7.0",
       "bundles": {
-        "event4u\\DataHelpers\\Symfony\\SymfonyMappedModelResolver": [
-          "all"
-        ],
-        "event4u\\DataHelpers\\Symfony\\SymfonyDataHelpersBundle": [
+        "event4u\\DataHelpers\\Symfony\\DataHelpersBundle": [
           "all"
         ]
       }

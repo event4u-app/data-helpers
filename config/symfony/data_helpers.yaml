@@ -11,10 +11,11 @@ data_helpers:
   # Set to 0 to disable caching.
   # Recommended: 1000 for most applications.
   cache:
-    # Cache driver: memory, symfony, null
-    # - memory: In-memory LRU cache (no persistence)
-    # - symfony: Symfony cache system (uses your configured cache pool)
-    # - null: No caching (for testing/debugging)
+    # Cache driver: memory, framework, none
+    # - memory: In-memory LRU cache (fast, no persistence)
+    # - framework: Automatically uses Laravel or Symfony cache if available,
+    #              falls back to memory if no framework is detected
+    # - none: No caching (for testing/debugging)
     driver: '%env(DATA_HELPERS_CACHE_DRIVER)%'
 
     # Maximum cache entries (for memory driver)
@@ -41,7 +42,7 @@ data_helpers:
 
 # Default values for environment variables
 parameters:
-  env(DATA_HELPERS_CACHE_DRIVER): 'symfony'
+  env(DATA_HELPERS_CACHE_DRIVER): 'framework'
   env(DATA_HELPERS_CACHE_MAX_ENTRIES): 1000
-  env(DATA_HELPERS_CACHE_DEFAULT_TTL): null
+  env(DATA_HELPERS_CACHE_DEFAULT_TTL): 3600
   env(DATA_HELPERS_PERFORMANCE_MODE): 'fast'

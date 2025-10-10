@@ -4,23 +4,34 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Laravel;
 
+use event4u\DataHelpers\DataHelpersConfig;
 use event4u\DataHelpers\MappedDataModel;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Laravel Service Provider for automatic MappedDataModel binding.
+ * Laravel Service Provider for Data Helpers.
  *
- * This provider enables automatic dependency injection of MappedDataModel subclasses
- * in Laravel controllers, similar to Form Request validation.
+ * This provider handles:
+ * - Configuration loading and publishing
+ * - Automatic MappedDataModel dependency injection
  *
  * ## Automatic Registration
  *
  * This provider is automatically registered via Laravel's package auto-discovery.
  * No manual configuration or registration needed!
  *
- * ## Usage in Controllers
+ * ## Configuration Publishing
+ *
+ * Publish the configuration file:
+ *
+ * ```bash
+ * php artisan vendor:publish --tag=data-helpers-config
+ * ```
+ *
+ * ## MappedDataModel Auto-Binding
  *
  * Simply type-hint your MappedDataModel subclass in controller methods:
  *
@@ -35,14 +46,18 @@ use Illuminate\Support\ServiceProvider;
  *     }
  * }
  * ```
- *
- * The model will be automatically filled with the current request data.
  */
-class LaravelMappedModelServiceProvider extends ServiceProvider
+final class DataHelpersServiceProvider extends ServiceProvider
 {
     /** Register services. */
     public function register(): void
     {
+        // Merge config
+        $this->mergeConfigFrom(
+            __DIR__ . '/../../config/data-helpers.php',
+            'data-helpers'
+        );
+
         // Register the binding resolver for automatic MappedDataModel filling
         $this->app->resolving(function($object, Application $app): void {
             if ($object instanceof MappedDataModel && !$object->isMapped()) {
@@ -56,7 +71,19 @@ class LaravelMappedModelServiceProvider extends ServiceProvider
     /** Bootstrap services. */
     public function boot(): void
     {
-        // No additional bootstrapping needed - resolving hook handles everything
+        // Publish config
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__ . '/../../config/data-helpers.php' => $this->app->configPath('data-helpers.php'),
+            ], 'data-helpers-config');
+        }
+
+        // Initialize configuration from Laravel config
+        /** @var Repository $configRepository */
+        $configRepository = $this->app->make('config');
+        /** @var array<string, mixed> $config */
+        $config = $configRepository->get('data-helpers', []);
+        DataHelpersConfig::initialize($config);
     }
 
     /**
@@ -69,3 +96,4 @@ class LaravelMappedModelServiceProvider extends ServiceProvider
         return [];
     }
 }
+

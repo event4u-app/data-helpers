@@ -4,7 +4,7 @@ This recipe automatically configures the Data Helpers package for Symfony applic
 
 ## What it does
 
-- Registers the `SymfonyDataHelpersBundle` in `config/bundles.php`
+- Registers the `DataHelpersBundle` in `config/bundles.php`
 - Copies the default configuration to `config/packages/data_helpers.yaml`
 
 ## Manual Installation
@@ -20,7 +20,7 @@ And register the bundle in `config/bundles.php`:
 ```php
 return [
     // ...
-    event4u\DataHelpers\Symfony\SymfonyDataHelpersBundle::class => ['all' => true],
+    event4u\DataHelpers\Symfony\DataHelpersBundle::class => ['all' => true],
 ];
 ```
 

@@ -2,7 +2,9 @@
 
 The Data Helpers package can be configured via environment variables or framework-specific configuration files.
 
-**New in v1.x:** All frameworks (Laravel, Symfony, Plain PHP) now use a **unified configuration file** (`config/data-helpers.php`) with the `EnvHelper` class for automatic environment detection. This eliminates code duplication and provides consistent type-casting across all environments.
+**New in v1.x:** All frameworks (Laravel, Symfony, Plain PHP) now use a **unified configuration file** (`config/data-helpers.php`) with the
+`EnvHelper` class for automatic environment detection. This eliminates code duplication and provides consistent type-casting across all
+environments.
 
 ## Quick Setup
 
@@ -62,6 +64,7 @@ $enabled = EnvHelper::boolean('DATA_HELPERS_CACHE_ENABLED', true);
 ```
 
 **Available Methods:**
+
 - `EnvHelper::get($key, $default)` - Raw value (auto-detects environment)
 - `EnvHelper::string($key, $default, $forceCast)` - String with type-casting
 - `EnvHelper::integer($key, $default, $forceCast)` - Integer with type-casting
@@ -71,11 +74,13 @@ $enabled = EnvHelper::boolean('DATA_HELPERS_CACHE_ENABLED', true);
 - `EnvHelper::hasCarbonSupport()` - Check if Carbon is available
 
 **How it works:**
+
 1. **Laravel:** Uses `env()` function if available
 2. **Symfony/Plain PHP:** Falls back to `$_ENV` superglobal
 
 **Carbon Support (Optional):**
-The `carbon()` method is only available when `nesbot/carbon` is installed. If Carbon is not available, calling `EnvHelper::carbon()` will throw an `InvalidArgumentException`. Use `EnvHelper::hasCarbonSupport()` to check availability before calling.
+The `carbon()` method is only available when `nesbot/carbon` is installed. If Carbon is not available, calling `EnvHelper::carbon()` will
+throw an `InvalidArgumentException`. Use `EnvHelper::hasCarbonSupport()` to check availability before calling.
 
 This allows the **same configuration file** to work across all frameworks! 🎉
 
@@ -85,7 +90,8 @@ This allows the **same configuration file** to work across all frameworks! 🎉
 
 ### 1. Auto-Discovery
 
-The package uses Laravel's **auto-discovery** feature. The service provider is **automatically registered** when you install the package via Composer.
+The package uses Laravel's **auto-discovery** feature. The service provider is **automatically registered** when you install the package via
+Composer.
 
 **No manual registration needed!** ✅
 
@@ -97,9 +103,7 @@ php artisan vendor:publish --tag=data-helpers-config
 
 This copies `config/laravel/data-helpers.php` to `config/data-helpers.php` in your Laravel application.
 
-**Note:**
-- Publishing is optional. The package works with default values if you don't publish the config.
-- The Laravel config file loads the shared `config/data-helpers.php` and sets Laravel-specific defaults (e.g., `cache.driver = 'laravel'`).
+**Note:** Publishing is optional. The package works with default values if you don't publish the config.
 
 ### 3. Configure via Environment Variables
 
@@ -130,7 +134,8 @@ return [
 
 ### 1. Auto-Discovery
 
-The package uses Symfony's **auto-discovery** feature (Symfony Flex). The bundle is **automatically registered** when you install the package via Composer.
+The package uses Symfony's **auto-discovery** feature (Symfony Flex). The bundle is **automatically registered** when you install the
+package via Composer.
 
 **No manual registration needed!** ✅
 
@@ -223,12 +228,14 @@ return [
 Maximum number of parsed template expressions to cache. When the limit is reached, the least recently used (LRU) entries are discarded.
 
 **Recommendations:**
+
 - **Small applications:** 500-1000
 - **Medium applications:** 1000-3000
 - **Large applications:** 3000-5000
 - **Disable caching:** Set to `0`
 
 **Example:**
+
 ```env
 DATA_HELPERS_CACHE_MAX_ENTRIES=2000
 ```
@@ -244,14 +251,15 @@ DATA_HELPERS_CACHE_MAX_ENTRIES=2000
 Controls the parsing mode for template expressions:
 
 - **`fast`** (recommended): ~2x faster parsing, no escape sequence handling
-  - Use for standard cases: `{{ value | trim }}`, `{{ tags | join:", " }}`
-  - Does NOT process: `\n`, `\t`, `\"`, `\\`, etc.
+    - Use for standard cases: `{{ value | trim }}`, `{{ tags | join:", " }}`
+    - Does NOT process: `\n`, `\t`, `\"`, `\\`, etc.
 
 - **`safe`**: Full escape sequence handling
-  - Use when you need: `{{ value | default:"Line1\nLine2" }}`
-  - Processes: `\n` (newline), `\t` (tab), `\"` (quote), `\\` (backslash), etc.
+    - Use when you need: `{{ value | default:"Line1\nLine2" }}`
+    - Processes: `\n` (newline), `\t` (tab), `\"` (quote), `\\` (backslash), etc.
 
 **Example:**
+
 ```env
 DATA_HELPERS_PERFORMANCE_MODE=fast
 ```
@@ -362,17 +370,20 @@ $cached = HashValidatedCache::get(
 ```
 
 **How it works:**
+
 1. When storing, calculates hash of source data (template, class file, etc.)
 2. Stores both value and hash in cache
 3. When retrieving, recalculates hash and compares
 4. If hash differs, cache is invalidated and null is returned
 
 **Use cases:**
+
 - Template caching (invalidate when template changes)
 - Class-based caching (invalidate when class file changes)
 - Configuration caching (invalidate when config changes)
 
 **Supported source data types:**
+
 - **Strings**: Direct hash of string content
 - **Arrays**: Serialized and hashed
 - **Objects**: Serialized and hashed
@@ -407,37 +418,44 @@ $parsed = HashValidatedCache::remember(
 The package uses multiple caching layers to optimize performance:
 
 **1. Template Expression Cache (ExpressionParser)**
+
 - Stores parsed template expressions to avoid re-parsing
 - Each entry contains: expression string (key), parsed result (type, path, default, filters)
 - Memory usage: ~500 bytes per entry (average)
 
 **2. Template Mapping Cache (TemplateParser)**
+
 - Stores parsed mapping arrays using ClassScopedCache
 - Max 100 entries per class with LRU eviction
 - Memory usage: ~1-2 KB per entry (depends on mapping complexity)
 
 **3. File Content Cache (FileLoader)**
+
 - Caches loaded JSON/XML files to avoid repeated I/O
 - Unlimited size (static cache)
 - Memory usage: depends on file size
 
 **4. Filter Instance Cache (FilterEngine)**
+
 - Reuses filter instances instead of creating new ones
 - Unlimited size (static cache)
 - Memory usage: ~1-2 KB per filter class
 
 **5. String Operation Caches**
+
 - `toCamelCase()` - caches string transformations
 - `singularize()` - caches pluralization results
 - `parseFilterWithArgs()` - caches filter parsing
 - Memory usage: ~100-200 bytes per entry
 
 **6. Reflection Caches**
+
 - `ReflectionCache` - caches ReflectionClass and ReflectionProperty instances
 - `EntityHelper` - caches property existence and relation type checks
 - Memory usage: ~500 bytes per class/property
 
 **Total memory usage estimation:**
+
 - 1000 template expressions ≈ 500 KB
 - 100 template mappings ≈ 100-200 KB
 - 50 loaded files ≈ 50-500 KB (depends on file size)
@@ -450,11 +468,11 @@ The package uses multiple caching layers to optimize performance:
 
 Based on benchmarks with 10,000 iterations:
 
-| Scenario | Fast Mode | Safe Mode | Speedup |
-|----------|-----------|-----------|---------|
-| Simple expressions | 10.0 ms | 18.6 ms | **1.85x faster** |
-| With quotes | 15.2 ms | 29.9 ms | **1.97x faster** |
-| Complex expressions | 26.2 ms | 52.5 ms | **2.01x faster** |
+| Scenario            | Fast Mode | Safe Mode | Speedup          |
+|---------------------|-----------|-----------|------------------|
+| Simple expressions  | 10.0 ms   | 18.6 ms   | **1.85x faster** |
+| With quotes         | 15.2 ms   | 29.9 ms   | **1.97x faster** |
+| Complex expressions | 26.2 ms   | 52.5 ms   | **2.01x faster** |
 
 **Recommendation:** Use fast mode (default) for 90%+ of use cases.
 
