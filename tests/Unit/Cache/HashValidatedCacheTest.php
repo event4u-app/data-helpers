@@ -3,16 +3,22 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\Cache\CacheHelper;
+use event4u\DataHelpers\Cache\CacheManager;
+use event4u\DataHelpers\Cache\Drivers\MemoryDriver;
 use event4u\DataHelpers\Cache\HashValidatedCache;
 use Tests\Fixtures\CacheTestClassV1;
 use Tests\Fixtures\CacheTestClassV2;
 
 beforeEach(function(): void {
+    // Enable caching for these tests
+    CacheManager::setInstance(new MemoryDriver(1000));
     CacheHelper::flush();
 });
 
 afterEach(function(): void {
     CacheHelper::flush();
+    // Reset to default (null driver)
+    CacheManager::reset();
 });
 
 it('stores and retrieves value with hash validation', function(): void {

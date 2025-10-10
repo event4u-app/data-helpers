@@ -3,15 +3,21 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\Cache\CacheHelper;
+use event4u\DataHelpers\Cache\CacheManager;
 use event4u\DataHelpers\Cache\ClassScopedCache;
+use event4u\DataHelpers\Cache\Drivers\MemoryDriver;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 
 beforeEach(function(): void {
+    // Enable caching for these tests
+    CacheManager::setInstance(new MemoryDriver(1000));
     CacheHelper::flush();
 });
 
 afterEach(function(): void {
     CacheHelper::flush();
+    // Reset to default (null driver)
+    CacheManager::reset();
 });
 
 it('TemplateParser uses hash validation for template caching', function(): void {

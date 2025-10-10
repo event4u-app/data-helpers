@@ -15,6 +15,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\DataMapperPipeline;
 use event4u\DataHelpers\DataMapper\Pipeline\TransformerInterface;
 use event4u\DataHelpers\DataMapper\Support\HookInvoker;
 use event4u\DataHelpers\DataMapper\Support\MappingEngine;
+use event4u\DataHelpers\DataMapper\Support\MappingParser;
 use event4u\DataHelpers\DataMapper\Support\TemplateExpressionProcessor;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
@@ -531,14 +532,17 @@ class DataMapper
 
         $mappingIndex = 0;
         foreach ($mapping as $targetPath => $sourcePathOrStatic) {
-            // Check if it's a static value
-            $isStatic = is_array($sourcePathOrStatic) && isset($sourcePathOrStatic[self::STATIC_VALUE_MARKER]);
-            $sourcePath = $isStatic ? $sourcePathOrStatic[self::STATIC_VALUE_MARKER] : $sourcePathOrStatic;
+            // Parse mapping entry (extract path, filters, default value, static flag)
+            $parsed = MappingParser::parseEntry($sourcePathOrStatic, self::STATIC_VALUE_MARKER);
+            $isStatic = $parsed['isStatic'];
+            $sourcePath = $parsed['sourcePath'];
+            $filters = $parsed['filters'];
+            $defaultValue = $parsed['defaultValue'];
 
             $pairContext = new PairContext(
                 'simple',
                 $mappingIndex,
-                (string)$sourcePath,
+                $sourcePath,
                 (string)$targetPath,
                 $source,
                 $target
@@ -547,19 +551,6 @@ class DataMapper
                 $mappingIndex++;
 
                 continue;
-            }
-
-            // Extract path, filters, and default value using TemplateExpressionProcessor
-            $filters = [];
-            $defaultValue = null;
-            if (!$isStatic && is_string($sourcePath) && (str_contains($sourcePath, '|') || str_contains(
-                $sourcePath,
-                '??'
-            ))) {
-                $extracted = TemplateExpressionProcessor::extractPathAndFilters($sourcePath);
-                $sourcePath = $extracted['path'];
-                $filters = $extracted['filters'];
-                $defaultValue = $extracted['default'];
             }
 
             if ($isStatic) {
@@ -607,7 +598,10 @@ class DataMapper
                 // Create transform function for filters if present
                 $transformFn = null;
                 if ([] !== $filters) {
-                    $transformFn = (fn(mixed $itemValue): mixed => TemplateExpressionProcessor::applyFilters($itemValue, $filters));
+                    $transformFn = (fn(mixed $itemValue): mixed => TemplateExpressionProcessor::applyFilters(
+                        $itemValue,
+                        $filters
+                    ));
                 }
 
                 // Use centralized wildcard processing from MappingEngine
