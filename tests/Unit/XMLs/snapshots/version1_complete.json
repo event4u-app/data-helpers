@@ -48,6 +48,7 @@
             "number": "01.01.0001",
             "parent_id": "01.01.",
             "short_text": "Remove and relay existing granite pavement.",
+            "long_text": "Remove existing pavement and relay.\n                Installation on concrete base.",
             "unit": "m2",
             "type": "Standard"
         }

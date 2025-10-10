@@ -55,6 +55,43 @@ $template = ['name' => '{{ user.name | trim }}'];
 
 ---
 
+#### DecodeHtmlEntities
+
+Decodes HTML entities in string values, including numeric entities (e.g., `&#32;`, `&#45;`) and named entities (e.g., `&amp;`, `&lt;`, `&gt;`). Handles double-encoded and triple-encoded entities automatically.
+
+**Template Aliases:** `decode_html`, `html_decode`, `decode_entities`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Transformers\DecodeHtmlEntities;
+
+// Pipeline usage
+protected function pipes(): array
+{
+    return [new DecodeHtmlEntities()];
+}
+
+// Template expression usage
+$template = [
+    'name' => '{{ customer.name | decode_html }}',
+    'description' => '{{ product.description | decode_html | trim }}',
+];
+```
+
+**Examples:**
+
+- Input: `"Herbert&#32;Meier"` → Output: `"Herbert Meier"`
+- Input: `"Sample&amp;#32;&amp;#45;&amp;#32;Pool"` → Output: `"Sample - Pool"` (double-encoded)
+- Input: `"&lt;div&gt;"` → Output: `"<div>"`
+- Input: `"&quot;Hello&quot;"` → Output: `'"Hello"'`
+
+**Use Cases:**
+
+- Decoding XML/HTML data with encoded special characters
+- Processing data from external APIs that encode entities
+- Cleaning up text fields with multiple levels of encoding
+
+---
+
 #### LowercaseStrings
 
 Converts all string values to lowercase.
