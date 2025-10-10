@@ -59,7 +59,7 @@ Map between different data formats, APIs, or database schemas without writing re
 
 ### 🛡️ **Type-safe and well-tested**
 
-PHPStan Level 9 compliant with 400+ tests. Works reliably with arrays, objects, Collections, Models, JSON, and XML.
+PHPStan Level 9 compliant with 800+ tests. Works reliably with arrays, objects, Collections, Models, JSON, and XML.
 
 ### ⚡ **Framework-agnostic with smart detection**
 
@@ -564,7 +564,7 @@ $result = DataMapper::pipe([
 
 ## 🧪 Testing & Quality
 
-- ✅ **400+ tests** with 1500+ assertions
+- ✅ **800+ tests** with 3000+ assertions
 - ✅ **PHPStan Level 9** - Highest static analysis level
 - ✅ **100% type coverage** - All methods fully typed
 - ✅ **Pest** - Modern testing framework
@@ -577,40 +577,38 @@ $result = DataMapper::pipe([
 All operations are highly optimized and run in microseconds:
 
 <!-- BENCHMARK_RESULTS_START -->
-
 ### DataAccessor
 
-| Operation         | Time     | Description                                                   |
-|-------------------|----------|---------------------------------------------------------------|
-| Simple Get        | 0.321μs  | Get value from flat array                                     |
-| Nested Get        | 0.424μs  | Get value from nested path                                    |
-| Wildcard Get      | 4.710μs  | Get values using single wildcard                              |
-| Deep Wildcard Get | 72.335μs | Get values using multiple wildcards (10 depts × 20 employees) |
-| Typed Get String  | 0.361μs  | Get typed string value                                        |
-| Typed Get Int     | 0.361μs  | Get typed int value                                           |
-| Create Accessor   | 0.083μs  | Instantiate DataAccessor                                      |
+| Operation | Time | Description |
+|-----------|------|-------------|
+| Simple Get | 0.301μs | Get value from flat array |
+| Nested Get | 0.392μs | Get value from nested path |
+| Wildcard Get | 4.855μs | Get values using single wildcard |
+| Deep Wildcard Get | 72.012μs | Get values using multiple wildcards (10 depts × 20 employees) |
+| Typed Get String | 0.327μs | Get typed string value |
+| Typed Get Int | 0.354μs | Get typed int value |
+| Create Accessor | 0.079μs | Instantiate DataAccessor |
 
 ### DataMutator
 
-| Operation      | Time    | Description                             |
-|----------------|---------|-----------------------------------------|
-| Simple Set     | 0.595μs | Set value in flat array                 |
-| Nested Set     | 0.947μs | Set value in nested path                |
-| Deep Set       | 1.146μs | Set value creating new nested structure |
-| Multiple Set   | 1.721μs | Set multiple values at once             |
-| Merge          | 0.980μs | Deep merge arrays                       |
-| Unset          | 0.898μs | Remove single value                     |
-| Multiple Unset | 1.485μs | Remove multiple values                  |
+| Operation | Time | Description |
+|-----------|------|-------------|
+| Simple Set | 0.595μs | Set value in flat array |
+| Nested Set | 0.961μs | Set value in nested path |
+| Deep Set | 1.132μs | Set value creating new nested structure |
+| Multiple Set | 1.690μs | Set multiple values at once |
+| Merge | 0.944μs | Deep merge arrays |
+| Unset | 0.882μs | Remove single value |
+| Multiple Unset | 1.485μs | Remove multiple values |
 
 ### DataMapper
 
-| Operation         | Time    | Description                    |
-|-------------------|---------|--------------------------------|
-| Simple Mapping    | 6.288μs | Map flat structure             |
-| Nested Mapping    | 7.129μs | Map nested structure           |
-| Auto Map          | 6.804μs | Automatic field mapping        |
-| Map From Template | 5.091μs | Map using template expressions |
-
+| Operation | Time | Description |
+|-----------|------|-------------|
+| Simple Mapping | 7.685μs | Map flat structure |
+| Nested Mapping | 8.625μs | Map nested structure |
+| Auto Map | 7.306μs | Automatic field mapping |
+| Map From Template | 5.148μs | Map using template expressions |
 <!-- BENCHMARK_RESULTS_END -->
 
 **Key Insights:**

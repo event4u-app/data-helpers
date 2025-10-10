@@ -75,6 +75,8 @@
     "composer:update": "composer update php --prefer-dist --no-interaction -W 2>&1",
     "test": "vendor/bin/pest --no-coverage",
     "test:coverage": "vendor/bin/pest",
+    "benchmark": "vendor/bin/phpbench run --report=table",
+    "benchmark:readme": "php scripts/update-benchmark-results.php",
     "test:laravel9": [
       "./scripts/test-with-versions.sh --laravel 9",
       "@composer:update"
