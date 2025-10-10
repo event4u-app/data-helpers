@@ -18,8 +18,6 @@ use event4u\DataHelpers\DataMapper\Support\MappingEngine;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
-use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
-use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
 use event4u\DataHelpers\DataMapper\Template\FilterEngine;
 use event4u\DataHelpers\DataMapper\TemplateMapper;
 use event4u\DataHelpers\Enums\DataMapperHook;
@@ -600,9 +598,7 @@ class DataMapper
                 // Create transform function for filters if present
                 $transformFn = null;
                 if ([] !== $filters) {
-                    $transformFn = function(mixed $itemValue) use ($filters): mixed {
-                        return FilterEngine::apply($itemValue, $filters);
-                    };
+                    $transformFn = (fn(mixed $itemValue): mixed => FilterEngine::apply($itemValue, $filters));
                 }
 
                 // Use centralized wildcard processing from MappingEngine
