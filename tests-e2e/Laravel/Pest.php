@@ -23,11 +23,30 @@ if (file_exists(__DIR__ . '/.env')) {
     }
 }
 
-// Load helper functions
-require_once __DIR__ . '/tests/helpers.php';
-
 // Bootstrap Laravel application
 $GLOBALS['laravel_app'] = require __DIR__ . '/bootstrap.php';
+
+// Define helper functions for Laravel tests
+if (!function_exists('setupLaravelCache')) {
+    function setupLaravelCache(): void
+    {
+        $app = new \Illuminate\Container\Container();
+        $app->singleton('app', fn(): \Illuminate\Container\Container => $app);
+        $app->singleton('cache', fn(): \Illuminate\Cache\Repository => new \Illuminate\Cache\Repository(new \Illuminate\Cache\ArrayStore()));
+        $app->singleton('cache.store', fn($app) => $app['cache']);
+        \Illuminate\Support\Facades\Facade::setFacadeApplication($app);
+        \Illuminate\Container\Container::setInstance($app);
+    }
+}
+
+if (!function_exists('teardownLaravelCache')) {
+    function teardownLaravelCache(): void
+    {
+        \Illuminate\Support\Facades\Facade::clearResolvedInstances();
+        \Illuminate\Support\Facades\Facade::setFacadeApplication(null);
+        \Illuminate\Container\Container::setInstance(null);
+    }
+}
 
 // Make app available in Feature tests (E2E tests that need Laravel)
 uses()->beforeEach(function(): void {

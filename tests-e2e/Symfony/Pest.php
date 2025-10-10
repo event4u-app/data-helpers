@@ -23,6 +23,9 @@ if (file_exists(__DIR__ . '/.env')) {
     }
 }
 
+// Load helper functions from main tests directory
+require_once __DIR__ . '/../../tests/helpers.php';
+
 // Bootstrap Symfony kernel
 $kernel = require __DIR__ . '/bootstrap.php';
 $kernel->boot();
