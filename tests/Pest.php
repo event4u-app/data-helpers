@@ -24,6 +24,8 @@
 |
 */
 
+use event4u\DataHelpers\DataMapper;
+
 expect()->extend('toBeOne', fn() => $this->toBe(1));
 
 /*
