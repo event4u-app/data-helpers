@@ -23,13 +23,11 @@ use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\TemplateMapper;
 use event4u\DataHelpers\Enums\DataMapperHook;
-use event4u\DataHelpers\Exceptions\CollectedExceptionsException;
 use event4u\DataHelpers\Support\EntityHelper;
 use event4u\DataHelpers\Support\FileLoader;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
 use SimpleXMLElement;
-use Throwable;
 
 /**
  * DataMapper allows mapping values between different data structures
@@ -44,8 +42,6 @@ class DataMapper
 
     /** Default root element name for XML conversion. */
     private const DEFAULT_XML_ROOT = 'root';
-
-
 
     /** Get the number of collected exceptions. */
     public static function getExceptionCount(): int

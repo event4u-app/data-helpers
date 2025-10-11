@@ -24,7 +24,6 @@
 |
 */
 
-use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 
 expect()->extend('toBeOne', fn() => $this->toBe(1));
@@ -43,9 +42,9 @@ expect()->extend('toBeOne', fn() => $this->toBe(1));
 // Helper functions are loaded via Composer autoload from tests/helpers-laravel.php
 
 // Reset DataMapper settings before and after each test to ensure test isolation.
-uses()->beforeEach(function (): void {
+uses()->beforeEach(function(): void {
     MapperExceptions::reset();
 });
-uses()->afterEach(function (): void {
+uses()->afterEach(function(): void {
     MapperExceptions::reset();
 });
