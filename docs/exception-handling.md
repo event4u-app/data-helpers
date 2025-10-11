@@ -21,7 +21,7 @@ The exception handling system provides four main features:
 3. **Immediate Throwing**: Throw exceptions immediately when they occur
 4. **Undefined Value Detection**: Optionally throw exceptions when source or target paths don't exist
 
-All exception handling is managed through the `MapperExceptions` class, which is accessed via static methods on `DataMapper`.
+All exception handling is managed through the `MapperExceptions` class, which provides static methods for configuration and exception management.
 
 ## Configuration
 
@@ -30,13 +30,13 @@ All exception handling is managed through the `MapperExceptions` class, which is
 By default, the DataMapper is configured for production use:
 
 ```php
-use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 
 // Default settings (no need to set explicitly)
-DataMapper::setExceptionsEnabled(true);               // Exception handling enabled
-DataMapper::setCollectExceptionsEnabled(true);        // Collect exceptions
-DataMapper::setThrowOnUndefinedSourceEnabled(false);  // Don't throw on missing source
-DataMapper::setThrowOnUndefinedTargetEnabled(false);  // Don't throw on missing target
+MapperExceptions::setExceptionsEnabled(true);               // Exception handling enabled
+MapperExceptions::setCollectExceptionsEnabled(true);        // Collect exceptions
+MapperExceptions::setThrowOnUndefinedSourceEnabled(false);  // Don't throw on missing source
+MapperExceptions::setThrowOnUndefinedTargetEnabled(false);  // Don't throw on missing target
 ```
 
 ### Silent Mode (No Exceptions)
@@ -45,7 +45,7 @@ For scenarios where you want to completely suppress all exceptions:
 
 ```php
 // Silent mode: ignore all exceptions
-DataMapper::setExceptionsEnabled(false);
+MapperExceptions::setExceptionsEnabled(false);
 ```
 
 When exceptions are disabled globally, all exceptions are silently ignored - they are neither thrown nor collected. This is useful for:
@@ -61,17 +61,17 @@ For development, you might want stricter error checking:
 
 ```php
 // Strict mode: throw immediately on any error
-DataMapper::setExceptionsEnabled(true);               // Ensure exceptions are enabled
-DataMapper::setCollectExceptionsEnabled(false);       // Throw immediately
-DataMapper::setThrowOnUndefinedSourceEnabled(true);   // Validate source data
-DataMapper::setThrowOnUndefinedTargetEnabled(true);   // Validate target structure
+MapperExceptions::setExceptionsEnabled(true);               // Ensure exceptions are enabled
+MapperExceptions::setCollectExceptionsEnabled(false);       // Throw immediately
+MapperExceptions::setThrowOnUndefinedSourceEnabled(true);   // Validate source data
+MapperExceptions::setThrowOnUndefinedTargetEnabled(true);   // Validate target structure
 ```
 
 ### Resetting to Defaults
 
 ```php
 // Reset all settings to defaults
-DataMapper::reset();
+MapperExceptions::reset();
 ```
 
 ## Exception Types
@@ -120,7 +120,7 @@ The DataMapper uses custom exception types for different error scenarios:
 When exception collection is enabled, exceptions are collected during mapping and thrown at the end:
 
 ```php
-DataMapper::setCollectExceptionsEnabled(true);
+MapperExceptions::setCollectExceptionsEnabled(true);
 
 $source = ['name' => 'John'];
 $target = [];
@@ -152,7 +152,7 @@ try {
 When exception collection is disabled, exceptions are thrown immediately:
 
 ```php
-DataMapper::setCollectExceptionsEnabled(false);
+MapperExceptions::setCollectExceptionsEnabled(false);
 
 $source = ['name' => 'John'];
 $target = [];
@@ -192,7 +192,7 @@ $result = DataMapper::map($source, [], $mapping);
 Enable strict checking:
 
 ```php
-DataMapper::setThrowOnUndefinedSourceEnabled(true);
+MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
 try {
     $result = DataMapper::map($source, [], $mapping);
@@ -223,7 +223,7 @@ $result = DataMapper::map($source, $target, $mapping);
 Enable strict checking:
 
 ```php
-DataMapper::setThrowOnUndefinedTargetEnabled(true);
+MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
 try {
     $result = DataMapper::map($source, [], $mapping);
@@ -241,37 +241,37 @@ try {
 
 ```php
 // Master exception switch (globally enable/disable all exceptions)
-DataMapper::setExceptionsEnabled(bool $enabled): void
-DataMapper::isExceptionsEnabled(): bool
+MapperExceptions::setExceptionsEnabled(bool $enabled): void
+MapperExceptions::isExceptionsEnabled(): bool
 
 // Exception collection
-DataMapper::setCollectExceptionsEnabled(bool $enabled): void
-DataMapper::isCollectExceptionsEnabled(): bool
+MapperExceptions::setCollectExceptionsEnabled(bool $enabled): void
+MapperExceptions::isCollectExceptionsEnabled(): bool
 
 // Undefined source value handling
-DataMapper::setThrowOnUndefinedSourceEnabled(bool $enabled): void
-DataMapper::isThrowOnUndefinedSourceEnabled(): bool
+MapperExceptions::setThrowOnUndefinedSourceEnabled(bool $enabled): void
+MapperExceptions::isThrowOnUndefinedSourceEnabled(): bool
 
 // Undefined target value handling
-DataMapper::setThrowOnUndefinedTargetEnabled(bool $enabled): void
-DataMapper::isThrowOnUndefinedTargetEnabled(): bool
+MapperExceptions::setThrowOnUndefinedTargetEnabled(bool $enabled): void
+MapperExceptions::isThrowOnUndefinedTargetEnabled(): bool
 
 // Reset all settings
-DataMapper::reset(): void
-DataMapper::resetExceptions(): void  // Alias for reset()
+MapperExceptions::reset(): void
+MapperExceptions::reset(): void  // Alias for reset()
 ```
 
 ### Exception Inspection
 
 ```php
 // Check if exceptions were collected
-DataMapper::hasExceptions(): bool
+MapperExceptions::hasExceptions(): bool
 
 // Get collected exceptions
-DataMapper::getExceptions(): array
+MapperExceptions::getExceptions(): array
 
 // Clear collected exceptions
-DataMapper::clearExceptions(): void
+MapperExceptions::clearExceptions(): void
 ```
 
 ## Examples
@@ -280,12 +280,14 @@ DataMapper::clearExceptions(): void
 
 ```php
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
+
 use event4u\DataHelpers\Exceptions\CollectedExceptionsException;
 
 // Production settings
-DataMapper::setCollectExceptionsEnabled(true);
-DataMapper::setThrowOnUndefinedSourceEnabled(false);
-DataMapper::setThrowOnUndefinedTargetEnabled(false);
+MapperExceptions::setCollectExceptionsEnabled(true);
+MapperExceptions::setThrowOnUndefinedSourceEnabled(false);
+MapperExceptions::setThrowOnUndefinedTargetEnabled(false);
 
 $source = [
     'users' => [
@@ -307,8 +309,8 @@ try {
     $result = DataMapper::map($source, [], $mapping);
 
     // Check if there were any warnings
-    if (DataMapper::hasExceptions()) {
-        $exceptions = DataMapper::getExceptions();
+    if (MapperExceptions::hasExceptions()) {
+        $exceptions = MapperExceptions::getExceptions();
         // Log exceptions but continue
         foreach ($exceptions as $e) {
             error_log($e->getMessage());
@@ -329,11 +331,13 @@ try {
 
 ```php
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
+
 
 // Development settings
-DataMapper::setCollectExceptionsEnabled(false);
-DataMapper::setThrowOnUndefinedSourceEnabled(true);
-DataMapper::setThrowOnUndefinedTargetEnabled(true);
+MapperExceptions::setCollectExceptionsEnabled(false);
+MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
+MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
 $source = ['name' => 'John'];
 $target = [];
@@ -359,11 +363,13 @@ try {
 
 ```php
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
+
 
 // Collect exceptions but validate source data
-DataMapper::setCollectExceptionsEnabled(true);
-DataMapper::setThrowOnUndefinedSourceEnabled(true);
-DataMapper::setThrowOnUndefinedTargetEnabled(false);
+MapperExceptions::setCollectExceptionsEnabled(true);
+MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
+MapperExceptions::setThrowOnUndefinedTargetEnabled(false);
 
 $source = [
     'users' => [
@@ -398,9 +404,11 @@ try {
 
 ```php
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
+
 
 // Strict mode
-DataMapper::setThrowOnUndefinedSourceEnabled(true);
+MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
 $source = ['name' => 'John'];
 
@@ -418,10 +426,12 @@ $result = DataMapper::map($source, [], $mapping);
 
 ```php
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
+
 
 // First operation: strict mode
-DataMapper::setCollectExceptionsEnabled(false);
-DataMapper::setThrowOnUndefinedSourceEnabled(true);
+MapperExceptions::setCollectExceptionsEnabled(false);
+MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
 try {
     $result1 = DataMapper::map($source1, [], $mapping1);
@@ -430,7 +440,7 @@ try {
 }
 
 // Reset to defaults for next operation
-DataMapper::reset();
+MapperExceptions::reset();
 
 // Second operation: default mode
 $result2 = DataMapper::map($source2, [], $mapping2);
@@ -440,9 +450,11 @@ $result2 = DataMapper::map($source2, [], $mapping2);
 
 ```php
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
+
 
 // Disable all exceptions for best-effort migration
-DataMapper::setExceptionsEnabled(false);
+MapperExceptions::setExceptionsEnabled(false);
 
 $users = [
     ['name' => 'John', 'email' => 'john@example.com', 'age' => 30],
@@ -473,7 +485,7 @@ $result = DataMapper::map(['users' => $users], [], $mapping);
 // ]
 
 // Re-enable exceptions for normal operations
-DataMapper::setExceptionsEnabled(true);
+MapperExceptions::setExceptionsEnabled(true);
 ```
 
 ## Best Practices

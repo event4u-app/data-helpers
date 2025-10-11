@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 use Tests\utils\XMLs\Enums\PositionType;
 use Tests\utils\XMLs\Enums\ProjectStatus;
 
@@ -52,10 +53,10 @@ function snapshotTest(string $snapshotDir, string $name, array $data): void
 
 describe('XML to Model Mapping', function(): void {
     beforeEach(function(): void {
-        DataMapper::reset();
+        MapperExceptions::reset();
     });
     afterEach(function(): void {
-        DataMapper::reset();
+        MapperExceptions::reset();
     });
 
     $snapshotDir = __DIR__ . '/snapshots';

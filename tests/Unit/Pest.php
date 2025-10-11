@@ -1,6 +1,7 @@
 <?php
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 use Illuminate\Cache\ArrayStore;
 use Illuminate\Cache\Repository;
 use Illuminate\Container\Container;
@@ -53,8 +54,8 @@ if (!function_exists('teardownLaravelCache')) {
 */
 
 beforeEach(function(): void {
-    DataMapper::reset();
+    MapperExceptions::reset();
 });
 afterEach(function(): void {
-    DataMapper::reset();
+    MapperExceptions::reset();
 });
