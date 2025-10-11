@@ -461,7 +461,7 @@ $result = DataMapper::map($source, [], $mapping);
 ```
 
 **18 built-in filters:** `lower`, `upper`, `trim`, `decode_html`, `ucfirst`, `ucwords`, `count`, `first`, `last`, `keys`, `values`,
-`reverse`, `sort`,
+`reverse`, `sort`, `replace`,
 `unique`, `join`, `json`, `default`, `between`, `strip_tags`
 
 👉 [See all filters and create custom ones](docs/filters.md#creating-custom-filters)

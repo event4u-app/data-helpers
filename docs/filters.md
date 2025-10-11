@@ -196,6 +196,78 @@ $template = ['name' => '{{ user.name | ucwords }}'];
 
 ---
 
+#### Replace
+
+Replaces strings with other strings. Supports simple replacement, multiple searches with single replacement, and multiple searches with multiple replacements.
+
+**Template Aliases:** `replace`
+
+```php
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Replace;
+
+// Pipeline usage - simple replacement
+protected function pipes(): array
+{
+    return [new Replace('Mr', 'Herr')];
+}
+
+// Pipeline usage - multiple searches, single replacement
+protected function pipes(): array
+{
+    return [new Replace(['Mr', 'Mrs'], 'Person')];
+}
+
+// Pipeline usage - multiple searches, multiple replacements
+protected function pipes(): array
+{
+    return [new Replace(['Mr', 'Mrs'], ['Herr', 'Frau'])];
+}
+
+// Pipeline usage - case insensitive
+protected function pipes(): array
+{
+    return [new Replace('mr', 'Herr', true)];
+}
+
+// Template expression usage
+$template = [
+    // Simple replacement
+    'greeting' => '{{ text | replace:"Mr":"Herr" }}',
+
+    // Multiple searches, single replacement
+    'title' => '{{ text | replace:[Mr,Mrs]:Person }}',
+
+    // Multiple searches, multiple replacements
+    'salutation' => '{{ text | replace:[Mr,Mrs]:[Herr,Frau] }}',
+
+    // Case insensitive replacement
+    'name' => '{{ text | replace:"mr":"Herr":true }}',
+];
+```
+
+**Examples:**
+
+- Input: `"Hello Mr Smith"` with `replace:"Mr":"Herr"` → Output: `"Hello Herr Smith"`
+- Input: `"Mr and Mrs Smith"` with `replace:[Mr,Mrs]:Person` → Output: `"Person and Person Smith"`
+- Input: `"Mr and Mrs Smith"` with `replace:[Mr,Mrs]:[Herr,Frau]` → Output: `"Herr and Frau Smith"`
+- Input: `"Hello mr Smith"` with `replace:"mr":"Herr":true` → Output: `"Hello Herr Smith"` (case insensitive)
+
+**Features:**
+
+- **Smart ordering**: Automatically sorts search strings by length (longest first) to avoid partial replacements
+- **Case sensitivity**: Optional third parameter for case-insensitive matching
+- **Array syntax**: Use `[value1,value2,value3]` for multiple values in template expressions
+- **1:1 mapping**: When using multiple searches and replacements, they are mapped by position
+
+**Use Cases:**
+
+- Translating titles and salutations
+- Normalizing text data
+- Replacing multiple variations with standardized values
+- Case-insensitive text normalization
+
+---
+
 #### LowercaseEmails
 
 Converts email addresses to lowercase. Only applies to fields containing "email" in the path.
@@ -888,6 +960,7 @@ All built-in filters are automatically registered with the following aliases:
 - `ucfirst` → Ucfirst
 - `ucwords` → Ucwords
 - `decode_html` → DecodeHtmlEntities
+- `replace` → Replace
 
 **Array Filters:**
 

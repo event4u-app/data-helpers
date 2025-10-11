@@ -16,6 +16,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\JsonEncode;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Keys;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Last;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Replace;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Reverse;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Sort;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
@@ -128,6 +129,7 @@ final class FilterRegistry
             Ucfirst::class,
             Ucwords::class,
             DecodeHtmlEntities::class,
+            Replace::class,
 
             // Array transformers
             Count::class,
