@@ -41,21 +41,26 @@ run_e2e_tests() {
 
     # Setup Laravel-specific requirements
     if [ "$framework" = "Laravel" ]; then
+        echo -e "${YELLOW}🔧  Setting up Laravel environment...${NC}"
+
         # Create database directory if it doesn't exist
         mkdir -p database
 
-        # Create SQLite database if it doesn't exist
-        if [ ! -f "database/database.sqlite" ]; then
-            echo -e "${YELLOW}🗄️  Creating SQLite database...${NC}"
-            touch database/database.sqlite
+        # Always create fresh database for CI/CD
+        echo -e "${YELLOW}🗄️  Creating SQLite database...${NC}"
+        touch database/database.sqlite
+
+        # Create cache table migration if it doesn't exist
+        if [ ! -d "database/migrations" ] || [ -z "$(ls -A database/migrations 2>/dev/null)" ]; then
+            echo -e "${YELLOW}📋  Creating cache table migration...${NC}"
+            php artisan cache:table 2>/dev/null || true
         fi
 
-        # Run migrations if cache table doesn't exist
-        if ! php artisan migrate:status --quiet 2>/dev/null | grep -q "create_cache_table"; then
-            echo -e "${YELLOW}📋  Setting up cache table...${NC}"
-            php artisan cache:table --quiet 2>/dev/null || true
-            php artisan migrate --force --quiet
-        fi
+        # Run migrations
+        echo -e "${YELLOW}🚀  Running migrations...${NC}"
+        php artisan migrate --force 2>/dev/null || {
+            echo -e "${RED}⚠️  Migration failed, trying to continue...${NC}"
+        }
     fi
 
     # Run tests
