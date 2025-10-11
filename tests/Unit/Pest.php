@@ -1,5 +1,6 @@
 <?php
 
+use event4u\DataHelpers\DataMapper;
 use Illuminate\Cache\ArrayStore;
 use Illuminate\Cache\Repository;
 use Illuminate\Container\Container;
@@ -41,3 +42,20 @@ if (!function_exists('teardownLaravelCache')) {
         Container::setInstance(null);
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Test Hooks
+|--------------------------------------------------------------------------
+|
+| Reset DataMapper settings before and after each test to ensure test isolation.
+|
+*/
+
+beforeEach(function (): void {
+    DataMapper::reset();
+});
+
+afterEach(function (): void {
+    DataMapper::reset();
+});
