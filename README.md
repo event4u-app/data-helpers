@@ -37,7 +37,7 @@ $emails = $accessor->get('data.departments.*.users.*.email');
 
 If you like this package, please support us in building packages like this and [event4u](https://event4u.app) - a free event app that makes
 events even
-better. [Support our project ❤️](#support-the-development)
+better. [Support us and our project ❤️](#support-the-development)
 
 ---
 
