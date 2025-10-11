@@ -26,31 +26,8 @@ if (file_exists(__DIR__ . '/.env')) {
 // Bootstrap Laravel application
 $GLOBALS['laravel_app'] = require __DIR__ . '/bootstrap.php';
 
-// Define helper functions for Laravel tests
-if (!function_exists('setupLaravelCache')) {
-    function setupLaravelCache(): void
-    {
-        $app = new \Illuminate\Container\Container();
-        $app->singleton('app', fn(): \Illuminate\Container\Container => $app);
-        $app->singleton('cache', fn(): \Illuminate\Cache\Repository => new \Illuminate\Cache\Repository(new \Illuminate\Cache\ArrayStore()));
-        $app->singleton('cache.store', fn($app) => $app['cache']);
-        // @phpstan-ignore-next-line - Container is compatible with Application for testing
-        \Illuminate\Support\Facades\Facade::setFacadeApplication($app);
-        \Illuminate\Container\Container::setInstance($app);
-    }
-}
-
-if (!function_exists('teardownLaravelCache')) {
-    function teardownLaravelCache(): void
-    {
-        \Illuminate\Support\Facades\Facade::clearResolvedInstances();
-        \Illuminate\Support\Facades\Facade::setFacadeApplication(null);
-        \Illuminate\Container\Container::setInstance(null);
-    }
-}
-
 // Make app available in Feature tests (E2E tests that need Laravel)
-uses()->beforeEach(function(): void {
+uses()->beforeEach(function (): void {
     $this->app = $GLOBALS['laravel_app'];
 })->in(__DIR__ . '/tests/Feature');
 

@@ -49,3 +49,14 @@ auth.json
 /coverage
 /coverage.xml
 /.phpunit.result.cache
+
+# Laravel config files (published by tests)
+/config/data-helpers.php
+
+# Laravel bootstrap cache
+/bootstrap/cache/*
+!/bootstrap/cache/.gitkeep
+
+# Laravel database
+/database/database.sqlite
+/database/migrations/

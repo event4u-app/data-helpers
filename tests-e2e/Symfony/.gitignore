@@ -49,3 +49,7 @@ auth.json
 /coverage
 /coverage.xml
 /.phpunit.result.cache
+
+# Symfony config files (installed by tests)
+/config/packages/data_helpers.yaml
+/config/services/data_helpers.yaml

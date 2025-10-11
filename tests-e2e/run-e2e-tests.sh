@@ -39,30 +39,49 @@ run_e2e_tests() {
         composer install --no-interaction --prefer-dist --quiet
     fi
 
+    # Setup Laravel-specific requirements
+    if [ "$framework" = "Laravel" ]; then
+        # Create database directory if it doesn't exist
+        mkdir -p database
+
+        # Create SQLite database if it doesn't exist
+        if [ ! -f "database/database.sqlite" ]; then
+            echo -e "${YELLOW}🗄️  Creating SQLite database...${NC}"
+            touch database/database.sqlite
+        fi
+
+        # Run migrations if cache table doesn't exist
+        if ! php artisan migrate:status --quiet 2>/dev/null | grep -q "create_cache_table"; then
+            echo -e "${YELLOW}📋  Setting up cache table...${NC}"
+            php artisan cache:table --quiet 2>/dev/null || true
+            php artisan migrate --force --quiet
+        fi
+    fi
+
     # Run tests
-    echo -e "${YELLOW}🧪  Running $framework E2E tests (including linked Unit/Integration tests)...${NC}"
+    echo -e "${YELLOW}🧪  Running $framework E2E tests...${NC}"
 
     # Run tests and capture output
     TEST_OUTPUT=$(vendor/bin/pest --colors=always 2>&1)
     TEST_EXIT_CODE=$?
-
-    # Show output
-    echo "$TEST_OUTPUT"
 
     # Extract test statistics
     STATS=$(echo "$TEST_OUTPUT" | grep "Tests:" | tail -1)
 
     if [ $TEST_EXIT_CODE -eq 0 ]; then
         echo -e "${GREEN}✅  $framework E2E tests passed!${NC}"
-        echo -e "${GREEN}    $STATS${NC}"
+        echo -e "${GREEN}      $STATS${NC}"
         echo ""
         return 0
     else
-        echo -e "${YELLOW}⚠️  $framework E2E tests completed with some failures${NC}"
-        echo -e "${YELLOW}    $STATS${NC}"
-        echo -e "${YELLOW}    Note: Some failures are expected (e.g., Laravel tests in Symfony, vice versa)${NC}"
+        echo -e "${RED}❌  $framework E2E tests failed!${NC}"
+        echo -e "${RED}      $STATS${NC}"
         echo ""
-        return 0  # Don't fail the build for expected failures
+        # Show only failed test names (compact view)
+        echo -e "${YELLOW}Failed tests:${NC}"
+        echo "$TEST_OUTPUT" | grep -E "FAIL|⨯" | head -20 || true
+        echo ""
+        return 1
     fi
 }
 

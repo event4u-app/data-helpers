@@ -20,10 +20,7 @@
   "autoload-dev": {
     "psr-4": {
       "Tests\\": "tests/"
-    },
-    "files": [
-      "helpers-laravel.php"
-    ]
+    }
   },
   "repositories": [
     {

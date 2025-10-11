@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\Cache\CacheInterface;
 use event4u\DataHelpers\Cache\CacheManager;
+use event4u\DataHelpers\Cache\Drivers\LaravelCacheDriver;
 use event4u\DataHelpers\Cache\Drivers\MemoryDriver;
 use event4u\DataHelpers\Cache\Drivers\NoneDriver;
 use event4u\DataHelpers\DataHelpersConfig;
+use Illuminate\Foundation\Application;
 
 describe('CacheManager', function(): void {
     beforeEach(function(): void {
@@ -42,7 +44,7 @@ describe('CacheManager', function(): void {
         expect($cache)->toBeInstanceOf(NoneDriver::class);
     });
 
-    it('creates framework driver (falls back to memory when no framework is active)', function(): void {
+    it('creates framework driver (uses Laravel if active, otherwise memory)', function(): void {
         DataHelpersConfig::initialize([
             'cache' => [
                 'driver' => 'framework',
@@ -52,8 +54,14 @@ describe('CacheManager', function(): void {
         ]);
 
         $cache = CacheManager::getInstance();
-        // In unit test environment, no framework is active, so it falls back to memory
-        expect($cache)->toBeInstanceOf(MemoryDriver::class);
+
+        // Check if Laravel is active (E2E environment)
+        // @phpstan-ignore-next-line - Laravel Application class only available in E2E environment
+        if (function_exists('app') && app() instanceof Application) {
+            expect($cache)->toBeInstanceOf(LaravelCacheDriver::class);
+        } else {
+            expect($cache)->toBeInstanceOf(MemoryDriver::class);
+        }
     });
 
     it('returns same instance on multiple calls', function(): void {

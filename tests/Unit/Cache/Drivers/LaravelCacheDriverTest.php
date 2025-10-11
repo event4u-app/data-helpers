@@ -10,14 +10,18 @@ use Illuminate\Support\Facades\Cache;
  */
 describe('LaravelCacheDriver', function(): void {
     beforeEach(function(): void {
-        setupLaravelCache();
+        if (function_exists('setupLaravelCache')) {
+            setupLaravelCache();
+        }
         Cache::flush();
         $this->driver = new LaravelCacheDriver('test_prefix:');
     });
 
     afterEach(function(): void {
         Cache::flush();
-        teardownLaravelCache();
+        if (function_exists('teardownLaravelCache')) {
+            teardownLaravelCache();
+        }
     });
 
     it('stores and retrieves values', function(): void {

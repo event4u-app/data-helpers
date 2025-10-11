@@ -20,7 +20,9 @@ describe('Default TTL', function(): void {
     });
 
     it('uses default TTL from config for framework driver (Laravel)', function(): void {
-        setupLaravelCache();
+        if (function_exists('setupLaravelCache')) {
+            setupLaravelCache();
+        }
 
         DataHelpersConfig::initialize([
             'cache' => [
@@ -39,11 +41,15 @@ describe('Default TTL', function(): void {
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
 
-        teardownLaravelCache();
+        if (function_exists('teardownLaravelCache')) {
+            teardownLaravelCache();
+        }
     })->group('laravel');
 
     it('allows overriding default TTL for framework driver (Laravel)', function(): void {
-        setupLaravelCache();
+        if (function_exists('setupLaravelCache')) {
+            setupLaravelCache();
+        }
 
         DataHelpersConfig::initialize([
             'cache' => [
@@ -61,7 +67,9 @@ describe('Default TTL', function(): void {
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
 
-        teardownLaravelCache();
+        if (function_exists('teardownLaravelCache')) {
+            teardownLaravelCache();
+        }
     })->group('laravel');
 
     it('uses default TTL from config for Symfony driver', function(): void {
@@ -87,7 +95,9 @@ describe('Default TTL', function(): void {
     })->group('symfony');
 
     it('caches forever when default TTL is null', function(): void {
-        setupLaravelCache();
+        if (function_exists('setupLaravelCache')) {
+            setupLaravelCache();
+        }
 
         DataHelpersConfig::initialize([
             'cache' => [
@@ -105,11 +115,15 @@ describe('Default TTL', function(): void {
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
 
-        teardownLaravelCache();
+        if (function_exists('teardownLaravelCache')) {
+            teardownLaravelCache();
+        }
     })->group('laravel');
 
     it('uses provided TTL over null default TTL', function(): void {
-        setupLaravelCache();
+        if (function_exists('setupLaravelCache')) {
+            setupLaravelCache();
+        }
 
         DataHelpersConfig::initialize([
             'cache' => [
@@ -127,7 +141,9 @@ describe('Default TTL', function(): void {
         // Verify value is stored
         expect($cache->get('key1'))->toBe('value1');
 
-        teardownLaravelCache();
+        if (function_exists('teardownLaravelCache')) {
+            teardownLaravelCache();
+        }
     })->group('laravel');
 });
 

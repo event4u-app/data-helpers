@@ -1,0 +1,13 @@
+[2025-10-11 01:09:48] testing.ERROR: The /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/bootstrap/cache directory must be present and writable. {"exception":"[object] (Exception(code: 0): The /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/bootstrap/cache directory must be present and writable. at /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php:179)
+[stacktrace]
+#0 /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(132): Illuminate\\Foundation\\PackageManifest->write(Array)
+#1 /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(108): Illuminate\\Foundation\\PackageManifest->build()
+#2 /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(91): Illuminate\\Foundation\\PackageManifest->getManifest()
+#3 /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php(80): Illuminate\\Foundation\\PackageManifest->config('aliases')
+#4 /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterFacades.php(26): Illuminate\\Foundation\\PackageManifest->aliases()
+#5 /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(342): Illuminate\\Foundation\\Bootstrap\\RegisterFacades->bootstrap(Object(Illuminate\\Foundation\\Application))
+#6 /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(474): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#7 /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(196): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#8 /Users/mathiasberg/projects/galawork/galawork-packages/event4u/data-helpers/tests-e2e/Laravel/artisan(32): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#9 {main}
+"} 

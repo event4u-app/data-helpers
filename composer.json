@@ -81,6 +81,10 @@
     "composer:update": "composer update php --prefer-dist --no-interaction -W 2>&1",
     "test": "vendor/bin/pest --no-coverage",
     "test:coverage": "vendor/bin/pest",
+    "test:full": [
+      "@test",
+      "@test:e2e"
+    ],
     "benchmark": "vendor/bin/phpbench run --report=table",
     "benchmark:readme": "php scripts/update-benchmark-results.php",
     "test:laravel9": [
@@ -160,7 +164,7 @@
     "cache:stats": "php scripts/cache-stats.php",
     "sort-deps": "php scripts/sort-dependencies.php",
     "test:e2e": "bash tests-e2e/run-e2e-tests.sh",
-    "test:e2e-laravel": "cd tests-e2e/Laravel && composer install --quiet && vendor/bin/pest",
+    "test:e2e-laravel": "cd tests-e2e/Laravel && composer install --quiet && bash setup.sh && vendor/bin/pest",
     "test:e2e-symfony": "cd tests-e2e/Symfony && composer install --quiet && vendor/bin/pest"
   },
   "config": {

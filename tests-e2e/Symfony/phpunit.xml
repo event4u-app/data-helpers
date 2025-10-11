@@ -18,12 +18,13 @@
         </testsuite>
     </testsuites>
 
-    <!-- Exclude Laravel-specific, Doctrine, and Carbon tests in Symfony E2E environment -->
+    <!-- Exclude Laravel-specific, Doctrine, Carbon, and package-only tests in Symfony E2E environment -->
     <groups>
         <exclude>
             <group>laravel</group>
             <group>doctrine</group>
             <group>carbon</group>
+            <group>package-only</group>
         </exclude>
     </groups>
 

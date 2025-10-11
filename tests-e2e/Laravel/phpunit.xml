@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
          colors="true"
          processIsolation="false"
          stopOnFailure="false"
@@ -18,12 +19,13 @@
         </testsuite>
     </testsuites>
 
-    <!-- Exclude Symfony-specific, Doctrine, and Carbon tests in Laravel E2E environment -->
+    <!-- Exclude Symfony-specific, Doctrine, Carbon, and package-only tests in Laravel E2E environment -->
     <groups>
         <exclude>
             <group>symfony</group>
             <group>doctrine</group>
             <group>carbon</group>
+            <group>package-only</group>
         </exclude>
     </groups>
 
