@@ -6,6 +6,7 @@ namespace Tests\utils\XMLs\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Tests\utils\XMLs\Enums\Salutation;
 
 /**
  * Contact Person Model for XML data
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $project_id
- * @property string $salutation
+ * @property Salutation|null $salutation
  * @property string $surname
  * @property string $email
  * @property string $phone
@@ -32,6 +33,14 @@ class ContactPerson extends Model
         'surname',
         'email',
         'phone',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'salutation' => Salutation::class,
     ];
 
     /**
@@ -62,13 +71,16 @@ class ContactPerson extends Model
         return $this;
     }
 
-    public function getSalutation(): ?string
+    public function getSalutation(): ?Salutation
     {
         return $this->salutation;
     }
 
-    public function setSalutation(?string $salutation): self
+    public function setSalutation(Salutation|string|null $salutation): self
     {
+        if (is_string($salutation)) {
+            $salutation = Salutation::tryFromAny($salutation);
+        }
         /** @phpstan-ignore-next-line assign.propertyType */
         $this->salutation = $salutation;
         return $this;

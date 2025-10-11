@@ -582,6 +582,9 @@ class EntityHelper
                 return;
             }
 
+            // Check if the attribute is cast to an Enum and convert the value
+            $value = self::convertToEnumIfNeeded($entity, $key, $value);
+
             /** @phpstan-ignore-next-line method.notFound */
             $entity->setAttribute($key, $value);
 
@@ -1135,6 +1138,62 @@ class EntityHelper
 
 
 
+    /**
+     * Convert value to Enum if the attribute is cast to an Enum in Eloquent model.
+     */
+    private static function convertToEnumIfNeeded(object $entity, string $key, mixed $value): mixed
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        // Check if entity has getCasts() method (Eloquent models)
+        if (!method_exists($entity, 'getCasts')) {
+            return $value;
+        }
+
+        /** @phpstan-ignore method.nonObject */
+        $casts = $entity->getCasts();
+        if (!isset($casts[$key])) {
+            return $value;
+        }
+
+        $castType = $casts[$key];
+
+        // Check if the cast type is an Enum
+        if (!enum_exists($castType)) {
+            return $value;
+        }
+
+        // If value is already the correct enum type, return it
+        if ($value instanceof $castType) {
+            return $value;
+        }
+
+        // Try to create enum from value
+        // First try tryFrom() for BackedEnum
+        if (is_subclass_of($castType, \BackedEnum::class) && (is_int($value) || is_string($value))) {
+            /** @var class-string<\BackedEnum> $castType */
+            $enum = $castType::tryFrom($value);
+            if ($enum !== null) {
+                return $enum;
+            }
+        }
+
+        // Try tryFromAny() if the enum has this method (custom helper)
+        if (method_exists($castType, 'tryFromAny')) {
+            /** @var mixed $enum */
+            $enum = $castType::tryFromAny($value);
+            if ($enum !== null) {
+                return $enum;
+            }
+        }
+
+        // If we can't convert, return the original value
+        // Eloquent will try to convert it and may throw an error
+        return $value;
+    }
+
     private static function castValueForSetter(object $entity, string $setter, mixed $value): mixed
     {
         if ($value === null) {
@@ -1157,6 +1216,36 @@ class EntityHelper
             }
 
             $typeName = $type->getName();
+
+            // Check if the type is an Enum
+            if (enum_exists($typeName)) {
+                // If value is already the correct enum type, return it
+                if ($value instanceof $typeName) {
+                    return $value;
+                }
+
+                // Try to create enum from value
+                // First try tryFrom() for BackedEnum
+                if (is_subclass_of($typeName, \BackedEnum::class) && (is_int($value) || is_string($value))) {
+                    /** @var class-string<\BackedEnum> $typeName */
+                    $enum = $typeName::tryFrom($value);
+                    if ($enum !== null) {
+                        return $enum;
+                    }
+                }
+
+                // Try tryFromAny() if the enum has this method (custom helper)
+                if (method_exists($typeName, 'tryFromAny')) {
+                    /** @var mixed $enum */
+                    $enum = $typeName::tryFromAny($value);
+                    if ($enum !== null) {
+                        return $enum;
+                    }
+                }
+
+                // If we can't convert, return the original value
+                return $value;
+            }
 
             // Cast based on type
             return match ($typeName) {
