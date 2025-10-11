@@ -23,9 +23,11 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 - Pipeline API: [data-mapper-pipeline.md](data-mapper-pipeline.md)
 - Filters: [filters.md](filters.md)
 - MappedDataModel: [mapped-data-model.md](mapped-data-model.md)
+- Enum Support: [enum-support.md](enum-support.md)
 
 ### Integration & Performance
 - Framework Integration: [framework-integration.md](framework-integration.md)
+- Symfony Recipe: [symfony-recipe.md](symfony-recipe.md)
 - Examples: [examples.md](examples.md)
 - Benchmarks: [benchmarks.md](benchmarks.md)
 

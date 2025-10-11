@@ -17,13 +17,13 @@ describe('Symfony Bundle E2E', function(): void {
     });
 
     it('config file exists', function(): void {
-        $configPath = __DIR__ . '/../../../../config/symfony/data_helpers.yaml';
+        $configPath = __DIR__ . '/../../../../recipe/config/packages/data_helpers.yaml';
 
         expect(file_exists($configPath))->toBeTrue();
     });
 
     it('services file exists', function(): void {
-        $servicesPath = __DIR__ . '/../../../../config/symfony/services.yaml';
+        $servicesPath = __DIR__ . '/../../../../recipe/config/services/data_helpers.yaml';
 
         expect(file_exists($servicesPath))->toBeTrue();
     });

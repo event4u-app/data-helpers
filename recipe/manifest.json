@@ -1,9 +1,10 @@
 {
     "bundles": {
-        "event4u\\DataHelpers\\Symfony\\SymfonyDataHelpersBundle": ["all"]
+        "event4u\\DataHelpers\\Symfony\\DataHelpersBundle": ["all"]
     },
     "copy-from-recipe": {
-        "config/": "%CONFIG_DIR%/"
+        "config/packages/": "%CONFIG_DIR%/packages/",
+        "config/services/": "%CONFIG_DIR%/services/"
     }
 }
 

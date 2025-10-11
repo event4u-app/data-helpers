@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataMapper;
 use Tests\utils\Doctrine\Entities\User;
 use Tests\utils\Doctrine\Enums\Status;
-use event4u\DataHelpers\DataMapper;
 use Tests\utils\XMLs\Enums\Salutation;
 use Tests\utils\XMLs\Models\ContactPerson;
 

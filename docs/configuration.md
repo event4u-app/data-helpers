@@ -21,19 +21,29 @@ DATA_HELPERS_CACHE_TTL=3600
 
 ### Symfony
 
+**With Symfony Flex (automatic):**
+
 ```bash
-# 1. Create config file (auto-discovered with Flex)
-# config/packages/data_helpers.yaml
+composer require event4u/data-helpers
+# Configuration files are automatically copied
+```
 
-data_helpers:
-  cache:
-    max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
-    default_ttl: '%env(int:DATA_HELPERS_CACHE_TTL)%'
+**Manual installation:**
 
-# 2. Add to .env
+```bash
+cp vendor/event4u/data-helpers/recipe/config/packages/data_helpers.yaml config/packages/
+cp vendor/event4u/data-helpers/recipe/config/services/data_helpers.yaml config/services/
+```
+
+**Configure via .env:**
+
+```env
 DATA_HELPERS_CACHE_MAX_ENTRIES=1000
 DATA_HELPERS_CACHE_TTL=3600
+DATA_HELPERS_PERFORMANCE_MODE=fast
 ```
+
+📖 **See also:** [Symfony Recipe Documentation](symfony-recipe.md)
 
 ### Plain PHP
 
@@ -147,13 +157,25 @@ The configuration file is **automatically copied** to `config/packages/data_help
 
 **Without Symfony Flex:**
 
-Manually copy the configuration file:
+Manually copy the configuration files:
 
 ```bash
-cp vendor/event4u/data-helpers/config/symfony/data_helpers.yaml config/packages/
+cp vendor/event4u/data-helpers/recipe/config/packages/data_helpers.yaml config/packages/
+cp vendor/event4u/data-helpers/recipe/config/services/data_helpers.yaml config/services/
 ```
 
-**Note:** The package works with default values even without the config file.
+And register the bundle in `config/bundles.php`:
+
+```php
+return [
+    // ...
+    event4u\DataHelpers\Symfony\DataHelpersBundle::class => ['all' => true],
+];
+```
+
+**Note:** The package works with default values even without the config files.
+
+📖 **For detailed Symfony setup, see:** [Symfony Recipe Documentation](symfony-recipe.md)
 
 ### 3. Configure via Environment Variables
 

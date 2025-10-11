@@ -26,13 +26,13 @@ final class DataHelpersExtension extends Extension implements ConfigurationInter
     public function load(array $configs, ContainerBuilder $container): void
     {
         // Load services (if file exists)
-        $servicesPath = __DIR__ . '/../../config/symfony/services.yaml';
+        $servicesPath = __DIR__ . '/../../recipe/config/services/data_helpers.yaml';
         if (file_exists($servicesPath)) {
             $loader = new YamlFileLoader(
                 $container,
-                new FileLocator(__DIR__ . '/../../config/symfony')
+                new FileLocator(__DIR__ . '/../../recipe/config/services')
             );
-            $loader->load('services.yaml');
+            $loader->load('data_helpers.yaml');
         }
 
         // Process configuration
@@ -46,7 +46,10 @@ final class DataHelpersExtension extends Extension implements ConfigurationInter
         $container->setParameter('data_helpers.performance_mode', $config['performance_mode']);
 
         // Register config file path for copying
-        $container->setParameter('data_helpers.config_path', __DIR__ . '/../../config/symfony/data_helpers.yaml');
+        $container->setParameter(
+            'data_helpers.config_path',
+            __DIR__ . '/../../recipe/config/packages/data_helpers.yaml'
+        );
     }
 
     public function getAlias(): string
@@ -57,7 +60,7 @@ final class DataHelpersExtension extends Extension implements ConfigurationInter
     /** Get the path to the configuration file that should be copied. */
     public function getConfigPath(): string
     {
-        return __DIR__ . '/../../config/symfony/data_helpers.yaml';
+        return __DIR__ . '/../../recipe/config/packages/data_helpers.yaml';
     }
 
     /** Configuration tree builder. */

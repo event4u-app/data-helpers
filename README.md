@@ -106,21 +106,30 @@ return [
 
 #### Symfony
 
-The configuration is auto-discovered. Create `config/packages/data_helpers.yaml`:
+**With Symfony Flex (automatic):**
 
-```yaml
-data_helpers:
-    cache:
-        max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
-        default_ttl: '%env(int:DATA_HELPERS_CACHE_TTL)%'
+```bash
+composer require event4u/data-helpers
+# Configuration files are automatically copied to config/packages/ and config/services/
 ```
 
-Add to `.env`:
+**Manual installation:**
 
-```env
-DATA_HELPERS_CACHE_MAX_ENTRIES=1000
-DATA_HELPERS_CACHE_TTL=3600
+```bash
+cp vendor/event4u/data-helpers/recipe/config/packages/data_helpers.yaml config/packages/
+cp vendor/event4u/data-helpers/recipe/config/services/data_helpers.yaml config/services/
 ```
+
+Register the bundle in `config/bundles.php`:
+
+```php
+return [
+    // ...
+    event4u\DataHelpers\Symfony\DataHelpersBundle::class => ['all' => true],
+];
+```
+
+📖 **For Symfony Flex recipe details, see:** [docs/symfony-recipe.md](docs/symfony-recipe.md)
 
 #### Plain PHP
 
