@@ -36,6 +36,11 @@ jobs:
           cd tests-e2e/Laravel
           composer install --prefer-dist --no-interaction
 
+      - name: Setup Laravel E2E environment
+        run: |
+          cd tests-e2e/Laravel
+          bash setup.sh
+
       - name: Execute Laravel E2E tests
         run: |
           cd tests-e2e/Laravel
