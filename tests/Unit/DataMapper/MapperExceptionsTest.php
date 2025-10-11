@@ -11,6 +11,9 @@ describe('MapperExceptions', function(): void {
     beforeEach(function(): void {
         MapperExceptions::reset();
     });
+    afterEach(function(): void {
+        MapperExceptions::reset();
+    });
 
     describe('Default Settings', function(): void {
         it('has exceptions enabled by default', function(): void {
@@ -150,26 +153,26 @@ describe('MapperExceptions', function(): void {
         it(
             'collects exception when throwExceptionOnUndefinedSourceValue is true and collectExceptions is true',
             function(): void {
-            MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
-            MapperExceptions::setCollectExceptionsEnabled(true);
+                MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
+                MapperExceptions::setCollectExceptionsEnabled(true);
 
-            MapperExceptions::handleUndefinedSourceValue('test.path', ['data' => 'value']);
+                MapperExceptions::handleUndefinedSourceValue('test.path', ['data' => 'value']);
 
-            expect(MapperExceptions::hasExceptions())->toBeTrue();
-            expect(MapperExceptions::getExceptionCount())->toBe(1);
-            expect(MapperExceptions::getLastException())->toBeInstanceOf(UndefinedSourceValueException::class);
-        }
+                expect(MapperExceptions::hasExceptions())->toBeTrue();
+                expect(MapperExceptions::getExceptionCount())->toBe(1);
+                expect(MapperExceptions::getLastException())->toBeInstanceOf(UndefinedSourceValueException::class);
+            }
         );
 
         it(
             'throws exception when throwExceptionOnUndefinedSourceValue is true and collectExceptions is false',
             function(): void {
-            MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
-            MapperExceptions::setCollectExceptionsEnabled(false);
+                MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
+                MapperExceptions::setCollectExceptionsEnabled(false);
 
-            expect(fn() => MapperExceptions::handleUndefinedSourceValue('test.path', ['data' => 'value']))
-                ->toThrow(UndefinedSourceValueException::class);
-        }
+                expect(fn() => MapperExceptions::handleUndefinedSourceValue('test.path', ['data' => 'value']))
+                    ->toThrow(UndefinedSourceValueException::class);
+            }
         );
     });
 
@@ -185,26 +188,26 @@ describe('MapperExceptions', function(): void {
         it(
             'collects exception when throwExceptionOnUndefinedTargetValue is true and collectExceptions is true',
             function(): void {
-            MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
-            MapperExceptions::setCollectExceptionsEnabled(true);
+                MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
+                MapperExceptions::setCollectExceptionsEnabled(true);
 
-            MapperExceptions::handleUndefinedTargetValue('test.path', ['data' => 'value']);
+                MapperExceptions::handleUndefinedTargetValue('test.path', ['data' => 'value']);
 
-            expect(MapperExceptions::hasExceptions())->toBeTrue();
-            expect(MapperExceptions::getExceptionCount())->toBe(1);
-            expect(MapperExceptions::getLastException())->toBeInstanceOf(UndefinedTargetValueException::class);
-        }
+                expect(MapperExceptions::hasExceptions())->toBeTrue();
+                expect(MapperExceptions::getExceptionCount())->toBe(1);
+                expect(MapperExceptions::getLastException())->toBeInstanceOf(UndefinedTargetValueException::class);
+            }
         );
 
         it(
             'throws exception when throwExceptionOnUndefinedTargetValue is true and collectExceptions is false',
             function(): void {
-            MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
-            MapperExceptions::setCollectExceptionsEnabled(false);
+                MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
+                MapperExceptions::setCollectExceptionsEnabled(false);
 
-            expect(fn() => MapperExceptions::handleUndefinedTargetValue('test.path', ['data' => 'value']))
-                ->toThrow(UndefinedTargetValueException::class);
-        }
+                expect(fn() => MapperExceptions::handleUndefinedTargetValue('test.path', ['data' => 'value']))
+                    ->toThrow(UndefinedTargetValueException::class);
+            }
         );
     });
 

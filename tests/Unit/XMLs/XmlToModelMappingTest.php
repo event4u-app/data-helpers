@@ -54,6 +54,9 @@ describe('XML to Model Mapping', function(): void {
     beforeEach(function(): void {
         DataMapper::reset();
     });
+    afterEach(function(): void {
+        DataMapper::reset();
+    });
 
     $snapshotDir = __DIR__ . '/snapshots';
 

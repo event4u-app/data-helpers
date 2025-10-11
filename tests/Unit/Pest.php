@@ -52,10 +52,9 @@ if (!function_exists('teardownLaravelCache')) {
 |
 */
 
-beforeEach(function (): void {
+beforeEach(function(): void {
     DataMapper::reset();
 });
-
-afterEach(function (): void {
+afterEach(function(): void {
     DataMapper::reset();
 });

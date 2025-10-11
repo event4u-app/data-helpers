@@ -39,6 +39,9 @@ describe('MappedDataModel', function(): void {
     beforeEach(function(): void {
         DataMapper::reset();
     });
+    afterEach(function(): void {
+        DataMapper::reset();
+    });
 
     describe('Basic functionality', function(): void {
         test('it creates instance with data', function(): void {

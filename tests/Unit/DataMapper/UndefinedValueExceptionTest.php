@@ -12,6 +12,9 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
     beforeEach(function(): void {
         DataMapper::reset();
     });
+    afterEach(function(): void {
+        DataMapper::reset();
+    });
 
     describe('Reset functionality', function(): void {
         it('resets all settings to defaults', function(): void {
@@ -126,16 +129,16 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
         it(
             'throws exception when throwExceptionOnUndefinedTargetValue is true and parent path does not exist',
             function(): void {
-            DataMapper::setCollectExceptionsEnabled(false);
-            DataMapper::setThrowOnUndefinedTargetEnabled(true);
+                DataMapper::setCollectExceptionsEnabled(false);
+                DataMapper::setThrowOnUndefinedTargetEnabled(true);
 
-            $source = ['name' => 'John', 'city' => 'Berlin'];
-            $target = [];
-            $mapping = ['user.address.city' => '{{ city }}'];
+                $source = ['name' => 'John', 'city' => 'Berlin'];
+                $target = [];
+                $mapping = ['user.address.city' => '{{ city }}'];
 
-            expect(fn(): mixed => DataMapper::map($source, $target, $mapping))
-                ->toThrow(UndefinedTargetValueException::class);
-        }
+                expect(fn(): mixed => DataMapper::map($source, $target, $mapping))
+                    ->toThrow(UndefinedTargetValueException::class);
+            }
         );
 
         it('does not throw when target parent path exists', function(): void {
