@@ -51,6 +51,10 @@ function snapshotTest(string $snapshotDir, string $name, array $data): void
 }
 
 describe('XML to Model Mapping', function(): void {
+    beforeEach(function(): void {
+        DataMapper::reset();
+    });
+
     $snapshotDir = __DIR__ . '/snapshots';
 
     describe('Version 1 (DataFields)', function() use ($snapshotDir): void {

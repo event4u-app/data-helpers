@@ -10,6 +10,7 @@ use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\MappingOptions;
 use event4u\DataHelpers\DataMapper\Pipeline\DataMapperPipeline;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
@@ -22,12 +23,13 @@ use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\TemplateMapper;
 use event4u\DataHelpers\Enums\DataMapperHook;
+use event4u\DataHelpers\Exceptions\CollectedExceptionsException;
 use event4u\DataHelpers\Support\EntityHelper;
 use event4u\DataHelpers\Support\FileLoader;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
-use RuntimeException;
 use SimpleXMLElement;
+use Throwable;
 
 /**
  * DataMapper allows mapping values between different data structures
@@ -42,6 +44,110 @@ class DataMapper
 
     /** Default root element name for XML conversion. */
     private const DEFAULT_XML_ROOT = 'root';
+
+    /** Reset all exception handling settings to defaults. */
+    public static function resetExceptions(): void
+    {
+        MapperExceptions::reset();
+    }
+
+    /** Reset all settings to defaults (alias for resetExceptions). */
+    public static function reset(): void
+    {
+        self::resetExceptions();
+    }
+
+    /** Enable or disable all exception handling (master switch). */
+    public static function setExceptionsEnabled(bool $enabled): void
+    {
+        MapperExceptions::setExceptionsEnabled($enabled);
+    }
+
+    /** Check whether exception handling is enabled. */
+    public static function isExceptionsEnabled(): bool
+    {
+        return MapperExceptions::isExceptionsEnabled();
+    }
+
+    /** Set whether to collect exceptions instead of throwing them immediately. */
+    public static function setCollectExceptionsEnabled(bool $enabled): void
+    {
+        MapperExceptions::setCollectExceptionsEnabled($enabled);
+    }
+
+    /** Check whether exception collection is enabled. */
+    public static function isCollectExceptionsEnabled(): bool
+    {
+        return MapperExceptions::isCollectExceptionsEnabled();
+    }
+
+    /** Set whether to throw exception when source value is undefined. */
+    public static function setThrowOnUndefinedSourceEnabled(bool $enabled): void
+    {
+        MapperExceptions::setThrowOnUndefinedSourceEnabled($enabled);
+    }
+
+    /** Check whether throwing exception on undefined source value is enabled. */
+    public static function isThrowOnUndefinedSourceEnabled(): bool
+    {
+        return MapperExceptions::isThrowOnUndefinedSourceEnabled();
+    }
+
+    /** Set whether to throw exception when target value is undefined. */
+    public static function setThrowOnUndefinedTargetEnabled(bool $enabled): void
+    {
+        MapperExceptions::setThrowOnUndefinedTargetEnabled($enabled);
+    }
+
+    /** Check whether throwing exception on undefined target value is enabled. */
+    public static function isThrowOnUndefinedTargetEnabled(): bool
+    {
+        return MapperExceptions::isThrowOnUndefinedTargetEnabled();
+    }
+
+    /** Check if there are any collected exceptions. */
+    public static function hasExceptions(): bool
+    {
+        return MapperExceptions::hasExceptions();
+    }
+
+    /**
+     * Get all collected exceptions.
+     *
+     * @return array<int, Throwable>
+     */
+    public static function getExceptions(): array
+    {
+        return MapperExceptions::getExceptions();
+    }
+
+    /** Clear all collected exceptions. */
+    public static function clearExceptions(): void
+    {
+        MapperExceptions::clearExceptions();
+    }
+
+    /**
+     * Throw all collected exceptions as a single CollectedExceptionsException.
+     *
+     * @throws CollectedExceptionsException
+     */
+    public static function throwCollectedExceptions(): void
+    {
+        MapperExceptions::throwCollectedExceptions();
+    }
+
+    /** Get the last collected exception or null if none. */
+    public static function getLastException(): ?Throwable
+    {
+        return MapperExceptions::getLastException();
+    }
+
+    /** Get the number of collected exceptions. */
+    public static function getExceptionCount(): int
+    {
+        return MapperExceptions::getExceptionCount();
+    }
 
     /**
      * Create a pipeline with transformers for fluent mapping.
@@ -91,6 +197,9 @@ class DataMapper
         bool $trimValues = true,
         bool $caseInsensitiveReplace = false,
     ): mixed {
+        // Clear exceptions at the start of each mapping
+        MapperExceptions::clearExceptions();
+
         // Support new MappingOptions API
         if ($skipNull instanceof MappingOptions) {
             $options = $skipNull;
@@ -149,7 +258,7 @@ class DataMapper
                 if ([] !== $regularMappings) {
                     $mapping = MappingEngine::flattenNestedMapping($regularMappings);
                     /** @var array<string, string> $mapping */
-                    return self::mapSimple(
+                    $result = self::mapSimple(
                         $source,
                         $target,
                         $mapping,
@@ -159,7 +268,15 @@ class DataMapper
                         $trimValues,
                         $caseInsensitiveReplace
                     );
+
+                    // Throw collected exceptions if any
+                    MapperExceptions::throwCollectedExceptions();
+
+                    return $result;
                 }
+
+                // Throw collected exceptions if any
+                MapperExceptions::throwCollectedExceptions();
 
                 return $target;
             }
@@ -167,7 +284,7 @@ class DataMapper
             // Flatten nested structure to simple source => target format
             $mapping = MappingEngine::flattenNestedMapping($mapping);
             /** @var array<string, string> $mapping */
-            return self::mapSimple(
+            $result = self::mapSimple(
                 $source,
                 $target,
                 $mapping,
@@ -177,12 +294,17 @@ class DataMapper
                 $trimValues,
                 $caseInsensitiveReplace
             );
+
+            // Throw collected exceptions if any
+            MapperExceptions::throwCollectedExceptions();
+
+            return $result;
         }
 
         // Case 2: simple path-to-path mapping like ['a.b' => 'x.y']
         if (MappingEngine::isSimpleMapping($mapping)) {
             /** @var array<string, string> $mapping */
-            return self::mapSimple(
+            $result = self::mapSimple(
                 $source,
                 $target,
                 $mapping,
@@ -192,11 +314,16 @@ class DataMapper
                 $trimValues,
                 $caseInsensitiveReplace
             );
+
+            // Throw collected exceptions if any
+            MapperExceptions::throwCollectedExceptions();
+
+            return $result;
         }
 
         // Case 3: structured mapping definitions with source/target objects
         /** @var array<int, array<string, mixed>> $mapping */
-        return self::mapStructured(
+        $result = self::mapStructured(
             $source,
             $target,
             $mapping,
@@ -206,6 +333,11 @@ class DataMapper
             $trimValues,
             $caseInsensitiveReplace
         );
+
+        // Throw collected exceptions if any
+        MapperExceptions::throwCollectedExceptions();
+
+        return $result;
     }
 
     /**
@@ -367,14 +499,24 @@ class DataMapper
      */
     private static function convertResultToStringFormat(string $format, mixed $result): string
     {
-        return match ($format) {
-            'json' => json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
-            // @phpstan-ignore-next-line
-            'xml' => is_array($result) ? self::arrayToXml($result) : throw new InvalidArgumentException(
-                'Cannot convert non-array result to XML'
-            ),
-            default => throw new InvalidArgumentException('Cannot convert result to unknown format: ' . $format),
-        };
+        if ('json' === $format) {
+            return json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}';
+        }
+
+        if ('xml' === $format) {
+            if (!is_array($result)) {
+                MapperExceptions::handleConversionException('Cannot convert non-array result to XML');
+
+                return '';
+            }
+
+            /** @var array<string, mixed> $result */
+            return self::arrayToXml($result);
+        }
+
+        MapperExceptions::handleConversionException('Cannot convert result to unknown format: ' . $format);
+
+        return '';
     }
 
     /**
@@ -560,6 +702,13 @@ class DataMapper
             } else {
                 // Dynamic path: get value from source
                 $actualSourcePath = (string)$sourcePath;
+
+                // Check if source path exists (if enabled)
+                // Don't throw if there's a default value or filters (filters can handle undefined values)
+                if (!$accessor->exists($actualSourcePath) && null === $defaultValue && [] === $filters) {
+                    MapperExceptions::handleUndefinedSourceValue($actualSourcePath, $source);
+                }
+
                 $value = $accessor->get($actualSourcePath);
 
                 // Apply default value if value is null (from ?? operator)
@@ -634,6 +783,24 @@ class DataMapper
                 );
                 $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
                 if ('__skip__' !== $writeValue) {
+                    // Check if target parent path exists (if enabled)
+                    if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
+                        $targetPathString = (string)$targetPath;
+                        if (str_contains($targetPathString, '.')) {
+                            // Get parent path (everything before the last dot)
+                            $lastDotPos = strrpos($targetPathString, '.');
+                            // strrpos cannot return false here because str_contains already confirmed the dot exists
+                            assert(false !== $lastDotPos);
+                            $parentPath = substr($targetPathString, 0, $lastDotPos);
+
+                            // Check if parent path exists in target
+                            $targetAccessor = new DataAccessor(MappingEngine::asTarget($target));
+                            if (!$targetAccessor->exists($parentPath)) {
+                                MapperExceptions::handleUndefinedTargetValue($parentPath, $target);
+                            }
+                        }
+                    }
+
                     $target = DataMutator::set(MappingEngine::asTarget($target), (string)$targetPath, $writeValue);
 
                     /** @var array<int|string, mixed>|object $target */
@@ -732,7 +899,9 @@ class DataMapper
         // Case 2: structured mapping definitions with source/target objects
         foreach ($mapping as $map) {
             if (!is_array($map)) {
-                throw new InvalidArgumentException('Advanced mapping definitions must be arrays.');
+                MapperExceptions::handleInvalidMappingException('Advanced mapping definitions must be arrays.');
+
+                continue;
             }
 
             $entryOptions = self::resolveEntryOptions(
@@ -777,7 +946,9 @@ class DataMapper
                         count($targetPathMapping)
                     );
 
-                    throw new InvalidArgumentException($msg);
+                    MapperExceptions::handleInvalidMappingException($msg);
+
+                    continue;
                 }
 
                 foreach ($sourcePathMapping as $pairIndex => $sourcePath) {
@@ -1029,13 +1200,17 @@ class DataMapper
                     /** @var array<int, mixed> $pairs */
                     foreach ($pairs as $mappingPair) {
                         if (!is_array($mappingPair) || count($mappingPair) !== 2) {
-                            throw new InvalidArgumentException(
+                            MapperExceptions::handleInvalidMappingException(
                                 'Invalid mapping pair. Expected [sourcePath, targetPath].'
                             );
+
+                            continue;
                         }
                         [$sourcePath, $targetPath] = $mappingPair;
                         if (!is_string($sourcePath) || !is_string($targetPath)) {
-                            throw new InvalidArgumentException('Mapping paths must be strings.');
+                            MapperExceptions::handleInvalidMappingException('Mapping paths must be strings.');
+
+                            continue;
                         }
                         $pairContext = new PairContext(
                             'structured-pairs',
@@ -1143,9 +1318,11 @@ class DataMapper
                     }
                 }
             } else {
-                throw new InvalidArgumentException(
+                MapperExceptions::handleInvalidMappingException(
                     'Advanced mapping entry must contain source, target and mapping (or sourceMapping/targetMapping).'
                 );
+
+                continue;
             }
 
             HookInvoker::invokeHooks(
@@ -1184,14 +1361,18 @@ class DataMapper
 
         $xmlString = $xml->asXML();
         if (false === $xmlString) {
-            throw new RuntimeException('Failed to convert SimpleXMLElement to XML string');
+            MapperExceptions::handleRuntimeException('Failed to convert SimpleXMLElement to XML string');
+
+            return '';
         }
 
         $dom->loadXML($xmlString);
 
         $result = $dom->saveXML();
         if (false === $result) {
-            throw new RuntimeException('Failed to save XML document');
+            MapperExceptions::handleRuntimeException('Failed to save XML document');
+
+            return '';
         }
 
         return $result;

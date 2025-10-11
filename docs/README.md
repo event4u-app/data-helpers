@@ -19,6 +19,7 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 
 ### Advanced Features
 - Configuration: [configuration.md](configuration.md)
+- Exception Handling: [exception-handling.md](exception-handling.md)
 - Template Expressions: [template-expressions.md](template-expressions.md)
 - Pipeline API: [data-mapper-pipeline.md](data-mapper-pipeline.md)
 - Filters: [filters.md](filters.md)
@@ -77,4 +78,3 @@ composer cache:stats  # Show cache statistics
 ```
 
 See [configuration.md](configuration.md) for details on configuring cache size, performance mode, and hash-validated caching.
-

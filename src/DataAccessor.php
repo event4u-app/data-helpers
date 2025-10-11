@@ -131,6 +131,43 @@ class DataAccessor
     }
 
     /**
+     * Check if a path exists in the data.
+     *
+     * Returns true if the path exists, even if the value is null.
+     * For wildcard paths, returns true if at least one element has the property.
+     *
+     * Example:
+     *   exists("user.name") -> true if user.name exists (even if null)
+     *   exists("users.*.email") -> true if at least one user has email property
+     *
+     * @param string $path Dot-notation path
+     */
+    public function exists(string $path): bool
+    {
+        // Use static path cache for compiled path information
+        $pathInfo = $this->getPathInfo($path);
+
+        $results = $pathInfo['hasWildcard']
+            ? $this->extract($this->data, $pathInfo['segments'], '', 0, count($pathInfo['segments']))
+            : $this->extractSimple($this->data, $pathInfo['segments']);
+
+        // If results is null, path doesn't exist
+        if (null === $results) {
+            return false;
+        }
+
+        // For non-wildcard paths, extractSimple returns array with single element or null
+        // If we got here, the path exists (even if value is null)
+        if (!$pathInfo['hasWildcard']) {
+            return true;
+        }
+
+        // For wildcard paths, check if at least one element exists
+        // extract() returns empty array if no matches found, null if path invalid
+        return [] !== $results;
+    }
+
+    /**
      * Get compiled path information from static cache.
      *
      * @return array{segments: array<int, string>, hasWildcard: bool}
