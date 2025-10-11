@@ -13,6 +13,9 @@
 [![GitHub PHPStan Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/phpstan.yml)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/run-tests.yml)
 
+**A powerful, framework-agnostic PHP library for accessing, transforming, and mapping complex nested data structures with ease. Features dot
+notation access, wildcard support, data mapping with templates, caching, and 40+ built-in filters.**
+
 ```php
 // From this messy API response...
 $apiResponse = [
@@ -31,6 +34,10 @@ $emails = $accessor->get('data.departments.*.users.*.email');
 ```
 
 **Framework-agnostic** • Works with **Laravel**, **Symfony/Doctrine**, or **standalone PHP** • Zero required dependencies
+
+If you like this package, please support us in building packages like this and [event4u](https://event4u.app) - a free event app that makes
+events even
+better. [Support our project ❤️](#support-the-development)
 
 ---
 
