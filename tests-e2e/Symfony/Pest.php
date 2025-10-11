@@ -31,8 +31,15 @@ $kernel = require __DIR__ . '/bootstrap.php';
 $kernel->boot();
 
 // Make kernel and container available in tests
-uses()->beforeEach(function() use ($kernel): void {
+uses()->beforeEach(function () use ($kernel): void {
     $this->kernel = $kernel;
     $this->container = $kernel->getContainer();
 })->in(__DIR__ . '/tests');
 
+// Reset DataMapper settings before and after each test to ensure test isolation.
+uses()->beforeEach(function (): void {
+    DataMapper::reset();
+});
+uses()->afterEach(function (): void {
+    DataMapper::reset();
+});

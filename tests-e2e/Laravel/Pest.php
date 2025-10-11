@@ -9,6 +9,8 @@ declare(strict_types=1);
 */
 
 // Load .env file
+use event4u\DataHelpers\DataMapper;
+
 if (file_exists(__DIR__ . '/.env')) {
     $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
@@ -36,3 +38,10 @@ uses()->beforeEach(function (): void {
 uses()->in(__DIR__ . '/tests/Unit');
 uses()->in(__DIR__ . '/tests/Integration');
 
+// Reset DataMapper settings before and after each test to ensure test isolation.
+uses()->beforeEach(function (): void {
+    DataMapper::reset();
+});
+uses()->afterEach(function (): void {
+    DataMapper::reset();
+});
