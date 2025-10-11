@@ -475,7 +475,6 @@ $result = DataMapper::map(['users' => $users], [], $mapping);
 // Re-enable exceptions for normal operations
 DataMapper::setExceptionsEnabled(true);
 ```
-```
 
 ## Best Practices
 
