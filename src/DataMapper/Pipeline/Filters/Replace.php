@@ -57,7 +57,7 @@ final readonly class Replace implements FilterInterface
         $caseInsensitive = $this->caseInsensitive;
 
         // Parse arguments if provided
-        if ($args !== []) {
+        if ([] !== $args) {
             // First arg: search (string or array syntax)
             if (is_array($args[0])) {
                 $search = $args[0];
@@ -85,7 +85,7 @@ final readonly class Replace implements FilterInterface
         }
 
         // If no search provided, return value unchanged
-        if (null === $search || ($search === [])) {
+        if (null === $search || ([] === $search)) {
             return $value;
         }
 
@@ -141,7 +141,7 @@ final readonly class Replace implements FilterInterface
         if (is_array($search) && is_string($replacement)) {
             // Sort by length (longest first) to avoid partial replacements
             $sortedSearch = $search;
-            usort($sortedSearch, fn($a, $b): int => strlen((string) $b) - strlen((string) $a));
+            usort($sortedSearch, fn($a, $b): int => strlen($b) - strlen($a));
 
             // Create array of same replacement for each search
             $replacements = array_fill(0, count($sortedSearch), $replacement);
@@ -163,7 +163,7 @@ final readonly class Replace implements FilterInterface
             }
 
             // Sort by search string length (longest first)
-            usort($pairs, fn(array $a, array $b): int => strlen((string) $b['search']) - strlen((string) $a['search']));
+            usort($pairs, fn(array $a, array $b): int => strlen($b['search']) - strlen($a['search']));
 
             // Extract sorted arrays
             $sortedSearch = array_column($pairs, 'search');

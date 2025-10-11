@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Facade;
 
 // Create Laravel application
