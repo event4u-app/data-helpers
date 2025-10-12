@@ -67,7 +67,7 @@ run_e2e_tests() {
     echo -e "${YELLOW}🧪  Running $framework E2E tests...${NC}"
 
     # Run tests and capture output
-    TEST_OUTPUT=$(vendor/bin/pest --colors=always 2>&1)
+    TEST_OUTPUT=$(vendor/bin/pest --parallel --colors=always 2>&1)
     TEST_EXIT_CODE=$?
 
     # Extract test statistics
