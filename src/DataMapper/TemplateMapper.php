@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper;
 
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
+use event4u\DataHelpers\DataMapper\Support\WhereClauseFilter;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
 use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
@@ -164,6 +165,11 @@ class TemplateMapper
 
         if (!is_array($node)) {
             return $node;
+        }
+
+        // Check if this is a wildcard mapping with WHERE clause
+        if (self::hasWildcardMapping($node)) {
+            return self::resolveWildcardMapping($node, $sources, $skipNull, $reindexWildcard, $aliases);
         }
 
         // Array: recursively resolve each element
@@ -384,5 +390,164 @@ class TemplateMapper
         }
 
         return false;
+    }
+
+    /**
+     * Check if array has wildcard mapping structure (contains '*' key).
+     *
+     * @param array<string, mixed> $array
+     */
+    private static function hasWildcardMapping(array $array): bool
+    {
+        return isset($array['*']) && is_array($array['*']);
+    }
+
+    /**
+     * Resolve wildcard mapping with optional WHERE clause.
+     *
+     * @param array<string, mixed> $mapping Wildcard mapping (may contain WHERE, ORDER BY, *)
+     * @param array<string, mixed> $sources Source data
+     * @param bool $skipNull Skip null values
+     * @param bool $reindexWildcard Reindex wildcard results
+     * @param array<string, mixed> $aliases Already resolved aliases
+     * @return array<int|string, mixed> Resolved wildcard array
+     */
+    private static function resolveWildcardMapping(
+        array $mapping,
+        array $sources,
+        bool $skipNull,
+        bool $reindexWildcard,
+        array $aliases
+    ): array {
+        // Extract WHERE clause if present
+        $whereClause = null;
+        foreach ($mapping as $key => $value) {
+            if (strtoupper((string)$key) === 'WHERE' && is_array($value)) {
+                $whereClause = $value;
+                break;
+            }
+        }
+
+        // Get the wildcard mapping template
+        $wildcardTemplate = $mapping['*'];
+
+        // First, we need to determine the source wildcard path
+        // by finding the first wildcard expression in the template
+        $sourceWildcardPath = self::findWildcardPath($wildcardTemplate);
+
+        if (null === $sourceWildcardPath) {
+            // No wildcard path found - just resolve normally
+            return self::resolveTemplateNode($wildcardTemplate, $sources, $skipNull, $reindexWildcard, $aliases);
+        }
+
+        // Evaluate the wildcard path to get all items
+        $wildcardData = ExpressionEvaluator::evaluate($sourceWildcardPath, $sources, $aliases);
+
+        if (!is_array($wildcardData)) {
+            return [];
+        }
+
+        // Normalize wildcard array
+        $wildcardData = WildcardHandler::normalizeWildcardArray($wildcardData);
+
+        // Apply WHERE clause filter if present
+        if (null !== $whereClause) {
+            $wildcardData = WhereClauseFilter::filter($wildcardData, $whereClause, $sources, $aliases);
+        }
+
+        // Now map each item through the template
+        $result = [];
+        $outputIndex = 0;
+
+        foreach ($wildcardData as $index => $itemValue) {
+            // Resolve the template for this item, replacing * with actual index
+            $resolved = self::resolveWildcardTemplateForIndex(
+                $wildcardTemplate,
+                $sources,
+                $aliases,
+                $index
+            );
+
+            if ($skipNull && null === $resolved) {
+                continue;
+            }
+
+            // Use reindexed or original index
+            $targetIndex = $reindexWildcard ? $outputIndex : $index;
+            $result[$targetIndex] = $resolved;
+
+            if ($reindexWildcard) {
+                $outputIndex++;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Find the first wildcard path in a template.
+     *
+     * @param mixed $template Template to search
+     * @return string|null First wildcard path found, or null
+     */
+    private static function findWildcardPath(mixed $template): ?string
+    {
+        if (is_string($template) && str_contains($template, '*')) {
+            return $template;
+        }
+
+        if (is_array($template)) {
+            foreach ($template as $value) {
+                $found = self::findWildcardPath($value);
+                if (null !== $found) {
+                    return $found;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve wildcard template for a specific index.
+     *
+     * @param mixed $template Template to resolve
+     * @param array<string, mixed> $sources Source data
+     * @param array<string, mixed> $aliases Aliases
+     * @param int|string $index Current wildcard index
+     * @return mixed Resolved template
+     */
+    private static function resolveWildcardTemplateForIndex(
+        mixed $template,
+        array $sources,
+        array $aliases,
+        int|string $index
+    ): mixed {
+        if (is_string($template)) {
+            // If it's an expression with wildcard, replace * with index and evaluate
+            if (ExpressionParser::hasExpression($template) && str_contains($template, '*')) {
+                $indexedExpression = str_replace('*', (string)$index, $template);
+                return ExpressionEvaluator::evaluate($indexedExpression, $sources, $aliases);
+            }
+
+            // Regular expression without wildcard
+            if (ExpressionParser::hasExpression($template)) {
+                return ExpressionEvaluator::evaluate($template, $sources, $aliases);
+            }
+
+            // Literal string
+            return $template;
+        }
+
+        if (is_array($template)) {
+            $result = [];
+            foreach ($template as $key => $value) {
+                $resolved = self::resolveWildcardTemplateForIndex($value, $sources, $aliases, $index);
+                $result[$key] = $resolved;
+            }
+            return $result;
+        }
+
+        return $template;
     }
 }

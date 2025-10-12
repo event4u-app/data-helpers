@@ -24,6 +24,7 @@ mapping.
     - [ExpressionEvaluator](#expressionevaluator)
     - [TemplateExpressionProcessor](#templateexpressionprocessor)
 - [Usage Across Mapping Methods](#usage-across-mapping-methods)
+- [Wildcard WHERE Clauses](#wildcard-where-clauses)
 
 ## Overview
 
@@ -1029,8 +1030,134 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 
 ---
 
+## Wildcard WHERE Clauses
+
+Filter wildcard arrays using Laravel Query Builder-style WHERE clauses with AND/OR logic.
+
+### Basic WHERE Clause
+
+Filter items before mapping:
+
+```php
+$template = [
+    'project' => [
+        'number' => '{{ ConstructionSite.nr_lv }}',
+    ],
+    'positions' => [
+        'WHERE' => [
+            '{{ ConstructionSite.Positions.Position.*.project_number }}' => '{{ project.number }}',
+        ],
+        '*' => [
+            'number' => '{{ ConstructionSite.Positions.Position.*.pos_number }}',
+            'type' => '{{ ConstructionSite.Positions.Position.*.type }}',
+        ],
+    ],
+];
+
+$result = DataMapper::mapFromTemplate($template, $sources, true, true);
+// Only positions matching the project number are included
+```
+
+### AND Conditions
+
+Multiple conditions (implicit AND):
+
+```php
+'WHERE' => [
+    '{{ positions.*.project_number }}' => 'P-001',
+    '{{ positions.*.type }}' => 'gravel',
+],
+```
+
+Explicit AND:
+
+```php
+'WHERE' => [
+    'AND' => [
+        '{{ positions.*.project_number }}' => 'P-001',
+        '{{ positions.*.type }}' => 'gravel',
+    ],
+],
+```
+
+### OR Conditions
+
+```php
+'WHERE' => [
+    'OR' => [
+        '{{ positions.*.type }}' => 'gravel',
+        '{{ positions.*.type }}' => 'sand',
+    ],
+],
+```
+
+### Nested AND/OR
+
+Complex filtering with nested conditions:
+
+```php
+'WHERE' => [
+    'AND' => [
+        '{{ positions.*.project_number }}' => 'P-001',
+        'OR' => [
+            '{{ positions.*.type }}' => 'gravel',
+            '{{ positions.*.quantity }}' => 100,
+        ],
+    ],
+],
+```
+
+Multiple OR groups:
+
+```php
+'WHERE' => [
+    'OR' => [
+        [
+            'AND' => [
+                '{{ positions.*.type }}' => 'gravel',
+                '{{ positions.*.quantity }}' => 100,
+            ],
+        ],
+        [
+            'AND' => [
+                '{{ positions.*.type }}' => 'sand',
+                '{{ positions.*.quantity }}' => 80,
+            ],
+        ],
+    ],
+],
+```
+
+### Case-Insensitive Keywords
+
+Both `AND`/`OR` and `and`/`or` work:
+
+```php
+'WHERE' => [
+    'and' => [  // lowercase works too
+        '{{ positions.*.project_number }}' => 'P-001',
+        'or' => [  // lowercase works too
+            '{{ positions.*.type }}' => 'gravel',
+            '{{ positions.*.type }}' => 'sand',
+        ],
+    ],
+],
+```
+
+### Features
+
+- ✅ **Laravel-style syntax** - Familiar AND/OR logic
+- ✅ **Nested conditions** - Unlimited nesting depth
+- ✅ **Case-insensitive** - `AND`/`and` and `OR`/`or` both work
+- ✅ **Template expressions** - Use `{{ }}` in conditions
+- ✅ **Alias references** - Reference other template fields
+- ✅ **Reindexing** - Filtered results are automatically reindexed
+
+---
+
 **See also:**
 
 - [DataMapper Documentation](data-mapper.md)
 - [Template Mapping Guide](data-mapper.md#mapping-templates)
 - [Example: 08-template-expressions.php](../examples/08-template-expressions.php)
+- [Example: 13-wildcard-where-clause.php](../examples/13-wildcard-where-clause.php)

@@ -614,6 +614,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [10-hash-validated-cache.php](examples/10-hash-validated-cache.php) - Hash-validated cache with automatic invalidation
 - [11-configuration.php](examples/11-configuration.php) - Configuration management and customization
 - [12-exception-handling.php](examples/12-exception-handling.php) - Exception handling modes and best practices
+- [13-wildcard-where-clause.php](examples/13-wildcard-where-clause.php) - Filter wildcard arrays with WHERE clauses (AND/OR logic)
 
 ---
 
