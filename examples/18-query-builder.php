@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use event4u\DataHelpers\DataMapper\DataMapperQuery;
+use event4u\DataHelpers\DataMapper;
 
 /**
  * DataMapper Query Builder - Laravel-style Fluent Interface
@@ -47,7 +47,7 @@ echo "┌─ Example 1: Basic WHERE Filtering ───────────�
 echo "│ Query: Filter products by category                             │\n";
 echo "└────────────────────────────────────────────────────────────────┘\n";
 
-$result = DataMapperQuery::query()
+$result = DataMapper::query()
     ->source('products', $products)
     ->where('category', 'Electronics')
     ->get();
@@ -67,7 +67,7 @@ echo "│ Query: Products priced over \$100                               │\n"
 echo "│ Operators: =, !=, <>, >, <, >=, <=                             │\n";
 echo "└────────────────────────────────────────────────────────────────┘\n";
 
-$result = DataMapperQuery::query()
+$result = DataMapper::query()
     ->source('products', $products)
     ->where('price', '>', 100)
     ->orderBy('price', 'DESC')
@@ -87,7 +87,7 @@ echo "┌─ Example 3: Multiple WHERE Conditions (AND) ────────
 echo "│ Query: Electronics under \$100 with good ratings                │\n";
 echo "└────────────────────────────────────────────────────────────────┘\n";
 
-$result = DataMapperQuery::query()
+$result = DataMapper::query()
     ->source('products', $products)
     ->where('category', 'Electronics')
     ->where('price', '<', 100)
@@ -108,7 +108,7 @@ echo "┌─ Example 4: ORDER BY with LIMIT ────────────
 echo "│ Query: Top 3 most expensive products                           │\n";
 echo "└────────────────────────────────────────────────────────────────┘\n";
 
-$result = DataMapperQuery::query()
+$result = DataMapper::query()
     ->source('products', $products)
     ->orderBy('price', 'DESC')
     ->limit(3)
@@ -129,7 +129,7 @@ echo "│ Query: Electronics over \$50 with high ratings                  │\n"
 echo "│ Uses closure for grouping conditions                           │\n";
 echo "└────────────────────────────────────────────────────────────────┘\n";
 
-$result = DataMapperQuery::query()
+$result = DataMapper::query()
     ->source('products', $products)
     ->where(function($query): void {
         $query->where('category', 'Electronics')
@@ -153,7 +153,7 @@ echo "┌─ Example 6: OR WHERE Conditions ────────────
 echo "│ Query: Furniture OR products under \$50                         │\n";
 echo "└────────────────────────────────────────────────────────────────┘\n";
 
-$result = DataMapperQuery::query()
+$result = DataMapper::query()
     ->source('products', $products)
     ->where('category', 'Furniture')
     ->orWhere('price', '<', 50)
@@ -174,7 +174,7 @@ echo "│ Query: Product statistics by category                          │\n";
 echo "│ Aggregations: COUNT, AVG, SUM, MIN, MAX                        │\n";
 echo "└────────────────────────────────────────────────────────────────┘\n";
 
-$result = DataMapperQuery::query()
+$result = DataMapper::query()
     ->source('products', $products)
     ->groupBy('category', [
         'total_products' => ['COUNT'],
@@ -204,7 +204,7 @@ echo "│ Query: In-stock electronics, sorted by rating, top 3           │\n";
 echo "│ Demonstrates: WHERE + ORDER BY + LIMIT in custom order         │\n";
 echo "└────────────────────────────────────────────────────────────────┘\n";
 
-$result = DataMapperQuery::query()
+$result = DataMapper::query()
     ->source('products', $products)
     ->where('category', 'Electronics')
     ->where('stock', '>', 0)
@@ -229,7 +229,7 @@ echo "│ Query B: WHERE → LIMIT (filters first, then limits)            │\n
 echo "└────────────────────────────────────────────────────────────────┘\n";
 
 // Query A: LIMIT first, then WHERE
-$resultA = DataMapperQuery::query()
+$resultA = DataMapper::query()
     ->source('products', $products)
     ->limit(4)  // Limit to first 4 products
     ->where('category', 'Electronics')  // Then filter
@@ -243,7 +243,7 @@ foreach ($resultA as $product) {
 echo "\n";
 
 // Query B: WHERE first, then LIMIT
-$resultB = DataMapperQuery::query()
+$resultB = DataMapper::query()
     ->source('products', $products)
     ->where('category', 'Electronics')  // Filter first
     ->limit(4)  // Then limit

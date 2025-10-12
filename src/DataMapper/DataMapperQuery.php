@@ -15,7 +15,8 @@ use event4u\DataHelpers\DataMapper;
  *
  * @example
  * ```php
- * $result = DataMapperQuery::source('products', $products)
+ * $result = DataMapper::query()
+ *     ->source('products', $products)
  *     ->where('category', 'Electronics')
  *     ->where('price', '>', 100)
  *     ->orderBy('price', 'DESC')
@@ -66,12 +67,6 @@ class DataMapperQuery
 
     /** @var array<int, string> Order in which operators were called */
     private array $operatorOrder = [];
-
-    /** Create a new query builder instance (static factory). */
-    public static function query(): self
-    {
-        return new self();
-    }
 
     /**
      * Add a named source.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\DataMapper\DataMapperQuery;
+use event4u\DataHelpers\DataMapper;
 
 describe('DataMapperQuery - Basic Usage', function(): void {
     it('creates a query with source', function(): void {
@@ -11,7 +11,7 @@ describe('DataMapperQuery - Basic Usage', function(): void {
             ['id' => 2, 'name' => 'Mouse', 'price' => 50],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->get();
 
@@ -26,7 +26,7 @@ describe('DataMapperQuery - Basic Usage', function(): void {
             ['id' => 3, 'name' => 'Mouse', 'category' => 'Electronics', 'price' => 50],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->where('category', 'Electronics')
             ->get();
@@ -43,7 +43,7 @@ describe('DataMapperQuery - Basic Usage', function(): void {
             ['id' => 3, 'name' => 'Keyboard', 'price' => 150],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->where('price', '>', 100)
             ->get();
@@ -60,7 +60,7 @@ describe('DataMapperQuery - Basic Usage', function(): void {
             ['id' => 3, 'name' => 'Keyboard', 'price' => 150],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->orderBy('price', 'DESC')
             ->reindex()
@@ -79,7 +79,7 @@ describe('DataMapperQuery - Basic Usage', function(): void {
             ['id' => 3, 'name' => 'Keyboard', 'price' => 150],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->limit(2)
             ->get();
@@ -94,7 +94,7 @@ describe('DataMapperQuery - Basic Usage', function(): void {
             ['id' => 3, 'name' => 'Keyboard', 'price' => 150],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->offset(1)
             ->reindex()
@@ -114,7 +114,7 @@ describe('DataMapperQuery - WHERE with Closures', function(): void {
             ['id' => 4, 'name' => 'Chair', 'category' => 'Furniture', 'price' => 200],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->where(function($query): void {
                 $query->where('category', 'Electronics')
@@ -133,7 +133,7 @@ describe('DataMapperQuery - WHERE with Closures', function(): void {
             ['id' => 3, 'name' => 'Mouse', 'category' => 'Electronics', 'price' => 50],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->where('category', 'Electronics')
             ->orWhere(function($query): void {
@@ -154,7 +154,7 @@ describe('DataMapperQuery - GROUP BY', function(): void {
             ['id' => 4, 'category' => 'Furniture', 'amount' => 300],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('sales', $sales)
             ->groupBy('category')
             ->aggregate('total', 'SUM', 'amount')
@@ -186,7 +186,7 @@ describe('DataMapperQuery - GROUP BY', function(): void {
             ['id' => 4, 'category' => 'Books', 'amount' => 50],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('sales', $sales)
             ->groupBy('category')
             ->aggregate('total', 'SUM', 'amount')
@@ -208,7 +208,7 @@ describe('DataMapperQuery - Chaining', function(): void {
             ['id' => 5, 'name' => 'Chair', 'category' => 'Furniture', 'price' => 200, 'stock' => 3],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->where('category', 'Electronics')
             ->where('stock', '>', 0)
@@ -228,7 +228,7 @@ describe('DataMapperQuery - Chaining', function(): void {
             ['id' => 2, 'name' => 'Mouse', 'price' => 50],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->limit(1)
             ->source('products', $products)
             ->orderBy('price', 'DESC')
@@ -247,7 +247,7 @@ describe('DataMapperQuery - DISTINCT and LIKE', function(): void {
             ['id' => 3, 'category' => 'Electronics'],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->distinct('category')
             ->reindex()
@@ -263,7 +263,7 @@ describe('DataMapperQuery - DISTINCT and LIKE', function(): void {
             ['id' => 3, 'name' => 'iPhone 14'],
         ];
 
-        $result = DataMapperQuery::query()
+        $result = DataMapper::query()
             ->source('products', $products)
             ->like('name', 'iPhone%')
             ->reindex()

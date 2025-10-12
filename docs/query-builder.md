@@ -21,7 +21,7 @@ The **DataMapperQuery** provides a Laravel-inspired fluent interface for buildin
 ## Quick Start
 
 ```php
-use event4u\DataHelpers\DataMapper\DataMapperQuery;
+use event4u\DataHelpers\DataMapper;
 
 $products = [
     ['id' => 1, 'name' => 'Laptop', 'category' => 'Electronics', 'price' => 1299],
@@ -30,7 +30,7 @@ $products = [
 ];
 
 // Simple query
-$result = DataMapperQuery::query()
+$result = DataMapper::query()
     ->source('products', $products)
     ->where('category', 'Electronics')
     ->orderBy('price', 'DESC')
@@ -56,10 +56,10 @@ $result = DataMapperQuery::query()
 ### Creating a Query
 
 ```php
-use event4u\DataHelpers\DataMapper\DataMapperQuery;
+use event4u\DataHelpers\DataMapper;
 
 // Static factory method
-$query = DataMapperQuery::query();
+$query = DataMapper::query();
 
 // Or use constructor
 $query = new DataMapperQuery();
@@ -267,14 +267,14 @@ $query->like('name', '%apt%');
 
 ```php
 // Query A: LIMIT first, then WHERE
-$resultA = DataMapperQuery::query()
+$resultA = DataMapper::query()
     ->source('products', $products)
     ->limit(4)  // Limits to first 4 products
     ->where('category', 'Electronics')  // Then filters
     ->get();
 
 // Query B: WHERE first, then LIMIT
-$resultB = DataMapperQuery::query()
+$resultB = DataMapper::query()
     ->source('products', $products)
     ->where('category', 'Electronics')  // Filters first
     ->limit(4)  // Then limits to 4 results

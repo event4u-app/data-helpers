@@ -10,6 +10,7 @@ use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
+use event4u\DataHelpers\DataMapper\DataMapperQuery;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\MappingOptions;
 use event4u\DataHelpers\DataMapper\Pipeline\DataMapperPipeline;
@@ -47,6 +48,23 @@ class DataMapper
     public static function getExceptionCount(): int
     {
         return MapperExceptions::getExceptionCount();
+    }
+
+    /**
+     * Create a fluent query builder for data mapping.
+     *
+     * Example:
+     *   DataMapper::query()
+     *       ->source('products', $products)
+     *       ->where('category', 'Electronics')
+     *       ->where('price', '>', 100)
+     *       ->orderBy('price', 'DESC')
+     *       ->limit(10)
+     *       ->get();
+     */
+    public static function query(): DataMapperQuery
+    {
+        return new DataMapperQuery();
     }
 
     /**
