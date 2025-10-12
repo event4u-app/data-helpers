@@ -196,11 +196,44 @@ class WhereOperator
         // Get actual value from source
         $actualValue = self::resolveValue($actualFieldPath, $source, $target);
 
+        // Check if expectedValue is an array with operator and value
+        if (is_array($expectedValue) && isset($expectedValue[0]) && is_string($expectedValue[0])) {
+            $operator = $expectedValue[0];
+            $compareValue = $expectedValue[1] ?? null;
+
+            // Resolve compare value (may be template expression)
+            $resolvedCompareValue = self::resolveValue($compareValue, $source, $target);
+
+            return self::compareValues($actualValue, $operator, $resolvedCompareValue);
+        }
+
         // Resolve expected value (may be template expression)
         $resolvedExpectedValue = self::resolveValue($expectedValue, $source, $target);
 
         // Compare values (loose comparison to handle type differences)
         return $actualValue == $resolvedExpectedValue;
+    }
+
+    /**
+     * Compare two values using the specified operator.
+     *
+     * @param mixed $actualValue Actual value from data
+     * @param string $operator Comparison operator (=, !=, <>, >, <, >=, <=)
+     * @param mixed $expectedValue Expected value to compare against
+     * @return bool True if comparison matches
+     */
+    private static function compareValues(mixed $actualValue, string $operator, mixed $expectedValue): bool
+    {
+        return match ($operator) {
+            '=' => $actualValue == $expectedValue,
+            '!=' => $actualValue != $expectedValue,
+            '<>' => $actualValue != $expectedValue,
+            '>' => $actualValue > $expectedValue,
+            '<' => $actualValue < $expectedValue,
+            '>=' => $actualValue >= $expectedValue,
+            '<=' => $actualValue <= $expectedValue,
+            default => $actualValue == $expectedValue, // Fallback to equality
+        };
     }
 
     /**

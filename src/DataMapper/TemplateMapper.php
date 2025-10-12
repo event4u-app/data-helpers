@@ -413,7 +413,7 @@ class TemplateMapper
      */
     private static function hasWildcardMapping(array $array): bool
     {
-        return isset($array['*']) && is_array($array['*']);
+        return isset($array['*']);
     }
 
     /**
