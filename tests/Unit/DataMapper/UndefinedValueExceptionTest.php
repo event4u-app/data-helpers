@@ -8,17 +8,24 @@ use event4u\DataHelpers\Exceptions\CollectedExceptionsException;
 use event4u\DataHelpers\Exceptions\UndefinedSourceValueException;
 use event4u\DataHelpers\Exceptions\UndefinedTargetValueException;
 
-describe('DataMapper Undefined Value Exceptions', function(): void {
+describe('DataMapper Undefined Value Exceptions', function (): void {
     // Reset DataMapper settings before each test
-    beforeEach(function(): void {
+    beforeEach(function (): void {
         MapperExceptions::reset();
     });
-    afterEach(function(): void {
+    afterEach(function (): void {
         MapperExceptions::reset();
     });
 
-    describe('Reset functionality', function(): void {
-        it('resets all settings to defaults', function(): void {
+    describe('Reset functionality', function (): void {
+        beforeEach(function (): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function (): void {
+            MapperExceptions::reset();
+        });
+
+        it('resets all settings to defaults', function (): void {
             // Change all settings
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
@@ -35,8 +42,15 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
         });
     });
 
-    describe('Undefined Source Value', function(): void {
-        it('does not throw by default when source value is undefined', function(): void {
+    describe('Undefined Source Value', function (): void {
+        beforeEach(function (): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function (): void {
+            MapperExceptions::reset();
+        });
+
+        it('does not throw by default when source value is undefined', function (): void {
             $source = ['name' => 'John'];
             $target = [];
             $mapping = ['result' => '{{ email }}'];
@@ -47,7 +61,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect($result)->toBe([]);
         });
 
-        it('throws exception when throwExceptionOnUndefinedSourceValue is true', function(): void {
+        it('throws exception when throwExceptionOnUndefinedSourceValue is true', function (): void {
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
             $source = ['name' => 'John'];
@@ -58,7 +72,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 ->toThrow(UndefinedSourceValueException::class, 'Source value at path "email" is undefined');
         });
 
-        it('exception contains the path that was not found', function(): void {
+        it('exception contains the path that was not found', function (): void {
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
             $source = ['name' => 'John'];
@@ -73,7 +87,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             }
         });
 
-        it('does not throw when source value exists', function(): void {
+        it('does not throw when source value exists', function (): void {
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
             $source = ['email' => 'john@example.com'];
@@ -85,7 +99,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect($result)->toBe(['result' => 'john@example.com']);
         });
 
-        it('collects exceptions when collectExceptions is true', function(): void {
+        it('collects exceptions when collectExceptions is true', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(true);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -106,7 +120,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect(MapperExceptions::hasExceptions())->toBeFalse(); // Cleared after mapping
         });
 
-        it('can read the setting via getter', function(): void {
+        it('can read the setting via getter', function (): void {
             expect(MapperExceptions::isThrowOnUndefinedSourceEnabled())->toBeFalse();
 
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
@@ -115,8 +129,15 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
         });
     });
 
-    describe('Undefined Target Value', function(): void {
-        it('does not throw by default when target parent path does not exist', function(): void {
+    describe('Undefined Target Value', function (): void {
+        beforeEach(function (): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function (): void {
+            MapperExceptions::reset();
+        });
+
+        it('does not throw by default when target parent path does not exist', function (): void {
             $source = ['name' => 'John', 'city' => 'Berlin'];
             $target = [];
             $mapping = ['user.address.city' => '{{ city }}'];
@@ -129,7 +150,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
 
         it(
             'throws exception when throwExceptionOnUndefinedTargetValue is true and parent path does not exist',
-            function(): void {
+            function (): void {
                 MapperExceptions::setCollectExceptionsEnabled(false);
                 MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
@@ -142,7 +163,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             }
         );
 
-        it('does not throw when target parent path exists', function(): void {
+        it('does not throw when target parent path exists', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
@@ -155,7 +176,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect($result)->toBe(['user' => ['address' => ['city' => 'Berlin']]]);
         });
 
-        it('exception contains the parent path that was not found', function(): void {
+        it('exception contains the parent path that was not found', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
@@ -171,7 +192,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             }
         });
 
-        it('can read the setting via getter', function(): void {
+        it('can read the setting via getter', function (): void {
             expect(MapperExceptions::isThrowOnUndefinedTargetEnabled())->toBeFalse();
 
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
@@ -180,8 +201,15 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
         });
     });
 
-    describe('Getter for collectExceptions', function(): void {
-        it('can read the collectExceptions setting', function(): void {
+    describe('Getter for collectExceptions', function (): void {
+        beforeEach(function (): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function (): void {
+            MapperExceptions::reset();
+        });
+
+        it('can read the collectExceptions setting', function (): void {
             expect(MapperExceptions::isCollectExceptionsEnabled())->toBeTrue(); // Default is true
 
             MapperExceptions::setCollectExceptionsEnabled(false);
@@ -190,8 +218,15 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
         });
     });
 
-    describe('Combined Source and Target Exceptions', function(): void {
-        it('throws both source and target exceptions when both are enabled and collectExceptions is true', function(): void {
+    describe('Combined Source and Target Exceptions', function (): void {
+        beforeEach(function (): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function (): void {
+            MapperExceptions::reset();
+        });
+
+        it('throws both source and target exceptions when both are enabled and collectExceptions is true', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(true);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
@@ -213,7 +248,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             }
         });
 
-        it('throws only source exception when only source check is enabled', function(): void {
+        it('throws only source exception when only source check is enabled', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(false);
@@ -229,7 +264,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 ->toThrow(UndefinedSourceValueException::class);
         });
 
-        it('throws only target exception when only target check is enabled', function(): void {
+        it('throws only target exception when only target check is enabled', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(false);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
@@ -245,7 +280,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 ->toThrow(UndefinedTargetValueException::class);
         });
 
-        it('does not throw when both checks are disabled', function(): void {
+        it('does not throw when both checks are disabled', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(false);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(false);
@@ -264,8 +299,15 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
         });
     });
 
-    describe('Multiple Source Exceptions with collectExceptions', function(): void {
-        it('collects multiple source exceptions and throws CollectedExceptionsException', function(): void {
+    describe('Multiple Source Exceptions with collectExceptions', function (): void {
+        beforeEach(function (): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function (): void {
+            MapperExceptions::reset();
+        });
+
+        it('collects multiple source exceptions and throws CollectedExceptionsException', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(true);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -291,7 +333,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             }
         });
 
-        it('throws immediately on first exception when collectExceptions is false', function(): void {
+        it('throws immediately on first exception when collectExceptions is false', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -313,8 +355,15 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
         });
     });
 
-    describe('Multiple Target Exceptions with collectExceptions', function(): void {
-        it('collects multiple target exceptions and throws CollectedExceptionsException', function(): void {
+    describe('Multiple Target Exceptions with collectExceptions', function (): void {
+        beforeEach(function (): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function (): void {
+            MapperExceptions::reset();
+        });
+
+        it('collects multiple target exceptions and throws CollectedExceptionsException', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(true);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
@@ -341,8 +390,15 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
         });
     });
 
-    describe('Edge Cases and Special Scenarios', function(): void {
-        it('does not throw for root level target paths', function(): void {
+    describe('Edge Cases and Special Scenarios', function (): void {
+        beforeEach(function (): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function (): void {
+            MapperExceptions::reset();
+        });
+
+        it('does not throw for root level target paths', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
@@ -355,7 +411,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect($result)->toBe(['name' => 'John']);
         });
 
-        it('does not throw when source has default value', function(): void {
+        it('does not throw when source has default value', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -368,7 +424,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect($result)->toBe(['email' => 'no-email']);
         });
 
-        it('does not throw when source has filter', function(): void {
+        it('does not throw when source has filter', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -382,7 +438,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect($result)->toBeArray();
         });
 
-        it('throws for nested mapping with undefined source', function(): void {
+        it('throws for nested mapping with undefined source', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -399,7 +455,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 ->toThrow(UndefinedSourceValueException::class);
         });
 
-        it('throws for deeply nested target path without parent', function(): void {
+        it('throws for deeply nested target path without parent', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
@@ -411,7 +467,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 ->toThrow(UndefinedTargetValueException::class);
         });
 
-        it('does not throw when deeply nested target path has all parents', function(): void {
+        it('does not throw when deeply nested target path has all parents', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
@@ -432,7 +488,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect($result['company']['office']['location']['address']['city'])->toBe('Berlin');
         });
 
-        it('handles mixed valid and invalid mappings with collectExceptions', function(): void {
+        it('handles mixed valid and invalid mappings with collectExceptions', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(true);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -454,7 +510,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             }
         });
 
-        it('clears exceptions after each mapping call', function(): void {
+        it('clears exceptions after each mapping call', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(true);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -480,7 +536,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect(MapperExceptions::hasExceptions())->toBeFalse();
         });
 
-        it('works with simple path-to-path mapping for source exceptions', function(): void {
+        it('works with simple path-to-path mapping for source exceptions', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -494,7 +550,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             expect($result)->toBe(['email' => 'user.email']); // literal value
         })->skip('Simple path-to-path mapping treats undefined paths as literal values');
 
-        it('works with simple path-to-path mapping for target exceptions', function(): void {
+        it('works with simple path-to-path mapping for target exceptions', function (): void {
             MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
