@@ -570,14 +570,33 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Data Accessor](docs/data-accessor.md)** - Read nested data with wildcards, Collections, and Models
 - **[Data Mutator](docs/data-mutator.md)** - Write, merge, and unset nested values with wildcards
 - **[Data Mapper](docs/data-mapper.md)** - Map between structures with templates, transforms, and hooks
+- **[Data Mapper Pipeline](docs/data-mapper-pipeline.md)** - Compose filters for data transformation
 - **[Template Expressions](docs/template-expressions.md)** - Powerful expression engine with filters and defaults
+- **[Filters](docs/filters.md)** - All built-in filters and how to create custom ones
+- **[Mapped Data Model](docs/mapped-data-model.md)** - Laravel-style request binding with type safety
+- **[Exception Handling](docs/exception-handling.md)** - Error handling, collection, and debugging
 - **[Dot-Path Syntax](docs/dot-path.md)** - Path notation reference and best practices
 - **[Optional Dependencies](docs/optional-dependencies.md)** - Framework integration guide
+- **[Framework Integration](docs/framework-integration.md)** - Deep dive into Laravel, Symfony, and Doctrine support
+- **[Configuration](docs/configuration.md)** - Cache settings and environment configuration
+- **[Architecture](docs/architecture.md)** - Internal design and extension points
+- **[Types](docs/types.md)** - Type system and casting behavior
+- **[Enum Support](docs/enum-support.md)** - Working with PHP 8.1+ enums
 
 ### Helpers
 
 - **[EnvHelper](docs/envhelper.md)** - Framework-agnostic environment variable access with type casting
 - **[MathHelper](docs/mathhelper.md)** - High-precision mathematical operations using BCMath
+- **[ConfigHelper](docs/config-helper.md)** - Configuration management utilities
+
+### Development & Contributing
+
+- **[Contributing](docs/contributing.md)** - How to contribute to this project
+- **[Benchmarks](docs/benchmarks.md)** - Performance benchmarks and optimization tips
+- **[Scripts](docs/scripts.md)** - Development scripts and automation
+- **[Test with Versions](docs/test-with-versions.md)** - Testing across PHP and framework versions
+- **[Examples](docs/examples.md)** - Additional code examples and use cases
+- **[Support](docs/support.md)** - Getting help and reporting issues
 
 ### Runnable Examples
 
