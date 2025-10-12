@@ -3,18 +3,19 @@
 declare(strict_types=1);
 
 /**
- * Example 13: Wildcard WHERE and ORDER BY Clauses
+ * Example 13: Wildcard WHERE, ORDER BY, LIMIT, and OFFSET
  *
- * This example demonstrates how to filter and sort wildcard arrays using WHERE
- * and ORDER BY clauses similar to Laravel's Query Builder. You can use AND/OR
- * logic to filter items and sort them by multiple fields before mapping.
+ * This example demonstrates how to filter, sort, and paginate wildcard arrays
+ * using WHERE, ORDER BY, LIMIT, and OFFSET operators similar to Laravel's Query Builder.
+ * You can use AND/OR logic to filter items, sort them by multiple fields, and
+ * paginate results before mapping.
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
 
-echo "=== Wildcard WHERE and ORDER BY Examples ===\n\n";
+echo "=== Wildcard WHERE, ORDER BY, LIMIT, and OFFSET Examples ===\n\n";
 
 // Example data: Construction site with positions
 $constructionSite = [
@@ -58,6 +59,7 @@ $template1 = [
 
 $result1 = DataMapper::mapFromTemplate($template1, $constructionSite, true, true);
 
+/** @var array{project: array{number: string, name: string}, positions: array<int|string, array{number: string, type: string, quantity: int}>} $result1 */
 echo sprintf('Project: %s - %s%s', $result1['project']['number'], $result1['project']['name'], PHP_EOL);
 echo "Filtered Positions (only CS-123):\n";
 foreach ($result1['positions'] as $pos) {
@@ -90,7 +92,9 @@ $template2 = [
 $result2 = DataMapper::mapFromTemplate($template2, $constructionSite, true, true);
 
 echo "Gravel Positions for CS-123:\n";
-foreach ($result2['gravel_positions'] as $pos) {
+/** @var array<int|string, array{number: string, quantity: int}> $gravelPositions */
+$gravelPositions = $result2['gravel_positions'] ?? [];
+foreach ($gravelPositions as $pos) {
     echo "  - {$pos['number']}: {$pos['quantity']} units\n";
 }
 echo "\n";
@@ -122,7 +126,9 @@ $template3 = [
 $result3 = DataMapper::mapFromTemplate($template3, $constructionSite, true, true);
 
 echo "Gravel Positions for CS-123 (explicit AND):\n";
-foreach ($result3['gravel_positions'] as $pos) {
+/** @var array<int|string, array{number: string, quantity: int}> $gravelPositions */
+$gravelPositions = $result3['gravel_positions'] ?? [];
+foreach ($gravelPositions as $pos) {
     echo "  - {$pos['number']}: {$pos['quantity']} units\n";
 }
 echo "\n";
@@ -157,7 +163,9 @@ $template4 = [
 $result4 = DataMapper::mapFromTemplate($template4, $constructionSite, true, true);
 
 echo "Material Positions (gravel OR sand) for CS-123:\n";
-foreach ($result4['material_positions'] as $pos) {
+/** @var array<int|string, array{number: string, type: string, quantity: int}> $materialPositions */
+$materialPositions = $result4['material_positions'] ?? [];
+foreach ($materialPositions as $pos) {
     echo "  - {$pos['number']}: {$pos['type']} ({$pos['quantity']} units)\n";
 }
 echo "\n";
@@ -197,7 +205,9 @@ $template5 = [
 $result5 = DataMapper::mapFromTemplate($template5, $constructionSite, true, true);
 
 echo "High Quantity Positions (gravel=100 OR sand=80):\n";
-foreach ($result5['high_quantity_positions'] as $pos) {
+/** @var array<int|string, array{number: string, type: string, quantity: int}> $highQuantityPositions */
+$highQuantityPositions = $result5['high_quantity_positions'] ?? [];
+foreach ($highQuantityPositions as $pos) {
     echo "  - {$pos['number']}: {$pos['type']} ({$pos['quantity']} units)\n";
 }
 echo "\n";
@@ -232,7 +242,9 @@ $template6 = [
 $result6 = DataMapper::mapFromTemplate($template6, $constructionSite, true, true);
 
 echo "Positions (case-insensitive keywords):\n";
-foreach ($result6['positions'] as $pos) {
+/** @var array<int|string, array{number: string, type: string}> $positions */
+$positions = $result6['positions'] ?? [];
+foreach ($positions as $pos) {
     echo sprintf('  - %s: %s%s', $pos['number'], $pos['type'], PHP_EOL);
 }
 echo "\n";
@@ -257,9 +269,9 @@ $template7 = [
 
 $result7 = DataMapper::mapFromTemplate($template7, $constructionSite, true, true);
 
-echo "Concrete Positions for CS-999: " . (empty($result7['positions']) ? 'None found' : count(
-    $result7['positions']
-)) . "\n";
+/** @var array<int|string, mixed> $positions */
+$positions = $result7['positions'] ?? [];
+echo "Concrete Positions for CS-999: " . (empty($positions) ? 'None found' : count($positions)) . "\n";
 echo "\n";
 
 // ============================================================================
@@ -289,7 +301,9 @@ $template8 = [
 $result8 = DataMapper::mapFromTemplate($template8, $constructionSite, true, true);
 
 echo "Sorted Positions (by number ASC):\n";
-foreach ($result8['sorted_positions'] as $pos) {
+/** @var array<int|string, array{number: string, type: string}> $sortedPositions */
+$sortedPositions = $result8['sorted_positions'] ?? [];
+foreach ($sortedPositions as $pos) {
     echo sprintf('  - %s: %s%s', $pos['number'], $pos['type'], PHP_EOL);
 }
 echo "\n";
@@ -323,7 +337,9 @@ $template9 = [
 $result9 = DataMapper::mapFromTemplate($template9, $constructionSite, true, true);
 
 echo "Sorted Positions (by priority ASC, quantity DESC):\n";
-foreach ($result9['sorted_positions'] as $pos) {
+/** @var array<int|string, array{number: string, priority: int, quantity: int}> $sortedPositions */
+$sortedPositions = $result9['sorted_positions'] ?? [];
+foreach ($sortedPositions as $pos) {
     echo sprintf('  - %s: Priority %s, Quantity %s%s', $pos['number'], $pos['priority'], $pos['quantity'], PHP_EOL);
 }
 echo "\n";
@@ -355,7 +371,9 @@ $template10 = [
 $result10 = DataMapper::mapFromTemplate($template10, $constructionSite, true, true);
 
 echo "Sorted Positions (by quantity DESC):\n";
-foreach ($result10['sorted_positions'] as $pos) {
+/** @var array<int|string, array{number: string, quantity: int}> $sortedPositions */
+$sortedPositions = $result10['sorted_positions'] ?? [];
+foreach ($sortedPositions as $pos) {
     echo "  - {$pos['number']}: {$pos['quantity']} units\n";
 }
 echo "\n";
@@ -390,7 +408,79 @@ $template11 = [
 $result11 = DataMapper::mapFromTemplate($template11, $constructionSite, true, true);
 
 echo "Gravel Positions (sorted by quantity DESC):\n";
-foreach ($result11['gravel_positions'] as $pos) {
+/** @var array<int|string, array{number: string, quantity: int}> $gravelPositions */
+$gravelPositions = $result11['gravel_positions'] ?? [];
+foreach ($gravelPositions as $pos) {
+    echo "  - {$pos['number']}: {$pos['quantity']} units\n";
+}
+echo "\n";
+
+// ============================================================================
+// Example 12: LIMIT and OFFSET for Pagination
+// ============================================================================
+echo "12. LIMIT and OFFSET - Pagination\n";
+echo str_repeat('-', 60) . "\n";
+
+$template12 = [
+    'paginated_positions' => [
+        'WHERE' => [
+            '{{ ConstructionSite.Positions.Position.*.project_number }}' => 'CS-123',
+        ],
+        'ORDER BY' => [
+            '{{ ConstructionSite.Positions.Position.*.pos_number }}' => 'ASC',
+        ],
+        'OFFSET' => 1,  // Skip first item
+        'LIMIT' => 2,   // Get 2 items
+        '*' => [
+            'number' => '{{ ConstructionSite.Positions.Position.*.pos_number }}',
+            'type' => '{{ ConstructionSite.Positions.Position.*.type }}',
+            'quantity' => '{{ ConstructionSite.Positions.Position.*.quantity }}',
+        ],
+    ],
+];
+
+$result12 = DataMapper::mapFromTemplate($template12, $constructionSite, true, true);
+
+echo "Page 2 (items 2-3, sorted by position number):\n";
+/** @var array<int|string, array{number: string, type: string, quantity: int}> $paginatedPositions */
+$paginatedPositions = $result12['paginated_positions'] ?? [];
+foreach ($paginatedPositions as $pos) {
+    echo "  - {$pos['number']}: {$pos['type']} ({$pos['quantity']} units)\n";
+}
+echo "\n";
+
+// ============================================================================
+// Example 13: Combining All Operators
+// ============================================================================
+echo "13. Combining WHERE + ORDER BY + OFFSET + LIMIT\n";
+echo str_repeat('-', 60) . "\n";
+
+$template13 = [
+    'top_gravel_positions' => [
+        'WHERE' => [
+            'AND' => [
+                '{{ ConstructionSite.Positions.Position.*.project_number }}' => 'CS-123',
+                '{{ ConstructionSite.Positions.Position.*.type }}' => 'gravel',
+            ],
+        ],
+        'ORDER BY' => [
+            '{{ ConstructionSite.Positions.Position.*.quantity }}' => 'DESC',
+        ],
+        'OFFSET' => 0,
+        'LIMIT' => 2,
+        '*' => [
+            'number' => '{{ ConstructionSite.Positions.Position.*.pos_number }}',
+            'quantity' => '{{ ConstructionSite.Positions.Position.*.quantity }}',
+        ],
+    ],
+];
+
+$result13 = DataMapper::mapFromTemplate($template13, $constructionSite, true, true);
+
+echo "Top 2 Gravel Positions (CS-123, sorted by quantity DESC):\n";
+/** @var array<int|string, array{number: string, quantity: int}> $topGravelPositions */
+$topGravelPositions = $result13['top_gravel_positions'] ?? [];
+foreach ($topGravelPositions as $pos) {
     echo "  - {$pos['number']}: {$pos['quantity']} units\n";
 }
 echo "\n";

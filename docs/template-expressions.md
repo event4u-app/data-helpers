@@ -1243,41 +1243,56 @@ $result = DataMapper::mapFromTemplate($template, $sources, true, true);
 
 ### Custom Wildcard Operators
 
-Register your own operators to extend wildcard functionality.
+Register your own operators to extend wildcard functionality beyond the built-in WHERE, ORDER BY, LIMIT, and OFFSET operators.
 
-#### Registering an Operator
+#### Built-in Operators
+
+The following operators are available out of the box:
+
+- **WHERE** - Filter items with AND/OR logic
+- **ORDER BY** / **ORDER** - Sort items by one or more fields
+- **LIMIT** - Limit the number of items
+- **OFFSET** - Skip the first N items
+
+#### Registering a Custom Operator
 
 ```php
 use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 
-WildcardOperatorRegistry::register('LIMIT', function(array $items, mixed $config): array {
-    if (!is_int($config) || $config < 0) {
+WildcardOperatorRegistry::register('DISTINCT', function(array $items, mixed $config): array {
+    if (!is_string($config)) {
         return $items;
     }
 
+    $seen = [];
     $result = [];
-    $count = 0;
 
     foreach ($items as $index => $item) {
-        if ($count >= $config) {
-            break;
+        $value = $item[$config] ?? null;
+        $key = json_encode($value);
+
+        if (!isset($seen[$key])) {
+            $seen[$key] = true;
+            $result[$index] = $item;
         }
-        $result[$index] = $item;
-        $count++;
     }
 
     return $result;
 });
 ```
 
-#### Using Custom Operators
+#### Using Operators
 
 ```php
 $template = [
     'top_products' => [
+        'WHERE' => [
+            '{{ products.*.category }}' => 'Electronics',
+        ],
         'ORDER BY' => [
             '{{ products.*.price }}' => 'DESC',
         ],
+        'OFFSET' => 1,
         'LIMIT' => 3,
         '*' => [
             'name' => '{{ products.*.name }}',
@@ -1287,6 +1302,7 @@ $template = [
 ];
 
 $result = DataMapper::mapFromTemplate($template, $sources, true, true);
+// Returns the 2nd, 3rd, and 4th most expensive electronics
 ```
 
 #### Operator Handler Signature
@@ -1300,10 +1316,14 @@ function(
 ): array
 ```
 
-#### Built-in Operators
+#### Operator Execution Order
 
-- `WHERE` / `where` - Filter items with AND/OR logic
-- `ORDER BY` / `ORDER_BY` / `order by` / `order_by` / `order` - Sort items
+Operators are applied in the order they appear in the template. For optimal performance and correct results, use this order:
+
+1. **WHERE** - Filter first to reduce dataset
+2. **ORDER BY** - Sort the filtered results
+3. **OFFSET** - Skip items after sorting
+4. **LIMIT** - Limit items after offset
 
 #### Example: GROUP BY Operator
 

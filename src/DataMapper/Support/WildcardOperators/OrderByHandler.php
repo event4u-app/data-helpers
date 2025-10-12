@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\DataMapper\Support;
+namespace event4u\DataHelpers\DataMapper\Support\WildcardOperators;
 
 use event4u\DataHelpers\DataAccessor;
 

@@ -167,6 +167,8 @@ class TemplateMapper
             return $node;
         }
 
+        /** @var array<string, mixed> $node */
+
         // Check if this is a wildcard mapping with WHERE clause
         if (self::hasWildcardMapping($node)) {
             return self::resolveWildcardMapping($node, $sources, $skipNull, $reindexWildcard, $aliases);
@@ -444,7 +446,8 @@ class TemplateMapper
 
         if (null === $sourceWildcardPath) {
             // No wildcard path found - just resolve normally
-            return self::resolveTemplateNode($wildcardTemplate, $sources, $skipNull, $reindexWildcard, $aliases);
+            $result = self::resolveTemplateNode($wildcardTemplate, $sources, $skipNull, $reindexWildcard, $aliases);
+            return is_array($result) ? $result : [];
         }
 
         // Evaluate the wildcard path to get all items

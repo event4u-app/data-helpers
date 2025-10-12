@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\DataMapper\Support;
+namespace event4u\DataHelpers\DataMapper\Support\WildcardOperators;
 
 use event4u\DataHelpers\DataAccessor;
 
@@ -54,11 +54,13 @@ class WhereClauseFilter
         foreach ($condition as $key => $value) {
             $keyUpper = strtoupper((string)$key);
 
-            if ('AND' === $keyUpper) {
+            if ('AND' === $keyUpper && is_array($value)) {
+                /** @var array<string, mixed> $value */
                 return self::matchesAndCondition($value, $index, $source, $target);
             }
 
-            if ('OR' === $keyUpper) {
+            if ('OR' === $keyUpper && is_array($value)) {
+                /** @var array<string, mixed> $value */
                 return self::matchesOrCondition($value, $index, $source, $target);
             }
         }
@@ -87,7 +89,8 @@ class WhereClauseFilter
             $keyUpper = strtoupper((string)$key);
 
             // Handle nested OR within AND
-            if ('OR' === $keyUpper) {
+            if ('OR' === $keyUpper && is_array($expectedValue)) {
+                /** @var array<string, mixed> $expectedValue */
                 if (!self::matchesOrCondition($expectedValue, $index, $source, $target)) {
                     return false;
                 }
@@ -95,7 +98,8 @@ class WhereClauseFilter
             }
 
             // Handle nested AND within AND
-            if ('AND' === $keyUpper) {
+            if ('AND' === $keyUpper && is_array($expectedValue)) {
+                /** @var array<string, mixed> $expectedValue */
                 if (!self::matchesAndCondition($expectedValue, $index, $source, $target)) {
                     return false;
                 }
@@ -104,6 +108,7 @@ class WhereClauseFilter
 
             // Handle array of conditions (for multiple OR groups)
             if (is_int($key) && is_array($expectedValue)) {
+                /** @var array<string, mixed> $expectedValue */
                 if (!self::matchesCondition($expectedValue, $index, $source, $target)) {
                     return false;
                 }
@@ -134,7 +139,8 @@ class WhereClauseFilter
             $keyUpper = strtoupper((string)$key);
 
             // Handle nested AND within OR
-            if ('AND' === $keyUpper) {
+            if ('AND' === $keyUpper && is_array($expectedValue)) {
+                /** @var array<string, mixed> $expectedValue */
                 if (self::matchesAndCondition($expectedValue, $index, $source, $target)) {
                     return true;
                 }
@@ -142,7 +148,8 @@ class WhereClauseFilter
             }
 
             // Handle nested OR within OR
-            if ('OR' === $keyUpper) {
+            if ('OR' === $keyUpper && is_array($expectedValue)) {
+                /** @var array<string, mixed> $expectedValue */
                 if (self::matchesOrCondition($expectedValue, $index, $source, $target)) {
                     return true;
                 }
@@ -151,6 +158,7 @@ class WhereClauseFilter
 
             // Handle array of conditions (for multiple OR groups)
             if (is_int($key) && is_array($expectedValue)) {
+                /** @var array<string, mixed> $expectedValue */
                 if (self::matchesCondition($expectedValue, $index, $source, $target)) {
                     return true;
                 }

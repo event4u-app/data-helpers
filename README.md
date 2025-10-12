@@ -614,8 +614,8 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [10-hash-validated-cache.php](examples/10-hash-validated-cache.php) - Hash-validated cache with automatic invalidation
 - [11-configuration.php](examples/11-configuration.php) - Configuration management and customization
 - [12-exception-handling.php](examples/12-exception-handling.php) - Exception handling modes and best practices
-- [13-wildcard-where-clause.php](examples/13-wildcard-where-clause.php) - Filter and sort wildcard arrays with WHERE and ORDER BY clauses
-- [14-custom-wildcard-operators.php](examples/14-custom-wildcard-operators.php) - Register custom wildcard operators (LIMIT, OFFSET, GROUP BY, etc.)
+- [13-wildcard-where-clause.php](examples/13-wildcard-where-clause.php) - Filter, sort, and paginate wildcard arrays with WHERE, ORDER BY, LIMIT, and OFFSET
+- [14-custom-wildcard-operators.php](examples/14-custom-wildcard-operators.php) - Register custom wildcard operators (DISTINCT, GROUP BY, EVEN_IDS, etc.)
 
 ---
 

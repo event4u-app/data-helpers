@@ -5,9 +5,10 @@ declare(strict_types=1);
 /**
  * Example 14: Custom Wildcard Operators
  *
- * This example demonstrates how to register custom wildcard operators
- * (like LIMIT, OFFSET, GROUP BY) that can be used alongside the built-in
- * WHERE and ORDER BY operators.
+ * This example demonstrates:
+ * - Built-in operators: WHERE, ORDER BY, LIMIT, OFFSET
+ * - How to register custom wildcard operators
+ * - Combining multiple operators
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -16,7 +17,7 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 
-echo "=== Custom Wildcard Operators Examples ===\n\n";
+echo "=== Wildcard Operators Examples ===\n\n";
 
 // Example data
 $products = [
@@ -32,37 +33,21 @@ $products = [
 ];
 
 // ============================================================================
-// Example 1: LIMIT Operator
+// Example 1: Built-in Operators (WHERE, ORDER BY, LIMIT, OFFSET)
 // ============================================================================
-echo "1. LIMIT Operator - Limit results to N items\n";
+echo "1. Built-in Operators\n";
 echo str_repeat('-', 60) . "\n";
 
-// Register LIMIT operator
-WildcardOperatorRegistry::register('LIMIT', function(array $items, mixed $config): array {
-    if (!is_int($config) || 0 > $config) {
-        return $items;
-    }
-
-    $result = [];
-    $count = 0;
-
-    foreach ($items as $index => $item) {
-        if ($count >= $config) {
-            break;
-        }
-        $result[$index] = $item;
-        $count++;
-    }
-
-    return $result;
-});
-
 $template1 = [
-    'top_products' => [
+    'top_electronics' => [
+        'WHERE' => [
+            '{{ products.*.category }}' => 'Electronics',
+        ],
         'ORDER BY' => [
             '{{ products.*.price }}' => 'DESC',
         ],
-        'LIMIT' => 3,
+        'OFFSET' => 1,  // Skip the most expensive
+        'LIMIT' => 2,   // Get the next 2
         '*' => [
             'name' => '{{ products.*.name }}',
             'price' => '{{ products.*.price }}',
@@ -72,126 +57,18 @@ $template1 = [
 
 $result1 = DataMapper::mapFromTemplate($template1, $products, true, true);
 
-echo "Top 3 Most Expensive Products:\n";
-foreach ($result1['top_products'] as $product) {
-    echo sprintf('  - %s: $%s%s', $product['name'], $product['price'], PHP_EOL);
+echo "Top Electronics (2nd and 3rd most expensive):\n";
+/** @var array<int|string, array{name: string, price: float}> $topElectronics */
+$topElectronics = $result1['top_electronics'] ?? [];
+foreach ($topElectronics as $product) {
+    echo sprintf("  - %s: $%s%s", $product['name'], $product['price'], PHP_EOL);
 }
 echo "\n";
 
 // ============================================================================
-// Example 2: OFFSET Operator
+// Example 2: Custom DISTINCT Operator
 // ============================================================================
-echo "2. OFFSET Operator - Skip first N items\n";
-echo str_repeat('-', 60) . "\n";
-
-// Register OFFSET operator
-WildcardOperatorRegistry::register('OFFSET', function(array $items, mixed $config): array {
-    if (!is_int($config) || 0 > $config) {
-        return $items;
-    }
-
-    $result = [];
-    $count = 0;
-
-    foreach ($items as $index => $item) {
-        if ($count < $config) {
-            $count++;
-            continue;
-        }
-        $result[$index] = $item;
-    }
-
-    return $result;
-});
-
-$template2 = [
-    'paginated_products' => [
-        'ORDER BY' => [
-            '{{ products.*.name }}' => 'ASC',
-        ],
-        'OFFSET' => 2,
-        'LIMIT' => 3,
-        '*' => [
-            'name' => '{{ products.*.name }}',
-        ],
-    ],
-];
-
-$result2 = DataMapper::mapFromTemplate($template2, $products, true, true);
-
-echo "Products (page 2, 3 items per page):\n";
-foreach ($result2['paginated_products'] as $product) {
-    echo sprintf('  - %s%s', $product['name'], PHP_EOL);
-}
-echo "\n";
-
-// ============================================================================
-// Example 3: GROUP BY Operator
-// ============================================================================
-echo "3. GROUP BY Operator - Group items and return first of each group\n";
-echo str_repeat('-', 60) . "\n";
-
-// Register GROUP BY operator
-WildcardOperatorRegistry::register('GROUP BY', function(array $items, mixed $config, mixed $sources): array {
-    if (!is_string($config)) {
-        return $items;
-    }
-
-    $grouped = [];
-
-    foreach ($items as $index => $item) {
-        // Extract field value from config (e.g., '{{ products.*.category }}')
-        $fieldPath = str_replace('*', (string)$index, $config);
-
-        if (str_starts_with($fieldPath, '{{') && str_ends_with($fieldPath, '}}')) {
-            $path = trim(substr($fieldPath, 2, -2));
-            $accessor = new DataAccessor($sources);
-            $groupKey = $accessor->get($path);
-        } else {
-            $groupKey = $item[$config] ?? 'default';
-        }
-
-        if (!isset($grouped[$groupKey])) {
-            $grouped[$groupKey] = [];
-        }
-        $grouped[$groupKey][] = ['index' => $index, 'item' => $item];
-    }
-
-    // Return first item of each group
-    $result = [];
-    foreach ($grouped as $group) {
-        $first = $group[0];
-        $result[$first['index']] = $first['item'];
-    }
-
-    return $result;
-});
-
-$template3 = [
-    'categories' => [
-        'GROUP BY' => '{{ products.*.category }}',
-        'ORDER BY' => [
-            '{{ products.*.category }}' => 'ASC',
-        ],
-        '*' => [
-            'category' => '{{ products.*.category }}',
-            'example_product' => '{{ products.*.name }}',
-        ],
-    ],
-];
-
-$result3 = DataMapper::mapFromTemplate($template3, $products, true, true);
-
-echo "Product Categories (first product of each):\n";
-foreach ($result3['categories'] as $cat) {
-    echo sprintf('  - %s: %s%s', $cat['category'], $cat['example_product'], PHP_EOL);
-}
-echo "\n";
-
-// ============================================================================
-// Example 4: DISTINCT Operator
-// ============================================================================
-echo "4. DISTINCT Operator - Remove duplicates based on field\n";
+echo "2. Custom DISTINCT Operator\n";
 echo str_repeat('-', 60) . "\n";
 
 // Register DISTINCT operator
@@ -204,18 +81,18 @@ WildcardOperatorRegistry::register('DISTINCT', function(array $items, mixed $con
     $result = [];
 
     foreach ($items as $index => $item) {
-        // Extract field value
+        // Access the source data to get the field value
+        $accessor = new DataAccessor($sources);
         $fieldPath = str_replace('*', (string)$index, $config);
 
         if (str_starts_with($fieldPath, '{{') && str_ends_with($fieldPath, '}}')) {
             $path = trim(substr($fieldPath, 2, -2));
-            $accessor = new DataAccessor($sources);
             $value = $accessor->get($path);
         } else {
-            $value = $item[$config] ?? null;
+            $value = $accessor->get(sprintf('products.%s.%s', $index, $config));
         }
 
-        $key = serialize($value);
+        $key = json_encode($value);
 
         if (!isset($seen[$key])) {
             $seen[$key] = true;
@@ -226,7 +103,7 @@ WildcardOperatorRegistry::register('DISTINCT', function(array $items, mixed $con
     return $result;
 });
 
-$template4 = [
+$template2 = [
     'unique_categories' => [
         'DISTINCT' => '{{ products.*.category }}',
         '*' => [
@@ -235,48 +112,163 @@ $template4 = [
     ],
 ];
 
-$result4 = DataMapper::mapFromTemplate($template4, $products, true, true);
+$result2 = DataMapper::mapFromTemplate($template2, $products, true, true);
 
 echo "Unique Categories:\n";
-foreach ($result4['unique_categories'] as $cat) {
-    echo sprintf('  - %s%s', $cat['category'], PHP_EOL);
+/** @var array<int|string, array{category: string}> $uniqueCategories */
+$uniqueCategories = $result2['unique_categories'] ?? [];
+foreach ($uniqueCategories as $item) {
+    echo sprintf("  - %s%s", $item['category'], PHP_EOL);
 }
 echo "\n";
 
 // ============================================================================
-// Example 5: Combining Multiple Custom Operators
+// Example 3: Custom GROUP BY Operator
 // ============================================================================
-echo "5. Combining Multiple Operators - WHERE + ORDER BY + LIMIT\n";
+echo "3. Custom GROUP BY Operator\n";
+echo str_repeat('-', 60) . "\n";
+
+// Register GROUP BY operator (returns first item of each group)
+WildcardOperatorRegistry::register('GROUP BY', function(array $items, mixed $config, mixed $sources): array {
+    if (!is_string($config)) {
+        return $items;
+    }
+
+    $grouped = [];
+
+    foreach ($items as $index => $item) {
+        // Access the source data to get the grouping field
+        $accessor = new DataAccessor($sources);
+        $fieldPath = str_replace('*', (string)$index, $config);
+
+        if (str_starts_with($fieldPath, '{{') && str_ends_with($fieldPath, '}}')) {
+            $path = trim(substr($fieldPath, 2, -2));
+            $groupKey = $accessor->get($path);
+        } else {
+            $groupKey = $accessor->get(sprintf('products.%s.%s', $index, $config));
+        }
+
+        /** @var int|string $groupKey */
+
+        if (!isset($grouped[$groupKey])) {
+            $grouped[$groupKey] = ['index' => $index, 'item' => $item];
+        }
+    }
+
+    // Return first item of each group
+    $result = [];
+    foreach ($grouped as $group) {
+        $result[$group['index']] = $group['item'];
+    }
+
+    return $result;
+});
+
+$template3 = [
+    'grouped_by_category' => [
+        'GROUP BY' => '{{ products.*.category }}',
+        'ORDER BY' => [
+            '{{ products.*.price }}' => 'DESC',
+        ],
+        '*' => [
+            'name' => '{{ products.*.name }}',
+            'category' => '{{ products.*.category }}',
+            'price' => '{{ products.*.price }}',
+        ],
+    ],
+];
+
+$result3 = DataMapper::mapFromTemplate($template3, $products, true, true);
+
+echo "First Product per Category (sorted by price DESC):\n";
+/** @var array<int|string, array{name: string, category: string, price: float}> $groupedByCategory */
+$groupedByCategory = $result3['grouped_by_category'] ?? [];
+foreach ($groupedByCategory as $product) {
+    echo sprintf("  - %s (%s): $%s%s", $product['name'], $product['category'], $product['price'], PHP_EOL);
+}
+echo "\n";
+
+// ============================================================================
+// Example 4: Custom EVEN_IDS Operator
+// ============================================================================
+echo "4. Custom EVEN_IDS Operator\n";
+echo str_repeat('-', 60) . "\n";
+
+// Register EVEN_IDS operator (filters items with even IDs)
+WildcardOperatorRegistry::register('EVEN_IDS', function(array $items, mixed $config, mixed $sources): array {
+    $result = [];
+    foreach ($items as $index => $item) {
+        $accessor = new DataAccessor($sources);
+        $id = $accessor->get(sprintf('products.%s.id', $index));
+
+        if (is_int($id) && 0 === $id % 2) {
+            $result[$index] = $item;
+        }
+    }
+    return $result;
+});
+
+$template4 = [
+    'even_id_products' => [
+        'EVEN_IDS' => true,
+        '*' => [
+            'id' => '{{ products.*.id }}',
+            'name' => '{{ products.*.name }}',
+        ],
+    ],
+];
+
+$result4 = DataMapper::mapFromTemplate($template4, $products, true, true);
+
+echo "Products with Even IDs:\n";
+/** @var array<int|string, array{id: int, name: string}> $evenIdProducts */
+$evenIdProducts = $result4['even_id_products'] ?? [];
+foreach ($evenIdProducts as $product) {
+    echo sprintf("  - ID %s: %s%s", $product['id'], $product['name'], PHP_EOL);
+}
+echo "\n";
+
+// ============================================================================
+// Example 5: Combining All Operators
+// ============================================================================
+echo "5. Combining All Operators\n";
 echo str_repeat('-', 60) . "\n";
 
 $template5 = [
-    'affordable_electronics' => [
+    'complex_query' => [
         'WHERE' => [
-            'AND' => [
-                '{{ products.*.category }}' => 'Electronics',
-                '{{ products.*.price }}' => 500,  // This will match items with price <= 500
-            ],
+            '{{ products.*.category }}' => 'Electronics',
         ],
         'ORDER BY' => [
-            '{{ products.*.price }}' => 'ASC',
+            '{{ products.*.price }}' => 'DESC',
         ],
+        'OFFSET' => 1,
         'LIMIT' => 2,
         '*' => [
             'name' => '{{ products.*.name }}',
+            'category' => '{{ products.*.category }}',
             'price' => '{{ products.*.price }}',
+            'stock' => '{{ products.*.stock }}',
         ],
     ],
 ];
 
 $result5 = DataMapper::mapFromTemplate($template5, $products, true, true);
 
-echo "Top 2 Affordable Electronics:\n";
-foreach ($result5['affordable_electronics'] as $product) {
-    echo sprintf('  - %s: $%s%s', $product['name'], $product['price'], PHP_EOL);
+echo "Complex Query (Electronics, sorted by price DESC, skip 1, limit 2):\n";
+/** @var array<int|string, array{name: string, category: string, price: float, stock: int}> $complexQuery */
+$complexQuery = $result5['complex_query'] ?? [];
+foreach ($complexQuery as $product) {
+    echo sprintf(
+        "  - %s (%s): $%s, Stock: %s%s",
+        $product['name'],
+        $product['category'],
+        $product['price'],
+        $product['stock'],
+        PHP_EOL
+    );
 }
 echo "\n";
 
-echo "=== All Examples Completed ===\n";
-echo "\nNote: Custom operators are registered globally and persist across mappings.\n";
-echo "Use WildcardOperatorRegistry::unregister('OPERATOR_NAME') to remove them.\n";
+echo "✅  All examples completed successfully!\n";
 

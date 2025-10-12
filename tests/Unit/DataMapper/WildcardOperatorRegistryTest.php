@@ -35,56 +35,47 @@ describe('Wildcard Operator Registry', function(): void {
     });
 
     it('can register custom operator', function(): void {
-        WildcardOperatorRegistry::register('LIMIT', function(array $items, mixed $config): array {
-            if (!is_int($config)) {
-                return $items;
-            }
-            $result = [];
-            $count = 0;
-            foreach ($items as $index => $item) {
-                if ($count >= $config) {
-                    break;
-                }
-                $result[$index] = $item;
-                $count++;
-            }
-            return $result;
-        });
+        WildcardOperatorRegistry::register('CUSTOM_TEST', fn(array $items, mixed $config): array => array_slice($items, 0, is_int($config) ? $config : count($items), true));
 
-        expect(WildcardOperatorRegistry::has('LIMIT'))->toBeTrue();
+        expect(WildcardOperatorRegistry::has('CUSTOM_TEST'))->toBeTrue();
+
+        WildcardOperatorRegistry::unregister('CUSTOM_TEST');
     });
 
-    it('can use custom LIMIT operator', function(): void {
-        WildcardOperatorRegistry::register('LIMIT', function(array $items, mixed $config): array {
-            if (!is_int($config)) {
-                return $items;
-            }
+    it('can use custom EVEN_IDS operator', function(): void {
+        // Register custom operator that filters items with even IDs
+        // The operator receives the raw wildcard data and needs to access source data
+        WildcardOperatorRegistry::register('EVEN_IDS', function(array $items, mixed $config, mixed $sources): array {
             $result = [];
-            $count = 0;
             foreach ($items as $index => $item) {
-                if ($count >= $config) {
-                    break;
+                // Access the source data to check the ID
+                $accessor = new DataAccessor($sources);
+                $id = $accessor->get(sprintf('items.%s.id', $index));
+
+                if (is_int($id) && 0 === $id % 2) {
+                    $result[$index] = $item;
                 }
-                $result[$index] = $item;
-                $count++;
             }
             return $result;
         });
 
         $template = [
-            'limited_items' => [
-                'LIMIT' => 2,
+            'even_items' => [
+                'EVEN_IDS' => true,
                 '*' => [
                     'id' => '{{ items.*.id }}',
+                    'category' => '{{ items.*.category }}',
                 ],
             ],
         ];
 
         $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
 
-        expect($result['limited_items'])->toHaveCount(2);
-        expect($result['limited_items'][0]['id'])->toBe(1);
-        expect($result['limited_items'][1]['id'])->toBe(2);
+        expect($result['even_items'])->toHaveCount(2);
+        expect($result['even_items'][0]['id'])->toBe(2);
+        expect($result['even_items'][1]['id'])->toBe(4);
+
+        WildcardOperatorRegistry::unregister('EVEN_IDS');
     });
 
     it('can use custom GROUP BY operator', function(): void {
@@ -140,22 +131,7 @@ describe('Wildcard Operator Registry', function(): void {
     });
 
     it('can combine multiple operators', function(): void {
-        WildcardOperatorRegistry::register('LIMIT', function(array $items, mixed $config): array {
-            if (!is_int($config)) {
-                return $items;
-            }
-            $result = [];
-            $count = 0;
-            foreach ($items as $index => $item) {
-                if ($count >= $config) {
-                    break;
-                }
-                $result[$index] = $item;
-                $count++;
-            }
-            return $result;
-        });
-
+        // LIMIT is now a built-in operator, so we just test combining operators
         $template = [
             'filtered_limited_items' => [
                 'WHERE' => [
@@ -195,6 +171,8 @@ describe('Wildcard Operator Registry', function(): void {
         expect($operators)->toContain('WHERE');
         expect($operators)->toContain('ORDERBY');
         expect($operators)->toContain('ORDER');
+        expect($operators)->toContain('LIMIT');
+        expect($operators)->toContain('OFFSET');
     });
 
     it('normalizes operator names', function(): void {

@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper\Support;
 
 use Closure;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\LimitOperator;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\OffsetOperator;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\OrderByHandler;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\WhereClauseFilter;
 use InvalidArgumentException;
 
 /**
@@ -17,7 +21,7 @@ class WildcardOperatorRegistry
     /**
      * Registered operators.
      *
-     * @var array<string, Closure>
+     * @var array<string, Closure(array<int|string, mixed>, mixed, mixed, array<string, mixed>): array<int|string, mixed>>
      */
     private static array $operators = [];
 
@@ -36,7 +40,7 @@ class WildcardOperatorRegistry
      * The handler must return the processed array.
      *
      * @param string $name Operator name (e.g., 'WHERE', 'ORDER BY', 'GROUP BY')
-     * @param Closure $handler Handler function
+     * @param Closure(array<int|string, mixed>, mixed, mixed, array<string, mixed>): array<int|string, mixed> $handler Handler function
      */
     public static function register(string $name, Closure $handler): void
     {
@@ -61,7 +65,7 @@ class WildcardOperatorRegistry
      * Get an operator handler.
      *
      * @param string $name Operator name
-     * @return Closure Handler function
+     * @return Closure(array<int|string, mixed>, mixed, mixed, array<string, mixed>): array<int|string, mixed> Handler function
      * @throws InvalidArgumentException If operator not found
      */
     public static function get(string $name): Closure
@@ -130,6 +134,7 @@ class WildcardOperatorRegistry
             if (!is_array($config)) {
                 return $items;
             }
+            /** @var array<string, mixed> $config */
             return WhereClauseFilter::filter($items, $config, $sources, $aliases);
         });
 
@@ -138,11 +143,18 @@ class WildcardOperatorRegistry
             if (!is_array($config)) {
                 return $items;
             }
+            /** @var array<string, string> $config */
             return OrderByHandler::sort($items, $config, $sources, $aliases);
         };
 
         self::register('ORDER BY', $orderByHandler);
         self::register('ORDER', $orderByHandler);
+
+        // Register LIMIT operator
+        self::register('LIMIT', fn(array $items, mixed $config): array => LimitOperator::apply($items, $config));
+
+        // Register OFFSET operator
+        self::register('OFFSET', fn(array $items, mixed $config): array => OffsetOperator::apply($items, $config));
 
         self::$builtInRegistered = true;
     }
