@@ -35,7 +35,12 @@ describe('Wildcard Operator Registry', function(): void {
     });
 
     it('can register custom operator', function(): void {
-        WildcardOperatorRegistry::register('CUSTOM_TEST', fn(array $items, mixed $config): array => array_slice($items, 0, is_int($config) ? $config : count($items), true));
+        WildcardOperatorRegistry::register(
+            'CUSTOM_TEST',
+            fn(array $items, mixed $config): array => array_slice($items, 0, is_int($config) ? $config : count(
+                $items
+            ), true)
+        );
 
         expect(WildcardOperatorRegistry::has('CUSTOM_TEST'))->toBeTrue();
 
