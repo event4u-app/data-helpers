@@ -615,6 +615,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [11-configuration.php](examples/11-configuration.php) - Configuration management and customization
 - [12-exception-handling.php](examples/12-exception-handling.php) - Exception handling modes and best practices
 - [13-wildcard-where-clause.php](examples/13-wildcard-where-clause.php) - Filter and sort wildcard arrays with WHERE and ORDER BY clauses
+- [14-custom-wildcard-operators.php](examples/14-custom-wildcard-operators.php) - Register custom wildcard operators (LIMIT, OFFSET, GROUP BY, etc.)
 
 ---
 

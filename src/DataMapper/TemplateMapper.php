@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
-use event4u\DataHelpers\DataMapper\Support\OrderByHandler;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
-use event4u\DataHelpers\DataMapper\Support\WhereClauseFilter;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
 use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
 use event4u\DataHelpers\DataMutator;
@@ -404,7 +403,7 @@ class TemplateMapper
     }
 
     /**
-     * Resolve wildcard mapping with optional WHERE and ORDER BY clauses.
+     * Resolve wildcard mapping with optional operators (WHERE, ORDER BY, etc.).
      *
      * @param array<string, mixed> $mapping Wildcard mapping (may contain WHERE, ORDER BY, *)
      * @param array<string, mixed> $sources Source data
@@ -420,26 +419,24 @@ class TemplateMapper
         bool $reindexWildcard,
         array $aliases
     ): array {
-        // Extract WHERE and ORDER BY clauses if present
-        $whereClause = null;
-        $orderByClause = null;
+        // Extract operators and wildcard template
+        $operators = [];
+        $wildcardTemplate = null;
 
         foreach ($mapping as $key => $value) {
-            if (!is_array($value)) {
-                continue;
-            }
-
-            $keyNormalized = str_replace([' ', '_'], '', strtoupper((string)$key));
-
-            if ('WHERE' === $keyNormalized) {
-                $whereClause = $value;
-            } elseif ('ORDERBY' === $keyNormalized || 'ORDER' === $keyNormalized) {
-                $orderByClause = $value;
+            if ('*' === $key) {
+                $wildcardTemplate = $value;
+            } elseif (WildcardOperatorRegistry::has((string)$key)) {
+                $operators[] = [
+                    'name' => (string)$key,
+                    'config' => $value,
+                ];
             }
         }
 
-        // Get the wildcard mapping template
-        $wildcardTemplate = $mapping['*'];
+        if (null === $wildcardTemplate) {
+            return [];
+        }
 
         // First, we need to determine the source wildcard path
         // by finding the first wildcard expression in the template
@@ -460,21 +457,17 @@ class TemplateMapper
         // Normalize wildcard array
         $wildcardData = WildcardHandler::normalizeWildcardArray($wildcardData);
 
-        // Apply WHERE clause filter if present
-        if (null !== $whereClause) {
-            $wildcardData = WhereClauseFilter::filter($wildcardData, $whereClause, $sources, $aliases);
-        }
-
-        // Apply ORDER BY clause if present
-        if (null !== $orderByClause) {
-            $wildcardData = OrderByHandler::sort($wildcardData, $orderByClause, $sources, $aliases);
+        // Apply operators in order
+        foreach ($operators as $operator) {
+            $handler = WildcardOperatorRegistry::get($operator['name']);
+            $wildcardData = $handler($wildcardData, $operator['config'], $sources, $aliases);
         }
 
         // Now map each item through the template
         $result = [];
         $outputIndex = 0;
 
-        foreach (array_keys($wildcardData) as $index) {
+        foreach ($wildcardData as $index => $itemValue) {
             // Resolve the template for this item, replacing * with actual index
             $resolved = self::resolveWildcardTemplateForIndex(
                 $wildcardTemplate,

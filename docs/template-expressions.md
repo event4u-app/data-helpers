@@ -27,6 +27,7 @@ mapping.
 - [Wildcard WHERE and ORDER BY Clauses](#wildcard-where-and-order-by-clauses)
     - [WHERE Clauses](#where-clauses)
     - [ORDER BY Clauses](#order-by-clauses)
+    - [Custom Wildcard Operators](#custom-wildcard-operators)
 
 ## Overview
 
@@ -1239,6 +1240,121 @@ $result = DataMapper::mapFromTemplate($template, $sources, true, true);
 - ✅ **Numeric sorting** - Proper numeric comparison (2 < 10 < 100)
 - ✅ **Null handling** - Nulls come first in ASC, last in DESC
 - ✅ **Reindexing** - Filtered/sorted results are automatically reindexed
+
+### Custom Wildcard Operators
+
+Register your own operators to extend wildcard functionality.
+
+#### Registering an Operator
+
+```php
+use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
+
+WildcardOperatorRegistry::register('LIMIT', function(array $items, mixed $config): array {
+    if (!is_int($config) || $config < 0) {
+        return $items;
+    }
+
+    $result = [];
+    $count = 0;
+
+    foreach ($items as $index => $item) {
+        if ($count >= $config) {
+            break;
+        }
+        $result[$index] = $item;
+        $count++;
+    }
+
+    return $result;
+});
+```
+
+#### Using Custom Operators
+
+```php
+$template = [
+    'top_products' => [
+        'ORDER BY' => [
+            '{{ products.*.price }}' => 'DESC',
+        ],
+        'LIMIT' => 3,
+        '*' => [
+            'name' => '{{ products.*.name }}',
+            'price' => '{{ products.*.price }}',
+        ],
+    ],
+];
+
+$result = DataMapper::mapFromTemplate($template, $sources, true, true);
+```
+
+#### Operator Handler Signature
+
+```php
+function(
+    array $items,      // Wildcard array to process
+    mixed $config,     // Operator configuration from template
+    mixed $sources,    // Source data (optional)
+    array $aliases     // Resolved aliases (optional)
+): array
+```
+
+#### Built-in Operators
+
+- `WHERE` / `where` - Filter items with AND/OR logic
+- `ORDER BY` / `ORDER_BY` / `order by` / `order_by` / `order` - Sort items
+
+#### Example: GROUP BY Operator
+
+```php
+WildcardOperatorRegistry::register('GROUP BY', function(array $items, mixed $config, mixed $sources): array {
+    if (!is_string($config)) {
+        return $items;
+    }
+
+    $grouped = [];
+
+    foreach ($items as $index => $item) {
+        $fieldPath = str_replace('*', (string)$index, $config);
+
+        if (str_starts_with($fieldPath, '{{') && str_ends_with($fieldPath, '}}')) {
+            $path = trim(substr($fieldPath, 2, -2));
+            $accessor = new \event4u\DataHelpers\DataAccessor($sources);
+            $groupKey = $accessor->get($path);
+        } else {
+            $groupKey = $item[$config] ?? 'default';
+        }
+
+        if (!isset($grouped[$groupKey])) {
+            $grouped[$groupKey] = [];
+        }
+        $grouped[$groupKey][] = ['index' => $index, 'item' => $item];
+    }
+
+    // Return first item of each group
+    $result = [];
+    foreach ($grouped as $group) {
+        $first = $group[0];
+        $result[$first['index']] = $first['item'];
+    }
+
+    return $result;
+});
+```
+
+#### Managing Operators
+
+```php
+// Check if operator exists
+WildcardOperatorRegistry::has('LIMIT'); // true
+
+// Get all registered operators
+$operators = WildcardOperatorRegistry::all(); // ['WHERE', 'ORDERBY', 'ORDER', 'LIMIT', ...]
+
+// Unregister an operator
+WildcardOperatorRegistry::unregister('LIMIT');
+```
 
 ---
 
