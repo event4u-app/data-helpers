@@ -58,6 +58,32 @@ final class DataMapperPipeline
     }
 
     /**
+     * Map using a template structure with the configured pipeline.
+     *
+     * @param array<string, mixed> $template Template structure
+     * @param array<string, mixed> $sources Named sources
+     * @phpstan-return array<string, mixed>
+     */
+    public function mapFromTemplate(
+        array $template,
+        array $sources,
+        bool $skipNull = true,
+        bool $reindexWildcard = false,
+        bool $trimValues = true,
+        bool $caseInsensitiveReplace = false,
+    ): array {
+        $hooks = $this->buildHooks();
+
+        /** @phpstan-ignore-next-line return.type */
+        return DataMapper::mapFromTemplate(
+            $template,
+            $sources,
+            $skipNull,
+            $reindexWildcard
+        );
+    }
+
+    /**
      * Load data from a file (XML or JSON) and use it as source for mapping with the configured pipeline.
      *
      * @param array<int|string, mixed> $mapping

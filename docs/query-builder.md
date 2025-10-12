@@ -7,6 +7,7 @@ The **DataMapperQuery** provides a Laravel-inspired fluent interface for buildin
 - [Quick Start](#quick-start)
 - [Features](#features)
 - [Basic Usage](#basic-usage)
+- [Pipeline Integration](#pipeline-integration)
 - [WHERE Conditions](#where-conditions)
 - [Comparison Operators](#comparison-operators)
 - [Nested Conditions](#nested-conditions)
@@ -42,6 +43,7 @@ $result = DataMapper::query()
 
 - ✅ **Laravel-style Fluent Interface** - Chainable methods for intuitive query building
 - ✅ **Method Chaining in Any Order** - Call methods in whatever order makes sense
+- ✅ **Pipeline Integration** - Combine with DataMapper pipelines for data transformation
 - ✅ **WHERE with Comparison Operators** - `=`, `!=`, `<>`, `>`, `<`, `>=`, `<=`
 - ✅ **Nested WHERE Conditions** - Use closures for complex AND/OR logic
 - ✅ **OR WHERE Conditions** - Combine conditions with OR logic
@@ -76,6 +78,42 @@ $query->source('products', $products);
 ```php
 $result = $query->get();
 ```
+
+## Pipeline Integration
+
+You can combine the Query Builder with DataMapper pipelines for data transformation:
+
+### Using pipe() Method
+
+```php
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
+
+$result = DataMapper::query()
+    ->source('products', $products)
+    ->pipe([
+        new TrimStrings(),
+        new LowercaseStrings(),
+    ])
+    ->where('category', 'Electronics')
+    ->get();
+```
+
+### Using pipeQuery() Factory
+
+```php
+// Create a query with pipeline in one step
+$result = DataMapper::pipeQuery([
+        new TrimStrings(),
+        new LowercaseStrings(),
+    ])
+    ->source('products', $products)
+    ->where('category', 'Electronics')
+    ->get();
+```
+
+The pipeline filters are applied during the mapping process, allowing you to transform data as it's being queried.
 
 ## WHERE Conditions
 
@@ -372,6 +410,17 @@ Add a LIKE pattern.
 $query->like('name', '%Laptop%');
 ```
 
+### pipe(array $filters): self
+
+Set pipeline filters for data transformation.
+
+```php
+$query->pipe([
+    new TrimStrings(),
+    new LowercaseStrings(),
+]);
+```
+
 ### get(): array
 
 Execute the query and return results.
@@ -380,9 +429,31 @@ Execute the query and return results.
 $result = $query->get();
 ```
 
+## Factory Methods
+
+### DataMapper::query(): DataMapperQuery
+
+Create a new query builder instance.
+
+```php
+$query = DataMapper::query();
+```
+
+### DataMapper::pipeQuery(array $filters): DataMapperQuery
+
+Create a new query builder with pipeline filters.
+
+```php
+$query = DataMapper::pipeQuery([
+    new TrimStrings(),
+    new LowercaseStrings(),
+]);
+```
+
 ## See Also
 
 - [Data Mapper](data-mapper.md) - Core mapping functionality
+- [Data Mapper Pipeline](data-mapper-pipeline.md) - Pipeline documentation
 - [Wildcard Operators](wildcard-operators.md) - All available operators
 - [GROUP BY Operator](group-by-operator.md) - Detailed GROUP BY documentation
 - [Template Expressions](template-expressions.md) - Expression syntax

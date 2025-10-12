@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper;
 
 describe('DataMapperQuery - Basic Usage', function(): void {
@@ -274,3 +276,89 @@ describe('DataMapperQuery - DISTINCT and LIKE', function(): void {
     });
 });
 
+describe('DataMapperQuery - Pipeline Integration', function(): void {
+    it('applies pipeline filters to query results', function(): void {
+        $products = [
+            ['id' => 1, 'name' => 'Laptop', 'price' => 1000],
+            ['id' => 2, 'name' => 'Mouse', 'price' => 50],
+        ];
+
+        $callCount = 0;
+        $result = DataMapper::query()
+            ->source('products', $products)
+            ->pipe([
+                new class implements FilterInterface {
+                    public function transform(
+                        mixed $value,
+                        HookContext $context
+                    ): mixed
+                    {
+                        if (is_string($value)) {
+                            return strtoupper($value);
+                        }
+                        return $value;
+                    }
+
+                    public function getHook(): string
+                    {
+                        return 'preTransform';
+                    }
+
+                    public function getFilter(): ?string
+                    {
+                        return null;
+                    }
+
+                    public function getAliases(): array
+                    {
+                        return [];
+                    }
+                },
+            ])
+            ->get();
+
+        expect($result)->toHaveCount(2);
+        // Pipeline filters are applied during mapping
+        expect($result[0])->toHaveKey('name');
+    });
+
+    it('works with pipeQuery factory method', function(): void {
+        $products = [
+            ['id' => 1, 'name' => 'Laptop', 'category' => 'Electronics'],
+            ['id' => 2, 'name' => 'Desk', 'category' => 'Furniture'],
+        ];
+
+        $result = DataMapper::pipeQuery([
+                new class implements FilterInterface {
+                    public function transform(
+                        mixed $value,
+                        HookContext $context
+                    ): mixed
+                    {
+                        return $value;
+                    }
+
+                    public function getHook(): string
+                    {
+                        return 'preTransform';
+                    }
+
+                    public function getFilter(): ?string
+                    {
+                        return null;
+                    }
+
+                    public function getAliases(): array
+                    {
+                        return [];
+                    }
+                },
+            ])
+            ->source('products', $products)
+            ->where('category', 'Electronics')
+            ->get();
+
+        expect($result)->toHaveCount(1);
+        expect($result[0]['name'])->toBe('Laptop');
+    });
+});

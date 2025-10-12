@@ -68,6 +68,25 @@ class DataMapper
     }
 
     /**
+     * Create a fluent query builder with a pipeline.
+     *
+     * Example:
+     *   DataMapper::pipeQuery([
+     *       new TrimStrings(),
+     *       new LowercaseEmails(),
+     *   ])
+     *       ->source('products', $products)
+     *       ->where('category', 'Electronics')
+     *       ->get();
+     *
+     * @param array<int, FilterInterface> $filters Filter instances
+     */
+    public static function pipeQuery(array $filters): DataMapperQuery
+    {
+        return (new DataMapperQuery())->pipe($filters);
+    }
+
+    /**
      * Create a pipeline with transformers for fluent mapping.
      *
      * Example:
