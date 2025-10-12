@@ -607,7 +607,12 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [05-data-mapper-pipeline.php](examples/05-data-mapper-pipeline.php) - Pipeline API with filters
 - [06-laravel.php](examples/06-laravel.php) - Laravel Collections, Eloquent Models
 - [07-symfony-doctrine.php](examples/07-symfony-doctrine.php) - Doctrine Collections and Entities
+- [08-mapped-data-model.php](examples/08-mapped-data-model.php) - MappedDataModel with validation and type casting
 - [08-template-expressions.php](examples/08-template-expressions.php) - Template expressions with filters
+- [09-performance-caching.php](examples/09-performance-caching.php) - Performance optimization and caching strategies
+- [10-hash-validated-cache.php](examples/10-hash-validated-cache.php) - Hash-validated cache with automatic invalidation
+- [11-configuration.php](examples/11-configuration.php) - Configuration management and customization
+- [12-exception-handling.php](examples/12-exception-handling.php) - Exception handling modes and best practices
 
 ---
 
