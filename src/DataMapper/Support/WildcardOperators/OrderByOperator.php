@@ -9,7 +9,7 @@ use event4u\DataHelpers\DataAccessor;
 /**
  * Handles ORDER BY sorting for wildcard arrays.
  */
-class OrderByHandler
+class OrderByOperator
 {
     /**
      * Sort wildcard array based on ORDER BY clause.
@@ -61,7 +61,6 @@ class OrderByHandler
                     // Apply direction (DESC reverses the comparison)
                     return 'DESC' === $direction ? -$comparison : $comparison;
                 }
-
                 // Values are equal, continue to next sort field
             }
 

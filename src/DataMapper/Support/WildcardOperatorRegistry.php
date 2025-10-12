@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Support;
 
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\DistinctOperator;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\LikeOperator;
 use Closure;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperators\LimitOperator;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperators\OffsetOperator;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\OrderByHandler;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\WhereClauseFilter;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\OrderByOperator;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\WhereOperator;
 use InvalidArgumentException;
 
 /**
@@ -135,7 +137,7 @@ class WildcardOperatorRegistry
                 return $items;
             }
             /** @var array<string, mixed> $config */
-            return WhereClauseFilter::filter($items, $config, $sources, $aliases);
+            return WhereOperator::filter($items, $config, $sources, $aliases);
         });
 
         // Register ORDER BY operator (and aliases)
@@ -144,7 +146,7 @@ class WildcardOperatorRegistry
                 return $items;
             }
             /** @var array<string, string> $config */
-            return OrderByHandler::sort($items, $config, $sources, $aliases);
+            return OrderByOperator::sort($items, $config, $sources, $aliases);
         };
 
         self::register('ORDER BY', $orderByHandler);
@@ -155,6 +157,18 @@ class WildcardOperatorRegistry
 
         // Register OFFSET operator
         self::register('OFFSET', fn(array $items, mixed $config): array => OffsetOperator::apply($items, $config));
+
+        // Register DISTINCT operator
+        self::register('DISTINCT', fn(array $items, mixed $config, mixed $sources, array $aliases): array => DistinctOperator::filter($items, $config, $sources, $aliases));
+
+        // Register LIKE operator
+        self::register('LIKE', function(array $items, mixed $config, mixed $sources, array $aliases): array {
+            if (!is_array($config)) {
+                return $items;
+            }
+            /** @var array<string, mixed> $config */
+            return LikeOperator::filter($items, $config, $sources, $aliases);
+        });
 
         self::$builtInRegistered = true;
     }

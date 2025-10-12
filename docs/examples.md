@@ -13,6 +13,9 @@ php examples/07-symfony-doctrine.php
 php examples/08-mapped-data-model.php
 php examples/08-template-expressions.php
 php examples/09-performance-caching.php
+php examples/13-wildcard-where-clause.php
+php examples/14-custom-wildcard-operators.php
+php examples/16-distinct-like-operators.php
 ```
 
 ## Example Files
@@ -26,6 +29,9 @@ php examples/09-performance-caching.php
 - **08-mapped-data-model.php** - MappedDataModel for working with mapped data
 - **08-template-expressions.php** - Template-based mapping with filters
 - **09-performance-caching.php** - Performance optimization and caching features
+- **13-wildcard-where-clause.php** - Wildcard operators (WHERE, ORDER BY, LIMIT, OFFSET)
+- **14-custom-wildcard-operators.php** - Custom wildcard operators
+- **16-distinct-like-operators.php** - DISTINCT and LIKE operators
 
 ### Framework-specific Examples
 - **06-laravel.php** - Laravel Collections, Eloquent Models, Arrayable

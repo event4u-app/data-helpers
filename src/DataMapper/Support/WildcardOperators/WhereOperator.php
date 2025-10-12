@@ -11,7 +11,7 @@ use event4u\DataHelpers\DataAccessor;
  *
  * Supports Laravel Query Builder-style WHERE conditions with AND/OR logic.
  */
-class WhereClauseFilter
+class WhereOperator
 {
     /**
      * Apply WHERE clause filter to wildcard array.
@@ -82,9 +82,8 @@ class WhereClauseFilter
         array $conditions,
         int|string $index,
         mixed $source,
-        mixed $target
-    ): bool
-    {
+        mixed $target,
+    ): bool {
         foreach ($conditions as $key => $expectedValue) {
             $keyUpper = strtoupper((string)$key);
 
@@ -189,7 +188,7 @@ class WhereClauseFilter
         mixed $expectedValue,
         int|string $index,
         mixed $source,
-        mixed $target
+        mixed $target,
     ): bool {
         // Resolve field path (replace * with current index)
         $actualFieldPath = str_replace('*', (string)$index, $fieldPath);
