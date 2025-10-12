@@ -476,6 +476,27 @@ class TemplateMapper
         foreach ($operators as $operator) {
             $handler = WildcardOperatorRegistry::get($operator['name']);
             $wildcardData = $handler($wildcardData, $operator['config'], $sources, $aliases);
+
+            // Update sources with the modified wildcard data for GROUP BY operator
+            // (GROUP BY adds aggregation fields that need to be available in template expressions)
+            if ('GROUP BY' === $operator['name']) {
+                $sourceKey = self::extractSourceKey($sourceWildcardPath);
+                if (null !== $sourceKey) {
+                    // Check if wildcardData contains arrays (items with fields)
+                    // If so, update sources to make new fields available in template expressions
+                    $hasArrayItems = false;
+                    foreach ($wildcardData as $item) {
+                        if (is_array($item)) {
+                            $hasArrayItems = true;
+                            break;
+                        }
+                    }
+
+                    if ($hasArrayItems) {
+                        $sources[$sourceKey] = $wildcardData;
+                    }
+                }
+            }
         }
 
         // Now map each item through the template
@@ -526,6 +547,39 @@ class TemplateMapper
                     return $found;
                 }
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract source key from wildcard path.
+     *
+     * Examples:
+     * - "{{ sales.*.category }}" => "sales"
+     * - "{{ items.*.name }}" => "items"
+     *
+     * @param string $wildcardPath Wildcard path
+     * @return string|null Source key or null
+     */
+    private static function extractSourceKey(string $wildcardPath): ?string
+    {
+        // Remove {{ }} if present
+        $path = trim($wildcardPath);
+        if (str_starts_with($path, '{{') && str_ends_with($path, '}}')) {
+            $path = trim(substr($path, 2, -2));
+        }
+
+        // Remove filters if present
+        if (str_contains($path, '|')) {
+            [$path] = explode('|', $path, 2);
+            $path = trim($path);
+        }
+
+        // Extract first segment before .*
+        if (str_contains($path, '.*')) {
+            [$sourceKey] = explode('.*', $path, 2);
+            return trim($sourceKey);
         }
 
         return null;

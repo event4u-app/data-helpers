@@ -16,6 +16,7 @@ php examples/09-performance-caching.php
 php examples/13-wildcard-where-clause.php
 php examples/14-custom-wildcard-operators.php
 php examples/16-distinct-like-operators.php
+php examples/17-group-by-aggregations.php
 ```
 
 ## Example Files
@@ -32,6 +33,7 @@ php examples/16-distinct-like-operators.php
 - **13-wildcard-where-clause.php** - Wildcard operators (WHERE, ORDER BY, LIMIT, OFFSET)
 - **14-custom-wildcard-operators.php** - Custom wildcard operators
 - **16-distinct-like-operators.php** - DISTINCT and LIKE operators
+- **17-group-by-aggregations.php** - GROUP BY with aggregations (COUNT, SUM, AVG, MIN, MAX, FIRST, LAST, COLLECT, CONCAT) and HAVING clause
 
 ### Framework-specific Examples
 - **06-laravel.php** - Laravel Collections, Eloquent Models, Arrayable

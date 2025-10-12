@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Support;
 
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\DistinctOperator;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\LikeOperator;
 use Closure;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\DistinctOperator;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\GroupByOperator;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperators\LikeOperator;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperators\LimitOperator;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperators\OffsetOperator;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperators\OrderByOperator;
@@ -159,7 +160,15 @@ class WildcardOperatorRegistry
         self::register('OFFSET', fn(array $items, mixed $config): array => OffsetOperator::apply($items, $config));
 
         // Register DISTINCT operator
-        self::register('DISTINCT', fn(array $items, mixed $config, mixed $sources, array $aliases): array => DistinctOperator::filter($items, $config, $sources, $aliases));
+        self::register(
+            'DISTINCT',
+            fn(array $items, mixed $config, mixed $sources, array $aliases): array => DistinctOperator::filter(
+                $items,
+                $config,
+                $sources,
+                $aliases
+            )
+        );
 
         // Register LIKE operator
         self::register('LIKE', function(array $items, mixed $config, mixed $sources, array $aliases): array {
@@ -168,6 +177,15 @@ class WildcardOperatorRegistry
             }
             /** @var array<string, mixed> $config */
             return LikeOperator::filter($items, $config, $sources, $aliases);
+        });
+
+        // Register GROUP BY operator
+        self::register('GROUP BY', function(array $items, mixed $config, mixed $sources, array $aliases): array {
+            if (!is_array($config)) {
+                return $items;
+            }
+            /** @var array<string, mixed> $config */
+            return GroupByOperator::group($items, $config, $sources, $aliases);
         });
 
         self::$builtInRegistered = true;
