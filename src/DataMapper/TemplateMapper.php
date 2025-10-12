@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
 use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
 use event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
 
 /**
@@ -36,9 +38,19 @@ class TemplateMapper
         bool $reindexWildcard = false,
     ): array {
         if (is_string($template)) {
-            $template = json_decode($template, true);
-            if (!is_array($template)) {
-                throw new InvalidArgumentException('Invalid JSON template');
+            // Try JSON first
+            if (StringFormatDetector::isJson($template)) {
+                $decoded = json_decode($template, true);
+                if (!is_array($decoded)) {
+                    throw new InvalidArgumentException('Invalid JSON template');
+                }
+                $template = $decoded;
+            } elseif (StringFormatDetector::isXml($template)) {
+                // Try XML
+                $accessor = new DataAccessor($template);
+                $template = $accessor->toArray();
+            } else {
+                throw new InvalidArgumentException('Template must be a valid JSON or XML string, or an array');
             }
         }
 
