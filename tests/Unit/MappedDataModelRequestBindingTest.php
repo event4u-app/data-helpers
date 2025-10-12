@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use DOMDocument;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\MappedDataModel;
 use SimpleXMLElement;
 
@@ -14,9 +15,7 @@ use SimpleXMLElement;
 class MockRequest
 {
     /** @param array<string, mixed> $data */
-    public function __construct(private readonly array $data, private readonly string $contentType = 'application/json')
-    {
-    }
+    public function __construct(private readonly array $data, private readonly string $contentType = 'application/json') {}
 
     /** @return array<string, mixed> */
     public function all(): array
@@ -133,7 +132,21 @@ class CompanyRequestModelXml extends MappedDataModel
 }
 
 describe('MappedDataModel with Request Binding', function(): void {
+    beforeEach(function(): void {
+        MapperExceptions::reset();
+    });
+    afterEach(function(): void {
+        MapperExceptions::reset();
+    });
+
     describe('Laravel/Symfony Request with JSON', function(): void {
+        beforeEach(function(): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function(): void {
+            MapperExceptions::reset();
+        });
+
         it('binds model from Request object with JSON data', function(): void {
             // Simulate Laravel Request with JSON body
             $request = new MockRequest([
@@ -229,6 +242,13 @@ describe('MappedDataModel with Request Binding', function(): void {
     });
 
     describe('Laravel/Symfony Request with XML', function(): void {
+        beforeEach(function(): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function(): void {
+            MapperExceptions::reset();
+        });
+
         it('binds model from Request object with XML data', function(): void {
             // Simulate Laravel Request with XML body
             $request = new MockRequest([
@@ -274,6 +294,13 @@ describe('MappedDataModel with Request Binding', function(): void {
     });
 
     describe('Real-world Controller simulation', function(): void {
+        beforeEach(function(): void {
+            MapperExceptions::reset();
+        });
+        afterEach(function(): void {
+            MapperExceptions::reset();
+        });
+
         it('simulates Laravel Controller with JSON request', function(): void {
             // Simulate: POST /api/companies with JSON body
             $request = new MockRequest([

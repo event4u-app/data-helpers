@@ -35,23 +35,23 @@ class TestDataModel extends MappedDataModel
     }
 }
 
-describe('MappedDataModel', function (): void {
-    beforeEach(function (): void {
+describe('MappedDataModel', function(): void {
+    beforeEach(function(): void {
         MapperExceptions::reset();
     });
-    afterEach(function (): void {
+    afterEach(function(): void {
         MapperExceptions::reset();
     });
 
-    describe('Basic functionality', function (): void {
-        beforeEach(function (): void {
+    describe('Basic functionality', function(): void {
+        beforeEach(function(): void {
             MapperExceptions::reset();
         });
-        afterEach(function (): void {
+        afterEach(function(): void {
             MapperExceptions::reset();
         });
 
-        test('it creates instance with data', function (): void {
+        test('it creates instance with data', function(): void {
             $data = [
                 'email' => 'alice@example.com',
                 'first_name' => 'Alice',
@@ -70,14 +70,14 @@ describe('MappedDataModel', function (): void {
             expect($model->is_active)->toBeTrue();
         });
 
-        test('it creates empty instance', function (): void {
+        test('it creates empty instance', function(): void {
             $model = new TestDataModel();
 
             expect($model->isMapped())->toBeFalse();
             expect($model->toArray())->toBe([]);
         });
 
-        test('it fills data after creation', function (): void {
+        test('it fills data after creation', function(): void {
             $model = new TestDataModel();
             $model->fill([
                 'email' => 'test@example.com',
@@ -92,8 +92,8 @@ describe('MappedDataModel', function (): void {
         });
     });
 
-    describe('Data access', function (): void {
-        test('it gets mapped values', function (): void {
+    describe('Data access', function(): void {
+        test('it gets mapped values', function(): void {
             $model = new TestDataModel([
                 'email' => 'test@example.com',
                 'first_name' => 'John',
@@ -106,7 +106,7 @@ describe('MappedDataModel', function (): void {
             expect($model->get('nonexistent', 'default'))->toBe('default');
         });
 
-        test('it gets original values', function (): void {
+        test('it gets original values', function(): void {
             $model = new TestDataModel([
                 'email' => 'original@example.com',
                 'first_name' => 'John',
@@ -119,7 +119,7 @@ describe('MappedDataModel', function (): void {
             expect($model->getOriginal('nonexistent', 'default'))->toBe('default');
         });
 
-        test('it checks if mapped field exists', function (): void {
+        test('it checks if mapped field exists', function(): void {
             $model = new TestDataModel([
                 'email' => 'test@example.com',
                 'first_name' => 'John',
@@ -132,7 +132,7 @@ describe('MappedDataModel', function (): void {
             expect($model->has('nonexistent'))->toBeFalse();
         });
 
-        test('it checks if original field exists', function (): void {
+        test('it checks if original field exists', function(): void {
             $model = new TestDataModel([
                 'email' => 'test@example.com',
                 'first_name' => 'John',
@@ -145,7 +145,7 @@ describe('MappedDataModel', function (): void {
             expect($model->hasOriginal('nonexistent'))->toBeFalse();
         });
 
-        test('it uses magic getter', function (): void {
+        test('it uses magic getter', function(): void {
             $model = new TestDataModel([
                 'email' => 'test@example.com',
                 'first_name' => 'John',
@@ -158,7 +158,7 @@ describe('MappedDataModel', function (): void {
             expect($model->age)->toBe(30);
         });
 
-        test('it uses magic isset', function (): void {
+        test('it uses magic isset', function(): void {
             $model = new TestDataModel([
                 'email' => 'test@example.com',
                 'first_name' => 'John',
@@ -172,8 +172,8 @@ describe('MappedDataModel', function (): void {
         });
     });
 
-    describe('Serialization', function (): void {
-        test('it converts to array with only mapped values', function (): void {
+    describe('Serialization', function(): void {
+        test('it converts to array with only mapped values', function(): void {
             $model = new TestDataModel([
                 'email' => 'test@example.com',
                 'first_name' => 'John',
@@ -191,7 +191,7 @@ describe('MappedDataModel', function (): void {
             expect($array)->not->toHaveKey('extra_field');
         });
 
-        test('it serializes to JSON with only mapped values', function (): void {
+        test('it serializes to JSON with only mapped values', function(): void {
             $model = new TestDataModel([
                 'email' => 'test@example.com',
                 'first_name' => 'John',
@@ -208,7 +208,7 @@ describe('MappedDataModel', function (): void {
             expect($decoded)->not->toHaveKey('extra_field');
         });
 
-        test('it converts to string as JSON', function (): void {
+        test('it converts to string as JSON', function(): void {
             $model = new TestDataModel([
                 'email' => 'test@example.com',
                 'first_name' => 'John',
@@ -224,8 +224,8 @@ describe('MappedDataModel', function (): void {
         });
     });
 
-    describe('Original data access', function (): void {
-        test('it returns all original data', function (): void {
+    describe('Original data access', function(): void {
+        test('it returns all original data', function(): void {
             $originalData = [
                 'email' => 'original@example.com',
                 'first_name' => 'John',
@@ -239,7 +239,7 @@ describe('MappedDataModel', function (): void {
             expect($model->getOriginalData())->toBe($originalData);
         });
 
-        test('it preserves original data', function (): void {
+        test('it preserves original data', function(): void {
             $model = new TestDataModel([
                 'age' => 30,
             ]);
@@ -249,8 +249,8 @@ describe('MappedDataModel', function (): void {
         });
     });
 
-    describe('Template access', function (): void {
-        test('it returns template definition', function (): void {
+    describe('Template access', function(): void {
+        test('it returns template definition', function(): void {
             $model = new TestDataModel();
             $template = $model->getTemplate();
 
@@ -262,8 +262,8 @@ describe('MappedDataModel', function (): void {
         });
     });
 
-    describe('Object input', function (): void {
-        test('it accepts object with toArray method', function (): void {
+    describe('Object input', function(): void {
+        test('it accepts object with toArray method', function(): void {
             $object = new class () {
                 /** @return array<string, mixed> */
                 public function toArray(): array
@@ -283,7 +283,7 @@ describe('MappedDataModel', function (): void {
             expect($model->first_name)->toBe('John');
         });
 
-        test('it accepts JsonSerializable object', function (): void {
+        test('it accepts JsonSerializable object', function(): void {
             $object = new class () implements JsonSerializable {
                 /** @return array<string, mixed> */
                 public function jsonSerialize(): array
@@ -303,8 +303,8 @@ describe('MappedDataModel', function (): void {
         });
     });
 
-    describe('Static factory', function (): void {
-        test('it creates from request using static method', function (): void {
+    describe('Static factory', function(): void {
+        test('it creates from request using static method', function(): void {
             $data = [
                 'email' => 'test@example.com',
                 'first_name' => 'John',
@@ -319,8 +319,8 @@ describe('MappedDataModel', function (): void {
         });
     });
 
-    describe('Nested values', function (): void {
-        test('it handles nested template values', function (): void {
+    describe('Nested values', function(): void {
+        test('it handles nested template values', function(): void {
             $model = new TestDataModel([
                 'nested_value' => 'test123',
             ]);
