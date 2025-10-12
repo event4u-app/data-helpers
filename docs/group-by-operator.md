@@ -57,9 +57,17 @@ $template = [
 ```php
 'GROUP BY' => [
     // Required: Field(s) to group by
-    'field' => '{{ source.*.field }}',              // Single field
+    // Both 'field' and 'fields' accept string OR array
+    'field' => '{{ source.*.field }}',              // Single field (string)
     // OR
-    'fields' => [                                    // Multiple fields
+    'field' => [                                     // Multiple fields (array)
+        '{{ source.*.field1 }}',
+        '{{ source.*.field2 }}',
+    ],
+    // OR
+    'fields' => '{{ source.*.field }}',             // Single field (string)
+    // OR
+    'fields' => [                                    // Multiple fields (array)
         '{{ source.*.field1 }}',
         '{{ source.*.field2 }}',
     ],
@@ -75,6 +83,8 @@ $template = [
     ],
 ]
 ```
+
+**Note:** Both `field` and `fields` are supported and can accept either a single string or an array of strings. Use whichever feels more natural for your use case.
 
 ## Aggregation Functions
 
@@ -314,11 +324,24 @@ Filter groups after aggregation using HAVING conditions. All conditions must mat
 
 ## Multi-Field Grouping
 
-Group by multiple fields to create nested groupings.
+Group by multiple fields to create nested groupings. You can use either `field` or `fields` with an array:
 
 ```php
+// Using 'fields' with array
 'GROUP BY' => [
     'fields' => [
+        '{{ sales.*.category }}',
+        '{{ sales.*.region }}',
+    ],
+    'aggregations' => [
+        'count' => ['COUNT'],
+        'revenue' => ['SUM', '{{ sales.*.price }}'],
+    ],
+]
+
+// OR using 'field' with array (same result)
+'GROUP BY' => [
+    'field' => [
         '{{ sales.*.category }}',
         '{{ sales.*.region }}',
     ],
@@ -760,9 +783,9 @@ if (isset($item['price'])) {
 
 ## See Also
 
-- [Wildcard Operators](./data-mapper.md#wildcard-operators) - Overview of all wildcard operators
-- [WHERE Operator](./data-mapper.md#where-operator) - Filter items before grouping
-- [ORDER BY Operator](./data-mapper.md#order-by-operator) - Sort grouped results
-- [Template Expressions](./template-expressions.md) - Template syntax reference
-- [Examples](../examples/17-group-by-aggregations.php) - 10 comprehensive examples
-
+- **[Wildcard Operators](./wildcard-operators.md)** - Overview of all wildcard operators (WHERE, ORDER BY, LIMIT, OFFSET, DISTINCT, LIKE, GROUP BY)
+- **[WHERE Operator](./wildcard-operators.md#where---filter-items)** - Filter items before grouping
+- **[ORDER BY Operator](./wildcard-operators.md#order-by---sort-items)** - Sort grouped results
+- **[Template Expressions](./template-expressions.md)** - Template syntax reference
+- **[Data Mapper](./data-mapper.md)** - Main mapping documentation
+- **[Examples](../examples/17-group-by-aggregations.php)** - 10 comprehensive examples

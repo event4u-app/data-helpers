@@ -570,10 +570,12 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Data Accessor](docs/data-accessor.md)** - Read nested data with wildcards, Collections, and Models
 - **[Data Mutator](docs/data-mutator.md)** - Write, merge, and unset nested values with wildcards
 - **[Data Mapper](docs/data-mapper.md)** - Map between structures with templates, transforms, and hooks
+    - **[Wildcard Operators](docs/wildcard-operators.md)** - Filter, sort, limit, group, and transform arrays (WHERE, ORDER BY, LIMIT,
+      OFFSET, DISTINCT, LIKE, GROUP BY)
+    - **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING filters
 - **[Data Mapper Pipeline](docs/data-mapper-pipeline.md)** - Compose filters for data transformation
 - **[Template Expressions](docs/template-expressions.md)** - Powerful expression engine with filters and defaults
 - **[Filters](docs/filters.md)** - All built-in filters and how to create custom ones
-- **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING filters
 - **[Mapped Data Model](docs/mapped-data-model.md)** - Laravel-style request binding with type safety
 - **[Exception Handling](docs/exception-handling.md)** - Error handling, collection, and debugging
 - **[Dot-Path Syntax](docs/dot-path.md)** - Path notation reference and best practices

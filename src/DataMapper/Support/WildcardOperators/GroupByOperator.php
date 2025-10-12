@@ -64,18 +64,28 @@ class GroupByOperator
     /**
      * Extract group fields from config.
      *
+     * Supports both 'field' and 'fields' keys, each accepting either a string or an array.
+     *
      * @param array<string, mixed> $config Configuration
      * @return array<int, string> Group field paths
      */
     private static function extractGroupFields(array $config): array
     {
-        // Support both 'field' (single) and 'fields' (multiple)
-        if (isset($config['field']) && is_string($config['field'])) {
-            return [$config['field']];
+        // Support both 'field' and 'fields' - both can be string or array
+        $fieldValue = $config['field'] ?? $config['fields'] ?? null;
+
+        if (null === $fieldValue) {
+            return [];
         }
 
-        if (isset($config['fields']) && is_array($config['fields'])) {
-            return array_values(array_filter($config['fields'], 'is_string'));
+        // If it's a string, wrap it in an array
+        if (is_string($fieldValue)) {
+            return [$fieldValue];
+        }
+
+        // If it's an array, filter for strings only
+        if (is_array($fieldValue)) {
+            return array_values(array_filter($fieldValue, 'is_string'));
         }
 
         return [];

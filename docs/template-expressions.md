@@ -1033,348 +1033,63 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 
 ---
 
-## Wildcard WHERE and ORDER BY Clauses
+## Wildcard Operators
 
-Filter and sort wildcard arrays using Laravel Query Builder-style WHERE and ORDER BY clauses.
+Filter, sort, limit, group, and transform wildcard arrays using SQL-like operators.
 
-### WHERE Clauses
-
-#### Basic WHERE Clause
-
-Filter items before mapping:
-
-```php
-$template = [
-    'project' => [
-        'number' => '{{ ConstructionSite.nr_lv }}',
-    ],
-    'positions' => [
-        'WHERE' => [
-            '{{ ConstructionSite.Positions.Position.*.project_number }}' => '{{ project.number }}',
-        ],
-        '*' => [
-            'number' => '{{ ConstructionSite.Positions.Position.*.pos_number }}',
-            'type' => '{{ ConstructionSite.Positions.Position.*.type }}',
-        ],
-    ],
-];
-
-$result = DataMapper::mapFromTemplate($template, $sources, true, true);
-// Only positions matching the project number are included
-```
-
-#### AND Conditions
-
-Multiple conditions (implicit AND):
-
-```php
-'WHERE' => [
-    '{{ positions.*.project_number }}' => 'P-001',
-    '{{ positions.*.type }}' => 'gravel',
-],
-```
-
-Explicit AND:
-
-```php
-'WHERE' => [
-    'AND' => [
-        '{{ positions.*.project_number }}' => 'P-001',
-        '{{ positions.*.type }}' => 'gravel',
-    ],
-],
-```
-
-#### OR Conditions
-
-```php
-'WHERE' => [
-    'OR' => [
-        '{{ positions.*.type }}' => 'gravel',
-        '{{ positions.*.type }}' => 'sand',
-    ],
-],
-```
-
-#### Nested AND/OR
-
-Complex filtering with nested conditions:
-
-```php
-'WHERE' => [
-    'AND' => [
-        '{{ positions.*.project_number }}' => 'P-001',
-        'OR' => [
-            '{{ positions.*.type }}' => 'gravel',
-            '{{ positions.*.quantity }}' => 100,
-        ],
-    ],
-],
-```
-
-Multiple OR groups:
-
-```php
-'WHERE' => [
-    'OR' => [
-        [
-            'AND' => [
-                '{{ positions.*.type }}' => 'gravel',
-                '{{ positions.*.quantity }}' => 100,
-            ],
-        ],
-        [
-            'AND' => [
-                '{{ positions.*.type }}' => 'sand',
-                '{{ positions.*.quantity }}' => 80,
-            ],
-        ],
-    ],
-],
-```
-
-#### Case-Insensitive Keywords
-
-Both `AND`/`OR` and `and`/`or` work:
-
-```php
-'WHERE' => [
-    'and' => [  // lowercase works too
-        '{{ positions.*.project_number }}' => 'P-001',
-        'or' => [  // lowercase works too
-            '{{ positions.*.type }}' => 'gravel',
-            '{{ positions.*.type }}' => 'sand',
-        ],
-    ],
-],
-```
-
-### ORDER BY Clauses
-
-Sort wildcard arrays by one or more fields.
-
-#### Single Field Sorting
-
-Sort by a single field in ascending or descending order:
-
-```php
-$template = [
-    'sorted_positions' => [
-        'ORDER BY' => [
-            '{{ positions.*.pos_number }}' => 'ASC',
-        ],
-        '*' => [
-            'number' => '{{ positions.*.pos_number }}',
-            'type' => '{{ positions.*.type }}',
-        ],
-    ],
-];
-
-$result = DataMapper::mapFromTemplate($template, $sources, true, true);
-// Positions sorted by pos_number in ascending order
-```
-
-#### Multiple Field Sorting
-
-Sort by multiple fields (first field has priority):
-
-```php
-'ORDER BY' => [
-    '{{ positions.*.priority }}' => 'ASC',
-    '{{ positions.*.quantity }}' => 'DESC',
-],
-```
-
-#### Descending Order
-
-Use `DESC` for descending order:
-
-```php
-'ORDER BY' => [
-    '{{ positions.*.quantity }}' => 'DESC',
-],
-```
-
-#### Case-Insensitive Direction
-
-Both `ASC`/`DESC` and `asc`/`desc` work:
-
-```php
-'ORDER BY' => [
-    '{{ positions.*.pos_number }}' => 'asc',  // lowercase works too
-],
-```
-
-#### Combining WHERE and ORDER BY
-
-Filter first, then sort:
-
-```php
-$template = [
-    'filtered_sorted_positions' => [
-        'WHERE' => [
-            '{{ positions.*.type }}' => 'gravel',
-        ],
-        'ORDER BY' => [
-            '{{ positions.*.quantity }}' => 'DESC',
-        ],
-        '*' => [
-            'number' => '{{ positions.*.pos_number }}',
-            'quantity' => '{{ positions.*.quantity }}',
-        ],
-    ],
-];
-
-$result = DataMapper::mapFromTemplate($template, $sources, true, true);
-// Only gravel positions, sorted by quantity descending
-```
-
-### Features
-
-- ✅ **WHERE clauses** - Laravel-style AND/OR logic for filtering
-- ✅ **ORDER BY clauses** - Sort by multiple fields with ASC/DESC
-- ✅ **Nested conditions** - Unlimited nesting depth for WHERE
-- ✅ **Case-insensitive** - `AND`/`and`, `OR`/`or`, `ASC`/`asc`, `DESC`/`desc` all work
-- ✅ **Template expressions** - Use `{{ }}` in conditions and sort fields
-- ✅ **Alias references** - Reference other template fields
-- ✅ **Numeric sorting** - Proper numeric comparison (2 < 10 < 100)
-- ✅ **Null handling** - Nulls come first in ASC, last in DESC
-- ✅ **Reindexing** - Filtered/sorted results are automatically reindexed
-
-### Custom Wildcard Operators
-
-Register your own operators to extend wildcard functionality beyond the built-in WHERE, ORDER BY, LIMIT, and OFFSET operators.
-
-#### Built-in Operators
-
-The following operators are available out of the box:
-
+**Available Operators:**
 - **WHERE** - Filter items with AND/OR logic
-- **ORDER BY** / **ORDER** - Sort items by one or more fields
+- **ORDER BY** - Sort items by one or more fields
 - **LIMIT** - Limit the number of items
 - **OFFSET** - Skip the first N items
+- **DISTINCT** - Remove duplicates
+- **LIKE** - Pattern matching with `%` wildcards
+- **GROUP BY** - Group items and calculate aggregations (COUNT, SUM, AVG, MIN, MAX, etc.)
 
-#### Registering a Custom Operator
-
-```php
-use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
-
-WildcardOperatorRegistry::register('DISTINCT', function(array $items, mixed $config): array {
-    if (!is_string($config)) {
-        return $items;
-    }
-
-    $seen = [];
-    $result = [];
-
-    foreach ($items as $index => $item) {
-        $value = $item[$config] ?? null;
-        $key = json_encode($value);
-
-        if (!isset($seen[$key])) {
-            $seen[$key] = true;
-            $result[$index] = $item;
-        }
-    }
-
-    return $result;
-});
-```
-
-#### Using Operators
+**Quick Example:**
 
 ```php
 $template = [
     'top_products' => [
         'WHERE' => [
             '{{ products.*.category }}' => 'Electronics',
+            '{{ products.*.price }}' => ['>', 100],
         ],
         'ORDER BY' => [
             '{{ products.*.price }}' => 'DESC',
         ],
-        'OFFSET' => 1,
-        'LIMIT' => 3,
+        'LIMIT' => 10,
         '*' => [
             'name' => '{{ products.*.name }}',
             'price' => '{{ products.*.price }}',
         ],
     ],
 ];
-
-$result = DataMapper::mapFromTemplate($template, $sources, true, true);
-// Returns the 2nd, 3rd, and 4th most expensive electronics
 ```
 
-#### Operator Handler Signature
+**📖 For complete documentation, see:** **[Wildcard Operators](./wildcard-operators.md)**
+
+**Examples:**
+- [Example 13: WHERE, ORDER BY, LIMIT, OFFSET](../examples/13-wildcard-where-clause.php)
+- [Example 14: Custom Wildcard Operators](../examples/14-custom-wildcard-operators.php)
+- [Example 16: DISTINCT and LIKE](../examples/16-distinct-like-operators.php)
+- [Example 17: GROUP BY with Aggregations](../examples/17-group-by-aggregations.php)
+
+### Custom Wildcard Operators
+
+You can register your own custom operators to extend functionality.
+
+**Example:**
 
 ```php
-function(
-    array $items,      // Wildcard array to process
-    mixed $config,     // Operator configuration from template
-    mixed $sources,    // Source data (optional)
-    array $aliases     // Resolved aliases (optional)
-): array
-```
+use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 
-#### Operator Execution Order
-
-Operators are applied in the order they appear in the template. For optimal performance and correct results, use this order:
-
-1. **WHERE** - Filter first to reduce dataset
-2. **ORDER BY** - Sort the filtered results
-3. **OFFSET** - Skip items after sorting
-4. **LIMIT** - Limit items after offset
-
-#### Example: GROUP BY Operator
-
-```php
-WildcardOperatorRegistry::register('GROUP BY', function(array $items, mixed $config, mixed $sources): array {
-    if (!is_string($config)) {
-        return $items;
-    }
-
-    $grouped = [];
-
-    foreach ($items as $index => $item) {
-        $fieldPath = str_replace('*', (string)$index, $config);
-
-        if (str_starts_with($fieldPath, '{{') && str_ends_with($fieldPath, '}}')) {
-            $path = trim(substr($fieldPath, 2, -2));
-            $accessor = new \event4u\DataHelpers\DataAccessor($sources);
-            $groupKey = $accessor->get($path);
-        } else {
-            $groupKey = $item[$config] ?? 'default';
-        }
-
-        if (!isset($grouped[$groupKey])) {
-            $grouped[$groupKey] = [];
-        }
-        $grouped[$groupKey][] = ['index' => $index, 'item' => $item];
-    }
-
-    // Return first item of each group
-    $result = [];
-    foreach ($grouped as $group) {
-        $first = $group[0];
-        $result[$first['index']] = $first['item'];
-    }
-
-    return $result;
+WildcardOperatorRegistry::register('REVERSE', function(array $items, mixed $config): array {
+    return array_reverse($items, true);
 });
 ```
 
-#### Managing Operators
-
-```php
-// Check if operator exists
-WildcardOperatorRegistry::has('LIMIT'); // true
-
-// Get all registered operators
-$operators = WildcardOperatorRegistry::all(); // ['WHERE', 'ORDERBY', 'ORDER', 'LIMIT', ...]
-
-// Unregister an operator
-WildcardOperatorRegistry::unregister('LIMIT');
-```
+**📖 For complete documentation on custom operators, see:** **[Wildcard Operators - Custom Operators](./wildcard-operators.md#custom-operators)**
 
 ---
 

@@ -30,10 +30,10 @@ php examples/17-group-by-aggregations.php
 - **08-mapped-data-model.php** - MappedDataModel for working with mapped data
 - **08-template-expressions.php** - Template-based mapping with filters
 - **09-performance-caching.php** - Performance optimization and caching features
-- **13-wildcard-where-clause.php** - Wildcard operators (WHERE, ORDER BY, LIMIT, OFFSET)
-- **14-custom-wildcard-operators.php** - Custom wildcard operators
-- **16-distinct-like-operators.php** - DISTINCT and LIKE operators
-- **17-group-by-aggregations.php** - GROUP BY with aggregations (COUNT, SUM, AVG, MIN, MAX, FIRST, LAST, COLLECT, CONCAT) and HAVING clause
+- **13-wildcard-where-clause.php** - Wildcard operators (WHERE, ORDER BY, LIMIT, OFFSET) - [See Wildcard Operators docs](./wildcard-operators.md)
+- **14-custom-wildcard-operators.php** - Custom wildcard operators - [See Wildcard Operators docs](./wildcard-operators.md)
+- **16-distinct-like-operators.php** - DISTINCT and LIKE operators - [See Wildcard Operators docs](./wildcard-operators.md)
+- **17-group-by-aggregations.php** - GROUP BY with aggregations (COUNT, SUM, AVG, MIN, MAX, FIRST, LAST, COLLECT, CONCAT) and HAVING clause - [See GROUP BY docs](./group-by-operator.md)
 
 ### Framework-specific Examples
 - **06-laravel.php** - Laravel Collections, Eloquent Models, Arrayable

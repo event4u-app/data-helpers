@@ -57,6 +57,47 @@ describe('GROUP BY Operator - Basic Grouping', function(): void {
         expect($result)->toBe([]);
     });
 
+    it('accepts field with array for multiple fields', function(): void {
+        $items = [
+            0 => ['category' => 'electronics', 'region' => 'north', 'price' => 100],
+            1 => ['category' => 'electronics', 'region' => 'south', 'price' => 120],
+            2 => ['category' => 'furniture', 'region' => 'north', 'price' => 200],
+        ];
+
+        $sources = ['items' => $items];
+        $config = [
+            'field' => [
+                '{{ items.*.category }}',
+                '{{ items.*.region }}',
+            ],
+        ];
+
+        $result = GroupByOperator::group($items, $config, $sources, []);
+
+        // Should have 3 groups
+        expect($result)->toHaveCount(3);
+    });
+
+    it('accepts fields with single string', function(): void {
+        $items = [
+            0 => ['id' => 1, 'category' => 'electronics', 'price' => 100],
+            1 => ['id' => 2, 'category' => 'furniture', 'price' => 200],
+            2 => ['id' => 3, 'category' => 'electronics', 'price' => 150],
+        ];
+
+        $sources = ['items' => $items];
+        $config = [
+            'fields' => '{{ items.*.category }}',
+        ];
+
+        $result = GroupByOperator::group($items, $config, $sources, []);
+
+        // Should have 2 groups
+        expect($result)->toHaveCount(2);
+        expect($result[0]['category'])->toBe('electronics');
+        expect($result[1]['category'])->toBe('furniture');
+    });
+
     it('returns items unchanged when config is empty', function(): void {
         $items = [
             0 => ['id' => 1],
