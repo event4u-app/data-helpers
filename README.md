@@ -581,7 +581,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Configuration](docs/configuration.md)** - Cache settings and environment configuration
 - **[Architecture](docs/architecture.md)** - Internal design and extension points
 - **[Types](docs/types.md)** - Type system and casting behavior
-- **[Support](docs/support.md)** - Support classes for the package
+- **[Support Helpers](docs/support.md)** - Framework abstraction layers (CollectionHelper, ModelHelper, etc.)
 - **[Enum Support](docs/enum-support.md)** - Working with PHP 8.1+ enums
 
 ### Helpers
@@ -596,6 +596,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Benchmarks](docs/benchmarks.md)** - Performance benchmarks and optimization tips
 - **[Scripts](docs/scripts.md)** - Development scripts and automation
 - **[Test with Versions](docs/test-with-versions.md)** - Testing across PHP and framework versions
+- **[E2E Tests](tests-e2e/README.md)** - End-to-end tests with real framework integrations
 - **[Examples](docs/examples.md)** - Additional code examples and use cases
 
 ### Runnable Examples
