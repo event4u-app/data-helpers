@@ -570,6 +570,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Data Accessor](docs/data-accessor.md)** - Read nested data with wildcards, Collections, and Models
 - **[Data Mutator](docs/data-mutator.md)** - Write, merge, and unset nested values with wildcards
 - **[Data Mapper](docs/data-mapper.md)** - Map between structures with templates, transforms, and hooks
+    - **[Query Builder](docs/query-builder.md)** - Laravel-style fluent interface for building queries (WHERE, ORDER BY, LIMIT, GROUP BY, etc.)
     - **[Wildcard Operators](docs/wildcard-operators.md)** - Filter, sort, limit, group, and transform arrays (WHERE, ORDER BY, LIMIT,
       OFFSET, DISTINCT, LIKE, GROUP BY)
     - **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING filters
@@ -620,6 +621,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [13-wildcard-where-clause.php](examples/13-wildcard-where-clause.php) - Filter, sort, and paginate wildcard arrays with WHERE, ORDER BY,
   etc.
 - [14-custom-wildcard-operators.php](examples/14-custom-wildcard-operators.php) - Register custom wildcard operators (EVEN_IDS, etc.)
+- [18-query-builder.php](examples/18-query-builder.php) - Laravel-style Query Builder with WHERE, ORDER BY, LIMIT, GROUP BY, etc.
 
 ---
 

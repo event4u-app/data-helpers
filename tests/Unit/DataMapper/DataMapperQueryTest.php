@@ -116,7 +116,7 @@ describe('DataMapperQuery - WHERE with Closures', function(): void {
 
         $result = DataMapperQuery::query()
             ->source('products', $products)
-            ->where(function($query) {
+            ->where(function($query): void {
                 $query->where('category', 'Electronics')
                       ->where('price', '>', 100);
             })
@@ -136,7 +136,7 @@ describe('DataMapperQuery - WHERE with Closures', function(): void {
         $result = DataMapperQuery::query()
             ->source('products', $products)
             ->where('category', 'Electronics')
-            ->orWhere(function($query) {
+            ->orWhere(function($query): void {
                 $query->where('price', '>', 400);
             })
             ->get();
