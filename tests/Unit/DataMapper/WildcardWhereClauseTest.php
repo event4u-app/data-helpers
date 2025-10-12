@@ -128,7 +128,6 @@ describe('Wildcard WHERE Clause', function(): void {
 
         $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
 
-        var_dump($result['filtered_positions']);
         expect($result['filtered_positions'])->toHaveCount(3);
         expect($result['filtered_positions'][0]['number'])->toBe('1.1');
         expect($result['filtered_positions'][1]['number'])->toBe('1.2');
@@ -263,7 +262,7 @@ describe('Wildcard WHERE Clause', function(): void {
                 'number' => '{{ ConstructionSite.nr_lv }}',
             ],
             'positions' => [
-                'WHERE' => [
+                'where' => [
                     '{{ ConstructionSite.Positions.Position.*.project_number }}' => '{{ project.number }}',
                 ],
                 '*' => [

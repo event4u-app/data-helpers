@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
+use event4u\DataHelpers\DataMapper\Support\OrderByHandler;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 use event4u\DataHelpers\DataMapper\Support\WhereClauseFilter;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
@@ -403,7 +404,7 @@ class TemplateMapper
     }
 
     /**
-     * Resolve wildcard mapping with optional WHERE clause.
+     * Resolve wildcard mapping with optional WHERE and ORDER BY clauses.
      *
      * @param array<string, mixed> $mapping Wildcard mapping (may contain WHERE, ORDER BY, *)
      * @param array<string, mixed> $sources Source data
@@ -419,12 +420,21 @@ class TemplateMapper
         bool $reindexWildcard,
         array $aliases
     ): array {
-        // Extract WHERE clause if present
+        // Extract WHERE and ORDER BY clauses if present
         $whereClause = null;
+        $orderByClause = null;
+
         foreach ($mapping as $key => $value) {
-            if (strtoupper((string)$key) === 'WHERE' && is_array($value)) {
+            if (!is_array($value)) {
+                continue;
+            }
+
+            $keyNormalized = str_replace([' ', '_'], '', strtoupper((string)$key));
+
+            if ('WHERE' === $keyNormalized) {
                 $whereClause = $value;
-                break;
+            } elseif ('ORDERBY' === $keyNormalized || 'ORDER' === $keyNormalized) {
+                $orderByClause = $value;
             }
         }
 
@@ -455,11 +465,16 @@ class TemplateMapper
             $wildcardData = WhereClauseFilter::filter($wildcardData, $whereClause, $sources, $aliases);
         }
 
+        // Apply ORDER BY clause if present
+        if (null !== $orderByClause) {
+            $wildcardData = OrderByHandler::sort($wildcardData, $orderByClause, $sources, $aliases);
+        }
+
         // Now map each item through the template
         $result = [];
         $outputIndex = 0;
 
-        foreach ($wildcardData as $index => $itemValue) {
+        foreach (array_keys($wildcardData) as $index) {
             // Resolve the template for this item, replacing * with actual index
             $resolved = self::resolveWildcardTemplateForIndex(
                 $wildcardTemplate,

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper\Support;
 
 use event4u\DataHelpers\DataAccessor;
-use event4u\DataHelpers\DataMapper\Template\TemplateExpressionProcessor;
 
 /**
  * Filters wildcard arrays based on WHERE clauses.
@@ -77,7 +76,12 @@ class WhereClauseFilter
      * @param mixed $target Target data
      * @return bool True if all conditions match
      */
-    private static function matchesAndCondition(array $conditions, int|string $index, mixed $source, mixed $target): bool
+    private static function matchesAndCondition(
+        array $conditions,
+        int|string $index,
+        mixed $source,
+        mixed $target
+    ): bool
     {
         foreach ($conditions as $key => $expectedValue) {
             $keyUpper = strtoupper((string)$key);

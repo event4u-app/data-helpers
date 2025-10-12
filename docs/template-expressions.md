@@ -24,7 +24,9 @@ mapping.
     - [ExpressionEvaluator](#expressionevaluator)
     - [TemplateExpressionProcessor](#templateexpressionprocessor)
 - [Usage Across Mapping Methods](#usage-across-mapping-methods)
-- [Wildcard WHERE Clauses](#wildcard-where-clauses)
+- [Wildcard WHERE and ORDER BY Clauses](#wildcard-where-and-order-by-clauses)
+    - [WHERE Clauses](#where-clauses)
+    - [ORDER BY Clauses](#order-by-clauses)
 
 ## Overview
 
@@ -1030,11 +1032,13 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 
 ---
 
-## Wildcard WHERE Clauses
+## Wildcard WHERE and ORDER BY Clauses
 
-Filter wildcard arrays using Laravel Query Builder-style WHERE clauses with AND/OR logic.
+Filter and sort wildcard arrays using Laravel Query Builder-style WHERE and ORDER BY clauses.
 
-### Basic WHERE Clause
+### WHERE Clauses
+
+#### Basic WHERE Clause
 
 Filter items before mapping:
 
@@ -1058,7 +1062,7 @@ $result = DataMapper::mapFromTemplate($template, $sources, true, true);
 // Only positions matching the project number are included
 ```
 
-### AND Conditions
+#### AND Conditions
 
 Multiple conditions (implicit AND):
 
@@ -1080,7 +1084,7 @@ Explicit AND:
 ],
 ```
 
-### OR Conditions
+#### OR Conditions
 
 ```php
 'WHERE' => [
@@ -1091,7 +1095,7 @@ Explicit AND:
 ],
 ```
 
-### Nested AND/OR
+#### Nested AND/OR
 
 Complex filtering with nested conditions:
 
@@ -1128,7 +1132,7 @@ Multiple OR groups:
 ],
 ```
 
-### Case-Insensitive Keywords
+#### Case-Insensitive Keywords
 
 Both `AND`/`OR` and `and`/`or` work:
 
@@ -1144,14 +1148,97 @@ Both `AND`/`OR` and `and`/`or` work:
 ],
 ```
 
+### ORDER BY Clauses
+
+Sort wildcard arrays by one or more fields.
+
+#### Single Field Sorting
+
+Sort by a single field in ascending or descending order:
+
+```php
+$template = [
+    'sorted_positions' => [
+        'ORDER BY' => [
+            '{{ positions.*.pos_number }}' => 'ASC',
+        ],
+        '*' => [
+            'number' => '{{ positions.*.pos_number }}',
+            'type' => '{{ positions.*.type }}',
+        ],
+    ],
+];
+
+$result = DataMapper::mapFromTemplate($template, $sources, true, true);
+// Positions sorted by pos_number in ascending order
+```
+
+#### Multiple Field Sorting
+
+Sort by multiple fields (first field has priority):
+
+```php
+'ORDER BY' => [
+    '{{ positions.*.priority }}' => 'ASC',
+    '{{ positions.*.quantity }}' => 'DESC',
+],
+```
+
+#### Descending Order
+
+Use `DESC` for descending order:
+
+```php
+'ORDER BY' => [
+    '{{ positions.*.quantity }}' => 'DESC',
+],
+```
+
+#### Case-Insensitive Direction
+
+Both `ASC`/`DESC` and `asc`/`desc` work:
+
+```php
+'ORDER BY' => [
+    '{{ positions.*.pos_number }}' => 'asc',  // lowercase works too
+],
+```
+
+#### Combining WHERE and ORDER BY
+
+Filter first, then sort:
+
+```php
+$template = [
+    'filtered_sorted_positions' => [
+        'WHERE' => [
+            '{{ positions.*.type }}' => 'gravel',
+        ],
+        'ORDER BY' => [
+            '{{ positions.*.quantity }}' => 'DESC',
+        ],
+        '*' => [
+            'number' => '{{ positions.*.pos_number }}',
+            'quantity' => '{{ positions.*.quantity }}',
+        ],
+    ],
+];
+
+$result = DataMapper::mapFromTemplate($template, $sources, true, true);
+// Only gravel positions, sorted by quantity descending
+```
+
 ### Features
 
-- ✅ **Laravel-style syntax** - Familiar AND/OR logic
-- ✅ **Nested conditions** - Unlimited nesting depth
-- ✅ **Case-insensitive** - `AND`/`and` and `OR`/`or` both work
-- ✅ **Template expressions** - Use `{{ }}` in conditions
+- ✅ **WHERE clauses** - Laravel-style AND/OR logic for filtering
+- ✅ **ORDER BY clauses** - Sort by multiple fields with ASC/DESC
+- ✅ **Nested conditions** - Unlimited nesting depth for WHERE
+- ✅ **Case-insensitive** - `AND`/`and`, `OR`/`or`, `ASC`/`asc`, `DESC`/`desc` all work
+- ✅ **Template expressions** - Use `{{ }}` in conditions and sort fields
 - ✅ **Alias references** - Reference other template fields
-- ✅ **Reindexing** - Filtered results are automatically reindexed
+- ✅ **Numeric sorting** - Proper numeric comparison (2 < 10 < 100)
+- ✅ **Null handling** - Nulls come first in ASC, last in DESC
+- ✅ **Reindexing** - Filtered/sorted results are automatically reindexed
 
 ---
 
