@@ -1,0 +1,231 @@
+<?php
+
+declare(strict_types=1);
+
+use event4u\DataHelpers\Logging\LogEvent;
+use event4u\DataHelpers\Logging\LogLevel;
+use event4u\DataHelpers\Logging\LoggerFactory;
+use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Messenger\MessageBusInterface;
+
+describe('Logging (Symfony)', function (): void {
+    beforeEach(function (): void {
+        // Boot Symfony kernel
+        self::bootKernel();
+
+        // Get logger from container
+        $this->logger = self::getContainer()->get(LoggerInterface::class);
+        $this->messageBus = self::getContainer()->get(MessageBusInterface::class);
+
+        // Clear log file
+        $logDir = self::getContainer()->getParameter('kernel.logs_dir');
+        $logFile = $logDir . '/test.log';
+        if (file_exists($logFile)) {
+            file_put_contents($logFile, '');
+        }
+    });
+
+    it('creates logger with Symfony logger', function (): void {
+        $logger = LoggerFactory::create($this->logger);
+
+        expect($logger)->toBeInstanceOf(\event4u\DataHelpers\Logging\DataHelpersLogger::class);
+    });
+
+    it('creates logger with Symfony logger and messenger', function (): void {
+        $logger = LoggerFactory::create($this->logger, $this->messageBus);
+
+        expect($logger)->toBeInstanceOf(\event4u\DataHelpers\Logging\DataHelpersLogger::class);
+    });
+
+    it('logs to Symfony logger', function (): void {
+        $logger = LoggerFactory::create($this->logger);
+
+        $logger->log(LogLevel::INFO, 'Test log message from data-helpers');
+
+        // Symfony logger should have logged this
+        expect(true)->toBeTrue(); // Logger doesn't throw
+    });
+
+    it('logs events', function (): void {
+        $logger = LoggerFactory::create($this->logger);
+
+        $logger->event(LogEvent::MAPPING_ERROR, [
+            'error' => 'Test mapping error',
+            'field' => 'test_field',
+        ]);
+
+        expect(true)->toBeTrue(); // No exception
+    });
+
+    it('logs performance metrics', function (): void {
+        $logger = LoggerFactory::create($this->logger);
+
+        $logger->performance('mapping', 123.45, [
+            'operation' => 'test_mapping',
+            'record_count' => 100,
+        ]);
+
+        expect(true)->toBeTrue(); // No exception
+    });
+
+    it('logs exceptions', function (): void {
+        $logger = LoggerFactory::create($this->logger);
+
+        $exception = new RuntimeException('Test exception from data-helpers', 500);
+        $logger->exception($exception);
+
+        expect(true)->toBeTrue(); // No exception
+    });
+})->group('symfony')->extends(KernelTestCase::class);
+
+describe('Slack Integration (Symfony)', function (): void {
+    beforeEach(function (): void {
+        self::bootKernel();
+
+        $this->logger = self::getContainer()->get(LoggerInterface::class);
+        $this->messageBus = self::getContainer()->get(MessageBusInterface::class);
+    });
+
+    it('can create logger with messenger for async Slack', function (): void {
+        $logger = LoggerFactory::create($this->logger, $this->messageBus);
+
+        expect($logger)->toBeInstanceOf(\event4u\DataHelpers\Logging\DataHelpersLogger::class);
+    });
+
+    it('accepts error logs that would trigger Slack', function (): void {
+        $logger = LoggerFactory::create($this->logger, $this->messageBus);
+
+        $logger->log(LogLevel::ERROR, 'Critical error occurred');
+
+        expect(true)->toBeTrue(); // No exception
+    });
+
+    it('accepts event logs that would trigger Slack', function (): void {
+        $logger = LoggerFactory::create($this->logger, $this->messageBus);
+
+        $logger->event(LogEvent::MAPPING_ERROR, ['error' => 'test']);
+
+        expect(true)->toBeTrue(); // No exception
+    });
+})->group('symfony')->extends(KernelTestCase::class);
+
+describe('Filesystem Logger (Symfony)', function (): void {
+    beforeEach(function (): void {
+        self::bootKernel();
+
+        $this->logPath = sys_get_temp_dir() . '/data-helpers-symfony-test';
+        if (!is_dir($this->logPath)) {
+            mkdir($this->logPath, 0777, true);
+        }
+
+        // Override config for filesystem logger
+        putenv('DATA_HELPERS_LOG_DRIVER=filesystem');
+        putenv('DATA_HELPERS_LOG_PATH=' . $this->logPath);
+        putenv('DATA_HELPERS_LOG_FILENAME=test-Y-m-d.log');
+        putenv('DATA_HELPERS_LOG_LEVEL=debug');
+        putenv('DATA_HELPERS_GRAFANA_ENABLED=true');
+        putenv('DATA_HELPERS_GRAFANA_FORMAT=json');
+    });
+
+    afterEach(function (): void {
+        // Clean up
+        if (is_dir($this->logPath)) {
+            $files = glob($this->logPath . '/*');
+            if (false !== $files) {
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file);
+                    }
+                }
+            }
+            rmdir($this->logPath);
+        }
+
+        // Reset env
+        putenv('DATA_HELPERS_LOG_DRIVER');
+        putenv('DATA_HELPERS_LOG_PATH');
+        putenv('DATA_HELPERS_LOG_FILENAME');
+        putenv('DATA_HELPERS_LOG_LEVEL');
+        putenv('DATA_HELPERS_GRAFANA_ENABLED');
+        putenv('DATA_HELPERS_GRAFANA_FORMAT');
+    });
+
+    it('creates log file in configured path', function (): void {
+        $logger = LoggerFactory::create();
+
+        $logger->log(LogLevel::INFO, 'Test filesystem log');
+
+        $files = glob($this->logPath . '/test-*.log');
+        expect($files)->toBeArray();
+        expect(count($files))->toBeGreaterThan(0);
+    });
+
+    it('writes JSON formatted logs for Loki', function (): void {
+        $logger = LoggerFactory::create();
+
+        $logger->log(LogLevel::INFO, 'Test JSON log', ['key' => 'value']);
+
+        $files = glob($this->logPath . '/test-*.log');
+        $content = file_get_contents($files[0]);
+
+        expect($content)->toContain('"message":"Test JSON log"');
+        expect($content)->toContain('"level":"info"');
+        expect($content)->toContain('"key":"value"');
+    });
+})->group('symfony')->extends(KernelTestCase::class);
+
+describe('Prometheus Logger (Symfony)', function (): void {
+    beforeEach(function (): void {
+        self::bootKernel();
+
+        $this->metricsPath = sys_get_temp_dir() . '/data-helpers-metrics-test';
+        if (!is_dir($this->metricsPath)) {
+            mkdir($this->metricsPath, 0777, true);
+        }
+
+        $this->metricsFile = $this->metricsPath . '/data-helpers.prom';
+
+        putenv('DATA_HELPERS_LOG_DRIVER=filesystem');
+        putenv('DATA_HELPERS_PROMETHEUS_ENABLED=true');
+        putenv('DATA_HELPERS_PROMETHEUS_FILE=' . $this->metricsFile);
+    });
+
+    afterEach(function (): void {
+        // Clean up
+        if (file_exists($this->metricsFile)) {
+            unlink($this->metricsFile);
+        }
+        if (is_dir($this->metricsPath)) {
+            rmdir($this->metricsPath);
+        }
+
+        putenv('DATA_HELPERS_LOG_DRIVER');
+        putenv('DATA_HELPERS_PROMETHEUS_ENABLED');
+        putenv('DATA_HELPERS_PROMETHEUS_FILE');
+    });
+
+    it('writes metrics to Prometheus file', function (): void {
+        $logger = LoggerFactory::create();
+
+        $logger->metric('test_metric', 42.0, ['tag' => 'value']);
+
+        expect(file_exists($this->metricsFile))->toBeTrue();
+
+        $content = file_get_contents($this->metricsFile);
+        expect($content)->toContain('test_metric');
+        expect($content)->toContain('42');
+    });
+
+    it('writes performance metrics', function (): void {
+        $logger = LoggerFactory::create();
+
+        $logger->performance('mapping', 123.45, ['operation' => 'test']);
+
+        expect(file_exists($this->metricsFile))->toBeTrue();
+
+        $content = file_get_contents($this->metricsFile);
+        expect($content)->toContain('mapping');
+    });
+})->group('symfony')->extends(KernelTestCase::class);
+

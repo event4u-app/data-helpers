@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Logging\Loggers;
 
-use event4u\DataHelpers\Logging\Jobs\SendLogToSlackJob;
-use event4u\DataHelpers\Logging\Symfony\SendLogToSlackMessage;
 use event4u\DataHelpers\Logging\DataHelpersLogger;
+use event4u\DataHelpers\Logging\Jobs\SendLogToSlackJob;
 use event4u\DataHelpers\Logging\LogEvent;
 use event4u\DataHelpers\Logging\LogLevel;
 use event4u\DataHelpers\Logging\Support\SlackMessageFormatter;
+use event4u\DataHelpers\Logging\Symfony\SendLogToSlackMessage;
 use Throwable;
 
 /**
