@@ -5,7 +5,6 @@
          processIsolation="false"
          stopOnFailure="false"
          cacheDirectory=".phpunit.cache"
-         printerClass="NunoMaduro\Collision\Adapters\Phpunit\Printer"
 >
     <testsuites>
         <testsuite name="Unit">

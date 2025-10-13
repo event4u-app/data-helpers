@@ -185,5 +185,128 @@ describe('LRU Cache', function(): void {
         expect($cache->has('d'))->toBeTrue();
         expect($cache->has('e'))->toBeTrue();
     });
+
+    it('supports TTL (time to live)', function(): void {
+        $cache = new LruCache(10);
+
+        // Set with very short TTL for faster tests
+        $cache->set('temp', 'value', -1); // Already expired
+
+        // Should be expired immediately
+        expect($cache->has('temp'))->toBeFalse();
+        expect($cache->get('temp'))->toBeNull();
+    });
+
+    it('handles entries without TTL (permanent)', function(): void {
+        $cache = new LruCache(10);
+
+        // Set without TTL
+        $cache->set('permanent', 'value');
+
+        expect($cache->has('permanent'))->toBeTrue();
+        expect($cache->get('permanent'))->toBe('value');
+
+        // Permanent entries don't expire (no sleep needed for test)
+        expect($cache->has('permanent'))->toBeTrue();
+        expect($cache->get('permanent'))->toBe('value');
+    });
+
+    it('mixes entries with and without TTL', function(): void {
+        $cache = new LruCache(10);
+
+        $cache->set('permanent', 'perm_value');
+        $cache->set('temp', 'temp_value', -1); // Already expired
+
+        // Permanent should exist, temp should be expired
+        expect($cache->has('permanent'))->toBeTrue();
+        expect($cache->has('temp'))->toBeFalse();
+    });
+
+    it('updates TTL when setting existing key', function(): void {
+        $cache = new LruCache(10);
+
+        // Set with expired TTL
+        $cache->set('key', 'value1', -1);
+
+        // Update with no TTL (permanent)
+        $cache->set('key', 'value2');
+
+        // Should exist now (no TTL)
+        expect($cache->has('key'))->toBeTrue();
+        expect($cache->get('key'))->toBe('value2');
+    });
+
+    it('removes TTL when updating with null TTL', function(): void {
+        $cache = new LruCache(10);
+
+        // Set with TTL
+        $cache->set('key', 'value1', 10);
+
+        // Update with null TTL (remove expiration)
+        $cache->set('key', 'value2', null);
+
+        // Should not expire (permanent now)
+        expect($cache->has('key'))->toBeTrue();
+        expect($cache->get('key'))->toBe('value2');
+    });
+
+    it('clears expirations when clearing cache', function(): void {
+        $cache = new LruCache(10);
+
+        $cache->set('temp1', 'value1', 10);
+        $cache->set('temp2', 'value2', 10);
+
+        expect($cache->size())->toBe(2);
+
+        $cache->clear();
+
+        expect($cache->size())->toBe(0);
+
+        // Add new entry - should work fine
+        $cache->set('new', 'value');
+        expect($cache->has('new'))->toBeTrue();
+    });
+
+    it('deletes expiration when deleting key', function(): void {
+        $cache = new LruCache(10);
+
+        $cache->set('temp', 'value', 10);
+
+        expect($cache->has('temp'))->toBeTrue();
+
+        $cache->delete('temp');
+
+        expect($cache->has('temp'))->toBeFalse();
+
+        // Re-add with different TTL - should work fine
+        $cache->set('temp', 'new_value', 5);
+        expect($cache->has('temp'))->toBeTrue();
+    });
+
+    it('expired entries are removed on access', function(): void {
+        $cache = new LruCache(10);
+
+        $cache->set('key1', 'value1');
+        $cache->set('key2', 'value2', -1); // Already expired
+        $cache->set('key3', 'value3');
+
+        // Accessing key2 should return null and remove it
+        expect($cache->get('key2'))->toBeNull();
+        expect($cache->has('key2'))->toBeFalse();
+
+        // Other keys should still exist
+        expect($cache->has('key1'))->toBeTrue();
+        expect($cache->has('key3'))->toBeTrue();
+    });
+
+    it('handles null values with TTL', function(): void {
+        $cache = new LruCache(10);
+
+        // Store null with expired TTL
+        $cache->set('null_key', null, -1);
+
+        // Should be expired (even though value is null)
+        expect($cache->has('null_key'))->toBeFalse();
+    });
 });
 
