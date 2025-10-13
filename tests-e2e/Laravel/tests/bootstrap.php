@@ -15,9 +15,6 @@ declare(strict_types=1);
 // Bootstrap Laravel application (from parent directory)
 $app = require_once __DIR__ . '/../bootstrap.php';
 
-// Set the application instance globally for helper functions
-Illuminate\Container\Container::setInstance($app);
-
 // Helper functions for test paths
 if (!function_exists('tests_path')) {
     function tests_path(string $path = ''): string
