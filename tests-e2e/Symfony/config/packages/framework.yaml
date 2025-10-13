@@ -1,0 +1,8 @@
+framework:
+    secret: 'test-secret-key-for-symfony-e2e-tests'
+    test: true
+    http_method_override: false
+    handle_all_throwables: true
+    php_errors:
+        log: true
+
