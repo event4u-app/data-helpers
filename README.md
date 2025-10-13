@@ -66,7 +66,7 @@ Map between different data formats, APIs, or database schemas without writing re
 
 ### 🛡️ **Type-safe and well-tested**
 
-PHPStan Level 9 compliant with 1200+ tests. Works reliably with arrays, objects, Collections, Models, JSON, and XML.
+PHPStan Level 9 compliant with 1300+ tests. Works reliably with arrays, objects, Collections, Models, JSON, and XML.
 
 ### ⚡ **Framework-agnostic with smart detection**
 
@@ -742,7 +742,7 @@ $result = DataMapper::pipe([
 
 ## 🧪 Testing & Quality
 
-- ✅ **1200+ tests** with 3600+ assertions
+- ✅ **1300+ tests** with 4100+ assertions
 - ✅ **PHPStan Level 9** - Highest static analysis level
 - ✅ **100% type coverage** - All methods fully typed
 - ✅ **Pest** - Modern testing framework

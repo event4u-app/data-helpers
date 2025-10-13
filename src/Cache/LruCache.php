@@ -34,13 +34,7 @@ final class LruCache
      */
     public function get(string $key): mixed
     {
-        if (!array_key_exists($key, $this->cache)) {
-            return null;
-        }
-
-        // Check if expired
-        if ($this->isExpired($key)) {
-            $this->delete($key);
+        if (!$this->isValidKey($key)) {
             return null;
         }
 
@@ -53,17 +47,7 @@ final class LruCache
     /** Check if key exists in cache and is not expired. */
     public function has(string $key): bool
     {
-        if (!array_key_exists($key, $this->cache)) {
-            return false;
-        }
-
-        // Check if expired
-        if ($this->isExpired($key)) {
-            $this->delete($key);
-            return false;
-        }
-
-        return true;
+        return $this->isValidKey($key);
     }
 
     /**
@@ -147,6 +131,24 @@ final class LruCache
         return time() >= $this->expirations[$key];
     }
 
+    /**
+     * Check if key exists and is not expired.
+     * Removes expired keys automatically.
+     */
+    private function isValidKey(string $key): bool
+    {
+        if (!array_key_exists($key, $this->cache)) {
+            return false;
+        }
+
+        if ($this->isExpired($key)) {
+            $this->delete($key);
+            return false;
+        }
+
+        return true;
+    }
+
     /** Remove least recently used entry. */
     private function removeLeastRecentlyUsed(): void
     {
@@ -154,17 +156,11 @@ final class LruCache
             return;
         }
 
-        // Find key with lowest usage counter
-        $lruKey = array_key_first($this->usage);
-        $lruValue = $this->usage[$lruKey];
+        // Find key with lowest usage counter (most efficient way)
+        $lruKey = array_search(min($this->usage), $this->usage, true);
 
-        foreach ($this->usage as $key => $value) {
-            if ($value < $lruValue) {
-                $lruKey = $key;
-                $lruValue = $value;
-            }
+        if (false !== $lruKey) {
+            unset($this->cache[$lruKey], $this->usage[$lruKey], $this->expirations[$lruKey]);
         }
-
-        unset($this->cache[$lruKey], $this->usage[$lruKey], $this->expirations[$lruKey]);
     }
 }

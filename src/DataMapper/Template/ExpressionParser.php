@@ -26,9 +26,9 @@ final class ExpressionParser
      */
     public static function parse(string $value): ?array
     {
-        // Check cache first
-        if (self::getCache()->has($value)) {
-            $cached = self::getCache()->get($value);
+        // Check cache first - use get() directly to avoid double lookup
+        $cached = self::getCache()->get($value);
+        if (null !== $cached || self::getCache()->has($value)) {
             // PHPStan: We know it's either the correct array structure or null from cache
             /** @var array{type: string, path: string, default: mixed, filters: array<int, string>}|null $cached */
             return $cached;
@@ -118,30 +118,7 @@ final class ExpressionParser
      */
     public static function splitByPipeFast(string $expression): array
     {
-        $parts = [];
-        $current = '';
-        $inQuotes = false;
-        $length = strlen($expression);
-
-        for ($i = 0; $i < $length; $i++) {
-            $char = $expression[$i];
-
-            if ('"' === $char) {
-                $inQuotes = !$inQuotes;
-                $current .= $char;
-            } elseif ('|' === $char && !$inQuotes) {
-                $parts[] = trim($current);
-                $current = '';
-            } else {
-                $current .= $char;
-            }
-        }
-
-        if ('' !== $current) {
-            $parts[] = trim($current);
-        }
-
-        return $parts;
+        return self::splitByPipeInternal($expression, false);
     }
 
     /**
@@ -151,43 +128,63 @@ final class ExpressionParser
      */
     public static function splitByPipeSafe(string $expression): array
     {
-        // Slow path: Has quotes → char-by-char to preserve quoted content
-        // Note: Regex is tricky here because we need to keep quotes with their surrounding text
+        return self::splitByPipeInternal($expression, true);
+    }
+
+    /**
+     * Internal pipe split implementation.
+     *
+     * @param bool $handleEscapes Whether to handle escape sequences
+     * @return array<int, string>
+     */
+    private static function splitByPipeInternal(string $expression, bool $handleEscapes): array
+    {
         $parts = [];
         $current = '';
         $inQuotes = false;
         $quoteChar = null;
         $escaped = false;
+        $length = strlen($expression);
 
-        for ($i = 0; strlen($expression) > $i; $i++) {
+        for ($i = 0; $i < $length; $i++) {
             $char = $expression[$i];
 
-            if ($escaped) {
+            // Handle escape sequences (only in safe mode)
+            if ($handleEscapes && $escaped) {
                 $current .= $char;
                 $escaped = false;
                 continue;
             }
 
-            if ('\\' === $char) {
+            if ($handleEscapes && '\\' === $char) {
                 $escaped = true;
                 $current .= $char;
                 continue;
             }
 
-            if (('"' === $char || "'" === $char) && !$inQuotes) {
-                $inQuotes = true;
-                $quoteChar = $char;
+            // Handle quotes
+            if ($handleEscapes) {
+                // Safe mode: Track quote character
+                if (('"' === $char || "'" === $char) && !$inQuotes) {
+                    $inQuotes = true;
+                    $quoteChar = $char;
+                    $current .= $char;
+                    continue;
+                }
+                if ($char === $quoteChar && $inQuotes) {
+                    $inQuotes = false;
+                    $quoteChar = null;
+                    $current .= $char;
+                    continue;
+                }
+            } elseif ('"' === $char) {
+                // Fast mode: Simple toggle on double quotes only
+                $inQuotes = !$inQuotes;
                 $current .= $char;
                 continue;
             }
 
-            if ($char === $quoteChar && $inQuotes) {
-                $inQuotes = false;
-                $quoteChar = null;
-                $current .= $char;
-                continue;
-            }
-
+            // Split on pipe if not in quotes
             if ('|' === $char && !$inQuotes) {
                 $parts[] = trim($current);
                 $current = '';
@@ -208,32 +205,25 @@ final class ExpressionParser
     {
         $value = trim($value);
 
-        // String literal
+        // String literal - remove quotes
         if ((str_starts_with($value, "'") && str_ends_with($value, "'"))
             || (str_starts_with($value, '"') && str_ends_with($value, '"'))
         ) {
             return substr($value, 1, -1);
         }
 
-        // Boolean
-        if ('true' === strtolower($value)) {
-            return true;
-        }
-        if ('false' === strtolower($value)) {
-            return false;
-        }
-
-        // Null
-        if ('null' === strtolower($value)) {
-            return null;
-        }
-
-        // Number
+        // Number - check before keywords to avoid converting "123" as string
         if (is_numeric($value)) {
             return str_contains($value, '.') ? (float)$value : (int)$value;
         }
 
-        return $value;
+        // Keywords (case-insensitive) - use match for better performance
+        return match (strtolower($value)) {
+            'true' => true,
+            'false' => false,
+            'null' => null,
+            default => $value,
+        };
     }
 
     /** Get or initialize cache instance. */

@@ -74,32 +74,40 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Function to validate framework version
+validate_version() {
+    local framework=$1
+    local version=$2
+
+    case $framework in
+        laravel)
+            [[ "$version" =~ ^(9|10|11)$ ]] || {
+                echo -e "${RED}Error:${NC} Invalid Laravel version. Must be 9, 10, or 11."
+                exit 1
+            }
+            ;;
+        symfony)
+            [[ "$version" =~ ^(6|7)$ ]] || {
+                echo -e "${RED}Error:${NC} Invalid Symfony version. Must be 6 or 7."
+                exit 1
+            }
+            ;;
+        doctrine)
+            [[ "$version" =~ ^(2|3)$ ]] || {
+                echo -e "${RED}Error:${NC} Invalid Doctrine version. Must be 2 or 3."
+                exit 1
+            }
+            ;;
+    esac
+}
+
 # Validate framework and version
 if [[ -z "$FRAMEWORK" ]]; then
     echo -e "${RED}Error:${NC} No framework specified. Use -l, -s, or -d."
     exit 1
 fi
 
-case $FRAMEWORK in
-    laravel)
-        if [[ ! "$VERSION" =~ ^(9|10|11)$ ]]; then
-            echo -e "${RED}Error:${NC} Invalid Laravel version. Must be 9, 10, or 11."
-            exit 1
-        fi
-        ;;
-    symfony)
-        if [[ ! "$VERSION" =~ ^(6|7)$ ]]; then
-            echo -e "${RED}Error:${NC} Invalid Symfony version. Must be 6 or 7."
-            exit 1
-        fi
-        ;;
-    doctrine)
-        if [[ ! "$VERSION" =~ ^(2|3)$ ]]; then
-            echo -e "${RED}Error:${NC} Invalid Doctrine version. Must be 2 or 3."
-            exit 1
-        fi
-        ;;
-esac
+validate_version "$FRAMEWORK" "$VERSION"
 
 # Backup original files
 BACKUP_DIR=$(mktemp -d)
@@ -125,50 +133,53 @@ fi
 # Update dependencies
 echo -e "${BLUE}→${NC} Updating dependencies..."
 
+# Function to remove vendor directory with retry logic
+remove_vendor() {
+    [[ ! -d vendor ]] && return 0
+
+    # Try normal removal first
+    rm -rf vendor 2>/dev/null && return 0
+
+    # Retry with force permissions
+    echo -e "${YELLOW}  Retrying vendor removal with force...${NC}"
+    chmod -R u+w vendor 2>/dev/null || true
+    rm -rf vendor 2>/dev/null && return 0
+
+    # Alternative method: remove files first, then directories
+    echo -e "${YELLOW}  Using alternative removal method...${NC}"
+    find vendor -type f -delete 2>/dev/null || true
+    find vendor -type d -empty -delete 2>/dev/null || true
+    rm -rf vendor 2>/dev/null || true
+}
+
 # Remove composer.lock and vendor to force fresh dependency resolution
 if [[ -f composer.lock ]]; then
     echo -e "${YELLOW}  Removing composer.lock and vendor for fresh dependency resolution...${NC}"
     rm -f composer.lock
-
-    # Remove vendor directory with retry logic
-    if [[ -d vendor ]]; then
-        # Try normal removal first
-        rm -rf vendor 2>/dev/null || true
-
-        # If vendor still exists, try with force
-        if [[ -d vendor ]]; then
-            echo -e "${YELLOW}  Retrying vendor removal with force...${NC}"
-            chmod -R u+w vendor 2>/dev/null || true
-            rm -rf vendor 2>/dev/null || true
-        fi
-
-        # If vendor still exists, use find to remove files first
-        if [[ -d vendor ]]; then
-            echo -e "${YELLOW}  Using alternative removal method...${NC}"
-            find vendor -type f -delete 2>/dev/null || true
-            find vendor -type d -empty -delete 2>/dev/null || true
-            rm -rf vendor 2>/dev/null || true
-        fi
-    fi
+    remove_vendor
 fi
 
-REQUIRE_COMMANDS=()
+# Function to get required packages for framework
+get_required_packages() {
+    local framework=$1
+    local version=$2
 
-case $FRAMEWORK in
-    laravel)
-        REQUIRE_COMMANDS+=("illuminate/support:^${VERSION}.0")
-        REQUIRE_COMMANDS+=("illuminate/database:^${VERSION}.0")
-        REQUIRE_COMMANDS+=("illuminate/http:^${VERSION}.0")
-        ;;
-    symfony)
-        REQUIRE_COMMANDS+=("symfony/http-kernel:^${VERSION}.0")
-        REQUIRE_COMMANDS+=("symfony/http-foundation:^${VERSION}.0")
-        ;;
-    doctrine)
-        REQUIRE_COMMANDS+=("doctrine/orm:^${VERSION}.0")
-        REQUIRE_COMMANDS+=("doctrine/collections:^${VERSION}.0")
-        ;;
-esac
+    case $framework in
+        laravel)
+            echo "illuminate/support:^${version}.0 illuminate/database:^${version}.0 illuminate/http:^${version}.0"
+            ;;
+        symfony)
+            echo "symfony/http-kernel:^${version}.0 symfony/http-foundation:^${version}.0"
+            ;;
+        doctrine)
+            echo "doctrine/orm:^${version}.0 doctrine/collections:^${version}.0"
+            ;;
+    esac
+}
+
+# Get required packages
+REQUIRE_PACKAGES=$(get_required_packages "$FRAMEWORK" "$VERSION")
+read -ra REQUIRE_COMMANDS <<< "$REQUIRE_PACKAGES"
 
 if [[ ${#REQUIRE_COMMANDS[@]} -gt 0 ]]; then
     echo -e "${YELLOW}  Installing ${FRAMEWORK} ${VERSION}...${NC}"
@@ -214,50 +225,57 @@ echo "$COMPOSER_OUTPUT"
 echo -e "${GREEN}✓${NC} Dependencies updated"
 echo ""
 
+# Function to show installed package versions
+show_installed_versions() {
+    local framework=$1
+    local packages
+
+    case $framework in
+        laravel)
+            packages="illuminate/database illuminate/http illuminate/support"
+            ;;
+        symfony)
+            packages="symfony/http-kernel symfony/http-foundation"
+            ;;
+        doctrine)
+            packages="doctrine/orm doctrine/collections"
+            ;;
+    esac
+
+    composer show $packages | grep -E "^(name|versions)" | awk '{if(NR%2==1) printf "  • %-35s ", $3; else print $3, $4}'
+}
+
 # Show installed versions
 echo -e "${BLUE}→${NC} Installed versions:"
-case $FRAMEWORK in
-    laravel)
-        composer show illuminate/database illuminate/http illuminate/support | grep -E "^(name|versions)" | awk '{if(NR%2==1) printf "  • %-35s ", $3; else print $3, $4}'
-        ;;
-    symfony)
-        composer show symfony/http-kernel symfony/http-foundation | grep -E "^(name|versions)" | awk '{if(NR%2==1) printf "  • %-35s ", $3; else print $3, $4}'
-        ;;
-    doctrine)
-        composer show doctrine/orm doctrine/collections | grep -E "^(name|versions)" | awk '{if(NR%2==1) printf "  • %-35s ", $3; else print $3, $4}'
-        ;;
-esac
+show_installed_versions "$FRAMEWORK"
 echo ""
 
-# Run tests
-if [[ "$RUN_TESTS" == true ]]; then
-    echo -e "${BLUE}→${NC} Running tests..."
+# Function to run a command with status output
+run_check() {
+    local name=$1
+    local command=$2
+
+    echo -e "${BLUE}→${NC} Running ${name}..."
     echo ""
 
-    if composer test; then
+    if $command; then
         echo ""
-        echo -e "${GREEN}✓${NC} All tests passed!"
+        echo -e "${GREEN}✓${NC} ${name} passed!"
+        return 0
     else
         echo ""
-        echo -e "${RED}✗${NC} Tests failed!"
+        echo -e "${RED}✗${NC} ${name} failed!"
         exit 1
     fi
-fi
+}
+
+# Run tests
+[[ "$RUN_TESTS" == true ]] && run_check "tests" "composer test"
 
 # Run PHPStan
 if [[ "$RUN_PHPSTAN" == true ]]; then
     echo ""
-    echo -e "${BLUE}→${NC} Running PHPStan..."
-    echo ""
-
-    if composer phpstan; then
-        echo ""
-        echo -e "${GREEN}✓${NC} PHPStan passed!"
-    else
-        echo ""
-        echo -e "${RED}✗${NC} PHPStan failed!"
-        exit 1
-    fi
+    run_check "PHPStan" "composer phpstan"
 fi
 
 # Success message
