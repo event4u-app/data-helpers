@@ -86,7 +86,17 @@ final class FileLoader
      */
     private static function loadXmlFile(string $filePath): array
     {
-        $xml = simplexml_load_file($filePath);
+        // Suppress errors and warnings to prevent ErrorException in Laravel
+        set_error_handler(static function (): bool {
+            return true; // Suppress the error
+        });
+
+        try {
+            $xml = simplexml_load_file($filePath);
+        } finally {
+            // Always restore the previous error handler
+            restore_error_handler();
+        }
 
         if (false === $xml) {
             throw new InvalidArgumentException('Failed to parse XML file: ' . $filePath);
