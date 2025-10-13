@@ -67,7 +67,7 @@ run_e2e_tests() {
     echo -e "${YELLOW}🧪  Running $framework E2E tests...${NC}"
 
     # Run tests and capture output
-    TEST_OUTPUT=$(vendor/bin/pest --parallel --colors=always 2>&1)
+    TEST_OUTPUT=$(vendor/bin/pest --compact --parallel --colors=always 2>&1)
     TEST_EXIT_CODE=$?
 
     # Extract test statistics
@@ -82,9 +82,12 @@ run_e2e_tests() {
         echo -e "${RED}❌  $framework E2E tests failed!${NC}"
         echo -e "${RED}      $STATS${NC}"
         echo ""
-        # Show only failed test names (compact view)
-        echo -e "${YELLOW}Failed tests:${NC}"
-        echo "$TEST_OUTPUT" | grep -E "FAIL|⨯" | head -20 || true
+        # Show full test output for debugging
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${YELLOW}Full test output:${NC}"
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo "$TEST_OUTPUT"
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo ""
         return 1
     fi
