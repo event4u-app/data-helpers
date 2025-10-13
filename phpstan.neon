@@ -25,7 +25,6 @@ parameters:
         - tests-e2e/*/vendor
         - tests/Unit/MappedDataModelFromStringTest.php
         - tests/Unit/MappedDataModelRequestBindingTest.php
-        - tests/utils/Models/*
 
     scanDirectories:
         - types
@@ -79,6 +78,15 @@ parameters:
         - message: '#Calling putenv\(\) is forbidden#'
           paths:
               - tests/*
+        - message: '#Class Tests\\(Utils|utils)\\Models\\.* referenced with incorrect case#'
+          paths:
+              - tests/utils/Models/*
+        - message: '#Generic type .* in PHPDoc tag @return does not specify all template types#'
+          paths:
+              - tests/utils/Models/*
+        - message: '#Method Tests\\(Utils|utils)\\Models\\.* should return .* but returns .*#'
+          paths:
+              - tests/utils/Models/*
 
     disallowedFunctionCalls:
         -
