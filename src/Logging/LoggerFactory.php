@@ -33,6 +33,11 @@ final class LoggerFactory
             $config = [];
         }
 
+        // Check if logging is enabled
+        if (!($config['enabled'] ?? false)) {
+            return new NullLogger();
+        }
+
         // Get base logger
         $logger = self::createBaseLogger($config, $frameworkLogger);
 
@@ -60,13 +65,22 @@ final class LoggerFactory
      */
     private static function createBaseLogger(array $config, ?LoggerInterface $frameworkLogger): DataHelpersLogger
     {
-        $driver = $config['driver'] ?? 'filesystem';
+        $driver = $config['driver'] ?? null;
+
+        // Convert string to enum if needed
+        if (is_string($driver)) {
+            $driver = LogDriver::from($driver);
+        }
+
+        // Default to filesystem if not a valid LogDriver
+        if (!$driver instanceof LogDriver) {
+            $driver = LogDriver::FILESYSTEM;
+        }
 
         return match ($driver) {
-            'filesystem' => self::createFilesystemLogger($config),
-            'framework' => self::createFrameworkLogger($config, $frameworkLogger),
-            'none' => new NullLogger(),
-            default => new NullLogger(),
+            LogDriver::FILESYSTEM => self::createFilesystemLogger($config),
+            LogDriver::FRAMEWORK => self::createFrameworkLogger($config, $frameworkLogger),
+            LogDriver::NONE => new NullLogger(),
         };
     }
 
@@ -81,7 +95,7 @@ final class LoggerFactory
         $filenamePattern = is_string(
             $config['filename_pattern'] ?? null
         ) ? $config['filename_pattern'] : 'data-helper-Y-m-d-H-i-s.log';
-        $level = is_string($config['level'] ?? null) ? $config['level'] : 'info';
+        $level = $config['level'] ?? null;
 
         /** @var array<string, bool> $events */
         $events = is_array($config['events'] ?? null) ? $config['events'] : [];
@@ -209,10 +223,21 @@ final class LoggerFactory
         return null;
     }
 
-    /** Parse log level string to enum. */
-    private static function parseLogLevel(string $level): LogLevel
+    /** Parse log level to enum. */
+    private static function parseLogLevel(mixed $level): LogLevel
     {
-        return LogLevel::tryFrom(strtolower($level)) ?? LogLevel::INFO;
+        // Already a LogLevel enum
+        if ($level instanceof LogLevel) {
+            return $level;
+        }
+
+        // Convert string to enum
+        if (is_string($level)) {
+            return LogLevel::tryFrom(strtolower($level)) ?? LogLevel::INFO;
+        }
+
+        // Default to INFO
+        return LogLevel::INFO;
     }
 }
 

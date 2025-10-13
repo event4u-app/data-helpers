@@ -48,6 +48,9 @@ describe('FilesystemLogger', function(): void {
         $this->logger->log(LogLevel::INFO, 'Test message');
 
         $files = glob($this->logPath . '/log-*.log');
+        if (false === $files) {
+            throw new RuntimeException('glob() failed');
+        }
         expect($files)->toBeArray();
         expect(count($files))->toBe(1);
     });
@@ -56,8 +59,12 @@ describe('FilesystemLogger', function(): void {
         $this->logger->log(LogLevel::INFO, 'Test message', ['key' => 'value']);
 
         $files = glob($this->logPath . '/log-*.log');
-        $content = file_get_contents($files[0]);
+        if (false === $files) {
+            throw new RuntimeException('glob() failed');
+        }
+        expect($files)->toBeArray();
 
+        $content = file_get_contents($files[0]);
         expect($content)->toBeString();
         expect($content)->toContain('"message":"Test message"');
         expect($content)->toContain('"level":"info"');
@@ -94,6 +101,9 @@ describe('FilesystemLogger', function(): void {
         $this->logger->event(LogEvent::MAPPING_ERROR, ['error' => 'test']);
 
         $files = glob($this->logPath . '/log-*.log');
+        if (false === $files) {
+            throw new RuntimeException('glob() failed');
+        }
         expect($files)->toBeArray();
         expect(count($files))->toBeGreaterThan(0);
 
@@ -116,6 +126,9 @@ describe('FilesystemLogger', function(): void {
         $logger->event(LogEvent::MAPPING_ERROR, ['error' => 'test']);
 
         $files = glob($this->logPath . '/events.log');
+        if (false === $files) {
+            throw new RuntimeException('glob() failed');
+        }
         expect($files)->toBeArray();
         expect(count($files))->toBe(0);
     });
@@ -124,6 +137,9 @@ describe('FilesystemLogger', function(): void {
         $this->logger->performance('mapping', 123.45, ['operation' => 'test']);
 
         $files = glob($this->logPath . '/log-*.log');
+        if (false === $files) {
+            throw new RuntimeException('glob() failed');
+        }
         expect($files)->toBeArray();
         expect(count($files))->toBeGreaterThan(0);
 
@@ -136,6 +152,9 @@ describe('FilesystemLogger', function(): void {
         $this->logger->exception($exception);
 
         $files = glob($this->logPath . '/log-*.log');
+        if (false === $files) {
+            throw new RuntimeException('glob() failed');
+        }
         expect($files)->toBeArray();
         expect(count($files))->toBeGreaterThan(0);
 

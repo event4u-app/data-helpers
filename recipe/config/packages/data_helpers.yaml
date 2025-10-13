@@ -44,6 +44,11 @@ data_helpers:
   # Configure logging for data-helpers operations, performance metrics,
   # and data quality issues.
   logging:
+    # Enable/disable logging (master switch)
+    # When disabled, no logs will be written regardless of other settings
+    # Default: false (disabled)
+    enabled: '%env(bool:DATA_HELPERS_LOG_ENABLED)%'
+
     # Logger driver: filesystem, framework, none
     # - filesystem: Write logs to files (JSON format for Loki)
     # - framework: Use Symfony logger
@@ -107,7 +112,13 @@ data_helpers:
       webhook_url: '%env(DATA_HELPERS_SLACK_WEBHOOK)%'
       channel: '%env(DATA_HELPERS_SLACK_CHANNEL)%'
       username: '%env(DATA_HELPERS_SLACK_USERNAME)%'
+      # Minimum log level: emergency, alert, critical, error, warning, notice, info, debug
       level: '%env(DATA_HELPERS_SLACK_LEVEL)%'
+      # Which events to send to Slack (use LogEvent enum values)
+      # Available: mapping.error, exception, pipeline.filter_error, template.expression_error,
+      #            data.validation_failure, performance.mapping, performance.query, performance.pipeline,
+      #            mapping.success, query.success, cache.hit, cache.miss, data.missing_field,
+      #            data.null_skipped, query.empty_result, metrics.processed_records
       events:
         - 'mapping.error'
         - 'exception'
