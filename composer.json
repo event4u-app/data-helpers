@@ -69,6 +69,7 @@
   },
   "autoload-dev": {
     "psr-4": {
+      "TestsE2E\\": "tests-e2e/",
       "Tests\\": "tests/",
       "Examples\\": "examples/"
     },
