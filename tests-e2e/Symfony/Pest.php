@@ -8,35 +8,25 @@ declare(strict_types=1);
 |--------------------------------------------------------------------------
 */
 
-// Load .env file
+use event4u\DataHelpers\Config\ConfigHelper;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
-
-if (file_exists(__DIR__ . '/.env')) {
-    $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) {
-            continue;
-        }
-        if (strpos($line, '=') !== false) {
-            [$key, $value] = explode('=', $line, 2);
-            $_ENV[trim($key)] = trim($value);
-            putenv(trim($key) . '=' . trim($value));
-        }
-    }
-}
 
 // Load helper functions from main tests directory
 require_once __DIR__ . '/../../tests/helpers.php';
 
-// Bootstrap Symfony kernel
-$kernel = require __DIR__ . '/bootstrap.php';
-$kernel->boot();
+// Load .env file BEFORE creating kernel to ensure ENV variables are available during container compilation
+use Symfony\Component\Dotenv\Dotenv;
+
+(new Dotenv())->loadEnv(__DIR__ . '/.env');
 
 // Make kernel and container available in tests
-uses()->beforeEach(function () use ($kernel): void {
-    $this->kernel = $kernel;
-    $this->container = $kernel->getContainer();
+// NOTE: The kernel is NOT booted here because there's no bootstrap.php in the root.
+// The Symfony kernel should be booted in individual tests if needed.
+// For now, we just ensure ENV variables are loaded and ConfigHelper is reset.
+uses()->beforeEach(function (): void {
+    // Reset ConfigHelper to ensure fresh configuration
+    ConfigHelper::resetInstance();
 })->in(__DIR__ . '/tests');
 
 // Reset DataMapper settings before and after each test to ensure test isolation.
