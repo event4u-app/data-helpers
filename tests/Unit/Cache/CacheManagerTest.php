@@ -49,11 +49,19 @@ describe('CacheManager', function(): void {
 
         // Check if Laravel is active (E2E environment)
         // @phpstan-ignore-next-line - Laravel Application class only available in E2E environment
-        if (function_exists('app') && app() instanceof Application) {
-            expect($cache)->toBeInstanceOf(LaravelCacheDriver::class);
-        } else {
-            expect($cache)->toBeInstanceOf(MemoryDriver::class);
+        if (class_exists(Application::class) && function_exists('app')) {
+            try {
+                $app = app();
+                if ($app instanceof Application) {
+                    expect($cache)->toBeInstanceOf(LaravelCacheDriver::class);
+                    return;
+                }
+            } catch (Throwable) {
+                // Laravel not available, fall through to memory driver check
+            }
         }
+
+        expect($cache)->toBeInstanceOf(MemoryDriver::class);
     });
 
     it('returns same instance on multiple calls', function(): void {

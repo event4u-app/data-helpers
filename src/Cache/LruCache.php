@@ -17,6 +17,9 @@ final class LruCache
     /** @var array<string, int> */
     private array $usage = [];
 
+    /** @var array<string, int> Expiration timestamps (unix timestamp) */
+    private array $expirations = [];
+
     private int $accessCounter = 0;
 
     public function __construct(
@@ -27,11 +30,17 @@ final class LruCache
     /**
      * Get value from cache.
      *
-     * @return mixed|null Returns null if key not found
+     * @return mixed|null Returns null if key not found or expired
      */
     public function get(string $key): mixed
     {
         if (!array_key_exists($key, $this->cache)) {
+            return null;
+        }
+
+        // Check if expired
+        if ($this->isExpired($key)) {
+            $this->delete($key);
             return null;
         }
 
@@ -41,14 +50,30 @@ final class LruCache
         return $this->cache[$key];
     }
 
-    /** Check if key exists in cache. */
+    /** Check if key exists in cache and is not expired. */
     public function has(string $key): bool
     {
-        return array_key_exists($key, $this->cache);
+        if (!array_key_exists($key, $this->cache)) {
+            return false;
+        }
+
+        // Check if expired
+        if ($this->isExpired($key)) {
+            $this->delete($key);
+            return false;
+        }
+
+        return true;
     }
 
-    /** Set value in cache. */
-    public function set(string $key, mixed $value): void
+    /**
+     * Set value in cache.
+     *
+     * @param string $key Cache key
+     * @param mixed $value Value to store
+     * @param int|null $ttl Time to live in seconds (null = no expiration)
+     */
+    public function set(string $key, mixed $value, ?int $ttl = null): void
     {
         // If cache is full and key doesn't exist, remove least recently used
         if (count($this->cache) >= $this->maxEntries && !array_key_exists($key, $this->cache)) {
@@ -57,12 +82,20 @@ final class LruCache
 
         $this->cache[$key] = $value;
         $this->usage[$key] = ++$this->accessCounter;
+
+        // Set expiration if TTL provided
+        if (null !== $ttl) {
+            $this->expirations[$key] = time() + $ttl;
+        } else {
+            // Remove expiration if exists
+            unset($this->expirations[$key]);
+        }
     }
 
     /** Delete a value from cache. */
     public function delete(string $key): void
     {
-        unset($this->cache[$key], $this->usage[$key]);
+        unset($this->cache[$key], $this->usage[$key], $this->expirations[$key]);
     }
 
     /** Clear all cache entries. */
@@ -70,6 +103,7 @@ final class LruCache
     {
         $this->cache = [];
         $this->usage = [];
+        $this->expirations = [];
         $this->accessCounter = 0;
     }
 
@@ -88,18 +122,29 @@ final class LruCache
     /**
      * Get cache statistics.
      *
-     * @return array{size: int, max_size: int, usage_percentage: float}
+     * @return array{hits: int, misses: int, size: int, max_size: int|null}
      */
-    public function stats(): array
+    public function getStats(): array
     {
         $size = $this->size();
         $maxSize = $this->maxSize();
 
         return [
+            'hits' => 0, // LruCache doesn't track hits/misses
+            'misses' => 0,
             'size' => $size,
             'max_size' => $maxSize,
-            'usage_percentage' => 0 < $maxSize ? ($size / $maxSize) * 100 : 0,
         ];
+    }
+
+    /** Check if a key is expired. */
+    private function isExpired(string $key): bool
+    {
+        if (!isset($this->expirations[$key])) {
+            return false;
+        }
+
+        return time() >= $this->expirations[$key];
     }
 
     /** Remove least recently used entry. */
@@ -120,21 +165,6 @@ final class LruCache
             }
         }
 
-        unset($this->cache[$lruKey], $this->usage[$lruKey]);
-    }
-
-    /**
-     * Get cache statistics.
-     *
-     * @return array{hits: int, misses: int, size: int, max_size: int|null}
-     */
-    public function getStats(): array
-    {
-        return [
-            'hits' => 0, // LruCache doesn't track hits/misses
-            'misses' => 0,
-            'size' => count($this->cache),
-            'max_size' => $this->maxEntries,
-        ];
+        unset($this->cache[$lruKey], $this->usage[$lruKey], $this->expirations[$lruKey]);
     }
 }

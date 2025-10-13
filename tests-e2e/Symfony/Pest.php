@@ -11,28 +11,24 @@ declare(strict_types=1);
 use event4u\DataHelpers\Config\ConfigHelper;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
-
-// Load helper functions from main tests directory
-require_once __DIR__ . '/../../tests/helpers.php';
-
-// Load .env file BEFORE creating kernel to ensure ENV variables are available during container compilation
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Dotenv\Dotenv;
 
-(new Dotenv())->loadEnv(__DIR__ . '/.env');
+// Symfony loads .env file automatically in tests/bootstrap.php
 
-// Make kernel and container available in tests
-// NOTE: The kernel is NOT booted here because there's no bootstrap.php in the root.
-// The Symfony kernel should be booted in individual tests if needed.
-// For now, we just ensure ENV variables are loaded and ConfigHelper is reset.
-uses()->beforeEach(function (): void {
-    // Reset ConfigHelper to ensure fresh configuration
-    ConfigHelper::resetInstance();
-})->in(__DIR__ . '/tests');
+// Use KernelTestCase for Feature tests to enable bootKernel() and getContainer()
+uses(KernelTestCase::class)
+    ->beforeEach(function (): void {
+        self::bootKernel();
+        MapperExceptions::reset();
+    })
+    ->in('tests/Feature');
 
-// Reset DataMapper settings before and after each test to ensure test isolation.
+// Reset MapperExceptions before and after each test to ensure test isolation
 uses()->beforeEach(function (): void {
     MapperExceptions::reset();
-});
+})->in('tests/Fixtures', 'tests/Integration', 'tests/Unit');
+
 uses()->afterEach(function (): void {
     MapperExceptions::reset();
-});
+})->in('tests/Fixtures', 'tests/Integration', 'tests/Unit', 'tests/Unit', 'tests/Feature');

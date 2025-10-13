@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Facade;
 
 // Check if app is already bootstrapped in this process
 if (!isset($GLOBALS['__laravel_app_bootstrapped'])) {
-    // Create Laravel application (use require instead of require_once to avoid true return)
+    // Create Laravel application
     $app = require __DIR__ . '/bootstrap/app.php';
 
     // Set the application instance globally
@@ -31,9 +31,5 @@ if (!isset($GLOBALS['__laravel_app_bootstrapped'])) {
     $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
     // Mark as bootstrapped
-    $GLOBALS['__laravel_app_bootstrapped'] = $app;
-} else {
-    $app = $GLOBALS['__laravel_app_bootstrapped'];
+    $GLOBALS['__laravel_app_bootstrapped'] = true;
 }
-
-return $app;

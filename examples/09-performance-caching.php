@@ -77,7 +77,10 @@ echo "\n";
 $stats = ExpressionParser::getCacheStats();
 echo "Cache statistics:\n";
 echo sprintf('  - Size: %d / %d%s', $stats['size'], $stats['max_size'], PHP_EOL);
-echo "  - Usage: " . number_format($stats['usage_percentage'], 1) . "%\n\n";
+$usagePercentage = 0 < $stats['max_size'] ? ($stats['size'] / $stats['max_size']) * 100 : 0;
+echo "  - Usage: " . number_format($usagePercentage, 1) . "%\n";
+echo sprintf('  - Hits: %d, Misses: %d%s', $stats['hits'], $stats['misses'], PHP_EOL);
+echo "\n";
 
 // ============================================================================
 // 3. Template Mapping Cache (ClassScopedCache)

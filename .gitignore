@@ -49,3 +49,8 @@ auth.json
 /coverage
 /coverage.xml
 /.phpunit.result.cache
+
+# Symfony E2E tests - auto-generated files
+/tests-e2e/Symfony/var/
+/tests-e2e/Symfony/storage/*
+/tests-e2e/Symfony/config/packages/data_helpers.yaml

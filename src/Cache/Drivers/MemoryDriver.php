@@ -26,8 +26,8 @@ final readonly class MemoryDriver implements CacheInterface
 
     public function set(string $key, mixed $value, ?int $ttl = null): void
     {
-        // TTL is ignored for in-memory cache (no expiration)
-        $this->cache->set($key, $value);
+        // Pass TTL to LruCache (now supports TTL)
+        $this->cache->set($key, $value, $ttl);
     }
 
     public function has(string $key): bool

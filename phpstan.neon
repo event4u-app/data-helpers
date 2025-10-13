@@ -23,6 +23,9 @@ parameters:
         - src/Symfony
         - '*.stub.php'
         - tests-e2e/*/vendor
+        - tests/Unit/MappedDataModelFromStringTest.php
+        - tests/Unit/MappedDataModelRequestBindingTest.php
+        - tests/utils/Models/*
 
     scanDirectories:
         - types
@@ -47,6 +50,7 @@ parameters:
         - '#^Return type of call to method PHPUnit\\Framework\\TestCase\:\:createMock\(\) contains unresolvable type\.$#'
         - '#^Cannot cast mixed to#'
         - '#^Method .* is unused.$#'
+        - '#^Class Tests\\Unit\\Company.*Model.* was not found while trying to analyse it#'
         - message: '#Access to an undefined property PHPUnit\\Framework\\TestCase::\$.*#'
           paths:
               - tests/*

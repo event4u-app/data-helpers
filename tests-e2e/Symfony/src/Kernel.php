@@ -29,8 +29,11 @@ class Kernel extends BaseKernel
             // Load framework configuration
             $loader->load($this->getProjectDir() . '/config/packages/framework.yaml');
 
-            // Load data_helpers configuration
-            $loader->load($this->getProjectDir() . '/config/packages/data_helpers.yaml');
+            // Load data_helpers configuration if it exists (created by recipe)
+            $dataHelpersConfig = $this->getProjectDir() . '/config/packages/data_helpers.yaml';
+            if (file_exists($dataHelpersConfig)) {
+                $loader->load($dataHelpersConfig);
+            }
         });
     }
 

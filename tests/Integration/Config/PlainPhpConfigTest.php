@@ -35,15 +35,55 @@ describe('Plain PHP Config Integration', function(): void {
         $helper = ConfigHelper::getInstance();
 
         expect($helper->getSource())->toBeIn(['plain', 'default', 'laravel', 'symfony']);
-        expect($helper->get('cache.max_entries'))->toBe(1000);
-        expect($helper->get('performance_mode'))->toBe('fast');
-    });
 
-    it('uses DataHelpersConfig with plain PHP', function(): void {
+        // In E2E environments, ENV variables might be set, so we check for either default or ENV value
+        // Laravel sets $_ENV but not putenv(), so we check $_ENV first, then getenv()
+        $envValue = $_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES'] ?? getenv('DATA_HELPERS_CACHE_MAX_ENTRIES');
+        $expectedMaxEntries = (false !== $envValue && '' !== $envValue) ? (int)$envValue : 1000;
+
+        expect($helper->get('cache.max_entries'))->toBe($expectedMaxEntries);
+        expect($helper->get('performance_mode'))->toBe('fast');
+    })->group('package-only');
+
+    it('uses default value (1000) when no ENV is set', function(): void {
+        // Temporarily unset ENV variables to test default behavior
+        $originalMaxEntries = $_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES'] ?? null;
+        $originalPerformanceMode = $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] ?? null;
+        $originalMaxEntriesGetenv = getenv('DATA_HELPERS_CACHE_MAX_ENTRIES');
+        $originalPerformanceModeGetenv = getenv('DATA_HELPERS_PERFORMANCE_MODE');
+
+        unset($_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES']);
+        unset($_ENV['DATA_HELPERS_PERFORMANCE_MODE']);
+        putenv('DATA_HELPERS_CACHE_MAX_ENTRIES');
+        putenv('DATA_HELPERS_PERFORMANCE_MODE');
+
+        // Reset config to pick up the change
+        ConfigHelper::resetInstance();
+        DataHelpersConfig::reset();
+
+        // Should use default value from config
         expect(DataHelpersConfig::getCacheMaxEntries())->toBe(1000);
         expect(DataHelpersConfig::getPerformanceMode())->toBe('fast');
         expect(DataHelpersConfig::isFastMode())->toBeTrue();
-    });
+
+        // Restore ENV variables
+        if (null !== $originalMaxEntries) {
+            $_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES'] = $originalMaxEntries;
+        }
+        if (null !== $originalPerformanceMode) {
+            $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] = $originalPerformanceMode;
+        }
+        if (false !== $originalMaxEntriesGetenv) {
+            putenv('DATA_HELPERS_CACHE_MAX_ENTRIES=' . $originalMaxEntriesGetenv);
+        }
+        if (false !== $originalPerformanceModeGetenv) {
+            putenv('DATA_HELPERS_PERFORMANCE_MODE=' . $originalPerformanceModeGetenv);
+        }
+
+        // Reset config again to restore original state
+        ConfigHelper::resetInstance();
+        DataHelpersConfig::reset();
+    })->group('package-only');
 
     it('respects ENV variables in plain PHP config', function(): void {
         // Skip in E2E environments where .env is already loaded and cached
@@ -86,10 +126,15 @@ describe('Plain PHP Config Integration', function(): void {
     });
 
     it('supports dot notation access', function(): void {
-        expect(DataHelpersConfig::get('cache.max_entries'))->toBe(1000);
-        expect(DataHelpersConfig::get('cache.max_entries', 500))->toBe(1000);
+        // In E2E environments, ENV variables might be set
+        // Laravel sets $_ENV but not putenv(), so we check $_ENV first, then getenv()
+        $envValue = $_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES'] ?? getenv('DATA_HELPERS_CACHE_MAX_ENTRIES');
+        $expectedMaxEntries = (false !== $envValue && '' !== $envValue) ? (int)$envValue : 1000;
+
+        expect(DataHelpersConfig::get('cache.max_entries'))->toBe($expectedMaxEntries);
+        expect(DataHelpersConfig::get('cache.max_entries', 500))->toBe($expectedMaxEntries);
         expect(DataHelpersConfig::get('nonexistent.key', 'default'))->toBe('default');
-    });
+    })->group('package-only');
 
     it('can be manually set', function(): void {
         DataHelpersConfig::setMany([

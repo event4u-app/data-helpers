@@ -7,14 +7,11 @@ use event4u\DataHelpers\Logging\LogEvent;
 use event4u\DataHelpers\Logging\LogLevel;
 use event4u\DataHelpers\Logging\LoggerFactory;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 describe('Logging (Symfony)', function (): void {
     beforeEach(function (): void {
-        // Boot Symfony kernel
-        self::bootKernel();
-
         // Enable logging for tests
         DataHelpersConfig::reset();
         DataHelpersConfig::setMany([
@@ -27,7 +24,11 @@ describe('Logging (Symfony)', function (): void {
 
         // Get logger from container
         $this->logger = self::getContainer()->get(LoggerInterface::class);
-        $this->messageBus = self::getContainer()->get(MessageBusInterface::class);
+
+        // Get message bus if available (optional for E2E tests)
+        $this->messageBus = self::getContainer()->has(MessageBusInterface::class)
+            ? self::getContainer()->get(MessageBusInterface::class)
+            : null;
 
         // Clear log file
         $logDir = self::getContainer()->getParameter('kernel.logs_dir');
@@ -92,12 +93,10 @@ describe('Logging (Symfony)', function (): void {
 
         expect(true)->toBeTrue(); // No exception
     });
-})->group('symfony')->extends(KernelTestCase::class);
+})->group('symfony');
 
 describe('Slack Integration (Symfony)', function (): void {
     beforeEach(function (): void {
-        self::bootKernel();
-
         // Enable logging for tests
         DataHelpersConfig::reset();
         DataHelpersConfig::initialize([
@@ -109,7 +108,11 @@ describe('Slack Integration (Symfony)', function (): void {
         ]);
 
         $this->logger = self::getContainer()->get(LoggerInterface::class);
-        $this->messageBus = self::getContainer()->get(MessageBusInterface::class);
+
+        // Get message bus if available (optional for E2E tests)
+        $this->messageBus = self::getContainer()->has(MessageBusInterface::class)
+            ? self::getContainer()->get(MessageBusInterface::class)
+            : null;
     });
 
     afterEach(function (): void {
@@ -137,12 +140,10 @@ describe('Slack Integration (Symfony)', function (): void {
 
         expect(true)->toBeTrue(); // No exception
     });
-})->group('symfony')->extends(KernelTestCase::class);
+})->group('symfony');
 
 describe('Filesystem Logger (Symfony)', function (): void {
     beforeEach(function (): void {
-        self::bootKernel();
-
         $this->logPath = sys_get_temp_dir() . '/data-helpers-symfony-test';
         if (!is_dir($this->logPath)) {
             mkdir($this->logPath, 0777, true);
@@ -202,12 +203,10 @@ describe('Filesystem Logger (Symfony)', function (): void {
         expect($content)->toContain('"level":"info"');
         expect($content)->toContain('"key":"value"');
     });
-})->group('symfony')->extends(KernelTestCase::class);
+})->group('symfony');
 
 describe('Prometheus Logger (Symfony)', function (): void {
     beforeEach(function (): void {
-        self::bootKernel();
-
         $this->metricsPath = sys_get_temp_dir() . '/data-helpers-metrics-test';
         if (!is_dir($this->metricsPath)) {
             mkdir($this->metricsPath, 0777, true);
@@ -259,5 +258,5 @@ describe('Prometheus Logger (Symfony)', function (): void {
         $content = file_get_contents($this->metricsFile);
         expect($content)->toContain('mapping');
     });
-})->group('symfony')->extends(KernelTestCase::class);
+})->group('symfony');
 

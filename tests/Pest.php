@@ -44,7 +44,8 @@ expect()->extend('toBeOne', fn() => $this->toBe(1));
 // Reset DataMapper settings before and after each test to ensure test isolation.
 uses()->beforeEach(function(): void {
     MapperExceptions::reset();
-});
+})->in('Fixtures', 'Integration', 'Unit');
+
 uses()->afterEach(function(): void {
     MapperExceptions::reset();
-});
+})->in('Fixtures', 'Integration', 'Unit');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Symfony;
 
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use function dirname;
 
@@ -18,6 +19,11 @@ final class DataHelpersBundle extends Bundle
     public function getPath(): string
     {
         return dirname(__DIR__, 2);
+    }
+
+    public function getContainerExtension(): ExtensionInterface
+    {
+        return new DataHelpersExtension();
     }
 }
 

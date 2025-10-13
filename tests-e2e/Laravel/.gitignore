@@ -63,3 +63,4 @@ auth.json
 
 # Laravel logs
 /storage/logs/*
+/storage/framework/views/*

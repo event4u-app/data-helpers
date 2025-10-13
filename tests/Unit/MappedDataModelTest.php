@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\MappedDataModel;
 use JsonSerializable;
 
@@ -36,20 +35,20 @@ class TestDataModel extends MappedDataModel
 }
 
 describe('MappedDataModel', function(): void {
-    beforeEach(function(): void {
-        MapperExceptions::reset();
-    });
-    afterEach(function(): void {
-        MapperExceptions::reset();
-    });
+//    beforeEach(function (): void {
+//        //MapperExceptions::reset();
+//    });
+//    afterEach(function (): void {
+//        //MapperExceptions::reset();
+//    });
 
     describe('Basic functionality', function(): void {
-        beforeEach(function(): void {
-            MapperExceptions::reset();
-        });
-        afterEach(function(): void {
-            MapperExceptions::reset();
-        });
+//        beforeEach(function (): void {
+//            //MapperExceptions::reset();
+//        });
+//        afterEach(function (): void {
+//            //MapperExceptions::reset();
+//        });
 
         test('it creates instance with data', function(): void {
             $data = [

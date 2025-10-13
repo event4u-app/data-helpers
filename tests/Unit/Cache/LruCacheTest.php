@@ -115,13 +115,13 @@ describe('LRU Cache', function(): void {
         $cache->set('key2', 'value2');
         $cache->set('key3', 'value3');
 
-        $stats = $cache->stats();
+        $stats = $cache->getStats();
 
-        expect($stats)->toBe([
-            'size' => 3,
-            'max_size' => 10,
-            'usage_percentage' => 30.0,
-        ]);
+        expect($stats)->toBeArray()
+            ->and($stats['size'])->toBe(3)
+            ->and($stats['max_size'])->toBe(10)
+            ->and($stats)->toHaveKey('hits')
+            ->and($stats)->toHaveKey('misses');
     });
 
     it('handles cache size of 1', function(): void {

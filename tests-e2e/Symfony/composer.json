@@ -19,7 +19,8 @@
   },
   "autoload": {
     "psr-4": {
-      "E2E\\Symfony\\": "src/"
+      "E2E\\Symfony\\": "src/",
+      "App\\": "src/"
     }
   },
   "autoload-dev": {

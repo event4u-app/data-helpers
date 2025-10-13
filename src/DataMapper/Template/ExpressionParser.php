@@ -256,10 +256,10 @@ final class ExpressionParser
     /**
      * Get cache statistics.
      *
-     * @return array{size: int, max_size: int, usage_percentage: float}
+     * @return array{hits: int, misses: int, size: int, max_size: int|null}
      */
     public static function getCacheStats(): array
     {
-        return self::getCache()->stats();
+        return self::getCache()->getStats();
     }
 }

@@ -31,19 +31,21 @@ final class Company extends Model
 
     /**
      * Get the departments for the company.
-     * @phpstan-ignore-next-line missingType.generics
+     *
+     * @return HasMany<Department>
      */
     public function departments(): HasMany
     {
-        return $this->hasMany(Department::class); // @phpstan-ignore-line
+        return $this->hasMany(Department::class);
     }
 
     /**
      * Get the projects for the company.
-     * @phpstan-ignore-next-line missingType.generics
+     *
+     * @return HasMany<Project>
      */
     public function projects(): HasMany
     {
-        return $this->hasMany(Project::class); // @phpstan-ignore-line
+        return $this->hasMany(Project::class);
     }
 }

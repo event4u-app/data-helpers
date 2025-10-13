@@ -19,15 +19,17 @@ describe('Default TTL', function(): void {
         DataHelpersConfig::reset();
     });
 
-    // TODO: fix skipped test
     it('uses default TTL from config for framework driver (Laravel)', function(): void {
         if (function_exists('setupLaravelCache')) {
             setupLaravelCache();
         }
 
+        // Use unique prefix to avoid conflicts in parallel tests
+        $uniquePrefix = 'test_' . bin2hex(random_bytes(8)) . ':';
+
         DataHelpersConfig::setMany([
             'cache.driver' => 'framework',
-            'cache.prefix' => 'test:',
+            'cache.prefix' => $uniquePrefix,
             'cache.default_ttl' => 3600,
         ]);
 
@@ -43,17 +45,19 @@ describe('Default TTL', function(): void {
         if (function_exists('teardownLaravelCache')) {
             teardownLaravelCache();
         }
-    })->group('laravel')->skip('Flaky in parallel tests - ArrayStore does not persist across processes');
+    })->group('laravel');
 
-    // TODO: fix skipped test
     it('allows overriding default TTL for framework driver (Laravel)', function(): void {
         if (function_exists('setupLaravelCache')) {
             setupLaravelCache();
         }
 
+        // Use unique prefix to avoid conflicts in parallel tests
+        $uniquePrefix = 'test_' . bin2hex(random_bytes(8)) . ':';
+
         DataHelpersConfig::setMany([
             'cache.driver' => 'framework',
-            'cache.prefix' => 'test:',
+            'cache.prefix' => $uniquePrefix,
             'cache.default_ttl' => 3600,
         ]);
 
@@ -68,7 +72,7 @@ describe('Default TTL', function(): void {
         if (function_exists('teardownLaravelCache')) {
             teardownLaravelCache();
         }
-    })->group('laravel')->skip('Flaky in parallel tests - ArrayStore does not persist across processes');
+    })->group('laravel');
 
     it('uses default TTL from config for Symfony driver', function(): void {
         $pool = new ArrayAdapter();
@@ -92,15 +96,17 @@ describe('Default TTL', function(): void {
         expect($cache->get('key1'))->toBe('value1');
     })->group('symfony');
 
-    // TODO: fix skipped test
     it('caches forever when default TTL is null', function(): void {
         if (function_exists('setupLaravelCache')) {
             setupLaravelCache();
         }
 
+        // Use unique prefix to avoid conflicts in parallel tests
+        $uniquePrefix = 'test_' . bin2hex(random_bytes(8)) . ':';
+
         DataHelpersConfig::setMany([
             'cache.driver' => 'framework',
-            'cache.prefix' => 'test:',
+            'cache.prefix' => $uniquePrefix,
             'cache.default_ttl' => null,
         ]);
 
@@ -115,17 +121,19 @@ describe('Default TTL', function(): void {
         if (function_exists('teardownLaravelCache')) {
             teardownLaravelCache();
         }
-    })->group('laravel')->skip('Flaky in parallel tests - ArrayStore does not persist across processes');
+    })->group('laravel');
 
-    // TODO: fix skipped test
     it('uses provided TTL over null default TTL', function(): void {
         if (function_exists('setupLaravelCache')) {
             setupLaravelCache();
         }
 
+        // Use unique prefix to avoid conflicts in parallel tests
+        $uniquePrefix = 'test_' . bin2hex(random_bytes(8)) . ':';
+
         DataHelpersConfig::setMany([
             'cache.driver' => 'framework',
-            'cache.prefix' => 'test:',
+            'cache.prefix' => $uniquePrefix,
             'cache.default_ttl' => null,
         ]);
 
@@ -140,6 +148,6 @@ describe('Default TTL', function(): void {
         if (function_exists('teardownLaravelCache')) {
             teardownLaravelCache();
         }
-    })->group('laravel')->skip('Flaky in parallel tests - ArrayStore does not persist across processes');
+    })->group('laravel');
 });
 

@@ -44,9 +44,10 @@ describe('Expression Parser Cache', function(): void {
         $stats = ExpressionParser::getCacheStats();
 
         expect($stats['size'])->toBe(3);
-        // max_size can vary depending on environment config (1000 default, 500 in some E2E environments)
-        expect($stats['max_size'])->toBeGreaterThanOrEqual(500);
-        expect($stats['usage_percentage'])->toBeGreaterThan(0);
+        // max_size can vary depending on environment config (1000 default, 250-500 in E2E environments)
+        expect($stats['max_size'])->toBeGreaterThanOrEqual(250);
+        expect($stats)->toHaveKey('hits');
+        expect($stats)->toHaveKey('misses');
     });
 
     it('clears cache', function(): void {

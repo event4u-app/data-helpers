@@ -27,20 +27,22 @@ class Employee extends Model
 
     /**
      * Get the department that owns the employee.
-     * @phpstan-ignore-next-line missingType.generics
+     *
+     * @return BelongsTo<Department, Employee>
      */
     public function department(): BelongsTo
     {
-        return $this->belongsTo(Department::class); // @phpstan-ignore-line
+        return $this->belongsTo(Department::class);
     }
 
     /**
      * Get the projects that the employee works on.
-     * @phpstan-ignore-next-line missingType.generics
+     *
+     * @return BelongsToMany<Project>
      */
     public function projects(): BelongsToMany
     {
-        return $this->belongsToMany(Project::class); // @phpstan-ignore-line
+        return $this->belongsToMany(Project::class);
     }
 }
 
