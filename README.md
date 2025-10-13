@@ -531,6 +531,67 @@ $product = new ProductModel(['id' => '12345', 'name' => '  Mouse  ']);
 
 📖 **[All Filters](docs/filters.md)**
 
+### Query Builder - Laravel-Style Fluent Interface
+
+Build complex data queries with an intuitive, chainable API:
+
+```php
+use event4u\DataHelpers\DataMapper;
+
+$products = [
+    ['id' => 1, 'name' => 'Laptop Pro', 'category' => 'Electronics', 'price' => 1299, 'stock' => 5],
+    ['id' => 2, 'name' => 'Wireless Mouse', 'category' => 'Electronics', 'price' => 29, 'stock' => 50],
+    ['id' => 3, 'name' => 'Standing Desk', 'category' => 'Furniture', 'price' => 299, 'stock' => 8],
+    ['id' => 4, 'name' => 'Ergonomic Chair', 'category' => 'Furniture', 'price' => 249, 'stock' => 12],
+];
+
+// Simple query with WHERE, ORDER BY, and LIMIT
+$result = DataMapper::query()
+    ->source('products', $products)
+    ->where('category', 'Electronics')
+    ->where('price', '>', 100)
+    ->orderBy('price', 'DESC')
+    ->limit(10)
+    ->get();
+// [['id' => 1, 'name' => 'Laptop Pro', ...]]
+
+// Complex query with GROUP BY and aggregations
+$stats = DataMapper::query()
+    ->source('products', $products)
+    ->groupBy('category', [
+        'total_products' => ['COUNT'],
+        'avg_price' => ['AVG', 'price'],
+        'total_stock' => ['SUM', 'stock'],
+    ])
+    ->get();
+// [
+//     ['category' => 'Electronics', 'total_products' => 2, 'avg_price' => 664, 'total_stock' => 55],
+//     ['category' => 'Furniture', 'total_products' => 2, 'avg_price' => 274, 'total_stock' => 20]
+// ]
+
+// Combine with pipeline for data transformation
+$result = DataMapper::pipeQuery([
+        new TrimStrings(),
+    ])
+    ->source('products', $products)
+    ->where('stock', '>', 0)
+    ->orderBy('price', 'ASC')
+    ->get();
+```
+
+**Features:**
+
+- ✅ WHERE with comparison operators (`=`, `!=`, `<>`, `>`, `<`, `>=`, `<=`)
+- ✅ Nested WHERE with closures for complex AND/OR logic
+- ✅ ORDER BY, LIMIT, OFFSET for sorting and pagination
+- ✅ GROUP BY with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.)
+- ✅ HAVING clause for filtering grouped results
+- ✅ DISTINCT and LIKE operators
+- ✅ Pipeline integration for data transformation
+- ✅ Method chaining in any order
+
+📖 **[Full Query Builder Documentation](docs/query-builder.md)** • [Examples](examples/18-query-builder.php)
+
 ## 🔧 Framework Support
 
 This package works with **any PHP 8.2+ project**. Framework support is **optional** and **automatically detected**.
@@ -570,7 +631,8 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Data Accessor](docs/data-accessor.md)** - Read nested data with wildcards, Collections, and Models
 - **[Data Mutator](docs/data-mutator.md)** - Write, merge, and unset nested values with wildcards
 - **[Data Mapper](docs/data-mapper.md)** - Map between structures with templates, transforms, and hooks
-    - **[Query Builder](docs/query-builder.md)** - Laravel-style fluent interface for building queries (WHERE, ORDER BY, LIMIT, GROUP BY, etc.)
+    - **[Query Builder](docs/query-builder.md)** - Laravel-style fluent interface for building queries (WHERE, ORDER BY, LIMIT, GROUP BY,
+      etc.)
     - **[Wildcard Operators](docs/wildcard-operators.md)** - Filter, sort, limit, group, and transform arrays (WHERE, ORDER BY, LIMIT,
       OFFSET, DISTINCT, LIKE, GROUP BY)
     - **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING filters
