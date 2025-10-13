@@ -18,6 +18,9 @@ final class DataHelpersConfig
     /** @var array<string, mixed>|null */
     private static ?array $config = null;
 
+    /** @var array<string, mixed>|null Original config for reset */
+    private static ?array $originalConfig = null;
+
     /**
      * Initialize configuration manually (optional).
      *
@@ -28,6 +31,7 @@ final class DataHelpersConfig
     public static function initialize(array $config): void
     {
         self::$config = $config;
+        self::$originalConfig = $config;
     }
 
     /**
@@ -81,10 +85,83 @@ final class DataHelpersConfig
         return 'fast' === self::getPerformanceMode();
     }
 
-    /** Reset configuration (for testing). */
-    public static function reset(): void
+    /**
+     * Set a single configuration value using dot notation.
+     *
+     * @param string $key Dot-notation key (e.g., 'logging.enabled')
+     * @param mixed $value Value to set
+     */
+    public static function set(string $key, mixed $value): void
     {
-        self::$config = null;
+        // Ensure config is initialized
+        if (null === self::$config) {
+            self::$config = [];
+            self::$originalConfig = [];
+        }
+
+        // Split key into segments
+        $keys = explode('.', $key);
+
+        // Build the nested array structure
+        self::$config = self::setNestedValue(self::$config, $keys, $value);
+    }
+
+    /**
+     * Recursively set a nested value in an array.
+     *
+     * @param array<string, mixed> $array The array to modify
+     * @param array<int, string> $keys The path to the value
+     * @param mixed $value The value to set
+     * @return array<string, mixed> The modified array
+     */
+    private static function setNestedValue(array $array, array $keys, mixed $value): array
+    {
+        $key = array_shift($keys);
+
+        if ([] === $keys) {
+            // Last key - set the value
+            $array[$key] = $value;
+        } else {
+            // Intermediate key - recurse
+            if (!isset($array[$key]) || !is_array($array[$key])) {
+                $array[$key] = [];
+            }
+            $array[$key] = self::setNestedValue($array[$key], $keys, $value);
+        }
+
+        return $array;
+    }
+
+    /**
+     * Set multiple configuration values at once.
+     *
+     * @param array<string, mixed> $values Key-value pairs (keys in dot notation)
+     */
+    public static function setMany(array $values): void
+    {
+        foreach ($values as $key => $value) {
+            self::set($key, $value);
+        }
+    }
+
+    /**
+     * Reset configuration.
+     *
+     * By default, completely resets to null (uses framework config).
+     * If $toOriginal is true, resets to the original config from initialize().
+     *
+     * @param bool $toOriginal If true, resets to original config. If false (default), completely resets to null.
+     */
+    public static function reset(bool $toOriginal = false): void
+    {
+        if ($toOriginal && null !== self::$originalConfig) {
+            self::$config = self::$originalConfig;
+        } else {
+            self::$config = null;
+            if (!$toOriginal) {
+                self::$originalConfig = null;
+            }
+        }
         ConfigHelper::reset();
     }
 
