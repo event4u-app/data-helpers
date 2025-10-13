@@ -1,0 +1,24 @@
+# Data Helpers Logging Services Configuration
+# Copy this file to your Symfony application's config/services.yaml
+# or include it in your main services.yaml with:
+#
+# imports:
+#     - { resource: services_logging.yaml }
+
+services:
+  # Symfony Messenger Handler for Slack Logging
+  # This handler processes async Slack log messages via Symfony Messenger
+  event4u\DataHelpers\Logging\Symfony\SendLogToSlackMessageHandler:
+    tags:
+      - name: 'messenger.message_handler'
+        # Optional: Specify transport for async processing
+        # from_transport: 'async'
+
+  # Optional: Configure routing for Slack messages
+  # Uncomment and adjust if you want to use a specific transport
+  #
+  # framework:
+  #   messenger:
+  #     routing:
+  #       'event4u\DataHelpers\Logging\Symfony\SendLogToSlackMessage': async
+

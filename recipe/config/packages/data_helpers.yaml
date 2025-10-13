@@ -40,10 +40,143 @@ data_helpers:
   # Default: 'fast' (recommended for most use cases)
   performance_mode: '%env(DATA_HELPERS_PERFORMANCE_MODE)%'
 
+  # Logging Configuration
+  # Configure logging for data-helpers operations, performance metrics,
+  # and data quality issues.
+  logging:
+    # Logger driver: filesystem, framework, none
+    # - filesystem: Write logs to files (JSON format for Loki)
+    # - framework: Use Symfony logger
+    # - none: Disable logging
+    driver: '%env(DATA_HELPERS_LOG_DRIVER)%'
+
+    # Log path (for filesystem driver)
+    path: '%env(DATA_HELPERS_LOG_PATH)%'
+
+    # Log filename pattern (supports date() format)
+    # Examples:
+    # - 'data-helper-Y-m-d.log' = One file per day
+    # - 'data-helper-Y-m-d-H.log' = One file per hour
+    filename_pattern: '%env(DATA_HELPERS_LOG_FILENAME)%'
+
+    # Minimum log level: emergency, alert, critical, error, warning, notice, info, debug
+    level: '%env(DATA_HELPERS_LOG_LEVEL)%'
+
+    # Enabled events
+    events:
+      # Errors (always recommended)
+      mapping.error: '%env(bool:DATA_HELPERS_LOG_EVENT_MAPPING_ERROR)%'
+      exception: '%env(bool:DATA_HELPERS_LOG_EVENT_EXCEPTION)%'
+      pipeline.filter_error: '%env(bool:DATA_HELPERS_LOG_EVENT_FILTER_ERROR)%'
+      template.expression_error: '%env(bool:DATA_HELPERS_LOG_EVENT_EXPRESSION_ERROR)%'
+      data.validation_failure: '%env(bool:DATA_HELPERS_LOG_EVENT_VALIDATION_FAILURE)%'
+
+      # Performance (can be noisy, use sampling)
+      performance.mapping: '%env(bool:DATA_HELPERS_LOG_EVENT_PERFORMANCE_MAPPING)%'
+      performance.query: '%env(bool:DATA_HELPERS_LOG_EVENT_PERFORMANCE_QUERY)%'
+      performance.pipeline: '%env(bool:DATA_HELPERS_LOG_EVENT_PERFORMANCE_PIPELINE)%'
+
+      # Success (very noisy, use low sampling rate)
+      mapping.success: '%env(bool:DATA_HELPERS_LOG_EVENT_MAPPING_SUCCESS)%'
+      query.success: '%env(bool:DATA_HELPERS_LOG_EVENT_QUERY_SUCCESS)%'
+
+      # Cache
+      cache.hit: '%env(bool:DATA_HELPERS_LOG_EVENT_CACHE_HIT)%'
+      cache.miss: '%env(bool:DATA_HELPERS_LOG_EVENT_CACHE_MISS)%'
+
+      # Data Quality
+      data.missing_field: '%env(bool:DATA_HELPERS_LOG_EVENT_MISSING_FIELD)%'
+      data.null_skipped: '%env(bool:DATA_HELPERS_LOG_EVENT_NULL_SKIPPED)%'
+      query.empty_result: '%env(bool:DATA_HELPERS_LOG_EVENT_EMPTY_RESULT)%'
+
+      # Metrics
+      metrics.processed_records: '%env(bool:DATA_HELPERS_LOG_EVENT_PROCESSED_RECORDS)%'
+
+    # Sampling rates per event group (0.0 - 1.0)
+    sampling:
+      errors: '%env(float:DATA_HELPERS_LOG_SAMPLING_ERRORS)%'
+      success: '%env(float:DATA_HELPERS_LOG_SAMPLING_SUCCESS)%'
+      performance: '%env(float:DATA_HELPERS_LOG_SAMPLING_PERFORMANCE)%'
+      cache: '%env(float:DATA_HELPERS_LOG_SAMPLING_CACHE)%'
+      data_quality: '%env(float:DATA_HELPERS_LOG_SAMPLING_DATA_QUALITY)%'
+      metrics: '%env(float:DATA_HELPERS_LOG_SAMPLING_METRICS)%'
+
+    # Slack Integration
+    slack:
+      enabled: '%env(bool:DATA_HELPERS_SLACK_ENABLED)%'
+      webhook_url: '%env(DATA_HELPERS_SLACK_WEBHOOK)%'
+      channel: '%env(DATA_HELPERS_SLACK_CHANNEL)%'
+      username: '%env(DATA_HELPERS_SLACK_USERNAME)%'
+      level: '%env(DATA_HELPERS_SLACK_LEVEL)%'
+      events:
+        - 'mapping.error'
+        - 'exception'
+        - 'data.validation_failure'
+      # Queue name for async sending (null = sync)
+      # Uses Symfony Messenger if available
+      queue: '%env(DATA_HELPERS_SLACK_QUEUE)%'
+
+    # Grafana Integration
+    grafana:
+      enabled: '%env(bool:DATA_HELPERS_GRAFANA_ENABLED)%'
+      format: '%env(DATA_HELPERS_GRAFANA_FORMAT)%'
+      labels:
+        app: 'data-helpers'
+        environment: '%env(APP_ENV)%'
+      prometheus:
+        enabled: '%env(bool:DATA_HELPERS_PROMETHEUS_ENABLED)%'
+        metrics_file: '%env(DATA_HELPERS_PROMETHEUS_FILE)%'
+
 # Default values for environment variables
 parameters:
   env(DATA_HELPERS_CACHE_DRIVER): 'framework'
   env(DATA_HELPERS_CACHE_MAX_ENTRIES): 1000
   env(DATA_HELPERS_CACHE_DEFAULT_TTL): 3600
   env(DATA_HELPERS_PERFORMANCE_MODE): 'fast'
+
+  # Logging defaults
+  env(DATA_HELPERS_LOG_DRIVER): 'filesystem'
+  env(DATA_HELPERS_LOG_PATH): '%kernel.logs_dir%'
+  env(DATA_HELPERS_LOG_FILENAME): 'data-helper-Y-m-d-H-i-s.log'
+  env(DATA_HELPERS_LOG_LEVEL): 'info'
+
+  # Event defaults
+  env(DATA_HELPERS_LOG_EVENT_MAPPING_ERROR): true
+  env(DATA_HELPERS_LOG_EVENT_EXCEPTION): true
+  env(DATA_HELPERS_LOG_EVENT_FILTER_ERROR): true
+  env(DATA_HELPERS_LOG_EVENT_EXPRESSION_ERROR): true
+  env(DATA_HELPERS_LOG_EVENT_VALIDATION_FAILURE): true
+  env(DATA_HELPERS_LOG_EVENT_PERFORMANCE_MAPPING): false
+  env(DATA_HELPERS_LOG_EVENT_PERFORMANCE_QUERY): false
+  env(DATA_HELPERS_LOG_EVENT_PERFORMANCE_PIPELINE): false
+  env(DATA_HELPERS_LOG_EVENT_MAPPING_SUCCESS): false
+  env(DATA_HELPERS_LOG_EVENT_QUERY_SUCCESS): false
+  env(DATA_HELPERS_LOG_EVENT_CACHE_HIT): false
+  env(DATA_HELPERS_LOG_EVENT_CACHE_MISS): false
+  env(DATA_HELPERS_LOG_EVENT_MISSING_FIELD): true
+  env(DATA_HELPERS_LOG_EVENT_NULL_SKIPPED): false
+  env(DATA_HELPERS_LOG_EVENT_EMPTY_RESULT): true
+  env(DATA_HELPERS_LOG_EVENT_PROCESSED_RECORDS): false
+
+  # Sampling defaults
+  env(DATA_HELPERS_LOG_SAMPLING_ERRORS): '1.0'
+  env(DATA_HELPERS_LOG_SAMPLING_SUCCESS): '0.01'
+  env(DATA_HELPERS_LOG_SAMPLING_PERFORMANCE): '0.1'
+  env(DATA_HELPERS_LOG_SAMPLING_CACHE): '0.05'
+  env(DATA_HELPERS_LOG_SAMPLING_DATA_QUALITY): '1.0'
+  env(DATA_HELPERS_LOG_SAMPLING_METRICS): '0.1'
+
+  # Slack defaults
+  env(DATA_HELPERS_SLACK_ENABLED): false
+  env(DATA_HELPERS_SLACK_WEBHOOK): ''
+  env(DATA_HELPERS_SLACK_CHANNEL): '#data-helpers'
+  env(DATA_HELPERS_SLACK_USERNAME): 'Data Helpers Bot'
+  env(DATA_HELPERS_SLACK_LEVEL): 'error'
+  env(DATA_HELPERS_SLACK_QUEUE): ~
+
+  # Grafana defaults
+  env(DATA_HELPERS_GRAFANA_ENABLED): false
+  env(DATA_HELPERS_GRAFANA_FORMAT): 'json'
+  env(DATA_HELPERS_PROMETHEUS_ENABLED): false
+  env(DATA_HELPERS_PROMETHEUS_FILE): '%kernel.project_dir%/var/metrics/data-helpers.prom'
 

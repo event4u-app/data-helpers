@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
-use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Context\HookContext;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 
 describe('DataMapperQuery - Basic Usage', function(): void {
     it('creates a query with source', function(): void {
