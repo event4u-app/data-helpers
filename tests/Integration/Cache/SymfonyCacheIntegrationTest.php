@@ -62,13 +62,9 @@ describe('Symfony Cache Integration', function(): void {
     it('uses Symfony driver when pool is configured with framework driver', function(): void {
         $pool = new ArrayAdapter();
 
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'framework',
-                'symfony' => [
-                    'pool' => $pool,
-                ],
-            ],
+        DataHelpersConfig::setMany([
+            'cache.driver' => 'framework',
+            'cache.symfony.pool' => $pool,
         ]);
 
         $cache = CacheManager::getInstance();

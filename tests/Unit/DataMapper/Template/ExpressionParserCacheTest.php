@@ -64,11 +64,7 @@ describe('Expression Parser Cache', function(): void {
 
     it('respects cache max entries configuration', function(): void {
         // Note: Cache is initialized on first use, so we need to set config before first parse
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'max_entries' => 3,
-            ],
-        ]);
+        DataHelpersConfig::set('cache.max_entries', 3);
 
         // Clear cache to force reinitialization with new config
         ExpressionParser::clearCache();

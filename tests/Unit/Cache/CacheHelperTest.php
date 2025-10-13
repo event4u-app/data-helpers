@@ -10,11 +10,9 @@ describe('CacheHelper', function(): void {
     beforeEach(function(): void {
         CacheManager::reset();
         DataHelpersConfig::reset();
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'memory',
-                'max_entries' => 100,
-            ],
+        DataHelpersConfig::setMany([
+            'cache.driver' => 'memory',
+            'cache.max_entries' => 100,
         ]);
     });
 

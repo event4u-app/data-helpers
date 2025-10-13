@@ -26,11 +26,9 @@ describe('DataHelpers Config', function(): void {
         expect(DataHelpersConfig::isFastMode())->toBeBool();
     });
 
-    it('initializes with custom configuration', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'max_entries' => 5000,
-            ],
+    it('sets custom configuration', function(): void {
+        DataHelpersConfig::setMany([
+            'cache.max_entries' => 5000,
             'performance_mode' => 'safe',
         ]);
 
@@ -40,40 +38,26 @@ describe('DataHelpers Config', function(): void {
     });
 
     it('gets nested configuration values', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'max_entries' => 2000,
-            ],
-        ]);
+        DataHelpersConfig::set('cache.max_entries', 2000);
 
         expect(DataHelpersConfig::get('cache.max_entries'))->toBe(2000);
     });
 
     it('returns default value for missing keys', function(): void {
-        DataHelpersConfig::initialize([]);
-
         expect(DataHelpersConfig::get('nonexistent', 'default'))->toBe('default');
         expect(DataHelpersConfig::get('cache.nonexistent', 42))->toBe(42);
     });
 
     it('handles partial configuration', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'max_entries' => 3000,
-            ],
-            // performance_mode not set
-        ]);
+        DataHelpersConfig::set('cache.max_entries', 3000);
+        // performance_mode not set
 
         expect(DataHelpersConfig::getCacheMaxEntries())->toBe(3000);
         expect(DataHelpersConfig::getPerformanceMode())->toBe('fast'); // default
     });
 
     it('resets configuration', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'max_entries' => 5000,
-            ],
-        ]);
+        DataHelpersConfig::set('cache.max_entries', 5000);
 
         expect(DataHelpersConfig::getCacheMaxEntries())->toBe(5000);
 
@@ -83,15 +67,15 @@ describe('DataHelpers Config', function(): void {
         $maxEntries = DataHelpersConfig::getCacheMaxEntries();
         expect($maxEntries)->toBeInt();
         expect($maxEntries)->toBeGreaterThan(0);
-        // Should be different from the manually initialized value
+        // Should be different from the manually set value
         expect($maxEntries)->not->toBe(5000);
     });
 
     it('checks fast mode correctly', function(): void {
-        DataHelpersConfig::initialize(['performance_mode' => 'fast']);
+        DataHelpersConfig::set('performance_mode', 'fast');
         expect(DataHelpersConfig::isFastMode())->toBeTrue();
 
-        DataHelpersConfig::initialize(['performance_mode' => 'safe']);
+        DataHelpersConfig::set('performance_mode', 'safe');
         expect(DataHelpersConfig::isFastMode())->toBeFalse();
     });
 });

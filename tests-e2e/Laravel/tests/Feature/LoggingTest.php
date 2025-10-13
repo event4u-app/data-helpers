@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataHelpersConfig;
 use event4u\DataHelpers\Logging\LogEvent;
 use event4u\DataHelpers\Logging\LogLevel;
 use event4u\DataHelpers\Logging\LoggerFactory;
@@ -10,16 +11,18 @@ use Illuminate\Support\Facades\Queue;
 
 describe('Logging (Laravel)', function (): void {
     beforeEach(function (): void {
-        // Set up test configuration
-        config([
-            'data-helpers.logging.driver' => 'framework',
-            'data-helpers.logging.level' => 'debug',
-            'data-helpers.logging.events' => [
+        // Configure logging using DataHelpersConfig
+        DataHelpersConfig::reset();
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => 'framework',
+            'logging.level' => 'debug',
+            'logging.events' => [
                 'mapping.error' => true,
                 'mapping.success' => true,
                 'performance.mapping' => true,
             ],
-            'data-helpers.logging.sampling' => [
+            'logging.sampling' => [
                 'errors' => 1.0,
                 'success' => 1.0,
                 'performance' => 1.0,
@@ -31,6 +34,11 @@ describe('Logging (Laravel)', function (): void {
         if (file_exists($logFile)) {
             file_put_contents($logFile, '');
         }
+    });
+
+    afterEach(function (): void {
+        // Reset config after each test
+        DataHelpersConfig::reset();
     });
 
     it('creates logger with Laravel logger', function (): void {
@@ -98,18 +106,26 @@ describe('Slack Integration (Laravel)', function (): void {
     beforeEach(function (): void {
         Queue::fake();
 
-        config([
-            'data-helpers.logging.driver' => 'framework',
-            'data-helpers.logging.slack.enabled' => true,
-            'data-helpers.logging.slack.webhook_url' => 'https://hooks.slack.com/test',
-            'data-helpers.logging.slack.channel' => '#test',
-            'data-helpers.logging.slack.level' => 'error',
-            'data-helpers.logging.slack.queue' => 'default',
-            'data-helpers.logging.slack.events' => [
+        // Configure Slack integration using DataHelpersConfig
+        DataHelpersConfig::reset();
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => 'framework',
+            'logging.slack.enabled' => true,
+            'logging.slack.webhook_url' => 'https://hooks.slack.com/test',
+            'logging.slack.channel' => '#test',
+            'logging.slack.level' => 'error',
+            'logging.slack.queue' => 'default',
+            'logging.slack.events' => [
                 'mapping.error',
                 'exception',
             ],
         ]);
+    });
+
+    afterEach(function (): void {
+        // Reset config after each test
+        DataHelpersConfig::reset();
     });
 
     it('dispatches Slack job for errors', function (): void {
@@ -157,17 +173,23 @@ describe('Filesystem Logger (Laravel)', function (): void {
             mkdir($this->logPath, 0777, true);
         }
 
-        config([
-            'data-helpers.logging.driver' => 'filesystem',
-            'data-helpers.logging.path' => $this->logPath,
-            'data-helpers.logging.filename_pattern' => 'test-Y-m-d.log',
-            'data-helpers.logging.level' => 'debug',
-            'data-helpers.logging.grafana.enabled' => true,
-            'data-helpers.logging.grafana.format' => 'json',
+        // Configure filesystem logger using setters
+        // Note: filename_pattern uses date() format, so literal text must be escaped with backslashes
+        DataHelpersConfig::reset();
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => 'filesystem',
+            'logging.path' => $this->logPath,
+            'logging.filename_pattern' => 'Y-m-d-\l\o\g.\l\o\g',  // All literal chars escaped
+            'logging.level' => 'debug',
+            'logging.grafana.enabled' => true,
+            'logging.grafana.format' => 'json',
         ]);
     });
 
     afterEach(function (): void {
+        DataHelpersConfig::reset();
+
         // Clean up
         if (is_dir($this->logPath)) {
             $files = glob($this->logPath . '/*');
@@ -187,7 +209,7 @@ describe('Filesystem Logger (Laravel)', function (): void {
 
         $logger->log(LogLevel::INFO, 'Test filesystem log');
 
-        $files = glob($this->logPath . '/test-*.log');
+        $files = glob($this->logPath . '/*.log');
         expect($files)->toBeArray();
         expect(count($files))->toBeGreaterThan(0);
     });
@@ -197,9 +219,11 @@ describe('Filesystem Logger (Laravel)', function (): void {
 
         $logger->log(LogLevel::INFO, 'Test JSON log', ['key' => 'value']);
 
-        $files = glob($this->logPath . '/test-*.log');
-        $content = file_get_contents($files[0]);
+        $files = glob($this->logPath . '/*.log');
+        expect($files)->toBeArray();
+        expect(count($files))->toBeGreaterThan(0);
 
+        $content = file_get_contents($files[0]);
         expect($content)->toContain('"message":"Test JSON log"');
         expect($content)->toContain('"level":"info"');
         expect($content)->toContain('"key":"value"');

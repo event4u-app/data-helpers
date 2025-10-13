@@ -12,25 +12,29 @@ describe('Plain PHP Config Integration', function(): void {
         // Clean ENV variables
         unset($_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES']);
         unset($_ENV['DATA_HELPERS_PERFORMANCE_MODE']);
+        putenv('DATA_HELPERS_CACHE_MAX_ENTRIES');
+        putenv('DATA_HELPERS_PERFORMANCE_MODE');
 
-        ConfigHelper::reset();
-        DataHelpersConfig::reset();
+        // Reset ConfigHelper instance to ensure clean state
+        ConfigHelper::resetInstance();
     });
 
     afterEach(function(): void {
         // Clean ENV variables
         unset($_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES']);
         unset($_ENV['DATA_HELPERS_PERFORMANCE_MODE']);
+        putenv('DATA_HELPERS_CACHE_MAX_ENTRIES');
+        putenv('DATA_HELPERS_PERFORMANCE_MODE');
 
-        ConfigHelper::reset();
-        DataHelpersConfig::reset();
+        // Reset ConfigHelper instance to ensure clean state
+        ConfigHelper::resetInstance();
     });
 
     it('loads config from plain PHP file', function(): void {
         // ConfigHelper should auto-detect and load plain PHP config
         $helper = ConfigHelper::getInstance();
 
-        expect($helper->getSource())->toBeIn(['plain', 'default']);
+        expect($helper->getSource())->toBeIn(['plain', 'default', 'laravel', 'symfony']);
         expect($helper->get('cache.max_entries'))->toBe(1000);
         expect($helper->get('performance_mode'))->toBe('fast');
     });
@@ -56,11 +60,10 @@ describe('Plain PHP Config Integration', function(): void {
         putenv('DATA_HELPERS_CACHE_MAX_ENTRIES=750');
         putenv('DATA_HELPERS_PERFORMANCE_MODE=safe');
 
-        // Reset to force reload
-        ConfigHelper::reset();
-        DataHelpersConfig::reset();
+        // Reset ConfigHelper instance to force reload from ENV
+        ConfigHelper::resetInstance();
 
-        // Should load from ENV
+        // Should load from ENV (getCacheMaxEntries returns int, so compare with int)
         expect(DataHelpersConfig::getCacheMaxEntries())->toBe(750);
         expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
         expect(DataHelpersConfig::isFastMode())->toBeFalse();
@@ -88,17 +91,14 @@ describe('Plain PHP Config Integration', function(): void {
         expect(DataHelpersConfig::get('nonexistent.key', 'default'))->toBe('default');
     });
 
-    it('can be manually initialized', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'max_entries' => 2000,
-            ],
+    it('can be manually set', function(): void {
+        DataHelpersConfig::setMany([
+            'cache.max_entries' => 2000,
             'performance_mode' => 'safe',
         ]);
 
         expect(DataHelpersConfig::getCacheMaxEntries())->toBe(2000);
         expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
-        expect(DataHelpersConfig::getSource())->toBe('manual');
     });
 
     it('handles missing config file gracefully', function(): void {

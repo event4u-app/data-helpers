@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Config;
 
-use event4u\DataHelpers\Config\ConfigHelper;
 use event4u\DataHelpers\DataHelpersConfig;
 use event4u\DataHelpers\Symfony\DataHelpersExtension;
 use Exception;
@@ -21,12 +20,10 @@ describe('Symfony Config Integration', function(): void {
             $this->markTestSkipped('Symfony is not available');
         }
 
-        ConfigHelper::reset();
         DataHelpersConfig::reset();
     });
 
     afterEach(function(): void {
-        ConfigHelper::reset();
         DataHelpersConfig::reset();
     });
 

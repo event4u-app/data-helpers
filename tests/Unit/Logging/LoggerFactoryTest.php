@@ -9,20 +9,23 @@ use event4u\DataHelpers\Logging\Loggers\NullLogger;
 use event4u\DataHelpers\Logging\LogLevel;
 
 describe('LoggerFactory', function(): void {
+    beforeEach(function(): void {
+        // Reset config after each test
+        DataHelpersConfig::reset();
+    });
+
     afterEach(function(): void {
         // Reset config after each test
         DataHelpersConfig::reset();
     });
 
     it('returns NullLogger when logging is disabled', function(): void {
-        DataHelpersConfig::initialize([
-            'logging' => [
-                'enabled' => false,
-                'driver' => LogDriver::FILESYSTEM,
-                'path' => sys_get_temp_dir(),
-                'filename_pattern' => 'test.log',
-                'level' => LogLevel::INFO,
-            ],
+        DataHelpersConfig::setMany([
+            'logging.enabled' => false,
+            'logging.driver' => LogDriver::FILESYSTEM,
+            'logging.path' => sys_get_temp_dir(),
+            'logging.filename_pattern' => 'test.log',
+            'logging.level' => LogLevel::INFO,
         ]);
 
         $logger = LoggerFactory::create();
@@ -31,14 +34,12 @@ describe('LoggerFactory', function(): void {
     });
 
     it('creates logger when logging is enabled', function(): void {
-        DataHelpersConfig::initialize([
-            'logging' => [
-                'enabled' => true,
-                'driver' => LogDriver::FILESYSTEM,
-                'path' => sys_get_temp_dir(),
-                'filename_pattern' => 'test.log',
-                'level' => LogLevel::INFO,
-            ],
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => LogDriver::FILESYSTEM,
+            'logging.path' => sys_get_temp_dir(),
+            'logging.filename_pattern' => 'test.log',
+            'logging.level' => LogLevel::INFO,
         ]);
 
         $logger = LoggerFactory::create();
@@ -47,11 +48,9 @@ describe('LoggerFactory', function(): void {
     });
 
     it('accepts LogDriver enum', function(): void {
-        DataHelpersConfig::initialize([
-            'logging' => [
-                'enabled' => true,
-                'driver' => LogDriver::NONE,
-            ],
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => LogDriver::NONE,
         ]);
 
         $logger = LoggerFactory::create();
@@ -60,11 +59,9 @@ describe('LoggerFactory', function(): void {
     });
 
     it('accepts LogDriver string', function(): void {
-        DataHelpersConfig::initialize([
-            'logging' => [
-                'enabled' => true,
-                'driver' => 'none',
-            ],
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => 'none',
         ]);
 
         $logger = LoggerFactory::create();
@@ -73,14 +70,12 @@ describe('LoggerFactory', function(): void {
     });
 
     it('accepts LogLevel enum', function(): void {
-        DataHelpersConfig::initialize([
-            'logging' => [
-                'enabled' => true,
-                'driver' => LogDriver::FILESYSTEM,
-                'path' => sys_get_temp_dir(),
-                'filename_pattern' => 'test.log',
-                'level' => LogLevel::ERROR,
-            ],
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => LogDriver::FILESYSTEM,
+            'logging.path' => sys_get_temp_dir(),
+            'logging.filename_pattern' => 'test.log',
+            'logging.level' => LogLevel::ERROR,
         ]);
 
         $logger = LoggerFactory::create();
@@ -89,14 +84,12 @@ describe('LoggerFactory', function(): void {
     });
 
     it('accepts LogLevel string', function(): void {
-        DataHelpersConfig::initialize([
-            'logging' => [
-                'enabled' => true,
-                'driver' => LogDriver::FILESYSTEM,
-                'path' => sys_get_temp_dir(),
-                'filename_pattern' => 'test.log',
-                'level' => 'error',
-            ],
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => LogDriver::FILESYSTEM,
+            'logging.path' => sys_get_temp_dir(),
+            'logging.filename_pattern' => 'test.log',
+            'logging.level' => 'error',
         ]);
 
         $logger = LoggerFactory::create();
@@ -105,11 +98,7 @@ describe('LoggerFactory', function(): void {
     });
 
     it('defaults to disabled when enabled is not set', function(): void {
-        DataHelpersConfig::initialize([
-            'logging' => [
-                'driver' => LogDriver::FILESYSTEM,
-            ],
-        ]);
+        DataHelpersConfig::set('logging.driver', LogDriver::FILESYSTEM);
 
         $logger = LoggerFactory::create();
 

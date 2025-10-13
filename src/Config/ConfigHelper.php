@@ -22,19 +22,23 @@ final class ConfigHelper
 
     private static ?self $instance = null;
 
-    /** @var array<string, mixed> */
+    /** @var array<string, mixed> Current configuration (can be modified) */
     private array $config = [];
+
+    /** @var array<string, mixed> Original configuration (immutable, for reset) */
+    private array $configOriginal = [];
 
     private string $source = 'unknown';
 
     private function __construct()
     {
         $this->loadConfig();
+        $this->configOriginal = $this->config;
     }
 
     public static function getInstance(): self
     {
-        if (!self::$instance instanceof \event4u\DataHelpers\Config\ConfigHelper) {
+        if (!self::$instance instanceof ConfigHelper) {
             self::$instance = new self();
         }
 
@@ -42,7 +46,7 @@ final class ConfigHelper
     }
 
     /** Reset the singleton instance (useful for testing). */
-    public static function reset(): void
+    public static function resetInstance(): void
     {
         self::$instance = null;
     }
@@ -129,6 +133,48 @@ final class ConfigHelper
     public function all(): array
     {
         return $this->config;
+    }
+
+    /**
+     * Set a configuration value using dot notation.
+     *
+     * @param string $key Dot-notation key (e.g., 'logging.enabled')
+     * @param mixed $value Value to set
+     */
+    public function set(string $key, mixed $value): void
+    {
+        $keys = explode('.', $key);
+        $this->config = $this->setNestedValue($this->config, $keys, $value);
+    }
+
+    /**
+     * Set multiple configuration values at once.
+     *
+     * @param array<string, mixed> $values Key-value pairs (keys in dot notation)
+     */
+    public function setMany(array $values): void
+    {
+        foreach ($values as $key => $value) {
+            $this->set($key, $value);
+        }
+    }
+
+    /** Reset configuration to original values. */
+    public function reset(): void
+    {
+        $this->config = $this->configOriginal;
+    }
+
+    /**
+     * Initialize configuration manually (for testing).
+     *
+     * @param array<string, mixed> $config
+     */
+    public function initialize(array $config): void
+    {
+        $this->config = $config;
+        $this->configOriginal = $config;
+        $this->source = 'manual';
     }
 
     /** Load configuration from the appropriate source. */
@@ -288,6 +334,32 @@ final class ConfigHelper
             }
 
             $array = $array[$segment];
+        }
+
+        return $array;
+    }
+
+    /**
+     * Recursively set a nested value in an array.
+     *
+     * @param array<string, mixed> $array The array to modify
+     * @param array<int, string> $keys The path to the value
+     * @param mixed $value The value to set
+     * @return array<string, mixed> The modified array
+     */
+    private function setNestedValue(array $array, array $keys, mixed $value): array
+    {
+        $key = array_shift($keys);
+
+        if ([] === $keys) {
+            // Last key - set the value
+            $array[$key] = $value;
+        } else {
+            // Intermediate key - recurse
+            if (!isset($array[$key]) || !is_array($array[$key])) {
+                $array[$key] = [];
+            }
+            $array[$key] = $this->setNestedValue($array[$key], $keys, $value);
         }
 
         return $array;

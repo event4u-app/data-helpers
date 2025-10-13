@@ -1,6 +1,7 @@
 # ConfigHelper
 
-The `ConfigHelper` is a universal configuration helper that automatically detects your framework (Laravel, Symfony, or plain PHP) and loads the appropriate configuration.
+The `ConfigHelper` is a universal configuration helper that automatically detects your framework (Laravel, Symfony, or plain PHP) and loads
+the appropriate configuration.
 
 ## Features
 
@@ -183,9 +184,9 @@ For testing, you can reset the singleton instance:
 use event4u\DataHelpers\Config\ConfigHelper;
 
 // Reset singleton
-ConfigHelper::reset();
+ConfigHelper::resetInstance();
 
-// Or use DataHelpersConfig::reset() which also resets ConfigHelper
+// Or use DataHelpersConfig::reset() which also resets ConfigHelper (stored values)
 DataHelpersConfig::reset();
 ```
 
@@ -299,7 +300,7 @@ If the wrong framework is detected:
 
 If configuration values are not updating:
 
-1. Remember that `ConfigHelper` is a singleton
-2. Call `ConfigHelper::reset()` to reload configuration
+1. Remember that `ConfigHelper` is a singleton, and `DataHelpersConfig` is the Fascade
+2. Call `DataHelpersConfig::reset()` to reload configuration
 3. In tests, always reset in `beforeEach()`/`afterEach()`
 

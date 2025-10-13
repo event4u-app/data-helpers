@@ -22,11 +22,9 @@ describe('CacheManager', function(): void {
     });
 
     it('creates memory driver by default', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'memory',
-                'max_entries' => 100,
-            ],
+        DataHelpersConfig::setMany([
+            'cache.driver' => 'memory',
+            'cache.max_entries' => 100,
         ]);
 
         $cache = CacheManager::getInstance();
@@ -34,23 +32,17 @@ describe('CacheManager', function(): void {
     });
 
     it('creates none driver', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'none',
-            ],
-        ]);
+        DataHelpersConfig::set('cache.driver', 'none');
 
         $cache = CacheManager::getInstance();
         expect($cache)->toBeInstanceOf(NoneDriver::class);
     });
 
     it('creates framework driver (uses Laravel if active, otherwise memory)', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'framework',
-                'max_entries' => 100,
-                'prefix' => 'test:',
-            ],
+        DataHelpersConfig::setMany([
+            'cache.driver' => 'framework',
+            'cache.max_entries' => 100,
+            'cache.prefix' => 'test:',
         ]);
 
         $cache = CacheManager::getInstance();
@@ -88,11 +80,7 @@ describe('CacheManager', function(): void {
     });
 
     it('throws exception for unknown driver', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'unknown-driver',
-            ],
-        ]);
+        DataHelpersConfig::set('cache.driver', 'unknown-driver');
 
         expect(fn(): CacheInterface => CacheManager::getInstance())
             ->toThrow(

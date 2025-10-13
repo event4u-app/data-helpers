@@ -50,11 +50,9 @@ describe('Laravel Cache Integration', function(): void {
     });
 
     it('uses Laravel cache driver from config', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'framework',
-                'prefix' => 'test:',
-            ],
+        DataHelpersConfig::setMany([
+            'cache.driver' => 'framework',
+            'cache.prefix' => 'test:',
         ]);
 
         $cache = CacheManager::getInstance();
@@ -62,11 +60,9 @@ describe('Laravel Cache Integration', function(): void {
     });
 
     it('stores and retrieves values via Laravel cache', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'framework',
-                'prefix' => 'integration:',
-            ],
+        DataHelpersConfig::setMany([
+            'cache.driver' => 'framework',
+            'cache.prefix' => 'integration:',
         ]);
 
         $cache = CacheManager::getInstance();
@@ -78,11 +74,7 @@ describe('Laravel Cache Integration', function(): void {
 
     it('respects Laravel cache configuration', function(): void {
         // Laravel cache is configured in the test environment
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'framework',
-            ],
-        ]);
+        DataHelpersConfig::set('cache.driver', 'framework');
 
         $cache = CacheManager::getInstance();
 
@@ -99,11 +91,7 @@ describe('Laravel Cache Integration', function(): void {
     });
 
     it('works with Laravel cache TTL', function(): void {
-        DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'framework',
-            ],
-        ]);
+        DataHelpersConfig::set('cache.driver', 'framework');
 
         $cache = CacheManager::getInstance();
         $cache->set('ttl_key', 'ttl_value', 3600);

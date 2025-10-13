@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataHelpersConfig;
 use event4u\DataHelpers\Logging\LogEvent;
 use event4u\DataHelpers\Logging\LogLevel;
 use event4u\DataHelpers\Logging\LoggerFactory;
@@ -14,6 +15,16 @@ describe('Logging (Symfony)', function (): void {
         // Boot Symfony kernel
         self::bootKernel();
 
+        // Enable logging for tests
+        DataHelpersConfig::reset();
+        DataHelpersConfig::setMany([
+            'logging' => [
+                'enabled' => true,
+                'driver' => 'framework',
+                'level' => 'debug',
+            ],
+        ]);
+
         // Get logger from container
         $this->logger = self::getContainer()->get(LoggerInterface::class);
         $this->messageBus = self::getContainer()->get(MessageBusInterface::class);
@@ -24,6 +35,10 @@ describe('Logging (Symfony)', function (): void {
         if (file_exists($logFile)) {
             file_put_contents($logFile, '');
         }
+    });
+
+    afterEach(function (): void {
+        DataHelpersConfig::reset();
     });
 
     it('creates logger with Symfony logger', function (): void {
@@ -83,8 +98,22 @@ describe('Slack Integration (Symfony)', function (): void {
     beforeEach(function (): void {
         self::bootKernel();
 
+        // Enable logging for tests
+        DataHelpersConfig::reset();
+        DataHelpersConfig::initialize([
+            'logging' => [
+                'enabled' => true,
+                'driver' => 'framework',
+                'level' => 'debug',
+            ],
+        ]);
+
         $this->logger = self::getContainer()->get(LoggerInterface::class);
         $this->messageBus = self::getContainer()->get(MessageBusInterface::class);
+    });
+
+    afterEach(function (): void {
+        DataHelpersConfig::reset();
     });
 
     it('can create logger with messenger for async Slack', function (): void {
@@ -119,16 +148,22 @@ describe('Filesystem Logger (Symfony)', function (): void {
             mkdir($this->logPath, 0777, true);
         }
 
-        // Override config for filesystem logger
-        putenv('DATA_HELPERS_LOG_DRIVER=filesystem');
-        putenv('DATA_HELPERS_LOG_PATH=' . $this->logPath);
-        putenv('DATA_HELPERS_LOG_FILENAME=test-Y-m-d.log');
-        putenv('DATA_HELPERS_LOG_LEVEL=debug');
-        putenv('DATA_HELPERS_GRAFANA_ENABLED=true');
-        putenv('DATA_HELPERS_GRAFANA_FORMAT=json');
+        // Configure filesystem logger using setters
+        DataHelpersConfig::reset();
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => 'filesystem',
+            'logging.path' => $this->logPath,
+            'logging.filename_pattern' => 'Y-m-d-\l\o\g.\l\o\g',
+            'logging.level' => 'debug',
+            'logging.grafana.enabled' => true,
+            'logging.grafana.format' => 'json',
+        ]);
     });
 
     afterEach(function (): void {
+        DataHelpersConfig::reset();
+
         // Clean up
         if (is_dir($this->logPath)) {
             $files = glob($this->logPath . '/*');
@@ -141,14 +176,6 @@ describe('Filesystem Logger (Symfony)', function (): void {
             }
             rmdir($this->logPath);
         }
-
-        // Reset env
-        putenv('DATA_HELPERS_LOG_DRIVER');
-        putenv('DATA_HELPERS_LOG_PATH');
-        putenv('DATA_HELPERS_LOG_FILENAME');
-        putenv('DATA_HELPERS_LOG_LEVEL');
-        putenv('DATA_HELPERS_GRAFANA_ENABLED');
-        putenv('DATA_HELPERS_GRAFANA_FORMAT');
     });
 
     it('creates log file in configured path', function (): void {
@@ -156,7 +183,7 @@ describe('Filesystem Logger (Symfony)', function (): void {
 
         $logger->log(LogLevel::INFO, 'Test filesystem log');
 
-        $files = glob($this->logPath . '/test-*.log');
+        $files = glob($this->logPath . '/*.log');
         expect($files)->toBeArray();
         expect(count($files))->toBeGreaterThan(0);
     });
@@ -166,9 +193,11 @@ describe('Filesystem Logger (Symfony)', function (): void {
 
         $logger->log(LogLevel::INFO, 'Test JSON log', ['key' => 'value']);
 
-        $files = glob($this->logPath . '/test-*.log');
-        $content = file_get_contents($files[0]);
+        $files = glob($this->logPath . '/*.log');
+        expect($files)->toBeArray();
+        expect(count($files))->toBeGreaterThan(0);
 
+        $content = file_get_contents($files[0]);
         expect($content)->toContain('"message":"Test JSON log"');
         expect($content)->toContain('"level":"info"');
         expect($content)->toContain('"key":"value"');
@@ -186,12 +215,19 @@ describe('Prometheus Logger (Symfony)', function (): void {
 
         $this->metricsFile = $this->metricsPath . '/data-helpers.prom';
 
-        putenv('DATA_HELPERS_LOG_DRIVER=filesystem');
-        putenv('DATA_HELPERS_PROMETHEUS_ENABLED=true');
-        putenv('DATA_HELPERS_PROMETHEUS_FILE=' . $this->metricsFile);
+        // Configure Prometheus logger using setters
+        DataHelpersConfig::reset();
+        DataHelpersConfig::setMany([
+            'logging.enabled' => true,
+            'logging.driver' => 'filesystem',
+            'logging.grafana.prometheus.enabled' => true,
+            'logging.grafana.prometheus.metrics_file' => $this->metricsFile,
+        ]);
     });
 
     afterEach(function (): void {
+        DataHelpersConfig::reset();
+
         // Clean up
         if (file_exists($this->metricsFile)) {
             unlink($this->metricsFile);
@@ -199,10 +235,6 @@ describe('Prometheus Logger (Symfony)', function (): void {
         if (is_dir($this->metricsPath)) {
             rmdir($this->metricsPath);
         }
-
-        putenv('DATA_HELPERS_LOG_DRIVER');
-        putenv('DATA_HELPERS_PROMETHEUS_ENABLED');
-        putenv('DATA_HELPERS_PROMETHEUS_FILE');
     });
 
     it('writes metrics to Prometheus file', function (): void {

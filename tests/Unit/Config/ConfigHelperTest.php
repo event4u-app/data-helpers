@@ -3,13 +3,14 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\Config\ConfigHelper;
+use event4u\DataHelpers\DataHelpersConfig;
 
 beforeEach(function(): void {
-    ConfigHelper::reset();
+    DataHelpersConfig::reset();
 });
 
 afterEach(function(): void {
-    ConfigHelper::reset();
+    DataHelpersConfig::reset();
 });
 
 describe('ConfigHelper', function(): void {
@@ -22,7 +23,7 @@ describe('ConfigHelper', function(): void {
 
     it('resets singleton instance', function(): void {
         $instance1 = ConfigHelper::getInstance();
-        ConfigHelper::reset();
+        ConfigHelper::resetInstance();
         $instance2 = ConfigHelper::getInstance();
 
         expect($instance1)->not->toBe($instance2);
