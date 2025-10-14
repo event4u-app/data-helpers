@@ -100,14 +100,11 @@ Publish the configuration file:
 php artisan vendor:publish --tag=data-helpers-config
 ```
 
-This creates `config/data-helpers.php`. Customize cache settings:
+This creates `config/data-helpers.php`. Customize performance mode:
 
 ```php
 return [
-    'cache' => [
-        'max_entries' => env('DATA_HELPERS_CACHE_MAX_ENTRIES', 1000),
-        'default_ttl' => env('DATA_HELPERS_CACHE_TTL', 3600),
-    ],
+    'performance_mode' => env('DATA_HELPERS_PERFORMANCE_MODE', 'fast'),
 ];
 ```
 
@@ -145,10 +142,7 @@ Create a config file and load it in your bootstrap:
 ```php
 // config/data-helpers.php
 return [
-    'cache' => [
-        'max_entries' => 1000,
-        'default_ttl' => 3600,
-    ],
+    'performance_mode' => 'fast',
 ];
 
 // bootstrap.php
@@ -644,7 +638,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Dot-Path Syntax](docs/dot-path.md)** - Path notation reference and best practices
 - **[Optional Dependencies](docs/optional-dependencies.md)** - Framework integration guide
 - **[Framework Integration](docs/framework-integration.md)** - Deep dive into Laravel, Symfony, and Doctrine support
-- **[Configuration](docs/configuration.md)** - Cache settings and environment configuration
+- **[Configuration](docs/configuration.md)** - Performance mode and environment configuration
 - **[Architecture](docs/architecture.md)** - Internal design and extension points
 - **[Types](docs/types.md)** - Type system and casting behavior
 - **[Support Helpers](docs/support.md)** - Framework abstraction layers (CollectionHelper, ModelHelper, etc.)
@@ -675,15 +669,13 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [06-laravel.php](examples/06-laravel.php) - Laravel Collections, Eloquent Models
 - [07-symfony-doctrine.php](examples/07-symfony-doctrine.php) - Doctrine Collections and Entities
 - [08-mapped-data-model.php](examples/08-mapped-data-model.php) - MappedDataModel with validation and type casting
-- [08-template-expressions.php](examples/08-template-expressions.php) - Template expressions with filters
-- [09-performance-caching.php](examples/09-performance-caching.php) - Performance optimization and caching strategies
-- [10-hash-validated-cache.php](examples/10-hash-validated-cache.php) - Hash-validated cache with automatic invalidation
-- [11-configuration.php](examples/11-configuration.php) - Configuration management and customization
-- [12-exception-handling.php](examples/12-exception-handling.php) - Exception handling modes and best practices
-- [13-wildcard-where-clause.php](examples/13-wildcard-where-clause.php) - Filter, sort, and paginate wildcard arrays with WHERE, ORDER BY,
-  etc.
-- [14-custom-wildcard-operators.php](examples/14-custom-wildcard-operators.php) - Register custom wildcard operators (EVEN_IDS, etc.)
-- [18-query-builder.php](examples/18-query-builder.php) - Laravel-style Query Builder with WHERE, ORDER BY, LIMIT, GROUP BY, etc.
+- [09-template-expressions.php](examples/09-template-expressions.php) - Template expressions with filters
+- [10-exception-handling.php](examples/10-exception-handling.php) - Exception handling modes and best practices
+- [11-wildcard-where-clause.php](examples/11-wildcard-where-clause.php) - Filter, sort, and paginate wildcard arrays
+- [12-custom-wildcard-operators.php](examples/12-custom-wildcard-operators.php) - Register custom wildcard operators
+- [13-distinct-like-operators.php](examples/13-distinct-like-operators.php) - DISTINCT and LIKE operators
+- [14-group-by-aggregations.php](examples/14-group-by-aggregations.php) - GROUP BY with aggregations
+- [15-query-builder.php](examples/15-query-builder.php) - Laravel-style Query Builder with WHERE, ORDER BY, LIMIT, GROUP BY, etc.
 
 ---
 

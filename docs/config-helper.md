@@ -6,7 +6,7 @@ the appropriate configuration.
 ## Features
 
 - ✅ **Auto-Detection**: Automatically detects Laravel, Symfony, or falls back to plain PHP
-- ✅ **Dot Notation**: Access nested configuration values with dot notation (e.g., `cache.max_entries`)
+- ✅ **Dot Notation**: Access nested configuration values with dot notation (e.g., `performance_mode`)
 - ✅ **Type-Safe Getters**: Get configuration values with automatic type casting
 - ✅ **Framework Agnostic**: Works with Laravel, Symfony, or standalone PHP
 - ✅ **Singleton Pattern**: Efficient single instance across your application
@@ -21,10 +21,10 @@ use event4u\DataHelpers\Config\ConfigHelper;
 $config = ConfigHelper::getInstance();
 
 // Get value with dot notation
-$maxEntries = $config->get('cache.max_entries', 1000);
+$maxEntries = $config->get('performance_mode', 1000);
 
 // Get typed values
-$maxEntries = $config->getInteger('cache.max_entries', 1000);
+$maxEntries = $config->getInteger('performance_mode', 1000);
 $mode = $config->getString('performance_mode', 'fast');
 $enabled = $config->getBoolean('some.feature', false);
 $ratio = $config->getFloat('some.ratio', 1.5);
@@ -38,7 +38,7 @@ $items = $config->getArray('some.items', []);
 Get configuration value using dot notation.
 
 ```php
-$value = $config->get('cache.max_entries');
+$value = $config->get('performance_mode');
 $value = $config->get('non.existent.key', 'default');
 ```
 
@@ -55,7 +55,7 @@ $enabled = $config->getBoolean('feature.enabled', false);
 Get configuration value as integer.
 
 ```php
-$maxEntries = $config->getInteger('cache.max_entries', 1000);
+$maxEntries = $config->getInteger('performance_mode', 1000);
 ```
 
 #### `getFloat(string $key, float $default = 0.0): float`
@@ -63,7 +63,7 @@ $maxEntries = $config->getInteger('cache.max_entries', 1000);
 Get configuration value as float.
 
 ```php
-$ratio = $config->getFloat('cache.ratio', 1.5);
+$ratio = $config->getFloat('logging.sampling.errors', 1.5);
 ```
 
 #### `getString(string $key, string $default = ''): string`
@@ -79,7 +79,7 @@ $mode = $config->getString('performance_mode', 'fast');
 Get configuration value as array.
 
 ```php
-$cache = $config->getArray('cache', []);
+$performanceConfig = $config->getArray('performance', []);
 ```
 
 #### `has(string $key): bool`
@@ -87,7 +87,7 @@ $cache = $config->getArray('cache', []);
 Check if configuration key exists.
 
 ```php
-if ($config->has('cache.max_entries')) {
+if ($config->has('performance_mode')) {
     // Key exists
 }
 ```
@@ -141,8 +141,7 @@ The helper loads configuration from Symfony's parameter bag:
 ```yaml
 # config/packages/data_helpers.yaml
 data_helpers:
-    cache:
-        max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
+    performance_mode: 'fast'
     performance_mode: '%env(DATA_HELPERS_PERFORMANCE_MODE)%'
 ```
 
@@ -168,12 +167,12 @@ The `DataHelpersConfig` class uses `ConfigHelper` internally:
 use event4u\DataHelpers\DataHelpersConfig;
 
 // These methods use ConfigHelper automatically
-$maxEntries = DataHelpersConfig::getCacheMaxEntries();
+$mode = DataHelpersConfig::getPerformanceMode();
 $mode = DataHelpersConfig::getPerformanceMode();
 $isFast = DataHelpersConfig::isFastMode();
 
 // You can also use the generic get() method
-$value = DataHelpersConfig::get('cache.max_entries', 1000);
+$value = DataHelpersConfig::get('performance_mode', 1000);
 ```
 
 ## Testing
@@ -213,11 +212,11 @@ use event4u\DataHelpers\Config\ConfigHelper;
 
 $config = ConfigHelper::getInstance();
 
-$maxEntries = $config->getInteger('cache.max_entries', 1000);
-$cacheConfig = $config->getArray('cache', []);
+$maxEntries = $config->getInteger('performance_mode', 1000);
+$config = $config->getArray('cache', []);
 
-echo "Max cache entries: {$maxEntries}\n";
-echo "Cache config: " . json_encode($cacheConfig) . "\n";
+echo "Performance mode: {$mode}\n";
+echo "Config: " . json_encode($config) . "\n";
 ```
 
 ### Example 2: Check Configuration Source
@@ -260,8 +259,8 @@ if ($config->getString('performance_mode') === 'fast') {
     echo "Using safe mode\n";
 }
 
-if ($config->getInteger('cache.max_entries') > 0) {
-    // Caching is enabled
+if ($config->getString('performance_mode') === 'fast') {
+    // Fast mode is enabled
     echo "Caching enabled\n";
 } else {
     // Caching is disabled

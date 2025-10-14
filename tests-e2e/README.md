@@ -123,10 +123,6 @@ Each E2E project's `composer.json` references the Data Helpers package via a loc
    - Automatic argument resolution
    - Request data mapping
 
-3. **Cache Integration**
-   - Symfony cache pool integration
-   - Framework driver detection
-
 ## Adding New Tests
 
 To add new E2E tests:
@@ -182,18 +178,6 @@ composer install
 2. **Verify Data Helpers package changes**
 3. **Review test output for specific errors**
 4. **Run tests individually** to isolate issues
-
-### Cache Issues
-
-```bash
-# Laravel
-cd tests-e2e/Laravel
-rm -rf var/cache/*
-
-# Symfony
-cd tests-e2e/Symfony
-rm -rf var/cache/*
-```
 
 ## Performance
 
