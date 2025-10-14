@@ -193,10 +193,13 @@ class MappingEngine
                 $actualSourcePath
             )) {
                 // Normalize wildcard array (flatten dot-path keys to simple list)
-                $value = WildcardHandler::normalizeWildcardArray($value);
+                $normalizedValue = WildcardHandler::normalizeWildcardArray($value);
+
+                // Free memory: original value not needed anymore
+                unset($value);
 
                 $target = self::processWildcardMapping(
-                    $value,
+                    $normalizedValue,
                     $target,
                     $sourcePath,
                     $targetPath,
@@ -211,6 +214,9 @@ class MappingEngine
                     $trimValues,
                     $caseInsensitiveReplace
                 );
+
+                // Free memory: normalized value not needed anymore
+                unset($normalizedValue);
             } else {
                 $target = self::processSingleMapping(
                     $value,
@@ -222,6 +228,9 @@ class MappingEngine
                     $hooks,
                     $pairContext
                 );
+
+                // Free memory: value not needed anymore
+                unset($value);
             }
 
             // afterPair hook (only if hooks exist)
@@ -348,6 +357,9 @@ class MappingEngine
                 $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $collectedValues);
             }
 
+            // Free memory: collectedValues not needed anymore
+            unset($collectedValues);
+
             if ('__skip__' !== $writeValue) {
                 // Check if target is an entity and targetPath is a relation
                 // If so, use EntityHelper::setAttribute which will handle relation mapping
@@ -355,6 +367,9 @@ class MappingEngine
                     // Extract first segment of target path (e.g., 'departments' from 'departments.name')
                     $segments = DotPathHelper::segments($targetPath);
                     $firstSegment = $segments[0] ?? '';
+
+                    // Free memory: segments not needed anymore
+                    unset($segments);
 
                     if ($firstSegment && EntityHelper::isRelation(
                         $target,
