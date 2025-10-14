@@ -66,7 +66,7 @@ Map between different data formats, APIs, or database schemas without writing re
 
 ### 🛡️ **Type-safe and well-tested**
 
-PHPStan Level 9 compliant with 1300+ tests. Works reliably with arrays, objects, Collections, Models, JSON, and XML.
+PHPStan Level 9 compliant with 1100+ tests. Works reliably with arrays, objects, Collections, Models, JSON, and XML.
 
 ### ⚡ **Framework-agnostic with smart detection**
 
@@ -489,6 +489,40 @@ $result = DataMapper::autoMap($source, $target);
 // ['id' => 1, 'name' => 'Alice', 'email' => 'alice@example.com']
 ```
 
+### Reverse Mapping - Bidirectional Data Transformation
+
+Use the same mapping definition to transform data in both directions:
+
+```php
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\ReverseDataMapper;
+
+// Define mapping once
+$mapping = [
+    'profile.name' => '{{ user.name }}',
+    'profile.email' => '{{ user.email }}',
+];
+
+// Forward: user -> profile
+$user = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$profile = DataMapper::map($user, [], $mapping);
+// ['profile' => ['name' => 'John', 'email' => 'john@example.com']]
+
+// Reverse: profile -> user (using the SAME mapping!)
+$profile = ['profile' => ['name' => 'Jane', 'email' => 'jane@example.com']];
+$user = ReverseDataMapper::map($profile, [], $mapping);
+// ['user' => ['name' => 'Jane', 'email' => 'jane@example.com']]
+```
+
+**Perfect for:**
+
+- DTO ↔ Domain Model conversion
+- API Request/Response transformation
+- Form data binding
+- Bidirectional synchronization
+
+📖 **[Full Reverse Mapping Documentation](docs/reverse-mapping.md)**
+
 ---
 
 ### MappedDataModel - Laravel-Style Request Binding
@@ -670,11 +704,13 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [07-symfony-doctrine.php](examples/07-symfony-doctrine.php) - Doctrine Collections and Entities
 - [08-mapped-data-model.php](examples/08-mapped-data-model.php) - MappedDataModel with validation and type casting
 - [09-template-expressions.php](examples/09-template-expressions.php) - Template expressions with filters
-- [10-exception-handling.php](examples/10-exception-handling.php) - Exception handling modes and best practices
-- [11-wildcard-where-clause.php](examples/11-wildcard-where-clause.php) - Filter, sort, and paginate wildcard arrays
-- [12-custom-wildcard-operators.php](examples/12-custom-wildcard-operators.php) - Register custom wildcard operators
-- [13-distinct-like-operators.php](examples/13-distinct-like-operators.php) - DISTINCT and LIKE operators
-- [14-group-by-aggregations.php](examples/14-group-by-aggregations.php) - GROUP BY with aggregations
+- [10-reverse-mapping.php](examples/10-reverse-mapping.php) - Bidirectional mapping with ReverseDataMapper
+- [11-exception-handling.php](examples/11-exception-handling.php) - Exception handling modes and best practices
+- [12-wildcard-where-clause.php](examples/12-wildcard-where-clause.php) - Filter, sort, and paginate wildcard arrays
+- [13-custom-wildcard-operators.php](examples/13-custom-wildcard-operators.php) - Register custom wildcard operators
+- [14-distinct-like-operators.php](examples/14-distinct-like-operators.php) - DISTINCT and LIKE operators
+- [15-group-by-aggregations.php](examples/15-group-by-aggregations.php) - GROUP BY with aggregations
+- [16-query-builder.php](examples/16-query-builder.php) - Query Builder with fluent interface
 - [15-query-builder.php](examples/15-query-builder.php) - Laravel-style Query Builder with WHERE, ORDER BY, LIMIT, GROUP BY, etc.
 
 ---
@@ -734,7 +770,7 @@ $result = DataMapper::pipe([
 
 ## 🧪 Testing & Quality
 
-- ✅ **1300+ tests** with 4100+ assertions
+- ✅ **1100+ tests** with 2900+ assertions
 - ✅ **PHPStan Level 9** - Highest static analysis level
 - ✅ **100% type coverage** - All methods fully typed
 - ✅ **Pest** - Modern testing framework
@@ -747,38 +783,40 @@ $result = DataMapper::pipe([
 All operations are highly optimized and run in microseconds:
 
 <!-- BENCHMARK_RESULTS_START -->
+
 ### DataAccessor
 
-| Operation | Time | Description |
-|-----------|------|-------------|
-| Simple Get | 0.222μs | Get value from flat array |
-| Nested Get | 0.291μs | Get value from nested path |
-| Wildcard Get | 4.559μs | Get values using single wildcard |
+| Operation         | Time     | Description                                                   |
+|-------------------|----------|---------------------------------------------------------------|
+| Simple Get        | 0.222μs  | Get value from flat array                                     |
+| Nested Get        | 0.291μs  | Get value from nested path                                    |
+| Wildcard Get      | 4.559μs  | Get values using single wildcard                              |
 | Deep Wildcard Get | 49.160μs | Get values using multiple wildcards (10 depts × 20 employees) |
-| Typed Get String | 0.262μs | Get typed string value |
-| Typed Get Int | 0.249μs | Get typed int value |
-| Create Accessor | 0.055μs | Instantiate DataAccessor |
+| Typed Get String  | 0.262μs  | Get typed string value                                        |
+| Typed Get Int     | 0.249μs  | Get typed int value                                           |
+| Create Accessor   | 0.055μs  | Instantiate DataAccessor                                      |
 
 ### DataMutator
 
-| Operation | Time | Description |
-|-----------|------|-------------|
-| Simple Set | 0.501μs | Set value in flat array |
-| Nested Set | 0.748μs | Set value in nested path |
-| Deep Set | 0.893μs | Set value creating new nested structure |
-| Multiple Set | 1.316μs | Set multiple values at once |
-| Merge | 0.751μs | Deep merge arrays |
-| Unset | 0.713μs | Remove single value |
-| Multiple Unset | 1.132μs | Remove multiple values |
+| Operation      | Time    | Description                             |
+|----------------|---------|-----------------------------------------|
+| Simple Set     | 0.501μs | Set value in flat array                 |
+| Nested Set     | 0.748μs | Set value in nested path                |
+| Deep Set       | 0.893μs | Set value creating new nested structure |
+| Multiple Set   | 1.316μs | Set multiple values at once             |
+| Merge          | 0.751μs | Deep merge arrays                       |
+| Unset          | 0.713μs | Remove single value                     |
+| Multiple Unset | 1.132μs | Remove multiple values                  |
 
 ### DataMapper
 
-| Operation | Time | Description |
-|-----------|------|-------------|
-| Simple Mapping | 5.458μs | Map flat structure |
-| Nested Mapping | 5.933μs | Map nested structure |
-| Auto Map | 6.705μs | Automatic field mapping |
+| Operation         | Time    | Description                    |
+|-------------------|---------|--------------------------------|
+| Simple Mapping    | 5.458μs | Map flat structure             |
+| Nested Mapping    | 5.933μs | Map nested structure           |
+| Auto Map          | 6.705μs | Automatic field mapping        |
 | Map From Template | 1.688μs | Map using template expressions |
+
 <!-- BENCHMARK_RESULTS_END -->
 
 **Key Insights:**
