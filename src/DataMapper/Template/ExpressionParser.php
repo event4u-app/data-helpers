@@ -26,9 +26,9 @@ final class ExpressionParser
      */
     public static function parse(string $value): ?array
     {
-        // Check cache first - use get() directly to avoid double lookup
-        $cached = self::getCache()->get($value);
-        if (null !== $cached || self::getCache()->has($value)) {
+        // Check cache first
+        if (self::getCache()->has($value)) {
+            $cached = self::getCache()->get($value);
             // PHPStan: We know it's either the correct array structure or null from cache
             /** @var array{type: string, path: string, default: mixed, filters: array<int, string>}|null $cached */
             return $cached;
@@ -118,7 +118,30 @@ final class ExpressionParser
      */
     public static function splitByPipeFast(string $expression): array
     {
-        return self::splitByPipeInternal($expression, false);
+        $parts = [];
+        $current = '';
+        $inQuotes = false;
+        $length = strlen($expression);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $expression[$i];
+
+            if ('"' === $char) {
+                $inQuotes = !$inQuotes;
+                $current .= $char;
+            } elseif ('|' === $char && !$inQuotes) {
+                $parts[] = trim($current);
+                $current = '';
+            } else {
+                $current .= $char;
+            }
+        }
+
+        if ('' !== $current) {
+            $parts[] = trim($current);
+        }
+
+        return $parts;
     }
 
     /**
@@ -127,17 +150,6 @@ final class ExpressionParser
      * @return array<int, string>
      */
     public static function splitByPipeSafe(string $expression): array
-    {
-        return self::splitByPipeInternal($expression, true);
-    }
-
-    /**
-     * Internal pipe split implementation.
-     *
-     * @param bool $handleEscapes Whether to handle escape sequences
-     * @return array<int, string>
-     */
-    private static function splitByPipeInternal(string $expression, bool $handleEscapes): array
     {
         $parts = [];
         $current = '';
@@ -149,42 +161,32 @@ final class ExpressionParser
         for ($i = 0; $i < $length; $i++) {
             $char = $expression[$i];
 
-            // Handle escape sequences (only in safe mode)
-            if ($handleEscapes && $escaped) {
+            if ($escaped) {
                 $current .= $char;
                 $escaped = false;
                 continue;
             }
 
-            if ($handleEscapes && '\\' === $char) {
+            if ('\\' === $char) {
                 $escaped = true;
                 $current .= $char;
                 continue;
             }
 
-            // Handle quotes
-            if ($handleEscapes) {
-                // Safe mode: Track quote character
-                if (('"' === $char || "'" === $char) && !$inQuotes) {
-                    $inQuotes = true;
-                    $quoteChar = $char;
-                    $current .= $char;
-                    continue;
-                }
-                if ($char === $quoteChar && $inQuotes) {
-                    $inQuotes = false;
-                    $quoteChar = null;
-                    $current .= $char;
-                    continue;
-                }
-            } elseif ('"' === $char) {
-                // Fast mode: Simple toggle on double quotes only
-                $inQuotes = !$inQuotes;
+            if (('"' === $char || "'" === $char) && !$inQuotes) {
+                $inQuotes = true;
+                $quoteChar = $char;
                 $current .= $char;
                 continue;
             }
 
-            // Split on pipe if not in quotes
+            if ($char === $quoteChar && $inQuotes) {
+                $inQuotes = false;
+                $quoteChar = null;
+                $current .= $char;
+                continue;
+            }
+
             if ('|' === $char && !$inQuotes) {
                 $parts[] = trim($current);
                 $current = '';
