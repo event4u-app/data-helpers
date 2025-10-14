@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\Cache\ClassScopedCache;
 use event4u\DataHelpers\DataMapper\Support\TemplateParser;
 
 describe('TemplateParser', function(): void {
@@ -36,11 +35,6 @@ describe('TemplateParser', function(): void {
     });
 
     describe('parseMapping()', function(): void {
-        beforeEach(function(): void {
-            // Clear cache before each test
-            ClassScopedCache::clearClass(TemplateParser::class);
-        });
-
         it('parses template expressions to paths', function(): void {
             $mapping = [
                 'name' => '{{ user.name }}',
@@ -83,135 +77,6 @@ describe('TemplateParser', function(): void {
                 'name' => 'user.name',
                 'status' => ['__literal__' => 'active'],
             ]);
-        });
-
-        it('caches parsed mappings', function(): void {
-            $mapping = [
-                'name' => '{{ user.name }}',
-                'email' => '{{ user.email }}',
-            ];
-
-            // First call - should parse and cache
-            $result1 = TemplateParser::parseMapping($mapping);
-
-            // Second call - should return from cache
-            $result2 = TemplateParser::parseMapping($mapping);
-
-            expect($result1)->toBe($result2);
-            expect($result1)->toBe([
-                'name' => 'user.name',
-                'email' => 'user.email',
-            ]);
-        });
-
-        it('caches different mappings separately', function(): void {
-            $mapping1 = [
-                'name' => '{{ user.name }}',
-            ];
-
-            $mapping2 = [
-                'email' => '{{ user.email }}',
-            ];
-
-            $result1 = TemplateParser::parseMapping($mapping1);
-            $result2 = TemplateParser::parseMapping($mapping2);
-
-            expect($result1)->toBe(['name' => 'user.name']);
-            expect($result2)->toBe(['email' => 'user.email']);
-        });
-
-        it('evicts old cache entries when max entries reached', function(): void {
-            // Clear cache first
-            ClassScopedCache::clearClass(TemplateParser::class);
-
-            // Create 101 different mappings (max is 100)
-            for ($i = 1; 101 >= $i; $i++) {
-                $mapping = [
-                    'field' . $i => sprintf('{{ user.field%d }}', $i),
-                ];
-                TemplateParser::parseMapping($mapping);
-            }
-
-            // First mapping should be evicted
-            $stats = ClassScopedCache::getClassStats(TemplateParser::class);
-            expect($stats['count'])->toBeLessThanOrEqual(100);
-        });
-
-        it('returns different results for different mappings even with cache', function(): void {
-            // Clear cache first
-            ClassScopedCache::clearClass(TemplateParser::class);
-
-            $mapping1 = [
-                'name' => '{{ user.name }}',
-                'email' => '{{ user.email }}',
-            ];
-
-            $mapping2 = [
-                'name' => '{{ customer.fullName }}',
-                'email' => '{{ customer.contactEmail }}',
-            ];
-
-            $mapping3 = [
-                'title' => '{{ product.title }}',
-                'price' => '{{ product.price }}',
-            ];
-
-            // Parse all three mappings
-            $result1 = TemplateParser::parseMapping($mapping1);
-            $result2 = TemplateParser::parseMapping($mapping2);
-            $result3 = TemplateParser::parseMapping($mapping3);
-
-            // Verify they are different
-            expect($result1)->toBe([
-                'name' => 'user.name',
-                'email' => 'user.email',
-            ]);
-
-            expect($result2)->toBe([
-                'name' => 'customer.fullName',
-                'email' => 'customer.contactEmail',
-            ]);
-
-            expect($result3)->toBe([
-                'title' => 'product.title',
-                'price' => 'product.price',
-            ]);
-
-            // Parse again to ensure cache returns correct values
-            $result1Again = TemplateParser::parseMapping($mapping1);
-            $result2Again = TemplateParser::parseMapping($mapping2);
-            $result3Again = TemplateParser::parseMapping($mapping3);
-
-            expect($result1Again)->toBe($result1);
-            expect($result2Again)->toBe($result2);
-            expect($result3Again)->toBe($result3);
-        });
-
-        it('does not mix up cached results for similar mappings', function(): void {
-            // Clear cache first
-            ClassScopedCache::clearClass(TemplateParser::class);
-
-            $mapping1 = [
-                'name' => '{{ user.name }}',
-            ];
-
-            $mapping2 = [
-                'name' => '{{ admin.name }}',
-            ];
-
-            $result1 = TemplateParser::parseMapping($mapping1);
-            $result2 = TemplateParser::parseMapping($mapping2);
-
-            // Should be different
-            expect($result1)->toBe(['name' => 'user.name']);
-            expect($result2)->toBe(['name' => 'admin.name']);
-
-            // Parse again - should still be different
-            $result1Again = TemplateParser::parseMapping($mapping1);
-            $result2Again = TemplateParser::parseMapping($mapping2);
-
-            expect($result1Again)->toBe(['name' => 'user.name']);
-            expect($result2Again)->toBe(['name' => 'admin.name']);
         });
     });
 

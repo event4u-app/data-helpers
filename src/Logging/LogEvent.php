@@ -19,8 +19,6 @@ enum LogEvent: string
     case MAPPING_PERFORMANCE = 'performance.mapping';
     case QUERY_PERFORMANCE = 'performance.query';
     case PIPELINE_PERFORMANCE = 'performance.pipeline';
-    case CACHE_HIT = 'cache.hit';
-    case CACHE_MISS = 'cache.miss';
     case PROCESSED_RECORDS = 'metrics.processed_records';
 
     // Data Quality
@@ -61,10 +59,6 @@ enum LogEvent: string
             self::MAPPING_SUCCESS,
             self::QUERY_SUCCESS => 0.01,
 
-            // Cache: Sample 5%
-            self::CACHE_HIT,
-            self::CACHE_MISS => 0.05,
-
             // Data Quality: Always log (100%)
             self::MISSING_FIELD,
             self::NULL_VALUES_SKIPPED,
@@ -92,8 +86,6 @@ enum LogEvent: string
             self::MAPPING_PERFORMANCE,
             self::QUERY_PERFORMANCE,
             self::PIPELINE_PERFORMANCE,
-            self::CACHE_HIT,
-            self::CACHE_MISS,
             self::PROCESSED_RECORDS => LogLevel::DEBUG,
 
             self::MAPPING_SUCCESS,
@@ -117,9 +109,6 @@ enum LogEvent: string
             self::MAPPING_PERFORMANCE,
             self::QUERY_PERFORMANCE,
             self::PIPELINE_PERFORMANCE => 'performance',
-
-            self::CACHE_HIT,
-            self::CACHE_MISS => 'cache',
 
             self::MISSING_FIELD,
             self::NULL_VALUES_SKIPPED,

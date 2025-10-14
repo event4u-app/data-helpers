@@ -475,10 +475,16 @@ class DataAccessor
 
         // Wildcard - inline check for performance
         if ('*' === $segment) {
+            $originalCurrent = $current;
+
             if (CollectionHelper::isCollection($current)) {
                 $current = CollectionHelper::toArray($current);
+                // Free memory: original collection not needed anymore
+                unset($originalCurrent);
             } elseif (EntityHelper::isEntity($current)) {
                 $current = EntityHelper::getAttributes($current);
+                // Free memory: original entity not needed anymore
+                unset($originalCurrent);
             }
 
             if (!is_array($current)) {

@@ -35,9 +35,7 @@ describe('Symfony Config Integration', function(): void {
         $config = $processor->processConfiguration($extension, []);
 
         expect($config)->toBeArray();
-        expect($config)->toHaveKey('cache');
         expect($config)->toHaveKey('performance_mode');
-        expect($config['cache']['max_entries'])->toBe(1000);
         expect($config['performance_mode'])->toBe('fast');
     });
 
@@ -48,14 +46,10 @@ describe('Symfony Config Integration', function(): void {
         // Process custom config
         $config = $processor->processConfiguration($extension, [
             'data_helpers' => [
-                'cache' => [
-                    'max_entries' => 5000,
-                ],
                 'performance_mode' => 'safe',
             ],
         ]);
 
-        expect($config['cache']['max_entries'])->toBe(5000);
         expect($config['performance_mode'])->toBe('safe');
     });
 
@@ -80,9 +74,7 @@ describe('Symfony Config Integration', function(): void {
         $extension->load([], $container);
 
         // Check parameters were set
-        expect($container->hasParameter('data_helpers.cache.max_entries'))->toBeTrue();
         expect($container->hasParameter('data_helpers.performance_mode'))->toBeTrue();
-        expect($container->getParameter('data_helpers.cache.max_entries'))->toBe(1000);
         expect($container->getParameter('data_helpers.performance_mode'))->toBe('fast');
     });
 
@@ -94,14 +86,10 @@ describe('Symfony Config Integration', function(): void {
         // @phpstan-ignore-next-line - Array structure is correct for Symfony config
         $extension->load([
             'data_helpers' => [
-                'cache' => [
-                    'max_entries' => 3000,
-                ],
                 'performance_mode' => 'safe',
             ],
         ], $container);
 
-        expect($container->getParameter('data_helpers.cache.max_entries'))->toBe(3000);
         expect($container->getParameter('data_helpers.performance_mode'))->toBe('safe');
     });
 
@@ -127,22 +115,17 @@ describe('Symfony Config Integration', function(): void {
         // @phpstan-ignore-next-line - Array structure is correct for Symfony config
         $extension->load([
             'data_helpers' => [
-                'cache' => [
-                    'max_entries' => 2000,
-                ],
                 'performance_mode' => 'safe',
             ],
         ], $container);
 
         // DataHelpersConfig should be initialized
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(2000);
         expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
         expect(DataHelpersConfig::isFastMode())->toBeFalse();
     });
 
     it('handles ENV variables in Symfony config', function(): void {
         // Set ENV variables
-        $_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES'] = '1500';
         $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] = 'safe';
 
         $container = new ContainerBuilder();
@@ -150,24 +133,18 @@ describe('Symfony Config Integration', function(): void {
 
         // In real Symfony, ENV variables would be resolved by the container
         // For testing, we simulate this
-        $maxEntries = (int)$_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES'];
         $performanceMode = $_ENV['DATA_HELPERS_PERFORMANCE_MODE'];
 
         // @phpstan-ignore-next-line - Array structure is correct for Symfony config
         $extension->load([
             'data_helpers' => [
-                'cache' => [
-                    'max_entries' => $maxEntries,
-                ],
                 'performance_mode' => $performanceMode,
             ],
         ], $container);
 
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(1500);
         expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
 
         // Cleanup
-        unset($_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES']);
         unset($_ENV['DATA_HELPERS_PERFORMANCE_MODE']);
     });
 
@@ -179,42 +156,18 @@ describe('Symfony Config Integration', function(): void {
         // Read and parse YAML (basic check)
         $content = file_get_contents($configPath);
         expect($content)->toContain('data_helpers:');
-        expect($content)->toContain('cache:');
-        expect($content)->toContain('max_entries:');
         expect($content)->toContain('performance_mode:');
-    });
-
-    it('validates integer type for max_entries', function(): void {
-        $extension = new DataHelpersExtension();
-        $processor = new Processor();
-
-        // Integer value should be accepted
-        $config = $processor->processConfiguration($extension, [
-            'data_helpers' => [
-                'cache' => [
-                    'max_entries' => 2000,
-                ],
-            ],
-        ]);
-
-        expect($config['cache']['max_entries'])->toBe(2000);
-        expect($config['cache']['max_entries'])->toBeInt();
     });
 
     it('provides default values when partial config is given', function(): void {
         $extension = new DataHelpersExtension();
         $processor = new Processor();
 
-        // Only provide cache config
+        // Provide empty config
         $config = $processor->processConfiguration($extension, [
-            'data_helpers' => [
-                'cache' => [
-                    'max_entries' => 500,
-                ],
-            ],
+            'data_helpers' => [],
         ]);
 
-        expect($config['cache']['max_entries'])->toBe(500);
         expect($config['performance_mode'])->toBe('fast'); // default
     });
 })->group('symfony')->skip(

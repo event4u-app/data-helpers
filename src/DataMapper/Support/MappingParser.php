@@ -28,6 +28,15 @@ final class MappingParser
         string|array $sourcePathOrStatic,
         string $staticValueMarker = '__static__'
     ): array {
+        // Simple in-method cache for string paths (most common case)
+        static $cache = [];
+        if (is_string($sourcePathOrStatic)) {
+            $cacheKey = $sourcePathOrStatic . '|' . $staticValueMarker;
+            if (isset($cache[$cacheKey])) {
+                return $cache[$cacheKey];
+            }
+        }
+
         // Check if it's a static value
         $isStatic = is_array($sourcePathOrStatic) && isset($sourcePathOrStatic[$staticValueMarker]);
         $sourcePath = $isStatic ? $sourcePathOrStatic[$staticValueMarker] : $sourcePathOrStatic;
@@ -47,23 +56,31 @@ final class MappingParser
         if (is_string($sourcePath) && (str_contains($sourcePath, '|') || str_contains($sourcePath, '??'))) {
             $extracted = TemplateExpressionProcessor::extractPathAndFilters($sourcePath);
 
-            return [
+            $result = [
                 'isStatic' => false,
                 'sourcePath' => $extracted['path'],
                 'filters' => $extracted['filters'],
                 'defaultValue' => $extracted['default'],
                 'hasFilters' => [] !== $extracted['filters'],
             ];
+            if (is_string($sourcePathOrStatic)) {
+                $cache[$cacheKey] = $result;
+            }
+            return $result;
         }
 
         // Simple dynamic path without filters or default
-        return [
+        $result = [
             'isStatic' => false,
             'sourcePath' => (string)$sourcePath,
             'filters' => [],
             'defaultValue' => null,
             'hasFilters' => false,
         ];
+        if (is_string($sourcePathOrStatic)) {
+            $cache[$cacheKey] = $result;
+        }
+        return $result;
     }
 
     /**

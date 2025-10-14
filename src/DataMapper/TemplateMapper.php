@@ -146,6 +146,9 @@ class TemplateMapper
                     // First normalize the array (convert dot-path keys to numeric indices)
                     $normalized = WildcardHandler::normalizeWildcardArray($result);
 
+                    // Free memory: result not needed anymore
+                    unset($result);
+
                     // Then apply skipNull and reindex
                     $filtered = [];
                     WildcardHandler::iterateWildcardItems(
@@ -158,6 +161,9 @@ class TemplateMapper
                             return true;
                         }
                     );
+
+                    // Free memory: normalized not needed anymore
+                    unset($normalized);
 
                     return $filtered;
                 }

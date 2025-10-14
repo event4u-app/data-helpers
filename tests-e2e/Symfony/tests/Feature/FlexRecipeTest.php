@@ -9,7 +9,7 @@ describe('Symfony Flex Recipe Installation', function(): void {
         // Clean up any previously installed config files
         $configPackagesPath = __DIR__ . '/../../config/packages/data_helpers.yaml';
         $configServicesPath = __DIR__ . '/../../config/services/data_helpers.yaml';
-        
+
         if (file_exists($configPackagesPath)) {
             unlink($configPackagesPath);
         }
@@ -22,7 +22,7 @@ describe('Symfony Flex Recipe Installation', function(): void {
         // Clean up installed config files
         $configPackagesPath = __DIR__ . '/../../config/packages/data_helpers.yaml';
         $configServicesPath = __DIR__ . '/../../config/services/data_helpers.yaml';
-        
+
         if (file_exists($configPackagesPath)) {
             unlink($configPackagesPath);
         }
@@ -98,12 +98,7 @@ describe('Symfony Flex Recipe Installation', function(): void {
 
         $config = Yaml::parseFile($configDir . '/packages/data_helpers.yaml');
 
-        expect($config['data_helpers'])->toHaveKey('cache')
-            ->and($config['data_helpers'])->toHaveKey('performance_mode')
-            ->and($config['data_helpers']['cache'])->toHaveKey('driver')
-            ->and($config['data_helpers']['cache'])->toHaveKey('max_entries')
-            ->and($config['data_helpers']['cache'])->toHaveKey('default_ttl')
-            ->and($config['data_helpers']['cache'])->toHaveKey('symfony');
+        expect($config['data_helpers'])->toHaveKey('performance_mode');
     });
 
     it('installed services config is valid YAML', function(): void {
@@ -245,10 +240,7 @@ describe('Symfony Flex Recipe Installation', function(): void {
         // Check that environment variables are properly referenced
         $content = file_get_contents($configDir . '/packages/data_helpers.yaml');
 
-        expect($content)->toContain('%env(DATA_HELPERS_CACHE_DRIVER)%')
-            ->and($content)->toContain('%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%')
-            ->and($content)->toContain('%env(DATA_HELPERS_CACHE_DEFAULT_TTL)%')
-            ->and($content)->toContain('%env(DATA_HELPERS_PERFORMANCE_MODE)%');
+        expect($content)->toContain('%env(DATA_HELPERS_PERFORMANCE_MODE)%');
     });
 })->group('symfony');
 

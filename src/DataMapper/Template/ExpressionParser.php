@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Template;
 
-use event4u\DataHelpers\Cache\LruCache;
-use event4u\DataHelpers\DataHelpersConfig;
-
 final class ExpressionParser
 {
-    private static ?LruCache $cache = null;
     /** Check if a string contains a template expression {{ ... }}. */
     public static function hasExpression(string $value): bool
     {
@@ -26,12 +22,10 @@ final class ExpressionParser
      */
     public static function parse(string $value): ?array
     {
-        // Check cache first - use get() directly to avoid double lookup
-        $cached = self::getCache()->get($value);
-        if (null !== $cached || self::getCache()->has($value)) {
-            // PHPStan: We know it's either the correct array structure or null from cache
-            /** @var array{type: string, path: string, default: mixed, filters: array<int, string>}|null $cached */
-            return $cached;
+        // Simple in-method cache for repeated expressions
+        static $cache = [];
+        if (isset($cache[$value])) {
+            return $cache[$value];
         }
 
         // Template expression: {{ ... }}
@@ -47,10 +41,7 @@ final class ExpressionParser
                     'default' => null,
                     'filters' => [],
                 ];
-
-                // Cache result
-                self::getCache()->set($value, $result);
-
+                $cache[$value] = $result;
                 return $result;
             }
 
@@ -73,16 +64,11 @@ final class ExpressionParser
                 'default' => $default,
                 'filters' => $filters,
             ];
-
-            // Cache result
-            self::getCache()->set($value, $result);
-
+            $cache[$value] = $result;
             return $result;
         }
 
-        // Cache null result
-        self::getCache()->set($value, null);
-
+        $cache[$value] = null;
         return null;
     }
 
@@ -118,7 +104,30 @@ final class ExpressionParser
      */
     public static function splitByPipeFast(string $expression): array
     {
-        return self::splitByPipeInternal($expression, false);
+        $parts = [];
+        $current = '';
+        $inQuotes = false;
+        $length = strlen($expression);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $expression[$i];
+
+            if ('"' === $char) {
+                $inQuotes = !$inQuotes;
+                $current .= $char;
+            } elseif ('|' === $char && !$inQuotes) {
+                $parts[] = trim($current);
+                $current = '';
+            } else {
+                $current .= $char;
+            }
+        }
+
+        if ('' !== $current) {
+            $parts[] = trim($current);
+        }
+
+        return $parts;
     }
 
     /**
@@ -127,17 +136,6 @@ final class ExpressionParser
      * @return array<int, string>
      */
     public static function splitByPipeSafe(string $expression): array
-    {
-        return self::splitByPipeInternal($expression, true);
-    }
-
-    /**
-     * Internal pipe split implementation.
-     *
-     * @param bool $handleEscapes Whether to handle escape sequences
-     * @return array<int, string>
-     */
-    private static function splitByPipeInternal(string $expression, bool $handleEscapes): array
     {
         $parts = [];
         $current = '';
@@ -149,42 +147,32 @@ final class ExpressionParser
         for ($i = 0; $i < $length; $i++) {
             $char = $expression[$i];
 
-            // Handle escape sequences (only in safe mode)
-            if ($handleEscapes && $escaped) {
+            if ($escaped) {
                 $current .= $char;
                 $escaped = false;
                 continue;
             }
 
-            if ($handleEscapes && '\\' === $char) {
+            if ('\\' === $char) {
                 $escaped = true;
                 $current .= $char;
                 continue;
             }
 
-            // Handle quotes
-            if ($handleEscapes) {
-                // Safe mode: Track quote character
-                if (('"' === $char || "'" === $char) && !$inQuotes) {
-                    $inQuotes = true;
-                    $quoteChar = $char;
-                    $current .= $char;
-                    continue;
-                }
-                if ($char === $quoteChar && $inQuotes) {
-                    $inQuotes = false;
-                    $quoteChar = null;
-                    $current .= $char;
-                    continue;
-                }
-            } elseif ('"' === $char) {
-                // Fast mode: Simple toggle on double quotes only
-                $inQuotes = !$inQuotes;
+            if (('"' === $char || "'" === $char) && !$inQuotes) {
+                $inQuotes = true;
+                $quoteChar = $char;
                 $current .= $char;
                 continue;
             }
 
-            // Split on pipe if not in quotes
+            if ($char === $quoteChar && $inQuotes) {
+                $inQuotes = false;
+                $quoteChar = null;
+                $current .= $char;
+                continue;
+            }
+
             if ('|' === $char && !$inQuotes) {
                 $parts[] = trim($current);
                 $current = '';
@@ -224,32 +212,5 @@ final class ExpressionParser
             'null' => null,
             default => $value,
         };
-    }
-
-    /** Get or initialize cache instance. */
-    private static function getCache(): LruCache
-    {
-        if (!self::$cache instanceof LruCache) {
-            $maxEntries = DataHelpersConfig::getCacheMaxEntries();
-            self::$cache = new LruCache($maxEntries);
-        }
-
-        return self::$cache;
-    }
-
-    /** Clear cache and reset instance (for testing). */
-    public static function clearCache(): void
-    {
-        self::$cache = null;
-    }
-
-    /**
-     * Get cache statistics.
-     *
-     * @return array{hits: int, misses: int, size: int, max_size: int|null}
-     */
-    public static function getCacheStats(): array
-    {
-        return self::getCache()->getStats();
     }
 }

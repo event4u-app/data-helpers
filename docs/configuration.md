@@ -15,8 +15,6 @@ environments.
 php artisan vendor:publish --tag=data-helpers-config
 
 # 2. Configure via .env
-DATA_HELPERS_CACHE_MAX_ENTRIES=1000
-DATA_HELPERS_CACHE_TTL=3600
 ```
 
 ### Symfony
@@ -38,8 +36,6 @@ cp vendor/event4u/data-helpers/recipe/config/services/data_helpers.yaml config/s
 **Configure via .env:**
 
 ```env
-DATA_HELPERS_CACHE_MAX_ENTRIES=1000
-DATA_HELPERS_CACHE_TTL=3600
 DATA_HELPERS_PERFORMANCE_MODE=fast
 ```
 
@@ -67,10 +63,9 @@ The `EnvHelper` class provides a **framework-agnostic** way to read environment 
 use event4u\DataHelpers\Helpers\EnvHelper;
 
 // Automatically detects Laravel env(), Symfony $_ENV, or Plain PHP $_ENV
-$driver = EnvHelper::string('DATA_HELPERS_CACHE_DRIVER', 'memory');
-$maxEntries = EnvHelper::integer('DATA_HELPERS_CACHE_MAX_ENTRIES', 1000);
-$ttl = EnvHelper::integer('DATA_HELPERS_CACHE_DEFAULT_TTL', 3600);
-$enabled = EnvHelper::boolean('DATA_HELPERS_CACHE_ENABLED', true);
+$mode = EnvHelper::string('DATA_HELPERS_PERFORMANCE_MODE', 'fast');
+$logLevel = EnvHelper::string('DATA_HELPERS_LOG_LEVEL', 'info');
+$enabled = EnvHelper::boolean('DATA_HELPERS_LOG_ENABLED', false);
 ```
 
 **Available Methods:**
@@ -120,9 +115,6 @@ This copies `config/laravel/data-helpers.php` to `config/data-helpers.php` in yo
 Add to your `.env` file:
 
 ```env
-# Cache Settings
-DATA_HELPERS_CACHE_MAX_ENTRIES=1000
-
 # Performance Mode (fast|safe)
 DATA_HELPERS_PERFORMANCE_MODE=fast
 ```
@@ -133,9 +125,6 @@ Edit `config/data-helpers.php`:
 
 ```php
 return [
-    'cache' => [
-        'max_entries' => 5000, // Override default
-    ],
     'performance_mode' => 'safe', // Use safe mode
 ];
 ```
@@ -182,9 +171,6 @@ return [
 Add to your `.env` file:
 
 ```env
-# Cache Settings
-DATA_HELPERS_CACHE_MAX_ENTRIES=1000
-
 # Performance Mode (fast|safe)
 DATA_HELPERS_PERFORMANCE_MODE=fast
 ```
@@ -195,8 +181,6 @@ Edit `config/packages/data_helpers.yaml`:
 
 ```yaml
 data_helpers:
-    cache:
-        max_entries: 5000 # Override default
     performance_mode: 'safe' # Use safe mode
 ```
 
@@ -217,9 +201,6 @@ cp vendor/event4u/data-helpers/config/plain/data-helpers.php config/
 Set environment variables in your `.env` file or server configuration:
 
 ```env
-# Cache Settings
-DATA_HELPERS_CACHE_MAX_ENTRIES=1000
-
 # Performance Mode (fast|safe)
 DATA_HELPERS_PERFORMANCE_MODE=fast
 ```
@@ -230,37 +211,11 @@ Edit `config/data-helpers.php`:
 
 ```php
 return [
-    'cache' => [
-        'max_entries' => 5000, // Override default
-    ],
     'performance_mode' => 'safe', // Use safe mode
 ];
 ```
 
 ## Configuration Options
-
-### Cache Settings
-
-#### `cache.max_entries`
-
-**Type:** `int`
-**Default:** `1000`
-**Environment Variable:** `DATA_HELPERS_CACHE_MAX_ENTRIES`
-
-Maximum number of parsed template expressions to cache. When the limit is reached, the least recently used (LRU) entries are discarded.
-
-**Recommendations:**
-
-- **Small applications:** 500-1000
-- **Medium applications:** 1000-3000
-- **Large applications:** 3000-5000
-- **Disable caching:** Set to `0`
-
-**Example:**
-
-```env
-DATA_HELPERS_CACHE_MAX_ENTRIES=2000
-```
 
 ### Performance Mode
 
@@ -302,7 +257,6 @@ DataHelpersConfig::initialize([
 ]);
 
 // Get configuration values
-$maxEntries = DataHelpersConfig::getCacheMaxEntries(); // 2000
 $isFast = DataHelpersConfig::isFastMode(); // false
 ```
 
@@ -327,10 +281,8 @@ FilterEngine::useFastSplit(true);
 
 ```bash
 # Clear all caches
-composer cache:clear
 
 # Show cache statistics
-composer cache:stats
 
 # Clear cache for specific class
 php scripts/cache-clear.php TemplateParser
@@ -504,7 +456,6 @@ Based on benchmarks with 10,000 iterations:
 
 ```php
 // .env
-DATA_HELPERS_CACHE_MAX_ENTRIES=2000
 DATA_HELPERS_PERFORMANCE_MODE=fast
 
 // Usage
@@ -546,8 +497,7 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 
 1. Check configuration is loaded:
    ```php
-   $maxEntries = DataHelpersConfig::getCacheMaxEntries();
-   var_dump($maxEntries); // Should not be 0
+      var_dump($maxEntries); // Should not be 0
    ```
 
 2. Check cache statistics:
@@ -573,12 +523,10 @@ FilterEngine::useFastSplit(false);
 If you're experiencing memory issues, reduce cache size:
 
 ```env
-DATA_HELPERS_CACHE_MAX_ENTRIES=500
 ```
 
 Or disable caching completely:
 
 ```env
-DATA_HELPERS_CACHE_MAX_ENTRIES=0
 ```
 

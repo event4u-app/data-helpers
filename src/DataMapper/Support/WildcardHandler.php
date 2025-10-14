@@ -46,17 +46,29 @@ class WildcardHandler
                     }
                 }
             }
+
+            // Free memory: unset segments array after use
+            unset($segments);
         }
 
         // If no dot-path keys, return as-is
         if (!$hasDotPathKeys) {
+            // Free memory: normalized not needed
+            unset($normalized);
+
             return $array;
         }
 
         // For multi-wildcard paths, keep the full dot-path keys to avoid collisions
         if ($hasMultipleWildcards) {
+            // Free memory: normalized not needed
+            unset($normalized);
+
             return $array;
         }
+
+        // Free memory: normalized not needed for single wildcard processing
+        unset($normalized);
 
         // For single wildcard, extract the numeric index
         $result = [];
@@ -74,6 +86,9 @@ class WildcardHandler
                     break;
                 }
             }
+
+            // Free memory: unset segments array after use
+            unset($segments);
         }
 
         return $result;

@@ -56,25 +56,16 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 
 ## Performance Features
 
-The package includes multiple caching layers for optimal performance:
+The package includes lightweight in-method caching for optimal performance:
 
-- **Template Expression Cache** - Parsed expressions are cached (LRU with configurable max entries)
-- **Template Mapping Cache** - Mapping arrays are cached per class (max 100 entries with LRU eviction)
-- **Hash-Validated Cache** - Automatic cache invalidation when source data changes
-- **File Content Cache** - Loaded JSON/XML files are cached to avoid repeated I/O
-- **Filter Instance Cache** - Filter instances are reused instead of creating new ones
-- **String Operation Caches** - Common string transformations are cached (toCamelCase, singularize, etc.)
-- **Reflection Caches** - ReflectionClass and ReflectionProperty instances are cached
-- **class_exists/interface_exists Caching** - Framework detection is cached
+- **Template Expression Cache** - Parsed expressions are cached using simple static arrays
+- **Filter Parsing Cache** - Filter arguments are cached to avoid repeated parsing
+- **Reflection Cache** - ReflectionClass instances are cached (standard PHP best practice)
+- **Path Compilation Cache** - Dot-notation paths are pre-compiled and cached
+- **Framework Detection Cache** - Framework detection is cached (one-time check)
 
 **Performance Modes:**
 - **Fast Mode** (default): ~2x faster parsing, no escape sequence handling
 - **Safe Mode**: Full escape sequence handling for special cases
 
-**Cache Management:**
-```bash
-composer cache:clear  # Clear all caches
-composer cache:stats  # Show cache statistics
-```
-
-See [configuration.md](configuration.md) for details on configuring cache size, performance mode, and hash-validated caching.
+See [configuration.md](configuration.md) for details on configuring performance mode.

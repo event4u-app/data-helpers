@@ -12,23 +12,18 @@ use ReflectionProperty;
  */
 class EntityHelper
 {
-    /** @var array<class-string, array<string, bool>> */
-    private static array $propertyExistsCache = [];
-
-    /** @var array<class-string, array<string, bool>> */
-    private static array $toManyRelationCache = [];
-
-    /** @var null|bool */
-    private static ?bool $eloquentModelExists = null;
+    /** @var array<class-string, ReflectionClass<object>> Simple reflection cache */
+    private static array $reflectionCache = [];
 
     /**
-     * Get cached ReflectionClass instance.
+     * Get ReflectionClass instance (cached).
      *
      * @return ReflectionClass<object>
      */
     private static function getReflection(object $entity): ReflectionClass
     {
-        return ReflectionCache::getClass($entity);
+        $class = $entity::class;
+        return self::$reflectionCache[$class] ??= new ReflectionClass($entity);
     }
 
     /**
@@ -72,31 +67,19 @@ class EntityHelper
     }
 
     /**
-     * Check if property exists (cached).
+     * Check if property exists.
      */
     public static function hasProperty(object $entity, string $property): bool
     {
-        $class = $entity::class;
-
-        if (!isset(self::$propertyExistsCache[$class])) {
-            self::$propertyExistsCache[$class] = [];
-        }
-
-        if (!array_key_exists($property, self::$propertyExistsCache[$class])) {
-            $reflection = self::getReflection($entity);
-            self::$propertyExistsCache[$class][$property] = $reflection->hasProperty($property);
-        }
-
-        return self::$propertyExistsCache[$class][$property];
+        $reflection = self::getReflection($entity);
+        return $reflection->hasProperty($property);
     }
 
     /** Check if value is a Laravel Eloquent Model. */
     public static function isEloquentModel(mixed $value): bool
     {
-        // Cache class_exists check for better performance
-        self::$eloquentModelExists ??= class_exists('\Illuminate\Database\Eloquent\Model');
-
-        return self::$eloquentModelExists && $value instanceof \Illuminate\Database\Eloquent\Model;
+        return class_exists('\Illuminate\Database\Eloquent\Model')
+            && $value instanceof \Illuminate\Database\Eloquent\Model;
     }
 
     /**
@@ -383,27 +366,15 @@ class EntityHelper
      */
     public static function isToManyRelation(object $entity, string $property): bool
     {
-        $class = $entity::class;
-
-        // Check cache first
-        if (isset(self::$toManyRelationCache[$class][$property])) {
-            return self::$toManyRelationCache[$class][$property];
-        }
-
-        if (!isset(self::$toManyRelationCache[$class])) {
-            self::$toManyRelationCache[$class] = [];
-        }
-
-        $result = false;
-
         if (self::isEloquentModel($entity)) {
-            $result = self::isEloquentToManyRelation($entity, $property);
-        } elseif (self::isDoctrineEntity($entity)) {
-            $result = self::isDoctrineToManyRelation($entity, $property);
+            return self::isEloquentToManyRelation($entity, $property);
         }
 
-        self::$toManyRelationCache[$class][$property] = $result;
-        return $result;
+        if (self::isDoctrineEntity($entity)) {
+            return self::isDoctrineToManyRelation($entity, $property);
+        }
+
+        return false;
     }
 
     /**

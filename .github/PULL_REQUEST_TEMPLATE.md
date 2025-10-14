@@ -28,9 +28,9 @@ Related to #
 
 <!-- List the specific changes made in this PR -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Testing
 
@@ -43,9 +43,10 @@ Related to #
 ### Test Commands Run
 
 ```bash
-composer test
+composer refactor:fix
 composer phpstan
-composer ecs
+composer test
+composer test:e2e
 ```
 
 ## Checklist

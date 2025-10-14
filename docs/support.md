@@ -294,46 +294,6 @@ $xmlData = FileLoader::loadXmlFile('/path/to/data.xml');
 
 ---
 
-### 6. ReflectionCache
-
-**File**: `ReflectionCache.php`
-
-Caches Reflection objects for better performance.
-
-**Methods:**
-```php
-// Get cached ReflectionClass
-ReflectionCache::getClass(object|string $objectOrClass): ReflectionClass
-
-// Get cached ReflectionProperty
-ReflectionCache::getProperty(object $object, string $name): ?ReflectionProperty
-
-// Check if property exists
-ReflectionCache::hasProperty(object|string $objectOrClass, string $name): bool
-
-// Clear cache
-ReflectionCache::clear(): void
-ReflectionCache::clearClass(string $class): void
-```
-
-**Example:**
-```php
-use event4u\DataHelpers\Support\ReflectionCache;
-
-$user = new User();
-
-// Get cached reflection (faster on repeated calls)
-$refClass = ReflectionCache::getClass($user);
-$refProperty = ReflectionCache::getProperty($user, 'name');
-
-// Check property existence
-if (ReflectionCache::hasProperty($user, 'email')) {
-    // Property exists
-}
-```
-
----
-
 ## DataMapper Support Classes
 
 ### 7. TemplateParser

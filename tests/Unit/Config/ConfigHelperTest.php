@@ -32,9 +32,9 @@ describe('ConfigHelper', function(): void {
     it('gets configuration value with dot notation', function(): void {
         $helper = ConfigHelper::getInstance();
 
-        $value = $helper->get('cache.max_entries');
+        $value = $helper->get('performance_mode');
 
-        expect($value)->toBeInt();
+        expect($value)->toBeString();
     });
 
     it('returns default value for missing key', function(): void {
@@ -60,10 +60,9 @@ describe('ConfigHelper', function(): void {
     it('gets integer value', function(): void {
         $helper = ConfigHelper::getInstance();
 
-        $value = $helper->getInteger('cache.max_entries', 500);
+        $value = $helper->getInteger('logging.enabled', 0);
 
         expect($value)->toBeInt();
-        expect($value)->toBeGreaterThan(0);
     });
 
     it('gets float value', function(): void {
@@ -86,16 +85,19 @@ describe('ConfigHelper', function(): void {
     it('gets array value', function(): void {
         $helper = ConfigHelper::getInstance();
 
-        $value = $helper->getArray('cache', []);
+        // Test with a simple array config
+        $helper->set('test_array', ['key1' => 'value1', 'key2' => 'value2']);
+
+        $value = $helper->getArray('test_array', []);
 
         expect($value)->toBeArray();
-        expect($value)->toHaveKey('max_entries');
+        expect($value)->toHaveKey('key1');
     });
 
     it('checks if key exists', function(): void {
         $helper = ConfigHelper::getInstance();
 
-        expect($helper->has('cache.max_entries'))->toBeTrue();
+        expect($helper->has('performance_mode'))->toBeTrue();
         expect($helper->has('non.existent.key'))->toBeFalse();
     });
 
@@ -105,7 +107,6 @@ describe('ConfigHelper', function(): void {
         $all = $helper->all();
 
         expect($all)->toBeArray();
-        expect($all)->toHaveKey('cache');
         expect($all)->toHaveKey('performance_mode');
     });
 
@@ -132,7 +133,7 @@ describe('ConfigHelper', function(): void {
 
         // Integer casting
         expect($helper->getInteger('non.existent', 123))->toBe(123);
-        expect($helper->getInteger('cache.max_entries', 500))->toBeInt();
+        expect($helper->getInteger('logging.enabled', 0))->toBeInt();
 
         // Float casting
         expect($helper->getFloat('non.existent', 123.45))->toBe(123.45);
@@ -146,14 +147,21 @@ describe('ConfigHelper', function(): void {
     it('handles nested arrays correctly', function(): void {
         $helper = ConfigHelper::getInstance();
 
+        // Set up test nested config
+        $helper->set('test_nested', [
+            'level1' => [
+                'level2' => 'value',
+            ],
+        ]);
+
         // Get nested value
-        $value = $helper->get('cache.max_entries');
-        expect($value)->not->toBeNull();
+        $value = $helper->get('test_nested.level1.level2');
+        expect($value)->toBe('value');
 
         // Get parent array
-        $cache = $helper->getArray('cache');
-        expect($cache)->toBeArray();
-        expect($cache)->toHaveKey('max_entries');
+        $level1 = $helper->getArray('test_nested.level1');
+        expect($level1)->toBeArray();
+        expect($level1)->toHaveKey('level2');
     });
 
     it('returns default for non-array when expecting array', function(): void {

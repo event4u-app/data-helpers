@@ -19,7 +19,6 @@ describe('Laravel Config Integration', function(): void {
         }
 
         // Clean ENV variables
-        unset($_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES']);
         unset($_ENV['DATA_HELPERS_PERFORMANCE_MODE']);
 
         DataHelpersConfig::reset();
@@ -27,7 +26,6 @@ describe('Laravel Config Integration', function(): void {
 
     afterEach(function(): void {
         // Clean ENV variables
-        unset($_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES']);
         unset($_ENV['DATA_HELPERS_PERFORMANCE_MODE']);
 
         DataHelpersConfig::reset();
@@ -40,11 +38,9 @@ describe('Laravel Config Integration', function(): void {
     it('loads config from Laravel', function(): void {
         // Manually set Laravel-like config
         DataHelpersConfig::setMany([
-            'cache.max_entries' => 1000,
             'performance_mode' => 'fast',
         ]);
 
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(1000);
         expect(DataHelpersConfig::getPerformanceMode())->toBe('fast');
         expect(DataHelpersConfig::isFastMode())->toBeTrue();
     });
@@ -57,39 +53,31 @@ describe('Laravel Config Integration', function(): void {
         // Load and validate config structure
         $config = require $configPath;
         expect($config)->toBeArray();
-        expect($config)->toHaveKey('cache');
         expect($config)->toHaveKey('performance_mode');
-        expect($config['cache'])->toHaveKey('max_entries');
     });
 
     it('respects custom Laravel config values', function(): void {
         // Set custom config values
         DataHelpersConfig::setMany([
-            'cache.max_entries' => 5000,
             'performance_mode' => 'safe',
         ]);
 
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(5000);
         expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
         expect(DataHelpersConfig::isFastMode())->toBeFalse();
     });
 
     it('handles ENV variables in Laravel config', function(): void {
         // Set ENV variables
-        $_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES'] = '2500';
         $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] = 'safe';
 
         // Set config with ENV values
         DataHelpersConfig::setMany([
-            'cache.max_entries' => (int)$_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES'],
             'performance_mode' => $_ENV['DATA_HELPERS_PERFORMANCE_MODE'],
         ]);
 
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(2500);
         expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
 
         // Cleanup
-        unset($_ENV['DATA_HELPERS_CACHE_MAX_ENTRIES']);
         unset($_ENV['DATA_HELPERS_PERFORMANCE_MODE']);
     });
 
@@ -105,7 +93,6 @@ describe('Laravel Config Integration', function(): void {
         // Load the config file
         $config = require $configPath;
         expect($config)->toBeArray();
-        expect($config)->toHaveKey('cache');
         expect($config)->toHaveKey('performance_mode');
     });
 })->group('laravel')->skip(

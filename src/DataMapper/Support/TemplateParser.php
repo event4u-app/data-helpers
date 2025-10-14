@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Support;
 
-use event4u\DataHelpers\Cache\ClassScopedCache;
-use event4u\DataHelpers\Cache\HashValidatedCache;
-
 /**
  * Utility class for parsing template expressions with {{ }} syntax.
  *
@@ -22,9 +19,6 @@ final class TemplateParser
 {
     /** Regular expression pattern for matching {{ }} expressions. */
     private const TEMPLATE_PATTERN = '/^\{\{\s*(.+?)\s*\}\}$/';
-
-    /** Maximum number of cached parsed mappings */
-    private const MAX_CACHE_ENTRIES = 100;
 
     /**
      * Check if a string contains a template expression ({{ }}).
@@ -93,33 +87,19 @@ final class TemplateParser
      */
     public static function parseMapping(array $mapping, string $staticMarker = '__static__'): array
     {
-        // Create cache key from mapping structure
-        $cacheKey = hash('sha256', serialize($mapping) . $staticMarker);
-
-        // Try to get from cache with hash validation
-        // The mapping itself is the source data for hash validation
-        $cached = HashValidatedCache::get(self::class, $cacheKey, $mapping);
-        if (is_array($cached)) {
-            /** @var array<string, string|array{__static__: mixed}> $cached */
-            return $cached;
-        }
-
         $parsed = [];
 
         foreach ($mapping as $targetPath => $sourcePath) {
             if (is_string($sourcePath) && self::isTemplate($sourcePath)) {
-                // Extract path from {{ }}
+// Extract path from {{ }}
                 $parsed[$targetPath] = self::extractPath($sourcePath);
             } else {
-                // Static value: use special marker
+// Static value: use special marker
                 /** @var array{__static__: mixed} $staticValue */
                 $staticValue = [$staticMarker => $sourcePath];
                 $parsed[$targetPath] = $staticValue;
             }
         }
-
-        // Cache the result
-        ClassScopedCache::set(self::class, $cacheKey, $parsed, null, self::MAX_CACHE_ENTRIES);
 
         /** @var array<string, string|array{__static__: mixed}> $parsed */
         return $parsed;

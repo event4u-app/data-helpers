@@ -67,9 +67,6 @@ return [
 
 ```env
 # Cache Settings
-DATA_HELPERS_CACHE_DRIVER=framework
-DATA_HELPERS_CACHE_MAX_ENTRIES=1000
-DATA_HELPERS_CACHE_DEFAULT_TTL=3600
 
 # Performance Mode (fast|safe)
 DATA_HELPERS_PERFORMANCE_MODE=fast
@@ -86,13 +83,8 @@ data_helpers:
     # Cache driver: memory, framework, none
     driver: '%env(DATA_HELPERS_CACHE_DRIVER)%'
 
-    # Maximum cache entries (for memory driver)
-    max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
-
     # Default TTL in seconds
-    default_ttl: '%env(DATA_HELPERS_CACHE_DEFAULT_TTL)%'
 
-    # Symfony cache pool (for framework driver)
     symfony:
       pool: '@cache.app'
 
@@ -101,9 +93,6 @@ data_helpers:
 
 # Default values
 parameters:
-  env(DATA_HELPERS_CACHE_DRIVER): 'framework'
-  env(DATA_HELPERS_CACHE_MAX_ENTRIES): 1000
-  env(DATA_HELPERS_CACHE_DEFAULT_TTL): 3600
   env(DATA_HELPERS_PERFORMANCE_MODE): 'fast'
 ```
 
@@ -187,10 +176,9 @@ cp -r vendor/event4u/data-helpers/recipe/config/services/* config/services/
 
 ### Cache not working
 
-Check that the cache driver is configured correctly in `.env`:
+Check that the performance mode is configured correctly in `.env`:
 
 ```env
-DATA_HELPERS_CACHE_DRIVER=framework
 ```
 
 And that the Symfony cache pool exists (default: `cache.app`).

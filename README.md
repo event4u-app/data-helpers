@@ -100,14 +100,11 @@ Publish the configuration file:
 php artisan vendor:publish --tag=data-helpers-config
 ```
 
-This creates `config/data-helpers.php`. Customize cache settings:
+This creates `config/data-helpers.php`. Customize performance mode:
 
 ```php
 return [
-    'cache' => [
-        'max_entries' => env('DATA_HELPERS_CACHE_MAX_ENTRIES', 1000),
-        'default_ttl' => env('DATA_HELPERS_CACHE_TTL', 3600),
-    ],
+    'performance_mode' => env('DATA_HELPERS_PERFORMANCE_MODE', 'fast'),
 ];
 ```
 
@@ -145,10 +142,7 @@ Create a config file and load it in your bootstrap:
 ```php
 // config/data-helpers.php
 return [
-    'cache' => [
-        'max_entries' => 1000,
-        'default_ttl' => 3600,
-    ],
+    'performance_mode' => 'fast',
 ];
 
 // bootstrap.php
@@ -644,7 +638,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Dot-Path Syntax](docs/dot-path.md)** - Path notation reference and best practices
 - **[Optional Dependencies](docs/optional-dependencies.md)** - Framework integration guide
 - **[Framework Integration](docs/framework-integration.md)** - Deep dive into Laravel, Symfony, and Doctrine support
-- **[Configuration](docs/configuration.md)** - Cache settings and environment configuration
+- **[Configuration](docs/configuration.md)** - Performance mode and environment configuration
 - **[Architecture](docs/architecture.md)** - Internal design and extension points
 - **[Types](docs/types.md)** - Type system and casting behavior
 - **[Support Helpers](docs/support.md)** - Framework abstraction layers (CollectionHelper, ModelHelper, etc.)
@@ -675,15 +669,13 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [06-laravel.php](examples/06-laravel.php) - Laravel Collections, Eloquent Models
 - [07-symfony-doctrine.php](examples/07-symfony-doctrine.php) - Doctrine Collections and Entities
 - [08-mapped-data-model.php](examples/08-mapped-data-model.php) - MappedDataModel with validation and type casting
-- [08-template-expressions.php](examples/08-template-expressions.php) - Template expressions with filters
-- [09-performance-caching.php](examples/09-performance-caching.php) - Performance optimization and caching strategies
-- [10-hash-validated-cache.php](examples/10-hash-validated-cache.php) - Hash-validated cache with automatic invalidation
-- [11-configuration.php](examples/11-configuration.php) - Configuration management and customization
-- [12-exception-handling.php](examples/12-exception-handling.php) - Exception handling modes and best practices
-- [13-wildcard-where-clause.php](examples/13-wildcard-where-clause.php) - Filter, sort, and paginate wildcard arrays with WHERE, ORDER BY,
-  etc.
-- [14-custom-wildcard-operators.php](examples/14-custom-wildcard-operators.php) - Register custom wildcard operators (EVEN_IDS, etc.)
-- [18-query-builder.php](examples/18-query-builder.php) - Laravel-style Query Builder with WHERE, ORDER BY, LIMIT, GROUP BY, etc.
+- [09-template-expressions.php](examples/09-template-expressions.php) - Template expressions with filters
+- [10-exception-handling.php](examples/10-exception-handling.php) - Exception handling modes and best practices
+- [11-wildcard-where-clause.php](examples/11-wildcard-where-clause.php) - Filter, sort, and paginate wildcard arrays
+- [12-custom-wildcard-operators.php](examples/12-custom-wildcard-operators.php) - Register custom wildcard operators
+- [13-distinct-like-operators.php](examples/13-distinct-like-operators.php) - DISTINCT and LIKE operators
+- [14-group-by-aggregations.php](examples/14-group-by-aggregations.php) - GROUP BY with aggregations
+- [15-query-builder.php](examples/15-query-builder.php) - Laravel-style Query Builder with WHERE, ORDER BY, LIMIT, GROUP BY, etc.
 
 ---
 
@@ -755,40 +747,38 @@ $result = DataMapper::pipe([
 All operations are highly optimized and run in microseconds:
 
 <!-- BENCHMARK_RESULTS_START -->
-
 ### DataAccessor
 
-| Operation         | Time     | Description                                                   |
-|-------------------|----------|---------------------------------------------------------------|
-| Simple Get        | 0.301μs  | Get value from flat array                                     |
-| Nested Get        | 0.392μs  | Get value from nested path                                    |
-| Wildcard Get      | 4.855μs  | Get values using single wildcard                              |
-| Deep Wildcard Get | 72.012μs | Get values using multiple wildcards (10 depts × 20 employees) |
-| Typed Get String  | 0.327μs  | Get typed string value                                        |
-| Typed Get Int     | 0.354μs  | Get typed int value                                           |
-| Create Accessor   | 0.079μs  | Instantiate DataAccessor                                      |
+| Operation | Time | Description |
+|-----------|------|-------------|
+| Simple Get | 0.222μs | Get value from flat array |
+| Nested Get | 0.291μs | Get value from nested path |
+| Wildcard Get | 4.559μs | Get values using single wildcard |
+| Deep Wildcard Get | 49.160μs | Get values using multiple wildcards (10 depts × 20 employees) |
+| Typed Get String | 0.262μs | Get typed string value |
+| Typed Get Int | 0.249μs | Get typed int value |
+| Create Accessor | 0.055μs | Instantiate DataAccessor |
 
 ### DataMutator
 
-| Operation      | Time    | Description                             |
-|----------------|---------|-----------------------------------------|
-| Simple Set     | 0.595μs | Set value in flat array                 |
-| Nested Set     | 0.961μs | Set value in nested path                |
-| Deep Set       | 1.132μs | Set value creating new nested structure |
-| Multiple Set   | 1.690μs | Set multiple values at once             |
-| Merge          | 0.944μs | Deep merge arrays                       |
-| Unset          | 0.882μs | Remove single value                     |
-| Multiple Unset | 1.485μs | Remove multiple values                  |
+| Operation | Time | Description |
+|-----------|------|-------------|
+| Simple Set | 0.501μs | Set value in flat array |
+| Nested Set | 0.748μs | Set value in nested path |
+| Deep Set | 0.893μs | Set value creating new nested structure |
+| Multiple Set | 1.316μs | Set multiple values at once |
+| Merge | 0.751μs | Deep merge arrays |
+| Unset | 0.713μs | Remove single value |
+| Multiple Unset | 1.132μs | Remove multiple values |
 
 ### DataMapper
 
-| Operation         | Time    | Description                    |
-|-------------------|---------|--------------------------------|
-| Simple Mapping    | 7.685μs | Map flat structure             |
-| Nested Mapping    | 8.625μs | Map nested structure           |
-| Auto Map          | 7.306μs | Automatic field mapping        |
-| Map From Template | 5.148μs | Map using template expressions |
-
+| Operation | Time | Description |
+|-----------|------|-------------|
+| Simple Mapping | 5.458μs | Map flat structure |
+| Nested Mapping | 5.933μs | Map nested structure |
+| Auto Map | 6.705μs | Automatic field mapping |
+| Map From Template | 1.688μs | Map using template expressions |
 <!-- BENCHMARK_RESULTS_END -->
 
 **Key Insights:**
