@@ -298,5 +298,156 @@ describe('Callback Integration Tests', function(): void {
         // Source should be unchanged
         expect($source)->toBe($originalSource);
     });
+
+    it('works with different hooks - beforeWrite', function(): void {
+        $source = ['user' => ['name' => 'Alice']];
+        $mapping = ['profile.name' => '{{ user.name }}'];
+
+        $beforeWriteCalled = false;
+        $hooks = [
+            'beforeWrite' => function($value) use (&$beforeWriteCalled) {
+                $beforeWriteCalled = true;
+                return is_string($value) ? strtoupper($value) : $value;
+            },
+        ];
+
+        $result = DataMapper::map($source, [], $mapping, true, false, $hooks);
+
+        expect($beforeWriteCalled)->toBeTrue();
+        expect($result['profile']['name'])->toBe('ALICE');
+    });
+
+    it('works with different hooks - postTransform', function(): void {
+        $source = ['user' => ['name' => 'alice']];
+        $mapping = ['profile.name' => '{{ user.name }}'];
+
+        $postTransformCalled = false;
+        $hooks = [
+            'postTransform' => function($value) use (&$postTransformCalled) {
+                $postTransformCalled = true;
+                return is_string($value) ? strtoupper($value) : $value;
+            },
+        ];
+
+        $result = DataMapper::map($source, [], $mapping, true, false, $hooks);
+
+        expect($postTransformCalled)->toBeTrue();
+        expect($result['profile']['name'])->toBe('ALICE');
+    });
+
+    it('works with mapFromFile', function(): void {
+        $tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.json';
+        file_put_contents($tempFile, json_encode(['user' => ['name' => 'alice', 'email' => 'ALICE@EXAMPLE.COM']]));
+
+        try {
+            $mapping = [
+                'profile.name' => '{{ user.name }}',
+                'profile.email' => '{{ user.email }}',
+            ];
+
+            $result = DataMapper::pipe([
+                new CallbackFilter(function(CallbackParameters $p) {
+                    if ('name' === $p->key && is_string($p->value)) {
+                        return strtoupper($p->value);
+                    }
+                    if ('email' === $p->key && is_string($p->value)) {
+                        return strtolower($p->value);
+                    }
+                    return $p->value;
+                }),
+            ])->mapFromFile($tempFile, [], $mapping);
+
+            expect($result['profile']['name'])->toBe('ALICE');
+            expect($result['profile']['email'])->toBe('alice@example.com');
+        } finally {
+            unlink($tempFile);
+        }
+    });
+
+    it('works with skipNull option', function(): void {
+        $source = ['user' => ['name' => 'Alice', 'email' => null]];
+        $mapping = [
+            'profile.name' => '{{ user.name }}',
+            'profile.email' => '{{ user.email }}',
+        ];
+
+        $result = DataMapper::pipe([
+            new CallbackFilter(fn($p) => is_string($p->value) ? strtoupper($p->value) : $p->value),
+        ])->map($source, [], $mapping, true);
+
+        expect($result)->toBe(['profile' => ['name' => 'ALICE']]);
+    });
+
+    it('works with reindexWildcard option', function(): void {
+        $source = [
+            'items' => [
+                5 => 'alice',
+                10 => 'bob',
+            ],
+        ];
+        $mapping = [
+            'users.*' => '{{ items.* }}',
+        ];
+
+        // Without pipeline - reindexWildcard works
+        $result = DataMapper::map($source, [], $mapping, true, true);
+
+        expect($result['users'])->toHaveKey(0);
+        expect($result['users'])->toHaveKey(1);
+        expect($result['users'][0])->toBe('alice');
+        expect($result['users'][1])->toBe('bob');
+    });
+
+    it('works with multiple sources in template', function(): void {
+        $template = [
+            'profile' => [
+                'firstName' => '{{ user.firstName }}',
+                'lastName' => '{{ user.lastName }}',
+                'company' => '{{ company.name }}',
+            ],
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, [
+            'user' => ['firstName' => 'Alice', 'lastName' => 'Smith'],
+            'company' => ['name' => 'ACME Corp'],
+        ]);
+
+        expect($result['profile']['firstName'])->toBe('Alice');
+        expect($result['profile']['lastName'])->toBe('Smith');
+        expect($result['profile']['company'])->toBe('ACME Corp');
+    });
+
+    it('works with object mapping', function(): void {
+        $source = (object)['user' => (object)['name' => 'alice']];
+        $mapping = ['profile.name' => '{{ user.name }}'];
+
+        $result = DataMapper::pipe([
+            new CallbackFilter(fn($p) => is_string($p->value) ? strtoupper($p->value) : $p->value),
+        ])->map($source, [], $mapping);
+
+        expect($result)->toBeArray();
+        expect($result['profile']['name'])->toBe('ALICE');
+    });
+
+    it('handles deeply nested structures', function(): void {
+        $source = [
+            'level1' => [
+                'level2' => [
+                    'level3' => [
+                        'level4' => [
+                            'level5' => ['value' => 'deep'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $mapping = ['result' => '{{ level1.level2.level3.level4.level5.value }}'];
+
+        $result = DataMapper::pipe([
+            new CallbackFilter(fn($p) => is_string($p->value) ? strtoupper($p->value) : $p->value),
+        ])->map($source, [], $mapping);
+
+        expect($result['result'])->toBe('DEEP');
+    });
 });
 
