@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\Enums\CacheDriver;
 use event4u\DataHelpers\Helpers\EnvHelper;
 use event4u\DataHelpers\Logging\LogEvent;
 
@@ -16,76 +15,6 @@ return [
     | Works with Laravel, Symfony, and Plain PHP.
     |
     */
-
-    /*
-    |--------------------------------------------------------------------------
-    | Template Expression Cache
-    |--------------------------------------------------------------------------
-    |
-    | The template expression parser can cache parsed expressions to improve
-    | performance. This setting controls the maximum number of cache entries.
-    | When the limit is reached, the oldest entries will be discarded (LRU).
-    |
-    | Set to 0 to disable caching.
-    | Recommended: 1000 for most applications.
-    |
-    */
-    'cache' => [
-        /*
-        |--------------------------------------------------------------------------
-        | Cache Driver
-        |--------------------------------------------------------------------------
-        |
-        | The cache driver to use for storing parsed expressions and other data.
-        |
-        | Supported: CacheDriver::MEMORY, CacheDriver::FRAMEWORK, CacheDriver::NONE
-        |
-        | - MEMORY: In-memory LRU cache (fast, no persistence)
-        | - FRAMEWORK: Automatically uses Laravel or Symfony cache if available,
-        |              falls back to memory if no framework is detected
-        | - NONE: No caching (for testing/debugging)
-        |
-        */
-        'driver' => EnvHelper::string('DATA_HELPERS_CACHE_DRIVER', CacheDriver::default()->value),
-
-        /*
-        |--------------------------------------------------------------------------
-        | Maximum Cache Entries (Memory Driver)
-        |--------------------------------------------------------------------------
-        |
-        | Maximum number of cache entries for the memory driver.
-        | When the limit is reached, the oldest entries will be discarded (LRU).
-        |
-        */
-        'max_entries' => EnvHelper::integer('DATA_HELPERS_CACHE_MAX_ENTRIES', 1000),
-
-        /*
-        |--------------------------------------------------------------------------
-        | Cache Key Prefix
-        |--------------------------------------------------------------------------
-        |
-        | Prefix for cache keys (used by laravel/symfony drivers).
-        |
-        */
-        'prefix' => EnvHelper::string('DATA_HELPERS_CACHE_PREFIX', 'data_helpers:'),
-
-        /*
-        |--------------------------------------------------------------------------
-        | Default TTL (Time To Live)
-        |--------------------------------------------------------------------------
-        |
-        | Default time to live in seconds for cache entries.
-        | Set to null for no expiration (cache forever).
-        | Can be overridden per cache entry when calling set().
-        |
-        | Examples:
-        | - 3600 = 1 hour
-        | - 86400 = 24 hours
-        | - null = forever
-        |
-        */
-        'default_ttl' => EnvHelper::integer('DATA_HELPERS_CACHE_DEFAULT_TTL', 3600),
-    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -206,10 +135,6 @@ return [
             LogEvent::MAPPING_SUCCESS->value => EnvHelper::boolean('DATA_HELPERS_LOG_EVENT_MAPPING_SUCCESS', false),
             LogEvent::QUERY_SUCCESS->value => EnvHelper::boolean('DATA_HELPERS_LOG_EVENT_QUERY_SUCCESS', false),
 
-            // Cache
-            LogEvent::CACHE_HIT->value => EnvHelper::boolean('DATA_HELPERS_LOG_EVENT_CACHE_HIT', false),
-            LogEvent::CACHE_MISS->value => EnvHelper::boolean('DATA_HELPERS_LOG_EVENT_CACHE_MISS', false),
-
             // Data Quality
             LogEvent::MISSING_FIELD->value => EnvHelper::boolean('DATA_HELPERS_LOG_EVENT_MISSING_FIELD', true),
             LogEvent::NULL_VALUES_SKIPPED->value => EnvHelper::boolean('DATA_HELPERS_LOG_EVENT_NULL_SKIPPED', false),
@@ -227,14 +152,13 @@ return [
         | Sampling rates per event group (0.0 - 1.0).
         | Reduces log volume while maintaining visibility.
         |
-        | Groups: errors, success, performance, cache, data_quality, metrics
+        | Groups: errors, success, performance, data_quality, metrics
         |
         */
         'sampling' => [
             'errors' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_ERRORS', '1.0'),
             'success' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_SUCCESS', '0.01'),
             'performance' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_PERFORMANCE', '0.1'),
-            'cache' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_CACHE', '0.05'),
             'data_quality' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_DATA_QUALITY', '1.0'),
             'metrics' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_METRICS', '0.1'),
         ],

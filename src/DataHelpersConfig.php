@@ -40,12 +40,6 @@ final class DataHelpersConfig
         return ConfigHelper::getInstance()->get($key, $default);
     }
 
-    /** Get cache max entries setting. */
-    public static function getCacheMaxEntries(): int
-    {
-        return (int)self::get('cache.max_entries', 1000);
-    }
-
     /** Get performance mode setting. */
     public static function getPerformanceMode(): string
     {

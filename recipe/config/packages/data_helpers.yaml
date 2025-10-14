@@ -3,35 +3,6 @@
 # or let the bundle auto-configure itself.
 
 data_helpers:
-  # Template Expression Cache
-  # The template expression parser can cache parsed expressions to improve
-  # performance. This setting controls the maximum number of cache entries.
-  # When the limit is reached, the oldest entries will be discarded (LRU).
-  #
-  # Set to 0 to disable caching.
-  # Recommended: 1000 for most applications.
-  cache:
-    # Cache driver: memory, framework, none
-    # - memory: In-memory LRU cache (fast, no persistence)
-    # - framework: Automatically uses Laravel or Symfony cache if available,
-    #              falls back to memory if no framework is detected
-    # - none: No caching (for testing/debugging)
-    driver: '%env(DATA_HELPERS_CACHE_DRIVER)%'
-
-    # Maximum cache entries (for memory driver)
-    max_entries: '%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%'
-
-    # Default TTL (Time To Live) in seconds
-    # Set to null for no expiration (cache forever)
-    # Can be overridden per cache entry when calling set()
-    # Examples: 3600 (1 hour), 86400 (24 hours), null (forever)
-    default_ttl: '%env(DATA_HELPERS_CACHE_DEFAULT_TTL)%'
-
-    # Symfony cache pool (for symfony driver)
-    # Reference to a service implementing Psr\Cache\CacheItemPoolInterface
-    symfony:
-      pool: '@cache.app'
-
   # Performance Mode
   # Fast mode uses simplified parsing without escape sequence handling.
   # Safe mode processes all escape sequences (\n, \t, \", \\, etc.).
@@ -85,10 +56,6 @@ data_helpers:
       mapping.success: '%env(bool:DATA_HELPERS_LOG_EVENT_MAPPING_SUCCESS)%'
       query.success: '%env(bool:DATA_HELPERS_LOG_EVENT_QUERY_SUCCESS)%'
 
-      # Cache
-      cache.hit: '%env(bool:DATA_HELPERS_LOG_EVENT_CACHE_HIT)%'
-      cache.miss: '%env(bool:DATA_HELPERS_LOG_EVENT_CACHE_MISS)%'
-
       # Data Quality
       data.missing_field: '%env(bool:DATA_HELPERS_LOG_EVENT_MISSING_FIELD)%'
       data.null_skipped: '%env(bool:DATA_HELPERS_LOG_EVENT_NULL_SKIPPED)%'
@@ -102,7 +69,6 @@ data_helpers:
       errors: '%env(float:DATA_HELPERS_LOG_SAMPLING_ERRORS)%'
       success: '%env(float:DATA_HELPERS_LOG_SAMPLING_SUCCESS)%'
       performance: '%env(float:DATA_HELPERS_LOG_SAMPLING_PERFORMANCE)%'
-      cache: '%env(float:DATA_HELPERS_LOG_SAMPLING_CACHE)%'
       data_quality: '%env(float:DATA_HELPERS_LOG_SAMPLING_DATA_QUALITY)%'
       metrics: '%env(float:DATA_HELPERS_LOG_SAMPLING_METRICS)%'
 
@@ -117,7 +83,7 @@ data_helpers:
       # Which events to send to Slack (use LogEvent enum values)
       # Available: mapping.error, exception, pipeline.filter_error, template.expression_error,
       #            data.validation_failure, performance.mapping, performance.query, performance.pipeline,
-      #            mapping.success, query.success, cache.hit, cache.miss, data.missing_field,
+      #            mapping.success, query.success, data.missing_field,
       #            data.null_skipped, query.empty_result, metrics.processed_records
       events:
         - 'mapping.error'
@@ -140,9 +106,6 @@ data_helpers:
 
 # Default values for environment variables
 parameters:
-  env(DATA_HELPERS_CACHE_DRIVER): 'framework'
-  env(DATA_HELPERS_CACHE_MAX_ENTRIES): 1000
-  env(DATA_HELPERS_CACHE_DEFAULT_TTL): 3600
   env(DATA_HELPERS_PERFORMANCE_MODE): 'fast'
 
   # Logging defaults
@@ -162,8 +125,6 @@ parameters:
   env(DATA_HELPERS_LOG_EVENT_PERFORMANCE_PIPELINE): false
   env(DATA_HELPERS_LOG_EVENT_MAPPING_SUCCESS): false
   env(DATA_HELPERS_LOG_EVENT_QUERY_SUCCESS): false
-  env(DATA_HELPERS_LOG_EVENT_CACHE_HIT): false
-  env(DATA_HELPERS_LOG_EVENT_CACHE_MISS): false
   env(DATA_HELPERS_LOG_EVENT_MISSING_FIELD): true
   env(DATA_HELPERS_LOG_EVENT_NULL_SKIPPED): false
   env(DATA_HELPERS_LOG_EVENT_EMPTY_RESULT): true
@@ -173,7 +134,6 @@ parameters:
   env(DATA_HELPERS_LOG_SAMPLING_ERRORS): '1.0'
   env(DATA_HELPERS_LOG_SAMPLING_SUCCESS): '0.01'
   env(DATA_HELPERS_LOG_SAMPLING_PERFORMANCE): '0.1'
-  env(DATA_HELPERS_LOG_SAMPLING_CACHE): '0.05'
   env(DATA_HELPERS_LOG_SAMPLING_DATA_QUALITY): '1.0'
   env(DATA_HELPERS_LOG_SAMPLING_METRICS): '0.1'
 

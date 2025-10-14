@@ -91,10 +91,10 @@ final class TemplateParser
 
         foreach ($mapping as $targetPath => $sourcePath) {
             if (is_string($sourcePath) && self::isTemplate($sourcePath)) {
-                // Extract path from {{ }}
+// Extract path from {{ }}
                 $parsed[$targetPath] = self::extractPath($sourcePath);
             } else {
-                // Static value: use special marker
+// Static value: use special marker
                 /** @var array{__static__: mixed} $staticValue */
                 $staticValue = [$staticMarker => $sourcePath];
                 $parsed[$targetPath] = $staticValue;
