@@ -194,13 +194,13 @@ final class MappingReverser
      */
     private static function setNestedValue(array $array, array $path, string $value): array
     {
-        if ($path === []) {
+        if ([] === $path) {
             return $array;
         }
 
         $key = array_shift($path);
 
-        if ($path === []) {
+        if ([] === $path) {
             // Last part - set the value
             $array[$key] = $value;
         } else {

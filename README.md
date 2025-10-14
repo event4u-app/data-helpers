@@ -668,6 +668,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Reverse Mapping](docs/reverse-mapping.md)** - Bidirectional data transformation using the same mapping definition
 - **[Template Expressions](docs/template-expressions.md)** - Powerful expression engine with filters and defaults
 - **[Filters](docs/filters.md)** - All built-in filters and how to create custom ones
+    - **[Callback Filters](docs/callback-filters.md)** - Custom transformations using closures with full context access
 - **[Mapped Data Model](docs/mapped-data-model.md)** - Laravel-style request binding with type safety
 - **[Exception Handling](docs/exception-handling.md)** - Error handling, collection, and debugging
 - **[Dot-Path Syntax](docs/dot-path.md)** - Path notation reference and best practices
