@@ -665,6 +665,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
       OFFSET, DISTINCT, LIKE, GROUP BY)
     - **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING filters
 - **[Data Mapper Pipeline](docs/data-mapper-pipeline.md)** - Compose filters for data transformation
+- **[Reverse Mapping](docs/reverse-mapping.md)** - Bidirectional data transformation using the same mapping definition
 - **[Template Expressions](docs/template-expressions.md)** - Powerful expression engine with filters and defaults
 - **[Filters](docs/filters.md)** - All built-in filters and how to create custom ones
 - **[Mapped Data Model](docs/mapped-data-model.md)** - Laravel-style request binding with type safety
