@@ -16,19 +16,17 @@ describe('Laravel Config Integration E2E', function(): void {
 
     it('loads configuration from Laravel config', function(): void {
         // Set Laravel config
-        Config::set('data-helpers.cache.max_entries', 500);
         Config::set('data-helpers.performance_mode', 'safe');
 
         // Initialize from Laravel config
         DataHelpersConfig::initialize(Config::get('data-helpers', []));
 
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(500)
-            ->and(DataHelpersConfig::getPerformanceMode())->toBe('safe');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
     });
 
     it('uses Laravel env() helper for environment variables', function(): void {
         // Laravel's env() helper should be available
-        $envValue = env('DATA_HELPERS_CACHE_MAX_ENTRIES', 1000);
+        $envValue = env('DATA_HELPERS_PERFORMANCE_MODE', 'fast');
 
         // env() returns string from .env file, or default value
         expect($envValue)->not->toBeNull();
@@ -39,12 +37,12 @@ describe('Laravel Config Integration E2E', function(): void {
         $packageConfig = require __DIR__ . '/../../../../config/data-helpers.php';
 
         // App-specific overrides
-        Config::set('data-helpers.cache.max_entries', 2000);
+        Config::set('data-helpers.performance_mode', 'safe');
 
         // Merged config should have app override
         $mergedConfig = Config::get('data-helpers');
 
-        expect($mergedConfig['cache']['max_entries'])->toBe(2000);
+        expect($mergedConfig['performance_mode'])->toBe('safe');
     });
 
     it('provides default values when config not set', function(): void {
@@ -52,8 +50,7 @@ describe('Laravel Config Integration E2E', function(): void {
         DataHelpersConfig::initialize([]);
 
         // Should use defaults
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBeInt()
-            ->and(DataHelpersConfig::getPerformanceMode())->toBeString();
+        expect(DataHelpersConfig::getPerformanceMode())->toBeString();
     });
 
     it('validates performance mode values', function(): void {
@@ -98,29 +95,27 @@ describe('Laravel Config Integration E2E', function(): void {
 
     it('can update config at runtime', function(): void {
         DataHelpersConfig::initialize([
-            'cache' => ['max_entries' => 100],
+            'performance_mode' => 'fast',
         ]);
 
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(100);
+        expect(DataHelpersConfig::getPerformanceMode())->toBe('fast');
 
         // Update at runtime
-        DataHelpersConfig::set('cache.max_entries', 200);
+        DataHelpersConfig::set('performance_mode', 'safe');
 
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(200);
+        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
     });
 
     it('supports dot notation for nested config', function(): void {
         DataHelpersConfig::initialize([
-            'cache' => [
-                'driver' => 'framework',
-                'max_entries' => 1000,
-                'prefix' => 'test:',
+            'custom' => [
+                'key1' => 'value1',
+                'key2' => 'value2',
             ],
         ]);
 
-        expect(DataHelpersConfig::get('cache.driver'))->toBe('framework')
-            ->and(DataHelpersConfig::get('cache.max_entries'))->toBe(1000)
-            ->and(DataHelpersConfig::get('cache.prefix'))->toBe('test:');
+        expect(DataHelpersConfig::get('custom.key1'))->toBe('value1')
+            ->and(DataHelpersConfig::get('custom.key2'))->toBe('value2');
     });
 
     it('returns null for non-existent config keys', function(): void {
@@ -131,56 +126,54 @@ describe('Laravel Config Integration E2E', function(): void {
 
     it('can set multiple config values at once', function(): void {
         DataHelpersConfig::setMany([
-            'cache.max_entries' => 500,
-            'cache.prefix' => 'bulk:',
             'performance_mode' => 'safe',
+            'custom.key' => 'value',
         ]);
 
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(500)
-            ->and(DataHelpersConfig::get('cache.prefix'))->toBe('bulk:')
-            ->and(DataHelpersConfig::getPerformanceMode())->toBe('safe');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe')
+            ->and(DataHelpersConfig::get('custom.key'))->toBe('value');
     });
 
     it('preserves config across multiple accesses', function(): void {
         DataHelpersConfig::initialize([
-            'cache' => ['max_entries' => 750],
+            'performance_mode' => 'safe',
         ]);
 
-        $first = DataHelpersConfig::getCacheMaxEntries();
-        $second = DataHelpersConfig::getCacheMaxEntries();
-        $third = DataHelpersConfig::getCacheMaxEntries();
+        $first = DataHelpersConfig::getPerformanceMode();
+        $second = DataHelpersConfig::getPerformanceMode();
+        $third = DataHelpersConfig::getPerformanceMode();
 
-        expect($first)->toBe(750)
-            ->and($second)->toBe(750)
-            ->and($third)->toBe(750);
+        expect($first)->toBe('safe')
+            ->and($second)->toBe('safe')
+            ->and($third)->toBe('safe');
     });
 
     it('config is singleton across application', function(): void {
-        DataHelpersConfig::set('cache.max_entries', 999);
+        DataHelpersConfig::set('performance_mode', 'safe');
 
         // Access from different part of code
-        $value1 = DataHelpersConfig::getCacheMaxEntries();
+        $value1 = DataHelpersConfig::getPerformanceMode();
 
         // Access again
-        $value2 = DataHelpersConfig::get('cache.max_entries');
+        $value2 = DataHelpersConfig::get('performance_mode');
 
-        expect($value1)->toBe(999)
-            ->and($value2)->toBe(999);
+        expect($value1)->toBe('safe')
+            ->and($value2)->toBe('safe');
     });
 
     it('reset clears all configuration', function(): void {
         // Set a custom value
-        DataHelpersConfig::set('cache.max_entries', 999);
+        DataHelpersConfig::set('performance_mode', 'safe');
 
-        expect(DataHelpersConfig::getCacheMaxEntries())->toBe(999);
+        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
 
         // Reset should clear the custom value
         DataHelpersConfig::reset();
 
         // After reset, config should be reinitialized
         // We can't predict the exact value, but it should be callable
-        $maxEntries = DataHelpersConfig::getCacheMaxEntries();
-        expect($maxEntries)->toBeInt();
+        $mode = DataHelpersConfig::getPerformanceMode();
+        expect($mode)->toBeString();
     });
 
     it('handles array config values', function(): void {

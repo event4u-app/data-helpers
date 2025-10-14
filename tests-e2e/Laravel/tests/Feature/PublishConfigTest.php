@@ -72,11 +72,7 @@ describe('Laravel Config Publishing', function(): void {
         $configPath = config_path('data-helpers.php');
         $config = require $configPath;
 
-        expect($config)->toHaveKey('cache')
-            ->and($config)->toHaveKey('performance_mode')
-            ->and($config['cache'])->toHaveKey('driver')
-            ->and($config['cache'])->toHaveKey('max_entries')
-            ->and($config['cache'])->toHaveKey('default_ttl');
+        expect($config)->toHaveKey('performance_mode');
     });
 
     it('published config has correct default values', function(): void {
@@ -90,10 +86,7 @@ describe('Laravel Config Publishing', function(): void {
         $config = require $configPath;
 
         // Check default values (using EnvHelper, so they should be the defaults)
-        expect($config['cache']['driver'])->toBeString()
-            ->and($config['cache']['max_entries'])->toBeInt()
-            ->and($config['cache']['default_ttl'])->toBeInt()
-            ->and($config['performance_mode'])->toBeString();
+        expect($config['performance_mode'])->toBeString();
     });
 
     it('published config is identical to source', function(): void {
@@ -139,7 +132,7 @@ describe('Laravel Config Publishing', function(): void {
         // Should be valid config again
         $config = require $configPath;
         expect($config)->not->toHaveKey('modified')
-            ->and($config)->toHaveKey('cache');
+            ->and($config)->toHaveKey('performance_mode');
     });
 
     it('service provider registers publish tag', function(): void {

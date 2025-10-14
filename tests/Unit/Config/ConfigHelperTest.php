@@ -85,10 +85,13 @@ describe('ConfigHelper', function(): void {
     it('gets array value', function(): void {
         $helper = ConfigHelper::getInstance();
 
-        $value = $helper->getArray('logging', []);
+        // Test with a simple array config
+        $helper->set('test_array', ['key1' => 'value1', 'key2' => 'value2']);
+
+        $value = $helper->getArray('test_array', []);
 
         expect($value)->toBeArray();
-        expect($value)->toHaveKey('enabled');
+        expect($value)->toHaveKey('key1');
     });
 
     it('checks if key exists', function(): void {
@@ -104,7 +107,6 @@ describe('ConfigHelper', function(): void {
         $all = $helper->all();
 
         expect($all)->toBeArray();
-        expect($all)->toHaveKey('logging');
         expect($all)->toHaveKey('performance_mode');
     });
 
@@ -145,14 +147,21 @@ describe('ConfigHelper', function(): void {
     it('handles nested arrays correctly', function(): void {
         $helper = ConfigHelper::getInstance();
 
+        // Set up test nested config
+        $helper->set('test_nested', [
+            'level1' => [
+                'level2' => 'value',
+            ],
+        ]);
+
         // Get nested value
-        $value = $helper->get('logging.enabled');
-        expect($value)->not->toBeNull();
+        $value = $helper->get('test_nested.level1.level2');
+        expect($value)->toBe('value');
 
         // Get parent array
-        $logging = $helper->getArray('logging');
-        expect($logging)->toBeArray();
-        expect($logging)->toHaveKey('enabled');
+        $level1 = $helper->getArray('test_nested.level1');
+        expect($level1)->toBeArray();
+        expect($level1)->toHaveKey('level2');
     });
 
     it('returns default for non-array when expecting array', function(): void {

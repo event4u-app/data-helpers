@@ -62,25 +62,14 @@ describe('Symfony Recipe Files', function(): void {
         $configPath = __DIR__ . '/../../../../recipe/config/packages/data_helpers.yaml';
         $config = Yaml::parseFile($configPath);
 
-        expect($config['data_helpers'])->toHaveKey('cache')
-            ->and($config['data_helpers'])->toHaveKey('performance_mode')
-            ->and($config['data_helpers']['cache'])->toHaveKey('driver')
-            ->and($config['data_helpers']['cache'])->toHaveKey('max_entries')
-            ->and($config['data_helpers']['cache'])->toHaveKey('default_ttl')
-            ->and($config['data_helpers']['cache'])->toHaveKey('symfony');
+        expect($config['data_helpers'])->toHaveKey('performance_mode');
     });
 
     it('package config has correct default parameters', function(): void {
         $configPath = __DIR__ . '/../../../../recipe/config/packages/data_helpers.yaml';
         $config = Yaml::parseFile($configPath);
 
-        expect($config['parameters'])->toHaveKey('env(DATA_HELPERS_CACHE_DRIVER)')
-            ->and($config['parameters'])->toHaveKey('env(DATA_HELPERS_CACHE_MAX_ENTRIES)')
-            ->and($config['parameters'])->toHaveKey('env(DATA_HELPERS_CACHE_DEFAULT_TTL)')
-            ->and($config['parameters'])->toHaveKey('env(DATA_HELPERS_PERFORMANCE_MODE)')
-            ->and($config['parameters']['env(DATA_HELPERS_CACHE_DRIVER)'])->toBe('framework')
-            ->and($config['parameters']['env(DATA_HELPERS_CACHE_MAX_ENTRIES)'])->toBe(1000)
-            ->and($config['parameters']['env(DATA_HELPERS_CACHE_DEFAULT_TTL)'])->toBe(3600)
+        expect($config['parameters'])->toHaveKey('env(DATA_HELPERS_PERFORMANCE_MODE)')
             ->and($config['parameters']['env(DATA_HELPERS_PERFORMANCE_MODE)'])->toBe('fast');
     });
 
@@ -150,18 +139,7 @@ describe('Symfony Recipe Files', function(): void {
         $configPath = __DIR__ . '/../../../../recipe/config/packages/data_helpers.yaml';
         $content = file_get_contents($configPath);
 
-        expect($content)->toContain('%env(DATA_HELPERS_CACHE_DRIVER)%')
-            ->and($content)->toContain('%env(int:DATA_HELPERS_CACHE_MAX_ENTRIES)%')
-            ->and($content)->toContain('%env(DATA_HELPERS_CACHE_DEFAULT_TTL)%')
-            ->and($content)->toContain('%env(DATA_HELPERS_PERFORMANCE_MODE)%');
-    });
-
-    it('package config has Symfony cache pool configuration', function(): void {
-        $configPath = __DIR__ . '/../../../../recipe/config/packages/data_helpers.yaml';
-        $config = Yaml::parseFile($configPath);
-
-        expect($config['data_helpers']['cache']['symfony'])->toHaveKey('pool')
-            ->and($config['data_helpers']['cache']['symfony']['pool'])->toBe('@cache.app');
+        expect($content)->toContain('%env(DATA_HELPERS_PERFORMANCE_MODE)%');
     });
 
     it('services config has correct tag for MappedModelResolver', function(): void {
