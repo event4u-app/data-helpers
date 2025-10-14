@@ -747,40 +747,38 @@ $result = DataMapper::pipe([
 All operations are highly optimized and run in microseconds:
 
 <!-- BENCHMARK_RESULTS_START -->
-
 ### DataAccessor
 
-| Operation         | Time     | Description                                                   |
-|-------------------|----------|---------------------------------------------------------------|
-| Simple Get        | 0.301μs  | Get value from flat array                                     |
-| Nested Get        | 0.392μs  | Get value from nested path                                    |
-| Wildcard Get      | 4.855μs  | Get values using single wildcard                              |
-| Deep Wildcard Get | 72.012μs | Get values using multiple wildcards (10 depts × 20 employees) |
-| Typed Get String  | 0.327μs  | Get typed string value                                        |
-| Typed Get Int     | 0.354μs  | Get typed int value                                           |
-| Create Accessor   | 0.079μs  | Instantiate DataAccessor                                      |
+| Operation | Time | Description |
+|-----------|------|-------------|
+| Simple Get | 0.222μs | Get value from flat array |
+| Nested Get | 0.291μs | Get value from nested path |
+| Wildcard Get | 4.559μs | Get values using single wildcard |
+| Deep Wildcard Get | 49.160μs | Get values using multiple wildcards (10 depts × 20 employees) |
+| Typed Get String | 0.262μs | Get typed string value |
+| Typed Get Int | 0.249μs | Get typed int value |
+| Create Accessor | 0.055μs | Instantiate DataAccessor |
 
 ### DataMutator
 
-| Operation      | Time    | Description                             |
-|----------------|---------|-----------------------------------------|
-| Simple Set     | 0.595μs | Set value in flat array                 |
-| Nested Set     | 0.961μs | Set value in nested path                |
-| Deep Set       | 1.132μs | Set value creating new nested structure |
-| Multiple Set   | 1.690μs | Set multiple values at once             |
-| Merge          | 0.944μs | Deep merge arrays                       |
-| Unset          | 0.882μs | Remove single value                     |
-| Multiple Unset | 1.485μs | Remove multiple values                  |
+| Operation | Time | Description |
+|-----------|------|-------------|
+| Simple Set | 0.501μs | Set value in flat array |
+| Nested Set | 0.748μs | Set value in nested path |
+| Deep Set | 0.893μs | Set value creating new nested structure |
+| Multiple Set | 1.316μs | Set multiple values at once |
+| Merge | 0.751μs | Deep merge arrays |
+| Unset | 0.713μs | Remove single value |
+| Multiple Unset | 1.132μs | Remove multiple values |
 
 ### DataMapper
 
-| Operation         | Time    | Description                    |
-|-------------------|---------|--------------------------------|
-| Simple Mapping    | 7.685μs | Map flat structure             |
-| Nested Mapping    | 8.625μs | Map nested structure           |
-| Auto Map          | 7.306μs | Automatic field mapping        |
-| Map From Template | 5.148μs | Map using template expressions |
-
+| Operation | Time | Description |
+|-----------|------|-------------|
+| Simple Mapping | 5.458μs | Map flat structure |
+| Nested Mapping | 5.933μs | Map nested structure |
+| Auto Map | 6.705μs | Automatic field mapping |
+| Map From Template | 1.688μs | Map using template expressions |
 <!-- BENCHMARK_RESULTS_END -->
 
 **Key Insights:**
