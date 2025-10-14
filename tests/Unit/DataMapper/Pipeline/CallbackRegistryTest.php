@@ -212,5 +212,96 @@ describe('CallbackRegistry', function(): void {
             ],
         ]);
     });
+
+    it('returns null when getting non-existent callback', function(): void {
+        expect(CallbackRegistry::get('nonexistent'))->toBeNull();
+        expect(CallbackRegistry::has('nonexistent'))->toBeFalse();
+    });
+
+    it('callback names are case-sensitive', function(): void {
+        CallbackRegistry::register('Upper', fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value);
+
+        expect(CallbackRegistry::has('Upper'))->toBeTrue();
+        expect(CallbackRegistry::has('upper'))->toBeFalse();
+        expect(CallbackRegistry::has('UPPER'))->toBeFalse();
+    });
+
+    it('handles special characters in callback names', function(): void {
+        CallbackRegistry::register('my-callback', fn($p): mixed => $p->value);
+        CallbackRegistry::register('my_callback', fn($p): mixed => $p->value);
+        CallbackRegistry::register('my.callback', fn($p): mixed => $p->value);
+
+        expect(CallbackRegistry::has('my-callback'))->toBeTrue();
+        expect(CallbackRegistry::has('my_callback'))->toBeTrue();
+        expect(CallbackRegistry::has('my.callback'))->toBeTrue();
+        expect(CallbackRegistry::count())->toBe(3);
+    });
+
+    it('works with nested array values', function(): void {
+        CallbackRegistry::register('processArray', function(CallbackParameters $p): mixed {
+            if (is_array($p->value)) {
+                return array_map(fn($v): mixed => is_string($v) ? strtoupper($v) : $v, $p->value);
+            }
+            return $p->value;
+        });
+
+        $template = [
+            'tags' => '{{ post.tags | callback:processArray }}',
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, [
+            'post' => ['tags' => ['php', 'javascript']],
+        ]);
+
+        expect($result)->toBe([
+            'tags' => ['PHP', 'JAVASCRIPT'],
+        ]);
+    });
+
+    it('can chain callbacks with other filters', function(): void {
+        CallbackRegistry::register('double', fn($p): mixed => is_numeric($p->value) ? $p->value * 2 : $p->value);
+        CallbackRegistry::register(
+            'roundTwo',
+            fn($p): mixed => is_numeric($p->value) ? round((float)$p->value, 2) : $p->value
+        );
+
+        $template = [
+            'price' => '{{ product.price | callback:double | callback:roundTwo }}',
+        ];
+
+        $result = DataMapper::mapFromTemplate($template, [
+            'product' => ['price' => 10.5],
+        ]);
+
+        expect($result)->toBe([
+            'price' => 21.0,
+        ]);
+    });
+
+    it('handles empty callback registry gracefully', function(): void {
+        CallbackRegistry::clear();
+
+        expect(CallbackRegistry::count())->toBe(0);
+        expect(CallbackRegistry::getRegisteredNames())->toBe([]);
+        expect(CallbackRegistry::get('anything'))->toBeNull();
+    });
+
+    it('can handle many registered callbacks', function(): void {
+        // Register 100 callbacks
+        for ($i = 0; 100 > $i; $i++) {
+            CallbackRegistry::register('callback' . $i, fn($p): mixed => $p->value);
+        }
+
+        expect(CallbackRegistry::count())->toBe(100);
+
+        // All should be retrievable
+        for ($i = 0; 100 > $i; $i++) {
+            expect(CallbackRegistry::has('callback' . $i))->toBeTrue();
+        }
+
+        // Clear should remove all
+        CallbackRegistry::clear();
+        expect(CallbackRegistry::count())->toBe(0);
+    });
 });
 

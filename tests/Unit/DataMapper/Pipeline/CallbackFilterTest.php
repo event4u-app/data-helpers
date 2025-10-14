@@ -188,5 +188,193 @@ describe('CallbackFilter', function(): void {
             ],
         ]);
     });
+
+    it('handles nested data structures', function(): void {
+        $source = [
+            'company' => [
+                'departments' => [
+                    ['name' => 'sales', 'employees' => 10],
+                    ['name' => 'engineering', 'employees' => 25],
+                ],
+            ],
+        ];
+
+        $mapping = [
+            'org.teams' => '{{ company.departments }}',
+        ];
+
+        $result = DataMapper::pipe([
+            new CallbackFilter(function(CallbackParameters $params) {
+                // Uppercase department names in nested arrays
+                if (is_array($params->value)) {
+                    return array_map(function($dept) {
+                        if (is_array($dept) && isset($dept['name']) && is_string($dept['name'])) {
+                            $dept['name'] = strtoupper($dept['name']);
+                        }
+                        return $dept;
+                    }, $params->value);
+                }
+                return $params->value;
+            }),
+        ])->map($source, [], $mapping);
+
+        expect($result)->toBe([
+            'org' => [
+                'teams' => [
+                    ['name' => 'SALES', 'employees' => 10],
+                    ['name' => 'ENGINEERING', 'employees' => 25],
+                ],
+            ],
+        ]);
+    });
+
+    it('handles null and empty values correctly', function(): void {
+        $source = [
+            'data' => [
+                'name' => '',
+                'age' => null,
+                'active' => false,
+                'count' => 0,
+            ],
+        ];
+
+        $mapping = [
+            'result.name' => '{{ data.name }}',
+            'result.age' => '{{ data.age }}',
+            'result.active' => '{{ data.active }}',
+            'result.count' => '{{ data.count }}',
+        ];
+
+        $result = DataMapper::pipe([
+            new CallbackFilter(function(CallbackParameters $params) {
+                // Only skip null, not empty string or false or 0
+                if (null === $params->value) {
+                    return '__skip__';
+                }
+                return $params->value;
+            }),
+        ])->map($source, [], $mapping);
+
+        expect($result)->toBe([
+            'result' => [
+                'name' => '',
+                'active' => false,
+                'count' => 0,
+                // age is skipped (null)
+            ],
+        ]);
+    });
+
+    it('works with array values', function(): void {
+        $source = [
+            'user' => [
+                'tags' => ['php', 'javascript', 'python'],
+            ],
+        ];
+
+        $mapping = [
+            'profile.tags' => '{{ user.tags }}',
+        ];
+
+        $result = DataMapper::pipe([
+            new CallbackFilter(function(CallbackParameters $params) {
+                // Uppercase all array elements
+                if (is_array($params->value)) {
+                    return array_map(fn($v): mixed => is_string($v) ? strtoupper($v) : $v, $params->value);
+                }
+                return $params->value;
+            }),
+        ])->map($source, [], $mapping);
+
+        expect($result)->toBe([
+            'profile' => [
+                'tags' => ['PHP', 'JAVASCRIPT', 'PYTHON'],
+            ],
+        ]);
+    });
+
+    it('handles numeric keys', function(): void {
+        $source = [
+            'items' => [
+                ['id' => 1, 'name' => 'apple'],
+                ['id' => 2, 'name' => 'banana'],
+            ],
+        ];
+
+        $mapping = [
+            'products.*' => '{{ items.* }}',
+        ];
+
+        $capturedKeys = [];
+
+        $result = DataMapper::pipe([
+            new CallbackFilter(function(CallbackParameters $params) use (&$capturedKeys) {
+                $capturedKeys[] = $params->key;
+                return $params->value;
+            }),
+        ])->map($source, [], $mapping);
+
+        // Should capture keys (might be 'products' for the array itself)
+        expect($capturedKeys)->not->toBeEmpty();
+        expect($result['products'])->toHaveCount(2);
+    });
+
+    it('can return null without skipping', function(): void {
+        $source = [
+            'user' => [
+                'name' => 'Alice',
+            ],
+        ];
+
+        $mapping = [
+            'profile.name' => '{{ user.name }}',
+        ];
+
+        $result = DataMapper::pipe([
+            new CallbackFilter(fn(CallbackParameters $params): null =>
+                // Explicitly return null (not __skip__)
+                null),
+        ])->map($source, [], $mapping);
+
+        expect($result)->toBe([
+            'profile' => [
+                'name' => null,
+            ],
+        ]);
+    });
+
+    it('handles multiple __skip__ in sequence', function(): void {
+        $source = [
+            'user' => [
+                'name' => '',
+                'email' => 'test@example.com',
+            ],
+        ];
+
+        $mapping = [
+            'profile.name' => '{{ user.name }}',
+            'profile.email' => '{{ user.email }}',
+        ];
+
+        $result = DataMapper::pipe([
+            new CallbackFilter(function(CallbackParameters $params) {
+                if ('' === $params->value) {
+                    return '__skip__';
+                }
+                return $params->value;
+            }),
+            new CallbackFilter(fn(CallbackParameters $params): mixed =>
+                // This should NOT be called for skipped values
+                // because __skip__ is handled before the next filter
+                is_string($params->value) ? strtoupper($params->value) : $params->value),
+        ])->map($source, [], $mapping);
+
+        expect($result)->toBe([
+            'profile' => [
+                'email' => 'TEST@EXAMPLE.COM',
+                // name is skipped
+            ],
+        ]);
+    });
 });
 
