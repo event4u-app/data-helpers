@@ -52,6 +52,12 @@ final class TemplateExpressionProcessor
      */
     public static function parse(string $expression): array
     {
+        // Simple in-method cache for repeated expressions
+        static $cache = [];
+        if (isset($cache[$expression])) {
+            return $cache[$expression];
+        }
+
         // Remove {{ }} if present
         $expression = trim($expression);
         if (str_starts_with($expression, '{{') && str_ends_with($expression, '}}')) {
@@ -63,40 +69,48 @@ final class TemplateExpressionProcessor
             // No filters - check for default value (??)
             if (str_contains($expression, '??')) {
                 $parts = explode('??', $expression, 2);
-                return [
+                $result = [
                     'path' => trim($parts[0]),
                     'filters' => [],
                     'default' => trim($parts[1] ?? ''),
                     'hasFilters' => false,
                 ];
+                $cache[$expression] = $result;
+                return $result;
             }
 
-            return [
+            $result = [
                 'path' => $expression,
                 'filters' => [],
                 'default' => null,
                 'hasFilters' => false,
             ];
+            $cache[$expression] = $result;
+            return $result;
         }
 
         // Has filters - use ExpressionParser for full parsing
         $parsed = ExpressionParser::parse('{{ ' . $expression . ' }}');
 
         if (null === $parsed) {
-            return [
+            $result = [
                 'path' => $expression,
                 'filters' => [],
                 'default' => null,
                 'hasFilters' => false,
             ];
+            $cache[$expression] = $result;
+            return $result;
         }
 
-        return [
+        $result = [
             'path' => $parsed['path'],
             'filters' => $parsed['filters'],
             'default' => $parsed['default'],
             'hasFilters' => [] !== $parsed['filters'],
         ];
+        $cache[$expression] = $result;
+        return $result;
     }
 
     /**

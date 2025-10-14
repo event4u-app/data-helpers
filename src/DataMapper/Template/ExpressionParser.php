@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Template;
 
-use event4u\DataHelpers\Cache\LruCache;
-use event4u\DataHelpers\DataHelpersConfig;
-
 final class ExpressionParser
 {
-    private static ?LruCache $cache = null;
     /** Check if a string contains a template expression {{ ... }}. */
     public static function hasExpression(string $value): bool
     {
@@ -26,12 +22,10 @@ final class ExpressionParser
      */
     public static function parse(string $value): ?array
     {
-        // Check cache first
-        if (self::getCache()->has($value)) {
-            $cached = self::getCache()->get($value);
-            // PHPStan: We know it's either the correct array structure or null from cache
-            /** @var array{type: string, path: string, default: mixed, filters: array<int, string>}|null $cached */
-            return $cached;
+        // Simple in-method cache for repeated expressions
+        static $cache = [];
+        if (isset($cache[$value])) {
+            return $cache[$value];
         }
 
         // Template expression: {{ ... }}
@@ -47,10 +41,7 @@ final class ExpressionParser
                     'default' => null,
                     'filters' => [],
                 ];
-
-                // Cache result
-                self::getCache()->set($value, $result);
-
+                $cache[$value] = $result;
                 return $result;
             }
 
@@ -73,16 +64,11 @@ final class ExpressionParser
                 'default' => $default,
                 'filters' => $filters,
             ];
-
-            // Cache result
-            self::getCache()->set($value, $result);
-
+            $cache[$value] = $result;
             return $result;
         }
 
-        // Cache null result
-        self::getCache()->set($value, null);
-
+        $cache[$value] = null;
         return null;
     }
 
@@ -226,32 +212,5 @@ final class ExpressionParser
             'null' => null,
             default => $value,
         };
-    }
-
-    /** Get or initialize cache instance. */
-    private static function getCache(): LruCache
-    {
-        if (!self::$cache instanceof LruCache) {
-            $maxEntries = DataHelpersConfig::getCacheMaxEntries();
-            self::$cache = new LruCache($maxEntries);
-        }
-
-        return self::$cache;
-    }
-
-    /** Clear cache and reset instance (for testing). */
-    public static function clearCache(): void
-    {
-        self::$cache = null;
-    }
-
-    /**
-     * Get cache statistics.
-     *
-     * @return array{hits: int, misses: int, size: int, max_size: int|null}
-     */
-    public static function getCacheStats(): array
-    {
-        return self::getCache()->getStats();
     }
 }
