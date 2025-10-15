@@ -372,7 +372,7 @@ describe('Callback Integration Tests', function(): void {
         ];
 
         $result = DataMapper::pipe([
-            new CallbackFilter(fn($p) => is_string($p->value) ? strtoupper($p->value) : $p->value),
+            new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),
         ])->map($source, [], $mapping, true);
 
         expect($result)->toBe(['profile' => ['name' => 'ALICE']]);
@@ -422,7 +422,7 @@ describe('Callback Integration Tests', function(): void {
         $mapping = ['profile.name' => '{{ user.name }}'];
 
         $result = DataMapper::pipe([
-            new CallbackFilter(fn($p) => is_string($p->value) ? strtoupper($p->value) : $p->value),
+            new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),
         ])->map($source, [], $mapping);
 
         expect($result)->toBeArray();
@@ -444,7 +444,7 @@ describe('Callback Integration Tests', function(): void {
         $mapping = ['result' => '{{ level1.level2.level3.level4.level5.value }}'];
 
         $result = DataMapper::pipe([
-            new CallbackFilter(fn($p) => is_string($p->value) ? strtoupper($p->value) : $p->value),
+            new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),
         ])->map($source, [], $mapping);
 
         expect($result['result'])->toBe('DEEP');

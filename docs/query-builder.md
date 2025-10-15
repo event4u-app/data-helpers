@@ -45,12 +45,13 @@ $result = DataMapper::query()
 - ✅ **Method Chaining in Any Order** - Call methods in whatever order makes sense
 - ✅ **Pipeline Integration** - Combine with DataMapper pipelines for data transformation
 - ✅ **WHERE with Comparison Operators** - `=`, `!=`, `<>`, `>`, `<`, `>=`, `<=`
+- ✅ **Advanced WHERE Conditions** - `between()`, `whereIn()`, `whereNull()`, `exists()`, `like()`
 - ✅ **Nested WHERE Conditions** - Use closures for complex AND/OR logic
 - ✅ **OR WHERE Conditions** - Combine conditions with OR logic
 - ✅ **ORDER BY, LIMIT, OFFSET** - Sort and paginate results
 - ✅ **GROUP BY with Aggregations** - COUNT, SUM, AVG, MIN, MAX, FIRST, LAST, COLLECT, CONCAT
 - ✅ **HAVING Clause** - Filter grouped results
-- ✅ **DISTINCT and LIKE** - Remove duplicates and pattern matching
+- ✅ **DISTINCT** - Remove duplicates
 - ✅ **Operator Execution Order** - Operators are applied in the order they are called
 
 ## Basic Usage
@@ -299,6 +300,72 @@ $query->like('name', '%top');
 $query->like('name', '%apt%');
 ```
 
+### BETWEEN
+
+Check if a value is between two values (inclusive):
+
+```php
+// Price between 50 and 150
+$query->between('price', 50, 150);
+
+// Age between 18 and 65
+$query->between('age', 18, 65);
+```
+
+### NOT BETWEEN
+
+Check if a value is NOT between two values:
+
+```php
+// Price NOT between 50 and 150
+$query->notBetween('price', 50, 150);
+```
+
+### WHERE IN
+
+Check if a value is in an array of values:
+
+```php
+// Category is 'Electronics' OR 'Furniture'
+$query->whereIn('category', ['Electronics', 'Furniture']);
+
+// Status is 'active', 'pending', or 'approved'
+$query->whereIn('status', ['active', 'pending', 'approved']);
+```
+
+### WHERE NOT IN
+
+Check if a value is NOT in an array of values:
+
+```php
+// Category is NOT 'Electronics' OR 'Furniture'
+$query->whereNotIn('category', ['Electronics', 'Furniture']);
+```
+
+### WHERE NULL / WHERE NOT NULL
+
+Check if a field is null or not null:
+
+```php
+// Email is null
+$query->whereNull('email');
+
+// Email is NOT null
+$query->whereNotNull('email');
+```
+
+### EXISTS / NOT EXISTS
+
+Check if a field exists (alias for whereNotNull/whereNull):
+
+```php
+// Email field exists (not null)
+$query->exists('email');
+
+// Email field does NOT exist (is null)
+$query->notExists('email');
+```
+
 ## Operator Execution Order
 
 **Important:** Operators are applied in the order they are called, not in a fixed order!
@@ -408,6 +475,70 @@ Add a LIKE pattern.
 
 ```php
 $query->like('name', '%Laptop%');
+```
+
+### between(string $field, mixed $min, mixed $max): self
+
+Check if a value is between two values (inclusive).
+
+```php
+$query->between('price', 50, 150);
+```
+
+### notBetween(string $field, mixed $min, mixed $max): self
+
+Check if a value is NOT between two values.
+
+```php
+$query->notBetween('price', 50, 150);
+```
+
+### whereIn(string $field, array $values): self
+
+Check if a value is in an array of values.
+
+```php
+$query->whereIn('category', ['Electronics', 'Furniture']);
+```
+
+### whereNotIn(string $field, array $values): self
+
+Check if a value is NOT in an array of values.
+
+```php
+$query->whereNotIn('category', ['Electronics', 'Furniture']);
+```
+
+### whereNull(string $field): self
+
+Check if a field is null.
+
+```php
+$query->whereNull('email');
+```
+
+### whereNotNull(string $field): self
+
+Check if a field is NOT null.
+
+```php
+$query->whereNotNull('email');
+```
+
+### exists(string $field): self
+
+Check if a field exists (alias for whereNotNull).
+
+```php
+$query->exists('email');
+```
+
+### notExists(string $field): self
+
+Check if a field does NOT exist (alias for whereNull).
+
+```php
+$query->notExists('email');
 ```
 
 ### pipe(array $filters): self

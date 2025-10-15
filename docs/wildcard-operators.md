@@ -4,6 +4,17 @@ Wildcard operators allow you to filter, sort, limit, group, and transform arrays
 
 **Namespace:** `event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry`
 
+## Architecture
+
+**Since v2.0**, wildcard operators share the same implementation as DataFilter operators through the `WildcardOperatorAdapter`. This means:
+
+- ✅ **Single Source of Truth** - One operator implementation for both Direct and Wildcard modes
+- ✅ **Consistent Behavior** - Same logic in DataFilter and QueryBuilder
+- ✅ **Easier Maintenance** - Changes to operators automatically apply to both modes
+- ✅ **Custom Operators** - Register once, use everywhere
+
+The adapter converts DataFilter operators (which work with simple field paths like `'price'`) to work with template expressions (like `'{{ products.*.price }}'`).
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -272,11 +283,11 @@ Group items by one or more fields and calculate aggregations.
     'field' => '{{ path.*.field }}',           // Single field (string or array)
     // OR
     'fields' => ['{{ path.*.field1 }}', ...],  // Multiple fields (string or array)
-    
+
     'aggregations' => [
         'result_name' => ['FUNCTION', '{{ path.*.field }}', ...args],
     ],
-    
+
     'HAVING' => [
         'aggregation_name' => ['operator', value],
     ],
@@ -316,7 +327,7 @@ Group items by one or more fields and calculate aggregations.
 ]
 ```
 
-**See:** 
+**See:**
 - [GROUP BY Operator Documentation](./group-by-operator.md) - Complete guide
 - [Example 17](../examples/17-group-by-aggregations.php) - 10 comprehensive examples
 

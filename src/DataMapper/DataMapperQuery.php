@@ -389,6 +389,94 @@ class DataMapperQuery
     }
 
     /**
+     * Add a BETWEEN condition.
+     *
+     * @param string $field Field path
+     * @param mixed $min Minimum value (inclusive)
+     * @param mixed $max Maximum value (inclusive)
+     */
+    public function between(string $field, mixed $min, mixed $max): self
+    {
+        return $this->where($field, '>=', $min)->where($field, '<=', $max);
+    }
+
+    /**
+     * Add a NOT BETWEEN condition.
+     *
+     * @param string $field Field path
+     * @param mixed $min Minimum value
+     * @param mixed $max Maximum value
+     */
+    public function notBetween(string $field, mixed $min, mixed $max): self
+    {
+        return $this->where(function(self $query) use ($field, $min, $max): void {
+            $query->where($field, '<', $min)->orWhere($field, '>', $max);
+        });
+    }
+
+    /**
+     * Add an IN condition.
+     *
+     * @param string $field Field path
+     * @param array<int|string, mixed> $values Array of values
+     */
+    public function whereIn(string $field, array $values): self
+    {
+        return $this->where($field, 'IN', $values);
+    }
+
+    /**
+     * Add a NOT IN condition.
+     *
+     * @param string $field Field path
+     * @param array<int|string, mixed> $values Array of values
+     */
+    public function whereNotIn(string $field, array $values): self
+    {
+        return $this->where($field, 'NOT IN', $values);
+    }
+
+    /**
+     * Add a NULL check condition.
+     *
+     * @param string $field Field path
+     */
+    public function whereNull(string $field): self
+    {
+        return $this->where($field, '=', null);
+    }
+
+    /**
+     * Add a NOT NULL check condition.
+     *
+     * @param string $field Field path
+     */
+    public function whereNotNull(string $field): self
+    {
+        return $this->where($field, '!=', null);
+    }
+
+    /**
+     * Check if a field exists (is set).
+     *
+     * @param string $field Field path
+     */
+    public function exists(string $field): self
+    {
+        return $this->whereNotNull($field);
+    }
+
+    /**
+     * Check if a field does not exist (is not set).
+     *
+     * @param string $field Field path
+     */
+    public function notExists(string $field): self
+    {
+        return $this->whereNull($field);
+    }
+
+    /**
      * Set skip null option.
      *
      * @param bool $skip Whether to skip null values

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\ReverseDataMapper;
 
 describe('ReverseDataMapper', function(): void {
@@ -313,7 +314,7 @@ describe('ReverseDataMapper', function(): void {
 
         // Forward with pipeline
         $forwardResult = DataMapper::pipe([
-            new \event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings(),
+            new TrimStrings(),
         ])->map($source, [], $mapping);
 
         expect($forwardResult['profile']['name'])->toBe('alice');
@@ -322,7 +323,7 @@ describe('ReverseDataMapper', function(): void {
         // Reverse with pipeline
         $reverseSource = ['profile' => ['name' => '  bob  ', 'email' => '  BOB@EXAMPLE.COM  ']];
         $reverseResult = ReverseDataMapper::pipe([
-            new \event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings(),
+            new TrimStrings(),
         ])->map($reverseSource, [], $mapping);
 
         expect($reverseResult['user']['name'])->toBe('bob');
