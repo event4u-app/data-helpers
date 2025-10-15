@@ -53,7 +53,10 @@
     "symplify/coding-standard": "^12.4",
     "symplify/easy-coding-standard": "^12.6",
     "timeweb/phpstan-enum": "^4.0",
-    "vlucas/phpdotenv": "^5.6"
+    "vlucas/phpdotenv": "^5.6",
+    "symfony/serializer": "^6.0|^7.0",
+    "symfony/property-info": "^6.0|^7.0",
+    "symfony/property-access": "^6.0|^7.0"
   },
   "repositories": [],
   "suggest": {

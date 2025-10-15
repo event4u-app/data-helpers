@@ -66,11 +66,24 @@ Map between different data formats, APIs, or database schemas without writing re
 
 ### 🛡️ **Type-safe and well-tested**
 
-PHPStan Level 9 compliant with 1100+ tests. Works reliably with arrays, objects, Collections, Models, JSON, and XML.
+PHPStan Level 9 compliant with 1200+ tests. Works reliably with arrays, objects, Collections, Models, JSON, and XML.
 
 ### ⚡ **Framework-agnostic with smart detection**
 
 Use it anywhere - Laravel, Symfony, Doctrine, or plain PHP. Framework support is automatically detected at runtime.
+
+<!-- PERFORMANCE_COMPARISON_START -->
+
+### 🚀 **Blazing fast performance**
+
+DataMapper is significantly faster than traditional serializers for DTO mapping:
+
+- Up to **7.2x faster** than Symfony Serializer
+- Optimized for nested data structures
+- Zero reflection overhead for template-based mapping
+- See [benchmarks](#-benchmarks) for detailed performance comparison
+
+<!-- PERFORMANCE_COMPARISON_END -->
 
 ---
 
@@ -741,12 +754,12 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Data Mutator](docs/data-mutator.md)** - Write, merge, and unset nested values with wildcards
 - **[Data Filter](docs/data-filter.md)** - Filter and query data with a fluent API (direct mode and wildcard mode)
 - **[Data Mapper](docs/data-mapper.md)** - Map between structures with templates, transforms, and hooks
-  - **[Query Builder](docs/query-builder.md)** - Laravel-style fluent interface for building queries (WHERE, ORDER BY, LIMIT, GROUP BY,
-  etc.)
-    - **[Wildcard Operators](docs/wildcard-operators.md)** - Filter, sort, limit, group, and transform arrays (WHERE, ORDER BY, LIMIT,
-      OFFSET, DISTINCT, LIKE, GROUP BY)
-    - **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING
-      filters
+    - **[Query Builder](docs/query-builder.md)** - Laravel-style fluent interface for building queries (WHERE, ORDER BY, LIMIT, GROUP BY,
+      etc.)
+        - **[Wildcard Operators](docs/wildcard-operators.md)** - Filter, sort, limit, group, and transform arrays (WHERE, ORDER BY, LIMIT,
+          OFFSET, DISTINCT, LIKE, GROUP BY)
+        - **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING
+          filters
 - **[Data Mapper Pipeline](docs/data-mapper-pipeline.md)** - Compose filters for data transformation
 - **[Reverse Mapping](docs/reverse-mapping.md)** - Bidirectional data transformation using the same mapping definition
 - **[Template Expressions](docs/template-expressions.md)** - Powerful expression engine with filters and defaults
@@ -858,7 +871,7 @@ $result = DataMapper::pipe([
 
 ## 🧪 Testing & Quality
 
-- ✅ **1100+ tests** with 2900+ assertions
+- ✅ **1200+ tests** with 3100+ assertions
 - ✅ **PHPStan Level 9** - Highest static analysis level
 - ✅ **100% type coverage** - All methods fully typed
 - ✅ **Pest** - Modern testing framework
@@ -876,34 +889,46 @@ All operations are highly optimized and run in microseconds:
 
 | Operation         | Time     | Description                                                   |
 |-------------------|----------|---------------------------------------------------------------|
-| Simple Get        | 0.222μs  | Get value from flat array                                     |
-| Nested Get        | 0.291μs  | Get value from nested path                                    |
-| Wildcard Get      | 4.559μs  | Get values using single wildcard                              |
-| Deep Wildcard Get | 49.160μs | Get values using multiple wildcards (10 depts × 20 employees) |
-| Typed Get String  | 0.262μs  | Get typed string value                                        |
-| Typed Get Int     | 0.249μs  | Get typed int value                                           |
-| Create Accessor   | 0.055μs  | Instantiate DataAccessor                                      |
+| Simple Get        | 0.374μs  | Get value from flat array                                     |
+| Nested Get        | 0.438μs  | Get value from nested path                                    |
+| Wildcard Get      | 6.541μs  | Get values using single wildcard                              |
+| Deep Wildcard Get | 89.908μs | Get values using multiple wildcards (10 depts × 20 employees) |
+| Typed Get String  | 0.377μs  | Get typed string value                                        |
+| Typed Get Int     | 0.383μs  | Get typed int value                                           |
+| Create Accessor   | 0.086μs  | Instantiate DataAccessor                                      |
 
 ### DataMutator
 
 | Operation      | Time    | Description                             |
 |----------------|---------|-----------------------------------------|
-| Simple Set     | 0.501μs | Set value in flat array                 |
-| Nested Set     | 0.748μs | Set value in nested path                |
-| Deep Set       | 0.893μs | Set value creating new nested structure |
-| Multiple Set   | 1.316μs | Set multiple values at once             |
-| Merge          | 0.751μs | Deep merge arrays                       |
-| Unset          | 0.713μs | Remove single value                     |
-| Multiple Unset | 1.132μs | Remove multiple values                  |
+| Simple Set     | 0.624μs | Set value in flat array                 |
+| Nested Set     | 1.061μs | Set value in nested path                |
+| Deep Set       | 1.259μs | Set value creating new nested structure |
+| Multiple Set   | 1.897μs | Set multiple values at once             |
+| Merge          | 1.134μs | Deep merge arrays                       |
+| Unset          | 0.963μs | Remove single value                     |
+| Multiple Unset | 1.557μs | Remove multiple values                  |
 
 ### DataMapper
 
-| Operation         | Time    | Description                    |
-|-------------------|---------|--------------------------------|
-| Simple Mapping    | 5.458μs | Map flat structure             |
-| Nested Mapping    | 5.933μs | Map nested structure           |
-| Auto Map          | 6.705μs | Automatic field mapping        |
-| Map From Template | 1.688μs | Map using template expressions |
+| Operation         | Time     | Description                    |
+|-------------------|----------|--------------------------------|
+| Simple Mapping    | 8.581μs  | Map flat structure             |
+| Nested Mapping    | 8.783μs  | Map nested structure           |
+| Auto Map          | 12.063μs | Automatic field mapping        |
+| Map From Template | 2.322μs  | Map using template expressions |
+
+### DTO Serialization Comparison
+
+Comparison of DataMapper vs Symfony Serializer for mapping nested JSON to DTOs:
+
+| Method                   | Time      | vs Symfony        | Description                       |
+|--------------------------|-----------|-------------------|-----------------------------------|
+| Manual Mapping           | 0.527μs   | **212.2x faster** | Direct DTO constructor (baseline) |
+| Data Mapper Template     | 15.435μs  | **7.2x faster**   | DataMapper with template syntax   |
+| Data Mapper Explicit     | 22.173μs  | **5.0x faster**   | DataMapper with explicit mapping  |
+| Symfony Serializer Array | 111.780μs |                   | Symfony Serializer from array     |
+| Symfony Serializer Json  | 110.955μs |                   | Symfony Serializer from JSON      |
 
 <!-- BENCHMARK_RESULTS_END -->
 
@@ -914,7 +939,7 @@ All operations are highly optimized and run in microseconds:
 - All mutation operations are sub-microsecond
 - Mapping operations are in the 5-7μs range
 
-Run benchmarks yourself: `composer bench`
+Run benchmarks yourself: `composer benchmark`
 
 ---
 

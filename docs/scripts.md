@@ -9,7 +9,7 @@ Automatically updates the benchmark results in README.md.
 ### Usage
 
 ```bash
-composer bench:readme
+composer benchmark:readme
 ```
 
 ### What it does
@@ -28,6 +28,7 @@ composer bench:readme
 ### Output
 
 The script generates markdown tables with:
+
 - Operation name (formatted from benchmark method names)
 - Time in microseconds (μs)
 - Description of what the operation does
@@ -41,5 +42,6 @@ Example output:
 |-----------|------|-------------|
 | Simple Get | 0.319μs | Get value from flat array |
 | Nested Get | 0.417μs | Get value from nested path |
+
 ...
 ```

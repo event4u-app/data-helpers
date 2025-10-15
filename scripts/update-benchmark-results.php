@@ -19,54 +19,98 @@ if (!file_exists($readmePath)) {
     exit(1);
 }
 
-echo "🚀  Running benchmarks...\n\n";
+echo "🚀  Running benchmarks 15 times and calculating averages...\n\n";
 
-// Run PHPBench with table output
+// Run benchmarks 15 times and collect results
+$allRuns = [];
 $benchCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1';
-exec($benchCommand, $outputLines, $returnCode);
 
-if (0 !== $returnCode) {
-    echo '❌  Failed to run benchmarks (exit code: ' . $returnCode . ")\n";
-    exit(1);
+for ($run = 1; 15 >= $run; $run++) {
+    echo "  Run {$run}/15...\n";
+
+    exec($benchCommand, $outputLines, $returnCode);
+
+    if (0 !== $returnCode) {
+        echo '❌  Failed to run benchmarks (exit code: ' . $returnCode . ")\n";
+        exit(1);
+    }
+
+    $output = implode("\n", $outputLines);
+    $outputLines = []; // Reset for next run
+
+    // Parse table output
+    $runResults = [
+        'DataAccessor' => [],
+        'DataMutator' => [],
+        'DataMapper' => [],
+        'DtoSerialization' => [],
+    ];
+
+    $lines = explode("\n", $output);
+    $currentClass = null;
+
+    foreach ($lines as $line) {
+        // Detect class headers
+        if (str_contains($line, 'DataAccessorBench')) {
+            $currentClass = 'DataAccessor';
+            continue;
+        }
+        if (str_contains($line, 'DataMutatorBench')) {
+            $currentClass = 'DataMutator';
+            continue;
+        }
+        if (str_contains($line, 'DataMapperBench')) {
+            $currentClass = 'DataMapper';
+            continue;
+        }
+        if (str_contains($line, 'DtoSerializationBench')) {
+            $currentClass = 'DtoSerialization';
+            continue;
+        }
+
+        // Parse data rows (format: | subject | set | revs | its | mem_peak | mode | rstdev |)
+        if ($currentClass && preg_match('/\|\s*(\w+)\s*\|.*\|\s*([\d.]+)μs\s*\|/', $line, $matches)) {
+            $subjectName = $matches[1];
+            $time = (float)$matches[2];
+
+            $runResults[$currentClass][$subjectName][] = $time;
+        }
+    }
+
+    $allRuns[] = $runResults;
 }
 
-$output = implode("\n", $outputLines);
+echo "\n📊  Calculating averages...\n\n";
 
-// Parse table output
+// Calculate averages
 $results = [
     'DataAccessor' => [],
     'DataMutator' => [],
     'DataMapper' => [],
+    'DtoSerialization' => [],
 ];
 
-$lines = explode("\n", $output);
-$currentClass = null;
-
-foreach ($lines as $line) {
-    // Detect class headers
-    if (str_contains($line, 'DataAccessorBench')) {
-        $currentClass = 'DataAccessor';
-        continue;
+foreach ($allRuns as $runResults) {
+    foreach ($runResults as $className => $subjects) {
+        foreach ($subjects as $subjectName => $times) {
+            if (!isset($results[$className][$subjectName])) {
+                $results[$className][$subjectName] = [];
+            }
+            $results[$className][$subjectName] = array_merge($results[$className][$subjectName], $times);
+        }
     }
-    if (str_contains($line, 'DataMutatorBench')) {
-        $currentClass = 'DataMutator';
-        continue;
-    }
-    if (str_contains($line, 'DataMapperBench')) {
-        $currentClass = 'DataMapper';
-        continue;
-    }
+}
 
-    // Parse data rows (format: | subject | set | revs | its | mem_peak | mode | rstdev |)
-    if ($currentClass && preg_match('/\|\s*(\w+)\s*\|.*\|\s*([\d.]+)μs\s*\|/', $line, $matches)) {
-        $subjectName = $matches[1];
-        $time = (float)$matches[2];
-
-        $results[$currentClass][] = [
+// Convert to final format with averages
+foreach ($results as $className => $subjects) {
+    $averaged = [];
+    foreach ($subjects as $subjectName => $times) {
+        $averaged[] = [
             'name' => $subjectName,
-            'time' => $time,
+            'time' => array_sum($times) / count($times),
         ];
     }
+    $results[$className] = $averaged;
 }
 
 // Generate markdown tables
@@ -85,10 +129,10 @@ $descriptions = [
 ];
 
 foreach ($results['DataAccessor'] as $result) {
-    $name = str_replace('bench', '', $result['name']);
+    $name = str_replace('bench', '', (string)$result['name']);
     $name = preg_replace('/([A-Z])/', ' $1', $name);
     $name = trim((string)$name);
-    $time = formatTime($result['time']);
+    $time = formatTime((float)$result['time']);
     $desc = $descriptions[$result['name']] ?? '';
     $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
 }
@@ -108,10 +152,10 @@ $descriptions = [
 ];
 
 foreach ($results['DataMutator'] as $result) {
-    $name = str_replace('bench', '', $result['name']);
+    $name = str_replace('bench', '', (string)$result['name']);
     $name = preg_replace('/([A-Z])/', ' $1', $name);
     $name = trim((string)$name);
-    $time = formatTime($result['time']);
+    $time = formatTime((float)$result['time']);
     $desc = $descriptions[$result['name']] ?? '';
     $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
 }
@@ -128,12 +172,63 @@ $descriptions = [
 ];
 
 foreach ($results['DataMapper'] as $result) {
-    $name = str_replace('bench', '', $result['name']);
+    $name = str_replace('bench', '', (string)$result['name']);
     $name = preg_replace('/([A-Z])/', ' $1', $name);
     $name = trim((string)$name);
-    $time = formatTime($result['time']);
+    $time = formatTime((float)$result['time']);
     $desc = $descriptions[$result['name']] ?? '';
     $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
+}
+
+$markdown .= "\n### DTO Serialization Comparison\n\n";
+$markdown .= "Comparison of DataMapper vs Symfony Serializer for mapping nested JSON to DTOs:\n\n";
+$markdown .= "| Method | Time | vs Symfony | Description |\n";
+$markdown .= "|--------|------|------------|-------------|\n";
+
+$descriptions = [
+    'benchManualMapping' => 'Direct DTO constructor (baseline)',
+    'benchDataMapperTemplate' => 'DataMapper with template syntax',
+    'benchDataMapperExplicit' => 'DataMapper with explicit mapping',
+    'benchSymfonySerializerArray' => 'Symfony Serializer from array',
+    'benchSymfonySerializerJson' => 'Symfony Serializer from JSON',
+];
+
+// Find Symfony time for comparison
+$symfonyTime = null;
+foreach ($results['DtoSerialization'] as $result) {
+    if ('benchSymfonySerializerArray' === $result['name']) {
+        $symfonyTime = $result['time'];
+    }
+}
+
+// Sort DtoSerialization results in desired order
+$sortOrder = [
+    'benchManualMapping' => 1,
+    'benchDataMapperTemplate' => 2,
+    'benchDataMapperExplicit' => 3,
+    'benchSymfonySerializerArray' => 4,
+    'benchSymfonySerializerJson' => 5,
+];
+usort(
+    $results['DtoSerialization'],
+    fn(array $a, array $b): int => ($sortOrder[$a['name']] ?? 999) <=> ($sortOrder[$b['name']] ?? 999)
+);
+
+foreach ($results['DtoSerialization'] as $result) {
+    $name = str_replace('bench', '', (string)$result['name']);
+    $name = preg_replace('/([A-Z])/', ' $1', $name);
+    $name = trim((string)$name);
+    $time = formatTime((float)$result['time']);
+    $desc = $descriptions[$result['name']] ?? '';
+
+    // Calculate comparison vs Symfony
+    $vsSymfony = '';
+    if ($symfonyTime && 0 < $symfonyTime && 'benchSymfonySerializerArray' !== $result['name'] && 'benchSymfonySerializerJson' !== $result['name']) {
+        $factor = (float)$symfonyTime / (float)$result['time'];
+        $vsSymfony = sprintf('**%.1fx faster**', $factor);
+    }
+
+    $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $vsSymfony . ' | ' . $desc . " |\n";
 }
 
 // Read README
@@ -144,7 +239,7 @@ if (false === $readme) {
     exit(1);
 }
 
-// Find markers
+// Update benchmark results section
 $startMarker = '<!-- BENCHMARK_RESULTS_START -->';
 $endMarker = '<!-- BENCHMARK_RESULTS_END -->';
 
@@ -162,10 +257,51 @@ $after = substr($readme, $endPos);
 
 $newReadme = $before . "\n" . $markdown . $after;
 
+// Update performance comparison section
+$perfStartMarker = '<!-- PERFORMANCE_COMPARISON_START -->';
+$perfEndMarker = '<!-- PERFORMANCE_COMPARISON_END -->';
+
+$perfStartPos = strpos($newReadme, $perfStartMarker);
+$perfEndPos = strpos($newReadme, $perfEndMarker);
+
+if (false !== $perfStartPos && false !== $perfEndPos) {
+    // Extract DataMapper vs Symfony comparison
+    $dataMapperTemplateTime = null;
+    $symfonyArrayTime = null;
+    foreach ($results['DtoSerialization'] as $result) {
+        if ('benchDataMapperTemplate' === $result['name']) {
+            $dataMapperTemplateTime = $result['time'];
+        }
+        if ('benchSymfonySerializerArray' === $result['name']) {
+            $symfonyArrayTime = $result['time'];
+        }
+    }
+
+    $speedupFactor = 0.0;
+    if ($dataMapperTemplateTime && $symfonyArrayTime && 0 < $dataMapperTemplateTime) {
+        $speedupFactor = (float)$symfonyArrayTime / (float)$dataMapperTemplateTime;
+    }
+
+    $performanceSection = "### 🚀 **Blazing fast performance**\n\n";
+    $performanceSection .= "DataMapper is significantly faster than traditional serializers for DTO mapping:\n\n";
+    if (0 < $speedupFactor) {
+        $performanceSection .= sprintf("- Up to **%.1fx faster** than Symfony Serializer\n", $speedupFactor);
+    }
+    $performanceSection .= "- Optimized for nested data structures\n";
+    $performanceSection .= "- Zero reflection overhead for template-based mapping\n";
+    $performanceSection .= "- See [benchmarks](#-benchmarks) for detailed performance comparison";
+
+    // Replace content between markers
+    $beforePerf = substr($newReadme, 0, $perfStartPos + strlen($perfStartMarker));
+    $afterPerf = substr($newReadme, $perfEndPos);
+    $newReadme = $beforePerf . "\n" . $performanceSection . "\n" . $afterPerf;
+}
+
 // Write README
 file_put_contents($readmePath, $newReadme);
 
 echo "✅  Benchmark results updated in README.md\n";
+echo "✅  Performance comparison updated in 'Why use this?' section\n";
 
 function formatTime(float $microseconds): string
 {
@@ -177,4 +313,3 @@ function formatTime(float $microseconds): string
     }
     return number_format($microseconds / 1000, 3) . 'ms';
 }
-

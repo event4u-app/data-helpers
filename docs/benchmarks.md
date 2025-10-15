@@ -6,29 +6,30 @@ Performance benchmarks for the Data Helpers library using PHPBench.
 
 ```bash
 # Run all benchmarks
-composer bench
+composer benchmark
 
 # Create a baseline for comparison
-composer bench:baseline
+composer benchmark:baseline
 
 # Compare against baseline
-composer bench:compare
+composer benchmark:compare
 ```
 
 ## Benchmark Results
 
 ### DataAccessor
 
-| Operation | Time (μs) | Description |
-|-----------|-----------|-------------|
-| Simple Get | ~0.3 | Get value from flat array |
-| Nested Get | ~0.4 | Get value from nested path |
-| Wildcard Get | ~5.0 | Get values using single wildcard |
-| Deep Wildcard | ~91.0 | Get values using multiple wildcards (10 depts × 20 employees) |
-| Typed Get | ~0.4 | Get typed value (string/int) |
-| Create Accessor | ~0.1 | Instantiate DataAccessor |
+| Operation       | Time (μs) | Description                                                   |
+|-----------------|-----------|---------------------------------------------------------------|
+| Simple Get      | ~0.3      | Get value from flat array                                     |
+| Nested Get      | ~0.4      | Get value from nested path                                    |
+| Wildcard Get    | ~5.0      | Get values using single wildcard                              |
+| Deep Wildcard   | ~91.0     | Get values using multiple wildcards (10 depts × 20 employees) |
+| Typed Get       | ~0.4      | Get typed value (string/int)                                  |
+| Create Accessor | ~0.1      | Instantiate DataAccessor                                      |
 
 **Key Insights:**
+
 - Simple and nested access is very fast (~0.3-0.4μs)
 - Wildcards add overhead but are still performant (~5μs for single level)
 - Deep wildcards scale linearly with data size
@@ -36,17 +37,18 @@ composer bench:compare
 
 ### DataMutator
 
-| Operation | Time (μs) | Description |
-|-----------|-----------|-------------|
-| Simple Set | ~0.6 | Set value in flat array |
-| Nested Set | ~0.9 | Set value in nested path |
-| Deep Set | ~1.1 | Set value creating new nested structure |
-| Multiple Set | ~1.7 | Set multiple values at once |
-| Merge | ~1.0 | Deep merge arrays |
-| Unset | ~0.9 | Remove single value |
-| Multiple Unset | ~1.5 | Remove multiple values |
+| Operation      | Time (μs) | Description                             |
+|----------------|-----------|-----------------------------------------|
+| Simple Set     | ~0.6      | Set value in flat array                 |
+| Nested Set     | ~0.9      | Set value in nested path                |
+| Deep Set       | ~1.1      | Set value creating new nested structure |
+| Multiple Set   | ~1.7      | Set multiple values at once             |
+| Merge          | ~1.0      | Deep merge arrays                       |
+| Unset          | ~0.9      | Remove single value                     |
+| Multiple Unset | ~1.5      | Remove multiple values                  |
 
 **Key Insights:**
+
 - All mutation operations are sub-microsecond
 - Multiple operations in batch are more efficient than individual calls
 - Deep nesting adds minimal overhead
@@ -54,14 +56,15 @@ composer bench:compare
 
 ### DataMapper
 
-| Operation | Time (μs) | Description |
-|-----------|-----------|-------------|
-| Simple Mapping | ~6.3 | Map flat structure |
-| Nested Mapping | ~7.1 | Map nested structure |
-| AutoMap | ~6.7 | Automatic field mapping |
-| Template Mapping | ~5.0 | Map using template expressions |
+| Operation        | Time (μs) | Description                    |
+|------------------|-----------|--------------------------------|
+| Simple Mapping   | ~6.3      | Map flat structure             |
+| Nested Mapping   | ~7.1      | Map nested structure           |
+| AutoMap          | ~6.7      | Automatic field mapping        |
+| Template Mapping | ~5.0      | Map using template expressions |
 
 **Key Insights:**
+
 - All mapping operations are in the 5-7μs range
 - Template mapping is slightly faster due to optimized path
 - Nested mapping adds minimal overhead
@@ -70,6 +73,7 @@ composer bench:compare
 ## Benchmark Configuration
 
 Benchmarks are configured in `phpbench.json`:
+
 - **Revs**: 1000 (operations per iteration)
 - **Iterations**: 5 (statistical samples)
 - **Progress**: Dots display
@@ -118,6 +122,7 @@ Based on benchmark results:
 ## System Information
 
 Benchmarks run on:
+
 - PHP 8.3.25
 - No Xdebug
 - No OPcache (for accurate measurements)
