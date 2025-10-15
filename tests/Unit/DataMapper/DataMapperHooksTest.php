@@ -28,10 +28,17 @@ describe('DataMapper Hooks', function(): void {
             },
         ];
 
-        $res = DataMapper::map($source, $target, [
-            'x.a' => '{{ a }}',
-            'x.b' => '{{ b }}',
-        ], true, false, $hooks);
+        $res = DataMapper::source($source)
+            ->target($target)
+            ->template([
+                'x.a' => '{{ a }}',
+                'x.b' => '{{ b }}',
+            ])
+            ->skipNull(true)
+            ->reindexWildcard(false)
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
 
         expect($res)->toBe([
             'x' => [
@@ -59,10 +66,17 @@ describe('DataMapper Hooks', function(): void {
             ],
         ];
 
-        $res = DataMapper::map($source, $target, [
-            'x.a' => '{{ a }}',
-            'x.b' => '{{ b }}',
-        ], true, false, $hooks);
+        $res = DataMapper::source($source)
+            ->target($target)
+            ->template([
+                'x.a' => '{{ a }}',
+                'x.b' => '{{ b }}',
+            ])
+            ->skipNull(true)
+            ->reindexWildcard(false)
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
 
         expect($res)->toBe([
             'x' => [
@@ -95,9 +109,16 @@ describe('DataMapper Hooks', function(): void {
             },
         ];
 
-        $res = DataMapper::map($source, $target, [
-            'out.name' => '{{ name }}',
-        ], true, false, $hooks);
+        $res = DataMapper::source($source)
+            ->target($target)
+            ->template([
+                'out.name' => '{{ name }}',
+            ])
+            ->skipNull(true)
+            ->reindexWildcard(false)
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
 
         expect($res)->toBe([
             'out' => [
@@ -134,9 +155,16 @@ describe('DataMapper Hooks', function(): void {
             },
         ];
 
-        $res = DataMapper::map($source, $target, [
-            'out.items.*' => '{{ items.* }}',
-        ], true, true, $hooks);
+        $res = DataMapper::source($source)
+            ->target($target)
+            ->template([
+                'out.items.*' => '{{ items.* }}',
+            ])
+            ->skipNull(true)
+            ->reindexWildcard(true)
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
 
         // 'a' skipped by beforeWrite; 'b' gets uppercased by afterWrite
         expect($res)->toBe([
@@ -170,10 +198,16 @@ describe('DataMapper Hooks', function(): void {
             ],
         ];
 
-        DataMapper::map($source, $target, [
-            'x.a' => '{{ a }}',
-            'x.b' => '{{ b }}',
-        ], true, false, $hooks);
+        DataMapper::source($source)
+            ->target($target)
+            ->template([
+                'x.a' => '{{ a }}',
+                'x.b' => '{{ b }}',
+            ])
+            ->skipNull(true)
+            ->reindexWildcard(false)
+            ->hooks($hooks)
+            ->map();
 
         // Order is not strictly guaranteed, but all three should have been called at least once
         sort($calls);

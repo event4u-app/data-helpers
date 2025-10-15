@@ -51,45 +51,42 @@ class DataMapper
     }
 
     /**
-     * Create a FluentDataMapper with source data (auto-detects files).
+     * Create a DataMapperSource from any source.
      *
-     * If the source is a string and points to an existing file, it will be loaded automatically.
+     * Auto-detects if source is a file path or data.
      *
-     * @param mixed $source Source data (array, object, model, DTO, JSON, XML, or file path)
+     * @param mixed $source Source data or file path
      */
-    public static function source(mixed $source): DataMapper\FluentDataMapper
+    public static function from(mixed $source): DataMapper\DataMapperSource
     {
-        return (new DataMapper\FluentDataMapper())->source($source);
+        // Check if source is a file path
+        if (is_string($source) && file_exists($source)) {
+            return self::fromFile($source);
+        }
+
+        return self::fromSource($source);
     }
 
     /**
-     * Create a FluentDataMapper from a file.
+     * Create a DataMapperSource from a source.
+     *
+     * @param mixed $source Source data (array, object, model, DTO, JSON, XML)
+     */
+    public static function fromSource(mixed $source): DataMapper\DataMapperSource
+    {
+        return new DataMapper\DataMapperSource($source);
+    }
+
+    /**
+     * Create a DataMapperSource from a file.
      *
      * @param string $filePath File path (JSON, XML, CSV, etc.)
      */
-    public static function sourceFile(string $filePath): DataMapper\FluentDataMapper
+    public static function fromFile(string $filePath): DataMapper\DataMapperSource
     {
-        return (new DataMapper\FluentDataMapper())->sourceFile($filePath);
-    }
+        $data = FileLoader::load($filePath);
 
-    /**
-     * Create a FluentDataMapper starting with a template.
-     *
-     * @param array<int|string, mixed> $template Mapping template
-     */
-    public static function template(array $template): DataMapper\FluentDataMapper
-    {
-        return (new DataMapper\FluentDataMapper())->template($template);
-    }
-
-    /**
-     * Create a FluentDataMapper starting with a target.
-     *
-     * @param mixed $target Target (Object, Array, String (JSON/XML), String (Klassenname))
-     */
-    public static function target(mixed $target): DataMapper\FluentDataMapper
-    {
-        return (new DataMapper\FluentDataMapper())->target($target);
+        return new DataMapper\DataMapperSource($data);
     }
 
     /**
