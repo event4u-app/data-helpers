@@ -226,6 +226,38 @@ $result = DataMapper::map($source, [], $mapping);
 // ]
 ```
 
+
+### 4️⃣ **DataFilter** - Filter and query data
+
+```php
+use event4u\DataHelpers\DataFilter;
+
+$products = [
+    ['id' => 1, 'name' => 'Laptop', 'price' => 1200, 'category' => 'Electronics'],
+    ['id' => 2, 'name' => 'Mouse', 'price' => 25, 'category' => 'Electronics'],
+    ['id' => 3, 'name' => 'Desk', 'price' => 300, 'category' => 'Furniture'],
+];
+
+// Filter with fluent API
+$result = DataFilter::query($products)
+    ->where('category', '=', 'Electronics')
+    ->where('price', '>', 100)
+    ->orderBy('price', 'DESC')
+    ->limit(5)
+    ->get();
+// [['id' => 1, 'name' => 'Laptop', 'price' => 1200, ...]]
+
+// Get first result or null
+$laptop = DataFilter::query($products)
+    ->where('name', 'LIKE', 'Lap%')
+    ->first();
+
+// Count results
+$count = DataFilter::query($products)
+    ->where('price', 'BETWEEN', [100, 500])
+    ->count(); // 1
+```
+
 #### 🔥 **Complex Nested Mapping with Automatic Relations**
 
 Map complex nested structures directly to Eloquent Models or Doctrine Entities with **automatic relation detection**:
@@ -421,6 +453,48 @@ $result = DataMapper::pipe([
 
 👉 [Create custom filters](docs/data-mapper-pipeline.md#creating-custom-filters)
 
+
+### DataFilter - Query and Filter Data
+
+Filter arrays with a fluent, SQL-like API supporting both direct mode and wildcard mode:
+
+```php
+use event4u\DataHelpers\DataFilter;
+
+$products = [
+    ['id' => 1, 'name' => 'Laptop Pro', 'price' => 1200, 'category' => 'Electronics', 'stock' => 5],
+    ['id' => 2, 'name' => 'Mouse', 'price' => 25, 'category' => 'Electronics', 'stock' => 50],
+    ['id' => 3, 'name' => 'Desk', 'price' => 300, 'category' => 'Furniture', 'stock' => 10],
+];
+
+// Direct Mode - Filter existing data
+$result = DataFilter::query($products)
+    ->where('category', '=', 'Electronics')
+    ->where('price', '>', 100)
+    ->orderBy('price', 'DESC')
+    ->limit(5)
+    ->get();
+
+// Wildcard Mode - Build templates with QueryBuilder
+use event4u\DataHelpers\DataMapper;
+
+$data = ['products' => $products];
+$result = DataMapper::query()
+    ->source('products', $data)
+    ->where('{{ products.*.category }}', '=', 'Electronics')
+    ->where('{{ products.*.price }}', '>', 100)
+    ->orderBy('{{ products.*.price }}', 'DESC')
+    ->get();
+```
+
+**Supported operators:** `WHERE`, `WHERE IN`, `WHERE NULL`, `WHERE NOT NULL`, `LIKE`, `BETWEEN`, `ORDER BY`, `LIMIT`, `OFFSET`, `DISTINCT`
+
+**Fluent API methods:** `where()`, `whereIn()`, `whereNull()`, `whereNotNull()`, `like()`, `between()`, `orderBy()`, `limit()`, `offset()`, `distinct()`, `first()`, `count()`
+
+**Custom operators:** Add your own operators with `addOperator()`
+
+👉 [See full DataFilter documentation](docs/data-filter.md)
+
 ### Template Expressions - Powerful Mapping
 
 Use Twig-like expressions **in all mapping methods** (`map()`, `mapFromFile()`, `mapFromTemplate()`):
@@ -610,11 +684,19 @@ $result = DataMapper::pipeQuery([
 **Features:**
 
 - ✅ WHERE with comparison operators (`=`, `!=`, `<>`, `>`, `<`, `>=`, `<=`)
+- ✅ Advanced WHERE conditions:
+  - `between(field, min, max)` - Value between min and max
+  - `notBetween(field, min, max)` - Value NOT between min and max
+  - `whereIn(field, values)` - Value in array
+  - `whereNotIn(field, values)` - Value NOT in array
+  - `whereNull(field)` / `whereNotNull(field)` - NULL checks
+  - `exists(field)` / `notExists(field)` - Field existence checks
+  - `like(field, pattern)` - Pattern matching with wildcards
 - ✅ Nested WHERE with closures for complex AND/OR logic
 - ✅ ORDER BY, LIMIT, OFFSET for sorting and pagination
 - ✅ GROUP BY with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.)
 - ✅ HAVING clause for filtering grouped results
-- ✅ DISTINCT and LIKE operators
+- ✅ DISTINCT operator for unique values
 - ✅ Pipeline integration for data transformation
 - ✅ Method chaining in any order
 
@@ -660,13 +742,16 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Data Mutator](docs/data-mutator.md)** - Write, merge, and unset nested values with wildcards
 - **[Data Mapper](docs/data-mapper.md)** - Map between structures with templates, transforms, and hooks
     - **[Query Builder](docs/query-builder.md)** - Laravel-style fluent interface for building queries (WHERE, ORDER BY, LIMIT, GROUP BY,
+- **[Data Filter](docs/data-filter.md)** - Filter and query data with a fluent API (direct mode and wildcard mode)
       etc.)
     - **[Wildcard Operators](docs/wildcard-operators.md)** - Filter, sort, limit, group, and transform arrays (WHERE, ORDER BY, LIMIT,
       OFFSET, DISTINCT, LIKE, GROUP BY)
     - **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING filters
 - **[Data Mapper Pipeline](docs/data-mapper-pipeline.md)** - Compose filters for data transformation
+- **[Reverse Mapping](docs/reverse-mapping.md)** - Bidirectional data transformation using the same mapping definition
 - **[Template Expressions](docs/template-expressions.md)** - Powerful expression engine with filters and defaults
 - **[Filters](docs/filters.md)** - All built-in filters and how to create custom ones
+    - **[Callback Filters](docs/callback-filters.md)** - Custom transformations using closures with full context access
 - **[Mapped Data Model](docs/mapped-data-model.md)** - Laravel-style request binding with type safety
 - **[Exception Handling](docs/exception-handling.md)** - Error handling, collection, and debugging
 - **[Dot-Path Syntax](docs/dot-path.md)** - Path notation reference and best practices
@@ -712,6 +797,9 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [15-group-by-aggregations.php](examples/15-group-by-aggregations.php) - GROUP BY with aggregations
 - [16-query-builder.php](examples/16-query-builder.php) - Query Builder with fluent interface
 - [15-query-builder.php](examples/15-query-builder.php) - Laravel-style Query Builder with WHERE, ORDER BY, LIMIT, GROUP BY, etc.
+- [20-data-filter.php](examples/20-data-filter.php) - DataFilter with WHERE, ORDER BY, LIMIT, first(), count()
+- [21-custom-operators.php](examples/21-custom-operators.php) - Custom operators for DataFilter and QueryBuilder
+- [22-complex-queries.php](examples/22-complex-queries.php) - Complex queries with multiple operators chained
 
 ---
 

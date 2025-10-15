@@ -5,9 +5,10 @@ This section documents the lightweight data-handling helpers used across the cod
 - Data Accessor — read values from nested structures with dot-paths and wildcards
 - Data Mutator — write/merge/unset values using dot-paths and wildcards
 - Data Mapper — map values between structures, including template-based mapping
+- Data Filter — filter and query data with a fluent API (direct mode and wildcard mode)
 - Dot Path — the path syntax and wildcard semantics shared by all helpers
 
-All helpers live under the `App\Helpers` namespace and are framework-friendly (arrays, DTOs, Eloquent models, and Laravel collections).
+All helpers live under the `event4u\DataHelpers` namespace and are framework-friendly (arrays, DTOs, Eloquent models, and Laravel collections).
 
 ## Quick links
 
@@ -15,6 +16,7 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 - Accessor: [data-accessor.md](data-accessor.md)
 - Mutator: [data-mutator.md](data-mutator.md)
 - Mapper:  [data-mapper.md](data-mapper.md)
+- Filter: [data-filter.md](data-filter.md)
 - Dot Path syntax: [dot-path.md](dot-path.md)
 
 ### Advanced Features
@@ -22,6 +24,7 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 - Exception Handling: [exception-handling.md](exception-handling.md)
 - Template Expressions: [template-expressions.md](template-expressions.md)
 - Pipeline API: [data-mapper-pipeline.md](data-mapper-pipeline.md)
+- Wildcard Operators: [wildcard-operators.md](wildcard-operators.md)
 - Filters: [filters.md](filters.md)
 - MappedDataModel: [mapped-data-model.md](mapped-data-model.md)
 - Enum Support: [enum-support.md](enum-support.md)
@@ -46,6 +49,14 @@ All helpers live under the `App\Helpers` namespace and are framework-friendly (a
 - Template-based mapping from named sources (build structures)
 - Inverse template mapping to named targets (apply values into DTOs/Models/arrays)
 - Auto-map by matching names (shallow and deep modes)
+
+### Data Filter modes
+
+- **Direct Mode (DataFilter)**: Filter existing data with simple field paths like `'price'`
+- **Wildcard Mode (QueryBuilder)**: Build templates with wildcard expressions like `'{{ products.*.price }}'`
+- Both modes share the same operator implementations for consistency
+- Fluent API with chainable methods: `where()`, `orderBy()`, `limit()`, `first()`, `count()`
+- Custom operators can be added via `addOperator()`
 
 ## Conventions
 

@@ -229,9 +229,7 @@ class ReverseDataMapper
         return DataMapper::query();
     }
 
-    /**
-     * Get the number of collected exceptions.
-     */
+    /** Get the number of collected exceptions. */
     public static function getExceptionCount(): int
     {
         return DataMapper::getExceptionCount();

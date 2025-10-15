@@ -5,13 +5,20 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper\Support;
 
 use Closure;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\DistinctOperator;
+use event4u\DataHelpers\DataFilter\Operators\BetweenOperator;
+use event4u\DataHelpers\DataFilter\Operators\DistinctOperator as DataFilterDistinctOperator;
+use event4u\DataHelpers\DataFilter\Operators\LikeOperator as DataFilterLikeOperator;
+use event4u\DataHelpers\DataFilter\Operators\LimitOperator as DataFilterLimitOperator;
+use event4u\DataHelpers\DataFilter\Operators\NotBetweenOperator;
+use event4u\DataHelpers\DataFilter\Operators\OffsetOperator as DataFilterOffsetOperator;
+use event4u\DataHelpers\DataFilter\Operators\OrderByOperator as DataFilterOrderByOperator;
+use event4u\DataHelpers\DataFilter\Operators\WhereInOperator;
+use event4u\DataHelpers\DataFilter\Operators\WhereNotInOperator;
+use event4u\DataHelpers\DataFilter\Operators\WhereNotNullOperator;
+use event4u\DataHelpers\DataFilter\Operators\WhereNullOperator;
+use event4u\DataHelpers\DataFilter\Operators\WhereOperator as DataFilterWhereOperator;
+use event4u\DataHelpers\DataFilter\Operators\WildcardOperatorAdapter;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperators\GroupByOperator;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\LikeOperator;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\LimitOperator;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\OffsetOperator;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\OrderByOperator;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperators\WhereOperator;
 use InvalidArgumentException;
 
 /**
@@ -132,54 +139,26 @@ class WildcardOperatorRegistry
             return;
         }
 
-        // Register WHERE operator
-        self::register('WHERE', function(array $items, mixed $config, mixed $sources, array $aliases): array {
-            if (!is_array($config)) {
-                return $items;
-            }
-            /** @var array<string, mixed> $config */
-            return WhereOperator::filter($items, $config, $sources, $aliases);
-        });
+        // Register DataFilter operators via adapter
+        self::register('WHERE', WildcardOperatorAdapter::adapt(new DataFilterWhereOperator()));
+        self::register('LIKE', WildcardOperatorAdapter::adapt(new DataFilterLikeOperator()));
+        self::register('BETWEEN', WildcardOperatorAdapter::adapt(new BetweenOperator()));
+        self::register('NOT BETWEEN', WildcardOperatorAdapter::adapt(new NotBetweenOperator()));
+        self::register('WHERE IN', WildcardOperatorAdapter::adapt(new WhereInOperator()));
+        self::register('IN', WildcardOperatorAdapter::adapt(new WhereInOperator()));
+        self::register('WHERE NOT IN', WildcardOperatorAdapter::adapt(new WhereNotInOperator()));
+        self::register('NOT IN', WildcardOperatorAdapter::adapt(new WhereNotInOperator()));
+        self::register('WHERE NULL', WildcardOperatorAdapter::adapt(new WhereNullOperator()));
+        self::register('IS NULL', WildcardOperatorAdapter::adapt(new WhereNullOperator()));
+        self::register('WHERE NOT NULL', WildcardOperatorAdapter::adapt(new WhereNotNullOperator()));
+        self::register('IS NOT NULL', WildcardOperatorAdapter::adapt(new WhereNotNullOperator()));
+        self::register('ORDER BY', WildcardOperatorAdapter::adapt(new DataFilterOrderByOperator()));
+        self::register('ORDER', WildcardOperatorAdapter::adapt(new DataFilterOrderByOperator()));
+        self::register('LIMIT', WildcardOperatorAdapter::adapt(new DataFilterLimitOperator()));
+        self::register('OFFSET', WildcardOperatorAdapter::adapt(new DataFilterOffsetOperator()));
+        self::register('DISTINCT', WildcardOperatorAdapter::adapt(new DataFilterDistinctOperator()));
 
-        // Register ORDER BY operator (and aliases)
-        $orderByHandler = function(array $items, mixed $config, mixed $sources, array $aliases): array {
-            if (!is_array($config)) {
-                return $items;
-            }
-            /** @var array<string, string> $config */
-            return OrderByOperator::sort($items, $config, $sources, $aliases);
-        };
-
-        self::register('ORDER BY', $orderByHandler);
-        self::register('ORDER', $orderByHandler);
-
-        // Register LIMIT operator
-        self::register('LIMIT', fn(array $items, mixed $config): array => LimitOperator::apply($items, $config));
-
-        // Register OFFSET operator
-        self::register('OFFSET', fn(array $items, mixed $config): array => OffsetOperator::apply($items, $config));
-
-        // Register DISTINCT operator
-        self::register(
-            'DISTINCT',
-            fn(array $items, mixed $config, mixed $sources, array $aliases): array => DistinctOperator::filter(
-                $items,
-                $config,
-                $sources,
-                $aliases
-            )
-        );
-
-        // Register LIKE operator
-        self::register('LIKE', function(array $items, mixed $config, mixed $sources, array $aliases): array {
-            if (!is_array($config)) {
-                return $items;
-            }
-            /** @var array<string, mixed> $config */
-            return LikeOperator::filter($items, $config, $sources, $aliases);
-        });
-
-        // Register GROUP BY operator
+        // Register GROUP BY operator (still uses old implementation - not yet refactored)
         self::register('GROUP BY', function(array $items, mixed $config, mixed $sources, array $aliases): array {
             if (!is_array($config)) {
                 return $items;

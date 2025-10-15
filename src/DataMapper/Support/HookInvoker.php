@@ -187,6 +187,11 @@ class HookInvoker
                 }
 
                 $value = self::invokeValueCallback($callback, $value, $context);
+
+                // Stop processing if callback returned magic skip value
+                if ('__skip__' === $value) {
+                    break;
+                }
             }
         }
 

@@ -671,6 +671,13 @@ class DataMapper
             // preTransform
             $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
 
+            // Skip if preTransform hook returned magic skip value
+            if ('__skip__' === $value) {
+                $mappingIndex++;
+
+                continue;
+            }
+
             // Apply trimValues (if enabled) - use empty replaceMap to trigger trimming
             if ($trimValues && !$isStatic) {
                 $value = ValueTransformer::processValue($value, null, [], $trimValues, $caseInsensitiveReplace);
@@ -709,6 +716,14 @@ class DataMapper
                 );
             } else {
                 $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
+
+                // Skip if postTransform hook returned magic skip value
+                if ('__skip__' === $value) {
+                    $mappingIndex++;
+
+                    continue;
+                }
+
                 $writeContext = new WriteContext(
                     'simple',
                     $mappingIndex,

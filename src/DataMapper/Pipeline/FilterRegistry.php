@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper\Pipeline;
 
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Between;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Callback;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Clamp;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\ConvertEmptyToNull;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Count;
@@ -148,6 +149,9 @@ final class FilterRegistry
             Between::class,
             Clamp::class,
             ConvertEmptyToNull::class,
+
+            // Callback transformer
+            Callback::class,
         ];
 
         foreach ($builtInTransformers as $filterClass) {
