@@ -226,7 +226,6 @@ $result = DataMapper::map($source, [], $mapping);
 // ]
 ```
 
-
 ### 4️⃣ **DataFilter** - Filter and query data
 
 ```php
@@ -453,7 +452,6 @@ $result = DataMapper::pipe([
 
 👉 [Create custom filters](docs/data-mapper-pipeline.md#creating-custom-filters)
 
-
 ### DataFilter - Query and Filter Data
 
 Filter arrays with a fluent, SQL-like API supporting both direct mode and wildcard mode:
@@ -489,7 +487,8 @@ $result = DataMapper::query()
 
 **Supported operators:** `WHERE`, `WHERE IN`, `WHERE NULL`, `WHERE NOT NULL`, `LIKE`, `BETWEEN`, `ORDER BY`, `LIMIT`, `OFFSET`, `DISTINCT`
 
-**Fluent API methods:** `where()`, `whereIn()`, `whereNull()`, `whereNotNull()`, `like()`, `between()`, `orderBy()`, `limit()`, `offset()`, `distinct()`, `first()`, `count()`
+**Fluent API methods:** `where()`, `whereIn()`, `whereNull()`, `whereNotNull()`, `like()`, `between()`, `orderBy()`, `limit()`, `offset()`,
+`distinct()`, `first()`, `count()`
 
 **Custom operators:** Add your own operators with `addOperator()`
 
@@ -685,13 +684,13 @@ $result = DataMapper::pipeQuery([
 
 - ✅ WHERE with comparison operators (`=`, `!=`, `<>`, `>`, `<`, `>=`, `<=`)
 - ✅ Advanced WHERE conditions:
-  - `between(field, min, max)` - Value between min and max
-  - `notBetween(field, min, max)` - Value NOT between min and max
-  - `whereIn(field, values)` - Value in array
-  - `whereNotIn(field, values)` - Value NOT in array
-  - `whereNull(field)` / `whereNotNull(field)` - NULL checks
-  - `exists(field)` / `notExists(field)` - Field existence checks
-  - `like(field, pattern)` - Pattern matching with wildcards
+    - `between(field, min, max)` - Value between min and max
+    - `notBetween(field, min, max)` - Value NOT between min and max
+    - `whereIn(field, values)` - Value in array
+    - `whereNotIn(field, values)` - Value NOT in array
+    - `whereNull(field)` / `whereNotNull(field)` - NULL checks
+    - `exists(field)` / `notExists(field)` - Field existence checks
+    - `like(field, pattern)` - Pattern matching with wildcards
 - ✅ Nested WHERE with closures for complex AND/OR logic
 - ✅ ORDER BY, LIMIT, OFFSET for sorting and pagination
 - ✅ GROUP BY with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.)
@@ -740,13 +739,14 @@ Use Laravel and Doctrine together - automatic detection handles both!
 
 - **[Data Accessor](docs/data-accessor.md)** - Read nested data with wildcards, Collections, and Models
 - **[Data Mutator](docs/data-mutator.md)** - Write, merge, and unset nested values with wildcards
-- **[Data Mapper](docs/data-mapper.md)** - Map between structures with templates, transforms, and hooks
-    - **[Query Builder](docs/query-builder.md)** - Laravel-style fluent interface for building queries (WHERE, ORDER BY, LIMIT, GROUP BY,
 - **[Data Filter](docs/data-filter.md)** - Filter and query data with a fluent API (direct mode and wildcard mode)
-      etc.)
+- **[Data Mapper](docs/data-mapper.md)** - Map between structures with templates, transforms, and hooks
+  - **[Query Builder](docs/query-builder.md)** - Laravel-style fluent interface for building queries (WHERE, ORDER BY, LIMIT, GROUP BY,
+  etc.)
     - **[Wildcard Operators](docs/wildcard-operators.md)** - Filter, sort, limit, group, and transform arrays (WHERE, ORDER BY, LIMIT,
       OFFSET, DISTINCT, LIKE, GROUP BY)
-    - **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING filters
+    - **[GROUP BY Operator](docs/group-by-operator.md)** - Group data with aggregations (COUNT, SUM, AVG, MIN, MAX, etc.) and HAVING
+      filters
 - **[Data Mapper Pipeline](docs/data-mapper-pipeline.md)** - Compose filters for data transformation
 - **[Reverse Mapping](docs/reverse-mapping.md)** - Bidirectional data transformation using the same mapping definition
 - **[Template Expressions](docs/template-expressions.md)** - Powerful expression engine with filters and defaults
