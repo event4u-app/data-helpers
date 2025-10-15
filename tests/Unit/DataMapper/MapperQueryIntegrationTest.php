@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 
-describe('MapperQuery Integration', function (): void {
-    describe('WHERE operator integration', function (): void {
-        it('applies WHERE condition to wildcard mapping', function (): void {
+describe('MapperQuery Integration', function(): void {
+    describe('WHERE operator integration', function(): void {
+        it('applies WHERE condition to wildcard mapping', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'Product A', 'price' => 100, 'status' => 'active'],
@@ -37,7 +37,7 @@ describe('MapperQuery Integration', function (): void {
             expect($items[1]['id'])->toBe(3);
         });
 
-        it('applies multiple WHERE conditions', function (): void {
+        it('applies multiple WHERE conditions', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'Product A', 'price' => 100, 'status' => 'active'],
@@ -70,8 +70,8 @@ describe('MapperQuery Integration', function (): void {
         });
     });
 
-    describe('ORDER BY operator integration', function (): void {
-        it('applies ORDER BY to wildcard mapping', function (): void {
+    describe('ORDER BY operator integration', function(): void {
+        it('applies ORDER BY to wildcard mapping', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'Product A', 'price' => 150],
@@ -102,7 +102,7 @@ describe('MapperQuery Integration', function (): void {
             expect($items[2]['price'])->toBe(200);
         });
 
-        it('applies ORDER BY DESC', function (): void {
+        it('applies ORDER BY DESC', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'Product A', 'price' => 150],
@@ -134,8 +134,8 @@ describe('MapperQuery Integration', function (): void {
         });
     });
 
-    describe('LIMIT operator integration', function (): void {
-        it('applies LIMIT to wildcard mapping', function (): void {
+    describe('LIMIT operator integration', function(): void {
+        it('applies LIMIT to wildcard mapping', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'Product A'],
@@ -167,8 +167,8 @@ describe('MapperQuery Integration', function (): void {
         });
     });
 
-    describe('OFFSET operator integration', function (): void {
-        it('applies OFFSET to wildcard mapping', function (): void {
+    describe('OFFSET operator integration', function(): void {
+        it('applies OFFSET to wildcard mapping', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'Product A'],
@@ -200,8 +200,8 @@ describe('MapperQuery Integration', function (): void {
         });
     });
 
-    describe('Combined operators', function (): void {
-        it('applies WHERE + ORDER BY + LIMIT', function (): void {
+    describe('Combined operators', function(): void {
+        it('applies WHERE + ORDER BY + LIMIT', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'Product A', 'price' => 150, 'status' => 'active'],
@@ -237,8 +237,8 @@ describe('MapperQuery Integration', function (): void {
         });
     });
 
-    describe('GROUP BY operator integration', function (): void {
-        it('applies GROUP BY to wildcard mapping', function (): void {
+    describe('GROUP BY operator integration', function(): void {
+        it('applies GROUP BY to wildcard mapping', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'category' => 'Electronics', 'price' => 100],

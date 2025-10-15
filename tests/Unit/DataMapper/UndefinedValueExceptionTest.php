@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
-use event4u\DataHelpers\Exceptions\CollectedExceptionsException;
 use event4u\DataHelpers\Exceptions\UndefinedSourceValueException;
 use event4u\DataHelpers\Exceptions\UndefinedTargetValueException;
 
@@ -55,24 +54,34 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = [];
             $mapping = ['result' => '{{ email }}'];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             // skipNull is true by default, so null values are skipped
             expect($result)->toBe([]);
         });
 
         it('throws exception when throwExceptionOnUndefinedSourceValue is true', function(): void {
+            MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
             $source = ['name' => 'John'];
             $target = [];
             $mapping = ['result' => '{{ email }}'];
 
-            expect(fn(): mixed => DataMapper::map($source, $target, $mapping))
+            expect(fn(): mixed => DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget())
                 ->toThrow(UndefinedSourceValueException::class, 'Source value at path "email" is undefined');
         });
 
         it('exception contains the path that was not found', function(): void {
+            MapperExceptions::setCollectExceptionsEnabled(false);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
             $source = ['name' => 'John'];
@@ -80,7 +89,10 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $mapping = ['result' => '{{ user.email }}'];
 
             try {
-                DataMapper::map($source, $target, $mapping);
+                DataMapper::source($source)
+                    ->target($target)
+                    ->template($mapping)
+                    ->map();
                 expect(false)->toBeTrue('Exception should have been thrown');
             } catch (UndefinedSourceValueException $undefinedSourceValueException) {
                 expect($undefinedSourceValueException->getPath())->toBe('user.email');
@@ -94,7 +106,11 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = [];
             $mapping = ['result' => '{{ email }}'];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe(['result' => 'john@example.com']);
         });
@@ -107,17 +123,15 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = [];
             $mapping = ['result' => '{{ email }}'];
 
-            // Exception is collected and thrown at the end
-            // Note: May be wrapped in CollectedExceptionsException if multiple exceptions occur
-            try {
-                DataMapper::map($source, $target, $mapping);
-                expect(false)->toBeTrue('Exception should have been thrown');
-            } catch (UndefinedSourceValueException|CollectedExceptionsException $e) {
-                // Either exception type is acceptable
-                expect($e)->toBeInstanceOf(Throwable::class);
-            }
+            // Exception should be collected, NOT thrown
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map();
 
-            expect(MapperExceptions::hasExceptions())->toBeFalse(); // Cleared after mapping
+            // Exception should be collected
+            expect(MapperExceptions::hasExceptions())->toBeTrue();
+            expect(MapperExceptions::getExceptionCount())->toBe(1);
         });
 
         it('can read the setting via getter', function(): void {
@@ -142,7 +156,11 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = [];
             $mapping = ['user.address.city' => '{{ city }}'];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             // By default, DataMutator creates missing paths
             expect($result)->toBe(['user' => ['address' => ['city' => 'Berlin']]]);
@@ -158,7 +176,9 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 $target = [];
                 $mapping = ['user.address.city' => '{{ city }}'];
 
-                expect(fn(): mixed => DataMapper::map($source, $target, $mapping))
+                expect(
+                    fn(): mixed => DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget()
+                )
                     ->toThrow(UndefinedTargetValueException::class);
             }
         );
@@ -171,7 +191,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = ['user' => ['address' => []]];
             $mapping = ['user.address.city' => '{{ city }}'];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBe(['user' => ['address' => ['city' => 'Berlin']]]);
         });
@@ -185,7 +205,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $mapping = ['user.address.city' => '{{ city }}'];
 
             try {
-                DataMapper::map($source, $target, $mapping);
+                DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
                 expect(false)->toBeTrue('Exception should have been thrown');
             } catch (UndefinedTargetValueException $undefinedTargetValueException) {
                 expect($undefinedTargetValueException->getPath())->toBe('user.address');
@@ -226,7 +246,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             MapperExceptions::reset();
         });
 
-        it('throws both source and target exceptions when both are enabled and collectExceptions is true', function(): void {
+        it('collects both source and target exceptions when both are enabled and collectExceptions is true', function(): void {
             MapperExceptions::setCollectExceptionsEnabled(true);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
@@ -238,14 +258,12 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 'user.address.city' => '{{ name }}', // undefined target parent
             ];
 
-            try {
-                DataMapper::map($source, $target, $mapping);
-                expect(false)->toBeTrue('Exception should have been thrown');
-            } catch (CollectedExceptionsException $collectedExceptionsException) {
-                expect($collectedExceptionsException->getExceptionCount())->toBeGreaterThanOrEqual(1);
-                $exceptions = $collectedExceptionsException->getExceptions();
-                expect($exceptions)->toBeArray();
-            }
+            // Exceptions should be collected, NOT thrown
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map();
+
+            // Exceptions should be collected
+            expect(MapperExceptions::hasExceptions())->toBeTrue();
+            expect(MapperExceptions::getExceptionCount())->toBeGreaterThanOrEqual(1);
         });
 
         it('throws only source exception when only source check is enabled', function(): void {
@@ -260,7 +278,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 'user.address.city' => '{{ name }}', // undefined target parent (but check disabled)
             ];
 
-            expect(fn(): mixed => DataMapper::map($source, $target, $mapping))
+            expect(fn(): mixed => DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget())
                 ->toThrow(UndefinedSourceValueException::class);
         });
 
@@ -276,7 +294,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 'user.address.city' => '{{ name }}', // undefined target parent
             ];
 
-            expect(fn(): mixed => DataMapper::map($source, $target, $mapping))
+            expect(fn(): mixed => DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget())
                 ->toThrow(UndefinedTargetValueException::class);
         });
 
@@ -292,7 +310,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 'user.address.city' => '{{ name }}', // undefined target parent (but check disabled)
             ];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
 
             // Should create the structure without throwing
             expect($result)->toBeArray();
@@ -307,7 +325,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             MapperExceptions::reset();
         });
 
-        it('collects multiple source exceptions and throws CollectedExceptionsException', function(): void {
+        it('collects multiple source exceptions when collectExceptions is true', function(): void {
             MapperExceptions::setCollectExceptionsEnabled(true);
             MapperExceptions::setThrowOnUndefinedSourceEnabled(true);
 
@@ -319,17 +337,17 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 'address' => '{{ address }}', // undefined
             ];
 
-            try {
-                DataMapper::map($source, $target, $mapping);
-                expect(false)->toBeTrue('Exception should have been thrown');
-            } catch (CollectedExceptionsException $collectedExceptionsException) {
-                expect($collectedExceptionsException->getExceptionCount())->toBeGreaterThanOrEqual(1);
-                $exceptions = $collectedExceptionsException->getExceptions();
+            // Exceptions should be collected, NOT thrown
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map();
 
-                // Check that all exceptions are UndefinedSourceValueException
-                foreach ($exceptions as $exception) {
-                    expect($exception)->toBeInstanceOf(UndefinedSourceValueException::class);
-                }
+            // Exceptions should be collected
+            expect(MapperExceptions::hasExceptions())->toBeTrue();
+            expect(MapperExceptions::getExceptionCount())->toBeGreaterThanOrEqual(1);
+
+            // Check that all exceptions are UndefinedSourceValueException
+            $exceptions = MapperExceptions::getExceptions();
+            foreach ($exceptions as $exception) {
+                expect($exception)->toBeInstanceOf(UndefinedSourceValueException::class);
             }
         });
 
@@ -346,7 +364,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             ];
 
             try {
-                DataMapper::map($source, $target, $mapping);
+                DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
                 expect(false)->toBeTrue('Exception should have been thrown');
             } catch (UndefinedSourceValueException $undefinedSourceValueException) {
                 // Should be the first exception only
@@ -363,7 +381,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             MapperExceptions::reset();
         });
 
-        it('collects multiple target exceptions and throws CollectedExceptionsException', function(): void {
+        it('collects multiple target exceptions when collectExceptions is true', function(): void {
             MapperExceptions::setCollectExceptionsEnabled(true);
             MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
 
@@ -375,17 +393,17 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 'user.details.name' => '{{ name }}', // undefined parent
             ];
 
-            try {
-                DataMapper::map($source, $target, $mapping);
-                expect(false)->toBeTrue('Exception should have been thrown');
-            } catch (CollectedExceptionsException $collectedExceptionsException) {
-                expect($collectedExceptionsException->getExceptionCount())->toBeGreaterThanOrEqual(1);
-                $exceptions = $collectedExceptionsException->getExceptions();
+            // Exceptions should be collected, NOT thrown
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map();
 
-                // Check that all exceptions are UndefinedTargetValueException
-                foreach ($exceptions as $exception) {
-                    expect($exception)->toBeInstanceOf(UndefinedTargetValueException::class);
-                }
+            // Exceptions should be collected
+            expect(MapperExceptions::hasExceptions())->toBeTrue();
+            expect(MapperExceptions::getExceptionCount())->toBeGreaterThanOrEqual(1);
+
+            // Check that all exceptions are UndefinedTargetValueException
+            $exceptions = MapperExceptions::getExceptions();
+            foreach ($exceptions as $exception) {
+                expect($exception)->toBeInstanceOf(UndefinedTargetValueException::class);
             }
         });
     });
@@ -406,7 +424,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = [];
             $mapping = ['name' => '{{ name }}']; // root level - no parent to check
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBe(['name' => 'John']);
         });
@@ -419,7 +437,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = [];
             $mapping = ['email' => '{{ email | default:"no-email" }}']; // has default
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBe(['email' => 'no-email']);
         });
@@ -433,7 +451,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $mapping = ['email' => '{{ email | upper }}']; // has filter
 
             // Should not throw because filter is present
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeArray();
         });
@@ -451,7 +469,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 ],
             ];
 
-            expect(fn(): mixed => DataMapper::map($source, $target, $mapping))
+            expect(fn(): mixed => DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget())
                 ->toThrow(UndefinedSourceValueException::class);
         });
 
@@ -463,7 +481,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = [];
             $mapping = ['company.office.location.address.city' => '{{ city }}'];
 
-            expect(fn(): mixed => DataMapper::map($source, $target, $mapping))
+            expect(fn(): mixed => DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget())
                 ->toThrow(UndefinedTargetValueException::class);
         });
 
@@ -483,7 +501,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             ];
             $mapping = ['company.office.location.address.city' => '{{ city }}'];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result['company']['office']['location']['address']['city'])->toBe('Berlin');
         });
@@ -501,13 +519,12 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
                 'phone' => '{{ phone }}', // invalid
             ];
 
-            try {
-                DataMapper::map($source, $target, $mapping);
-                expect(false)->toBeTrue('Exception should have been thrown');
-            } catch (CollectedExceptionsException $collectedExceptionsException) {
-                // Should have collected exceptions for 'email' and 'phone'
-                expect($collectedExceptionsException->getExceptionCount())->toBeGreaterThanOrEqual(1);
-            }
+            // Exceptions should be collected, NOT thrown
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map();
+
+            // Exceptions should be collected for 'email' and 'phone'
+            expect(MapperExceptions::hasExceptions())->toBeTrue();
+            expect(MapperExceptions::getExceptionCount())->toBeGreaterThanOrEqual(1);
         });
 
         it('clears exceptions after each mapping call', function(): void {
@@ -518,19 +535,25 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = [];
             $mapping = ['email' => '{{ email }}'];
 
-            // First mapping - should throw
-            try {
-                DataMapper::map($source, $target, $mapping);
-            } catch (CollectedExceptionsException|UndefinedSourceValueException) {
-                // Expected
-            }
+            // First mapping - exceptions should be collected
+            DataMapper::source($source)->target($target)->template($mapping)->map();
 
-            // hasExceptions should be false after throwing
+            // Exceptions should be collected
+            expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+            // Clear exceptions manually
+            MapperExceptions::clearExceptions();
+
+            // hasExceptions should be false after clearing
             expect(MapperExceptions::hasExceptions())->toBeFalse();
 
-            // Second mapping with valid data - should not throw
+            // Second mapping with valid data - should not collect exceptions
             $source2 = ['email' => 'john@example.com'];
-            $result = DataMapper::map($source2, [], $mapping);
+            $result = DataMapper::source($source2)
+                ->target([])
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe(['email' => 'john@example.com']);
             expect(MapperExceptions::hasExceptions())->toBeFalse();
@@ -546,7 +569,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
 
             // Simple path-to-path mapping treats the value as literal if not found
             // So this test is skipped as it's expected behavior
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
             expect($result)->toBe(['email' => 'user.email']); // literal value
         })->skip('Simple path-to-path mapping treats undefined paths as literal values');
 
@@ -558,7 +581,7 @@ describe('DataMapper Undefined Value Exceptions', function(): void {
             $target = [];
             $mapping = ['user.profile.email' => 'email']; // simple path (no template)
 
-            expect(fn(): mixed => DataMapper::map($source, $target, $mapping))
+            expect(fn(): mixed => DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget())
                 ->toThrow(UndefinedTargetValueException::class);
         });
     });

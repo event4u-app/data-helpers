@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Keys;
 use Tests\utils\Filters\AlternatingCase;
 use Tests\utils\Filters\ReverseString;
 
@@ -11,6 +12,7 @@ beforeEach(function(): void {
     FilterRegistry::clear();
     FilterRegistry::register(AlternatingCase::class);
     FilterRegistry::register(ReverseString::class);
+    FilterRegistry::register(Keys::class);
 });
 
 afterEach(function(): void {
@@ -37,7 +39,7 @@ describe('Custom Filter Support Across All Mapping Methods', function(): void {
                 'name' => '{{ name | alternating }}',
             ];
 
-            $result = DataMapper::mapFromFile($tempFile, [], $mapping);
+            $result = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->map()->getTarget();
 
             expect($result['name'])->toBe('hElLo wOrLd');
 
@@ -54,7 +56,7 @@ describe('Custom Filter Support Across All Mapping Methods', function(): void {
                 'text' => '{{ text | alternating | reverse_str }}',
             ];
 
-            $result = DataMapper::mapFromFile($tempFile, [], $mapping);
+            $result = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->map()->getTarget();
 
             // 'hello' -> 'hElLo' -> 'oLlEh'
             expect($result['text'])->toBe('oLlEh');
@@ -72,7 +74,7 @@ describe('Custom Filter Support Across All Mapping Methods', function(): void {
                 'text' => '{{ text | upper | alternating }}',
             ];
 
-            $result = DataMapper::mapFromFile($tempFile, [], $mapping);
+            $result = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->map()->getTarget();
 
             // 'hello' -> 'HELLO' -> 'hElLo'
             expect($result['text'])->toBe('hElLo');
@@ -94,7 +96,7 @@ describe('Custom Filter Support Across All Mapping Methods', function(): void {
                 'names' => '{{ items.*.name | alternating }}',
             ];
 
-            $result = DataMapper::mapFromFile($tempFile, [], $mapping);
+            $result = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->map()->getTarget();
 
             expect($result['names'])->toBeArray();
             expect($result['names'][0])->toBe('aLiCe');
@@ -117,7 +119,7 @@ describe('Custom Filter Support Across All Mapping Methods', function(): void {
                 'texts' => '{{ items.*.text | upper | alternating | reverse_str }}',
             ];
 
-            $result = DataMapper::mapFromFile($tempFile, [], $mapping);
+            $result = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->map()->getTarget();
 
             expect($result['texts'])->toBeArray();
             // 'hello' -> 'HELLO' -> 'hElLo' -> 'oLlEh'
@@ -246,7 +248,7 @@ describe('Custom Filter Support Across All Mapping Methods', function(): void {
             $template = ['name' => '{{ user.name | alternating }}'];
             $sources = ['user' => ['name' => 'hello world']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::template($template)->sources($sources)->map()->getTarget();
 
             expect($result['name'])->toBe('hElLo wOrLd');
         });
@@ -255,13 +257,13 @@ describe('Custom Filter Support Across All Mapping Methods', function(): void {
             $template = ['text' => '{{ user.text | alternating | reverse_str }}'];
             $sources = ['user' => ['text' => 'hello']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::template($template)->sources($sources)->map()->getTarget();
 
             expect($result['text'])->toBe('oLlEh');
         });
 
         it('applies custom filter with array value', function(): void {
-            $template = ['keys' => '{{ users | keys }}'];
+            $template = ['keys' => '{{ @users | keys }}'];
             $sources = [
                 'users' => [
                     'alice' => 1,
@@ -269,7 +271,7 @@ describe('Custom Filter Support Across All Mapping Methods', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::template($template)->sources($sources)->map()->getTarget();
 
             expect($result['keys'])->toBeArray();
             expect($result['keys'][0])->toBe('alice');
@@ -300,7 +302,7 @@ describe('Custom Filter Support Across All Mapping Methods', function(): void {
                 ->template($mapping)
                 ->map()
                 ->getTarget();
-            $resultFile = DataMapper::mapFromFile($tempFile, [], $mapping);
+            $resultFile = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->map()->getTarget();
 
             // Both should produce identical results
             expect($resultMap['texts'])->toEqual($resultFile['texts']);

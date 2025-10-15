@@ -11,7 +11,7 @@ test('case-insensitive replaces work when enabled via map parameter', function()
         ],
     ];
 
-    $result = DataMapper::map(null, [], [
+    $result = DataMapper::template([
         [
             'source' => $source,
             'target' => [],
@@ -24,7 +24,13 @@ test('case-insensitive replaces work when enabled via map parameter', function()
                 ],
             ],
         ],
-    ], true, false, [], true, true);
+    ])
+        ->target([])
+        ->caseInsensitiveReplace(true)
+        ->trimValues(true)
+
+        ->map()
+        ->getTarget();
 
     expect($result)->toBe([
         'dto' => [
@@ -40,7 +46,7 @@ test('trim-before-replace is applied globally (default true)', function(): void 
         ],
     ];
 
-    $result = DataMapper::map(null, [], [
+    $result = DataMapper::template([
         [
             'source' => $source,
             'target' => [],
@@ -53,7 +59,12 @@ test('trim-before-replace is applied globally (default true)', function(): void 
                 ],
             ],
         ],
-    ]);
+    ])
+        ->target([])
+        ->trimValues(true)
+
+        ->map()
+        ->getTarget();
 
     expect($result)->toBe([
         'dto' => [
@@ -71,7 +82,7 @@ describe('Replace', function(): void {
             ],
         ];
 
-        $result = DataMapper::map(null, [], [
+        $result = DataMapper::template([
             [
                 'source' => $source,
                 'target' => [],
@@ -88,7 +99,12 @@ describe('Replace', function(): void {
                     ],
                 ],
             ],
-        ]);
+        ])
+            ->target([])
+            ->trimValues(true)
+
+            ->map()
+            ->getTarget();
 
         expect($result)->toBe([
             'dto' => [
@@ -106,7 +122,7 @@ describe('Replace', function(): void {
             ],
         ];
 
-        $result = DataMapper::map(null, [], [
+        $result = DataMapper::template([
             [
                 'source' => $source,
                 'target' => [],
@@ -123,7 +139,12 @@ describe('Replace', function(): void {
                     ],
                 ],
             ],
-        ]);
+        ])
+            ->target([])
+            ->trimValues(true)
+
+            ->map()
+            ->getTarget();
 
         expect($result)->toBe([
             'dto' => [
@@ -148,7 +169,7 @@ describe('Replace', function(): void {
             ],
         ];
 
-        $result = DataMapper::map(null, [], [
+        $result = DataMapper::template([
             [
                 'source' => $source,
                 'target' => [],
@@ -163,7 +184,12 @@ describe('Replace', function(): void {
                     ],
                 ],
             ],
-        ]);
+        ])
+            ->target([])
+            ->trimValues(true)
+
+            ->map()
+            ->getTarget();
 
         expect($result)->toBe([
             'result' => ['PAID', 'OPEN'],

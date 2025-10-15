@@ -3,13 +3,18 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
-use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
 
-describe('DataMapper - Mapping Copy - Extended API', function (): void {
-    describe('extendTemplate()', function (): void {
-        it('extends template with new mappings', function (): void {
+/**
+ * Tests for extendTemplate(), addPipelineFilter(), and copy() methods.
+ *
+ * @internal
+ */
+describe('DataMapper - extendTemplate() and addPipelineFilter()', function(): void {
+    describe('extendTemplate()', function(): void {
+        it('extends template with new mappings', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -34,7 +39,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('overrides existing mappings when extending', function (): void {
+        it('overrides existing mappings when extending', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -59,7 +64,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('can be chained multiple times', function (): void {
+        it('can be chained multiple times', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -88,7 +93,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('works with nested templates', function (): void {
+        it('works with nested templates', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -127,7 +132,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('works with empty initial template', function (): void {
+        it('works with empty initial template', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -147,8 +152,8 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
         });
     });
 
-    describe('addPipelineFilter()', function (): void {
-        it('adds a single filter to existing pipeline', function (): void {
+    describe('addPipelineFilter()', function(): void {
+        it('adds a single filter to existing pipeline', function(): void {
             $source = [
                 'name' => '  alice  ',
             ];
@@ -167,7 +172,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('can be chained multiple times', function (): void {
+        it('can be chained multiple times', function(): void {
             $source = [
                 'name' => '  alice  ',
             ];
@@ -187,7 +192,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('works with empty initial pipeline', function (): void {
+        it('works with empty initial pipeline', function(): void {
             $source = [
                 'name' => '  alice  ',
             ];
@@ -205,7 +210,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('maintains filter order', function (): void {
+        it('maintains filter order', function(): void {
             $source = [
                 'name' => '  alice  ',
             ];
@@ -227,8 +232,8 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
         });
     });
 
-    describe('copy() with extended API', function (): void {
-        it('copy() creates independent instance that can be extended', function (): void {
+    describe('copy() with extended API', function(): void {
+        it('copy() creates independent instance that can be extended', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -259,7 +264,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('copy() with addPipelineFilter() creates independent filter chain', function (): void {
+        it('copy() with addPipelineFilter() creates independent filter chain', function(): void {
             $source = [
                 'name' => '  alice  ',
             ];
@@ -285,7 +290,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('copy() can override template completely after copying', function (): void {
+        it('copy() can override template completely after copying', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -315,7 +320,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('copy() with both extendTemplate() and addPipelineFilter()', function (): void {
+        it('copy() with both extendTemplate() and addPipelineFilter()', function(): void {
             $source = [
                 'user' => [
                     'name' => '  alice  ',
@@ -348,7 +353,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('copy() with setValueFilters() creates independent property filters', function (): void {
+        it('copy() with setValueFilters() creates independent property filters', function(): void {
             $source = [
                 'name' => '  alice  ',
                 'email' => '  bob@example.com  ',
@@ -380,8 +385,8 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
         });
     });
 
-    describe('Edge Cases', function (): void {
-        it('extendTemplate() with wildcard mappings', function (): void {
+    describe('Edge Cases', function(): void {
+        it('extendTemplate() with wildcard mappings', function(): void {
             $source = [
                 'users' => [
                     ['name' => 'Alice'],
@@ -413,7 +418,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('addPipelineFilter() with multiple data types', function (): void {
+        it('addPipelineFilter() with multiple data types', function(): void {
             $source = [
                 'name' => '  alice  ',
                 'age' => 30,
@@ -437,7 +442,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('extendTemplate() with null values', function (): void {
+        it('extendTemplate() with null values', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => null,
@@ -460,7 +465,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('extendTemplate() with skipNull=true skips null values', function (): void {
+        it('extendTemplate() with skipNull=true skips null values', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => null,
@@ -482,7 +487,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('copy() preserves all options (skipNull, reindexWildcard, trimValues)', function (): void {
+        it('copy() preserves all options (skipNull, reindexWildcard, trimValues)', function(): void {
             $source = [
                 'name' => '  alice  ',
             ];
@@ -504,7 +509,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('extendTemplate() with empty array does nothing', function (): void {
+        it('extendTemplate() with empty array does nothing', function(): void {
             $source = [
                 'name' => 'Alice',
             ];
@@ -522,7 +527,7 @@ describe('DataMapper - Mapping Copy - Extended API', function (): void {
             ]);
         });
 
-        it('multiple copy() calls create independent instances', function (): void {
+        it('multiple copy() calls create independent instances', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => 'alice@example.com',

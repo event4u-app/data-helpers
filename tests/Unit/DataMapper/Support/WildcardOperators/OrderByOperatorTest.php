@@ -29,7 +29,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['number'])->toBe('1.1');
@@ -50,7 +50,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['number'])->toBe('1.4');
@@ -73,7 +73,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['number'])->toBe('1.1'); // priority 1
@@ -97,7 +97,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['number'])->toBe('1.4'); // priority 1, quantity 80
@@ -118,7 +118,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['number'])->toBe('1.1');
@@ -140,7 +140,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_sorted_positions'])->toHaveCount(2);
         expect($result['filtered_sorted_positions'][0]['number'])->toBe('1.2');
@@ -156,7 +156,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['positions'])->toHaveCount(4);
     });
@@ -175,7 +175,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['type'])->toBe('gravel');
@@ -205,7 +205,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources, true, true);
+        $result = DataMapper::source($sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_items'])->toHaveCount(4);
         expect($result['sorted_items'][0]['id'])->toBe(2);
@@ -237,7 +237,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources, true, true);
+        $result = DataMapper::source($sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_items'])->toHaveCount(4);
         // Nulls should come first in ASC order
@@ -259,7 +259,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['number'])->toBe('1.1');
@@ -277,7 +277,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['number'])->toBe('1.1');
@@ -295,7 +295,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['number'])->toBe('1.1');
@@ -313,7 +313,7 @@ describe('Wildcard ORDER BY', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['sorted_positions'])->toHaveCount(4);
         expect($result['sorted_positions'][0]['number'])->toBe('1.1');

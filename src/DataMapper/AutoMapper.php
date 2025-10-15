@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
-use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Support\MappingFacade;
 use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\Support\ArrayableHelper;
 use event4u\DataHelpers\Support\ReflectionCache;
@@ -136,7 +136,7 @@ class AutoMapper
         }
 
         // Delegate to mapWithRawPaths() - AutoMapper uses raw paths without {{ }}
-        return DataMapper::mapWithRawPaths(
+        return MappingFacade::mapWithRawPaths(
             $source,
             $target,
             $pairs,

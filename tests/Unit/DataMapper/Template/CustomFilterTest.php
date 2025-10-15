@@ -26,7 +26,7 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
             'user' => ['name' => 'hello world'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'name' => 'hElLo wOrLd',
@@ -42,7 +42,7 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
             'user' => ['name' => 'test'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'name' => 'tEsT',
@@ -58,7 +58,7 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
             'user' => ['name' => 'abcdef'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'name' => 'aBcDeF',
@@ -74,7 +74,7 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
             'user' => ['name' => 'hello'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         // First: upper => 'HELLO'
         // Then: alternating => 'hElLo'
@@ -98,7 +98,7 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'firstName' => 'jOhN',
@@ -116,7 +116,7 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
             'user' => ['name' => ''],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'name' => '',
@@ -132,7 +132,7 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
             'user' => ['name' => 'a'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'name' => 'a',
@@ -148,7 +148,7 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
             'user' => ['name' => 'äöü'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'name' => 'äÖü',
@@ -170,7 +170,7 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [

@@ -41,8 +41,8 @@ class Bird extends Animal
     }
 }
 
-describe('DataMapper - Discriminator Basic', function (): void {
-    it('selects correct subclass based on discriminator field', function (): void {
+describe('DataMapper - Discriminator Basic', function(): void {
+    it('selects correct subclass based on discriminator field', function(): void {
         $source = [
             'type' => 'dog',
             'name' => 'Bello',
@@ -70,7 +70,7 @@ describe('DataMapper - Discriminator Basic', function (): void {
         expect($result->getTarget()->bark())->toBe('Woof!');
     });
 
-    it('selects different subclass for different discriminator value', function (): void {
+    it('selects different subclass for different discriminator value', function(): void {
         $source = [
             'type' => 'cat',
             'name' => 'Whiskers',
@@ -98,7 +98,7 @@ describe('DataMapper - Discriminator Basic', function (): void {
         expect($result->getTarget()->meow())->toBe('Meow!');
     });
 
-    it('falls back to original target if discriminator value not in map', function (): void {
+    it('falls back to original target if discriminator value not in map', function(): void {
         $source = [
             'type' => 'unknown',
             'name' => 'Mystery',
@@ -122,7 +122,7 @@ describe('DataMapper - Discriminator Basic', function (): void {
         expect($result->getTarget())->not->toBeInstanceOf(Cat::class);
     });
 
-    it('falls back to original target if discriminator field missing', function (): void {
+    it('falls back to original target if discriminator field missing', function(): void {
         $source = [
             'name' => 'NoType',
             'age' => 2,
@@ -145,7 +145,7 @@ describe('DataMapper - Discriminator Basic', function (): void {
         expect($result->getTarget())->not->toBeInstanceOf(Cat::class);
     });
 
-    it('works with numeric discriminator values', function (): void {
+    it('works with numeric discriminator values', function(): void {
         $source = [
             'type' => 1,
             'name' => 'Rex',
@@ -169,7 +169,7 @@ describe('DataMapper - Discriminator Basic', function (): void {
         expect($result->getTarget())->toBeInstanceOf(Dog::class);
     });
 
-    it('supports dot-notation for discriminator field', function (): void {
+    it('supports dot-notation for discriminator field', function(): void {
         $source = [
             'meta' => [
                 'type' => 'bird',
@@ -197,7 +197,7 @@ describe('DataMapper - Discriminator Basic', function (): void {
         expect($result->getTarget()->chirp())->toBe('Chirp!');
     });
 
-    it('handles null discriminator value', function (): void {
+    it('handles null discriminator value', function(): void {
         $source = [
             'type' => null,
             'name' => 'NullType',
@@ -219,7 +219,7 @@ describe('DataMapper - Discriminator Basic', function (): void {
         expect($result->getTarget())->toBeInstanceOf(Animal::class);
     });
 
-    it('handles empty string discriminator value', function (): void {
+    it('handles empty string discriminator value', function(): void {
         $source = [
             'type' => '',
             'name' => 'EmptyType',
@@ -243,7 +243,7 @@ describe('DataMapper - Discriminator Basic', function (): void {
         expect($result->getTarget())->toBeInstanceOf(Cat::class);
     });
 
-    it('works with array target', function (): void {
+    it('works with array target', function(): void {
         $source = [
             'type' => 'dog',
             'name' => 'ArrayDog',

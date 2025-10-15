@@ -32,7 +32,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::template($template)->sources($this->sources)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_positions'])->toHaveCount(3);
         expect($result['filtered_positions'][0]['number'])->toBe('1.1');
@@ -53,7 +53,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_positions'])->toHaveCount(2);
         expect($result['filtered_positions'][0]['number'])->toBe('1.1');
@@ -75,7 +75,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_positions'])->toHaveCount(2);
         expect($result['filtered_positions'][0]['number'])->toBe('1.1');
@@ -98,7 +98,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_positions'])->toHaveCount(4); // All except 2.1 which is sand
         expect($result['filtered_positions'][0]['number'])->toBe('1.1');
@@ -126,7 +126,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_positions'])->toHaveCount(3);
         expect($result['filtered_positions'][0]['number'])->toBe('1.1');
@@ -152,7 +152,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_positions'])->toHaveCount(3);
     });
@@ -182,7 +182,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_positions'])->toHaveCount(3);
         expect($result['filtered_positions'][0]['number'])->toBe('1.1');
@@ -202,7 +202,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_positions'])->toBeArray();
         expect($result['filtered_positions'])->toHaveCount(0);
@@ -217,7 +217,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['all_positions'])->toHaveCount(4);
     });
@@ -237,7 +237,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_positions'])->toHaveCount(4);
     });
@@ -273,7 +273,7 @@ describe('Wildcard WHERE Clause', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources, true, true);
+        $result = DataMapper::source($sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['project']['number'])->toBe('CS-123');
         expect($result['positions'])->toHaveCount(3);

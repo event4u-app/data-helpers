@@ -11,9 +11,9 @@ use event4u\DataHelpers\Exceptions\CollectedExceptionsException;
  *
  * @internal
  */
-describe('DataMapper Exception Handling', function (): void {
-    describe('DataMapperExceptionHandler', function (): void {
-        it('collects exceptions when collectExceptions is true', function (): void {
+describe('DataMapper Exception Handling', function(): void {
+    describe('DataMapperExceptionHandler', function(): void {
+        it('collects exceptions when collectExceptions is true', function(): void {
             $handler = new DataMapperExceptionHandler(collectExceptions: true);
 
             expect($handler->hasExceptions())->toBeFalse();
@@ -26,16 +26,16 @@ describe('DataMapper Exception Handling', function (): void {
             expect($handler->getExceptionCount())->toBe(1);
         });
 
-        it('throws exceptions immediately when collectExceptions is false', function (): void {
+        it('throws exceptions immediately when collectExceptions is false', function(): void {
             $handler = new DataMapperExceptionHandler(collectExceptions: false);
 
             $exception = new RuntimeException('Test exception');
 
-            expect(fn () => $handler->handleException($exception))
+            expect(fn() => $handler->handleException($exception))
                 ->toThrow(RuntimeException::class, 'Test exception');
         });
 
-        it('returns last exception', function (): void {
+        it('returns last exception', function(): void {
             $handler = new DataMapperExceptionHandler();
 
             $exception1 = new RuntimeException('Exception 1');
@@ -47,13 +47,13 @@ describe('DataMapper Exception Handling', function (): void {
             expect($handler->getLastException())->toBe($exception2);
         });
 
-        it('returns null when no exceptions', function (): void {
+        it('returns null when no exceptions', function(): void {
             $handler = new DataMapperExceptionHandler();
 
             expect($handler->getLastException())->toBeNull();
         });
 
-        it('clears exceptions', function (): void {
+        it('clears exceptions', function(): void {
             $handler = new DataMapperExceptionHandler();
 
             $handler->addException(new RuntimeException('Test'));
@@ -66,17 +66,17 @@ describe('DataMapper Exception Handling', function (): void {
             expect($handler->getExceptionCount())->toBe(0);
         });
 
-        it('throws single exception directly', function (): void {
+        it('throws single exception directly', function(): void {
             $handler = new DataMapperExceptionHandler();
 
             $exception = new RuntimeException('Test exception');
             $handler->addException($exception);
 
-            expect(fn () => $handler->throwCollectedExceptions())
+            expect(fn() => $handler->throwCollectedExceptions())
                 ->toThrow(RuntimeException::class, 'Test exception');
         });
 
-        it('wraps multiple exceptions in CollectedExceptionsException', function (): void {
+        it('wraps multiple exceptions in CollectedExceptionsException', function(): void {
             $handler = new DataMapperExceptionHandler();
 
             $exception1 = new RuntimeException('Exception 1');
@@ -88,13 +88,13 @@ describe('DataMapper Exception Handling', function (): void {
             try {
                 $handler->throwCollectedExceptions();
                 expect(true)->toBeFalse('Should have thrown exception');
-            } catch (CollectedExceptionsException $e) {
-                expect($e->getExceptionCount())->toBe(2);
-                expect($e->getExceptions())->toBe([$exception1, $exception2]);
+            } catch (CollectedExceptionsException $collectedExceptionsException) {
+                expect($collectedExceptionsException->getExceptionCount())->toBe(2);
+                expect($collectedExceptionsException->getExceptions())->toBe([$exception1, $exception2]);
             }
         });
 
-        it('throws last exception only', function (): void {
+        it('throws last exception only', function(): void {
             $handler = new DataMapperExceptionHandler();
 
             $exception1 = new RuntimeException('Exception 1');
@@ -103,11 +103,11 @@ describe('DataMapper Exception Handling', function (): void {
             $handler->addException($exception1);
             $handler->addException($exception2);
 
-            expect(fn () => $handler->throwLastException())
+            expect(fn() => $handler->throwLastException())
                 ->toThrow(RuntimeException::class, 'Exception 2');
         });
 
-        it('does not throw when no exceptions', function (): void {
+        it('does not throw when no exceptions', function(): void {
             $handler = new DataMapperExceptionHandler();
 
             // Should not throw
@@ -118,8 +118,8 @@ describe('DataMapper Exception Handling', function (): void {
         });
     });
 
-    describe('DataMapperResult Exception Methods', function (): void {
-        it('has no exceptions by default', function (): void {
+    describe('DataMapperResult Exception Methods', function(): void {
+        it('has no exceptions by default', function(): void {
             $result = DataMapper::source(['name' => 'Alice'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -131,7 +131,7 @@ describe('DataMapper Exception Handling', function (): void {
             expect($result->getLastException())->toBeNull();
         });
 
-        it('provides access to exception handler methods', function (): void {
+        it('provides access to exception handler methods', function(): void {
             $result = DataMapper::source(['name' => 'Alice'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -144,7 +144,7 @@ describe('DataMapper Exception Handling', function (): void {
             expect(true)->toBeTrue();
         });
 
-        it('tracks exceptions per result', function (): void {
+        it('tracks exceptions per result', function(): void {
             // Each result should have its own exception handler
             $result1 = DataMapper::source(['name' => 'Alice'])
                 ->target([])
@@ -162,8 +162,8 @@ describe('DataMapper Exception Handling', function (): void {
         });
     });
 
-    describe('Exception Handling in mapMany()', function (): void {
-        it('each result has its own exception handler', function (): void {
+    describe('Exception Handling in mapMany()', function(): void {
+        it('each result has its own exception handler', function(): void {
             $results = DataMapper::source([])
                 ->template(['name' => '{{ name }}'])
                 ->mapMany([

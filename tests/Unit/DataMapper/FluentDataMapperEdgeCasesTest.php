@@ -5,9 +5,9 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\DataMapperResult;
 
-describe('FluentDataMapper Edge Cases', function () {
-    describe('Empty data handling', function () {
-        it('handles empty source array', function () {
+describe('FluentDataMapper Edge Cases', function(): void {
+    describe('Empty data handling', function(): void {
+        it('handles empty source array', function(): void {
             $result = DataMapper::source([])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -16,7 +16,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget())->toBe([]);
         });
 
-        it('handles empty template', function () {
+        it('handles empty template', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template([])
@@ -25,7 +25,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget())->toBe([]);
         });
 
-        it('handles empty source and template', function () {
+        it('handles empty source and template', function(): void {
             $result = DataMapper::source([])
                 ->target([])
                 ->template([])
@@ -34,7 +34,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget())->toBe([]);
         });
 
-        it('handles empty nested arrays', function () {
+        it('handles empty nested arrays', function(): void {
             $result = DataMapper::source(['users' => []])
                 ->target([])
                 ->template(['users' => '{{ users }}'])
@@ -44,8 +44,8 @@ describe('FluentDataMapper Edge Cases', function () {
         });
     });
 
-    describe('Null value handling', function () {
-        it('handles null source', function () {
+    describe('Null value handling', function(): void {
+        it('handles null source', function(): void {
             $result = DataMapper::source(null)
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -54,7 +54,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result)->toBeInstanceOf(DataMapperResult::class);
         });
 
-        it('handles null in source data', function () {
+        it('handles null in source data', function(): void {
             $result = DataMapper::source(['name' => null])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -65,30 +65,28 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['name'])->toBeNull();
         });
 
-        it('skips null values when skipNull is true', function () {
+        it('skips null values when skipNull is true', function(): void {
             $result = DataMapper::source(['name' => null, 'age' => 30])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'age' => '{{ age }}'])
-                ->skipNull(true)
                 ->map();
 
             expect($result->getTarget())->not->toHaveKey('name');
             expect($result->getTarget())->toHaveKey('age');
         });
 
-        it('handles all null values', function () {
+        it('handles all null values', function(): void {
             $result = DataMapper::source(['a' => null, 'b' => null, 'c' => null])
                 ->target([])
                 ->template(['a' => '{{ a }}', 'b' => '{{ b }}', 'c' => '{{ c }}'])
-                ->skipNull(true)
                 ->map();
 
             expect($result->getTarget())->toBe([]);
         });
     });
 
-    describe('Whitespace handling', function () {
-        it('trims values when trimValues is true', function () {
+    describe('Whitespace handling', function(): void {
+        it('trims values when trimValues is true', function(): void {
             $result = DataMapper::source(['name' => '  John  ', 'city' => "\tBerlin\n"])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'city' => '{{ city }}'])
@@ -99,7 +97,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['city'])->toBe('Berlin');
         });
 
-        it('preserves whitespace when trimValues is false', function () {
+        it('preserves whitespace when trimValues is false', function(): void {
             $result = DataMapper::source(['name' => '  John  '])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -109,7 +107,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['name'])->toBe('  John  ');
         });
 
-        it('handles empty strings', function () {
+        it('handles empty strings', function(): void {
             $result = DataMapper::source(['name' => ''])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -119,7 +117,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['name'])->toBe('');
         });
 
-        it('handles whitespace-only strings', function () {
+        it('handles whitespace-only strings', function(): void {
             $result = DataMapper::source(['name' => '   '])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -130,8 +128,8 @@ describe('FluentDataMapper Edge Cases', function () {
         });
     });
 
-    describe('Special characters', function () {
-        it('handles special characters in values', function () {
+    describe('Special characters', function(): void {
+        it('handles special characters in values', function(): void {
             $result = DataMapper::source(['name' => 'John & Jane', 'email' => 'test@example.com'])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'email' => '{{ email }}'])
@@ -141,7 +139,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['email'])->toBe('test@example.com');
         });
 
-        it('handles unicode characters', function () {
+        it('handles unicode characters', function(): void {
             $result = DataMapper::source(['name' => 'Jöhn Döe', 'city' => '北京'])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'city' => '{{ city }}'])
@@ -151,7 +149,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['city'])->toBe('北京');
         });
 
-        it('handles emoji', function () {
+        it('handles emoji', function(): void {
             $result = DataMapper::source(['message' => 'Hello 👋 World 🌍'])
                 ->target([])
                 ->template(['message' => '{{ message }}'])
@@ -160,7 +158,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['message'])->toBe('Hello 👋 World 🌍');
         });
 
-        it('handles newlines and tabs', function () {
+        it('handles newlines and tabs', function(): void {
             $result = DataMapper::source(['text' => "Line 1\nLine 2\tTabbed"])
                 ->target([])
                 ->template(['text' => '{{ text }}'])
@@ -171,8 +169,8 @@ describe('FluentDataMapper Edge Cases', function () {
         });
     });
 
-    describe('Data type handling', function () {
-        it('handles boolean values', function () {
+    describe('Data type handling', function(): void {
+        it('handles boolean values', function(): void {
             $result = DataMapper::source(['active' => true, 'deleted' => false])
                 ->target([])
                 ->template(['active' => '{{ active }}', 'deleted' => '{{ deleted }}'])
@@ -182,7 +180,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget())->toHaveKey('deleted');
         });
 
-        it('handles numeric values', function () {
+        it('handles numeric values', function(): void {
             $result = DataMapper::source(['int' => 42, 'float' => 3.14, 'zero' => 0])
                 ->target([])
                 ->template(['int' => '{{ int }}', 'float' => '{{ float }}', 'zero' => '{{ zero }}'])
@@ -193,7 +191,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['zero'])->toBe(0);
         });
 
-        it('handles negative numbers', function () {
+        it('handles negative numbers', function(): void {
             $result = DataMapper::source(['negative' => -42, 'negativeFloat' => -3.14])
                 ->target([])
                 ->template(['negative' => '{{ negative }}', 'negativeFloat' => '{{ negativeFloat }}'])
@@ -203,7 +201,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['negativeFloat'])->toBe(-3.14);
         });
 
-        it('handles very large numbers', function () {
+        it('handles very large numbers', function(): void {
             $result = DataMapper::source(['large' => 9999999999999])
                 ->target([])
                 ->template(['large' => '{{ large }}'])
@@ -213,8 +211,8 @@ describe('FluentDataMapper Edge Cases', function () {
         });
     });
 
-    describe('Deeply nested structures', function () {
-        it('handles 10 levels of nesting', function () {
+    describe('Deeply nested structures', function(): void {
+        it('handles 10 levels of nesting', function(): void {
             $source = [
                 'l1' => [
                     'l2' => [
@@ -245,7 +243,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['value'])->toBe('deep value');
         });
 
-        it('handles mixed nesting with arrays and objects', function () {
+        it('handles mixed nesting with arrays and objects', function(): void {
             $source = [
                 'company' => [
                     'departments' => [
@@ -268,10 +266,10 @@ describe('FluentDataMapper Edge Cases', function () {
         });
     });
 
-    describe('Large data sets', function () {
-        it('handles 1000 items', function () {
-            $items = array_map(fn ($i) => ['id' => $i, 'name' => "Item $i"], range(1, 1000));
-            
+    describe('Large data sets', function(): void {
+        it('handles 1000 items', function(): void {
+            $items = array_map(fn($i): array => ['id' => $i, 'name' => 'Item ' . $i], range(1, 1000));
+
             $result = DataMapper::source(['items' => $items])
                 ->target([])
                 ->template(['items' => '{{ items }}'])
@@ -280,15 +278,15 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget()['items'])->toHaveCount(1000);
         });
 
-        it('handles 100 fields in template', function () {
+        it('handles 100 fields in template', function(): void {
             $source = array_combine(
-                array_map(fn ($i) => "field$i", range(1, 100)),
-                array_map(fn ($i) => "value$i", range(1, 100))
+                array_map(fn($i): string => 'field' . $i, range(1, 100)),
+                array_map(fn($i): string => 'value' . $i, range(1, 100))
             );
 
             $template = array_combine(
-                array_map(fn ($i) => "field$i", range(1, 100)),
-                array_map(fn ($i) => "{{ field$i }}", range(1, 100))
+                array_map(fn($i): string => 'field' . $i, range(1, 100)),
+                array_map(fn($i): string => sprintf('{{ field%s }}', $i), range(1, 100))
             );
 
             $result = DataMapper::source($source)
@@ -300,8 +298,8 @@ describe('FluentDataMapper Edge Cases', function () {
         });
     });
 
-    describe('Wildcard edge cases', function () {
-        it('handles empty wildcard array', function () {
+    describe('Wildcard edge cases', function(): void {
+        it('handles empty wildcard array', function(): void {
             $result = DataMapper::source(['items' => []])
                 ->target([])
                 ->template(['names' => '{{ items.*.name }}'])
@@ -310,7 +308,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget())->toHaveKey('names');
         });
 
-        it('handles wildcard with missing keys', function () {
+        it('handles wildcard with missing keys', function(): void {
             $result = DataMapper::source([
                 'items' => [
                     ['name' => 'John'],
@@ -325,7 +323,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result->getTarget())->toHaveKey('names');
         });
 
-        it('handles nested wildcards', function () {
+        it('handles nested wildcards', function(): void {
             $result = DataMapper::source([
                 'departments' => [
                     ['users' => [['name' => 'John'], ['name' => 'Jane']]],
@@ -340,14 +338,14 @@ describe('FluentDataMapper Edge Cases', function () {
         });
     });
 
-    describe('Copy edge cases', function () {
-        it('copy is truly independent', function () {
+    describe('Copy edge cases', function(): void {
+        it('copy is truly independent', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}']);
 
             $copy = $mapper->copy();
-            
+
             // Modify copy
             $copy->template(['different' => '{{ name }}']);
 
@@ -361,9 +359,9 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result2->getTarget())->not->toHaveKey('name');
         });
 
-        it('can copy multiple times', function () {
+        it('can copy multiple times', function(): void {
             $mapper = DataMapper::source(['name' => 'John']);
-            
+
             $copy1 = $mapper->copy();
             $copy2 = $mapper->copy();
             $copy3 = $copy1->copy();
@@ -375,8 +373,8 @@ describe('FluentDataMapper Edge Cases', function () {
         });
     });
 
-    describe('Multiple mapping calls', function () {
-        it('can call map() multiple times', function () {
+    describe('Multiple mapping calls', function(): void {
+        it('can call map() multiple times', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}']);
@@ -389,7 +387,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result2->getTarget())->toEqual($result3->getTarget());
         });
 
-        it('can alternate between map() and reverseMap()', function () {
+        it('can alternate between map() and reverseMap()', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['userName' => '{{ name }}']);
@@ -404,8 +402,8 @@ describe('FluentDataMapper Edge Cases', function () {
         });
     });
 
-    describe('Configuration changes after creation', function () {
-        it('can change configuration between mappings', function () {
+    describe('Configuration changes after creation', function(): void {
+        it('can change configuration between mappings', function(): void {
             $mapper = DataMapper::source(['name' => 'John', 'age' => null])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'age' => '{{ age }}']);
@@ -417,7 +415,7 @@ describe('FluentDataMapper Edge Cases', function () {
             expect($result2->getTarget())->toHaveKey('age');
         });
 
-        it('can change template between mappings', function () {
+        it('can change template between mappings', function(): void {
             $mapper = DataMapper::source(['name' => 'John', 'age' => 30])
                 ->target([]);
 

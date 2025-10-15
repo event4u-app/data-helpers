@@ -22,17 +22,8 @@ use Throwable;
  *   $result->toArray();
  *   $result->query()->where('age', '>', 18)->toArray();
  */
-final class DataMapperResult
+final readonly class DataMapperResult
 {
-    private mixed $result;
-
-    private mixed $source;
-
-    /** @var array<int|string, mixed> */
-    private array $template;
-
-    private ?DataMapperExceptionHandler $exceptionHandler = null;
-
     /**
      * Create a new DataMapperResult instance.
      *
@@ -41,29 +32,17 @@ final class DataMapperResult
      * @param array<int|string, mixed> $template Mapping template
      * @param DataMapperExceptionHandler|null $exceptionHandler Exception handler for this result
      */
-    public function __construct(
-        mixed $result,
-        mixed $source,
-        array $template,
-        ?DataMapperExceptionHandler $exceptionHandler = null
-    ) {
-        $this->result = $result;
-        $this->source = $source;
-        $this->template = $template;
-        $this->exceptionHandler = $exceptionHandler;
+    public function __construct(private mixed $result, private mixed $source, private array $template, private ?DataMapperExceptionHandler $exceptionHandler = null)
+    {
     }
 
-    /**
-     * Get the target result.
-     */
+    /** Get the target result. */
     public function getTarget(): mixed
     {
         return $this->result;
     }
 
-    /**
-     * Get the original source.
-     */
+    /** Get the original source. */
     public function getSource(): mixed
     {
         return $this->source;
@@ -149,17 +128,13 @@ final class DataMapperResult
         return new Collection($this->toArray());
     }
 
-    /**
-     * Start a query on the result.
-     */
+    /** Start a query on the result. */
     public function query(): DataFilter
     {
         return DataFilter::query($this->result);
     }
 
-    /**
-     * Check if string is JSON.
-     */
+    /** Check if string is JSON. */
     private function isJson(string $string): bool
     {
         json_decode($string);
@@ -167,9 +142,7 @@ final class DataMapperResult
         return JSON_ERROR_NONE === json_last_error();
     }
 
-    /**
-     * Check if string is XML.
-     */
+    /** Check if string is XML. */
     private function isXml(string $string): bool
     {
         $trimmed = trim($string);
@@ -205,7 +178,7 @@ final class DataMapperResult
                 $array[$key] = $this->objectToArray($value);
             } elseif (is_array($value)) {
                 $array[$key] = array_map(
-                    fn ($item) => is_object($item) ? $this->objectToArray($item) : $item,
+                    fn($item): mixed => is_object($item) ? $this->objectToArray($item) : $item,
                     $value
                 );
             }
@@ -214,12 +187,10 @@ final class DataMapperResult
         return $array;
     }
 
-    /**
-     * Check if any exceptions have been collected during mapping.
-     */
+    /** Check if any exceptions have been collected during mapping. */
     public function hasExceptions(): bool
     {
-        return null !== $this->exceptionHandler && $this->exceptionHandler->hasExceptions();
+        return $this->exceptionHandler instanceof DataMapperExceptionHandler && $this->exceptionHandler->hasExceptions();
     }
 
     /**
@@ -229,31 +200,27 @@ final class DataMapperResult
      */
     public function getExceptions(): array
     {
-        if (null === $this->exceptionHandler) {
+        if (!$this->exceptionHandler instanceof DataMapperExceptionHandler) {
             return [];
         }
 
         return $this->exceptionHandler->getExceptions();
     }
 
-    /**
-     * Get the last collected exception or null if none.
-     */
+    /** Get the last collected exception or null if none. */
     public function getLastException(): ?Throwable
     {
-        if (null === $this->exceptionHandler) {
+        if (!$this->exceptionHandler instanceof DataMapperExceptionHandler) {
             return null;
         }
 
         return $this->exceptionHandler->getLastException();
     }
 
-    /**
-     * Get the number of collected exceptions.
-     */
+    /** Get the number of collected exceptions. */
     public function getExceptionCount(): int
     {
-        if (null === $this->exceptionHandler) {
+        if (!$this->exceptionHandler instanceof DataMapperExceptionHandler) {
             return 0;
         }
 
@@ -267,7 +234,7 @@ final class DataMapperResult
      */
     public function throwLastException(): void
     {
-        if (null !== $this->exceptionHandler) {
+        if ($this->exceptionHandler instanceof DataMapperExceptionHandler) {
             $this->exceptionHandler->throwLastException();
         }
     }
@@ -282,7 +249,7 @@ final class DataMapperResult
      */
     public function throwCollectedExceptions(): void
     {
-        if (null !== $this->exceptionHandler) {
+        if ($this->exceptionHandler instanceof DataMapperExceptionHandler) {
             $this->exceptionHandler->throwCollectedExceptions();
         }
     }

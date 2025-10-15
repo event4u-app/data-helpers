@@ -5,53 +5,54 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\FluentDataMapper;
 
-describe('FluentDataMapper Factory Methods', function () {
-    describe('fromSource()', function () {
-        it('creates mapper from array', function () {
+describe('FluentDataMapper Factory Methods', function(): void {
+    describe('fromSource()', function(): void {
+        it('creates mapper from array', function(): void {
             $source = ['name' => 'John', 'age' => 30];
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from object', function () {
-            $source = (object) ['name' => 'John', 'age' => 30];
+        it('creates mapper from object', function(): void {
+            $source = (object)['name' => 'John', 'age' => 30];
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from stdClass', function () {
+        it('creates mapper from stdClass', function(): void {
             $source = new stdClass();
             $source->name = 'John';
             $source->age = 30;
+
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from JSON string', function () {
+        it('creates mapper from JSON string', function(): void {
             $source = '{"name":"John","age":30}';
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from empty array', function () {
+        it('creates mapper from empty array', function(): void {
             $source = [];
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from null', function () {
+        it('creates mapper from null', function(): void {
             $source = null;
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from nested array', function () {
+        it('creates mapper from nested array', function(): void {
             $source = [
                 'user' => [
                     'name' => 'John',
@@ -66,14 +67,14 @@ describe('FluentDataMapper Factory Methods', function () {
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from array with numeric keys', function () {
+        it('creates mapper from array with numeric keys', function(): void {
             $source = [0 => 'first', 1 => 'second', 2 => 'third'];
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from mixed array', function () {
+        it('creates mapper from mixed array', function(): void {
             $source = ['name' => 'John', 0 => 'first', 'age' => 30];
             $mapper = DataMapper::source($source);
 
@@ -81,29 +82,29 @@ describe('FluentDataMapper Factory Methods', function () {
         });
     });
 
-    describe('from()', function () {
-        it('creates mapper from array', function () {
+    describe('from()', function(): void {
+        it('creates mapper from array', function(): void {
             $source = ['name' => 'John'];
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from object', function () {
-            $source = (object) ['name' => 'John'];
+        it('creates mapper from object', function(): void {
+            $source = (object)['name' => 'John'];
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('creates mapper from JSON string', function () {
+        it('creates mapper from JSON string', function(): void {
             $source = '{"name":"John"}';
             $mapper = DataMapper::source($source);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('auto-detects file path and uses fromFile()', function () {
+        it('auto-detects file path and uses fromFile()', function(): void {
             // Create temp file
             $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
             file_put_contents($tempFile, '{"name":"John"}');
@@ -116,7 +117,7 @@ describe('FluentDataMapper Factory Methods', function () {
             unlink($tempFile);
         });
 
-        it('uses fromSource() for non-existent file path', function () {
+        it('uses fromSource() for non-existent file path', function(): void {
             $source = '/non/existent/file.json';
             $mapper = DataMapper::source($source);
 
@@ -124,8 +125,8 @@ describe('FluentDataMapper Factory Methods', function () {
         });
     });
 
-    describe('fromFile()', function () {
-        it('creates mapper from JSON file', function () {
+    describe('fromFile()', function(): void {
+        it('creates mapper from JSON file', function(): void {
             $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
             file_put_contents($tempFile, '{"name":"John","age":30}');
 
@@ -136,7 +137,7 @@ describe('FluentDataMapper Factory Methods', function () {
             unlink($tempFile);
         });
 
-        it('creates mapper from empty JSON file', function () {
+        it('creates mapper from empty JSON file', function(): void {
             $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
             file_put_contents($tempFile, '{}');
 
@@ -147,7 +148,7 @@ describe('FluentDataMapper Factory Methods', function () {
             unlink($tempFile);
         });
 
-        it('creates mapper from JSON array file', function () {
+        it('creates mapper from JSON array file', function(): void {
             $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
             file_put_contents($tempFile, '[{"name":"John"},{"name":"Jane"}]');
 
@@ -159,8 +160,8 @@ describe('FluentDataMapper Factory Methods', function () {
         });
     });
 
-    describe('Factory method chaining', function () {
-        it('can chain methods after fromSource()', function () {
+    describe('Factory method chaining', function(): void {
+        it('can chain methods after fromSource()', function(): void {
             $source = ['name' => 'John'];
             $mapper = DataMapper::source($source)
                 ->target([])
@@ -169,7 +170,7 @@ describe('FluentDataMapper Factory Methods', function () {
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('can chain methods after from()', function () {
+        it('can chain methods after from()', function(): void {
             $source = ['name' => 'John'];
             $mapper = DataMapper::source($source)
                 ->target([])
@@ -178,7 +179,7 @@ describe('FluentDataMapper Factory Methods', function () {
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('can chain methods after fromFile()', function () {
+        it('can chain methods after fromFile()', function(): void {
             $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
             file_put_contents($tempFile, '{"name":"John"}');
 

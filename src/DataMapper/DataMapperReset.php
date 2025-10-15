@@ -15,7 +15,7 @@ namespace event4u\DataHelpers\DataMapper;
  *   $mapper->reset()->where();         // Reset WHERE conditions
  *   $mapper->reset()->where()->orderBy(); // Reset multiple parts
  */
-final class DataMapperReset
+final readonly class DataMapperReset
 {
     public function __construct(
         private FluentDataMapper $mapper
@@ -128,11 +128,7 @@ final class DataMapperReset
         return $this;
     }
 
-    /**
-     * End reset chain and return to mapper.
-     *
-     * @return FluentDataMapper
-     */
+    /** End reset chain and return to mapper. */
     public function end(): FluentDataMapper
     {
         return $this->mapper;

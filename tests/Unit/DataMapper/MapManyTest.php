@@ -9,9 +9,9 @@ use event4u\DataHelpers\DataMapper;
  *
  * @internal
  */
-describe('DataMapper mapMany() and mapManyReverse()', function (): void {
-    describe('mapMany() - Bulk mapping', function (): void {
-        it('maps multiple source-target pairs using the same template', function (): void {
+describe('DataMapper mapMany() and mapManyReverse()', function(): void {
+    describe('mapMany() - Bulk mapping', function(): void {
+        it('maps multiple source-target pairs using the same template', function(): void {
             $source1 = ['name' => 'Alice', 'email' => 'alice@example.com'];
             $source2 = ['name' => 'Bob', 'email' => 'bob@example.com'];
             $source3 = ['name' => 'Charlie', 'email' => 'charlie@example.com'];
@@ -45,7 +45,7 @@ describe('DataMapper mapMany() and mapManyReverse()', function (): void {
             ]);
         });
 
-        it('respects pipeline filters for all mappings', function (): void {
+        it('respects pipeline filters for all mappings', function(): void {
             $source1 = ['name' => '  Alice  '];
             $source2 = ['name' => '  Bob  '];
 
@@ -62,7 +62,7 @@ describe('DataMapper mapMany() and mapManyReverse()', function (): void {
             expect($results[1]->toArray())->toBe(['name' => 'Bob']);
         });
 
-        it('respects skipNull setting for all mappings', function (): void {
+        it('respects skipNull setting for all mappings', function(): void {
             $source1 = ['name' => 'Alice', 'email' => null];
             $source2 = ['name' => 'Bob', 'email' => 'bob@example.com'];
 
@@ -71,7 +71,6 @@ describe('DataMapper mapMany() and mapManyReverse()', function (): void {
                     'name' => '{{ name }}',
                     'email' => '{{ email }}',
                 ])
-                ->skipNull(true)
                 ->mapMany([
                     ['source' => $source1, 'target' => []],
                     ['source' => $source2, 'target' => []],
@@ -82,7 +81,7 @@ describe('DataMapper mapMany() and mapManyReverse()', function (): void {
             expect($results[1]->toArray())->toBe(['name' => 'Bob', 'email' => 'bob@example.com']);
         });
 
-        it('maps to different target types', function (): void {
+        it('maps to different target types', function(): void {
             $source1 = ['name' => 'Alice'];
             $source2 = ['name' => 'Bob'];
 
@@ -104,7 +103,7 @@ describe('DataMapper mapMany() and mapManyReverse()', function (): void {
             expect($results[1]->toArray())->toBe(['name' => 'Bob']);
         });
 
-        it('returns results indexed by 0, 1, 2, ...', function (): void {
+        it('returns results indexed by 0, 1, 2, ...', function(): void {
             $results = DataMapper::source([])
                 ->template(['name' => '{{ name }}'])
                 ->mapMany([
@@ -120,8 +119,8 @@ describe('DataMapper mapMany() and mapManyReverse()', function (): void {
         });
     });
 
-    describe('reverseManyMap() - Bulk reverse mapping', function (): void {
-        it('maps multiple source-target pairs in reverse direction', function (): void {
+    describe('reverseManyMap() - Bulk reverse mapping', function(): void {
+        it('maps multiple source-target pairs in reverse direction', function(): void {
             $source1 = ['fullname' => 'Alice A.', 'contact' => ['email' => 'alice@example.com']];
             $source2 = ['fullname' => 'Bob B.', 'contact' => ['email' => 'bob@example.com']];
 
@@ -148,7 +147,7 @@ describe('DataMapper mapMany() and mapManyReverse()', function (): void {
             ]);
         });
 
-        it('respects pipeline filters for all reverse mappings', function (): void {
+        it('respects pipeline filters for all reverse mappings', function(): void {
             $source1 = ['name' => '  Alice  '];
             $source2 = ['name' => '  Bob  '];
 
@@ -165,7 +164,7 @@ describe('DataMapper mapMany() and mapManyReverse()', function (): void {
             expect($results[1]->toArray())->toBe(['name' => 'Bob']);
         });
 
-        it('returns results indexed by 0, 1, 2, ...', function (): void {
+        it('returns results indexed by 0, 1, 2, ...', function(): void {
             $results = DataMapper::source([])
                 ->template(['name' => '{{ name }}'])
                 ->reverseManyMap([

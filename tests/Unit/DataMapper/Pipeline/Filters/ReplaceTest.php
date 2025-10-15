@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Replace;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Helper function to create a PairContext for testing.
@@ -94,9 +95,9 @@ describe('Replace Filter', function(): void {
         expect($filter->getAliases())->toBe(['replace']);
     });
 
-    it('uses preTransform hook', function(): void {
+    it('uses beforeTransform hook', function(): void {
         $filter = new Replace();
-        expect($filter->getHook())->toBe('preTransform');
+        expect($filter->getHook())->toBe(DataMapperHook::BeforeTransform->value);
     });
 });
 

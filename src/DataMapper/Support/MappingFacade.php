@@ -2,27 +2,19 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers;
+namespace event4u\DataHelpers\DataMapper\Support;
 
 use DOMDocument;
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\AutoMapper;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
-use event4u\DataHelpers\DataMapper\DataMapperQuery;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\MappingOptions;
-use event4u\DataHelpers\DataMapper\Pipeline\DataMapperPipeline;
-use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
-use event4u\DataHelpers\DataMapper\Support\HookInvoker;
-use event4u\DataHelpers\DataMapper\Support\MappingEngine;
-use event4u\DataHelpers\DataMapper\Support\MappingParser;
-use event4u\DataHelpers\DataMapper\Support\TemplateExpressionProcessor;
-use event4u\DataHelpers\DataMapper\Support\TemplateParser;
-use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
-use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use event4u\DataHelpers\DataMapper\TemplateMapper;
+use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Support\EntityHelper;
 use event4u\DataHelpers\Support\FileLoader;
@@ -31,138 +23,21 @@ use InvalidArgumentException;
 use SimpleXMLElement;
 
 /**
- * DataMapper allows mapping values between different data structures
- * (arrays, DTOs, Models, Collections, JSON/XML strings).
+ * MappingFacade - Internal facade for mapping operations.
  *
- * Supports dot-notation and wildcards in paths.
+ * This class contains all the core mapping logic that was previously in DataMapper.
+ * It is used internally by FluentDataMapper.
+ *
+ * @internal This class is not part of the public API and should not be used directly.
  */
-class DataMapper
+class MappingFacade
 {
     /** Marker for static values in mapping arrays. */
-    private const STATIC_VALUE_MARKER = '__static__';
+    public const STATIC_VALUE_MARKER = '__static__';
 
     /** Default root element name for XML conversion. */
-    private const DEFAULT_XML_ROOT = 'root';
+    public const DEFAULT_XML_ROOT = 'root';
 
-    /** Get the number of collected exceptions. */
-    public static function getExceptionCount(): int
-    {
-        return MapperExceptions::getExceptionCount();
-    }
-
-    /**
-     * Create a DataMapperSource from any source.
-     *
-     * Auto-detects if source is a file path or data.
-     *
-     * @param mixed $source Source data or file path
-     */
-    public static function from(mixed $source): DataMapper\DataMapperSource
-    {
-        // Check if source is a file path
-        if (is_string($source) && file_exists($source)) {
-            return self::fromFile($source);
-        }
-
-        return self::fromSource($source);
-    }
-
-    /**
-     * Create a DataMapperSource from a source.
-     *
-     * @param mixed $source Source data (array, object, model, DTO, JSON, XML)
-     */
-    public static function fromSource(mixed $source): DataMapper\DataMapperSource
-    {
-        return new DataMapper\DataMapperSource($source);
-    }
-
-    /**
-     * Create a DataMapperSource from a file.
-     *
-     * @param string $filePath File path (JSON, XML, CSV, etc.)
-     */
-    public static function fromFile(string $filePath): DataMapper\DataMapperSource
-    {
-        $data = FileLoader::load($filePath);
-
-        return new DataMapper\DataMapperSource($data);
-    }
-
-    /**
-     * Create a fluent query builder for data mapping.
-     *
-     * Example:
-     *   DataMapper::query()
-     *       ->source('products', $products)
-     *       ->where('category', 'Electronics')
-     *       ->where('price', '>', 100)
-     *       ->orderBy('price', 'DESC')
-     *       ->limit(10)
-     *       ->get();
-     */
-    public static function query(): DataMapperQuery
-    {
-        return new DataMapperQuery();
-    }
-
-    /**
-     * Create a fluent query builder with a pipeline.
-     *
-     * Example:
-     *   DataMapper::pipeQuery([
-     *       new TrimStrings(),
-     *       new LowercaseEmails(),
-     *   ])
-     *       ->source('products', $products)
-     *       ->where('category', 'Electronics')
-     *       ->get();
-     *
-     * @param array<int, FilterInterface> $filters Filter instances
-     */
-    public static function pipeQuery(array $filters): DataMapperQuery
-    {
-        return (new DataMapperQuery())->pipe($filters);
-    }
-
-    /**
-     * Create a pipeline with transformers for fluent mapping.
-     *
-     * Example:
-     *   DataMapper::pipe([
-     *       new TrimStrings(),
-     *       new LowercaseEmails(),
-     *       new SkipEmptyValues(),
-     *       new DefaultValue('Unknown'),
-     *   ])->map($source, $target, $mapping);
-     *
-     * @param array<int, FilterInterface> $filters Filter instances
-     */
-    public static function pipe(array $filters): DataMapperPipeline
-    {
-        return new DataMapperPipeline($filters);
-    }
-
-    /**
-     * Map values from a source to a target using dot-path mappings.
-     *
-     * Supports two styles:
-     * - Simple mapping: ['src.path' => 'dst.path'] with wildcard support ('*').
-     * - Structured mapping: array of entries. Each entry may contain:
-     *   - source (mixed), target (mixed)
-     *   - sourceMapping (string[]) and targetMapping (string[]), or
-     *   - mapping: associative ['src' => 'dst'] or list of [src, dst]
-     *   - skipNull (bool, optional): per-entry override of global $skipNull
-     *   - reindexWildcard (bool, optional): per-entry override of global $reindexWildcard; when true, wildcard indices are compacted (0..n-1)
-     *
-     * @param mixed $source The source data (array, object, model, DTO, string, etc.)
-     * @param mixed $target The target data (array, object, model, DTO, string, etc.)
-     * @param array<int|string, mixed> $mapping Either simple path map or structured mapping
-     * @param bool|MappingOptions $skipNull Global default to skip null values (or MappingOptions object)
-     * @param bool $reindexWildcard Global default to reindex wildcard results (per-entry 'reindexWildcard' can override)
-     * @param array<(DataMapperHook|string), mixed> $hooks Optional hooks (see App\Enums\DataMapperHook cases)
-     * @return mixed The updated target
-     */
     public static function map(
         mixed $source,
         mixed $target,
@@ -245,14 +120,18 @@ class DataMapper
                         $caseInsensitiveReplace
                     );
 
-                    // Throw collected exceptions if any
-                    MapperExceptions::throwCollectedExceptions();
+                    // Throw collected exceptions if collectExceptions is false
+                    if (!MapperExceptions::isCollectExceptionsEnabled()) {
+                        MapperExceptions::throwCollectedExceptions();
+                    }
 
                     return $result;
                 }
 
-                // Throw collected exceptions if any
-                MapperExceptions::throwCollectedExceptions();
+                // Throw collected exceptions if collectExceptions is false
+                if (!MapperExceptions::isCollectExceptionsEnabled()) {
+                    MapperExceptions::throwCollectedExceptions();
+                }
 
                 return $target;
             }
@@ -271,8 +150,10 @@ class DataMapper
                 $caseInsensitiveReplace
             );
 
-            // Throw collected exceptions if any
-            MapperExceptions::throwCollectedExceptions();
+            // Throw collected exceptions if collectExceptions is false
+            if (!MapperExceptions::isCollectExceptionsEnabled()) {
+                MapperExceptions::throwCollectedExceptions();
+            }
 
             return $result;
         }
@@ -291,8 +172,10 @@ class DataMapper
                 $caseInsensitiveReplace
             );
 
-            // Throw collected exceptions if any
-            MapperExceptions::throwCollectedExceptions();
+            // Throw collected exceptions if collectExceptions is false
+            if (!MapperExceptions::isCollectExceptionsEnabled()) {
+                MapperExceptions::throwCollectedExceptions();
+            }
 
             return $result;
         }
@@ -310,8 +193,10 @@ class DataMapper
             $caseInsensitiveReplace
         );
 
-        // Throw collected exceptions if any
-        MapperExceptions::throwCollectedExceptions();
+        // Throw collected exceptions if collectExceptions is false
+        if (!MapperExceptions::isCollectExceptionsEnabled()) {
+            MapperExceptions::throwCollectedExceptions();
+        }
 
         return $result;
     }
@@ -692,9 +577,10 @@ class DataMapper
                     $value = $defaultValue;
                 }
 
-                // Apply filters to non-wildcard values BEFORE skipNull check
+                // Apply filters BEFORE skipNull check
                 // This allows filters like 'default' to replace null values
-                if ([] !== $filters && !is_array($value)) {
+                // Filters can handle arrays (e.g., callback filters that process array values)
+                if ([] !== $filters) {
                     $value = TemplateExpressionProcessor::applyFilters($value, $filters);
                 }
             }
@@ -707,10 +593,10 @@ class DataMapper
                 continue;
             }
 
-            // preTransform
-            $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
+            // beforeTransform
+            $value = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeTransform->value, $pairContext, $value);
 
-            // Skip if preTransform hook returned magic skip value
+            // Skip if beforeTransform hook returned magic skip value
             if ('__skip__' === $value) {
                 $mappingIndex++;
 
@@ -754,9 +640,14 @@ class DataMapper
                     $caseInsensitiveReplace
                 );
             } else {
-                $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
+                $value = HookInvoker::invokeValueHook(
+                    $hooks,
+                    DataMapperHook::AfterTransform->value,
+                    $pairContext,
+                    $value
+                );
 
-                // Skip if postTransform hook returned magic skip value
+                // Skip if afterTransform hook returned magic skip value
                 if ('__skip__' === $value) {
                     $mappingIndex++;
 
@@ -967,8 +858,13 @@ class DataMapper
                         continue;
                     }
 
-                    // preTransform
-                    $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
+                    // beforeTransform
+                    $value = HookInvoker::invokeValueHook(
+                        $effectiveHooks,
+                        DataMapperHook::BeforeTransform->value,
+                        $pairContext,
+                        $value
+                    );
 
                     /** @var null|array<string, mixed> $replaceMap */
                     $replaceMap = null;
@@ -1088,8 +984,13 @@ class DataMapper
                             continue;
                         }
 
-                        // preTransform
-                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
+                        // beforeTransform
+                        $value = HookInvoker::invokeValueHook(
+                            $effectiveHooks,
+                            DataMapperHook::BeforeTransform->value,
+                            $pairContext,
+                            $value
+                        );
 
                         $transformFn = null;
                         if (array_key_exists((string)$sourcePath, $transforms)) {
@@ -1224,7 +1125,12 @@ class DataMapper
 
                             continue;
                         }
-                        $value = HookInvoker::invokeValueHook($effectiveHooks, 'preTransform', $pairContext, $value);
+                        $value = HookInvoker::invokeValueHook(
+                            $effectiveHooks,
+                            DataMapperHook::BeforeTransform->value,
+                            $pairContext,
+                            $value
+                        );
 
                         /** @var null|callable $transformFn */
                         $transformFn = is_array($transforms) && array_is_list(

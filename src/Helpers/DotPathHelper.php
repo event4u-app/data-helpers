@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers;
+namespace event4u\DataHelpers\Helpers;
 
 use InvalidArgumentException;
 

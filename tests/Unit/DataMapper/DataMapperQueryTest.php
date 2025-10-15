@@ -5,6 +5,7 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 describe('DataMapperQuery - Basic Usage', function(): void {
     it('creates a query with source', function(): void {
@@ -286,7 +287,7 @@ describe('DataMapperQuery - Pipeline Integration', function(): void {
         $callCount = 0;
         $result = DataMapper::query()
             ->source('products', $products)
-            ->pipe([
+            ->pipeline([
                 new class implements FilterInterface {
                     public function transform(
                         mixed $value,
@@ -301,7 +302,7 @@ describe('DataMapperQuery - Pipeline Integration', function(): void {
 
                     public function getHook(): string
                     {
-                        return 'preTransform';
+                        return DataMapperHook::BeforeTransform->value;
                     }
 
                     public function getFilter(): ?string
@@ -328,7 +329,8 @@ describe('DataMapperQuery - Pipeline Integration', function(): void {
             ['id' => 2, 'name' => 'Desk', 'category' => 'Furniture'],
         ];
 
-        $result = DataMapper::pipeQuery([
+        $result = DataMapper::query()
+            ->pipeline([
                 new class implements FilterInterface {
                     public function transform(
                         mixed $value,
@@ -340,7 +342,7 @@ describe('DataMapperQuery - Pipeline Integration', function(): void {
 
                     public function getHook(): string
                     {
-                        return 'preTransform';
+                        return DataMapperHook::BeforeTransform->value;
                     }
 
                     public function getFilter(): ?string

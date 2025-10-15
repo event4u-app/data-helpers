@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers;
 
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\DataMapper\Support\MappingFacade;
 use InvalidArgumentException;
 use JsonSerializable;
 use Stringable;
@@ -152,10 +153,14 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
 
             if ([] === $pipes) {
                 /** @var array<string, mixed> $result */
-                $result = DataMapper::map($source, $staticValues, $mappings, false);
+                $result = MappingFacade::map($source, $staticValues, $mappings, false);
             } else {
                 /** @var array<string, mixed> $result */
-                $result = DataMapper::pipe($pipes)->map($source, $staticValues, $mappings, false);
+                $result = DataMapper::source($source)->target($staticValues)->template($mappings)->skipNull(
+                    false
+                )->pipe(
+                    $pipes
+                )->map()->getTarget();
             }
 
             $this->mappedData = $result;

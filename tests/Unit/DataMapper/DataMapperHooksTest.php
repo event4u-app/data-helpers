@@ -7,9 +7,10 @@ use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
-describe('DataMapper Hooks', function(): void {
-    test('beforeAll/afterAll are called in simple mapping', function(): void {
+describe('DataMapper Hooks', function (): void {
+    test('beforeAll/afterAll are called in simple mapping', function (): void {
         $source = [
             'a' => 1,
             'b' => 2,
@@ -20,11 +21,11 @@ describe('DataMapper Hooks', function(): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'beforeAll' => function(AllContext $ctx) use (&$events): void {
-                $events[] = 'beforeAll:' . $ctx->mode();
+            DataMapperHook::BeforeAll->value => function (AllContext $ctx) use (&$events): void {
+                $events[] = DataMapperHook::BeforeAll->value . ':' . $ctx->mode();
             },
-            'afterAll' => function(AllContext $ctx) use (&$events): void {
-                $events[] = 'afterAll:' . $ctx->mode();
+            DataMapperHook::AfterAll->value => function (AllContext $ctx) use (&$events): void {
+                $events[] = DataMapperHook::AfterAll->value . ':' . $ctx->mode();
             },
         ];
 
@@ -34,8 +35,6 @@ describe('DataMapper Hooks', function(): void {
                 'x.a' => '{{ a }}',
                 'x.b' => '{{ b }}',
             ])
-            ->skipNull(true)
-            ->reindexWildcard(false)
             ->hooks($hooks)
             ->map()
             ->getTarget();
@@ -46,10 +45,13 @@ describe('DataMapper Hooks', function(): void {
                 'b' => 2,
             ],
         ]);
-        expect($events)->toEqual(['beforeAll:simple', 'afterAll:simple']);
+        expect($events)->toEqual([
+            DataMapperHook::BeforeAll->value . ':simple',
+            DataMapperHook::AfterAll->value . ':simple',
+        ]);
     });
 
-    test('beforePair can skip a pair', function(): void {
+    test('beforePair can skip a pair', function (): void {
         $source = [
             'a' => 1,
             'b' => 2,
@@ -58,9 +60,9 @@ describe('DataMapper Hooks', function(): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'beforePair' => [
+            DataMapperHook::BeforePair->value => [
                 // skip when srcPath is 'a'
-                'src:a' => function(PairContext $ctx): bool {
+                'src:a' => function (PairContext $ctx): bool {
                     return false; // cancel this pair
                 },
             ],
@@ -72,8 +74,6 @@ describe('DataMapper Hooks', function(): void {
                 'x.a' => '{{ a }}',
                 'x.b' => '{{ b }}',
             ])
-            ->skipNull(true)
-            ->reindexWildcard(false)
             ->hooks($hooks)
             ->map()
             ->getTarget();
@@ -85,7 +85,7 @@ describe('DataMapper Hooks', function(): void {
         ]);
     });
 
-    test('preTransform and postTransform modify values', function(): void {
+    test('beforeTransform and afterTransform modify values', function (): void {
         $source = [
             'name' => 'alice',
         ];
@@ -93,14 +93,14 @@ describe('DataMapper Hooks', function(): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'preTransform' => function(mixed $v, PairContext $ctx): mixed {
+            DataMapperHook::BeforeTransform->value => function (mixed $v, PairContext $ctx): mixed {
                 if (is_string($v)) {
                     return 'pre-' . $v;
                 }
 
                 return $v;
             },
-            'postTransform' => function(mixed $v, PairContext $ctx): mixed {
+            DataMapperHook::AfterTransform->value => function (mixed $v, PairContext $ctx): mixed {
                 if (is_string($v)) {
                     return $v . '-post';
                 }
@@ -114,8 +114,6 @@ describe('DataMapper Hooks', function(): void {
             ->template([
                 'out.name' => '{{ name }}',
             ])
-            ->skipNull(true)
-            ->reindexWildcard(false)
             ->hooks($hooks)
             ->map()
             ->getTarget();
@@ -127,7 +125,7 @@ describe('DataMapper Hooks', function(): void {
         ]);
     });
 
-    test('beforeWrite can skip and afterWrite can mutate target', function(): void {
+    test('beforeWrite can skip and afterWrite can mutate target', function (): void {
         $source = [
             'items' => ['a', null, 'b'],
         ];
@@ -135,7 +133,7 @@ describe('DataMapper Hooks', function(): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'beforeWrite' => function(mixed $v, WriteContext $ctx): mixed {
+            DataMapperHook::BeforeWrite->value => function (mixed $v, WriteContext $ctx): mixed {
                 // Skip writing value 'a'
                 if ('a' === $v) {
                     return '__skip__';
@@ -143,7 +141,7 @@ describe('DataMapper Hooks', function(): void {
 
                 return $v;
             },
-            'afterWrite' => function(array|object $tgt, WriteContext $ctx, mixed $written): array|object {
+            DataMapperHook::AfterWrite->value => function (array|object $tgt, WriteContext $ctx, mixed $written): array|object {
                 // Uppercase strings after write
                 if (is_string($written)) {
                     $path = $ctx->resolvedTargetPath ?? '';
@@ -160,7 +158,6 @@ describe('DataMapper Hooks', function(): void {
             ->template([
                 'out.items.*' => '{{ items.* }}',
             ])
-            ->skipNull(true)
             ->reindexWildcard(true)
             ->hooks($hooks)
             ->map()
@@ -174,7 +171,7 @@ describe('DataMapper Hooks', function(): void {
         ]);
     });
 
-    test('path prefix filters for hooks work (src:/tgt:/mode:)', function(): void {
+    test('path prefix filters for hooks work (src:/tgt:/mode:)', function (): void {
         $source = [
             'a' => 1,
             'b' => 2,
@@ -185,14 +182,14 @@ describe('DataMapper Hooks', function(): void {
 
         /** @var array<string, mixed> $hooks */
         $hooks = [
-            'beforePair' => [
-                'src:a' => function(PairContext $ctx) use (&$calls): void {
+            DataMapperHook::BeforePair->value => [
+                'src:a' => function (PairContext $ctx) use (&$calls): void {
                     $calls[] = 'src:a';
                 },
-                'tgt:x.b' => function(PairContext $ctx) use (&$calls): void {
+                'tgt:x.b' => function (PairContext $ctx) use (&$calls): void {
                     $calls[] = 'tgt:x.b';
                 },
-                'mode:simple' => function(PairContext $ctx) use (&$calls): void {
+                'mode:simple' => function (PairContext $ctx) use (&$calls): void {
                     $calls[] = 'mode:simple';
                 },
             ],
@@ -204,8 +201,6 @@ describe('DataMapper Hooks', function(): void {
                 'x.a' => '{{ a }}',
                 'x.b' => '{{ b }}',
             ])
-            ->skipNull(true)
-            ->reindexWildcard(false)
             ->hooks($hooks)
             ->map();
 

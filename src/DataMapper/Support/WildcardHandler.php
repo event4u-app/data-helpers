@@ -101,7 +101,7 @@ class WildcardHandler
      * @param null|callable(int|string, string): void $onSkip optional callback invoked when an item is skipped
      *        (reason is either 'null' or 'skip')
      * @param callable(int|string, mixed): bool $onItem Should return true when an item was written/accepted,
-     *        false when skipped (e.g. by beforeWrite or postTransform returning null).
+     *        false when skipped (e.g. by beforeWrite or afterTransform returning null).
      */
     public static function iterateWildcardItems(
         array $items,

@@ -6,12 +6,13 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Converts all string values to uppercase.
  *
  * Example:
- *   DataMapper::pipe([UppercaseStrings::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipe([UppercaseStrings::class])->map()->getTarget();
  *   Template: {{ value | upper }} or {{ value | uppercase }}
  */
 final class UppercaseStrings implements FilterInterface
@@ -23,7 +24,7 @@ final class UppercaseStrings implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string

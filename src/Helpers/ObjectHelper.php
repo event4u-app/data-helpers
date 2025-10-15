@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers;
+namespace event4u\DataHelpers\Helpers;
 
 use ReflectionClass;
-use ReflectionProperty;
 
 /**
  * Helper class for object operations.
@@ -24,7 +23,7 @@ final class ObjectHelper
      */
     public static function copy(object $object, bool $recursive = true, int $maxLevel = 10): object
     {
-        return self::copyRecursive($object, $recursive, $maxLevel, 1);
+        return self::copyLevel($object, $recursive, $maxLevel, 1);
     }
 
     /**
@@ -36,7 +35,7 @@ final class ObjectHelper
      * @param int $currentLevel Current recursion level (starts at 1)
      * @return object A copy of the object
      */
-    private static function copyRecursive(object $object, bool $recursive, int $maxLevel, int $currentLevel): object
+    private static function copyLevel(object $object, bool $recursive, int $maxLevel, int $currentLevel): object
     {
         // Create a shallow clone first
         $copy = clone $object;
@@ -64,10 +63,32 @@ final class ObjectHelper
             $currentClass = $currentClass->getParentClass();
         }
 
+        // Check if we have readonly properties that need deep copying
+        $hasReadonlyWithObjects = false;
+        foreach ($properties as $property) {
+            if ($property->isReadOnly() && $property->isInitialized($copy)) {
+                $value = $property->getValue($copy);
+                if (is_object($value) || (is_array($value) && self::containsObjects($value))) {
+                    $hasReadonlyWithObjects = true;
+                    break;
+                }
+            }
+        }
+
+        // If we have readonly properties with objects, we need to recreate the object
+        if ($hasReadonlyWithObjects) {
+            return self::recreateObjectWithCopiedValues(
+                $object,
+                $reflection,
+                $properties,
+                $recursive,
+                $maxLevel,
+                $currentLevel
+            );
+        }
+
         // Deep copy each declared property
         foreach ($properties as $property) {
-            $property->setAccessible(true);
-
             if (!$property->isInitialized($copy)) {
                 continue;
             }
@@ -100,6 +121,54 @@ final class ObjectHelper
         return $copy;
     }
 
+    /** Check if an array contains objects. */
+    private static function containsObjects(array $array): bool
+    {
+        foreach ($array as $item) {
+            if (is_object($item)) {
+                return true;
+            }
+            if (is_array($item) && self::containsObjects($item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Recreate an object with deep-copied values for readonly properties.
+     *
+     * @param array<string, ReflectionProperty> $properties
+     */
+    private static function recreateObjectWithCopiedValues(
+        object $object,
+        ReflectionClass $reflection,
+        array $properties,
+        bool $recursive,
+        int $maxLevel,
+        int $currentLevel,
+    ): object {
+        // Create new instance without calling constructor
+        $copy = $reflection->newInstanceWithoutConstructor();
+
+        // Copy all properties with deep copying
+        foreach ($properties as $property) {
+            if (!$property->isInitialized($object)) {
+                continue;
+            }
+
+            $value = $property->getValue($object);
+
+            // Deep copy the value
+            $copiedValue = self::copyValue($value, $recursive, $maxLevel, $currentLevel);
+
+            // Set the value (works even for readonly properties before initialization)
+            $property->setValue($copy, $copiedValue);
+        }
+
+        return $copy;
+    }
+
     /**
      * Copy a value (handles objects, arrays, and primitives).
      *
@@ -113,7 +182,7 @@ final class ObjectHelper
     {
         // Handle objects (increment level for nested objects)
         if (is_object($value)) {
-            return self::copyRecursive($value, $recursive, $maxLevel, $currentLevel + 1);
+            return self::copyLevel($value, $recursive, $maxLevel, $currentLevel + 1);
         }
 
         // Handle arrays

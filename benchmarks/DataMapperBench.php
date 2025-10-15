@@ -51,7 +51,10 @@ class DataMapperBench
     #[Iterations(5)]
     public function benchSimpleMapping(): void
     {
-        DataMapper::map($this->simpleSource, [], $this->simpleMapping);
+        DataMapper::source($this->simpleSource)
+            ->target([])
+            ->template($this->simpleMapping)
+            ->map();
     }
 
     #[Revs(1000)]
@@ -63,7 +66,10 @@ class DataMapperBench
             'profile.surname' => 'user.profile.lastName',
             'contact.email' => 'user.contact.email',
         ];
-        DataMapper::map($this->nestedSource, [], $mapping);
+        DataMapper::source($this->nestedSource)
+            ->target([])
+            ->template($mapping)
+            ->map();
     }
 
     #[Revs(1000)]
@@ -71,7 +77,9 @@ class DataMapperBench
     public function benchAutoMap(): void
     {
         $target = ['firstName' => null, 'lastName' => null, 'email' => null];
-        DataMapper::autoMap($this->simpleSource, $target);
+        DataMapper::source($this->simpleSource)
+            ->target($target)
+            ->autoMap();
     }
 
     #[Revs(1000)]
@@ -84,6 +92,8 @@ class DataMapperBench
                 'email' => '{{ email }}',
             ],
         ];
-        DataMapper::mapFromTemplate($template, $this->simpleSource);
+        DataMapper::source($this->simpleSource)
+            ->template($template)
+            ->map();
     }
 }

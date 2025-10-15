@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 
 // Test classes for discriminator
 abstract class AnimalAdv
@@ -41,9 +42,9 @@ class BirdAdv extends AnimalAdv
     }
 }
 
-describe('DataMapper - Discriminator Advanced Tests', function (): void {
-    describe('Discriminator with Nested Paths', function (): void {
-        it('supports dot-notation for discriminator field', function (): void {
+describe('DataMapper - Discriminator Advanced Tests', function(): void {
+    describe('Discriminator with Nested Paths', function(): void {
+        it('supports dot-notation for discriminator field', function(): void {
             $source = [
                 'meta' => [
                     'type' => 'bird',
@@ -71,7 +72,7 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
             expect($result->getTarget()->chirp())->toBe('Chirp!');
         });
 
-        it('handles deeply nested discriminator field', function (): void {
+        it('handles deeply nested discriminator field', function(): void {
             $source = [
                 'data' => [
                     'meta' => [
@@ -102,8 +103,8 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
         });
     });
 
-    describe('Discriminator with copy()', function (): void {
-        it('copy() preserves discriminator configuration', function (): void {
+    describe('Discriminator with copy()', function(): void {
+        it('copy() preserves discriminator configuration', function(): void {
             $source1 = [
                 'type' => 'dog',
                 'name' => 'Max',
@@ -154,8 +155,8 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
         });
     });
 
-    describe('Discriminator with Filters and Pipelines', function (): void {
-        it('works with pipeline filters (discriminator value is trimmed)', function (): void {
+    describe('Discriminator with Filters and Pipelines', function(): void {
+        it('works with pipeline filters (discriminator value is trimmed)', function(): void {
             $source = [
                 'type' => '  dog  ',
                 'name' => '  Buddy  ',
@@ -176,16 +177,16 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
                     'age' => '{{ age }}',
                     'breed' => '{{ breed }}',
                 ])
-                ->pipeline([new \event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings()])
+                ->pipeline([new TrimStrings()])
                 ->map();
 
-            // Pipeline returns array, not object
-            expect($result->getTarget())->toBeArray();
-            expect($result->getTarget()['name'])->toBe('Buddy');
-            expect($result->getTarget()['breed'])->toBe('Poodle');
+            // Pipeline returns the discriminated object
+            expect($result->getTarget())->toBeInstanceOf(DogAdv::class);
+            expect($result->getTarget()->name)->toBe('Buddy');
+            expect($result->getTarget()->breed)->toBe('Poodle');
         });
 
-        it('works with property filters', function (): void {
+        it('works with property filters', function(): void {
             $source = [
                 'type' => 'cat',
                 'name' => '  MITTENS  ',
@@ -204,7 +205,7 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
                     'age' => '{{ age }}',
                     'color' => '{{ color }}',
                 ])
-                ->setValueFilters('name', new \event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings())
+                ->setValueFilters('name', new TrimStrings())
                 ->map();
 
             expect($result->getTarget())->toBeInstanceOf(CatAdv::class);
@@ -212,8 +213,8 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
         });
     });
 
-    describe('Edge Cases', function (): void {
-        it('handles boolean discriminator values', function (): void {
+    describe('Edge Cases', function(): void {
+        it('handles boolean discriminator values', function(): void {
             $source = [
                 'type' => true,
                 'name' => 'BoolDog',
@@ -237,7 +238,7 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
             expect($result->getTarget())->toBeInstanceOf(DogAdv::class);
         });
 
-        it('handles case-sensitive discriminator values', function (): void {
+        it('handles case-sensitive discriminator values', function(): void {
             $source = [
                 'type' => 'DOG',
                 'name' => 'UpperDog',
@@ -259,7 +260,7 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
             expect($result->getTarget())->toBeInstanceOf(CatAdv::class);
         });
 
-        it('handles multiple discriminator configurations (last wins)', function (): void {
+        it('handles multiple discriminator configurations (last wins)', function(): void {
             $source = [
                 'type' => 'dog',
                 'name' => 'MultiConfig',
@@ -283,7 +284,7 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
             expect($result->getTarget())->toBeInstanceOf(DogAdv::class);
         });
 
-        it('works with skipNull option', function (): void {
+        it('works with skipNull option', function(): void {
             $source = [
                 'type' => 'cat',
                 'name' => 'NullSkipper',
@@ -302,7 +303,6 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
                     'age' => '{{ age }}',
                     'color' => '{{ color }}',
                 ])
-                ->skipNull(true)
                 ->map();
 
             expect($result->getTarget())->toBeInstanceOf(CatAdv::class);
@@ -310,10 +310,10 @@ describe('DataMapper - Discriminator Advanced Tests', function (): void {
             expect($result->getTarget()->age)->toBe(0); // Default value
         });
 
-        it('works with large discriminator map', function (): void {
+        it('works with large discriminator map', function(): void {
             $map = [];
-            for ($i = 0; $i < 100; $i++) {
-                $map["type{$i}"] = $i % 2 === 0 ? DogAdv::class : CatAdv::class;
+            for ($i = 0; 100 > $i; $i++) {
+                $map['type' . $i] = $i % 2 === 0 ? DogAdv::class : CatAdv::class;
             }
 
             $source = [

@@ -3,15 +3,17 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\FluentDataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 
 /**
  * Tests for multi-target mapping functionality.
  *
  * @internal
  */
-describe('DataMapper Multi-Target Mapping', function (): void {
-    describe('mapToTargetsFromTemplate() - Reverse mapping to multiple targets', function (): void {
-        it('writes data to multiple named targets using template aliases', function (): void {
+describe('DataMapper Multi-Target Mapping', function(): void {
+    describe('mapToTargetsFromTemplate() - Reverse mapping to multiple targets', function(): void {
+        it('writes data to multiple named targets using template aliases', function(): void {
             $userDto = new class {
                 public ?string $name = null;
 
@@ -39,14 +41,14 @@ describe('DataMapper Multi-Target Mapping', function (): void {
                 ],
             ];
 
-            $result = DataMapper::mapToTargetsFromTemplate($data, $template, $targets);
+            $result = DataMapper::source($data)->target($targets)->template($template)->map()->getTarget();
 
             expect($result['user']->name)->toBe('Alice');
             expect($result['user']->email)->toBe('alice@example.com');
             expect($result['addr'])->toBe(['street' => 'Main Street 1']);
         });
 
-        it('supports wildcards in reverse mapping', function (): void {
+        it('supports wildcards in reverse mapping', function(): void {
             $targets = [
                 'people' => [],
             ];
@@ -59,7 +61,9 @@ describe('DataMapper Multi-Target Mapping', function (): void {
                 'names' => ['Alice', 'Bob', 'Charlie'],
             ];
 
-            $result = DataMapper::mapToTargetsFromTemplate($data, $template, $targets, true, true);
+            $result = DataMapper::source($data)->target($targets)->template($template)->skipNull(true)->reindexWildcard(
+                true
+            )->map()->getTarget();
 
             expect($result['people'])->toBe([
                 ['name' => 'Alice'],
@@ -69,8 +73,8 @@ describe('DataMapper Multi-Target Mapping', function (): void {
         });
     });
 
-    describe('FluentDataMapper with multi-target support', function (): void {
-        it('target() with empty array creates nested structure, NOT multi-target mapping', function (): void {
+    describe('FluentDataMapper with multi-target support', function(): void {
+        it('target() with empty array creates nested structure, NOT multi-target mapping', function(): void {
             // When target is an empty array, it creates a nested array structure
 
             $source = [
@@ -102,7 +106,7 @@ describe('DataMapper Multi-Target Mapping', function (): void {
             expect($target['addr']['street'])->toBe('Main Street 1');
         });
 
-        it('target() with structured array writes to multiple separate targets', function (): void {
+        it('target() with structured array writes to multiple separate targets', function(): void {
             // Multi-target mapping: Template beschreibt die Zielstruktur
             $userDto = new class {
                 public ?string $name = null;
@@ -146,7 +150,7 @@ describe('DataMapper Multi-Target Mapping', function (): void {
             expect($targets['addr'])->toBe(['street' => 'Main Street 1']);
         });
 
-        it('structured target mapping works with models and DTOs', function (): void {
+        it('structured target mapping works with models and DTOs', function(): void {
             $profileModel = new class {
                 public ?string $fullName = null;
 
@@ -188,7 +192,7 @@ describe('DataMapper Multi-Target Mapping', function (): void {
             expect($targets['messages']->items)->toBe(['Hello World']);
         });
 
-        it('structured target mapping with nested arrays', function (): void {
+        it('structured target mapping with nested arrays', function(): void {
             $peopleArray = [];
             $statsArray = [];
 
@@ -228,7 +232,7 @@ describe('DataMapper Multi-Target Mapping', function (): void {
             ]);
         });
 
-        it('can use static mapToTargetsFromTemplate() for reverse multi-target mapping', function (): void {
+        it('can use static mapToTargetsFromTemplate() for reverse multi-target mapping', function(): void {
             // For reverse multi-target mapping, use the static method directly
             $userDto = new class {
                 public ?string $name = null;
@@ -257,8 +261,8 @@ describe('DataMapper Multi-Target Mapping', function (): void {
                 ],
             ];
 
-            // Use static method for reverse multi-target mapping
-            $result = DataMapper::mapToTargetsFromTemplate($data, $template, $targets);
+            // Use Fluent API for reverse multi-target mapping
+            $result = DataMapper::source($data)->target($targets)->template($template)->map()->getTarget();
 
             expect($result['user']->name)->toBe('Alice');
             expect($result['user']->email)->toBe('alice@example.com');
@@ -266,8 +270,8 @@ describe('DataMapper Multi-Target Mapping', function (): void {
         });
     });
 
-    describe('mapFromTemplate() - Forward mapping from multiple sources', function (): void {
-        it('reads from multiple named sources using template', function (): void {
+    describe('mapFromTemplate() - Forward mapping from multiple sources', function(): void {
+        it('reads from multiple named sources using template', function(): void {
             $userModel = new class {
                 public string $name = 'Alice';
 
@@ -286,16 +290,16 @@ describe('DataMapper Multi-Target Mapping', function (): void {
 
             $template = [
                 'profile' => [
-                    'fullname' => '{{ user.name }}',
-                    'email' => '{{ user.email }}',
+                    'fullname' => '{{ @user.name }}',
+                    'email' => '{{ @user.email }}',
                     'address' => [
-                        'street' => '{{ addr.street }}',
-                        'zip' => '{{ addr.zip }}',
+                        'street' => '{{ @addr.street }}',
+                        'zip' => '{{ @addr.zip }}',
                     ],
                 ],
             ];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result)->toBe([
                 'profile' => [
@@ -309,7 +313,7 @@ describe('DataMapper Multi-Target Mapping', function (): void {
             ]);
         });
 
-        it('FluentDataMapper DOES support mapFromTemplate via source structure', function (): void {
+        it('FluentDataMapper DOES support mapFromTemplate via source structure', function(): void {
             // When source is an array with named keys, and template uses those keys,
             // it works like mapFromTemplate()
 
@@ -350,8 +354,8 @@ describe('DataMapper Multi-Target Mapping', function (): void {
         });
     });
 
-    describe('Query Builder equivalents in new API', function (): void {
-        it('FluentDataMapper->query() provides query builder for wildcard paths', function (): void {
+    describe('Query Builder equivalents in new API', function(): void {
+        it('FluentDataMapper->query() provides query builder for wildcard paths', function(): void {
             // DataMapper::query() ist ein STANDALONE Query Builder
             // FluentDataMapper->query() ist für Wildcard-Pfade WÄHREND des Mappings
 
@@ -370,10 +374,10 @@ describe('DataMapper Multi-Target Mapping', function (): void {
                 ->end();
 
             // Query ist konfiguriert
-            expect($mapper)->toBeInstanceOf(\event4u\DataHelpers\DataMapper\FluentDataMapper::class);
+            expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('pipeline() + query() combination works', function (): void {
+        it('pipeline() + query() combination works', function(): void {
             // pipeQuery-Äquivalent: pipeline() + query()
 
             $products = [
@@ -382,7 +386,7 @@ describe('DataMapper Multi-Target Mapping', function (): void {
 
             $mapper = DataMapper::source(['products' => $products])
                 ->pipeline([
-                    new \event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings(),
+                    new TrimStrings(),
                 ])
                 ->template([
                     'items' => '{{ products.* }}',
@@ -392,7 +396,7 @@ describe('DataMapper Multi-Target Mapping', function (): void {
                 ->end();
 
             // Pipeline + Query sind konfiguriert
-            expect($mapper)->toBeInstanceOf(\event4u\DataHelpers\DataMapper\FluentDataMapper::class);
+            expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
     });
 });

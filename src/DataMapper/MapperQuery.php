@@ -17,10 +17,6 @@ namespace event4u\DataHelpers\DataMapper;
  */
 final class MapperQuery
 {
-    private string $wildcardPath;
-
-    private FluentDataMapper $mapper;
-
     /** @var array<int, array{field: string, operator: string, value: mixed}> */
     private array $whereConditions = [];
 
@@ -40,10 +36,8 @@ final class MapperQuery
      * @param string $wildcardPath Wildcard path (e.g., 'project.positions.*')
      * @param FluentDataMapper $mapper Parent mapper
      */
-    public function __construct(string $wildcardPath, FluentDataMapper $mapper)
+    public function __construct(private readonly string $wildcardPath, private readonly FluentDataMapper $mapper)
     {
-        $this->wildcardPath = $wildcardPath;
-        $this->mapper = $mapper;
     }
 
     /**
@@ -86,9 +80,7 @@ final class MapperQuery
         return $this;
     }
 
-    /**
-     * Set LIMIT.
-     */
+    /** Set LIMIT. */
     public function limit(int $limit): self
     {
         $this->limit = $limit;
@@ -96,9 +88,7 @@ final class MapperQuery
         return $this;
     }
 
-    /**
-     * Set OFFSET.
-     */
+    /** Set OFFSET. */
     public function offset(int $offset): self
     {
         $this->offset = $offset;
@@ -106,9 +96,7 @@ final class MapperQuery
         return $this;
     }
 
-    /**
-     * Add GROUP BY field.
-     */
+    /** Add GROUP BY field. */
     public function groupBy(string $field): self
     {
         $this->groupByFields[] = $field;
@@ -116,9 +104,7 @@ final class MapperQuery
         return $this;
     }
 
-    /**
-     * Get the wildcard path.
-     */
+    /** Get the wildcard path. */
     public function getWildcardPath(): string
     {
         return $this->wildcardPath;
@@ -144,17 +130,13 @@ final class MapperQuery
         return $this->orderByConditions;
     }
 
-    /**
-     * Get LIMIT.
-     */
+    /** Get LIMIT. */
     public function getLimit(): ?int
     {
         return $this->limit;
     }
 
-    /**
-     * Get OFFSET.
-     */
+    /** Get OFFSET. */
     public function getOffset(): ?int
     {
         return $this->offset;
@@ -170,9 +152,7 @@ final class MapperQuery
         return $this->groupByFields;
     }
 
-    /**
-     * Return to the parent mapper.
-     */
+    /** Return to the parent mapper. */
     public function end(): FluentDataMapper
     {
         return $this->mapper;

@@ -34,7 +34,7 @@ describe('FluentDataMapper Entry Points', function(): void {
         });
 
         it('accepts object data', function(): void {
-            $source = (object) ['name' => 'Charlie'];
+            $source = (object)['name' => 'Charlie'];
 
             $result = DataMapper::source($source)
                 ->target([])
@@ -67,7 +67,7 @@ describe('FluentDataMapper Entry Points', function(): void {
                 ->target([])
                 ->template(['name' => '{{ name }}'])
                 ->map();
-        })->throws(\RuntimeException::class, 'Failed to read file');
+        })->throws(InvalidArgumentException::class, 'File not found');
 
         it('throws exception for invalid JSON', function(): void {
             $tempFile = sys_get_temp_dir() . '/test_invalid_json.json';
@@ -79,7 +79,7 @@ describe('FluentDataMapper Entry Points', function(): void {
                 ->map();
 
             unlink($tempFile);
-        })->throws(\RuntimeException::class, 'Failed to parse JSON');
+        })->throws(InvalidArgumentException::class, 'Failed to parse JSON');
     });
 
     describe('template() entry point', function(): void {
@@ -137,43 +137,6 @@ describe('FluentDataMapper Entry Points', function(): void {
         });
     });
 
-    describe('Backward compatibility', function(): void {
-        it('from() still works as alias for source()', function(): void {
-            $result = DataMapper::from(['name' => 'Iris'])
-                ->target([])
-                ->template(['name' => '{{ name }}'])
-                ->map()
-                ->getTarget();
-
-            expect($result)->toBe(['name' => 'Iris']);
-        });
-
-        it('fromFile() still works as alias for sourceFile()', function(): void {
-            $tempFile = sys_get_temp_dir() . '/test_backward_compat.json';
-            file_put_contents($tempFile, json_encode(['name' => 'Jack']));
-
-            $result = DataMapper::fromFile($tempFile)
-                ->target([])
-                ->template(['name' => '{{ name }}'])
-                ->map()
-                ->getTarget();
-
-            expect($result)->toBe(['name' => 'Jack']);
-
-            unlink($tempFile);
-        });
-
-        it('fromSource() still works as alias for source()', function(): void {
-            $result = DataMapper::fromSource(['name' => 'Kate'])
-                ->target([])
-                ->template(['name' => '{{ name }}'])
-                ->map()
-                ->getTarget();
-
-            expect($result)->toBe(['name' => 'Kate']);
-        });
-    });
-
     describe('Flexible entry point combinations', function(): void {
         it('allows any order of configuration', function(): void {
             $result1 = DataMapper::source(['name' => 'Leo'])
@@ -203,9 +166,7 @@ describe('FluentDataMapper Entry Points', function(): void {
             $result = DataMapper::source(['items' => [['name' => 'A'], ['name' => 'B']]])
                 ->target([])
                 ->template(['names' => '{{ items.*.name }}'])
-                ->skipNull(true)
                 ->reindexWildcard(true)
-                ->trimValues(true)
                 ->map()
                 ->getTarget();
 

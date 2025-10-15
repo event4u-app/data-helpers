@@ -3,12 +3,13 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
-use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
-describe('FluentDataMapper - Property-specific Filters', function () {
-    it('can set a single filter for a property', function () {
+describe('FluentDataMapper - Property-specific Filters', function(): void {
+    it('can set a single filter for a property', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -30,7 +31,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result->getTarget()['email'])->toBe('john@example.com');
     });
 
-    it('can set multiple filters as arguments for a property', function () {
+    it('can set multiple filters as arguments for a property', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -49,7 +50,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result->getTarget()['name'])->toBe('JOHN DOE');
     });
 
-    it('can set multiple filters as array for a property', function () {
+    it('can set multiple filters as array for a property', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -68,7 +69,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result->getTarget()['name'])->toBe('JOHN DOE');
     });
 
-    it('can set a single filter as array for a property', function () {
+    it('can set a single filter as array for a property', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -87,7 +88,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result->getTarget()['name'])->toBe('John Doe');
     });
 
-    it('behaves identically for multiple filters as arguments vs array', function () {
+    it('behaves identically for multiple filters as arguments vs array', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -114,7 +115,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result1->getTarget()['name'])->toBe('JOHN DOE');
     });
 
-    it('behaves identically for single filter vs single filter as array', function () {
+    it('behaves identically for single filter vs single filter as array', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -141,7 +142,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result1->getTarget()['name'])->toBe('John Doe');
     });
 
-    it('can set filters for multiple properties', function () {
+    it('can set filters for multiple properties', function(): void {
         $source = [
             'user' => [
                 'firstName' => '  John  ',
@@ -168,7 +169,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result->getTarget()['email'])->toBe('john@example.com');
     });
 
-    it('supports dot-notation for nested properties', function () {
+    it('supports dot-notation for nested properties', function(): void {
         $source = [
             'user' => [
                 'profile' => [
@@ -191,7 +192,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result->getTarget()['profile']['name'])->toBe('John Doe');
     });
 
-    it('applies filters in the correct order', function () {
+    it('applies filters in the correct order', function(): void {
         $source = [
             'user' => [
                 'name' => '  john doe  ',
@@ -211,7 +212,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result->getTarget()['name'])->toBe('JOHN DOE');
     });
 
-    it('does not affect properties without filters', function () {
+    it('does not affect properties without filters', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -234,7 +235,7 @@ describe('FluentDataMapper - Property-specific Filters', function () {
         expect($result->getTarget()['email'])->toBe('  john@example.com  '); // Not trimmed
     });
 
-    it('works with copy()', function () {
+    it('works with copy()', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -257,8 +258,8 @@ describe('FluentDataMapper - Property-specific Filters', function () {
     });
 });
 
-describe('FluentDataMapper - Property-specific Filters - Edge Cases', function () {
-    it('handles null values in filtered properties', function () {
+describe('FluentDataMapper - Property-specific Filters - Edge Cases', function(): void {
+    it('handles null values in filtered properties', function(): void {
         $source = [
             'user' => [
                 'name' => null,
@@ -279,7 +280,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget())->toHaveKey('name');
     });
 
-    it('handles empty string values in filtered properties', function () {
+    it('handles empty string values in filtered properties', function(): void {
         $source = [
             'user' => [
                 'name' => '',
@@ -298,7 +299,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['name'])->toBe('');
     });
 
-    it('handles non-existent properties gracefully', function () {
+    it('handles non-existent properties gracefully', function(): void {
         $source = [
             'user' => [
                 'email' => 'john@example.com',
@@ -321,7 +322,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['email'])->toBe('john@example.com');
     });
 
-    it('handles deeply nested properties with dot-notation', function () {
+    it('handles deeply nested properties with dot-notation', function(): void {
         $source = [
             'user' => [
                 'profile' => [
@@ -344,7 +345,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['city'])->toBe('Berlin');
     });
 
-    it('handles wildcard properties', function () {
+    it('handles wildcard properties', function(): void {
         $source = [
             'users' => [
                 ['name' => '  John  '],
@@ -365,7 +366,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['names'])->toBeArray();
     });
 
-    it('handles overwriting filters for the same property', function () {
+    it('handles overwriting filters for the same property', function(): void {
         $source = [
             'user' => [
                 'name' => '  john doe  ',
@@ -387,7 +388,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['name'])->toBe('  JOHN DOE  ');
     });
 
-    it('works with reverseMap()', function () {
+    it('works with reverseMap()', function(): void {
         $source = [
             'name' => '  John Doe  ',
         ];
@@ -406,7 +407,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['name'])->toBe('John Doe');
     });
 
-    it('handles numeric property keys', function () {
+    it('handles numeric property keys', function(): void {
         $source = [
             'data' => [
                 0 => '  value0  ',
@@ -429,7 +430,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['value1'])->toBe('  value1  ');
     });
 
-    it('handles special characters in property names', function () {
+    it('handles special characters in property names', function(): void {
         $source = [
             'user-data' => [
                 'first_name' => '  John  ',
@@ -448,7 +449,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['firstName'])->toBe('John');
     });
 
-    it('handles unicode characters in values', function () {
+    it('handles unicode characters in values', function(): void {
         $source = [
             'user' => [
                 'name' => '  Müller  ',
@@ -471,7 +472,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['emoji'])->toBe('😀');
     });
 
-    it('handles very long filter chains', function () {
+    it('handles very long filter chains', function(): void {
         $source = [
             'user' => [
                 'name' => '  john doe  ',
@@ -496,7 +497,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['name'])->toBe('JOHN DOE');
     });
 
-    it('handles empty filter array', function () {
+    it('handles empty filter array', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -516,7 +517,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['name'])->toBe('  John Doe  ');
     });
 
-    it('handles mixed nested arrays and objects', function () {
+    it('handles mixed nested arrays and objects', function(): void {
         $source = [
             'data' => [
                 'items' => [
@@ -543,7 +544,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['items'][1]['value'])->toBe('  item2  ');
     });
 
-    it('works with skipNull option', function () {
+    it('works with skipNull option', function(): void {
         $source = [
             'user' => [
                 'name' => null,
@@ -558,7 +559,6 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
 
         $result = DataMapper::source($source)
             ->template($template)
-            ->skipNull(true)
             ->setValueFilters('name', new TrimStrings())
             ->setValueFilters('email', new TrimStrings())
             ->map();
@@ -567,7 +567,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['email'])->toBe('john@example.com');
     });
 
-    it('works with reindexWildcard option', function () {
+    it('works with reindexWildcard option', function(): void {
         $source = [
             'users' => [
                 0 => ['name' => '  John  '],
@@ -588,7 +588,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['names'])->toBeArray();
     });
 
-    it('handles filters with global pipeline filters', function () {
+    it('handles filters with global pipeline filters', function(): void {
         $source = [
             'user' => [
                 'name' => '  john doe  ',
@@ -613,7 +613,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['email'])->toBe('JOHN@EXAMPLE.COM');
     });
 
-    it('handles filters with hooks', function () {
+    it('handles filters with hooks', function(): void {
         $source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -629,7 +629,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         $result = DataMapper::source($source)
             ->template($template)
             ->hooks([
-                'preTransform' => function ($value, $context) use (&$hookCalled) {
+                DataMapperHook::BeforeTransform->value => function($value, $context) use (&$hookCalled) {
                     $hookCalled = true;
                     return $value;
                 },
@@ -641,7 +641,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['name'])->toBe('John Doe');
     });
 
-    it('handles boolean values', function () {
+    it('handles boolean values', function(): void {
         $source = [
             'user' => [
                 'active' => true,
@@ -660,7 +660,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['active'])->toBeTrue();
     });
 
-    it('handles numeric values', function () {
+    it('handles numeric values', function(): void {
         $source = [
             'user' => [
                 'age' => 25,
@@ -683,7 +683,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['salary'])->toBe(50000.50);
     });
 
-    it('handles array values', function () {
+    it('handles array values', function(): void {
         $source = [
             'user' => [
                 'tags' => ['php', 'laravel'],
@@ -702,7 +702,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['tags'])->toBe(['php', 'laravel']);
     });
 
-    it('handles object values', function () {
+    it('handles object values', function(): void {
         $source = [
             'user' => [
                 'profile' => (object)['name' => '  John  '],
@@ -721,7 +721,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['profile'])->toBeObject();
     });
 
-    it('handles multiple calls to setValueFilters for different properties', function () {
+    it('handles multiple calls to setValueFilters for different properties', function(): void {
         $source = [
             'user' => [
                 'firstName' => '  John  ',
@@ -750,7 +750,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['email'])->toBe('john@example.com');
     });
 
-    it('handles copy() with modified filters', function () {
+    it('handles copy() with modified filters', function(): void {
         $source = [
             'user' => [
                 'name' => '  john doe  ',
@@ -776,7 +776,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result2->getTarget()['name'])->toBe('  JOHN DOE  '); // Copy: only uppercase
     });
 
-    it('handles whitespace-only values', function () {
+    it('handles whitespace-only values', function(): void {
         $source = [
             'user' => [
                 'name' => '     ',
@@ -795,7 +795,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['name'])->toBe('');
     });
 
-    it('handles newlines and tabs in values', function () {
+    it('handles newlines and tabs in values', function(): void {
         $source = [
             'user' => [
                 'name' => "  \n\tJohn Doe\t\n  ",
@@ -814,7 +814,7 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['name'])->toBe("John Doe");
     });
 
-    it('handles case-insensitive property matching', function () {
+    it('handles case-insensitive property matching', function(): void {
         $source = [
             'user' => [
                 'Name' => '  John Doe  ',
@@ -833,25 +833,25 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function (
         expect($result->getTarget()['name'])->toBe('John Doe');
     });
 
-    it('handles large number of properties with filters', function () {
+    it('handles large number of properties with filters', function(): void {
         $source = [];
         $template = [];
 
-        for ($i = 0; $i < 100; $i++) {
-            $source["field{$i}"] = "  value{$i}  ";
-            $template["field{$i}"] = "{{ field{$i} }}";
+        for ($i = 0; 100 > $i; $i++) {
+            $source['field' . $i] = sprintf('  value%d  ', $i);
+            $template['field' . $i] = sprintf('{{ field%d }}', $i);
         }
 
         $mapper = DataMapper::source($source)->template($template);
 
-        for ($i = 0; $i < 100; $i++) {
-            $mapper->setValueFilters("field{$i}", new TrimStrings());
+        for ($i = 0; 100 > $i; $i++) {
+            $mapper->setValueFilters('field' . $i, new TrimStrings());
         }
 
         $result = $mapper->map();
 
-        for ($i = 0; $i < 100; $i++) {
-            expect($result->getTarget()["field{$i}"])->toBe("value{$i}");
+        for ($i = 0; 100 > $i; $i++) {
+            expect($result->getTarget()['field' . $i])->toBe('value' . $i);
         }
     });
 });

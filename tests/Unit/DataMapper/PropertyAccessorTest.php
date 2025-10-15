@@ -6,8 +6,8 @@ use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
-describe('DataMapper Property Accessor', function (): void {
-    beforeEach(function (): void {
+describe('DataMapper Property Accessor', function(): void {
+    beforeEach(function(): void {
         $this->source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -38,8 +38,8 @@ describe('DataMapper Property Accessor', function (): void {
         ];
     });
 
-    describe('property()->setFilter()', function (): void {
-        it('sets filter for a property', function (): void {
+    describe('property()->setFilter()', function(): void {
+        it('sets filter for a property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)  // Disable global trim
@@ -54,7 +54,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target['userEmail'])->toBe('  john@example.com  '); // Not trimmed
         });
 
-        it('sets multiple filters as arguments', function (): void {
+        it('sets multiple filters as arguments', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -68,7 +68,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target['userName'])->toBe('JOHN DOE');
         });
 
-        it('sets multiple filters as array', function (): void {
+        it('sets multiple filters as array', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -82,7 +82,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target['userName'])->toBe('JOHN DOE');
         });
 
-        it('works with nested properties', function (): void {
+        it('works with nested properties', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -96,7 +96,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target['bio'])->toBe('Software Developer');
         });
 
-        it('can be chained for multiple properties', function (): void {
+        it('can be chained for multiple properties', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -115,8 +115,8 @@ describe('DataMapper Property Accessor', function (): void {
         });
     });
 
-    describe('property()->resetFilter()', function (): void {
-        it('resets filter for a property', function (): void {
+    describe('property()->resetFilter()', function(): void {
+        it('resets filter for a property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -133,7 +133,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target['userName'])->toBe('  John Doe  '); // Not trimmed
         });
 
-        it('works even if no filter was set', function (): void {
+        it('works even if no filter was set', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false);
@@ -147,7 +147,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target['userName'])->toBe('  John Doe  ');
         });
 
-        it('can be chained with setFilter', function (): void {
+        it('can be chained with setFilter', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -164,8 +164,8 @@ describe('DataMapper Property Accessor', function (): void {
         });
     });
 
-    describe('property()->getFilter()', function (): void {
-        it('returns filters for a property', function (): void {
+    describe('property()->getFilter()', function(): void {
+        it('returns filters for a property', function(): void {
             $filter1 = new TrimStrings();
             $filter2 = new UppercaseStrings();
 
@@ -182,7 +182,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($filters[1])->toBe($filter2);
         });
 
-        it('returns empty array if no filters set', function (): void {
+        it('returns empty array if no filters set', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -192,7 +192,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($filters)->toHaveCount(0);
         });
 
-        it('returns empty array after resetFilter', function (): void {
+        it('returns empty array after resetFilter', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->property('userName')
@@ -206,8 +206,8 @@ describe('DataMapper Property Accessor', function (): void {
         });
     });
 
-    describe('property()->getTarget()', function (): void {
-        it('returns the mapping target for a property', function (): void {
+    describe('property()->getTarget()', function(): void {
+        it('returns the mapping target for a property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -216,7 +216,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target)->toBe('{{ user.name }}');
         });
 
-        it('returns nested template values', function (): void {
+        it('returns nested template values', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -226,7 +226,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target['*']['id'])->toBe('{{ products.*.id }}');
         });
 
-        it('returns null for non-existent property', function (): void {
+        it('returns null for non-existent property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -235,7 +235,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target)->toBeNull();
         });
 
-        it('works with nested property paths', function (): void {
+        it('works with nested property paths', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'user' => [
@@ -250,8 +250,8 @@ describe('DataMapper Property Accessor', function (): void {
         });
     });
 
-    describe('property()->getMappedValue()', function (): void {
-        it('returns the mapped value for a property', function (): void {
+    describe('property()->getMappedValue()', function(): void {
+        it('returns the mapped value for a property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -264,7 +264,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBe('John Doe');
         });
 
-        it('returns nested values', function (): void {
+        it('returns nested values', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -273,7 +273,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBe(30);
         });
 
-        it('returns null for non-existent property', function (): void {
+        it('returns null for non-existent property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -282,7 +282,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBeNull();
         });
 
-        it('works with nested property paths', function (): void {
+        it('works with nested property paths', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'user' => [
@@ -297,7 +297,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBe('  John Doe  ');
         });
 
-        it('returns array values', function (): void {
+        it('returns array values', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -309,8 +309,8 @@ describe('DataMapper Property Accessor', function (): void {
         });
     });
 
-    describe('property()->end()', function (): void {
-        it('returns the parent mapper', function (): void {
+    describe('property()->end()', function(): void {
+        it('returns the parent mapper', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -319,7 +319,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($result)->toBe($mapper);
         });
 
-        it('allows continuing fluent chain', function (): void {
+        it('allows continuing fluent chain', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->property('userName')
@@ -337,8 +337,8 @@ describe('DataMapper Property Accessor', function (): void {
         });
     });
 
-    describe('Edge Cases', function (): void {
-        it('handles empty property path', function (): void {
+    describe('Edge Cases', function(): void {
+        it('handles empty property path', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -347,7 +347,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target)->toBeNull();
         });
 
-        it('handles property path with multiple dots', function (): void {
+        it('handles property path with multiple dots', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'user' => [
@@ -363,7 +363,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBe('  Software Developer  ');
         });
 
-        it('handles wildcard properties', function (): void {
+        it('handles wildcard properties', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
 
@@ -373,7 +373,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toHaveCount(2);
         });
 
-        it('handles null values in source', function (): void {
+        it('handles null values in source', function(): void {
             $source = [
                 'user' => [
                     'name' => null,
@@ -390,7 +390,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBeNull();
         });
 
-        it('handles numeric property keys', function (): void {
+        it('handles numeric property keys', function(): void {
             $source = [
                 'items' => [
                     0 => 'first',
@@ -411,7 +411,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBe('first');
         });
 
-        it('handles special characters in values', function (): void {
+        it('handles special characters in values', function(): void {
             $source = [
                 'user' => [
                     'name' => '  John "Doe" O\'Brien  ',
@@ -432,7 +432,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBe('John "Doe" O\'Brien');
         });
 
-        it('handles empty arrays', function (): void {
+        it('handles empty arrays', function(): void {
             $source = [
                 'items' => [],
             ];
@@ -452,7 +452,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBeNull();
         });
 
-        it('handles deeply nested paths', function (): void {
+        it('handles deeply nested paths', function(): void {
             $source = [
                 'level1' => [
                     'level2' => [
@@ -479,7 +479,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($value)->toBe('deep');
         });
 
-        it('handles overwriting filters', function (): void {
+        it('handles overwriting filters', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -497,7 +497,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target['userName'])->toBe('  JOHN DOE  ');
         });
 
-        it('handles getMappedValue called multiple times', function (): void {
+        it('handles getMappedValue called multiple times', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -514,8 +514,8 @@ describe('DataMapper Property Accessor', function (): void {
         });
     });
 
-    describe('Integration with setFilter()', function (): void {
-        it('works alongside setFilter() method', function (): void {
+    describe('Integration with setFilter()', function(): void {
+        it('works alongside setFilter() method', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)
@@ -531,7 +531,7 @@ describe('DataMapper Property Accessor', function (): void {
             expect($target['userEmail'])->toBe('john@example.com');
         });
 
-        it('property()->setFilter() overwrites setFilter()', function (): void {
+        it('property()->setFilter() overwrites setFilter()', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
                 ->trimValues(false)

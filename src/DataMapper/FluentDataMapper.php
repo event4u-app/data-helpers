@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
+use event4u\DataHelpers\Support\FileLoader;
+use event4u\DataHelpers\DataMapper\Support\MappingReverser;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 use event4u\DataHelpers\DataAccessor;
-use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
-use event4u\DataHelpers\ObjectHelper;
-use event4u\DataHelpers\ReverseDataMapper;
+use event4u\DataHelpers\DataMapper\Support\MappingFacade;
+use event4u\DataHelpers\Enums\DataMapperHook;
+use event4u\DataHelpers\Helpers\ObjectHelper;
+use event4u\DataHelpers\Support\StringFormatDetector;
+use InvalidArgumentException;
+use SimpleXMLElement;
 
 /**
  * FluentDataMapper - Fluent API for data mapping.
@@ -52,9 +58,11 @@ final class FluentDataMapper
 
     private bool $reindexWildcard = false;
 
-    private bool $trimValues = true;
+    private bool $trimValues = false;
 
     private bool $caseInsensitiveReplace = false;
+
+    private bool $deep = false;
 
     /** @var array<string, mixed> */
     private array $hooks = [];
@@ -68,6 +76,8 @@ final class FluentDataMapper
 
     private ?DataMapperExceptionHandler $exceptionHandler = null;
 
+    private bool $reverseMapping = false;
+
     /**
      * Create a new FluentDataMapper instance.
      *
@@ -75,7 +85,7 @@ final class FluentDataMapper
      */
     public function __construct(mixed $source = null)
     {
-        if ($source !== null) {
+        if (null !== $source) {
             $this->setSource($source);
         }
         $this->exceptionHandler = new DataMapperExceptionHandler();
@@ -104,17 +114,18 @@ final class FluentDataMapper
      */
     public function sourceFile(string $filePath): self
     {
-        $content = file_get_contents($filePath);
-        if ($content === false) {
-            throw new \RuntimeException("Failed to read file: {$filePath}");
-        }
-
-        $source = json_decode($content, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException("Failed to parse JSON from file: {$filePath}");
-        }
-
+        $source = FileLoader::loadAsArray($filePath);
         return $this->setSource($source);
+    }
+
+    /**
+     * Set multiple named sources for multi-source mapping.
+     *
+     * @param array<string, mixed> $sources Named sources (e.g., ['user' => [...], 'company' => [...]])
+     */
+    public function sources(array $sources): self
+    {
+        return $this->setSource($sources);
     }
 
     /**
@@ -144,10 +155,15 @@ final class FluentDataMapper
     /**
      * Set the template.
      *
-     * @param array<int|string, mixed> $template Mapping template
+     * @param array<int|string, mixed>|string $template Mapping template (array, JSON string, or XML string)
      */
-    public function template(array $template): self
+    public function template(array|string $template): self
     {
+        // Convert JSON/XML strings to arrays
+        if (is_string($template)) {
+            $template = $this->parseTemplateString($template);
+        }
+
         $this->template = $template;
         // Store original template for reference
         if ([] === $this->originalTemplate) {
@@ -155,6 +171,84 @@ final class FluentDataMapper
         }
 
         return $this;
+    }
+
+    /**
+     * Parse a template string (JSON or XML) to an array.
+     *
+     * @param string $template Template string
+     * @return array<int|string, mixed>
+     * @throws InvalidArgumentException If the template is not valid JSON or XML
+     */
+    private function parseTemplateString(string $template): array
+    {
+        // Try JSON first
+        if (StringFormatDetector::isJson($template)) {
+            $decoded = json_decode($template, true);
+            if (!is_array($decoded)) {
+                throw new InvalidArgumentException('Invalid JSON template');
+            }
+            return $decoded;
+        }
+
+        // Try XML
+        if (StringFormatDetector::isXml($template)) {
+            $accessor = new DataAccessor($template);
+            return $accessor->toArray();
+        }
+
+        throw new InvalidArgumentException('Template must be a valid JSON or XML string, or an array');
+    }
+
+    /**
+     * Set pipeline filters.
+     *
+     * @param array<int, FilterInterface|class-string<FilterInterface>> $filters Filter instances or class names
+     */
+    public function pipe(array $filters): self
+    {
+        $this->pipelineFilters = $filters;
+
+        return $this;
+    }
+
+    /**
+     * Build hooks from pipeline filters.
+     *
+     * @param array<int, FilterInterface|class-string<FilterInterface>> $filters
+     * @return array<string, mixed>
+     */
+    private function buildPipelineHooks(array $filters): array
+    {
+        $hooks = [];
+
+        foreach ($filters as $filter) {
+            if (is_string($filter)) {
+                $filter = new $filter();
+            }
+
+            $hookName = $filter->getHook();
+            $filterName = $filter->getFilter();
+            $callback = fn($value, $context) => $filter->transform($value, $context);
+
+            if (null !== $filterName) {
+                if (!isset($hooks[$hookName])) {
+                    $hooks[$hookName] = [];
+                }
+                if (!is_array($hooks[$hookName])) {
+                    $hooks[$hookName] = [$hooks[$hookName]];
+                }
+                $hooks[$hookName][$filterName] = $callback;
+            } elseif (!isset($hooks[$hookName])) {
+                $hooks[$hookName] = $callback;
+            } elseif (is_callable($hooks[$hookName])) {
+                $hooks[$hookName] = [$hooks[$hookName], $callback];
+            } elseif (is_array($hooks[$hookName])) {
+                $hooks[$hookName][] = $callback;
+            }
+        }
+
+        return $hooks;
     }
 
     /**
@@ -167,21 +261,13 @@ final class FluentDataMapper
         return $this->originalTemplate;
     }
 
-    /**
-     * Start a reset chain to reset template parts to original values.
-     *
-     * @return DataMapperReset
-     */
+    /** Start a reset chain to reset template parts to original values. */
     public function reset(): DataMapperReset
     {
         return new DataMapperReset($this);
     }
 
-    /**
-     * Start a delete chain to delete template operators.
-     *
-     * @return DataMapperDelete
-     */
+    /** Start a delete chain to delete template operators. */
     public function delete(): DataMapperDelete
     {
         return new DataMapperDelete($this);
@@ -271,7 +357,7 @@ final class FluentDataMapper
      */
     private function deleteOperatorRecursive(array $template, string $operator): array
     {
-        foreach ($template as $key => &$value) {
+        foreach ($template as &$value) {
             if (is_array($value)) {
                 // Delete operator if exists at this level
                 if (isset($value[$operator])) {
@@ -435,7 +521,6 @@ final class FluentDataMapper
      * Get the mapping target for a specific property.
      *
      * @param string $property Property path (dot-notation)
-     * @return mixed
      * @internal Used by DataMapperProperty
      */
     public function getPropertyTarget(string $property): mixed
@@ -447,7 +532,6 @@ final class FluentDataMapper
      * Get the mapped value for a specific property.
      *
      * @param string $property Property path (dot-notation)
-     * @return mixed
      * @internal Used by DataMapperProperty
      */
     public function getPropertyMappedValue(string $property): mixed
@@ -471,7 +555,6 @@ final class FluentDataMapper
      *
      * @param array<int|string, mixed> $data Data array
      * @param string $path Dot-notation path
-     * @return mixed
      */
     private function getValueFromPath(array $data, string $path): mixed
     {
@@ -501,9 +584,6 @@ final class FluentDataMapper
         return $query;
     }
 
-    /**
-     * Set skipNull option.
-     */
     public function skipNull(bool $skipNull = true): self
     {
         $this->skipNull = $skipNull;
@@ -511,19 +591,13 @@ final class FluentDataMapper
         return $this;
     }
 
-    /**
-     * Set reindexWildcard option.
-     */
-    public function reindexWildcard(bool $reindexWildcard = true): self
+    public function reindexWildcard(bool $reindexWildcard = false): self
     {
         $this->reindexWildcard = $reindexWildcard;
 
         return $this;
     }
 
-    /**
-     * Set trimValues option.
-     */
     public function trimValues(bool $trimValues = true): self
     {
         $this->trimValues = $trimValues;
@@ -531,31 +605,28 @@ final class FluentDataMapper
         return $this;
     }
 
-    /**
-     * Set caseInsensitiveReplace option.
-     */
-    public function caseInsensitiveReplace(bool $caseInsensitiveReplace = true): self
+    public function caseInsensitiveReplace(bool $caseInsensitiveReplace = false): self
     {
         $this->caseInsensitiveReplace = $caseInsensitiveReplace;
 
         return $this;
     }
 
-    /**
-     * Set hooks.
-     *
-     * @param array<string, mixed> $hooks Hooks
-     */
-    public function hooks(array $hooks): self
+    public function deep(bool $deep = true): self
+    {
+        $this->deep = $deep;
+
+        return $this;
+    }
+
+    /** @param array<string, mixed> $hooks */
+    public function hooks(array $hooks = []): self
     {
         $this->hooks = $hooks;
 
         return $this;
     }
 
-    /**
-     * Set mapping options.
-     */
     public function options(MappingOptions $options): self
     {
         $this->mappingOptions = $options;
@@ -577,54 +648,114 @@ final class FluentDataMapper
             $template = $this->applyQueriesToTemplate($template);
         }
 
+        // Reverse mapping if enabled
+        if ($this->reverseMapping) {
+            $template = MappingReverser::reverseMapping($template);
+        }
+
         // Resolve target class using discriminator if configured
         $target = $this->resolveTargetWithDiscriminator();
 
         // Merge hooks with property filters
         $hooks = $this->mergeHooks($this->hooks);
 
-        // If template contains wildcard operators, we need to use mapFromTemplate()
-        // This includes both query-generated operators and manually added operators in template
-        if ($this->hasWildcardOperators($template)) {
-            // Extract source names from template
-            $sourceNames = $this->extractSourceNamesFromTemplate($template);
+        // Check if we have target aliases (e.g., ['user' => $model, 'addr' => []])
+        $hasTargetAliases = is_array($target) && $this->hasTargetAliases($target);
 
-            // Build named sources array
-            $namedSources = [];
-            foreach ($sourceNames as $sourceName) {
-                // Check if source is nested (e.g., 'products' in ['products' => [...]])
-                if (is_array($this->source) && isset($this->source[$sourceName])) {
-                    $namedSources[$sourceName] = $this->source[$sourceName];
-                } else {
-                    // Use entire source with a default name
-                    $namedSources[$sourceName] = $this->source;
+        // Check if template has target alias references (e.g., '@user.name')
+        $hasTargetAliasReferences = $this->hasTargetAliasReferences($template);
+
+        // If we have target aliases and template references them, use mapToTargetsFromTemplate
+        if ($hasTargetAliases && $hasTargetAliasReferences) {
+            // Clean template: remove {{ }}, @ from values
+            $cleanedTemplate = $this->cleanTemplateForTargetAliases($template);
+
+            $result = MappingFacade::mapToTargetsFromTemplate(
+                $this->source,
+                $cleanedTemplate,
+                $target,
+                $this->skipNull,
+                $this->reindexWildcard
+            );
+
+            return new DataMapperResult($result, $this->source, $template, $this->exceptionHandler);
+        }
+
+        // Check if source is an array with aliases and template uses @alias syntax
+        $hasSourceAliases = is_array($this->source) && $this->hasSourceAliases($this->source);
+        $hasSourceAliasReferences = $this->hasSourceAliasReferences($template);
+
+        // If template contains wildcard operators OR uses @alias syntax, we need to use mapFromTemplate()
+        // This includes both query-generated operators and manually added operators in template
+        if ($this->hasWildcardOperators($template) || ($hasSourceAliases && $hasSourceAliasReferences)) {
+            // If source is already an array with aliases, use it directly
+            if ($hasSourceAliases && $hasSourceAliasReferences) {
+                $namedSources = $this->source;
+            } else {
+                // Extract source names from template
+                $sourceNames = $this->extractSourceNamesFromTemplate($template);
+
+                // Build named sources array
+                $namedSources = [];
+                foreach ($sourceNames as $sourceName) {
+                    // Check if source is nested (e.g., 'products' in ['products' => [...]])
+                    if (is_array($this->source) && isset($this->source[$sourceName])) {
+                        $namedSources[$sourceName] = $this->source[$sourceName];
+                    } else {
+                        // Use entire source with a default name
+                        $namedSources[$sourceName] = $this->source;
+                    }
                 }
             }
 
             // Use mapFromTemplate for wildcard operator support
             // When using queries, reindexWildcard should default to true for consistent behavior
-            $result = DataMapper::mapFromTemplate(
+            $mappedArray = MappingFacade::mapFromTemplate(
                 $template,
                 $namedSources,
                 $this->getSkipNullValue(),
-                true  // Always reindex when using wildcard operators
+                $hasSourceAliases && $hasSourceAliasReferences ? $this->reindexWildcard : true
             );
-        } elseif ([] !== $this->pipelineFilters) {
-            // Use pipeline with merged hooks
-            $result = DataMapper::pipe($this->pipelineFilters)
-                ->withHooks($hooks)
-                ->map(
-                    $this->source,
+
+            // If target is an object, map the array result to the object
+            if (is_object($target)) {
+                // Create a simple mapping: key => {{ key }}
+                $simpleMapping = [];
+                foreach (array_keys($mappedArray) as $key) {
+                    $simpleMapping[$key] = '{{ ' . $key . ' }}';
+                }
+
+                $result = MappingFacade::map(
+                    $mappedArray,
                     $target,
-                    $template,
+                    $simpleMapping,
                     $this->getSkipNullValue(),
                     $this->reindexWildcard,
+                    $hooks,
                     $this->trimValues,
                     $this->caseInsensitiveReplace
                 );
+            } else {
+                $result = $mappedArray;
+            }
+        } elseif ([] !== $this->pipelineFilters) {
+            // Use pipeline with merged hooks
+            $pipelineHooks = $this->buildPipelineHooks($this->pipelineFilters);
+            $mergedHooks = $this->mergeHooksWithPipeline($hooks, $pipelineHooks);
+
+            $result = MappingFacade::map(
+                $this->source,
+                $target,
+                $template,
+                $this->getSkipNullValue(),
+                $this->reindexWildcard,
+                $mergedHooks,
+                $this->trimValues,
+                $this->caseInsensitiveReplace
+            );
         } else {
             // Direct mapping with merged hooks
-            $result = DataMapper::map(
+            $result = MappingFacade::map(
                 $this->source,
                 $target,
                 $template,
@@ -634,6 +765,23 @@ final class FluentDataMapper
                 $this->trimValues,
                 $this->caseInsensitiveReplace
             );
+        }
+
+        // Convert result back to JSON/XML string if target was a string
+        if (is_string($this->target)) {
+            $targetFormat = StringFormatDetector::detectFormat($this->target);
+            if (null !== $targetFormat) {
+                if ('json' === $targetFormat) {
+                    $result = json_encode(
+                        $result,
+                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                    ) ?: '{}';
+                } elseif ('xml' === $targetFormat && is_array($result)) {
+                    $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><root></root>');
+                    $this->arrayToXmlRecursive($result, $xml, null);
+                    $result = $xml->asXML() ?: '';
+                }
+            }
         }
 
         return new DataMapperResult($result, $this->source, $template, $this->exceptionHandler);
@@ -658,26 +806,31 @@ final class FluentDataMapper
         // Merge hooks with property filters
         $hooks = $this->mergeHooks($this->hooks);
 
+        // Reverse the template
+        $reversedTemplate = MappingReverser::reverseMapping($template);
+
         // Execute reverse mapping
         if ([] !== $this->pipelineFilters) {
-            // Use pipeline with reverse mapping and merged hooks
-            $result = ReverseDataMapper::pipe($this->pipelineFilters)
-                ->withHooks($hooks)
-                ->map(
-                    $this->source,
-                    $target,
-                    $template,
-                    $this->getSkipNullValue(),
-                    $this->reindexWildcard,
-                    $this->trimValues,
-                    $this->caseInsensitiveReplace
-                );
-        } else {
-            // Direct reverse mapping with merged hooks
-            $result = ReverseDataMapper::map(
+            // Use pipeline with reversed template and merged hooks
+            $pipelineHooks = $this->buildPipelineHooks($this->pipelineFilters);
+            $mergedHooks = $this->mergeHooksWithPipeline($hooks, $pipelineHooks);
+
+            $result = MappingFacade::map(
                 $this->source,
                 $target,
-                $template,
+                $reversedTemplate,
+                $this->getSkipNullValue(),
+                $this->reindexWildcard,
+                $mergedHooks,
+                $this->trimValues,
+                $this->caseInsensitiveReplace
+            );
+        } else {
+            // Direct mapping with reversed template and merged hooks
+            $result = MappingFacade::map(
+                $this->source,
+                $target,
+                $reversedTemplate,
                 $this->getSkipNullValue(),
                 $this->reindexWildcard,
                 $hooks,
@@ -686,7 +839,7 @@ final class FluentDataMapper
             );
         }
 
-        return new DataMapperResult($result, $this->source, $template);
+        return new DataMapperResult($result, $this->source, $template, $this->exceptionHandler);
     }
 
     /**
@@ -704,9 +857,7 @@ final class FluentDataMapper
         return $copy;
     }
 
-    /**
-     * Get skipNull value (handle MappingOptions).
-     */
+    /** Get skipNull value (handle MappingOptions). */
     private function getSkipNullValue(): bool|MappingOptions
     {
         return $this->mappingOptions ?? $this->skipNull;
@@ -724,7 +875,7 @@ final class FluentDataMapper
         }
 
         return [
-            'preTransform' => function ($value, $context) {
+            DataMapperHook::BeforeTransform->value => function($value, $context) {
                 // Get target path from HookContext
                 $targetPath = $context->tgtPath();
 
@@ -761,7 +912,7 @@ final class FluentDataMapper
             if (isset($hooks[$hookName])) {
                 // Wrap both callbacks
                 $existingHook = $hooks[$hookName];
-                $hooks[$hookName] = function ($value, $context) use ($hookCallback, $existingHook) {
+                $hooks[$hookName] = function($value, $context) use ($hookCallback, $existingHook) {
                     // Run property filter first
                     $value = $hookCallback($value, $context);
                     // Then run existing hook
@@ -769,6 +920,40 @@ final class FluentDataMapper
                 };
             } else {
                 $hooks[$hookName] = $hookCallback;
+            }
+        }
+
+        return $hooks;
+    }
+
+    /**
+     * Merge hooks with pipeline hooks.
+     *
+     * Property filters run first, then pipeline filters.
+     *
+     * @param array<string, mixed> $hooks Hooks (may include property filter hooks)
+     * @param array<string, mixed> $pipelineHooks Pipeline hooks
+     * @return array<string, mixed>
+     */
+    private function mergeHooksWithPipeline(array $hooks, array $pipelineHooks): array
+    {
+        if ([] === $pipelineHooks) {
+            return $hooks;
+        }
+
+        // Merge hooks - property filters should run first, then pipeline filters
+        foreach ($pipelineHooks as $hookName => $pipelineCallback) {
+            if (isset($hooks[$hookName])) {
+                // Wrap both callbacks
+                $existingHook = $hooks[$hookName];
+                $hooks[$hookName] = function($value, $context) use ($existingHook, $pipelineCallback) {
+                    // Run existing hook first (property filters)
+                    $value = $existingHook($value, $context);
+                    // Then run pipeline filter
+                    return $pipelineCallback($value, $context);
+                };
+            } else {
+                $hooks[$hookName] = $pipelineCallback;
             }
         }
 
@@ -796,8 +981,6 @@ final class FluentDataMapper
      * Inject a single query into the template at the appropriate wildcard location.
      *
      * @param array<int|string, mixed> $template
-     * @param string $wildcardPath
-     * @param MapperQuery $query
      * @return array<int|string, mixed>
      */
     private function injectQueryIntoTemplate(array $template, string $wildcardPath, MapperQuery $query): array
@@ -881,7 +1064,6 @@ final class FluentDataMapper
      * Inject operators at the wildcard location in the template.
      *
      * @param array<int|string, mixed> $template
-     * @param string $wildcardPath
      * @param array<string, mixed> $operators
      * @return array<int|string, mixed>
      */
@@ -898,13 +1080,14 @@ final class FluentDataMapper
     /**
      * Recursively search template and inject operators at wildcard locations.
      *
-     * @param mixed $template
-     * @param string $wildcardPath
-     * @param string $templateExpression
      * @param array<string, mixed> $operators
-     * @return mixed
      */
-    private function recursiveInjectOperators(mixed $template, string $wildcardPath, string $templateExpression, array $operators): mixed
+    private function recursiveInjectOperators(
+        mixed $template,
+        string $wildcardPath,
+        string $templateExpression,
+        array $operators
+    ): mixed
     {
         if (!is_array($template)) {
             return $template;
@@ -939,11 +1122,21 @@ final class FluentDataMapper
                         $result[$key] = $mergedValue;
                     } else {
                         // Recurse into nested structure
-                        $result[$key] = $this->recursiveInjectOperators($value, $wildcardPath, $templateExpression, $operators);
+                        $result[$key] = $this->recursiveInjectOperators(
+                            $value,
+                            $wildcardPath,
+                            $templateExpression,
+                            $operators
+                        );
                     }
                 } else {
                     // Recurse into nested arrays
-                    $result[$key] = $this->recursiveInjectOperators($value, $wildcardPath, $templateExpression, $operators);
+                    $result[$key] = $this->recursiveInjectOperators(
+                        $value,
+                        $wildcardPath,
+                        $templateExpression,
+                        $operators
+                    );
                 }
             } else {
                 $result[$key] = $value;
@@ -961,10 +1154,6 @@ final class FluentDataMapper
      * - '{{ products.* }}'
      * - '{{ products.*.id }}'
      * - '{{ products.*.name }}'
-     *
-     * @param mixed $value
-     * @param string $templateExpression
-     * @return bool
      */
     private function containsWildcardPath(mixed $value, string $templateExpression): bool
     {
@@ -993,21 +1182,27 @@ final class FluentDataMapper
      * Check if template contains wildcard operators (WHERE, ORDER BY, LIMIT, etc.).
      *
      * @param array<int|string, mixed> $template
-     * @return bool
      */
     private function hasWildcardOperators(array $template): bool
     {
+        // Check if this level has a wildcard operator AND a '*' key
+        // (operators only make sense with wildcards)
+        $hasWildcard = isset($template['*']);
+        $hasOperator = false;
+
         foreach ($template as $key => $value) {
-            if (in_array($key, ['WHERE', 'ORDER BY', 'LIMIT', 'OFFSET', 'GROUP BY', 'DISTINCT', 'LIKE'], true)) {
-                return true;
+            // Check if key is a registered wildcard operator
+            if (is_string($key) && WildcardOperatorRegistry::has($key)) {
+                $hasOperator = true;
             }
 
+            // Recursively check nested arrays
             if (is_array($value) && $this->hasWildcardOperators($value)) {
                 return true;
             }
         }
-
-        return false;
+        // Only return true if we have BOTH an operator AND a wildcard
+        return $hasOperator && $hasWildcard;
     }
 
     /**
@@ -1022,8 +1217,14 @@ final class FluentDataMapper
     {
         $sourceNames = [];
 
-        foreach ($template as $value) {
-            if (is_string($value) && preg_match('/\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\.\*/', $value, $matches)) {
+        foreach ($template as $key => $value) {
+            // Check keys (important for WHERE clauses where template expressions are keys)
+            if (is_string($key) && preg_match('/\{\{\s*@?([a-zA-Z_]\w*)\.\*/', $key, $matches)) {
+                $sourceNames[] = $matches[1];
+            }
+
+            // Check values
+            if (is_string($value) && preg_match('/\{\{\s*@?([a-zA-Z_]\w*)(?:\.\*|\.[\w.]+)/', $value, $matches)) {
                 $sourceNames[] = $matches[1];
             } elseif (is_array($value)) {
                 $sourceNames = array_merge($sourceNames, $this->extractSourceNamesFromTemplate($value));
@@ -1068,20 +1269,19 @@ final class FluentDataMapper
         // No discriminator value found - use original target
         if (null === $discriminatorValue) {
             $targetClass = $this->target;
-        } else {
+        } elseif (is_scalar($discriminatorValue)) {
             // Only process scalar values (string, int, float, bool)
             // Arrays and objects cannot be used as discriminator values
-            if (is_scalar($discriminatorValue)) {
-                // Convert discriminator value to string for map lookup
-                // Trim the value to handle cases where filters might trim it later
-                $discriminatorKey = is_string($discriminatorValue) ? trim($discriminatorValue) : (string) $discriminatorValue;
-
-                // Use mapped class if found, otherwise use original target
-                $targetClass = $this->discriminatorMap[$discriminatorKey] ?? $this->target;
-            } else {
-                // Non-scalar value (array, object) - use original target
-                $targetClass = $this->target;
-            }
+            // Convert discriminator value to string for map lookup
+            // Trim the value to handle cases where filters might trim it later
+            $discriminatorKey = is_string($discriminatorValue) ? trim(
+                $discriminatorValue
+            ) : (string)$discriminatorValue;
+            // Use mapped class if found, otherwise use original target
+            $targetClass = $this->discriminatorMap[$discriminatorKey] ?? $this->target;
+        } else {
+            // Non-scalar value (array, object) - use original target
+            $targetClass = $this->target;
         }
 
         // If it's a class name string, instantiate it
@@ -1098,16 +1298,18 @@ final class FluentDataMapper
      *
      * This method skips the template, even if one is set, and automatically maps matching field names.
      *
-     * @param bool $deep Enable deep mode (recursively maps nested structures)
-     * @return DataMapperResult
+     * @param bool|null $deep Enable deep mode (recursively maps nested structures). If null, uses the value set via deep() method.
      */
-    public function autoMap(bool $deep = false): DataMapperResult
+    public function autoMap(?bool $deep = null): DataMapperResult
     {
         // Merge hooks with property filters
         $hooks = $this->mergeHooks($this->hooks);
 
+        // Use deep value from parameter or instance property
+        $deepValue = $deep ?? $this->deep;
+
         // Use AutoMapper directly, bypassing template
-        $result = DataMapper::autoMap(
+        $result = MappingFacade::autoMap(
             $this->source,
             $this->target,
             $this->getSkipNullValue(),
@@ -1115,7 +1317,7 @@ final class FluentDataMapper
             $hooks,
             $this->trimValues,
             $this->caseInsensitiveReplace,
-            $deep
+            $deepValue
         );
 
         return new DataMapperResult($result, $this->source, [], $this->exceptionHandler);
@@ -1126,16 +1328,18 @@ final class FluentDataMapper
      *
      * This method skips the template, even if one is set, and automatically maps matching field names.
      *
-     * @param bool $deep Enable deep mode (recursively maps nested structures)
-     * @return DataMapperResult
+     * @param bool|null $deep Enable deep mode (recursively maps nested structures). If null, uses the value set via deep() method.
      */
-    public function reverseAutoMap(bool $deep = false): DataMapperResult
+    public function reverseAutoMap(?bool $deep = null): DataMapperResult
     {
         // Merge hooks with property filters
         $hooks = $this->mergeHooks($this->hooks);
 
+        // Use deep value from parameter or instance property
+        $deepValue = $deep ?? $this->deep;
+
         // Use AutoMapper in reverse direction
-        $result = DataMapper::autoMap(
+        $result = MappingFacade::autoMap(
             $this->target,
             $this->source,
             $this->getSkipNullValue(),
@@ -1143,7 +1347,7 @@ final class FluentDataMapper
             $hooks,
             $this->trimValues,
             $this->caseInsensitiveReplace,
-            $deep
+            $deepValue
         );
 
         return new DataMapperResult($result, $this->target, [], $this->exceptionHandler);
@@ -1197,5 +1401,249 @@ final class FluentDataMapper
         }
 
         return $results;
+    }
+
+    /**
+     * Check if target is an array with string keys (aliases).
+     */
+    private function hasTargetAliases(mixed $target): bool
+    {
+        if (!is_array($target)) {
+            return false;
+        }
+
+        // Check if array has string keys
+        foreach (array_keys($target) as $key) {
+            if (is_string($key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if source is an array with string keys (aliases).
+     */
+    private function hasSourceAliases(mixed $source): bool
+    {
+        if (!is_array($source)) {
+            return false;
+        }
+
+        // Check if array has string keys
+        foreach (array_keys($source) as $key) {
+            if (is_string($key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if template contains source alias references (e.g., '@user.name').
+     *
+     * @param array<int|string, mixed> $template
+     */
+    private function hasSourceAliasReferences(array $template): bool
+    {
+        foreach ($template as $value) {
+            if (is_array($value)) {
+                if ($this->hasSourceAliasReferences($value)) {
+                    return true;
+                }
+            } elseif (is_string($value)) {
+                // Check for @alias syntax
+                if (preg_match('/\{\{\s*@\w+/', $value)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if template contains target alias references (e.g., 'user.name' or '@user.name').
+     *
+     * This checks if template values look like alias paths that match the target aliases.
+     *
+     * @param array<int|string, mixed> $template
+     */
+    private function hasTargetAliasReferences(array $template): bool
+    {
+        if (!is_array($this->target)) {
+            return false;
+        }
+
+        // Get target aliases
+        $targetAliases = array_keys($this->target);
+        if ($targetAliases === []) {
+            return false;
+        }
+
+        foreach ($template as $value) {
+            if (is_array($value)) {
+                if ($this->hasTargetAliasReferences($value)) {
+                    return true;
+                }
+            } elseif (is_string($value)) {
+                // Remove {{ }} if present
+                $cleanValue = trim($value);
+                if (str_starts_with($cleanValue, '{{') && str_ends_with($cleanValue, '}}')) {
+                    $cleanValue = trim(substr($cleanValue, 2, -2));
+                }
+
+                // Remove @ if present
+                if (str_starts_with($cleanValue, '@')) {
+                    $cleanValue = substr($cleanValue, 1);
+                }
+
+                // Check if value starts with any target alias
+                foreach ($targetAliases as $alias) {
+                    if (str_starts_with($cleanValue, $alias . '.')) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Clean template for mapToTargetsFromTemplate: remove {{ }}, @ from values.
+     *
+     * @param array<int|string, mixed> $template
+     * @return array<int|string, mixed>
+     */
+    private function cleanTemplateForTargetAliases(array $template): array
+    {
+        $cleaned = [];
+
+        foreach ($template as $key => $value) {
+            if (is_array($value)) {
+                $cleaned[$key] = $this->cleanTemplateForTargetAliases($value);
+            } elseif (is_string($value)) {
+                $cleanValue = trim($value);
+
+                // Remove {{ }} if present
+                if (str_starts_with($cleanValue, '{{') && str_ends_with($cleanValue, '}}')) {
+                    $cleanValue = trim(substr($cleanValue, 2, -2));
+                }
+
+                // Remove @ if present
+                if (str_starts_with($cleanValue, '@')) {
+                    $cleanValue = substr($cleanValue, 1);
+                }
+
+                $cleaned[$key] = $cleanValue;
+            } else {
+                $cleaned[$key] = $value;
+            }
+        }
+
+        return $cleaned;
+    }
+
+    /**
+     * Enable reverse mapping mode.
+     *
+     * In reverse mode, the mapping template is automatically reversed before being applied.
+     * This allows using the same template for bidirectional mapping.
+     */
+    public function reverse(): self
+    {
+        $this->reverseMapping = true;
+        return $this;
+    }
+
+    /**
+     * Check if reverse mapping is enabled.
+     */
+    public function isReverse(): bool
+    {
+        return $this->reverseMapping;
+    }
+
+    /**
+     * Convert array to XML recursively.
+     *
+     * @param array<string, mixed> $array The array to convert
+     * @param SimpleXMLElement $xml The XML element to append to
+     * @param string|null $parentKey The parent key name for singularization
+     */
+    private function arrayToXmlRecursive(array $array, SimpleXMLElement $xml, ?string $parentKey): void
+    {
+        foreach ($array as $key => $value) {
+            $elementName = $key;
+
+            // Handle numeric keys - use singular of parent key
+            if (is_numeric($key)) {
+                if (null !== $parentKey) {
+                    $elementName = $this->singularize($parentKey);
+                } else {
+                    $elementName = 'item';
+                }
+            }
+
+            // Sanitize key to be valid XML element name
+            $elementName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', (string)$elementName);
+
+            if (is_array($value)) {
+                $subnode = $xml->addChild((string)$elementName);
+                if ($subnode instanceof SimpleXMLElement) {
+                    $this->arrayToXmlRecursive($value, $subnode, (string)$key);
+                }
+            } else {
+                $xml->addChild(
+                    (string)$elementName,
+                    htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, 'UTF-8')
+                );
+            }
+        }
+    }
+
+    /**
+     * Convert plural word to singular.
+     *
+     * @param string $word The word to singularize
+     * @return string The singularized word
+     */
+    private function singularize(string $word): string
+    {
+        // Common irregular plurals
+        $irregulars = [
+            'people' => 'person',
+            'men' => 'man',
+            'women' => 'woman',
+            'children' => 'child',
+            'teeth' => 'tooth',
+            'feet' => 'foot',
+            'mice' => 'mouse',
+            'geese' => 'goose',
+        ];
+
+        $lower = strtolower($word);
+        if (isset($irregulars[$lower])) {
+            return $irregulars[$lower];
+        }
+
+        // Common plural patterns
+        if (str_ends_with($lower, 'ies')) {
+            return substr($word, 0, -3) . 'y';
+        }
+        if (str_ends_with($lower, 'ves')) {
+            return substr($word, 0, -3) . 'f';
+        }
+        if (str_ends_with($lower, 'ses') || str_ends_with($lower, 'xes') || str_ends_with($lower, 'zes')) {
+            return substr($word, 0, -2);
+        }
+        if (str_ends_with($lower, 's') && !str_ends_with($lower, 'ss')) {
+            return substr($word, 0, -1);
+        }
+
+        return $word;
     }
 }

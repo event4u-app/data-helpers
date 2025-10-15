@@ -19,9 +19,9 @@ High-level flow for `DataMapper::map()`:
 1) Normalize hooks (enums → strings, arrays of callables allowed)
 2) For simple mappings: iterate associative pairs (src → tgt)
 3) For each pair: Access source via DataAccessor
-4) Apply hooks: beforePair → preTransform
+4) Apply hooks: beforePair → beforeTransform
 5) If source path contains wildcard: normalize wildcard arrays and iterate items
-6) For each value: postTransform → beforeWrite (may return '__skip__') → write via DataMutator → afterWrite
+6) For each value: afterTransform → beforeWrite (may return '__skip__') → write via DataMutator → afterWrite
 7) afterPair / afterAll hooks close the cycle
 
 ## Wildcards
@@ -40,7 +40,7 @@ High-level flow for `DataMapper::map()`:
 
 Hook order per pair (simplified):
 
-- beforePair → preTransform → (wildcard? iterate items) → postTransform → beforeWrite → write → afterWrite → afterPair
+- beforePair → beforeTransform → (wildcard? iterate items) → afterTransform → beforeWrite → write → afterWrite → afterPair
 
 ## Template mapping
 
@@ -84,7 +84,7 @@ $hooks = [
       return ((int)($ctx->wildcardIndex ?? -1)) % 2 === 1 ? false : null;
     },
   ],
-  DataMapperHook::PreTransform->value => fn($v) => is_string($v) ? trim($v) : $v,
+  DataMapperHook::BeforeTransform->value => fn($v) => is_string($v) ? trim($v) : $v,
 ];
 ```
 
@@ -154,7 +154,7 @@ $entry = [
 
 - Prefer simple mappings over templates when possible.
 - Combine related transforms into a single callable to reduce overhead.
-- Avoid heavy work in `beforePair`; prefer `preTransform`/`beforeWrite` for value-specific logic.
+- Avoid heavy work in `beforePair`; prefer `beforeTransform`/`beforeWrite` for value-specific logic.
 
 ## How to test extensions
 

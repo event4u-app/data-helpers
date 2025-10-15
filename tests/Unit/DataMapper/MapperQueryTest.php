@@ -6,16 +6,16 @@ use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\FluentDataMapper;
 use event4u\DataHelpers\DataMapper\MapperQuery;
 
-describe('MapperQuery', function () {
-    describe('Construction', function () {
-        it('creates query from mapper', function () {
+describe('MapperQuery', function(): void {
+    describe('Construction', function(): void {
+        it('creates query from mapper', function(): void {
             $mapper = DataMapper::source(['items' => [1, 2, 3]]);
             $query = $mapper->query('items.*');
 
             expect($query)->toBeInstanceOf(MapperQuery::class);
         });
 
-        it('stores wildcard path', function () {
+        it('stores wildcard path', function(): void {
             $mapper = DataMapper::source(['items' => [1, 2, 3]]);
             $query = $mapper->query('items.*');
 
@@ -23,8 +23,8 @@ describe('MapperQuery', function () {
         });
     });
 
-    describe('where()', function () {
-        it('adds where condition with 3 arguments', function () {
+    describe('where()', function(): void {
+        it('adds where condition with 3 arguments', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->where('status', '=', 'active');
@@ -36,7 +36,7 @@ describe('MapperQuery', function () {
             expect($conditions[0]['value'])->toBe('active');
         });
 
-        it('adds where condition with 2 arguments (defaults to =)', function () {
+        it('adds where condition with 2 arguments (defaults to =)', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->where('status', 'active');
@@ -48,7 +48,7 @@ describe('MapperQuery', function () {
             expect($conditions[0]['value'])->toBe('active');
         });
 
-        it('adds multiple where conditions', function () {
+        it('adds multiple where conditions', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->where('status', 'active')
@@ -58,7 +58,7 @@ describe('MapperQuery', function () {
             expect($conditions)->toHaveCount(2);
         });
 
-        it('returns self for chaining', function () {
+        it('returns self for chaining', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*');
             $returned = $query->where('status', 'active');
@@ -66,7 +66,7 @@ describe('MapperQuery', function () {
             expect($returned)->toBe($query);
         });
 
-        it('handles different operators', function () {
+        it('handles different operators', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->where('age', '>', 18)
@@ -82,7 +82,7 @@ describe('MapperQuery', function () {
             expect($conditions[3]['operator'])->toBe('LIKE');
         });
 
-        it('handles null values', function () {
+        it('handles null values', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->where('deleted_at', null);
@@ -91,7 +91,7 @@ describe('MapperQuery', function () {
             expect($conditions[0]['value'])->toBeNull();
         });
 
-        it('handles array values', function () {
+        it('handles array values', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->where('status', 'IN', ['active', 'pending']);
@@ -101,8 +101,8 @@ describe('MapperQuery', function () {
         });
     });
 
-    describe('orderBy()', function () {
-        it('adds order by condition with ASC', function () {
+    describe('orderBy()', function(): void {
+        it('adds order by condition with ASC', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->orderBy('name', 'ASC');
@@ -113,7 +113,7 @@ describe('MapperQuery', function () {
             expect($conditions[0]['direction'])->toBe('ASC');
         });
 
-        it('adds order by condition with DESC', function () {
+        it('adds order by condition with DESC', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->orderBy('name', 'DESC');
@@ -122,7 +122,7 @@ describe('MapperQuery', function () {
             expect($conditions[0]['direction'])->toBe('DESC');
         });
 
-        it('defaults to ASC when no direction specified', function () {
+        it('defaults to ASC when no direction specified', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->orderBy('name');
@@ -131,7 +131,7 @@ describe('MapperQuery', function () {
             expect($conditions[0]['direction'])->toBe('ASC');
         });
 
-        it('adds multiple order by conditions', function () {
+        it('adds multiple order by conditions', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->orderBy('status', 'ASC')
@@ -141,7 +141,7 @@ describe('MapperQuery', function () {
             expect($conditions)->toHaveCount(2);
         });
 
-        it('normalizes direction to uppercase', function () {
+        it('normalizes direction to uppercase', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->orderBy('name', 'asc')
@@ -152,7 +152,7 @@ describe('MapperQuery', function () {
             expect($conditions[1]['direction'])->toBe('DESC');
         });
 
-        it('returns self for chaining', function () {
+        it('returns self for chaining', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*');
             $returned = $query->orderBy('name');
@@ -161,8 +161,8 @@ describe('MapperQuery', function () {
         });
     });
 
-    describe('limit()', function () {
-        it('sets limit', function () {
+    describe('limit()', function(): void {
+        it('sets limit', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->limit(10);
@@ -170,7 +170,7 @@ describe('MapperQuery', function () {
             expect($query->getLimit())->toBe(10);
         });
 
-        it('sets limit to 0', function () {
+        it('sets limit to 0', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->limit(0);
@@ -178,7 +178,7 @@ describe('MapperQuery', function () {
             expect($query->getLimit())->toBe(0);
         });
 
-        it('overwrites previous limit', function () {
+        it('overwrites previous limit', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->limit(10)
@@ -187,7 +187,7 @@ describe('MapperQuery', function () {
             expect($query->getLimit())->toBe(5);
         });
 
-        it('returns self for chaining', function () {
+        it('returns self for chaining', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*');
             $returned = $query->limit(10);
@@ -196,8 +196,8 @@ describe('MapperQuery', function () {
         });
     });
 
-    describe('offset()', function () {
-        it('sets offset', function () {
+    describe('offset()', function(): void {
+        it('sets offset', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->offset(5);
@@ -205,7 +205,7 @@ describe('MapperQuery', function () {
             expect($query->getOffset())->toBe(5);
         });
 
-        it('sets offset to 0', function () {
+        it('sets offset to 0', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->offset(0);
@@ -213,7 +213,7 @@ describe('MapperQuery', function () {
             expect($query->getOffset())->toBe(0);
         });
 
-        it('overwrites previous offset', function () {
+        it('overwrites previous offset', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->offset(10)
@@ -222,7 +222,7 @@ describe('MapperQuery', function () {
             expect($query->getOffset())->toBe(5);
         });
 
-        it('returns self for chaining', function () {
+        it('returns self for chaining', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*');
             $returned = $query->offset(5);
@@ -231,8 +231,8 @@ describe('MapperQuery', function () {
         });
     });
 
-    describe('groupBy()', function () {
-        it('adds group by field', function () {
+    describe('groupBy()', function(): void {
+        it('adds group by field', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->groupBy('category');
@@ -242,7 +242,7 @@ describe('MapperQuery', function () {
             expect($fields[0])->toBe('category');
         });
 
-        it('adds multiple group by fields', function () {
+        it('adds multiple group by fields', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->groupBy('category')
@@ -253,7 +253,7 @@ describe('MapperQuery', function () {
             expect($fields)->toBe(['category', 'status']);
         });
 
-        it('returns self for chaining', function () {
+        it('returns self for chaining', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*');
             $returned = $query->groupBy('category');
@@ -262,8 +262,8 @@ describe('MapperQuery', function () {
         });
     });
 
-    describe('end()', function () {
-        it('returns parent mapper', function () {
+    describe('end()', function(): void {
+        it('returns parent mapper', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*');
             $returned = $query->end();
@@ -272,7 +272,7 @@ describe('MapperQuery', function () {
             expect($returned)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('allows continuing mapper chain', function () {
+        it('allows continuing mapper chain', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $returned = $mapper->query('items.*')
                 ->where('status', 'active')
@@ -283,8 +283,8 @@ describe('MapperQuery', function () {
         });
     });
 
-    describe('Method chaining', function () {
-        it('can chain all methods', function () {
+    describe('Method chaining', function(): void {
+        it('can chain all methods', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->where('status', 'active')
@@ -303,7 +303,7 @@ describe('MapperQuery', function () {
             expect($query->getGroupByFields())->toHaveCount(1);
         });
 
-        it('can chain in any order', function () {
+        it('can chain in any order', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $query = $mapper->query('items.*')
                 ->limit(10)
@@ -315,7 +315,7 @@ describe('MapperQuery', function () {
             expect($query)->toBeInstanceOf(MapperQuery::class);
         });
 
-        it('can chain and return to mapper', function () {
+        it('can chain and return to mapper', function(): void {
             $mapper = DataMapper::source(['items' => []]);
             $returned = $mapper->query('items.*')
                 ->where('status', 'active')
@@ -329,8 +329,8 @@ describe('MapperQuery', function () {
         });
     });
 
-    describe('Multiple queries on same mapper', function () {
-        it('can create multiple independent queries', function () {
+    describe('Multiple queries on same mapper', function(): void {
+        it('can create multiple independent queries', function(): void {
             $mapper = DataMapper::source(['items' => [], 'users' => []]);
             
             $query1 = $mapper->query('items.*')
@@ -344,7 +344,7 @@ describe('MapperQuery', function () {
             expect($query2->getWildcardPath())->toBe('users.*');
         });
 
-        it('queries are stored in mapper', function () {
+        it('queries are stored in mapper', function(): void {
             $mapper = DataMapper::source(['items' => [], 'users' => []]);
             
             $mapper->query('items.*')->where('status', 'active')->end();

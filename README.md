@@ -78,7 +78,7 @@ Use it anywhere - Laravel, Symfony, Doctrine, or plain PHP. Framework support is
 
 DataMapper is significantly faster than traditional serializers for DTO mapping:
 
-- Up to **7.2x faster** than Symfony Serializer
+- Up to **3.7x faster** than Symfony Serializer
 - Optimized for nested data structures
 - Zero reflection overhead for template-based mapping
 - See [benchmarks](#-performance) for detailed performance comparison
@@ -889,46 +889,46 @@ All operations are highly optimized and run in microseconds:
 
 | Operation         | Time     | Description                                                   |
 |-------------------|----------|---------------------------------------------------------------|
-| Simple Get        | 0.374μs  | Get value from flat array                                     |
-| Nested Get        | 0.438μs  | Get value from nested path                                    |
-| Wildcard Get      | 6.541μs  | Get values using single wildcard                              |
-| Deep Wildcard Get | 89.908μs | Get values using multiple wildcards (10 depts × 20 employees) |
-| Typed Get String  | 0.377μs  | Get typed string value                                        |
-| Typed Get Int     | 0.383μs  | Get typed int value                                           |
-| Create Accessor   | 0.086μs  | Instantiate DataAccessor                                      |
+| Simple Get        | 0.211μs  | Get value from flat array                                     |
+| Nested Get        | 0.272μs  | Get value from nested path                                    |
+| Wildcard Get      | 4.303μs  | Get values using single wildcard                              |
+| Deep Wildcard Get | 48.423μs | Get values using multiple wildcards (10 depts × 20 employees) |
+| Typed Get String  | 0.235μs  | Get typed string value                                        |
+| Typed Get Int     | 0.234μs  | Get typed int value                                           |
+| Create Accessor   | 0.053μs  | Instantiate DataAccessor                                      |
 
 ### DataMutator
 
 | Operation      | Time    | Description                             |
 |----------------|---------|-----------------------------------------|
-| Simple Set     | 0.624μs | Set value in flat array                 |
-| Nested Set     | 1.061μs | Set value in nested path                |
-| Deep Set       | 1.259μs | Set value creating new nested structure |
-| Multiple Set   | 1.897μs | Set multiple values at once             |
-| Merge          | 1.134μs | Deep merge arrays                       |
-| Unset          | 0.963μs | Remove single value                     |
-| Multiple Unset | 1.557μs | Remove multiple values                  |
+| Simple Set     | 0.450μs | Set value in flat array                 |
+| Nested Set     | 0.716μs | Set value in nested path                |
+| Deep Set       | 0.846μs | Set value creating new nested structure |
+| Multiple Set   | 1.257μs | Set multiple values at once             |
+| Merge          | 0.719μs | Deep merge arrays                       |
+| Unset          | 0.694μs | Remove single value                     |
+| Multiple Unset | 1.093μs | Remove multiple values                  |
 
 ### DataMapper
 
-| Operation         | Time     | Description                    |
-|-------------------|----------|--------------------------------|
-| Simple Mapping    | 8.581μs  | Map flat structure             |
-| Nested Mapping    | 8.783μs  | Map nested structure           |
-| Auto Map          | 12.063μs | Automatic field mapping        |
-| Map From Template | 2.322μs  | Map using template expressions |
+| Operation         | Time    | Description                    |
+|-------------------|---------|--------------------------------|
+| Simple Mapping    | 6.466μs | Map flat structure             |
+| Nested Mapping    | 7.049μs | Map nested structure           |
+| Auto Map          | 7.449μs | Automatic field mapping        |
+| Map From Template | 7.137μs | Map using template expressions |
 
 ### DTO Serialization Comparison
 
 Comparison of DataMapper vs Symfony Serializer for mapping nested JSON to DTOs:
 
-| Method                   | Time      | vs Symfony        | Description                       |
-|--------------------------|-----------|-------------------|-----------------------------------|
-| Manual Mapping           | 0.527μs   | **212.2x faster** | Direct DTO constructor (baseline) |
-| Data Mapper Template     | 15.435μs  | **7.2x faster**   | DataMapper with template syntax   |
-| Data Mapper Explicit     | 22.173μs  | **5.0x faster**   | DataMapper with explicit mapping  |
-| Symfony Serializer Array | 111.780μs |                   | Symfony Serializer from array     |
-| Symfony Serializer Json  | 110.955μs |                   | Symfony Serializer from JSON      |
+| Method                   | Time     | vs Symfony        | Description                                 |
+|--------------------------|----------|-------------------|---------------------------------------------|
+| Manual Mapping           | 0.350μs  | **273.7x faster** | Direct DTO constructor (baseline)           |
+| Data Mapper Simple Paths | 16.875μs | **5.7x faster**   | DataMapper with simple path mapping         |
+| Data Mapper Template     | 25.585μs | **3.7x faster**   | DataMapper with template syntax ({{ ... }}) |
+| Symfony Serializer Array | 95.666μs |                   | Symfony Serializer from array               |
+| Symfony Serializer Json  | 90.359μs |                   | Symfony Serializer from JSON                |
 
 <!-- BENCHMARK_RESULTS_END -->
 

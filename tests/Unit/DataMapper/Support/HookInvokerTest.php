@@ -30,7 +30,7 @@ describe('HookInvoker Zero Overhead', function(): void {
             DataMapperHook::BeforeAll->value => fn(): null => null,
         ];
         $result = HookInvoker::normalizeHooks($hooks);
-        expect($result)->toHaveKey('beforeAll');
+        expect($result)->toHaveKey(DataMapperHook::BeforeAll->value);
     });
 
     it('DataMapper with empty hooks has zero overhead', function(): void {
@@ -42,7 +42,11 @@ describe('HookInvoker Zero Overhead', function(): void {
         ];
 
         // Map with empty hooks array
-        $result = DataMapper::map($source, $target, $mapping, true, false, []);
+        $result = DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
 
         expect($result)->toBe([
             'userName' => 'Alice',
@@ -56,7 +60,11 @@ describe('HookInvoker Zero Overhead', function(): void {
         $mapping = ['fullName' => '{{ name }}'];
 
         // Map without hooks parameter (defaults to [])
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
 
         expect($result)->toBe(['fullName' => 'Bob']);
     });
@@ -68,13 +76,18 @@ describe('HookInvoker Zero Overhead', function(): void {
 
         $hookCalled = false;
         $hooks = [
-            DataMapperHook::PreTransform->value => function($value) use (&$hookCalled) {
+            DataMapperHook::BeforeTransform->value => function($value) use (&$hookCalled) {
                 $hookCalled = true;
                 return is_string($value) ? trim($value) : $value;
             },
         ];
 
-        $result = DataMapper::map($source, $target, $mapping, true, false, $hooks);
+        $result = DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
 
         expect($hookCalled)->toBeTrue();
         expect($result)->toBe(['userName' => 'alice']);
@@ -92,7 +105,11 @@ describe('HookInvoker Zero Overhead', function(): void {
         ];
 
         // With empty hooks, no hook overhead
-        $result = DataMapper::map($source, $target, $mapping, true, false, []);
+        $result = DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
 
         expect($result)->toBe([
             'names' => ['Alice', 'Bob'],
@@ -110,16 +127,25 @@ describe('HookInvoker Zero Overhead', function(): void {
 
         // Measure with empty hooks (should be fast)
         $start1 = microtime(true);
-        $result1 = DataMapper::map($source, $target, $mapping, true, false, []);
+        $result1 = DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
         $time1 = microtime(true) - $start1;
 
         // Measure with hooks (will be slower)
         $hooks = [
-            DataMapperHook::PreTransform->value => fn($v) => $v,
+            DataMapperHook::BeforeTransform->value => fn($v) => $v,
             DataMapperHook::AfterPair->value => fn(): null => null,
         ];
         $start2 = microtime(true);
-        $result2 = DataMapper::map($source, $target, $mapping, true, false, $hooks);
+        $result2 = DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
         $time2 = microtime(true) - $start2;
 
         // Both should produce same result
@@ -139,7 +165,7 @@ describe('HookInvoker Zero Overhead', function(): void {
 
         $normalized = HookInvoker::normalizeHooks($hooks);
 
-        expect($normalized)->toHaveKey('beforeAll');
-        expect($normalized)->toHaveKey('afterAll');
+        expect($normalized)->toHaveKey(DataMapperHook::BeforeAll->value);
+        expect($normalized)->toHaveKey(DataMapperHook::AfterAll->value);
     });
 });

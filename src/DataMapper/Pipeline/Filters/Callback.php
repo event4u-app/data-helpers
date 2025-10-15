@@ -11,6 +11,7 @@ use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackRegistry;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
@@ -102,12 +103,12 @@ final class Callback implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
-    public function getFilter(): string
+    public function getFilter(): ?string
     {
-        return 'callback';
+        return null;
     }
 
     /** @return array<int, string> */

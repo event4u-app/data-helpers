@@ -6,12 +6,13 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Returns the keys of an array.
  *
  * Example:
- *   DataMapper::pipe([Keys::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Keys::class])->map()->getTarget();
  *   Template: {{ value | keys }}
  */
 final class Keys implements FilterInterface
@@ -23,7 +24,7 @@ final class Keys implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string

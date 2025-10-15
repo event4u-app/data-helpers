@@ -61,7 +61,7 @@ describe('MappingParser', function(): void {
                 'isStatic' => false,
                 'sourcePath' => 'user.name',
                 'filters' => [],
-                'defaultValue' => '"Unknown"', // Quotes are preserved
+                'defaultValue' => 'Unknown', // Quotes are removed by ExpressionParser
                 'hasFilters' => false,
             ]);
         });
@@ -135,7 +135,7 @@ describe('MappingParser', function(): void {
                     'isStatic' => false,
                     'sourcePath' => 'user.role',
                     'filters' => [],
-                    'defaultValue' => '"user"', // Quotes are preserved
+                    'defaultValue' => 'user', // Quotes are removed by ExpressionParser
                     'hasFilters' => false,
                 ],
                 'company' => [

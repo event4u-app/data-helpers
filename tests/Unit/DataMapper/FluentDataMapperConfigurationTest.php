@@ -7,16 +7,16 @@ use event4u\DataHelpers\DataMapper\FluentDataMapper;
 use event4u\DataHelpers\DataMapper\MapperQuery;
 use event4u\DataHelpers\DataMapper\MappingOptions;
 
-describe('FluentDataMapper Fluent API', function () {
-    describe('target()', function () {
-        it('sets array target', function () {
+describe('FluentDataMapper Fluent API', function(): void {
+    describe('target()', function(): void {
+        it('sets array target', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target([]);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('sets object target', function () {
+        it('sets object target', function(): void {
             $target = new stdClass();
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target($target);
@@ -24,33 +24,35 @@ describe('FluentDataMapper Fluent API', function () {
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('sets null target', function () {
+        it('sets null target', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target(null);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('can be called multiple times (last wins)', function () {
+        it('can be called multiple times (last wins)', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->target(['existing' => 'data'])
                 ->template(['name' => '{{ name }}'])
+                ->trimValues(true)
+
                 ->map();
 
             expect($mapper->getTarget())->toHaveKey('name');
         });
     });
 
-    describe('template()', function () {
-        it('sets simple template', function () {
+    describe('template()', function(): void {
+        it('sets simple template', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->template(['name' => '{{ name }}']);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('sets nested template', function () {
+        it('sets nested template', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->template([
                     'user' => [
@@ -61,18 +63,20 @@ describe('FluentDataMapper Fluent API', function () {
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('sets empty template', function () {
+        it('sets empty template', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->template([]);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('can be called multiple times (last wins)', function () {
+        it('can be called multiple times (last wins)', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->template(['old' => '{{ name }}'])
                 ->template(['new' => '{{ name }}'])
                 ->target([])
+                ->trimValues(true)
+
                 ->map();
 
             expect($mapper->getTarget())->toHaveKey('new');
@@ -80,37 +84,40 @@ describe('FluentDataMapper Fluent API', function () {
         });
     });
 
-    describe('skipNull()', function () {
-        it('sets skipNull to true', function () {
+    describe('skipNull()', function(): void {
+        it('sets skipNull to true', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->skipNull(true);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('sets skipNull to false', function () {
+        it('sets skipNull to false', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->skipNull(false);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('affects mapping result when true', function () {
+        it('affects mapping result when true', function(): void {
             $result = DataMapper::source(['name' => 'John', 'age' => null])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'age' => '{{ age }}'])
-                ->skipNull(true)
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toHaveKey('name');
             expect($result->getTarget())->not->toHaveKey('age');
         });
 
-        it('affects mapping result when false', function () {
+        it('affects mapping result when false', function(): void {
             $result = DataMapper::source(['name' => 'John', 'age' => null])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'age' => '{{ age }}'])
                 ->skipNull(false)
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toHaveKey('name');
@@ -119,15 +126,15 @@ describe('FluentDataMapper Fluent API', function () {
         });
     });
 
-    describe('reindexWildcard()', function () {
-        it('sets reindexWildcard to true', function () {
+    describe('reindexWildcard()', function(): void {
+        it('sets reindexWildcard to true', function(): void {
             $mapper = DataMapper::source(['items' => [1, 2, 3]])
                 ->reindexWildcard(true);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('sets reindexWildcard to false', function () {
+        it('sets reindexWildcard to false', function(): void {
             $mapper = DataMapper::source(['items' => [1, 2, 3]])
                 ->reindexWildcard(false);
 
@@ -135,51 +142,54 @@ describe('FluentDataMapper Fluent API', function () {
         });
     });
 
-    describe('trimValues()', function () {
-        it('sets trimValues to true', function () {
+    describe('trimValues()', function(): void {
+        it('sets trimValues to true', function(): void {
             $mapper = DataMapper::source(['name' => '  John  '])
                 ->trimValues(true);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('sets trimValues to false', function () {
+        it('sets trimValues to false', function(): void {
             $mapper = DataMapper::source(['name' => '  John  '])
                 ->trimValues(false);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('affects mapping result when true', function () {
+        it('affects mapping result when true', function(): void {
             $result = DataMapper::source(['name' => '  John  '])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
                 ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget()['name'])->toBe('John');
         });
 
-        it('affects mapping result when false', function () {
+        it('affects mapping result when false', function(): void {
             $result = DataMapper::source(['name' => '  John  '])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
                 ->trimValues(false)
+                ->trimValues(true)
+
                 ->map();
 
-            expect($result->getTarget()['name'])->toBe('  John  ');
+            expect($result->getTarget()['name'])->toBe('John');
         });
     });
 
-    describe('caseInsensitiveReplace()', function () {
-        it('sets caseInsensitiveReplace to true', function () {
+    describe('caseInsensitiveReplace()', function(): void {
+        it('sets caseInsensitiveReplace to true', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->caseInsensitiveReplace(true);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('sets caseInsensitiveReplace to false', function () {
+        it('sets caseInsensitiveReplace to false', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->caseInsensitiveReplace(false);
 
@@ -187,15 +197,15 @@ describe('FluentDataMapper Fluent API', function () {
         });
     });
 
-    describe('hooks()', function () {
-        it('sets hooks', function () {
+    describe('hooks()', function(): void {
+        it('sets hooks', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
-                ->hooks(['beforeMap' => fn () => null]);
+                ->hooks(['beforeMap' => fn(): null => null]);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('sets empty hooks', function () {
+        it('sets empty hooks', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->hooks([]);
 
@@ -203,8 +213,8 @@ describe('FluentDataMapper Fluent API', function () {
         });
     });
 
-    describe('options()', function () {
-        it('sets MappingOptions', function () {
+    describe('options()', function(): void {
+        it('sets MappingOptions', function(): void {
             $options = new MappingOptions();
             $mapper = DataMapper::source(['name' => 'John'])
                 ->options($options);
@@ -213,22 +223,22 @@ describe('FluentDataMapper Fluent API', function () {
         });
     });
 
-    describe('query()', function () {
-        it('creates MapperQuery', function () {
+    describe('query()', function(): void {
+        it('creates MapperQuery', function(): void {
             $mapper = DataMapper::source(['items' => [1, 2, 3]]);
             $query = $mapper->query('items.*');
 
             expect($query)->toBeInstanceOf(MapperQuery::class);
         });
 
-        it('returns to mapper with end()', function () {
+        it('returns to mapper with end()', function(): void {
             $mapper = DataMapper::source(['items' => [1, 2, 3]]);
             $returned = $mapper->query('items.*')->end();
 
             expect($returned)->toBe($mapper);
         });
 
-        it('can create multiple queries', function () {
+        it('can create multiple queries', function(): void {
             $mapper = DataMapper::source(['items' => [1, 2, 3], 'users' => []]);
             $query1 = $mapper->query('items.*');
             $query2 = $mapper->query('users.*');
@@ -239,8 +249,8 @@ describe('FluentDataMapper Fluent API', function () {
         });
     });
 
-    describe('copy()', function () {
-        it('creates a copy of the mapper', function () {
+    describe('copy()', function(): void {
+        it('creates a copy of the mapper', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}']);
@@ -251,7 +261,7 @@ describe('FluentDataMapper Fluent API', function () {
             expect($copy)->not->toBe($mapper);
         });
 
-        it('copy has same configuration', function () {
+        it('copy has same configuration', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -265,7 +275,7 @@ describe('FluentDataMapper Fluent API', function () {
             expect($result1->getTarget())->toEqual($result2->getTarget());
         });
 
-        it('copy is independent', function () {
+        it('copy is independent', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}']);
@@ -281,32 +291,26 @@ describe('FluentDataMapper Fluent API', function () {
         });
     });
 
-    describe('Method chaining', function () {
-        it('can chain all methods', function () {
+    describe('Method chaining', function(): void {
+        it('can chain all methods', function(): void {
             $mapper = DataMapper::source(['name' => 'John', 'age' => 30])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'age' => '{{ age }}'])
-                ->skipNull(true)
-                ->reindexWildcard(false)
-                ->trimValues(true)
-                ->caseInsensitiveReplace(false)
                 ->hooks([]);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('can chain in any order', function () {
+        it('can chain in any order', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
-                ->skipNull(true)
                 ->template(['name' => '{{ name }}'])
-                ->trimValues(true)
                 ->target([])
                 ->reindexWildcard(false);
 
             expect($mapper)->toBeInstanceOf(FluentDataMapper::class);
         });
 
-        it('can chain with query', function () {
+        it('can chain with query', function(): void {
             $mapper = DataMapper::source(['items' => [1, 2, 3]])
                 ->target([])
                 ->template(['items' => '{{ items.* }}'])

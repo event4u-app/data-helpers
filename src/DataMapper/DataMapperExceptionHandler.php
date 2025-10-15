@@ -47,17 +47,13 @@ class DataMapperExceptionHandler
         throw $exception;
     }
 
-    /**
-     * Add an exception to the collection.
-     */
+    /** Add an exception to the collection. */
     public function addException(Throwable $exception): void
     {
         $this->exceptions[] = $exception;
     }
 
-    /**
-     * Check if any exceptions have been collected.
-     */
+    /** Check if any exceptions have been collected. */
     public function hasExceptions(): bool
     {
         return [] !== $this->exceptions;
@@ -73,9 +69,7 @@ class DataMapperExceptionHandler
         return $this->exceptions;
     }
 
-    /**
-     * Get the last collected exception or null if none.
-     */
+    /** Get the last collected exception or null if none. */
     public function getLastException(): ?Throwable
     {
         if ([] === $this->exceptions) {
@@ -85,17 +79,13 @@ class DataMapperExceptionHandler
         return $this->exceptions[array_key_last($this->exceptions)];
     }
 
-    /**
-     * Get the number of collected exceptions.
-     */
+    /** Get the number of collected exceptions. */
     public function getExceptionCount(): int
     {
         return count($this->exceptions);
     }
 
-    /**
-     * Clear all collected exceptions.
-     */
+    /** Clear all collected exceptions. */
     public function clearExceptions(): void
     {
         $this->exceptions = [];
@@ -139,22 +129,18 @@ class DataMapperExceptionHandler
     public function throwLastException(): void
     {
         $lastException = $this->getLastException();
-        if (null !== $lastException) {
+        if ($lastException instanceof Throwable) {
             throw $lastException;
         }
     }
 
-    /**
-     * Check if exceptions should be thrown at the end of the operation.
-     */
+    /** Check if exceptions should be thrown at the end of the operation. */
     public function shouldThrowOnError(): bool
     {
         return $this->throwOnError;
     }
 
-    /**
-     * Set whether exceptions should be thrown at the end of the operation.
-     */
+    /** Set whether exceptions should be thrown at the end of the operation. */
     public function setThrowOnError(bool $throwOnError): self
     {
         $this->throwOnError = $throwOnError;
@@ -162,17 +148,13 @@ class DataMapperExceptionHandler
         return $this;
     }
 
-    /**
-     * Check if exceptions are being collected.
-     */
+    /** Check if exceptions are being collected. */
     public function isCollectingExceptions(): bool
     {
         return $this->collectExceptions;
     }
 
-    /**
-     * Set whether exceptions should be collected.
-     */
+    /** Set whether exceptions should be collected. */
     public function setCollectExceptions(bool $collectExceptions): self
     {
         $this->collectExceptions = $collectExceptions;

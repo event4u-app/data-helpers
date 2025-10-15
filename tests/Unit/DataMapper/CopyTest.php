@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
 /**
@@ -14,8 +13,8 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
  *
  * @internal
  */
-describe('DataMapper copy()', function (): void {
-    it('creates independent copies of exception handlers', function (): void {
+describe('DataMapper copy()', function(): void {
+    it('creates independent copies of exception handlers', function(): void {
         $original = DataMapper::source(['name' => 'Alice'])
             ->target([])
             ->template(['name' => '{{ name }}']);
@@ -34,7 +33,7 @@ describe('DataMapper copy()', function (): void {
         expect($result1)->not->toBe($result2);
     });
 
-    it('creates independent copies of pipeline filters', function (): void {
+    it('creates independent copies of pipeline filters', function(): void {
         $original = DataMapper::source(['name' => 'alice'])
             ->target([])
             ->template(['name' => '{{ name }}'])
@@ -54,7 +53,7 @@ describe('DataMapper copy()', function (): void {
         expect($result2->toArray())->toBe(['name' => 'alice']);
     });
 
-    it('creates independent copies of property filters', function (): void {
+    it('creates independent copies of property filters', function(): void {
         $original = DataMapper::source(['name' => 'alice'])
             ->target([])
             ->template(['name' => '{{ name }}']);
@@ -73,7 +72,7 @@ describe('DataMapper copy()', function (): void {
         expect($result2->toArray())->toBe(['name' => 'alice']);
     });
 
-    it('creates independent copies of template', function (): void {
+    it('creates independent copies of template', function(): void {
         $original = DataMapper::source(['name' => 'Alice', 'email' => 'alice@example.com'])
             ->target([])
             ->template(['name' => '{{ name }}']);
@@ -92,11 +91,10 @@ describe('DataMapper copy()', function (): void {
         expect($result2->toArray())->toBe(['email' => 'alice@example.com']);
     });
 
-    it('creates independent copies that can be modified separately', function (): void {
+    it('creates independent copies that can be modified separately', function(): void {
         $original = DataMapper::source(['name' => '  alice  '])
             ->target([])
             ->template(['name' => '{{ name }}'])
-            ->skipNull(true)
             ->trimValues(true);
 
         $copy = $original->copy();
@@ -113,7 +111,7 @@ describe('DataMapper copy()', function (): void {
         expect($result2->toArray())->toBe(['name' => '  alice  ']);
     });
 
-    it('copy() is used by mapMany() to create independent mappers', function (): void {
+    it('copy() is used by mapMany() to create independent mappers', function(): void {
         $results = DataMapper::source([])
             ->template(['name' => '{{ name }}'])
             ->trimValues(true)

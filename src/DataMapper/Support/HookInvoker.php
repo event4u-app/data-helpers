@@ -140,7 +140,7 @@ class HookInvoker
     }
 
     /**
-     * Invoke a value-transforming hook (preTransform, postTransform).
+     * Invoke a value-transforming hook (beforeTransform, afterTransform).
      * The callable signature should be: function(mixed $value, array|HookContext $context): mixed
      * When a list or associative list of hooks is provided, they are applied in order.
      *

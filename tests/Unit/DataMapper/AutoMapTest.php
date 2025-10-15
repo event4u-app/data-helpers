@@ -9,9 +9,9 @@ use event4u\DataHelpers\DataMapper;
  *
  * @internal
  */
-describe('DataMapper autoMap() and autoMapReverse()', function (): void {
-    describe('autoMap() - Automatic field mapping', function (): void {
-        it('maps matching field names automatically (shallow)', function (): void {
+describe('DataMapper autoMap() and autoMapReverse()', function(): void {
+    describe('autoMap() - Automatic field mapping', function(): void {
+        it('maps matching field names automatically (shallow)', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => 'alice@example.com',
@@ -29,7 +29,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function (): void {
             ]);
         });
 
-        it('maps matching field names automatically (deep)', function (): void {
+        it('maps matching field names automatically (deep)', function(): void {
             $source = [
                 'user' => [
                     'name' => 'Alice',
@@ -56,7 +56,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function (): void {
             expect($target['user']['email'])->toBe('alice@example.com');
         });
 
-        it('skips template even if one is set', function (): void {
+        it('skips template even if one is set', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => 'alice@example.com',
@@ -73,7 +73,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function (): void {
             ]);
         });
 
-        it('converts snake_case to camelCase for object targets', function (): void {
+        it('converts snake_case to camelCase for object targets', function(): void {
             $source = [
                 'user_name' => 'Alice',
                 'user_email' => 'alice@example.com',
@@ -95,7 +95,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function (): void {
             expect($targetObj->userEmail)->toBe('alice@example.com');
         });
 
-        it('respects skipNull setting', function (): void {
+        it('respects skipNull setting', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => null,
@@ -104,7 +104,6 @@ describe('DataMapper autoMap() and autoMapReverse()', function (): void {
 
             $result = DataMapper::source($source)
                 ->target([])
-                ->skipNull(true)
                 ->autoMap();
 
             expect($result->toArray())->toBe([
@@ -113,7 +112,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function (): void {
             ]);
         });
 
-        it('respects trimValues setting', function (): void {
+        it('respects trimValues setting', function(): void {
             $source = [
                 'name' => '  Alice  ',
                 'email' => '  alice@example.com  ',
@@ -131,8 +130,8 @@ describe('DataMapper autoMap() and autoMapReverse()', function (): void {
         });
     });
 
-    describe('reverseAutoMap() - Automatic reverse field mapping', function (): void {
-        it('maps matching field names automatically in reverse direction', function (): void {
+    describe('reverseAutoMap() - Automatic reverse field mapping', function(): void {
+        it('maps matching field names automatically in reverse direction', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => 'alice@example.com',
@@ -156,7 +155,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function (): void {
             ]);
         });
 
-        it('skips template even if one is set', function (): void {
+        it('skips template even if one is set', function(): void {
             $source = [
                 'name' => 'Alice',
                 'email' => 'alice@example.com',
@@ -176,6 +175,125 @@ describe('DataMapper autoMap() and autoMapReverse()', function (): void {
                 'name' => 'Bob',
                 'email' => 'bob@example.com',
             ]);
+        });
+    });
+
+    describe('autoMap() with different target types', function(): void {
+        it('maps JSON array to Eloquent Model (top-level fields)', function(): void {
+            $json = json_encode([
+                'name' => 'Alice',
+                'email' => 'alice@example.com',
+            ], JSON_THROW_ON_ERROR);
+
+            $user = new class extends \Illuminate\Database\Eloquent\Model {};
+
+            $updated = DataMapper::source($json)->target($user)->autoMap()->getTarget();
+
+            $acc = new \event4u\DataHelpers\DataAccessor($updated);
+            expect($acc->get('name'))->toBe('Alice');
+            expect($acc->get('email'))->toBe('alice@example.com');
+        })->group('laravel');
+
+        it('maps snake_case JSON to DTO with camelCase props', function(): void {
+            $source = [
+                'payment_status' => 'PAID',
+                'order_id' => 42,
+            ];
+
+            $dto = new class {
+                public ?string $paymentStatus = null;
+                public ?int $orderId = null;
+            };
+
+            $res = DataMapper::source($source)->target($dto)->autoMap()->getTarget();
+
+            $acc = new \event4u\DataHelpers\DataAccessor($res);
+            expect($acc->get('paymentStatus'))->toBe('PAID');
+            expect($acc->get('orderId'))->toBe(42);
+        });
+
+        it('maps DTO (public props) to Eloquent Model', function(): void {
+            $dto = new class {
+                public string $name = 'Alice';
+                public string $email = 'alice@example.com';
+            };
+
+            $user = new class extends \Illuminate\Database\Eloquent\Model {};
+
+            $updated = DataMapper::source($dto)->target($user)->autoMap()->getTarget();
+            $acc = new \event4u\DataHelpers\DataAccessor($updated);
+            expect($acc->get('name'))->toBe('Alice');
+            expect($acc->get('email'))->toBe('alice@example.com');
+        })->group('laravel');
+
+        it('skips null values by default (skipNull=true)', function(): void {
+            $source = [
+                'name' => 'Alice',
+                'email' => null,
+            ];
+
+            $res = DataMapper::source($source)->target([])->autoMap()->getTarget();
+
+            expect($res)->toBe([
+                'name' => 'Alice',
+            ]);
+        });
+
+        it('maps nested array to array with deep mode (skips null, keeps structure)', function(): void {
+            $source = [
+                'user' => [
+                    'address' => [
+                        'street' => 'Main',
+                        'zip' => null,
+                    ],
+                ],
+            ];
+
+            $res = DataMapper::source($source)->target([])->deep(true)->autoMap()->getTarget();
+
+            expect($res)->toBe([
+                'user' => [
+                    'address' => [
+                        'street' => 'Main',
+                    ],
+                ],
+            ]);
+        });
+
+        it('preserves gaps in list with wildcard by default', function(): void {
+            $source = [
+                'users' => [
+                    ['name' => 'A'],
+                    ['name' => null],
+                    ['name' => 'C'],
+                ],
+            ];
+
+            $res = DataMapper::source($source)->target([])->deep(true)->autoMap()->getTarget();
+
+            $users = $res['users'];
+
+            // Expect indices 0 and 2 present, 1 omitted due to skipNull=true
+            expect(array_keys($users))->toBe([0, 2]);
+            expect($users[0]['name'])->toBe('A');
+            expect($users[2]['name'])->toBe('C');
+        });
+
+        it('maps snake_case to DTO with camelCase (top-level only)', function(): void {
+            $source = [
+                'shipping_address' => [
+                    'street_name' => 'Main',
+                ],
+            ];
+
+            $dto = new class {
+                public array $shippingAddress = [];
+            };
+
+            $res = DataMapper::source($source)->target($dto)->deep(true)->autoMap()->getTarget();
+
+            $acc = new \event4u\DataHelpers\DataAccessor($res);
+            expect($acc->get('shippingAddress.street_name'))->toBe('Main');
         });
     });
 });

@@ -28,6 +28,11 @@ final class TemplateParser
      */
     public static function isTemplate(string $value): bool
     {
+        // Fast path: Check for {{ and }} first before using regex
+        if (!str_contains($value, '{{') || !str_contains($value, '}}')) {
+            return false;
+        }
+
         return 1 === preg_match(self::TEMPLATE_PATTERN, $value);
     }
 
@@ -53,11 +58,40 @@ final class TemplateParser
      */
     public static function extractPath(string $template): string
     {
+        // Fast path: Check for {{ and }} first
+        if (!str_contains($template, '{{') || !str_contains($template, '}}')) {
+            return $template;
+        }
+
         if (preg_match(self::TEMPLATE_PATTERN, $template, $matches)) {
             return trim($matches[1]);
         }
 
         return $template;
+    }
+
+    /**
+     * Try to extract path from template expression.
+     *
+     * Performance-optimized version that combines isTemplate() and extractPath()
+     * into a single method to avoid duplicate str_contains() and preg_match() calls.
+     *
+     * @param string $template The template string
+     * @return string|null The extracted path if template, null otherwise
+     */
+    public static function tryExtractTemplate(string $template): ?string
+    {
+        // Fast path: Check for {{ and }} first
+        if (!str_contains($template, '{{') || !str_contains($template, '}}')) {
+            return null;
+        }
+
+        // Try to extract path with single preg_match
+        if (preg_match(self::TEMPLATE_PATTERN, $template, $matches)) {
+            return trim($matches[1]);
+        }
+
+        return null;
     }
 
     /**
@@ -87,21 +121,47 @@ final class TemplateParser
      */
     public static function parseMapping(array $mapping, string $staticMarker = '__static__'): array
     {
+        // Performance optimization: Cache the entire parsed mapping
+        static $cache = [];
+        static $cacheHits = 0;
+        static $cacheMisses = 0;
+
+        // Create a cache key from the mapping
+        $cacheKey = md5(serialize($mapping) . $staticMarker);
+
+        if (isset($cache[$cacheKey])) {
+            $cacheHits++;
+            return $cache[$cacheKey];
+        }
+
+        $cacheMisses++;
         $parsed = [];
 
         foreach ($mapping as $targetPath => $sourcePath) {
-            if (is_string($sourcePath) && self::isTemplate($sourcePath)) {
-// Extract path from {{ }}
-                $parsed[$targetPath] = self::extractPath($sourcePath);
-            } else {
-// Static value: use special marker
-                /** @var array{__static__: mixed} $staticValue */
-                $staticValue = [$staticMarker => $sourcePath];
-                $parsed[$targetPath] = $staticValue;
+            if (is_string($sourcePath)) {
+                // Performance optimization: Use tryExtractTemplate() to avoid duplicate checks
+                // This combines isTemplate() and extractPath() into a single call
+                $extracted = self::tryExtractTemplate($sourcePath);
+                if (null !== $extracted) {
+                    $parsed[$targetPath] = $extracted;
+                    continue;
+                }
             }
+
+            // Static value: use special marker
+            /** @var array{__static__: mixed} $staticValue */
+            $staticValue = [$staticMarker => $sourcePath];
+            $parsed[$targetPath] = $staticValue;
         }
 
         /** @var array<string, string|array{__static__: mixed}> $parsed */
+        $cache[$cacheKey] = $parsed;
+
+        // Limit cache size to prevent memory issues (keep last 50 entries)
+        if (count($cache) > 100) {
+            $cache = array_slice($cache, -50, 50, true);
+        }
+
         return $parsed;
     }
 

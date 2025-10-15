@@ -7,9 +7,9 @@ use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\DataMapperResult;
 use event4u\DataHelpers\Exceptions\ConversionException;
 
-describe('DataMapperResult', function () {
-    describe('getTarget()', function () {
-        it('returns the target', function () {
+describe('DataMapperResult', function(): void {
+    describe('getTarget()', function(): void {
+        it('returns the target', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -19,7 +19,7 @@ describe('DataMapperResult', function () {
             expect($result->getTarget())->toHaveKey('name');
         });
 
-        it('returns array target', function () {
+        it('returns array target', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -28,7 +28,7 @@ describe('DataMapperResult', function () {
             expect($result->getTarget())->toBeArray();
         });
 
-        it('returns object target', function () {
+        it('returns object target', function(): void {
             $target = new stdClass();
             $result = DataMapper::source(['name' => 'John'])
                 ->target($target)
@@ -38,7 +38,7 @@ describe('DataMapperResult', function () {
             expect($result->getTarget())->toBeObject();
         });
 
-        it('returns empty array for empty mapping', function () {
+        it('returns empty array for empty mapping', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template([])
@@ -48,8 +48,8 @@ describe('DataMapperResult', function () {
         });
     });
 
-    describe('getSource()', function () {
-        it('returns the original source', function () {
+    describe('getSource()', function(): void {
+        it('returns the original source', function(): void {
             $source = ['name' => 'John', 'age' => 30];
             $result = DataMapper::source($source)
                 ->target([])
@@ -59,7 +59,7 @@ describe('DataMapperResult', function () {
             expect($result->getSource())->toBe($source);
         });
 
-        it('returns array source', function () {
+        it('returns array source', function(): void {
             $source = ['name' => 'John'];
             $result = DataMapper::source($source)
                 ->target([])
@@ -69,8 +69,8 @@ describe('DataMapperResult', function () {
             expect($result->getSource())->toBeArray();
         });
 
-        it('returns object source', function () {
-            $source = (object) ['name' => 'John'];
+        it('returns object source', function(): void {
+            $source = (object)['name' => 'John'];
             $result = DataMapper::source($source)
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -80,8 +80,8 @@ describe('DataMapperResult', function () {
         });
     });
 
-    describe('getTemplate()', function () {
-        it('returns the template', function () {
+    describe('getTemplate()', function(): void {
+        it('returns the template', function(): void {
             $template = ['name' => '{{ name }}', 'age' => '{{ age }}'];
             $result = DataMapper::source(['name' => 'John', 'age' => 30])
                 ->target([])
@@ -91,7 +91,7 @@ describe('DataMapperResult', function () {
             expect($result->getTemplate())->toBe($template);
         });
 
-        it('returns empty array for empty template', function () {
+        it('returns empty array for empty template', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template([])
@@ -101,8 +101,8 @@ describe('DataMapperResult', function () {
         });
     });
 
-    describe('toJson()', function () {
-        it('converts array result to JSON', function () {
+    describe('toJson()', function(): void {
+        it('converts array result to JSON', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -114,7 +114,7 @@ describe('DataMapperResult', function () {
             expect(json_decode($json, true))->toBe(['name' => 'John']);
         });
 
-        it('converts nested array to JSON', function () {
+        it('converts nested array to JSON', function(): void {
             $result = DataMapper::source(['user' => ['name' => 'John']])
                 ->target([])
                 ->template(['user.name' => '{{ user.name }}'])
@@ -128,7 +128,7 @@ describe('DataMapperResult', function () {
             expect($decoded['user'])->toHaveKey('name');
         });
 
-        it('converts empty array to JSON', function () {
+        it('converts empty array to JSON', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template([])
@@ -139,7 +139,7 @@ describe('DataMapperResult', function () {
             expect($json)->toBe('[]');
         });
 
-        it('handles JSON encoding options', function () {
+        it('handles JSON encoding options', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -151,7 +151,7 @@ describe('DataMapperResult', function () {
             expect($json)->toContain("\n");
         });
 
-        it('throws exception for invalid JSON', function () {
+        it('throws exception for invalid JSON', function(): void {
             // Create a result with non-UTF8 data that can't be JSON encoded
             $result = new DataMapperResult(
                 ['invalid' => "\xB1\x31"],
@@ -159,12 +159,12 @@ describe('DataMapperResult', function () {
                 []
             );
 
-            expect(fn () => $result->toJson())->toThrow(ConversionException::class);
+            expect(fn(): string => $result->toJson())->toThrow(ConversionException::class);
         });
     });
 
-    describe('toArray()', function () {
-        it('returns array for array result', function () {
+    describe('toArray()', function(): void {
+        it('returns array for array result', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -174,7 +174,7 @@ describe('DataMapperResult', function () {
             expect($result->toArray())->toBe(['name' => 'John']);
         });
 
-        it('converts object to array', function () {
+        it('converts object to array', function(): void {
             $target = new stdClass();
             $result = DataMapper::source(['name' => 'John'])
                 ->target($target)
@@ -187,7 +187,7 @@ describe('DataMapperResult', function () {
             expect($array)->toHaveKey('name');
         });
 
-        it('returns empty array for empty result', function () {
+        it('returns empty array for empty result', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template([])
@@ -196,7 +196,7 @@ describe('DataMapperResult', function () {
             expect($result->toArray())->toBe([]);
         });
 
-        it('converts nested objects to arrays', function () {
+        it('converts nested objects to arrays', function(): void {
             $target = new stdClass();
             $target->user = new stdClass();
             $target->user->name = 'John';
@@ -210,8 +210,8 @@ describe('DataMapperResult', function () {
         });
     });
 
-    describe('query()', function () {
-        it('returns DataFilter instance', function () {
+    describe('query()', function(): void {
+        it('returns DataFilter instance', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -222,7 +222,7 @@ describe('DataMapperResult', function () {
             expect($query)->toBeInstanceOf(DataFilter::class);
         });
 
-        it('can query the result', function () {
+        it('can query the result', function(): void {
             $result = DataMapper::source([
                 'users' => [
                     ['name' => 'John', 'age' => 30],
@@ -239,35 +239,35 @@ describe('DataMapperResult', function () {
         });
     });
 
-    describe('Edge cases', function () {
-        it('handles null result', function () {
+    describe('Edge cases', function(): void {
+        it('handles null result', function(): void {
             $result = new DataMapperResult(null, [], []);
 
             expect($result->getTarget())->toBeNull();
         });
 
-        it('handles string result', function () {
+        it('handles string result', function(): void {
             $result = new DataMapperResult('test string', [], []);
 
             expect($result->getTarget())->toBe('test string');
         });
 
-        it('handles numeric result', function () {
+        it('handles numeric result', function(): void {
             $result = new DataMapperResult(42, [], []);
 
             expect($result->getTarget())->toBe(42);
         });
 
-        it('handles boolean result', function () {
+        it('handles boolean result', function(): void {
             $result = new DataMapperResult(true, [], []);
 
             expect($result->getTarget())->toBeTrue();
         });
 
-        it('toArray throws exception for non-convertible types', function () {
+        it('toArray throws exception for non-convertible types', function(): void {
             $result = new DataMapperResult(42, [], []);
 
-            expect(fn () => $result->toArray())->toThrow(ConversionException::class);
+            expect(fn(): array => $result->toArray())->toThrow(ConversionException::class);
         });
     });
 });

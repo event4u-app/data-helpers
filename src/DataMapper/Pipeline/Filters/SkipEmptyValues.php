@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 final class SkipEmptyValues implements FilterInterface
 {
@@ -20,7 +21,7 @@ final class SkipEmptyValues implements FilterInterface
 
     public function getHook(): string
     {
-        return 'beforeWrite';
+        return DataMapperHook::BeforeWrite->value;
     }
 
     public function getFilter(): ?string

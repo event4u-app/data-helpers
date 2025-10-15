@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\DataMapper;
 use Closure;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\DataMapper\Support\MappingFacade;
 
 /**
  * Fluent query builder for DataMapper with Laravel-style syntax.
@@ -77,7 +78,7 @@ class DataMapperQuery
      *
      * @param array<int, FilterInterface> $filters Filter instances
      */
-    public function pipe(array $filters): self
+    public function pipeline(array $filters): self
     {
         $this->pipelineFilters = $filters;
 
@@ -511,10 +512,20 @@ class DataMapperQuery
 
         // Use pipeline if filters are set
         if ([] !== $this->pipelineFilters) {
-            $result = DataMapper::pipe($this->pipelineFilters)
-                ->mapFromTemplate($template, $this->sources, $this->skipNull, $this->reindexWildcard);
+            $result = DataMapper::template($template)
+                ->sources($this->sources)
+                ->skipNull($this->skipNull)
+                ->reindexWildcard($this->reindexWildcard)
+                ->pipe($this->pipelineFilters)
+                ->map()
+                ->getTarget();
         } else {
-            $result = DataMapper::mapFromTemplate($template, $this->sources, $this->skipNull, $this->reindexWildcard);
+            $result = MappingFacade::mapFromTemplate(
+                $template,
+                $this->sources,
+                $this->skipNull,
+                $this->reindexWildcard
+            );
         }
 
         // If we have a primary source, return the wildcard data from it

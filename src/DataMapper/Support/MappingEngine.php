@@ -9,7 +9,8 @@ use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMutator;
-use event4u\DataHelpers\DotPathHelper;
+use event4u\DataHelpers\Enums\DataMapperHook;
+use event4u\DataHelpers\Helpers\DotPathHelper;
 use event4u\DataHelpers\Support\EntityHelper;
 
 /**
@@ -182,9 +183,14 @@ class MappingEngine
                 continue;
             }
 
-            // preTransform (only if hooks exist)
+            // beforeTransform (only if hooks exist)
             if ($hasHooks && $pairContext instanceof PairContext) {
-                $value = HookInvoker::invokeValueHook($hooks, 'preTransform', $pairContext, $value);
+                $value = HookInvoker::invokeValueHook(
+                    $hooks,
+                    DataMapperHook::BeforeTransform->value,
+                    $pairContext,
+                    $value
+                );
             }
 
             // Handle wildcard values (always arrays with dot-path keys)
@@ -326,7 +332,12 @@ class MappingEngine
                     // Only set wildcardIndex if pairContext exists
                     if ($pairContext instanceof PairContext) {
                         $pairContext->wildcardIndex = $wildcardIndex;
-                        $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
+                        $itemValue = HookInvoker::invokeValueHook(
+                            $hooks,
+                            DataMapperHook::AfterTransform->value,
+                            $pairContext,
+                            $itemValue
+                        );
                     }
 
                     // Collect values into array
@@ -442,7 +453,12 @@ class MappingEngine
                 // Only set wildcardIndex if pairContext exists
                 if ($pairContext instanceof PairContext) {
                     $pairContext->wildcardIndex = $wildcardIndex;
-                    $itemValue = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $itemValue);
+                    $itemValue = HookInvoker::invokeValueHook(
+                        $hooks,
+                        DataMapperHook::AfterTransform->value,
+                        $pairContext,
+                        $itemValue
+                    );
                 }
 
                 $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, $targetPath, 1);
@@ -499,7 +515,7 @@ class MappingEngine
     ): mixed {
         // Only invoke hooks if pairContext exists (i.e., hooks are configured)
         if ($pairContext instanceof PairContext) {
-            $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
+            $value = HookInvoker::invokeValueHook($hooks, DataMapperHook::AfterTransform->value, $pairContext, $value);
         }
 
         $writeContext = new WriteContext(
@@ -533,7 +549,7 @@ class MappingEngine
      *
      * This method handles the complete processing pipeline for a single wildcard item:
      * 1. Apply transformation and replacement via ValueTransformer::processValue()
-     * 2. Invoke postTransform hook
+     * 2. Invoke afterTransform hook
      * 3. Check for null (if skipNull is enabled)
      * 4. Resolve target path with wildcard index
      * 5. Invoke beforeWrite hook
@@ -588,10 +604,10 @@ class MappingEngine
             $caseInsensitiveReplace
         );
 
-        // Invoke postTransform hook
+        // Invoke afterTransform hook
         $itemValue = HookInvoker::invokeValueHook(
             $hooks,
-            'postTransform',
+            DataMapperHook::AfterTransform->value,
             $pairContext,
             $itemValue
         );
@@ -658,7 +674,7 @@ class MappingEngine
      *
      * This method handles the complete processing pipeline for a single non-wildcard value:
      * 1. Apply transformation and replacement via ValueTransformer::processValue()
-     * 2. Invoke postTransform hook
+     * 2. Invoke afterTransform hook
      * 3. Check for null (if skipNull is enabled) - returns false if should skip
      * 4. Create write context
      * 5. Invoke beforeWrite hook
@@ -707,8 +723,8 @@ class MappingEngine
             $caseInsensitiveReplace
         );
 
-        // Invoke postTransform hook
-        $value = HookInvoker::invokeValueHook($hooks, 'postTransform', $pairContext, $value);
+        // Invoke afterTransform hook
+        $value = HookInvoker::invokeValueHook($hooks, DataMapperHook::AfterTransform->value, $pairContext, $value);
 
         // Skip null values if requested
         if ($skipNull && null === $value) {

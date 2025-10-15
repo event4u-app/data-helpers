@@ -14,7 +14,7 @@ namespace event4u\DataHelpers\DataMapper;
  *   $mapper->delete()->where();         // Delete WHERE conditions
  *   $mapper->delete()->where()->orderBy(); // Delete multiple operators
  */
-final class DataMapperDelete
+final readonly class DataMapperDelete
 {
     public function __construct(
         private FluentDataMapper $mapper
@@ -123,11 +123,7 @@ final class DataMapperDelete
         return $this;
     }
 
-    /**
-     * End delete chain and return to mapper.
-     *
-     * @return FluentDataMapper
-     */
+    /** End delete chain and return to mapper. */
     public function end(): FluentDataMapper
     {
         return $this->mapper;

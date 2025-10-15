@@ -6,6 +6,7 @@ namespace Tests\utils\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Test transformer that reverses strings.
@@ -14,7 +15,7 @@ class ReverseString implements FilterInterface
 {
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function transform(mixed $value, HookContext $context): mixed

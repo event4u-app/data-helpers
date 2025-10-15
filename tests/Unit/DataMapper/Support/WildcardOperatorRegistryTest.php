@@ -74,7 +74,7 @@ describe('Wildcard Operator Registry', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['even_items'])->toHaveCount(2);
         expect($result['even_items'][0]['id'])->toBe(2);
@@ -128,7 +128,7 @@ describe('Wildcard Operator Registry', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['grouped_items'])->toHaveCount(2);
         expect($result['grouped_items'][0]['category'])->toBe('A');
@@ -153,7 +153,7 @@ describe('Wildcard Operator Registry', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $this->sources, true, true);
+        $result = DataMapper::source($this->sources)->template($template)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_limited_items'])->toHaveCount(2);
         expect($result['filtered_limited_items'][0]['value'])->toBe(150);

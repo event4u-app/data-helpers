@@ -20,22 +20,16 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
  *   $target = $mapper->property('user.name')->getTarget();
  *   $value = $mapper->property('user.name')->getMappedValue();
  */
-final class DataMapperProperty
+final readonly class DataMapperProperty
 {
-    private string $propertyPath;
-
-    private FluentDataMapper $mapper;
-
     /**
      * Create a new DataMapperProperty instance.
      *
      * @param string $propertyPath Property path (dot-notation)
      * @param FluentDataMapper $mapper Parent mapper
      */
-    public function __construct(string $propertyPath, FluentDataMapper $mapper)
+    public function __construct(private string $propertyPath, private FluentDataMapper $mapper)
     {
-        $this->propertyPath = $propertyPath;
-        $this->mapper = $mapper;
     }
 
     /**
@@ -82,8 +76,6 @@ final class DataMapperProperty
      *
      * Returns the template value that defines where this property maps to.
      * Returns null if property is not in template.
-     *
-     * @return mixed
      */
     public function getTarget(): mixed
     {
@@ -95,17 +87,13 @@ final class DataMapperProperty
      *
      * Executes the mapping and returns the value for this specific property.
      * Returns null if property is not in result.
-     *
-     * @return mixed
      */
     public function getMappedValue(): mixed
     {
         return $this->mapper->getPropertyMappedValue($this->propertyPath);
     }
 
-    /**
-     * Return to the parent mapper.
-     */
+    /** Return to the parent mapper. */
     public function end(): FluentDataMapper
     {
         return $this->mapper;

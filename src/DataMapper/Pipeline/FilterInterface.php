@@ -34,11 +34,11 @@ interface FilterInterface
      * Get the hook name this transformer should be attached to.
      *
      * Common hooks:
-     * - 'preTransform': Before any transformation (after reading from source)
-     * - 'postTransform': After transformation (before writing to target)
+     * - 'beforeTransform': Before any transformation (after reading from source)
+     * - 'afterTransform': After transformation (before writing to target)
      * - 'beforeWrite': Just before writing to target
      *
-     * @return string Hook name (e.g., 'preTransform', 'postTransform', 'beforeWrite')
+     * @return string Hook name (e.g., 'beforeTransform', 'afterTransform', 'beforeWrite')
      */
     public function getHook(): string;
 

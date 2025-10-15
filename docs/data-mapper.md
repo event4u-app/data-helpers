@@ -347,7 +347,7 @@ Structured mappings can perform value replacements after transforms and optional
     - Exact match for `string|int` keys
     - Case-insensitive string matching when `caseInsensitiveReplace=true` (map-level parameter)
     - Arrays/objects are not replaced
-- Processing order per value: transform → trim (if `trimValues=true`) → replace → postTransform
+- Processing order per value: transform → trim (if `trimValues=true`) → replace → afterTransform
 
 Example (associative mapping with case-insensitive replace):
 
@@ -377,8 +377,8 @@ Supported hook names and preferred signatures:
 - afterEntry (structured only): `function(App\Helpers\DataMapper\EntryContext $context): void`
 - beforePair: `function(App\Helpers\DataMapper\PairContext $context): void|bool`
 - afterPair: `function(App\Helpers\DataMapper\PairContext $context): void`
-- preTransform: `function(mixed $value, App\Helpers\DataMapper\PairContext $context): mixed`
-- postTransform: `function(mixed $value, App\Helpers\DataMapper\PairContext $context): mixed`
+- beforeTransform: `function(mixed $value, App\Helpers\DataMapper\PairContext $context): mixed`
+- afterTransform: `function(mixed $value, App\Helpers\DataMapper\PairContext $context): mixed`
 - beforeWrite: `function(mixed $value, App\Helpers\DataMapper\WriteContext $context): mixed` (return `'__skip__'` to skip)
 - afterWrite: `function(array|object $target, App\Helpers\DataMapper\WriteContext $context, mixed $writtenValue): array|object`
 
@@ -410,7 +410,7 @@ $hooks = [
     'src:user.*'   => function(App\Helpers\DataMapper\PairContext $ctx) { /* ... */ },
     'mode:simple'  => function(App\Helpers\DataMapper\PairContext $ctx) { /* ... */ },
   ],
-  DataMapperHook::PreTransform->value => fn($v) => is_string($v) ? trim($v) : $v,
+  DataMapperHook::BeforeTransform->value => fn($v) => is_string($v) ? trim($v) : $v,
   DataMapperHook::BeforeWrite->value  => function($v, WriteContext $ctx) {
       return $v === '' ? '__skip__' : $v;
   },
@@ -460,7 +460,7 @@ $hooks = Hooks::make()
 ```php
 // Matches either srcPath or tgtPath with a single predicate (no double-calls)
 $hooks = Hooks::make()
-  ->onForPrefix(DataMapperHook::PreTransform, 'users.*.email', fn($v) => is_string($v) ? strtoupper($v) : $v)
+  ->onForPrefix(DataMapperHook::BeforeTransform, 'users.*.email', fn($v) => is_string($v) ? strtoupper($v) : $v)
   ->onForPrefix(DataMapperHook::BeforeWrite, 'profile.', fn($v) => '__skip__')
   ->toArray();
 ```
@@ -939,7 +939,7 @@ $dto = DataMapper::autoMap($apiResponse, $dto, deep: false);
 use event4u\DataHelpers\Enums\DataMapperHook;
 
 $hooks = [
-  DataMapperHook::PreTransform->value => fn($v) => is_string($v) ? trim($v) : $v,
+  DataMapperHook::BeforeTransform->value => fn($v) => is_string($v) ? trim($v) : $v,
   DataMapperHook::AfterWrite->value => function($ctx) {
     if ($ctx->targetPath === 'email' && !filter_var($ctx->value, FILTER_VALIDATE_EMAIL)) {
       throw new \InvalidArgumentException("Invalid email: {$ctx->value}");
@@ -996,7 +996,7 @@ $result = DataMapper::map($source, [], [['users.*.email' => 'emails.*']], skipNu
 
 **Problem**: Hooks are not being called during mapping.
 
-**Solution**: Verify hook keys match enum values (e.g., `DataMapperHook::PreTransform->value`). Use `Hooks::make()` builder for type safety.
+**Solution**: Verify hook keys match enum values (e.g., `DataMapperHook::BeforeTransform->value`). Use `Hooks::make()` builder for type safety.
 
 ### Template aliases not resolved
 

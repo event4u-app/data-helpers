@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 
-describe('Template Query Merging', function (): void {
-    describe('Original Template Storage', function (): void {
-        it('stores original template when template() is called', function (): void {
+describe('Template Query Merging', function(): void {
+    describe('Original Template Storage', function(): void {
+        it('stores original template when template() is called', function(): void {
             $template = [
                 'items' => [
                     '*' => [
@@ -22,7 +22,7 @@ describe('Template Query Merging', function (): void {
             expect($mapper->getOriginalTemplate())->toBe($template);
         });
 
-        it('preserves original template when extendTemplate() is called', function (): void {
+        it('preserves original template when extendTemplate() is called', function(): void {
             $originalTemplate = [
                 'items' => [
                     '*' => [
@@ -44,7 +44,7 @@ describe('Template Query Merging', function (): void {
             expect($mapper->getOriginalTemplate())->toBe($originalTemplate);
         });
 
-        it('copies original template when copy() is called', function (): void {
+        it('copies original template when copy() is called', function(): void {
             $template = [
                 'items' => [
                     '*' => [
@@ -61,7 +61,7 @@ describe('Template Query Merging', function (): void {
             expect($copy->getOriginalTemplate())->toBe($template);
         });
 
-        it('only stores first template as original', function (): void {
+        it('only stores first template as original', function(): void {
             $firstTemplate = [
                 'items' => [
                     '*' => [
@@ -86,8 +86,8 @@ describe('Template Query Merging', function (): void {
         });
     });
 
-    describe('WHERE Condition Merging', function (): void {
-        it('merges template WHERE with query WHERE (AND logic)', function (): void {
+    describe('WHERE Condition Merging', function(): void {
+        it('merges template WHERE with query WHERE (AND logic)', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'Product A', 'status' => 'active', 'price' => 100],
@@ -125,7 +125,7 @@ describe('Template Query Merging', function (): void {
             expect($items[1]['name'])->toBe('Product D');
         });
 
-        it('merges multiple template WHERE conditions with query WHERE', function (): void {
+        it('merges multiple template WHERE conditions with query WHERE', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'status' => 'active', 'price' => 100, 'stock' => 10],
@@ -161,7 +161,7 @@ describe('Template Query Merging', function (): void {
             expect($items[0]['id'])->toBe(1);
         });
 
-        it('works with query WHERE only (no template WHERE)', function (): void {
+        it('works with query WHERE only (no template WHERE)', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'status' => 'active'],
@@ -190,7 +190,7 @@ describe('Template Query Merging', function (): void {
             expect($items[1]['id'])->toBe(3);
         });
 
-        it('works with template WHERE only (no query WHERE)', function (): void {
+        it('works with template WHERE only (no query WHERE)', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'status' => 'active'],
@@ -220,8 +220,8 @@ describe('Template Query Merging', function (): void {
         });
     });
 
-    describe('ORDER BY Merging', function (): void {
-        it('merges template ORDER BY with query ORDER BY', function (): void {
+    describe('ORDER BY Merging', function(): void {
+        it('merges template ORDER BY with query ORDER BY', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'B Product', 'price' => 100],
@@ -258,8 +258,8 @@ describe('Template Query Merging', function (): void {
         });
     });
 
-    describe('Result Does Not Contain Operator Keys', function (): void {
-        it('does not include WHERE in result', function (): void {
+    describe('Result Does Not Contain Operator Keys', function(): void {
+        it('does not include WHERE in result', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'status' => 'active'],
@@ -287,7 +287,7 @@ describe('Template Query Merging', function (): void {
             expect($target['items'])->not->toHaveKey('WHERE');
         });
 
-        it('does not include ORDER BY in result', function (): void {
+        it('does not include ORDER BY in result', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1, 'name' => 'B'],
@@ -314,7 +314,7 @@ describe('Template Query Merging', function (): void {
             expect($target['items'])->not->toHaveKey('ORDER BY');
         });
 
-        it('does not include LIMIT in result', function (): void {
+        it('does not include LIMIT in result', function(): void {
             $source = [
                 'products' => [
                     ['id' => 1],

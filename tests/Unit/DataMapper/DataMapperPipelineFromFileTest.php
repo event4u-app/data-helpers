@@ -11,7 +11,12 @@ use Tests\utils\Entities\Department as EntityDepartment;
 use Tests\utils\Models\Company;
 use Tests\utils\Models\Department;
 
-describe('DataMapper::pipe()->mapFromFile()', function(): void {
+/**
+ * Tests for DataMapper::pipeQuery() with file loading.
+ *
+ * @internal
+ */
+describe('DataMapper pipeQuery() with file loading', function(): void {
     describe('Pipeline with file loading - Array targets', function(): void {
         it('loads JSON file and applies transformers to array target', function(): void {
             $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
@@ -23,10 +28,10 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
                 'dept_names' => '{{ company.departments.*.name }}',
             ];
 
-            $result = DataMapper::pipe([
+            $result = DataMapper::pipeQuery([
                 new TrimStrings(),
                 new LowercaseEmails(),
-            ])->mapFromFile($jsonFile, $target, $mapping);
+            ])->sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeArray();
             expect($result['company_name'])->toBe('TechCorp Solutions');
@@ -45,10 +50,10 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
                 'dept_codes' => '{{ departments.department.*.code }}',
             ];
 
-            $result = DataMapper::pipe([
+            $result = DataMapper::pipeQuery([
                 new TrimStrings(),
                 new UppercaseStrings(),
-            ])->mapFromFile($xmlFile, $target, $mapping);
+            ])->sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeArray();
             expect($result['company_name'])->toBe('TECHCORP SOLUTIONS'); // Uppercased by transformer
@@ -67,10 +72,10 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
                 'phone' => '{{ company.phone }}',
             ];
 
-            $result = DataMapper::pipe([
+            $result = DataMapper::pipeQuery([
                 new TrimStrings(),
                 new LowercaseEmails(),
-            ])->mapFromFile($jsonFile, $target, $mapping);
+            ])->sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result['email'])->toBe('info@techcorp.example'); // Trimmed and lowercased
             expect($result['phone'])->toBe('+1-555-0123'); // Only trimmed
@@ -97,10 +102,10 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
                 ],
             ];
 
-            $result = DataMapper::pipe([
+            $result = DataMapper::pipeQuery([
                 new TrimStrings(),
                 new LowercaseEmails(),
-            ])->mapFromFile($jsonFile, $company, $mapping);
+            ])->sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeInstanceOf(Company::class);
             /** @var Company $company */
@@ -137,10 +142,10 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
                 ],
             ];
 
-            $result = DataMapper::pipe([
+            $result = DataMapper::pipeQuery([
                 new TrimStrings(),
                 new LowercaseEmails(),
-            ])->mapFromFile($xmlFile, $company, $mapping);
+            ])->sourceFile($xmlFile)->target($company)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeInstanceOf(Company::class);
             /** @var Company $company */
@@ -171,10 +176,10 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
                 ],
             ];
 
-            $result = DataMapper::pipe([
+            $result = DataMapper::pipeQuery([
                 new TrimStrings(),
                 new LowercaseEmails(),
-            ])->mapFromFile($jsonFile, $company, $mapping);
+            ])->sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeInstanceOf(EntityCompany::class);
             /** @var EntityCompany $company */
@@ -211,10 +216,10 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
                 ],
             ];
 
-            $result = DataMapper::pipe([
+            $result = DataMapper::pipeQuery([
                 new TrimStrings(),
                 new LowercaseEmails(),
-            ])->mapFromFile($xmlFile, $company, $mapping);
+            ])->sourceFile($xmlFile)->target($company)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeInstanceOf(EntityCompany::class);
             /** @var EntityCompany $company */
@@ -230,8 +235,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             $target = [];
             $mapping = ['name' => '{{ name }}'];
 
-            DataMapper::pipe([new TrimStrings()])
-                ->mapFromFile('/non/existent/file.json', $target, $mapping);
+            DataMapper::pipeQuery([new TrimStrings()])
+                ->sourceFile('/non/existent/file.json')->target($target)->template($mapping)->map()->getTarget();
         })->throws(InvalidArgumentException::class, 'File not found');
 
         it('throws exception for unsupported file format', function(): void {
@@ -242,8 +247,8 @@ describe('DataMapper::pipe()->mapFromFile()', function(): void {
             $mapping = ['name' => '{{ name }}'];
 
             try {
-                DataMapper::pipe([new TrimStrings()])
-                    ->mapFromFile($tempFile, $target, $mapping);
+                DataMapper::pipeQuery([new TrimStrings()])
+                    ->sourceFile($tempFile)->target($target)->template($mapping)->map()->getTarget();
             } finally {
                 unlink($tempFile);
             }

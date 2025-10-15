@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\FluentDataMapper;
 
-describe('DataMapper Reset & Delete', function (): void {
-    beforeEach(function (): void {
+describe('DataMapper Reset & Delete', function(): void {
+    beforeEach(function(): void {
         $this->source = [
             'products' => [
                 ['id' => 1, 'name' => 'Product A', 'status' => 'active', 'price' => 100],
@@ -16,8 +17,8 @@ describe('DataMapper Reset & Delete', function (): void {
         ];
     });
 
-    describe('reset()->all()', function (): void {
-        it('resets entire template to original', function (): void {
+    describe('reset()->all()', function(): void {
+        it('resets entire template to original', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -48,7 +49,7 @@ describe('DataMapper Reset & Delete', function (): void {
             expect($items[2]['id'])->toBe(4);
         });
 
-        it('resets template even after multiple modifications', function (): void {
+        it('resets template even after multiple modifications', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -76,8 +77,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('reset()->template()', function (): void {
-        it('is an alias for reset()->all()', function (): void {
+    describe('reset()->template()', function(): void {
+        it('is an alias for reset()->all()', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -103,8 +104,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('reset()->where()', function (): void {
-        it('resets WHERE to original template WHERE', function (): void {
+    describe('reset()->where()', function(): void {
+        it('resets WHERE to original template WHERE', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -132,7 +133,7 @@ describe('DataMapper Reset & Delete', function (): void {
             expect($items)->toHaveCount(3);
         });
 
-        it('removes WHERE if original template had no WHERE', function (): void {
+        it('removes WHERE if original template had no WHERE', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -158,8 +159,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('reset()->orderBy()', function (): void {
-        it('resets ORDER BY to original template ORDER BY', function (): void {
+    describe('reset()->orderBy()', function(): void {
+        it('resets ORDER BY to original template ORDER BY', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -194,8 +195,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('reset()->limit()', function (): void {
-        it('resets LIMIT to original template LIMIT', function (): void {
+    describe('reset()->limit()', function(): void {
+        it('resets LIMIT to original template LIMIT', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -225,8 +226,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('reset()->offset()', function (): void {
-        it('resets OFFSET to original template OFFSET', function (): void {
+    describe('reset()->offset()', function(): void {
+        it('resets OFFSET to original template OFFSET', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -257,8 +258,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('reset()->groupBy()', function (): void {
-        it('resets GROUP BY to original template GROUP BY', function (): void {
+    describe('reset()->groupBy()', function(): void {
+        it('resets GROUP BY to original template GROUP BY', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -284,8 +285,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('Chaining reset methods', function (): void {
-        it('allows chaining multiple reset methods', function (): void {
+    describe('Chaining reset methods', function(): void {
+        it('allows chaining multiple reset methods', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -319,7 +320,7 @@ describe('DataMapper Reset & Delete', function (): void {
             expect($items[0]['id'])->toBe(3);
         });
 
-        it('allows ending reset chain with end()', function (): void {
+        it('allows ending reset chain with end()', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -331,12 +332,12 @@ describe('DataMapper Reset & Delete', function (): void {
 
             $result = $mapper->reset()->all()->end();
 
-            expect($result)->toBeInstanceOf(\event4u\DataHelpers\DataMapper\FluentDataMapper::class);
+            expect($result)->toBeInstanceOf(FluentDataMapper::class);
         });
     });
 
-    describe('delete()->all()', function (): void {
-        it('deletes all operators from template', function (): void {
+    describe('delete()->all()', function(): void {
+        it('deletes all operators from template', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -364,8 +365,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('delete()->where()', function (): void {
-        it('deletes WHERE from template', function (): void {
+    describe('delete()->where()', function(): void {
+        it('deletes WHERE from template', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -388,7 +389,7 @@ describe('DataMapper Reset & Delete', function (): void {
             expect($items)->toHaveCount(4);
         });
 
-        it('works even if template has no WHERE', function (): void {
+        it('works even if template has no WHERE', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -408,8 +409,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('delete()->orderBy()', function (): void {
-        it('deletes ORDER BY from template', function (): void {
+    describe('delete()->orderBy()', function(): void {
+        it('deletes ORDER BY from template', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -440,8 +441,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('delete()->limit()', function (): void {
-        it('deletes LIMIT from template', function (): void {
+    describe('delete()->limit()', function(): void {
+        it('deletes LIMIT from template', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -466,8 +467,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('delete()->offset()', function (): void {
-        it('deletes OFFSET from template', function (): void {
+    describe('delete()->offset()', function(): void {
+        it('deletes OFFSET from template', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -493,8 +494,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('delete()->groupBy()', function (): void {
-        it('deletes GROUP BY from template', function (): void {
+    describe('delete()->groupBy()', function(): void {
+        it('deletes GROUP BY from template', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -518,8 +519,8 @@ describe('DataMapper Reset & Delete', function (): void {
         });
     });
 
-    describe('Chaining delete methods', function (): void {
-        it('allows chaining multiple delete methods', function (): void {
+    describe('Chaining delete methods', function(): void {
+        it('allows chaining multiple delete methods', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -546,7 +547,7 @@ describe('DataMapper Reset & Delete', function (): void {
             expect($items)->toHaveCount(4);
         });
 
-        it('allows ending delete chain with end()', function (): void {
+        it('allows ending delete chain with end()', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [
@@ -558,12 +559,12 @@ describe('DataMapper Reset & Delete', function (): void {
 
             $result = $mapper->delete()->all()->end();
 
-            expect($result)->toBeInstanceOf(\event4u\DataHelpers\DataMapper\FluentDataMapper::class);
+            expect($result)->toBeInstanceOf(FluentDataMapper::class);
         });
     });
 
-    describe('Combining reset and delete', function (): void {
-        it('allows using reset and delete in sequence', function (): void {
+    describe('Combining reset and delete', function(): void {
+        it('allows using reset and delete in sequence', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
                     'items' => [

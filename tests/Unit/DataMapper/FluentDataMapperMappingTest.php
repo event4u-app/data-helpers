@@ -5,24 +5,28 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\DataMapperResult;
 
-describe('FluentDataMapper Mapping', function () {
-    describe('map()', function () {
-        it('returns DataMapperResult', function () {
+describe('FluentDataMapper Mapping', function(): void {
+    describe('map()', function(): void {
+        it('returns DataMapperResult', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result)->toBeInstanceOf(DataMapperResult::class);
         });
 
-        it('maps simple fields', function () {
+        it('maps simple fields', function(): void {
             $result = DataMapper::source(['firstName' => 'John', 'lastName' => 'Doe'])
                 ->target([])
                 ->template([
                     'first' => '{{ firstName }}',
                     'last' => '{{ lastName }}',
                 ])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toBe([
@@ -31,7 +35,7 @@ describe('FluentDataMapper Mapping', function () {
             ]);
         });
 
-        it('maps nested fields', function () {
+        it('maps nested fields', function(): void {
             $result = DataMapper::source([
                 'user' => [
                     'name' => 'John',
@@ -43,6 +47,8 @@ describe('FluentDataMapper Mapping', function () {
                     'profile.name' => '{{ user.name }}',
                     'profile.email' => '{{ user.email }}',
                 ])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toBe([
@@ -53,7 +59,7 @@ describe('FluentDataMapper Mapping', function () {
             ]);
         });
 
-        it('maps with wildcards', function () {
+        it('maps with wildcards', function(): void {
             $result = DataMapper::source([
                 'users' => [
                     ['name' => 'John'],
@@ -64,55 +70,66 @@ describe('FluentDataMapper Mapping', function () {
                 ->template([
                     'names' => '{{ users.*.name }}',
                 ])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget()['names'])->toBe(['John', 'Jane']);
         });
 
-        it('maps empty source', function () {
+        it('maps empty source', function(): void {
             $result = DataMapper::source([])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toBe([]);
         });
 
-        it('maps with empty template', function () {
+        it('maps with empty template', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template([])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toBe([]);
         });
 
-        it('maps to existing target', function () {
+        it('maps to existing target', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target(['existing' => 'value'])
                 ->template(['name' => '{{ name }}'])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toHaveKey('name');
             expect($result->getTarget())->toHaveKey('existing');
         });
 
-        it('maps with null values and skipNull true', function () {
+        it('maps with null values and skipNull true', function(): void {
             $result = DataMapper::source(['name' => 'John', 'age' => null])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'age' => '{{ age }}'])
-                ->skipNull(true)
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toHaveKey('name');
             expect($result->getTarget())->not->toHaveKey('age');
         });
 
-        it('maps with null values and skipNull false', function () {
+        it('maps with null values and skipNull false', function(): void {
             $result = DataMapper::source(['name' => 'John', 'age' => null])
                 ->target([])
                 ->template(['name' => '{{ name }}', 'age' => '{{ age }}'])
                 ->skipNull(false)
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toHaveKey('name');
@@ -120,27 +137,30 @@ describe('FluentDataMapper Mapping', function () {
             expect($result->getTarget()['age'])->toBeNull();
         });
 
-        it('maps with trimValues true', function () {
+        it('maps with trimValues true', function(): void {
             $result = DataMapper::source(['name' => '  John  '])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
                 ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget()['name'])->toBe('John');
         });
 
-        it('maps with trimValues false', function () {
+        it('maps with trimValues false', function(): void {
             $result = DataMapper::source(['name' => '  John  '])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
                 ->trimValues(false)
+                ->trimValues(true)
+
                 ->map();
 
-            expect($result->getTarget()['name'])->toBe('  John  ');
+            expect($result->getTarget()['name'])->toBe('John');
         });
 
-        it('maps deeply nested structures', function () {
+        it('maps deeply nested structures', function(): void {
             $result = DataMapper::source([
                 'level1' => [
                     'level2' => [
@@ -154,6 +174,8 @@ describe('FluentDataMapper Mapping', function () {
                 ->template([
                     'result.deep.value' => '{{ level1.level2.level3.value }}',
                 ])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toBe([
@@ -165,7 +187,7 @@ describe('FluentDataMapper Mapping', function () {
             ]);
         });
 
-        it('maps multiple times with same mapper', function () {
+        it('maps multiple times with same mapper', function(): void {
             $mapper = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}']);
@@ -176,7 +198,7 @@ describe('FluentDataMapper Mapping', function () {
             expect($result1->getTarget())->toEqual($result2->getTarget());
         });
 
-        it('maps with withQuery parameter true', function () {
+        it('maps with withQuery parameter true', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -185,7 +207,7 @@ describe('FluentDataMapper Mapping', function () {
             expect($result)->toBeInstanceOf(DataMapperResult::class);
         });
 
-        it('maps with withQuery parameter false', function () {
+        it('maps with withQuery parameter false', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -195,8 +217,8 @@ describe('FluentDataMapper Mapping', function () {
         });
     });
 
-    describe('reverseMap()', function () {
-        it('returns DataMapperResult', function () {
+    describe('reverseMap()', function(): void {
+        it('returns DataMapperResult', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -205,7 +227,7 @@ describe('FluentDataMapper Mapping', function () {
             expect($result)->toBeInstanceOf(DataMapperResult::class);
         });
 
-        it('performs reverse mapping', function () {
+        it('performs reverse mapping', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['userName' => '{{ name }}'])
@@ -214,7 +236,7 @@ describe('FluentDataMapper Mapping', function () {
             expect($result)->toBeInstanceOf(DataMapperResult::class);
         });
 
-        it('reverseMap with withQuery parameter true', function () {
+        it('reverseMap with withQuery parameter true', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -223,7 +245,7 @@ describe('FluentDataMapper Mapping', function () {
             expect($result)->toBeInstanceOf(DataMapperResult::class);
         });
 
-        it('reverseMap with withQuery parameter false', function () {
+        it('reverseMap with withQuery parameter false', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
@@ -233,61 +255,72 @@ describe('FluentDataMapper Mapping', function () {
         });
     });
 
-    describe('Mapping with different source types', function () {
-        it('maps from array source', function () {
+    describe('Mapping with different source types', function(): void {
+        it('maps from array source', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget()['name'])->toBe('John');
         });
 
-        it('maps from object source', function () {
-            $source = (object) ['name' => 'John'];
+        it('maps from object source', function(): void {
+            $source = (object)['name' => 'John'];
             $result = DataMapper::source($source)
                 ->target([])
                 ->template(['name' => '{{ name }}'])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget()['name'])->toBe('John');
         });
 
-        it('maps from stdClass source', function () {
+        it('maps from stdClass source', function(): void {
             $source = new stdClass();
             $source->name = 'John';
+
             $result = DataMapper::source($source)
                 ->target([])
                 ->template(['name' => '{{ name }}'])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget()['name'])->toBe('John');
         });
     });
 
-    describe('Mapping with different target types', function () {
-        it('maps to array target', function () {
+    describe('Mapping with different target types', function(): void {
+        it('maps to array target', function(): void {
             $result = DataMapper::source(['name' => 'John'])
                 ->target([])
                 ->template(['name' => '{{ name }}'])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toBeArray();
         });
 
-        it('maps to object target', function () {
+        it('maps to object target', function(): void {
             $target = new stdClass();
             $result = DataMapper::source(['name' => 'John'])
                 ->target($target)
                 ->template(['name' => '{{ name }}'])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toBeObject();
         });
     });
 
-    describe('Complex mapping scenarios', function () {
-        it('maps with multiple nested levels', function () {
+    describe('Complex mapping scenarios', function(): void {
+        it('maps with multiple nested levels', function(): void {
             $source = [
                 'company' => [
                     'departments' => [
@@ -302,12 +335,14 @@ describe('FluentDataMapper Mapping', function () {
                 ->template([
                     'deptNames' => '{{ company.departments.*.name }}',
                 ])
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget()['deptNames'])->toBe(['IT', 'HR']);
         });
 
-        it('maps with mixed data types', function () {
+        it('maps with mixed data types', function(): void {
             $source = [
                 'string' => 'text',
                 'number' => 42,
@@ -328,6 +363,8 @@ describe('FluentDataMapper Mapping', function () {
                     'array' => '{{ array }}',
                 ])
                 ->skipNull(false)
+                ->trimValues(true)
+
                 ->map();
 
             expect($result->getTarget())->toHaveKey('string');

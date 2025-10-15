@@ -107,7 +107,9 @@ describe('XML to Model Mapping', function(): void {
                 ],
             ];
 
-            $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping, false);
+            $completeData = DataMapper::sourceFile($xmlFile)->target([])->template($mapping)->skipNull(
+                false
+            )->map()->getTarget();
             /** @var array<string, mixed> $completeData */
 
             // Normalize contact_persons (XML single element issue)
@@ -215,7 +217,9 @@ describe('XML to Model Mapping', function(): void {
                 ],
             ];
 
-            $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping);
+            $completeData = DataMapper::sourceFile($xmlFile)->target([])->template($mapping)->trimValues(
+                true
+            )->map()->getTarget();
             /** @var array<string, mixed> $completeData */
 
             // Convert Enums
@@ -303,7 +307,7 @@ describe('XML to Model Mapping', function(): void {
                 ],
             ];
 
-            $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping);
+            $completeData = DataMapper::sourceFile($xmlFile)->target([])->template($mapping)->map()->getTarget();
             /** @var array<string, mixed> $completeData */
 
             // Convert Enums

@@ -19,14 +19,14 @@ if (!file_exists($readmePath)) {
     exit(1);
 }
 
-echo "🚀  Running benchmarks 15 times and calculating averages...\n\n";
+echo "🚀  Running benchmarks 10 times and calculating averages...\n\n";
 
-// Run benchmarks 15 times and collect results
+// Run benchmarks 10 times and collect results
 $allRuns = [];
 $benchCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1';
 
-for ($run = 1; 15 >= $run; $run++) {
-    echo "  Run {$run}/15...\n";
+for ($run = 1; 10 >= $run; $run++) {
+    echo "  Run {$run}/10...\n";
 
     exec($benchCommand, $outputLines, $returnCode);
 
@@ -190,8 +190,8 @@ $markdown .= "|--------|------|------------|-------------|\n";
 
 $descriptions = [
     'benchManualMapping' => 'Direct DTO constructor (baseline)',
-    'benchDataMapperTemplate' => 'DataMapper with template syntax',
-    'benchDataMapperExplicit' => 'DataMapper with explicit mapping',
+    'benchDataMapperTemplate' => 'DataMapper with template syntax ({{ ... }})',
+    'benchDataMapperSimplePaths' => 'DataMapper with simple path mapping',
     'benchSymfonySerializerArray' => 'Symfony Serializer from array',
     'benchSymfonySerializerJson' => 'Symfony Serializer from JSON',
 ];
@@ -207,8 +207,8 @@ foreach ($results['DtoSerialization'] as $result) {
 // Sort DtoSerialization results in desired order
 $sortOrder = [
     'benchManualMapping' => 1,
-    'benchDataMapperTemplate' => 2,
-    'benchDataMapperExplicit' => 3,
+    'benchDataMapperSimplePaths' => 2,
+    'benchDataMapperTemplate' => 3,
     'benchSymfonySerializerArray' => 4,
     'benchSymfonySerializerJson' => 5,
 ];
@@ -293,7 +293,7 @@ if (false !== $perfStartPos && false !== $perfEndPos) {
     }
     $performanceSection .= "- Optimized for nested data structures\n";
     $performanceSection .= "- Zero reflection overhead for template-based mapping\n";
-    $performanceSection .= "- See [benchmarks](#-benchmarks) for detailed performance comparison";
+    $performanceSection .= "- See [benchmarks](#-performance) for detailed performance comparison";
 
     // Replace content between markers
     $beforePerf = substr($newReadme, 0, $perfStartPos + strlen($perfStartMarker));

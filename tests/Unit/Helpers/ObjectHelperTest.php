@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\ObjectHelper;
+use event4u\DataHelpers\Helpers\ObjectHelper;
 
 /**
  * Tests for ObjectHelper.
  *
  * @internal
  */
-describe('ObjectHelper', function (): void {
-    describe('copy() - Shallow copy', function (): void {
-        it('creates a shallow copy of an object', function (): void {
+describe('ObjectHelper', function(): void {
+    describe('copy() - Shallow copy', function(): void {
+        it('creates a shallow copy of an object', function(): void {
             $original = new class {
                 public string $name = 'Alice';
                 public int $age = 30;
@@ -24,7 +24,7 @@ describe('ObjectHelper', function (): void {
             expect($copy->age)->toBe(30);
         });
 
-        it('shallow copy shares nested objects', function (): void {
+        it('shallow copy shares nested objects', function(): void {
             $nested = new stdClass();
             $nested->value = 'original';
 
@@ -43,8 +43,8 @@ describe('ObjectHelper', function (): void {
         });
     });
 
-    describe('copy() - Deep copy (recursive)', function (): void {
-        it('creates a deep copy of an object with nested objects', function (): void {
+    describe('copy() - Deep copy (recursive)', function(): void {
+        it('creates a deep copy of an object with nested objects', function(): void {
             $nested = new stdClass();
             $nested->value = 'original';
 
@@ -64,7 +64,7 @@ describe('ObjectHelper', function (): void {
             expect($copy->nested->value)->toBe('modified');
         });
 
-        it('creates a deep copy of an object with nested arrays', function (): void {
+        it('creates a deep copy of an object with nested arrays', function(): void {
             $original = new class {
                 public array $items = [
                     'user' => ['name' => 'Alice', 'age' => 30],
@@ -86,7 +86,7 @@ describe('ObjectHelper', function (): void {
             expect($copy->items['user']['name'])->toBe('Bob');
         });
 
-        it('creates a deep copy of an object with arrays containing objects', function (): void {
+        it('creates a deep copy of an object with arrays containing objects', function(): void {
             $user1 = new stdClass();
             $user1->name = 'Alice';
 
@@ -118,7 +118,7 @@ describe('ObjectHelper', function (): void {
             expect($copy->users[0]->name)->toBe('Charlie');
         });
 
-        it('handles deeply nested structures', function (): void {
+        it('handles deeply nested structures', function(): void {
             $level3 = new stdClass();
             $level3->value = 'deep';
 
@@ -146,7 +146,7 @@ describe('ObjectHelper', function (): void {
             expect($copy->nested->nested->nested->value)->toBe('modified');
         });
 
-        it('respects maxLevel parameter', function (): void {
+        it('respects maxLevel parameter', function(): void {
             $level3 = new stdClass();
             $level3->value = 'deep';
 
@@ -176,8 +176,8 @@ describe('ObjectHelper', function (): void {
         });
     });
 
-    describe('copy() - Private and protected properties', function (): void {
-        it('copies private properties', function (): void {
+    describe('copy() - Private and protected properties', function(): void {
+        it('copies private properties', function(): void {
             $original = new class {
                 private string $secret = 'hidden';
 
@@ -202,7 +202,7 @@ describe('ObjectHelper', function (): void {
             expect($copy->getSecret())->toBe('modified');
         });
 
-        it('copies protected properties', function (): void {
+        it('copies protected properties', function(): void {
             $original = new class {
                 protected string $protected = 'protected value';
 
@@ -227,7 +227,7 @@ describe('ObjectHelper', function (): void {
             expect($copy->getProtected())->toBe('modified');
         });
 
-        it('copies nested private objects', function (): void {
+        it('copies nested private objects', function(): void {
             $nested = new class {
                 private string $value = 'nested private';
 
@@ -243,7 +243,7 @@ describe('ObjectHelper', function (): void {
             };
 
             $original = new class($nested) {
-                public function __construct(private object $nested) {}
+                public function __construct(private readonly object $nested) {}
 
                 public function getNested(): object
                 {
@@ -264,8 +264,8 @@ describe('ObjectHelper', function (): void {
         });
     });
 
-    describe('copy() - Edge cases', function (): void {
-        it('handles uninitialized properties', function (): void {
+    describe('copy() - Edge cases', function(): void {
+        it('handles uninitialized properties', function(): void {
             $original = new class {
                 public string $initialized = 'value';
                 public string $uninitialized;
@@ -277,7 +277,7 @@ describe('ObjectHelper', function (): void {
             expect(property_exists($copy, 'uninitialized'))->toBeTrue();
         });
 
-        it('handles empty objects', function (): void {
+        it('handles empty objects', function(): void {
             $original = new stdClass();
 
             $copy = ObjectHelper::copy($original, recursive: true);
@@ -286,7 +286,7 @@ describe('ObjectHelper', function (): void {
             expect($copy)->toBeInstanceOf(stdClass::class);
         });
 
-        it('handles objects with only primitives', function (): void {
+        it('handles objects with only primitives', function(): void {
             $original = new class {
                 public string $name = 'Alice';
                 public int $age = 30;

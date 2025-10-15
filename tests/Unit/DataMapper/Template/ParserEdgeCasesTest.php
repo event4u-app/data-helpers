@@ -26,7 +26,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"Say \"Hello\"" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Say "Hello"');
         });
@@ -35,7 +35,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:\'It\\\'s working\' }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe("It's working");
         });
@@ -44,7 +44,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"\"Quote\" and \"More\"" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('"Quote" and "More"');
         });
@@ -58,7 +58,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.tags | join:" | " }}'];
             $sources = ['data' => ['tags' => ['a', 'b', 'c']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('a | b | c');
         });
@@ -67,7 +67,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"Time: 12:30:45" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Time: 12:30:45');
         });
@@ -76,7 +76,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.tags | join:" || " }}'];
             $sources = ['data' => ['tags' => ['x', 'y']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('x || y');
         });
@@ -85,7 +85,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"Line1\nLine2" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe("Line1\nLine2");
         });
@@ -94,7 +94,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"Col1\tCol2" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe("Col1\tCol2");
         });
@@ -105,7 +105,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.tags | join:"" }}'];
             $sources = ['data' => ['tags' => ['a', 'b', 'c']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('abc');
         });
@@ -114,7 +114,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.tags | join:"   " }}'];
             $sources = ['data' => ['tags' => ['a', 'b']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('a   b');
         });
@@ -123,7 +123,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.tags | join:"  -  " }}'];
             $sources = ['data' => ['tags' => ['x', 'y']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('x  -  y');
         });
@@ -134,7 +134,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"N/A" | upper }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('N/A');
         });
@@ -143,7 +143,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.tags | join:" | " | upper }}'];
             $sources = ['data' => ['tags' => ['php', 'laravel']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('PHP | LARAVEL');
         });
@@ -152,7 +152,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.tags | join:", " | trim | upper }}'];
             $sources = ['data' => ['tags' => ['a', 'b', 'c']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('A, B, C');
         });
@@ -163,7 +163,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:\'Say "Hello"\' }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Say "Hello"');
         });
@@ -172,7 +172,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"It\'s working" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe("It's working");
         });
@@ -183,7 +183,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | clamp:0:100 }}'];
             $sources = ['data' => ['value' => 150]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(100.0);
         });
@@ -192,7 +192,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | clamp:-10:10 }}'];
             $sources = ['data' => ['value' => -20]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(-10.0);
         });
@@ -201,7 +201,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | clamp:0.5:1.5 }}'];
             $sources = ['data' => ['value' => 2.0]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(1.5);
         });
@@ -210,7 +210,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:0 }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('0');
         });
@@ -221,7 +221,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"Hello 世界 🌍" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Hello 世界 🌍');
         });
@@ -230,7 +230,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.tags | join:" 🔹 " }}'];
             $sources = ['data' => ['tags' => ['A', 'B', 'C']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('A 🔹 B 🔹 C');
         });
@@ -239,7 +239,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"&lt;tag&gt;" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('&lt;tag&gt;');
         });
@@ -250,7 +250,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"Path\\File" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Path\File');
         });
@@ -259,7 +259,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"C:\\\\Users" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('C:\\Users');
         });
@@ -272,7 +272,7 @@ describe('Parser Edge Cases', function(): void {
             $template = ['result' => '{{ data.value | default:"Path\\\\" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             // PHP string 'Path\\' represents a single backslash after Path
             expect($result['result'])->toBe('Path\\');
@@ -285,7 +285,7 @@ describe('Parser Edge Cases', function(): void {
             $sources = ['data' => ['value' => null]];
 
             // Should not crash, behavior may vary
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result)->toBeArray();
         });
@@ -295,7 +295,7 @@ describe('Parser Edge Cases', function(): void {
             $sources = ['data' => ['value' => 'test']];
 
             // Should not crash
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result)->toBeArray();
         });
@@ -305,7 +305,7 @@ describe('Parser Edge Cases', function(): void {
             $sources = ['data' => ['value' => '  test  ']];
 
             // Should handle gracefully (empty filter name)
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result)->toBeArray();
         });
