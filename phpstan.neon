@@ -23,8 +23,6 @@ parameters:
         - src/Symfony
         - '*.stub.php'
         - tests-e2e/*/vendor
-        - tests/Unit/MappedDataModelFromStringTest.php
-        - tests/Unit/MappedDataModelRequestBindingTest.php
 
     scanDirectories:
         - types

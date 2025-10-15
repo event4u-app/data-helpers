@@ -129,11 +129,12 @@ $descriptions = [
 ];
 
 foreach ($results['DataAccessor'] as $result) {
-    $name = str_replace('bench', '', (string)$result['name']);
+    $resultName = (string)$result['name'];
+    $name = str_replace('bench', '', $resultName);
     $name = preg_replace('/([A-Z])/', ' $1', $name);
     $name = trim((string)$name);
     $time = formatTime((float)$result['time']);
-    $desc = $descriptions[$result['name']] ?? '';
+    $desc = $descriptions[$resultName] ?? '';
     $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
 }
 
@@ -152,11 +153,12 @@ $descriptions = [
 ];
 
 foreach ($results['DataMutator'] as $result) {
-    $name = str_replace('bench', '', (string)$result['name']);
+    $resultName = (string)$result['name'];
+    $name = str_replace('bench', '', $resultName);
     $name = preg_replace('/([A-Z])/', ' $1', $name);
     $name = trim((string)$name);
     $time = formatTime((float)$result['time']);
-    $desc = $descriptions[$result['name']] ?? '';
+    $desc = $descriptions[$resultName] ?? '';
     $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
 }
 
@@ -172,11 +174,12 @@ $descriptions = [
 ];
 
 foreach ($results['DataMapper'] as $result) {
-    $name = str_replace('bench', '', (string)$result['name']);
+    $resultName = (string)$result['name'];
+    $name = str_replace('bench', '', $resultName);
     $name = preg_replace('/([A-Z])/', ' $1', $name);
     $name = trim((string)$name);
     $time = formatTime((float)$result['time']);
-    $desc = $descriptions[$result['name']] ?? '';
+    $desc = $descriptions[$resultName] ?? '';
     $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
 }
 
@@ -211,19 +214,20 @@ $sortOrder = [
 ];
 usort(
     $results['DtoSerialization'],
-    fn(array $a, array $b): int => ($sortOrder[$a['name']] ?? 999) <=> ($sortOrder[$b['name']] ?? 999)
+    fn(array $a, array $b): int => ($sortOrder[(string)$a['name']] ?? 999) <=> ($sortOrder[(string)$b['name']] ?? 999)
 );
 
 foreach ($results['DtoSerialization'] as $result) {
-    $name = str_replace('bench', '', (string)$result['name']);
+    $resultName = (string)$result['name'];
+    $name = str_replace('bench', '', $resultName);
     $name = preg_replace('/([A-Z])/', ' $1', $name);
     $name = trim((string)$name);
     $time = formatTime((float)$result['time']);
-    $desc = $descriptions[$result['name']] ?? '';
+    $desc = $descriptions[$resultName] ?? '';
 
     // Calculate comparison vs Symfony
     $vsSymfony = '';
-    if ($symfonyTime && 0 < $symfonyTime && 'benchSymfonySerializerArray' !== $result['name'] && 'benchSymfonySerializerJson' !== $result['name']) {
+    if ($symfonyTime && 0 < $symfonyTime && 'benchSymfonySerializerArray' !== $resultName && 'benchSymfonySerializerJson' !== $resultName) {
         $factor = (float)$symfonyTime / (float)$result['time'];
         $vsSymfony = sprintf('**%.1fx faster**', $factor);
     }
