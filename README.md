@@ -81,7 +81,7 @@ DataMapper is significantly faster than traditional serializers for DTO mapping:
 - Up to **7.2x faster** than Symfony Serializer
 - Optimized for nested data structures
 - Zero reflection overhead for template-based mapping
-- See [benchmarks](#-benchmarks) for detailed performance comparison
+- See [benchmarks](#-performance) for detailed performance comparison
 
 <!-- PERFORMANCE_COMPARISON_END -->
 
