@@ -284,7 +284,7 @@ class GroupByOperator
             'LAST' => self::aggregateLast($groupItems, $fieldPath, $sources, $aliases),
             'COLLECT' => self::aggregateCollect($groupItems, $fieldPath, $sources, $aliases),
             'CONCAT' => self::aggregateConcat($groupItems, $fieldPath, $sources, $aliases, $separator),
-            default => throw new InvalidArgumentException('Unknown aggregation function: ' . $function),
+            default => throw new InvalidArgumentException("Unknown aggregation function: {$function}"),
         };
     }
 

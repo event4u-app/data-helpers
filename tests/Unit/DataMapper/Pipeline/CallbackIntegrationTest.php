@@ -58,7 +58,7 @@ describe('Callback Integration Tests', function(): void {
         ): mixed {
                 // Add prefix
                 if (is_string($p->value)) {
-                    return 'Dr. ' . $p->value;
+                    return "Dr. {$p->value}";
                 }
                 return $p->value;
             }),
@@ -253,11 +253,11 @@ describe('Callback Integration Tests', function(): void {
     it('works with template expression chaining', function(): void {
         CallbackRegistry::register(
             'addPrefix',
-            fn($p): mixed => is_string($p->value) ? 'PREFIX_' . $p->value : $p->value
+            fn($p): mixed => is_string($p->value) ? "PREFIX_{$p->value}" : $p->value
         );
         CallbackRegistry::register(
             'addSuffix',
-            fn($p): mixed => is_string($p->value) ? $p->value . '_SUFFIX' : $p->value
+            fn($p): mixed => is_string($p->value) ? "{$p->value}_SUFFIX" : $p->value
         );
 
         $template = [

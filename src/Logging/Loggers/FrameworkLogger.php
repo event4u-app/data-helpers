@@ -63,7 +63,7 @@ final class FrameworkLogger implements DataHelpersLogger
             'tags' => $tags,
         ];
 
-        $this->log(LogLevel::DEBUG, 'Metric: ' . $name, $context);
+        $this->log(LogLevel::DEBUG, "Metric: {$name}", $context);
     }
 
     public function event(LogEvent $event, array $context = []): void
@@ -94,7 +94,7 @@ final class FrameworkLogger implements DataHelpersLogger
             ->withMany($context)
             ->toArray();
 
-        $this->log(LogLevel::DEBUG, 'Performance: ' . $operation, $context);
+        $this->log(LogLevel::DEBUG, "Performance: {$operation}", $context);
     }
 
     public function isEventEnabled(LogEvent $event): bool

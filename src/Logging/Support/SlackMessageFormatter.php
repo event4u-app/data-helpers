@@ -113,12 +113,12 @@ final class SlackMessageFormatter
 
             $fields[] = [
                 'title' => 'Exception',
-                'value' => $excClass . ': ' . $excMessage,
+                'value' => "{$excClass}: {$excMessage}",
                 'short' => false,
             ];
             $fields[] = [
                 'title' => 'Location',
-                'value' => $excFile . ':' . $excLine,
+                'value' => "{$excFile}:{$excLine}",
                 'short' => false,
             ];
         }
@@ -149,7 +149,7 @@ final class SlackMessageFormatter
 
             $fields[] = [
                 'title' => 'Memory',
-                'value' => 'Current: ' . $currentMb . ' MB, Peak: ' . $peakMb . ' MB',
+                'value' => "Current: {$currentMb} MB, Peak: {$peakMb} MB",
                 'short' => false,
             ];
         }

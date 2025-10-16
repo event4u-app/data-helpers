@@ -138,7 +138,7 @@ class MappingEngine
 
         // Global hook: beforeAll (only if hooks exist)
         if ($hasHooks) {
-            HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
+            HookInvoker::invokeHooks($hooks, DataMapperHook::BeforeAll->value, new AllContext('simple', $mapping, $source, $target));
         }
 
         $mappingIndex = 0;
@@ -155,7 +155,7 @@ class MappingEngine
 
             if ($hasHooks && $pairContext instanceof PairContext && HookInvoker::invokeHooks(
                 $hooks,
-                'beforePair',
+                DataMapperHook::BeforePair->value,
                 $pairContext
             ) === false) {
                 $mappingIndex++;
@@ -241,14 +241,14 @@ class MappingEngine
 
             // afterPair hook (only if hooks exist)
             if ($hasHooks && $pairContext instanceof PairContext) {
-                HookInvoker::invokeHooks($hooks, 'afterPair', $pairContext);
+                HookInvoker::invokeHooks($hooks, DataMapperHook::AfterPair->value, $pairContext);
             }
             $mappingIndex++;
         }
 
         // Global hook: afterAll (only if hooks exist)
         if ($hasHooks) {
-            HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('simple', $mapping, $source, $target));
+            HookInvoker::invokeHooks($hooks, DataMapperHook::AfterAll->value, new AllContext('simple', $mapping, $source, $target));
         }
 
         return $target;
@@ -365,7 +365,7 @@ class MappingEngine
 
             $writeValue = $collectedValues;
             if (!HookInvoker::isEmpty($hooks)) {
-                $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $collectedValues);
+                $writeValue = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeWrite->value, $writeContext, $collectedValues);
             }
 
             // Free memory: collectedValues not needed anymore
@@ -392,7 +392,7 @@ class MappingEngine
                         if (!HookInvoker::isEmpty($hooks)) {
                             return HookInvoker::invokeTargetHook(
                                 $hooks,
-                                'afterWrite',
+                                DataMapperHook::AfterWrite->value,
                                 $writeContext,
                                 $writeValue,
                                 $target
@@ -411,7 +411,7 @@ class MappingEngine
                 );
 
                 if (!HookInvoker::isEmpty($hooks)) {
-                    $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                    $target = HookInvoker::invokeTargetHook($hooks, DataMapperHook::AfterWrite->value, $writeContext, $writeValue, $target);
                 }
             }
 
@@ -475,7 +475,7 @@ class MappingEngine
 
                 $writeValue = $itemValue;
                 if (!HookInvoker::isEmpty($hooks)) {
-                    $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $itemValue);
+                    $writeValue = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeWrite->value, $writeContext, $itemValue);
                 }
 
                 if ('__skip__' === $writeValue) {
@@ -488,7 +488,7 @@ class MappingEngine
                 );
 
                 if (!HookInvoker::isEmpty($hooks)) {
-                    $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                    $target = HookInvoker::invokeTargetHook($hooks, DataMapperHook::AfterWrite->value, $writeContext, $writeValue, $target);
                 }
 
                 return true;
@@ -530,14 +530,14 @@ class MappingEngine
 
         $writeValue = $value;
         if (!HookInvoker::isEmpty($hooks)) {
-            $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
+            $writeValue = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeWrite->value, $writeContext, $value);
         }
 
         if ('__skip__' !== $writeValue) {
             $target = DataMutator::set(self::asTarget($target), $targetPath, $writeValue);
 
             if (!HookInvoker::isEmpty($hooks)) {
-                $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                $target = HookInvoker::invokeTargetHook($hooks, DataMapperHook::AfterWrite->value, $writeContext, $writeValue, $target);
             }
         }
 
@@ -640,7 +640,7 @@ class MappingEngine
         // Invoke beforeWrite hook
         $writeValue = HookInvoker::invokeValueHook(
             $hooks,
-            'beforeWrite',
+            DataMapperHook::BeforeWrite->value,
             $writeContext,
             $itemValue
         );
@@ -660,7 +660,7 @@ class MappingEngine
         // Invoke afterWrite hook
         $target = HookInvoker::invokeTargetHook(
             $hooks,
-            'afterWrite',
+            DataMapperHook::AfterWrite->value,
             $writeContext,
             $writeValue,
             $target
@@ -743,7 +743,7 @@ class MappingEngine
         );
 
         // Invoke beforeWrite hook
-        $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
+        $writeValue = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeWrite->value, $writeContext, $value);
 
         // Skip if hook returned magic skip value
         if ('__skip__' !== $writeValue) {
@@ -755,7 +755,7 @@ class MappingEngine
             );
 
             // Invoke afterWrite hook
-            $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+            $target = HookInvoker::invokeTargetHook($hooks, DataMapperHook::AfterWrite->value, $writeContext, $writeValue, $target);
         }
 
         return true;

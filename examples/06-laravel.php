@@ -60,9 +60,9 @@ $user = new User([
 ]);
 
 $accessor = new DataAccessor($user);
-echo 'User name: ' . $accessor->getString('name') . PHP_EOL;
-echo 'User email: ' . $accessor->getString('email') . PHP_EOL;
-echo 'User role: ' . $accessor->getString('role') . PHP_EOL;
+echo "User name: {$accessor->getString('name')}" . PHP_EOL;
+echo "User email: {$accessor->getString('email')}" . PHP_EOL;
+echo "User role: {$accessor->getString('role')}" . PHP_EOL;
 
 echo PHP_EOL;
 
@@ -191,8 +191,8 @@ $arrayable = new CustomArrayable([
 ]);
 
 $accessor = new DataAccessor($arrayable);
-echo 'App name: ' . $accessor->getString('config.app_name') . PHP_EOL;
-echo 'Version: ' . $accessor->getString('config.version') . PHP_EOL;
+echo "App name: {$accessor->getString('config.app_name')}" . PHP_EOL;
+echo "Version: {$accessor->getString('config.version')}" . PHP_EOL;
 
 echo PHP_EOL;
 

@@ -53,7 +53,7 @@ final class Hooks
 
         /** @var array<int|string, mixed> $bucket */
         $bucket = is_array($this->hooks[$key]) ? $this->hooks[$key] : [];
-        $bucket['src:' . $srcPrefix] = $callback;
+        $bucket["src:{$srcPrefix}"] = $callback;
         $this->hooks[$key] = $bucket;
 
         return $this;
@@ -71,7 +71,7 @@ final class Hooks
 
         /** @var array<int|string, mixed> $bucket */
         $bucket = is_array($this->hooks[$key]) ? $this->hooks[$key] : [];
-        $bucket['tgt:' . $targetPrefix] = $callback;
+        $bucket["tgt:{$targetPrefix}"] = $callback;
         $this->hooks[$key] = $bucket;
 
         return $this;
@@ -94,7 +94,7 @@ final class Hooks
 
         /** @var array<int|string, mixed> $bucket */
         $bucket = is_array($this->hooks[$key]) ? $this->hooks[$key] : [];
-        $bucket['mode:' . $mode] = $callback;
+        $bucket["mode:{$mode}"] = $callback;
         $this->hooks[$key] = $bucket;
 
         return $this;

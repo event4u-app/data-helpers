@@ -38,6 +38,10 @@ class MappingFacade
     /** Default root element name for XML conversion. */
     public const DEFAULT_XML_ROOT = 'root';
 
+    /**
+     * @param array<int|string, mixed> $mapping
+     * @param array<int|string, mixed> $hooks
+     */
     public static function map(
         mixed $source,
         mixed $target,
@@ -375,7 +379,7 @@ class MappingFacade
             return self::arrayToXml($result);
         }
 
-        MapperExceptions::handleConversionException('Cannot convert result to unknown format: ' . $format);
+        MapperExceptions::handleConversionException("Cannot convert result to unknown format: {$format}");
 
         return '';
     }
@@ -531,7 +535,7 @@ class MappingFacade
         $accessor = new DataAccessor($source);
 
         // Global hook: beforeAll
-        HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('simple', $mapping, $source, $target));
+        HookInvoker::invokeHooks($hooks, DataMapperHook::BeforeAll->value, new AllContext('simple', $mapping, $source, $target));
 
         $mappingIndex = 0;
         foreach ($mapping as $targetPath => $sourcePathOrStatic) {
@@ -550,7 +554,7 @@ class MappingFacade
                 $source,
                 $target
             );
-            if (HookInvoker::invokeHooks($hooks, 'beforePair', $pairContext) === false) {
+            if (HookInvoker::invokeHooks($hooks, DataMapperHook::BeforePair->value, $pairContext) === false) {
                 $mappingIndex++;
 
                 continue;
@@ -663,7 +667,7 @@ class MappingFacade
                     $target,
                     (string)$targetPath
                 );
-                $writeValue = HookInvoker::invokeValueHook($hooks, 'beforeWrite', $writeContext, $value);
+                $writeValue = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeWrite->value, $writeContext, $value);
                 if ('__skip__' !== $writeValue) {
                     // Check if target parent path exists (if enabled)
                     if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
@@ -686,15 +690,15 @@ class MappingFacade
                     $target = DataMutator::set(MappingEngine::asTarget($target), (string)$targetPath, $writeValue);
 
                     /** @var array<int|string, mixed>|object $target */
-                    $target = HookInvoker::invokeTargetHook($hooks, 'afterWrite', $writeContext, $writeValue, $target);
+                    $target = HookInvoker::invokeTargetHook($hooks, DataMapperHook::AfterWrite->value, $writeContext, $writeValue, $target);
                 }
             }
 
-            HookInvoker::invokeHooks($hooks, 'afterPair', $pairContext);
+            HookInvoker::invokeHooks($hooks, DataMapperHook::AfterPair->value, $pairContext);
             $mappingIndex++;
         }
 
-        HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('simple', $mapping, $source, $target));
+        HookInvoker::invokeHooks($hooks, DataMapperHook::AfterAll->value, new AllContext('simple', $mapping, $source, $target));
 
         /** @var array<int|string, mixed>|object */
         return $target;
@@ -776,7 +780,7 @@ class MappingFacade
         bool $caseInsensitiveReplace,
     ): array|object {
         // Global hook: beforeAll for structured mode
-        HookInvoker::invokeHooks($hooks, 'beforeAll', new AllContext('structured', $mapping, $source, $target));
+        HookInvoker::invokeHooks($hooks, DataMapperHook::BeforeAll->value, new AllContext('structured', $mapping, $source, $target));
 
         // Case 2: structured mapping definitions with source/target objects
         foreach ($mapping as $map) {
@@ -803,7 +807,7 @@ class MappingFacade
 
             HookInvoker::invokeHooks(
                 $effectiveHooks,
-                'beforeEntry',
+                DataMapperHook::BeforeEntry->value,
                 new EntryContext('structured', $map, $entrySource, $entryTarget)
             );
 
@@ -847,13 +851,13 @@ class MappingFacade
                         $entrySource,
                         $entryTarget
                     );
-                    if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
+                    if (HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::BeforePair->value, $pairContext) === false) {
                         continue;
                     }
 
                     $value = $accessor->get((string)$sourcePath);
                     if ($entrySkipNull && null === $value) {
-                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                        HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::AfterPair->value, $pairContext);
 
                         continue;
                     }
@@ -941,13 +945,13 @@ class MappingFacade
                         );
 
                         if (!$processed) {
-                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                            HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::AfterPair->value, $pairContext);
 
                             continue;
                         }
                     }
 
-                    HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                    HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::AfterPair->value, $pairContext);
                 }
             } elseif (isset($map['mapping'])) {
                 $pairs = $map['mapping'];
@@ -970,7 +974,7 @@ class MappingFacade
                             $entrySource,
                             $entryTarget
                         );
-                        if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
+                        if (HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::BeforePair->value, $pairContext) === false) {
                             $mappingIndexAssoc++;
 
                             continue;
@@ -978,7 +982,7 @@ class MappingFacade
 
                         $value = $accessor->get((string)$sourcePath);
                         if ($entrySkipNull && null === $value) {
-                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                            HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::AfterPair->value, $pairContext);
                             $mappingIndexAssoc++;
 
                             continue;
@@ -1076,13 +1080,13 @@ class MappingFacade
                             );
 
                             if (!$processed) {
-                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::AfterPair->value, $pairContext);
                                 $mappingIndexAssoc++;
 
                                 continue;
                             }
                         }
-                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                        HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::AfterPair->value, $pairContext);
                         $mappingIndexAssoc++;
                     }
                 } else {
@@ -1112,7 +1116,7 @@ class MappingFacade
                             $entrySource,
                             $entryTarget
                         );
-                        if (HookInvoker::invokeHooks($effectiveHooks, 'beforePair', $pairContext) === false) {
+                        if (HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::BeforePair->value, $pairContext) === false) {
                             $pairIndex++;
 
                             continue;
@@ -1120,7 +1124,7 @@ class MappingFacade
 
                         $value = $accessor->get($sourcePath);
                         if ($entrySkipNull && null === $value) {
-                            HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                            HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::AfterPair->value, $pairContext);
                             $pairIndex++;
 
                             continue;
@@ -1204,13 +1208,13 @@ class MappingFacade
                             );
 
                             if (!$processed) {
-                                HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                                HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::AfterPair->value, $pairContext);
                                 $pairIndex++;
 
                                 continue;
                             }
                         }
-                        HookInvoker::invokeHooks($effectiveHooks, 'afterPair', $pairContext);
+                        HookInvoker::invokeHooks($effectiveHooks, DataMapperHook::AfterPair->value, $pairContext);
                         $pairIndex++;
                     }
                 }
@@ -1224,7 +1228,7 @@ class MappingFacade
 
             HookInvoker::invokeHooks(
                 $effectiveHooks,
-                'afterEntry',
+                DataMapperHook::AfterEntry->value,
                 new EntryContext('structured', $map, $entrySource, $entryTarget)
             );
 
@@ -1232,7 +1236,7 @@ class MappingFacade
         }
 
         // Global hook: afterAll for structured mode
-        HookInvoker::invokeHooks($hooks, 'afterAll', new AllContext('structured', $mapping, $source, $target));
+        HookInvoker::invokeHooks($hooks, DataMapperHook::AfterAll->value, new AllContext('structured', $mapping, $source, $target));
 
         /** @var array<int|string, mixed>|object $target */
         return $target;

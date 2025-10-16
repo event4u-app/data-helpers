@@ -95,14 +95,14 @@ describe('DataMapper Hooks', function (): void {
         $hooks = [
             DataMapperHook::BeforeTransform->value => function (mixed $v, PairContext $ctx): mixed {
                 if (is_string($v)) {
-                    return 'pre-' . $v;
+                    return "pre-{$v}";
                 }
 
                 return $v;
             },
             DataMapperHook::AfterTransform->value => function (mixed $v, PairContext $ctx): mixed {
                 if (is_string($v)) {
-                    return $v . '-post';
+                    return "{$v}-post";
                 }
 
                 return $v;
