@@ -453,7 +453,7 @@ class MathHelper
             }
 
             throw new MathException(
-                new InvalidArgumentException("Value is not numeric: {$value}"),
+                new InvalidArgumentException('Value is not numeric: ' . $value),
                 ['value' => $value]
             );
         }

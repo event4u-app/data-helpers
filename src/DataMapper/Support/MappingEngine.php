@@ -138,7 +138,11 @@ class MappingEngine
 
         // Global hook: beforeAll (only if hooks exist)
         if ($hasHooks) {
-            HookInvoker::invokeHooks($hooks, DataMapperHook::BeforeAll->value, new AllContext('simple', $mapping, $source, $target));
+            HookInvoker::invokeHooks(
+                $hooks,
+                DataMapperHook::BeforeAll->value,
+                new AllContext('simple', $mapping, $source, $target)
+            );
         }
 
         $mappingIndex = 0;
@@ -248,7 +252,11 @@ class MappingEngine
 
         // Global hook: afterAll (only if hooks exist)
         if ($hasHooks) {
-            HookInvoker::invokeHooks($hooks, DataMapperHook::AfterAll->value, new AllContext('simple', $mapping, $source, $target));
+            HookInvoker::invokeHooks(
+                $hooks,
+                DataMapperHook::AfterAll->value,
+                new AllContext('simple', $mapping, $source, $target)
+            );
         }
 
         return $target;
@@ -365,7 +373,12 @@ class MappingEngine
 
             $writeValue = $collectedValues;
             if (!HookInvoker::isEmpty($hooks)) {
-                $writeValue = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeWrite->value, $writeContext, $collectedValues);
+                $writeValue = HookInvoker::invokeValueHook(
+                    $hooks,
+                    DataMapperHook::BeforeWrite->value,
+                    $writeContext,
+                    $collectedValues
+                );
             }
 
             // Free memory: collectedValues not needed anymore
@@ -411,7 +424,13 @@ class MappingEngine
                 );
 
                 if (!HookInvoker::isEmpty($hooks)) {
-                    $target = HookInvoker::invokeTargetHook($hooks, DataMapperHook::AfterWrite->value, $writeContext, $writeValue, $target);
+                    $target = HookInvoker::invokeTargetHook(
+                        $hooks,
+                        DataMapperHook::AfterWrite->value,
+                        $writeContext,
+                        $writeValue,
+                        $target
+                    );
                 }
             }
 
@@ -475,7 +494,12 @@ class MappingEngine
 
                 $writeValue = $itemValue;
                 if (!HookInvoker::isEmpty($hooks)) {
-                    $writeValue = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeWrite->value, $writeContext, $itemValue);
+                    $writeValue = HookInvoker::invokeValueHook(
+                        $hooks,
+                        DataMapperHook::BeforeWrite->value,
+                        $writeContext,
+                        $itemValue
+                    );
                 }
 
                 if ('__skip__' === $writeValue) {
@@ -488,7 +512,13 @@ class MappingEngine
                 );
 
                 if (!HookInvoker::isEmpty($hooks)) {
-                    $target = HookInvoker::invokeTargetHook($hooks, DataMapperHook::AfterWrite->value, $writeContext, $writeValue, $target);
+                    $target = HookInvoker::invokeTargetHook(
+                        $hooks,
+                        DataMapperHook::AfterWrite->value,
+                        $writeContext,
+                        $writeValue,
+                        $target
+                    );
                 }
 
                 return true;
@@ -530,14 +560,25 @@ class MappingEngine
 
         $writeValue = $value;
         if (!HookInvoker::isEmpty($hooks)) {
-            $writeValue = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeWrite->value, $writeContext, $value);
+            $writeValue = HookInvoker::invokeValueHook(
+                $hooks,
+                DataMapperHook::BeforeWrite->value,
+                $writeContext,
+                $value
+            );
         }
 
         if ('__skip__' !== $writeValue) {
             $target = DataMutator::set(self::asTarget($target), $targetPath, $writeValue);
 
             if (!HookInvoker::isEmpty($hooks)) {
-                $target = HookInvoker::invokeTargetHook($hooks, DataMapperHook::AfterWrite->value, $writeContext, $writeValue, $target);
+                $target = HookInvoker::invokeTargetHook(
+                    $hooks,
+                    DataMapperHook::AfterWrite->value,
+                    $writeContext,
+                    $writeValue,
+                    $target
+                );
             }
         }
 
@@ -755,7 +796,13 @@ class MappingEngine
             );
 
             // Invoke afterWrite hook
-            $target = HookInvoker::invokeTargetHook($hooks, DataMapperHook::AfterWrite->value, $writeContext, $writeValue, $target);
+            $target = HookInvoker::invokeTargetHook(
+                $hooks,
+                DataMapperHook::AfterWrite->value,
+                $writeContext,
+                $writeValue,
+                $target
+            );
         }
 
         return true;

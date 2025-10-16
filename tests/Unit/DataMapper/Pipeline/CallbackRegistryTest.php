@@ -186,7 +186,7 @@ describe('CallbackRegistry', function(): void {
         );
         CallbackRegistry::register(
             'prefix',
-            fn(CallbackParameters $p): mixed => is_string($p->value) ? "Mr. {$p->value}" : $p->value
+            fn(CallbackParameters $p): mixed => is_string($p->value) ? 'Mr. ' . $p->value : $p->value
         );
 
         $source = [

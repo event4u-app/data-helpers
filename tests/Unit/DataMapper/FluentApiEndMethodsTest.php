@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\DataMapper\FluentDataMapper;
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\FluentDataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 
 describe('Fluent API end() Methods', function(): void {

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Model;
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 
 /**
@@ -185,11 +187,11 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
                 'email' => 'alice@example.com',
             ], JSON_THROW_ON_ERROR);
 
-            $user = new class extends \Illuminate\Database\Eloquent\Model {};
+            $user = new class extends Model {};
 
             $updated = DataMapper::source($json)->target($user)->autoMap()->getTarget();
 
-            $acc = new \event4u\DataHelpers\DataAccessor($updated);
+            $acc = new DataAccessor($updated);
             expect($acc->get('name'))->toBe('Alice');
             expect($acc->get('email'))->toBe('alice@example.com');
         })->group('laravel');
@@ -207,7 +209,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
 
             $res = DataMapper::source($source)->target($dto)->autoMap()->getTarget();
 
-            $acc = new \event4u\DataHelpers\DataAccessor($res);
+            $acc = new DataAccessor($res);
             expect($acc->get('paymentStatus'))->toBe('PAID');
             expect($acc->get('orderId'))->toBe(42);
         });
@@ -218,10 +220,10 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
                 public string $email = 'alice@example.com';
             };
 
-            $user = new class extends \Illuminate\Database\Eloquent\Model {};
+            $user = new class extends Model {};
 
             $updated = DataMapper::source($dto)->target($user)->autoMap()->getTarget();
-            $acc = new \event4u\DataHelpers\DataAccessor($updated);
+            $acc = new DataAccessor($updated);
             expect($acc->get('name'))->toBe('Alice');
             expect($acc->get('email'))->toBe('alice@example.com');
         })->group('laravel');
@@ -292,7 +294,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
 
             $res = DataMapper::source($source)->target($dto)->deep(true)->autoMap()->getTarget();
 
-            $acc = new \event4u\DataHelpers\DataAccessor($res);
+            $acc = new DataAccessor($res);
             expect($acc->get('shippingAddress.street_name'))->toBe('Main');
         });
     });

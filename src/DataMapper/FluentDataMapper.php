@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
-use event4u\DataHelpers\Support\FileLoader;
-use event4u\DataHelpers\DataMapper\Support\MappingReverser;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Support\MappingFacade;
+use event4u\DataHelpers\DataMapper\Support\MappingReverser;
+use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Helpers\ObjectHelper;
+use event4u\DataHelpers\Support\FileLoader;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
 use SimpleXMLElement;
@@ -1403,9 +1403,7 @@ final class FluentDataMapper
         return $results;
     }
 
-    /**
-     * Check if target is an array with string keys (aliases).
-     */
+    /** Check if target is an array with string keys (aliases). */
     private function hasTargetAliases(mixed $target): bool
     {
         if (!is_array($target)) {
@@ -1422,9 +1420,7 @@ final class FluentDataMapper
         return false;
     }
 
-    /**
-     * Check if source is an array with string keys (aliases).
-     */
+    /** Check if source is an array with string keys (aliases). */
     private function hasSourceAliases(mixed $source): bool
     {
         if (!is_array($source)) {
@@ -1479,7 +1475,7 @@ final class FluentDataMapper
 
         // Get target aliases
         $targetAliases = array_keys($this->target);
-        if ($targetAliases === []) {
+        if ([] === $targetAliases) {
             return false;
         }
 
@@ -1559,9 +1555,7 @@ final class FluentDataMapper
         return $this;
     }
 
-    /**
-     * Check if reverse mapping is enabled.
-     */
+    /** Check if reverse mapping is enabled. */
     public function isReverse(): bool
     {
         return $this->reverseMapping;
