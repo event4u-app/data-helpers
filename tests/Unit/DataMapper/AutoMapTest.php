@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\Model;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Tests for autoMap() and autoMapReverse() methods in FluentDataMapper.

@@ -96,7 +96,7 @@ final class ExpressionEvaluator
         array $sources,
         array $aliases
     ): string {
-        return preg_replace_callback(
+        $result = preg_replace_callback(
             '/\{\{([^}]+)\}\}/',
             function(array $matches) use ($sources, $aliases): string {
                 $expression = '{{ ' . trim($matches[1]) . ' }}';
@@ -105,6 +105,8 @@ final class ExpressionEvaluator
             },
             $value
         );
+
+        return $result ?? $value;
     }
 
     /**

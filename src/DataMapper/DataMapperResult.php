@@ -61,12 +61,13 @@ final readonly class DataMapperResult
     /**
      * Convert result to JSON.
      *
-     * @throws DataMapperException If conversion fails
+     * @param int<1, max> $depth Maximum depth
+     * @throws ConversionException If conversion fails
      */
     public function toJson(int $options = 0, int $depth = 512): string
     {
         $array = $this->toArray();
-        $json = json_encode($array, $options, $depth);
+        $json = json_encode($array, $options, max(1, $depth));
 
         if (false === $json) {
             throw new ConversionException('Failed to convert result to JSON: ' . json_last_error_msg());
@@ -79,7 +80,7 @@ final readonly class DataMapperResult
      * Convert result to array.
      *
      * @return array<int|string, mixed>
-     * @throws DataMapperException If conversion fails
+     * @throws ConversionException If conversion fails
      */
     public function toArray(): array
     {
@@ -117,7 +118,8 @@ final readonly class DataMapperResult
     /**
      * Convert result to Collection.
      *
-     * @throws DataMapperException If conversion fails
+     * @return Collection<int|string, mixed>
+     * @throws ConversionException If conversion fails
      */
     public function toCollection(): Collection
     {
@@ -158,8 +160,14 @@ final readonly class DataMapperResult
     private function xmlToArray(string $xml): array
     {
         $element = new SimpleXMLElement($xml);
+        $json = json_encode($element);
 
-        return json_decode(json_encode($element), true) ?: [];
+        if (false === $json) {
+            return [];
+        }
+
+        $result = json_decode($json, true);
+        return is_array($result) ? $result : [];
     }
 
     /**

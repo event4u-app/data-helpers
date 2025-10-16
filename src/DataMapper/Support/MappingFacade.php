@@ -6,14 +6,12 @@ namespace event4u\DataHelpers\DataMapper\Support;
 
 use DOMDocument;
 use event4u\DataHelpers\DataAccessor;
-use event4u\DataHelpers\DataMapper\AutoMapper;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\MappingOptions;
-use event4u\DataHelpers\DataMapper\TemplateMapper;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Support\EntityHelper;
@@ -280,7 +278,7 @@ class MappingFacade
         bool $caseInsensitiveReplace = false,
         bool $deep = false,
     ): mixed {
-        return AutoMapper::autoMap(
+        return AutoMappingEngine::autoMap(
             $source,
             $target,
             $skipNull,
@@ -410,7 +408,7 @@ class MappingFacade
         bool $skipNull = true,
         bool $reindexWildcard = false,
     ): array {
-        return TemplateMapper::mapFromTemplate($template, $sources, $skipNull, $reindexWildcard);
+        return TemplateResolver::mapFromTemplate($template, $sources, $skipNull, $reindexWildcard);
     }
 
     /**
@@ -446,7 +444,7 @@ class MappingFacade
         bool $skipNull = true,
         bool $reindexWildcard = false,
     ): array {
-        return TemplateMapper::mapToTargetsFromTemplate($data, $template, $targets, $skipNull, $reindexWildcard);
+        return TemplateResolver::mapToTargetsFromTemplate($data, $template, $targets, $skipNull, $reindexWildcard);
     }
 
     /**

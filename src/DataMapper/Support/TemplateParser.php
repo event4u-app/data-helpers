@@ -126,8 +126,8 @@ final class TemplateParser
         static $cacheHits = 0;
         static $cacheMisses = 0;
 
-        // Create a cache key from the mapping
-        $cacheKey = md5(serialize($mapping) . $staticMarker);
+        // Create a cache key from the mapping (using hash for non-security purposes)
+        $cacheKey = hash('xxh128', serialize($mapping) . $staticMarker);
 
         if (isset($cache[$cacheKey])) {
             $cacheHits++;

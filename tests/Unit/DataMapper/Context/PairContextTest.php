@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
-use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
+use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\Enums\Mode;
 
 describe('PairContext', function(): void {

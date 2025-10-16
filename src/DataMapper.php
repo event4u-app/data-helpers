@@ -25,7 +25,7 @@ class DataMapper
      */
     public static function source(mixed $source): FluentDataMapper
     {
-        return (new FluentDataMapper())->source($source);
+        return self::createFluentMapper()->source($source);
     }
 
     /**
@@ -35,7 +35,7 @@ class DataMapper
      */
     public static function sourceFile(string $filePath): FluentDataMapper
     {
-        return (new FluentDataMapper())->sourceFile($filePath);
+        return self::createFluentMapper()->sourceFile($filePath);
     }
 
     /**
@@ -45,7 +45,7 @@ class DataMapper
      */
     public static function template(array $template): FluentDataMapper
     {
-        return (new FluentDataMapper())->template($template);
+        return self::createFluentMapper()->template($template);
     }
 
     /**
@@ -55,7 +55,7 @@ class DataMapper
      */
     public static function target(mixed $target): FluentDataMapper
     {
-        return (new FluentDataMapper())->target($target);
+        return self::createFluentMapper()->target($target);
     }
 
     /**
@@ -65,7 +65,7 @@ class DataMapper
      */
     public static function pipeline(array $filters): DataMapperQuery
     {
-        return (new DataMapperQuery())->pipeline($filters);
+        return self::createQuery()->pipeline($filters);
     }
 
     /**
@@ -75,11 +75,23 @@ class DataMapper
      */
     public static function pipeQuery(array $filters): FluentDataMapper
     {
-        return (new FluentDataMapper())->pipe($filters);
+        return self::createFluentMapper()->pipe($filters);
     }
 
     /** Create a DataMapperQuery. */
     public static function query(): DataMapperQuery
+    {
+        return self::createQuery();
+    }
+
+    /** Create a new FluentDataMapper instance. */
+    private static function createFluentMapper(): FluentDataMapper
+    {
+        return new FluentDataMapper();
+    }
+
+    /** Create a new DataMapperQuery instance. */
+    private static function createQuery(): DataMapperQuery
     {
         return new DataMapperQuery();
     }

@@ -45,7 +45,7 @@ final class FluentDataMapper
     /** @var array<int|string, mixed> */
     private array $originalTemplate = [];
 
-    /** @var array<int, FilterInterface> */
+    /** @var array<int, FilterInterface|class-string<FilterInterface>> */
     private array $pipelineFilters = [];
 
     /** @var array<string, array<int, FilterInterface>> */
@@ -329,8 +329,9 @@ final class FluentDataMapper
                 // Check if this level has the operator
                 if (isset($value[$operator])) {
                     // Reset to original value if exists, otherwise delete
-                    if (isset($original[$key][$operator])) {
-                        $value[$operator] = $original[$key][$operator];
+                    $originalValue = $original[$key] ?? null;
+                    if (is_array($originalValue) && isset($originalValue[$operator])) {
+                        $value[$operator] = $originalValue[$operator];
                     } else {
                         unset($value[$operator]);
                     }
@@ -537,7 +538,13 @@ final class FluentDataMapper
     public function getPropertyMappedValue(string $property): mixed
     {
         $result = $this->map();
-        return $this->getValueFromPath($result->getTarget(), $property);
+        $target = $result->getTarget();
+
+        if (!is_array($target)) {
+            return null;
+        }
+
+        return $this->getValueFromPath($target, $property);
     }
 
     /**
@@ -671,11 +678,11 @@ final class FluentDataMapper
             $cleanedTemplate = $this->cleanTemplateForTargetAliases($template);
 
             $result = MappingFacade::mapToTargetsFromTemplate(
-                $this->source,
-                $cleanedTemplate,
-                $target,
-                $this->skipNull,
-                $this->reindexWildcard
+                $this->source, // @phpstan-ignore-line argument.type
+                $cleanedTemplate, // @phpstan-ignore-line argument.type
+                $target, // @phpstan-ignore-line argument.type
+                $this->getSkipNullValue(),
+                $this->getReindexWildcardValue()
             );
 
             return new DataMapperResult($result, $this->source, $template, $this->exceptionHandler);
@@ -690,6 +697,7 @@ final class FluentDataMapper
         if ($this->hasWildcardOperators($template) || ($hasSourceAliases && $hasSourceAliasReferences)) {
             // If source is already an array with aliases, use it directly
             if ($hasSourceAliases && $hasSourceAliasReferences) {
+                assert(is_array($this->source), 'Source must be array when using aliases');
                 $namedSources = $this->source;
             } else {
                 // Extract source names from template
@@ -711,10 +719,10 @@ final class FluentDataMapper
             // Use mapFromTemplate for wildcard operator support
             // When using queries, reindexWildcard should default to true for consistent behavior
             $mappedArray = MappingFacade::mapFromTemplate(
-                $template,
+                $template, // @phpstan-ignore-line argument.type
                 $namedSources,
                 $this->getSkipNullValue(),
-                $hasSourceAliases && $hasSourceAliasReferences ? $this->reindexWildcard : true
+                $hasSourceAliases && $hasSourceAliasReferences ? $this->getReindexWildcardValue() : true
             );
 
             // If target is an object, map the array result to the object
@@ -730,7 +738,7 @@ final class FluentDataMapper
                     $target,
                     $simpleMapping,
                     $this->getSkipNullValue(),
-                    $this->reindexWildcard,
+                    $this->getReindexWildcardValue(),
                     $hooks,
                     $this->trimValues,
                     $this->caseInsensitiveReplace
@@ -748,7 +756,7 @@ final class FluentDataMapper
                 $target,
                 $template,
                 $this->getSkipNullValue(),
-                $this->reindexWildcard,
+                $this->getReindexWildcardValue(),
                 $mergedHooks,
                 $this->trimValues,
                 $this->caseInsensitiveReplace
@@ -760,7 +768,7 @@ final class FluentDataMapper
                 $target,
                 $template,
                 $this->getSkipNullValue(),
-                $this->reindexWildcard,
+                $this->getReindexWildcardValue(),
                 $hooks,
                 $this->trimValues,
                 $this->caseInsensitiveReplace
@@ -820,7 +828,7 @@ final class FluentDataMapper
                 $target,
                 $reversedTemplate,
                 $this->getSkipNullValue(),
-                $this->reindexWildcard,
+                $this->getReindexWildcardValue(),
                 $mergedHooks,
                 $this->trimValues,
                 $this->caseInsensitiveReplace
@@ -832,7 +840,7 @@ final class FluentDataMapper
                 $target,
                 $reversedTemplate,
                 $this->getSkipNullValue(),
-                $this->reindexWildcard,
+                $this->getReindexWildcardValue(),
                 $hooks,
                 $this->trimValues,
                 $this->caseInsensitiveReplace
@@ -848,8 +856,11 @@ final class FluentDataMapper
      */
     public function copy(): self
     {
-        // Use ObjectHelper for deep copy
-        $copy = ObjectHelper::copy($this, recursive: true, maxLevel: 10);
+        // Use ObjectHelper for deep copy (positional arguments for PHPStan)
+        $copy = ObjectHelper::copy($this, true, 10);
+
+        // Ensure we got the correct type back
+        assert($copy instanceof self, 'Copy must be instance of FluentDataMapper');
 
         // Create a new exception handler for the copy (not shared!)
         $copy->exceptionHandler = new DataMapperExceptionHandler();
@@ -858,9 +869,15 @@ final class FluentDataMapper
     }
 
     /** Get skipNull value (handle MappingOptions). */
-    private function getSkipNullValue(): bool|MappingOptions
+    private function getSkipNullValue(): bool
     {
-        return $this->mappingOptions ?? $this->skipNull;
+        return $this->mappingOptions->skipNull ?? $this->skipNull;
+    }
+
+    /** Get reindexWildcard value (handle MappingOptions). */
+    private function getReindexWildcardValue(): bool
+    {
+        return $this->mappingOptions->reindexWildcard ?? $this->reindexWildcard;
     }
 
     /**
@@ -912,6 +929,8 @@ final class FluentDataMapper
             if (isset($hooks[$hookName])) {
                 // Wrap both callbacks
                 $existingHook = $hooks[$hookName];
+                assert(is_callable($hookCallback), 'Hook callback must be callable');
+                assert(is_callable($existingHook), 'Existing hook must be callable');
                 $hooks[$hookName] = function($value, $context) use ($hookCallback, $existingHook) {
                     // Run property filter first
                     $value = $hookCallback($value, $context);
@@ -946,6 +965,8 @@ final class FluentDataMapper
             if (isset($hooks[$hookName])) {
                 // Wrap both callbacks
                 $existingHook = $hooks[$hookName];
+                assert(is_callable($existingHook), 'Existing hook must be callable');
+                assert(is_callable($pipelineCallback), 'Pipeline callback must be callable');
                 $hooks[$hookName] = function($value, $context) use ($existingHook, $pipelineCallback) {
                     // Run existing hook first (property filters)
                     $value = $existingHook($value, $context);
@@ -1074,7 +1095,9 @@ final class FluentDataMapper
         $templateExpression = '{{ ' . $wildcardPath . ' }}';
 
         // Recursively search and inject operators
-        return $this->recursiveInjectOperators($template, $wildcardPath, $templateExpression, $operators);
+        $result = $this->recursiveInjectOperators($template, $wildcardPath, $templateExpression, $operators);
+        assert(is_array($result), 'Result must be array');
+        return $result;
     }
 
     /**
@@ -1110,10 +1133,16 @@ final class FluentDataMapper
                         foreach ($operators as $operatorKey => $operatorValue) {
                             if ('WHERE' === $operatorKey && isset($mergedValue['WHERE'])) {
                                 // Merge WHERE conditions (AND logic)
-                                $mergedValue['WHERE'] = array_merge($mergedValue['WHERE'], $operatorValue);
+                                $existingWhere = $mergedValue['WHERE'];
+                                assert(is_array($existingWhere), 'WHERE must be array');
+                                assert(is_array($operatorValue), 'Operator value must be array');
+                                $mergedValue['WHERE'] = array_merge($existingWhere, $operatorValue);
                             } elseif ('ORDER BY' === $operatorKey && isset($mergedValue['ORDER BY'])) {
                                 // Merge ORDER BY conditions
-                                $mergedValue['ORDER BY'] = array_merge($mergedValue['ORDER BY'], $operatorValue);
+                                $existingOrderBy = $mergedValue['ORDER BY'];
+                                assert(is_array($existingOrderBy), 'ORDER BY must be array');
+                                assert(is_array($operatorValue), 'Operator value must be array');
+                                $mergedValue['ORDER BY'] = array_merge($existingOrderBy, $operatorValue);
                             } else {
                                 // For other operators, just set/override
                                 $mergedValue[$operatorKey] = $operatorValue;
@@ -1313,7 +1342,7 @@ final class FluentDataMapper
             $this->source,
             $this->target,
             $this->getSkipNullValue(),
-            $this->reindexWildcard,
+            $this->getReindexWildcardValue(),
             $hooks,
             $this->trimValues,
             $this->caseInsensitiveReplace,
@@ -1343,7 +1372,7 @@ final class FluentDataMapper
             $this->target,
             $this->source,
             $this->getSkipNullValue(),
-            $this->reindexWildcard,
+            $this->getReindexWildcardValue(),
             $hooks,
             $this->trimValues,
             $this->caseInsensitiveReplace,
@@ -1564,7 +1593,7 @@ final class FluentDataMapper
     /**
      * Convert array to XML recursively.
      *
-     * @param array<string, mixed> $array The array to convert
+     * @param array<int|string, mixed> $array The array to convert
      * @param SimpleXMLElement $xml The XML element to append to
      * @param string|null $parentKey The parent key name for singularization
      */

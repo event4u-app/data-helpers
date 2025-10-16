@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\Helpers;
 
 use ReflectionClass;
+use ReflectionProperty;
 
 /**
  * Helper class for object operations.
@@ -121,7 +122,11 @@ final class ObjectHelper
         return $copy;
     }
 
-    /** Check if an array contains objects. */
+    /**
+     * Check if an array contains objects.
+     *
+     * @param array<int|string, mixed> $array
+     */
     private static function containsObjects(array $array): bool
     {
         foreach ($array as $item) {
@@ -138,6 +143,7 @@ final class ObjectHelper
     /**
      * Recreate an object with deep-copied values for readonly properties.
      *
+     * @param ReflectionClass<object> $reflection
      * @param array<string, ReflectionProperty> $properties
      */
     private static function recreateObjectWithCopiedValues(

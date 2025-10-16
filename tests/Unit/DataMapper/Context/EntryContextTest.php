@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
+use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\Enums\Mode;
 
 describe('EntryContext', function(): void {

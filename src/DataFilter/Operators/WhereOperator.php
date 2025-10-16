@@ -60,15 +60,16 @@ final class WhereOperator extends AbstractOperator
         if (1 === count($condition)) {
             $key = array_key_first($condition);
             $keyUpper = strtoupper((string)$key);
+            $value = $condition[$key];
 
-            if ('AND' === $keyUpper && is_array($condition[$key])) {
-                /** @var array<int|string, mixed> $condition[$key] */
-                return $this->matchesAndCondition($condition[$key], $index, $item, $context);
+            if ('AND' === $keyUpper) {
+                assert(is_array($value));
+                return $this->matchesAndCondition($value, $index, $item, $context);
             }
 
-            if ('OR' === $keyUpper && is_array($condition[$key])) {
-                /** @var array<int|string, mixed> $condition[$key] */
-                return $this->matchesOrCondition($condition[$key], $index, $item, $context);
+            if ('OR' === $keyUpper) {
+                assert(is_array($value));
+                return $this->matchesOrCondition($value, $index, $item, $context);
             }
         }
 

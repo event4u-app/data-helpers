@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
+use InvalidArgumentException;
 
 /**
  * MapperQuery - Query on wildcards during mapping.
@@ -55,6 +56,8 @@ final class MapperQuery
             $operator = '=';
         }
 
+        assert(is_string($operator), 'Operator must be a string');
+
         $this->whereConditions[] = [
             'field' => $field,
             'operator' => $operator,
@@ -72,9 +75,17 @@ final class MapperQuery
      */
     public function orderBy(string $field, string $direction = 'ASC'): self
     {
+        $normalizedDirection = strtoupper($direction);
+        if (!in_array($normalizedDirection, ['ASC', 'DESC'], true)) {
+            throw new InvalidArgumentException(sprintf(
+                'Invalid ORDER BY direction: %s. Must be ASC or DESC.',
+                $direction
+            ));
+        }
+
         $this->orderByConditions[] = [
             'field' => $field,
-            'direction' => strtoupper($direction),
+            'direction' => $normalizedDirection,
         ];
 
         return $this;

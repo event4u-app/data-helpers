@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\DataFilter\Operators\WhereInOperator;
 use event4u\DataHelpers\DataFilter\Operators\AbstractOperator;
 use event4u\DataHelpers\DataFilter\Operators\OperatorContext;
+use event4u\DataHelpers\DataFilter\Operators\WhereInOperator;
 use event4u\DataHelpers\DataFilter\Operators\WhereNotInOperator;
 
 describe('WhereNotInOperator', function(): void {

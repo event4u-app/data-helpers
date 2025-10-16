@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\DataFilter\Operators\BetweenOperator;
 use event4u\DataHelpers\DataFilter\Operators\AbstractOperator;
+use event4u\DataHelpers\DataFilter\Operators\BetweenOperator;
 use event4u\DataHelpers\DataFilter\Operators\NotBetweenOperator;
 use event4u\DataHelpers\DataFilter\Operators\OperatorContext;
 

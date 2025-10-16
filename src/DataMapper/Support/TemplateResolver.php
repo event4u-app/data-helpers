@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\DataMapper;
+namespace event4u\DataHelpers\DataMapper\Support;
 
 use event4u\DataHelpers\DataAccessor;
-use event4u\DataHelpers\DataMapper\Support\TemplateParser;
-use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
-use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
 use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
 use event4u\DataHelpers\DataMutator;
@@ -15,9 +12,12 @@ use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
 
 /**
- * Handles template-based mapping operations.
+ * Resolves template-based mapping operations.
+ *
+ * This class handles the resolution of templates that reference values by alias.path notation.
+ * It supports wildcards, operators (WHERE, ORDER BY, etc.), and multi-pass alias resolution.
  */
-class TemplateMapper
+final class TemplateResolver
 {
     /**
      * Build a new array from a template that references values by alias.path notation.

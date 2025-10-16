@@ -8,6 +8,7 @@ use Closure;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Support\MappingFacade;
+use InvalidArgumentException;
 
 /**
  * Fluent query builder for DataMapper with Laravel-style syntax.
@@ -243,7 +244,15 @@ class DataMapperQuery
             $this->operatorOrder[] = 'ORDER BY';
         }
 
-        $this->orderByFields[$field] = strtoupper($direction);
+        $normalizedDirection = strtoupper($direction);
+        if (!in_array($normalizedDirection, ['ASC', 'DESC'], true)) {
+            throw new InvalidArgumentException(sprintf(
+                'Invalid ORDER BY direction: %s. Must be ASC or DESC.',
+                $direction
+            ));
+        }
+
+        $this->orderByFields[$field] = $normalizedDirection;
 
         return $this;
     }
@@ -529,7 +538,7 @@ class DataMapperQuery
         }
 
         // If we have a primary source, return the wildcard data from it
-        if (null !== $this->primarySource && isset($result[$this->primarySource])) {
+        if (null !== $this->primarySource && is_array($result) && isset($result[$this->primarySource])) {
             $sourceData = $result[$this->primarySource];
 
             // If the result has a '*' key (wildcard mapping), return that
@@ -542,7 +551,7 @@ class DataMapperQuery
             }
         }
 
-        return $result;
+        return is_array($result) ? $result : [];
     }
 
     /**

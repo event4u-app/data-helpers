@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\DataMapper;
+namespace event4u\DataHelpers\DataMapper\Support;
 
-use event4u\DataHelpers\DataMapper\Support\MappingFacade;
-use event4u\DataHelpers\DataMapper\Support\ValueTransformer;
 use event4u\DataHelpers\Support\ArrayableHelper;
 use event4u\DataHelpers\Support\ReflectionCache;
 use JsonSerializable;
@@ -13,13 +11,13 @@ use ReflectionClass;
 use ReflectionProperty;
 
 /**
- * Handles automatic field mapping with snake_case to camelCase conversion.
+ * Engine for automatic field mapping with snake_case to camelCase conversion.
+ *
+ * This class handles automatic mapping of fields from source to target with optional
+ * snake_case to camelCase conversion. It supports both shallow and deep mapping.
  */
-class AutoMapper
+final class AutoMappingEngine
 {
-    /** @var array<class-string, array<int, string>> */
-    private static array $propertyNamesCache = [];
-
     /**
      * Get cached ReflectionClass instance.
      *
@@ -28,27 +26,6 @@ class AutoMapper
     private static function getReflection(object $object): ReflectionClass
     {
         return ReflectionCache::getClass($object);
-    }
-
-    /**
-     * Get cached property names for an object.
-     *
-     * @return array<int, string>
-     */
-    private static function getPropertyNames(object $object): array
-    {
-        $class = $object::class;
-
-        if (!isset(self::$propertyNamesCache[$class])) {
-            $reflection = self::getReflection($object);
-            $properties = $reflection->getProperties();
-            self::$propertyNamesCache[$class] = array_map(
-                fn(ReflectionProperty $prop): string => $prop->getName(),
-                $properties
-            );
-        }
-
-        return self::$propertyNamesCache[$class];
     }
 
     /**
@@ -179,67 +156,6 @@ class AutoMapper
             }
 
             return $result;
-        }
-
-        return [];
-    }
-
-    /**
-     * Get all keys/properties from target.
-     *
-     * @return array<int, string>
-     * @phpstan-ignore method.unused
-     */
-    private static function getTargetKeys(mixed $target): array
-    {
-        if (is_array($target)) {
-            return array_keys($target);
-        }
-
-        if (is_object($target)) {
-            return self::getPropertyNames($target);
-        }
-
-        return [];
-    }
-
-    /**
-     * Find matching target key for source key (with snake_case → camelCase conversion).
-     *
-     * @param array<int, string> $targetKeys
-     * @phpstan-ignore method.unused
-     */
-    private static function findMatchingTargetKey(string $sourceKey, array $targetKeys): ?string
-    {
-        // Direct match
-        if (in_array($sourceKey, $targetKeys, true)) {
-            return $sourceKey;
-        }
-
-        // Try camelCase conversion
-        $camelCase = ValueTransformer::toCamelCase($sourceKey);
-        if (in_array($camelCase, $targetKeys, true)) {
-            return $camelCase;
-        }
-
-        return null;
-    }
-
-    /**
-     * Get nested target for deep mapping.
-     *
-     * @phpstan-ignore method.unused
-     */
-    private static function getNestedTarget(mixed $target, string $key): mixed
-    {
-        if (is_array($target)) {
-            return $target[$key] ?? [];
-        }
-
-        if (is_object($target) && property_exists($target, $key)) {
-            $reflection = new ReflectionProperty($target, $key);
-
-            return $reflection->getValue($target);
         }
 
         return [];
