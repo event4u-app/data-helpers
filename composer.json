@@ -83,8 +83,8 @@
   "bin": [],
   "scripts": {
     "composer:update": "composer update php --prefer-dist --no-interaction -W 2>&1",
-    "test": "vendor/bin/pest --compact --no-coverage --exclude-group=performance",
-    "test:coverage": "vendor/bin/pest --compact --exclude-group=performance",
+    "test": "vendor/bin/pest --compact --no-coverage --exclude-group=laravel,doctrine",
+    "test:coverage": "vendor/bin/pest --compact",
     "test:full": [
       "@test",
       "@test:e2e"
