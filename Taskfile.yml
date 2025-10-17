@@ -1,0 +1,598 @@
+version: '3'
+
+vars:
+  PHP_82: data-helpers-php82
+  PHP_83: data-helpers-php83
+  PHP_84: data-helpers-php84
+  DEFAULT_PHP: "{{.PHP_84}}"
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # ============================================================================
+  # Docker Management
+  # ============================================================================
+
+  docker:build:
+    desc: Build all Docker containers
+    cmds:
+      - docker-compose build
+
+  docker:up:
+    desc: Start all Docker containers
+    cmds:
+      - docker-compose up -d
+      - sleep 2
+      - echo "✅  Containers started"
+
+  docker:down:
+    desc: Stop all Docker containers
+    cmds:
+      - docker-compose down
+
+  docker:restart:
+    desc: Restart all Docker containers
+    deps: [docker:down, docker:up]
+
+  docker:logs:
+    desc: Show logs from all containers
+    cmds:
+      - docker-compose logs -f
+
+  docker:clean:
+    desc: Remove all containers and volumes
+    cmds:
+      - docker-compose down -v
+      - echo "✅  Cleanup complete"
+
+  docker:rebuild:
+    desc: Rebuild everything from scratch
+    deps: [docker:clean, docker:build, docker:up]
+
+  # ============================================================================
+  # Shell Access
+  # ============================================================================
+
+  shell:
+    desc: Open shell in PHP 8.4 container (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec -it {{.PHP | default .DEFAULT_PHP}} /bin/bash
+
+  shell:82:
+    desc: Open shell in PHP 8.2 container
+    deps: [docker:up]
+    cmds:
+      - docker exec -it {{.PHP_82}} /bin/bash
+
+  shell:83:
+    desc: Open shell in PHP 8.3 container
+    deps: [docker:up]
+    cmds:
+      - docker exec -it {{.PHP_83}} /bin/bash
+
+  shell:84:
+    desc: Open shell in PHP 8.4 container
+    deps: [docker:up]
+    cmds:
+      - docker exec -it {{.PHP_84}} /bin/bash
+
+  # ============================================================================
+  # Composer & Dependencies
+  # ============================================================================
+
+  install:
+    desc: Install dependencies in all containers
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_82}} composer install --prefer-dist --no-interaction
+      - docker exec {{.PHP_83}} composer install --prefer-dist --no-interaction
+      - docker exec {{.PHP_84}} composer install --prefer-dist --no-interaction
+      - echo "✅  Dependencies installed in all containers"
+
+  install:82:
+    desc: Install dependencies in PHP 8.2 container
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_82}} composer install --prefer-dist --no-interaction
+
+  install:83:
+    desc: Install dependencies in PHP 8.3 container
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_83}} composer install --prefer-dist --no-interaction
+
+  install:84:
+    desc: Install dependencies in PHP 8.4 container
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_84}} composer install --prefer-dist --no-interaction
+
+  update:
+    desc: Update dependencies (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer update --prefer-dist --no-interaction
+
+  # ============================================================================
+  # Tests - Basic
+  # ============================================================================
+
+  test:
+    desc: Run tests (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer test
+
+  test:82:
+    desc: Run tests with PHP 8.2
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_82}} composer test
+
+  test:83:
+    desc: Run tests with PHP 8.3
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_83}} composer test
+
+  test:84:
+    desc: Run tests with PHP 8.4
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_84}} composer test
+
+  test:coverage:
+    desc: Run tests with coverage (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer test:coverage
+
+  test:full:
+    desc: Run full test suite including e2e (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer test:full
+
+  # ============================================================================
+  # Tests - Laravel
+  # ============================================================================
+
+  test:laravel9:
+    desc: Test with Laravel 9 (PHP 8.2)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_82}} ./scripts/test-with-versions.sh -l 9
+
+  test:laravel10:
+    desc: Test with Laravel 10 (use PHP=8.2|8.3)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .PHP_83}} ./scripts/test-with-versions.sh -l 10
+
+  test:laravel11:
+    desc: Test with Laravel 11 (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -l 11
+
+  test:all-laravel:
+    desc: Test all Laravel versions
+    deps: [docker:up]
+    cmds:
+      - task: test:laravel9
+      - task: test:laravel10
+      - task: test:laravel11
+
+  # ============================================================================
+  # Tests - Symfony
+  # ============================================================================
+
+  test:symfony6:
+    desc: Test with Symfony 6 (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -s 6
+
+  test:symfony7:
+    desc: Test with Symfony 7 (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -s 7
+
+  test:all-symfony:
+    desc: Test all Symfony versions
+    deps: [docker:up]
+    cmds:
+      - task: test:symfony6
+      - task: test:symfony7
+
+  # ============================================================================
+  # Tests - Doctrine
+  # ============================================================================
+
+  test:doctrine2:
+    desc: Test with Doctrine 2 (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -d 2
+
+  test:doctrine3:
+    desc: Test with Doctrine 3 (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -d 3
+
+  test:all-doctrine:
+    desc: Test all Doctrine versions
+    deps: [docker:up]
+    cmds:
+      - task: test:doctrine2
+      - task: test:doctrine3
+
+  # ============================================================================
+  # Tests - All Frameworks
+  # ============================================================================
+
+  test:all:
+    desc: Run all framework tests
+    deps: [docker:up]
+    cmds:
+      - task: test:all-laravel
+      - task: test:all-symfony
+      - task: test:all-doctrine
+
+  test:matrix:
+    desc: Run all tests from test matrix
+    deps: [docker:up]
+    cmds:
+      - ./docker/test-all.sh
+
+  test:matrix:82:
+    desc: Run all PHP 8.2 tests from matrix
+    deps: [docker:up]
+    cmds:
+      - ./docker/test-all.sh -p 8.2
+
+  test:matrix:83:
+    desc: Run all PHP 8.3 tests from matrix
+    deps: [docker:up]
+    cmds:
+      - ./docker/test-all.sh -p 8.3
+
+  test:matrix:84:
+    desc: Run all PHP 8.4 tests from matrix
+    deps: [docker:up]
+    cmds:
+      - ./docker/test-all.sh -p 8.4
+
+  # ============================================================================
+  # Tests - E2E
+  # ============================================================================
+
+  test:e2e:
+    desc: Run e2e tests (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer test:e2e
+
+  test:e2e-laravel:
+    desc: Run Laravel e2e tests (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer test:e2e-laravel
+
+  test:e2e-symfony:
+    desc: Run Symfony e2e tests (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer test:e2e-symfony
+
+  # ============================================================================
+  # Code Quality - PHPStan
+  # ============================================================================
+
+  phpstan:
+    desc: Run PHPStan analysis (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan
+
+  phpstan:82:
+    desc: Run PHPStan with PHP 8.2
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_82}} composer phpstan
+
+  phpstan:83:
+    desc: Run PHPStan with PHP 8.3
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_83}} composer phpstan
+
+  phpstan:84:
+    desc: Run PHPStan with PHP 8.4
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_84}} composer phpstan
+
+  phpstan:baseline:
+    desc: Generate PHPStan baseline (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan:baseline
+
+  phpstan:clear:
+    desc: Clear PHPStan cache (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan:clear-cache
+
+  # ============================================================================
+  # Code Quality - ECS (Easy Coding Standard)
+  # ============================================================================
+
+  ecs:
+    desc: Run ECS code style check (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs
+
+  ecs:fix:
+    desc: Fix code style with ECS (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs:fix
+
+  # ============================================================================
+  # Code Quality - Rector
+  # ============================================================================
+
+  rector:
+    desc: Run Rector dry-run (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer rector
+
+  rector:fix:
+    desc: Apply Rector changes (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer rector:fix
+
+  # ============================================================================
+  # Code Quality - Combined
+  # ============================================================================
+
+  refactor:
+    desc: Run ECS and Rector dry-run (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer refactor
+
+  refactor:fix:
+    desc: Apply ECS and Rector fixes (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer refactor:fix
+
+  quality:
+    desc: Run all quality checks (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer quality
+
+  quality:fix:
+    desc: Run all quality checks with fixes (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer quality:fix
+
+  # ============================================================================
+  # Benchmarks
+  # ============================================================================
+
+  benchmark:
+    desc: Run benchmarks (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer benchmark
+
+  benchmark:readme:
+    desc: Update benchmark results in README (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer benchmark:readme
+
+  # ============================================================================
+  # Cache Management
+  # ============================================================================
+
+  cache:clear:
+    desc: Clear cache (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer cache:clear
+
+  cache:stats:
+    desc: Show cache statistics (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer cache:stats
+
+  # ============================================================================
+  # Utilities
+  # ============================================================================
+
+  sort-deps:
+    desc: Sort dependencies in composer.json (use PHP=8.2|8.3|8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer sort-deps
+
+  # ============================================================================
+  # Quick Shortcuts
+  # ============================================================================
+
+  l9:
+    desc: Quick test Laravel 9 with PHP 8.2
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_82}} ./scripts/test-with-versions.sh -l 9
+
+  l10:
+    desc: Quick test Laravel 10 with PHP 8.3
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_83}} ./scripts/test-with-versions.sh -l 10
+
+  l11:
+    desc: Quick test Laravel 11 with PHP 8.4
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_84}} ./scripts/test-with-versions.sh -l 11
+
+  s6:
+    desc: Quick test Symfony 6 with PHP 8.3
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_83}} ./scripts/test-with-versions.sh -s 6
+
+  s7:
+    desc: Quick test Symfony 7 with PHP 8.4
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_84}} ./scripts/test-with-versions.sh -s 7
+
+  d2:
+    desc: Quick test Doctrine 2 with PHP 8.2
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_82}} ./scripts/test-with-versions.sh -d 2
+
+  d3:
+    desc: Quick test Doctrine 3 with PHP 8.4
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_84}} ./scripts/test-with-versions.sh -d 3
+
+  # ============================================================================
+  # CI Simulation
+  # ============================================================================
+
+  ci:
+    desc: Simulate CI pipeline (all tests + quality checks)
+    deps: [docker:up]
+    cmds:
+      - echo "🚀 Running CI simulation..."
+      - task: quality
+      - task: test:matrix
+      - echo "✅  CI simulation complete"
+
+  ci:82:
+    desc: Simulate CI for PHP 8.2
+    deps: [docker:up]
+    cmds:
+      - echo "🚀 Running CI simulation for PHP 8.2..."
+      - docker exec {{.PHP_82}} composer quality
+      - ./docker/test-all.sh -p 8.2
+      - echo "✅  CI simulation complete"
+
+  ci:83:
+    desc: Simulate CI for PHP 8.3
+    deps: [docker:up]
+    cmds:
+      - echo "🚀 Running CI simulation for PHP 8.3..."
+      - docker exec {{.PHP_83}} composer quality
+      - ./docker/test-all.sh -p 8.3
+      - echo "✅  CI simulation complete"
+
+  ci:84:
+    desc: Simulate CI for PHP 8.4
+    deps: [docker:up]
+    cmds:
+      - echo "🚀 Running CI simulation for PHP 8.4..."
+      - docker exec {{.PHP_84}} composer quality
+      - ./docker/test-all.sh -p 8.4
+      - echo "✅  CI simulation complete"
+
+  # ============================================================================
+  # Development Workflows
+  # ============================================================================
+
+  dev:setup:
+    desc: Complete development setup
+    cmds:
+      - task: docker:build
+      - task: docker:up
+      - task: install
+      - echo "✅  Development environment ready"
+
+  dev:reset:
+    desc: Reset development environment
+    cmds:
+      - task: docker:clean
+      - task: docker:build
+      - task: docker:up
+      - task: install
+      - echo "✅  Development environment reset"
+
+  dev:test:
+    desc: Quick development test (PHP 8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_84}} composer test
+
+  dev:quality:
+    desc: Quick quality check (PHP 8.4)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP_84}} composer ecs
+      - docker exec {{.PHP_84}} composer phpstan
+
+  # ============================================================================
+  # Pre-commit / Pre-push
+  # ============================================================================
+
+  pre-commit:
+    desc: Run checks before commit
+    deps: [docker:up]
+    cmds:
+      - echo "🔍 Running pre-commit checks..."
+      - docker exec {{.PHP_84}} composer ecs:fix
+      - docker exec {{.PHP_84}} composer rector:fix
+      - docker exec {{.PHP_84}} composer test
+      - echo "✅  Pre-commit checks passed"
+
+  pre-push:
+    desc: Run checks before push
+    deps: [docker:up]
+    cmds:
+      - echo "🔍 Running pre-push checks..."
+      - docker exec {{.PHP_84}} composer quality:fix
+      - docker exec {{.PHP_84}} composer test:full
+      - echo "✅  Pre-push checks passed"
+
+  # ============================================================================
+  # Help & Info
+  # ============================================================================
+
+  info:
+    desc: Show environment information
+    cmds:
+      - echo "Data Helpers - Docker Environment"
+      - echo ""
+      - echo "Available PHP versions:"
+      - echo "  - PHP 8.2 (container{{":"}} {{.PHP_82}})"
+      - echo "  - PHP 8.3 (container{{":"}} {{.PHP_83}})"
+      - echo "  - PHP 8.4 (container{{":"}} {{.PHP_84}})"
+      - echo ""
+      - echo "Container status:"
+      - docker-compose ps
+      - echo ""
+      - echo "Use 'task --list' to see all available tasks"
+      - echo "Use 'task [task-name] PHP=8.2' to run with specific PHP version"
+

@@ -35,6 +35,12 @@ All helpers live under the `event4u\DataHelpers` namespace and are framework-fri
 - Examples: [examples.md](examples.md)
 - Benchmarks: [benchmarks.md](benchmarks.md)
 
+### Development & Testing
+- Docker Setup: [docker-setup.md](docker-setup.md)
+- Taskfile Guide: [taskfile-guide.md](taskfile-guide.md)
+- Test with Versions: [test-with-versions.md](test-with-versions.md)
+- Scripts: [scripts.md](scripts.md)
+
 ## At a glance
 
 - Dot paths like `user.profile.name`
