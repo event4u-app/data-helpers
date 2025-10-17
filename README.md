@@ -645,6 +645,57 @@ $product = new ProductModel(['id' => '12345', 'name' => '  Mouse  ']);
 
 📖 **[All Filters](docs/filters.md)**
 
+---
+
+### SimpleDTO - Immutable Data Transfer Objects
+
+Create type-safe, immutable DTOs with automatic JSON serialization:
+
+```php
+use event4u\DataHelpers\SimpleDTO;
+
+class UserDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly int $age,
+    ) {}
+}
+
+// Create from array
+$user = UserDTO::fromArray([
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+    'age' => 30,
+]);
+
+// Access properties
+echo $user->name; // 'John Doe'
+
+// Convert to array or JSON
+$array = $user->toArray();
+$json = json_encode($user);
+
+// Works seamlessly with DataMapper
+$mappedData = DataMapper::source($apiResponse)
+    ->template(['name' => '{{ user.full_name }}', 'email' => '{{ user.email }}'])
+    ->map()
+    ->toArray();
+$dto = UserDTO::fromArray($mappedData);
+```
+
+**Features:**
+- ✅ Immutable by design with readonly properties
+- ✅ Type-safe with full PHP type hinting
+- ✅ JSON serializable out of the box
+- ✅ Supports nested DTOs
+- ✅ PHPStan Level 9 compliant
+
+📖 **[Full SimpleDTO Documentation](docs/simple-dto.md)** • [Examples](examples/23-simple-dto.php)
+
+---
+
 ### Query Builder - Laravel-Style Fluent Interface
 
 Build complex data queries with an intuitive, chainable API:
@@ -766,6 +817,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - **[Filters](docs/filters.md)** - All built-in filters and how to create custom ones
     - **[Callback Filters](docs/callback-filters.md)** - Custom transformations using closures with full context access
 - **[Mapped Data Model](docs/mapped-data-model.md)** - Laravel-style request binding with type safety
+- **[SimpleDTO](docs/simple-dto.md)** - Immutable Data Transfer Objects with JSON serialization
 - **[Exception Handling](docs/exception-handling.md)** - Error handling, collection, and debugging
 - **[Dot-Path Syntax](docs/dot-path.md)** - Path notation reference and best practices
 - **[Optional Dependencies](docs/optional-dependencies.md)** - Framework integration guide
@@ -813,6 +865,7 @@ Use Laravel and Doctrine together - automatic detection handles both!
 - [20-data-filter.php](examples/20-data-filter.php) - DataFilter with WHERE, ORDER BY, LIMIT, first(), count()
 - [21-custom-operators.php](examples/21-custom-operators.php) - Custom operators for DataFilter and QueryBuilder
 - [22-complex-queries.php](examples/22-complex-queries.php) - Complex queries with multiple operators chained
+- [23-simple-dto.php](examples/23-simple-dto.php) - Immutable DTOs with JSON serialization and DataMapper integration
 
 ---
 

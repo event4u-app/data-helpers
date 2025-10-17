@@ -91,6 +91,8 @@
     ],
     "benchmark": "vendor/bin/phpbench run --report=table",
     "benchmark:readme": "php scripts/update-benchmark-results.php",
+    "bench:dto": "php scripts/dto-benchmark.php",
+    "bench:dto:readme": "php scripts/update-dto-benchmark-results.php",
     "test:laravel9": [
       "./scripts/test-with-versions.sh --laravel 9",
       "@composer:update"

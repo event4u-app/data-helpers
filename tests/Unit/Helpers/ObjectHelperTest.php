@@ -17,9 +17,10 @@ describe('ObjectHelper', function(): void {
                 public int $age = 30;
             };
 
-            $copy = ObjectHelper::copy($original, recursive: false);
+            $copy = ObjectHelper::copy($original, false);
 
             expect($copy)->not->toBe($original);
+            /** @var object{name: string, age: int} $copy */
             expect($copy->name)->toBe('Alice');
             expect($copy->age)->toBe(30);
         });
@@ -32,14 +33,20 @@ describe('ObjectHelper', function(): void {
                 public function __construct(public object $nested) {}
             };
 
-            $copy = ObjectHelper::copy($original, recursive: false);
+            $copy = ObjectHelper::copy($original, false);
 
             // Shallow copy: nested object is shared
+            /** @var object{nested: object} $copy */
+            /** @var object{nested: object{value: string}} $original */
             expect($copy->nested)->toBe($original->nested);
 
             // Modifying nested object affects both
-            $copy->nested->value = 'modified';
-            expect($original->nested->value)->toBe('modified');
+            /** @var object{value: string} $nestedCopy */
+            $nestedCopy = $copy->nested;
+            $nestedCopy->value = 'modified';
+            /** @var object{value: string} $nestedOriginal */
+            $nestedOriginal = $original->nested;
+            expect($nestedOriginal->value)->toBe('modified');
         });
     });
 
@@ -52,7 +59,7 @@ describe('ObjectHelper', function(): void {
                 public function __construct(public object $nested) {}
             };
 
-            $copy = ObjectHelper::copy($original, recursive: true);
+            $copy = ObjectHelper::copy($original, true);
 
             // Deep copy: nested object is copied
             expect($copy->nested)->not->toBe($original->nested);
@@ -72,7 +79,7 @@ describe('ObjectHelper', function(): void {
                 ];
             };
 
-            $copy = ObjectHelper::copy($original, recursive: true);
+            $copy = ObjectHelper::copy($original, true);
 
             // Deep copy: arrays have same content
             expect($copy->items)->toBe([
@@ -104,7 +111,7 @@ describe('ObjectHelper', function(): void {
                 public array $users;
             };
 
-            $copy = ObjectHelper::copy($original, recursive: true);
+            $copy = ObjectHelper::copy($original, true);
 
             // Deep copy: objects in arrays are copied
             expect($copy->users[0])->not->toBe($original->users[0]);
@@ -132,7 +139,7 @@ describe('ObjectHelper', function(): void {
                 public function __construct(public object $nested) {}
             };
 
-            $copy = ObjectHelper::copy($original, recursive: true, maxLevel: 10);
+            $copy = ObjectHelper::copy($original, true, 10);
 
             // All levels are copied (within maxLevel)
             expect($copy->nested)->not->toBe($original->nested);
@@ -161,7 +168,7 @@ describe('ObjectHelper', function(): void {
             };
 
             // Copy with maxLevel = 1 (only first level is copied)
-            $copy = ObjectHelper::copy($original, recursive: true, maxLevel: 1);
+            $copy = ObjectHelper::copy($original, true, 1);
 
             // Level 1 is copied
             expect($copy->nested)->not->toBe($original->nested);
@@ -192,7 +199,7 @@ describe('ObjectHelper', function(): void {
                 }
             };
 
-            $copy = ObjectHelper::copy($original, recursive: true);
+            $copy = ObjectHelper::copy($original, true);
 
             expect($copy->getSecret())->toBe('hidden');
 
@@ -217,7 +224,7 @@ describe('ObjectHelper', function(): void {
                 }
             };
 
-            $copy = ObjectHelper::copy($original, recursive: true);
+            $copy = ObjectHelper::copy($original, true);
 
             expect($copy->getProtected())->toBe('protected value');
 
@@ -251,7 +258,7 @@ describe('ObjectHelper', function(): void {
                 }
             };
 
-            $copy = ObjectHelper::copy($original, recursive: true);
+            $copy = ObjectHelper::copy($original, true);
 
             // Nested object is copied
             expect($copy->getNested())->not->toBe($original->getNested());
@@ -271,7 +278,7 @@ describe('ObjectHelper', function(): void {
                 public string $uninitialized;
             };
 
-            $copy = ObjectHelper::copy($original, recursive: true);
+            $copy = ObjectHelper::copy($original, true);
 
             expect($copy->initialized)->toBe('value');
             expect(property_exists($copy, 'uninitialized'))->toBeTrue();
@@ -280,7 +287,7 @@ describe('ObjectHelper', function(): void {
         it('handles empty objects', function(): void {
             $original = new stdClass();
 
-            $copy = ObjectHelper::copy($original, recursive: true);
+            $copy = ObjectHelper::copy($original, true);
 
             expect($copy)->not->toBe($original);
             expect($copy)->toBeInstanceOf(stdClass::class);
@@ -295,7 +302,7 @@ describe('ObjectHelper', function(): void {
                 public ?string $nullable = null;
             };
 
-            $copy = ObjectHelper::copy($original, recursive: true);
+            $copy = ObjectHelper::copy($original, true);
 
             expect($copy)->not->toBe($original);
             expect($copy->name)->toBe('Alice');

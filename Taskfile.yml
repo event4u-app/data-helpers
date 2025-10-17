@@ -407,6 +407,18 @@ tasks:
     cmds:
       - docker exec {{.PHP | default .DEFAULT_PHP}} composer benchmark:readme
 
+  bench:dto:
+    desc: Run DTO benchmarks (Traditional vs SimpleDTO)
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer bench:dto
+
+  bench:dto:readme:
+    desc: Update DTO benchmark results in docs/simple-dto.md
+    deps: [docker:up]
+    cmds:
+      - docker exec {{.PHP | default .DEFAULT_PHP}} composer bench:dto:readme
+
   # ============================================================================
   # Cache Management
   # ============================================================================

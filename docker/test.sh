@@ -199,6 +199,6 @@ fi
 
 echo ""
 echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║${NC}  All checks completed successfully! 🎉                     ${GREEN}║${NC}"
+echo -e "${GREEN}║${NC}  All checks completed successfully! 🎉                      ${GREEN}║${NC}"
 echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
 
