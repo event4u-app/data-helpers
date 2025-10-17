@@ -7,7 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 
 /**
- * Attribute to define a property as a collection of DTOs.
+ * Attribute to define a property as a DataCollection of DTOs.
  *
  * This attribute automatically configures the CollectionCast for the property.
  * It's a convenience attribute that combines casting and type information.
@@ -15,17 +15,13 @@ use Attribute;
  * Example:
  *   class OrderDTO extends SimpleDTO {
  *       #[DataCollectionOf(OrderItemDTO::class)]
- *       public readonly Collection $items;
- *
- *       #[DataCollectionOf(TagDTO::class, collectionType: 'doctrine')]
- *       public readonly DoctrineCollection $tags;
+ *       public readonly DataCollection $items;
  *   }
  *
  * This is equivalent to:
  *   protected function casts(): array {
  *       return [
  *           'items' => 'collection:App\DTOs\OrderItemDTO',
- *           'tags' => 'collection:doctrine,App\DTOs\TagDTO',
  *       ];
  *   }
  */
@@ -34,11 +30,9 @@ class DataCollectionOf
 {
     /**
      * @param class-string $dtoClass The DTO class for collection items
-     * @param string $collectionType Collection type: 'laravel' or 'doctrine' (default: 'laravel')
      */
     public function __construct(
         public readonly string $dtoClass,
-        public readonly string $collectionType = 'laravel',
     ) {}
 }
 

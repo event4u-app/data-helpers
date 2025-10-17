@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-use Doctrine\Common\Collections\ArrayCollection;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
-use Illuminate\Support\Collection;
+use event4u\DataHelpers\SimpleDTO\DataCollection;
 use Tests\Unit\SimpleDTO\Fixtures\UserDTO;
 
 describe('CollectionCast', function(): void {
-    describe('Laravel Collection', function(): void {
-        it('casts array to Laravel Collection', function(): void {
+    describe('DataCollection', function(): void {
+        it('throws exception when no DTO class is specified', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
-                    public readonly Collection $tags = new Collection(),
+                    public readonly ?DataCollection $tags = null,
                 ) {}
 
                 protected function casts(): array
@@ -22,118 +21,18 @@ describe('CollectionCast', function(): void {
                 }
             };
 
-            $instance = $dto::fromArray(['tags' => ['x', 'y', 'z']]);
+            $dto::fromArray(['tags' => ['x', 'y', 'z']]);
+        })->throws(RuntimeException::class, 'CollectionCast requires a DTO class');
 
-            expect($instance->tags)->toBeInstanceOf(Collection::class)
-                ->and($instance->tags->toArray())->toBe(['x', 'y', 'z'])
-                ->and($instance->tags->count())->toBe(3);
-        });
-
-        it('keeps existing Laravel Collection', function(): void {
-            $collection = new Collection(['a', 'b', 'c']);
-
-            $dto = new class($collection) extends SimpleDTO {
-                public function __construct(
-                    public readonly Collection $tags,
-                ) {}
-
-                protected function casts(): array
-                {
-                    return ['tags' => 'collection'];
-                }
-            };
-
-            $instance = $dto::fromArray(['tags' => $collection]);
-
-            expect($instance->tags)->toBe($collection)
-                ->and($instance->tags->toArray())->toBe(['a', 'b', 'c']);
-        });
-
-        it('handles null values', function(): void {
+        it('casts array to DataCollection with DTO class', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
-                    public readonly ?Collection $tags = null,
+                    public readonly ?DataCollection $users = null,
                 ) {}
 
                 protected function casts(): array
                 {
-                    return ['tags' => 'collection'];
-                }
-            };
-
-            $instance = $dto::fromArray(['tags' => null]);
-
-            expect($instance->tags)->toBeNull();
-        });
-
-        it('converts collection to array in toArray()', function(): void {
-            $dto = new class(new Collection(['a', 'b', 'c'])) extends SimpleDTO {
-                public function __construct(
-                    public readonly Collection $tags,
-                ) {}
-
-                protected function casts(): array
-                {
-                    return ['tags' => 'collection'];
-                }
-            };
-
-            $array = $dto->toArray();
-
-            expect($array['tags'])->toBeArray()
-                ->and($array['tags'])->toBe(['a', 'b', 'c']);
-        });
-    });
-
-    describe('Doctrine Collection', function(): void {
-        it('casts array to Doctrine Collection', function(): void {
-            $dto = new class(new ArrayCollection()) extends SimpleDTO {
-                public function __construct(
-                    public readonly ArrayCollection $tags,
-                ) {}
-
-                protected function casts(): array
-                {
-                    return ['tags' => 'collection:doctrine'];
-                }
-            };
-
-            $instance = $dto::fromArray(['tags' => ['x', 'y', 'z']]);
-
-            expect($instance->tags)->toBeInstanceOf(ArrayCollection::class)
-                ->and($instance->tags->toArray())->toBe(['x', 'y', 'z'])
-                ->and($instance->tags->count())->toBe(3);
-        });
-
-        it('converts Doctrine collection to array in toArray()', function(): void {
-            $dto = new class(new ArrayCollection(['a', 'b', 'c'])) extends SimpleDTO {
-                public function __construct(
-                    public readonly ArrayCollection $tags,
-                ) {}
-
-                protected function casts(): array
-                {
-                    return ['tags' => 'collection:doctrine'];
-                }
-            };
-
-            $array = $dto->toArray();
-
-            expect($array['tags'])->toBeArray()
-                ->and($array['tags'])->toBe(['a', 'b', 'c']);
-        });
-    });
-
-    describe('Typed Collections (DTOs)', function(): void {
-        it('casts array of arrays to Collection of DTOs', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly Collection $users = new Collection(),
-                ) {}
-
-                protected function casts(): array
-                {
-                    return ['users' => 'collection:laravel,' . UserDTO::class];
+                    return ['users' => 'collection:' . UserDTO::class];
                 }
             };
 
@@ -144,7 +43,7 @@ describe('CollectionCast', function(): void {
                 ],
             ]);
 
-            expect($instance->users)->toBeInstanceOf(Collection::class)
+            expect($instance->users)->toBeInstanceOf(DataCollection::class)
                 ->and($instance->users->count())->toBe(2)
                 ->and($instance->users->first())->toBeInstanceOf(UserDTO::class)
                 ->and($instance->users->first()->name)->toBe('John')
@@ -153,28 +52,60 @@ describe('CollectionCast', function(): void {
                 ->and($instance->users->last()->age)->toBe(25);
         });
 
-        it('converts Collection of DTOs to array in toArray()', function(): void {
-            $userDTO = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = '',
-                    public readonly int $age = 0,
-                ) {}
-            };
-
-            $users = new Collection([
-                $userDTO::fromArray(['name' => 'John', 'age' => 30]),
-                $userDTO::fromArray(['name' => 'Jane', 'age' => 25]),
+        it('keeps existing DataCollection', function(): void {
+            $collection = DataCollection::forDto(UserDTO::class, [
+                ['name' => 'Alice', 'age' => 28],
+                ['name' => 'Bob', 'age' => 32],
             ]);
 
-            $dto = new class($users, $userDTO::class) extends SimpleDTO {
+            $dto = new class($collection) extends SimpleDTO {
                 public function __construct(
-                    public readonly Collection $users,
-                    private readonly string $userDTOClass,
+                    public readonly DataCollection $users,
                 ) {}
 
                 protected function casts(): array
                 {
-                    return ['users' => 'collection:laravel,' . $this->userDTOClass];
+                    return ['users' => 'collection:' . UserDTO::class];
+                }
+            };
+
+            $instance = $dto::fromArray(['users' => $collection]);
+
+            expect($instance->users)->toBe($collection)
+                ->and($instance->users->count())->toBe(2);
+        });
+
+        it('handles null values', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly ?DataCollection $users = null,
+                ) {}
+
+                protected function casts(): array
+                {
+                    return ['users' => 'collection:' . UserDTO::class];
+                }
+            };
+
+            $instance = $dto::fromArray(['users' => null]);
+
+            expect($instance->users)->toBeNull();
+        });
+
+        it('converts DataCollection to array in toArray()', function(): void {
+            $collection = DataCollection::forDto(UserDTO::class, [
+                ['name' => 'John', 'age' => 30],
+                ['name' => 'Jane', 'age' => 25],
+            ]);
+
+            $dto = new class($collection) extends SimpleDTO {
+                public function __construct(
+                    public readonly DataCollection $users,
+                ) {}
+
+                protected function casts(): array
+                {
+                    return ['users' => 'collection:' . UserDTO::class];
                 }
             };
 
@@ -187,13 +118,62 @@ describe('CollectionCast', function(): void {
         });
     });
 
+    describe('Edge Cases', function(): void {
+        it('handles single item array', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly ?DataCollection $users = null,
+                ) {}
+
+                protected function casts(): array
+                {
+                    return ['users' => 'collection:' . UserDTO::class];
+                }
+            };
+
+            $instance = $dto::fromArray([
+                'users' => [
+                    ['name' => 'John', 'age' => 30],
+                ],
+            ]);
+
+            expect($instance->users)->toBeInstanceOf(DataCollection::class)
+                ->and($instance->users->count())->toBe(1)
+                ->and($instance->users->first())->toBeInstanceOf(UserDTO::class)
+                ->and($instance->users->first()->name)->toBe('John');
+        });
+
+        it('handles empty array', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly ?DataCollection $users = null,
+                ) {}
+
+                protected function casts(): array
+                {
+                    return ['users' => 'collection:' . UserDTO::class];
+                }
+            };
+
+            $instance = $dto::fromArray(['users' => []]);
+
+            expect($instance->users)->toBeInstanceOf(DataCollection::class)
+                ->and($instance->users->count())->toBe(0);
+        });
+    });
+
     describe('DataCollectionOf Attribute', function(): void {
         it('uses DataCollectionOf attribute for casting', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
                     #[DataCollectionOf(UserDTO::class)]
-                    public readonly Collection $users = new Collection(),
+                    public readonly ?DataCollection $users = null,
                 ) {}
+
+                protected function casts(): array
+                {
+                    return ['users' => 'collection:' . UserDTO::class];
+                }
             };
 
             $instance = $dto::fromArray([
@@ -203,7 +183,7 @@ describe('CollectionCast', function(): void {
                 ],
             ]);
 
-            expect($instance->users)->toBeInstanceOf(Collection::class)
+            expect($instance->users)->toBeInstanceOf(DataCollection::class)
                 ->and($instance->users->count())->toBe(2)
                 ->and($instance->users->first())->toBeInstanceOf(UserDTO::class)
                 ->and($instance->users->first()->name)->toBe('Alice')

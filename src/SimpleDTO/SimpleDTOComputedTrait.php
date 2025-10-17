@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO;
 
 use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
+use event4u\DataHelpers\Support\ReflectionCache;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -69,8 +70,7 @@ trait SimpleDTOComputedTrait
         $computed = [];
 
         try {
-            $reflection = new ReflectionClass($this);
-            $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
+            $methods = ReflectionCache::getMethods($this);
 
             foreach ($methods as $method) {
                 // Skip magic methods and constructor
@@ -78,11 +78,10 @@ trait SimpleDTOComputedTrait
                     continue;
                 }
 
-                $attributes = $method->getAttributes(Computed::class);
+                $attributes = ReflectionCache::getMethodAttributes($this, $method->getName());
 
-                if (!empty($attributes)) {
-                    $computedAttr = $attributes[0]->newInstance();
-                    $computed[$method->getName()] = $computedAttr;
+                if (isset($attributes[Computed::class])) {
+                    $computed[$method->getName()] = $attributes[Computed::class];
                 }
             }
         } catch (ReflectionException $e) {

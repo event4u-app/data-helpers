@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Casts;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use event4u\DataHelpers\SimpleDTO\Contracts\CastsAttributes;
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
-use Illuminate\Support\Collection as LaravelCollection;
+use event4u\DataHelpers\SimpleDTO\DataCollection;
 use RuntimeException;
 
 /**
- * Cast attribute to Collection (Laravel or Doctrine).
+ * Cast attribute to DataCollection (framework-independent).
  *
  * Supports:
- * - Laravel Collections (Illuminate\Support\Collection)
- * - Doctrine Collections (Doctrine\Common\Collections\Collection)
+ * - DataCollection (event4u\DataHelpers\SimpleDTO\DataCollection)
  * - Typed collections (collections of DTOs)
  * - Nested DTOs
  * - Null values
@@ -24,40 +20,33 @@ use RuntimeException;
  * Example:
  *   protected function casts(): array {
  *       return [
- *           'items' => 'collection',                           // Laravel Collection
- *           'users' => 'collection:App\DTOs\UserDTO',          // Collection of UserDTOs
- *           'tags' => 'collection:doctrine',                   // Doctrine Collection
- *           'posts' => 'collection:doctrine,App\DTOs\PostDTO', // Doctrine Collection of PostDTOs
+ *           'items' => 'collection',                    // DataCollection
+ *           'users' => 'collection:App\DTOs\UserDTO',   // DataCollection<UserDTO>
  *       ];
  *   }
  */
 class CollectionCast implements CastsAttributes
 {
-    private readonly string $collectionType;
-
     private readonly ?string $dtoClass;
 
     /**
-     * @param string $collectionType Collection type: 'laravel' or 'doctrine' (default: 'laravel')
      * @param string|null $dtoClass Optional DTO class for typed collections
      */
     public function __construct(
-        string $collectionType = 'laravel',
         ?string $dtoClass = null,
     ) {
-        $this->collectionType = strtolower($collectionType);
         $this->dtoClass = $dtoClass;
     }
 
-    /** @return LaravelCollection<array-key, mixed>|DoctrineCollection<array-key, mixed>|null */
-    public function get(mixed $value, array $attributes): LaravelCollection|DoctrineCollection|null
+    /** @return DataCollection<int, mixed>|null */
+    public function get(mixed $value, array $attributes): ?DataCollection
     {
         if (null === $value) {
             return null;
         }
 
-        // If already a collection, return it
-        if ($value instanceof LaravelCollection || $value instanceof DoctrineCollection) {
+        // If already a DataCollection, return it
+        if ($value instanceof DataCollection) {
             return $value;
         }
 
@@ -66,13 +55,16 @@ class CollectionCast implements CastsAttributes
             $value = [$value];
         }
 
-        // If DTO class is specified, convert each item to DTO
+        // If DTO class is specified, create typed DataCollection
         if (null !== $this->dtoClass && class_exists($this->dtoClass)) {
-            $value = $this->convertItemsToDTOs($value);
+            return DataCollection::forDto($this->dtoClass, $value);
         }
 
-        // Create collection based on type
-        return $this->createCollection($value);
+        // Create generic DataCollection (without DTO type)
+        // This is not ideal, but we need a DTO class for DataCollection
+        throw new RuntimeException(
+            'CollectionCast requires a DTO class. Use "collection:App\DTOs\UserDTO" instead of "collection".'
+        );
     }
 
     /** @return array<array-key, mixed>|null */
@@ -82,85 +74,25 @@ class CollectionCast implements CastsAttributes
             return null;
         }
 
-        // Convert collection to array
-        if ($value instanceof LaravelCollection) {
-            $array = $value->toArray();
-        } elseif ($value instanceof DoctrineCollection) {
-            $array = $value->toArray();
-        } elseif (is_array($value)) {
-            $array = $value;
-        } else {
-            return null;
+        // Convert DataCollection to array
+        if ($value instanceof DataCollection) {
+            return $value->toArray();
         }
 
-        // If items are DTOs, convert them to arrays
-        return array_map(function(mixed $item): mixed {
-            // Check if item has toArray method (duck typing for DTOs)
-            if (is_object($item) && method_exists($item, 'toArray')) {
-                return $item->toArray();
-            }
+        // If it's already an array, return it
+        if (is_array($value)) {
+            // If items are DTOs, convert them to arrays
+            return array_map(function(mixed $item): mixed {
+                // Check if item has toArray method (duck typing for DTOs)
+                if (is_object($item) && method_exists($item, 'toArray')) {
+                    return $item->toArray();
+                }
 
-            return $item;
-        }, $array);
-    }
-
-    /**
-     * Convert array items to DTOs.
-     *
-     * @param array<array-key, mixed> $items
-     * @return array<array-key, mixed>
-     */
-    private function convertItemsToDTOs(array $items): array
-    {
-        if (null === $this->dtoClass) {
-            return $items;
-        }
-
-        return array_map(function(mixed $item): mixed {
-            // If already an object with fromArray method, return it
-            if (is_object($item)) {
                 return $item;
-            }
-
-            // If it's an array, create DTO from array
-            if (is_array($item) && null !== $this->dtoClass && class_exists($this->dtoClass)) {
-                $dtoClass = $this->dtoClass;
-
-                // Call fromArray statically
-                return $dtoClass::fromArray($item);
-            }
-
-            // Otherwise, return as-is
-            return $item;
-        }, $items);
-    }
-
-    /**
-     * Create collection based on type.
-     *
-     * @param array<array-key, mixed> $items
-     * @return LaravelCollection<array-key, mixed>|DoctrineCollection<array-key, mixed>
-     */
-    private function createCollection(array $items): LaravelCollection|DoctrineCollection
-    {
-        if ('doctrine' === $this->collectionType) {
-            // Check if Doctrine Collections is available
-            if (class_exists(ArrayCollection::class)) {
-                return new ArrayCollection($items);
-            }
-
-            // Fallback to Laravel Collection if Doctrine is not available
+            }, $value);
         }
 
-        // Default to Laravel Collection
-        if (class_exists(LaravelCollection::class)) {
-            return new LaravelCollection($items);
-        }
-
-        // If neither is available, throw exception
-        throw new RuntimeException(
-            'No collection library available. Install illuminate/support or doctrine/collections.'
-        );
+        return null;
     }
 }
 

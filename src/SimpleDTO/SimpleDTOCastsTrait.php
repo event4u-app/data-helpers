@@ -49,10 +49,7 @@ trait SimpleDTOCastsTrait
      * Built-in types:
      * - 'array' - Cast JSON strings to arrays
      * - 'boolean' / 'bool' - Cast to boolean
-     * - 'collection' - Cast to Laravel Collection
-     * - 'collection:doctrine' - Cast to Doctrine Collection
-     * - 'collection:UserDTO' - Cast to Collection of UserDTOs
-     * - 'collection:doctrine,UserDTO' - Cast to Doctrine Collection of UserDTOs
+     * - 'collection:UserDTO' - Cast to DataCollection of UserDTOs (framework-independent)
      * - 'datetime' / 'datetime:Y-m-d' - Cast to DateTimeImmutable with optional format
      * - 'integer' / 'int' - Cast to integer
      * - 'float' / 'double' - Cast to float
@@ -74,7 +71,7 @@ trait SimpleDTOCastsTrait
      * Cast with parameters:
      * - DateTimeCast::class.':Y-m-d H:i:s'
      * - DecimalCast::class.':2'
-     * - CollectionCast::class.':laravel,UserDTO'
+     * - CollectionCast::class.':UserDTO'
      *
      * @return array<string, string>
      */
@@ -133,8 +130,8 @@ trait SimpleDTOCastsTrait
                     /** @var \event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf $instance */
                     $instance = $attribute->newInstance();
 
-                    // Build cast string: collection:collectionType,dtoClass
-                    $castString = 'collection:' . $instance->collectionType . ',' . $instance->dtoClass;
+                    // Build cast string: collection:dtoClass
+                    $castString = 'collection:' . $instance->dtoClass;
 
                     $casts[$property->getName()] = $castString;
                 }
@@ -150,6 +147,7 @@ trait SimpleDTOCastsTrait
      * Apply casts to the data array.
      *
      * Iterates through all defined casts and applies them to matching keys in the data array.
+     * Uses lazy cast resolution to skip properties that are not present or are null.
      *
      * @param array<string, mixed> $data
      * @param array<string, string> $casts
@@ -158,7 +156,14 @@ trait SimpleDTOCastsTrait
     private static function applyCasts(array $data, array $casts): array
     {
         foreach ($casts as $key => $cast) {
+            // Skip if property is not present in data (lazy resolution)
             if (!array_key_exists($key, $data)) {
+                continue;
+            }
+
+            // Skip if value is null (optimization)
+            // Note: Some casts might need to handle null, but most don't
+            if (null === $data[$key]) {
                 continue;
             }
 

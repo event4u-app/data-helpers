@@ -1,0 +1,226 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\Support\ReflectionCache;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
+
+echo "=== Optimized Reflection Caching ===\n\n";
+
+// Example 1: ReflectionClass Caching
+echo "1. ReflectionClass Caching\n";
+echo "-------------------------\n";
+
+class UserDTO extends SimpleDTO
+{
+    public function __construct(
+        #[MapFrom('user_name')]
+        public readonly string $name,
+        public readonly int $age,
+        public readonly string $email,
+    ) {}
+
+    #[Computed]
+    public function displayName(): string
+    {
+        return strtoupper($this->name);
+    }
+}
+
+// First call - creates ReflectionClass
+$ref1 = ReflectionCache::getClass(UserDTO::class);
+echo "First call: " . $ref1->getName() . "\n";
+
+// Second call - uses cached ReflectionClass
+$ref2 = ReflectionCache::getClass(UserDTO::class);
+echo "Second call: " . $ref2->getName() . "\n";
+echo "Same instance: " . ($ref1 === $ref2 ? 'Yes' : 'No') . "\n\n";
+
+// Example 2: Property Caching
+echo "2. Property Caching\n";
+echo "------------------\n";
+
+$user = UserDTO::fromArray(['user_name' => 'John Doe', 'age' => 30, 'email' => 'john@example.com']);
+
+$properties = ReflectionCache::getProperties($user);
+echo "Properties found: " . count($properties) . "\n";
+foreach ($properties as $name => $property) {
+    if (!str_starts_with($name, '__') && !in_array($name, ['onlyProperties', 'exceptProperties', 'visibilityContext', 'computedCache', 'includedComputed', 'includedLazy', 'includeAllLazy', 'wrapKey', 'objectVarsCache', 'castedProperties'])) {
+        echo "  - $name\n";
+    }
+}
+echo "\n";
+
+// Example 3: Method Caching
+echo "3. Method Caching\n";
+echo "----------------\n";
+
+$methods = ReflectionCache::getMethods($user);
+echo "Public methods found: " . count($methods) . "\n";
+$displayedCount = 0;
+foreach ($methods as $name => $method) {
+    if (!str_starts_with($name, '__') && $displayedCount < 5) {
+        echo "  - $name\n";
+        $displayedCount++;
+    }
+}
+echo "\n";
+
+// Example 4: Attribute Caching
+echo "4. Attribute Caching\n";
+echo "-------------------\n";
+
+$nameAttrs = ReflectionCache::getPropertyAttributes($user, 'name');
+echo "Attributes on 'name' property: " . count($nameAttrs) . "\n";
+foreach ($nameAttrs as $attrName => $attr) {
+    echo "  - " . basename(str_replace('\\', '/', $attrName)) . "\n";
+}
+
+$methodAttrs = ReflectionCache::getMethodAttributes($user, 'displayName');
+echo "Attributes on 'displayName' method: " . count($methodAttrs) . "\n";
+foreach ($methodAttrs as $attrName => $attr) {
+    echo "  - " . basename(str_replace('\\', '/', $attrName)) . "\n";
+}
+echo "\n";
+
+// Example 5: Cache Statistics
+echo "5. Cache Statistics\n";
+echo "------------------\n";
+
+$stats = ReflectionCache::getStats();
+echo "Classes cached: {$stats['classes']}\n";
+echo "Properties cached: {$stats['properties']}\n";
+echo "Methods cached: {$stats['methods']}\n";
+echo "Property attributes cached: {$stats['propertyAttributes']}\n";
+echo "Method attributes cached: {$stats['methodAttributes']}\n";
+echo "Class attributes cached: {$stats['classAttributes']}\n";
+echo "Estimated memory: " . number_format($stats['estimatedMemory']) . " bytes\n\n";
+
+// Example 6: Performance Comparison
+echo "6. Performance Comparison\n";
+echo "------------------------\n";
+
+// Clear cache
+ReflectionCache::clear();
+
+// Without cache (first call)
+$start = microtime(true);
+for ($i = 0; $i < 1000; $i++) {
+    $ref = ReflectionCache::getClass(UserDTO::class);
+    $props = ReflectionCache::getProperties(UserDTO::class);
+}
+$firstRun = microtime(true) - $start;
+
+// With cache (subsequent calls)
+$start = microtime(true);
+for ($i = 0; $i < 1000; $i++) {
+    $ref = ReflectionCache::getClass(UserDTO::class);
+    $props = ReflectionCache::getProperties(UserDTO::class);
+}
+$cachedRun = microtime(true) - $start;
+
+echo "1000 iterations (first run): " . number_format($firstRun * 1000, 2) . " ms\n";
+echo "1000 iterations (cached): " . number_format($cachedRun * 1000, 2) . " ms\n";
+echo "Speedup: " . number_format($firstRun / $cachedRun, 2) . "x\n\n";
+
+// Example 7: Multiple DTOs
+echo "7. Multiple DTOs\n";
+echo "---------------\n";
+
+class AddressDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $street,
+        public readonly string $city,
+        public readonly string $country,
+    ) {}
+}
+
+class OrderDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly int $id,
+        public readonly float $total,
+        public readonly string $status,
+    ) {}
+}
+
+// Cache all DTOs
+ReflectionCache::getClass(UserDTO::class);
+ReflectionCache::getClass(AddressDTO::class);
+ReflectionCache::getClass(OrderDTO::class);
+
+$stats = ReflectionCache::getStats();
+echo "Total classes cached: {$stats['classes']}\n";
+echo "Total estimated memory: " . number_format($stats['estimatedMemory']) . " bytes\n\n";
+
+// Example 8: Cache Clearing
+echo "8. Cache Clearing\n";
+echo "----------------\n";
+
+$statsBefore = ReflectionCache::getStats();
+echo "Before clearing:\n";
+echo "  Classes: {$statsBefore['classes']}\n";
+echo "  Properties: {$statsBefore['properties']}\n";
+
+ReflectionCache::clear();
+
+$statsAfter = ReflectionCache::getStats();
+echo "After clearing:\n";
+echo "  Classes: {$statsAfter['classes']}\n";
+echo "  Properties: {$statsAfter['properties']}\n\n";
+
+// Example 9: Selective Cache Clearing
+echo "9. Selective Cache Clearing\n";
+echo "--------------------------\n";
+
+// Rebuild cache
+ReflectionCache::getClass(UserDTO::class);
+ReflectionCache::getClass(AddressDTO::class);
+ReflectionCache::getClass(OrderDTO::class);
+
+$statsBefore = ReflectionCache::getStats();
+echo "Before clearing UserDTO:\n";
+echo "  Classes: {$statsBefore['classes']}\n";
+
+ReflectionCache::clearClass(UserDTO::class);
+
+$statsAfter = ReflectionCache::getStats();
+echo "After clearing UserDTO:\n";
+echo "  Classes: {$statsAfter['classes']}\n\n";
+
+// Example 10: Real-World Usage
+echo "10. Real-World Usage\n";
+echo "-------------------\n";
+
+$start = microtime(true);
+
+// Create 1000 DTO instances
+$users = [];
+for ($i = 0; $i < 1000; $i++) {
+    $users[] = UserDTO::fromArray([
+        'user_name' => "User $i",
+        'age' => 20 + ($i % 50),
+        'email' => "user$i@example.com",
+    ]);
+}
+
+$duration = microtime(true) - $start;
+
+echo "Created 1000 DTO instances in: " . number_format($duration * 1000, 2) . " ms\n";
+echo "Average per instance: " . number_format(($duration / 1000) * 1000, 2) . " ms\n";
+echo "Throughput: " . number_format(1000 / $duration) . " instances/second\n\n";
+
+$finalStats = ReflectionCache::getStats();
+echo "Final cache statistics:\n";
+echo "  Classes: {$finalStats['classes']}\n";
+echo "  Properties: {$finalStats['properties']}\n";
+echo "  Methods: {$finalStats['methods']}\n";
+echo "  Estimated memory: " . number_format($finalStats['estimatedMemory']) . " bytes\n\n";
+
+echo "=== Optimized Reflection Complete ===\n";
+

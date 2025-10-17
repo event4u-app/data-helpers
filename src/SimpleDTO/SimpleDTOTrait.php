@@ -63,6 +63,14 @@ trait SimpleDTOTrait
     use SimpleDTOValidationTrait;
     use SimpleDTOMappingTrait;
     use SimpleDTOVisibilityTrait;
+    use SimpleDTOWrappingTrait;
+    use SimpleDTOSerializerTrait;
+    use SimpleDTOTransformerTrait;
+    use SimpleDTONormalizerTrait;
+    use SimpleDTOPipelineTrait;
+    use SimpleDTOPerformanceTrait;
+    use SimpleDTOLazyCastTrait;
+    use SimpleDTOBenchmarkTrait;
     use SimpleDTOComputedTrait {
         SimpleDTOComputedTrait::include as includeComputed;
     }
@@ -126,7 +134,10 @@ trait SimpleDTOTrait
             $data['computedCache'],
             $data['includedComputed'],
             $data['includedLazy'],
-            $data['includeAllLazy']
+            $data['includeAllLazy'],
+            $data['wrapKey'],
+            $data['objectVarsCache'],
+            $data['castedProperties']
         );
 
         // Apply casts (set method) to convert values back
@@ -144,6 +155,9 @@ trait SimpleDTOTrait
         // Add computed properties
         $computed = $this->getComputedValues('array');
         $data = array_merge($data, $computed);
+
+        // Apply wrapping
+        $data = $this->applyWrapping($data);
 
         return $data;
     }
@@ -168,7 +182,10 @@ trait SimpleDTOTrait
             $data['computedCache'],
             $data['includedComputed'],
             $data['includedLazy'],
-            $data['includeAllLazy']
+            $data['includeAllLazy'],
+            $data['wrapKey'],
+            $data['objectVarsCache'],
+            $data['castedProperties']
         );
 
         // Apply casts (set method) to convert values back
@@ -186,6 +203,9 @@ trait SimpleDTOTrait
         // Add computed properties
         $computed = $this->getComputedValues('json');
         $data = array_merge($data, $computed);
+
+        // Apply wrapping
+        $data = $this->applyWrapping($data);
 
         return $data;
     }
