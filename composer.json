@@ -83,7 +83,7 @@
   "bin": [],
   "scripts": {
     "composer:update": "composer update php --prefer-dist --no-interaction -W 2>&1",
-    "test": "vendor/bin/pest --compact --no-coverage --exclude-group=laravel,doctrine",
+    "test": "vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine",
     "test:coverage": "vendor/bin/pest --compact",
     "test:full": [
       "@test",

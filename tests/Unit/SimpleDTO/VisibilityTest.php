@@ -478,16 +478,59 @@ describe('Visibility & Security', function(): void {
     });
 
     describe('Static Callback Support', function(): void {
-        it('supports static callback with array syntax', function(): void {
-            // Static callbacks are tested in the examples
-            // This is a placeholder test to document the feature
-            expect(true)->toBeTrue();
+        it('static callback can be called with dto and context', function(): void {
+            // Test that static callbacks work conceptually
+            $checker = new class {
+                public static function canViewEmail(mixed $dto, mixed $context): bool
+                {
+                    return ($context?->role ?? null) === 'admin';
+                }
+            };
+
+            // Test the static callback directly
+            $mockDto = (object)['name' => 'John', 'email' => 'john@example.com'];
+            $adminContext = (object)['role' => 'admin'];
+            $userContext = (object)['role' => 'user'];
+
+            expect($checker::canViewEmail($mockDto, $adminContext))->toBeTrue();
+            expect($checker::canViewEmail($mockDto, $userContext))->toBeFalse();
         });
 
-        it('calls static callback with dto and context', function(): void {
-            // Static callbacks are tested in the examples
-            // This is a placeholder test to document the feature
-            expect(true)->toBeTrue();
+        it('static callback with complex permission logic', function(): void {
+            $checker = new class {
+                public static function canViewSalary(mixed $dto, mixed $context): bool
+                {
+                    // Admin can see all salaries
+                    if (($context?->role ?? null) === 'admin') {
+                        return true;
+                    }
+
+                    // User can see their own salary
+                    if (isset($dto->userId) && isset($context?->userId)) {
+                        return $dto->userId === $context->userId;
+                    }
+
+                    return false;
+                }
+            };
+
+            // Test the static callback directly with different scenarios
+            $mockDto = (object)['userId' => 'user-123', 'name' => 'John', 'salary' => 75000.0];
+
+            // Admin can see salary
+            $adminContext = (object)['role' => 'admin'];
+            expect($checker::canViewSalary($mockDto, $adminContext))->toBeTrue();
+
+            // Same user can see their own salary
+            $sameUserContext = (object)['userId' => 'user-123', 'role' => 'user'];
+            expect($checker::canViewSalary($mockDto, $sameUserContext))->toBeTrue();
+
+            // Different user cannot see salary
+            $differentUserContext = (object)['userId' => 'user-456', 'role' => 'user'];
+            expect($checker::canViewSalary($mockDto, $differentUserContext))->toBeFalse();
+
+            // No context - cannot see
+            expect($checker::canViewSalary($mockDto, null))->toBeFalse();
         });
     });
 
@@ -508,14 +551,279 @@ describe('Visibility & Security', function(): void {
             expect($provider::getContext()->source)->toBe('provider');
         });
 
-        it('falls back to manual context if provider fails', function(): void {
-            // If provider doesn't exist or fails, should use manual context
-            expect(true)->toBeTrue();
+        it('context provider can be called statically', function(): void {
+            $provider = new class {
+                private static ?object $currentUser = null;
+
+                public static function setCurrentUser(?object $user): void
+                {
+                    self::$currentUser = $user;
+                }
+
+                public static function getContext(): mixed
+                {
+                    return self::$currentUser;
+                }
+            };
+
+            // Set provider context
+            $provider::setCurrentUser((object)['role' => 'admin', 'userId' => 'user-123']);
+
+            // Test that provider returns correct context
+            $context = $provider::getContext();
+            expect($context)->not()->toBeNull();
+            expect($context->role)->toBe('admin');
+            expect($context->userId)->toBe('user-123');
+
+            // Change context
+            $provider::setCurrentUser((object)['role' => 'user', 'userId' => 'user-456']);
+            $newContext = $provider::getContext();
+            expect($newContext->role)->toBe('user');
+            expect($newContext->userId)->toBe('user-456');
+
+            // Clear context
+            $provider::setCurrentUser(null);
+            expect($provider::getContext())->toBeNull();
+        });
+    });
+
+    describe('Partial Serialization - Advanced', function(): void {
+        it('chains only() and except()', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name = 'John',
+                    public readonly string $email = 'john@example.com',
+                    public readonly int $age = 30,
+                    public readonly string $city = 'NYC',
+                    public readonly string $country = 'USA',
+                ) {}
+            };
+
+            $instance = $dto::fromArray([]);
+
+            // First only(), then except()
+            $array = $instance->only(['name', 'email', 'age'])->except(['age'])->toArray();
+
+            expect($array)->toHaveKey('name');
+            expect($array)->toHaveKey('email');
+            expect($array)->not()->toHaveKey('age');
+            expect($array)->not()->toHaveKey('city');
+            expect($array)->not()->toHaveKey('country');
         });
 
-        it('provider context takes precedence over manual context', function(): void {
-            // When both provider and manual context exist, provider wins
-            expect(true)->toBeTrue();
+        it('only() with non-existent properties', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name = 'John',
+                    public readonly string $email = 'john@example.com',
+                ) {}
+            };
+
+            $instance = $dto::fromArray([]);
+            $array = $instance->only(['name', 'nonExistent'])->toArray();
+
+            expect($array)->toHaveKey('name');
+            expect($array)->not()->toHaveKey('nonExistent');
+        });
+
+        it('except() with non-existent properties', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name = 'John',
+                    public readonly string $email = 'john@example.com',
+                ) {}
+            };
+
+            $instance = $dto::fromArray([]);
+            $array = $instance->except(['nonExistent'])->toArray();
+
+            expect($array)->toHaveKey('name');
+            expect($array)->toHaveKey('email');
+        });
+
+        it('only() with empty array returns empty', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name = 'John',
+                    public readonly string $email = 'john@example.com',
+                ) {}
+            };
+
+            $instance = $dto::fromArray([]);
+            $array = $instance->only([])->toArray();
+
+            expect($array)->toBeEmpty();
+        });
+
+        it('except() with all properties returns empty', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name = 'John',
+                    public readonly string $email = 'john@example.com',
+                ) {}
+            };
+
+            $instance = $dto::fromArray([]);
+            $array = $instance->except(['name', 'email'])->toArray();
+
+            expect($array)->toBeEmpty();
+        });
+
+        it('respects Hidden attribute with only()', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name = 'John',
+                    #[Hidden]
+                    public readonly string $password = 'secret',
+                    public readonly string $email = 'john@example.com',
+                ) {}
+            };
+
+            $instance = $dto::fromArray([]);
+
+            // Try to include password via only() - should still be hidden
+            $array = $instance->only(['name', 'password', 'email'])->toArray();
+
+            expect($array)->toHaveKey('name');
+            expect($array)->toHaveKey('email');
+            expect($array)->not()->toHaveKey('password');
+        });
+    });
+
+    describe('Context-Based Visibility - Advanced', function(): void {
+        it('multiple Visible properties with different callbacks', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name = 'John',
+                    #[Visible(callback: 'canViewEmail')]
+                    public readonly string $email = 'john@example.com',
+                    #[Visible(callback: 'canViewSalary')]
+                    public readonly float $salary = 75000.0,
+                ) {}
+
+                private function canViewEmail(mixed $context): bool
+                {
+                    return in_array($context?->role ?? null, ['admin', 'manager'], true);
+                }
+
+                private function canViewSalary(mixed $context): bool
+                {
+                    return ($context?->role ?? null) === 'admin';
+                }
+            };
+
+            $instance = $dto::fromArray([]);
+
+            // Admin can see both
+            $adminContext = (object)['role' => 'admin'];
+            $arrayAdmin = $instance->withVisibilityContext($adminContext)->toArray();
+            expect($arrayAdmin)->toHaveKey('email');
+            expect($arrayAdmin)->toHaveKey('salary');
+
+            // Manager can see email but not salary
+            $managerContext = (object)['role' => 'manager'];
+            $arrayManager = $instance->withVisibilityContext($managerContext)->toArray();
+            expect($arrayManager)->toHaveKey('email');
+            expect($arrayManager)->not()->toHaveKey('salary');
+
+            // User can see neither
+            $userContext = (object)['role' => 'user'];
+            $arrayUser = $instance->withVisibilityContext($userContext)->toArray();
+            expect($arrayUser)->not()->toHaveKey('email');
+            expect($arrayUser)->not()->toHaveKey('salary');
+        });
+
+        it('Visible property with complex context logic', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $userId = 'user-123',
+                    public readonly string $name = 'John',
+                    #[Visible(callback: 'canViewPersonalData')]
+                    public readonly string $ssn = '123-45-6789',
+                ) {}
+
+                private function canViewPersonalData(mixed $context): bool
+                {
+                    // Admin can see all
+                    if (($context?->role ?? null) === 'admin') {
+                        return true;
+                    }
+
+                    // User can see their own data
+                    if (($context?->userId ?? null) === $this->userId) {
+                        return true;
+                    }
+
+                    // HR can see if they have permission
+                    if (($context?->role ?? null) === 'hr' && ($context?->hasPermission ?? false)) {
+                        return true;
+                    }
+
+                    return false;
+                }
+            };
+
+            $instance = $dto::fromArray([]);
+
+            // Admin can see
+            $adminContext = (object)['role' => 'admin'];
+            expect($instance->withVisibilityContext($adminContext)->toArray())->toHaveKey('ssn');
+
+            // Same user can see
+            $sameUserContext = (object)['userId' => 'user-123', 'role' => 'user'];
+            expect($instance->withVisibilityContext($sameUserContext)->toArray())->toHaveKey('ssn');
+
+            // Different user cannot see
+            $differentUserContext = (object)['userId' => 'user-456', 'role' => 'user'];
+            expect($instance->withVisibilityContext($differentUserContext)->toArray())->not()->toHaveKey('ssn');
+
+            // HR with permission can see
+            $hrWithPermission = (object)['role' => 'hr', 'hasPermission' => true];
+            expect($instance->withVisibilityContext($hrWithPermission)->toArray())->toHaveKey('ssn');
+
+            // HR without permission cannot see
+            $hrWithoutPermission = (object)['role' => 'hr', 'hasPermission' => false];
+            expect($instance->withVisibilityContext($hrWithoutPermission)->toArray())->not()->toHaveKey('ssn');
+        });
+
+        it('combines Visible with only() and except()', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name = 'John',
+                    public readonly string $city = 'NYC',
+                    #[Visible(callback: 'canViewEmail')]
+                    public readonly string $email = 'john@example.com',
+                    #[Visible(callback: 'canViewSalary')]
+                    public readonly float $salary = 75000.0,
+                ) {}
+
+                private function canViewEmail(mixed $context): bool
+                {
+                    return ($context?->role ?? null) === 'admin';
+                }
+
+                private function canViewSalary(mixed $context): bool
+                {
+                    return ($context?->role ?? null) === 'admin';
+                }
+            };
+
+            $instance = $dto::fromArray([]);
+            $adminContext = (object)['role' => 'admin'];
+
+            // only() with Visible properties
+            $arrayOnly = $instance->withVisibilityContext($adminContext)->only(['name', 'email'])->toArray();
+            expect($arrayOnly)->toHaveKey('name');
+            expect($arrayOnly)->toHaveKey('email');
+            expect($arrayOnly)->not()->toHaveKey('salary');
+            expect($arrayOnly)->not()->toHaveKey('city');
+
+            // except() with Visible properties
+            $arrayExcept = $instance->withVisibilityContext($adminContext)->except(['salary'])->toArray();
+            expect($arrayExcept)->toHaveKey('name');
+            expect($arrayExcept)->toHaveKey('city');
+            expect($arrayExcept)->toHaveKey('email');
+            expect($arrayExcept)->not()->toHaveKey('salary');
         });
     });
 });

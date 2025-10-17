@@ -63,12 +63,54 @@ trait SimpleDTOTrait
     use SimpleDTOValidationTrait;
     use SimpleDTOMappingTrait;
     use SimpleDTOVisibilityTrait;
+    use SimpleDTOComputedTrait {
+        SimpleDTOComputedTrait::include as includeComputed;
+    }
+    use SimpleDTOLazyTrait {
+        SimpleDTOLazyTrait::includeAll as includeLazyAll;
+    }
+
+    /**
+     * Include specific properties in serialization.
+     *
+     * This works for both lazy computed properties and lazy properties.
+     *
+     * @param array<string> $properties List of property names to include
+     *
+     * @return static
+     */
+    public function include(array $properties): static
+    {
+        $clone = clone $this;
+
+        // Include computed properties
+        $clone->includedComputed = array_merge($clone->includedComputed ?? [], $properties);
+        $clone->computedCache = $this->computedCache;
+
+        // Include lazy properties
+        $clone->includedLazy = array_merge($clone->includedLazy ?? [], $properties);
+
+        return $clone;
+    }
+
+    /**
+     * Include all lazy properties in serialization.
+     *
+     * @return static
+     */
+    public function includeAll(): static
+    {
+        $clone = clone $this;
+        $clone->includeAllLazy = true;
+
+        return $clone;
+    }
 
     /**
      * Convert the DTO to an array.
      *
      * Returns all public properties as an associative array.
-     * Applies casts (set method), output mapping, and visibility filters.
+     * Applies casts (set method), output mapping, visibility filters, lazy loading, and computed properties.
      *
      * @return array<string, mixed>
      */
@@ -76,8 +118,16 @@ trait SimpleDTOTrait
     {
         $data = get_object_vars($this);
 
-        // Remove internal visibility properties
-        unset($data['onlyProperties'], $data['exceptProperties'], $data['visibilityContext']);
+        // Remove internal properties
+        unset(
+            $data['onlyProperties'],
+            $data['exceptProperties'],
+            $data['visibilityContext'],
+            $data['computedCache'],
+            $data['includedComputed'],
+            $data['includedLazy'],
+            $data['includeAllLazy']
+        );
 
         // Apply casts (set method) to convert values back
         $data = $this->applyOutputCasts($data);
@@ -85,15 +135,24 @@ trait SimpleDTOTrait
         // Apply output mapping
         $data = $this->applyOutputMapping($data);
 
+        // Filter lazy properties
+        $data = $this->filterLazyProperties($data);
+
         // Apply visibility filters
-        return $this->applyArrayVisibilityFilters($data);
+        $data = $this->applyArrayVisibilityFilters($data);
+
+        // Add computed properties
+        $computed = $this->getComputedValues('array');
+        $data = array_merge($data, $computed);
+
+        return $data;
     }
 
     /**
      * Serialize the DTO to JSON.
      *
      * This method is called automatically by json_encode().
-     * Applies casts (set method), output mapping, and visibility filters.
+     * Applies casts (set method), output mapping, visibility filters, lazy loading, and computed properties.
      *
      * @return array<string, mixed>
      */
@@ -101,8 +160,16 @@ trait SimpleDTOTrait
     {
         $data = get_object_vars($this);
 
-        // Remove internal visibility properties
-        unset($data['onlyProperties'], $data['exceptProperties'], $data['visibilityContext']);
+        // Remove internal properties
+        unset(
+            $data['onlyProperties'],
+            $data['exceptProperties'],
+            $data['visibilityContext'],
+            $data['computedCache'],
+            $data['includedComputed'],
+            $data['includedLazy'],
+            $data['includeAllLazy']
+        );
 
         // Apply casts (set method) to convert values back
         $data = $this->applyOutputCasts($data);
@@ -110,8 +177,17 @@ trait SimpleDTOTrait
         // Apply output mapping
         $data = $this->applyOutputMapping($data);
 
+        // Filter lazy properties
+        $data = $this->filterLazyProperties($data);
+
         // Apply visibility filters
-        return $this->applyJsonVisibilityFilters($data);
+        $data = $this->applyJsonVisibilityFilters($data);
+
+        // Add computed properties
+        $computed = $this->getComputedValues('json');
+        $data = array_merge($data, $computed);
+
+        return $data;
     }
 
     /**
@@ -144,6 +220,17 @@ trait SimpleDTOTrait
 
         /** @phpstan-ignore new.static */
         return new static(...$data);
+    }
+
+    /**
+     * Create a type-safe collection of DTOs.
+     *
+     * @param array<int|string, mixed> $items
+     * @return DataCollection<static>
+     */
+    public static function collection(array $items = []): DataCollection
+    {
+        return DataCollection::forDto(static::class, $items);
     }
 }
 
