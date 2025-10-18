@@ -57,6 +57,7 @@
     "symfony/serializer": "^6.0|^7.0",
     "symfony/property-info": "^6.0|^7.0",
     "symfony/property-access": "^6.0|^7.0",
+    "symfony/validator": "^6.0|^7.0",
     "fakerphp/faker": "^1.24"
   },
   "repositories": [],

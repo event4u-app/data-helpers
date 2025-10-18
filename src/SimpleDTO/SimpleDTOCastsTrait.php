@@ -9,6 +9,7 @@ use event4u\DataHelpers\SimpleDTO\Casts\BooleanCast;
 use event4u\DataHelpers\SimpleDTO\Casts\CollectionCast;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 use event4u\DataHelpers\SimpleDTO\Casts\DecimalCast;
+use event4u\DataHelpers\SimpleDTO\Casts\DTOCast;
 use event4u\DataHelpers\SimpleDTO\Casts\EncryptedCast;
 use event4u\DataHelpers\SimpleDTO\Casts\EnumCast;
 use event4u\DataHelpers\SimpleDTO\Casts\FloatCast;
@@ -24,10 +25,11 @@ use Throwable;
  * Trait providing cast functionality for SimpleDTOs.
  *
  * This trait handles all casting logic including:
- * - Built-in cast aliases (boolean, integer, float, string, array, datetime, decimal, json)
+ * - Built-in cast aliases (boolean, integer, float, string, array, datetime, decimal, json, dto)
  * - Custom cast classes
  * - Cast parameters
  * - Cast instance caching
+ * - Auto-detection of nested DTOs
  *
  * Responsibilities:
  * - Define available casts via casts() method
@@ -51,6 +53,7 @@ trait SimpleDTOCastsTrait
      * - 'boolean' / 'bool' - Cast to boolean
      * - 'collection:UserDTO' - Cast to DataCollection of UserDTOs (framework-independent)
      * - 'datetime' / 'datetime:Y-m-d' - Cast to DateTimeImmutable with optional format
+     * - 'dto:AddressDTO' - Cast to nested DTO (auto-detected for DTO properties)
      * - 'integer' / 'int' - Cast to integer
      * - 'float' / 'double' - Cast to float
      * - 'string' - Cast to string
@@ -84,7 +87,7 @@ trait SimpleDTOCastsTrait
      * Get the casts for the DTO class.
      *
      * Uses reflection to call the protected casts() method without requiring an instance.
-     * Also collects casts from DataCollectionOf attributes.
+     * Also collects casts from DataCollectionOf attributes and auto-detects nested DTOs.
      *
      * @return array<string, string>
      */
@@ -102,6 +105,9 @@ trait SimpleDTOCastsTrait
 
             // Merge with casts from DataCollectionOf attributes
             $casts = array_merge($casts, static::getCastsFromAttributes());
+
+            // Merge with auto-detected nested DTOs
+            $casts = array_merge($casts, static::getNestedDTOCasts());
 
             return $casts;
         } catch (Throwable $e) {
@@ -134,6 +140,53 @@ trait SimpleDTOCastsTrait
                     $castString = 'collection:' . $instance->dtoClass;
 
                     $casts[$property->getName()] = $castString;
+                }
+            }
+        } catch (Throwable $e) {
+            // Ignore errors
+        }
+
+        return $casts;
+    }
+
+    /**
+     * Auto-detect nested DTOs from constructor parameters.
+     *
+     * @return array<string, string>
+     */
+    private static function getNestedDTOCasts(): array
+    {
+        $casts = [];
+
+        try {
+            $reflection = new ReflectionClass(static::class);
+            $constructor = $reflection->getConstructor();
+
+            if (null === $constructor) {
+                return [];
+            }
+
+            foreach ($constructor->getParameters() as $parameter) {
+                $type = $parameter->getType();
+
+                if (!$type instanceof \ReflectionNamedType) {
+                    continue;
+                }
+
+                $typeName = $type->getName();
+
+                // Check if type is a class and extends SimpleDTO
+                if (class_exists($typeName)) {
+                    try {
+                        $typeReflection = new ReflectionClass($typeName);
+
+                        // Check if it has fromArray method (indicates it's a DTO)
+                        if ($typeReflection->hasMethod('fromArray')) {
+                            $casts[$parameter->getName()] = 'dto:' . $typeName;
+                        }
+                    } catch (Throwable) {
+                        // Not a DTO, skip
+                    }
                 }
             }
         } catch (Throwable $e) {
@@ -249,6 +302,7 @@ trait SimpleDTOCastsTrait
             'collection' => CollectionCast::class,
             'datetime' => DateTimeCast::class,
             'decimal' => DecimalCast::class,
+            'dto' => DTOCast::class,
             'encrypted' => EncryptedCast::class,
             'enum' => EnumCast::class,
             'float' => FloatCast::class,

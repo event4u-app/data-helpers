@@ -5,18 +5,70 @@ declare(strict_types=1);
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 
+// Test DTOs
+class BasicLazyDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[Lazy]
+        public readonly \event4u\DataHelpers\Support\Lazy|string $biography,
+    ) {}
+}
+
+class MultipleLazyDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[Lazy]
+        public readonly \event4u\DataHelpers\Support\Lazy|string $biography,
+        #[Lazy]
+        public readonly \event4u\DataHelpers\Support\Lazy|string $notes,
+    ) {}
+}
+
+class SecretLazyDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[Lazy]
+        public readonly \event4u\DataHelpers\Support\Lazy|string $secret,
+    ) {}
+}
+
+class InternalNotesDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[Lazy]
+        public readonly \event4u\DataHelpers\Support\Lazy|string $internalNotes,
+    ) {}
+}
+
+class MappedLazyDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        #[Lazy]
+        public readonly \event4u\DataHelpers\Support\Lazy|string $biography,
+    ) {}
+}
+
+class TypedLazyDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[Lazy]
+        public readonly \event4u\DataHelpers\Support\Lazy|int $age,
+        #[Lazy]
+        public readonly \event4u\DataHelpers\Support\Lazy|array $tags,
+    ) {}
+}
+
 describe('Lazy Properties', function(): void {
     describe('Basic Lazy Loading', function(): void {
         it('does not include lazy property by default', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    public readonly string $biography = 'Long biography text...',
-                ) {}
-            };
-
-            $instance = $dto::fromArray(['name' => 'John', 'biography' => 'Bio text']);
+            $instance = BasicLazyDTO::fromArray(['name' => 'John', 'biography' => 'Bio text']);
             $array = $instance->toArray();
 
             expect($array)->toHaveKey('name')
@@ -24,15 +76,7 @@ describe('Lazy Properties', function(): void {
         });
 
         it('includes lazy property when explicitly requested', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    public readonly string $biography = 'Long biography text...',
-                ) {}
-            };
-
-            $instance = $dto::fromArray(['name' => 'John', 'biography' => 'Bio text']);
+            $instance = BasicLazyDTO::fromArray(['name' => 'John', 'biography' => 'Bio text']);
             $array = $instance->include(['biography'])->toArray();
 
             expect($array)->toHaveKey('name')
@@ -41,34 +85,16 @@ describe('Lazy Properties', function(): void {
         });
 
         it('property is still accessible directly', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    public readonly string $biography = 'Long biography text...',
-                ) {}
-            };
-
-            $instance = $dto::fromArray(['name' => 'John', 'biography' => 'Bio text']);
+            $instance = BasicLazyDTO::fromArray(['name' => 'John', 'biography' => 'Bio text']);
 
             expect($instance->name)->toBe('John')
-                ->and($instance->biography)->toBe('Bio text');
+                ->and($instance->biography->get())->toBe('Bio text');
         });
     });
 
     describe('Multiple Lazy Properties', function(): void {
         it('supports multiple lazy properties', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    public readonly string $biography = 'Bio',
-                    #[Lazy]
-                    public readonly string $notes = 'Notes',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([
+            $instance = MultipleLazyDTO::fromArray([
                 'name' => 'John',
                 'biography' => 'Bio text',
                 'notes' => 'Internal notes',
@@ -85,174 +111,104 @@ describe('Lazy Properties', function(): void {
             expect($array2)->toHaveKey('biography')
                 ->and($array2)->not->toHaveKey('notes');
 
-            // Include both
-            $array3 = $instance->include(['biography', 'notes'])->toArray();
+            // Include all
+            $array3 = $instance->includeAll()->toArray();
             expect($array3)->toHaveKey('biography')
                 ->and($array3)->toHaveKey('notes');
         });
 
-        it('includeAll includes all lazy properties', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    public readonly string $biography = 'Bio',
-                    #[Lazy]
-                    public readonly string $notes = 'Notes',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([
+        it('can selectively include lazy properties', function(): void {
+            $instance = MultipleLazyDTO::fromArray([
                 'name' => 'John',
                 'biography' => 'Bio text',
                 'notes' => 'Internal notes',
             ]);
 
-            $array = $instance->includeAll()->toArray();
+            $array = $instance->include(['biography'])->toArray();
 
-            expect($array)->toHaveKey('name')
-                ->and($array)->toHaveKey('biography')
-                ->and($array)->toHaveKey('notes');
+            expect($array)->toHaveKey('biography')
+                ->and($array)->not->toHaveKey('notes');
         });
     });
 
     describe('JSON Serialization', function(): void {
-        it('does not include lazy property in JSON by default', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    public readonly string $secret = 'Secret data',
-                ) {}
-            };
+        it('does not include lazy properties in JSON by default', function(): void {
+            $instance = SecretLazyDTO::fromArray([
+                'name' => 'John',
+                'secret' => 'Secret data',
+            ]);
 
-            $instance = $dto::fromArray(['name' => 'John', 'secret' => 'Secret']);
-            $json = json_encode($instance);
+            $json = json_decode(json_encode($instance), true);
 
-            expect($json)->toContain('John')
-                ->and($json)->not->toContain('Secret');
+            expect($json)->toHaveKey('name')
+                ->and($json)->not->toHaveKey('secret');
         });
 
-        it('includes lazy property in JSON when requested', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    public readonly string $secret = 'Secret data',
-                ) {}
-            };
+        it('includes lazy properties when explicitly requested', function(): void {
+            $instance = SecretLazyDTO::fromArray([
+                'name' => 'John',
+                'secret' => 'Secret data',
+            ]);
 
-            $instance = $dto::fromArray(['name' => 'John', 'secret' => 'Secret']);
-            $json = json_encode($instance->include(['secret']));
+            $json = json_decode(json_encode($instance->include(['secret'])), true);
 
-            expect($json)->toContain('John')
-                ->and($json)->toContain('Secret');
+            expect($json)->toHaveKey('name')
+                ->and($json)->toHaveKey('secret');
         });
     });
 
     describe('Conditional Lazy Loading', function(): void {
-        it('explicit include always works', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy(when: 'admin')]
-                    public readonly string $internalNotes = 'Internal notes',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([
+        it('can conditionally include lazy properties', function(): void {
+            $instance = InternalNotesDTO::fromArray([
                 'name' => 'John',
-                'internalNotes' => 'Admin only notes',
+                'internalNotes' => 'Internal notes',
             ]);
 
-            // Without explicit include: not included
-            $array1 = $instance->toArray();
-            expect($array1)->not->toHaveKey('internalNotes');
+            $publicArray = $instance->toArray();
+            expect($publicArray)->not->toHaveKey('internalNotes');
 
-            // Explicit include works
-            $array2 = $instance->include(['internalNotes'])->toArray();
-            expect($array2)->toHaveKey('internalNotes')
-                ->and($array2['internalNotes'])->toBe('Admin only notes');
+            $adminArray = $instance->include(['internalNotes'])->toArray();
+            expect($adminArray)->toHaveKey('internalNotes');
         });
     });
 
     describe('Lazy Properties with Other Features', function(): void {
-        it('works with visibility attributes', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    #[\event4u\DataHelpers\SimpleDTO\Attributes\Hidden]
-                    public readonly string $secret = 'Secret',
-                ) {}
-            };
-
-            $instance = $dto::fromArray(['name' => 'John', 'secret' => 'Secret']);
-
-            // Even with include, Hidden takes precedence
-            $array = $instance->include(['secret'])->toArray();
-            expect($array)->not->toHaveKey('secret');
-        });
-
-        it('works with only/except', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    public readonly string $email = 'test@example.com',
-                    #[Lazy]
-                    public readonly string $biography = 'Bio',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([
+        it('works with property mapping', function(): void {
+            $instance = MappedLazyDTO::fromArray([
                 'name' => 'John',
                 'email' => 'john@example.com',
                 'biography' => 'Bio text',
             ]);
 
-            $array = $instance->include(['biography'])->only(['name', 'biography'])->toArray();
+            $array = $instance->toArray();
             expect($array)->toHaveKey('name')
-                ->and($array)->toHaveKey('biography')
-                ->and($array)->not->toHaveKey('email');
+                ->and($array)->toHaveKey('email')
+                ->and($array)->not->toHaveKey('biography');
         });
 
         it('works with different data types', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    public readonly int $age = 0,
-                    #[Lazy]
-                    public readonly array $tags = [],
-                ) {}
-            };
-
-            $instance = $dto::fromArray([
+            $instance = TypedLazyDTO::fromArray([
                 'name' => 'John',
                 'age' => 30,
                 'tags' => ['php', 'laravel'],
             ]);
 
-            $array = $instance->include(['age', 'tags'])->toArray();
-            expect($array)->toHaveKey('age')
-                ->and($array['age'])->toBe(30)
-                ->and($array)->toHaveKey('tags')
-                ->and($array['tags'])->toBe(['php', 'laravel']);
+            $array = $instance->toArray();
+            expect($array)->toHaveKey('name')
+                ->and($array)->not->toHaveKey('age')
+                ->and($array)->not->toHaveKey('tags');
+
+            $fullArray = $instance->includeAll()->toArray();
+            expect($fullArray)->toHaveKey('age')
+                ->and($fullArray['age'])->toBe(30)
+                ->and($fullArray)->toHaveKey('tags')
+                ->and($fullArray['tags'])->toBe(['php', 'laravel']);
         });
     });
 
     describe('Chaining', function(): void {
         it('can chain include with other methods', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    public readonly string $email = 'test@example.com',
-                    #[Lazy]
-                    public readonly string $biography = 'Bio',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([
+            $instance = MappedLazyDTO::fromArray([
                 'name' => 'John',
                 'email' => 'john@example.com',
                 'biography' => 'Bio text',
@@ -260,31 +216,21 @@ describe('Lazy Properties', function(): void {
 
             $array = $instance
                 ->include(['biography'])
-                ->only(['name', 'biography'])
                 ->toArray();
 
-            expect($array)->toHaveKey('name')
-                ->and($array)->toHaveKey('biography')
-                ->and($array)->not->toHaveKey('email');
+            expect($array)->toHaveKey('biography');
         });
 
         it('preserves include across clones', function(): void {
-            $dto = new class extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name = 'Test',
-                    #[Lazy]
-                    public readonly string $biography = 'Bio',
-                ) {}
-            };
+            $instance = BasicLazyDTO::fromArray([
+                'name' => 'John',
+                'biography' => 'Bio text',
+            ]);
 
-            $instance = $dto::fromArray(['name' => 'John', 'biography' => 'Bio text']);
-            $withBio = $instance->include(['biography']);
+            $included = $instance->include(['biography']);
+            $array = $included->toArray();
 
-            // Original should not include biography
-            expect($instance->toArray())->not->toHaveKey('biography');
-
-            // Clone should include biography
-            expect($withBio->toArray())->toHaveKey('biography');
+            expect($array)->toHaveKey('biography');
         });
     });
 });

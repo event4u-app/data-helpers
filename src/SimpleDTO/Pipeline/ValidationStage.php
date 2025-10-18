@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Pipeline;
 
-use event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
+use event4u\DataHelpers\Exceptions\ValidationException;
 
 /**
  * Pipeline stage that validates data.

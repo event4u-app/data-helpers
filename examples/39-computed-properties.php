@@ -218,11 +218,11 @@ print_r($report->toArray());
 echo "\n";
 
 echo "Report with expensiveAnalysis included (slow):\n";
-print_r($report->include(['expensiveAnalysis'])->toArray());
+print_r($report->includeComputed(['expensiveAnalysis'])->toArray());
 echo "\n";
 
 echo "Report with all lazy properties included (very slow):\n";
-print_r($report->include(['expensiveAnalysis', 'detailedStats'])->toArray());
+print_r($report->includeComputed(['expensiveAnalysis', 'detailedStats'])->toArray());
 echo "\n";
 
 // ============================================================================
@@ -318,7 +318,7 @@ echo "JSON without lazy properties:\n";
 echo json_encode($profile, JSON_PRETTY_PRINT) . "\n\n";
 
 echo "JSON with lazy properties:\n";
-echo json_encode($profile->include(['initials']), JSON_PRETTY_PRINT) . "\n\n";
+echo json_encode($profile->includeComputed(['initials']), JSON_PRETTY_PRINT) . "\n\n";
 
 echo "================================================================================\n";
 echo "ALL EXAMPLES COMPLETED SUCCESSFULLY!\n";

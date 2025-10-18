@@ -26,6 +26,8 @@ class MakeDtoCommand extends Command
      */
     protected $signature = 'make:dto {name : The name of the DTO class}
                             {--validation : Add validation attributes}
+                            {--validate-request : Add ValidateRequest attribute for automatic validation}
+                            {--form-request : Generate a DTOFormRequest instead}
                             {--collection : Add DataCollection support}
                             {--resource : Generate a resource DTO with common fields}
                             {--force : Overwrite existing file}';

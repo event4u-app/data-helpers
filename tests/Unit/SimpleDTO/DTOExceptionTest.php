@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\SimpleDTO\Exceptions\DTOException;
+use event4u\DataHelpers\Exceptions\DTOException;
 
 describe('DTOException', function(): void {
     describe('typeMismatch', function(): void {

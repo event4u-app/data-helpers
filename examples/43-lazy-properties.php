@@ -35,7 +35,7 @@ print_r($user->toArray());
 echo "\n";
 
 echo "With include(['biography']) (biography included):\n";
-print_r($user->include(['biography'])->toArray());
+print_r($user->includeComputed(['biography'])->toArray());
 echo "\n";
 
 echo "Direct property access (always works):\n";
@@ -75,11 +75,11 @@ print_r($document->toArray());
 echo "\n";
 
 echo "Include only content:\n";
-print_r($document->include(['content'])->toArray());
+print_r($document->includeComputed(['content'])->toArray());
 echo "\n";
 
 echo "Include multiple lazy properties:\n";
-print_r($document->include(['content', 'metadata'])->toArray());
+print_r($document->includeComputed(['content', 'metadata'])->toArray());
 echo "\n";
 
 echo "Include all lazy properties:\n";
@@ -116,7 +116,7 @@ echo "Default JSON (no lazy properties):\n";
 echo json_encode($product, JSON_PRETTY_PRINT) . "\n\n";
 
 echo "JSON with description:\n";
-echo json_encode($product->include(['description']), JSON_PRETTY_PRINT) . "\n\n";
+echo json_encode($product->includeComputed(['description']), JSON_PRETTY_PRINT) . "\n\n";
 
 echo "JSON with all lazy properties:\n";
 echo json_encode($product->includeAll(), JSON_PRETTY_PRINT) . "\n\n";
@@ -159,7 +159,7 @@ echo "Dimensions: {$metadata['width']}x{$metadata['height']}\n";
 echo "Base64 data size: " . strlen($largeBase64) . " bytes (not included)\n\n";
 
 echo "With base64 data (slower, includes large data):\n";
-$fullData = $image->include(['base64Data'])->toArray();
+$fullData = $image->includeComputed(['base64Data'])->toArray();
 echo "Base64 data size: " . strlen($fullData['base64Data']) . " bytes (included)\n\n";
 
 // ============================================================================
@@ -195,7 +195,7 @@ print_r($profile->only(['username', 'email'])->toArray());
 echo "\n";
 
 echo "Private profile (include address, exclude SSN):\n";
-print_r($profile->include(['address'])->except(['socialSecurityNumber'])->toArray());
+print_r($profile->includeComputed(['address'])->except(['socialSecurityNumber'])->toArray());
 echo "\n";
 
 echo "Full profile (include all lazy properties):\n";
@@ -233,7 +233,7 @@ print_r($report->toArray());
 echo "\n";
 
 echo "Explicit include (works even without context):\n";
-print_r($report->include(['internalNotes'])->toArray());
+print_r($report->includeComputed(['internalNotes'])->toArray());
 echo "\n";
 
 // ============================================================================
@@ -267,7 +267,7 @@ print_r($secureUser->toArray());
 echo "\n";
 
 echo "With include(['password']) (still hidden due to #[Hidden]):\n";
-print_r($secureUser->include(['password'])->toArray());
+print_r($secureUser->includeComputed(['password'])->toArray());
 echo "\n";
 
 echo "Direct access (still works):\n";
@@ -316,7 +316,7 @@ print_r($post->toArray());
 echo "\n";
 
 echo "Detail view (include content):\n";
-print_r($post->include(['content'])->toArray());
+print_r($post->includeComputed(['content'])->toArray());
 echo "\n";
 
 echo "Full view (include everything):\n";
