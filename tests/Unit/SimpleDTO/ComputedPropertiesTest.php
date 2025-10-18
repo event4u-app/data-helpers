@@ -197,7 +197,7 @@ describe('Computed Properties', function(): void {
             };
 
             $instance = $dto::fromArray([]);
-            $array = $instance->include(['expensiveCalculation'])->toArray();
+            $array = $instance->includeComputed(['expensiveCalculation'])->toArray();
 
             expect($array)->toHaveKey('name');
             expect($array)->toHaveKey('expensiveCalculation');
@@ -226,12 +226,12 @@ describe('Computed Properties', function(): void {
             $instance = $dto::fromArray([]);
 
             // Include only one
-            $array1 = $instance->include(['uppercase'])->toArray();
+            $array1 = $instance->includeComputed(['uppercase'])->toArray();
             expect($array1)->toHaveKey('uppercase');
             expect($array1)->not()->toHaveKey('lowercase');
 
             // Include both
-            $array2 = $instance->include(['uppercase', 'lowercase'])->toArray();
+            $array2 = $instance->includeComputed(['uppercase', 'lowercase'])->toArray();
             expect($array2)->toHaveKey('uppercase');
             expect($array2)->toHaveKey('lowercase');
         });
@@ -257,7 +257,7 @@ describe('Computed Properties', function(): void {
             expect($decoded1)->not()->toHaveKey('uppercase');
 
             // With include
-            $json2 = json_encode($instance->include(['uppercase']));
+            $json2 = json_encode($instance->includeComputed(['uppercase']));
             $decoded2 = json_decode($json2, true);
             expect($decoded2)->toHaveKey('uppercase');
             expect($decoded2['uppercase'])->toBe('TEST');

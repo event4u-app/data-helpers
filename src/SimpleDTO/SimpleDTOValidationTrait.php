@@ -5,12 +5,18 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO;
 
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\Exceptions\ValidationException;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\ValidationException as LaravelValidationException;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 use RuntimeException;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Throwable;
 
 /**
@@ -119,17 +125,30 @@ trait SimpleDTOValidationTrait
      */
     public static function validate(array $data): array
     {
+        // Try Symfony validator first (if available and has constraints)
+        if (static::hasSymfonyValidator() && static::hasSymfonyConstraints()) {
+            return static::validateWithSymfony($data);
+        }
+
         $rules = static::getAllRules();
         $messages = static::getAllMessages();
         $attributes = static::getAllAttributes();
 
-        // Get Laravel validator
-        $validator = static::getValidator();
+        // Try Laravel validator
+        if (static::hasLaravelValidator()) {
+            try {
+                $validator = static::getValidator();
+                $validated = $validator->make($data, $rules, $messages, $attributes);
+                return $validated->validate();
+            } catch (LaravelValidationException $e) {
+                // Convert Laravel ValidationException to our own
+                throw ValidationException::withMessages($e->errors());
+            }
+        }
 
-        // Validate
-        $validated = $validator->make($data, $rules, $messages, $attributes);
-
-        return $validated->validate();
+        // Fallback to framework-independent validator
+        $validator = new \event4u\DataHelpers\Validation\Validator($data, $rules, $messages, $attributes);
+        return $validator->validate();
     }
 
     /**
@@ -396,10 +415,159 @@ trait SimpleDTOValidationTrait
             return app('validator');
         }
 
-        // Fallback: create validator manually
+        // Fallback: Use framework-independent validator
         throw new RuntimeException(
-            'Laravel Validator not available. Make sure illuminate/validation is installed and configured.'
+            'Laravel Validator not available. Use validateData() or validateOrFail() for framework-independent validation.'
         );
+    }
+
+    /**
+     * Check if Laravel validator is available.
+     */
+    protected static function hasLaravelValidator(): bool
+    {
+        return function_exists('app') && app()->bound('validator');
+    }
+
+    /**
+     * Check if Symfony validator is available.
+     */
+    protected static function hasSymfonyValidator(): bool
+    {
+        return class_exists(Validation::class);
+    }
+
+    /**
+     * Check if DTO has any Symfony constraints.
+     */
+    protected static function hasSymfonyConstraints(): bool
+    {
+        try {
+            $reflection = new ReflectionClass(static::class);
+            $constructor = $reflection->getConstructor();
+
+            if (null === $constructor) {
+                return false;
+            }
+
+            foreach ($constructor->getParameters() as $parameter) {
+                foreach ($parameter->getAttributes() as $attribute) {
+                    try {
+                        $instance = $attribute->newInstance();
+                        if ($instance instanceof SymfonyConstraint) {
+                            return true;
+                        }
+                    } catch (Throwable) {
+                        continue;
+                    }
+                }
+            }
+        } catch (Throwable) {
+            // Ignore reflection errors
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate data using Symfony Validator.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     * @throws ValidationException
+     */
+    protected static function validateWithSymfony(array $data): array
+    {
+        $validator = Validation::createValidator();
+        $constraints = static::getSymfonyConstraints();
+
+        // Create a Collection constraint with all field constraints
+        $collectionConstraint = new Assert\Collection([
+            'fields' => $constraints,
+            'allowExtraFields' => true,
+            'allowMissingFields' => false,
+        ]);
+
+        $violations = $validator->validate($data, $collectionConstraint);
+
+        if (count($violations) > 0) {
+            $errors = static::formatSymfonyViolations($violations);
+            throw ValidationException::withMessages($errors);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get Symfony constraints from validation attributes.
+     *
+     * @return array<string, \Symfony\Component\Validator\Constraint|\Symfony\Component\Validator\Constraint[]>
+     */
+    protected static function getSymfonyConstraints(): array
+    {
+        $constraints = [];
+
+        try {
+            $reflection = new ReflectionClass(static::class);
+            $constructor = $reflection->getConstructor();
+
+            if (null === $constructor) {
+                return [];
+            }
+
+            foreach ($constructor->getParameters() as $parameter) {
+                $propertyConstraints = [];
+
+                foreach ($parameter->getAttributes() as $attribute) {
+                    try {
+                        $instance = $attribute->newInstance();
+
+                        if ($instance instanceof SymfonyConstraint) {
+                            $constraint = $instance->constraint();
+                            $propertyConstraints = array_merge(
+                                $propertyConstraints,
+                                is_array($constraint) ? $constraint : [$constraint]
+                            );
+                        }
+                    } catch (Throwable) {
+                        continue;
+                    }
+                }
+
+                if ([] !== $propertyConstraints) {
+                    $constraints[$parameter->getName()] = $propertyConstraints;
+                }
+            }
+        } catch (Throwable) {
+            // Ignore reflection errors
+        }
+
+        return $constraints;
+    }
+
+    /**
+     * Format Symfony constraint violations into Laravel-style error array.
+     *
+     * @param ConstraintViolationListInterface $violations
+     * @return array<string, array<int, string>>
+     */
+    protected static function formatSymfonyViolations(ConstraintViolationListInterface $violations): array
+    {
+        $errors = [];
+
+        foreach ($violations as $violation) {
+            $propertyPath = $violation->getPropertyPath();
+            // Remove [field] brackets from property path
+            $propertyPath = preg_replace('/\[(\w+)\]/', '$1', $propertyPath);
+
+            if (!isset($errors[$propertyPath])) {
+                $errors[$propertyPath] = [];
+            }
+
+            $errors[$propertyPath][] = $violation->getMessage();
+        }
+
+        return $errors;
     }
 
     /**

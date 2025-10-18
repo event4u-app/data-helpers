@@ -390,7 +390,7 @@ describe('Computed Properties - Edge Cases', function(): void {
             $instance = $dto::fromArray([]);
 
             // First call with include
-            $clone1 = $instance->include(['expensive']);
+            $clone1 = $instance->includeComputed(['expensive']);
             $clone1->toArray();
             expect($dto::$callCount)->toBe(1);
 
@@ -399,7 +399,7 @@ describe('Computed Properties - Edge Cases', function(): void {
             expect($dto::$callCount)->toBe(1);
 
             // Third call with include on original - creates new clone, recomputes
-            $clone2 = $instance->include(['expensive']);
+            $clone2 = $instance->includeComputed(['expensive']);
             $clone2->toArray();
             expect($dto::$callCount)->toBe(2);
         });
@@ -493,7 +493,7 @@ describe('Computed Properties - Edge Cases', function(): void {
             };
 
             $instance = $dto::fromArray([]);
-            $array = $instance->include(['nonExistent'])->toArray();
+            $array = $instance->includeComputed(['nonExistent'])->toArray();
 
             expect($array)->toHaveKey('value');
             expect($array)->not()->toHaveKey('nonExistent');
@@ -513,7 +513,7 @@ describe('Computed Properties - Edge Cases', function(): void {
             };
 
             $instance = $dto::fromArray([]);
-            $array = $instance->include(['eager'])->toArray();
+            $array = $instance->includeComputed(['eager'])->toArray();
 
             // Eager is already included, include() has no effect
             expect($array)->toHaveKey('eager');
@@ -533,7 +533,7 @@ describe('Computed Properties - Edge Cases', function(): void {
             };
 
             $instance = $dto::fromArray([]);
-            $array = $instance->include([])->toArray();
+            $array = $instance->includeComputed([])->toArray();
 
             expect($array)->toHaveKey('value');
             expect($array)->not()->toHaveKey('lazy');
@@ -566,9 +566,9 @@ describe('Computed Properties - Edge Cases', function(): void {
 
             $instance = $dto::fromArray([]);
             $array = $instance
-                ->include(['lazy1'])
-                ->include(['lazy2'])
-                ->include(['lazy3'])
+                ->includeComputed(['lazy1'])
+                ->includeComputed(['lazy2'])
+                ->includeComputed(['lazy3'])
                 ->toArray();
 
             expect($array)->toHaveKey('lazy1');
@@ -598,7 +598,7 @@ describe('Computed Properties - Edge Cases', function(): void {
             expect($array1)->not()->toHaveKey('lazy');
 
             // Clone should include lazy
-            $array2 = $instance->include(['lazy'])->toArray();
+            $array2 = $instance->includeComputed(['lazy'])->toArray();
             expect($array2)->toHaveKey('lazy');
 
             // Original should still not include lazy

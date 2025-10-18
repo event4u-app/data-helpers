@@ -42,7 +42,7 @@ trait SimpleDTOComputedTrait
      *
      * @return static
      */
-    public function include(array $properties): static
+    public function includeComputed(array $properties): static
     {
         $clone = clone $this;
         $clone->includedComputed = array_merge($clone->includedComputed ?? [], $properties);

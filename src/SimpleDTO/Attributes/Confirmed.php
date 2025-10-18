@@ -6,12 +6,16 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Confirmed validation attribute.
  *
  * Validates that a confirmation field exists and matches the original field.
  * Laravel automatically looks for a field with the suffix '_confirmed'.
+ * Symfony uses '_confirmation' suffix by default.
  *
  * Example:
  * ```php
@@ -20,16 +24,27 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
  *     public function __construct(
  *         #[Confirmed]
  *         public readonly string $password,
- *         public readonly string $password_confirmed,
+ *         public readonly string $password_confirmation,  // Symfony
+ *         // or
+ *         public readonly string $password_confirmed,     // Laravel
  *     ) {}
  * }
  * ```
  *
- * For the property 'password', Laravel will look for 'password_confirmed'.
+ * For the property 'password':
+ * - Laravel looks for 'password_confirmed'
+ * - Symfony looks for 'password_confirmation'
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Confirmed implements ValidationRule
+class Confirmed implements ValidationRule, SymfonyConstraint
 {
+    /**
+     * @param string|null $field Custom confirmation field name (optional)
+     */
+    public function __construct(
+        public readonly ?string $field = null,
+    ) {}
+
     public function rule(): string
     {
         return 'confirmed';
@@ -38,6 +53,26 @@ class Confirmed implements ValidationRule
     public function message(): ?string
     {
         return null;
+    }
+
+    /**
+     * Get Symfony constraint.
+     *
+     * Note: Symfony doesn't have a built-in "confirmed" constraint.
+     * We need to handle this differently - either by using a custom callback
+     * or by checking in the DTO validation logic.
+     *
+     * For now, we return an empty array to indicate this constraint
+     * needs special handling.
+     *
+     * @return Constraint|array
+     */
+    public function constraint(): Constraint|array
+    {
+        // Symfony doesn't have a direct "confirmed" constraint
+        // This needs to be handled at the DTO validation level
+        // by comparing the field with its confirmation field
+        return [];
     }
 }
 

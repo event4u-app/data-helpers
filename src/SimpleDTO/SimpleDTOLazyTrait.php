@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO;
 
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
+use event4u\DataHelpers\Support\Lazy as LazyWrapper;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionNamedType;
 use ReflectionProperty;
+use ReflectionUnionType;
 
 /**
  * Trait for handling lazy-loaded properties in SimpleDTOs.
@@ -48,11 +51,11 @@ trait SimpleDTOLazyTrait
     /**
      * Get all lazy properties for this DTO class.
      *
-     * Returns a map of property names to their Lazy attribute instances.
+     * Returns a map of property names to their Lazy attribute instances or true for union types.
      *
-     * @return array<string, Lazy>
+     * @return array<string, Lazy|true>
      */
-    private function getLazyProperties(): array
+    private static function getLazyProperties(): array
     {
         static $cache = [];
 
@@ -65,15 +68,29 @@ trait SimpleDTOLazyTrait
         $lazy = [];
 
         try {
-            $reflection = new ReflectionClass($this);
+            $reflection = new ReflectionClass($class);
             $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
 
             foreach ($properties as $property) {
+                // Check for #[Lazy] attribute
                 $attributes = $property->getAttributes(Lazy::class);
 
                 if (!empty($attributes)) {
                     $lazyAttr = $attributes[0]->newInstance();
                     $lazy[$property->getName()] = $lazyAttr;
+                    continue;
+                }
+
+                // Check for Lazy union type
+                $type = $property->getType();
+
+                if ($type instanceof ReflectionUnionType) {
+                    foreach ($type->getTypes() as $unionType) {
+                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === LazyWrapper::class) {
+                            $lazy[$property->getName()] = true; // Mark as union type
+                            break;
+                        }
+                    }
                 }
             }
         } catch (ReflectionException $e) {
@@ -90,11 +107,11 @@ trait SimpleDTOLazyTrait
      * Check if a property should be included based on lazy loading rules.
      *
      * @param string $propertyName The property name
-     * @param Lazy $lazyAttr The Lazy attribute instance
+     * @param Lazy|true $lazyAttr The Lazy attribute instance or true for union types
      *
      * @return bool
      */
-    private function shouldIncludeLazy(string $propertyName, Lazy $lazyAttr): bool
+    private function shouldIncludeLazy(string $propertyName, Lazy|bool $lazyAttr): bool
     {
         // If includeAll() was called, include all lazy properties
         if ($this->includeAllLazy) {
@@ -104,6 +121,11 @@ trait SimpleDTOLazyTrait
         // If property is explicitly included via include()
         if ($this->includedLazy !== null && in_array($propertyName, $this->includedLazy, true)) {
             return true;
+        }
+
+        // For union types (true), check only explicit inclusion
+        if ($lazyAttr === true) {
+            return false;
         }
 
         // Check conditional loading based on context
@@ -124,7 +146,7 @@ trait SimpleDTOLazyTrait
      */
     private function filterLazyProperties(array $data): array
     {
-        $lazyProperties = $this->getLazyProperties();
+        $lazyProperties = static::getLazyProperties();
 
         if (empty($lazyProperties)) {
             return $data;
@@ -151,7 +173,7 @@ trait SimpleDTOLazyTrait
      */
     private function getLazyPropertyNames(): array
     {
-        return array_keys($this->getLazyProperties());
+        return array_keys(static::getLazyProperties());
     }
 
     /**
@@ -163,9 +185,64 @@ trait SimpleDTOLazyTrait
      */
     private function isLazyProperty(string $propertyName): bool
     {
-        $lazyProperties = $this->getLazyProperties();
+        $lazyProperties = static::getLazyProperties();
 
         return isset($lazyProperties[$propertyName]);
+    }
+
+    /**
+     * Wrap lazy properties in Lazy wrapper.
+     *
+     * @param array<string, mixed> $data The data array
+     *
+     * @return array<string, mixed>
+     */
+    private static function wrapLazyProperties(array $data): array
+    {
+        $lazyProperties = static::getLazyProperties();
+
+        if (empty($lazyProperties)) {
+            return $data;
+        }
+
+        $wrapped = [];
+
+        foreach ($lazyProperties as $propertyName => $lazyAttr) {
+            if (array_key_exists($propertyName, $data)) {
+                // Wrap value in Lazy wrapper
+                $value = $data[$propertyName];
+                $wrapped[$propertyName] = LazyWrapper::value($value);
+
+                // Remove from original data
+                unset($data[$propertyName]);
+            }
+        }
+
+        // Merge wrapped lazy properties with remaining data
+        return array_merge($data, $wrapped);
+    }
+
+    /**
+     * Unwrap lazy properties for serialization.
+     *
+     * @param array<string, mixed> $data The data array
+     *
+     * @return array<string, mixed>
+     */
+    private function unwrapLazyProperties(array $data): array
+    {
+        $unwrapped = [];
+
+        foreach ($data as $key => $value) {
+            if ($value instanceof LazyWrapper) {
+                // Get the value from Lazy wrapper
+                $unwrapped[$key] = $value->get();
+            } else {
+                $unwrapped[$key] = $value;
+            }
+        }
+
+        return $unwrapped;
     }
 }
 

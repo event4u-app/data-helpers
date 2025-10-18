@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
+use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDTO\Normalizers\DefaultValuesNormalizer;
 use event4u\DataHelpers\SimpleDTO\Normalizers\TypeNormalizer;
 use event4u\DataHelpers\SimpleDTO\Pipeline\CallbackStage;

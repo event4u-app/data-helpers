@@ -61,6 +61,7 @@ trait SimpleDTOTrait
 {
     use SimpleDTOCastsTrait;
     use SimpleDTOValidationTrait;
+    use SimpleDTORequestValidationTrait;
     use SimpleDTOMappingTrait;
     use SimpleDTOVisibilityTrait;
     use SimpleDTOWrappingTrait;
@@ -71,12 +72,11 @@ trait SimpleDTOTrait
     use SimpleDTOPerformanceTrait;
     use SimpleDTOLazyCastTrait;
     use SimpleDTOBenchmarkTrait;
-    use SimpleDTOComputedTrait {
-        SimpleDTOComputedTrait::include as includeComputed;
-    }
-    use SimpleDTOLazyTrait {
-        SimpleDTOLazyTrait::includeAll as includeLazyAll;
-    }
+    use SimpleDTOOptionalTrait;
+    use SimpleDTOComputedTrait;
+    use SimpleDTOLazyTrait;
+    use SimpleDTOConditionalTrait;
+    use SimpleDTOWithTrait;
 
     /**
      * Include specific properties in serialization.
@@ -137,8 +137,19 @@ trait SimpleDTOTrait
             $data['includeAllLazy'],
             $data['wrapKey'],
             $data['objectVarsCache'],
-            $data['castedProperties']
+            $data['castedProperties'],
+            $data['conditionalContext'],
+            $data['additionalData']
         );
+
+        // Unwrap optional properties
+        $data = static::unwrapOptionalProperties($data);
+
+        // Filter lazy properties (before unwrapping)
+        $data = $this->filterLazyProperties($data);
+
+        // Unwrap lazy properties
+        $data = $this->unwrapLazyProperties($data);
 
         // Apply casts (set method) to convert values back
         $data = $this->applyOutputCasts($data);
@@ -146,15 +157,19 @@ trait SimpleDTOTrait
         // Apply output mapping
         $data = $this->applyOutputMapping($data);
 
-        // Filter lazy properties
-        $data = $this->filterLazyProperties($data);
-
         // Apply visibility filters
         $data = $this->applyArrayVisibilityFilters($data);
+
+        // Apply conditional filters
+        $data = $this->applyConditionalFilters($data);
 
         // Add computed properties
         $computed = $this->getComputedValues('array');
         $data = array_merge($data, $computed);
+
+        // Add additional data from with() method
+        $additional = $this->getAdditionalData();
+        $data = array_merge($data, $additional);
 
         // Apply wrapping
         $data = $this->applyWrapping($data);
@@ -185,8 +200,19 @@ trait SimpleDTOTrait
             $data['includeAllLazy'],
             $data['wrapKey'],
             $data['objectVarsCache'],
-            $data['castedProperties']
+            $data['castedProperties'],
+            $data['conditionalContext'],
+            $data['additionalData']
         );
+
+        // Unwrap optional properties
+        $data = static::unwrapOptionalProperties($data);
+
+        // Filter lazy properties (before unwrapping)
+        $data = $this->filterLazyProperties($data);
+
+        // Unwrap lazy properties
+        $data = $this->unwrapLazyProperties($data);
 
         // Apply casts (set method) to convert values back
         $data = $this->applyOutputCasts($data);
@@ -194,15 +220,19 @@ trait SimpleDTOTrait
         // Apply output mapping
         $data = $this->applyOutputMapping($data);
 
-        // Filter lazy properties
-        $data = $this->filterLazyProperties($data);
-
         // Apply visibility filters
         $data = $this->applyJsonVisibilityFilters($data);
+
+        // Apply conditional filters
+        $data = $this->applyConditionalFilters($data);
 
         // Add computed properties
         $computed = $this->getComputedValues('json');
         $data = array_merge($data, $computed);
+
+        // Add additional data from with() method
+        $additional = $this->getAdditionalData();
+        $data = array_merge($data, $additional);
 
         // Apply wrapping
         $data = $this->applyWrapping($data);
@@ -220,7 +250,9 @@ trait SimpleDTOTrait
      * Processing order:
      * 1. Apply property mapping (#[MapFrom] attributes)
      * 2. Apply casts (casts() method)
-     * 3. Construct DTO instance
+     * 3. Wrap lazy properties (first, so Optional can wrap Lazy)
+     * 4. Wrap optional properties (second, wraps Lazy if needed)
+     * 5. Construct DTO instance
      *
      * @param array<string, mixed> $data
      * @return static
@@ -237,6 +269,20 @@ trait SimpleDTOTrait
         if ([] !== $casts) {
             $data = static::applyCasts($data, $casts);
         }
+
+        // Step 4: Auto-validate if enabled (before wrapping!)
+        if (static::shouldAutoValidate()) {
+            $validateAttr = static::getValidateRequestAttribute();
+            if ($validateAttr?->auto) {
+                $data = static::validateOrFail($data);
+            }
+        }
+
+        // Step 5: Wrap lazy properties (first!)
+        $data = static::wrapLazyProperties($data);
+
+        // Step 6: Wrap optional properties (second, can wrap Lazy)
+        $data = static::wrapOptionalProperties($data);
 
         /** @phpstan-ignore new.static */
         return new static(...$data);
