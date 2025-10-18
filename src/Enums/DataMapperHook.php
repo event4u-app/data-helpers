@@ -21,8 +21,8 @@ enum DataMapperHook: string
     case BeforePair = 'beforePair';
     case AfterPair = 'afterPair';
 
-    case PreTransform = 'preTransform';
-    case PostTransform = 'postTransform';
+    case BeforeTransform = 'beforeTransform';
+    case AfterTransform = 'afterTransform';
 
     case BeforeWrite = 'beforeWrite';
     case AfterWrite = 'afterWrite';

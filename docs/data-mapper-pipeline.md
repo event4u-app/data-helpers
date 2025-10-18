@@ -76,7 +76,7 @@ $result = DataMapper::pipe([new TrimStrings()])
     ->map($source, [], $mapping);
 ```
 
-**Hook:** `preTransform`
+**Hook:** `beforeTransform`
 
 **Example:**
 - Input: `'  Alice  '`
@@ -95,7 +95,7 @@ $result = DataMapper::pipe([new DecodeHtmlEntities()])
 
 **Template Aliases:** `decode_html`, `html_decode`, `decode_entities`
 
-**Hook:** `preTransform`
+**Hook:** `beforeTransform`
 
 **Examples:**
 - Input: `'Herbert&#32;Meier'` → Output: `'Herbert Meier'`
@@ -122,7 +122,7 @@ $result = DataMapper::pipe([new LowercaseEmails()])
     ->map($source, [], $mapping);
 ```
 
-**Hook:** `preTransform`
+**Hook:** `beforeTransform`
 
 **Example:**
 - Input: `'ALICE@EXAMPLE.COM'` (path contains 'email')
@@ -156,7 +156,7 @@ $result = DataMapper::pipe([new UppercaseStrings()])
     ->map($source, [], $mapping);
 ```
 
-**Hook:** `preTransform`
+**Hook:** `beforeTransform`
 
 **Example:**
 - Input: `'alice'`
@@ -179,7 +179,7 @@ $result = DataMapper::pipe([
 ])->map($source, [], $mapping);
 ```
 
-**Hook:** `preTransform`
+**Hook:** `beforeTransform`
 
 **Example:**
 - Input: `'N/A'`
@@ -217,11 +217,11 @@ class ValidateEmail implements FilterInterface
     /**
      * Which hook to attach to.
      *
-     * @return string Hook name (e.g., 'preTransform', 'postTransform', 'beforeWrite')
+     * @return string Hook name (e.g., 'beforeTransform', 'afterTransform', 'beforeWrite')
      */
     public function getHook(): string
     {
-        return 'preTransform'; // Hook to attach to
+        return 'beforeTransform'; // Hook to attach to
     }
 
     /**
@@ -244,8 +244,8 @@ class ValidateEmail implements FilterInterface
 - `afterEntry` - After each structured entry
 - `beforePair` - Before each source→target pair
 - `afterPair` - After each source→target pair
-- `preTransform` - Before value transformation
-- `postTransform` - After value transformation
+- `beforeTransform` - Before value transformation
+- `afterTransform` - After value transformation
 - `beforeWrite` - Before writing to target
 - `afterWrite` - After writing to target
 
@@ -263,7 +263,7 @@ class LowercaseEmailsFiltered implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return 'beforeTransform';
     }
 
     public function getFilter(): ?string
@@ -299,7 +299,7 @@ class ReplaceValue implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return 'beforeTransform';
     }
 
     public function getFilter(): ?string
@@ -359,7 +359,7 @@ class FormatPhoneNumber implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return 'beforeTransform';
     }
 
     public function getFilter(): ?string
@@ -553,7 +553,7 @@ class ValidateAge implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return 'beforeTransform';
     }
 
     public function getFilter(): ?string
@@ -603,7 +603,7 @@ The Pipeline API is **fully compatible** with the classic `DataMapper::map()` AP
 ```php
 // Classic API (still works!)
 $result = DataMapper::map($source, [], $mapping, hooks: [
-    'preTransform' => fn($v) => is_string($v) ? trim($v) : $v,
+    'beforeTransform' => fn($v) => is_string($v) ? trim($v) : $v,
     'beforeWrite' => fn($v) => '' === $v ? '__skip__' : $v,
 ]);
 

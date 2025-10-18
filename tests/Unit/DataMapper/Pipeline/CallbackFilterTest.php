@@ -27,11 +27,11 @@ describe('CallbackFilter', function(): void {
             'profile.email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(fn(CallbackParameters $params): mixed => is_string($params->value) ? strtoupper(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+            [new CallbackFilter(fn(CallbackParameters $params): mixed => is_string($params->value) ? strtoupper(
                 $params->value
-            ) : $params->value),
-        ])->map($source, [], $mapping);
+            ) : $params->value),]
+        )->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -55,12 +55,12 @@ describe('CallbackFilter', function(): void {
 
         $capturedParams = null;
 
-        DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $params) use (&$capturedParams) {
+        DataMapper::source($source)->target([])->template($mapping)->pipe(
+            [new CallbackFilter(function(CallbackParameters $params) use (&$capturedParams) {
                 $capturedParams = $params;
                 return $params->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),]
+        )->map()->getTarget();
 
         expect($capturedParams)->not->toBeNull();
         assert($capturedParams instanceof CallbackParameters);
@@ -85,15 +85,15 @@ describe('CallbackFilter', function(): void {
             'profile.phone' => '{{ user.phone }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $params) {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $params
+        ) {
                 // Skip empty values
                 if ('' === $params->value) {
                     return '__skip__';
                 }
                 return $params->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -117,20 +117,19 @@ describe('CallbackFilter', function(): void {
             'profile.name' => '{{ user.name }}',
         ];
 
-        try {
-            $result = DataMapper::pipe([
-                new CallbackFilter(function(CallbackParameters $params): void {
-                    throw new RuntimeException('Callback failed!');
-                }),
-            ])->map($source, [], $mapping);
+        // Exception should be collected, NOT thrown
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+            [new CallbackFilter(function(CallbackParameters $params): void {
+                throw new RuntimeException('Callback failed!');
+            }),]
+        )->map();
 
-            // Should not reach here
-            expect(true)->toBeFalse();
-        } catch (RuntimeException $runtimeException) {
-            // Exception should be thrown at the end
-            expect($runtimeException->getMessage())->toContain('Callback filter failed');
-            expect($runtimeException->getMessage())->toContain('Callback failed!');
-        }
+        // Exception should be collected
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+        $exception = MapperExceptions::getLastException();
+        expect($exception)->toBeInstanceOf(RuntimeException::class);
+        expect($exception->getMessage())->toContain('Callback filter failed');
+        expect($exception->getMessage())->toContain('Callback failed!');
     });
 
     it('can transform based on key path', function(): void {
@@ -146,15 +145,15 @@ describe('CallbackFilter', function(): void {
             'profile.name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $params) {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $params
+        ) {
                 // Only lowercase emails
                 if ('email' === $params->key && is_string($params->value)) {
                     return strtolower($params->value);
                 }
                 return $params->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -175,12 +174,12 @@ describe('CallbackFilter', function(): void {
             'profile.name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(fn(CallbackParameters $p): mixed => is_string($p->value) ? trim($p->value) : $p->value),
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+            [new CallbackFilter(fn(CallbackParameters $p): mixed => is_string($p->value) ? trim($p->value) : $p->value),
             new CallbackFilter(fn(CallbackParameters $p): mixed => is_string($p->value) ? strtoupper(
                 $p->value
-            ) : $p->value),
-        ])->map($source, [], $mapping);
+            ) : $p->value),]
+        )->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -203,8 +202,9 @@ describe('CallbackFilter', function(): void {
             'org.teams' => '{{ company.departments }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $params) {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $params
+        ) {
                 // Uppercase department names in nested arrays
                 if (is_array($params->value)) {
                     return array_map(function($dept) {
@@ -215,8 +215,7 @@ describe('CallbackFilter', function(): void {
                     }, $params->value);
                 }
                 return $params->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result)->toBe([
             'org' => [
@@ -245,15 +244,15 @@ describe('CallbackFilter', function(): void {
             'result.count' => '{{ data.count }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $params) {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $params
+        ) {
                 // Only skip null, not empty string or false or 0
                 if (null === $params->value) {
                     return '__skip__';
                 }
                 return $params->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result)->toBe([
             'result' => [
@@ -276,15 +275,15 @@ describe('CallbackFilter', function(): void {
             'profile.tags' => '{{ user.tags }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $params) {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $params
+        ) {
                 // Uppercase all array elements
                 if (is_array($params->value)) {
                     return array_map(fn($v): mixed => is_string($v) ? strtoupper($v) : $v, $params->value);
                 }
                 return $params->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -307,12 +306,12 @@ describe('CallbackFilter', function(): void {
 
         $capturedKeys = [];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $params) use (&$capturedKeys) {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+            [new CallbackFilter(function(CallbackParameters $params) use (&$capturedKeys) {
                 $capturedKeys[] = $params->key;
                 return $params->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),]
+        )->map()->getTarget();
 
         // Should capture keys (might be 'products' for the array itself)
         expect($capturedKeys)->not->toBeEmpty();
@@ -330,11 +329,11 @@ describe('CallbackFilter', function(): void {
             'profile.name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(fn(CallbackParameters $params): null =>
+        $result = DataMapper::source($source)->target([])->template(
+            $mapping
+        )->pipe([new CallbackFilter(fn(CallbackParameters $params): null =>
                 // Explicitly return null (not __skip__)
-                null),
-        ])->map($source, [], $mapping);
+                null),])->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -356,8 +355,9 @@ describe('CallbackFilter', function(): void {
             'profile.email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $params) {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $params
+        ) {
                 if ('' === $params->value) {
                     return '__skip__';
                 }
@@ -366,8 +366,7 @@ describe('CallbackFilter', function(): void {
             new CallbackFilter(fn(CallbackParameters $params): mixed =>
                 // This should NOT be called for skipped values
                 // because __skip__ is handled before the next filter
-                is_string($params->value) ? strtoupper($params->value) : $params->value),
-        ])->map($source, [], $mapping);
+                is_string($params->value) ? strtoupper($params->value) : $params->value),])->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [

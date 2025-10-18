@@ -830,8 +830,8 @@ final class MyCustomFilter implements FilterInterface
 
     public function getHook(): string
     {
-        // When to apply: 'preTransform' or 'beforeWrite'
-        return 'preTransform';
+        // When to apply: 'beforeTransform' or 'beforeWrite'
+        return 'beforeTransform';
     }
 
     public function getFilter(): ?string
@@ -893,7 +893,7 @@ final class AlternatingCase implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return 'beforeTransform';
     }
 
     public function getFilter(): ?string
@@ -1105,8 +1105,8 @@ $template = ['name' => '{{ user.name | unknown_filter }}'];
 
 ## Hook Types
 
-- **`preTransform`**: Applied before the value is processed
+- **`beforeTransform`**: Applied before the value is processed
 - **`beforeWrite`**: Applied just before writing to the target
 
-Most filters use `preTransform` for data cleaning and type conversion.
+Most filters use `beforeTransform` for data cleaning and type conversion.
 

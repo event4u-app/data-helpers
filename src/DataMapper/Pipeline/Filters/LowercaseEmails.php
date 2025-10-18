@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 final class LowercaseEmails implements FilterInterface
 {
@@ -30,7 +31,7 @@ final class LowercaseEmails implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string

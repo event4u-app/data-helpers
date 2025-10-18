@@ -326,7 +326,7 @@ final class EncryptFilter implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return 'beforeTransform';
     }
 
     public function getFilter(): ?string
@@ -372,7 +372,7 @@ final class DateFormat implements FilterInterface
         return date('Y-m-d', strtotime($value));
     }
 
-    public function getHook(): string { return 'preTransform'; }
+    public function getHook(): string { return 'beforeTransform'; }
     public function getFilter(): ?string { return null; }
 
     /** @return array<int, string> */
@@ -387,7 +387,7 @@ final class CurrencyFormat implements FilterInterface
         return number_format($value, 2) . ' EUR';
     }
 
-    public function getHook(): string { return 'preTransform'; }
+    public function getHook(): string { return 'beforeTransform'; }
     public function getFilter(): ?string { return null; }
 
     /** @return array<int, string> */
@@ -1010,7 +1010,7 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 
 ```php
 $hooks = [
-    'postTransform' => function($value, $context) {
+    'afterTransform' => function($value, $context) {
         if ($context->tgtPath() === 'email') {
             return strtolower($value);
         }

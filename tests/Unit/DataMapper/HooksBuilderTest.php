@@ -35,9 +35,15 @@ describe('DataMapper Hooks Builder', function(): void {
             ->toArray();
 
         /** @var array<string, mixed> $res */
-        $res = DataMapper::map($src, $tgt, [
-            'user.name' => '{{ profile.name }}',
-        ], false, false, $hooks);
+        $res = DataMapper::source($src)
+            ->target($tgt)
+            ->template([
+                'user.name' => '{{ profile.name }}',
+            ])
+            ->skipNull(false)
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
 
         expect($beforeAllCount)->toBe(1)
             ->and($res)->not()->toHaveKey('profile');
@@ -57,19 +63,19 @@ describe('DataMapper Hooks Builder', function(): void {
         ]);
 
         expect($hooks)
-            ->toHaveKey('beforeAll')
-            ->and($hooks['beforeAll'])->toBeCallable()
+            ->toHaveKey(DataMapperHook::BeforeAll->value)
+            ->and($hooks[DataMapperHook::BeforeAll->value])->toBeCallable()
             ->and($hooks)
-            ->toHaveKey('beforePair')
-            ->and($hooks['beforePair'])->toBeArray();
-        assert(is_array($hooks['beforePair']));
-        expect(array_key_exists('src:user.*', $hooks['beforePair']))->toBeTrue();
+            ->toHaveKey(DataMapperHook::BeforePair->value)
+            ->and($hooks[DataMapperHook::BeforePair->value])->toBeArray();
+        assert(is_array($hooks[DataMapperHook::BeforePair->value]));
+        expect(array_key_exists('src:user.*', $hooks[DataMapperHook::BeforePair->value]))->toBeTrue();
     });
 
     test('merge() merges shallowly and later overrides earlier', function(): void {
         $a = Hooks::build([
             [
-                DataMapperHook::PreTransform,
+                DataMapperHook::BeforeTransform,
                 fn($v) => is_string($v) ? trim($v) : $v,
             ],
             [
@@ -87,11 +93,11 @@ describe('DataMapper Hooks Builder', function(): void {
         $merged = Hooks::merge($a, $b);
 
         expect($merged)
-            ->toHaveKey('preTransform')
-            ->and($merged['preTransform'])->toBeCallable()
+            ->toHaveKey(DataMapperHook::BeforeTransform->value)
+            ->and($merged[DataMapperHook::BeforeTransform->value])->toBeCallable()
             ->and($merged)
-            ->toHaveKey('beforeWrite')
-            ->and($merged['beforeWrite'])->toBeCallable();
+            ->toHaveKey(DataMapperHook::BeforeWrite->value)
+            ->and($merged[DataMapperHook::BeforeWrite->value])->toBeCallable();
     });
 
     test('fluent make()/on()/onMany()/mergeIn()/toArray()', function(): void {
@@ -117,18 +123,18 @@ describe('DataMapper Hooks Builder', function(): void {
         $hooks = $builder->toArray();
 
         expect($hooks)
-            ->toHaveKey('beforeAll')
-            ->and($hooks['beforeAll'])->toBeCallable()
+            ->toHaveKey(DataMapperHook::BeforeAll->value)
+            ->and($hooks[DataMapperHook::BeforeAll->value])->toBeCallable()
             ->and($hooks)
-            ->toHaveKey('beforePair')
-            ->and($hooks['beforePair'])->toBeArray();
-        assert(is_array($hooks['beforePair']));
-        expect(array_key_exists('mode:simple', $hooks['beforePair']))->toBeTrue()
+            ->toHaveKey(DataMapperHook::BeforePair->value)
+            ->and($hooks[DataMapperHook::BeforePair->value])->toBeArray();
+        assert(is_array($hooks[DataMapperHook::BeforePair->value]));
+        expect(array_key_exists('mode:simple', $hooks[DataMapperHook::BeforePair->value]))->toBeTrue()
             ->and($hooks)
-            ->toHaveKey('afterWrite');
+            ->toHaveKey(DataMapperHook::AfterWrite->value);
     });
 
-    test('integration: DataMapper::map works with hooks built by builder', function(): void {
+    test('integration: DataMapper works with hooks built by builder', function(): void {
         $src = [
             'user' => [
                 'name' => '  alice  ',
@@ -137,14 +143,19 @@ describe('DataMapper Hooks Builder', function(): void {
         $tgt = [];
 
         $hooks = Hooks::make()
-            ->on(DataMapperHook::PreTransform, fn($v) => is_string($v) ? trim($v) : $v)
+            ->on(DataMapperHook::BeforeTransform, fn($v) => is_string($v) ? trim($v) : $v)
             ->on(DataMapperHook::BeforeWrite, fn($v) => '' === $v ? '__skip__' : $v)
             ->toArray();
 
         /** @var array{profile: array{name: string}} $res */
-        $res = DataMapper::map($src, $tgt, [
-            'profile.name' => '{{ user.name }}',
-        ], true, false, $hooks);
+        $res = DataMapper::source($src)
+            ->target($tgt)
+            ->template([
+                'profile.name' => '{{ user.name }}',
+            ])
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
 
         expect($res)
             ->toHaveKey('profile')
@@ -167,9 +178,14 @@ describe('DataMapper Hooks Builder', function(): void {
             })
             ->toArray();
 
-        DataMapper::map($src, $tgt, [
-            'a' => '{{ x.a }}',
-        ], false, false, $hooks);
+        DataMapper::source($src)
+            ->target($tgt)
+            ->template([
+                'a' => '{{ x.a }}',
+            ])
+            ->skipNull(false)
+            ->hooks($hooks)
+            ->map();
         expect($count)->toBe(1);
     });
 
@@ -188,7 +204,7 @@ describe('DataMapper Hooks Builder', function(): void {
 
         $calls = 0;
         $hooks = Hooks::make()
-            ->onForPrefix(DataMapperHook::PostTransform, 'users.*.email', function($v) use (&$calls) {
+            ->onForPrefix(DataMapperHook::AfterTransform, 'users.*.email', function($v) use (&$calls) {
                 $calls++;
 
                 return strtoupper((string)$v);
@@ -196,9 +212,16 @@ describe('DataMapper Hooks Builder', function(): void {
             ->toArray();
 
         /** @var array{dest: array{mails: array<int,string>}} $res */
-        $res = DataMapper::map($src, $tgt, [
-            'dest.mails.*' => '{{ users.*.email }}',
-        ], false, true, $hooks);
+        $res = DataMapper::source($src)
+            ->target($tgt)
+            ->template([
+                'dest.mails.*' => '{{ users.*.email }}',
+            ])
+            ->skipNull(false)
+            ->reindexWildcard(true)
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
 
         expect($calls)->toBe(2)
             ->and($res['dest']['mails'])->toEqual(['A@EXAMPLE.COM', 'B@EXAMPLE.COM']);
@@ -217,9 +240,15 @@ describe('DataMapper Hooks Builder', function(): void {
             ->toArray();
 
         /** @var array<string,mixed> $res */
-        $res = DataMapper::map($src, $tgt, [
-            'user.name' => '{{ profile.name }}',
-        ], false, false, $hooks);
+        $res = DataMapper::source($src)
+            ->target($tgt)
+            ->template([
+                'user.name' => '{{ profile.name }}',
+            ])
+            ->skipNull(false)
+            ->hooks($hooks)
+            ->map()
+            ->getTarget();
 
         expect($res)->not()->toHaveKey('profile');
     });

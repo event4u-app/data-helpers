@@ -1,0 +1,80 @@
+<?php
+
+declare(strict_types=1);
+
+namespace event4u\DataHelpers\SimpleDTO\Attributes;
+
+use Attribute;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * Validation attribute: Value must end with one of the given values.
+ *
+ * Example:
+ * ```php
+ * class UserDTO extends SimpleDTO
+ * {
+ *     public function __construct(
+ *         #[EndsWith(['.com', '.org', '.net'])]
+ *         public readonly string $website,
+ *
+ *         #[EndsWith('.pdf')]
+ *         public readonly string $documentPath,
+ *     ) {}
+ * }
+ * ```
+ */
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+class EndsWith implements ValidationRule, SymfonyConstraint
+{
+    /**
+     * @param string|array<string> $values Value(s) that the field must end with
+     */
+    public function __construct(
+        public readonly string|array $values,
+    ) {}
+
+    /**
+     * Convert to Laravel validation rule.
+     *
+     * @return string
+     */
+    public function rule(): string
+    {
+        $values = is_array($this->values) ? $this->values : [$this->values];
+        return 'ends_with:' . implode(',', $values);
+    }
+
+    /**
+     * Get Symfony constraint for this validation attribute.
+     *
+     * @return Constraint
+     */
+    public function constraint(): Constraint
+    {
+        $values = is_array($this->values) ? $this->values : [$this->values];
+        // Create regex pattern: (value1|value2|...)$
+        $pattern = '/(' . implode('|', array_map('preg_quote', $values)) . ')$/';
+
+        return new Assert\Regex(
+            pattern: $pattern,
+            message: $this->message()
+        );
+    }
+
+    /**
+     * Get validation error message.
+     *
+     * @param string $attribute
+     * @return string
+     */
+    public function message(): ?string
+    {
+        $values = is_array($this->values) ? implode(', ', $this->values) : $this->values;
+        return "The attribute must end with one of the following: {$values}.";
+    }
+}
+

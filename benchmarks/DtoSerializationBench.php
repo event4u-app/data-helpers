@@ -92,7 +92,7 @@ class DtoSerializationBench
         );
     }
 
-    /** Benchmark: DataMapper with template mapping (nested to flat) */
+    /** Benchmark: DataMapper with template syntax (nested to flat) */
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchDataMapperTemplate(): void
@@ -107,16 +107,18 @@ class DtoSerializationBench
             'city' => '{{ user.address.city }}',
             'zipCode' => '{{ user.address.zipCode }}',
             'country' => '{{ user.address.country }}',
-            'orderCount' => '{{ orders | count }}',
         ];
 
-        DataMapper::mapFromTemplate($template, $this->nestedData);
+        DataMapper::source($this->nestedData)
+            ->target([])
+            ->template($template)
+            ->map();
     }
 
-    /** Benchmark: DataMapper with explicit mapping (nested to flat) */
+    /** Benchmark: DataMapper with simple path mapping (nested to flat) */
     #[Revs(1000)]
     #[Iterations(5)]
-    public function benchDataMapperExplicit(): void
+    public function benchDataMapperSimplePaths(): void
     {
         $mapping = [
             'firstName' => 'user.profile.firstName',
@@ -130,7 +132,10 @@ class DtoSerializationBench
             'country' => 'user.address.country',
         ];
 
-        DataMapper::map($this->nestedData, [], $mapping);
+        DataMapper::source($this->nestedData)
+            ->target([])
+            ->template($mapping)
+            ->map();
     }
 
     /** Benchmark: Symfony Serializer from JSON (nested structure) */

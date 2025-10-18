@@ -1,0 +1,55 @@
+services:
+  php82:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        PHP_VERSION: "8.2"
+    container_name: data-helpers-php82
+    volumes:
+      - .:/app
+      - composer-cache-82:/root/.composer
+    working_dir: /app
+    command: tail -f /dev/null
+    networks:
+      - data-helpers
+
+  php83:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        PHP_VERSION: "8.3"
+    container_name: data-helpers-php83
+    volumes:
+      - .:/app
+      - composer-cache-83:/root/.composer
+    working_dir: /app
+    command: tail -f /dev/null
+    networks:
+      - data-helpers
+
+  php84:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        PHP_VERSION: "8.4"
+    container_name: data-helpers-php84
+    volumes:
+      - .:/app
+      - composer-cache-84:/root/.composer
+    working_dir: /app
+    command: tail -f /dev/null
+    networks:
+      - data-helpers
+
+volumes:
+  composer-cache-82:
+  composer-cache-83:
+  composer-cache-84:
+
+networks:
+  data-helpers:
+    driver: bridge
+

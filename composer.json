@@ -56,7 +56,9 @@
     "vlucas/phpdotenv": "^5.6",
     "symfony/serializer": "^6.0|^7.0",
     "symfony/property-info": "^6.0|^7.0",
-    "symfony/property-access": "^6.0|^7.0"
+    "symfony/property-access": "^6.0|^7.0",
+    "symfony/validator": "^6.0|^7.0",
+    "fakerphp/faker": "^1.24"
   },
   "repositories": [],
   "suggest": {
@@ -83,7 +85,7 @@
   "bin": [],
   "scripts": {
     "composer:update": "composer update php --prefer-dist --no-interaction -W 2>&1",
-    "test": "vendor/bin/pest --compact --no-coverage",
+    "test": "vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine",
     "test:coverage": "vendor/bin/pest --compact",
     "test:full": [
       "@test",
@@ -91,6 +93,8 @@
     ],
     "benchmark": "vendor/bin/phpbench run --report=table",
     "benchmark:readme": "php scripts/update-benchmark-results.php",
+    "bench:dto": "php scripts/dto-benchmark.php",
+    "bench:dto:readme": "php scripts/update-dto-benchmark-results.php",
     "test:laravel9": [
       "./scripts/test-with-versions.sh --laravel 9",
       "@composer:update"

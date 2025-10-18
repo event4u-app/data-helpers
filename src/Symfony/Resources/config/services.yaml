@@ -1,0 +1,18 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  # Commands
+  event4u\DataHelpers\Symfony\Command\MakeDtoCommand:
+    arguments:
+      $projectDir: '%kernel.project_dir%'
+    tags:
+      - { name: 'console.command' }
+
+  event4u\DataHelpers\Symfony\Command\DtoTypeScriptCommand:
+    arguments:
+      $projectDir: '%kernel.project_dir%'
+    tags:
+      - { name: 'console.command' }
+

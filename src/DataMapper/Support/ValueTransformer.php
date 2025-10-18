@@ -16,7 +16,7 @@ class ValueTransformer
      * Apply replacement map to a value.
      *
      * - Keys supported: string and int (common PHP array keys)
-     * - Order: apply on the already transformed value, before hooks like postTransform
+     * - Order: apply on the already transformed value, before hooks like afterTransform
      *
      * @param array<int|string, mixed> $replaceMap
      */

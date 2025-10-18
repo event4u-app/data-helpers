@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 
-describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
+describe('DataMapper to JSON/XML String', function(): void {
     describe('JSON string as target', function(): void {
         it('maps from JSON file to JSON string', function(): void {
             $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
@@ -20,7 +20,7 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
                 'company_employee_count' => '{{ company.employee_count }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Result should be a JSON string
             expect($result)->toBeString();
@@ -50,7 +50,7 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
                 'company_employee_count' => '{{ employee_count }}',
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $target, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Result should be a JSON string
             expect($result)->toBeString();
@@ -83,7 +83,7 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeString();
             /** @var string $resultString */
@@ -107,7 +107,7 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
                 'dept_codes' => '{{ company.departments.*.code }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeString();
             /** @var string $resultString */
@@ -138,7 +138,7 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
                 'company_employee_count' => '{{ company.employee_count }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Result should be an XML string
             expect($result)->toBeString();
@@ -165,7 +165,7 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
                 'company_employee_count' => '{{ employee_count }}',
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $target, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Result should be an XML string
             expect($result)->toBeString();
@@ -195,7 +195,7 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $target, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeString();
             expect($result)->toContain('<?xml');
@@ -214,7 +214,7 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
                 'dept_codes' => '{{ departments.department.*.code }}',
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $target, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeString();
             expect($result)->toContain('<?xml');
@@ -238,11 +238,13 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
 
             // Map to JSON string target
             $jsonTarget = '{}';
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonTarget, $mapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonTarget)->template(
+                $mapping
+            )->map()->getTarget();
 
             // Map to XML string target
             $xmlTarget = '<?xml version="1.0"?><root></root>';
-            $xmlResult = DataMapper::mapFromFile($jsonFile, $xmlTarget, $mapping);
+            $xmlResult = DataMapper::sourceFile($jsonFile)->target($xmlTarget)->template($mapping)->map()->getTarget();
 
             // JSON result should be JSON string
             expect($jsonResult)->toBeString();
@@ -277,11 +279,13 @@ describe('DataMapper::mapFromFile() to JSON/XML String', function(): void {
 
             // Map to JSON string target
             $jsonTarget = '{}';
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonTarget, $mapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonTarget)->template(
+                $mapping
+            )->map()->getTarget();
 
             // Map to XML string target
             $xmlTarget = '<?xml version="1.0"?><root></root>';
-            $xmlResult = DataMapper::mapFromFile($jsonFile, $xmlTarget, $mapping);
+            $xmlResult = DataMapper::sourceFile($jsonFile)->target($xmlTarget)->template($mapping)->map()->getTarget();
 
             // JSON result should be JSON string with nested structure
             expect($jsonResult)->toBeString();

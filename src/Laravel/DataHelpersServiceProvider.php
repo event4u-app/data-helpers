@@ -76,6 +76,12 @@ final class DataHelpersServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../../config/data-helpers.php' => $this->app->configPath('data-helpers.php'),
             ], 'data-helpers-config');
+
+            // Register commands
+            $this->commands([
+                Commands\MakeDtoCommand::class,
+                Commands\DtoTypeScriptCommand::class,
+            ]);
         }
 
         // Initialize configuration from Laravel config

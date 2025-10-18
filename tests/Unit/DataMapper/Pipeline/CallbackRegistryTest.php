@@ -100,7 +100,7 @@ describe('CallbackRegistry', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, ['user' => $source['user']]);
+        $result = DataMapper::source(['user' => $source['user']])->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -124,7 +124,7 @@ describe('CallbackRegistry', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, ['user' => $source['user']]);
+        $result = DataMapper::source(['user' => $source['user']])->template($template)->map()->getTarget();
 
         // Exception should be collected
         expect(MapperExceptions::hasExceptions())->toBeTrue();
@@ -161,7 +161,7 @@ describe('CallbackRegistry', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, ['user' => $source['user']]);
+        $result = DataMapper::source(['user' => $source['user']])->template($template)->map()->getTarget();
 
         // Exception should be collected
         expect(MapperExceptions::hasExceptions())->toBeTrue();
@@ -203,7 +203,7 @@ describe('CallbackRegistry', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, ['user' => $source['user']]);
+        $result = DataMapper::source(['user' => $source['user']])->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -249,9 +249,9 @@ describe('CallbackRegistry', function(): void {
             'tags' => '{{ post.tags | callback:processArray }}',
         ];
 
-        $result = DataMapper::mapFromTemplate($template, [
+        $result = DataMapper::source([
             'post' => ['tags' => ['php', 'javascript']],
-        ]);
+        ])->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'tags' => ['PHP', 'JAVASCRIPT'],
@@ -269,9 +269,9 @@ describe('CallbackRegistry', function(): void {
             'price' => '{{ product.price | callback:double | callback:roundTwo }}',
         ];
 
-        $result = DataMapper::mapFromTemplate($template, [
+        $result = DataMapper::source([
             'product' => ['price' => 10.5],
-        ]);
+        ])->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'price' => 21.0,

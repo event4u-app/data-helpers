@@ -20,15 +20,39 @@ final class ExpressionEvaluator
         array $sources,
         array $aliases = []
     ): mixed {
+        // Check if value contains multiple {{ }} expressions
+        if (preg_match_all('/\{\{[^}]+\}\}/', $value, $matches) > 1) {
+            // Multiple expressions - replace each one
+            return self::evaluateMultipleExpressions($value, $sources, $aliases);
+        }
+
         $parsed = ExpressionParser::parse($value);
 
         if (null === $parsed) {
             return $value;
         }
 
-        // Alias reference: @profile.fullname
+        // Alias reference: @profile.fullname or @user.name or @user.name ?? 'Unknown' | upper
         if ('alias' === $parsed['type']) {
-            return self::resolveAlias($parsed['path'], $aliases);
+            // First try to resolve from aliases (already resolved values)
+            $result = self::resolveAlias($parsed['path'], $aliases);
+
+            // If not found in aliases, try to resolve from sources
+            if (null === $result) {
+                $result = self::resolveSourcePath($parsed['path'], $sources);
+            }
+
+            // Apply default if value is null
+            if (null === $result && null !== $parsed['default']) {
+                $result = $parsed['default'];
+            }
+
+            // Apply filters
+            if ([] !== $parsed['filters']) {
+                return TemplateExpressionProcessor::applyFilters($result, $parsed['filters']);
+            }
+
+            return $result;
         }
 
         // Expression: {{ user.name ?? 'Unknown' | lower }}
@@ -59,6 +83,30 @@ final class ExpressionEvaluator
         }
 
         return $value;
+    }
+
+    /**
+     * Evaluate a string with multiple {{ }} expressions.
+     *
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function evaluateMultipleExpressions(
+        string $value,
+        array $sources,
+        array $aliases
+    ): string {
+        $result = preg_replace_callback(
+            '/\{\{([^}]+)\}\}/',
+            function(array $matches) use ($sources, $aliases): string {
+                $expression = '{{ ' . trim($matches[1]) . ' }}';
+                $result = self::evaluate($expression, $sources, $aliases);
+                return (string)$result;
+            },
+            $value
+        );
+
+        return $result ?? $value;
     }
 
     /**

@@ -1,0 +1,56 @@
+<?php
+
+declare(strict_types=1);
+
+namespace event4u\DataHelpers\SimpleDTO\Attributes;
+
+use Attribute;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * Validate that a value is between min and max.
+ *
+ * For strings: length between min and max
+ * For numbers: value between min and max
+ * For arrays: number of items between min and max
+ *
+ * Example:
+ *   #[Between(18, 120)]
+ *   public readonly int $age;
+ *
+ *   #[Between(3, 50)]
+ *   public readonly string $username;
+ */
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+class Between implements ValidationRule, SymfonyConstraint
+{
+    public function __construct(
+        private readonly int|float $min,
+        private readonly int|float $max,
+        private readonly ?string $message = null
+    ) {
+    }
+
+    public function rule(): string
+    {
+        return 'between:' . $this->min . ',' . $this->max;
+    }
+
+
+    public function constraint(): Constraint|array
+    {
+        return new Assert\Range(
+            min: $this->min,
+            max: $this->max,
+            notInRangeMessage: $this->message
+        );
+    }
+    public function message(): ?string
+    {
+        return $this->message;
+    }
+}
+

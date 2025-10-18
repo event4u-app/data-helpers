@@ -8,7 +8,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackRegistry;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\CallbackFilter;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
-use event4u\DataHelpers\ReverseDataMapper;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 describe('Callback Integration Tests', function(): void {
     beforeEach(function(): void {
@@ -29,12 +29,10 @@ describe('Callback Integration Tests', function(): void {
             'profile.email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::pipe([
-            new TrimStrings(),
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new TrimStrings(),
             new CallbackFilter(fn(CallbackParameters $p): mixed => is_string($p->value) ? strtolower(
                 $p->value
-            ) : $p->value),
-        ])->map($source, [], $mapping);
+            ) : $p->value),])->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -55,8 +53,9 @@ describe('Callback Integration Tests', function(): void {
             'profile.name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $p): mixed {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $p
+        ): mixed {
                 // Add prefix
                 if (is_string($p->value)) {
                     return 'Dr. ' . $p->value;
@@ -69,8 +68,7 @@ describe('Callback Integration Tests', function(): void {
                     return strtoupper($p->value);
                 }
                 return $p->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -91,8 +89,9 @@ describe('Callback Integration Tests', function(): void {
             'team' => '{{ users }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $p): mixed {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $p
+        ): mixed {
                 // Transform array of users
                 if (is_array($p->value) && 'team' === $p->key) {
                     return array_map(function($user) {
@@ -103,8 +102,7 @@ describe('Callback Integration Tests', function(): void {
                     }, $p->value);
                 }
                 return $p->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result)->toBe([
             'team' => [
@@ -121,16 +119,16 @@ describe('Callback Integration Tests', function(): void {
         ];
 
         // Forward mapping with callback filter
-        $forward = DataMapper::pipe([
-            new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),
-        ])->map($source, [], $mapping);
+        $forward = DataMapper::source($source)->target([])->template($mapping)->pipe(
+            [new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),]
+        )->map()->getTarget();
 
         expect($forward)->toBe([
             'profile' => ['name' => 'ALICE'],
         ]);
 
         // Reverse mapping (without callback - callbacks are one-way transformations)
-        $reverse = ReverseDataMapper::map($forward, [], $mapping);
+        $reverse = DataMapper::source($forward)->target([])->template($mapping)->reverse()->map()->getTarget();
 
         expect($reverse)->toBe([
             'user' => ['name' => 'ALICE'],
@@ -150,8 +148,9 @@ describe('Callback Integration Tests', function(): void {
             'activeUsers' => '{{ users }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $p): mixed {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $p
+        ): mixed {
                 // Filter active users and uppercase names
                 if (is_array($p->value) && 'activeUsers' === $p->key) {
                     $filtered = [];
@@ -163,8 +162,7 @@ describe('Callback Integration Tests', function(): void {
                     return $filtered;
                 }
                 return $p->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result['activeUsers'])->toHaveCount(2);
         expect($result['activeUsers'][0]['name'])->toBe('alice');
@@ -196,8 +194,9 @@ describe('Callback Integration Tests', function(): void {
             'org.teams' => '{{ company.departments }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $p): mixed {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $p
+        ): mixed {
                 if (is_array($p->value) && 'teams' === $p->key) {
                     // Add total salary to each department
                     return array_map(function($dept) {
@@ -208,8 +207,7 @@ describe('Callback Integration Tests', function(): void {
                     }, $p->value);
                 }
                 return $p->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result['org']['teams'][0]['totalSalary'])->toBe(110000);
         expect($result['org']['teams'][1]['totalSalary'])->toBe(80000);
@@ -232,8 +230,9 @@ describe('Callback Integration Tests', function(): void {
             'item.price' => '{{ product.price }}',
         ];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(function(CallbackParameters $p) {
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+            CallbackParameters $p
+        ) {
                 // Apply tax from config
                 if ('price' === $p->key && is_numeric($p->value)) {
                     $taxRate = 0.0;
@@ -245,8 +244,7 @@ describe('Callback Integration Tests', function(): void {
                     return $p->value * (1 + $taxRate);
                 }
                 return $p->value;
-            }),
-        ])->map($source, [], $mapping);
+            }),])->map()->getTarget();
 
         expect($result['item']['price'])->toBe(120.0);
         expect($result['item']['name'])->toBe('Product A');
@@ -266,9 +264,7 @@ describe('Callback Integration Tests', function(): void {
             'result' => '{{ value | callback:addPrefix | callback:addSuffix | upper }}',
         ];
 
-        $result = DataMapper::mapFromTemplate($template, [
-            'value' => 'test',
-        ]);
+        $result = DataMapper::source(['value' => 'test'])->template($template)->map()->getTarget();
 
         expect($result)->toBe([
             'result' => 'PREFIX_TEST_SUFFIX',
@@ -288,12 +284,12 @@ describe('Callback Integration Tests', function(): void {
 
         $originalSource = $source;
 
-        DataMapper::pipe([
-            new CallbackFilter(fn(CallbackParameters $p): mixed => // Try to modify source (should not affect original)
+        DataMapper::source($source)->target([])->template(
+            $mapping
+        )->pipe([new CallbackFilter(fn(CallbackParameters $p): mixed => // Try to modify source (should not affect original)
                 // Note: CallbackParameters is readonly, so this would fail at runtime
                 // This test documents that source is passed by value
-            $p->value),
-        ])->map($source, [], $mapping);
+            $p->value),])->map()->getTarget();
 
         // Source should be unchanged
         expect($source)->toBe($originalSource);
@@ -305,33 +301,33 @@ describe('Callback Integration Tests', function(): void {
 
         $beforeWriteCalled = false;
         $hooks = [
-            'beforeWrite' => function($value) use (&$beforeWriteCalled) {
+            DataMapperHook::BeforeWrite->value => function($value) use (&$beforeWriteCalled) {
                 $beforeWriteCalled = true;
                 return is_string($value) ? strtoupper($value) : $value;
             },
         ];
 
-        $result = DataMapper::map($source, [], $mapping, true, false, $hooks);
+        $result = DataMapper::source($source)->target([])->template($mapping)->hooks($hooks)->map()->getTarget();
 
         expect($beforeWriteCalled)->toBeTrue();
         expect($result['profile']['name'])->toBe('ALICE');
     });
 
-    it('works with different hooks - postTransform', function(): void {
+    it('works with different hooks - afterTransform', function(): void {
         $source = ['user' => ['name' => 'alice']];
         $mapping = ['profile.name' => '{{ user.name }}'];
 
-        $postTransformCalled = false;
+        $afterTransformCalled = false;
         $hooks = [
-            'postTransform' => function($value) use (&$postTransformCalled) {
-                $postTransformCalled = true;
+            DataMapperHook::AfterTransform->value => function($value) use (&$afterTransformCalled) {
+                $afterTransformCalled = true;
                 return is_string($value) ? strtoupper($value) : $value;
             },
         ];
 
-        $result = DataMapper::map($source, [], $mapping, true, false, $hooks);
+        $result = DataMapper::source($source)->target([])->template($mapping)->hooks($hooks)->map()->getTarget();
 
-        expect($postTransformCalled)->toBeTrue();
+        expect($afterTransformCalled)->toBeTrue();
         expect($result['profile']['name'])->toBe('ALICE');
     });
 
@@ -345,8 +341,8 @@ describe('Callback Integration Tests', function(): void {
                 'profile.email' => '{{ user.email }}',
             ];
 
-            $result = DataMapper::pipe([
-                new CallbackFilter(function(CallbackParameters $p) {
+            $result = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->pipe(
+                [new CallbackFilter(function(CallbackParameters $p) {
                     if ('name' === $p->key && is_string($p->value)) {
                         return strtoupper($p->value);
                     }
@@ -355,7 +351,8 @@ describe('Callback Integration Tests', function(): void {
                     }
                     return $p->value;
                 }),
-            ])->mapFromFile($tempFile, [], $mapping);
+            ]
+            )->map()->getTarget();
 
             expect($result['profile']['name'])->toBe('ALICE');
             expect($result['profile']['email'])->toBe('alice@example.com');
@@ -371,9 +368,9 @@ describe('Callback Integration Tests', function(): void {
             'profile.email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::pipe([
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([
             new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),
-        ])->map($source, [], $mapping, true);
+        ])->map()->getTarget();
 
         expect($result)->toBe(['profile' => ['name' => 'ALICE']]);
     });
@@ -390,7 +387,9 @@ describe('Callback Integration Tests', function(): void {
         ];
 
         // Without pipeline - reindexWildcard works
-        $result = DataMapper::map($source, [], $mapping, true, true);
+        $result = DataMapper::source($source)->target([])->template($mapping)->skipNull(true)->reindexWildcard(
+            true
+        )->map()->getTarget();
 
         expect($result['users'])->toHaveKey(0);
         expect($result['users'])->toHaveKey(1);
@@ -407,10 +406,10 @@ describe('Callback Integration Tests', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, [
+        $result = DataMapper::source([
             'user' => ['firstName' => 'Alice', 'lastName' => 'Smith'],
             'company' => ['name' => 'ACME Corp'],
-        ]);
+        ])->template($template)->map()->getTarget();
 
         expect($result['profile']['firstName'])->toBe('Alice');
         expect($result['profile']['lastName'])->toBe('Smith');
@@ -421,9 +420,9 @@ describe('Callback Integration Tests', function(): void {
         $source = (object)['user' => (object)['name' => 'alice']];
         $mapping = ['profile.name' => '{{ user.name }}'];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),
-        ])->map($source, [], $mapping);
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+            [new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),]
+        )->map()->getTarget();
 
         expect($result)->toBeArray();
         expect($result['profile']['name'])->toBe('ALICE');
@@ -443,9 +442,9 @@ describe('Callback Integration Tests', function(): void {
         ];
         $mapping = ['result' => '{{ level1.level2.level3.level4.level5.value }}'];
 
-        $result = DataMapper::pipe([
-            new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),
-        ])->map($source, [], $mapping);
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+            [new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),]
+        )->map()->getTarget();
 
         expect($result['result'])->toBe('DEEP');
     });

@@ -20,7 +20,7 @@ $tgt = [];
 $hooks = Hooks::make()
     ->on(DataMapperHook::BeforeAll, fn(AllContext $ctx): null // Example: initialize shared state (if needed)
     => null)
-    ->on(DataMapperHook::PreTransform, fn($v, PairContext $ctx): mixed // Trim strings before mapping
+    ->on(DataMapperHook::BeforeTransform, fn($v, PairContext $ctx): mixed // Trim strings before mapping
     => is_string($v) ? trim($v) : $v)
     ->toArray();
 

@@ -1,0 +1,51 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+vendor/
+node_modules/
+
+# Build artifacts
+build/
+.phpunit.cache/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Composer
+composer.lock
+
+# PHPStan
+phpstan-full-output.txt
+
+# Tests
+tests/
+tests-e2e/
+
+# CI/CD
+.github/
+
+# Examples
+examples/
+

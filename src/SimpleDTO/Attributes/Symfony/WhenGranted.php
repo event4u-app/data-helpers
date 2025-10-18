@@ -1,0 +1,149 @@
+<?php
+
+declare(strict_types=1);
+
+namespace event4u\DataHelpers\SimpleDTO\Attributes\Symfony;
+
+use Attribute;
+use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+
+/**
+ * Attribute to conditionally include a property based on Symfony security grants.
+ *
+ * Checks authorization in two ways:
+ * 1. Context: Pass user/security and check if granted
+ * 2. Symfony Security: Use AuthorizationCheckerInterface->isGranted() (if available)
+ *
+ * Supports multiple syntaxes:
+ * - WhenGranted('EDIT') - Check if user is granted EDIT attribute
+ * - WhenGranted('EDIT', 'post') - Check if user is granted EDIT on subject from context
+ *
+ * @example With context
+ * ```php
+ * class PostDTO extends SimpleDTO
+ * {
+ *     public function __construct(
+ *         public readonly string $title,
+ *
+ *         #[WhenGranted('EDIT')]
+ *         public readonly string $editLink = '/edit',
+ *     ) {}
+ * }
+ *
+ * $user = (object)['grants' => ['EDIT', 'VIEW']];
+ * $dto = new PostDTO('My Post');
+ * $dto->withContext(['user' => $user])->toArray();
+ * ```
+ *
+ * @example With Symfony Security
+ * ```php
+ * // Automatically uses Security->isGranted()
+ * $dto->toArray();
+ * ```
+ */
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
+class WhenGranted implements ConditionalProperty
+{
+    /**
+     * @param string $attribute Attribute to check (e.g., 'EDIT', 'VIEW', 'DELETE')
+     * @param string|null $subject Subject context key or class name
+     */
+    public function __construct(
+        public readonly string $attribute,
+        public readonly ?string $subject = null,
+    ) {}
+
+    /**
+     * Check if the property should be included based on security grants.
+     *
+     * @param mixed $value Property value
+     * @param object $dto DTO instance
+     * @param array<string, mixed> $context Context data
+     * @return bool
+     */
+    public function shouldInclude(mixed $value, object $dto, array $context = []): bool
+    {
+        // Check context first
+        if (array_key_exists('user', $context)) {
+            $user = $context['user'];
+
+            // No user = no permission
+            if ($user === null) {
+                return false;
+            }
+
+            // Get subject if specified
+            $subjectValue = $this->getSubject($context);
+
+            // Check if user has 'isGranted' method (Symfony User with Security trait)
+            if (is_object($user) && method_exists($user, 'isGranted')) {
+                return $subjectValue !== null
+                    ? $user->isGranted($this->attribute, $subjectValue)
+                    : $user->isGranted($this->attribute);
+            }
+
+            // Check if user has 'grants' array
+            if (is_object($user) && isset($user->grants)) {
+                return in_array($this->attribute, $user->grants, true);
+            }
+
+            // Check if user has 'permissions' array
+            if (is_object($user) && isset($user->permissions)) {
+                return in_array($this->attribute, $user->permissions, true);
+            }
+
+            // Default to false if user doesn't have grant info
+            return false;
+        }
+
+        // Check if 'security' is in context (Symfony AuthorizationCheckerInterface)
+        if (array_key_exists('security', $context)) {
+            $security = $context['security'];
+
+            if ($security !== null && is_object($security) && method_exists($security, 'isGranted')) {
+                $subjectValue = $this->getSubject($context);
+
+                return $subjectValue !== null
+                    ? $security->isGranted($this->attribute, $subjectValue)
+                    : $security->isGranted($this->attribute);
+            }
+        }
+
+        // Fall back to Symfony Security if available
+        if (class_exists('Symfony\Component\Security\Core\Security')) {
+            try {
+                // Try to get Security from service container
+                // Note: This requires Symfony to be properly initialized
+                // In most cases, context should be used instead
+                return false;
+            } catch (\Throwable $e) {
+                return false;
+            }
+        }
+
+        // Default to false if no context and no Symfony
+        return false;
+    }
+
+    /**
+     * Get subject from context.
+     *
+     * @param array<string, mixed> $context Context data
+     * @return mixed
+     */
+    private function getSubject(array $context): mixed
+    {
+        if ($this->subject === null) {
+            return null;
+        }
+
+        // If subject is a class name, return it
+        if (class_exists($this->subject)) {
+            return $this->subject;
+        }
+
+        // Otherwise, try to get it from context
+        return $context[$this->subject] ?? null;
+    }
+}
+

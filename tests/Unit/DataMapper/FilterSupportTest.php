@@ -40,7 +40,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'email' => '{{ company.email | lower }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, [], $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->getTarget();
 
             expect($result['email'])->toBe('info@techcorp.example');
         });
@@ -52,7 +52,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'name' => '{{ company.name | lower | ucfirst }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, [], $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->getTarget();
 
             expect($result['name'])->toBe('Techcorp solutions');
         });
@@ -64,7 +64,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'dept_names' => '{{ company.departments.*.name | upper }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, [], $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->getTarget();
 
             expect($result['dept_names'])->toBeArray();
             expect($result['dept_names'][0])->toBe('ENGINEERING');
@@ -79,7 +79,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'dept_codes' => '{{ company.departments.*.code | lower | ucfirst }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, [], $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->getTarget();
 
             expect($result['dept_codes'])->toBeArray();
             expect($result['dept_codes'][0])->toBe('Eng');
@@ -94,7 +94,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'missing' => '{{ company.missing_field | default:"N/A" | upper }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, [], $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->getTarget();
 
             expect($result['missing'])->toBe('N/A');
         });
@@ -112,7 +112,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'description' => '{{ description | decode_html }}',
             ];
 
-            $result = DataMapper::mapFromFile($tempFile, [], $mapping);
+            $result = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->map()->getTarget();
 
             expect($result['text'])->toBe('Herbert Meier');
             expect($result['description'])->toBe('Sample - Pool');
@@ -127,8 +127,11 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'email' => '{{ company.email | lower }}',
             ];
 
-            $result = DataMapper::pipe([new TrimStrings()])
-                ->mapFromFile($jsonFile, [], $mapping);
+            $result = DataMapper::sourceFile($jsonFile)
+                ->template($mapping)
+                ->pipeline([new TrimStrings()])
+                ->map()
+                ->getTarget();
 
             expect($result['email'])->toBe('info@techcorp.example');
         });
@@ -142,7 +145,11 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'email' => '{{ email | lower }}',
             ];
 
-            $result = DataMapper::map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->target([])
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result['email'])->toBe('alice@example.com');
         });
@@ -154,7 +161,11 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'name' => '{{ name | lower | ucwords }}',
             ];
 
-            $result = DataMapper::map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->target([])
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result['name'])->toBe('Alice Smith');
         });
@@ -172,7 +183,11 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'names' => '{{ users.*.name | ucfirst }}',
             ];
 
-            $result = DataMapper::map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->target([])
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result['names'])->toBeArray();
             expect($result['names'][0])->toBe('Alice');
@@ -192,7 +207,11 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'emails' => '{{ users.*.email | lower | trim }}',
             ];
 
-            $result = DataMapper::map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->target([])
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result['emails'])->toBeArray();
             expect($result['emails'][0])->toBe('alice@example.com');
@@ -206,7 +225,11 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'name' => '{{ name | default:"Unknown" | upper }}',
             ];
 
-            $result = DataMapper::map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->target([])
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result['name'])->toBe('UNKNOWN');
         });
@@ -222,7 +245,11 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'description' => '{{ description | decode_html }}',
             ];
 
-            $result = DataMapper::map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->target([])
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result['text'])->toBe('Herbert Meier');
             expect($result['description'])->toBe('Sample - Pool');
@@ -235,8 +262,11 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 'email' => '{{ email | lower }}',
             ];
 
-            $result = DataMapper::pipe([new TrimStrings()])
-                ->map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->template($mapping)
+                ->pipeline([new TrimStrings()])
+                ->map()
+                ->getTarget();
 
             expect($result['email'])->toBe('alice@example.com');
         });
@@ -247,7 +277,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
             $template = ['email' => '{{ user.email | lower }}'];
             $sources = ['user' => ['email' => 'ALICE@EXAMPLE.COM']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['email'])->toBe('alice@example.com');
         });
@@ -256,7 +286,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
             $template = ['name' => '{{ user.name | lower | ucfirst }}'];
             $sources = ['user' => ['name' => 'ALICE']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['name'])->toBe('Alice');
         });
@@ -270,7 +300,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['names'])->toBeArray();
             expect($result['names'][0])->toBe('alice');

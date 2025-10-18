@@ -23,7 +23,11 @@ describe('DataMapper Exception Handling', function(): void {
         $target = [];
         $mapping = ['invalid.path.that.does.not.exist' => 'name'];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
 
         // After mapping, exceptions should be collected
         expect(MapperExceptions::hasExceptions())->toBeFalse(); // No exceptions for missing paths
@@ -43,7 +47,11 @@ describe('DataMapper Exception Handling', function(): void {
             'targetMapping' => ['x'], // Mismatched lengths
         ];
 
-        expect(fn(): mixed => DataMapper::map($source, $target, [$mapping]))
+        expect(fn(): mixed => DataMapper::source($source)
+            ->target($target)
+            ->template([$mapping])
+            ->map()
+            ->getTarget())
             ->toThrow(InvalidMappingException::class);
     });
 
@@ -55,7 +63,10 @@ describe('DataMapper Exception Handling', function(): void {
         $target1 = [];
         $mapping1 = ['name' => 'name'];
 
-        DataMapper::map($source1, $target1, $mapping1);
+        DataMapper::source($source1)
+            ->target($target1)
+            ->template($mapping1)
+            ->map();
 
         expect(MapperExceptions::hasExceptions())->toBeFalse();
 
@@ -64,7 +75,10 @@ describe('DataMapper Exception Handling', function(): void {
         $target2 = [];
         $mapping2 = ['age' => 'age'];
 
-        DataMapper::map($source2, $target2, $mapping2);
+        DataMapper::source($source2)
+            ->target($target2)
+            ->template($mapping2)
+            ->map();
 
         // Exceptions should be cleared from first mapping
         expect(MapperExceptions::hasExceptions())->toBeFalse();
@@ -89,12 +103,15 @@ describe('DataMapper Exception Handling', function(): void {
         $target = [];
         $mapping = ['name' => 'name'];
 
-        DataMapper::map($source, $target, $mapping);
+        DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->map();
 
         expect(MapperExceptions::hasExceptions())->toBeFalse();
     });
 
-    it('throws collected exceptions at the end when collectExceptions is true', function(): void {
+    it('collects exceptions without throwing when collectExceptions is true', function(): void {
         MapperExceptions::setCollectExceptionsEnabled(true);
 
         $source = ['name' => 'John'];
@@ -108,8 +125,16 @@ describe('DataMapper Exception Handling', function(): void {
             'targetMapping' => ['x'], // Mismatched lengths
         ];
 
-        expect(fn(): mixed => DataMapper::map($source, $target, [$mapping]))
-            ->toThrow(InvalidMappingException::class); // Single exception is thrown directly
+        // Should NOT throw - exception should be collected
+        $result = DataMapper::source($source)
+            ->target($target)
+            ->template([$mapping])
+            ->map()
+            ->getTarget();
+
+        // Exception should be collected
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+        expect(MapperExceptions::getExceptionCount())->toBe(1);
     });
 
     it('provides access to collected exceptions', function(): void {
@@ -119,7 +144,10 @@ describe('DataMapper Exception Handling', function(): void {
         $source = ['name' => 'John'];
         $target = [];
         $mapping = ['name' => 'name'];
-        DataMapper::map($source, $target, $mapping);
+        DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->map();
 
         // After a successful mapping, exceptions should be cleared
         expect(MapperExceptions::hasExceptions())->toBeFalse();

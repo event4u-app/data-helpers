@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Casts numeric values to floats.
@@ -14,7 +15,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
  * Skips null values and non-numeric strings.
  *
  * Example:
- *   DataMapper::pipe([CastToFloat::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipe([CastToFloat::class])->map()->getTarget();
  */
 final class CastToFloat implements FilterInterface
 {
@@ -56,7 +57,7 @@ final class CastToFloat implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string

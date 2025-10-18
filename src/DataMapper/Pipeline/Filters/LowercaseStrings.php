@@ -6,12 +6,13 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Converts all string values to lowercase.
  *
  * Example:
- *   DataMapper::pipe([LowercaseStrings::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipe([LowercaseStrings::class])->map()->getTarget();
  *   Template: {{ value | lower }} or {{ value | lowercase }}
  */
 final class LowercaseStrings implements FilterInterface
@@ -23,7 +24,7 @@ final class LowercaseStrings implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string

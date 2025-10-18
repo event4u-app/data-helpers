@@ -8,7 +8,7 @@ use Tests\utils\Models\Company;
 use Tests\utils\Models\Department;
 use Tests\utils\XMLs\Models\Project;
 
-describe('DataMapper::mapFromFile() to Model', function(): void {
+describe('DataMapper to Model', function(): void {
     describe('Automatic relation mapping', function(): void {
         it('maps JSON file to Company model with automatic relation mapping', function(): void {
             $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
@@ -48,7 +48,7 @@ describe('DataMapper::mapFromFile() to Model', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $company, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 
             // Verify Company data
             expect($result)->toBeInstanceOf(Company::class);
@@ -162,7 +162,7 @@ describe('DataMapper::mapFromFile() to Model', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $company, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($company)->template($mapping)->map()->getTarget();
 
             // Verify Company data (XML values are strings, but casts should convert them)
             expect($result)->toBeInstanceOf(Company::class);
@@ -256,7 +256,9 @@ describe('DataMapper::mapFromFile() to Model', function(): void {
                 'annual_revenue' => '{{ company.annual_revenue }}',
                 'is_active' => '{{ company.is_active }}',
             ];
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonCompany, $jsonMapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonCompany)->template(
+                $jsonMapping
+            )->map()->getTarget();
 
             // Map XML to Company model
             $xmlCompany = new Company();
@@ -270,7 +272,9 @@ describe('DataMapper::mapFromFile() to Model', function(): void {
                 'annual_revenue' => '{{ annual_revenue }}',
                 'is_active' => '{{ is_active }}',
             ];
-            $xmlResult = DataMapper::mapFromFile($xmlFile, $xmlCompany, $xmlMapping);
+            $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlCompany)->template(
+                $xmlMapping
+            )->map()->getTarget();
 
             /** @var Company $jsonCompany */
             $jsonCompany = $jsonResult;
@@ -316,7 +320,9 @@ describe('DataMapper::mapFromFile() to Model', function(): void {
                 'employee_count' => '{{ company.departments.0.employee_count }}',
                 'manager_name' => '{{ company.departments.0.manager_name }}',
             ];
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonDept, $jsonMapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonDept)->template(
+                $jsonMapping
+            )->map()->getTarget();
 
             // Map XML departments to Department models
             $xmlDept = new Department();
@@ -327,7 +333,7 @@ describe('DataMapper::mapFromFile() to Model', function(): void {
                 'employee_count' => '{{ departments.department.0.employee_count }}',
                 'manager_name' => '{{ departments.department.0.manager_name }}',
             ];
-            $xmlResult = DataMapper::mapFromFile($xmlFile, $xmlDept, $xmlMapping);
+            $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlDept)->template($xmlMapping)->map()->getTarget();
 
             /** @var Department $jsonDept */
             $jsonDept = $jsonResult;
@@ -369,7 +375,7 @@ describe('DataMapper::mapFromFile() to Model', function(): void {
                 'calculated_hours' => '{{ calculated_time }}',
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $project, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($project)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeInstanceOf(Project::class);
             /** @var Project $project */
@@ -391,7 +397,7 @@ describe('DataMapper::mapFromFile() to Model', function(): void {
                 'calculated_hours' => '{{ ConstructionSite.construction_hours }}',
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $project, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($project)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeInstanceOf(Project::class);
             /** @var Project $project */

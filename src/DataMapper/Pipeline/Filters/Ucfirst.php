@@ -6,12 +6,13 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Capitalizes the first character of a string.
  *
  * Example:
- *   DataMapper::pipe([Ucfirst::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Ucfirst::class])->map()->getTarget();
  *   Template: {{ value | ucfirst }}
  */
 final class Ucfirst implements FilterInterface
@@ -23,7 +24,7 @@ final class Ucfirst implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string

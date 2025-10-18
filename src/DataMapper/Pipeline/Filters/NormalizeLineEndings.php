@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Normalizes line endings to Unix style (\n).
@@ -13,7 +14,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
  * Converts Windows (\r\n) and Mac (\r) line endings to Unix (\n).
  *
  * Example:
- *   DataMapper::pipe([NormalizeLineEndings::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipe([NormalizeLineEndings::class])->map()->getTarget();
  */
 final class NormalizeLineEndings implements FilterInterface
 {
@@ -29,7 +30,7 @@ final class NormalizeLineEndings implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string

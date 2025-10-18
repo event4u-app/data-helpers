@@ -6,12 +6,13 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Sorts an array in ascending order.
  *
  * Example:
- *   DataMapper::pipe([Sort::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Sort::class])->map()->getTarget();
  *   Template: {{ value | sort }}
  */
 final class Sort implements FilterInterface
@@ -30,7 +31,7 @@ final class Sort implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string

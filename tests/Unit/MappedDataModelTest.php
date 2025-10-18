@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\MappedDataModel;
 use JsonSerializable;
 
@@ -30,6 +32,31 @@ class TestDataModel extends MappedDataModel
             'nested' => [
                 'value' => '{{ request.nested_value }}',
             ],
+        ];
+    }
+}
+
+/**
+ * Test model with pipeline transformers
+ *
+ * @property string $email
+ * @property string $name
+ */
+class TestDataModelWithPipeline extends MappedDataModel
+{
+    protected function template(): array
+    {
+        return [
+            'email' => '{{ request.email }}',
+            'name' => '{{ request.name }}',
+        ];
+    }
+
+    protected function pipes(): array
+    {
+        return [
+            new TrimStrings(),
+            new LowercaseEmails(),
         ];
     }
 }
@@ -328,6 +355,64 @@ describe('MappedDataModel', function(): void {
             expect($array)->toHaveKey('nested');
             expect($array['nested'])->toHaveKey('value');
             expect($array['nested']['value'])->toBe('test123');
+        });
+    });
+
+    describe('Pipeline transformers', function(): void {
+        test('it applies pipeline transformers to data', function(): void {
+            $data = [
+                'email' => '  ALICE@EXAMPLE.COM  ',
+                'name' => '  Alice Smith  ',
+            ];
+
+            $model = new TestDataModelWithPipeline($data);
+
+            expect($model->isMapped())->toBeTrue();
+            expect($model->email)->toBe('alice@example.com'); // Trimmed and lowercased
+            expect($model->name)->toBe('Alice Smith'); // Only trimmed
+        });
+
+        test('it applies transformers when filling data', function(): void {
+            $model = new TestDataModelWithPipeline();
+
+            $model->fill([
+                'email' => '  BOB@TEST.COM  ',
+                'name' => '  Bob Jones  ',
+            ]);
+
+            expect($model->isMapped())->toBeTrue();
+            expect($model->email)->toBe('bob@test.com');
+            expect($model->name)->toBe('Bob Jones');
+        });
+
+        test('it preserves original untransformed data', function(): void {
+            $data = [
+                'email' => '  TEST@EXAMPLE.COM  ',
+                'name' => '  Test User  ',
+            ];
+
+            $model = new TestDataModelWithPipeline($data);
+
+            // Mapped data should be transformed
+            expect($model->email)->toBe('test@example.com');
+            expect($model->name)->toBe('Test User');
+
+            // Original data should be untouched
+            expect($model->getOriginal('email'))->toBe('  TEST@EXAMPLE.COM  ');
+            expect($model->getOriginal('name'))->toBe('  Test User  ');
+        });
+
+        test('it works with fromRequest static method', function(): void {
+            $data = [
+                'email' => '  CONTACT@COMPANY.COM  ',
+                'name' => '  John Doe  ',
+            ];
+
+            $model = TestDataModelWithPipeline::fromRequest($data);
+
+            expect($model)->toBeInstanceOf(TestDataModelWithPipeline::class);
+            expect($model->email)->toBe('contact@company.com');
+            expect($model->name)->toBe('John Doe');
         });
     });
 });

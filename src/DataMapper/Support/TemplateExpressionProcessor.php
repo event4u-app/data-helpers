@@ -64,15 +64,17 @@ final class TemplateExpressionProcessor
             $expression = trim(substr($expression, 2, -2));
         }
 
-        // Check if expression contains filters (|)
-        if (!str_contains($expression, '|')) {
-            // No filters - check for default value (??)
-            if (str_contains($expression, '??')) {
-                $parts = explode('??', $expression, 2);
+        // Check if expression contains filters (|) or default value (??)
+        // If either is present, use ExpressionParser for proper parsing (handles quotes, etc.)
+        if (str_contains($expression, '|') || str_contains($expression, '??')) {
+            // Use ExpressionParser for full parsing
+            $parsed = ExpressionParser::parse('{{ ' . $expression . ' }}');
+
+            if (null === $parsed) {
                 $result = [
-                    'path' => trim($parts[0]),
+                    'path' => $expression,
                     'filters' => [],
-                    'default' => trim($parts[1] ?? ''),
+                    'default' => null,
                     'hasFilters' => false,
                 ];
                 $cache[$expression] = $result;
@@ -80,34 +82,21 @@ final class TemplateExpressionProcessor
             }
 
             $result = [
-                'path' => $expression,
-                'filters' => [],
-                'default' => null,
-                'hasFilters' => false,
+                'path' => $parsed['path'],
+                'filters' => $parsed['filters'],
+                'default' => $parsed['default'],
+                'hasFilters' => [] !== $parsed['filters'],
             ];
             $cache[$expression] = $result;
             return $result;
         }
 
-        // Has filters - use ExpressionParser for full parsing
-        $parsed = ExpressionParser::parse('{{ ' . $expression . ' }}');
-
-        if (null === $parsed) {
-            $result = [
-                'path' => $expression,
-                'filters' => [],
-                'default' => null,
-                'hasFilters' => false,
-            ];
-            $cache[$expression] = $result;
-            return $result;
-        }
-
+        // Simple path without filters or default
         $result = [
-            'path' => $parsed['path'],
-            'filters' => $parsed['filters'],
-            'default' => $parsed['default'],
-            'hasFilters' => [] !== $parsed['filters'],
+            'path' => $expression,
+            'filters' => [],
+            'default' => null,
+            'hasFilters' => false,
         ];
         $cache[$expression] = $result;
         return $result;

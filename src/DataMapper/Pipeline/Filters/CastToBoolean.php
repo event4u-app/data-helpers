@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Casts values to booleans.
@@ -15,7 +16,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
  *          '0', 'false', 'no', 'off', '' -> false
  *
  * Example:
- *   DataMapper::pipe([CastToBoolean::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipe([CastToBoolean::class])->map()->getTarget();
  */
 final class CastToBoolean implements FilterInterface
 {
@@ -66,7 +67,7 @@ final class CastToBoolean implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string
