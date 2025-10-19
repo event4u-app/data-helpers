@@ -78,6 +78,7 @@ trait SimpleDTOTrait
     use SimpleDTOLazyTrait;
     use SimpleDTOConditionalTrait;
     use SimpleDTOWithTrait;
+    use SimpleDTOSortingTrait;
 
     /**
      * Include specific properties in serialization.
@@ -140,7 +141,11 @@ trait SimpleDTOTrait
             $data['objectVarsCache'],
             $data['castedProperties'],
             $data['conditionalContext'],
-            $data['additionalData']
+            $data['additionalData'],
+            $data['sortingEnabled'],
+            $data['sortDirection'],
+            $data['nestedSort'],
+            $data['sortCallback']
         );
 
         // Unwrap optional properties
@@ -175,6 +180,9 @@ trait SimpleDTOTrait
         // Apply wrapping
         $data = $this->applyWrapping($data);
 
+        // Apply sorting
+        $data = $this->applySorting($data);
+
         return $data;
     }
 
@@ -203,7 +211,11 @@ trait SimpleDTOTrait
             $data['objectVarsCache'],
             $data['castedProperties'],
             $data['conditionalContext'],
-            $data['additionalData']
+            $data['additionalData'],
+            $data['sortingEnabled'],
+            $data['sortDirection'],
+            $data['nestedSort'],
+            $data['sortCallback']
         );
 
         // Unwrap optional properties
@@ -237,6 +249,9 @@ trait SimpleDTOTrait
 
         // Apply wrapping
         $data = $this->applyWrapping($data);
+
+        // Apply sorting
+        $data = $this->applySorting($data);
 
         return $data;
     }

@@ -1,7 +1,7 @@
 # SimpleDTO Documentation
 
-**Version:** 3.0 (Phase 17 Complete)  
-**PHP:** 8.2+  
+**Version:** 3.0 (Phase 17 Complete)
+**PHP:** 8.2+
 **Framework:** Framework-agnostic (Laravel, Symfony, Plain PHP)
 
 ---
@@ -29,6 +29,8 @@
 - [Computed Properties](14-computed-properties.md) - Calculated properties
 - [Collections](15-collections.md) - DataCollection and pagination
 - [Nested DTOs](16-nested-dtos.md) - Working with nested structures
+- [DataMapper Integration](43-mapper-integration.md) - Template-based mapping
+- [Array Sorting](50-sorting.md) - Sort array output keys
 
 ### Framework Integration
 - [Laravel Integration](17-laravel-integration.md) - Eloquent, validation, commands
