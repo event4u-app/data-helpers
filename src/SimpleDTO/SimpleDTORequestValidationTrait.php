@@ -169,10 +169,7 @@ trait SimpleDTORequestValidationTrait
         $validator = app('validator')->make($data, $rules, $messages, $attributes);
 
         if ($validator->fails()) {
-            throw new ValidationException(
-                $validator->errors()->toArray(),
-                $data
-            );
+            throw ValidationException::withMessages($validator->errors()->toArray());
         }
 
         return $validator->validated();

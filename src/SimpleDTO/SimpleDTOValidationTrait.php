@@ -125,14 +125,24 @@ trait SimpleDTOValidationTrait
      */
     public static function validate(array $data): array
     {
-        // Try Symfony validator first (if available and has constraints)
-        if (static::hasSymfonyValidator() && static::hasSymfonyConstraints()) {
-            return static::validateWithSymfony($data);
-        }
-
         $rules = static::getAllRules();
         $messages = static::getAllMessages();
         $attributes = static::getAllAttributes();
+
+        // Try Symfony validator first (if available and has constraints)
+        // But also validate with framework-independent validator for fields without Symfony constraints
+        if (static::hasSymfonyValidator() && static::hasSymfonyConstraints()) {
+            try {
+                static::validateWithSymfony($data);
+            } catch (ValidationException $e) {
+                throw $e;
+            }
+
+            // Also validate with framework-independent validator for fields that don't have Symfony constraints
+            // This handles cases like Same/Different attributes that need access to all fields
+            $validator = new \event4u\DataHelpers\Validation\Validator($data, $rules, $messages, $attributes);
+            return $validator->validate();
+        }
 
         // Try Laravel validator
         if (static::hasLaravelValidator()) {

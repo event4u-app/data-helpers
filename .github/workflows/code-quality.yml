@@ -43,7 +43,7 @@ jobs:
           php-version: '8.4'
           coverage: none
 
-      - name: Install dependencies
+      - name: Install dependencies (with all frameworks for analysis)
         run: composer update --prefer-dist --no-interaction
 
       - name: Run ECS

@@ -112,45 +112,83 @@ task docker:prune          # Remove unused Docker resources
 
 ### 🧪 Testing (`test:*`)
 
-Run tests across different PHP versions and frameworks.
+Run tests across different PHP versions and frameworks with **isolated framework testing**.
+
+#### Complete Test Suite
 
 ```bash
-# Basic tests
-task test:run              # Run tests (default PHP 8.4)
-task test:run PHP=8.2      # Run tests with specific PHP version
-task test:run:82           # Run tests with PHP 8.2
-task test:run:83           # Run tests with PHP 8.3
-task test:run:84           # Run tests with PHP 8.4
+# Run EVERYTHING (matrix + e2e)
+task test:run              # Complete test suite (recommended for CI)
 
-# Coverage and full suite
+# Run specific test types
+task test:unit             # Unit tests only (default PHP 8.4)
+task test:matrix           # Complete test matrix (plain + all frameworks isolated)
+task test:e2e              # E2E tests (all frameworks combined)
+```
+
+#### Test Matrix (Isolated Framework Tests)
+
+The test matrix runs tests with **isolated frameworks** - only one framework installed at a time.
+
+```bash
+# Complete matrix
+task test:matrix           # All tests (plain + all frameworks isolated)
+
+# By PHP version
+task test:matrix:82        # All PHP 8.2 tests (plain + all frameworks)
+task test:matrix:83        # All PHP 8.3 tests (plain + all frameworks)
+task test:matrix:84        # All PHP 8.4 tests (plain + all frameworks)
+
+# By framework (all PHP versions)
+task test:matrix:plain     # Plain PHP (no frameworks)
+task test:matrix:laravel   # All Laravel versions (isolated)
+task test:matrix:symfony   # All Symfony versions (isolated)
+task test:matrix:doctrine  # All Doctrine versions (isolated)
+
+# By framework version (all PHP versions)
+task test:matrix:laravel9  # Laravel 9 on all compatible PHP versions
+task test:matrix:laravel10 # Laravel 10 on all compatible PHP versions
+task test:matrix:laravel11 # Laravel 11 on all compatible PHP versions
+task test:matrix:symfony6  # Symfony 6 on all PHP versions
+task test:matrix:symfony7  # Symfony 7 on all PHP versions
+task test:matrix:doctrine2 # Doctrine 2 on all PHP versions
+task test:matrix:doctrine3 # Doctrine 3 on all PHP versions
+```
+
+#### Individual Framework Tests (Quick Access)
+
+```bash
+# Laravel (isolated)
+task test:laravel9         # Laravel 9 only (PHP 8.2)
+task test:laravel10        # Laravel 10 only (PHP 8.3)
+task test:laravel11        # Laravel 11 only (PHP 8.4)
+
+# Symfony (isolated)
+task test:symfony6         # Symfony 6 only (PHP 8.4)
+task test:symfony7         # Symfony 7 only (PHP 8.4)
+
+# Doctrine (isolated)
+task test:doctrine2        # Doctrine 2 only (PHP 8.4)
+task test:doctrine3        # Doctrine 3 only (PHP 8.4)
+
+# Plain PHP
+task test:plain            # No frameworks (PHP 8.4)
+```
+
+#### E2E Tests (Combined Frameworks)
+
+```bash
+# E2E tests (all frameworks installed together)
+task test:e2e              # All e2e tests
+task test:e2e:laravel      # Laravel e2e tests
+task test:e2e:symfony      # Symfony e2e tests
+```
+
+#### Coverage
+
+```bash
 task test:coverage         # Run tests with coverage
-task test:full             # Run full test suite including e2e
-
-# E2E tests
-task test:e2e              # Run all e2e tests
-task test:e2e:laravel      # Run Laravel e2e tests
-task test:e2e:symfony      # Run Symfony e2e tests
-
-# Framework-specific tests (clear names)
-task test:laravel9         # Test Laravel 9 (PHP 8.2)
-task test:laravel10        # Test Laravel 10 (PHP 8.3)
-task test:laravel11        # Test Laravel 11 (PHP 8.4)
-task test:symfony6         # Test Symfony 6
-task test:symfony7         # Test Symfony 7
-task test:doctrine2        # Test Doctrine 2
-task test:doctrine3        # Test Doctrine 3
-
-# Test all
-task test:all:laravel      # Test all Laravel versions
-task test:all:symfony      # Test all Symfony versions
-task test:all:doctrine     # Test all Doctrine versions
-task test:all              # Test all frameworks
-
-# Test matrix
-task test:matrix           # Run all tests from test matrix
-task test:matrix:82        # Run PHP 8.2 matrix tests
-task test:matrix:83        # Run PHP 8.3 matrix tests
-task test:matrix:84        # Run PHP 8.4 matrix tests
+task test:coverage PHP=8.2 # Coverage with specific PHP version
 ```
 
 ### ✨ Code Quality (`quality:*`)

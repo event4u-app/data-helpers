@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Laravel;
 
+// Skip this file entirely if Laravel is not installed
+if (!class_exists('Illuminate\Foundation\Http\FormRequest')) {
+    return;
+}
+
 use event4u\DataHelpers\Laravel\DTOFormRequest;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
@@ -71,12 +76,18 @@ class DTOFormRequestTest extends TestCase
 
     public function test_it_creates_dto_from_valid_data(): void
     {
-        $request = new UserFormRequest();
-        $request->replace([
+        $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
         ]);
+
+        // Manually set validator
+        $validator = $this->validationFactory->make(
+            $request->all(),
+            $request->rules()
+        );
+        $request->setValidator($validator);
 
         $dto = $request->toDTO();
 
@@ -104,11 +115,17 @@ class DTOFormRequestTest extends TestCase
 
     public function test_it_handles_optional_fields(): void
     {
-        $request = new UserFormRequest();
-        $request->replace([
+        $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
         ]);
+
+        // Manually set validator
+        $validator = $this->validationFactory->make(
+            $request->all(),
+            $request->rules()
+        );
+        $request->setValidator($validator);
 
         $dto = $request->toDTO();
 
@@ -118,20 +135,20 @@ class DTOFormRequestTest extends TestCase
 
     public function test_it_validates_data_automatically(): void
     {
-        $request = new UserFormRequest();
-        $request->replace([
+        $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'J',  // Too short
             'email' => 'invalid-email',
         ]);
 
         // Set validator
         $request->setContainer($this->container);
-        $request->setValidator($this->validationFactory->make(
+        $validator = $this->validationFactory->make(
             $request->all(),
             $request->rules()
-        ));
+        );
+        $request->setValidator($validator);
 
-        $this->assertFalse($request->validator()->passes());
+        $this->assertFalse($validator->passes());
     }
 
     public function test_it_provides_custom_messages(): void
@@ -188,12 +205,25 @@ class DTOFormRequestTest extends TestCase
 
     public function test_it_handles_json_request(): void
     {
-        $request = new UserFormRequest();
-        $request->headers->set('Content-Type', 'application/json');
-        $request->setJson(new \Symfony\Component\HttpFoundation\ParameterBag([
-            'name' => 'Jane Doe',
-            'email' => 'jane@example.com',
-        ]));
+        $request = UserFormRequest::create(
+            '/test',
+            'POST',
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'name' => 'Jane Doe',
+                'email' => 'jane@example.com',
+            ])
+        );
+
+        // Manually set validator
+        $validator = $this->validationFactory->make(
+            $request->all(),
+            $request->rules()
+        );
+        $request->setValidator($validator);
 
         $dto = $request->toDTO();
 
@@ -243,12 +273,18 @@ class DTOFormRequestTest extends TestCase
 
     public function test_it_converts_dto_back_to_array(): void
     {
-        $request = new UserFormRequest();
-        $request->replace([
+        $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
         ]);
+
+        // Manually set validator
+        $validator = $this->validationFactory->make(
+            $request->all(),
+            $request->rules()
+        );
+        $request->setValidator($validator);
 
         $dto = $request->toDTO();
         $array = $dto->toArray();

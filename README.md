@@ -11,7 +11,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](#license)
 [![GitHub Code Quality Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/code-quality.yml?branch=main&label=code%20quality&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/code-quality.yml)
 [![GitHub PHPStan Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/phpstan.yml)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/run-tests.yml)
+[![GitHub Test Matrix Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/test-matrix.yml?branch=main&label=test%20matrix&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/test-matrix.yml)
 
 **A powerful, framework-agnostic PHP library for accessing, transforming, and mapping complex nested data structures with ease. Features dot
 notation access, wildcard support, data mapping with templates, caching, and 40+ built-in filters.**
@@ -1021,14 +1021,41 @@ task dev:setup
 # Show all available tasks
 task
 
-# Run tests
+# Run ALL tests (complete matrix + e2e)
 task test:run
+
+# Run unit tests only
+task test:unit
+
+# Run test matrix (isolated framework tests)
+task test:matrix
 
 # Run all quality checks (ECS + Rector + PHPStan + Tests)
 task quality:check
 
 # Open shell in container
 task dev:shell
+```
+
+**Test Matrix:**
+The library uses a comprehensive test matrix with **isolated framework testing**:
+- Plain PHP (no frameworks)
+- Laravel 9, 10, 11 (isolated)
+- Symfony 6, 7 (isolated)
+- Doctrine 2, 3 (isolated)
+- All tested across PHP 8.2, 8.3, and 8.4
+
+See [docs/TEST-MATRIX.md](docs/TEST-MATRIX.md) for details.
+
+```bash
+# Run complete matrix
+task test:matrix
+
+# Run specific framework
+task test:matrix:laravel
+
+# Run specific version
+task test:laravel11
 ```
 
 See [docs/TASKFILE.md](docs/TASKFILE.md) for complete documentation.

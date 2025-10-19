@@ -57,10 +57,6 @@ class TestUserEntity
 }
 
 describe('Doctrine Integration', function(): void {
-    beforeEach(function(): void {
-        $this->mockEntityClass = TestUserEntity::class;
-    });
-
     describe('fromEntity()', function(): void {
         it('creates DTO from entity', function(): void {
             $dto = new class extends SimpleDTO {
@@ -72,7 +68,7 @@ describe('Doctrine Integration', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new TestUserEntity();
             $entity->setName('John Doe');
             $entity->setEmail('john@example.com');
 
@@ -91,7 +87,7 @@ describe('Doctrine Integration', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new TestUserEntity();
             $entity->setName('John Doe');
             $entity->setEmail('john@example.com');
             $entity->setAge(30);
@@ -112,7 +108,7 @@ describe('Doctrine Integration', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new TestUserEntity();
             $entity->setName('John Doe');
             $entity->setEmail('john@example.com');
 
@@ -140,9 +136,9 @@ describe('Doctrine Integration', function(): void {
                 'email' => 'jane@example.com',
             ]);
 
-            $entity = $instance->toEntity($this->mockEntityClass);
+            $entity = $instance->toEntity(TestUserEntity::class);
 
-            expect($entity)->toBeInstanceOf($this->mockEntityClass);
+            expect($entity)->toBeInstanceOf(TestUserEntity::class);
             expect($entity->getName())->toBe('Jane Smith');
             expect($entity->getEmail())->toBe('jane@example.com');
         });
@@ -175,13 +171,13 @@ describe('Doctrine Integration', function(): void {
                 ) {}
             };
 
-            $originalEntity = new $this->mockEntityClass();
+            $originalEntity = new TestUserEntity();
             $originalEntity->setName('Round Trip');
             $originalEntity->setEmail('roundtrip@example.com');
             $originalEntity->setAge(35);
 
             $dtoInstance = $dto::fromEntity($originalEntity);
-            $newEntity = $dtoInstance->toEntity($this->mockEntityClass);
+            $newEntity = $dtoInstance->toEntity(TestUserEntity::class);
 
             expect($newEntity->getName())->toBe($originalEntity->getName());
             expect($newEntity->getEmail())->toBe($originalEntity->getEmail());
@@ -198,14 +194,14 @@ describe('Doctrine Integration', function(): void {
                 ) {}
             };
 
-            $entity1 = new $this->mockEntityClass();
+            $entity1 = new TestUserEntity();
             $entity1->setName('Test User');
             $entity1->setEmail('test@example.com');
 
             $dto1 = $dto::fromEntity($entity1);
-            $entity2 = $dto1->toEntity($this->mockEntityClass);
+            $entity2 = $dto1->toEntity(TestUserEntity::class);
             $dto2 = $dto::fromEntity($entity2);
-            $entity3 = $dto2->toEntity($this->mockEntityClass);
+            $entity3 = $dto2->toEntity(TestUserEntity::class);
 
             expect($entity3->getName())->toBe('Test User');
             expect($entity3->getEmail())->toBe('test@example.com');
@@ -223,7 +219,7 @@ describe('Doctrine Integration', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new TestUserEntity();
             $entity->setId(42);
             $entity->setName('Old Name');
             $entity->setEmail('old@example.com');
@@ -255,7 +251,7 @@ describe('Doctrine Integration', function(): void {
             };
 
             // Create entity with data
-            $entity = new $this->mockEntityClass();
+            $entity = new TestUserEntity();
             $entity->setName('Test User');
             $entity->setEmail('test@example.com');
             $entity->setAge(25);
@@ -287,7 +283,7 @@ describe('Doctrine Integration', function(): void {
             ]);
 
             // toEntity should use EntityHelper::setAttribute() which calls setters
-            $entity = $instance->toEntity($this->mockEntityClass);
+            $entity = $instance->toEntity(TestUserEntity::class);
 
             // Verify setters were called correctly
             expect($entity->getName())->toBe('New User');

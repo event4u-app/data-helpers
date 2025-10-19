@@ -336,18 +336,18 @@ describe('Symfony Validation Integration', function () {
     });
 
     describe('Field Comparison Constraints', function () {
-        it('generates Symfony EqualTo constraint for Same attribute', function () {
+        it('returns empty array for Same attribute (needs special handling)', function () {
             $attribute = new Same('password');
             $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\EqualTo::class);
+            expect($constraint)->toBe([]);
         })->group('symfony');
 
-        it('generates Symfony NotEqualTo constraint for Different attribute', function () {
+        it('returns empty array for Different attribute (needs special handling)', function () {
             $attribute = new Different('email');
             $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\NotEqualTo::class);
+            expect($constraint)->toBe([]);
         })->group('symfony');
 
         it('returns empty array for Confirmed attribute (needs special handling)', function () {

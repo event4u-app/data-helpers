@@ -60,14 +60,17 @@ class Different implements ValidationRule, SymfonyConstraint
     /**
      * Get Symfony constraint.
      *
-     * @return Constraint
+     * Note: This returns an empty array because field comparison constraints
+     * need access to all fields, which is not available in the Collection constraint context.
+     * The validation will fall back to Laravel validator or framework-independent validator.
+     *
+     * @return Constraint|array
      */
-    public function constraint(): Constraint
+    public function constraint(): Constraint|array
     {
-        return new Assert\NotEqualTo(
-            propertyPath: $this->field,
-            message: "The value must not be equal to {{ compared_value }}."
-        );
+        // Return empty array - this constraint needs special handling
+        // because it requires access to other fields in the data array
+        return [];
     }
 }
 

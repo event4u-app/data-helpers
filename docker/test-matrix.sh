@@ -8,33 +8,70 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Test matrix based on .github/workflows/run-tests.yml
-declare -A TEST_MATRIX=(
-    # PHP 8.2
-    ["8.2-laravel-9"]="8.2 laravel 9"
-    ["8.2-laravel-10"]="8.2 laravel 10"
-    ["8.2-laravel-11"]="8.2 laravel 11"
-    ["8.2-symfony-6"]="8.2 symfony 6"
-    ["8.2-symfony-7"]="8.2 symfony 7"
-    ["8.2-doctrine-2"]="8.2 doctrine 2"
-    ["8.2-doctrine-3"]="8.2 doctrine 3"
+# Comprehensive test matrix with isolated framework tests
+# Using parallel arrays for compatibility with Bash 3.2
+TEST_MATRIX_KEYS=(
+    # Plain PHP (no frameworks) - all PHP versions
+    "8.2-plain"
+    "8.3-plain"
+    "8.4-plain"
 
-    # PHP 8.3
-    ["8.3-laravel-10"]="8.3 laravel 10"
-    ["8.3-laravel-11"]="8.3 laravel 11"
-    ["8.3-symfony-6"]="8.3 symfony 6"
-    ["8.3-symfony-7"]="8.3 symfony 7"
-    ["8.3-doctrine-2"]="8.3 doctrine 2"
-    ["8.3-doctrine-3"]="8.3 doctrine 3"
+    # Laravel isolated tests
+    "8.2-laravel-9"
+    "8.2-laravel-10"
+    "8.2-laravel-11"
+    "8.3-laravel-10"
+    "8.3-laravel-11"
+    "8.4-laravel-11"
 
-    # PHP 8.4
-    ["8.4-laravel-11"]="8.4 laravel 11"
-    ["8.4-symfony-6"]="8.4 symfony 6"
-    ["8.4-symfony-7"]="8.4 symfony 7"
-    ["8.4-doctrine-2"]="8.4 doctrine 2"
-    ["8.4-doctrine-3"]="8.4 doctrine 3"
+    # Symfony isolated tests
+    "8.2-symfony-6"
+    "8.2-symfony-7"
+    "8.3-symfony-6"
+    "8.3-symfony-7"
+    "8.4-symfony-6"
+    "8.4-symfony-7"
+
+    # Doctrine isolated tests
+    "8.2-doctrine-2"
+    "8.2-doctrine-3"
+    "8.3-doctrine-2"
+    "8.3-doctrine-3"
+    "8.4-doctrine-2"
+    "8.4-doctrine-3"
+)
+
+TEST_MATRIX_VALUES=(
+    # Plain PHP (no frameworks) - all PHP versions
+    "8.2 plain"
+    "8.3 plain"
+    "8.4 plain"
+
+    # Laravel isolated tests
+    "8.2 laravel 9"
+    "8.2 laravel 10"
+    "8.2 laravel 11"
+    "8.3 laravel 10"
+    "8.3 laravel 11"
+    "8.4 laravel 11"
+
+    # Symfony isolated tests
+    "8.2 symfony 6"
+    "8.2 symfony 7"
+    "8.3 symfony 6"
+    "8.3 symfony 7"
+    "8.4 symfony 6"
+    "8.4 symfony 7"
+
+    # Doctrine isolated tests
+    "8.2 doctrine 2"
+    "8.2 doctrine 3"
+    "8.3 doctrine 2"
+    "8.3 doctrine 3"
+    "8.4 doctrine 2"
+    "8.4 doctrine 3"
 )
 
 # Default values
@@ -42,16 +79,18 @@ RUN_PHPSTAN=false
 INSTALL_DEPS=false
 SELECTED_PHP=""
 SELECTED_FRAMEWORK=""
+SELECTED_VERSION=""
 
 # Function to display usage
 usage() {
     echo -e "${BLUE}Usage:${NC} $0 [OPTIONS]"
     echo ""
-    echo "Run all tests from the test matrix in Docker containers."
+    echo "Run comprehensive test matrix with isolated framework tests."
     echo ""
     echo -e "${YELLOW}Options:${NC}"
     echo "  -p, --php VERSION        Only test with specific PHP version (8.2, 8.3, or 8.4)"
-    echo "  -f, --framework NAME     Only test with specific framework (laravel, symfony, doctrine)"
+    echo "  -f, --framework NAME     Only test with specific framework (plain, laravel, symfony, doctrine)"
+    echo "  -v, --version VERSION    Only test with specific framework version"
     echo "  --phpstan                Run PHPStan after each test"
     echo "  -i, --install            Install dependencies before running tests"
     echo "  -h, --help               Display this help message"
@@ -59,13 +98,10 @@ usage() {
     echo -e "${YELLOW}Examples:${NC}"
     echo "  $0                       # Run all tests from matrix"
     echo "  $0 -p 8.2                # Run all PHP 8.2 tests"
-    echo "  $0 -f laravel            # Run all Laravel tests"
+    echo "  $0 -f plain              # Run all plain PHP tests"
+    echo "  $0 -f laravel            # Run all Laravel tests (isolated)"
+    echo "  $0 -f laravel -v 11      # Run all Laravel 11 tests"
     echo "  $0 -p 8.3 -f symfony     # Run PHP 8.3 with Symfony tests"
-    echo "  $0 --phpstan             # Run all tests with PHPStan"
-    echo ""
-    echo -e "${CYAN}Documentation:${NC}"
-    echo "  docs/docker-setup.md     # Full Docker documentation"
-    echo "  docs/taskfile-guide.md   # Task runner guide"
     echo ""
     exit 0
 }
@@ -79,6 +115,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -f|--framework)
             SELECTED_FRAMEWORK="$2"
+            shift 2
+            ;;
+        -v|--version)
+            SELECTED_VERSION="$2"
             shift 2
             ;;
         --phpstan)
@@ -137,12 +177,19 @@ FAILED_TESTS=0
 declare -a FAILED_TEST_NAMES
 
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${CYAN}Running Test Matrix${NC}"
+echo -e "${CYAN}Running Comprehensive Test Matrix (Isolated)${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-for test_key in "${!TEST_MATRIX[@]}"; do
-    read -r php_version framework version <<< "${TEST_MATRIX[$test_key]}"
+for i in "${!TEST_MATRIX_KEYS[@]}"; do
+    test_key="${TEST_MATRIX_KEYS[$i]}"
+    test_value="${TEST_MATRIX_VALUES[$i]}"
+    read -r php_version framework version <<< "$test_value"
+
+    # Handle plain PHP (no version)
+    if [[ "$framework" == "plain" ]]; then
+        version=""
+    fi
 
     # Filter by PHP version if specified
     if [[ -n "$SELECTED_PHP" && "$php_version" != "$SELECTED_PHP" ]]; then
@@ -154,26 +201,65 @@ for test_key in "${!TEST_MATRIX[@]}"; do
         continue
     fi
 
+    # Filter by version if specified
+    if [[ -n "$SELECTED_VERSION" && "$version" != "$SELECTED_VERSION" ]]; then
+        continue
+    fi
+
     TOTAL_TESTS=$((TOTAL_TESTS + 1))
 
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${YELLOW}Test ${TOTAL_TESTS}:${NC} PHP ${php_version} - ${framework} ${version}"
+    if [[ "$framework" == "plain" ]]; then
+        echo -e "${YELLOW}Test ${TOTAL_TESTS}:${NC} PHP ${php_version} - Plain (no frameworks)"
+    else
+        echo -e "${YELLOW}Test ${TOTAL_TESTS}:${NC} PHP ${php_version} - ${framework} ${version} (isolated)"
+    fi
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 
-    # Build test command
-    PHPSTAN_FLAG=""
-    if [[ "$RUN_PHPSTAN" == true ]]; then
-        PHPSTAN_FLAG="--phpstan"
+    # Run test using test-isolated.sh script
+    TEST_RESULT=0
+
+    # Build command for test-isolated.sh
+    if [[ "$framework" == "plain" ]]; then
+        TEST_CMD="./scripts/test-isolated.sh --plain --php $php_version"
+    elif [[ "$framework" == "laravel" ]]; then
+        TEST_CMD="./scripts/test-isolated.sh --laravel $version --php $php_version"
+    elif [[ "$framework" == "symfony" ]]; then
+        TEST_CMD="./scripts/test-isolated.sh --symfony $version --php $php_version"
+    elif [[ "$framework" == "doctrine" ]]; then
+        TEST_CMD="./scripts/test-isolated.sh --doctrine $version --php $php_version"
     fi
 
-    if ./docker/test.sh -p "$php_version" -"${framework:0:1}" "$version" $PHPSTAN_FLAG; then
+    # Add PHPStan flag if requested
+    if [[ "$RUN_PHPSTAN" == true ]]; then
+        TEST_CMD="$TEST_CMD --phpstan"
+    fi
+
+    # Run test-isolated.sh and show output
+    if $TEST_CMD; then
+        TEST_RESULT=0
+    else
+        TEST_RESULT=$?
+    fi
+
+    # Check result
+    if [[ $TEST_RESULT -eq 0 ]]; then
         PASSED_TESTS=$((PASSED_TESTS + 1))
-        echo -e "${GREEN}✅  ${NC}Test passed: PHP ${php_version} - ${framework} ${version}"
+        if [[ "$framework" == "plain" ]]; then
+            echo -e "${GREEN}✅  ${NC}Test passed: PHP ${php_version} - Plain"
+        else
+            echo -e "${GREEN}✅  ${NC}Test passed: PHP ${php_version} - ${framework} ${version}"
+        fi
     else
         FAILED_TESTS=$((FAILED_TESTS + 1))
-        FAILED_TEST_NAMES+=("PHP ${php_version} - ${framework} ${version}")
-        echo -e "${RED}❌  ${NC}Test failed: PHP ${php_version} - ${framework} ${version}"
+        if [[ "$framework" == "plain" ]]; then
+            FAILED_TEST_NAMES+=("PHP ${php_version} - Plain")
+            echo -e "${RED}❌  ${NC}Test failed: PHP ${php_version} - Plain"
+        else
+            FAILED_TEST_NAMES+=("PHP ${php_version} - ${framework} ${version}")
+            echo -e "${RED}❌  ${NC}Test failed: PHP ${php_version} - ${framework} ${version}"
+        fi
     fi
 
     echo ""

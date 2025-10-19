@@ -8,10 +8,32 @@ use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
 use event4u\DataHelpers\Exceptions\ValidationException;
 use ReflectionClass;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
-use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+// Create stub interfaces if Symfony is not installed
+if (!interface_exists('Symfony\Component\HttpKernel\Controller\ValueResolverInterface')) {
+    interface ValueResolverInterface
+    {
+        public function resolve($request, $argument): iterable;
+    }
+} else {
+    class_alias('Symfony\Component\HttpKernel\Controller\ValueResolverInterface', 'event4u\DataHelpers\Symfony\ValueResolverInterface');
+}
+
+if (!class_exists('Symfony\Component\HttpFoundation\Request')) {
+    class Request {}
+} else {
+    class_alias('Symfony\Component\HttpFoundation\Request', 'event4u\DataHelpers\Symfony\Request');
+}
+
+if (!class_exists('Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata')) {
+    class ArgumentMetadata {}
+} else {
+    class_alias('Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata', 'event4u\DataHelpers\Symfony\ArgumentMetadata');
+}
+
+if (!interface_exists('Symfony\Component\Validator\Validator\ValidatorInterface')) {
+    interface ValidatorInterface {}
+}
 
 /**
  * Symfony Value Resolver for automatic DTO injection in controllers.

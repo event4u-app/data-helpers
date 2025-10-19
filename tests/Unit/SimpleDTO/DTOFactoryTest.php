@@ -7,23 +7,33 @@ use Faker\Factory as FakerFactory;
 use Faker\Generator as Faker;
 use Tests\Unit\SimpleDTO\Fixtures\UserDTO;
 
+/**
+ * Test factory for UserDTO.
+ */
+class TestUserDTOFactory extends DTOFactory
+{
+    protected string $dtoClass = UserDTO::class;
+
+    protected function definition(): array
+    {
+        return [
+            'name' => $this->faker->name(),
+            'age' => $this->faker->numberBetween(18, 80),
+        ];
+    }
+}
+
 describe('DTOFactory', function(): void {
     beforeEach(function(): void {
         // Create a test factory
-        $this->factory = new class extends DTOFactory {
-            protected string $dtoClass = UserDTO::class;
-
-            protected function definition(): array
-            {
-                return [
-                    'name' => $this->faker->name(),
-                    'age' => $this->faker->numberBetween(18, 80),
-                ];
-            }
-        };
+        $this->factory = new TestUserDTOFactory();
     });
 
     describe('Basic Factory Creation', function(): void {
+        beforeEach(function(): void {
+            $this->factory = new TestUserDTOFactory();
+        });
+
         it('creates a single DTO instance', function(): void {
             $user = $this->factory->create();
 
@@ -68,6 +78,10 @@ describe('DTOFactory', function(): void {
     });
 
     describe('Make Method', function(): void {
+        beforeEach(function(): void {
+            $this->factory = new TestUserDTOFactory();
+        });
+
         it('makes array without creating DTO', function(): void {
             $data = $this->factory->make();
 
@@ -120,6 +134,10 @@ describe('DTOFactory', function(): void {
     });
 
     describe('Faker Integration', function(): void {
+        beforeEach(function(): void {
+            $this->factory = new TestUserDTOFactory();
+        });
+
         it('uses Faker to generate data', function(): void {
             $user1 = $this->factory->create();
             $user2 = $this->factory->create();
@@ -157,6 +175,10 @@ describe('DTOFactory', function(): void {
     });
 
     describe('Factory Reset', function(): void {
+        beforeEach(function(): void {
+            $this->factory = new TestUserDTOFactory();
+        });
+
         it('resets count after creation', function(): void {
             $users1 = $this->factory->count(5)->create();
             $this->factory->reset();
@@ -180,6 +202,10 @@ describe('DTOFactory', function(): void {
     });
 
     describe('States', function(): void {
+        beforeEach(function(): void {
+            $this->factory = new TestUserDTOFactory();
+        });
+
         it('applies named state', function(): void {
             $user = $this->factory
                 ->state('admin', ['age' => 99])
@@ -208,6 +234,10 @@ describe('DTOFactory', function(): void {
     });
 
     describe('Edge Cases', function(): void {
+        beforeEach(function(): void {
+            $this->factory = new TestUserDTOFactory();
+        });
+
         it('handles count of 0', function(): void {
             $users = $this->factory->count(0)->create();
 

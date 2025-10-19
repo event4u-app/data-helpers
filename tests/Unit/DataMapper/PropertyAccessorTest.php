@@ -7,7 +7,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
 describe('DataMapper Property Accessor', function(): void {
-    beforeEach(function(): void {
+    $setupTestData = function(): void {
         $this->source = [
             'user' => [
                 'name' => '  John Doe  ',
@@ -36,9 +36,12 @@ describe('DataMapper Property Accessor', function(): void {
                 ],
             ],
         ];
-    });
+    };
 
-    describe('property()->setFilter()', function(): void {
+    beforeEach($setupTestData);
+
+    describe('property()->setFilter()', function() use ($setupTestData): void {
+        beforeEach($setupTestData);
         it('sets filter for a property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
@@ -115,7 +118,9 @@ describe('DataMapper Property Accessor', function(): void {
         });
     });
 
-    describe('property()->resetFilter()', function(): void {
+    describe('property()->resetFilter()', function() use ($setupTestData): void {
+        beforeEach($setupTestData);
+
         it('resets filter for a property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
@@ -164,7 +169,9 @@ describe('DataMapper Property Accessor', function(): void {
         });
     });
 
-    describe('property()->getFilter()', function(): void {
+    describe('property()->getFilter()', function() use ($setupTestData): void {
+        beforeEach($setupTestData);
+
         it('returns filters for a property', function(): void {
             $filter1 = new TrimStrings();
             $filter2 = new UppercaseStrings();
@@ -206,7 +213,9 @@ describe('DataMapper Property Accessor', function(): void {
         });
     });
 
-    describe('property()->getTarget()', function(): void {
+    describe('property()->getTarget()', function() use ($setupTestData): void {
+        beforeEach($setupTestData);
+
         it('returns the mapping target for a property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
@@ -250,7 +259,9 @@ describe('DataMapper Property Accessor', function(): void {
         });
     });
 
-    describe('property()->getMappedValue()', function(): void {
+    describe('property()->getMappedValue()', function() use ($setupTestData): void {
+        beforeEach($setupTestData);
+
         it('returns the mapped value for a property', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)
@@ -309,7 +320,9 @@ describe('DataMapper Property Accessor', function(): void {
         });
     });
 
-    describe('property()->end()', function(): void {
+    describe('property()->end()', function() use ($setupTestData): void {
+        beforeEach($setupTestData);
+
         it('returns the parent mapper', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
@@ -337,7 +350,9 @@ describe('DataMapper Property Accessor', function(): void {
         });
     });
 
-    describe('Edge Cases', function(): void {
+    describe('Edge Cases', function() use ($setupTestData): void {
+        beforeEach($setupTestData);
+
         it('handles empty property path', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template);
@@ -514,7 +529,9 @@ describe('DataMapper Property Accessor', function(): void {
         });
     });
 
-    describe('Integration with setFilter()', function(): void {
+    describe('Integration with setFilter()', function() use ($setupTestData): void {
+        beforeEach($setupTestData);
+
         it('works alongside setFilter() method', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template($this->template)

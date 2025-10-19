@@ -22,10 +22,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     public function __construct(
  *         #[Ip]
  *         public readonly string $ipAddress,
- *         
+ *
  *         #[Ip(version: 'ipv4')]
  *         public readonly string $ipv4Address,
- *         
+ *
  *         #[Ip(version: 'ipv6')]
  *         public readonly string $ipv6Address,
  *     ) {}
@@ -52,7 +52,7 @@ class Ip implements ValidationRule, SymfonyConstraint
         if (null === $this->version) {
             return 'ip';
         }
-        
+
         return $this->version;
     }
 
@@ -66,7 +66,8 @@ class Ip implements ValidationRule, SymfonyConstraint
     public function constraint(): Constraint|array
     {
         if (null === $this->version) {
-            return new Assert\Ip();
+            // Use ALL to accept both IPv4 and IPv6
+            return new Assert\Ip(version: Assert\Ip::ALL);
         }
         return new Assert\Ip(
             version: $this->version === 'ipv4' ? Assert\Ip::V4 : Assert\Ip::V6
@@ -77,7 +78,7 @@ class Ip implements ValidationRule, SymfonyConstraint
         if (null === $this->version) {
             return "The attribute must be a valid IP address.";
         }
-        
+
         $version = strtoupper(str_replace('ipv', 'IPv', $this->version));
         return "The attribute must be a valid {$version} address.";
     }

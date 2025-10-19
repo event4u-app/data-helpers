@@ -57,7 +57,8 @@ class EndsWith implements ValidationRule, SymfonyConstraint
     {
         $values = is_array($this->values) ? $this->values : [$this->values];
         // Create regex pattern: (value1|value2|...)$
-        $pattern = '/(' . implode('|', array_map('preg_quote', $values)) . ')$/';
+        // Use # as delimiter to avoid issues with / in values
+        $pattern = '#(' . implode('|', array_map(fn($v) => preg_quote($v, '#'), $values)) . ')$#';
 
         return new Assert\Regex(
             pattern: $pattern,

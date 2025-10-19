@@ -8,6 +8,9 @@ use Tests\utils\Entities\Company;
 use Tests\utils\Entities\Department;
 use Tests\utils\Entities\Project;
 
+/**
+ * @group doctrine
+ */
 describe('DataMapper to Doctrine Entity', function(): void {
     describe('Automatic relation mapping', function(): void {
         it('maps JSON file to Company entity with automatic relation mapping', function(): void {

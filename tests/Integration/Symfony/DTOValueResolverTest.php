@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Symfony;
 
+// Skip this file entirely if Symfony is not installed
+if (!interface_exists('Symfony\Component\HttpKernel\Controller\ValueResolverInterface')) {
+    return;
+}
+
 use event4u\DataHelpers\Symfony\DTOValueResolver;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;

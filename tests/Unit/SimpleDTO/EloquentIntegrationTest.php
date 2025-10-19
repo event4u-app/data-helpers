@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+// Skip this file entirely if Laravel is not installed
+if (!class_exists('Illuminate\Database\Eloquent\Model')) {
+    return;
+}
+
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
 use Illuminate\Database\Eloquent\Model;
@@ -16,10 +21,6 @@ class TestUserModel extends Model
 }
 
 describe('Eloquent Integration', function(): void {
-    beforeEach(function(): void {
-        $this->mockModelClass = TestUserModel::class;
-    });
-
     describe('fromModel()', function(): void {
         it('creates DTO from model', function(): void {
             $dto = new class extends SimpleDTO {
@@ -31,7 +32,7 @@ describe('Eloquent Integration', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new TestUserModel();
             $model->setRawAttributes([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -52,7 +53,7 @@ describe('Eloquent Integration', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new TestUserModel();
             $model->setRawAttributes([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -74,7 +75,7 @@ describe('Eloquent Integration', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new TestUserModel();
             $model->setRawAttributes([
                 'name' => 'John Doe',
             ]);
@@ -115,7 +116,7 @@ describe('Eloquent Integration', function(): void {
             };
 
             $instance = $dto::fromArray([]);
-            $model = $instance->toModel($this->mockModelClass);
+            $model = $instance->toModel(TestUserModel::class);
 
             expect($model->toArray())->toBe([
                 'name' => 'John Doe',
@@ -133,7 +134,7 @@ describe('Eloquent Integration', function(): void {
             };
 
             $instance = $dto::fromArray([]);
-            $model = $instance->toModel($this->mockModelClass, exists: true);
+            $model = $instance->toModel(TestUserModel::class, exists: true);
 
             expect($model->exists)->toBeTrue();
         });
@@ -148,7 +149,7 @@ describe('Eloquent Integration', function(): void {
             };
 
             $instance = $dto::fromArray([]);
-            $model = $instance->toModel($this->mockModelClass);
+            $model = $instance->toModel(TestUserModel::class);
 
             expect($model->exists)->toBeFalse();
         });
@@ -200,7 +201,7 @@ describe('Eloquent Integration', function(): void {
                 ) {}
             };
 
-            $originalModel = new $this->mockModelClass();
+            $originalModel = new TestUserModel();
             $originalModel->setRawAttributes([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -211,7 +212,7 @@ describe('Eloquent Integration', function(): void {
             $dtoInstance = $dto::fromModel($originalModel);
 
             // DTO → Model
-            $newModel = $dtoInstance->toModel($this->mockModelClass);
+            $newModel = $dtoInstance->toModel(TestUserModel::class);
 
             expect($newModel->toArray())->toBe($originalModel->toArray());
         });
@@ -226,13 +227,13 @@ describe('Eloquent Integration', function(): void {
                 ) {}
             };
 
-            $model1 = new $this->mockModelClass();
+            $model1 = new TestUserModel();
             $model1->setRawAttributes(['name' => 'Test', 'count' => 1]);
 
             $dto1 = $dto::fromModel($model1);
-            $model2 = $dto1->toModel($this->mockModelClass);
+            $model2 = $dto1->toModel(TestUserModel::class);
             $dto2 = $dto::fromModel($model2);
-            $model3 = $dto2->toModel($this->mockModelClass);
+            $model3 = $dto2->toModel(TestUserModel::class);
 
             expect($model3->toArray())->toBe($model1->toArray());
         });
@@ -249,7 +250,7 @@ describe('Eloquent Integration', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new TestUserModel();
             $model->setRawAttributes([
                 'name' => 'Old Name',
                 'email' => 'old@example.com',
@@ -278,7 +279,7 @@ describe('Eloquent Integration', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new TestUserModel();
             $model->setRawAttributes([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',

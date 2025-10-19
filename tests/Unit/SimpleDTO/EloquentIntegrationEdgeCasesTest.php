@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+// Skip this file entirely if Laravel is not installed
+if (!class_exists('Illuminate\Database\Eloquent\Model')) {
+    return;
+}
+
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
 
@@ -27,10 +32,6 @@ class EdgeCaseTestModel extends Illuminate\Database\Eloquent\Model
 }
 
 describe('Eloquent Integration Edge Cases', function(): void {
-    beforeEach(function(): void {
-        $this->mockModelClass = EdgeCaseTestModel::class;
-    });
-
     describe('fromModel() Edge Cases', function(): void {
         it('handles model with null values', function(): void {
             $dto = new class extends SimpleDTO {
@@ -43,7 +44,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new EdgeCaseTestModel();
             $model->setRawAttributes([
                 'name' => 'John',
                 'email' => null,
@@ -67,7 +68,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new EdgeCaseTestModel();
             $model->setRawAttributes([
                 'name' => '',
                 'email' => '',
@@ -90,7 +91,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new EdgeCaseTestModel();
             $model->setRawAttributes([
                 'first_name' => 'John',
                 'last_name' => 'Doe',
@@ -114,7 +115,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new EdgeCaseTestModel();
             $model->setRawAttributes([
                 'id' => 123,
                 'code' => '456',
@@ -136,7 +137,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new EdgeCaseTestModel();
             $model->setRawAttributes([
                 'is_active' => 1,
                 'is_verified' => 0,
@@ -168,7 +169,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 'age' => null,
             ]);
 
-            $model = $instance->toModel($this->mockModelClass);
+            $model = $instance->toModel(EdgeCaseTestModel::class);
 
             expect($model->name)->toBe('John');
             expect($model->email)->toBeNull();
@@ -190,7 +191,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 'email' => '',
             ]);
 
-            $model = $instance->toModel($this->mockModelClass);
+            $model = $instance->toModel(EdgeCaseTestModel::class);
 
             expect($model->name)->toBe('');
             // Empty string is converted to null by mutator
@@ -210,7 +211,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 'email' => 'JOHN@EXAMPLE.COM',
             ]);
 
-            $model = $instance->toModel($this->mockModelClass);
+            $model = $instance->toModel(EdgeCaseTestModel::class);
 
             // Mutator converts to lowercase
             expect($model->email)->toBe('john@example.com');
@@ -231,7 +232,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 'extraField' => 'Extra',
             ]);
 
-            $model = $instance->toModel($this->mockModelClass);
+            $model = $instance->toModel(EdgeCaseTestModel::class);
 
             expect($model->name)->toBe('John');
             // extraField is set but may not be in database
@@ -249,8 +250,8 @@ describe('Eloquent Integration Edge Cases', function(): void {
 
             $instance = $dto::fromArray(['name' => 'John']);
 
-            $newModel = $instance->toModel($this->mockModelClass, exists: false);
-            $existingModel = $instance->toModel($this->mockModelClass, exists: true);
+            $newModel = $instance->toModel(EdgeCaseTestModel::class, exists: false);
+            $existingModel = $instance->toModel(EdgeCaseTestModel::class, exists: true);
 
             expect($newModel->exists)->toBeFalse();
             expect($existingModel->exists)->toBeTrue();
@@ -268,14 +269,14 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new EdgeCaseTestModel();
             $model->setRawAttributes([
                 'name' => 'John',
                 'email' => null,
             ]);
 
             $dtoInstance = $dto::fromModel($model);
-            $newModel = $dtoInstance->toModel($this->mockModelClass);
+            $newModel = $dtoInstance->toModel(EdgeCaseTestModel::class);
 
             expect($newModel->name)->toBe('John');
             expect($newModel->email)->toBeNull();
@@ -291,14 +292,14 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new EdgeCaseTestModel();
             $model->setRawAttributes([
                 'name' => '',
                 'email' => '',
             ]);
 
             $dtoInstance = $dto::fromModel($model);
-            $newModel = $dtoInstance->toModel($this->mockModelClass);
+            $newModel = $dtoInstance->toModel(EdgeCaseTestModel::class);
 
             expect($newModel->name)->toBe('');
             // Empty string is converted to null by mutator
@@ -314,11 +315,11 @@ describe('Eloquent Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $model = new $this->mockModelClass();
+            $model = new EdgeCaseTestModel();
             $model->setRawAttributes(['is_active' => 1]);
 
             $dtoInstance = $dto::fromModel($model);
-            $newModel = $dtoInstance->toModel($this->mockModelClass);
+            $newModel = $dtoInstance->toModel(EdgeCaseTestModel::class);
 
             expect($newModel->is_active)->toBe(1);
         });

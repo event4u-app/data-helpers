@@ -178,7 +178,11 @@ trait SimpleDTOOptionalTrait
             $data['objectVarsCache'],
             $data['castedProperties'],
             $data['conditionalContext'],
-            $data['additionalData']
+            $data['additionalData'],
+            $data['sortingEnabled'],
+            $data['sortDirection'],
+            $data['nestedSort'],
+            $data['sortCallback']
         );
 
         $partial = [];

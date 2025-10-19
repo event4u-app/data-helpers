@@ -4,9 +4,34 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
+
+// Create stub classes if Doctrine is not installed
+if (!class_exists('Doctrine\DBAL\Types\Type')) {
+    abstract class Type
+    {
+        abstract public function getSQLDeclaration(array $column, $platform): string;
+        abstract public function convertToPHPValue($value, $platform);
+        abstract public function convertToDatabaseValue($value, $platform);
+        abstract public function getName(): string;
+    }
+}
+
+if (!class_exists('Doctrine\DBAL\Platforms\AbstractPlatform')) {
+    abstract class AbstractPlatform
+    {
+        public function getJsonTypeDeclarationSQL(array $column): string
+        {
+            return 'JSON';
+        }
+    }
+}
+
+// Use the real classes if available, otherwise use stubs
+if (class_exists('Doctrine\DBAL\Types\Type')) {
+    class_alias('Doctrine\DBAL\Types\Type', 'event4u\DataHelpers\SimpleDTO\Type');
+    class_alias('Doctrine\DBAL\Platforms\AbstractPlatform', 'event4u\DataHelpers\SimpleDTO\AbstractPlatform');
+}
 
 /**
  * Doctrine DBAL Type for SimpleDTOs.
@@ -34,7 +59,7 @@ class SimpleDTODoctrineType extends Type
     }
 
     /** {@inheritdoc} */
-    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    public function getSQLDeclaration(array $column, $platform): string
     {
         return $platform->getJsonTypeDeclarationSQL($column);
     }
@@ -44,7 +69,7 @@ class SimpleDTODoctrineType extends Type
      *
      * @return TDto|null
      */
-    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?SimpleDTO
+    public function convertToPHPValue(mixed $value, $platform): ?SimpleDTO
     {
         if (null === $value || '' === $value) {
             return null;
@@ -76,7 +101,7 @@ class SimpleDTODoctrineType extends Type
     }
 
     /** {@inheritdoc} */
-    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
+    public function convertToDatabaseValue(mixed $value, $platform): ?string
     {
         if (null === $value) {
             return null;
@@ -107,7 +132,7 @@ class SimpleDTODoctrineType extends Type
     }
 
     /** {@inheritdoc} */
-    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
+    public function requiresSQLCommentHint($platform): bool
     {
         return true;
     }

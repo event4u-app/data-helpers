@@ -68,10 +68,6 @@ class EdgeCaseTestEntity
 }
 
 describe('Doctrine Integration Edge Cases', function(): void {
-    beforeEach(function(): void {
-        $this->mockEntityClass = EdgeCaseTestEntity::class;
-    });
-
     describe('fromEntity() Edge Cases', function(): void {
         it('handles entity with null values', function(): void {
             $dto = new class extends SimpleDTO {
@@ -84,7 +80,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new EdgeCaseTestEntity();
             $entity->setName('John');
             $entity->setEmail(null);
             $entity->setAge(null);
@@ -106,7 +102,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new EdgeCaseTestEntity();
             $entity->setName('');
             $entity->setEmail('');
 
@@ -125,7 +121,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new EdgeCaseTestEntity();
             $entity->setIsActive(true);
 
             $instance = $dto::fromEntity($entity);
@@ -143,7 +139,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new EdgeCaseTestEntity();
             $entity->setName('John');
 
             $instance = $dto::fromEntity($entity);
@@ -171,7 +167,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
                 'age' => null,
             ]);
 
-            $entity = $instance->toEntity($this->mockEntityClass);
+            $entity = $instance->toEntity(EdgeCaseTestEntity::class);
 
             expect($entity->getName())->toBe('John');
             expect($entity->getEmail())->toBeNull();
@@ -193,7 +189,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
                 'email' => '',
             ]);
 
-            $entity = $instance->toEntity($this->mockEntityClass);
+            $entity = $instance->toEntity(EdgeCaseTestEntity::class);
 
             expect($entity->getName())->toBe('');
             expect($entity->getEmail())->toBe('');
@@ -210,7 +206,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
 
             $instance = $dto::fromArray(['isActive' => true]);
 
-            $entity = $instance->toEntity($this->mockEntityClass);
+            $entity = $instance->toEntity(EdgeCaseTestEntity::class);
 
             expect($entity->getIsActive())->toBeTrue();
         });
@@ -231,7 +227,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
             ]);
 
             // Should not throw error, just ignore extra field
-            $entity = $instance->toEntity($this->mockEntityClass);
+            $entity = $instance->toEntity(EdgeCaseTestEntity::class);
 
             expect($entity->getName())->toBe('John');
         });
@@ -263,12 +259,12 @@ describe('Doctrine Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new EdgeCaseTestEntity();
             $entity->setName('John');
             $entity->setEmail(null);
 
             $dtoInstance = $dto::fromEntity($entity);
-            $newEntity = $dtoInstance->toEntity($this->mockEntityClass);
+            $newEntity = $dtoInstance->toEntity(EdgeCaseTestEntity::class);
 
             expect($newEntity->getName())->toBe('John');
             expect($newEntity->getEmail())->toBeNull();
@@ -284,12 +280,12 @@ describe('Doctrine Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new EdgeCaseTestEntity();
             $entity->setName('');
             $entity->setEmail('');
 
             $dtoInstance = $dto::fromEntity($entity);
-            $newEntity = $dtoInstance->toEntity($this->mockEntityClass);
+            $newEntity = $dtoInstance->toEntity(EdgeCaseTestEntity::class);
 
             expect($newEntity->getName())->toBe('');
             expect($newEntity->getEmail())->toBe('');
@@ -304,11 +300,11 @@ describe('Doctrine Integration Edge Cases', function(): void {
                 ) {}
             };
 
-            $entity = new $this->mockEntityClass();
+            $entity = new EdgeCaseTestEntity();
             $entity->setIsActive(true);
 
             $dtoInstance = $dto::fromEntity($entity);
-            $newEntity = $dtoInstance->toEntity($this->mockEntityClass);
+            $newEntity = $dtoInstance->toEntity(EdgeCaseTestEntity::class);
 
             expect($newEntity->getIsActive())->toBeTrue();
         });

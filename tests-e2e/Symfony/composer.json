@@ -11,11 +11,14 @@
     "symfony/dependency-injection": "^7.0",
     "symfony/cache": "^7.0",
     "symfony/dotenv": "^7.0",
+    "symfony/validator": "^7.0",
+    "symfony/property-access": "^7.0",
     "event4u/data-helpers": "*"
   },
   "require-dev": {
     "pestphp/pest": "^3.0",
-    "symfony/yaml": "^7.3"
+    "symfony/yaml": "^7.3",
+    "fakerphp/faker": "^1.24"
   },
   "autoload": {
     "psr-4": {

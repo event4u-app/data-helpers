@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use DateTimeImmutable;
 use event4u\DataHelpers\SimpleDTO;
 
 describe('TimestampCast', function(): void {

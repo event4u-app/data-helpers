@@ -64,11 +64,14 @@ class DTOValueResolverTest extends TestCase
 
     private function createParameter(string $className, string $paramName = 'dto'): ReflectionParameter
     {
+        // Create a unique dummy class name using uniqid to avoid redeclaration errors
+        $dummyClassName = 'DummyController_' . uniqid();
+
         // Create a dummy class with a method that has the parameter
-        $code = "class DummyController { public function action({$className} \${$paramName}) {} }";
+        $code = "class {$dummyClassName} { public function action({$className} \${$paramName}) {} }";
         eval($code);
 
-        $reflection = new ReflectionClass('DummyController');
+        $reflection = new ReflectionClass($dummyClassName);
         $method = $reflection->getMethod('action');
         $parameters = $method->getParameters();
 
