@@ -1,0 +1,303 @@
+version: '3'
+
+# Development Tasks
+# Handles development workflows, shell access, and utilities
+
+vars:
+  PHP_82: data-helpers-php82
+  PHP_83: data-helpers-php83
+  PHP_84: data-helpers-php84
+  DEFAULT_PHP: "{{.PHP_84}}"
+  OUTPUT_HELPER: ./scripts/task-output.sh
+
+tasks:
+  # ============================================================================
+  # Shell Access
+  # ============================================================================
+
+  shell:
+    desc: Open shell in PHP 8.4 container (use PHP=8.2|8.3|8.4)
+    aliases: [sh]
+    cmds:
+      - docker exec -it {{.PHP | default .DEFAULT_PHP}} /bin/bash
+
+  shell:82:
+    desc: Open shell in PHP 8.2 container
+    aliases: [sh:82]
+    cmds:
+      - docker exec -it {{.PHP_82}} /bin/bash
+
+  shell:83:
+    desc: Open shell in PHP 8.3 container
+    aliases: [sh:83]
+    cmds:
+      - docker exec -it {{.PHP_83}} /bin/bash
+
+  shell:84:
+    desc: Open shell in PHP 8.4 container
+    aliases: [sh:84]
+    cmds:
+      - docker exec -it {{.PHP_84}} /bin/bash
+
+  # ============================================================================
+  # Composer & Dependencies
+  # ============================================================================
+
+  install:
+    desc: Install dependencies in all containers
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Installing Dependencies"
+        
+        task_step "Installing in PHP 8.2..."
+        docker exec {{.PHP_82}} composer install --prefer-dist --no-interaction
+        
+        task_step "Installing in PHP 8.3..."
+        docker exec {{.PHP_83}} composer install --prefer-dist --no-interaction
+        
+        task_step "Installing in PHP 8.4..."
+        docker exec {{.PHP_84}} composer install --prefer-dist --no-interaction
+        
+        task_success "Dependencies installed in all containers"
+        task_footer
+
+  install:82:
+    desc: Install dependencies in PHP 8.2 container
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Installing Dependencies (PHP 8.2)" \
+          docker exec {{.PHP_82}} composer install --prefer-dist --no-interaction
+
+  install:83:
+    desc: Install dependencies in PHP 8.3 container
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Installing Dependencies (PHP 8.3)" \
+          docker exec {{.PHP_83}} composer install --prefer-dist --no-interaction
+
+  install:84:
+    desc: Install dependencies in PHP 8.4 container
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Installing Dependencies (PHP 8.4)" \
+          docker exec {{.PHP_84}} composer install --prefer-dist --no-interaction
+
+  update:
+    desc: Update dependencies (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Updating Dependencies" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer update --prefer-dist --no-interaction
+
+  # ============================================================================
+  # Development Workflows
+  # ============================================================================
+
+  setup:
+    desc: Complete development setup
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Setting Up Development Environment"
+        
+        task_step "Building Docker containers..."
+        docker-compose build
+        
+        task_step "Starting containers..."
+        docker-compose up -d
+        sleep 2
+        
+        task_step "Installing dependencies in PHP 8.2..."
+        docker exec {{.PHP_82}} composer install --prefer-dist --no-interaction
+        
+        task_step "Installing dependencies in PHP 8.3..."
+        docker exec {{.PHP_83}} composer install --prefer-dist --no-interaction
+        
+        task_step "Installing dependencies in PHP 8.4..."
+        docker exec {{.PHP_84}} composer install --prefer-dist --no-interaction
+        
+        task_success "Development environment ready!"
+        task_footer
+
+  reset:
+    desc: Reset development environment
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Resetting Development Environment"
+        
+        task_step "Cleaning up..."
+        docker-compose down -v
+        
+        task_step "Building containers..."
+        docker-compose build
+        
+        task_step "Starting containers..."
+        docker-compose up -d
+        sleep 2
+        
+        task_step "Installing dependencies..."
+        docker exec {{.PHP_82}} composer install --prefer-dist --no-interaction
+        docker exec {{.PHP_83}} composer install --prefer-dist --no-interaction
+        docker exec {{.PHP_84}} composer install --prefer-dist --no-interaction
+        
+        task_success "Development environment reset!"
+        task_footer
+
+  test:
+    desc: Quick development test (PHP 8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Quick Test (PHP 8.4)" \
+          docker exec {{.PHP_84}} composer test
+
+  check:
+    desc: Quick quality check (PHP 8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Quick Quality Check (PHP 8.4)"
+        
+        task_step "Running ECS..."
+        docker exec {{.PHP_84}} composer ecs
+        ECS_EXIT=$?
+        
+        task_step "Running PHPStan..."
+        docker exec {{.PHP_84}} composer phpstan
+        PHPSTAN_EXIT=$?
+        
+        echo ""
+        if [ $ECS_EXIT -eq 0 ] && [ $PHPSTAN_EXIT -eq 0 ]; then
+          task_success "Quality check passed!"
+          task_footer
+          exit 0
+        else
+          task_error "Quality check failed"
+          task_footer
+          exit 1
+        fi
+
+  # ============================================================================
+  # Pre-commit / Pre-push
+  # ============================================================================
+
+  pre-commit:
+    desc: Run checks before commit
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Pre-Commit Checks"
+        
+        task_step "Fixing code style with ECS..."
+        docker exec {{.PHP_84}} composer ecs:fix
+        
+        task_step "Applying Rector fixes..."
+        docker exec {{.PHP_84}} composer rector:fix
+        
+        task_step "Running tests..."
+        docker exec {{.PHP_84}} composer test
+        TEST_EXIT=$?
+        
+        echo ""
+        if [ $TEST_EXIT -eq 0 ]; then
+          task_success "Pre-commit checks passed!"
+          task_footer
+          exit 0
+        else
+          task_error "Pre-commit checks failed"
+          task_footer
+          exit 1
+        fi
+
+  pre-push:
+    desc: Run checks before push
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Pre-Push Checks"
+        
+        task_step "Fixing code style with ECS..."
+        docker exec {{.PHP_84}} composer ecs:fix
+        
+        task_step "Applying Rector fixes..."
+        docker exec {{.PHP_84}} composer rector:fix
+        
+        task_step "Running PHPStan..."
+        docker exec {{.PHP_84}} composer phpstan
+        PHPSTAN_EXIT=$?
+        
+        task_step "Running full test suite..."
+        docker exec {{.PHP_84}} composer test:full
+        TEST_EXIT=$?
+        
+        echo ""
+        if [ $PHPSTAN_EXIT -eq 0 ] && [ $TEST_EXIT -eq 0 ]; then
+          task_success "Pre-push checks passed!"
+          task_footer
+          exit 0
+        else
+          task_error "Pre-push checks failed"
+          task_footer
+          exit 1
+        fi
+
+  # ============================================================================
+  # Cache Management
+  # ============================================================================
+
+  cache:clear:
+    desc: Clear cache (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Clearing Cache" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer cache:clear
+
+  cache:stats:
+    desc: Show cache statistics (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Cache Statistics" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer cache:stats
+
+  # ============================================================================
+  # Utilities
+  # ============================================================================
+
+  sort-deps:
+    desc: Sort dependencies in composer.json (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Sorting Dependencies" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer sort-deps
+
+  info:
+    desc: Show environment information
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Data Helpers - Environment Information"
+        
+        echo -e "${CYAN}Available PHP versions:${NC}"
+        echo -e "  ${GREEN}•${NC} PHP 8.2 (container: {{.PHP_82}})"
+        echo -e "  ${GREEN}•${NC} PHP 8.3 (container: {{.PHP_83}})"
+        echo -e "  ${GREEN}•${NC} PHP 8.4 (container: {{.PHP_84}})"
+        echo ""
+        
+        echo -e "${CYAN}Container status:${NC}"
+        docker-compose ps
+        echo ""
+        
+        task_info "Use 'task --list' to see all available tasks"
+        task_info "Use 'task [task-name] PHP=8.2' to run with specific PHP version"
+        
+        task_footer
+

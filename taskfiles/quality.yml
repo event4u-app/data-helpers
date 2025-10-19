@@ -1,0 +1,209 @@
+version: '3'
+
+# Code Quality Tasks
+# Handles PHPStan, ECS, Rector, and combined quality checks
+
+vars:
+  PHP_82: data-helpers-php82
+  PHP_83: data-helpers-php83
+  PHP_84: data-helpers-php84
+  DEFAULT_PHP: "{{.PHP_84}}"
+  OUTPUT_HELPER: ./scripts/task-output.sh
+
+tasks:
+  # ============================================================================
+  # PHPStan
+  # ============================================================================
+
+  phpstan:
+    desc: Run PHPStan analysis (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_quality "Running PHPStan Analysis" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan
+
+  phpstan:82:
+    desc: Run PHPStan with PHP 8.2
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_quality "Running PHPStan Analysis (PHP 8.2)" \
+          docker exec {{.PHP_82}} composer phpstan
+
+  phpstan:83:
+    desc: Run PHPStan with PHP 8.3
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_quality "Running PHPStan Analysis (PHP 8.3)" \
+          docker exec {{.PHP_83}} composer phpstan
+
+  phpstan:84:
+    desc: Run PHPStan with PHP 8.4
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_quality "Running PHPStan Analysis (PHP 8.4)" \
+          docker exec {{.PHP_84}} composer phpstan
+
+  phpstan:baseline:
+    desc: Generate PHPStan baseline (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Generating PHPStan Baseline" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan:baseline
+
+  phpstan:clear:
+    desc: Clear PHPStan cache (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Clearing PHPStan Cache" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan:clear-cache
+
+  # ============================================================================
+  # ECS (Easy Coding Standard)
+  # ============================================================================
+
+  ecs:
+    desc: Run ECS code style check (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_quality "Running ECS Code Style Check" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs
+
+  ecs:fix:
+    desc: Fix code style with ECS (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Fixing Code Style with ECS" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs:fix
+
+  # ============================================================================
+  # Rector
+  # ============================================================================
+
+  rector:
+    desc: Run Rector dry-run (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_quality "Running Rector Dry-Run" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer rector
+
+  rector:fix:
+    desc: Apply Rector changes (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Applying Rector Changes" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer rector:fix
+
+  # ============================================================================
+  # Combined Quality Checks
+  # ============================================================================
+
+  refactor:
+    desc: Run ECS and Rector dry-run (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_quality "Running Refactor Checks (ECS + Rector)" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer refactor
+
+  refactor:fix:
+    desc: Apply ECS and Rector fixes (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Applying Refactor Fixes (ECS + Rector)" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer refactor:fix
+
+  check:
+    desc: Run all quality checks (use PHP=8.2|8.3|8.4)
+    aliases: [quality]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running All Quality Checks"
+        
+        # Run ECS
+        task_step "Running ECS..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs
+        ECS_EXIT=$?
+        
+        # Run Rector
+        task_step "Running Rector..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} composer rector
+        RECTOR_EXIT=$?
+        
+        # Run PHPStan
+        task_step "Running PHPStan..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan
+        PHPSTAN_EXIT=$?
+        
+        # Run Tests
+        task_step "Running Tests..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} composer test
+        TEST_EXIT=$?
+        
+        # Summary
+        echo ""
+        if [ $ECS_EXIT -eq 0 ] && [ $RECTOR_EXIT -eq 0 ] && [ $PHPSTAN_EXIT -eq 0 ] && [ $TEST_EXIT -eq 0 ]; then
+          task_success "All quality checks passed!"
+          task_footer
+          exit 0
+        else
+          task_error "Some quality checks failed"
+          [ $ECS_EXIT -ne 0 ] && echo -e "${RED}  ❌  ECS failed${NC}"
+          [ $RECTOR_EXIT -ne 0 ] && echo -e "${RED}  ❌  Rector failed${NC}"
+          [ $PHPSTAN_EXIT -ne 0 ] && echo -e "${RED}  ❌  PHPStan failed${NC}"
+          [ $TEST_EXIT -ne 0 ] && echo -e "${RED}  ❌  Tests failed${NC}"
+          task_footer
+          exit 1
+        fi
+
+  fix:
+    desc: Run all quality checks with fixes (use PHP=8.2|8.3|8.4)
+    aliases: [quality:fix]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running All Quality Fixes"
+        
+        # Run ECS fix
+        task_step "Fixing with ECS..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs:fix
+        
+        # Run Rector fix
+        task_step "Fixing with Rector..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} composer rector:fix
+        
+        # Run PHPStan
+        task_step "Running PHPStan..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan
+        PHPSTAN_EXIT=$?
+        
+        # Run Tests
+        task_step "Running Tests..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} composer test
+        TEST_EXIT=$?
+        
+        # Summary
+        echo ""
+        if [ $PHPSTAN_EXIT -eq 0 ] && [ $TEST_EXIT -eq 0 ]; then
+          task_success "All quality fixes applied and checks passed!"
+          task_footer
+          exit 0
+        else
+          task_error "Some quality checks failed after fixes"
+          [ $PHPSTAN_EXIT -ne 0 ] && echo -e "${RED}  ❌  PHPStan failed${NC}"
+          [ $TEST_EXIT -ne 0 ] && echo -e "${RED}  ❌  Tests failed${NC}"
+          task_footer
+          exit 1
+        fi
+

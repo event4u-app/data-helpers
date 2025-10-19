@@ -1,0 +1,321 @@
+version: '3'
+
+# Test Tasks
+# Handles all testing operations
+
+vars:
+  PHP_82: data-helpers-php82
+  PHP_83: data-helpers-php83
+  PHP_84: data-helpers-php84
+  DEFAULT_PHP: "{{.PHP_84}}"
+  OUTPUT_HELPER: ./scripts/task-output.sh
+
+tasks:
+  # ============================================================================
+  # Basic Tests
+  # ============================================================================
+
+  run:
+    desc: Run tests (use PHP=8.2|8.3|8.4)
+    aliases: [test]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer test
+
+  run:82:
+    desc: Run tests with PHP 8.2
+    aliases: [test:82]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests (PHP 8.2)" \
+          docker exec {{.PHP_82}} composer test
+
+  run:83:
+    desc: Run tests with PHP 8.3
+    aliases: [test:83]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests (PHP 8.3)" \
+          docker exec {{.PHP_83}} composer test
+
+  run:84:
+    desc: Run tests with PHP 8.4
+    aliases: [test:84]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests (PHP 8.4)" \
+          docker exec {{.PHP_84}} composer test
+
+  coverage:
+    desc: Run tests with coverage (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests with Coverage" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer test:coverage
+
+  full:
+    desc: Run full test suite including e2e (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Full Test Suite" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer test:full
+
+  # ============================================================================
+  # E2E Tests
+  # ============================================================================
+
+  e2e:
+    desc: Run e2e tests (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running E2E Tests" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer test:e2e
+
+  e2e:laravel:
+    desc: Run Laravel e2e tests (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Laravel E2E Tests" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer test:e2e-laravel
+
+  e2e:symfony:
+    desc: Run Symfony e2e tests (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Symfony E2E Tests" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} composer test:e2e-symfony
+
+  # ============================================================================
+  # Framework-Specific Tests
+  # ============================================================================
+
+  laravel9:
+    desc: Test with Laravel 9 (PHP 8.2)
+    aliases: [l9]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing with Laravel 9 (PHP 8.2)" \
+          docker exec {{.PHP_82}} ./scripts/test-with-versions.sh -l 9
+
+  laravel10:
+    desc: Test with Laravel 10 (use PHP=8.2|8.3)
+    aliases: [l10]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing with Laravel 10 (PHP {{.PHP | default .PHP_83}})" \
+          docker exec {{.PHP | default .PHP_83}} ./scripts/test-with-versions.sh -l 10
+
+  laravel11:
+    desc: Test with Laravel 11 (use PHP=8.2|8.3|8.4)
+    aliases: [l11]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing with Laravel 11 (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -l 11
+
+  symfony6:
+    desc: Test with Symfony 6 (use PHP=8.2|8.3|8.4)
+    aliases: [s6]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing with Symfony 6 (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -s 6
+
+  symfony7:
+    desc: Test with Symfony 7 (use PHP=8.2|8.3|8.4)
+    aliases: [s7]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing with Symfony 7 (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -s 7
+
+  doctrine2:
+    desc: Test with Doctrine 2 (use PHP=8.2|8.3|8.4)
+    aliases: [d2]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing with Doctrine 2 (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -d 2
+
+  doctrine3:
+    desc: Test with Doctrine 3 (use PHP=8.2|8.3|8.4)
+    aliases: [d3]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing with Doctrine 3 (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} ./scripts/test-with-versions.sh -d 3
+
+  # ============================================================================
+  # Test All
+  # ============================================================================
+
+  all:laravel:
+    desc: Test all Laravel versions
+    cmds:
+      - task: laravel9
+      - task: laravel10
+      - task: laravel11
+
+  all:symfony:
+    desc: Test all Symfony versions
+    cmds:
+      - task: symfony6
+      - task: symfony7
+
+  all:doctrine:
+    desc: Test all Doctrine versions
+    cmds:
+      - task: doctrine2
+      - task: doctrine3
+
+  all:
+    desc: Run all framework tests
+    cmds:
+      - task: all:laravel
+      - task: all:symfony
+      - task: all:doctrine
+
+  # ============================================================================
+  # Test Matrix
+  # ============================================================================
+
+  matrix:
+    desc: Run all tests from test matrix
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Test Matrix"
+        ./docker/test-all.sh
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All matrix tests passed"
+        else
+          task_error "Some matrix tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:82:
+    desc: Run all PHP 8.2 tests from matrix
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Test Matrix (PHP 8.2)"
+        ./docker/test-all.sh -p 8.2
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All PHP 8.2 tests passed"
+        else
+          task_error "Some PHP 8.2 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:83:
+    desc: Run all PHP 8.3 tests from matrix
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Test Matrix (PHP 8.3)"
+        ./docker/test-all.sh -p 8.3
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All PHP 8.3 tests passed"
+        else
+          task_error "Some PHP 8.3 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:84:
+    desc: Run all PHP 8.4 tests from matrix
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Test Matrix (PHP 8.4)"
+        ./docker/test-all.sh -p 8.4
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All PHP 8.4 tests passed"
+        else
+          task_error "Some PHP 8.4 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  # ============================================================================
+  # Framework Shortcuts (Quick Access)
+  # ============================================================================
+
+  laravel9:
+    desc: Test Laravel 9 with PHP 8.2
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing Laravel 9 (PHP 8.2)" \
+          docker exec {{.PHP_82}} composer test-laravel9
+
+  laravel10:
+    desc: Test Laravel 10 with PHP 8.3
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing Laravel 10 (PHP 8.3)" \
+          docker exec {{.PHP_83}} composer test-laravel10
+
+  laravel11:
+    desc: Test Laravel 11 with PHP 8.4
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing Laravel 11 (PHP 8.4)" \
+          docker exec {{.PHP_84}} composer test-laravel11
+
+  symfony6:
+    desc: Test Symfony 6
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing Symfony 6" \
+          docker exec {{.PHP_84}} composer test-symfony6
+
+  symfony7:
+    desc: Test Symfony 7
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing Symfony 7" \
+          docker exec {{.PHP_84}} composer test-symfony7
+
+  doctrine2:
+    desc: Test Doctrine 2
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing Doctrine 2" \
+          docker exec {{.PHP_84}} composer test-doctrine2
+
+  doctrine3:
+    desc: Test Doctrine 3
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Testing Doctrine 3" \
+          docker exec {{.PHP_84}} composer test-doctrine3

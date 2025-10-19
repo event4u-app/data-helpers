@@ -1007,6 +1007,32 @@ Run benchmarks yourself: `composer benchmark`
 
 Contributions are welcome! Please see [docs/contributing.md](docs/contributing.md) for details.
 
+### Development Setup
+
+This project uses [Task](https://taskfile.dev/) for all development operations:
+
+```bash
+# Install Task (macOS)
+brew install go-task/tap/go-task
+
+# Complete development setup
+task dev:setup
+
+# Show all available tasks
+task
+
+# Run tests
+task test:run
+
+# Run all quality checks (ECS + Rector + PHPStan + Tests)
+task quality:check
+
+# Open shell in container
+task dev:shell
+```
+
+See [docs/TASKFILE.md](docs/TASKFILE.md) for complete documentation.
+
 ---
 
 ## 💖 Sponsoring
