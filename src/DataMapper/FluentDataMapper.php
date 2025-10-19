@@ -496,6 +496,20 @@ final class FluentDataMapper
     }
 
     /**
+     * Set multiple filters at once.
+     *
+     * @param array<string, FilterInterface|array<int, FilterInterface>> $filters Map of property paths to filters
+     */
+    public function setFilters(array $filters): self
+    {
+        foreach ($filters as $property => $filter) {
+            $this->setFilter($property, $filter);
+        }
+
+        return $this;
+    }
+
+    /**
      * Reset filters for a specific property.
      *
      * @param string $property Property path (dot-notation)

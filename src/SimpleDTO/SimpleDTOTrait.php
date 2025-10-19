@@ -63,6 +63,7 @@ trait SimpleDTOTrait
     use SimpleDTOValidationTrait;
     use SimpleDTORequestValidationTrait;
     use SimpleDTOMappingTrait;
+    use SimpleDTOMapperTrait;
     use SimpleDTOVisibilityTrait;
     use SimpleDTOWrappingTrait;
     use SimpleDTOSerializerTrait;
@@ -243,49 +244,26 @@ trait SimpleDTOTrait
     /**
      * Create a DTO instance from an array.
      *
-     * Uses named arguments to construct the DTO. The array keys
-     * must match the constructor parameter names.
-     * Applies property mapping and casts defined in the respective methods.
-     *
-     * Processing order:
-     * 1. Apply property mapping (#[MapFrom] attributes)
-     * 2. Apply casts (casts() method)
-     * 3. Wrap lazy properties (first, so Optional can wrap Lazy)
-     * 4. Wrap optional properties (second, wraps Lazy if needed)
-     * 5. Construct DTO instance
+     * This is an alias for fromSource() for backward compatibility.
+     * Uses the full mapping pipeline with the following priority:
+     * 1. Template (from template() method) - HIGHEST PRIORITY
+     * 2. Attributes (#[MapFrom], #[MapTo])
+     * 3. Automapping (fallback)
      *
      * @param array<string, mixed> $data
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     *
      * @return static
      */
-    public static function fromArray(array $data): static
-    {
-        // Step 1: Apply property mapping
-        $data = static::applyMapping($data);
-
-        // Step 2: Get casts without creating an instance
-        $casts = static::getCasts();
-
-        // Step 3: Apply casts if defined
-        if ([] !== $casts) {
-            $data = static::applyCasts($data, $casts);
-        }
-
-        // Step 4: Auto-validate if enabled (before wrapping!)
-        if (static::shouldAutoValidate()) {
-            $validateAttr = static::getValidateRequestAttribute();
-            if ($validateAttr?->auto) {
-                $data = static::validateOrFail($data);
-            }
-        }
-
-        // Step 5: Wrap lazy properties (first!)
-        $data = static::wrapLazyProperties($data);
-
-        // Step 6: Wrap optional properties (second, can wrap Lazy)
-        $data = static::wrapOptionalProperties($data);
-
-        /** @phpstan-ignore new.static */
-        return new static(...$data);
+    public static function fromArray(
+        array $data,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        return static::fromSource($data, $template, $filters, $pipeline);
     }
 
     /**
