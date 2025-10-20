@@ -13,7 +13,7 @@ Stub files are PHP files that contain type assertions using `PHPStan\Testing\ass
 ## Files
 
 - **DataAccessor.php** - Type stubs for `DataAccessor` class
-- **DataMutator.php** - Type stubs for `DataMutator` class  
+- **DataMutator.php** - Type stubs for `DataMutator` class
 - **DataMapper.php** - Type stubs for `DataMapper` class
 
 ## How it works
@@ -34,7 +34,7 @@ This tells PHPStan that:
 ## Running the type checks
 
 ```bash
-composer phpstan
+task quality:phpstan
 ```
 
 PHPStan will analyze these stub files along with the rest of the codebase to ensure type safety.

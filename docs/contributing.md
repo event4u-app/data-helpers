@@ -26,7 +26,7 @@ Thank you for considering contributing to Data Helpers! This document provides g
 
 4. Run tests to ensure everything works:
    ```bash
-   composer test
+   task test:run
    ```
 
 ## 🧪 Testing
@@ -37,16 +37,19 @@ We use [Pest](https://pestphp.com/) for testing. All contributions must include 
 
 ```bash
 # Run all tests
-composer test
+task test:run
+
+# Run unit tests only
+task test:unit
 
 # Run specific test file
-composer test -- tests/Unit/DataMapper/DataMapperTest.php
+task test:unit -- tests/Unit/DataMapper/DataMapperTest.php
 
 # Run tests with filter
-composer test -- --filter="maps nested key"
+task test:unit -- --filter="maps nested key"
 
 # Run with coverage (requires Xdebug)
-composer test-coverage
+task test:coverage
 ```
 
 ### Writing Tests
@@ -61,9 +64,9 @@ Example:
 test('maps nested data correctly', function(): void {
     $source = ['user' => ['name' => 'Alice']];
     $mapping = ['name' => '{{ user.name }}'];
-    
+
     $result = DataMapper::map($source, [], $mapping);
-    
+
     expect($result)->toBe(['name' => 'Alice']);
 });
 ```
@@ -76,10 +79,10 @@ We follow PSR-12 coding standards and use PHP Easy Coding Standard (ECS).
 
 ```bash
 # Check code style
-composer ecs
+task quality:ecs
 
 # Fix code style automatically
-composer ecs-fix
+task quality:ecs:fix
 ```
 
 ### Static Analysis
@@ -88,10 +91,10 @@ We use PHPStan at Level 9 for static analysis:
 
 ```bash
 # Run PHPStan
-composer phpstan
+task quality:phpstan
 
 # Run PHPStan with baseline
-composer phpstan-baseline
+task quality:phpstan:baseline
 ```
 
 ## 🎯 Mapping Format Convention
@@ -159,9 +162,9 @@ public static function map(
 
 3. **Ensure quality:**
    ```bash
-   composer test        # All tests must pass
-   composer ecs         # Code style must be clean
-   composer phpstan     # No PHPStan errors
+   task test:run           # All tests must pass
+   task quality:ecs        # Code style must be clean
+   task quality:phpstan    # No PHPStan errors
    ```
 
 4. **Commit your changes:**
@@ -169,7 +172,7 @@ public static function map(
    git add .
    git commit -m "feat: add new feature"
    ```
-   
+
    We follow [Conventional Commits](https://www.conventionalcommits.org/):
    - `feat:` - New feature
    - `fix:` - Bug fix

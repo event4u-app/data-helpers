@@ -160,9 +160,9 @@ $entry = [
 
 Use Pest for fast feedback. Run the full suite or a single test/file.
 
-- All tests: `composer tests`
-- Single file: `./vendor/bin/pest --colors=always tests/Unit/Helpers/DataMapperTest.php`
-- Filter by name: `./vendor/bin/pest --colors=always tests/Unit/Helpers/DataMapperTest.php --filter="wildcards"`
+- All tests: `task test:run`
+- Single file: `task test:unit -- tests/Unit/Helpers/DataMapperTest.php`
+- Filter by name: `task test:unit -- tests/Unit/Helpers/DataMapperTest.php --filter="wildcards"`
 
 Example: test a custom hook that skips odd indices for `users.*.email`.
 

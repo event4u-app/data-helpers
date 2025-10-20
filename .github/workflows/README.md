@@ -134,7 +134,7 @@ composer remove --dev illuminate/* symfony/* doctrine/* --no-update
 composer require --dev "illuminate/support:^11.0" "illuminate/database:^11.0" "illuminate/http:^11.0"
 
 # Run tests
-composer test
+task test:unit
 
 # Restore original files
 ```

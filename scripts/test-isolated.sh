@@ -435,7 +435,7 @@ echo ""
 echo -e "${BLUE}→${NC}  Installing dependencies..."
 
 if [[ "$TEST_TYPE" == "plain" ]]; then
-    echo -e "${YELLOW}  Removing ALL framework packages...${NC}"
+    echo -e "${YELLOW}  Removing ALL framework packages and unnecessary dev tools...${NC}"
     run_in_container composer remove --dev \
         illuminate/cache illuminate/http illuminate/support illuminate/database \
         symfony/cache symfony/config symfony/dependency-injection \
@@ -443,12 +443,16 @@ if [[ "$TEST_TYPE" == "plain" ]]; then
         symfony/serializer symfony/property-info symfony/property-access symfony/validator \
         doctrine/collections doctrine/orm doctrine/dbal \
         nesbot/carbon \
+        symplify/coding-standard symplify/easy-coding-standard friendsofphp/php-cs-fixer \
+        rector/rector phpstan/phpstan phpstan/phpstan-mockery phpstan/phpstan-phpunit \
+        spaze/phpstan-disallowed-calls timeweb/phpstan-enum \
+        phpbench/phpbench \
         --no-interaction --no-update 2>&1 | grep -v "is not required" || true
 
     echo -e "${YELLOW}  Deleting composer.lock...${NC}"
     run_in_container rm -f composer.lock
 
-    echo -e "${YELLOW}  Installing base dependencies (no frameworks)...${NC}"
+    echo -e "${YELLOW}  Installing base dependencies (no frameworks, no code quality tools)...${NC}"
     run_in_container composer install --no-interaction
 else
     # Remove composer.lock to avoid version conflicts
@@ -464,25 +468,26 @@ else
     # Carbon needs to be removed so Composer can install the correct version based on framework constraints
     CARBON_PACKAGE="nesbot/carbon"
 
-    # Define code quality tools that pull in unnecessary dependencies
-    CODE_QUALITY_PACKAGES="symplify/coding-standard symplify/easy-coding-standard friendsofphp/php-cs-fixer rector/rector"
+    # Define code quality tools and benchmarking tools that pull in unnecessary dependencies (especially Symfony)
+    # These are not needed for running tests and can cause dependency conflicts
+    CODE_QUALITY_PACKAGES="symplify/coding-standard symplify/easy-coding-standard friendsofphp/php-cs-fixer rector/rector phpstan/phpstan phpstan/phpstan-mockery phpstan/phpstan-phpunit spaze/phpstan-disallowed-calls timeweb/phpstan-enum phpbench/phpbench"
 
     # Determine which packages to remove based on the framework being tested
     PACKAGES_TO_REMOVE=""
     case "$FRAMEWORK" in
         laravel)
-            # For Laravel tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, and code quality tools
-            echo -e "${YELLOW}  Removing all framework packages and code quality tools (testing Laravel only)...${NC}"
+            # For Laravel tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, code quality tools, and benchmarking tools
+            echo -e "${YELLOW}  Removing all framework packages, code quality tools, and benchmarking tools (testing Laravel only)...${NC}"
             PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $CODE_QUALITY_PACKAGES"
             ;;
         symfony)
-            # For Symfony tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, and code quality tools
-            echo -e "${YELLOW}  Removing all framework packages and code quality tools (testing Symfony only)...${NC}"
+            # For Symfony tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, code quality tools, and benchmarking tools
+            echo -e "${YELLOW}  Removing all framework packages, code quality tools, and benchmarking tools (testing Symfony only)...${NC}"
             PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $CODE_QUALITY_PACKAGES"
             ;;
         doctrine)
-            # For Doctrine tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, and code quality tools
-            echo -e "${YELLOW}  Removing all framework packages and code quality tools (testing Doctrine only)...${NC}"
+            # For Doctrine tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, code quality tools, and benchmarking tools
+            echo -e "${YELLOW}  Removing all framework packages, code quality tools, and benchmarking tools (testing Doctrine only)...${NC}"
             PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $CODE_QUALITY_PACKAGES"
             ;;
     esac
@@ -497,9 +502,6 @@ else
     echo -e "${YELLOW}  Deleting composer.lock...${NC}"
     run_in_container rm -f composer.lock
 
-    echo -e "${YELLOW}  Installing minimal dependencies...${NC}"
-    run_in_container composer install --no-interaction
-
     # Get packages to install
     PACKAGES=$(get_composer_packages "$FRAMEWORK" "$VERSION")
 
@@ -508,8 +510,13 @@ else
         exit 1
     fi
 
-    echo -e "${YELLOW}  Installing ${FRAMEWORK} ${VERSION}...${NC}"
-    run_in_container composer require --dev $PACKAGES --with-all-dependencies --no-interaction
+    # Add framework packages to composer.json BEFORE composer install
+    # This ensures Composer resolves all dependencies with the correct framework version
+    echo -e "${YELLOW}  Adding ${FRAMEWORK} ${VERSION} to composer.json...${NC}"
+    run_in_container composer require --dev $PACKAGES --no-update --no-interaction
+
+    echo -e "${YELLOW}  Installing all dependencies with ${FRAMEWORK} ${VERSION}...${NC}"
+    run_in_container composer install --no-interaction
 fi
 
 echo -e "${GREEN}✓${NC}  Dependencies installed"

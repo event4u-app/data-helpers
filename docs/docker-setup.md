@@ -9,7 +9,7 @@ This Docker setup allows you to run tests locally with multiple PHP versions (8.
 
 ## Quick Start
 
-### 1. Start containers
+### 1. Build and start containers
 
 ```bash
 make up
@@ -18,13 +18,15 @@ make up
 or
 
 ```bash
-docker-compose up -d
+docker-compose up -d --build
 ```
 
-This will build and start three containers:
+This will build and start three containers with PHP, Composer, and Task installed:
 - `data-helpers-php82` (PHP 8.2)
 - `data-helpers-php83` (PHP 8.3)
 - `data-helpers-php84` (PHP 8.4)
+
+**Note:** If you've updated the Dockerfile, use `--build` to rebuild the containers.
 
 ### 2. Install dependencies
 
@@ -170,10 +172,10 @@ Use the `docker/test-all.sh` script:
 
 ```bash
 # Run tests in PHP 8.2 container
-docker exec data-helpers-php82 composer test
+docker exec data-helpers-php82 task test:unit
 
 # Run PHPStan in PHP 8.3 container
-docker exec data-helpers-php83 composer phpstan
+docker exec data-helpers-php83 task quality:phpstan
 
 # Run test-with-versions script in PHP 8.4 container
 docker exec data-helpers-php84 ./scripts/test-with-versions.sh -l 11

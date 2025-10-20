@@ -57,21 +57,21 @@ Das Script:
 
 ### Composer Scripts
 
-Für häufig verwendete Kombinationen gibt es Composer-Shortcuts:
+Für häufig verwendete Kombinationen gibt es Task-Shortcuts:
 
 ```bash
 # Laravel
-composer test:laravel9
-composer test:laravel10
-composer test:laravel11
-composer test:all-laravel  # Alle Laravel-Versionen
+task test:laravel9
+task test:laravel10
+task test:laravel11
+task test:matrix:laravel  # Alle Laravel-Versionen
 
 # Symfony
-composer test:symfony6
-composer test:symfony7
+task test:symfony6
+task test:symfony7
 
 # Doctrine
-composer test:doctrine2
-composer test:doctrine3
+task test:doctrine2
+task test:doctrine3
 ```
 

@@ -155,7 +155,7 @@ For each test in the matrix:
 1. Backup composer.json and composer.lock
 2. Remove illuminate/*, symfony/*, doctrine/*
 3. Install ONLY illuminate/support:^11.0, illuminate/database:^11.0, illuminate/http:^11.0
-4. Run composer test
+4. Run tests via task test:unit
 5. Restore original composer files
 ```
 

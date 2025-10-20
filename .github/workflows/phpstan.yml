@@ -36,9 +36,13 @@ jobs:
           php-version: '8.4'
           coverage: none
 
+      - name: Install Task
+        run: |
+          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
       - name: Install dependencies (with all frameworks for analysis)
         run: composer update --prefer-dist --no-interaction
 
       - name: Run PHPStan
-        run: composer phpstan
+        run: task quality:phpstan
 

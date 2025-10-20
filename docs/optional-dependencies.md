@@ -138,7 +138,7 @@ $result = DataMapper::map($source, $target, [
 The package tests always run with full Laravel support (via `require-dev`), ensuring compatibility with real Laravel classes.
 
 ```bash
-composer test
+task test:run
 ```
 
 ## Performance
