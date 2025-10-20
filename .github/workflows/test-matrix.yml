@@ -245,10 +245,19 @@ jobs:
 
       - name: Install Doctrine ${{ matrix.doctrine }} packages
         run: |
-          composer require --dev \
-            doctrine/orm:^${{ matrix.doctrine }}.0 \
-            doctrine/dbal:^${{ matrix.doctrine }}.0 \
-            --with-all-dependencies --no-interaction
+          # For Doctrine 2, we need Carbon 2.x (Doctrine 3 works with Carbon 3.x)
+          if [ "${{ matrix.doctrine }}" = "2" ]; then
+            composer require --dev \
+              nesbot/carbon:^2.0 \
+              doctrine/orm:^${{ matrix.doctrine }}.0 \
+              doctrine/dbal:^${{ matrix.doctrine }}.0 \
+              --with-all-dependencies --no-interaction
+          else
+            composer require --dev \
+              doctrine/orm:^${{ matrix.doctrine }}.0 \
+              doctrine/dbal:^${{ matrix.doctrine }}.0 \
+              --with-all-dependencies --no-interaction
+          fi
 
       - name: Run Doctrine ${{ matrix.doctrine }} Tests
         run: |
