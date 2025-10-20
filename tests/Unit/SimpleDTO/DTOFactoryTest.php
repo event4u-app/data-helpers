@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDTO\DTOFactory;
+use Faker\Factory as FakerFactory;
+use Faker\Generator as Faker;
+use Tests\Unit\SimpleDTO\Fixtures\UserDTO;
+
 // Helper function for test setup
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
 function setupDTOFactory(): void
 {
     // Create a test factory
-$this->factory = new TestUserDTOFactory();
+    test()->factory = new TestUserDTOFactory();
 }
-
-
-use event4u\DataHelpers\SimpleDTO\DTOFactory;
-use Faker\Factory as FakerFactory;
-use Faker\Generator as Faker;
-use Tests\Unit\SimpleDTO\Fixtures\UserDTO;
 
 /**
  * Test factory for UserDTO.

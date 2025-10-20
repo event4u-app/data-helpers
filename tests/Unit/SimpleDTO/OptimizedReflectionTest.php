@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\Support\ReflectionCache;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
+
 // Helper function for test setup
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
 function setupOptimizedReflection(): void
 {
     ReflectionCache::clear();
 }
-
-
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\Support\ReflectionCache;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 
 describe('Optimized Reflection', function(): void {
     beforeEach(function(): void {

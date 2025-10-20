@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\DataMapper\Template;
+
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Template\FilterEngine;
+
 // Helper function for test setup
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
 function setupParserEdgeCases(): void
 {
     // These tests require safe mode for escape sequence handling
-FilterEngine::useFastSplit(false);
+    FilterEngine::useFastSplit(false);
 }
-
-
-namespace Tests\Unit\DataMapper\Template;
-
-use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Template\FilterEngine;
 
 describe('Parser Edge Cases', function(): void {
     beforeEach(function(): void {

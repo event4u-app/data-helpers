@@ -21,7 +21,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running PHPStan Analysis" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan analyse --memory-limit=512M
 
   phpstan:82:
     desc: Run PHPStan with PHP 8.2
@@ -29,7 +29,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running PHPStan Analysis (PHP 8.2)" \
-          docker exec {{.PHP_82}} composer phpstan
+          docker exec {{.PHP_82}} vendor/bin/phpstan analyse --memory-limit=512M
 
   phpstan:83:
     desc: Run PHPStan with PHP 8.3
@@ -37,7 +37,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running PHPStan Analysis (PHP 8.3)" \
-          docker exec {{.PHP_83}} composer phpstan
+          docker exec {{.PHP_83}} vendor/bin/phpstan analyse --memory-limit=512M
 
   phpstan:84:
     desc: Run PHPStan with PHP 8.4
@@ -45,7 +45,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running PHPStan Analysis (PHP 8.4)" \
-          docker exec {{.PHP_84}} composer phpstan
+          docker exec {{.PHP_84}} vendor/bin/phpstan analyse --memory-limit=512M
 
   phpstan:baseline:
     desc: Generate PHPStan baseline (use PHP=8.2|8.3|8.4)
@@ -53,7 +53,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Generating PHPStan Baseline" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan:baseline
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan analyse --memory-limit=512M --generate-baseline
 
   phpstan:clear:
     desc: Clear PHPStan cache (use PHP=8.2|8.3|8.4)
@@ -61,7 +61,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Clearing PHPStan Cache" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan:clear-cache
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan --clear-result-cache
 
   # ============================================================================
   # ECS (Easy Coding Standard)
@@ -73,7 +73,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running ECS Code Style Check" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check
 
   ecs:fix:
     desc: Fix code style with ECS (use PHP=8.2|8.3|8.4)
@@ -81,7 +81,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Fixing Code Style with ECS" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs:fix
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --fix
 
   # ============================================================================
   # Rector
@@ -93,7 +93,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running Rector Dry-Run" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer rector
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --dry-run
 
   rector:fix:
     desc: Apply Rector changes (use PHP=8.2|8.3|8.4)
@@ -101,7 +101,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Applying Rector Changes" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer rector:fix
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process
 
   # ============================================================================
   # Combined Quality Checks
@@ -112,16 +112,40 @@ tasks:
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
-        task_quality "Running Refactor Checks (ECS + Rector)" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer refactor
+        task_header "Running Refactor Checks (ECS + Rector)"
+
+        task_step "Running ECS..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check
+        ECS_EXIT=$?
+
+        task_step "Running Rector..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --dry-run
+        RECTOR_EXIT=$?
+
+        echo ""
+        if [ $ECS_EXIT -eq 0 ] && [ $RECTOR_EXIT -eq 0 ]; then
+          task_success "Refactor checks passed"
+        else
+          task_error "Refactor checks failed"
+        fi
+        task_footer
+        exit $(( ECS_EXIT + RECTOR_EXIT ))
 
   refactor:fix:
     desc: Apply ECS and Rector fixes (use PHP=8.2|8.3|8.4)
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
-        task_run "Applying Refactor Fixes (ECS + Rector)" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer refactor:fix
+        task_header "Applying Refactor Fixes (ECS + Rector)"
+
+        task_step "Fixing with ECS..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --fix
+
+        task_step "Fixing with Rector..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process
+
+        task_success "Refactor fixes applied"
+        task_footer
 
   check:
     desc: Run all quality checks (use PHP=8.2|8.3|8.4)
@@ -130,27 +154,27 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_header "Running All Quality Checks"
-        
+
         # Run ECS
         task_step "Running ECS..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check
         ECS_EXIT=$?
-        
+
         # Run Rector
         task_step "Running Rector..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} composer rector
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --dry-run
         RECTOR_EXIT=$?
-        
+
         # Run PHPStan
         task_step "Running PHPStan..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan analyse --memory-limit=512M
         PHPSTAN_EXIT=$?
-        
+
         # Run Tests
         task_step "Running Tests..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} composer test
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
         TEST_EXIT=$?
-        
+
         # Summary
         echo ""
         if [ $ECS_EXIT -eq 0 ] && [ $RECTOR_EXIT -eq 0 ] && [ $PHPSTAN_EXIT -eq 0 ] && [ $TEST_EXIT -eq 0 ]; then
@@ -174,25 +198,25 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_header "Running All Quality Fixes"
-        
+
         # Run ECS fix
         task_step "Fixing with ECS..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} composer ecs:fix
-        
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --fix
+
         # Run Rector fix
         task_step "Fixing with Rector..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} composer rector:fix
-        
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process
+
         # Run PHPStan
         task_step "Running PHPStan..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} composer phpstan
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan analyse --memory-limit=512M
         PHPSTAN_EXIT=$?
-        
+
         # Run Tests
         task_step "Running Tests..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} composer test
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
         TEST_EXIT=$?
-        
+
         # Summary
         echo ""
         if [ $PHPSTAN_EXIT -eq 0 ] && [ $TEST_EXIT -eq 0 ]; then

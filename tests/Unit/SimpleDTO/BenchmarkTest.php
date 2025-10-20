@@ -2,21 +2,20 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDTO;
+
 // Helper function for test setup
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
 function setupBenchmark(): void
 {
     // Clear benchmark results before each test
-$dto = new class extends SimpleDTO {
-public function __construct(
-public readonly string $name = '',
-) {}
-};
-$dto::clearBenchmarkResults();
+    $dto = new class extends SimpleDTO {
+        public function __construct(
+            public readonly string $name = '',
+        ) {}
+    };
+    $dto::clearBenchmarkResults();
 }
-
-
-use event4u\DataHelpers\SimpleDTO;
 
 describe('SimpleDTO Benchmarking', function(): void {
     beforeEach(function(): void {

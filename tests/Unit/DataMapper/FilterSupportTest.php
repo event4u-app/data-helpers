@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+
 // Helper function for test setup
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
 function setupFilterSupport(): void
 {
     // Clear transformer registry before each test
-FilterRegistry::clear();
+    FilterRegistry::clear();
 }
-
-
-use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
-use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 
 /**
  * Comprehensive tests for filter support across ALL mapping methods.
