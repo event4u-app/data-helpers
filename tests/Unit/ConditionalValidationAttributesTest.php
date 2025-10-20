@@ -194,18 +194,18 @@ describe('Conditional Validation Attributes', function () {
 
     describe('Complex Conditional Scenarios', function () {
         it('handles multiple conditional rules on same property', function () {
-            $dto = new class('delivery', '123 Main St', 'card', 'VISA-1234') {
+            $dto = new class('delivery', 'card', '123 Main St', 'VISA-1234') {
                 use SimpleDTOTrait;
 
                 public function __construct(
                     #[Required]
                     public readonly string $shippingMethod,
 
-                    #[RequiredIf('shippingMethod', 'delivery')]
-                    public readonly ?string $address = null,
-
                     #[Required]
                     public readonly string $paymentMethod,
+
+                    #[RequiredIf('shippingMethod', 'delivery')]
+                    public readonly ?string $address = null,
 
                     #[RequiredUnless('paymentMethod', 'free')]
                     public readonly ?string $paymentDetails = null,

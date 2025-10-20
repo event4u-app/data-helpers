@@ -13,6 +13,11 @@ use ReflectionClass;
 if (!interface_exists('Symfony\Component\HttpKernel\Controller\ValueResolverInterface')) {
     interface ValueResolverInterface
     {
+        /**
+         * @param mixed $request
+         * @param mixed $argument
+         * @return iterable<mixed>
+         */
         public function resolve($request, $argument): iterable;
     }
 } else {
@@ -69,11 +74,11 @@ class DTOValueResolver implements ValueResolverInterface
     /**
      * Resolve DTO from request.
      *
-     * @param Request $request
-     * @param ArgumentMetadata $argument
+     * @param Request|mixed $request
+     * @param ArgumentMetadata|mixed $argument
      * @return iterable<mixed>
      */
-    public function resolve(Request $request, ArgumentMetadata $argument): iterable
+    public function resolve($request, $argument): iterable
     {
         $type = $argument->getType();
 
