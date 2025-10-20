@@ -502,6 +502,9 @@ else
     echo -e "${YELLOW}  Deleting composer.lock...${NC}"
     run_in_container rm -f composer.lock
 
+    echo -e "${YELLOW}  Deleting vendor directory for clean install...${NC}"
+    run_in_container rm -rf vendor
+
     # Get packages to install
     PACKAGES=$(get_composer_packages "$FRAMEWORK" "$VERSION")
 

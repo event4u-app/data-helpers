@@ -71,7 +71,7 @@ jobs:
       - name: Run Plain PHP Tests
         run: |
           echo "🧪  Running Plain PHP Tests (no frameworks) on PHP ${{ matrix.php }}..."
-          vendor/bin/pest --colors=always --no-coverage
+          vendor/bin/pest --colors=always --no-coverage --exclude-group=laravel --exclude-group=symfony --exclude-group=doctrine
 
   # Laravel Isolated Tests
   laravel-isolated:
@@ -142,7 +142,7 @@ jobs:
       - name: Run Laravel ${{ matrix.laravel }} Tests
         run: |
           echo "🧪  Running Laravel ${{ matrix.laravel }} Tests on PHP ${{ matrix.php }}..."
-          vendor/bin/pest --colors=always --no-coverage
+          vendor/bin/pest --colors=always --no-coverage --exclude-group=symfony --exclude-group=doctrine
 
   # Symfony Isolated Tests
   symfony-isolated:
@@ -200,7 +200,7 @@ jobs:
       - name: Run Symfony ${{ matrix.symfony }} Tests
         run: |
           echo "🧪  Running Symfony ${{ matrix.symfony }} Tests on PHP ${{ matrix.php }}..."
-          vendor/bin/pest --colors=always --no-coverage
+          vendor/bin/pest --colors=always --no-coverage --exclude-group=laravel --exclude-group=doctrine
 
   # Doctrine Isolated Tests
   doctrine-isolated:
@@ -257,7 +257,7 @@ jobs:
       - name: Run Doctrine ${{ matrix.doctrine }} Tests
         run: |
           echo "🧪  Running Doctrine ${{ matrix.doctrine }} Tests on PHP ${{ matrix.php }}..."
-          vendor/bin/pest --colors=always --no-coverage
+          vendor/bin/pest --colors=always --no-coverage --exclude-group=laravel --exclude-group=symfony
 
   # E2E Tests (all frameworks combined)
   e2e-tests:
