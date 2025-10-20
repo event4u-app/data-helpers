@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Concat\JoinStringConcatRector;
+use Rector\CodeQuality\Rector\FuncCall\SortNamedParamRector;
 use Rector\CodeQuality\Rector\Identical\SimplifyBoolIdenticalTrueRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\Switch_\SwitchTrueToIfRector;
@@ -153,5 +154,6 @@ return RectorConfig::configure()
         SymplifyQuoteEscapeRector::class,
         DisallowedEmptyRuleFixerRector::class,
         RemoveUnusedPrivateMethodRector::class,
+        SortNamedParamRector::class,
     ]);
 
