@@ -21,7 +21,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running PHPStan Analysis" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} php -d memory_limit=2G vendor/bin/phpstan analyse --memory-limit=2G
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan analyse --memory-limit=2G
 
   phpstan:82:
     desc: Run PHPStan with PHP 8.2
@@ -29,7 +29,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running PHPStan Analysis (PHP 8.2)" \
-          docker exec {{.PHP_82}} php -d memory_limit=2G vendor/bin/phpstan analyse --memory-limit=2G
+          docker exec {{.PHP_82}} vendor/bin/phpstan analyse --memory-limit=2G
 
   phpstan:83:
     desc: Run PHPStan with PHP 8.3
@@ -37,7 +37,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running PHPStan Analysis (PHP 8.3)" \
-          docker exec {{.PHP_83}} php -d memory_limit=2G vendor/bin/phpstan analyse --memory-limit=2G
+          docker exec {{.PHP_83}} vendor/bin/phpstan analyse --memory-limit=2G
 
   phpstan:84:
     desc: Run PHPStan with PHP 8.4
@@ -45,7 +45,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running PHPStan Analysis (PHP 8.4)" \
-          docker exec {{.PHP_84}} php -d memory_limit=2G vendor/bin/phpstan analyse --memory-limit=2G
+          docker exec {{.PHP_84}} vendor/bin/phpstan analyse --memory-limit=2G
 
   phpstan:baseline:
     desc: Generate PHPStan baseline (use PHP=8.2|8.3|8.4)
@@ -53,7 +53,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Generating PHPStan Baseline" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} php -d memory_limit=2G vendor/bin/phpstan analyse --memory-limit=2G --generate-baseline
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan analyse --memory-limit=2G --generate-baseline
 
   phpstan:clear:
     desc: Clear PHPStan cache (use PHP=8.2|8.3|8.4)
@@ -167,7 +167,7 @@ tasks:
 
         # Run PHPStan
         task_step "Running PHPStan..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} php -d memory_limit=2G vendor/bin/phpstan analyse --memory-limit=2G
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan analyse --memory-limit=2G
         PHPSTAN_EXIT=$?
 
         # Run Tests
@@ -209,7 +209,7 @@ tasks:
 
         # Run PHPStan
         task_step "Running PHPStan..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} php -d memory_limit=2G vendor/bin/phpstan analyse --memory-limit=2G
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan analyse --memory-limit=2G
         PHPSTAN_EXIT=$?
 
         # Run Tests

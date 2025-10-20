@@ -169,7 +169,7 @@ tasks:
         ECS_EXIT=$?
 
         task_step "Running PHPStan..."
-        docker exec {{.PHP_84}} php -d memory_limit=2G vendor/bin/phpstan analyse --memory-limit=2G
+        docker exec {{.PHP_84}} vendor/bin/phpstan analyse --memory-limit=2G
         PHPSTAN_EXIT=$?
 
         echo ""
@@ -229,7 +229,7 @@ tasks:
         docker exec {{.PHP_84}} vendor/bin/rector process
 
         task_step "Running PHPStan..."
-        docker exec {{.PHP_84}} php -d memory_limit=2G vendor/bin/phpstan analyse --memory-limit=2G
+        docker exec {{.PHP_84}} vendor/bin/phpstan analyse --memory-limit=2G
         PHPSTAN_EXIT=$?
 
         task_step "Running full test suite..."

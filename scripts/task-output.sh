@@ -70,23 +70,20 @@ task_run() {
 
     task_header "$title"
 
-    # Run command and capture output and exit code
+    # Run command with live output (no capture)
     set +e
-    OUTPUT=$($cmd 2>&1)
+    $cmd
     EXIT_CODE=$?
     set -e
 
+    echo ""
     if [ $EXIT_CODE -eq 0 ]; then
         # Success
-        echo "$OUTPUT"
-        echo ""
         task_success "Command completed successfully"
         task_footer
         return 0
     else
         # Failure
-        echo "$OUTPUT"
-        echo ""
         task_error "Command failed with exit code $EXIT_CODE"
         task_footer
         return $EXIT_CODE
@@ -101,33 +98,21 @@ task_test() {
 
     task_header "$title"
 
-    # Run command and capture output and exit code
+    # Run command with live output (no capture)
     set +e
-    OUTPUT=$($cmd 2>&1)
+    $cmd
     EXIT_CODE=$?
     set -e
 
-    # Extract test statistics if available
-    STATS=$(echo "$OUTPUT" | grep -E "Tests:|passed|failed" | tail -1 || echo "")
-
+    echo ""
     if [ $EXIT_CODE -eq 0 ]; then
         # Success
-        echo "$OUTPUT"
-        echo ""
         task_success "All tests passed!"
-        if [ -n "$STATS" ]; then
-            echo -e "${GREEN}      $STATS${NC}"
-        fi
         task_footer
         return 0
     else
         # Failure
-        echo "$OUTPUT"
-        echo ""
         task_error "Tests failed!"
-        if [ -n "$STATS" ]; then
-            echo -e "${RED}      $STATS${NC}"
-        fi
         task_footer
         return $EXIT_CODE
     fi
@@ -141,23 +126,20 @@ task_quality() {
 
     task_header "$title"
 
-    # Run command and capture output and exit code
+    # Run command with live output (no capture)
     set +e
-    OUTPUT=$($cmd 2>&1)
+    $cmd
     EXIT_CODE=$?
     set -e
 
+    echo ""
     if [ $EXIT_CODE -eq 0 ]; then
         # Success
-        echo "$OUTPUT"
-        echo ""
         task_success "Quality check passed!"
         task_footer
         return 0
     else
         # Failure
-        echo "$OUTPUT"
-        echo ""
         task_error "Quality check failed!"
         task_footer
         return $EXIT_CODE
