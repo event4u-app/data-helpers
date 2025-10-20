@@ -65,6 +65,9 @@ jobs:
           # Remove composer.lock to avoid conflicts with locked versions
           rm -f composer.lock
 
+          # Remove vendor directory for clean install
+          rm -rf vendor
+
           # Install only the minimal required packages
           composer install --prefer-dist --no-interaction
 
@@ -117,6 +120,7 @@ jobs:
       - name: Install minimal dependencies (no frameworks)
         run: |
           # Remove ALL framework packages from composer.json temporarily
+          # NOTE: Keep symfony/console as Laravel requires it
           composer remove --dev \
             illuminate/cache illuminate/http illuminate/support illuminate/database \
             symfony/cache symfony/config symfony/dependency-injection \
@@ -128,6 +132,9 @@ jobs:
 
           # Remove composer.lock to avoid conflicts with locked versions
           rm -f composer.lock
+
+          # Remove vendor directory for clean install
+          rm -rf vendor
 
           # Install only the minimal required packages
           composer install --prefer-dist --no-interaction
@@ -186,6 +193,9 @@ jobs:
           # Remove composer.lock to avoid conflicts with locked versions
           rm -f composer.lock
 
+          # Remove vendor directory for clean install
+          rm -rf vendor
+
           # Install only the minimal required packages
           composer install --prefer-dist --no-interaction
 
@@ -243,6 +253,9 @@ jobs:
 
           # Remove composer.lock to avoid conflicts with locked versions
           rm -f composer.lock
+
+          # Remove vendor directory for clean install
+          rm -rf vendor
 
           # Install only the minimal required packages
           composer install --prefer-dist --no-interaction

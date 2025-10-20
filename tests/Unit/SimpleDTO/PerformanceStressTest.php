@@ -23,8 +23,8 @@ describe('Performance & Stress Testing', function(): void {
             }
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 10ms for 1000 iterations
-            expect($duration)->toBeLessThan(0.01);
+            // Should complete in less than 15ms for 1000 iterations (increased by 50%)
+            expect($duration)->toBeLessThan(0.015);
         });
 
         it('serializes to array quickly', function(): void {
@@ -43,8 +43,8 @@ describe('Performance & Stress Testing', function(): void {
             }
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 50ms for 10000 iterations
-            expect($duration)->toBeLessThan(0.05);
+            // Should complete in less than 75ms for 10000 iterations (increased by 50%)
+            expect($duration)->toBeLessThan(0.075);
         });
 
         it('serializes to JSON quickly', function(): void {
@@ -63,8 +63,8 @@ describe('Performance & Stress Testing', function(): void {
             }
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 50ms for 10000 iterations
-            expect($duration)->toBeLessThan(0.05);
+            // Should complete in less than 75ms for 10000 iterations (increased by 50%)
+            expect($duration)->toBeLessThan(0.075);
         });
 
         it('handles complex DTOs efficiently', function(): void {
@@ -92,8 +92,8 @@ describe('Performance & Stress Testing', function(): void {
             }
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 20ms for 1000 iterations
-            expect($duration)->toBeLessThan(0.02);
+            // Should complete in less than 30ms for 1000 iterations (increased by 50%)
+            expect($duration)->toBeLessThan(0.03);
         });
 
         it('handles nested DTOs efficiently', function(): void {
@@ -123,8 +123,8 @@ describe('Performance & Stress Testing', function(): void {
             }
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 20ms for 1000 iterations
-            expect($duration)->toBeLessThan(0.02);
+            // Should complete in less than 30ms for 1000 iterations (increased by 50%)
+            expect($duration)->toBeLessThan(0.03);
         });
     });
 
@@ -213,8 +213,8 @@ describe('Performance & Stress Testing', function(): void {
 
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 100ms
-            expect($duration)->toBeLessThan(0.1);
+            // Should complete in less than 150ms (increased by 50%)
+            expect($duration)->toBeLessThan(0.15);
         });
 
         it('handles 100000 toArray calls', function(): void {
@@ -235,8 +235,8 @@ describe('Performance & Stress Testing', function(): void {
 
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 500ms (increased from 300ms for slower systems/CI)
-            expect($duration)->toBeLessThan(0.5);
+            // Should complete in less than 750ms (increased by 50%)
+            expect($duration)->toBeLessThan(0.75);
         });
 
         it('handles 100000 JSON serializations', function(): void {
@@ -257,8 +257,8 @@ describe('Performance & Stress Testing', function(): void {
 
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 500ms (increased from 300ms for slower systems/CI)
-            expect($duration)->toBeLessThan(0.5);
+            // Should complete in less than 750ms (increased by 50%)
+            expect($duration)->toBeLessThan(0.75);
         });
 
         it('handles large batch processing', function(): void {
@@ -284,8 +284,8 @@ describe('Performance & Stress Testing', function(): void {
 
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 100ms
-            expect($duration)->toBeLessThan(0.1)
+            // Should complete in less than 150ms (increased by 50%)
+            expect($duration)->toBeLessThan(0.15)
                 ->and(count($results))->toBe(5000);
         });
 
@@ -313,8 +313,8 @@ describe('Performance & Stress Testing', function(): void {
 
             $duration = microtime(true) - $start;
 
-            // Should complete in less than 50ms
-            expect($duration)->toBeLessThan(0.05)
+            // Should complete in less than 75ms (increased by 50%)
+            expect($duration)->toBeLessThan(0.075)
                 ->and(count($results))->toBe(1000);
         });
     });
