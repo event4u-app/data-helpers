@@ -44,5 +44,5 @@ jobs:
         run: composer update --prefer-dist --no-interaction
 
       - name: Run PHPStan
-        run: task quality:phpstan
+        run: vendor/bin/phpstan analyse --memory-limit=512M
 

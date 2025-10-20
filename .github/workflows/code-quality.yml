@@ -51,13 +51,7 @@ jobs:
         run: composer update --prefer-dist --no-interaction
 
       - name: Run ECS
-        run: task quality:ecs:fix
+        run: vendor/bin/ecs check
 
       - name: Run Rector
-        run: task quality:rector:fix
-
-#      - name: Commit changes
-#        uses: stefanzweifel/git-auto-commit-action@v5
-#        with:
-#          commit_message: Fix code quality (ECS + Rector)
-#        continue-on-error: true
+        run: vendor/bin/rector process --dry-run
