@@ -46,10 +46,14 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
         array $items = [],
     ) {
         foreach ($items as $item) {
-            if (is_array($item) || $item instanceof SimpleDTO) {
-                /** @var array<string, mixed>|TDto $item */
-                $this->items[] = $this->ensureDTO($item);
+            if (!is_array($item) && !($item instanceof SimpleDTO)) {
+                throw new InvalidArgumentException(
+                    sprintf('Item must be an array or instance of %s, %s given', $dtoClass, get_debug_type($item))
+                );
             }
+
+            /** @var array<string, mixed>|TDto $item */
+            $this->items[] = $this->ensureDTO($item);
         }
     }
 
