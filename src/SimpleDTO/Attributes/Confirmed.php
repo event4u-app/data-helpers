@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -38,6 +39,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Confirmed implements ValidationRule, SymfonyConstraint
 {
+    use RequiresSymfonyValidator;
+
     /**
      * @param string|null $field Custom confirmation field name (optional)
      */
@@ -69,6 +72,8 @@ class Confirmed implements ValidationRule, SymfonyConstraint
      */
     public function constraint(): Constraint|array
     {
+        $this->ensureSymfonyValidatorAvailable();
+
         // Symfony doesn't have a direct "confirmed" constraint
         // This needs to be handled at the DTO validation level
         // by comparing the field with its confirmation field

@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -20,6 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Url implements ValidationRule, SymfonyConstraint
 {
+    use RequiresSymfonyValidator;
+
     public function __construct(
         private readonly ?string $message = null
     ) {
@@ -33,6 +36,8 @@ class Url implements ValidationRule, SymfonyConstraint
 
     public function constraint(): Constraint|array
     {
+        $this->ensureSymfonyValidatorAvailable();
+
         return new Assert\Url();
     }
     public function message(): ?string

@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -30,6 +31,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class StartsWith implements ValidationRule, SymfonyConstraint
 {
+    use RequiresSymfonyValidator;
+
     /**
      * @param string|array<string> $values Value(s) that the field must start with
      */
@@ -55,6 +58,8 @@ class StartsWith implements ValidationRule, SymfonyConstraint
      */
     public function constraint(): Constraint
     {
+        $this->ensureSymfonyValidatorAvailable();
+
         $values = is_array($this->values) ? $this->values : [$this->values];
         // Create regex pattern: ^(value1|value2|...)
         // Use # as delimiter to avoid issues with / in values

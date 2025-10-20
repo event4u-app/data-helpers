@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -35,6 +36,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Ip implements ValidationRule, SymfonyConstraint
 {
+    use RequiresSymfonyValidator;
+
     /**
      * @param string|null $version IP version: 'ipv4', 'ipv6', or null for both
      */
@@ -65,6 +68,8 @@ class Ip implements ValidationRule, SymfonyConstraint
 
     public function constraint(): Constraint|array
     {
+        $this->ensureSymfonyValidatorAvailable();
+
         if (null === $this->version) {
             // Use ALL to accept both IPv4 and IPv6
             return new Assert\Ip(version: Assert\Ip::ALL);

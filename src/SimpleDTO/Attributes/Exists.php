@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -34,6 +35,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Exists implements ValidationRule, SymfonyConstraint
 {
+    use RequiresSymfonyValidator;
+
     /**
      * @param string $table Database table name
      * @param string $column Column name (default: property name)
@@ -85,6 +88,8 @@ class Exists implements ValidationRule, SymfonyConstraint
      */
     public function constraint(): Constraint|array
     {
+        $this->ensureSymfonyValidatorAvailable();
+
         // Symfony doesn't have a built-in "exists" constraint
         // This needs to be handled with custom validation logic
         // using Doctrine to query the database

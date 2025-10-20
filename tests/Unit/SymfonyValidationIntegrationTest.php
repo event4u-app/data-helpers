@@ -32,6 +32,14 @@ use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 use event4u\DataHelpers\Exceptions\ValidationException;
 use Symfony\Component\Validator\Constraints as Assert;
 
+// Skip all tests if Symfony Validator is not installed
+if (!class_exists('Symfony\Component\Validator\Constraint')) {
+    test('Symfony Validator not installed', function () {
+        expect(true)->toBeTrue();
+    })->skip('Symfony Validator is not installed. Install with: composer require symfony/validator');
+    return;
+}
+
 describe('Symfony Validation Integration', function () {
     describe('Constraint Generation', function () {
         it('generates Symfony NotBlank constraint for Required attribute', function () {

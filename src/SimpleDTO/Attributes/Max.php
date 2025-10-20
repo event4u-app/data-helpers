@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -27,6 +28,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Max implements ValidationRule, SymfonyConstraint
 {
+    use RequiresSymfonyValidator;
+
     public function __construct(
         private readonly int|float $value,
         private readonly ?string $message = null
@@ -41,6 +44,8 @@ class Max implements ValidationRule, SymfonyConstraint
 
     public function constraint(): Constraint|array
     {
+        $this->ensureSymfonyValidatorAvailable();
+
         return new Assert\LessThanOrEqual(
             value: $this->value,
             message: $this->message

@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use Symfony\Component\Validator\Constraint;
 
 /**
@@ -37,6 +38,8 @@ use Symfony\Component\Validator\Constraint;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Unique implements ValidationRule, SymfonyConstraint
 {
+    use RequiresSymfonyValidator;
+
     /**
      * @param string $table Database table name
      * @param string $column Column name (default: property name)
@@ -95,6 +98,8 @@ class Unique implements ValidationRule, SymfonyConstraint
      */
     public function constraint(): Constraint|array
     {
+        $this->ensureSymfonyValidatorAvailable();
+
         // Symfony doesn't have a built-in "unique" constraint for arbitrary tables
         // UniqueEntity only works on Doctrine entities
         // This needs to be handled with custom validation logic

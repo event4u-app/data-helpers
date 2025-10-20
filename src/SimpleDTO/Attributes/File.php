@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -30,6 +31,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class File implements ValidationRule, SymfonyConstraint
 {
+    use RequiresSymfonyValidator;
+
     /**
      * @param int|null $maxSize Maximum file size in kilobytes
      * @param int|null $minSize Minimum file size in kilobytes
@@ -77,6 +80,8 @@ class File implements ValidationRule, SymfonyConstraint
      */
     public function constraint(): Constraint
     {
+        $this->ensureSymfonyValidatorAvailable();
+
         if (null !== $this->maxSize) {
             // Symfony uses bytes, Laravel uses kilobytes
             return new Assert\File(

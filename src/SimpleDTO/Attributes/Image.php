@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -30,6 +31,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Image implements ValidationRule, SymfonyConstraint
 {
+    use RequiresSymfonyValidator;
+
     /**
      * @param array<string>|null $mimes Allowed MIME types (jpg, png, gif, etc.)
      * @param int|null $maxSize Maximum file size in kilobytes
@@ -103,6 +106,8 @@ class Image implements ValidationRule, SymfonyConstraint
      */
     public function constraint(): Constraint
     {
+        $this->ensureSymfonyValidatorAvailable();
+
         $mimeTypes = null;
         if (null !== $this->mimes) {
             // Convert short names to MIME types
