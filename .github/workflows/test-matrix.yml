@@ -52,15 +52,17 @@ jobs:
 
       - name: Install minimal dependencies (no frameworks)
         run: |
-          # Remove composer.lock to avoid conflicts with locked versions
-          rm -f composer.lock
-
-          # Remove framework packages from composer.json temporarily
+          # Remove ALL framework packages from composer.json temporarily
           composer remove --dev \
-            illuminate/support illuminate/validation illuminate/database \
-            symfony/validator symfony/http-kernel symfony/http-foundation \
+            illuminate/cache illuminate/http illuminate/support illuminate/database \
+            symfony/cache symfony/config symfony/dependency-injection \
+            symfony/http-foundation symfony/http-kernel symfony/yaml \
+            symfony/serializer symfony/property-info symfony/property-access symfony/validator \
             doctrine/orm doctrine/dbal \
             --no-update --no-interaction || true
+
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
 
           # Install only the minimal required packages
           composer install --prefer-dist --no-interaction
@@ -113,15 +115,17 @@ jobs:
 
       - name: Install minimal dependencies (no frameworks)
         run: |
-          # Remove composer.lock to avoid conflicts with locked versions
-          rm -f composer.lock
-
-          # Remove framework packages from composer.json temporarily
+          # Remove ALL framework packages from composer.json temporarily
           composer remove --dev \
-            illuminate/support illuminate/validation illuminate/database \
-            symfony/validator symfony/http-kernel symfony/http-foundation \
+            illuminate/cache illuminate/http illuminate/support illuminate/database \
+            symfony/cache symfony/config symfony/dependency-injection \
+            symfony/http-foundation symfony/http-kernel symfony/yaml \
+            symfony/serializer symfony/property-info symfony/property-access symfony/validator \
             doctrine/orm doctrine/dbal \
             --no-update --no-interaction || true
+
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
 
           # Install only the minimal required packages
           composer install --prefer-dist --no-interaction
@@ -168,15 +172,17 @@ jobs:
 
       - name: Install minimal dependencies (no frameworks)
         run: |
-          # Remove composer.lock to avoid conflicts with locked versions
-          rm -f composer.lock
-
-          # Remove framework packages from composer.json temporarily
+          # Remove ALL framework packages from composer.json temporarily
           composer remove --dev \
-            illuminate/support illuminate/validation illuminate/database \
-            symfony/validator symfony/http-kernel symfony/http-foundation \
+            illuminate/cache illuminate/http illuminate/support illuminate/database \
+            symfony/cache symfony/config symfony/dependency-injection \
+            symfony/http-foundation symfony/http-kernel symfony/yaml \
+            symfony/serializer symfony/property-info symfony/property-access symfony/validator \
             doctrine/orm doctrine/dbal \
             --no-update --no-interaction || true
+
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
 
           # Install only the minimal required packages
           composer install --prefer-dist --no-interaction
@@ -223,15 +229,17 @@ jobs:
 
       - name: Install minimal dependencies (no frameworks)
         run: |
-          # Remove composer.lock to avoid conflicts with locked versions
-          rm -f composer.lock
-
-          # Remove framework packages from composer.json temporarily
+          # Remove ALL framework packages from composer.json temporarily
           composer remove --dev \
-            illuminate/support illuminate/validation illuminate/database \
-            symfony/validator symfony/http-kernel symfony/http-foundation \
+            illuminate/cache illuminate/http illuminate/support illuminate/database \
+            symfony/cache symfony/config symfony/dependency-injection \
+            symfony/http-foundation symfony/http-kernel symfony/yaml \
+            symfony/serializer symfony/property-info symfony/property-access symfony/validator \
             doctrine/orm doctrine/dbal \
             --no-update --no-interaction || true
+
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
 
           # Install only the minimal required packages
           composer install --prefer-dist --no-interaction

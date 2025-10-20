@@ -435,10 +435,12 @@ echo ""
 echo -e "${BLUE}→${NC}  Installing dependencies..."
 
 if [[ "$TEST_TYPE" == "plain" ]]; then
-    echo -e "${YELLOW}  Removing framework packages...${NC}"
+    echo -e "${YELLOW}  Removing ALL framework packages...${NC}"
     run_in_container composer remove --dev \
-        illuminate/support illuminate/validation illuminate/database \
-        symfony/validator symfony/http-kernel symfony/http-foundation \
+        illuminate/cache illuminate/http illuminate/support illuminate/database \
+        symfony/cache symfony/config symfony/dependency-injection \
+        symfony/http-foundation symfony/http-kernel symfony/yaml \
+        symfony/serializer symfony/property-info symfony/property-access symfony/validator \
         doctrine/orm doctrine/dbal \
         --no-interaction --no-update 2>&1 | grep -v "is not required" || true
 
@@ -451,9 +453,9 @@ else
     run_in_container rm -f composer.lock
 
     # Define all framework packages that exist in composer.json
-    ALL_ILLUMINATE_PACKAGES="illuminate/cache illuminate/database illuminate/http illuminate/support illuminate/validation"
+    ALL_ILLUMINATE_PACKAGES="illuminate/cache illuminate/database illuminate/http illuminate/support"
     ALL_SYMFONY_PACKAGES="symfony/cache symfony/config symfony/dependency-injection symfony/http-foundation symfony/http-kernel symfony/yaml symfony/serializer symfony/property-info symfony/property-access symfony/validator"
-    ALL_DOCTRINE_PACKAGES="doctrine/collections doctrine/orm"
+    ALL_DOCTRINE_PACKAGES="doctrine/collections doctrine/orm doctrine/dbal"
 
     # Define code quality tools that pull in unnecessary dependencies
     CODE_QUALITY_PACKAGES="symplify/coding-standard symplify/easy-coding-standard friendsofphp/php-cs-fixer rector/rector"
