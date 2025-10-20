@@ -163,12 +163,12 @@ echo "1. Author Profile:\n";
 echo str_repeat('-', 80) . "\n";
 
 $author = new AuthorDTO(
-    id: 1,
     name: 'Jane Smith',
+    email: 'jane@example.com',
+    id: 1,
     username: 'janesmith',
     avatar: 'https://example.com/avatars/jane.jpg',
     bio: 'Tech writer and developer advocate',
-    email: 'jane@example.com',
 );
 
 echo sprintf('Author: %s%s', $author->name, PHP_EOL);
@@ -195,14 +195,14 @@ echo "3. Blog Post:\n";
 echo str_repeat('-', 80) . "\n";
 
 $post = new PostDTO(
-    id: 1,
     title: 'Getting Started with PHP 8.2',
+    content: str_repeat('Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 100),
+    tags: ['php', 'tutorial', 'programming'],
+    id: 1,
     slug: 'getting-started-with-php-82',
     excerpt: 'Learn about the new features in PHP 8.2',
-    content: str_repeat('Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 100),
     author: $author,
     category: $category,
-    tags: ['php', 'tutorial', 'programming'],
     status: 'published',
     views: 1250,
     commentCount: 15,
@@ -232,12 +232,12 @@ $comment1 = new CommentDTO(
     id: 1,
     content: 'Great article! Very helpful.',
     author: new AuthorDTO(
-        id: 2,
         name: 'John Doe',
+        email: 'john@example.com',
+        id: 2,
         username: 'johndoe',
         avatar: 'https://example.com/avatars/john.jpg',
         bio: null,
-        email: 'john@example.com',
     ),
     parentId: null,
     createdAt: Carbon::now()->subHours(2),

@@ -51,7 +51,7 @@ jobs:
         run: composer update --prefer-dist --no-interaction
 
       - name: Run ECS
-        run: vendor/bin/ecs check
+        run: vendor/bin/ecs check --clear-cache
 
       - name: Run Rector
-        run: vendor/bin/rector process --dry-run
+        run: vendor/bin/rector process --dry-run --clear-cache

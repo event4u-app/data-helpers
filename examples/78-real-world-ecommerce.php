@@ -253,20 +253,20 @@ $category = new CategoryDTO(
 );
 
 $product = new ProductDTO(
-    name: 'Wireless Headphones',
-    price: 99.99,
-    category: $category,
-    inStock: true,
     id: 101,
+    name: 'Wireless Headphones',
     slug: 'wireless-headphones',
+    price: 99.99,
     salePrice: 79.99,
     description: 'Premium wireless headphones with noise cancellation',
+    category: $category,
     images: [
         'https://example.com/images/headphones-1.jpg',
         'https://example.com/images/headphones-2.jpg',
     ],
     tags: ['wireless', 'audio', 'bluetooth'],
     stock: 50,
+    inStock: true,
     createdAt: Carbon::now()->subDays(30),
     inWishlist: true,
     cost: 45.00,
