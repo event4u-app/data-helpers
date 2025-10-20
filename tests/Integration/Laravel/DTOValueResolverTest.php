@@ -14,10 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Factory as ValidationFactory;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
-use Illuminate\Validation\Validator;
 use ReflectionParameter;
 use ReflectionClass;
-use PHPUnit\Framework\TestCase;
 
 // Test DTOs
 #[ValidateRequest(throw: true)]
@@ -41,110 +39,96 @@ class TestProductDTO extends SimpleDTO
     ) {}
 }
 
-/**
- * @group laravel
- */
-class DTOValueResolverTest extends TestCase
-{
-    private ValidationFactory $validationFactory;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
+describe('Laravel DTOValueResolver', function (): void {
+    beforeEach(function (): void {
+        // Skip if Laravel is not available
+        if (!class_exists('Illuminate\Http\Request')) {
+            $this->markTestSkipped('Laravel is not available');
+        }
 
         // Create validation factory
         $translator = new Translator(new ArrayLoader(), 'en');
         $this->validationFactory = new ValidationFactory($translator);
-    }
+    });
 
-    private function createResolver(Request $request): DTOValueResolver
-    {
-        return new DTOValueResolver($request, $this->validationFactory);
-    }
-
-    private function createParameter(string $className, string $paramName = 'dto'): ReflectionParameter
-    {
-        // Create a unique dummy class name using uniqid to avoid redeclaration errors
-        $dummyClassName = 'DummyController_' . uniqid();
-
-        // Create a dummy class with a method that has the parameter
-        $code = "class {$dummyClassName} { public function action({$className} \${$paramName}) {} }";
-        eval($code);
-
-        $reflection = new ReflectionClass($dummyClassName);
-        $method = $reflection->getMethod('action');
-        $parameters = $method->getParameters();
-
-        return $parameters[0];
-    }
-
-    public function test_it_resolves_dto_from_request(): void
-    {
+    test('it resolves dto from request', function (): void {
         $request = Request::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
         ]);
 
-        $resolver = $this->createResolver($request);
-        $parameter = $this->createParameter(TestUserDTO::class);
+        $resolver = new DTOValueResolver($request, $this->validationFactory);
+
+        // Create parameter
+        $dummyClassName = 'DummyController_' . uniqid();
+        eval("class {$dummyClassName} { public function action(Tests\Integration\Laravel\TestUserDTO \$dto) {} }");
+        $reflection = new ReflectionClass($dummyClassName);
+        $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
-        $this->assertInstanceOf(TestUserDTO::class, $result);
-        $this->assertSame('John Doe', $result->name);
-        $this->assertSame('john@example.com', $result->email);
-    }
+        expect($result)->toBeInstanceOf(TestUserDTO::class)
+            ->and($result->name)->toBe('John Doe')
+            ->and($result->email)->toBe('john@example.com');
+    })->group('laravel');
 
-    public function test_it_validates_dto_with_validate_request_attribute(): void
-    {
+    test('it validates dto with validate request attribute', function (): void {
         $request = Request::create('/test', 'POST', [
             'name' => 'John',
             'email' => 'invalid-email',
         ]);
 
-        $resolver = $this->createResolver($request);
-        $parameter = $this->createParameter(TestUserDTO::class);
+        $resolver = new DTOValueResolver($request, $this->validationFactory);
 
-        $this->expectException(ValidationException::class);
+        $dummyClassName = 'DummyController_' . uniqid();
+        eval("class {$dummyClassName} { public function action(Tests\Integration\Laravel\TestUserDTO \$dto) {} }");
+        $reflection = new ReflectionClass($dummyClassName);
+        $parameter = $reflection->getMethod('action')->getParameters()[0];
 
-        $resolver->resolve($parameter);
-    }
+        expect(fn() => $resolver->resolve($parameter))
+            ->toThrow(ValidationException::class);
+    })->group('laravel');
 
-    public function test_it_resolves_dto_without_validation(): void
-    {
+    test('it resolves dto without validation', function (): void {
         $request = Request::create('/test', 'POST', [
             'title' => 'Product Title',
             'description' => 'Product Description',
         ]);
 
-        $resolver = $this->createResolver($request);
-        $parameter = $this->createParameter(TestProductDTO::class);
+        $resolver = new DTOValueResolver($request, $this->validationFactory);
+
+        $dummyClassName = 'DummyController_' . uniqid();
+        eval("class {$dummyClassName} { public function action(Tests\Integration\Laravel\TestProductDTO \$dto) {} }");
+        $reflection = new ReflectionClass($dummyClassName);
+        $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
-        $this->assertInstanceOf(TestProductDTO::class, $result);
-        $this->assertSame('Product Title', $result->title);
-        $this->assertSame('Product Description', $result->description);
-    }
+        expect($result)->toBeInstanceOf(TestProductDTO::class)
+            ->and($result->title)->toBe('Product Title')
+            ->and($result->description)->toBe('Product Description');
+    })->group('laravel');
 
-    public function test_it_handles_missing_optional_fields(): void
-    {
+    test('it handles missing optional fields', function (): void {
         $request = Request::create('/test', 'POST', [
             'title' => 'Product Title',
         ]);
 
-        $resolver = $this->createResolver($request);
-        $parameter = $this->createParameter(TestProductDTO::class);
+        $resolver = new DTOValueResolver($request, $this->validationFactory);
+
+        $dummyClassName = 'DummyController_' . uniqid();
+        eval("class {$dummyClassName} { public function action(Tests\Integration\Laravel\TestProductDTO \$dto) {} }");
+        $reflection = new ReflectionClass($dummyClassName);
+        $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
-        $this->assertInstanceOf(TestProductDTO::class, $result);
-        $this->assertSame('Product Title', $result->title);
-        $this->assertNull($result->description);
-    }
+        expect($result)->toBeInstanceOf(TestProductDTO::class)
+            ->and($result->title)->toBe('Product Title')
+            ->and($result->description)->toBeNull();
+    })->group('laravel');
 
-    public function test_it_handles_json_request(): void
-    {
+    test('it handles json request', function (): void {
         $request = Request::create('/test', 'POST', [], [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
@@ -152,82 +136,92 @@ class DTOValueResolverTest extends TestCase
             'email' => 'jane@example.com',
         ]));
 
-        $resolver = $this->createResolver($request);
-        $parameter = $this->createParameter(TestUserDTO::class);
+        $resolver = new DTOValueResolver($request, $this->validationFactory);
+
+        $dummyClassName = 'DummyController_' . uniqid();
+        eval("class {$dummyClassName} { public function action(Tests\Integration\Laravel\TestUserDTO \$dto) {} }");
+        $reflection = new ReflectionClass($dummyClassName);
+        $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
-        $this->assertInstanceOf(TestUserDTO::class, $result);
-        $this->assertSame('Jane Doe', $result->name);
-        $this->assertSame('jane@example.com', $result->email);
-    }
+        expect($result)->toBeInstanceOf(TestUserDTO::class)
+            ->and($result->name)->toBe('Jane Doe')
+            ->and($result->email)->toBe('jane@example.com');
+    })->group('laravel');
 
-    public function test_it_handles_empty_request(): void
-    {
+    test('it handles empty request', function (): void {
         $request = Request::create('/test', 'POST', []);
 
-        $resolver = $this->createResolver($request);
-        $parameter = $this->createParameter(TestUserDTO::class);
+        $resolver = new DTOValueResolver($request, $this->validationFactory);
 
-        $this->expectException(ValidationException::class);
+        $dummyClassName = 'DummyController_' . uniqid();
+        eval("class {$dummyClassName} { public function action(Tests\Integration\Laravel\TestUserDTO \$dto) {} }");
+        $reflection = new ReflectionClass($dummyClassName);
+        $parameter = $reflection->getMethod('action')->getParameters()[0];
 
-        $resolver->resolve($parameter);
-    }
+        expect(fn() => $resolver->resolve($parameter))
+            ->toThrow(ValidationException::class);
+    })->group('laravel');
 
-    public function test_it_returns_validation_errors_with_correct_structure(): void
-    {
+    test('it returns validation errors with correct structure', function (): void {
         $request = Request::create('/test', 'POST', [
             'name' => '',
             'email' => 'invalid',
         ]);
 
-        $resolver = $this->createResolver($request);
-        $parameter = $this->createParameter(TestUserDTO::class);
+        $resolver = new DTOValueResolver($request, $this->validationFactory);
+
+        $dummyClassName = 'DummyController_' . uniqid();
+        eval("class {$dummyClassName} { public function action(Tests\Integration\Laravel\TestUserDTO \$dto) {} }");
+        $reflection = new ReflectionClass($dummyClassName);
+        $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         try {
             $resolver->resolve($parameter);
-            $this->fail('Expected ValidationException to be thrown');
+            throw new \Exception('Expected ValidationException to be thrown');
         } catch (ValidationException $e) {
             $errors = $e->errors();
-            $this->assertArrayHasKey('name', $errors);
-            $this->assertArrayHasKey('email', $errors);
-            $this->assertIsArray($errors['name']);
-            $this->assertIsArray($errors['email']);
+            expect($errors)->toHaveKey('name')
+                ->and($errors)->toHaveKey('email')
+                ->and($errors['name'])->toBeArray()
+                ->and($errors['email'])->toBeArray();
         }
-    }
+    })->group('laravel');
 
-    public function test_it_returns_null_for_non_dto_parameters(): void
-    {
+    test('it returns null for non dto parameters', function (): void {
         $request = Request::create('/test', 'POST', []);
 
-        $resolver = $this->createResolver($request);
+        $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         // Create parameter for built-in type
-        $code = "class DummyController2 { public function action(string \$name) {} }";
-        eval($code);
-        $reflection = new ReflectionClass('DummyController2');
-        $method = $reflection->getMethod('action');
-        $parameter = $method->getParameters()[0];
+        $dummyClassName = 'DummyController_' . uniqid();
+        eval("class {$dummyClassName} { public function action(string \$name) {} }");
+        $reflection = new ReflectionClass($dummyClassName);
+        $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
-        $this->assertNull($result);
-    }
+        expect($result)->toBeNull();
+    })->group('laravel');
 
-    public function test_it_preserves_request_data_types(): void
-    {
+    test('it preserves request data types', function (): void {
         $request = Request::create('/test', 'POST', [
             'title' => 'Product',
             'description' => null,
         ]);
 
-        $resolver = $this->createResolver($request);
-        $parameter = $this->createParameter(TestProductDTO::class);
+        $resolver = new DTOValueResolver($request, $this->validationFactory);
+
+        $dummyClassName = 'DummyController_' . uniqid();
+        eval("class {$dummyClassName} { public function action(Tests\Integration\Laravel\TestProductDTO \$dto) {} }");
+        $reflection = new ReflectionClass($dummyClassName);
+        $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
-        $this->assertInstanceOf(TestProductDTO::class, $result);
-        $this->assertNull($result->description);
-    }
-}
+        expect($result)->toBeInstanceOf(TestProductDTO::class)
+            ->and($result->description)->toBeNull();
+    })->group('laravel');
+});
 

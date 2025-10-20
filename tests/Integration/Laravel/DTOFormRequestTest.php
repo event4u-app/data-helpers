@@ -14,12 +14,10 @@ use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use Illuminate\Http\Request;
 use Illuminate\Validation\Factory as ValidationFactory;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Container\Container;
-use PHPUnit\Framework\TestCase;
 
 // Test DTO
 class UserFormDTO extends SimpleDTO
@@ -46,17 +44,12 @@ class UserFormRequest extends DTOFormRequest
     }
 }
 
-/**
- * @group laravel
- */
-class DTOFormRequestTest extends TestCase
-{
-    private ValidationFactory $validationFactory;
-    private Container $container;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
+describe('Laravel DTOFormRequest', function (): void {
+    beforeEach(function (): void {
+        // Skip if Laravel is not available
+        if (!class_exists('Illuminate\Foundation\Http\FormRequest')) {
+            $this->markTestSkipped('Laravel is not available');
+        }
 
         // Create validation factory
         $translator = new Translator(new ArrayLoader(), 'en');
@@ -66,16 +59,13 @@ class DTOFormRequestTest extends TestCase
         $this->container = new Container();
         $this->container->instance('validator', $this->validationFactory);
         Container::setInstance($this->container);
-    }
+    });
 
-    protected function tearDown(): void
-    {
+    afterEach(function (): void {
         Container::setInstance(null);
-        parent::tearDown();
-    }
+    });
 
-    public function test_it_creates_dto_from_valid_data(): void
-    {
+    test('it creates dto from valid data', function (): void {
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -91,30 +81,26 @@ class DTOFormRequestTest extends TestCase
 
         $dto = $request->toDTO();
 
-        $this->assertInstanceOf(UserFormDTO::class, $dto);
-        $this->assertSame('John Doe', $dto->name);
-        $this->assertSame('john@example.com', $dto->email);
-        $this->assertSame(30, $dto->age);
-    }
+        expect($dto)->toBeInstanceOf(UserFormDTO::class)
+            ->and($dto->name)->toBe('John Doe')
+            ->and($dto->email)->toBe('john@example.com')
+            ->and($dto->age)->toBe(30);
+    })->group('laravel');
 
-    public function test_it_generates_rules_from_dto(): void
-    {
+    test('it generates rules from dto', function (): void {
         $request = new UserFormRequest();
 
         $rules = $request->rules();
 
-        $this->assertIsArray($rules);
-        $this->assertArrayHasKey('name', $rules);
-        $this->assertArrayHasKey('email', $rules);
+        expect($rules)->toBeArray()
+            ->and($rules)->toHaveKey('name')
+            ->and($rules)->toHaveKey('email')
+            ->and($rules['name'])->toContain('required')
+            ->and($rules['email'])->toContain('required')
+            ->and($rules['email'])->toContain('email');
+    })->group('laravel');
 
-        // Check that rules contain expected validation
-        $this->assertContains('required', $rules['name']);
-        $this->assertContains('required', $rules['email']);
-        $this->assertContains('email', $rules['email']);
-    }
-
-    public function test_it_handles_optional_fields(): void
-    {
+    test('it handles optional fields', function (): void {
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -129,12 +115,11 @@ class DTOFormRequestTest extends TestCase
 
         $dto = $request->toDTO();
 
-        $this->assertInstanceOf(UserFormDTO::class, $dto);
-        $this->assertNull($dto->age);
-    }
+        expect($dto)->toBeInstanceOf(UserFormDTO::class)
+            ->and($dto->age)->toBeNull();
+    })->group('laravel');
 
-    public function test_it_validates_data_automatically(): void
-    {
+    test('it validates data automatically', function (): void {
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'J',  // Too short
             'email' => 'invalid-email',
@@ -148,11 +133,10 @@ class DTOFormRequestTest extends TestCase
         );
         $request->setValidator($validator);
 
-        $this->assertFalse($validator->passes());
-    }
+        expect($validator->passes())->toBeFalse();
+    })->group('laravel');
 
-    public function test_it_provides_custom_messages(): void
-    {
+    test('it provides custom messages', function (): void {
         $request = new class extends DTOFormRequest {
             protected string $dtoClass = UserFormDTO::class;
 
@@ -172,13 +156,12 @@ class DTOFormRequestTest extends TestCase
 
         $messages = $request->messages();
 
-        $this->assertArrayHasKey('name.required', $messages);
-        $this->assertArrayHasKey('email.email', $messages);
-        $this->assertSame('Please provide your name', $messages['name.required']);
-    }
+        expect($messages)->toHaveKey('name.required')
+            ->and($messages)->toHaveKey('email.email')
+            ->and($messages['name.required'])->toBe('Please provide your name');
+    })->group('laravel');
 
-    public function test_it_provides_custom_attributes(): void
-    {
+    test('it provides custom attributes', function (): void {
         $request = new class extends DTOFormRequest {
             protected string $dtoClass = UserFormDTO::class;
 
@@ -198,13 +181,12 @@ class DTOFormRequestTest extends TestCase
 
         $attributes = $request->attributes();
 
-        $this->assertArrayHasKey('name', $attributes);
-        $this->assertArrayHasKey('email', $attributes);
-        $this->assertSame('full name', $attributes['name']);
-    }
+        expect($attributes)->toHaveKey('name')
+            ->and($attributes)->toHaveKey('email')
+            ->and($attributes['name'])->toBe('full name');
+    })->group('laravel');
 
-    public function test_it_handles_json_request(): void
-    {
+    test('it handles json request', function (): void {
         $request = UserFormRequest::create(
             '/test',
             'POST',
@@ -227,13 +209,12 @@ class DTOFormRequestTest extends TestCase
 
         $dto = $request->toDTO();
 
-        $this->assertInstanceOf(UserFormDTO::class, $dto);
-        $this->assertSame('Jane Doe', $dto->name);
-        $this->assertSame('jane@example.com', $dto->email);
-    }
+        expect($dto)->toBeInstanceOf(UserFormDTO::class)
+            ->and($dto->name)->toBe('Jane Doe')
+            ->and($dto->email)->toBe('jane@example.com');
+    })->group('laravel');
 
-    public function test_it_can_be_extended_with_additional_rules(): void
-    {
+    test('it can be extended with additional rules', function (): void {
         $request = new class extends DTOFormRequest {
             protected string $dtoClass = UserFormDTO::class;
 
@@ -252,13 +233,12 @@ class DTOFormRequestTest extends TestCase
 
         $rules = $request->rules();
 
-        $this->assertArrayHasKey('age', $rules);
-        $this->assertContains('integer', $rules['age']);
-        $this->assertContains('min:18', $rules['age']);
-    }
+        expect($rules)->toHaveKey('age')
+            ->and($rules['age'])->toContain('integer')
+            ->and($rules['age'])->toContain('min:18');
+    })->group('laravel');
 
-    public function test_it_handles_authorization(): void
-    {
+    test('it handles authorization', function (): void {
         $request = new class extends DTOFormRequest {
             protected string $dtoClass = UserFormDTO::class;
 
@@ -268,11 +248,10 @@ class DTOFormRequestTest extends TestCase
             }
         };
 
-        $this->assertFalse($request->authorize());
-    }
+        expect($request->authorize())->toBeFalse();
+    })->group('laravel');
 
-    public function test_it_converts_dto_back_to_array(): void
-    {
+    test('it converts dto back to array', function (): void {
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -289,11 +268,11 @@ class DTOFormRequestTest extends TestCase
         $dto = $request->toDTO();
         $array = $dto->toArray();
 
-        $this->assertIsArray($array);
-        $this->assertArrayHasKey('name', $array);
-        $this->assertArrayHasKey('email', $array);
-        $this->assertArrayHasKey('age', $array);
-        $this->assertSame('John Doe', $array['name']);
-    }
-}
+        expect($array)->toBeArray()
+            ->and($array)->toHaveKey('name')
+            ->and($array)->toHaveKey('email')
+            ->and($array)->toHaveKey('age')
+            ->and($array['name'])->toBe('John Doe');
+    })->group('laravel');
+});
 

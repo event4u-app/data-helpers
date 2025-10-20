@@ -2,11 +2,6 @@
 
 declare(strict_types=1);
 
-// Skip this file entirely if Symfony is not installed
-if (!interface_exists('Symfony\Component\HttpKernel\Controller\ValueResolverInterface')) {
-    return;
-}
-
 namespace Tests\Integration\Symfony;
 
 use event4u\DataHelpers\Symfony\DTOValueResolver;
@@ -17,7 +12,6 @@ use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
 use event4u\DataHelpers\Exceptions\ValidationException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
-use PHPUnit\Framework\TestCase;
 
 // Test DTOs
 #[ValidateRequest(throw: true)]
@@ -41,87 +35,76 @@ class SymfonyTestProductDTO extends SimpleDTO
     ) {}
 }
 
-class DTOValueResolverTest extends TestCase
-{
-    private DTOValueResolver $resolver;
+describe('Symfony DTOValueResolver', function (): void {
+    beforeEach(function (): void {
+        // Skip if Symfony is not available
+        if (!interface_exists('Symfony\Component\HttpKernel\Controller\ValueResolverInterface')) {
+            $this->markTestSkipped('Symfony is not available');
+        }
 
-    protected function setUp(): void
-    {
-        parent::setUp();
         $this->resolver = new DTOValueResolver();
-    }
+    });
 
-    private function createArgumentMetadata(string $className, string $name = 'dto'): ArgumentMetadata
-    {
-        return new ArgumentMetadata($name, $className, false, false, null);
-    }
-
-    public function test_it_resolves_dto_from_request(): void
-    {
+    test('it resolves dto from request', function (): void {
         $request = Request::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
         ]);
 
-        $argument = $this->createArgumentMetadata(SymfonyTestUserDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $argument));
 
-        $this->assertCount(1, $result);
-        $this->assertInstanceOf(SymfonyTestUserDTO::class, $result[0]);
-        $this->assertSame('John Doe', $result[0]->name);
-        $this->assertSame('john@example.com', $result[0]->email);
-    }
+        expect($result)->toHaveCount(1)
+            ->and($result[0])->toBeInstanceOf(SymfonyTestUserDTO::class)
+            ->and($result[0]->name)->toBe('John Doe')
+            ->and($result[0]->email)->toBe('john@example.com');
+    })->group('symfony');
 
-    public function test_it_validates_dto_with_validate_request_attribute(): void
-    {
+    test('it validates dto with validate request attribute', function (): void {
         $request = Request::create('/test', 'POST', [
             'name' => 'John',
             'email' => 'invalid-email',
         ]);
 
-        $argument = $this->createArgumentMetadata(SymfonyTestUserDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
 
-        $this->expectException(ValidationException::class);
+        expect(fn() => iterator_to_array($this->resolver->resolve($request, $argument)))
+            ->toThrow(ValidationException::class);
+    })->group('symfony');
 
-        iterator_to_array($this->resolver->resolve($request, $argument));
-    }
-
-    public function test_it_resolves_dto_without_validation(): void
-    {
+    test('it resolves dto without validation', function (): void {
         $request = Request::create('/test', 'POST', [
             'title' => 'Product Title',
             'description' => 'Product Description',
         ]);
 
-        $argument = $this->createArgumentMetadata(SymfonyTestProductDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestProductDTO::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $argument));
 
-        $this->assertCount(1, $result);
-        $this->assertInstanceOf(SymfonyTestProductDTO::class, $result[0]);
-        $this->assertSame('Product Title', $result[0]->title);
-        $this->assertSame('Product Description', $result[0]->description);
-    }
+        expect($result)->toHaveCount(1)
+            ->and($result[0])->toBeInstanceOf(SymfonyTestProductDTO::class)
+            ->and($result[0]->title)->toBe('Product Title')
+            ->and($result[0]->description)->toBe('Product Description');
+    })->group('symfony');
 
-    public function test_it_handles_missing_optional_fields(): void
-    {
+    test('it handles missing optional fields', function (): void {
         $request = Request::create('/test', 'POST', [
             'title' => 'Product Title',
         ]);
 
-        $argument = $this->createArgumentMetadata(SymfonyTestProductDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestProductDTO::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $argument));
 
-        $this->assertCount(1, $result);
-        $this->assertInstanceOf(SymfonyTestProductDTO::class, $result[0]);
-        $this->assertSame('Product Title', $result[0]->title);
-        $this->assertNull($result[0]->description);
-    }
+        expect($result)->toHaveCount(1)
+            ->and($result[0])->toBeInstanceOf(SymfonyTestProductDTO::class)
+            ->and($result[0]->title)->toBe('Product Title')
+            ->and($result[0]->description)->toBeNull();
+    })->group('symfony');
 
-    public function test_it_handles_json_request(): void
-    {
+    test('it handles json request', function (): void {
         $request = Request::create(
             '/test',
             'POST',
@@ -135,88 +118,81 @@ class DTOValueResolverTest extends TestCase
             ])
         );
 
-        $argument = $this->createArgumentMetadata(SymfonyTestUserDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $argument));
 
-        $this->assertCount(1, $result);
-        $this->assertInstanceOf(SymfonyTestUserDTO::class, $result[0]);
-        $this->assertSame('Jane Doe', $result[0]->name);
-        $this->assertSame('jane@example.com', $result[0]->email);
-    }
+        expect($result)->toHaveCount(1)
+            ->and($result[0])->toBeInstanceOf(SymfonyTestUserDTO::class)
+            ->and($result[0]->name)->toBe('Jane Doe')
+            ->and($result[0]->email)->toBe('jane@example.com');
+    })->group('symfony');
 
-    public function test_it_handles_empty_request(): void
-    {
+    test('it handles empty request', function (): void {
         $request = Request::create('/test', 'POST', []);
 
-        $argument = $this->createArgumentMetadata(SymfonyTestUserDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
 
-        $this->expectException(ValidationException::class);
+        expect(fn() => iterator_to_array($this->resolver->resolve($request, $argument)))
+            ->toThrow(ValidationException::class);
+    })->group('symfony');
 
-        iterator_to_array($this->resolver->resolve($request, $argument));
-    }
-
-    public function test_it_returns_validation_errors_with_correct_structure(): void
-    {
+    test('it returns validation errors with correct structure', function (): void {
         $request = Request::create('/test', 'POST', [
             'name' => '',
             'email' => 'invalid',
         ]);
 
-        $argument = $this->createArgumentMetadata(SymfonyTestUserDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
 
         try {
             iterator_to_array($this->resolver->resolve($request, $argument));
-            $this->fail('Expected ValidationException to be thrown');
+            throw new \Exception('Expected ValidationException to be thrown');
         } catch (ValidationException $e) {
             $errors = $e->errors();
-            $this->assertArrayHasKey('name', $errors);
-            $this->assertArrayHasKey('email', $errors);
-            $this->assertIsArray($errors['name']);
-            $this->assertIsArray($errors['email']);
+            expect($errors)->toHaveKey('name')
+                ->and($errors)->toHaveKey('email')
+                ->and($errors['name'])->toBeArray()
+                ->and($errors['email'])->toBeArray();
         }
-    }
+    })->group('symfony');
 
-    public function test_it_returns_empty_for_non_dto_parameters(): void
-    {
+    test('it returns empty for non dto parameters', function (): void {
         $request = Request::create('/test', 'POST', []);
 
-        $argument = $this->createArgumentMetadata('string');
+        $argument = new ArgumentMetadata('dto', 'string', false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $argument));
 
-        $this->assertCount(0, $result);
-    }
+        expect($result)->toHaveCount(0);
+    })->group('symfony');
 
-    public function test_it_returns_empty_for_non_class_types(): void
-    {
+    test('it returns empty for non class types', function (): void {
         $request = Request::create('/test', 'POST', []);
 
         $argument = new ArgumentMetadata('param', null, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $argument));
 
-        $this->assertCount(0, $result);
-    }
+        expect($result)->toHaveCount(0);
+    })->group('symfony');
 
-    public function test_it_preserves_request_data_types(): void
-    {
+    test('it preserves request data types', function (): void {
         $request = Request::create('/test', 'POST', [
             'title' => 'Product',
             'description' => null,
         ]);
 
-        $argument = $this->createArgumentMetadata(SymfonyTestProductDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestProductDTO::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $argument));
 
-        $this->assertCount(1, $result);
-        $this->assertInstanceOf(SymfonyTestProductDTO::class, $result[0]);
-        $this->assertNull($result[0]->description);
-    }
+        expect($result)->toHaveCount(1)
+            ->and($result[0])->toBeInstanceOf(SymfonyTestProductDTO::class)
+            ->and($result[0]->description)->toBeNull();
+    })->group('symfony');
 
-    public function test_it_handles_put_request(): void
-    {
+    test('it handles put request', function (): void {
         $request = Request::create(
             '/test',
             'PUT',
@@ -230,18 +206,17 @@ class DTOValueResolverTest extends TestCase
             ])
         );
 
-        $argument = $this->createArgumentMetadata(SymfonyTestUserDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $argument));
 
-        $this->assertCount(1, $result);
-        $this->assertInstanceOf(SymfonyTestUserDTO::class, $result[0]);
-        $this->assertSame('Updated Name', $result[0]->name);
-        $this->assertSame('updated@example.com', $result[0]->email);
-    }
+        expect($result)->toHaveCount(1)
+            ->and($result[0])->toBeInstanceOf(SymfonyTestUserDTO::class)
+            ->and($result[0]->name)->toBe('Updated Name')
+            ->and($result[0]->email)->toBe('updated@example.com');
+    })->group('symfony');
 
-    public function test_it_handles_patch_request(): void
-    {
+    test('it handles patch request', function (): void {
         $request = Request::create(
             '/test',
             'PATCH',
@@ -254,13 +229,13 @@ class DTOValueResolverTest extends TestCase
             ])
         );
 
-        $argument = $this->createArgumentMetadata(SymfonyTestProductDTO::class);
+        $argument = new ArgumentMetadata('dto', SymfonyTestProductDTO::class, false, false, null);
 
         $result = iterator_to_array($this->resolver->resolve($request, $argument));
 
-        $this->assertCount(1, $result);
-        $this->assertInstanceOf(SymfonyTestProductDTO::class, $result[0]);
-        $this->assertSame('Patched Title', $result[0]->title);
-    }
-}
+        expect($result)->toHaveCount(1)
+            ->and($result[0])->toBeInstanceOf(SymfonyTestProductDTO::class)
+            ->and($result[0]->title)->toBe('Patched Title');
+    })->group('symfony');
+});
 
