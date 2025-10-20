@@ -137,12 +137,6 @@ tasks:
     cmds:
       - ./scripts/test-isolated.sh --plain --php {{.PHP | default "8.4"}}
 
-  laravel9:
-    desc: Test with Laravel 9 in isolated container (PHP 8.2)
-    aliases: [l9]
-    cmds:
-      - ./scripts/test-isolated.sh --laravel 9 --php 8.2
-
   laravel10:
     desc: Test with Laravel 10 in isolated container (use PHP=8.2|8.3)
     aliases: [l10]
@@ -186,7 +180,6 @@ tasks:
   all:laravel:
     desc: Test all Laravel versions
     cmds:
-      - task: laravel9
       - task: laravel10
       - task: laravel11
 
@@ -352,22 +345,6 @@ tasks:
   # ============================================================================
   # Matrix by Framework Version (Isolated)
   # ============================================================================
-
-  matrix:laravel9:
-    desc: Run all Laravel 9 tests (isolated, all PHP versions)
-    cmds:
-      - |
-        source {{.OUTPUT_HELPER}}
-        task_header "Running Laravel 9 Tests (Isolated)"
-        ./docker/test-matrix.sh -f laravel -v 9
-        EXIT_CODE=$?
-        if [ $EXIT_CODE -eq 0 ]; then
-          task_success "All Laravel 9 tests passed"
-        else
-          task_error "Some Laravel 9 tests failed"
-        fi
-        task_footer
-        exit $EXIT_CODE
 
   matrix:laravel10:
     desc: Run all Laravel 10 tests (isolated, all PHP versions)

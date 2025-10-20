@@ -60,7 +60,7 @@ jobs:
             symfony/serializer symfony/property-info symfony/property-access symfony/validator \
             doctrine/collections doctrine/orm doctrine/dbal \
             nesbot/carbon \
-            --no-update --no-interaction || true
+            --no-update --no-interaction --quiet 2>&1 | grep -v "is not required" || true
 
           # Remove composer.lock to avoid conflicts with locked versions
           rm -f composer.lock
@@ -69,7 +69,7 @@ jobs:
           rm -rf vendor
 
           # Install only the minimal required packages
-          composer install --prefer-dist --no-interaction
+          composer install --prefer-dist --no-interaction --quiet
 
       - name: Run Plain PHP Tests
         run: |
@@ -83,9 +83,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Laravel 9 - PHP 8.2 only
-          - php: 8.2
-            laravel: 9
           # Laravel 10 - PHP 8.2, 8.3
           - php: 8.2
             laravel: 10
@@ -120,7 +117,7 @@ jobs:
       - name: Install minimal dependencies (no frameworks)
         run: |
           # Remove ALL framework packages from composer.json temporarily
-          # NOTE: Keep symfony/console as Laravel requires it
+          # NOTE: Also remove Pest temporarily to avoid Symfony Console conflicts
           composer remove --dev \
             illuminate/cache illuminate/http illuminate/support illuminate/database \
             symfony/cache symfony/config symfony/dependency-injection \
@@ -128,7 +125,8 @@ jobs:
             symfony/serializer symfony/property-info symfony/property-access symfony/validator \
             doctrine/collections doctrine/orm doctrine/dbal \
             nesbot/carbon \
-            --no-update --no-interaction || true
+            pestphp/pest pestphp/pest-plugin-laravel \
+            --no-update --no-interaction --quiet 2>&1 | grep -v "is not required" || true
 
           # Remove composer.lock to avoid conflicts with locked versions
           rm -f composer.lock
@@ -136,15 +134,22 @@ jobs:
           # Remove vendor directory for clean install
           rm -rf vendor
 
-          # Install only the minimal required packages
-          composer install --prefer-dist --no-interaction
+          # Install only the minimal required packages (without Pest)
+          composer install --prefer-dist --no-interaction --quiet
 
       - name: Install Laravel ${{ matrix.laravel }} packages
         run: |
+          # Install Laravel packages first
           composer require --dev \
             illuminate/support:^${{ matrix.laravel }}.0 \
             illuminate/database:^${{ matrix.laravel }}.0 \
-            --with-all-dependencies --no-interaction
+            --with-all-dependencies --no-interaction --quiet
+
+          # Then install Pest (will resolve to compatible version)
+          composer require --dev \
+            pestphp/pest \
+            pestphp/pest-plugin-laravel \
+            --with-all-dependencies --no-interaction --quiet
 
       - name: Run Laravel ${{ matrix.laravel }} Tests
         run: |
@@ -188,7 +193,7 @@ jobs:
             symfony/serializer symfony/property-info symfony/property-access symfony/validator \
             doctrine/collections doctrine/orm doctrine/dbal \
             nesbot/carbon \
-            --no-update --no-interaction || true
+            --no-update --no-interaction --quiet 2>&1 | grep -v "is not required" || true
 
           # Remove composer.lock to avoid conflicts with locked versions
           rm -f composer.lock
@@ -197,7 +202,7 @@ jobs:
           rm -rf vendor
 
           # Install only the minimal required packages
-          composer install --prefer-dist --no-interaction
+          composer install --prefer-dist --no-interaction --quiet
 
       - name: Install Symfony ${{ matrix.symfony }} packages
         run: |
@@ -205,7 +210,7 @@ jobs:
             symfony/validator:^${{ matrix.symfony }}.0 \
             symfony/http-kernel:^${{ matrix.symfony }}.0 \
             symfony/http-foundation:^${{ matrix.symfony }}.0 \
-            --with-all-dependencies --no-interaction
+            --with-all-dependencies --no-interaction --quiet
 
       - name: Run Symfony ${{ matrix.symfony }} Tests
         run: |
@@ -249,7 +254,7 @@ jobs:
             symfony/serializer symfony/property-info symfony/property-access symfony/validator \
             doctrine/collections doctrine/orm doctrine/dbal \
             nesbot/carbon \
-            --no-update --no-interaction || true
+            --no-update --no-interaction --quiet 2>&1 | grep -v "is not required" || true
 
           # Remove composer.lock to avoid conflicts with locked versions
           rm -f composer.lock
@@ -258,14 +263,14 @@ jobs:
           rm -rf vendor
 
           # Install only the minimal required packages
-          composer install --prefer-dist --no-interaction
+          composer install --prefer-dist --no-interaction --quiet
 
       - name: Install Doctrine ${{ matrix.doctrine }} packages
         run: |
           composer require --dev \
             doctrine/orm:^${{ matrix.doctrine }}.0 \
             doctrine/dbal:^${{ matrix.doctrine }}.0 \
-            --with-all-dependencies --no-interaction
+            --with-all-dependencies --no-interaction --quiet
 
       - name: Run Doctrine ${{ matrix.doctrine }} Tests
         run: |

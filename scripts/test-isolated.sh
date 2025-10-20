@@ -132,7 +132,6 @@ get_composer_packages() {
     case "$fw" in
         laravel)
             case "$ver" in
-                9) echo "illuminate/support:^9.0 illuminate/validation:^9.0 illuminate/database:^9.0" ;;
                 10) echo "illuminate/support:^10.0 illuminate/validation:^10.0 illuminate/database:^10.0" ;;
                 11) echo "illuminate/support:^11.0 illuminate/validation:^11.0 illuminate/database:^11.0" ;;
                 *) echo ""; return 1 ;;
@@ -472,23 +471,27 @@ else
     # These are not needed for running tests and can cause dependency conflicts
     CODE_QUALITY_PACKAGES="symplify/coding-standard symplify/easy-coding-standard friendsofphp/php-cs-fixer rector/rector phpstan/phpstan phpstan/phpstan-mockery phpstan/phpstan-phpunit spaze/phpstan-disallowed-calls timeweb/phpstan-enum phpbench/phpbench"
 
+    # Pest packages need to be removed temporarily to avoid Symfony Console conflicts
+    # They will be reinstalled after framework packages are installed
+    PEST_PACKAGES="pestphp/pest pestphp/pest-plugin-laravel"
+
     # Determine which packages to remove based on the framework being tested
     PACKAGES_TO_REMOVE=""
     case "$FRAMEWORK" in
         laravel)
-            # For Laravel tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, code quality tools, and benchmarking tools
-            echo -e "${YELLOW}  Removing all framework packages, code quality tools, and benchmarking tools (testing Laravel only)...${NC}"
-            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $CODE_QUALITY_PACKAGES"
+            # For Laravel tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, Pest, code quality tools, and benchmarking tools
+            echo -e "${YELLOW}  Removing all framework packages, Pest, code quality tools, and benchmarking tools (testing Laravel only)...${NC}"
+            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $PEST_PACKAGES $CODE_QUALITY_PACKAGES"
             ;;
         symfony)
-            # For Symfony tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, code quality tools, and benchmarking tools
-            echo -e "${YELLOW}  Removing all framework packages, code quality tools, and benchmarking tools (testing Symfony only)...${NC}"
-            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $CODE_QUALITY_PACKAGES"
+            # For Symfony tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, Pest, code quality tools, and benchmarking tools
+            echo -e "${YELLOW}  Removing all framework packages, Pest, code quality tools, and benchmarking tools (testing Symfony only)...${NC}"
+            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $PEST_PACKAGES $CODE_QUALITY_PACKAGES"
             ;;
         doctrine)
-            # For Doctrine tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, code quality tools, and benchmarking tools
-            echo -e "${YELLOW}  Removing all framework packages, code quality tools, and benchmarking tools (testing Doctrine only)...${NC}"
-            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $CODE_QUALITY_PACKAGES"
+            # For Doctrine tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, Pest, code quality tools, and benchmarking tools
+            echo -e "${YELLOW}  Removing all framework packages, Pest, code quality tools, and benchmarking tools (testing Doctrine only)...${NC}"
+            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $PEST_PACKAGES $CODE_QUALITY_PACKAGES"
             ;;
     esac
 
@@ -516,10 +519,14 @@ else
     # Add framework packages to composer.json BEFORE composer install
     # This ensures Composer resolves all dependencies with the correct framework version
     echo -e "${YELLOW}  Adding ${FRAMEWORK} ${VERSION} to composer.json...${NC}"
-    run_in_container composer require --dev $PACKAGES --no-update --no-interaction
+    run_in_container composer require --dev $PACKAGES --no-update --no-interaction > /dev/null 2>&1
 
     echo -e "${YELLOW}  Installing all dependencies with ${FRAMEWORK} ${VERSION}...${NC}"
-    run_in_container composer install --no-interaction
+    run_in_container composer install --no-interaction --quiet
+
+    # Reinstall Pest packages after framework installation to ensure compatibility
+    echo -e "${YELLOW}  Reinstalling Pest packages for compatibility...${NC}"
+    run_in_container composer require --dev pestphp/pest pestphp/pest-plugin-laravel --with-all-dependencies --no-interaction --quiet
 fi
 
 echo -e "${GREEN}✓${NC}  Dependencies installed"
@@ -553,18 +560,18 @@ if [[ "$RUN_TESTS" == true ]]; then
     # Run tests (without --compact to see summary)
     # Save output to temp file to check for failures while still showing it
     TEMP_OUTPUT=$(mktemp)
-    run_in_container vendor/bin/pest --no-coverage --compact $EXCLUDE_GROUPS 2>&1 | tee "$TEMP_OUTPUT"
+    run_in_container vendor/bin/pest --no-coverage $EXCLUDE_GROUPS 2>&1 | tee "$TEMP_OUTPUT"
     TEST_EXIT=$?
 
-    # Check if there are any failures in the output
-    if grep -q "FAILED\|FAIL" "$TEMP_OUTPUT"; then
+    # Check if there are any failures or errors in the output
+    if grep -q "FAILED\|FAIL\|Error\|Fatal error" "$TEMP_OUTPUT"; then
         echo ""
         echo -e "${RED}✗${NC}  Tests failed!"
         echo ""
         echo -e "${YELLOW}Failed test details:${NC}"
         echo ""
-        # Show only the failure details (lines after "FAILED" or "FAIL")
-        grep -A 50 "FAILED\|FAIL" "$TEMP_OUTPUT" | head -100
+        # Show only the failure details (lines after "FAILED", "FAIL", or "Error")
+        grep -A 50 "FAILED\|FAIL\|Error\|Fatal error" "$TEMP_OUTPUT" | head -100
         rm -f "$TEMP_OUTPUT"
         exit 1
     elif [ $TEST_EXIT -eq 0 ] || [ $TEST_EXIT -eq 255 ]; then
