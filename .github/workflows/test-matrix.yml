@@ -134,9 +134,8 @@ jobs:
         run: |
           composer require --dev \
             illuminate/support:^${{ matrix.laravel }}.0 \
-            illuminate/validation:^${{ matrix.laravel }}.0 \
             illuminate/database:^${{ matrix.laravel }}.0 \
-            --no-interaction
+            --with-all-dependencies --no-interaction
 
       - name: Run Laravel ${{ matrix.laravel }} Tests
         run: |
@@ -193,7 +192,7 @@ jobs:
             symfony/validator:^${{ matrix.symfony }}.0 \
             symfony/http-kernel:^${{ matrix.symfony }}.0 \
             symfony/http-foundation:^${{ matrix.symfony }}.0 \
-            --no-interaction
+            --with-all-dependencies --no-interaction
 
       - name: Run Symfony ${{ matrix.symfony }} Tests
         run: |
@@ -249,7 +248,7 @@ jobs:
           composer require --dev \
             doctrine/orm:^${{ matrix.doctrine }}.0 \
             doctrine/dbal:^${{ matrix.doctrine }}.0 \
-            --no-interaction
+            --with-all-dependencies --no-interaction
 
       - name: Run Doctrine ${{ matrix.doctrine }} Tests
         run: |
