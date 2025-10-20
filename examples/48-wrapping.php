@@ -161,7 +161,7 @@ $users = DataCollection::forDto(UserDTO::class, [
 ]);
 
 // Wrap each user in the collection
-$wrappedUsers = $users->map(fn($user) => $user->wrap('user')->toArray());
+$wrappedUsers = $users->map(fn($user): array => $user->wrap('user')->toArray());
 echo "Wrapped users in collection:\n";
 echo json_encode($wrappedUsers, JSON_PRETTY_PRINT) . "\n\n";
 

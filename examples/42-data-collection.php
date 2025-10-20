@@ -62,7 +62,7 @@ echo "Example 4: Reducing\n";
 echo "----------------------------\n";
 
 $totalAge = $users->reduce(
-    fn(int $carry, UserDTO $user): int|float => $carry + $user->age,
+    fn(int $carry, UserDTO $user): int => $carry + $user->age,
     0
 );
 

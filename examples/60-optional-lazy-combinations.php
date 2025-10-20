@@ -180,7 +180,7 @@ $user2 = UserDTO::fromArray([
 echo "Type checks:\n";
 echo "  email is Optional: " . ($user2->email instanceof Optional ? 'yes' : 'no') . "\n";
 echo "  biography is Lazy: " . ($user2->biography instanceof Lazy ? 'yes' : 'no') . "\n";
-echo "  phone is nullable: " . (isset($user2->phone) ? 'no' : 'yes (not set)') . "\n";
+echo "  phone is nullable: " . (property_exists($user2, 'phone') && $user2->phone !== null ? 'no' : 'yes (not set)') . "\n";
 echo "  address is Optional: " . ($user2->address instanceof Optional ? 'yes' : 'no') . "\n";
 echo "  notes is Lazy: " . ($user2->notes instanceof Lazy ? 'yes' : 'no') . "\n";
 echo "\n";

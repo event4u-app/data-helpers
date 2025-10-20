@@ -190,7 +190,7 @@ describe('Optional Wrapper', function(): void {
 
     it('does not map empty value', function(): void {
         $optional = Optional::empty();
-        $mapped = $optional->map(fn($x): int|float => $x * 2);
+        $mapped = $optional->map(fn($x): int => $x * 2);
 
         expect($mapped->isEmpty())->toBeTrue();
     });
