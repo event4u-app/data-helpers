@@ -44,9 +44,6 @@ class Same implements ValidationRule, SymfonyConstraint
 
     /**
      * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
      */
     public function message(): ?string
     {

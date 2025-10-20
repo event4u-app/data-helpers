@@ -37,9 +37,7 @@ class Required implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\NotBlank(
-            message: $this->message
-        );
+        return new Assert\NotBlank(message: $this->message);
     }
 
     public function message(): ?string

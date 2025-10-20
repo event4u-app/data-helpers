@@ -55,17 +55,12 @@ class Size implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\Length(
-            min: $this->size,
-            max: $this->size
-        );
+        $size = $this->size > 0 ? $this->size : null;
+        return new Assert\Length(min: $size, max: $size);
     }
 
     /**
      * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
      */
     public function message(): ?string
     {

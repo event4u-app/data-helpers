@@ -41,10 +41,7 @@ class Regex implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\Regex(
-            pattern: $this->pattern,
-            message: $this->message
-        );
+        return new Assert\Regex(pattern: $this->pattern, message: $this->message);
     }
     public function message(): ?string
     {

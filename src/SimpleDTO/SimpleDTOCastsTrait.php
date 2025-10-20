@@ -18,6 +18,7 @@ use event4u\DataHelpers\SimpleDTO\Casts\HashedCast;
 use event4u\DataHelpers\SimpleDTO\Casts\IntegerCast;
 use event4u\DataHelpers\SimpleDTO\Casts\JsonCast;
 use event4u\DataHelpers\SimpleDTO\Casts\StringCast;
+use event4u\DataHelpers\SimpleDTO\Contracts\CastsAttributes;
 use event4u\DataHelpers\SimpleDTO\Casts\TimestampCast;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -93,7 +94,7 @@ trait SimpleDTOCastsTrait
      *
      * @return array<string, string>
      */
-    private static function getCasts(): array
+    protected static function getCasts(): array
     {
         try {
             $reflection = new ReflectionClass(static::class);
@@ -103,6 +104,9 @@ trait SimpleDTOCastsTrait
             $instance = $reflection->newInstanceWithoutConstructor();
 
             $casts = $method->invoke($instance);
+            if (!is_array($casts)) {
+                $casts = [];
+            }
 
             // Merge with casts from DataCollectionOf attributes
             $casts = array_merge($casts, static::getCastsFromAttributes());
@@ -121,7 +125,7 @@ trait SimpleDTOCastsTrait
      *
      * @return array<string, string>
      */
-    private static function getCastsFromAttributes(): array
+    protected static function getCastsFromAttributes(): array
     {
         $casts = [];
 
@@ -155,7 +159,7 @@ trait SimpleDTOCastsTrait
      *
      * @return array<string, string>
      */
-    private static function getNestedDTOCasts(): array
+    protected static function getNestedDTOCasts(): array
     {
         $casts = [];
 
@@ -207,7 +211,7 @@ trait SimpleDTOCastsTrait
      * @param array<string, string> $casts
      * @return array<string, mixed>
      */
-    private static function applyCasts(array $data, array $casts): array
+    protected static function applyCasts(array $data, array $casts): array
     {
         foreach ($casts as $key => $cast) {
             // Skip if property is not present in data (lazy resolution)
@@ -238,7 +242,7 @@ trait SimpleDTOCastsTrait
      * @param array<string, mixed> $attributes All attributes (for context)
      * @return mixed The casted value
      */
-    private static function castAttribute(string $key, mixed $value, string $cast, array $attributes): mixed
+    protected static function castAttribute(string $key, mixed $value, string $cast, array $attributes): mixed
     {
         // Resolve built-in cast aliases
         $cast = static::resolveBuiltInCast($cast);
@@ -294,7 +298,7 @@ trait SimpleDTOCastsTrait
      * @param string $cast The cast definition
      * @return string The resolved cast class name
      */
-    private static function resolveBuiltInCast(string $cast): string
+    protected static function resolveBuiltInCast(string $cast): string
     {
         $builtInCasts = [
             'array' => ArrayCast::class,
@@ -337,7 +341,7 @@ trait SimpleDTOCastsTrait
      * @param string $cast The cast definition
      * @return array{0: string, 1: array<int, string>}
      */
-    private static function parseCast(string $cast): array
+    protected static function parseCast(string $cast): array
     {
         if (!str_contains($cast, ':')) {
             return [$cast, []];
@@ -357,9 +361,9 @@ trait SimpleDTOCastsTrait
      *
      * @param string $castClass The cast class name
      * @param array<int, string> $parameters Cast parameters
-     * @return object The cast instance
+     * @return CastsAttributes The cast instance
      */
-    private static function resolveCaster(string $castClass, array $parameters): object
+    protected static function resolveCaster(string $castClass, array $parameters): CastsAttributes
     {
         $cacheKey = $castClass . ':' . implode(',', $parameters);
 

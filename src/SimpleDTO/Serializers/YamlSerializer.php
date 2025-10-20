@@ -43,11 +43,13 @@ class YamlSerializer implements SerializerInterface
 
         foreach ($data as $key => $value) {
             if (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 // Check if it's a sequential array
                 if ($this->isSequentialArray($value)) {
                     $yaml .= $indent . $key . ":\n";
                     foreach ($value as $item) {
                         if (is_array($item)) {
+                            /** @var array<string, mixed> $item */
                             $yaml .= $indent . str_repeat(' ', $this->indent) . "-\n";
                             $yaml .= $this->arrayToYaml($item, $level + 2);
                         } else {

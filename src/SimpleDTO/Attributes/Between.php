@@ -47,9 +47,9 @@ class Between implements ValidationRule, SymfonyConstraint
         $this->ensureSymfonyValidatorAvailable();
 
         return new Assert\Range(
-            notInRangeMessage: $this->message,
             min: $this->min,
-            max: $this->max
+            max: $this->max,
+            notInRangeMessage: $this->message,
         );
     }
     public function message(): ?string

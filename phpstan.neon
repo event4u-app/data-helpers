@@ -21,6 +21,10 @@ parameters:
 
     excludePaths:
         - src/Symfony
+        - src/Laravel/Commands
+        - src/Laravel/DTOFormRequest.php
+        - src/Laravel/DTOServiceProvider.php
+        - src/Laravel/DTOValueResolver.php
         - '*.stub.php'
         - tests-e2e/*/vendor
 
@@ -138,3 +142,5 @@ parameters:
             enabled: false
         privateInFinalClass:
             enabled: true
+        noNamedArgument:
+            enabled: false

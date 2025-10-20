@@ -37,9 +37,7 @@ class Email implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\Email(
-            message: $this->message
-        );
+        return new Assert\Email(message: $this->message);
     }
 
     public function message(): ?string

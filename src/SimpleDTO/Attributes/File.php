@@ -64,9 +64,6 @@ class File implements ValidationRule, SymfonyConstraint
 
     /**
      * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
      */
     public function message(): ?string
     {
@@ -78,11 +75,9 @@ class File implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        if (null !== $this->maxSize) {
+        if (null !== $this->maxSize && $this->maxSize > 0) {
             // Symfony uses bytes, Laravel uses kilobytes
-            return new Assert\File(
-                maxSize: $this->maxSize * 1024
-            );
+            return new Assert\File(maxSize: $this->maxSize * 1024);
         }
 
         return new Assert\File();

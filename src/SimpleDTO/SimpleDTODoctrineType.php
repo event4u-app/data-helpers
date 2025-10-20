@@ -4,13 +4,32 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use event4u\DataHelpers\SimpleDTO;
+
 // Create stub classes if Doctrine is not installed
 if (!class_exists('Doctrine\DBAL\Types\Type')) {
     abstract class Type
     {
-        abstract public function getSQLDeclaration(array $column, $platform): string;
-        abstract public function convertToPHPValue($value, $platform);
-        abstract public function convertToDatabaseValue($value, $platform);
+        /**
+         * @param array<string, mixed> $column
+         * @param mixed $platform
+         */
+        abstract public function getSQLDeclaration(array $column, mixed $platform): string;
+
+        /**
+         * @param mixed $value
+         * @param mixed $platform
+         * @return mixed
+         */
+        abstract public function convertToPHPValue(mixed $value, mixed $platform): mixed;
+
+        /**
+         * @param mixed $value
+         * @param mixed $platform
+         * @return mixed
+         */
+        abstract public function convertToDatabaseValue(mixed $value, mixed $platform): mixed;
+
         abstract public function getName(): string;
     }
 }
@@ -18,6 +37,9 @@ if (!class_exists('Doctrine\DBAL\Types\Type')) {
 if (!class_exists('Doctrine\DBAL\Platforms\AbstractPlatform')) {
     abstract class AbstractPlatform
     {
+        /**
+         * @param array<string, mixed> $column
+         */
         public function getJsonTypeDeclarationSQL(array $column): string
         {
             return 'JSON';
@@ -56,8 +78,13 @@ class SimpleDTODoctrineType extends Type
         return $type;
     }
 
-    /** {@inheritdoc} */
-    public function getSQLDeclaration(array $column, $platform): string
+    /**
+     * {@inheritdoc}
+     *
+     * @param array<string, mixed> $column
+     * @param mixed $platform
+     */
+    public function getSQLDeclaration(array $column, mixed $platform): string
     {
         return $platform->getJsonTypeDeclarationSQL($column);
     }
@@ -65,9 +92,11 @@ class SimpleDTODoctrineType extends Type
     /**
      * {@inheritdoc}
      *
+     * @param mixed $value
+     * @param mixed $platform
      * @return TDto|null
      */
-    public function convertToPHPValue(mixed $value, $platform): ?SimpleDTO
+    public function convertToPHPValue(mixed $value, mixed $platform): ?SimpleDTO
     {
         if (null === $value || '' === $value) {
             return null;
@@ -98,8 +127,13 @@ class SimpleDTODoctrineType extends Type
         return null;
     }
 
-    /** {@inheritdoc} */
-    public function convertToDatabaseValue(mixed $value, $platform): ?string
+    /**
+     * {@inheritdoc}
+     *
+     * @param mixed $value
+     * @param mixed $platform
+     */
+    public function convertToDatabaseValue(mixed $value, mixed $platform): ?string
     {
         if (null === $value) {
             return null;

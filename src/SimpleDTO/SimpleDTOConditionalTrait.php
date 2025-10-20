@@ -42,7 +42,7 @@ trait SimpleDTOConditionalTrait
      *
      * @return array<string, array<ConditionalProperty>> Property name => array of ConditionalProperty attributes
      */
-    private static function getConditionalProperties(): array
+    protected static function getConditionalProperties(): array
     {
         static $cache = [];
 

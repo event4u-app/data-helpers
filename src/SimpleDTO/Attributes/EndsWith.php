@@ -55,17 +55,11 @@ class EndsWith implements ValidationRule, SymfonyConstraint
         // Use # as delimiter to avoid issues with / in values
         $pattern = '#(' . implode('|', array_map(fn(string $v): string => preg_quote($v, '#'), $values)) . ')$#';
 
-        return new Assert\Regex(
-            pattern: $pattern,
-            message: $this->message()
-        );
+        return new Assert\Regex(pattern: $pattern, message: $this->message());
     }
 
     /**
      * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
      */
     public function message(): ?string
     {

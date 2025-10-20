@@ -205,7 +205,7 @@ trait SimpleDTOValidationTrait
      *
      * @return array<string, array<int, string>>
      */
-    private static function getInferredRules(): array
+    protected static function getInferredRules(): array
     {
         $rules = [];
 
@@ -277,7 +277,7 @@ trait SimpleDTOValidationTrait
      *
      * @return array<string, array<int, string>>
      */
-    private static function getAttributeRules(): array
+    protected static function getAttributeRules(): array
     {
         $rules = [];
 
@@ -328,7 +328,7 @@ trait SimpleDTOValidationTrait
      *
      * @return array<string, string|array<int, string>>
      */
-    private static function getCustomRules(): array
+    protected static function getCustomRules(): array
     {
         try {
             $reflection = new ReflectionClass(static::class);
@@ -347,7 +347,7 @@ trait SimpleDTOValidationTrait
      *
      * @return array<string, string>
      */
-    private static function getAllMessages(): array
+    protected static function getAllMessages(): array
     {
         $messages = [];
 
@@ -395,7 +395,7 @@ trait SimpleDTOValidationTrait
      *
      * @return array<string, string>
      */
-    private static function getAllAttributes(): array
+    protected static function getAllAttributes(): array
     {
         try {
             $reflection = new ReflectionClass(static::class);
@@ -410,7 +410,7 @@ trait SimpleDTOValidationTrait
     }
 
     /** Get Laravel validator instance. */
-    private static function getValidator(): ValidationFactory
+    protected static function getValidator(): ValidationFactory
     {
         // Try to get validator from Laravel container
         if (function_exists('app') && app()->bound('validator')) {

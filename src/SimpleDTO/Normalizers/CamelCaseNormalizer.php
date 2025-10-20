@@ -34,6 +34,7 @@ class CamelCaseNormalizer implements NormalizerInterface
             $newKey = is_string($key) ? $this->toCamelCase($key) : $key;
 
             if (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 $result[$newKey] = $this->convertKeysRecursive($value);
             } else {
                 $result[$newKey] = $value;

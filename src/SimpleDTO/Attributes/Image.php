@@ -90,9 +90,6 @@ class Image implements ValidationRule, SymfonyConstraint
 
     /**
      * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
      */
     public function message(): ?string
     {
@@ -132,12 +129,12 @@ class Image implements ValidationRule, SymfonyConstraint
         }
 
         return new Assert\Image(
-            maxSize: null !== $this->maxSize ? $this->maxSize * 1024 : null,
             mimeTypes: $mimeTypes,
-            minWidth: $this->minWidth,
-            maxWidth: $this->maxWidth,
-            maxHeight: $this->maxHeight,
-            minHeight: $this->minHeight
+            maxSize: null !== $this->maxSize && $this->maxSize > 0 ? $this->maxSize * 1024 : null,
+            minWidth: null !== $this->minWidth && $this->minWidth > 0 ? $this->minWidth : null,
+            maxWidth: null !== $this->maxWidth && $this->maxWidth > 0 ? $this->maxWidth : null,
+            minHeight: null !== $this->minHeight && $this->minHeight > 0 ? $this->minHeight : null,
+            maxHeight: null !== $this->maxHeight && $this->maxHeight > 0 ? $this->maxHeight : null,
         );
     }
 }

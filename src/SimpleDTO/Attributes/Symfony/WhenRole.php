@@ -118,19 +118,7 @@ class WhenRole implements ConditionalProperty
             }
         }
 
-        // Fall back to Symfony Security if available
-        if (class_exists('Symfony\Component\Security\Core\Security')) {
-            try {
-                // Try to get Security from service container
-                // Note: This requires Symfony to be properly initialized
-                // In most cases, context should be used instead
-                return false;
-            } catch (Throwable) {
-                return false;
-            }
-        }
-
-        // Default to false if no context and no Symfony
+        // Default to false if no context
         return false;
     }
 }

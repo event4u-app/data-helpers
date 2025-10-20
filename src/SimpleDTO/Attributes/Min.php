@@ -45,10 +45,7 @@ class Min implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\GreaterThanOrEqual(
-            value: $this->value,
-            message: $this->message
-        );
+        return new Assert\GreaterThanOrEqual(value: $this->value, message: $this->message);
     }
     public function message(): ?string
     {

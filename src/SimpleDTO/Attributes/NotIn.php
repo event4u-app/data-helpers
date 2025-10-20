@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class NotIn implements ValidationRule, SymfonyConstraint
 {
-    public $message;
+    public ?string $message = null;
     use RequiresSymfonyValidator;
 
     /** @param array<int|string> $values */
@@ -48,11 +48,7 @@ class NotIn implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\Choice(
-            choices: $this->values,
-            message: $this->message,
-            match: false
-        );
+        return new Assert\Choice(choices: $this->values, match: false, message: $this->message);
     }
     public function message(): ?string
     {

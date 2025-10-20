@@ -48,7 +48,7 @@ class WhenGranted implements ConditionalProperty
                 // Try to get Security from context
                 if (isset($context['security'])) {
                     $security = $context['security'];
-                    if (method_exists($security, 'isGranted')) {
+                    if (is_object($security) && method_exists($security, 'isGranted')) {
                         return $security->isGranted($this->attribute, $this->subject);
                     }
                 }
@@ -56,7 +56,7 @@ class WhenGranted implements ConditionalProperty
                 // Try to get AuthorizationChecker from context
                 if (isset($context['authorization_checker'])) {
                     $checker = $context['authorization_checker'];
-                    if (method_exists($checker, 'isGranted')) {
+                    if (is_object($checker) && method_exists($checker, 'isGranted')) {
                         return $checker->isGranted($this->attribute, $this->subject);
                     }
                 }
@@ -70,12 +70,12 @@ class WhenGranted implements ConditionalProperty
             $user = $context['user'];
 
             // Check if user has method to check permission
-            if (method_exists($user, 'isGranted')) {
+            if (is_object($user) && method_exists($user, 'isGranted')) {
                 return $user->isGranted($this->attribute, $this->subject);
             }
 
             // Check roles if attribute starts with ROLE_
-            if (str_starts_with($this->attribute, 'ROLE_') && method_exists($user, 'getRoles')) {
+            if (is_object($user) && str_starts_with($this->attribute, 'ROLE_') && method_exists($user, 'getRoles')) {
                 $roles = $user->getRoles();
                 return in_array($this->attribute, $roles, true);
             }

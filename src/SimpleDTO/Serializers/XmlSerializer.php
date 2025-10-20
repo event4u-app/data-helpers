@@ -60,6 +60,7 @@ class XmlSerializer implements SerializerInterface
             $key = $this->sanitizeTagName($key);
 
             if (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 $child = $dom->createElement($key);
                 $parent->appendChild($child);
                 $this->arrayToXml($value, $child, $dom);
@@ -81,14 +82,17 @@ class XmlSerializer implements SerializerInterface
     private function sanitizeTagName(string $name): string
     {
         // Replace invalid characters with underscore
-        $name = preg_replace('/[^a-zA-Z0-9_\-.]/', '_', $name);
-
-        // Ensure it starts with a letter or underscore
-        if (!preg_match('/^[a-zA-Z_]/', (string)$name)) {
-            return '_' . $name;
+        $sanitized = preg_replace('/[^a-zA-Z0-9_\-.]/', '_', $name);
+        if (null === $sanitized) {
+            $sanitized = $name;
         }
 
-        return $name;
+        // Ensure it starts with a letter or underscore
+        if (!preg_match('/^[a-zA-Z_]/', $sanitized)) {
+            return '_' . $sanitized;
+        }
+
+        return $sanitized;
     }
 
     public function getContentType(): string

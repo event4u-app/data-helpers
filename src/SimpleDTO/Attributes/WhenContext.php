@@ -70,7 +70,7 @@ class WhenContext implements ConditionalProperty
 {
     /**
      * @param string $key Context key to check
-     * @param string|mixed|null $operatorOrValue Operator (if 3 params) or value (if 2 params)
+     * @param string|null $operatorOrValue Operator (if 3 params) or value (if 2 params)
      * @param mixed $value Value to compare (only used with 3 parameters)
      */
     public function __construct(

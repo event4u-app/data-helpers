@@ -33,6 +33,7 @@ class CsvSerializer implements SerializerInterface
     {
         // Check if data is a collection (array of arrays)
         if ($this->isCollection($data)) {
+            /** @var array<int, array<string, mixed>> $data */
             return $this->serializeCollection($data);
         }
 
@@ -125,6 +126,7 @@ class CsvSerializer implements SerializerInterface
             $newKey = '' === $prefix ? $key : $prefix . '.' . $key;
 
             if (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 $result = array_merge($result, $this->flattenArray($value, $newKey));
             } else {
                 $result[$newKey] = $value;

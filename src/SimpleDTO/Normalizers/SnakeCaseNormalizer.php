@@ -34,6 +34,7 @@ class SnakeCaseNormalizer implements NormalizerInterface
             $newKey = is_string($key) ? $this->toSnakeCase($key) : $key;
 
             if (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 $result[$newKey] = $this->convertKeysRecursive($value);
             } else {
                 $result[$newKey] = $value;

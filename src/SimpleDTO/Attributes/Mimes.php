@@ -46,9 +46,6 @@ class Mimes implements ValidationRule, SymfonyConstraint
 
     /**
      * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
      */
     public function message(): ?string
     {
@@ -91,9 +88,7 @@ class Mimes implements ValidationRule, SymfonyConstraint
             };
         }
 
-        return new Assert\File(
-            mimeTypes: $mimeTypes
-        );
+        return new Assert\File(mimeTypes: $mimeTypes);
     }
 }
 

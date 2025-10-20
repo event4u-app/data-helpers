@@ -33,7 +33,7 @@ trait SimpleDTOOptionalTrait
      *
      * @return array<string, OptionalAttribute|true>
      */
-    private static function getOptionalProperties(): array
+    protected static function getOptionalProperties(): array
     {
         static $cache = [];
 
@@ -86,7 +86,7 @@ trait SimpleDTOOptionalTrait
      *
      * @param string $propertyName The property name
      */
-    private static function isOptionalProperty(string $propertyName): bool
+    protected static function isOptionalProperty(string $propertyName): bool
     {
         $optionalProperties = static::getOptionalProperties();
 
@@ -100,7 +100,7 @@ trait SimpleDTOOptionalTrait
      *
      * @return array<string, mixed>
      */
-    private static function wrapOptionalProperties(array $data): array
+    protected static function wrapOptionalProperties(array $data): array
     {
         $optionalProperties = static::getOptionalProperties();
 
@@ -136,7 +136,7 @@ trait SimpleDTOOptionalTrait
      *
      * @return array<string, mixed>
      */
-    private static function unwrapOptionalProperties(array $data, bool $includeEmpty = true): array
+    protected static function unwrapOptionalProperties(array $data, bool $includeEmpty = true): array
     {
         $unwrapped = [];
 
@@ -217,7 +217,7 @@ trait SimpleDTOOptionalTrait
      *
      * @return array<string>
      */
-    private static function getOptionalPropertyNames(): array
+    protected static function getOptionalPropertyNames(): array
     {
         return array_keys(static::getOptionalProperties());
     }

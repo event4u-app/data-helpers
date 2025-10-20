@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     public function __construct(
  *         #[Json]
  *         public readonly string $settings,
- *         
+ *
  *         #[Json]
  *         public readonly string $metadata,
  *     ) {}
@@ -39,19 +39,16 @@ class Json implements ValidationRule, SymfonyConstraint
         return 'json';
     }
 
-    /**
-     * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
-     */
-
     public function constraint(): Constraint|array
     {
         $this->ensureSymfonyValidatorAvailable();
 
         return new Assert\Json();
     }
+
+    /**
+     * Get validation error message.
+     */
     public function message(): ?string
     {
         return "The attribute must be a valid JSON string.";

@@ -100,7 +100,7 @@ trait SimpleDTORequestValidationTrait
      * @return array<string, mixed> Validated data
      * @throws ValidationException
      */
-    private static function performValidation(array $data, bool $throw): array
+    protected static function performValidation(array $data, bool $throw): array
     {
         // Get validation rules
         $rules = static::getAllRules();
@@ -152,7 +152,7 @@ trait SimpleDTORequestValidationTrait
      * @return array<string, mixed>
      * @throws ValidationException
      */
-    private static function validateWithLaravel(
+    protected static function validateWithLaravel(
         array $data,
         array $rules,
         array $messages,

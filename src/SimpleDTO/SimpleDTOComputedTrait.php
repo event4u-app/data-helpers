@@ -81,7 +81,10 @@ trait SimpleDTOComputedTrait
                 $attributes = ReflectionCache::getMethodAttributes($this, $method->getName());
 
                 if (isset($attributes[Computed::class])) {
-                    $computed[$method->getName()] = $attributes[Computed::class];
+                    $attribute = $attributes[Computed::class];
+                    if ($attribute instanceof Computed) {
+                        $computed[$method->getName()] = $attribute;
+                    }
                 }
             }
         } catch (ReflectionException) {

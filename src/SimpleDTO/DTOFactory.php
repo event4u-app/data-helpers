@@ -43,6 +43,8 @@ abstract class DTOFactory
 {
     protected Faker $faker;
     protected int $count = 1;
+
+    /** @var array<string, callable(): array<string, mixed>> */
     protected array $states = [];
 
     /**

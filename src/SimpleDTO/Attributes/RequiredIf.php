@@ -18,7 +18,7 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
  *         #[Required]
  *         #[In(['pickup', 'delivery'])]
  *         public readonly string $shippingMethod,
- *         
+ *
  *         #[RequiredIf('shippingMethod', 'delivery')]
  *         public readonly ?string $address = null,
  *     ) {}
@@ -41,13 +41,14 @@ class RequiredIf implements ValidationRule
     public function rule(): string
     {
         $value = is_bool($this->value) ? ($this->value ? 'true' : 'false') : $this->value;
-        return sprintf('required_if:%s,%s', $this->field, $value);
+        return sprintf('required_if:%s,%s', $this->field, (string) $value);
     }
 
     /** Get validation error message. */
     public function message(): ?string
     {
-        return sprintf('The attribute field is required when %s is %s.', $this->field, $this->value);
+        $valueStr = is_bool($this->value) ? ($this->value ? 'true' : 'false') : (string) $this->value;
+        return sprintf('The attribute field is required when %s is %s.', $this->field, $valueStr);
     }
 }
 

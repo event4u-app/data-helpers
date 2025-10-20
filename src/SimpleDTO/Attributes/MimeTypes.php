@@ -48,9 +48,6 @@ class MimeTypes implements ValidationRule, SymfonyConstraint
 
     /**
      * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
      */
     public function message(): ?string
     {
@@ -63,9 +60,7 @@ class MimeTypes implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\File(
-            mimeTypes: $this->types
-        );
+        return new Assert\File(mimeTypes: $this->types);
     }
 }
 

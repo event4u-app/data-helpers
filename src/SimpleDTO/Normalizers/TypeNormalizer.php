@@ -98,6 +98,9 @@ class TypeNormalizer implements NormalizerInterface
         return (string)$value;
     }
 
+    /**
+     * @return array<mixed>
+     */
     private function toArray(mixed $value): array
     {
         if (is_array($value)) {

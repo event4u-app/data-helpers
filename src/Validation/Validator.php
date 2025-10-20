@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Validation;
 
+use event4u\DataHelpers\Exceptions\ValidationException;
+
 /**
  * Framework-independent validator.
  *
@@ -47,7 +49,11 @@ class Validator
         private readonly array $attributes = [],
     ) {}
 
-    /** Run validation. */
+    /**
+     * Run validation.
+     *
+     * @return array<string, mixed>
+     */
     public function validate(): array
     {
         $this->errors = [];
@@ -77,7 +83,7 @@ class Validator
 
         if ([] !== $this->errors) {
             // Use ValidationException for consistency
-            throw \event4u\DataHelpers\Exceptions\ValidationException::withMessages($this->errors);
+            throw ValidationException::withMessages($this->errors);
         }
 
         return $this->validated;

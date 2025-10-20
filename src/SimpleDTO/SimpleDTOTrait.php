@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+
 /**
  * Trait providing default implementations for DTOs.
  *

@@ -53,13 +53,6 @@ class Ip implements ValidationRule, SymfonyConstraint
         return $this->version;
     }
 
-    /**
-     * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
-     */
-
     public function constraint(): Constraint|array
     {
         $this->ensureSymfonyValidatorAvailable();
@@ -68,10 +61,13 @@ class Ip implements ValidationRule, SymfonyConstraint
             // Use ALL to accept both IPv4 and IPv6
             return new Assert\Ip(version: Assert\Ip::ALL);
         }
-        return new Assert\Ip(
-            version: 'ipv4' === $this->version ? Assert\Ip::V4 : Assert\Ip::V6
-        );
+
+        return new Assert\Ip(version: 'ipv4' === $this->version ? Assert\Ip::V4 : Assert\Ip::V6);
     }
+
+    /**
+     * Get validation error message.
+     */
     public function message(): ?string
     {
         if (null === $this->version) {

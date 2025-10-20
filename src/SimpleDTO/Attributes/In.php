@@ -44,10 +44,7 @@ class In implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\Choice(
-            choices: $this->values,
-            message: $this->message
-        );
+        return new Assert\Choice(choices: $this->values, message: $this->message);
     }
     public function message(): ?string
     {

@@ -22,7 +22,7 @@ use RuntimeException;
  * }
  * ```
  */
-class ValidationException extends RuntimeException
+final class ValidationException extends RuntimeException
 {
     /**
      * @param array<string, array<string>> $errors
@@ -167,7 +167,12 @@ class ValidationException extends RuntimeException
     /** Convert to JSON representation. */
     public function toJson(int $options = 0): string
     {
-        return json_encode($this->toArray(), $options);
+        $json = json_encode($this->toArray(), $options);
+        if (false === $json) {
+            throw new \RuntimeException('Failed to encode validation errors to JSON: ' . json_last_error_msg());
+        }
+
+        return $json;
     }
 }
 

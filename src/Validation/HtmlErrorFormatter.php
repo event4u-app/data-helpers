@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Validation;
 
+use event4u\DataHelpers\Exceptions\ValidationException;
+
 /**
  * Format validation errors as HTML for forms.
  *

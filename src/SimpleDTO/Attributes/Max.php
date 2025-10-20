@@ -45,10 +45,7 @@ class Max implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\LessThanOrEqual(
-            value: $this->value,
-            message: $this->message
-        );
+        return new Assert\LessThanOrEqual(value: $this->value, message: $this->message);
     }
     public function message(): ?string
     {

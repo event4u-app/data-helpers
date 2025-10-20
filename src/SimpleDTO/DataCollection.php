@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\SimpleDTO;
 
 use ArrayAccess;
 use Countable;
+use event4u\DataHelpers\SimpleDTO;
 use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
@@ -30,7 +31,7 @@ use Traversable;
  * @implements IteratorAggregate<int, TDto>
  * @implements ArrayAccess<int, TDto>
  */
-class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonSerializable
+final class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonSerializable
 {
     /** @var array<int, TDto> */
     protected array $items = [];
@@ -203,9 +204,14 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /** Convert all DTOs to JSON. */
-    public function toJson($options = 0): string
+    public function toJson(int $options = 0): string
     {
-        return json_encode($this->jsonSerialize(), $options);
+        $json = json_encode($this->jsonSerialize(), $options);
+        if (false === $json) {
+            throw new \RuntimeException('Failed to encode collection to JSON: ' . json_last_error_msg());
+        }
+
+        return $json;
     }
 
     /**
@@ -262,7 +268,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      * @param TDto|array<string, mixed> $value
      * @return TDto
      */
-    protected function ensureDTO(mixed $value): mixed
+    private function ensureDTO(mixed $value): mixed
     {
         if ($value instanceof $this->dtoClass) {
             return $value;

@@ -32,7 +32,7 @@ trait SimpleDTOLazyCastTrait
      * @param array<string, string> $casts
      * @return array<string, mixed>
      */
-    private static function applyLazyCasts(array $data, array $casts): array
+    protected static function applyLazyCasts(array $data, array $casts): array
     {
         foreach ($casts as $key => $cast) {
             // Skip if property is not present in data
@@ -56,7 +56,7 @@ trait SimpleDTOLazyCastTrait
      *
      * Some casts (like default values) should be applied even for null.
      */
-    private static function isCastRequired(string $cast): bool
+    protected static function isCastRequired(string $cast): bool
     {
         // Add cast types that should be applied even for null values
         $requiredCasts = [
@@ -83,7 +83,7 @@ trait SimpleDTOLazyCastTrait
      * @param array<string, string> $casts
      * @return array<string, mixed>
      */
-    private static function applyChangedCasts(array $data, array $originalData, array $casts): array
+    protected static function applyChangedCasts(array $data, array $originalData, array $casts): array
     {
         foreach ($casts as $key => $cast) {
             // Skip if property is not present in data
@@ -142,10 +142,10 @@ trait SimpleDTOLazyCastTrait
      *
      * @param array<string, mixed> $data
      * @param array<string, string> $casts
-     * @param array{lazy: bool, skipNull: bool, trackCasted: bool} $options
+     * @param array{lazy?: bool, skipNull?: bool, trackCasted?: bool} $options
      * @return array<string, mixed>
      */
-    private static function applySelectiveCasts(
+    protected static function applySelectiveCasts(
         array $data,
         array $casts,
         array $options = []
@@ -177,7 +177,7 @@ trait SimpleDTOLazyCastTrait
     }
 
     /** Optimize nested DTO casting by checking if value is already a DTO instance. */
-    private static function isAlreadyCasted(mixed $value, string $dtoClass): bool
+    protected static function isAlreadyCasted(mixed $value, string $dtoClass): bool
     {
         // Check if value is already an instance of the target DTO class
         return $value instanceof $dtoClass;
@@ -190,7 +190,7 @@ trait SimpleDTOLazyCastTrait
      * @param array<string, string> $casts
      * @return array<string, mixed>
      */
-    private static function applyOptimizedCasts(array $data, array $casts): array
+    protected static function applyOptimizedCasts(array $data, array $casts): array
     {
         foreach ($casts as $key => $cast) {
             if (!array_key_exists($key, $data)) {

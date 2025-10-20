@@ -13,6 +13,7 @@ use Exception;
  */
 trait SimpleDTOBenchmarkTrait
 {
+    /** @var array<class-string, array<string, array{duration: float, memory: int, throughput: float, avgDuration: float, avgMemory: float}>> */
     private static array $benchmarkResults = [];
 
     /**
@@ -20,7 +21,7 @@ trait SimpleDTOBenchmarkTrait
      *
      * @param array<string, mixed> $data Data to use for instantiation
      * @param int $iterations Number of iterations
-     * @return array{duration: float, memory: int, throughput: float}
+     * @return array{duration: float, memory: int, throughput: float, avgDuration: float, avgMemory: float}
      */
     public static function benchmarkInstantiation(array $data, int $iterations = 1000): array
     {
@@ -48,7 +49,7 @@ trait SimpleDTOBenchmarkTrait
      *
      * @param array<string, mixed> $data Data to use for instantiation
      * @param int $iterations Number of iterations
-     * @return array{duration: float, memory: int, throughput: float}
+     * @return array{duration: float, memory: int, throughput: float, avgDuration: float, avgMemory: float}
      */
     public static function benchmarkToArray(array $data, int $iterations = 1000): array
     {
@@ -78,7 +79,7 @@ trait SimpleDTOBenchmarkTrait
      *
      * @param array<string, mixed> $data Data to use for instantiation
      * @param int $iterations Number of iterations
-     * @return array{duration: float, memory: int, throughput: float}
+     * @return array{duration: float, memory: int, throughput: float, avgDuration: float, avgMemory: float}
      */
     public static function benchmarkJsonSerialize(array $data, int $iterations = 1000): array
     {
@@ -108,7 +109,7 @@ trait SimpleDTOBenchmarkTrait
      *
      * @param array<string, mixed> $data Data to use for instantiation
      * @param int $iterations Number of iterations
-     * @return array{duration: float, memory: int, throughput: float}
+     * @return array{duration: float, memory: int, throughput: float, avgDuration: float, avgMemory: float}
      */
     public static function benchmarkValidation(array $data, int $iterations = 1000): array
     {
@@ -160,20 +161,16 @@ trait SimpleDTOBenchmarkTrait
      *
      * @param array<string, mixed> $data Data to use for benchmarking
      * @param int $iterations Number of iterations
-     * @return array{withCache: array, withoutCache: array, speedup: array}
+     * @return array{withCache: array{duration: float, memory: int, throughput: float}, withoutCache: array{duration: float, memory: int, throughput: float}, speedup: array{duration: float, memory: float, throughput: float}}
      */
     public static function compareCachePerformance(array $data, int $iterations = 1000): array
     {
         // With cache
-        if (method_exists(static::class, 'warmUpCache')) {
-            static::warmUpCache();
-        }
+        static::warmUpCache();
         $withCache = static::benchmarkInstantiation($data, $iterations);
 
         // Without cache
-        if (method_exists(static::class, 'clearPerformanceCache')) {
-            static::clearPerformanceCache();
-        }
+        static::clearPerformanceCache();
         $withoutCache = static::benchmarkInstantiation($data, $iterations);
 
         return [
@@ -182,6 +179,7 @@ trait SimpleDTOBenchmarkTrait
             'speedup' => [
                 'duration' => $withoutCache['duration'] / $withCache['duration'],
                 'memory' => 0 < $withCache['memory'] ? $withoutCache['memory'] / $withCache['memory'] : 1.0,
+                'throughput' => $withCache['throughput'] / $withoutCache['throughput'],
             ],
         ];
     }
@@ -189,7 +187,7 @@ trait SimpleDTOBenchmarkTrait
     /**
      * Generate a benchmark report.
      *
-     * @param array<string, array{duration: float, memory: int, throughput: float}> $results Benchmark results
+     * @param array<string, array{duration: float, memory: int, throughput: float, avgDuration: float, avgMemory: float}> $results Benchmark results
      * @return string Formatted report
      */
     public static function generateBenchmarkReport(array $results): string
@@ -213,7 +211,7 @@ trait SimpleDTOBenchmarkTrait
     /**
      * Get all benchmark results.
      *
-     * @return array<class-string, array<string, array{duration: float, memory: int, throughput: float}>>
+     * @return array<class-string, array<string, array{duration: float, memory: int, throughput: float, avgDuration: float, avgMemory: float}>>
      */
     public static function getBenchmarkResults(): array
     {

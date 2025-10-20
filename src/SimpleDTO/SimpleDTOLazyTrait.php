@@ -47,7 +47,7 @@ trait SimpleDTOLazyTrait
      *
      * @return array<string, Lazy|true>
      */
-    private static function getLazyProperties(): array
+    protected static function getLazyProperties(): array
     {
         static $cache = [];
 
@@ -180,7 +180,7 @@ trait SimpleDTOLazyTrait
      *
      * @return array<string, mixed>
      */
-    private static function wrapLazyProperties(array $data): array
+    protected static function wrapLazyProperties(array $data): array
     {
         $lazyProperties = static::getLazyProperties();
 

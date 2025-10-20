@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use event4u\DataHelpers\SimpleDTO;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
@@ -90,6 +91,7 @@ class SimpleDTOEloquentCast implements CastsAttributes
         }
 
         // Create DTO from array
+        /** @var array<string, mixed> $value */
         return $this->dtoClass::fromArray($value);
     }
 
@@ -98,8 +100,6 @@ class SimpleDTOEloquentCast implements CastsAttributes
      *
      * @param TDto|null $value
      * @param array<string, mixed> $attributes
-     *
-     * @return array<string, mixed>|null
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
@@ -119,7 +119,11 @@ class SimpleDTOEloquentCast implements CastsAttributes
         }
 
         // Serialize DTO to JSON
-        return json_encode($value->toArray());
+        $json = json_encode($value->toArray());
+        if (false === $json) {
+            throw new \RuntimeException('Failed to encode DTO to JSON: ' . json_last_error_msg());
+        }
+        return $json;
     }
 
     /**

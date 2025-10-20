@@ -62,7 +62,7 @@ class Unique implements ValidationRule, SymfonyConstraint
         $rule = sprintf('unique:%s,%s', $table, $this->column);
 
         if (null !== $this->ignore) {
-            $rule .= sprintf(',%s,%s', $this->ignore, $this->idColumn);
+            $rule .= sprintf(',%s,%s', (string) $this->ignore, $this->idColumn);
         }
 
         return $rule;
@@ -70,9 +70,6 @@ class Unique implements ValidationRule, SymfonyConstraint
 
     /**
      * Get validation error message.
-     *
-     * @param string $attribute
-     * @return string
      */
     public function message(): ?string
     {

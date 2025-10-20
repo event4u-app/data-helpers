@@ -30,9 +30,12 @@ use Throwable;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class WhenSymfonyRole implements ConditionalProperty
 {
+    /** @var array<string> */
     private readonly array $roles;
 
-    /** @param string|array $roles Role(s) to check */
+    /**
+     * @param string|array<string> $roles Role(s) to check
+     */
     public function __construct(
         string|array $roles,
     ) {
@@ -47,7 +50,7 @@ class WhenSymfonyRole implements ConditionalProperty
                 // Try to get Security from context
                 if (isset($context['security'])) {
                     $security = $context['security'];
-                    if (method_exists($security, 'isGranted')) {
+                    if (is_object($security) && method_exists($security, 'isGranted')) {
                         foreach ($this->roles as $role) {
                             if ($security->isGranted($role)) {
                                 return true;
@@ -60,7 +63,7 @@ class WhenSymfonyRole implements ConditionalProperty
                 // Try to get AuthorizationChecker from context
                 if (isset($context['authorization_checker'])) {
                     $checker = $context['authorization_checker'];
-                    if (method_exists($checker, 'isGranted')) {
+                    if (is_object($checker) && method_exists($checker, 'isGranted')) {
                         foreach ($this->roles as $role) {
                             if ($checker->isGranted($role)) {
                                 return true;
@@ -79,7 +82,7 @@ class WhenSymfonyRole implements ConditionalProperty
             $user = $context['user'];
 
             // Check if user has getRoles method
-            if (method_exists($user, 'getRoles')) {
+            if (is_object($user) && method_exists($user, 'getRoles')) {
                 $userRoles = $user->getRoles();
                 foreach ($this->roles as $role) {
                     if (in_array($role, $userRoles, true)) {
@@ -93,6 +96,9 @@ class WhenSymfonyRole implements ConditionalProperty
         return false;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getRoles(): array
     {
         return $this->roles;
