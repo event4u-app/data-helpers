@@ -97,7 +97,7 @@ composer require event4u/data-helpers
 
 **Framework support** (all optional):
 
-- 🔴 **Laravel** 10+ - Collections, Eloquent Models
+- 🔴 **Laravel** 9+ - Collections, Eloquent Models
 - ⚫ **Symfony/Doctrine** - Collections, Entities
 - 🔧 **Standalone PHP** - Works out of the box
 
@@ -773,7 +773,7 @@ This package works with **any PHP 8.2+ project**. Framework support is **optiona
 
 ✅ Arrays, Objects, JSON, XML
 
-### Laravel 10+ (Optional)
+### Laravel 9+ (Optional)
 
 ```bash
 composer require illuminate/support illuminate/database
@@ -999,7 +999,7 @@ Run benchmarks yourself: `composer benchmark`
 ## 📋 Requirements
 
 - **PHP 8.2+**
-- **Optional:** Laravel 10+, Symfony 5+, Doctrine Collections 1.6+, Doctrine ORM 2.10+
+- **Optional:** Laravel 9+, Symfony 5+, Doctrine Collections 1.6+, Doctrine ORM 2.10+
 
 ---
 

@@ -19,14 +19,14 @@ echo -e "${BLUE}║${NC}  ${CYAN}Testing Package Verification${NC}              
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-# Test 1: Verify Laravel 9 doesn't have Symfony or Doctrine
-echo -e "${YELLOW}Test 1:${NC} Verifying Laravel 9 setup..."
-OUTPUT=$(./scripts/test-isolated.sh --laravel 9 --php 8.2 --no-tests 2>&1)
+# Test 1: Verify Laravel 10 doesn't have Symfony or Doctrine
+echo -e "${YELLOW}Test 1:${NC} Verifying Laravel 10 setup..."
+OUTPUT=$(./scripts/test-isolated.sh --laravel 10 --php 8.3 --no-tests 2>&1)
 
 if echo "$OUTPUT" | grep -q "Package verification passed"; then
-    echo -e "${GREEN}✓${NC}  Laravel 9: No forbidden packages found"
+    echo -e "${GREEN}✓${NC}  Laravel 10: No forbidden packages found"
 else
-    echo -e "${RED}✗${NC}  Laravel 9: Package verification failed"
+    echo -e "${RED}✗${NC}  Laravel 10: Package verification failed"
     echo "$OUTPUT" | grep -A 10 "Verifying installed packages"
     exit 1
 fi

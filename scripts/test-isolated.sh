@@ -26,7 +26,7 @@ usage() {
     echo ""
     echo -e "${YELLOW}Options:${NC}"
     echo "  --plain                  Test with plain PHP (no frameworks)"
-    echo "  --laravel VERSION        Test with only Laravel (9, 10, or 11)"
+    echo "  --laravel VERSION        Test with only Laravel (10, or 11)"
     echo "  --symfony VERSION        Test with only Symfony (6 or 7)"
     echo "  --doctrine VERSION       Test with only Doctrine (2 or 3)"
     echo "  --php VERSION            PHP version to use (8.2, 8.3, or 8.4, default: 8.4)"
@@ -244,14 +244,6 @@ verify_installed_packages() {
             # Check for wrong Laravel versions
             local wrong_laravel=""
             case "$version" in
-                9)
-                    wrong_laravel=$(echo "$installed_packages" | grep -E "^illuminate/" | while read pkg; do
-                        local pkg_version=$(run_in_container composer show "$pkg" --format=json 2>/dev/null | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
-                        if [[ ! "$pkg_version" =~ ^9\. ]]; then
-                            echo "$pkg ($pkg_version)"
-                        fi
-                    done)
-                    ;;
                 10)
                     wrong_laravel=$(echo "$installed_packages" | grep -E "^illuminate/" | while read pkg; do
                         local pkg_version=$(run_in_container composer show "$pkg" --format=json 2>/dev/null | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
@@ -526,6 +518,13 @@ else
 
     # Reinstall Pest packages after framework installation to ensure compatibility
     echo -e "${YELLOW}  Reinstalling Pest packages for compatibility...${NC}"
+
+    # Delete vendor directory again to avoid file locking issues
+    # Use find with -delete for more robust deletion
+    run_in_container sh -c 'find vendor -type f -delete 2>/dev/null || true'
+    run_in_container sh -c 'find vendor -type d -delete 2>/dev/null || true'
+    run_in_container rm -rf vendor 2>/dev/null || true
+
     run_in_container composer require --dev pestphp/pest pestphp/pest-plugin-laravel --with-all-dependencies --no-interaction --quiet
 fi
 
