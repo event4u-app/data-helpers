@@ -161,6 +161,7 @@ TS;
     /**
      * Get all properties for a DTO class.
      *
+     * @param ReflectionClass<object> $reflection
      * @return array<string, string> Property name => TypeScript type
      */
     private function getProperties(ReflectionClass $reflection): array
@@ -208,6 +209,7 @@ TS;
     /**
      * Get computed properties from DTO class.
      *
+     * @param ReflectionClass<object> $reflection
      * @return array<string, string> Property name => TypeScript type
      */
     private function getComputedProperties(ReflectionClass $reflection): array
@@ -297,7 +299,12 @@ TS;
             $instance = $reflection->newInstanceWithoutConstructor();
             $casts = $method->invoke($instance);
 
-            $this->castsCache[$className] = $casts ?? [];
+            if (!is_array($casts)) {
+                $casts = [];
+            }
+
+            /** @var array<string, string> $casts */
+            $this->castsCache[$className] = $casts;
 
             return $this->castsCache[$className];
         } catch (Throwable) {
@@ -408,6 +415,7 @@ TS;
     /**
      * Get all traits used by a class (including parent classes).
      *
+     * @param ReflectionClass<object> $reflection
      * @return array<string>
      */
     private function getAllTraits(ReflectionClass $reflection): array
@@ -427,21 +435,33 @@ TS;
         return array_unique($traits);
     }
 
-    /** Convert enum to TypeScript union type. */
+    /**
+     * Convert enum to TypeScript union type.
+     *
+     * @param class-string $enumClass
+     */
     private function convertEnumType(string $enumClass): string
     {
         $reflection = new ReflectionClass($enumClass);
         $cases = $reflection->getMethod('cases')->invoke(null);
 
+        if (!is_array($cases)) {
+            return 'any';
+        }
+
         $values = array_map(function($case) {
             // Check if it's a backed enum
-            if (property_exists($case, 'value')) {
+            if (is_object($case) && property_exists($case, 'value')) {
                 $value = $case->value;
 
                 return is_string($value) ? sprintf("'%s'", $value) : $value;
             }
 
-            return sprintf("'%s'", $case->name);
+            if (is_object($case) && property_exists($case, 'name')) {
+                return sprintf("'%s'", $case->name);
+            }
+
+            return 'any';
         }, $cases);
 
         return implode(' | ', $values);
@@ -453,7 +473,12 @@ TS;
         $types = [];
 
         foreach ($type->getTypes() as $namedType) {
-            $types[] = $this->convertNamedType($namedType);
+            if ($namedType instanceof ReflectionNamedType) {
+                $types[] = $this->convertNamedType($namedType);
+            } elseif (class_exists('ReflectionIntersectionType') && $namedType instanceof \ReflectionIntersectionType) {
+                // For intersection types, just use 'any' for now
+                $types[] = 'any';
+            }
         }
 
         return implode(' | ', array_unique($types));

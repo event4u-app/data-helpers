@@ -32,7 +32,9 @@ class CollectionCast implements CastsAttributes
     {
     }
 
-    /** @return DataCollection<int, mixed>|null */
+    /**
+     * @return DataCollection<\event4u\DataHelpers\SimpleDTO>|null
+     */
     public function get(mixed $value, array $attributes): ?DataCollection
     {
         if (null === $value) {
@@ -51,7 +53,9 @@ class CollectionCast implements CastsAttributes
 
         // If DTO class is specified, create typed DataCollection
         if (null !== $this->dtoClass && class_exists($this->dtoClass)) {
-            return DataCollection::forDto($this->dtoClass, $value);
+            /** @var class-string<\event4u\DataHelpers\SimpleDTO> $dtoClass */
+            $dtoClass = $this->dtoClass;
+            return DataCollection::forDto($dtoClass, $value);
         }
 
         // Create generic DataCollection (without DTO type)

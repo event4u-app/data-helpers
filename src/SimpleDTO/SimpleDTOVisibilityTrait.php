@@ -25,7 +25,7 @@ use ReflectionProperty;
  */
 trait SimpleDTOVisibilityTrait
 {
-    /** @var array<string, array<string>> Cache for hidden properties per class */
+    /** @var array<string, array<string>|array<string, Visible>> Cache for hidden properties per class */
     private static array $hiddenPropertiesCache = [];
 
     /** @var array<string>|null Properties to include (only) */
@@ -47,7 +47,17 @@ trait SimpleDTOVisibilityTrait
         $cacheKey = static::class . ':array';
 
         if (isset(self::$hiddenPropertiesCache[$cacheKey])) {
-            return self::$hiddenPropertiesCache[$cacheKey];
+            $cached = self::$hiddenPropertiesCache[$cacheKey];
+            // Check if this is a string array (hidden properties) or Visible array
+            if (is_array($cached)) {
+                $firstValue = reset($cached);
+                if ($firstValue instanceof Visible) {
+                    // This is a Visible array, not a string array
+                    return [];
+                }
+            }
+            /** @var array<int, string> */
+            return $cached;
         }
 
         $hidden = [];
@@ -66,6 +76,7 @@ trait SimpleDTOVisibilityTrait
             }
         }
 
+        /** @var array<string> $hidden */
         self::$hiddenPropertiesCache[$cacheKey] = $hidden;
 
         return $hidden;
@@ -81,7 +92,17 @@ trait SimpleDTOVisibilityTrait
         $cacheKey = static::class . ':json';
 
         if (isset(self::$hiddenPropertiesCache[$cacheKey])) {
-            return self::$hiddenPropertiesCache[$cacheKey];
+            $cached = self::$hiddenPropertiesCache[$cacheKey];
+            // Check if this is a string array (hidden properties) or Visible array
+            if (is_array($cached)) {
+                $firstValue = reset($cached);
+                if ($firstValue instanceof Visible) {
+                    // This is a Visible array, not a string array
+                    return [];
+                }
+            }
+            /** @var array<int, string> */
+            return $cached;
         }
 
         $hidden = [];
@@ -100,6 +121,7 @@ trait SimpleDTOVisibilityTrait
             }
         }
 
+        /** @var array<string> $hidden */
         self::$hiddenPropertiesCache[$cacheKey] = $hidden;
 
         return $hidden;
@@ -115,7 +137,13 @@ trait SimpleDTOVisibilityTrait
         $cacheKey = static::class . ':visible';
 
         if (isset(self::$hiddenPropertiesCache[$cacheKey])) {
-            return self::$hiddenPropertiesCache[$cacheKey];
+            $cached = self::$hiddenPropertiesCache[$cacheKey];
+            if (is_array($cached) && isset($cached[0])) {
+                // This is a string array, not a Visible array
+                return [];
+            }
+            /** @var array<string, Visible> */
+            return $cached;
         }
 
         $visible = [];
@@ -125,10 +153,14 @@ trait SimpleDTOVisibilityTrait
             $attributes = $property->getAttributes(Visible::class);
 
             if (!empty($attributes)) {
-                $visible[$property->getName()] = $attributes[0]->newInstance();
+                $instance = $attributes[0]->newInstance();
+                if ($instance instanceof Visible) {
+                    $visible[$property->getName()] = $instance;
+                }
             }
         }
 
+        /** @var array<string, Visible> $visible */
         self::$hiddenPropertiesCache[$cacheKey] = $visible;
 
         return $visible;

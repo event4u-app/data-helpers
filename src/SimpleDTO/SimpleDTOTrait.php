@@ -279,10 +279,12 @@ trait SimpleDTOTrait
      * Create a type-safe collection of DTOs.
      *
      * @param array<int|string, mixed> $items
-     * @return DataCollection<static>
+     * @return DataCollection<static> The collection of DTOs
+     * @phpstan-return DataCollection<static>
      */
     public static function collection(array $items = []): DataCollection
     {
+        /** @var DataCollection<static> */
         return DataCollection::forDto(static::class, $items);
     }
 }

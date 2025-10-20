@@ -32,6 +32,7 @@ class TrimStringsTransformer implements TransformerInterface
             if (is_string($value)) {
                 $data[$key] = trim($value);
             } elseif (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 $data[$key] = $this->trimRecursive($value);
             }
         }

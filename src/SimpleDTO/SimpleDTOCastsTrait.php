@@ -114,6 +114,7 @@ trait SimpleDTOCastsTrait
             // Merge with auto-detected nested DTOs
             $casts = array_merge($casts, static::getNestedDTOCasts());
 
+            /** @var array<string, string> $casts */
             return $casts;
         } catch (Throwable) {
             return [];
@@ -368,12 +369,24 @@ trait SimpleDTOCastsTrait
         $cacheKey = $castClass . ':' . implode(',', $parameters);
 
         if (!isset(self::$castCache[$cacheKey])) {
-            self::$castCache[$cacheKey] = [] === $parameters
+            $instance = [] === $parameters
                 ? new $castClass()
                 : new $castClass(...$parameters);
+
+            if (!$instance instanceof CastsAttributes) {
+                throw new \InvalidArgumentException("Cast class {$castClass} must implement CastsAttributes");
+            }
+
+            self::$castCache[$cacheKey] = $instance;
         }
 
-        return self::$castCache[$cacheKey];
+        $caster = self::$castCache[$cacheKey];
+
+        if (!$caster instanceof CastsAttributes) {
+            throw new \InvalidArgumentException("Cached cast class must implement CastsAttributes");
+        }
+
+        return $caster;
     }
 
     /**

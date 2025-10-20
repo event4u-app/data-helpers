@@ -45,7 +45,10 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
         array $items = [],
     ) {
         foreach ($items as $item) {
-            $this->items[] = $this->ensureDTO($item);
+            if (is_array($item) || $item instanceof SimpleDTO) {
+                /** @var array<string, mixed>|TDto $item */
+                $this->items[] = $this->ensureDTO($item);
+            }
         }
     }
 
@@ -167,7 +170,7 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
      * @template TReduceReturnType
      * @param callable(TReduceInitial|TReduceReturnType, TDto, int): TReduceReturnType $callback
      * @param TReduceInitial $initial
-     * @return TReduceReturnType
+     * @return TReduceInitial|TReduceReturnType
      */
     public function reduce(callable $callback, mixed $initial = null): mixed
     {

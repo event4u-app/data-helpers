@@ -40,7 +40,7 @@ trait SimpleDTOSortingTrait
     /** @var bool Whether to sort nested arrays */
     private bool $nestedSort = false;
 
-    /** @var callable|null Custom sort callback */
+    /** @var (callable(mixed, mixed): int)|null Custom sort callback */
     private $sortCallback = null;
 
     /**
@@ -92,7 +92,7 @@ trait SimpleDTOSortingTrait
      * Example:
      *   $sorted = $dto->sortedBy(fn($a, $b) => strcmp($b, $a)); // Reverse alphabetical
      *
-     * @param callable $callback Sort callback (receives two keys)
+     * @param callable(mixed, mixed): int $callback Sort callback (receives two keys)
      */
     public function sortedBy(callable $callback): static
     {
@@ -165,12 +165,14 @@ trait SimpleDTOSortingTrait
         foreach ($data as $key => $value) {
             if (is_array($value)) {
                 // Sort the nested array
-                $value = $this->sortArray($value);
+                /** @var array<string, mixed> $nestedArray */
+                $nestedArray = $value;
+                $nestedArray = $this->sortArray($nestedArray);
 
                 // Recursively sort deeper levels
-                $value = $this->sortNestedArrays($value);
+                $nestedArray = $this->sortNestedArrays($nestedArray);
 
-                $data[$key] = $value;
+                $data[$key] = $nestedArray;
             }
         }
 

@@ -35,6 +35,7 @@ use InvalidArgumentException;
  * ```
  *
  * @requires illuminate/database
+ * @phpstan-ignore trait.unused (Optional trait, only used when Laravel/Eloquent is installed)
  */
 trait SimpleDTOEloquentTrait
 {

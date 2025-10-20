@@ -75,7 +75,7 @@ final class Lazy
     private bool $loaded = false;
 
     /**
-     * @param callable(): T|null $loader The loader function
+     * @param (callable(): T)|null $loader The loader function
      */
     private function __construct(
         private mixed $loader,
@@ -127,10 +127,14 @@ final class Lazy
     public function get(): mixed
     {
         if (!$this->loaded) {
-            $this->value = ($this->loader)();
+            $loader = $this->loader;
+            if (is_callable($loader)) {
+                $this->value = $loader();
+            }
             $this->loaded = true;
         }
 
+        // @phpstan-ignore return.type (Lazy value can be null if loader returns null)
         return $this->value;
     }
 
@@ -143,7 +147,7 @@ final class Lazy
      */
     public function map(callable $callback): self
     {
-        if ($this->loaded) {
+        if ($this->loaded && null !== $this->value) {
             return self::value($callback($this->value));
         }
 
@@ -158,7 +162,7 @@ final class Lazy
      */
     public function ifLoaded(callable $callback): self
     {
-        if ($this->loaded) {
+        if ($this->loaded && null !== $this->value) {
             $callback($this->value);
         }
 

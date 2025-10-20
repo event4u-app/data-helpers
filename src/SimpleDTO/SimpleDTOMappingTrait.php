@@ -356,11 +356,13 @@ trait SimpleDTOMappingTrait
      * @param array<string, mixed> $array  The array to modify (by reference)
      * @param string               $path   Dot notation path (e.g., 'user.profile.email')
      * @param mixed                $value  The value to set
+     *
+     * @phpstan-ignore ergebnis.noParameterPassedByReference (Necessary for nested array modification)
      */
     protected static function setNestedValue(array &$array, string $path, mixed $value): void
     {
         $keys = explode('.', $path);
-        $current = &$array;
+        $current = &$array; // @phpstan-ignore ergebnis.noAssignByReference
 
         foreach ($keys as $i => $key) {
             if (count($keys) - 1 === $i) {
@@ -372,7 +374,7 @@ trait SimpleDTOMappingTrait
                     $current[$key] = [];
                 }
 
-                $current = &$current[$key];
+                $current = &$current[$key]; // @phpstan-ignore ergebnis.noAssignByReference
             }
         }
     }

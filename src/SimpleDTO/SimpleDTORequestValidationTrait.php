@@ -158,6 +158,7 @@ trait SimpleDTORequestValidationTrait
         array $messages,
         array $attributes
     ): array {
+        // @phpstan-ignore function.notFound (Laravel helper function)
         $validator = app('validator')->make($data, $rules, $messages, $attributes);
 
         if ($validator->fails()) {

@@ -36,6 +36,7 @@ class RemoveNullValuesTransformer implements TransformerInterface
             }
 
             if (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 $result[$key] = $this->removeNullsRecursive($value);
             } else {
                 $result[$key] = $value;

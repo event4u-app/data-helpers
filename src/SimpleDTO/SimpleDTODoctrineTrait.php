@@ -11,6 +11,8 @@ use InvalidArgumentException;
  * Trait providing Doctrine Entity integration for SimpleDTOs.
  *
  * This trait is optional and only used when Doctrine ORM is available.
+ *
+ * @phpstan-ignore trait.unused (Optional trait, only used when Doctrine is installed)
  */
 trait SimpleDTODoctrineTrait
 {

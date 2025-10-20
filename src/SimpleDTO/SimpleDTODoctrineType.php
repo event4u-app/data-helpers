@@ -68,13 +68,16 @@ class SimpleDTODoctrineType extends Type
     /**
      * Create a new Doctrine Type for a specific DTO class.
      *
-     * @param class-string<TDto> $dtoClass
+     * @template TDtoClass of SimpleDTO
+     * @param class-string<TDtoClass> $dtoClass
+     * @return self<TDtoClass>
      */
     public static function createForDTO(string $dtoClass): self
     {
         $type = new self();
         $type->dtoClass = $dtoClass;
 
+        // @phpstan-ignore return.type (Generic type limitation with static factory methods)
         return $type;
     }
 
@@ -86,6 +89,10 @@ class SimpleDTODoctrineType extends Type
      */
     public function getSQLDeclaration(array $column, mixed $platform): string
     {
+        if (!is_object($platform) || !method_exists($platform, 'getJsonTypeDeclarationSQL')) {
+            throw new \InvalidArgumentException('Platform must have getJsonTypeDeclarationSQL method');
+        }
+
         return $platform->getJsonTypeDeclarationSQL($column);
     }
 
@@ -102,9 +109,17 @@ class SimpleDTODoctrineType extends Type
             return null;
         }
 
-        // If already a DTO instance, return it
+        // If already a DTO instance, check if it's the correct type
         if ($value instanceof SimpleDTO) {
-            return $value;
+            /** @var class-string<TDto> $dtoClass */
+            $dtoClass = $this->dtoClass;
+
+            if ($value instanceof $dtoClass) {
+                return $value;
+            }
+
+            // If it's a different DTO type, convert via array
+            $value = $value->toArray();
         }
 
         // If string, decode JSON
@@ -121,6 +136,7 @@ class SimpleDTODoctrineType extends Type
             /** @var class-string<TDto> $dtoClass */
             $dtoClass = $this->dtoClass;
 
+            /** @var array<string, mixed> $value */
             return $dtoClass::fromArray($value);
         }
 
@@ -141,12 +157,20 @@ class SimpleDTODoctrineType extends Type
 
         // If DTO, convert to JSON
         if ($value instanceof SimpleDTO) {
-            return json_encode($value->toArray());
+            $json = json_encode($value->toArray());
+            if (false === $json) {
+                throw new \RuntimeException('Failed to encode DTO to JSON: ' . json_last_error_msg());
+            }
+            return $json;
         }
 
         // If array, encode directly
         if (is_array($value)) {
-            return json_encode($value);
+            $json = json_encode($value);
+            if (false === $json) {
+                throw new \RuntimeException('Failed to encode array to JSON: ' . json_last_error_msg());
+            }
+            return $json;
         }
 
         // If already string, return as-is
@@ -163,7 +187,11 @@ class SimpleDTODoctrineType extends Type
         return 'simple_dto';
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     *
+     * @param mixed $platform
+     */
     public function requiresSQLCommentHint($platform): bool
     {
         return true;

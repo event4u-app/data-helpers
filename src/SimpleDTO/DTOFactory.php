@@ -44,7 +44,7 @@ abstract class DTOFactory
     protected Faker $faker;
     protected int $count = 1;
 
-    /** @var array<string, callable(): array<string, mixed>> */
+    /** @var array<string, array<string, mixed>|(callable(): array<string, mixed>)> */
     protected array $states = [];
 
     /**
@@ -60,10 +60,14 @@ abstract class DTOFactory
         $this->faker = $faker ?? FakerFactory::create();
     }
 
-    /** Create a new factory instance. */
+    /**
+     * Create a new factory instance.
+     *
+     * @return static
+     */
     public static function new(?Faker $faker = null): static
     {
-        return new static($faker);
+        return new static($faker); // @phpstan-ignore new.static
     }
 
     /**
@@ -148,7 +152,8 @@ abstract class DTOFactory
 
         // Apply states
         foreach ($this->states as $state) {
-            $definition = array_merge($definition, $state);
+            $stateData = is_callable($state) ? $state() : $state;
+            $definition = array_merge($definition, $stateData);
         }
 
         // Override with custom attributes
@@ -159,9 +164,9 @@ abstract class DTOFactory
      * Apply a named state to the factory.
      *
      * @param string $state State name
-     * @param array<string, mixed> $attributes State attributes
+     * @param array<string, mixed>|(callable(): array<string, mixed>) $attributes State attributes or callable
      */
-    public function state(string $state, array $attributes = []): static
+    public function state(string $state, array|callable $attributes = []): static
     {
         $this->states[$state] = $attributes;
 

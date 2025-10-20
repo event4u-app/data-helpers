@@ -17,7 +17,7 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
  *     public function __construct(
  *         public readonly string $name,
  *         public readonly int $age,
- *         
+ *
  *         #[WhenCallback(fn($dto) => $dto->age >= 18)]
  *         public readonly ?string $adultContent = null,
  *     ) {}
@@ -27,7 +27,9 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class WhenCallback implements ConditionalProperty
 {
-    /** @param callable $callback Callback that determines if property should be included */
+    /**
+     * @param callable(mixed, object, array<string, mixed>): bool $callback Callback that determines if property should be included
+     */
     public function __construct(
         public readonly mixed $callback,
     ) {}
@@ -41,7 +43,13 @@ class WhenCallback implements ConditionalProperty
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
-        return (bool)($this->callback)($dto, $value, $context);
+        $callback = $this->callback;
+        if (!is_callable($callback)) {
+            return false;
+        }
+
+        // @phpstan-ignore argument.type (Callback signature is flexible)
+        return (bool)$callback($dto, $value, $context);
     }
 }
 

@@ -349,12 +349,18 @@ trait SimpleDTOMapperTrait
         if ($templateApplied) {
             $data = $source;
         } else {
+            if (!is_array($source)) {
+                throw new \InvalidArgumentException('Source data must be an array');
+            }
+            /** @var array<string, mixed> $source */
             $data = static::applyMapping($source);
         }
 
         if (!is_array($data)) {
             throw new \InvalidArgumentException('Data must be an array after mapping');
         }
+
+        /** @var array<string, mixed> $data */
 
         // Step 6: Get casts without creating an instance
         $casts = static::getCasts();

@@ -34,6 +34,7 @@ class LowercaseKeysTransformer implements TransformerInterface
             $newKey = is_string($key) ? strtolower($key) : $key;
 
             if (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 $result[$newKey] = $this->lowercaseKeysRecursive($value);
             } else {
                 $result[$newKey] = $value;

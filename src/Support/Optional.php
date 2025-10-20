@@ -87,8 +87,7 @@ final readonly class Optional
     /**
      * Create an empty Optional (value not present).
      *
-     * @template U
-     * @return self<U>
+     * @return self<null>
      */
     public static function empty(): self
     {
@@ -150,10 +149,12 @@ final readonly class Optional
      */
     public function map(callable $callback): self
     {
-        if (!$this->present) {
+        if (!$this->present || null === $this->value) {
+            // @phpstan-ignore return.type (Generic type limitation)
             return self::empty();
         }
 
+        // @phpstan-ignore return.type (Generic type limitation)
         return self::of($callback($this->value));
     }
 
@@ -165,7 +166,7 @@ final readonly class Optional
      */
     public function ifPresent(callable $callback): self
     {
-        if ($this->present) {
+        if ($this->present && null !== $this->value) {
             $callback($this->value);
         }
 
@@ -197,10 +198,11 @@ final readonly class Optional
      */
     public function filter(callable $predicate): self
     {
-        if (!$this->present) {
+        if (!$this->present || null === $this->value) {
             return $this;
         }
 
+        // @phpstan-ignore return.type (Generic type limitation)
         return $predicate($this->value) ? $this : self::empty();
     }
 
@@ -213,7 +215,7 @@ final readonly class Optional
      */
     public function orThrow(string $message = 'No value present'): mixed
     {
-        if (!$this->present) {
+        if (!$this->present || null === $this->value) {
             throw new \RuntimeException($message);
         }
 

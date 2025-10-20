@@ -126,8 +126,6 @@ final class ReflectionCache
 
         $refClass = self::getClass($objectOrClass);
         if (!$refClass->hasMethod($name)) {
-            self::$methods[$class][$name] = null;
-
             return null;
         }
 
@@ -148,7 +146,7 @@ final class ReflectionCache
         $class = is_object($objectOrClass) ? $objectOrClass::class : $objectOrClass;
 
         if (isset(self::$methods[$class]) && !empty(self::$methods[$class])) {
-            return array_filter(self::$methods[$class], fn($m) => null !== $m);
+            return self::$methods[$class];
         }
 
         $refClass = self::getClass($objectOrClass);
@@ -206,6 +204,11 @@ final class ReflectionCache
 
         if (!isset(self::$propertyAttributes[$class])) {
             self::$propertyAttributes[$class] = [];
+        }
+
+        // Ensure $objectOrClass is an object for getProperty
+        if (!is_object($objectOrClass)) {
+            $objectOrClass = self::getClass($objectOrClass)->newInstanceWithoutConstructor();
         }
 
         $property = self::getProperty($objectOrClass, $propertyName);

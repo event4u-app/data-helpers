@@ -57,7 +57,7 @@ use Throwable;
  */
 trait SimpleDTOValidationTrait
 {
-    /** @var array<string, array<string>> Cache for validation rules */
+    /** @var array<string, array<string, array<int, string>>> Cache for validation rules */
     private static array $rulesCache = [];
 
     /**
@@ -186,13 +186,29 @@ trait SimpleDTOValidationTrait
 
         // Merge all rules
         foreach (array_keys($inferredRules + $attributeRules + $customRules) as $property) {
-            $rules[$property] = array_unique(array_merge(
+            $propertyRules = array_merge(
                 $inferredRules[$property] ?? [],
-                $attributeRules[$property] ?? [],
-                is_array($customRules[$property] ?? null)
-                    ? $customRules[$property]
-                    : (isset($customRules[$property]) ? [$customRules[$property]] : [])
-            ));
+                $attributeRules[$property] ?? []
+            );
+
+            // Add custom rules
+            $customRule = $customRules[$property] ?? null;
+            if (null !== $customRule) {
+                if (is_array($customRule)) {
+                    $propertyRules = array_merge($propertyRules, $customRule);
+                } else {
+                    $propertyRules[] = $customRule;
+                }
+            }
+
+            // Remove duplicates (only works with string rules)
+            $stringRules = array_filter($propertyRules, 'is_string');
+            $arrayRules = array_filter($propertyRules, 'is_array');
+
+            $rules[$property] = array_merge(
+                array_values(array_unique($stringRules)),
+                array_values($arrayRules)
+            );
         }
 
         self::$rulesCache[$cacheKey] = $rules;
@@ -336,7 +352,14 @@ trait SimpleDTOValidationTrait
 
             $instance = $reflection->newInstanceWithoutConstructor();
 
-            return $method->invoke($instance);
+            $result = $method->invoke($instance);
+
+            if (!is_array($result)) {
+                return [];
+            }
+
+            /** @var array<string, string|array<int, string>> */
+            return $result;
         } catch (Throwable) {
             return [];
         }
@@ -382,11 +405,15 @@ trait SimpleDTOValidationTrait
             $instance = $reflection->newInstanceWithoutConstructor();
             $customMessages = $method->invoke($instance);
 
-            $messages = array_merge($messages, $customMessages);
+            if (is_array($customMessages)) {
+                /** @var array<string, string> $customMessages */
+                $messages = array_merge($messages, $customMessages);
+            }
         } catch (Throwable) {
             // Ignore reflection errors
         }
 
+        /** @var array<string, string> */
         return $messages;
     }
 
@@ -403,7 +430,14 @@ trait SimpleDTOValidationTrait
 
             $instance = $reflection->newInstanceWithoutConstructor();
 
-            return $method->invoke($instance);
+            $result = $method->invoke($instance);
+
+            if (!is_array($result)) {
+                return [];
+            }
+
+            /** @var array<string, string> */
+            return $result;
         } catch (Throwable) {
             return [];
         }
@@ -554,12 +588,20 @@ trait SimpleDTOValidationTrait
             $propertyPath = $violation->getPropertyPath();
             // Remove [field] brackets from property path
             $propertyPath = preg_replace('/\[(\w+)\]/', '$1', $propertyPath);
+            if (null === $propertyPath) {
+                $propertyPath = $violation->getPropertyPath();
+            }
 
             if (!isset($errors[$propertyPath])) {
                 $errors[$propertyPath] = [];
             }
 
-            $errors[$propertyPath][] = $violation->getMessage();
+            $message = $violation->getMessage();
+            if ($message instanceof \Stringable) {
+                $message = (string) $message;
+            }
+
+            $errors[$propertyPath][] = $message;
         }
 
         return $errors;

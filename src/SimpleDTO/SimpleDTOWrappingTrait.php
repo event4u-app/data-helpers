@@ -65,7 +65,14 @@ trait SimpleDTOWrappingTrait
      */
     public static function unwrap(array $data, string $key): array
     {
-        return $data[$key] ?? [];
+        $unwrapped = $data[$key] ?? [];
+
+        if (!is_array($unwrapped)) {
+            return [];
+        }
+
+        /** @var array<string, mixed> */
+        return $unwrapped;
     }
 
     /**
