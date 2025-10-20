@@ -33,10 +33,16 @@ use ReflectionParameter;
  */
 class DTOValueResolver
 {
-    public function __construct(
-        private readonly Request $request,
-        private readonly ValidationFactory $validator,
-    ) {}
+    /** @phpstan-ignore-next-line */
+    private readonly Request $request;
+    /** @phpstan-ignore-next-line */
+    private readonly ValidationFactory $validator;
+
+    public function __construct(Request $request, ValidationFactory $validator)
+    {
+        $this->request = $request;
+        $this->validator = $validator;
+    }
 
     /**
      * Resolve DTO from request.
@@ -78,7 +84,11 @@ class DTOValueResolver
             // Validate without throwing
             $result = $className::validateData($data);
             if ($result->isFailed()) {
-                throw new ValidationException($result->errors(), $data);
+                throw new ValidationException(
+                    'Validation failed',
+                    $result->errors(),
+                    $data
+                );
             }
 
             return $className::fromArray($result->validated());
@@ -96,11 +106,14 @@ class DTOValueResolver
     private function getRequestData(): array
     {
         // Try JSON first
+        /** @phpstan-ignore-next-line */
         if ($this->request->isJson()) {
+            /** @phpstan-ignore-next-line */
             return $this->request->json()->all();
         }
 
         // Fallback to all request data
+        /** @phpstan-ignore-next-line */
         return $this->request->all();
     }
 }

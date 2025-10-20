@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\Symfony;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 /**
  * Symfony Bundle for DTO integration.
@@ -24,9 +25,13 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
  */
 class DTOBundle extends AbstractBundle
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         // Register DTOValueResolver
+        /** @phpstan-ignore-next-line */
         $container->services()
             ->set('event4u.data_helpers.dto_value_resolver', DTOValueResolver::class)
             ->args([

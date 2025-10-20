@@ -50,14 +50,14 @@ class MakeDtoCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $name = $input->getArgument('name');
-        $validation = $input->getOption('validation');
-        $collection = $input->getOption('collection');
-        $resource = $input->getOption('resource');
-        $force = $input->getOption('force');
+        $name = (string)$input->getArgument('name');
+        $validation = (bool)$input->getOption('validation');
+        $collection = (bool)$input->getOption('collection');
+        $resource = (bool)$input->getOption('resource');
+        $force = (bool)$input->getOption('force');
 
         // Ensure name ends with DTO
-        if (!str_ends_with((string)$name, 'DTO')) {
+        if (!str_ends_with($name, 'DTO')) {
             $name .= 'DTO';
         }
 

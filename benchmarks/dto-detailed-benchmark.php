@@ -23,6 +23,10 @@ class DetailedBenchmark
         return number_format($seconds, 3) . ' s';
     }
 
+    /**
+     * @param callable(): void $callback
+     * @return array{name: string, iterations: int, total_time: float, avg_time: float, formatted_total: string, formatted_avg: string, ops_per_sec: string}
+     */
     public static function run(string $name, callable $callback, int $iterations = 10000): array
     {
         // Warmup
@@ -54,8 +58,14 @@ class DetailedBenchmark
         ];
     }
 
+    /**
+     * @param array<array{name: string, iterations: int, total_time: float, avg_time: float, formatted_total: string, formatted_avg: string, ops_per_sec: string}> $results
+     */
     public static function printResults(array $results): void
     {
+        if (empty($results)) {
+            return;
+        }
         $maxNameLen = max(array_map(fn(array $r): int => strlen((string)$r['name']), $results));
 
         echo "\n";
@@ -73,6 +83,10 @@ class DetailedBenchmark
         }
     }
 
+    /**
+     * @param array{name: string, iterations: int, total_time: float, avg_time: float, formatted_total: string, formatted_avg: string, ops_per_sec: string} $result1
+     * @param array{name: string, iterations: int, total_time: float, avg_time: float, formatted_total: string, formatted_avg: string, ops_per_sec: string} $result2
+     */
     public static function compareTwo(array $result1, array $result2): void
     {
         $diff = (($result2['avg_time'] - $result1['avg_time']) / $result1['avg_time']) * 100;
@@ -176,7 +190,7 @@ $iterations = 100000;
 $results = [];
 
 $results[] = DetailedBenchmark::run('Traditional: manual array', function() use ($dtoMutable): void {
-    [
+    $result = [
         'name' => $dtoMutable->name,
         'code' => $dtoMutable->code,
         'budget' => $dtoMutable->budget,

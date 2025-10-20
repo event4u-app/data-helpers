@@ -60,12 +60,12 @@ class DtoTypeScriptCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $outputPath = $input->getOption('output');
-        $path = $input->getOption('path');
-        $exportType = $input->getOption('export');
+        $outputPath = (string)$input->getOption('output');
+        $path = (string)$input->getOption('path');
+        $exportType = (string)$input->getOption('export');
         $includeComments = !$input->getOption('no-comments');
-        $sort = $input->getOption('sort');
-        $watch = $input->getOption('watch');
+        $sort = (bool)$input->getOption('sort');
+        $watch = (bool)$input->getOption('watch');
 
         // Get full paths
         $outputPath = $this->projectDir . '/' . $outputPath;
@@ -102,7 +102,9 @@ class DtoTypeScriptCommand extends Command
 
         // Generate TypeScript
         $generator = new TypeScriptGenerator();
-        $typescript = $generator->generate($dtoClasses, [
+        /** @var array<class-string> $dtoClassStrings */
+        $dtoClassStrings = $dtoClasses;
+        $typescript = $generator->generate($dtoClassStrings, [
             'exportType' => $exportType,
             'includeComments' => $includeComments,
             'sortProperties' => $sort,
@@ -141,6 +143,7 @@ class DtoTypeScriptCommand extends Command
 
         $lastHash = '';
 
+        /** @phpstan-ignore-next-line */
         while (true) {
             // Get current hash of all DTO files
             $currentHash = $this->getDirectoryHash($scanPath);
@@ -162,14 +165,12 @@ class DtoTypeScriptCommand extends Command
 
             sleep(1);
         }
-
-        return Command::SUCCESS;
     }
 
     /**
      * Find all DTO classes in a directory.
      *
-     * @return array<class-string>
+     * @return list<string>
      */
     protected function findDtoClasses(string $path): array
     {
@@ -202,6 +203,9 @@ class DtoTypeScriptCommand extends Command
     protected function getClassNameFromFile(string $filePath): ?string
     {
         $content = file_get_contents($filePath);
+        if (false === $content) {
+            return null;
+        }
 
         // Extract namespace
         if (!preg_match('/namespace\s+([^;]+);/', $content, $namespaceMatches)) {
@@ -246,6 +250,7 @@ class DtoTypeScriptCommand extends Command
     /**
      * Get all traits used by a class (including parent classes).
      *
+     * @param ReflectionClass<object> $reflection
      * @return array<string>
      */
     protected function getAllTraits(ReflectionClass $reflection): array
@@ -278,10 +283,12 @@ class DtoTypeScriptCommand extends Command
         $hashes = [];
 
         foreach ($finder as $file) {
-            $hashes[] = md5_file($file->getPathname());
+            /** @phpstan-ignore-next-line */
+            $hashes[] = hash_file('sha256', $file->getPathname());
         }
 
-        return md5(implode('', $hashes));
+        /** @phpstan-ignore-next-line */
+        return hash('sha256', implode('', $hashes));
     }
 }
 

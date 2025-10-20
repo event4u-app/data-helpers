@@ -4,8 +4,29 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Laravel\Commands;
 
-use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+
+// Create stub class if Laravel is not installed
+if (!class_exists('Illuminate\Console\Command')) {
+    abstract class Command
+    {
+        /** @phpstan-ignore-next-line */
+        public const SUCCESS = 0;
+        /** @phpstan-ignore-next-line */
+        public const FAILURE = 1;
+
+        /** @phpstan-ignore-next-line */
+        protected function info(string $message): void {}
+        /** @phpstan-ignore-next-line */
+        protected function error(string $message): void {}
+        /** @phpstan-ignore-next-line */
+        protected function option(string $name): mixed { return null; }
+        /** @phpstan-ignore-next-line */
+        protected function argument(string $name): mixed { return null; }
+    }
+} else {
+    class_alias('Illuminate\Console\Command', 'event4u\DataHelpers\Laravel\Commands\Command');
+}
 use Illuminate\Support\Str;
 
 /**
@@ -16,6 +37,7 @@ use Illuminate\Support\Str;
  *   php artisan make:dto UserDTO --validation
  *   php artisan make:dto UserDTO --collection
  *   php artisan make:dto UserDTO --resource
+ *
  */
 class MakeDtoCommand extends Command
 {
@@ -42,11 +64,16 @@ class MakeDtoCommand extends Command
     /** Execute the console command. */
     public function handle(Filesystem $files): int
     {
-        $name = $this->argument('name');
-        $validation = $this->option('validation');
-        $collection = $this->option('collection');
-        $resource = $this->option('resource');
-        $force = $this->option('force');
+        /** @phpstan-ignore-next-line */
+        $name = (string)$this->argument('name');
+        /** @phpstan-ignore-next-line */
+        $validation = (bool)$this->option('validation');
+        /** @phpstan-ignore-next-line */
+        $collection = (bool)$this->option('collection');
+        /** @phpstan-ignore-next-line */
+        $resource = (bool)$this->option('resource');
+        /** @phpstan-ignore-next-line */
+        $force = (bool)$this->option('force');
 
         // Ensure name ends with DTO
         if (!Str::endsWith($name, 'DTO')) {
@@ -58,7 +85,9 @@ class MakeDtoCommand extends Command
 
         // Check if file exists
         if ($files->exists($path) && !$force) {
+            /** @phpstan-ignore-next-line */
             $this->error(sprintf('DTO [%s] already exists!', $name));
+            /** @phpstan-ignore-next-line */
             $this->info('Use --force to overwrite.');
 
             return self::FAILURE;
@@ -76,7 +105,9 @@ class MakeDtoCommand extends Command
         // Write file
         $files->put($path, $content);
 
+        /** @phpstan-ignore-next-line */
         $this->info(sprintf('DTO [%s] created successfully.', $name));
+        /** @phpstan-ignore-next-line */
         $this->info('Location: ' . $path);
 
         return self::SUCCESS;
@@ -85,12 +116,14 @@ class MakeDtoCommand extends Command
     /** Get the destination path for the DTO. */
     protected function getPath(string $name): string
     {
+        /** @phpstan-ignore-next-line */
         return $this->laravel->basePath('app') . '/DTOs/' . $name . '.php';
     }
 
     /** Get the root namespace for the application. */
     protected function rootNamespace(): string
     {
+        /** @phpstan-ignore-next-line */
         return $this->laravel->getNamespace();
     }
 

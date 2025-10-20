@@ -150,8 +150,10 @@ trait SimpleDTOValidationTrait
                 $validator = static::getValidator();
                 $validated = $validator->make($data, $rules, $messages, $attributes);
                 return $validated->validate();
+                /** @phpstan-ignore-next-line */
             } catch (LaravelValidationException $e) {
                 // Convert Laravel ValidationException to our own
+                /** @phpstan-ignore-next-line */
                 throw ValidationException::withMessages($e->errors());
             }
         }

@@ -34,9 +34,13 @@ class Benchmark
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
 
-        return number_format($bytes / (1024 ** $pow), 2) . ' ' . $units[$pow];
+        return number_format($bytes / (1024 ** (int)$pow), 2) . ' ' . $units[(int)$pow];
     }
 
+    /**
+     * @param callable(): void $callback
+     * @return array{name: string, iterations: int, total_time: float, avg_time: float, memory_used: int, formatted_total: string, formatted_avg: string, formatted_memory: string}
+     */
     public static function run(string $name, callable $callback, int $iterations = 1000): array
     {
         // Warmup
@@ -72,6 +76,9 @@ class Benchmark
         ];
     }
 
+    /**
+     * @param array{name: string, iterations: int, total_time: float, avg_time: float, memory_used: int, formatted_total: string, formatted_avg: string, formatted_memory: string} $result
+     */
     public static function printResult(array $result): void
     {
         echo sprintf('  %s%s', $result['name'], PHP_EOL);
@@ -81,6 +88,10 @@ class Benchmark
         echo sprintf('    Memory:      %s%s', $result['formatted_memory'], PHP_EOL);
     }
 
+    /**
+     * @param array{name: string, iterations: int, total_time: float, avg_time: float, memory_used: int, formatted_total: string, formatted_avg: string, formatted_memory: string} $result1
+     * @param array{name: string, iterations: int, total_time: float, avg_time: float, memory_used: int, formatted_total: string, formatted_avg: string, formatted_memory: string} $result2
+     */
     public static function compare(array $result1, array $result2): void
     {
         $timeDiff = (($result2['avg_time'] - $result1['avg_time']) / $result1['avg_time']) * 100;
@@ -152,7 +163,8 @@ $iterations = 1000;
 
 $result1 = Benchmark::run('Traditional Mutable DTO', function() use ($jsonFile, $mapping): void {
     $company = new CompanyDto();
-    DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
+    $result = DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map();
+    $target = $result->getTarget();
 }, $iterations);
 
 $result2 = Benchmark::run('SimpleDTO Immutable', function() use ($jsonFile, $mapping): void {
@@ -222,14 +234,16 @@ $iterations = 10000;
 
 $result3 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMutable): void {
     // Traditional DTOs need manual serialization
+    /** @var CompanyDto $company */
+    $company = $companyMutable;
     json_encode([
-        'name' => $companyMutable->name,
-        'email' => $companyMutable->email,
-        'founded_year' => $companyMutable->founded_year,
+        'name' => $company->name,
+        'email' => $company->email,
+        'founded_year' => $company->founded_year,
         'departments' => array_map(fn($d): array => [
             'name' => $d->name,
             'code' => $d->code,
-        ], $companyMutable->departments),
+        ], $company->departments),
     ]);
 }, $iterations);
 
@@ -254,14 +268,16 @@ $iterations = 10000;
 
 $result5 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMutable): void {
     // Traditional DTOs need manual array conversion
-    [
-        'name' => $companyMutable->name,
-        'email' => $companyMutable->email,
-        'founded_year' => $companyMutable->founded_year,
+    /** @var CompanyDto $company */
+    $company = $companyMutable;
+    $result = [
+        'name' => $company->name,
+        'email' => $company->email,
+        'founded_year' => $company->founded_year,
         'departments' => array_map(fn($d): array => [
             'name' => $d->name,
             'code' => $d->code,
-        ], $companyMutable->departments),
+        ], $company->departments),
     ];
 }, $iterations);
 

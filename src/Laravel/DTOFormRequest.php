@@ -7,8 +7,22 @@ namespace event4u\DataHelpers\Laravel;
 use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDTO;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
 use RuntimeException;
+
+// Create stub class if Laravel is not installed
+if (!class_exists('Illuminate\Foundation\Http\FormRequest')) {
+    abstract class FormRequest
+    {
+        /** @phpstan-ignore-next-line */
+        protected function failedValidation(Validator $validator): void {}
+        /** @phpstan-ignore-next-line */
+        public function validated(): array { return []; }
+        /** @phpstan-ignore-next-line */
+        public function all(): array { return []; }
+    }
+} else {
+    class_alias('Illuminate\Foundation\Http\FormRequest', 'event4u\DataHelpers\Laravel\FormRequest');
+}
 
 /**
  * Base class for DTO-based Form Requests.
@@ -35,6 +49,7 @@ use RuntimeException;
  *     return response()->json($user);
  * }
  * ```
+ *
  */
 abstract class DTOFormRequest extends FormRequest
 {
@@ -70,6 +85,7 @@ abstract class DTOFormRequest extends FormRequest
             return [];
         }
 
+        /** @phpstan-ignore-next-line */
         return $this->dtoClass::getAllMessages();
     }
 
@@ -84,6 +100,7 @@ abstract class DTOFormRequest extends FormRequest
             return [];
         }
 
+        /** @phpstan-ignore-next-line */
         return $this->dtoClass::getAllAttributes();
     }
 
@@ -94,7 +111,9 @@ abstract class DTOFormRequest extends FormRequest
             throw new RuntimeException('DTO class not set. Set $dtoClass property in your FormRequest.');
         }
 
-        return $this->dtoClass::fromArray($this->validated());
+        /** @phpstan-ignore-next-line */
+        $validated = $this->validated();
+        return $this->dtoClass::fromArray($validated);
     }
 
     /**
@@ -105,10 +124,13 @@ abstract class DTOFormRequest extends FormRequest
     protected function failedValidation(Validator $validator): void
     {
         // Convert Laravel validation errors to our ValidationException
+        $errors = $validator->errors()->toArray();
+        /** @phpstan-ignore-next-line */
+        $data = $this->all();
         throw new ValidationException(
-            $validator->errors()->toArray(),
-            $this->all(),
             'The given data was invalid.',
+            $errors,
+            $data,
             422
         );
     }

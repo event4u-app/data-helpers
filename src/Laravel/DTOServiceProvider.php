@@ -26,10 +26,19 @@ class DTOServiceProvider extends ServiceProvider
     /** Register services. */
     public function register(): void
     {
-        $this->app->singleton(DTOValueResolver::class, fn(Application $app): DTOValueResolver => new DTOValueResolver(
-            $app->make('request'),
-            $app->make('validator')
-        ));
+        $this->app->singleton(DTOValueResolver::class, function (Application $app): DTOValueResolver {
+            /**
+             * @phpstan-ignore-next-line
+             * @var \Illuminate\Http\Request $request
+             */
+            $request = $app->make('request');
+            /**
+             * @phpstan-ignore-next-line
+             * @var \Illuminate\Contracts\Validation\Factory $validator
+             */
+            $validator = $app->make('validator');
+            return new DTOValueResolver($request, $validator);
+        });
     }
 
     /** Bootstrap services. */

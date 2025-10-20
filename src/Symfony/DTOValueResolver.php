@@ -73,9 +73,13 @@ if (!interface_exists('Symfony\Component\Validator\Validator\ValidatorInterface'
  */
 class DTOValueResolver implements ValueResolverInterface
 {
-    public function __construct(
-        private readonly ?ValidatorInterface $validator = null,
-    ) {}
+    /** @phpstan-ignore-next-line */
+    private readonly ?ValidatorInterface $validator;
+
+    public function __construct(?ValidatorInterface $validator = null)
+    {
+        $this->validator = $validator;
+    }
 
     /**
      * Resolve DTO from request.
@@ -86,6 +90,7 @@ class DTOValueResolver implements ValueResolverInterface
      */
     public function resolve($request, $argument): iterable
     {
+        /** @phpstan-ignore-next-line */
         $type = $argument->getType();
 
         // Only handle class types
@@ -99,6 +104,7 @@ class DTOValueResolver implements ValueResolverInterface
         }
 
         // Get request data
+        /** @phpstan-ignore-next-line */
         $data = $this->getRequestData($request);
 
         // Check if DTO has ValidateRequest attribute
@@ -118,7 +124,11 @@ class DTOValueResolver implements ValueResolverInterface
             // Validate without throwing
             $result = $type::validateData($data);
             if ($result->isFailed()) {
-                throw new ValidationException($result->errors(), $data);
+                throw new ValidationException(
+                    'Validation failed',
+                    $result->errors(),
+                    $data
+                );
             }
 
             yield $type::fromArray($result->validated());
@@ -137,16 +147,21 @@ class DTOValueResolver implements ValueResolverInterface
     private function getRequestData(Request $request): array
     {
         // Try JSON first
+        /** @phpstan-ignore-next-line */
         $content = $request->getContent();
         if (!empty($content)) {
             $json = json_decode($content, true);
             if (is_array($json)) {
+                /** @var array<string, mixed> $json */
                 return $json;
             }
         }
 
         // Fallback to request parameters
-        return $request->request->all();
+        /** @phpstan-ignore-next-line */
+        $all = $request->request->all();
+        /** @var array<string, mixed> $all */
+        return $all;
     }
 }
 

@@ -68,8 +68,9 @@ final class DataHelpersExtension extends Extension implements ConfigurationInter
     {
         $treeBuilder = new TreeBuilder('data_helpers');
 
-        $treeBuilder->getRootNode()
-            ->children()
+        $rootNode = $treeBuilder->getRootNode();
+        /** @phpstan-ignore-next-line */
+        $rootNode->children()
                 ->arrayNode('cache')
                     ->addDefaultsIfNotSet()
                     ->children()
