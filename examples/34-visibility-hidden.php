@@ -35,9 +35,9 @@ $user = UserDTO::fromArray([
 ]);
 
 echo "Direct property access:\n";
-echo "  Name: {$user->name}\n";
-echo "  Email: {$user->email}\n";
-echo "  Password: {$user->password}\n";
+echo sprintf('  Name: %s%s', $user->name, PHP_EOL);
+echo sprintf('  Email: %s%s', $user->email, PHP_EOL);
+echo sprintf('  Password: %s%s', $user->password, PHP_EOL);
 echo "  API Key: {$user->apiKey}\n\n";
 
 echo "toArray() output:\n";

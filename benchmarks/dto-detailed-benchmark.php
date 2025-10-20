@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
-use event4u\DataHelpers\DataMapper;
 use Tests\utils\DTOs\DepartmentDto;
 use Tests\utils\SimpleDTOs\DepartmentSimpleDto;
 
@@ -58,7 +56,7 @@ class DetailedBenchmark
 
     public static function printResults(array $results): void
     {
-        $maxNameLen = max(array_map(fn($r) => strlen($r['name']), $results));
+        $maxNameLen = max(array_map(fn(array $r): int => strlen((string) $r['name']), $results));
 
         echo "\n";
         printf("  %-{$maxNameLen}s  %12s  %12s  %15s\n", 'Operation', 'Total', 'Avg', 'Ops/sec');
@@ -81,9 +79,9 @@ class DetailedBenchmark
 
         echo "\n  📊 ";
         if (0 < $diff) {
-            echo "{$result2['name']} is " . number_format(abs($diff), 1) . "% SLOWER than {$result1['name']}\n";
+            echo $result2['name'] . ' is ' . number_format(abs($diff), 1) . sprintf('%% SLOWER than %s%s', $result1['name'], PHP_EOL);
         } else {
-            echo "{$result2['name']} is " . number_format(abs($diff), 1) . "% FASTER than {$result1['name']}\n";
+            echo $result2['name'] . ' is ' . number_format(abs($diff), 1) . sprintf('%% FASTER than %s%s', $result1['name'], PHP_EOL);
         }
     }
 }
@@ -111,7 +109,7 @@ $iterations = 100000;
 
 $results = [];
 
-$results[] = DetailedBenchmark::run('Traditional: new + assign', function() use ($testData) {
+$results[] = DetailedBenchmark::run('Traditional: new + assign', function() use ($testData): void {
     $dto = new DepartmentDto();
     $dto->name = $testData['name'];
     $dto->code = $testData['code'];
@@ -120,7 +118,7 @@ $results[] = DetailedBenchmark::run('Traditional: new + assign', function() use 
     $dto->manager_name = $testData['manager_name'];
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: fromArray()', function() use ($testData) {
+$results[] = DetailedBenchmark::run('SimpleDTO: fromArray()', function() use ($testData): void {
     DepartmentSimpleDto::fromArray($testData);
 }, $iterations);
 
@@ -144,13 +142,13 @@ $iterations = 1000000;
 
 $results = [];
 
-$results[] = DetailedBenchmark::run('Traditional: read property', function() use ($dtoMutable) {
+$results[] = DetailedBenchmark::run('Traditional: read property', function() use ($dtoMutable): void {
     $name = $dtoMutable->name;
     $code = $dtoMutable->code;
     $budget = $dtoMutable->budget;
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: read property', function() use ($dtoImmutable) {
+$results[] = DetailedBenchmark::run('SimpleDTO: read property', function() use ($dtoImmutable): void {
     $name = $dtoImmutable->name;
     $code = $dtoImmutable->code;
     $budget = $dtoImmutable->budget;
@@ -169,7 +167,7 @@ $iterations = 100000;
 
 $results = [];
 
-$results[] = DetailedBenchmark::run('Traditional: manual array', function() use ($dtoMutable) {
+$results[] = DetailedBenchmark::run('Traditional: manual array', function() use ($dtoMutable): void {
     [
         'name' => $dtoMutable->name,
         'code' => $dtoMutable->code,
@@ -179,7 +177,7 @@ $results[] = DetailedBenchmark::run('Traditional: manual array', function() use 
     ];
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: toArray()', function() use ($dtoImmutable) {
+$results[] = DetailedBenchmark::run('SimpleDTO: toArray()', function() use ($dtoImmutable): void {
     $dtoImmutable->toArray();
 }, $iterations);
 
@@ -196,7 +194,7 @@ $iterations = 100000;
 
 $results = [];
 
-$results[] = DetailedBenchmark::run('Traditional: manual json', function() use ($dtoMutable) {
+$results[] = DetailedBenchmark::run('Traditional: manual json', function() use ($dtoMutable): void {
     json_encode([
         'name' => $dtoMutable->name,
         'code' => $dtoMutable->code,
@@ -206,7 +204,7 @@ $results[] = DetailedBenchmark::run('Traditional: manual json', function() use (
     ]);
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: json_encode()', function() use ($dtoImmutable) {
+$results[] = DetailedBenchmark::run('SimpleDTO: json_encode()', function() use ($dtoImmutable): void {
     json_encode($dtoImmutable);
 }, $iterations);
 
@@ -219,19 +217,19 @@ DetailedBenchmark::compareTwo($results[0], $results[1]);
 echo "\n\n🔥 Benchmark 5: Batch Creation (100 DTOs)\n";
 echo str_repeat('─', 64) . "\n";
 
-$batchData = array_map(fn($i) => [
-    'name' => "Department $i",
-    'code' => "DEPT$i",
+$batchData = array_map(fn($i): array => [
+    'name' => 'Department ' . $i,
+    'code' => 'DEPT' . $i,
     'budget' => 1000000.00 * $i,
     'employee_count' => 10 * $i,
-    'manager_name' => "Manager $i",
+    'manager_name' => 'Manager ' . $i,
 ], range(1, 100));
 
 $iterations = 1000;
 
 $results = [];
 
-$results[] = DetailedBenchmark::run('Traditional: 100 DTOs', function() use ($batchData) {
+$results[] = DetailedBenchmark::run('Traditional: 100 DTOs', function() use ($batchData): void {
     $dtos = [];
     foreach ($batchData as $data) {
         $dto = new DepartmentDto();
@@ -244,9 +242,9 @@ $results[] = DetailedBenchmark::run('Traditional: 100 DTOs', function() use ($ba
     }
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: 100 DTOs', function() use ($batchData) {
+$results[] = DetailedBenchmark::run('SimpleDTO: 100 DTOs', function() use ($batchData): void {
     $dtos = array_map(
-        fn(array $data) => DepartmentSimpleDto::fromArray($data),
+        fn(array $data): DepartmentSimpleDto => DepartmentSimpleDto::fromArray($data),
         $batchData
     );
 }, $iterations);

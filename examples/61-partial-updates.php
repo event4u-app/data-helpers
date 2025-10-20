@@ -164,7 +164,7 @@ $nestedUpdate = UserWithAddressUpdateDTO::fromArray([
 ]);
 $nestedPartial = $nestedUpdate->partial();
 echo "  partial keys: " . implode(', ', array_keys($nestedPartial)) . "\n";
-echo "  address type: " . (is_object($nestedPartial['address']) ? get_class($nestedPartial['address']) : gettype($nestedPartial['address'])) . "\n";
+echo "  address type: " . (get_debug_type($nestedPartial['address'])) . "\n";
 if (is_object($nestedPartial['address']) && method_exists($nestedPartial['address'], 'toArray')) {
     echo "  address data: " . json_encode($nestedPartial['address']->toArray()) . "\n";
 } else {
@@ -192,7 +192,7 @@ class ValidatedUpdateDTO extends SimpleDTO
             $errors['email'] = 'Invalid email format';
         }
 
-        if (isset($partial['age']) && ($partial['age'] < 0 || $partial['age'] > 150)) {
+        if (isset($partial['age']) && (0 > $partial['age'] || 150 < $partial['age'])) {
             $errors['age'] = 'Age must be between 0 and 150';
         }
 
@@ -203,7 +203,7 @@ class ValidatedUpdateDTO extends SimpleDTO
 echo "Valid update:\n";
 $validUpdate = ValidatedUpdateDTO::fromArray(['email' => 'valid@example.com', 'age' => 25]);
 $validErrors = $validUpdate->validatePartial();
-echo "  errors: " . (empty($validErrors) ? 'none' : json_encode($validErrors)) . "\n";
+echo "  errors: " . ($validErrors === [] ? 'none' : json_encode($validErrors)) . "\n";
 echo "  partial: " . json_encode($validUpdate->partial()) . "\n";
 echo "\n";
 
@@ -222,7 +222,7 @@ echo "Empty update (no fields):\n";
 $emptyUpdate = UserUpdateDTO::fromArray([]);
 $emptyPartial = $emptyUpdate->partial();
 echo "  partial: " . json_encode($emptyPartial) . "\n";
-echo "  is empty: " . (empty($emptyPartial) ? 'yes' : 'no') . "\n";
+echo "  is empty: " . ($emptyPartial === [] ? 'yes' : 'no') . "\n";
 echo "\n";
 
 // Example 7: Partial with All Fields

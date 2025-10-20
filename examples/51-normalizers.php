@@ -40,7 +40,7 @@ $user = UserDTO::fromArrayWithNormalizer($data, new TypeNormalizer([
 ]));
 
 echo "Original: age='{$data['age']}' (string), active='{$data['active']}' (string)\n";
-echo "Normalized: age={$user->age} (int), active=" . ($user->active ? 'true' : 'false') . " (bool)\n\n";
+echo sprintf('Normalized: age=%s (int), active=', $user->age) . ($user->active ? 'true' : 'false') . " (bool)\n\n";
 
 // Example 2: TypeNormalizer - Bool String Variations
 echo "Example 2: TypeNormalizer - Bool String Variations\n";
@@ -52,7 +52,7 @@ $variations = ['true', 'false', '1', '0', 'yes', 'no', 'on', 'off'];
 
 foreach ($variations as $value) {
     $result = $normalizer->normalize(['active' => $value]);
-    echo "'{$value}' -> " . ($result['active'] ? 'true' : 'false') . "\n";
+    echo sprintf("'%s' -> ", $value) . ($result['active'] ? 'true' : 'false') . "\n";
 }
 
 echo "\n";
@@ -69,7 +69,7 @@ $user = UserDTO::fromArrayWithNormalizer($data, new DefaultValuesNormalizer([
 ]));
 
 echo "Original data: " . json_encode($data) . "\n";
-echo "With defaults: name={$user->name}, age={$user->age}, active=" . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf('With defaults: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 4: SnakeCaseNormalizer
 echo "Example 4: SnakeCaseNormalizer\n";
@@ -117,7 +117,7 @@ $user = UserDTO::fromArrayWithNormalizers($data, [
 ]);
 
 echo "Original: " . json_encode($data) . "\n";
-echo "After normalizers: name={$user->name}, age={$user->age}, active=" . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf('After normalizers: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 7: Custom Normalizer
 echo "Example 7: Custom Normalizer\n";
@@ -128,7 +128,7 @@ class UppercaseNameNormalizer implements NormalizerInterface
     public function normalize(array $data): array
     {
         if (isset($data['name'])) {
-            $data['name'] = strtoupper($data['name']);
+            $data['name'] = strtoupper((string) $data['name']);
         }
 
         return $data;
@@ -139,7 +139,7 @@ $data = ['name' => 'david brown', 'age' => 40, 'active' => true];
 
 $user = UserDTO::fromArrayWithNormalizer($data, new UppercaseNameNormalizer());
 
-echo "Original: {$data['name']}\n";
+echo sprintf('Original: %s%s', $data['name'], PHP_EOL);
 echo "Normalized: {$user->name}\n\n";
 
 // Example 8: Email Normalizer
@@ -159,7 +159,7 @@ class EmailNormalizer implements NormalizerInterface
     public function normalize(array $data): array
     {
         if (isset($data['email'])) {
-            $data['email'] = strtolower(trim($data['email']));
+            $data['email'] = strtolower(trim((string) $data['email']));
         }
 
         return $data;
@@ -188,8 +188,8 @@ $user = UserDTO::fromArrayWithNormalizers($data, [
     new TypeNormalizer(['age' => 'int', 'active' => 'bool']),
 ]);
 
-echo "Original: name={$data['name']}, age={$data['age']}\n";
-echo "After chain: name={$user->name}, age={$user->age}, active=" . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf('Original: name=%s, age=%s%s', $data['name'], $data['age'], PHP_EOL);
+echo sprintf('After chain: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 10: API Data Normalization
 echo "Example 10: API Data Normalization\n";
@@ -220,7 +220,7 @@ $user = ApiUserDTO::fromArrayWithNormalizers($apiResponse, [
 ]);
 
 echo "API Response: " . json_encode($apiResponse) . "\n";
-echo "Normalized DTO: userName={$user->userName}, userAge={$user->userAge}, isActive=" . ($user->isActive ? 'true' : 'false') . "\n\n";
+echo sprintf('Normalized DTO: userName=%s, userAge=%d, isActive=', $user->userName, $user->userAge) . ($user->isActive ? 'true' : 'false') . "\n\n";
 
 // Example 11: Conditional Normalizer
 echo "Example 11: Conditional Normalizer\n";
@@ -231,11 +231,11 @@ class AgeRangeNormalizer implements NormalizerInterface
     public function normalize(array $data): array
     {
         if (isset($data['age'])) {
-            $age = (int) $data['age'];
+            $age = (int)$data['age'];
 
-            if ($age < 0) {
+            if (0 > $age) {
                 $data['age'] = 0;
-            } elseif ($age > 120) {
+            } elseif (120 < $age) {
                 $data['age'] = 120;
             }
         }
@@ -257,7 +257,7 @@ $user2 = UserDTO::fromArrayWithNormalizers($data2, [
     new AgeRangeNormalizer(),
 ]);
 
-echo "Age -5 normalized to: {$user1->age}\n";
+echo sprintf('Age -5 normalized to: %s%s', $user1->age, PHP_EOL);
 echo "Age 150 normalized to: {$user2->age}\n\n";
 
 // Example 12: normalizeWith Method
@@ -266,11 +266,11 @@ echo "---------------------------------\n";
 
 $user = UserDTO::fromArray(['name' => 'henry', 'age' => 50, 'active' => true]);
 
-echo "Before: name={$user->name}\n";
+echo sprintf('Before: name=%s%s', $user->name, PHP_EOL);
 
 $normalized = $user->normalizeWith(new UppercaseNameNormalizer());
 
-echo "After: name={$normalized->name}\n";
+echo sprintf('After: name=%s%s', $normalized->name, PHP_EOL);
 echo "Original unchanged: name={$user->name}\n\n";
 
 echo "================================================================================\n";

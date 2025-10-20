@@ -6,8 +6,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
 use Tests\utils\DTOs\CompanyDto;
-use Tests\utils\DTOs\DepartmentDto;
-use Tests\utils\DTOs\ProjectDto;
 use Tests\utils\SimpleDTOs\CompanySimpleDto;
 use Tests\utils\SimpleDTOs\DepartmentSimpleDto;
 use Tests\utils\SimpleDTOs\ProjectSimpleDto;
@@ -76,11 +74,11 @@ class Benchmark
 
     public static function printResult(array $result): void
     {
-        echo "  {$result['name']}\n";
-        echo "    Iterations:  {$result['iterations']}\n";
-        echo "    Total time:  {$result['formatted_total']}\n";
-        echo "    Avg time:    {$result['formatted_avg']}\n";
-        echo "    Memory:      {$result['formatted_memory']}\n";
+        echo sprintf('  %s%s', $result['name'], PHP_EOL);
+        echo sprintf('    Iterations:  %s%s', $result['iterations'], PHP_EOL);
+        echo sprintf('    Total time:  %s%s', $result['formatted_total'], PHP_EOL);
+        echo sprintf('    Avg time:    %s%s', $result['formatted_avg'], PHP_EOL);
+        echo sprintf('    Memory:      %s%s', $result['formatted_memory'], PHP_EOL);
     }
 
     public static function compare(array $result1, array $result2): void
@@ -90,15 +88,15 @@ class Benchmark
 
         echo "\n  📊 Comparison:\n";
         if (0 < $timeDiff) {
-            echo "    ⏱️  {$result2['name']} is " . number_format(abs($timeDiff), 1) . "% SLOWER\n";
+            echo sprintf('    ⏱️  %s is ', $result2['name']) . number_format(abs($timeDiff), 1) . "% SLOWER\n";
         } else {
-            echo "    ⏱️  {$result2['name']} is " . number_format(abs($timeDiff), 1) . "% FASTER\n";
+            echo sprintf('    ⏱️  %s is ', $result2['name']) . number_format(abs($timeDiff), 1) . "% FASTER\n";
         }
 
         if (0 < $memDiff) {
-            echo "    💾 {$result2['name']} uses " . number_format(abs($memDiff), 1) . "% MORE memory\n";
+            echo sprintf('    💾 %s uses ', $result2['name']) . number_format(abs($memDiff), 1) . "% MORE memory\n";
         } else {
-            echo "    💾 {$result2['name']} uses " . number_format(abs($memDiff), 1) . "% LESS memory\n";
+            echo sprintf('    💾 %s uses ', $result2['name']) . number_format(abs($memDiff), 1) . "% LESS memory\n";
         }
     }
 }
@@ -152,12 +150,12 @@ echo str_repeat('─', 64) . "\n";
 
 $iterations = 1000;
 
-$result1 = Benchmark::run('Traditional Mutable DTO', function() use ($jsonFile, $mapping) {
+$result1 = Benchmark::run('Traditional Mutable DTO', function() use ($jsonFile, $mapping): void {
     $company = new CompanyDto();
     DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 }, $iterations);
 
-$result2 = Benchmark::run('SimpleDTO Immutable', function() use ($jsonFile, $mapping) {
+$result2 = Benchmark::run('SimpleDTO Immutable', function() use ($jsonFile, $mapping): void {
     $mappedArray = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->toArray();
 
     /** @var array<int, array<string, mixed>> $departmentsData */
@@ -222,20 +220,20 @@ $companyImmutable = CompanySimpleDto::fromArray($companyData);
 
 $iterations = 10000;
 
-$result3 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMutable) {
+$result3 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMutable): void {
     // Traditional DTOs need manual serialization
     json_encode([
         'name' => $companyMutable->name,
         'email' => $companyMutable->email,
         'founded_year' => $companyMutable->founded_year,
-        'departments' => array_map(fn($d) => [
+        'departments' => array_map(fn($d): array => [
             'name' => $d->name,
             'code' => $d->code,
         ], $companyMutable->departments),
     ]);
 }, $iterations);
 
-$result4 = Benchmark::run('SimpleDTO (automatic)', function() use ($companyImmutable) {
+$result4 = Benchmark::run('SimpleDTO (automatic)', function() use ($companyImmutable): void {
     // SimpleDTO has automatic JSON serialization
     json_encode($companyImmutable);
 }, $iterations);
@@ -254,20 +252,20 @@ echo str_repeat('─', 64) . "\n";
 
 $iterations = 10000;
 
-$result5 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMutable) {
+$result5 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMutable): void {
     // Traditional DTOs need manual array conversion
     [
         'name' => $companyMutable->name,
         'email' => $companyMutable->email,
         'founded_year' => $companyMutable->founded_year,
-        'departments' => array_map(fn($d) => [
+        'departments' => array_map(fn($d): array => [
             'name' => $d->name,
             'code' => $d->code,
         ], $companyMutable->departments),
     ];
 }, $iterations);
 
-$result6 = Benchmark::run('SimpleDTO (automatic)', function() use ($companyImmutable) {
+$result6 = Benchmark::run('SimpleDTO (automatic)', function() use ($companyImmutable): void {
     // SimpleDTO has automatic toArray()
     $companyImmutable->toArray();
 }, $iterations);

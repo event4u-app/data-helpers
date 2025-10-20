@@ -473,9 +473,8 @@ describe('SimpleDTO Mapping Edge Cases', function(): void {
         it('handles empty DTO with transformations', function(): void {
             $dto = new #[MapInputName('snake_case')]
             #[MapOutputName('snake_case')]
-            class() extends SimpleDTO {
-                public function __construct() {
-                }
+            class extends SimpleDTO
+            {
             };
 
             $instance = $dto::fromArray([]);
@@ -677,7 +676,7 @@ describe('SimpleDTO Mapping Edge Cases', function(): void {
         it('handles large DTOs with many properties', function(): void {
             $properties = [];
             for ($i = 1; 50 >= $i; $i++) {
-                $properties["field{$i}"] = "value{$i}";
+                $properties['field' . $i] = 'value' . $i;
             }
 
             $dto = new #[MapInputName('snake_case')]

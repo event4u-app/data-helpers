@@ -31,14 +31,12 @@ use Throwable;
 )]
 class DtoTypeScriptCommand extends Command
 {
-    private Filesystem $filesystem;
-    private string $projectDir;
+    private readonly Filesystem $filesystem;
 
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
         parent::__construct();
         $this->filesystem = new Filesystem();
-        $this->projectDir = $projectDir;
     }
 
     protected function configure(): void
@@ -94,8 +92,8 @@ class DtoTypeScriptCommand extends Command
         // Find all DTO classes
         $dtoClasses = $this->findDtoClasses($scanPath);
 
-        if (empty($dtoClasses)) {
-            $io->warning("No DTO classes found in {$scanPath}");
+        if ($dtoClasses === []) {
+            $io->warning('No DTO classes found in ' . $scanPath);
 
             return Command::FAILURE;
         }
@@ -120,7 +118,7 @@ class DtoTypeScriptCommand extends Command
         $this->filesystem->dumpFile($outputPath, $typescript);
 
         $io->success('TypeScript interfaces generated successfully!');
-        $io->info("Output: {$outputPath}");
+        $io->info('Output: ' . $outputPath);
         $io->info('Size: ' . filesize($outputPath) . ' bytes');
 
         return Command::SUCCESS;
@@ -136,8 +134,8 @@ class DtoTypeScriptCommand extends Command
         bool $sort
     ): int {
         $io->info('👀 Watching for changes...');
-        $io->info("📁 Scanning: {$scanPath}");
-        $io->info("📄 Output: {$outputPath}");
+        $io->info('📁 Scanning: ' . $scanPath);
+        $io->info('📄 Output: ' . $outputPath);
         $io->info('Press Ctrl+C to stop');
         $io->newLine();
 
@@ -240,7 +238,7 @@ class DtoTypeScriptCommand extends Command
             $traits = $this->getAllTraits($reflection);
 
             return in_array('event4u\DataHelpers\SimpleDTO\SimpleDTOTrait', $traits, true);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }

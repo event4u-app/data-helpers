@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes\Symfony;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use Throwable;
 
 /**
  * Attribute to conditionally include a property based on Symfony user role.
@@ -44,14 +45,10 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class WhenRole implements ConditionalProperty
 {
-    /**
-     * @var array<string>
-     */
+    /** @var array<string> */
     private readonly array $roles;
 
-    /**
-     * @param string|array<string> $role Role(s) to check (e.g., 'ROLE_ADMIN', ['ROLE_ADMIN', 'ROLE_MODERATOR'])
-     */
+    /** @param string|array<string> $role Role(s) to check (e.g., 'ROLE_ADMIN', ['ROLE_ADMIN', 'ROLE_MODERATOR']) */
     public function __construct(
         string|array $role,
     ) {
@@ -64,7 +61,6 @@ class WhenRole implements ConditionalProperty
      * @param mixed $value Property value
      * @param object $dto DTO instance
      * @param array<string, mixed> $context Context data
-     * @return bool
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
@@ -73,7 +69,7 @@ class WhenRole implements ConditionalProperty
             $user = $context['user'];
 
             // No user = no role
-            if ($user === null) {
+            if (null === $user) {
                 return false;
             }
 
@@ -112,7 +108,7 @@ class WhenRole implements ConditionalProperty
         if (array_key_exists('security', $context)) {
             $security = $context['security'];
 
-            if ($security !== null && is_object($security) && method_exists($security, 'isGranted')) {
+            if (null !== $security && is_object($security) && method_exists($security, 'isGranted')) {
                 foreach ($this->roles as $role) {
                     if ($security->isGranted($role)) {
                         return true;
@@ -129,7 +125,7 @@ class WhenRole implements ConditionalProperty
                 // Note: This requires Symfony to be properly initialized
                 // In most cases, context should be used instead
                 return false;
-            } catch (\Throwable $e) {
+            } catch (Throwable) {
                 return false;
             }
         }

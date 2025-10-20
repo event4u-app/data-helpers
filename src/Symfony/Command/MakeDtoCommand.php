@@ -28,14 +28,12 @@ use Symfony\Component\Filesystem\Filesystem;
 )]
 class MakeDtoCommand extends Command
 {
-    private Filesystem $filesystem;
-    private string $projectDir;
+    private readonly Filesystem $filesystem;
 
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
         parent::__construct();
         $this->filesystem = new Filesystem();
-        $this->projectDir = $projectDir;
     }
 
     protected function configure(): void
@@ -59,7 +57,7 @@ class MakeDtoCommand extends Command
         $force = $input->getOption('force');
 
         // Ensure name ends with DTO
-        if (!str_ends_with($name, 'DTO')) {
+        if (!str_ends_with((string) $name, 'DTO')) {
             $name .= 'DTO';
         }
 
@@ -68,7 +66,7 @@ class MakeDtoCommand extends Command
 
         // Check if file exists
         if ($this->filesystem->exists($path) && !$force) {
-            $io->error("DTO [{$name}] already exists!");
+            $io->error(sprintf('DTO [%s] already exists!', $name));
             $io->info('Use --force to overwrite.');
 
             return Command::FAILURE;
@@ -86,8 +84,8 @@ class MakeDtoCommand extends Command
         // Write file
         $this->filesystem->dumpFile($path, $content);
 
-        $io->success("DTO [{$name}] created successfully.");
-        $io->info("Location: {$path}");
+        $io->success(sprintf('DTO [%s] created successfully.', $name));
+        $io->info('Location: ' . $path);
 
         return Command::SUCCESS;
     }

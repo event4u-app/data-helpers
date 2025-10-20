@@ -116,7 +116,7 @@ describe('SimpleDTO Edge Cases', function(): void {
     describe('Type Coercion Edge Cases', function(): void {
         it('handles strict type checking for int', function(): void {
             // PHP strict types should enforce int type
-            expect(function() {
+            expect(function(): void {
                 EdgeCaseUserDTO::fromArray([
                     'name' => 'John',
                     'age' => '30', // String instead of int
@@ -325,7 +325,7 @@ describe('SimpleDTO Edge Cases', function(): void {
                 'age' => 30,
             ]);
 
-            expect(function() use ($dto) {
+            expect(function() use ($dto): void {
                 $dto->name = 'Jane';
             })->toThrow(Error::class);
         });

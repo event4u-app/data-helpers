@@ -6,11 +6,10 @@ namespace Tests\Unit;
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
 
-describe('With Method', function () {
-    describe('Basic with() Method', function () {
-        it('adds single property with key-value syntax', function () {
+describe('With Method', function(): void {
+    describe('Basic with() Method', function(): void {
+        it('adds single property with key-value syntax', function(): void {
             $dto = new class('John', 'john@example.com') {
                 use SimpleDTOTrait;
 
@@ -28,7 +27,7 @@ describe('With Method', function () {
                 ->and($result['role'])->toBe('admin');
         });
 
-        it('adds multiple properties with array syntax', function () {
+        it('adds multiple properties with array syntax', function(): void {
             $dto = new class('John') {
                 use SimpleDTOTrait;
 
@@ -52,7 +51,7 @@ describe('With Method', function () {
                 ->and($result['level'])->toBe(5);
         });
 
-        it('chains multiple with() calls', function () {
+        it('chains multiple with() calls', function(): void {
             $dto = new class('John') {
                 use SimpleDTOTrait;
 
@@ -75,7 +74,7 @@ describe('With Method', function () {
                 ->and($result['level'])->toBe(5);
         });
 
-        it('does not modify original DTO', function () {
+        it('does not modify original DTO', function(): void {
             $dto = new class('John') {
                 use SimpleDTOTrait;
 
@@ -92,8 +91,8 @@ describe('With Method', function () {
         });
     });
 
-    describe('Lazy Evaluation', function () {
-        it('evaluates callbacks lazily', function () {
+    describe('Lazy Evaluation', function(): void {
+        it('evaluates callbacks lazily', function(): void {
             $dto = new class('John', 30) {
                 use SimpleDTOTrait;
 
@@ -103,13 +102,13 @@ describe('With Method', function () {
                 ) {}
             };
 
-            $result = $dto->with('isAdult', fn($dto) => $dto->age >= 18)->toArray();
+            $result = $dto->with('isAdult', fn($dto): bool => 18 <= $dto->age)->toArray();
 
             expect($result)->toHaveKey('isAdult')
                 ->and($result['isAdult'])->toBeTrue();
         });
 
-        it('passes DTO instance to callback', function () {
+        it('passes DTO instance to callback', function(): void {
             $dto = new class('John', 'Doe') {
                 use SimpleDTOTrait;
 
@@ -119,13 +118,13 @@ describe('With Method', function () {
                 ) {}
             };
 
-            $result = $dto->with('fullName', fn($dto) => $dto->firstName . ' ' . $dto->lastName)->toArray();
+            $result = $dto->with('fullName', fn($dto): string => $dto->firstName . ' ' . $dto->lastName)->toArray();
 
             expect($result)->toHaveKey('fullName')
                 ->and($result['fullName'])->toBe('John Doe');
         });
 
-        it('evaluates multiple callbacks', function () {
+        it('evaluates multiple callbacks', function(): void {
             $dto = new class(10, 20) {
                 use SimpleDTOTrait;
 
@@ -136,9 +135,9 @@ describe('With Method', function () {
             };
 
             $result = $dto->with([
-                'sum' => fn($dto) => $dto->a + $dto->b,
-                'product' => fn($dto) => $dto->a * $dto->b,
-                'difference' => fn($dto) => $dto->a - $dto->b,
+                'sum' => fn($dto): float|int|array => $dto->a + $dto->b,
+                'product' => fn($dto): int|float => $dto->a * $dto->b,
+                'difference' => fn($dto): int|float => $dto->a - $dto->b,
             ])->toArray();
 
             expect($result['sum'])->toBe(30)
@@ -147,8 +146,8 @@ describe('With Method', function () {
         });
     });
 
-    describe('Nested DTOs', function () {
-        it('converts nested DTOs to arrays', function () {
+    describe('Nested DTOs', function(): void {
+        it('converts nested DTOs to arrays', function(): void {
             $addressDTO = new class('123 Main St', 'New York') {
                 use SimpleDTOTrait;
 
@@ -176,7 +175,7 @@ describe('With Method', function () {
                 ->and($result['address']['city'])->toBe('New York');
         });
 
-        it('handles nested DTOs in callbacks', function () {
+        it('handles nested DTOs in callbacks', function(): void {
             $addressDTO = new class('123 Main St', 'New York') {
                 use SimpleDTOTrait;
 
@@ -203,8 +202,8 @@ describe('With Method', function () {
         });
     });
 
-    describe('JSON Serialization', function () {
-        it('includes additional data in JSON serialization', function () {
+    describe('JSON Serialization', function(): void {
+        it('includes additional data in JSON serialization', function(): void {
             $dto = new class('John') extends SimpleDTO {
                 public function __construct(
                     public readonly string $name,
@@ -219,7 +218,7 @@ describe('With Method', function () {
                 ->and($decoded['role'])->toBe('admin');
         });
 
-        it('evaluates callbacks in JSON serialization', function () {
+        it('evaluates callbacks in JSON serialization', function(): void {
             $dto = new class('John', 30) extends SimpleDTO {
                 public function __construct(
                     public readonly string $name,
@@ -227,7 +226,7 @@ describe('With Method', function () {
                 ) {}
             };
 
-            $json = json_encode($dto->with('isAdult', fn($dto) => $dto->age >= 18));
+            $json = json_encode($dto->with('isAdult', fn($dto): bool => 18 <= $dto->age));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('isAdult')
@@ -235,8 +234,8 @@ describe('With Method', function () {
         });
     });
 
-    describe('Edge Cases', function () {
-        it('handles null values', function () {
+    describe('Edge Cases', function(): void {
+        it('handles null values', function(): void {
             $dto = new class('John') {
                 use SimpleDTOTrait;
 
@@ -251,7 +250,7 @@ describe('With Method', function () {
                 ->and($result['phone'])->toBeNull();
         });
 
-        it('handles empty arrays', function () {
+        it('handles empty arrays', function(): void {
             $dto = new class('John') {
                 use SimpleDTOTrait;
 
@@ -266,7 +265,7 @@ describe('With Method', function () {
                 ->and($result['tags'])->toBe([]);
         });
 
-        it('overwrites existing properties', function () {
+        it('overwrites existing properties', function(): void {
             $dto = new class('John') {
                 use SimpleDTOTrait;
 
@@ -280,7 +279,7 @@ describe('With Method', function () {
             expect($result['name'])->toBe('Jane');
         });
 
-        it('handles complex nested structures', function () {
+        it('handles complex nested structures', function(): void {
             $dto = new class('John') {
                 use SimpleDTOTrait;
 

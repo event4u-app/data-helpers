@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
+use Exception;
 
 /**
  * Provides benchmarking capabilities for SimpleDTO.
@@ -117,7 +118,7 @@ trait SimpleDTOBenchmarkTrait
         for ($i = 0; $i < $iterations; $i++) {
             try {
                 static::fromArray($data);
-            } catch (\Exception $e) {
+            } catch (Exception) {
                 // Ignore validation errors
             }
         }
@@ -180,7 +181,7 @@ trait SimpleDTOBenchmarkTrait
             'withoutCache' => $withoutCache,
             'speedup' => [
                 'duration' => $withoutCache['duration'] / $withCache['duration'],
-                'memory' => $withCache['memory'] > 0 ? $withoutCache['memory'] / $withCache['memory'] : 1.0,
+                'memory' => 0 < $withCache['memory'] ? $withoutCache['memory'] / $withCache['memory'] : 1.0,
             ],
         ];
     }
@@ -219,9 +220,7 @@ trait SimpleDTOBenchmarkTrait
         return self::$benchmarkResults;
     }
 
-    /**
-     * Clear all benchmark results.
-     */
+    /** Clear all benchmark results. */
     public static function clearBenchmarkResults(): void
     {
         self::$benchmarkResults = [];

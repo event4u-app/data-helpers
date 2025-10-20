@@ -21,21 +21,15 @@ use Exception;
  */
 class DTOPipeline
 {
-    /**
-     * @var array<PipelineStageInterface>
-     */
+    /** @var array<PipelineStageInterface> */
     private array $stages = [];
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private array $context = [];
 
     private bool $stopOnError = true;
 
-    /**
-     * Add a stage to the pipeline.
-     */
+    /** Add a stage to the pipeline. */
     public function addStage(PipelineStageInterface $stage): self
     {
         $this->stages[] = $stage;
@@ -81,9 +75,7 @@ class DTOPipeline
         return $this->stages;
     }
 
-    /**
-     * Clear all stages from the pipeline.
-     */
+    /** Clear all stages from the pipeline. */
     public function clear(): self
     {
         $this->stages = [];
@@ -92,9 +84,7 @@ class DTOPipeline
         return $this;
     }
 
-    /**
-     * Set whether to stop on error.
-     */
+    /** Set whether to stop on error. */
     public function setStopOnError(bool $stopOnError): self
     {
         $this->stopOnError = $stopOnError;
@@ -112,9 +102,7 @@ class DTOPipeline
         return $this->context;
     }
 
-    /**
-     * Clear the pipeline context.
-     */
+    /** Clear the pipeline context. */
     public function clearContext(): self
     {
         $this->context = [];

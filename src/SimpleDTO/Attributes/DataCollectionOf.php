@@ -28,9 +28,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class DataCollectionOf
 {
-    /**
-     * @param class-string $dtoClass The DTO class for collection items
-     */
+    /** @param class-string $dtoClass The DTO class for collection items */
     public function __construct(
         public readonly string $dtoClass,
     ) {}

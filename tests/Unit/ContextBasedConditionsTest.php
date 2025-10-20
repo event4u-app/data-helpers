@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextEquals;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextIn;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextNotNull;
+use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 
-describe('Context-Based Conditions', function () {
-    describe('WhenContext Attribute', function () {
-        it('includes property when context key exists', function () {
+describe('Context-Based Conditions', function(): void {
+    describe('WhenContext Attribute', function(): void {
+        it('includes property when context key exists', function(): void {
             $dto = new class('John', 'john@example.com') {
                 use SimpleDTOTrait;
 
@@ -31,7 +30,7 @@ describe('Context-Based Conditions', function () {
                 ->and($array['email'])->toBe('john@example.com');
         });
 
-        it('excludes property when context key does not exist', function () {
+        it('excludes property when context key does not exist', function(): void {
             $dto = new class('John', 'john@example.com') {
                 use SimpleDTOTrait;
 
@@ -48,7 +47,7 @@ describe('Context-Based Conditions', function () {
             expect($array)->not->toHaveKey('email');
         });
 
-        it('includes property when context value equals specified value', function () {
+        it('includes property when context value equals specified value', function(): void {
             $dto = new class('John', 'secret123') {
                 use SimpleDTOTrait;
 
@@ -66,7 +65,7 @@ describe('Context-Based Conditions', function () {
                 ->and($array['secretKey'])->toBe('secret123');
         });
 
-        it('excludes property when context value does not equal specified value', function () {
+        it('excludes property when context value does not equal specified value', function(): void {
             $dto = new class('John', 'secret123') {
                 use SimpleDTOTrait;
 
@@ -83,7 +82,7 @@ describe('Context-Based Conditions', function () {
             expect($array)->not->toHaveKey('secretKey');
         });
 
-        it('supports greater than operator', function () {
+        it('supports greater than operator', function(): void {
             $dto = new class('Product', 99.99) {
                 use SimpleDTOTrait;
 
@@ -100,7 +99,7 @@ describe('Context-Based Conditions', function () {
             expect($array)->toHaveKey('wholesalePrice');
         });
 
-        it('supports less than operator', function () {
+        it('supports less than operator', function(): void {
             $dto = new class('Product', 'Limited offer') {
                 use SimpleDTOTrait;
 
@@ -117,7 +116,7 @@ describe('Context-Based Conditions', function () {
             expect($array)->toHaveKey('lowStockWarning');
         });
 
-        it('supports not equal operator', function () {
+        it('supports not equal operator', function(): void {
             $dto = new class('User', 'Debug info') {
                 use SimpleDTOTrait;
 
@@ -135,8 +134,8 @@ describe('Context-Based Conditions', function () {
         });
     });
 
-    describe('WhenContextEquals Attribute', function () {
-        it('includes property when context value equals specified value (strict)', function () {
+    describe('WhenContextEquals Attribute', function(): void {
+        it('includes property when context value equals specified value (strict)', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -154,7 +153,7 @@ describe('Context-Based Conditions', function () {
                 ->and($array['adminPanel'])->toBe('/admin');
         });
 
-        it('excludes property when context value does not equal specified value', function () {
+        it('excludes property when context value does not equal specified value', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -171,7 +170,7 @@ describe('Context-Based Conditions', function () {
             expect($array)->not->toHaveKey('adminPanel');
         });
 
-        it('supports non-strict comparison', function () {
+        it('supports non-strict comparison', function(): void {
             $dto = new class('Product', 'On sale') {
                 use SimpleDTOTrait;
 
@@ -189,8 +188,8 @@ describe('Context-Based Conditions', function () {
         });
     });
 
-    describe('WhenContextIn Attribute', function () {
-        it('includes property when context value is in list', function () {
+    describe('WhenContextIn Attribute', function(): void {
+        it('includes property when context value is in list', function(): void {
             $dto = new class('John', '/moderation') {
                 use SimpleDTOTrait;
 
@@ -208,7 +207,7 @@ describe('Context-Based Conditions', function () {
                 ->and($array['moderationPanel'])->toBe('/moderation');
         });
 
-        it('excludes property when context value is not in list', function () {
+        it('excludes property when context value is not in list', function(): void {
             $dto = new class('John', '/moderation') {
                 use SimpleDTOTrait;
 
@@ -225,7 +224,7 @@ describe('Context-Based Conditions', function () {
             expect($array)->not->toHaveKey('moderationPanel');
         });
 
-        it('supports multiple values in list', function () {
+        it('supports multiple values in list', function(): void {
             $dto = new class('Product', 'Special badge') {
                 use SimpleDTOTrait;
 
@@ -249,8 +248,8 @@ describe('Context-Based Conditions', function () {
         });
     });
 
-    describe('WhenContextNotNull Attribute', function () {
-        it('includes property when context key exists and is not null', function () {
+    describe('WhenContextNotNull Attribute', function(): void {
+        it('includes property when context key exists and is not null', function(): void {
             $dto = new class('John', 'Welcome back!') {
                 use SimpleDTOTrait;
 
@@ -268,7 +267,7 @@ describe('Context-Based Conditions', function () {
                 ->and($array['welcomeMessage'])->toBe('Welcome back!');
         });
 
-        it('excludes property when context key does not exist', function () {
+        it('excludes property when context key does not exist', function(): void {
             $dto = new class('John', 'Welcome back!') {
                 use SimpleDTOTrait;
 
@@ -285,7 +284,7 @@ describe('Context-Based Conditions', function () {
             expect($array)->not->toHaveKey('welcomeMessage');
         });
 
-        it('excludes property when context value is null', function () {
+        it('excludes property when context value is null', function(): void {
             $dto = new class('John', 'Welcome back!') {
                 use SimpleDTOTrait;
 
@@ -303,8 +302,8 @@ describe('Context-Based Conditions', function () {
         });
     });
 
-    describe('Multiple Context Conditions', function () {
-        it('supports multiple context conditions (AND logic)', function () {
+    describe('Multiple Context Conditions', function(): void {
+        it('supports multiple context conditions (AND logic)', function(): void {
             $dto = new class('John', 'Premium content') {
                 use SimpleDTOTrait;
 
@@ -327,8 +326,8 @@ describe('Context-Based Conditions', function () {
         });
     });
 
-    describe('Context Chaining', function () {
-        it('merges context from multiple withContext calls', function () {
+    describe('Context Chaining', function(): void {
+        it('merges context from multiple withContext calls', function(): void {
             $dto = new class('John', 'admin@example.com', '/admin') {
                 use SimpleDTOTrait;
 

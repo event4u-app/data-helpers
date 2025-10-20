@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -64,24 +64,24 @@ class Image implements ValidationRule, SymfonyConstraint
         }
 
         if (null !== $this->maxSize) {
-            $rules[] = "max:{$this->maxSize}";
+            $rules[] = 'max:' . $this->maxSize;
         }
 
         $dimensions = [];
         if (null !== $this->minWidth) {
-            $dimensions[] = "min_width={$this->minWidth}";
+            $dimensions[] = 'min_width=' . $this->minWidth;
         }
         if (null !== $this->maxWidth) {
-            $dimensions[] = "max_width={$this->maxWidth}";
+            $dimensions[] = 'max_width=' . $this->maxWidth;
         }
         if (null !== $this->minHeight) {
-            $dimensions[] = "min_height={$this->minHeight}";
+            $dimensions[] = 'min_height=' . $this->minHeight;
         }
         if (null !== $this->maxHeight) {
-            $dimensions[] = "max_height={$this->maxHeight}";
+            $dimensions[] = 'max_height=' . $this->maxHeight;
         }
 
-        if (!empty($dimensions)) {
+        if ($dimensions !== []) {
             $rules[] = 'dimensions:' . implode(',', $dimensions);
         }
 
@@ -101,8 +101,6 @@ class Image implements ValidationRule, SymfonyConstraint
 
     /**
      * Get Symfony constraint.
-     *
-     * @return Constraint
      */
     public function constraint(): Constraint
     {
@@ -120,7 +118,7 @@ class Image implements ValidationRule, SymfonyConstraint
                     'bmp' => 'image/bmp',
                     'svg' => 'image/svg+xml',
                     'webp' => 'image/webp',
-                    default => "image/{$mime}",
+                    default => 'image/' . $mime,
                 };
             }
         } else {
@@ -136,12 +134,12 @@ class Image implements ValidationRule, SymfonyConstraint
         }
 
         return new Assert\Image(
-            mimeTypes: $mimeTypes,
             maxSize: null !== $this->maxSize ? $this->maxSize * 1024 : null,
+            mimeTypes: $mimeTypes,
             minWidth: $this->minWidth,
             maxWidth: $this->maxWidth,
-            minHeight: $this->minHeight,
-            maxHeight: $this->maxHeight
+            maxHeight: $this->maxHeight,
+            minHeight: $this->minHeight
         );
     }
 }

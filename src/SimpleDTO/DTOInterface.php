@@ -23,7 +23,6 @@ interface DTOInterface
      * Create a DTO instance from an array.
      *
      * @param array<string, mixed> $data
-     * @return static
      */
     public static function fromArray(array $data): static;
 }

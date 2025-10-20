@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
 use event4u\DataHelpers\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
 use event4u\DataHelpers\Validation\ValidationResult;
 use event4u\DataHelpers\Validation\Validator;
 use ReflectionClass;
@@ -54,8 +54,8 @@ trait SimpleDTORequestValidationTrait
         try {
             $validated = static::performValidation($data, false);
             return ValidationResult::success($validated);
-        } catch (ValidationException $e) {
-            return ValidationResult::failure($e->errors());
+        } catch (ValidationException $validationException) {
+            return ValidationResult::failure($validationException->errors());
         }
     }
 
@@ -71,27 +71,21 @@ trait SimpleDTORequestValidationTrait
         return static::performValidation($data, true);
     }
 
-
-
-    /**
-     * Check if DTO has ValidateRequest attribute.
-     */
+    /** Check if DTO has ValidateRequest attribute. */
     public static function shouldAutoValidate(): bool
     {
         $reflection = new ReflectionClass(static::class);
         $attributes = $reflection->getAttributes(ValidateRequest::class);
-        return count($attributes) > 0;
+        return $attributes !== [];
     }
 
-    /**
-     * Get ValidateRequest attribute if present.
-     */
+    /** Get ValidateRequest attribute if present. */
     public static function getValidateRequestAttribute(): ?ValidateRequest
     {
         $reflection = new ReflectionClass(static::class);
         $attributes = $reflection->getAttributes(ValidateRequest::class);
 
-        if (count($attributes) === 0) {
+        if ($attributes === []) {
             return null;
         }
 
@@ -117,11 +111,11 @@ trait SimpleDTORequestValidationTrait
         $validateAttr = static::getValidateRequestAttribute();
 
         // Filter rules if only/except specified
-        if ($validateAttr !== null) {
-            if (count($validateAttr->only) > 0) {
+        if ($validateAttr instanceof ValidateRequest) {
+            if ($validateAttr->only !== []) {
                 $rules = array_intersect_key($rules, array_flip($validateAttr->only));
             }
-            if (count($validateAttr->except) > 0) {
+            if ($validateAttr->except !== []) {
                 $rules = array_diff_key($rules, array_flip($validateAttr->except));
             }
         }
@@ -140,15 +134,13 @@ trait SimpleDTORequestValidationTrait
 
         try {
             return $validator->validate();
-        } catch (ValidationException $e) {
+        } catch (ValidationException $validationException) {
             if ($throw || $validateAttr?->throw) {
-                throw $e;
+                throw $validationException;
             }
-            throw $e; // Always throw for now, ValidationResult is handled in validateData()
+            throw $validationException; // Always throw for now, ValidationResult is handled in validateData()
         }
     }
-
-
 
     /**
      * Validate using Laravel validator.

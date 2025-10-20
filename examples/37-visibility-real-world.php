@@ -47,7 +47,7 @@ class BlogPostDTO extends SimpleDTO
         }
 
         // Admin kann alles sehen
-        if (($context->role ?? null) === 'admin') {
+        if ('admin' === ($context->role ?? null)) {
             return true;
         }
 
@@ -55,12 +55,10 @@ class BlogPostDTO extends SimpleDTO
         return ($context->userId ?? null) === $this->authorId;
     }
 
-    /**
-     * Analytics sind nur für Admins sichtbar
-     */
+    /** Analytics sind nur für Admins sichtbar */
     private function canViewAnalytics(mixed $context): bool
     {
-        return ($context?->role ?? null) === 'admin';
+        return 'admin' === ($context?->role ?? null);
     }
 
     /**
@@ -75,7 +73,7 @@ class BlogPostDTO extends SimpleDTO
         }
 
         // Admin kann alles sehen
-        if (($context->role ?? null) === 'admin') {
+        if ('admin' === ($context->role ?? null)) {
             return true;
         }
 

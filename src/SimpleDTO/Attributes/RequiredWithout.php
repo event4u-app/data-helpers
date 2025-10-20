@@ -26,17 +26,13 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class RequiredWithout implements ValidationRule
 {
-    /**
-     * @param array<string> $fields Field names that trigger requirement when absent
-     */
+    /** @param array<string> $fields Field names that trigger requirement when absent */
     public function __construct(
         public readonly array $fields,
     ) {}
 
     /**
      * Convert to Laravel validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
@@ -45,13 +41,11 @@ class RequiredWithout implements ValidationRule
 
     /**
      * Get validation error message.
-     *
-     * @return string|null
      */
     public function message(): ?string
     {
         $fields = implode(', ', $this->fields);
-        return "The attribute field is required when {$fields} is not present.";
+        return sprintf('The attribute field is required when %s is not present.', $fields);
     }
 }
 

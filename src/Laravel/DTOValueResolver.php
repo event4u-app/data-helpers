@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Laravel;
 
+use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
-use event4u\DataHelpers\Exceptions\ValidationException;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Http\Request;
 use ReflectionClass;
@@ -41,8 +41,6 @@ class DTOValueResolver
     /**
      * Resolve DTO from request.
      *
-     * @param ReflectionParameter $parameter
-     * @return mixed
      * @throws ValidationException
      */
     public function resolve(ReflectionParameter $parameter): mixed
@@ -68,7 +66,7 @@ class DTOValueResolver
         $reflection = new ReflectionClass($className);
         $attributes = $reflection->getAttributes(ValidateRequest::class);
 
-        if (count($attributes) > 0) {
+        if ($attributes !== []) {
             /** @var ValidateRequest $validateAttr */
             $validateAttr = $attributes[0]->newInstance();
 

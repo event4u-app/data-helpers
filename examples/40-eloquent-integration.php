@@ -71,8 +71,8 @@ print_r($userDto->toArray());
 echo "\n";
 
 echo "Access DTO properties:\n";
-echo "Name: {$userDto->name}\n";
-echo "Email: {$userDto->email}\n";
+echo sprintf('Name: %s%s', $userDto->name, PHP_EOL);
+echo sprintf('Email: %s%s', $userDto->email, PHP_EOL);
 echo "Age: {$userDto->age}\n\n";
 
 // ============================================================================

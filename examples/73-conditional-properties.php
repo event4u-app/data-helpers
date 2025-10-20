@@ -5,14 +5,12 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenCallback;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenNull;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenEquals;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenFalse;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenTrue;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenFalse;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenEquals;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                    CONDITIONAL PROPERTIES                                  ║\n";

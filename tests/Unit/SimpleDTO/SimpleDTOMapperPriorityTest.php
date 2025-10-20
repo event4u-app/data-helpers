@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 
-describe('SimpleDTO Mapper Priority', function (): void {
-    describe('Template Priority', function (): void {
-        it('template has highest priority over attributes', function (): void {
+describe('SimpleDTO Mapper Priority', function(): void {
+    describe('Template Priority', function(): void {
+        it('template has highest priority over attributes', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -41,7 +42,7 @@ describe('SimpleDTO Mapper Priority', function (): void {
                 ->and($result->name)->toBe('Correct Name');
         });
 
-        it('template has highest priority over automapping', function (): void {
+        it('template has highest priority over automapping', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -68,8 +69,8 @@ describe('SimpleDTO Mapper Priority', function (): void {
         });
     });
 
-    describe('Attributes Priority', function (): void {
-        it('attributes have priority over automapping when no template', function (): void {
+    describe('Attributes Priority', function(): void {
+        it('attributes have priority over automapping when no template', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
                     #[MapFrom('user_id')]
@@ -88,8 +89,8 @@ describe('SimpleDTO Mapper Priority', function (): void {
         });
     });
 
-    describe('Automapping Fallback', function (): void {
-        it('uses automapping when no template and no attributes', function (): void {
+    describe('Automapping Fallback', function(): void {
+        it('uses automapping when no template and no attributes', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
                     public readonly int $id = 0,
@@ -109,8 +110,8 @@ describe('SimpleDTO Mapper Priority', function (): void {
         });
     });
 
-    describe('Combined Scenarios', function (): void {
-        it('template for some properties, attributes for others', function (): void {
+    describe('Combined Scenarios', function(): void {
+        it('template for some properties, attributes for others', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -141,7 +142,7 @@ describe('SimpleDTO Mapper Priority', function (): void {
                 ->and($result->name)->toBe('John Doe');
         });
 
-        it('template with filters and attributes', function (): void {
+        it('template with filters and attributes', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -154,7 +155,7 @@ describe('SimpleDTO Mapper Priority', function (): void {
                 protected function mapperPipeline(): array
                 {
                     return [
-                        new \event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings(),
+                        new TrimStrings(),
                     ];
                 }
 
@@ -180,8 +181,8 @@ describe('SimpleDTO Mapper Priority', function (): void {
         });
     });
 
-    describe('fromArray() Alias', function (): void {
-        it('fromArray() uses same logic as fromSource()', function (): void {
+    describe('fromArray() Alias', function(): void {
+        it('fromArray() uses same logic as fromSource()', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -211,7 +212,7 @@ describe('SimpleDTO Mapper Priority', function (): void {
                 ->and($result1->name)->toBe($result2->name);
         });
 
-        it('fromArray() supports all parameters', function (): void {
+        it('fromArray() supports all parameters', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -241,8 +242,8 @@ describe('SimpleDTO Mapper Priority', function (): void {
         });
     });
 
-    describe('Complex Nested Scenarios', function (): void {
-        it('handles deeply nested data with template', function (): void {
+    describe('Complex Nested Scenarios', function(): void {
+        it('handles deeply nested data with template', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {

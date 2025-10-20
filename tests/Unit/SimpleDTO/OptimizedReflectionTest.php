@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\Support\ReflectionCache;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\Support\ReflectionCache;
 
 // Helper function for test setup
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
@@ -193,7 +194,7 @@ describe('Optimized Reflection', function(): void {
         beforeEach(fn() => setupOptimizedReflection());
 
         it('caches class attributes', function(): void {
-            $dto = new #[\event4u\DataHelpers\SimpleDTO\Attributes\MapInputName('snake_case')]
+            $dto = new #[MapInputName('snake_case')]
             class extends SimpleDTO {
                 public function __construct(
                     public readonly string $name = '',
@@ -204,7 +205,7 @@ describe('Optimized Reflection', function(): void {
             $attrs2 = ReflectionCache::getClassAttributes($dto);
 
             expect($attrs1)->toBe($attrs2)
-                ->and($attrs1)->toHaveKey(\event4u\DataHelpers\SimpleDTO\Attributes\MapInputName::class);
+                ->and($attrs1)->toHaveKey(MapInputName::class);
         });
     });
 
@@ -317,7 +318,7 @@ describe('Optimized Reflection', function(): void {
 
             // Measure with cache
             $start = microtime(true);
-            for ($i = 0; $i < 10000; $i++) {
+            for ($i = 0; 10000 > $i; $i++) {
                 ReflectionCache::getClass($dto);
                 ReflectionCache::getProperties($dto);
             }

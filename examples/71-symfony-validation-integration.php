@@ -5,16 +5,16 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
 use event4u\DataHelpers\SimpleDTO\Attributes\Between;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
-use event4u\DataHelpers\SimpleDTO\Attributes\Size;
 use event4u\DataHelpers\SimpleDTO\Attributes\Ip;
 use event4u\DataHelpers\SimpleDTO\Attributes\Json;
+use event4u\DataHelpers\SimpleDTO\Attributes\Max;
+use event4u\DataHelpers\SimpleDTO\Attributes\Min;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\Size;
+use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 
 echo str_repeat('=', 80) . "\n";
@@ -69,9 +69,9 @@ echo "  - Min(3): " . $minAttr->rule() . "\n";
 
 echo "\nSymfony Constraints (object format):\n";
 if (class_exists('Symfony\Component\Validator\Constraints\NotBlank')) {
-    echo "  - Required: " . get_class($requiredAttr->constraint()) . "\n";
-    echo "  - Email: " . get_class($emailAttr->constraint()) . "\n";
-    echo "  - Min(3): " . get_class($minAttr->constraint()) . "\n";
+    echo "  - Required: " . $requiredAttr->constraint()::class . "\n";
+    echo "  - Email: " . $emailAttr->constraint()::class . "\n";
+    echo "  - Min(3): " . $minAttr->constraint()::class . "\n";
 } else {
     echo "  ⚠️  Symfony Validator not installed\n";
     echo "  Install with: composer require symfony/validator\n";
@@ -115,10 +115,10 @@ echo "  - Size(10): " . $sizeAttr->rule() . "\n";
 
 echo "\nSymfony Constraints:\n";
 if (class_exists('Symfony\Component\Validator\Constraints\Uuid')) {
-    echo "  - Uuid: " . get_class($uuidAttr->constraint()) . "\n";
-    echo "  - Ip: " . get_class($ipAttr->constraint()) . "\n";
-    echo "  - Json: " . get_class($jsonAttr->constraint()) . "\n";
-    echo "  - Size(10): " . get_class($sizeAttr->constraint()) . "\n";
+    echo "  - Uuid: " . $uuidAttr->constraint()::class . "\n";
+    echo "  - Ip: " . $ipAttr->constraint()::class . "\n";
+    echo "  - Json: " . $jsonAttr->constraint()::class . "\n";
+    echo "  - Size(10): " . $sizeAttr->constraint()::class . "\n";
 } else {
     echo "  ⚠️  Symfony Validator not installed\n";
 }

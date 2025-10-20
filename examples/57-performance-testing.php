@@ -23,8 +23,8 @@ class UserDTO extends SimpleDTO
 
 // Test instantiation performance
 $start = microtime(true);
-for ($i = 0; $i < 10000; $i++) {
-    UserDTO::fromArray(['name' => "User $i", 'age' => 20 + ($i % 50), 'email' => "user$i@example.com"]);
+for ($i = 0; 10000 > $i; $i++) {
+    UserDTO::fromArray(['name' => 'User ' . $i, 'age' => 20 + ($i % 50), 'email' => sprintf('user%d@example.com', $i)]);
 }
 $duration = microtime(true) - $start;
 
@@ -37,7 +37,7 @@ echo "  Avg per instance: " . number_format(($duration / 10000) * 1000000, 2) . 
 $user = UserDTO::fromArray(['name' => 'John', 'age' => 30, 'email' => 'john@example.com']);
 
 $start = microtime(true);
-for ($i = 0; $i < 100000; $i++) {
+for ($i = 0; 100000 > $i; $i++) {
     $user->toArray();
 }
 $duration = microtime(true) - $start;
@@ -49,7 +49,7 @@ echo "  Avg per call: " . number_format(($duration / 100000) * 1000000, 2) . " �
 
 // Test JSON serialization performance
 $start = microtime(true);
-for ($i = 0; $i < 100000; $i++) {
+for ($i = 0; 100000 > $i; $i++) {
     json_encode($user);
 }
 $duration = microtime(true) - $start;
@@ -66,8 +66,8 @@ echo "----------------------\n";
 $memoryBefore = memory_get_usage();
 
 $instances = [];
-for ($i = 0; $i < 10000; $i++) {
-    $instances[] = UserDTO::fromArray(['name' => "User $i", 'age' => 20 + ($i % 50), 'email' => "user$i@example.com"]);
+for ($i = 0; 10000 > $i; $i++) {
+    $instances[] = UserDTO::fromArray(['name' => 'User ' . $i, 'age' => 20 + ($i % 50), 'email' => sprintf('user%d@example.com', $i)]);
 }
 
 $memoryAfter = memory_get_usage();
@@ -89,8 +89,8 @@ echo "---------------------\n";
 
 $memoryBefore = memory_get_usage();
 
-for ($i = 0; $i < 10000; $i++) {
-    UserDTO::fromArray(['name' => "User $i", 'age' => 20 + ($i % 50), 'email' => "user$i@example.com"]);
+for ($i = 0; 10000 > $i; $i++) {
+    UserDTO::fromArray(['name' => 'User ' . $i, 'age' => 20 + ($i % 50), 'email' => sprintf('user%d@example.com', $i)]);
 }
 
 gc_collect_cycles();
@@ -102,7 +102,7 @@ echo "Memory Leak Test:\n";
 echo "  Memory before: " . number_format($memoryBefore / 1024, 2) . " KB\n";
 echo "  Memory after: " . number_format($memoryAfter / 1024, 2) . " KB\n";
 echo "  Memory increase: " . number_format($memoryIncrease / 1024, 2) . " KB\n";
-echo "  Status: " . ($memoryIncrease < 100 * 1024 ? "✅  No significant leak" : "⚠️  Potential leak") . "\n\n";
+echo "  Status: " . (100 * 1024 > $memoryIncrease ? "✅  No significant leak" : "⚠️  Potential leak") . "\n\n";
 
 // Example 4: Stress Testing
 echo "4. Stress Testing\n";
@@ -111,11 +111,11 @@ echo "----------------\n";
 // Test 1: Large batch processing
 $start = microtime(true);
 $results = [];
-for ($i = 0; $i < 50000; $i++) {
+for ($i = 0; 50000 > $i; $i++) {
     $instance = UserDTO::fromArray([
-        'name' => "User $i",
+        'name' => 'User ' . $i,
         'age' => 20 + ($i % 50),
-        'email' => "user$i@example.com",
+        'email' => sprintf('user%d@example.com', $i),
     ]);
     $results[] = json_encode($instance);
 }
@@ -154,7 +154,7 @@ $complexData = [
 ];
 
 $start = microtime(true);
-for ($i = 0; $i < 10000; $i++) {
+for ($i = 0; 10000 > $i; $i++) {
     ComplexDTO::fromArray($complexData);
 }
 $duration = microtime(true) - $start;
@@ -170,12 +170,12 @@ echo "----------------------------\n";
 $start = microtime(true);
 
 $operations = [];
-for ($i = 0; $i < 5000; $i++) {
+for ($i = 0; 5000 > $i; $i++) {
     $operations[] = function() use ($i) {
         $instance = UserDTO::fromArray([
-            'name' => "User $i",
+            'name' => 'User ' . $i,
             'age' => 20 + ($i % 50),
-            'email' => "user$i@example.com",
+            'email' => sprintf('user%d@example.com', $i),
         ]);
         return json_encode($instance->toArray());
     };
@@ -196,18 +196,18 @@ echo "-------------------------\n";
 
 // Simulate processing API responses
 $apiResponses = [];
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     $apiResponses[] = [
-        'name' => "User $i",
+        'name' => 'User ' . $i,
         'age' => 20 + ($i % 50),
-        'email' => "user$i@example.com",
+        'email' => sprintf('user%d@example.com', $i),
     ];
 }
 
 $start = microtime(true);
 
 $processedUsers = array_map(
-    fn($response) => UserDTO::fromArray($response),
+    fn($response): \UserDTO => UserDTO::fromArray($response),
     $apiResponses
 );
 
@@ -237,7 +237,7 @@ $summary = [
 ];
 
 foreach ($summary as $metric => $value) {
-    echo "  $metric: $value\n";
+    echo sprintf('  %s: %s%s', $metric, $value, PHP_EOL);
 }
 
 echo "\n=== Performance Testing Complete ===\n";

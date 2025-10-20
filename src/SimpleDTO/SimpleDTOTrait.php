@@ -86,8 +86,6 @@ trait SimpleDTOTrait
      * This works for both lazy computed properties and lazy properties.
      *
      * @param array<string> $properties List of property names to include
-     *
-     * @return static
      */
     public function include(array $properties): static
     {
@@ -105,8 +103,6 @@ trait SimpleDTOTrait
 
     /**
      * Include all lazy properties in serialization.
-     *
-     * @return static
      */
     public function includeAll(): static
     {
@@ -269,8 +265,6 @@ trait SimpleDTOTrait
      * @param array<string, mixed>|null $template Optional template override
      * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
      * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
-     *
-     * @return static
      */
     public static function fromArray(
         array $data,

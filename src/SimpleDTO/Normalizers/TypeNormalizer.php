@@ -17,9 +17,7 @@ namespace event4u\DataHelpers\SimpleDTO\Normalizers;
  */
 class TypeNormalizer implements NormalizerInterface
 {
-    /**
-     * @param array<string, string> $types Map of field names to expected types
-     */
+    /** @param array<string, string> $types Map of field names to expected types */
     public function __construct(
         private readonly array $types = []
     ) {}
@@ -41,9 +39,7 @@ class TypeNormalizer implements NormalizerInterface
         return $data;
     }
 
-    /**
-     * Coerce a value to the specified type.
-     */
+    /** Coerce a value to the specified type. */
     private function coerceType(mixed $value, string $type): mixed
     {
         return match ($type) {
@@ -62,7 +58,7 @@ class TypeNormalizer implements NormalizerInterface
             return $value ? 1 : 0;
         }
 
-        return (int) $value;
+        return (int)$value;
     }
 
     private function toFloat(mixed $value): float
@@ -71,7 +67,7 @@ class TypeNormalizer implements NormalizerInterface
             return $value ? 1.0 : 0.0;
         }
 
-        return (float) $value;
+        return (float)$value;
     }
 
     private function toBool(mixed $value): bool
@@ -82,11 +78,11 @@ class TypeNormalizer implements NormalizerInterface
             return match ($lower) {
                 'true', '1', 'yes', 'on' => true,
                 'false', '0', 'no', 'off', '' => false,
-                default => (bool) $value,
+                default => (bool)$value,
             };
         }
 
-        return (bool) $value;
+        return (bool)$value;
     }
 
     private function toString(mixed $value): string
@@ -99,7 +95,7 @@ class TypeNormalizer implements NormalizerInterface
             return json_encode($value) ?: '';
         }
 
-        return (string) $value;
+        return (string)$value;
     }
 
     private function toArray(mixed $value): array

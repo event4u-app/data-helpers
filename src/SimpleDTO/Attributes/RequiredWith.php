@@ -27,17 +27,13 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class RequiredWith implements ValidationRule
 {
-    /**
-     * @param array<string> $fields Field names that trigger requirement
-     */
+    /** @param array<string> $fields Field names that trigger requirement */
     public function __construct(
         public readonly array $fields,
     ) {}
 
     /**
      * Convert to Laravel validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
@@ -46,13 +42,11 @@ class RequiredWith implements ValidationRule
 
     /**
      * Get validation error message.
-     *
-     * @return string|null
      */
     public function message(): ?string
     {
         $fields = implode(', ', $this->fields);
-        return "The attribute field is required when {$fields} is present.";
+        return sprintf('The attribute field is required when %s is present.', $fields);
     }
 }
 

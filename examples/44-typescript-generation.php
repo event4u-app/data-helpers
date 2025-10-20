@@ -136,13 +136,13 @@ class PersonDTO extends SimpleDTO
     #[Computed]
     public function fullName(): string
     {
-        return "{$this->firstName} {$this->lastName}";
+        return sprintf('%s %s', $this->firstName, $this->lastName);
     }
 
     #[Computed(lazy: true)]
     public function isAdult(): bool
     {
-        return $this->age >= 18;
+        return 18 <= $this->age;
     }
 }
 
@@ -227,7 +227,7 @@ $typescript = $generator->generate(
 
 file_put_contents($outputPath, $typescript);
 
-echo "✅  TypeScript interfaces generated to: {$outputPath}\n";
+echo sprintf('✅  TypeScript interfaces generated to: %s%s', $outputPath, PHP_EOL);
 echo "File size: " . filesize($outputPath) . " bytes\n\n";
 
 // Example 9: Different Export Types

@@ -63,7 +63,6 @@ class TypeScriptGenerator
      *
      * @param array<class-string> $dtoClasses
      * @param array{exportType?: string, includeComments?: bool, sortProperties?: bool} $options
-     * @return string
      */
     public function generate(array $dtoClasses, array $options = []): string
     {
@@ -77,7 +76,7 @@ class TypeScriptGenerator
         $interfaces = [];
 
         // Process all DTOs in queue (including nested DTOs discovered during processing)
-        while (!empty($this->dtoQueue)) {
+        while ($this->dtoQueue !== []) {
             $dtoClass = array_shift($this->dtoQueue);
 
             if (isset($this->processedDtos[$dtoClass])) {
@@ -131,14 +130,14 @@ TS;
         // Add comment
         if ($includeComments) {
             $lines[] = "/**";
-            $lines[] = " * {$interfaceName}";
+            $lines[] = ' * ' . $interfaceName;
             $lines[] = " * ";
-            $lines[] = " * Generated from: {$dtoClass}";
+            $lines[] = ' * Generated from: ' . $dtoClass;
             $lines[] = " */";
         }
 
         // Start interface
-        $lines[] = "{$exportType} interface {$interfaceName} {";
+        $lines[] = sprintf('%s interface %s {', $exportType, $interfaceName);
 
         // Get properties
         $properties = $this->getProperties($reflection);
@@ -150,7 +149,7 @@ TS;
 
         // Add properties
         foreach ($properties as $propertyName => $propertyType) {
-            $lines[] = "  {$propertyName}: {$propertyType};";
+            $lines[] = sprintf('  %s: %s;', $propertyName, $propertyType);
         }
 
         // End interface
@@ -203,7 +202,7 @@ TS;
     {
         $lazyAttrs = $property->getAttributes(Lazy::class);
 
-        return !empty($lazyAttrs);
+        return $lazyAttrs !== [];
     }
 
     /**
@@ -260,7 +259,7 @@ TS;
 
         // Check for DataCollectionOf attribute
         $collectionAttrs = $property->getAttributes(DataCollectionOf::class);
-        if (!empty($collectionAttrs)) {
+        if ($collectionAttrs !== []) {
             /** @var DataCollectionOf $collection */
             $collection = $collectionAttrs[0]->newInstance();
             $dtoClass = $collection->dtoClass;
@@ -272,7 +271,7 @@ TS;
 
             $dtoName = (new ReflectionClass($dtoClass))->getShortName();
 
-            return "{$dtoName}[]";
+            return $dtoName . '[]';
         }
 
         return $this->convertPhpTypeToTypeScript($type);
@@ -293,7 +292,6 @@ TS;
         try {
             $reflection = new ReflectionClass($className);
             $method = $reflection->getMethod('casts');
-            $method->setAccessible(true);
 
             // Create a temporary instance to call the method
             $instance = $reflection->newInstanceWithoutConstructor();
@@ -302,7 +300,7 @@ TS;
             $this->castsCache[$className] = $casts ?? [];
 
             return $this->castsCache[$className];
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             $this->castsCache[$className] = [];
 
             return [];
@@ -365,7 +363,7 @@ TS;
 
         // Add null if nullable
         if ($isNullable && 'any' !== $tsType && 'null' !== $tsType) {
-            return "{$tsType} | null";
+            return $tsType . ' | null';
         }
 
         return $tsType;
@@ -399,7 +397,7 @@ TS;
 
                     return $reflection->getShortName();
                 }
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 return 'any';
             }
         }
@@ -440,10 +438,10 @@ TS;
             if (property_exists($case, 'value')) {
                 $value = $case->value;
 
-                return is_string($value) ? "'{$value}'" : $value;
+                return is_string($value) ? sprintf("'%s'", $value) : $value;
             }
 
-            return "'{$case->name}'";
+            return sprintf("'%s'", $case->name);
         }, $cases);
 
         return implode(' | ', $values);

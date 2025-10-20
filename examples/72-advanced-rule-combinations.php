@@ -5,18 +5,17 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
 use event4u\DataHelpers\SimpleDTO\Attributes\In;
+use event4u\DataHelpers\SimpleDTO\Attributes\Max;
+use event4u\DataHelpers\SimpleDTO\Attributes\Min;
+use event4u\DataHelpers\SimpleDTO\Attributes\Nullable;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredIf;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredUnless;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWith;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWithout;
 use event4u\DataHelpers\SimpleDTO\Attributes\Sometimes;
-use event4u\DataHelpers\SimpleDTO\Attributes\Nullable;
-use event4u\DataHelpers\SimpleDTO\Attributes\WithMessage;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                    ADVANCED RULE COMBINATIONS                              ║\n";
@@ -47,7 +46,7 @@ class ShippingDTO extends SimpleDTO
 echo "ShippingDTO Validation Rules:\n";
 $rules = ShippingDTO::getAllRules();
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 echo "\n✅  Address is only required when shippingMethod is 'delivery'\n";
@@ -75,7 +74,7 @@ class PaymentDTO extends SimpleDTO
 echo "PaymentDTO Validation Rules:\n";
 $rules = PaymentDTO::getAllRules();
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 echo "\n✅  Payment details are required unless payment method is 'free'\n";
@@ -105,7 +104,7 @@ class ContactDTO extends SimpleDTO
 echo "ContactDTO Validation Rules:\n";
 $rules = ContactDTO::getAllRules();
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 echo "\n✅  Contact preference is required when phone or email is provided\n";
@@ -131,7 +130,7 @@ class AlternativeContactDTO extends SimpleDTO
 echo "AlternativeContactDTO Validation Rules:\n";
 $rules = AlternativeContactDTO::getAllRules();
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 echo "\n✅  Email is required when phone is not provided\n";
@@ -166,7 +165,7 @@ class UpdateUserDTO extends SimpleDTO
 echo "UpdateUserDTO Validation Rules:\n";
 $rules = UpdateUserDTO::getAllRules();
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 echo "\n✅  Fields are only validated if they are present in the input\n";
@@ -197,7 +196,7 @@ class ProfileDTO extends SimpleDTO
 echo "ProfileDTO Validation Rules:\n";
 $rules = ProfileDTO::getAllRules();
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 echo "\n✅  Email and bio can be null even with other validation rules\n";
@@ -221,7 +220,7 @@ class OrderDTO extends SimpleDTO
 
         #[Required]
         #[In(['card', 'cash', 'free'])]
-        public readonly string $paymentMethod,
+        public readonly string $paymentMethod = '',
 
         #[RequiredUnless('paymentMethod', 'free')]
         #[Max(255)]
@@ -239,7 +238,7 @@ class OrderDTO extends SimpleDTO
 echo "OrderDTO Validation Rules:\n";
 $rules = OrderDTO::getAllRules();
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 echo "\n✅  Delivery address is required only for delivery orders\n";

@@ -121,12 +121,12 @@ $testData = [
 $results = [];
 
 echo "  Running Benchmark 1: DTO Creation with DataMapper...\n";
-$results['datamapper_traditional'] = runBenchmark('Traditional Mutable DTO', function() use ($jsonFile, $mapping) {
+$results['datamapper_traditional'] = runBenchmark('Traditional Mutable DTO', function() use ($jsonFile, $mapping): void {
     $company = new CompanyDto();
     DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 }, 1000);
 
-$results['datamapper_simple'] = runBenchmark('SimpleDTO Immutable', function() use ($jsonFile, $mapping) {
+$results['datamapper_simple'] = runBenchmark('SimpleDTO Immutable', function() use ($jsonFile, $mapping): void {
     $mappedArray = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->toArray();
 
     /** @var array<int, array<string, mixed>> $departmentsData */
@@ -153,7 +153,7 @@ $results['datamapper_simple'] = runBenchmark('SimpleDTO Immutable', function() u
 }, 1000);
 
 echo "  Running Benchmark 2: Simple DTO Creation...\n";
-$results['creation_traditional'] = runBenchmark('Traditional: new + assign', function() use ($testData) {
+$results['creation_traditional'] = runBenchmark('Traditional: new + assign', function() use ($testData): void {
     $dto = new DepartmentDto();
     $dto->name = $testData['name'];
     $dto->code = $testData['code'];
@@ -162,7 +162,7 @@ $results['creation_traditional'] = runBenchmark('Traditional: new + assign', fun
     $dto->manager_name = $testData['manager_name'];
 }, 100000);
 
-$results['creation_simple'] = runBenchmark('SimpleDTO: fromArray()', function() use ($testData) {
+$results['creation_simple'] = runBenchmark('SimpleDTO: fromArray()', function() use ($testData): void {
     DepartmentSimpleDto::fromArray($testData);
 }, 100000);
 
@@ -176,11 +176,11 @@ $dtoMutable->manager_name = 'Alice Johnson';
 
 $dtoImmutable = DepartmentSimpleDto::fromArray($testData);
 
-$results['toarray_traditional'] = runBenchmark('Traditional: toArray()', function() use ($dtoMutable) {
+$results['toarray_traditional'] = runBenchmark('Traditional: toArray()', function() use ($dtoMutable): void {
     $dtoMutable->toArray();
 }, 100000);
 
-$results['toarray_simple'] = runBenchmark('SimpleDTO: toArray()', function() use ($dtoImmutable) {
+$results['toarray_simple'] = runBenchmark('SimpleDTO: toArray()', function() use ($dtoImmutable): void {
     $dtoImmutable->toArray();
 }, 100000);
 
@@ -249,18 +249,27 @@ if (0 > $toArrayDiff) {
 
 $markdown .= "\n### Summary\n\n";
 $markdown .= "**Real-World Performance (what matters):**\n\n";
-$markdown .= sprintf("- ✅ **SimpleDTO is %.1f%% faster** for DataMapper integration (most common use case)\n", abs($dataMapperDiff));
+$markdown .= sprintf(
+    "- ✅ **SimpleDTO is %.1f%% faster** for DataMapper integration (most common use case)\n",
+    abs($dataMapperDiff)
+);
 
 if (0 > $toArrayDiff) {
     $markdown .= sprintf("- ✅ **SimpleDTO is %.1f%% faster** for toArray() conversion\n", abs($toArrayDiff));
 } elseif (5 > abs($toArrayDiff)) {
-    $markdown .= sprintf("- ✅ **SimpleDTO is practically equal** for toArray() (%.1f%% difference is negligible)\n", abs($toArrayDiff));
+    $markdown .= sprintf(
+        "- ✅ **SimpleDTO is practically equal** for toArray() (%.1f%% difference is negligible)\n",
+        abs($toArrayDiff)
+    );
 } else {
     $markdown .= sprintf("- ⚠️  Traditional DTO is %.1f%% faster for toArray() conversion\n", abs($toArrayDiff));
 }
 
 $markdown .= "\n**Synthetic Benchmark (unrealistic scenario):**\n\n";
-$markdown .= sprintf("- ⚠️  Traditional DTO is %.1f%% faster for manual property assignment (but nobody does this in real code)\n", abs($creationDiff));
+$markdown .= sprintf(
+    "- ⚠️  Traditional DTO is %.1f%% faster for manual property assignment (but nobody does this in real code)\n",
+    abs($creationDiff)
+);
 
 $markdown .= "\n**🏆 Winner: SimpleDTO** - Faster where it matters, with immutability and type safety as bonus!\n";
 

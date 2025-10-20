@@ -249,7 +249,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     /**
      * Get an item by index.
      *
-     * @param int $index
      * @return TDto|null
      */
     public function get(int $index): mixed
@@ -317,13 +316,13 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     /** Determine if the collection is empty or not. */
     public function isEmpty(): bool
     {
-        return empty($this->items);
+        return $this->items === [];
     }
 
     /** Determine if the collection is not empty. */
     public function isNotEmpty(): bool
     {
-        return !empty($this->items);
+        return $this->items !== [];
     }
 
     /**

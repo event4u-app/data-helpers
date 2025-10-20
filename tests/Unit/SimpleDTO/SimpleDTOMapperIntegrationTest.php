@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 
-describe('SimpleDTO Mapper Integration', function (): void {
-    describe('mapperTemplate() Method', function (): void {
-        it('uses template from DTO definition', function (): void {
+describe('SimpleDTO Mapper Integration', function(): void {
+    describe('mapperTemplate() Method', function(): void {
+        it('uses template from DTO definition', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -37,7 +38,7 @@ describe('SimpleDTO Mapper Integration', function (): void {
                 ->and($result->name)->toBe('John Doe');
         });
 
-        it('works without template definition', function (): void {
+        it('works without template definition', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
                     public readonly int $id = 0,
@@ -57,8 +58,8 @@ describe('SimpleDTO Mapper Integration', function (): void {
         });
     });
 
-    describe('mapperFilters() Method', function (): void {
-        it('uses property filters with template', function (): void {
+    describe('mapperFilters() Method', function(): void {
+        it('uses property filters with template', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -70,7 +71,7 @@ describe('SimpleDTO Mapper Integration', function (): void {
                 protected function mapperFilters(): array
                 {
                     return [
-                        'name' => new \event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings(),
+                        'name' => new UppercaseStrings(),
                     ];
                 }
 
@@ -86,7 +87,7 @@ describe('SimpleDTO Mapper Integration', function (): void {
             expect($result->name)->toBe('JOHN');
         });
 
-        it('works without filter definition', function (): void {
+        it('works without filter definition', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
                     public readonly string $name = '',
@@ -101,8 +102,8 @@ describe('SimpleDTO Mapper Integration', function (): void {
         });
     });
 
-    describe('mapperPipeline() Method', function (): void {
-        it('uses pipeline filters with template', function (): void {
+    describe('mapperPipeline() Method', function(): void {
+        it('uses pipeline filters with template', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -130,7 +131,7 @@ describe('SimpleDTO Mapper Integration', function (): void {
             expect($result->name)->toBe('John');
         });
 
-        it('works without pipeline definition', function (): void {
+        it('works without pipeline definition', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
                     public readonly string $name = '',
@@ -145,8 +146,8 @@ describe('SimpleDTO Mapper Integration', function (): void {
         });
     });
 
-    describe('Template Override', function (): void {
-        it('overrides template with parameter', function (): void {
+    describe('Template Override', function(): void {
+        it('overrides template with parameter', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -176,8 +177,8 @@ describe('SimpleDTO Mapper Integration', function (): void {
         });
     });
 
-    describe('Property Filters Override', function (): void {
-        it('overrides property filters with parameter', function (): void {
+    describe('Property Filters Override', function(): void {
+        it('overrides property filters with parameter', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -189,7 +190,7 @@ describe('SimpleDTO Mapper Integration', function (): void {
                 protected function mapperFilters(): array
                 {
                     return [
-                        'name' => new \event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings(),
+                        'name' => new UppercaseStrings(),
                     ];
                 }
 
@@ -202,15 +203,15 @@ describe('SimpleDTO Mapper Integration', function (): void {
 
             // With override (lowercase filter)
             $result = $dto::fromSource($data, ['name' => '{{ name }}'], [
-                'name' => new \event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings(),
+                'name' => new LowercaseStrings(),
             ]);
 
             expect($result->name)->toBe('john');
         });
     });
 
-    describe('Pipeline Filters Override', function (): void {
-        it('merges pipeline filters from DTO and parameter', function (): void {
+    describe('Pipeline Filters Override', function(): void {
+        it('merges pipeline filters from DTO and parameter', function(): void {
             $dto = new class extends SimpleDTO {
                 protected function mapperTemplate(): array
                 {
@@ -235,7 +236,7 @@ describe('SimpleDTO Mapper Integration', function (): void {
 
             // With additional pipeline filter
             $result = $dto::fromSource($data, ['name' => '{{ name }}'], null, [
-                new \event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings(),
+                new LowercaseStrings(),
             ]);
 
             expect($result->name)->toBe('john');

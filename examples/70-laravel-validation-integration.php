@@ -5,21 +5,21 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
 use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
 use event4u\DataHelpers\SimpleDTO\Attributes\Confirmed;
-use event4u\DataHelpers\SimpleDTO\Attributes\Size;
-use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\EndsWith;
+use event4u\DataHelpers\SimpleDTO\Attributes\Exists;
+use event4u\DataHelpers\SimpleDTO\Attributes\In;
 use event4u\DataHelpers\SimpleDTO\Attributes\Ip;
 use event4u\DataHelpers\SimpleDTO\Attributes\Json;
-use event4u\DataHelpers\SimpleDTO\Attributes\Exists;
+use event4u\DataHelpers\SimpleDTO\Attributes\Max;
+use event4u\DataHelpers\SimpleDTO\Attributes\Min;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\Size;
+use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
 use event4u\DataHelpers\SimpleDTO\Attributes\Unique;
+use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
 use event4u\DataHelpers\Validation\ValidationException;
 
 echo str_repeat('=', 80) . "\n";
@@ -54,7 +54,7 @@ class UserDTO extends SimpleDTO
 $rules = UserDTO::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  - $field: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 // Validate valid data
@@ -66,7 +66,7 @@ try {
         'role' => 'admin',
     ]);
     echo "\n✅  Valid user created: {$user->name} ({$user->email})\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
 
@@ -79,10 +79,10 @@ try {
         'role' => 'superadmin',
     ]);
     echo "\n❌  Invalid user created (unexpected)\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "\n✅  Validation failed (expected):\n";
-    foreach ($e->errors() as $field => $errors) {
-        echo "    - $field: " . implode(', ', $errors) . "\n";
+    foreach ($validationException->errors() as $field => $errors) {
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 
@@ -110,7 +110,7 @@ class ProductDTO extends SimpleDTO
 $rules = ProductDTO::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  - $field: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 echo "\nNote: These rules are Laravel-compatible and will work with Laravel's validator.\n";
@@ -141,7 +141,7 @@ class WebsiteDTO extends SimpleDTO
 $rules = WebsiteDTO::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  - $field: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 try {
@@ -151,7 +151,7 @@ try {
         'ipAddress' => '192.168.1.1',
     ]);
     echo "\n✅  Valid website created\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
 
@@ -172,7 +172,7 @@ class PasswordDTO extends SimpleDTO
 $rules = PasswordDTO::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  - $field: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 try {
@@ -181,7 +181,7 @@ try {
         'password_confirmation' => 'secret123',
     ]);
     echo "\n✅  Password validated successfully\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
 
@@ -191,7 +191,7 @@ try {
         'password_confirmation' => 'different',
     ]);
     echo "\n❌  Password mismatch not detected (unexpected)\n";
-} catch (ValidationException $e) {
+} catch (ValidationException) {
     echo "\n✅  Password mismatch detected (expected)\n";
 }
 
@@ -215,7 +215,7 @@ class SettingsDTO extends SimpleDTO
 $rules = SettingsDTO::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  - $field: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 try {
@@ -224,7 +224,7 @@ try {
         'userId' => '550e8400-e29b-41d4-a716-446655440000',
     ]);
     echo "\n✅  Valid settings created\n";
-} catch (ValidationException $e) {
+} catch (ValidationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
 
@@ -264,7 +264,7 @@ class CustomUserDTO extends SimpleDTO
 $rules = CustomUserDTO::getAllRules();
 echo "Generated Laravel Rules (merged with custom rules):\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  - $field: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 echo "\nNote: Custom messages are defined in the messages() method:\n";

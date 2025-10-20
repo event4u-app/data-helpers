@@ -28,16 +28,13 @@ namespace event4u\DataHelpers\SimpleDTO;
  */
 trait SimpleDTOWrappingTrait
 {
-    /**
-     * The key to wrap the DTO data in.
-     */
+    /** The key to wrap the DTO data in. */
     private ?string $wrapKey = null;
 
     /**
      * Wrap the DTO data in a custom key.
      *
      * @param string $key The key to wrap the data in
-     * @return static
      */
     public function wrap(string $key): static
     {
@@ -47,17 +44,13 @@ trait SimpleDTOWrappingTrait
         return $clone;
     }
 
-    /**
-     * Get the wrap key.
-     */
+    /** Get the wrap key. */
     public function getWrapKey(): ?string
     {
         return $this->wrapKey;
     }
 
-    /**
-     * Check if the DTO is wrapped.
-     */
+    /** Check if the DTO is wrapped. */
     public function isWrapped(): bool
     {
         return null !== $this->wrapKey;

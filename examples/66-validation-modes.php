@@ -16,7 +16,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\Min;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
@@ -48,9 +47,9 @@ try {
         'email' => 'john@example.com',
         'name' => 'John Doe',
     ]);
-    echo "✅  Valid data: {$dto->email}, {$dto->name}\n";
-} catch (ValidationException $e) {
-    echo "❌  Validation failed: " . $e->getMessage() . "\n";
+    echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+} catch (ValidationException $validationException) {
+    echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 
 try {
@@ -58,11 +57,11 @@ try {
         'email' => 'invalid-email',
         'name' => 'Jo',
     ]);
-    echo "✅  Valid data: {$dto->email}, {$dto->name}\n";
-} catch (ValidationException $e) {
+    echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed (expected):\n";
-    foreach ($e->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+    foreach ($validationException->errors() as $field => $errors) {
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";
@@ -95,9 +94,9 @@ try {
     echo "    Validated data: " . json_encode($validated) . "\n";
 
     $dto = ManualValidateUserDTO::fromArray($validated);
-    echo "    DTO created: {$dto->email}, {$dto->name}\n";
-} catch (ValidationException $e) {
-    echo "❌  Validation failed: " . $e->getMessage() . "\n";
+    echo sprintf('    DTO created: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+} catch (ValidationException $validationException) {
+    echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 echo "\n";
 
@@ -118,17 +117,17 @@ $invalidData = [
 try {
     $validated = ManualValidateUserDTO::validateOrFail($validData);
     echo "✅  Valid data passed: " . json_encode($validated) . "\n";
-} catch (ValidationException $e) {
-    echo "❌  Validation failed: " . $e->getMessage() . "\n";
+} catch (ValidationException $validationException) {
+    echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 
 try {
     $validated = ManualValidateUserDTO::validateOrFail($invalidData);
     echo "✅  Valid data passed: " . json_encode($validated) . "\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Invalid data failed (expected):\n";
-    foreach ($e->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+    foreach ($validationException->errors() as $field => $errors) {
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";
@@ -142,7 +141,7 @@ if ($result1->isValid()) {
     echo "✅  Valid data:\n";
     echo "    Validated: " . json_encode($result1->validated()) . "\n";
     $dto = ManualValidateUserDTO::fromArray($result1->validated());
-    echo "    DTO: {$dto->email}, {$dto->name}\n";
+    echo sprintf('    DTO: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
 } else {
     echo "❌  Validation failed\n";
 }
@@ -153,7 +152,7 @@ if ($result2->isValid()) {
 } else {
     echo "❌  Invalid data (expected):\n";
     foreach ($result2->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";
@@ -178,18 +177,18 @@ class ThrowingUserDTO extends SimpleDTO
 
 try {
     $dto = ThrowingUserDTO::validateAndCreate($validData);
-    echo "✅  Valid data: {$dto->email}, {$dto->name}\n";
-} catch (ValidationException $e) {
-    echo "❌  Validation failed: " . $e->getMessage() . "\n";
+    echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+} catch (ValidationException $validationException) {
+    echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 
 try {
     $dto = ThrowingUserDTO::validateAndCreate($invalidData);
-    echo "✅  Valid data: {$dto->email}, {$dto->name}\n";
-} catch (ValidationException $e) {
+    echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Invalid data failed (expected):\n";
-    foreach ($e->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+    foreach ($validationException->errors() as $field => $errors) {
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";
@@ -226,7 +225,7 @@ if ($result4->isValid()) {
 } else {
     echo "❌  Invalid data (expected):\n";
     foreach ($result4->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";
@@ -259,9 +258,9 @@ try {
         'email' => 'test@example.com',
         'name' => 'X',
     ]);
-    echo "✅  Only email validated: {$dto->email}, {$dto->name}\n";
-} catch (ValidationException $e) {
-    echo "❌  Validation failed: " . $e->getMessage() . "\n";
+    echo sprintf('✅  Only email validated: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+} catch (ValidationException $validationException) {
+    echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 
 #[ValidateRequest(throw: true, except: ['name'])]
@@ -288,9 +287,9 @@ try {
         'email' => 'test@example.com',
         'name' => 'X',
     ]);
-    echo "✅  Name excluded from validation: {$dto->email}, {$dto->name}\n";
-} catch (ValidationException $e) {
-    echo "❌  Validation failed: " . $e->getMessage() . "\n";
+    echo sprintf('✅  Name excluded from validation: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+} catch (ValidationException $validationException) {
+    echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 echo "\n";
 

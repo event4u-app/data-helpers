@@ -5,13 +5,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
 use event4u\DataHelpers\SimpleDTO\Attributes\Max;
+use event4u\DataHelpers\SimpleDTO\Attributes\Min;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
-use event4u\DataHelpers\Validation\ValidationException;
 use event4u\DataHelpers\Validation\HtmlErrorFormatter;
+use event4u\DataHelpers\Validation\ValidationException;
 
 echo "=================================================================\n";
 echo "HTML ERROR RESPONSES FOR FORMS\n";
@@ -46,25 +46,25 @@ $invalidData = [
 
 try {
     $dto = ContactFormDTO::validateAndCreate($invalidData);
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "1. BOOTSTRAP 5 ALERT:\n";
     echo "------------------------------------------------------------\n";
-    echo HtmlErrorFormatter::bootstrap($e);
+    echo HtmlErrorFormatter::bootstrap($validationException);
     echo "\n\n";
 
     echo "2. TAILWIND CSS ALERT:\n";
     echo "------------------------------------------------------------\n";
-    echo HtmlErrorFormatter::tailwind($e);
+    echo HtmlErrorFormatter::tailwind($validationException);
     echo "\n\n";
 
     echo "3. SIMPLE HTML LIST:\n";
     echo "------------------------------------------------------------\n";
-    echo HtmlErrorFormatter::simple($e);
+    echo HtmlErrorFormatter::simple($validationException);
     echo "\n\n";
 
     echo "4. INLINE FIELD ERRORS (Bootstrap):\n";
     echo "------------------------------------------------------------\n";
-    $fieldErrors = HtmlErrorFormatter::bootstrapFields($e);
+    $fieldErrors = HtmlErrorFormatter::bootstrapFields($validationException);
     foreach ($fieldErrors as $field => $html) {
         echo "Field '{$field}':\n";
         echo $html . "\n";
@@ -73,7 +73,7 @@ try {
 
     echo "5. INLINE FIELD ERRORS (Tailwind):\n";
     echo "------------------------------------------------------------\n";
-    $fieldErrors = HtmlErrorFormatter::tailwindFields($e);
+    $fieldErrors = HtmlErrorFormatter::tailwindFields($validationException);
     foreach ($fieldErrors as $field => $html) {
         echo "Field '{$field}':\n";
         echo $html . "\n";
@@ -83,19 +83,19 @@ try {
     echo "6. SINGLE FIELD ERROR:\n";
     echo "------------------------------------------------------------\n";
     echo "Email field error:\n";
-    echo HtmlErrorFormatter::firstField($e, 'email');
+    echo HtmlErrorFormatter::firstField($validationException, 'email');
     echo "\n\n";
 
     echo "7. FIELD CSS CLASSES:\n";
     echo "------------------------------------------------------------\n";
-    echo "Name field class: " . HtmlErrorFormatter::fieldClass($e, 'name') . "\n";
-    echo "Email field class: " . HtmlErrorFormatter::fieldClass($e, 'email') . "\n";
-    echo "Valid field class: " . HtmlErrorFormatter::fieldClass($e, 'phone', 'is-invalid', 'is-valid') . "\n";
+    echo "Name field class: " . HtmlErrorFormatter::fieldClass($validationException, 'name') . "\n";
+    echo "Email field class: " . HtmlErrorFormatter::fieldClass($validationException, 'email') . "\n";
+    echo "Valid field class: " . HtmlErrorFormatter::fieldClass($validationException, 'phone', 'is-invalid', 'is-valid') . "\n";
     echo "\n";
 
     echo "8. JSON RESPONSE (for AJAX):\n";
     echo "------------------------------------------------------------\n";
-    echo HtmlErrorFormatter::json($e, JSON_PRETTY_PRINT);
+    echo HtmlErrorFormatter::json($validationException, JSON_PRETTY_PRINT);
     echo "\n\n";
 }
 

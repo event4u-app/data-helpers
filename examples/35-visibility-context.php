@@ -27,13 +27,13 @@ class UserDTO extends SimpleDTO
     private function canViewEmail(mixed $context): bool
     {
         // Admin or the user themselves can see email
-        return $context?->role === 'admin' || $context?->userId === $this->id;
+        return 'admin' === $context?->role || $context?->userId === $this->id;
     }
 
     private function canViewSalary(mixed $context): bool
     {
         // Only admin can see salary
-        return $context?->role === 'admin';
+        return 'admin' === $context?->role;
     }
 }
 
@@ -107,7 +107,7 @@ class DocumentDTO extends SimpleDTO
     private function canViewAuditLog(mixed $context): bool
     {
         // Only admin can view audit log
-        return $context?->role === 'admin';
+        return 'admin' === $context?->role;
     }
 }
 
@@ -154,12 +154,12 @@ class ProfileDTO extends SimpleDTO
 
     private function canViewEmail(mixed $context): bool
     {
-        return $context?->role === 'admin' || $context?->isFriend === true;
+        return 'admin' === $context?->role || true === $context?->isFriend;
     }
 
     private function canViewPhone(mixed $context): bool
     {
-        return $context?->role === 'admin';
+        return 'admin' === $context?->role;
     }
 }
 
@@ -208,12 +208,12 @@ class ApiUserDTO extends SimpleDTO
 
     private function canViewEmail(mixed $context): bool
     {
-        return ($context?->scope ?? null) === 'full' || ($context?->role ?? null) === 'admin';
+        return 'full' === ($context?->scope ?? null) || 'admin' === ($context?->role ?? null);
     }
 
     private function canViewApiKey(mixed $context): bool
     {
-        return ($context?->scope ?? null) === 'full' && ($context?->userId ?? null) === $this->id;
+        return 'full' === ($context?->scope ?? null) && ($context?->userId ?? null) === $this->id;
     }
 }
 

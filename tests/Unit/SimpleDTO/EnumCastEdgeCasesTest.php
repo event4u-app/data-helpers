@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
 use Tests\Unit\SimpleDTO\Fixtures\ColorEnum;
 use Tests\Unit\SimpleDTO\Fixtures\RoleEnum;

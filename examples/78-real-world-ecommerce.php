@@ -20,7 +20,6 @@ use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
@@ -115,7 +114,7 @@ class CartDTO extends SimpleDTO
     public function subtotal(): float
     {
         return array_sum(array_map(
-            fn(CartItemDTO $item) => $item->subtotal(),
+            fn(CartItemDTO $item): float => $item->subtotal(),
             $this->items
         ));
     }
@@ -147,7 +146,7 @@ class CartDTO extends SimpleDTO
     public function itemCount(): int
     {
         return array_sum(array_map(
-            fn(CartItemDTO $item) => $item->quantity,
+            fn(CartItemDTO $item): int => $item->quantity,
             $this->items
         ));
     }
@@ -274,12 +273,12 @@ $product = new ProductDTO(
     totalSold: 150,
 );
 
-echo "Product: {$product->name}\n";
-echo "Price: \${$product->price}\n";
-echo "Sale Price: \${$product->salePrice}\n";
+echo sprintf('Product: %s%s', $product->name, PHP_EOL);
+echo sprintf('Price: $%s%s', $product->price, PHP_EOL);
+echo sprintf('Sale Price: $%s%s', $product->salePrice, PHP_EOL);
 echo "Discount: {$product->discount()}%\n";
-echo "Final Price: \${$product->finalPrice()}\n";
-echo "Stock: {$product->stock}\n";
+echo sprintf('Final Price: $%s%s', $product->finalPrice(), PHP_EOL);
+echo sprintf('Stock: %d%s', $product->stock, PHP_EOL);
 echo "Category: {$product->category->name}\n\n";
 
 // 2. Shopping Cart
@@ -294,10 +293,10 @@ $cart = new CartDTO(
     couponCode: 'SAVE10',
 );
 
-echo "Items in cart: {$cart->itemCount()}\n";
-echo "Subtotal: \${$cart->subtotal()}\n";
-echo "Discount: \${$cart->discount()}\n";
-echo "Tax: \${$cart->tax()}\n";
+echo sprintf('Items in cart: %d%s', $cart->itemCount(), PHP_EOL);
+echo sprintf('Subtotal: $%s%s', $cart->subtotal(), PHP_EOL);
+echo sprintf('Discount: $%s%s', $cart->discount(), PHP_EOL);
+echo sprintf('Tax: $%s%s', $cart->tax(), PHP_EOL);
 echo "Total: \${$cart->total()}\n\n";
 
 // 3. Create Order
@@ -355,10 +354,10 @@ $order = new OrderDTO(
     internalNotes: ['Customer requested gift wrapping'],
 );
 
-echo "Order: {$order->orderNumber}\n";
-echo "Customer: {$order->customer->name}\n";
-echo "Status: {$order->status}\n";
-echo "Total: \${$order->total}\n";
+echo sprintf('Order: %s%s', $order->orderNumber, PHP_EOL);
+echo sprintf('Customer: %s%s', $order->customer->name, PHP_EOL);
+echo sprintf('Status: %s%s', $order->status, PHP_EOL);
+echo sprintf('Total: $%s%s', $order->total, PHP_EOL);
 echo "Created: {$order->createdAt->format('Y-m-d H:i:s')}\n\n";
 
 // 4. Serialize for API (Guest)

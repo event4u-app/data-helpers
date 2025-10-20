@@ -27,9 +27,7 @@ class HtmlErrorFormatter
     /**
      * Format errors as Bootstrap 5 alert.
      *
-     * @param ValidationException $exception
      * @param string $alertClass Bootstrap alert class (default: alert-danger)
-     * @return string
      */
     public static function bootstrap(ValidationException $exception, string $alertClass = 'alert-danger'): string
     {
@@ -43,7 +41,7 @@ class HtmlErrorFormatter
         $html .= '<strong>Validation Error!</strong> Please correct the following errors:';
         $html .= '<ul class="mb-0 mt-2">';
 
-        foreach ($errors as $field => $messages) {
+        foreach ($errors as $messages) {
             foreach ($messages as $message) {
                 $html .= '<li>' . htmlspecialchars($message) . '</li>';
             }
@@ -51,19 +49,16 @@ class HtmlErrorFormatter
 
         $html .= '</ul>';
         $html .= '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
-        $html .= '</div>';
 
-        return $html;
+        return $html . '</div>';
     }
 
     /**
      * Format errors as Tailwind CSS alert.
      *
-     * @param ValidationException $exception
      * @param string $bgColor Background color class (default: bg-red-100)
      * @param string $textColor Text color class (default: text-red-700)
      * @param string $borderColor Border color class (default: border-red-400)
-     * @return string
      */
     public static function tailwind(
         ValidationException $exception,
@@ -77,29 +72,30 @@ class HtmlErrorFormatter
             return '';
         }
 
-        $html = '<div class="' . htmlspecialchars($bgColor) . ' border ' . htmlspecialchars($borderColor) . ' ' . htmlspecialchars($textColor) . ' px-4 py-3 rounded relative" role="alert">';
+        $html = '<div class="' . htmlspecialchars($bgColor) . ' border ' . htmlspecialchars(
+            $borderColor
+        ) . ' ' . htmlspecialchars(
+            $textColor
+        ) . ' px-4 py-3 rounded relative" role="alert">';
         $html .= '<strong class="font-bold">Validation Error!</strong>';
         $html .= '<span class="block sm:inline"> Please correct the following errors:</span>';
         $html .= '<ul class="mt-2 list-disc list-inside">';
 
-        foreach ($errors as $field => $messages) {
+        foreach ($errors as $messages) {
             foreach ($messages as $message) {
                 $html .= '<li>' . htmlspecialchars($message) . '</li>';
             }
         }
 
         $html .= '</ul>';
-        $html .= '</div>';
 
-        return $html;
+        return $html . '</div>';
     }
 
     /**
      * Format errors as simple HTML list.
      *
-     * @param ValidationException $exception
      * @param string $class CSS class for the container div
-     * @return string
      */
     public static function simple(ValidationException $exception, string $class = 'validation-errors'): string
     {
@@ -113,16 +109,15 @@ class HtmlErrorFormatter
         $html .= '<p><strong>Validation Error:</strong></p>';
         $html .= '<ul>';
 
-        foreach ($errors as $field => $messages) {
+        foreach ($errors as $messages) {
             foreach ($messages as $message) {
                 $html .= '<li>' . htmlspecialchars($message) . '</li>';
             }
         }
 
         $html .= '</ul>';
-        $html .= '</div>';
 
-        return $html;
+        return $html . '</div>';
     }
 
     /**
@@ -130,12 +125,14 @@ class HtmlErrorFormatter
      *
      * Useful for inline field validation.
      *
-     * @param ValidationException $exception
      * @param string $field Field name
      * @param string $class CSS class for error messages
-     * @return string
      */
-    public static function field(ValidationException $exception, string $field, string $class = 'invalid-feedback'): string
+    public static function field(
+        ValidationException $exception,
+        string $field,
+        string $class = 'invalid-feedback'
+    ): string
     {
         $errors = $exception->errorsFor($field);
 
@@ -154,12 +151,14 @@ class HtmlErrorFormatter
     /**
      * Get first error for a specific field as HTML.
      *
-     * @param ValidationException $exception
      * @param string $field Field name
      * @param string $class CSS class for error message
-     * @return string
      */
-    public static function firstField(ValidationException $exception, string $field, string $class = 'invalid-feedback'): string
+    public static function firstField(
+        ValidationException $exception,
+        string $field,
+        string $class = 'invalid-feedback'
+    ): string
     {
         $error = $exception->firstError($field);
 
@@ -175,7 +174,6 @@ class HtmlErrorFormatter
      *
      * Returns array of field => HTML error message.
      *
-     * @param ValidationException $exception
      * @return array<string, string>
      */
     public static function bootstrapFields(ValidationException $exception): array
@@ -198,11 +196,13 @@ class HtmlErrorFormatter
      *
      * Returns array of field => HTML error message.
      *
-     * @param ValidationException $exception
      * @param string $class CSS class for error messages
      * @return array<string, string>
      */
-    public static function tailwindFields(ValidationException $exception, string $class = 'text-red-600 text-sm mt-1'): array
+    public static function tailwindFields(
+        ValidationException $exception,
+        string $class = 'text-red-600 text-sm mt-1'
+    ): array
     {
         $result = [];
 
@@ -220,9 +220,7 @@ class HtmlErrorFormatter
     /**
      * Format errors as JSON (for AJAX forms).
      *
-     * @param ValidationException $exception
      * @param int $options JSON encode options
-     * @return string
      */
     public static function json(ValidationException $exception, int $options = 0): string
     {
@@ -234,9 +232,7 @@ class HtmlErrorFormatter
      *
      * Useful for adding CSS classes to form fields.
      *
-     * @param ValidationException $exception
      * @param string $field Field name
-     * @return bool
      */
     public static function hasError(ValidationException $exception, string $field): bool
     {
@@ -246,11 +242,9 @@ class HtmlErrorFormatter
     /**
      * Get CSS class for field based on validation state.
      *
-     * @param ValidationException $exception
      * @param string $field Field name
      * @param string $errorClass CSS class for invalid fields (default: is-invalid)
      * @param string $validClass CSS class for valid fields (default: empty)
-     * @return string
      */
     public static function fieldClass(
         ValidationException $exception,

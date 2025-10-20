@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Symfony;
 
-use event4u\DataHelpers\Symfony\DTOValueResolver;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
 use event4u\DataHelpers\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
+use event4u\DataHelpers\Symfony\DTOValueResolver;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
@@ -35,8 +36,8 @@ class SymfonyTestProductDTO extends SimpleDTO
     ) {}
 }
 
-describe('Symfony DTOValueResolver', function (): void {
-    beforeEach(function (): void {
+describe('Symfony DTOValueResolver', function(): void {
+    beforeEach(function(): void {
         // Skip if Symfony is not available
         if (!interface_exists('Symfony\Component\HttpKernel\Controller\ValueResolverInterface')) {
             $this->markTestSkipped('Symfony is not available');
@@ -45,7 +46,7 @@ describe('Symfony DTOValueResolver', function (): void {
         $this->resolver = new DTOValueResolver();
     });
 
-    test('it resolves dto from request', function (): void {
+    test('it resolves dto from request', function(): void {
         $request = Request::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -61,7 +62,7 @@ describe('Symfony DTOValueResolver', function (): void {
             ->and($result[0]->email)->toBe('john@example.com');
     })->group('symfony');
 
-    test('it validates dto with validate request attribute', function (): void {
+    test('it validates dto with validate request attribute', function(): void {
         $request = Request::create('/test', 'POST', [
             'name' => 'John',
             'email' => 'invalid-email',
@@ -69,11 +70,11 @@ describe('Symfony DTOValueResolver', function (): void {
 
         $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
 
-        expect(fn() => iterator_to_array($this->resolver->resolve($request, $argument)))
+        expect(fn(): array => iterator_to_array($this->resolver->resolve($request, $argument)))
             ->toThrow(ValidationException::class);
     })->group('symfony');
 
-    test('it resolves dto without validation', function (): void {
+    test('it resolves dto without validation', function(): void {
         $request = Request::create('/test', 'POST', [
             'title' => 'Product Title',
             'description' => 'Product Description',
@@ -89,7 +90,7 @@ describe('Symfony DTOValueResolver', function (): void {
             ->and($result[0]->description)->toBe('Product Description');
     })->group('symfony');
 
-    test('it handles missing optional fields', function (): void {
+    test('it handles missing optional fields', function(): void {
         $request = Request::create('/test', 'POST', [
             'title' => 'Product Title',
         ]);
@@ -104,7 +105,7 @@ describe('Symfony DTOValueResolver', function (): void {
             ->and($result[0]->description)->toBeNull();
     })->group('symfony');
 
-    test('it handles json request', function (): void {
+    test('it handles json request', function(): void {
         $request = Request::create(
             '/test',
             'POST',
@@ -128,16 +129,16 @@ describe('Symfony DTOValueResolver', function (): void {
             ->and($result[0]->email)->toBe('jane@example.com');
     })->group('symfony');
 
-    test('it handles empty request', function (): void {
+    test('it handles empty request', function(): void {
         $request = Request::create('/test', 'POST', []);
 
         $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
 
-        expect(fn() => iterator_to_array($this->resolver->resolve($request, $argument)))
+        expect(fn(): array => iterator_to_array($this->resolver->resolve($request, $argument)))
             ->toThrow(ValidationException::class);
     })->group('symfony');
 
-    test('it returns validation errors with correct structure', function (): void {
+    test('it returns validation errors with correct structure', function(): void {
         $request = Request::create('/test', 'POST', [
             'name' => '',
             'email' => 'invalid',
@@ -147,9 +148,9 @@ describe('Symfony DTOValueResolver', function (): void {
 
         try {
             iterator_to_array($this->resolver->resolve($request, $argument));
-            throw new \Exception('Expected ValidationException to be thrown');
-        } catch (ValidationException $e) {
-            $errors = $e->errors();
+            throw new Exception('Expected ValidationException to be thrown');
+        } catch (ValidationException $validationException) {
+            $errors = $validationException->errors();
             expect($errors)->toHaveKey('name')
                 ->and($errors)->toHaveKey('email')
                 ->and($errors['name'])->toBeArray()
@@ -157,7 +158,7 @@ describe('Symfony DTOValueResolver', function (): void {
         }
     })->group('symfony');
 
-    test('it returns empty for non dto parameters', function (): void {
+    test('it returns empty for non dto parameters', function(): void {
         $request = Request::create('/test', 'POST', []);
 
         $argument = new ArgumentMetadata('dto', 'string', false, false, null);
@@ -167,7 +168,7 @@ describe('Symfony DTOValueResolver', function (): void {
         expect($result)->toHaveCount(0);
     })->group('symfony');
 
-    test('it returns empty for non class types', function (): void {
+    test('it returns empty for non class types', function(): void {
         $request = Request::create('/test', 'POST', []);
 
         $argument = new ArgumentMetadata('param', null, false, false, null);
@@ -177,7 +178,7 @@ describe('Symfony DTOValueResolver', function (): void {
         expect($result)->toHaveCount(0);
     })->group('symfony');
 
-    test('it preserves request data types', function (): void {
+    test('it preserves request data types', function(): void {
         $request = Request::create('/test', 'POST', [
             'title' => 'Product',
             'description' => null,
@@ -192,7 +193,7 @@ describe('Symfony DTOValueResolver', function (): void {
             ->and($result[0]->description)->toBeNull();
     })->group('symfony');
 
-    test('it handles put request', function (): void {
+    test('it handles put request', function(): void {
         $request = Request::create(
             '/test',
             'PUT',
@@ -216,7 +217,7 @@ describe('Symfony DTOValueResolver', function (): void {
             ->and($result[0]->email)->toBe('updated@example.com');
     })->group('symfony');
 
-    test('it handles patch request', function (): void {
+    test('it handles patch request', function(): void {
         $request = Request::create(
             '/test',
             'PATCH',

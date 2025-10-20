@@ -6,7 +6,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
@@ -33,7 +32,7 @@ $user = UserDTO::fromArray([
     'email' => 'john@example.com',
 ]);
 
-echo "✅  User created: {$user->name}, {$user->age}, {$user->email}\n";
+echo sprintf('✅  User created: %s, %s, %s%s', $user->name, $user->age, $user->email, PHP_EOL);
 echo "    IDE provides autocomplete for \$user->name, \$user->age, \$user->email\n\n";
 
 // Example 2: Type Inference for fromArray() with Validation Attributes
@@ -58,7 +57,7 @@ $product = ProductDTO::fromArray([
     'price' => 999.99,
 ]);
 
-echo "✅  Product created: {$product->name}, \${$product->price}\n";
+echo sprintf('✅  Product created: %s, $%s%s', $product->name, $product->price, PHP_EOL);
 echo "    IDE provides autocomplete for \$product->name, \$product->price\n";
 echo "    Validation attributes (#[Required], #[Between]) are recognized by IDE\n\n";
 
@@ -108,7 +107,7 @@ $order = OrderDTO::fromArray([
     'total' => '99.99',
 ]);
 
-echo "✅  Order created: #{$order->id}, {$order->createdAt->format('Y-m-d')}, \${$order->total}\n";
+echo sprintf('✅  Order created: #%d, %s, $%s%s', $order->id, $order->createdAt->format('Y-m-d'), $order->total, PHP_EOL);
 echo "    IDE provides autocomplete for cast types in casts() method\n\n";
 
 // Example 5: Validation Attribute Autocomplete
@@ -132,7 +131,7 @@ $registration = RegistrationDTO::fromArray([
     'age' => 25,
 ]);
 
-echo "✅  Registration created: {$registration->email}, {$registration->age}\n";
+echo sprintf('✅  Registration created: %s, %d%s', $registration->email, $registration->age, PHP_EOL);
 echo "    IDE provides autocomplete for validation attributes\n";
 echo "    Attributes: #[Required], #[Email], #[Between]\n\n";
 
@@ -155,7 +154,7 @@ $customer = CustomerDTO::fromArray([
     'customer_name' => 'John Doe',
 ]);
 
-echo "✅  Customer created: #{$customer->id}, {$customer->name}\n";
+echo sprintf('✅  Customer created: #%d, %s%s', $customer->id, $customer->name, PHP_EOL);
 echo "    IDE provides autocomplete for MapFrom attribute\n\n";
 
 // Example 7: Naming Convention Autocomplete
@@ -178,7 +177,7 @@ $response = ApiResponseDTO::fromArray([
     'email_address' => 'john@example.com',
 ]);
 
-echo "✅  API Response created: {$response->firstName} {$response->lastName}\n";
+echo sprintf('✅  API Response created: %s %s%s', $response->firstName, $response->lastName, PHP_EOL);
 echo "    IDE provides autocomplete for naming conventions\n\n";
 
 // Example 8: DataCollection Type Hints

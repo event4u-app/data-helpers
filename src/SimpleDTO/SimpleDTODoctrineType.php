@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
-use InvalidArgumentException;
-
 // Create stub classes if Doctrine is not installed
 if (!class_exists('Doctrine\DBAL\Types\Type')) {
     abstract class Type

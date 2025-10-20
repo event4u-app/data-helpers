@@ -29,14 +29,14 @@ class UserDTO1 extends SimpleDTO
 
 $user1 = UserDTO1::fromArray(['name' => 'John Doe']);
 echo "Missing email and age:\n";
-echo "  name: {$user1->name}\n";
+echo sprintf('  name: %s%s', $user1->name, PHP_EOL);
 echo "  email present: " . ($user1->email->isPresent() ? 'yes' : 'no') . "\n";
 echo "  age present: " . ($user1->age->isPresent() ? 'yes' : 'no') . "\n";
 echo "\n";
 
 $user2 = UserDTO1::fromArray(['name' => 'Jane Doe', 'email' => 'jane@example.com', 'age' => 30]);
 echo "All fields present:\n";
-echo "  name: {$user2->name}\n";
+echo sprintf('  name: %s%s', $user2->name, PHP_EOL);
 echo "  email: " . $user2->email->get() . "\n";
 echo "  age: " . $user2->age->get() . "\n";
 echo "\n";
@@ -60,13 +60,13 @@ class UserDTO2 extends SimpleDTO
 echo "Missing email, explicit null phone:\n";
 $user3 = UserDTO2::fromArray(['name' => 'John', 'phone' => null]);
 echo "  email present: " . ($user3->email->isPresent() ? 'yes' : 'no') . "\n";
-echo "  phone: " . ($user3->phone === null ? 'null' : $user3->phone) . "\n";
+echo "  phone: " . ($user3->phone ?? 'null') . "\n";
 echo "\n";
 
 echo "Explicit null bio:\n";
 $user4 = UserDTO2::fromArray(['name' => 'Jane', 'phone' => '123-456', 'bio' => null]);
 echo "  bio present: " . ($user4->bio->isPresent() ? 'yes' : 'no') . "\n";
-echo "  bio value: " . ($user4->bio->get() === null ? 'null' : $user4->bio->get()) . "\n";
+echo "  bio value: " . ($user4->bio->get() ?? 'null') . "\n";
 echo "\n";
 
 // Example 3: Partial Updates
@@ -114,7 +114,7 @@ class UserDTO4 extends SimpleDTO
 
 $user5 = UserDTO4::fromArray(['name' => 'Alice']);
 echo "Missing email and age:\n";
-echo "  name: {$user5->name}\n";
+echo sprintf('  name: %s%s', $user5->name, PHP_EOL);
 echo "  email present: " . ($user5->email->isPresent() ? 'yes' : 'no') . "\n";
 echo "  age present: " . ($user5->age->isPresent() ? 'yes' : 'no') . "\n";
 echo "\n";
@@ -140,7 +140,7 @@ echo "\n";
 
 echo "Null value (explicitly set):\n";
 echo "  isPresent: " . ($nullValue->isPresent() ? 'yes' : 'no') . "\n";
-echo "  get: " . ($nullValue->get() === null ? 'null' : $nullValue->get()) . "\n";
+echo "  get: " . ($nullValue->get() ?? 'null') . "\n";
 echo "\n";
 
 // Example 6: Map and Filter
@@ -148,13 +148,13 @@ echo "6. Map and Filter\n";
 echo str_repeat('-', 50) . "\n";
 
 $number = Optional::of(5);
-$doubled = $number->map(fn($x) => $x * 2);
+$doubled = $number->map(fn($x): int => $x * 2);
 echo "Map 5 * 2: " . $doubled->get() . "\n";
 
-$filtered1 = $number->filter(fn($x) => $x > 3);
+$filtered1 = $number->filter(fn($x): bool => 3 < $x);
 echo "Filter 5 > 3: " . ($filtered1->isPresent() ? 'present' : 'empty') . "\n";
 
-$filtered2 = $number->filter(fn($x) => $x > 10);
+$filtered2 = $number->filter(fn($x): bool => 10 < $x);
 echo "Filter 5 > 10: " . ($filtered2->isPresent() ? 'present' : 'empty') . "\n";
 echo "\n";
 

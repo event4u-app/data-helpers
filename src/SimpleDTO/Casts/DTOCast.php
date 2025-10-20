@@ -20,9 +20,7 @@ use event4u\DataHelpers\SimpleDTO\Contracts\CastsAttributes;
  */
 class DTOCast implements CastsAttributes
 {
-    /**
-     * @param string $dtoClass The DTO class to cast to
-     */
+    /** @param string $dtoClass The DTO class to cast to */
     public function __construct(
         private readonly string $dtoClass,
     ) {}
@@ -30,9 +28,7 @@ class DTOCast implements CastsAttributes
     /**
      * Cast the given value to a DTO instance.
      *
-     * @param mixed $value
      * @param array<string, mixed> $attributes
-     * @return mixed
      */
     public function get(mixed $value, array $attributes): mixed
     {
@@ -56,9 +52,7 @@ class DTOCast implements CastsAttributes
     /**
      * Cast the given value for storage (toArray).
      *
-     * @param mixed $value
      * @param array<string, mixed> $attributes
-     * @return mixed
      */
     public function set(mixed $value, array $attributes): mixed
     {

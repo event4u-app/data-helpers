@@ -7,7 +7,6 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromArray;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromJson;
-use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
 
 describe('Computed Properties - Edge Cases', function(): void {
     describe('Exception Handling', function(): void {
@@ -392,6 +391,7 @@ describe('Computed Properties - Edge Cases', function(): void {
             // First call with include
             $clone1 = $instance->includeComputed(['expensive']);
             $clone1->toArray();
+
             expect($dto::$callCount)->toBe(1);
 
             // Second call with include on same clone - should use cache
@@ -401,6 +401,7 @@ describe('Computed Properties - Edge Cases', function(): void {
             // Third call with include on original - creates new clone, recomputes
             $clone2 = $instance->includeComputed(['expensive']);
             $clone2->toArray();
+
             expect($dto::$callCount)->toBe(2);
         });
 
@@ -426,6 +427,7 @@ describe('Computed Properties - Edge Cases', function(): void {
 
             // First call
             $instance->toArray();
+
             expect($dto::$callCount)->toBe(1);
 
             // Second call - should NOT use cache
@@ -628,11 +630,13 @@ describe('Computed Properties - Edge Cases', function(): void {
 
             // First instance computes
             $instance->toArray();
+
             expect($dto::$callCount)->toBe(1);
 
             // Clone should have its own cache
             $clone = clone $instance;
             $clone->toArray();
+
             expect($dto::$callCount)->toBe(2);
         });
     });
@@ -667,7 +671,7 @@ describe('Computed Properties - Edge Cases', function(): void {
                 ) {}
 
                 #[Computed]
-                public function c1(): int { return $this->value * 1; }
+                public function c1(): int { return $this->value; }
 
                 #[Computed]
                 public function c2(): int { return $this->value * 2; }

@@ -29,7 +29,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('throws exception for invalid item type', function(): void {
-            expect(fn() => DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, [
+            expect(fn(): DataCollection => DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, [
                 'invalid string',
             ]))->toThrow(InvalidArgumentException::class);
         });
@@ -40,8 +40,8 @@ describe('DataCollection Edge Cases', function(): void {
             try {
                 DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, [$wrongDto]);
                 expect(true)->toBeFalse('Expected InvalidArgumentException to be thrown');
-            } catch (InvalidArgumentException $e) {
-                expect($e->getMessage())->toContain('DataCollectionEdgeCaseUserDTO');
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                expect($invalidArgumentException->getMessage())->toContain('DataCollectionEdgeCaseUserDTO');
             }
         });
 
@@ -73,7 +73,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            $filtered = $collection->filter(fn() => false);
+            $filtered = $collection->filter(fn(): false => false);
 
             expect($filtered->count())->toBe(0)
                 ->and($filtered->isEmpty())->toBeTrue();
@@ -82,7 +82,7 @@ describe('DataCollection Edge Cases', function(): void {
         it('filter on empty collection', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDTO $u) => $u->age > 20);
+            $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDTO $u): bool => 20 < $u->age);
 
             expect($filtered->count())->toBe(0);
         });
@@ -93,7 +93,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDTO $u) => $u->age > 25);
+            $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDTO $u): bool => 25 < $u->age);
 
             expect($collection->count())->toBe(2)
                 ->and($filtered->count())->toBe(1);
@@ -106,7 +106,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDTO $u) => $u->age > 25);
+            $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDTO $u): bool => 25 < $u->age);
 
             expect($filtered->get(0)->name)->toBe('John')
                 ->and($filtered->get(1)->name)->toBe('Bob')
@@ -121,9 +121,9 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            $names = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u) => $u->name);
-            $ages = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u) => $u->age);
-            $combined = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u) => "{$u->name}:{$u->age}");
+            $names = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): string => $u->name);
+            $ages = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): int => $u->age);
+            $combined = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): string => sprintf('%s:%d', $u->name, $u->age));
 
             expect($names)->toBe(['John', 'Jane'])
                 ->and($ages)->toBe([30, 25])
@@ -133,7 +133,7 @@ describe('DataCollection Edge Cases', function(): void {
         it('maps on empty collection', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            $result = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u) => $u->name);
+            $result = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): string => $u->name);
 
             expect($result)->toBe([]);
         });
@@ -143,7 +143,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'John', 'age' => 30],
             ]);
 
-            $names = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u) => $u->name);
+            $names = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): string => $u->name);
 
             expect($collection->count())->toBe(1)
                 ->and($collection->first())->toBeInstanceOf(DataCollectionEdgeCaseUserDTO::class);
@@ -155,7 +155,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            $result = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u) => [
+            $result = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): array => [
                 'fullName' => strtoupper($u->name),
                 'ageInMonths' => $u->age * 12,
             ]);
@@ -175,7 +175,7 @@ describe('DataCollection Edge Cases', function(): void {
             ]);
 
             $result = $collection->reduce(
-                fn(?int $carry, DataCollectionEdgeCaseUserDTO $u) => ($carry ?? 0) + $u->age
+                fn(?int $carry, DataCollectionEdgeCaseUserDTO $u): int => ($carry ?? 0) + $u->age
             );
 
             expect($result)->toBe(55);
@@ -185,7 +185,7 @@ describe('DataCollection Edge Cases', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
             $result = $collection->reduce(
-                fn(int $carry, DataCollectionEdgeCaseUserDTO $u) => $carry + $u->age,
+                fn(int $carry, DataCollectionEdgeCaseUserDTO $u): int => $carry + $u->age,
                 100
             );
 
@@ -196,7 +196,7 @@ describe('DataCollection Edge Cases', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
             $result = $collection->reduce(
-                fn(?int $carry, DataCollectionEdgeCaseUserDTO $u) => ($carry ?? 0) + $u->age
+                fn(?int $carry, DataCollectionEdgeCaseUserDTO $u): int => ($carry ?? 0) + $u->age
             );
 
             expect($result)->toBeNull();
@@ -210,7 +210,7 @@ describe('DataCollection Edge Cases', function(): void {
             ]);
 
             $result = $collection->reduce(
-                fn(array $carry, DataCollectionEdgeCaseUserDTO $u) => array_merge($carry, [$u->name => $u->age]),
+                fn(array $carry, DataCollectionEdgeCaseUserDTO $u): array => array_merge($carry, [$u->name => $u->age]),
                 []
             );
 
@@ -237,7 +237,7 @@ describe('DataCollection Edge Cases', function(): void {
             ]);
 
             $default = new DataCollectionEdgeCaseUserDTO('Default', 0);
-            $result = $collection->first(fn(DataCollectionEdgeCaseUserDTO $u) => $u->age > 100, $default);
+            $result = $collection->first(fn(DataCollectionEdgeCaseUserDTO $u): bool => 100 < $u->age, $default);
 
             expect($result)->toBe($default);
         });
@@ -248,7 +248,7 @@ describe('DataCollection Edge Cases', function(): void {
             ]);
 
             $default = new DataCollectionEdgeCaseUserDTO('Default', 0);
-            $result = $collection->last(fn(DataCollectionEdgeCaseUserDTO $u) => $u->age > 100, $default);
+            $result = $collection->last(fn(DataCollectionEdgeCaseUserDTO $u): bool => 100 < $u->age, $default);
 
             expect($result)->toBe($default);
         });
@@ -260,7 +260,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 40],
             ]);
 
-            $result = $collection->first(fn(DataCollectionEdgeCaseUserDTO $u) => $u->age > 30);
+            $result = $collection->first(fn(DataCollectionEdgeCaseUserDTO $u): bool => 30 < $u->age);
 
             expect($result->name)->toBe('Jane');
         });
@@ -272,7 +272,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 40],
             ]);
 
-            $result = $collection->last(fn(DataCollectionEdgeCaseUserDTO $u) => $u->age < 40);
+            $result = $collection->last(fn(DataCollectionEdgeCaseUserDTO $u): bool => 40 > $u->age);
 
             expect($result->name)->toBe('Jane');
         });
@@ -332,7 +332,7 @@ describe('DataCollection Edge Cases', function(): void {
         it('throws exception when setting invalid data via array access', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            expect(fn() => $collection[0] = 'invalid')->toThrow(InvalidArgumentException::class);
+            expect(fn(): string => $collection[0] = 'invalid')->toThrow(InvalidArgumentException::class);
         });
     });
 
@@ -358,7 +358,7 @@ describe('DataCollection Edge Cases', function(): void {
             $names = [];
             foreach ($collection as $user) {
                 $names[] = $user->name;
-                if ($user->name === 'Jane') {
+                if ('Jane' === $user->name) {
                     break;
                 }
             }
@@ -386,13 +386,13 @@ describe('DataCollection Edge Cases', function(): void {
         it('push throws exception for invalid data', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            expect(fn() => $collection->push('invalid'))->toThrow(InvalidArgumentException::class);
+            expect(fn(): DataCollection => $collection->push('invalid'))->toThrow(InvalidArgumentException::class);
         });
 
         it('prepend throws exception for invalid data', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            expect(fn() => $collection->prepend('invalid'))->toThrow(InvalidArgumentException::class);
+            expect(fn(): DataCollection => $collection->prepend('invalid'))->toThrow(InvalidArgumentException::class);
         });
 
         it('push multiple items at once', function(): void {
@@ -470,8 +470,8 @@ describe('DataCollection Edge Cases', function(): void {
 
         it('handles large collections', function(): void {
             $items = [];
-            for ($i = 0; $i < 1000; $i++) {
-                $items[] = ['name' => "User{$i}", 'age' => $i];
+            for ($i = 0; 1000 > $i; $i++) {
+                $items[] = ['name' => 'User' . $i, 'age' => $i];
             }
 
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, $items);

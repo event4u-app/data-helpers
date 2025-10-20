@@ -28,8 +28,8 @@ $doc1 = DocumentDTO1::fromArray([
 ]);
 
 echo "Document created:\n";
-echo "  title: {$doc1->title}\n";
-echo "  content type: " . get_class($doc1->content) . "\n";
+echo sprintf('  title: %s%s', $doc1->title, PHP_EOL);
+echo "  content type: " . $doc1->content::class . "\n";
 echo "  content loaded: " . ($doc1->content->isLoaded() ? 'yes' : 'no') . "\n";
 echo "\n";
 
@@ -60,7 +60,7 @@ $doc2 = DocumentDTO2::fromArray([
 ]);
 
 echo "Document with attribute:\n";
-echo "  title: {$doc2->title}\n";
+echo sprintf('  title: %s%s', $doc2->title, PHP_EOL);
 echo "  content loaded: " . ($doc2->content->isLoaded() ? 'yes' : 'no') . "\n";
 echo "\n";
 
@@ -68,7 +68,7 @@ echo "\n";
 echo "3. Lazy Wrapper Methods\n";
 echo str_repeat('-', 50) . "\n";
 
-$lazy1 = Lazy::of(fn() => 'expensive computation');
+$lazy1 = Lazy::of(fn(): string => 'expensive computation');
 echo "Lazy not loaded:\n";
 echo "  isLoaded: " . ($lazy1->isLoaded() ? 'yes' : 'no') . "\n";
 echo "\n";
@@ -88,7 +88,7 @@ echo "\n";
 echo "4. Map and Transform\n";
 echo str_repeat('-', 50) . "\n";
 
-$lazy3 = Lazy::of(fn() => 'hello');
+$lazy3 = Lazy::of(fn(): string => 'hello');
 $mapped = $lazy3->map(fn($x) => strtoupper($x));
 
 echo "Map before loading:\n";
@@ -162,7 +162,7 @@ echo "\n";
 echo "7. Lazy toString\n";
 echo str_repeat('-', 50) . "\n";
 
-$lazy4 = Lazy::of(fn() => 'value');
+$lazy4 = Lazy::of(fn(): string => 'value');
 echo "Not loaded: " . $lazy4 . "\n";
 
 $lazy4->get();

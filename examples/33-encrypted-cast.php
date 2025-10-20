@@ -39,10 +39,10 @@ $payment = PaymentDTO::fromArray([
     'cvv' => '123',
 ]);
 
-echo "Order ID: {$payment->orderId}\n";
-echo "Amount: \${$payment->amount}\n";
-echo "Credit Card: {$payment->creditCard}\n";
-echo "CVV: {$payment->cvv}\n";
+echo sprintf('Order ID: %s%s', $payment->orderId, PHP_EOL);
+echo sprintf('Amount: $%s%s', $payment->amount, PHP_EOL);
+echo sprintf('Credit Card: %s%s', $payment->creditCard, PHP_EOL);
+echo sprintf('CVV: %s%s', $payment->cvv, PHP_EOL);
 echo "\nNote: Data is encrypted when stored, decrypted when accessed\n\n";
 
 // Example 2: Storing Encrypted Data
@@ -51,8 +51,8 @@ echo "----------------------------------\n";
 
 $storedData = $payment->toArray();
 echo "Stored data (encrypted):\n";
-echo "Credit Card: {$storedData['creditCard']}\n";
-echo "CVV: {$storedData['cvv']}\n";
+echo sprintf('Credit Card: %s%s', $storedData['creditCard'], PHP_EOL);
+echo sprintf('CVV: %s%s', $storedData['cvv'], PHP_EOL);
 echo "\nNote: Values are encrypted in storage ✅\n\n";
 
 // Example 3: User Personal Information
@@ -84,9 +84,9 @@ $profile = UserProfileDTO::fromArray([
     'phoneNumber' => '+1-555-0123',
 ]);
 
-echo "User ID: {$profile->userId}\n";
-echo "Username: {$profile->username}\n";
-echo "SSN: {$profile->ssn}\n";
+echo sprintf('User ID: %s%s', $profile->userId, PHP_EOL);
+echo sprintf('Username: %s%s', $profile->username, PHP_EOL);
+echo sprintf('SSN: %s%s', $profile->ssn, PHP_EOL);
 echo "Phone: {$profile->phoneNumber}\n\n";
 
 // Example 4: Null Values
@@ -100,8 +100,8 @@ $profileWithoutSensitiveData = UserProfileDTO::fromArray([
     'phoneNumber' => null,
 ]);
 
-echo "User ID: {$profileWithoutSensitiveData->userId}\n";
-echo "Username: {$profileWithoutSensitiveData->username}\n";
+echo sprintf('User ID: %s%s', $profileWithoutSensitiveData->userId, PHP_EOL);
+echo sprintf('Username: %s%s', $profileWithoutSensitiveData->username, PHP_EOL);
 echo "SSN: " . ($profileWithoutSensitiveData->ssn ?? 'Not provided') . "\n";
 echo "Phone: " . ($profileWithoutSensitiveData->phoneNumber ?? 'Not provided') . "\n\n";
 
@@ -132,9 +132,9 @@ $credentials = ApiCredentialsDTO::fromArray([
     'apiSecret' => 'sk_live_abcdef1234567890',
 ]);
 
-echo "Service: {$credentials->serviceName}\n";
-echo "API Key: {$credentials->apiKey}\n";
-echo "API Secret: {$credentials->apiSecret}\n";
+echo sprintf('Service: %s%s', $credentials->serviceName, PHP_EOL);
+echo sprintf('API Key: %s%s', $credentials->apiKey, PHP_EOL);
+echo sprintf('API Secret: %s%s', $credentials->apiSecret, PHP_EOL);
 echo "\nStored (encrypted):\n";
 $storedCredentials = $credentials->toArray();
 echo json_encode($storedCredentials, JSON_PRETTY_PRINT) . "\n\n";
@@ -168,9 +168,9 @@ $record = MedicalRecordDTO::fromArray([
     'prescription' => 'Lisinopril 10mg daily',
 ]);
 
-echo "Patient ID: {$record->patientId}\n";
-echo "Patient Name: {$record->patientName}\n";
-echo "Diagnosis: {$record->diagnosis}\n";
+echo sprintf('Patient ID: %d%s', $record->patientId, PHP_EOL);
+echo sprintf('Patient Name: %s%s', $record->patientName, PHP_EOL);
+echo sprintf('Diagnosis: %s%s', $record->diagnosis, PHP_EOL);
 echo "Prescription: {$record->prescription}\n\n";
 
 echo "================================================================================\n";

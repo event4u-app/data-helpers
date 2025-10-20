@@ -25,10 +25,8 @@ use RuntimeException;
 class ValidationException extends RuntimeException
 {
     /**
-     * @param string $message
      * @param array<string, array<string>> $errors
      * @param array<string, mixed> $data Original data that failed validation
-     * @param int $code
      */
     public function __construct(
         string $message,
@@ -43,7 +41,6 @@ class ValidationException extends RuntimeException
      * Create a new validation exception with error messages.
      *
      * @param array<string, array<int, string>|string> $errors
-     * @return static
      */
     public static function withMessages(array $errors): static
     {
@@ -76,9 +73,7 @@ class ValidationException extends RuntimeException
         return $this->errors;
     }
 
-    /**
-     * Check if a specific field has errors.
-     */
+    /** Check if a specific field has errors. */
     public function hasError(string $field): bool
     {
         return isset($this->errors[$field]) && count($this->errors[$field]) > 0;
@@ -106,18 +101,13 @@ class ValidationException extends RuntimeException
 
     /**
      * Get the first error message for a field.
-     *
-     * @param string $field
-     * @return string|null
      */
     public function first(string $field): ?string
     {
         return $this->errors[$field][0] ?? null;
     }
 
-    /**
-     * Alias for first().
-     */
+    /** Alias for first(). */
     public function firstError(string $field): ?string
     {
         return $this->first($field);
@@ -157,9 +147,7 @@ class ValidationException extends RuntimeException
         return $this->data;
     }
 
-    /**
-     * Get error count.
-     */
+    /** Get error count. */
     public function errorCount(): int
     {
         return array_sum(array_map('count', $this->errors));
@@ -178,9 +166,7 @@ class ValidationException extends RuntimeException
         ];
     }
 
-    /**
-     * Convert to JSON representation.
-     */
+    /** Convert to JSON representation. */
     public function toJson(int $options = 0): string
     {
         return json_encode($this->toArray(), $options);

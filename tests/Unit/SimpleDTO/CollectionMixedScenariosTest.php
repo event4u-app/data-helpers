@@ -3,11 +3,6 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
-use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Required;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
 use Tests\Unit\SimpleDTO\Fixtures\UserDTO;
 
@@ -57,8 +52,6 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ->and($array[0])->toBe(['name' => 'John', 'age' => 30])
                 ->and($array[1])->toBe(['name' => 'Jane', 'age' => 25]);
         });
-
-
     });
 
     describe('Collection Iteration', function(): void {
@@ -95,7 +88,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            $filtered = $users->filter(fn($user) => $user->age > 28);
+            $filtered = $users->filter(fn($user): bool => 28 < $user->age);
 
             expect($filtered->count())->toBe(2)
                 ->and($filtered->first()->name)->toBe('John')
@@ -247,7 +240,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            $found = $users->first(fn($user) => $user->age > 28);
+            $found = $users->first(fn($user): bool => 28 < $user->age);
 
             expect($found)->not->toBeNull()
                 ->and($found->name)->toBe('John');
@@ -259,7 +252,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            $found = $users->first(fn($user) => $user->age > 50);
+            $found = $users->first(fn($user): bool => 50 < $user->age);
 
             expect($found)->toBeNull();
         });

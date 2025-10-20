@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use Illuminate\Support\Facades\Gate;
 use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromArray;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromJson;
@@ -141,9 +142,7 @@ trait SimpleDTOVisibilityTrait
      * 2. Context from contextProvider
      * 3. null
      *
-     * @param Visible $visibleAttr
      *
-     * @return mixed
      */
     private function getVisibilityContextForAttribute(Visible $visibleAttr): mixed
     {
@@ -153,21 +152,19 @@ trait SimpleDTOVisibilityTrait
         }
 
         // If contextProvider is specified, use it to fetch context
-        if (null !== $visibleAttr->contextProvider) {
-            if (class_exists($visibleAttr->contextProvider)) {
-                try {
-                    $reflection = new ReflectionClass($visibleAttr->contextProvider);
+        if (null !== $visibleAttr->contextProvider && class_exists($visibleAttr->contextProvider)) {
+            try {
+                $reflection = new ReflectionClass($visibleAttr->contextProvider);
 
-                    if ($reflection->hasMethod('getContext')) {
-                        $method = $reflection->getMethod('getContext');
+                if ($reflection->hasMethod('getContext')) {
+                    $method = $reflection->getMethod('getContext');
 
-                        if ($method->isStatic()) {
-                            return $method->invoke(null);
-                        }
+                    if ($method->isStatic()) {
+                        return $method->invoke(null);
                     }
-                } catch (ReflectionException $e) {
-                    // Fall through to null
                 }
+            } catch (ReflectionException) {
+                // Fall through to null
             }
         }
 
@@ -178,10 +175,7 @@ trait SimpleDTOVisibilityTrait
     /**
      * Check if a property should be visible based on #[Visible] attribute.
      *
-     * @param string $propertyName
-     * @param Visible $visibleAttr
      *
-     * @return bool
      */
     private function isPropertyVisible(string $propertyName, Visible $visibleAttr): bool
     {
@@ -195,17 +189,15 @@ trait SimpleDTOVisibilityTrait
                 if (count($visibleAttr->callback) === 2) {
                     [$class, $method] = $visibleAttr->callback;
 
-                    if (is_string($class) && is_string($method)) {
-                        if (class_exists($class) && method_exists($class, $method)) {
-                            try {
-                                $reflection = new ReflectionMethod($class, $method);
+                    if (is_string($class) && is_string($method) && (class_exists($class) && method_exists($class, $method))) {
+                        try {
+                            $reflection = new ReflectionMethod($class, $method);
 
-                                if ($reflection->isStatic()) {
-                                    return (bool)$reflection->invoke(null, $this, $context);
-                                }
-                            } catch (ReflectionException $e) {
-                                return false;
+                            if ($reflection->isStatic()) {
+                                return (bool)$reflection->invoke(null, $this, $context);
                             }
+                        } catch (ReflectionException) {
+                            return false;
                         }
                     }
                 }
@@ -219,10 +211,9 @@ trait SimpleDTOVisibilityTrait
                     try {
                         // Use Reflection to call private/protected methods
                         $reflection = new ReflectionMethod($this, $visibleAttr->callback);
-                        $reflection->setAccessible(true);
 
                         return (bool)$reflection->invoke($this, $context);
-                    } catch (ReflectionException $e) {
+                    } catch (ReflectionException) {
                         return false;
                     }
                 }
@@ -234,7 +225,7 @@ trait SimpleDTOVisibilityTrait
         // Check Laravel Gate
         if (null !== $visibleAttr->gate) {
             if (class_exists('Illuminate\Support\Facades\Gate')) {
-                return \Illuminate\Support\Facades\Gate::allows($visibleAttr->gate, $this);
+                return Gate::allows($visibleAttr->gate, $this);
             }
 
             return false;
@@ -299,8 +290,6 @@ trait SimpleDTOVisibilityTrait
      * The context is passed to #[Visible] callback methods.
      *
      * @param mixed $context Context object (e.g., current user, request, etc.)
-     *
-     * @return static
      */
     public function withVisibilityContext(mixed $context): static
     {
@@ -314,8 +303,6 @@ trait SimpleDTOVisibilityTrait
      * Include only specified properties in output.
      *
      * @param array<string> $properties
-     *
-     * @return static
      */
     public function only(array $properties): static
     {
@@ -331,8 +318,6 @@ trait SimpleDTOVisibilityTrait
      * Exclude specified properties from output.
      *
      * @param array<string> $properties
-     *
-     * @return static
      */
     public function except(array $properties): static
     {

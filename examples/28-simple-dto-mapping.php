@@ -43,9 +43,9 @@ $user = UserDTO::fromArray($apiData);
 echo "Input (snake_case):\n";
 print_r($apiData);
 echo "\nDTO Properties (camelCase):\n";
-echo "  userName: {$user->userName}\n";
-echo "  emailAddress: {$user->emailAddress}\n";
-echo "  phoneNumber: {$user->phoneNumber}\n";
+echo sprintf('  userName: %s%s', $user->userName, PHP_EOL);
+echo sprintf('  emailAddress: %s%s', $user->emailAddress, PHP_EOL);
+echo sprintf('  phoneNumber: %s%s', $user->phoneNumber, PHP_EOL);
 echo "\n";
 
 // Example 2: Dot Notation for Nested Data
@@ -81,9 +81,9 @@ $profile = ProfileDTO::fromArray($nestedData);
 echo "Input (nested structure):\n";
 print_r($nestedData);
 echo "\nDTO Properties (flattened):\n";
-echo "  email: {$profile->email}\n";
-echo "  age: {$profile->age}\n";
-echo "  createdAt: {$profile->createdAt}\n";
+echo sprintf('  email: %s%s', $profile->email, PHP_EOL);
+echo sprintf('  age: %s%s', $profile->age, PHP_EOL);
+echo sprintf('  createdAt: %s%s', $profile->createdAt, PHP_EOL);
 echo "\n";
 
 // Example 3: Multiple Sources with Fallback (Different API Formats)
@@ -177,10 +177,10 @@ $order = OrderDTO::fromArray($orderData);
 echo "Input (mixed types):\n";
 print_r($orderData);
 echo "\nDTO Properties (typed & formatted):\n";
-echo "  orderId: {$order->orderId} (" . gettype($order->orderId) . ")\n";
+echo sprintf('  orderId: %s (', $order->orderId) . gettype($order->orderId) . ")\n";
 echo "  isPaid: " . ($order->isPaid ? 'true' : 'false') . " (" . gettype($order->isPaid) . ")\n";
-echo "  createdAt: {$order->createdAt->format('Y-m-d H:i:s')} (" . get_class($order->createdAt) . ")\n";
-echo "  totalAmount: {$order->totalAmount} (" . gettype($order->totalAmount) . ")\n";
+echo sprintf('  createdAt: %s (', $order->createdAt->format('Y-m-d H:i:s')) . $order->createdAt::class . ")\n";
+echo sprintf('  totalAmount: %s (', $order->totalAmount) . gettype($order->totalAmount) . ")\n";
 echo "\n";
 
 // Example 5: Real-World Use Case - Multiple REST APIs
@@ -250,7 +250,7 @@ $customData = [
 $product3 = ProductDTO::fromArray($customData);
 echo "Custom API Response:\n";
 echo "  Product: {$product3->name} (ID: {$product3->id})\n";
-echo "  Price: €{$product3->price}, Stock: {$product3->stock}\n";
+echo sprintf('  Price: €%s, Stock: %d%s', $product3->price, $product3->stock, PHP_EOL);
 echo "\n";
 
 // Example 6: MapTo Attribute - Output Mapping
@@ -277,8 +277,8 @@ $dto = new ApiResponseDTO(
 );
 
 echo "DTO Properties (camelCase):\n";
-echo "  userId: {$dto->userId}\n";
-echo "  userName: {$dto->userName}\n";
+echo sprintf('  userId: %s%s', $dto->userId, PHP_EOL);
+echo sprintf('  userName: %s%s', $dto->userName, PHP_EOL);
 echo "  emailAddress: {$dto->emailAddress}\n\n";
 
 $output = $dto->toArray();
@@ -310,8 +310,8 @@ $nestedDto = new NestedOutputDTO(
 );
 
 echo "DTO Properties (flat):\n";
-echo "  email: {$nestedDto->email}\n";
-echo "  age: {$nestedDto->age}\n";
+echo sprintf('  email: %s%s', $nestedDto->email, PHP_EOL);
+echo sprintf('  age: %d%s', $nestedDto->age, PHP_EOL);
 echo "  createdAt: {$nestedDto->createdAt}\n\n";
 
 $nestedOutput = $nestedDto->toArray();
@@ -347,8 +347,8 @@ print_r($inputData);
 
 $bidirectionalDto = BidirectionalDTO::fromArray($inputData);
 echo "\nDTO Properties:\n";
-echo "  email: {$bidirectionalDto->email}\n";
-echo "  name: {$bidirectionalDto->name}\n";
+echo sprintf('  email: %s%s', $bidirectionalDto->email, PHP_EOL);
+echo sprintf('  name: %s%s', $bidirectionalDto->name, PHP_EOL);
 
 // Output: nested structure
 $bidirectionalOutput = $bidirectionalDto->toArray();
@@ -399,7 +399,7 @@ echo "\n";
 $outputMappingConfig = BidirectionalDTO::getOutputMappingConfig();
 echo "BidirectionalDTO Output Mapping Configuration:\n";
 foreach ($outputMappingConfig as $property => $target) {
-    echo "  {$property} → {$target}\n";
+    echo sprintf('  %s → %s%s', $property, $target, PHP_EOL);
 }
 echo "\n";
 
@@ -431,9 +431,9 @@ print_r($snakeCaseInput);
 
 $userDto = UserInputDTO::fromArray($snakeCaseInput);
 echo "\nDTO Properties (camelCase):\n";
-echo "  userName: {$userDto->userName}\n";
-echo "  emailAddress: {$userDto->emailAddress}\n";
-echo "  userId: {$userDto->userId}\n";
+echo sprintf('  userName: %s%s', $userDto->userName, PHP_EOL);
+echo sprintf('  emailAddress: %s%s', $userDto->emailAddress, PHP_EOL);
+echo sprintf('  userId: %d%s', $userDto->userId, PHP_EOL);
 echo "  isActive: " . ($userDto->isActive ? 'true' : 'false') . "\n";
 echo "\n";
 
@@ -461,9 +461,9 @@ $userOutputDto = new UserOutputDTO(
 );
 
 echo "DTO Properties (camelCase):\n";
-echo "  userName: {$userOutputDto->userName}\n";
-echo "  emailAddress: {$userOutputDto->emailAddress}\n";
-echo "  userId: {$userOutputDto->userId}\n";
+echo sprintf('  userName: %s%s', $userOutputDto->userName, PHP_EOL);
+echo sprintf('  emailAddress: %s%s', $userOutputDto->emailAddress, PHP_EOL);
+echo sprintf('  userId: %d%s', $userOutputDto->userId, PHP_EOL);
 echo "  isActive: " . ($userOutputDto->isActive ? 'true' : 'false') . "\n";
 
 $snakeCaseOutput = $userOutputDto->toArray();
@@ -495,8 +495,8 @@ print_r($transformInput);
 
 $transformDto = TransformDTO::fromArray($transformInput);
 echo "\nDTO Properties (camelCase):\n";
-echo "  userName: {$transformDto->userName}\n";
-echo "  emailAddress: {$transformDto->emailAddress}\n";
+echo sprintf('  userName: %s%s', $transformDto->userName, PHP_EOL);
+echo sprintf('  emailAddress: %s%s', $transformDto->emailAddress, PHP_EOL);
 
 $kebabOutput = $transformDto->toArray();
 echo "\nOutput (kebab-case):\n";
@@ -529,8 +529,8 @@ print_r($overrideInput);
 
 $overrideDto = OverrideDTO::fromArray($overrideInput);
 echo "\nDTO Properties:\n";
-echo "  email: {$overrideDto->email}\n";
-echo "  userName: {$overrideDto->userName}\n";
+echo sprintf('  email: %s%s', $overrideDto->email, PHP_EOL);
+echo sprintf('  userName: %s%s', $overrideDto->userName, PHP_EOL);
 
 $overrideOutput = $overrideDto->toArray();
 echo "\nOutput (snake_case with custom override):\n";

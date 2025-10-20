@@ -85,7 +85,6 @@ class WhenContext implements ConditionalProperty
      * @param mixed $value Property value
      * @param object $dto DTO instance
      * @param array<string, mixed> $context Context data
-     * @return bool
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
@@ -97,12 +96,12 @@ class WhenContext implements ConditionalProperty
         $contextValue = $context[$this->key];
 
         // If no operatorOrValue specified, just check if key exists
-        if ($this->operatorOrValue === null) {
+        if (null === $this->operatorOrValue) {
             return true;
         }
 
         // If value is specified (3 parameters), operatorOrValue is the operator
-        if ($this->value !== null) {
+        if (null !== $this->value) {
             return $this->compareWithOperator($contextValue, $this->operatorOrValue, $this->value);
         }
 
@@ -116,7 +115,6 @@ class WhenContext implements ConditionalProperty
      * @param mixed $left Left operand
      * @param string $operator Operator
      * @param mixed $right Right operand
-     * @return bool
      */
     private function compareWithOperator(mixed $left, string $operator, mixed $right): bool
     {

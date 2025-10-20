@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Casts\ArrayCast;
 use event4u\DataHelpers\SimpleDTO\Casts\BooleanCast;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 use event4u\DataHelpers\SimpleDTO\Casts\DecimalCast;
@@ -64,9 +63,9 @@ class EventDtoWithCasts extends SimpleDTO
     }
 }
 
-describe('SimpleDTO Casts', function() {
-    describe('Built-in Boolean Cast', function() {
-        it('casts string "1" to true', function() {
+describe('SimpleDTO Casts', function(): void {
+    describe('Built-in Boolean Cast', function(): void {
+        it('casts string "1" to true', function(): void {
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
                 'is_active' => '1',
@@ -77,7 +76,7 @@ describe('SimpleDTO Casts', function() {
             expect($dto->is_active)->toBeTrue();
         });
 
-        it('casts string "0" to false', function() {
+        it('casts string "0" to false', function(): void {
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
                 'is_active' => '0',
@@ -88,7 +87,7 @@ describe('SimpleDTO Casts', function() {
             expect($dto->is_active)->toBeFalse();
         });
 
-        it('casts string "true" to true', function() {
+        it('casts string "true" to true', function(): void {
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
                 'is_active' => 'true',
@@ -99,7 +98,7 @@ describe('SimpleDTO Casts', function() {
             expect($dto->is_active)->toBeTrue();
         });
 
-        it('casts string "yes" to true', function() {
+        it('casts string "yes" to true', function(): void {
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
                 'is_active' => 'yes',
@@ -110,7 +109,7 @@ describe('SimpleDTO Casts', function() {
             expect($dto->is_active)->toBeTrue();
         });
 
-        it('casts integer 1 to true', function() {
+        it('casts integer 1 to true', function(): void {
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
                 'is_active' => 1,
@@ -122,8 +121,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('Built-in Array Cast', function() {
-        it('casts JSON string to array', function() {
+    describe('Built-in Array Cast', function(): void {
+        it('casts JSON string to array', function(): void {
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
                 'is_active' => true,
@@ -136,7 +135,7 @@ describe('SimpleDTO Casts', function() {
                 ->toBe(['admin', 'editor']);
         });
 
-        it('keeps array as array', function() {
+        it('keeps array as array', function(): void {
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
                 'is_active' => true,
@@ -150,8 +149,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('Built-in DateTime Cast', function() {
-        it('casts string to DateTimeImmutable', function() {
+    describe('Built-in DateTime Cast', function(): void {
+        it('casts string to DateTimeImmutable', function(): void {
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
                 'is_active' => true,
@@ -165,7 +164,7 @@ describe('SimpleDTO Casts', function() {
                 ->toBe('2024-01-15 10:30:00');
         });
 
-        it('casts timestamp to DateTimeImmutable', function() {
+        it('casts timestamp to DateTimeImmutable', function(): void {
             $timestamp = 1705318200; // 2024-01-15 10:30:00 UTC
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
@@ -180,7 +179,7 @@ describe('SimpleDTO Casts', function() {
                 ->toBe($timestamp);
         });
 
-        it('keeps DateTimeImmutable as DateTimeImmutable', function() {
+        it('keeps DateTimeImmutable as DateTimeImmutable', function(): void {
             $date = new DateTimeImmutable('2024-01-15 10:30:00');
             $dto = UserDtoWithCasts::fromArray([
                 'name' => 'John',
@@ -195,8 +194,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('Custom Cast Classes', function() {
-        it('uses BooleanCast class', function() {
+    describe('Custom Cast Classes', function(): void {
+        it('uses BooleanCast class', function(): void {
             $dto = ProductDtoWithCasts::fromArray([
                 'name' => 'Laptop',
                 'in_stock' => 'yes',
@@ -205,7 +204,7 @@ describe('SimpleDTO Casts', function() {
             expect($dto->in_stock)->toBeTrue();
         });
 
-        it('uses DateTimeCast class', function() {
+        it('uses DateTimeCast class', function(): void {
             $dto = ProductDtoWithCasts::fromArray([
                 'name' => 'Laptop',
                 'in_stock' => true,
@@ -218,7 +217,7 @@ describe('SimpleDTO Casts', function() {
                 ->toBe('2024-02-01');
         });
 
-        it('handles null values', function() {
+        it('handles null values', function(): void {
             $dto = ProductDtoWithCasts::fromArray([
                 'name' => 'Laptop',
                 'in_stock' => true,
@@ -229,8 +228,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('Cast with Parameters', function() {
-        it('uses custom date format', function() {
+    describe('Cast with Parameters', function(): void {
+        it('uses custom date format', function(): void {
             $dto = EventDtoWithCasts::fromArray([
                 'title' => 'Conference',
                 'event_date' => '2024-06-15',
@@ -243,8 +242,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('Cast Caching', function() {
-        it('caches cast instances', function() {
+    describe('Cast Caching', function(): void {
+        it('caches cast instances', function(): void {
             $dto1 = UserDtoWithCasts::fromArray([
                 'name' => 'John',
                 'is_active' => true,
@@ -267,8 +266,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('No Casts Defined', function() {
-        it('works without casts', function() {
+    describe('No Casts Defined', function(): void {
+        it('works without casts', function(): void {
             // Create a simple DTO without casts
             $simpleDtoClass = new class ('John', 'john@example.com') extends SimpleDTO {
                 public function __construct(
@@ -288,8 +287,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('Integer Cast', function() {
-        it('casts string to integer', function() {
+    describe('Integer Cast', function(): void {
+        it('casts string to integer', function(): void {
             $dto = new class ('Product', 10) extends SimpleDTO {
                 public function __construct(
                     public readonly string $name,
@@ -306,7 +305,7 @@ describe('SimpleDTO Casts', function() {
             expect($result->quantity)->toBe(42);
         });
 
-        it('casts float to integer', function() {
+        it('casts float to integer', function(): void {
             $dto = new class ('Product', 10) extends SimpleDTO {
                 public function __construct(
                     public readonly string $name,
@@ -324,8 +323,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('Float Cast', function() {
-        it('casts string to float', function() {
+    describe('Float Cast', function(): void {
+        it('casts string to float', function(): void {
             $dto = new class ('Product', 0.0) extends SimpleDTO {
                 public function __construct(
                     public readonly string $name,
@@ -342,7 +341,7 @@ describe('SimpleDTO Casts', function() {
             expect($result->price)->toBe(99.99);
         });
 
-        it('casts integer to float', function() {
+        it('casts integer to float', function(): void {
             $dto = new class ('Product', 0.0) extends SimpleDTO {
                 public function __construct(
                     public readonly string $name,
@@ -360,8 +359,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('String Cast', function() {
-        it('casts integer to string', function() {
+    describe('String Cast', function(): void {
+        it('casts integer to string', function(): void {
             $dto = new class ('') extends SimpleDTO {
                 public function __construct(
                     public readonly string $code,
@@ -377,7 +376,7 @@ describe('SimpleDTO Casts', function() {
             expect($result->code)->toBe('12345');
         });
 
-        it('casts boolean to string', function() {
+        it('casts boolean to string', function(): void {
             $dto = new class ('') extends SimpleDTO {
                 public function __construct(
                     public readonly string $value,
@@ -394,8 +393,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('Decimal Cast', function() {
-        it('formats number with 2 decimal places', function() {
+    describe('Decimal Cast', function(): void {
+        it('formats number with 2 decimal places', function(): void {
             $dto = new class ('') extends SimpleDTO {
                 public function __construct(
                     public readonly string $price,
@@ -411,7 +410,7 @@ describe('SimpleDTO Casts', function() {
             expect($result->price)->toBe('99.90');
         });
 
-        it('formats number with 4 decimal places', function() {
+        it('formats number with 4 decimal places', function(): void {
             $dto = new class ('') extends SimpleDTO {
                 public function __construct(
                     public readonly string $rate,
@@ -428,8 +427,8 @@ describe('SimpleDTO Casts', function() {
         });
     });
 
-    describe('Json Cast', function() {
-        it('decodes JSON string to array', function() {
+    describe('Json Cast', function(): void {
+        it('decodes JSON string to array', function(): void {
             $dto = new class ([]) extends SimpleDTO {
                 public function __construct(
                     public readonly array $metadata,
@@ -447,7 +446,7 @@ describe('SimpleDTO Casts', function() {
                 ->toBe(['key' => 'value', 'count' => 42]);
         });
 
-        it('keeps array as array', function() {
+        it('keeps array as array', function(): void {
             $dto = new class ([]) extends SimpleDTO {
                 public function __construct(
                     public readonly array $metadata,

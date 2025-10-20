@@ -82,13 +82,8 @@ class HashedCast implements CastsAttributes
         if (str_starts_with($value, '$argon2i$')) {
             return true;
         }
-
         // Argon2id hashes start with $argon2id$
-        if (str_starts_with($value, '$argon2id$')) {
-            return true;
-        }
-
-        return false;
+        return str_starts_with($value, '$argon2id$');
     }
 
     /** Get the password hashing algorithm constant. */

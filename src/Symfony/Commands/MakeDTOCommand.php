@@ -44,7 +44,7 @@ class MakeDTOCommand extends Command
         $force = $input->getOption('force');
 
         // Ensure name ends with DTO
-        if (!str_ends_with($name, 'DTO')) {
+        if (!str_ends_with((string) $name, 'DTO')) {
             $name .= 'DTO';
         }
 
@@ -53,7 +53,7 @@ class MakeDTOCommand extends Command
 
         // Check if file exists
         if (file_exists($path) && !$force) {
-            $io->error("DTO {$name} already exists!");
+            $io->error(sprintf('DTO %s already exists!', $name));
             return Command::FAILURE;
         }
 
@@ -69,24 +69,20 @@ class MakeDTOCommand extends Command
         // Write file
         file_put_contents($path, $content);
 
-        $io->success("DTO {$name} created successfully!");
-        $io->text("Location: {$path}");
+        $io->success(sprintf('DTO %s created successfully!', $name));
+        $io->text('Location: ' . $path);
 
         return Command::SUCCESS;
     }
 
-    /**
-     * Get file path for generated class.
-     */
+    /** Get file path for generated class. */
     private function getPath(string $className): string
     {
         // Assuming standard Symfony structure
-        return getcwd() . "/src/DTO/{$className}.php";
+        return getcwd() . sprintf('/src/DTO/%s.php', $className);
     }
 
-    /**
-     * Get DTO stub content.
-     */
+    /** Get DTO stub content. */
     private function getDTOStub(string $className, bool $validate): string
     {
         $validateAttribute = $validate ? "#[ValidateRequest(throw: true)]\n" : '';

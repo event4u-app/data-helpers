@@ -27,9 +27,9 @@ try {
         'age' => 'thirty', // Should be int
         'email' => 'john@example.com',
     ]);
-} catch (TypeError $e) {
+} catch (TypeError $typeError) {
     echo "❌  Standard PHP TypeError:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $typeError->getMessage() . "\n\n";
 }
 
 // With DTOException (enhanced error message)
@@ -41,9 +41,9 @@ try {
         actualValue: 'thirty',
         propertyPath: 'user.age'
     );
-} catch (DTOException $e) {
+} catch (DTOException $dtoException) {
     echo "✅  Enhanced DTOException:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $dtoException->getMessage() . "\n\n";
 }
 
 // Example 2: Missing Property Error
@@ -56,9 +56,9 @@ try {
         property: 'email',
         availableKeys: ['name', 'age', 'emial', 'mail'] // Note: typo in 'emial'
     );
-} catch (DTOException $e) {
+} catch (DTOException $dtoException) {
     echo "✅  Enhanced error with suggestions:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $dtoException->getMessage() . "\n\n";
 }
 
 // Example 3: Invalid Cast Error
@@ -88,9 +88,9 @@ try {
         value: 'invalid-date-format',
         reason: 'Failed to parse time string (invalid-date-format)'
     );
-} catch (DTOException $e) {
+} catch (DTOException $dtoException) {
     echo "✅  Enhanced cast error:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $dtoException->getMessage() . "\n\n";
 }
 
 // Example 4: Nested DTO Error
@@ -122,9 +122,9 @@ try {
         nestedProperty: 'street',
         originalMessage: 'Missing required property in App\AddressDTO::$street'
     );
-} catch (DTOException $e) {
+} catch (DTOException $dtoException) {
     echo "✅  Enhanced nested error with property path:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $dtoException->getMessage() . "\n\n";
 }
 
 // Example 5: Numeric String to Int Suggestion
@@ -138,9 +138,9 @@ try {
         expectedType: 'int',
         actualValue: '25' // Numeric string
     );
-} catch (DTOException $e) {
+} catch (DTOException $dtoException) {
     echo "✅  Helpful suggestion for numeric string:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $dtoException->getMessage() . "\n\n";
 }
 
 // Example 6: Null to Non-Nullable Suggestion
@@ -154,9 +154,9 @@ try {
         expectedType: 'string',
         actualValue: null
     );
-} catch (DTOException $e) {
+} catch (DTOException $dtoException) {
     echo "✅  Helpful suggestion for null value:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $dtoException->getMessage() . "\n\n";
 }
 
 // Example 7: Array to Object Suggestion
@@ -170,9 +170,9 @@ try {
         expectedType: AddressDTO::class,
         actualValue: ['street' => 'Main St', 'city' => 'New York', 'zipCode' => '10001']
     );
-} catch (DTOException $e) {
+} catch (DTOException $dtoException) {
     echo "✅  Helpful suggestion for array to DTO:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $dtoException->getMessage() . "\n\n";
 }
 
 // Example 8: Long String Truncation
@@ -187,9 +187,9 @@ try {
         expectedType: 'string',
         actualValue: $longString
     );
-} catch (DTOException $e) {
+} catch (DTOException $dtoException) {
     echo "✅  Long values are truncated:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $dtoException->getMessage() . "\n\n";
 }
 
 // Example 9: Boolean Formatting
@@ -211,9 +211,9 @@ try {
         expectedType: 'string',
         actualValue: true
     );
-} catch (DTOException $e) {
+} catch (DTOException $dtoException) {
     echo "✅  Boolean values are formatted:\n";
-    echo $e->getMessage() . "\n\n";
+    echo $dtoException->getMessage() . "\n\n";
 }
 
 echo "\n✅  All examples completed!\n";

@@ -70,10 +70,10 @@ $validData = [
 try {
     $user = UserDTO::fromArray($validData);
     echo "✅  Valid nested DTO created:\n";
-    echo "    Email: {$user->email}\n";
-    echo "    Name: {$user->name}\n";
-    echo "    Address: {$user->address->street}, {$user->address->city} {$user->address->zipCode}\n";
-} catch (ValidationException $e) {
+    echo sprintf('    Email: %s%s', $user->email, PHP_EOL);
+    echo sprintf('    Name: %s%s', $user->name, PHP_EOL);
+    echo sprintf('    Address: %s, %s %s%s', $user->address->street, $user->address->city, $user->address->zipCode, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed (unexpected)\n";
 }
 echo "\n";
@@ -92,10 +92,10 @@ $invalidData = [
 try {
     $user = UserDTO::validateAndCreate($invalidData);
     echo "✅  Valid nested DTO created (unexpected)\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Nested validation failed (expected):\n";
-    foreach ($e->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+    foreach ($validationException->errors() as $field => $errors) {
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";
@@ -138,10 +138,10 @@ $validCompanyData = [
 try {
     $company = CompanyDTO::fromArray($validCompanyData);
     echo "✅  Company with multiple addresses created:\n";
-    echo "    Name: {$company->name}\n";
-    echo "    Main: {$company->mainAddress->city}\n";
-    echo "    Billing: {$company->billingAddress->city}\n";
-} catch (ValidationException $e) {
+    echo sprintf('    Name: %s%s', $company->name, PHP_EOL);
+    echo sprintf('    Main: %s%s', $company->mainAddress->city, PHP_EOL);
+    echo sprintf('    Billing: %s%s', $company->billingAddress->city, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed (unexpected)\n";
 }
 echo "\n";
@@ -176,10 +176,10 @@ try {
         ],
     ]);
     echo "✅  User created (unexpected)\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Auto-validation failed (expected):\n";
-    foreach ($e->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+    foreach ($validationException->errors() as $field => $errors) {
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";
@@ -194,7 +194,7 @@ echo str_repeat('-', 60) . "\n";
 $rules = UserDTO::getAllRules();
 echo "All validation rules (including nested):\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 echo "\n";
 
@@ -244,10 +244,10 @@ $deeplyNestedData = [
 try {
     $customer = CustomerDTO::fromArray($deeplyNestedData);
     echo "✅  Deeply nested DTO created:\n";
-    echo "    Name: {$customer->name}\n";
-    echo "    Email: {$customer->contact->email}\n";
-    echo "    City: {$customer->contact->address->city}\n";
-} catch (ValidationException $e) {
+    echo sprintf('    Name: %s%s', $customer->name, PHP_EOL);
+    echo sprintf('    Email: %s%s', $customer->contact->email, PHP_EOL);
+    echo sprintf('    City: %s%s', $customer->contact->address->city, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed (unexpected)\n";
 }
 echo "\n";
@@ -268,10 +268,10 @@ $invalidDeeplyNestedData = [
 try {
     $customer = CustomerDTO::validateAndCreate($invalidDeeplyNestedData);
     echo "✅  Customer created (unexpected)\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Deeply nested validation failed (expected):\n";
-    foreach ($e->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+    foreach ($validationException->errors() as $field => $errors) {
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";

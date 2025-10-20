@@ -24,8 +24,6 @@ trait SimpleDTONormalizerTrait
      * Create a DTO from array with normalization.
      *
      * @param array<string, mixed> $data
-     * @param NormalizerInterface $normalizer
-     * @return static
      */
     public static function fromArrayWithNormalizer(
         array $data,
@@ -41,7 +39,6 @@ trait SimpleDTONormalizerTrait
      *
      * @param array<string, mixed> $data
      * @param array<NormalizerInterface> $normalizers
-     * @return static
      */
     public static function fromArrayWithNormalizers(
         array $data,
@@ -58,9 +55,6 @@ trait SimpleDTONormalizerTrait
      * Normalize the DTO data.
      *
      * This creates a new DTO instance with normalized data.
-     *
-     * @param NormalizerInterface $normalizer
-     * @return static
      */
     public function normalizeWith(NormalizerInterface $normalizer): static
     {

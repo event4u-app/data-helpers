@@ -38,9 +38,9 @@ $event = EventDTO::fromArray([
     'updatedAt' => 1704153600, // 2024-01-02 00:00:00 UTC
 ]);
 
-echo "Event: {$event->name}\n";
-echo "Created: {$event->createdAt->format('Y-m-d H:i:s')}\n";
-echo "Updated: {$event->updatedAt->format('Y-m-d H:i:s')}\n";
+echo sprintf('Event: %s%s', $event->name, PHP_EOL);
+echo sprintf('Created: %s%s', $event->createdAt->format('Y-m-d H:i:s'), PHP_EOL);
+echo sprintf('Updated: %s%s', $event->updatedAt->format('Y-m-d H:i:s'), PHP_EOL);
 echo "Timestamp: {$event->createdAt->getTimestamp()}\n\n";
 
 // Example 2: DateTime to Unix Timestamp (toArray)
@@ -54,9 +54,9 @@ $event2 = EventDTO::fromArray([
 ]);
 
 $array = $event2->toArray();
-echo "Event: {$array['name']}\n";
-echo "Created (timestamp): {$array['createdAt']}\n";
-echo "Updated (timestamp): {$array['updatedAt']}\n";
+echo sprintf('Event: %s%s', $array['name'], PHP_EOL);
+echo sprintf('Created (timestamp): %s%s', $array['createdAt'], PHP_EOL);
+echo sprintf('Updated (timestamp): %s%s', $array['updatedAt'], PHP_EOL);
 echo "JSON: " . json_encode($array) . "\n\n";
 
 // Example 3: API Response with Timestamps
@@ -86,7 +86,7 @@ $activities = [
 echo "User Activities:\n";
 foreach ($activities as $activityData) {
     $activity = UserActivityDTO::fromArray($activityData);
-    echo "- {$activity->action} at {$activity->timestamp->format('H:i:s')}\n";
+    echo sprintf('- %s at %s%s', $activity->action, $activity->timestamp->format('H:i:s'), PHP_EOL);
 }
 echo "\n";
 
@@ -121,8 +121,8 @@ $post = PostDTO::fromArray([
     'deletedAt' => null,
 ]);
 
-echo "Post: {$post->title}\n";
-echo "Published: {$post->publishedAt->format('Y-m-d H:i:s')}\n";
+echo sprintf('Post: %s%s', $post->title, PHP_EOL);
+echo sprintf('Published: %s%s', $post->publishedAt->format('Y-m-d H:i:s'), PHP_EOL);
 echo "Deleted: " . ($post->deletedAt ? $post->deletedAt->format('Y-m-d H:i:s') : 'No') . "\n";
 echo "toArray: " . json_encode($post->toArray()) . "\n\n";
 
@@ -143,9 +143,9 @@ $event3 = EventDTO::fromArray([
 $diff = $event3->updatedAt->getTimestamp() - $event3->createdAt->getTimestamp();
 $days = $diff / 86400;
 
-echo "Event: {$event3->name}\n";
-echo "Created: {$event3->createdAt->format('Y-m-d H:i:s')}\n";
-echo "Updated: {$event3->updatedAt->format('Y-m-d H:i:s')}\n";
+echo sprintf('Event: %s%s', $event3->name, PHP_EOL);
+echo sprintf('Created: %s%s', $event3->createdAt->format('Y-m-d H:i:s'), PHP_EOL);
+echo sprintf('Updated: %s%s', $event3->updatedAt->format('Y-m-d H:i:s'), PHP_EOL);
 echo "Difference: {$days} days\n\n";
 
 echo "================================================================================\n";

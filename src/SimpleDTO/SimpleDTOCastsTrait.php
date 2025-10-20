@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\Casts\ArrayCast;
 use event4u\DataHelpers\SimpleDTO\Casts\BooleanCast;
 use event4u\DataHelpers\SimpleDTO\Casts\CollectionCast;
@@ -19,6 +20,7 @@ use event4u\DataHelpers\SimpleDTO\Casts\JsonCast;
 use event4u\DataHelpers\SimpleDTO\Casts\StringCast;
 use event4u\DataHelpers\SimpleDTO\Casts\TimestampCast;
 use ReflectionClass;
+use ReflectionNamedType;
 use Throwable;
 
 /**
@@ -96,7 +98,6 @@ trait SimpleDTOCastsTrait
         try {
             $reflection = new ReflectionClass(static::class);
             $method = $reflection->getMethod('casts');
-            $method->setAccessible(true);
 
             // Create a temporary instance to call the method
             $instance = $reflection->newInstanceWithoutConstructor();
@@ -110,7 +111,7 @@ trait SimpleDTOCastsTrait
             $casts = array_merge($casts, static::getNestedDTOCasts());
 
             return $casts;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return [];
         }
     }
@@ -129,11 +130,11 @@ trait SimpleDTOCastsTrait
 
             foreach ($reflection->getProperties() as $property) {
                 $attributes = $property->getAttributes(
-                    \event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf::class
+                    DataCollectionOf::class
                 );
 
                 foreach ($attributes as $attribute) {
-                    /** @var \event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf $instance */
+                    /** @var DataCollectionOf $instance */
                     $instance = $attribute->newInstance();
 
                     // Build cast string: collection:dtoClass
@@ -142,7 +143,7 @@ trait SimpleDTOCastsTrait
                     $casts[$property->getName()] = $castString;
                 }
             }
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             // Ignore errors
         }
 
@@ -169,7 +170,7 @@ trait SimpleDTOCastsTrait
             foreach ($constructor->getParameters() as $parameter) {
                 $type = $parameter->getType();
 
-                if (!$type instanceof \ReflectionNamedType) {
+                if (!$type instanceof ReflectionNamedType) {
                     continue;
                 }
 
@@ -189,7 +190,7 @@ trait SimpleDTOCastsTrait
                     }
                 }
             }
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             // Ignore errors
         }
 

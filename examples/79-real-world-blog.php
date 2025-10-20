@@ -111,13 +111,13 @@ class PostDTO extends SimpleDTO
     public function readingTime(): int
     {
         $words = str_word_count(strip_tags($this->content));
-        return (int) ceil($words / 200); // 200 words per minute
+        return (int)ceil($words / 200); // 200 words per minute
     }
     
     #[Computed]
     public function url(): string
     {
-        return "https://blog.example.com/posts/{$this->slug}";
+        return 'https://blog.example.com/posts/' . $this->slug;
     }
     
     #[Computed]
@@ -148,7 +148,7 @@ class PostListItemDTO extends SimpleDTO
     #[Computed]
     public function url(): string
     {
-        return "https://blog.example.com/posts/{$this->slug}";
+        return 'https://blog.example.com/posts/' . $this->slug;
     }
 }
 
@@ -163,16 +163,16 @@ echo "1. Author Profile:\n";
 echo str_repeat('-', 80) . "\n";
 
 $author = new AuthorDTO(
-    id: 1,
     name: 'Jane Smith',
+    email: 'jane@example.com',
+    id: 1,
     username: 'janesmith',
     avatar: 'https://example.com/avatars/jane.jpg',
     bio: 'Tech writer and developer advocate',
-    email: 'jane@example.com',
 );
 
-echo "Author: {$author->name}\n";
-echo "Username: @{$author->username}\n";
+echo sprintf('Author: %s%s', $author->name, PHP_EOL);
+echo sprintf('Username: @%s%s', $author->username, PHP_EOL);
 echo "Bio: {$author->bio}\n\n";
 
 // 2. Create Category
@@ -187,7 +187,7 @@ $category = new CategoryDTO(
     postCount: 42,
 );
 
-echo "Category: {$category->name}\n";
+echo sprintf('Category: %s%s', $category->name, PHP_EOL);
 echo "Posts: {$category->postCount}\n\n";
 
 // 3. Create Blog Post
@@ -195,14 +195,14 @@ echo "3. Blog Post:\n";
 echo str_repeat('-', 80) . "\n";
 
 $post = new PostDTO(
-    id: 1,
     title: 'Getting Started with PHP 8.2',
+    content: str_repeat('Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 100),
+    tags: ['php', 'tutorial', 'programming'],
+    id: 1,
     slug: 'getting-started-with-php-82',
     excerpt: 'Learn about the new features in PHP 8.2',
-    content: str_repeat('Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 100),
     author: $author,
     category: $category,
-    tags: ['php', 'tutorial', 'programming'],
     status: 'published',
     views: 1250,
     commentCount: 15,
@@ -213,15 +213,15 @@ $post = new PostDTO(
     deleteUrl: '/admin/posts/1/delete',
 );
 
-echo "Title: {$post->title}\n";
-echo "Author: {$post->author->name}\n";
-echo "Category: {$post->category->name}\n";
+echo sprintf('Title: %s%s', $post->title, PHP_EOL);
+echo sprintf('Author: %s%s', $post->author->name, PHP_EOL);
+echo sprintf('Category: %s%s', $post->category->name, PHP_EOL);
 echo "Tags: " . implode(', ', $post->tags) . "\n";
-echo "Published: {$post->publishedAt->diffForHumans()}\n";
-echo "Views: {$post->views}\n";
-echo "Comments: {$post->commentCount}\n";
+echo sprintf('Published: %s%s', $post->publishedAt->diffForHumans(), PHP_EOL);
+echo sprintf('Views: %s%s', $post->views, PHP_EOL);
+echo sprintf('Comments: %s%s', $post->commentCount, PHP_EOL);
 echo "Reading Time: {$post->readingTime()} min\n";
-echo "URL: {$post->url()}\n";
+echo sprintf('URL: %s%s', $post->url(), PHP_EOL);
 echo "Recent: " . ($post->isRecent() ? 'Yes' : 'No') . "\n\n";
 
 // 4. Create Comments
@@ -232,12 +232,12 @@ $comment1 = new CommentDTO(
     id: 1,
     content: 'Great article! Very helpful.',
     author: new AuthorDTO(
-        id: 2,
         name: 'John Doe',
+        email: 'john@example.com',
+        id: 2,
         username: 'johndoe',
         avatar: 'https://example.com/avatars/john.jpg',
         bio: null,
-        email: 'john@example.com',
     ),
     parentId: null,
     createdAt: Carbon::now()->subHours(2),
@@ -258,13 +258,13 @@ $comment2 = new CommentDTO(
 );
 
 echo "Comment 1:\n";
-echo "  Author: {$comment1->author->name}\n";
-echo "  Content: {$comment1->content}\n";
+echo sprintf('  Author: %s%s', $comment1->author->name, PHP_EOL);
+echo sprintf('  Content: %s%s', $comment1->content, PHP_EOL);
 echo "  Posted: {$comment1->createdAt->diffForHumans()}\n\n";
 
 echo "Comment 2 (Reply):\n";
-echo "  Author: {$comment2->author->name}\n";
-echo "  Content: {$comment2->content}\n";
+echo sprintf('  Author: %s%s', $comment2->author->name, PHP_EOL);
+echo sprintf('  Content: %s%s', $comment2->content, PHP_EOL);
 echo "  Posted: {$comment2->createdAt->diffForHumans()}\n\n";
 
 // 5. Post List for Homepage
@@ -299,7 +299,7 @@ $posts = [
 ];
 
 foreach ($posts as $postItem) {
-    echo "- {$postItem->title}\n";
+    echo sprintf('- %s%s', $postItem->title, PHP_EOL);
     echo "  By {$postItem->author->name} | {$postItem->views} views | {$postItem->commentCount} comments\n";
     echo "  {$postItem->url()}\n\n";
 }

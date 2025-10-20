@@ -158,7 +158,7 @@ describe('HashedCast', function(): void {
             $array = $instance->toArray();
 
             expect($array['password'])->toBe($instance->password)
-                ->and(str_starts_with($array['password'], '$2y$'))->toBeTrue();
+                ->and(str_starts_with((string) $array['password'], '$2y$'))->toBeTrue();
         });
 
         it('does not expose plain text password', function(): void {

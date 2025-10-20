@@ -129,7 +129,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
 
             // Only provide 1 field out of 5
             $start = microtime(true);
-            for ($i = 0; $i < 1000; $i++) {
+            for ($i = 0; 1000 > $i; $i++) {
                 $dto::fromArray(['field1' => 'value']);
             }
             $duration = microtime(true) - $start;
@@ -141,9 +141,9 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
         it('handles large DTOs efficiently', function(): void {
             $properties = [];
             $casts = [];
-            for ($i = 1; $i <= 50; $i++) {
-                $properties["field$i"] = null;
-                $casts["field$i"] = 'string';
+            for ($i = 1; 50 >= $i; $i++) {
+                $properties['field' . $i] = null;
+                $casts['field' . $i] = 'string';
             }
 
             $dto = new class(...$properties) extends SimpleDTO {
@@ -203,8 +203,8 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
                 protected function casts(): array
                 {
                     $casts = [];
-                    for ($i = 1; $i <= 50; $i++) {
-                        $casts["field$i"] = 'string';
+                    for ($i = 1; 50 >= $i; $i++) {
+                        $casts['field' . $i] = 'string';
                     }
                     return $casts;
                 }
@@ -220,7 +220,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
             ];
 
             $start = microtime(true);
-            for ($i = 0; $i < 100; $i++) {
+            for ($i = 0; 100 > $i; $i++) {
                 $dto::fromArray($data);
             }
             $duration = microtime(true) - $start;

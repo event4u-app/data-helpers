@@ -39,9 +39,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class WithMessage
 {
-    /**
-     * @param array<string, string> $messages Custom error messages keyed by rule name
-     */
+    /** @param array<string, string> $messages Custom error messages keyed by rule name */
     public function __construct(
         public readonly array $messages,
     ) {}
@@ -50,7 +48,6 @@ class WithMessage
      * Get custom message for a specific rule.
      *
      * @param string $rule Rule name (e.g., 'required', 'email', 'min')
-     * @return string|null
      */
     public function getMessage(string $rule): ?string
     {

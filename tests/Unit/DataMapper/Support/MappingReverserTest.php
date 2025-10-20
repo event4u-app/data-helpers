@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper\Support\MappingReverser;
 
-describe('MappingReverser', function (): void {
-    test('it reverses simple mapping', function (): void {
+describe('MappingReverser', function(): void {
+    test('it reverses simple mapping', function(): void {
         $mapping = [
             'full_name' => '{{ firstName }}',
             'contact_email' => '{{ email }}',
@@ -19,7 +19,7 @@ describe('MappingReverser', function (): void {
         ]);
     });
 
-    test('it reverses nested mapping', function (): void {
+    test('it reverses nested mapping', function(): void {
         $mapping = [
             'profile' => [
                 'fullName' => '{{ user.name }}',
@@ -39,7 +39,7 @@ describe('MappingReverser', function (): void {
         ]);
     });
 
-    test('it reverses mapping without template syntax', function (): void {
+    test('it reverses mapping without template syntax', function(): void {
         $mapping = [
             'full_name' => 'firstName',
             'email' => 'contact.email',
@@ -53,7 +53,7 @@ describe('MappingReverser', function (): void {
         ]);
     });
 
-    test('it reverses mapping with mixed syntax', function (): void {
+    test('it reverses mapping with mixed syntax', function(): void {
         $mapping = [
             'full_name' => '{{ firstName }}',
             'email' => 'contact.email',
@@ -69,7 +69,7 @@ describe('MappingReverser', function (): void {
         ]);
     });
 
-    test('it skips non-string keys when reversing mapping', function (): void {
+    test('it skips non-string keys when reversing mapping', function(): void {
         $mapping = [
             'full_name' => '{{ firstName }}',
             0 => 'should be skipped',
@@ -84,7 +84,7 @@ describe('MappingReverser', function (): void {
         ]);
     });
 
-    test('it skips callbacks when reversing mapping', function (): void {
+    test('it skips callbacks when reversing mapping', function(): void {
         $mapping = [
             'full_name' => '{{ firstName }}',
             'computed' => fn($source): int|float => $source['value'] * 2,
@@ -99,7 +99,7 @@ describe('MappingReverser', function (): void {
         ]);
     });
 
-    test('it reverses template', function (): void {
+    test('it reverses template', function(): void {
         $template = [
             'profile' => [
                 'name' => 'user.name',
@@ -125,7 +125,7 @@ describe('MappingReverser', function (): void {
         expect($reversed)->toBe($expected);
     });
 
-    test('it reverses template with deep nesting', function (): void {
+    test('it reverses template with deep nesting', function(): void {
         $template = [
             'data' => [
                 'user' => [
@@ -149,7 +149,7 @@ describe('MappingReverser', function (): void {
         expect($reversed)->toBe($expected);
     });
 
-    test('it reverses template with template syntax', function (): void {
+    test('it reverses template with template syntax', function(): void {
         $template = [
             'profile' => [
                 'name' => '{{ user.name }}',
@@ -169,7 +169,7 @@ describe('MappingReverser', function (): void {
         expect($reversed)->toBe($expected);
     });
 
-    test('it reverses empty mapping', function (): void {
+    test('it reverses empty mapping', function(): void {
         $mapping = [];
 
         $reversed = MappingReverser::reverseMapping($mapping);
@@ -177,7 +177,7 @@ describe('MappingReverser', function (): void {
         expect($reversed)->toBe([]);
     });
 
-    test('it reverses empty template', function (): void {
+    test('it reverses empty template', function(): void {
         $template = [];
 
         $reversed = MappingReverser::reverseTemplate($template);

@@ -15,7 +15,6 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Regex;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\Url;
 use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
-use Illuminate\Validation\ValidationException;
 
 // Test DTOs
 class TestDTOWithRequiredString extends SimpleDTO
@@ -132,7 +131,7 @@ class TestDTOWithInAttribute extends SimpleDTO
 class TestDTOWithRegexAttribute extends SimpleDTO
 {
     public function __construct(
-        #[Regex('/^[A-Z]{2}[0-9]{4}$/')]
+        #[Regex('/^[A-Z]{2}\d{4}$/')]
         public readonly string $code,
     ) {
     }
@@ -455,7 +454,7 @@ describe('SimpleDTO Validation', function(): void {
             $rules = UserWithAddressDTO::getAllRules();
 
             // Check that nested rules are properly namespaced
-            $nestedKeys = array_filter(array_keys($rules), fn($key) => str_starts_with($key, 'address.'));
+            $nestedKeys = array_filter(array_keys($rules), fn(string $key): bool => str_starts_with($key, 'address.'));
 
             expect($nestedKeys)->toHaveCount(3)
                 ->and($nestedKeys)->toContain('address.street')
@@ -658,10 +657,8 @@ describe('SimpleDTO Validation', function(): void {
         });
 
         it('handles empty DTO', function(): void {
-            $dto = new class() extends SimpleDTO {
-                public function __construct()
-                {
-                }
+            $dto = new class extends SimpleDTO
+            {
             };
 
             $rules = $dto::getAllRules();

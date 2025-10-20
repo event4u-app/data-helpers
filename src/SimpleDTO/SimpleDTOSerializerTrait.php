@@ -69,9 +69,7 @@ trait SimpleDTOSerializerTrait
         return $serializer->serialize($this->toArray());
     }
 
-    /**
-     * Serialize with a custom serializer.
-     */
+    /** Serialize with a custom serializer. */
     public function serializeWith(SerializerInterface $serializer): string
     {
         return $serializer->serialize($this->toArray());

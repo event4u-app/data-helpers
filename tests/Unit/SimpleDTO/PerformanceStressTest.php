@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 
 describe('Performance & Stress Testing', function(): void {
     describe('Performance Tests', function(): void {
@@ -18,8 +15,8 @@ describe('Performance & Stress Testing', function(): void {
             };
 
             $start = microtime(true);
-            for ($i = 0; $i < 1000; $i++) {
-                $dto::fromArray(['name' => "User $i", 'age' => 20 + $i]);
+            for ($i = 0; 1000 > $i; $i++) {
+                $dto::fromArray(['name' => 'User ' . $i, 'age' => 20 + $i]);
             }
             $duration = microtime(true) - $start;
 
@@ -38,7 +35,7 @@ describe('Performance & Stress Testing', function(): void {
             $instance = $dto::fromArray(['name' => 'John', 'age' => 30]);
 
             $start = microtime(true);
-            for ($i = 0; $i < 10000; $i++) {
+            for ($i = 0; 10000 > $i; $i++) {
                 $instance->toArray();
             }
             $duration = microtime(true) - $start;
@@ -58,7 +55,7 @@ describe('Performance & Stress Testing', function(): void {
             $instance = $dto::fromArray(['name' => 'John', 'age' => 30]);
 
             $start = microtime(true);
-            for ($i = 0; $i < 10000; $i++) {
+            for ($i = 0; 10000 > $i; $i++) {
                 json_encode($instance);
             }
             $duration = microtime(true) - $start;
@@ -87,7 +84,7 @@ describe('Performance & Stress Testing', function(): void {
             ];
 
             $start = microtime(true);
-            for ($i = 0; $i < 1000; $i++) {
+            for ($i = 0; 1000 > $i; $i++) {
                 $dto::fromArray($data);
             }
             $duration = microtime(true) - $start;
@@ -118,7 +115,7 @@ describe('Performance & Stress Testing', function(): void {
             ];
 
             $start = microtime(true);
-            for ($i = 0; $i < 1000; $i++) {
+            for ($i = 0; 1000 > $i; $i++) {
                 $userDto::fromArray($data);
             }
             $duration = microtime(true) - $start;
@@ -139,8 +136,8 @@ describe('Performance & Stress Testing', function(): void {
 
             $memoryBefore = memory_get_usage();
 
-            for ($i = 0; $i < 10000; $i++) {
-                $dto::fromArray(['name' => "User $i", 'age' => 20 + $i]);
+            for ($i = 0; 10000 > $i; $i++) {
+                $dto::fromArray(['name' => 'User ' . $i, 'age' => 20 + $i]);
             }
 
             // Force garbage collection
@@ -164,8 +161,8 @@ describe('Performance & Stress Testing', function(): void {
             $memoryBefore = memory_get_usage();
 
             $instances = [];
-            for ($i = 0; $i < 1000; $i++) {
-                $instances[] = $dto::fromArray(['name' => "User $i", 'age' => 20 + $i]);
+            for ($i = 0; 1000 > $i; $i++) {
+                $instances[] = $dto::fromArray(['name' => 'User ' . $i, 'age' => 20 + $i]);
             }
 
             $memoryAfter = memory_get_usage();
@@ -207,8 +204,8 @@ describe('Performance & Stress Testing', function(): void {
 
             $start = microtime(true);
 
-            for ($i = 0; $i < 10000; $i++) {
-                $dto::fromArray(['name' => "User $i", 'age' => 20 + ($i % 50)]);
+            for ($i = 0; 10000 > $i; $i++) {
+                $dto::fromArray(['name' => 'User ' . $i, 'age' => 20 + ($i % 50)]);
             }
 
             $duration = microtime(true) - $start;
@@ -229,7 +226,7 @@ describe('Performance & Stress Testing', function(): void {
 
             $start = microtime(true);
 
-            for ($i = 0; $i < 100000; $i++) {
+            for ($i = 0; 100000 > $i; $i++) {
                 $instance->toArray();
             }
 
@@ -251,7 +248,7 @@ describe('Performance & Stress Testing', function(): void {
 
             $start = microtime(true);
 
-            for ($i = 0; $i < 100000; $i++) {
+            for ($i = 0; 100000 > $i; $i++) {
                 json_encode($instance);
             }
 
@@ -273,11 +270,11 @@ describe('Performance & Stress Testing', function(): void {
             $start = microtime(true);
 
             $results = [];
-            for ($i = 0; $i < 5000; $i++) {
+            for ($i = 0; 5000 > $i; $i++) {
                 $instance = $dto::fromArray([
-                    'name' => "User $i",
+                    'name' => 'User ' . $i,
                     'age' => 20 + ($i % 50),
-                    'email' => "user$i@example.com",
+                    'email' => sprintf('user%d@example.com', $i),
                 ]);
                 $results[] = json_encode($instance);
             }
@@ -301,9 +298,9 @@ describe('Performance & Stress Testing', function(): void {
 
             // Simulate concurrent operations
             $operations = [];
-            for ($i = 0; $i < 1000; $i++) {
+            for ($i = 0; 1000 > $i; $i++) {
                 $operations[] = function() use ($dto, $i) {
-                    $instance = $dto::fromArray(['name' => "User $i", 'age' => 20 + $i]);
+                    $instance = $dto::fromArray(['name' => 'User ' . $i, 'age' => 20 + $i]);
                     return json_encode($instance->toArray());
                 };
             }

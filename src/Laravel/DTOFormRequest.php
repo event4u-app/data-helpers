@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Laravel;
 
-use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\Exceptions\ValidationException;
-use Illuminate\Foundation\Http\FormRequest;
+use event4u\DataHelpers\SimpleDTO;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use RuntimeException;
 
 /**
  * Base class for DTO-based Form Requests.
@@ -88,13 +89,11 @@ abstract class DTOFormRequest extends FormRequest
 
     /**
      * Convert validated data to DTO.
-     *
-     * @return SimpleDTO
      */
     public function toDTO(): SimpleDTO
     {
         if (!isset($this->dtoClass)) {
-            throw new \RuntimeException('DTO class not set. Set $dtoClass property in your FormRequest.');
+            throw new RuntimeException('DTO class not set. Set $dtoClass property in your FormRequest.');
         }
 
         return $this->dtoClass::fromArray($this->validated());
@@ -103,7 +102,6 @@ abstract class DTOFormRequest extends FormRequest
     /**
      * Handle a failed validation attempt.
      *
-     * @param Validator $validator
      * @throws ValidationException
      */
     protected function failedValidation(Validator $validator): void

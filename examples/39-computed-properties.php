@@ -155,7 +155,7 @@ class ReportDTO extends SimpleDTO
     #[Computed]
     public function summary(): string
     {
-        return "Report: {$this->name} with " . count($this->data) . " items";
+        return sprintf('Report: %s with ', $this->name) . count($this->data) . " items";
     }
 
     #[Computed(lazy: true)]
@@ -202,7 +202,7 @@ class ReportDTO extends SimpleDTO
     private function calculateStdDev(array $data): float
     {
         $mean = array_sum($data) / count($data);
-        $variance = array_sum(array_map(fn($x) => ($x - $mean) ** 2, $data)) / count($data);
+        $variance = array_sum(array_map(fn($x): float|int => ($x - $mean) ** 2, $data)) / count($data);
 
         return sqrt($variance);
     }
@@ -292,13 +292,13 @@ class UserProfileDTO extends SimpleDTO
     #[Computed]
     public function fullName(): string
     {
-        return "{$this->firstName} {$this->lastName}";
+        return sprintf('%s %s', $this->firstName, $this->lastName);
     }
 
     #[Computed]
     public function isAdult(): bool
     {
-        return $this->age >= 18;
+        return 18 <= $this->age;
     }
 
     #[Computed(lazy: true)]

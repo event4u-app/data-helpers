@@ -305,7 +305,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
-                    return $context?->role === 'admin';
+                    return 'admin' === $context?->role;
                 }
             };
 
@@ -327,7 +327,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
-                    return $context?->role === 'admin';
+                    return 'admin' === $context?->role;
                 }
             };
 
@@ -349,7 +349,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
-                    return $context?->role === 'admin';
+                    return 'admin' === $context?->role;
                 }
             };
 
@@ -372,12 +372,12 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
-                    return $context?->role === 'admin' || $context?->role === 'manager';
+                    return 'admin' === $context?->role || 'manager' === $context?->role;
                 }
 
                 private function canViewSalary(mixed $context): bool
                 {
-                    return $context?->role === 'admin';
+                    return 'admin' === $context?->role;
                 }
             };
 
@@ -409,7 +409,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
-                    return $context?->role === 'admin';
+                    return 'admin' === $context?->role;
                 }
             };
 
@@ -433,7 +433,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
-                    return $context?->role === 'admin';
+                    return 'admin' === $context?->role;
                 }
             };
 
@@ -458,7 +458,7 @@ describe('Visibility & Security', function(): void {
                 private function canViewEmail(mixed $context): bool
                 {
                     // User can see their own email or admin can see all
-                    return $context?->role === 'admin' || $context?->userId === $this->userId;
+                    return 'admin' === $context?->role || $context?->userId === $this->userId;
                 }
             };
 
@@ -483,7 +483,7 @@ describe('Visibility & Security', function(): void {
             $checker = new class {
                 public static function canViewEmail(mixed $dto, mixed $context): bool
                 {
-                    return ($context?->role ?? null) === 'admin';
+                    return 'admin' === ($context?->role ?? null);
                 }
             };
 
@@ -501,7 +501,7 @@ describe('Visibility & Security', function(): void {
                 public static function canViewSalary(mixed $dto, mixed $context): bool
                 {
                     // Admin can see all salaries
-                    if (($context?->role ?? null) === 'admin') {
+                    if ('admin' === ($context?->role ?? null)) {
                         return true;
                     }
 
@@ -708,7 +708,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewSalary(mixed $context): bool
                 {
-                    return ($context?->role ?? null) === 'admin';
+                    return 'admin' === ($context?->role ?? null);
                 }
             };
 
@@ -745,7 +745,7 @@ describe('Visibility & Security', function(): void {
                 private function canViewPersonalData(mixed $context): bool
                 {
                     // Admin can see all
-                    if (($context?->role ?? null) === 'admin') {
+                    if ('admin' === ($context?->role ?? null)) {
                         return true;
                     }
 
@@ -753,13 +753,8 @@ describe('Visibility & Security', function(): void {
                     if (($context?->userId ?? null) === $this->userId) {
                         return true;
                     }
-
                     // HR can see if they have permission
-                    if (($context?->role ?? null) === 'hr' && ($context?->hasPermission ?? false)) {
-                        return true;
-                    }
-
-                    return false;
+                    return 'hr' === ($context?->role ?? null) && ($context?->hasPermission ?? false);
                 }
             };
 
@@ -799,12 +794,12 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
-                    return ($context?->role ?? null) === 'admin';
+                    return 'admin' === ($context?->role ?? null);
                 }
 
                 private function canViewSalary(mixed $context): bool
                 {
-                    return ($context?->role ?? null) === 'admin';
+                    return 'admin' === ($context?->role ?? null);
                 }
             };
 

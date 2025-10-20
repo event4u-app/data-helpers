@@ -269,7 +269,7 @@ describe('Transformers', function(): void {
                 public function transform(array $data): array
                 {
                     if (isset($data['name'])) {
-                        $data['name'] = strtoupper($data['name']);
+                        $data['name'] = strtoupper((string) $data['name']);
                     }
 
                     return $data;
@@ -287,7 +287,7 @@ describe('Transformers', function(): void {
                 public function transform(array $data): array
                 {
                     if (isset($data['name'])) {
-                        $data['name'] = strtoupper($data['name']);
+                        $data['name'] = strtoupper((string) $data['name']);
                     }
 
                     return $data;

@@ -64,7 +64,7 @@ describe('DataCollection', function(): void {
         });
 
         it('throws exception for invalid item type', function(): void {
-            expect(fn() => DataCollection::forDto(DataCollectionUserDTO::class, [
+            expect(fn(): DataCollection => DataCollection::forDto(DataCollectionUserDTO::class, [
                 'invalid',
             ]))->toThrow(InvalidArgumentException::class);
         });
@@ -111,7 +111,7 @@ describe('DataCollection', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            $filtered = $collection->filter(fn(DataCollectionUserDTO $user) => $user->age >= 30);
+            $filtered = $collection->filter(fn(DataCollectionUserDTO $user): bool => 30 <= $user->age);
 
             expect($filtered)->toBeInstanceOf(DataCollection::class)
                 ->and($filtered->count())->toBe(2)
@@ -125,7 +125,7 @@ describe('DataCollection', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            $names = $collection->map(fn(DataCollectionUserDTO $user) => $user->name);
+            $names = $collection->map(fn(DataCollectionUserDTO $user): string => $user->name);
 
             expect($names)->toBe(['John', 'Jane']);
         });
@@ -138,7 +138,7 @@ describe('DataCollection', function(): void {
             ]);
 
             $totalAge = $collection->reduce(
-                fn(int $carry, DataCollectionUserDTO $user) => $carry + $user->age,
+                fn(int $carry, DataCollectionUserDTO $user): int => $carry + $user->age,
                 0
             );
 
@@ -163,7 +163,7 @@ describe('DataCollection', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            $first = $collection->first(fn(DataCollectionUserDTO $user) => $user->age < 30);
+            $first = $collection->first(fn(DataCollectionUserDTO $user): bool => 30 > $user->age);
 
             expect($first)->toBeInstanceOf(DataCollectionUserDTO::class)
                 ->and($first->name)->toBe('Jane');
@@ -188,7 +188,7 @@ describe('DataCollection', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            $last = $collection->last(fn(DataCollectionUserDTO $user) => $user->age >= 30);
+            $last = $collection->last(fn(DataCollectionUserDTO $user): bool => 30 <= $user->age);
 
             expect($last)->toBeInstanceOf(DataCollectionUserDTO::class)
                 ->and($last->name)->toBe('Bob');

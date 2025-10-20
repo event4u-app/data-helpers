@@ -99,7 +99,7 @@ describe('Eloquent Integration', function(): void {
                 public string $name = 'John';
             };
 
-            expect(fn() => $dto::fromModel($invalidModel))
+            expect(fn(): object => $dto::fromModel($invalidModel))
                 ->toThrow(TypeError::class);
         });
     });
@@ -165,7 +165,7 @@ describe('Eloquent Integration', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            expect(fn() => $instance->toModel('NonExistentClass'))
+            expect(fn(): Model => $instance->toModel('NonExistentClass'))
                 ->toThrow(InvalidArgumentException::class, 'Model class NonExistentClass does not exist');
         });
 
@@ -178,13 +178,13 @@ describe('Eloquent Integration', function(): void {
                 ) {}
             };
 
-            $invalidModelClass = new class {
-                public function __construct() {}
+            $invalidModelClass = new class
+            {
             };
 
             $instance = $dto::fromArray([]);
 
-            expect(fn() => $instance->toModel($invalidModelClass::class))
+            expect(fn(): Model => $instance->toModel($invalidModelClass::class))
                 ->toThrow(InvalidArgumentException::class, 'must extend');
         });
     });

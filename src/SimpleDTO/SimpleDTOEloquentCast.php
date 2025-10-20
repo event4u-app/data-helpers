@@ -46,7 +46,7 @@ class SimpleDTOEloquentCast implements CastsAttributes
         // Use is_a() instead of is_subclass_of() to support anonymous classes
         if (!class_exists($this->dtoClass) || !is_a($this->dtoClass, SimpleDTO::class, true)) {
             throw new InvalidArgumentException(
-                "Class {$this->dtoClass} must extend " . SimpleDTO::class
+                sprintf('Class %s must extend ', $this->dtoClass) . SimpleDTO::class
             );
         }
     }
@@ -54,9 +54,6 @@ class SimpleDTOEloquentCast implements CastsAttributes
     /**
      * Transform the attribute from the underlying model values.
      *
-     * @param Model $model
-     * @param string $key
-     * @param mixed $value
      * @param array<string, mixed> $attributes
      *
      * @return TDto|null
@@ -78,7 +75,7 @@ class SimpleDTOEloquentCast implements CastsAttributes
 
             if (JSON_ERROR_NONE !== json_last_error()) {
                 throw new InvalidArgumentException(
-                    "Invalid JSON for attribute {$key}: " . json_last_error_msg()
+                    sprintf('Invalid JSON for attribute %s: ', $key) . json_last_error_msg()
                 );
             }
 
@@ -88,7 +85,7 @@ class SimpleDTOEloquentCast implements CastsAttributes
         // If value is not an array, we can't create a DTO
         if (!is_array($value)) {
             throw new InvalidArgumentException(
-                "Cannot create DTO from non-array value for attribute {$key}"
+                'Cannot create DTO from non-array value for attribute ' . $key
             );
         }
 
@@ -99,8 +96,6 @@ class SimpleDTOEloquentCast implements CastsAttributes
     /**
      * Transform the attribute to its underlying model values.
      *
-     * @param Model $model
-     * @param string $key
      * @param TDto|null $value
      * @param array<string, mixed> $attributes
      *
@@ -118,7 +113,7 @@ class SimpleDTOEloquentCast implements CastsAttributes
                 $value = $this->dtoClass::fromArray($value);
             } else {
                 throw new InvalidArgumentException(
-                    "Value for attribute {$key} must be an instance of {$this->dtoClass} or an array"
+                    sprintf('Value for attribute %s must be an instance of %s or an array', $key, $this->dtoClass)
                 );
             }
         }
@@ -130,8 +125,6 @@ class SimpleDTOEloquentCast implements CastsAttributes
     /**
      * Get the serialized representation of the value.
      *
-     * @param Model $model
-     * @param string $key
      * @param TDto|null $value
      * @param array<string, mixed> $attributes
      *
@@ -145,7 +138,7 @@ class SimpleDTOEloquentCast implements CastsAttributes
 
         if (!$value instanceof $this->dtoClass) {
             throw new InvalidArgumentException(
-                "Value for attribute {$key} must be an instance of {$this->dtoClass}"
+                sprintf('Value for attribute %s must be an instance of %s', $key, $this->dtoClass)
             );
         }
 

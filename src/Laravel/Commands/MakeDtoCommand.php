@@ -58,7 +58,7 @@ class MakeDtoCommand extends Command
 
         // Check if file exists
         if ($files->exists($path) && !$force) {
-            $this->error("DTO [{$name}] already exists!");
+            $this->error(sprintf('DTO [%s] already exists!', $name));
             $this->info('Use --force to overwrite.');
 
             return self::FAILURE;
@@ -76,8 +76,8 @@ class MakeDtoCommand extends Command
         // Write file
         $files->put($path, $content);
 
-        $this->info("DTO [{$name}] created successfully.");
-        $this->info("Location: {$path}");
+        $this->info(sprintf('DTO [%s] created successfully.', $name));
+        $this->info('Location: ' . $path);
 
         return self::SUCCESS;
     }

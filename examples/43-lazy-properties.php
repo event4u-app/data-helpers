@@ -154,13 +154,13 @@ $image = ImageDTO::fromArray([
 
 echo "Metadata only (fast, no large data):\n";
 $metadata = $image->toArray();
-echo "Filename: {$metadata['filename']}\n";
-echo "Dimensions: {$metadata['width']}x{$metadata['height']}\n";
+echo sprintf('Filename: %s%s', $metadata['filename'], PHP_EOL);
+echo sprintf('Dimensions: %sx%s%s', $metadata['width'], $metadata['height'], PHP_EOL);
 echo "Base64 data size: " . strlen($largeBase64) . " bytes (not included)\n\n";
 
 echo "With base64 data (slower, includes large data):\n";
 $fullData = $image->includeComputed(['base64Data'])->toArray();
-echo "Base64 data size: " . strlen($fullData['base64Data']) . " bytes (included)\n\n";
+echo "Base64 data size: " . strlen((string) $fullData['base64Data']) . " bytes (included)\n\n";
 
 // ============================================================================
 // Example 5: Lazy Properties with Chaining

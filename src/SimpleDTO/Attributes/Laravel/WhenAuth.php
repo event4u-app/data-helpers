@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Attributes\Laravel;
 
+use Illuminate\Support\Facades\Auth;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use Throwable;
 
 /**
  * Attribute to conditionally include a property when user is authenticated.
@@ -40,9 +42,7 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class WhenAuth implements ConditionalProperty
 {
-    /**
-     * @param string|null $guard Guard name (Laravel only)
-     */
+    /** @param string|null $guard Guard name (Laravel only) */
     public function __construct(
         public readonly ?string $guard = null,
     ) {}
@@ -53,21 +53,20 @@ class WhenAuth implements ConditionalProperty
      * @param mixed $value Property value
      * @param object $dto DTO instance
      * @param array<string, mixed> $context Context data
-     * @return bool
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
         // Check context first
         if (array_key_exists('user', $context)) {
-            return $context['user'] !== null;
+            return null !== $context['user'];
         }
 
         // Fall back to Laravel Auth if available
         if (class_exists('Illuminate\Support\Facades\Auth')) {
             try {
-                $auth = \Illuminate\Support\Facades\Auth::guard($this->guard);
+                $auth = Auth::guard($this->guard);
                 return $auth->check();
-            } catch (\Throwable $e) {
+            } catch (Throwable) {
                 // Laravel not properly initialized, treat as not authenticated
                 return false;
             }

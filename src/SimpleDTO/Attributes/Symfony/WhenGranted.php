@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes\Symfony;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use Throwable;
 
 /**
  * Attribute to conditionally include a property based on Symfony security grants.
@@ -59,7 +60,6 @@ class WhenGranted implements ConditionalProperty
      * @param mixed $value Property value
      * @param object $dto DTO instance
      * @param array<string, mixed> $context Context data
-     * @return bool
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
@@ -68,7 +68,7 @@ class WhenGranted implements ConditionalProperty
             $user = $context['user'];
 
             // No user = no permission
-            if ($user === null) {
+            if (null === $user) {
                 return false;
             }
 
@@ -77,7 +77,7 @@ class WhenGranted implements ConditionalProperty
 
             // Check if user has 'isGranted' method (Symfony User with Security trait)
             if (is_object($user) && method_exists($user, 'isGranted')) {
-                return $subjectValue !== null
+                return null !== $subjectValue
                     ? $user->isGranted($this->attribute, $subjectValue)
                     : $user->isGranted($this->attribute);
             }
@@ -100,10 +100,10 @@ class WhenGranted implements ConditionalProperty
         if (array_key_exists('security', $context)) {
             $security = $context['security'];
 
-            if ($security !== null && is_object($security) && method_exists($security, 'isGranted')) {
+            if (null !== $security && is_object($security) && method_exists($security, 'isGranted')) {
                 $subjectValue = $this->getSubject($context);
 
-                return $subjectValue !== null
+                return null !== $subjectValue
                     ? $security->isGranted($this->attribute, $subjectValue)
                     : $security->isGranted($this->attribute);
             }
@@ -116,7 +116,7 @@ class WhenGranted implements ConditionalProperty
                 // Note: This requires Symfony to be properly initialized
                 // In most cases, context should be used instead
                 return false;
-            } catch (\Throwable $e) {
+            } catch (Throwable) {
                 return false;
             }
         }
@@ -129,11 +129,10 @@ class WhenGranted implements ConditionalProperty
      * Get subject from context.
      *
      * @param array<string, mixed> $context Context data
-     * @return mixed
      */
     private function getSubject(array $context): mixed
     {
-        if ($this->subject === null) {
+        if (null === $this->subject) {
             return null;
         }
 

@@ -17,14 +17,10 @@ namespace event4u\DataHelpers\SimpleDTO\Transformers;
  */
 class TransformerPipeline
 {
-    /**
-     * @var array<TransformerInterface>
-     */
+    /** @var array<TransformerInterface> */
     private array $transformers = [];
 
-    /**
-     * Add a transformer to the pipeline.
-     */
+    /** Add a transformer to the pipeline. */
     public function pipe(TransformerInterface $transformer): self
     {
         $this->transformers[] = $transformer;
@@ -57,9 +53,7 @@ class TransformerPipeline
         return $this->transformers;
     }
 
-    /**
-     * Clear all transformers from the pipeline.
-     */
+    /** Clear all transformers from the pipeline. */
     public function clear(): self
     {
         $this->transformers = [];

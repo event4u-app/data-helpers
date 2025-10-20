@@ -167,7 +167,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
 
             // Verify immutability
             /** @phpstan-ignore assign.propertyProtectedSet */
-            expect(fn() => $companyDto->name = 'New Name')->toThrow(Error::class);
+            expect(fn(): string => $companyDto->name = 'New Name')->toThrow(Error::class);
 
             // Verify departments
             expect($companyDto->departments)->toBeArray();
@@ -183,7 +183,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
 
             // Verify immutability of nested DTO
             /** @phpstan-ignore assign.propertyProtectedSet */
-            expect(fn() => $dept0->name = 'New Name')->toThrow(Error::class);
+            expect(fn(): string => $dept0->name = 'New Name')->toThrow(Error::class);
 
             // Verify projects
             expect($companyDto->projects)->toBeArray();
@@ -244,7 +244,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
             $dept = $departments[0];
             expect($dept)->toBeInstanceOf(DepartmentSimpleDto::class);
             /** @phpstan-ignore assign.propertyProtectedSet */
-            expect(fn() => $dept->name = 'Changed')->toThrow(Error::class);
+            expect(fn(): string => $dept->name = 'Changed')->toThrow(Error::class);
 
             // Test JSON serialization
             $json = json_encode($departments);

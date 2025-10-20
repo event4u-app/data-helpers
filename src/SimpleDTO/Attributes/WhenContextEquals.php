@@ -49,7 +49,6 @@ class WhenContextEquals implements ConditionalProperty
      * @param mixed $value Property value
      * @param object $dto DTO instance
      * @param array<string, mixed> $context Context data
-     * @return bool
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {

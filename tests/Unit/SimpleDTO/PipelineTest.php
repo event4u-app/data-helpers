@@ -126,7 +126,7 @@ describe('Pipeline', function(): void {
             $stage = new ValidationStage(['name' => ['required']]);
             $data = ['age' => 30];
 
-            expect(fn() => $stage->process($data))
+            expect(fn(): array => $stage->process($data))
                 ->toThrow(ValidationException::class);
         });
 
@@ -136,7 +136,7 @@ describe('Pipeline', function(): void {
             $valid = $stage->process(['email' => 'john@example.com']);
             expect($valid)->toBe(['email' => 'john@example.com']);
 
-            expect(fn() => $stage->process(['email' => 'invalid']))
+            expect(fn(): array => $stage->process(['email' => 'invalid']))
                 ->toThrow(ValidationException::class);
         });
 
@@ -146,7 +146,7 @@ describe('Pipeline', function(): void {
             $valid = $stage->process(['age' => 30]);
             expect($valid)->toBe(['age' => 30]);
 
-            expect(fn() => $stage->process(['age' => 'abc']))
+            expect(fn(): array => $stage->process(['age' => 'abc']))
                 ->toThrow(ValidationException::class);
         });
 
@@ -156,7 +156,7 @@ describe('Pipeline', function(): void {
             $valid = $stage->process(['age' => 20]);
             expect($valid)->toBe(['age' => 20]);
 
-            expect(fn() => $stage->process(['age' => 15]))
+            expect(fn(): array => $stage->process(['age' => 15]))
                 ->toThrow(ValidationException::class);
         });
 
@@ -166,7 +166,7 @@ describe('Pipeline', function(): void {
             $valid = $stage->process(['age' => 50]);
             expect($valid)->toBe(['age' => 50]);
 
-            expect(fn() => $stage->process(['age' => 150]))
+            expect(fn(): array => $stage->process(['age' => 150]))
                 ->toThrow(ValidationException::class);
         });
 
@@ -194,7 +194,7 @@ describe('Pipeline', function(): void {
         it('can modify data', function(): void {
             $stage = new CallbackStage(function(array $data): array {
                 if (isset($data['name'])) {
-                    $data['name'] = strtoupper($data['name']);
+                    $data['name'] = strtoupper((string) $data['name']);
                 }
 
                 return $data;
@@ -206,7 +206,7 @@ describe('Pipeline', function(): void {
         });
 
         it('has name', function(): void {
-            $stage = new CallbackStage(fn($data) => $data, 'my_callback');
+            $stage = new CallbackStage(fn($data): array => $data, 'my_callback');
 
             expect($stage->getName())->toBe('my_callback');
         });
@@ -258,7 +258,7 @@ describe('Pipeline', function(): void {
                 public function process(array $data): array
                 {
                     if (isset($data['name'])) {
-                        $data['name'] = ucwords($data['name']);
+                        $data['name'] = ucwords((string) $data['name']);
                     }
 
                     return $data;
@@ -283,9 +283,9 @@ describe('Pipeline', function(): void {
         it('stops on error by default', function(): void {
             $pipeline = new DTOPipeline();
             $pipeline->addStage(new ValidationStage(['name' => ['required']]));
-            $pipeline->addStage(new CallbackStage(fn($data) => $data, 'never_reached'));
+            $pipeline->addStage(new CallbackStage(fn($data): array => $data, 'never_reached'));
 
-            expect(fn() => $pipeline->process(['age' => 30]))
+            expect(fn(): array => $pipeline->process(['age' => 30]))
                 ->toThrow(ValidationException::class);
 
             $context = $pipeline->getContext();
@@ -297,7 +297,7 @@ describe('Pipeline', function(): void {
             $pipeline = new DTOPipeline();
             $pipeline->setStopOnError(false);
             $pipeline->addStage(new ValidationStage(['name' => ['required']]));
-            $pipeline->addStage(new CallbackStage(function($data) {
+            $pipeline->addStage(new CallbackStage(function($data): array {
                 $data['processed'] = true;
 
                 return $data;

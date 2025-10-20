@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use Throwable;
 
 /**
  * Include property only when user has the specified permission/attribute.
@@ -59,7 +60,7 @@ class WhenGranted implements ConditionalProperty
                         return $checker->isGranted($this->attribute, $this->subject);
                     }
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable) {
                 // Silently fail if Symfony Security is not available
             }
         }
@@ -74,11 +75,9 @@ class WhenGranted implements ConditionalProperty
             }
 
             // Check roles if attribute starts with ROLE_
-            if (str_starts_with($this->attribute, 'ROLE_')) {
-                if (method_exists($user, 'getRoles')) {
-                    $roles = $user->getRoles();
-                    return in_array($this->attribute, $roles, true);
-                }
+            if (str_starts_with($this->attribute, 'ROLE_') && method_exists($user, 'getRoles')) {
+                $roles = $user->getRoles();
+                return in_array($this->attribute, $roles, true);
             }
         }
 

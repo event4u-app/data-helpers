@@ -14,7 +14,6 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Regex;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\Url;
 use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
-use Illuminate\Validation\ValidationException;
 
 // Example 1: Auto Rule Inferring
 echo "Example 1: Auto Rule Inferring\n";
@@ -33,7 +32,7 @@ class UserDTO extends SimpleDTO
 $rules = UserDTO::getAllRules();
 echo "Auto-inferred rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 echo "\n";
 
@@ -66,7 +65,7 @@ class ProductDTO extends SimpleDTO
 $rules = ProductDTO::getAllRules();
 echo "Validation rules with attributes:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 echo "\n";
 
@@ -95,7 +94,7 @@ class ContactDTO extends SimpleDTO
 $rules = ContactDTO::getAllRules();
 echo "Contact validation rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 echo "\n";
 
@@ -120,7 +119,7 @@ class EntityDTO extends SimpleDTO
 $rules = EntityDTO::getAllRules();
 echo "Entity validation rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 echo "\n";
 
@@ -170,7 +169,7 @@ class RegistrationDTO extends SimpleDTO
 $rules = RegistrationDTO::getAllRules();
 echo "Registration validation rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 echo "\n";
 
@@ -201,7 +200,7 @@ class OrderDTO extends SimpleDTO
         #[In(['pending', 'processing', 'completed', 'cancelled'])]
         public readonly string $status,
 
-        #[Regex('/^[A-Z]{2}[0-9]{6}$/')]
+        #[Regex('/^[A-Z]{2}\d{6}$/')]
         public readonly ?string $tracking_code = null,
     ) {
     }
@@ -210,7 +209,7 @@ class OrderDTO extends SimpleDTO
 $rules = OrderDTO::getAllRules();
 echo "Order validation rules:\n";
 foreach ($rules as $field => $fieldRules) {
-    echo "  {$field}: " . implode(', ', $fieldRules) . "\n";
+    echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 echo "\n";
 
@@ -219,7 +218,7 @@ echo "Example 7: Rules Caching\n";
 echo str_repeat('=', 80) . "\n\n";
 
 $start = microtime(true);
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     OrderDTO::getAllRules();
 }
 $cached = microtime(true) - $start;
@@ -227,7 +226,7 @@ $cached = microtime(true) - $start;
 OrderDTO::clearRulesCache();
 
 $start = microtime(true);
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     OrderDTO::getAllRules();
     OrderDTO::clearRulesCache();
 }

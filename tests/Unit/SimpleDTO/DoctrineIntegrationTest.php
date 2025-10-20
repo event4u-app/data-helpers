@@ -154,7 +154,7 @@ describe('Doctrine Integration', function(): void {
 
             $instance = $dto::fromArray(['name' => 'Test']);
 
-            expect(fn() => $instance->toEntity('NonExistentClass'))
+            expect(fn(): object => $instance->toEntity('NonExistentClass'))
                 ->toThrow(InvalidArgumentException::class, 'Entity class NonExistentClass does not exist');
         });
     });

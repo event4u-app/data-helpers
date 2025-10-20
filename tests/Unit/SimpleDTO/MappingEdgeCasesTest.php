@@ -296,7 +296,7 @@ describe('Property Mapping Edge Cases', function(): void {
             };
 
             // Should fail with strict types
-            expect(function() use ($dto) {
+            expect(function() use ($dto): void {
                 $dto::fromArray(['age_string' => '30']);
             })->toThrow(TypeError::class);
         });

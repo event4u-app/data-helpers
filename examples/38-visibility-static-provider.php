@@ -21,7 +21,7 @@ class PermissionChecker
     public static function canViewEmail(mixed $dto, mixed $context): bool
     {
         // Admin kann alles sehen
-        if (($context?->role ?? null) === 'admin') {
+        if ('admin' === ($context?->role ?? null)) {
             return true;
         }
 

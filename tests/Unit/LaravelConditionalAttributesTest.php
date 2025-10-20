@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenGuest;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenCan;
+use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenGuest;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenRole;
+use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 
-describe('Laravel Conditional Attributes', function () {
-    describe('WhenAuth Attribute', function () {
-        it('includes property when user is authenticated (context)', function () {
+describe('Laravel Conditional Attributes', function(): void {
+    describe('WhenAuth Attribute', function(): void {
+        it('includes property when user is authenticated (context)', function(): void {
             $dto = new class('John', 'john@example.com') {
                 use SimpleDTOTrait;
 
@@ -31,7 +31,7 @@ describe('Laravel Conditional Attributes', function () {
                 ->and($array['email'])->toBe('john@example.com');
         });
 
-        it('excludes property when user is not authenticated (context)', function () {
+        it('excludes property when user is not authenticated (context)', function(): void {
             $dto = new class('John', 'john@example.com') {
                 use SimpleDTOTrait;
 
@@ -48,7 +48,7 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->not->toHaveKey('email');
         });
 
-        it('excludes property when no context provided', function () {
+        it('excludes property when no context provided', function(): void {
             $dto = new class('John', 'john@example.com') {
                 use SimpleDTOTrait;
 
@@ -66,8 +66,8 @@ describe('Laravel Conditional Attributes', function () {
         });
     });
 
-    describe('WhenGuest Attribute', function () {
-        it('includes property when user is guest (context)', function () {
+    describe('WhenGuest Attribute', function(): void {
+        it('includes property when user is guest (context)', function(): void {
             $dto = new class('Home', 'Please log in') {
                 use SimpleDTOTrait;
 
@@ -85,7 +85,7 @@ describe('Laravel Conditional Attributes', function () {
                 ->and($array['loginPrompt'])->toBe('Please log in');
         });
 
-        it('excludes property when user is authenticated (context)', function () {
+        it('excludes property when user is authenticated (context)', function(): void {
             $dto = new class('Home', 'Please log in') {
                 use SimpleDTOTrait;
 
@@ -103,7 +103,7 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->not->toHaveKey('loginPrompt');
         });
 
-        it('includes property when no context provided (assumes guest)', function () {
+        it('includes property when no context provided (assumes guest)', function(): void {
             $dto = new class('Home', 'Please log in') {
                 use SimpleDTOTrait;
 
@@ -121,8 +121,8 @@ describe('Laravel Conditional Attributes', function () {
         });
     });
 
-    describe('WhenCan Attribute', function () {
-        it('includes property when user has ability (can method)', function () {
+    describe('WhenCan Attribute', function(): void {
+        it('includes property when user has ability (can method)', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -137,7 +137,7 @@ describe('Laravel Conditional Attributes', function () {
             $user = new class {
                 public function can(string $ability): bool
                 {
-                    return $ability === 'edit-post';
+                    return 'edit-post' === $ability;
                 }
             };
 
@@ -147,7 +147,7 @@ describe('Laravel Conditional Attributes', function () {
                 ->and($array['editLink'])->toBe('/edit');
         });
 
-        it('excludes property when user does not have ability', function () {
+        it('excludes property when user does not have ability', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -171,7 +171,7 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->not->toHaveKey('editLink');
         });
 
-        it('includes property when user has ability in abilities array', function () {
+        it('includes property when user has ability in abilities array', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -189,7 +189,7 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->toHaveKey('editLink');
         });
 
-        it('excludes property when user is guest', function () {
+        it('excludes property when user is guest', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -207,8 +207,8 @@ describe('Laravel Conditional Attributes', function () {
         });
     });
 
-    describe('WhenRole Attribute', function () {
-        it('includes property when user has role (single role)', function () {
+    describe('WhenRole Attribute', function(): void {
+        it('includes property when user has role (single role)', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -227,7 +227,7 @@ describe('Laravel Conditional Attributes', function () {
                 ->and($array['adminPanel'])->toBe('/admin');
         });
 
-        it('excludes property when user does not have role', function () {
+        it('excludes property when user does not have role', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -245,7 +245,7 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->not->toHaveKey('adminPanel');
         });
 
-        it('includes property when user has one of multiple roles', function () {
+        it('includes property when user has one of multiple roles', function(): void {
             $dto = new class('John', '/moderation') {
                 use SimpleDTOTrait;
 
@@ -270,7 +270,7 @@ describe('Laravel Conditional Attributes', function () {
                 ->and($arrayRegular)->not->toHaveKey('moderationPanel');
         });
 
-        it('works with roles array property', function () {
+        it('works with roles array property', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -288,7 +288,7 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->toHaveKey('adminPanel');
         });
 
-        it('works with hasRole method', function () {
+        it('works with hasRole method', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -303,7 +303,7 @@ describe('Laravel Conditional Attributes', function () {
             $user = new class {
                 public function hasRole(string $role): bool
                 {
-                    return $role === 'admin';
+                    return 'admin' === $role;
                 }
             };
 
@@ -313,8 +313,8 @@ describe('Laravel Conditional Attributes', function () {
         });
     });
 
-    describe('Combined Attributes', function () {
-        it('supports multiple Laravel attributes (AND logic)', function () {
+    describe('Combined Attributes', function(): void {
+        it('supports multiple Laravel attributes (AND logic)', function(): void {
             $dto = new class('Secret Content', 'Top secret data') {
                 use SimpleDTOTrait;
 
@@ -332,7 +332,7 @@ describe('Laravel Conditional Attributes', function () {
                 public string $role = 'admin';
                 public function can(string $ability): bool
                 {
-                    return $ability === 'view-secrets';
+                    return 'view-secrets' === $ability;
                 }
             };
 
@@ -353,7 +353,7 @@ describe('Laravel Conditional Attributes', function () {
                 ->and($arrayGuest)->not->toHaveKey('secretData');
         });
 
-        it('combines WhenAuth and WhenGuest correctly', function () {
+        it('combines WhenAuth and WhenGuest correctly', function(): void {
             $dto = new class('Page', 'Login', 'Dashboard') {
                 use SimpleDTOTrait;
 
@@ -378,8 +378,8 @@ describe('Laravel Conditional Attributes', function () {
         });
     });
 
-    describe('Edge Cases', function () {
-        it('handles user with permissions array', function () {
+    describe('Edge Cases', function(): void {
+        it('handles user with permissions array', function(): void {
             $dto = new class('Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -397,7 +397,7 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->toHaveKey('editLink');
         });
 
-        it('handles user with hasAnyRole method', function () {
+        it('handles user with hasAnyRole method', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -421,7 +421,7 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->toHaveKey('adminPanel');
         });
 
-        it('handles WhenCan with model argument', function () {
+        it('handles WhenCan with model argument', function(): void {
             $dto = new class('Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -437,7 +437,7 @@ describe('Laravel Conditional Attributes', function () {
             $user = new class {
                 public function can(string $ability, $model = null): bool
                 {
-                    return $ability === 'edit' && $model !== null;
+                    return 'edit' === $ability && null !== $model;
                 }
             };
 
@@ -446,7 +446,7 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->toHaveKey('editLink');
         });
 
-        it('handles empty roles array', function () {
+        it('handles empty roles array', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 

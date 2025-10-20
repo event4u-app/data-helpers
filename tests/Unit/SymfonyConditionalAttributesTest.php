@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted;
 use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole;
+use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 
-describe('Symfony Conditional Attributes', function () {
-    describe('WhenGranted Attribute', function () {
-        it('includes property when user is granted attribute (context)', function () {
+describe('Symfony Conditional Attributes', function(): void {
+    describe('WhenGranted Attribute', function(): void {
+        it('includes property when user is granted attribute (context)', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -29,7 +29,7 @@ describe('Symfony Conditional Attributes', function () {
                 ->and($array['editLink'])->toBe('/edit');
         });
 
-        it('excludes property when user is not granted attribute', function () {
+        it('excludes property when user is not granted attribute', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -47,7 +47,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->not->toHaveKey('editLink');
         });
 
-        it('includes property when user has isGranted method', function () {
+        it('includes property when user has isGranted method', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -62,7 +62,7 @@ describe('Symfony Conditional Attributes', function () {
             $user = new class {
                 public function isGranted(string $attribute, $subject = null): bool
                 {
-                    return $attribute === 'EDIT';
+                    return 'EDIT' === $attribute;
                 }
             };
 
@@ -71,7 +71,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->toHaveKey('editLink');
         });
 
-        it('excludes property when user is guest', function () {
+        it('excludes property when user is guest', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -88,7 +88,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->not->toHaveKey('editLink');
         });
 
-        it('works with permissions array', function () {
+        it('works with permissions array', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -106,7 +106,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->toHaveKey('editLink');
         });
 
-        it('works with security context', function () {
+        it('works with security context', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -121,7 +121,7 @@ describe('Symfony Conditional Attributes', function () {
             $security = new class {
                 public function isGranted(string $attribute, $subject = null): bool
                 {
-                    return $attribute === 'EDIT';
+                    return 'EDIT' === $attribute;
                 }
             };
 
@@ -130,7 +130,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->toHaveKey('editLink');
         });
 
-        it('supports subject from context', function () {
+        it('supports subject from context', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -146,7 +146,7 @@ describe('Symfony Conditional Attributes', function () {
             $user = new class {
                 public function isGranted(string $attribute, $subject = null): bool
                 {
-                    return $attribute === 'EDIT' && $subject !== null;
+                    return 'EDIT' === $attribute && null !== $subject;
                 }
             };
 
@@ -156,8 +156,8 @@ describe('Symfony Conditional Attributes', function () {
         });
     });
 
-    describe('WhenRole Attribute', function () {
-        it('includes property when user has role (single role)', function () {
+    describe('WhenRole Attribute', function(): void {
+        it('includes property when user has role (single role)', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -176,7 +176,7 @@ describe('Symfony Conditional Attributes', function () {
                 ->and($array['adminPanel'])->toBe('/admin');
         });
 
-        it('excludes property when user does not have role', function () {
+        it('excludes property when user does not have role', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -194,7 +194,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->not->toHaveKey('adminPanel');
         });
 
-        it('includes property when user has one of multiple roles', function () {
+        it('includes property when user has one of multiple roles', function(): void {
             $dto = new class('John', '/moderation') {
                 use SimpleDTOTrait;
 
@@ -219,7 +219,7 @@ describe('Symfony Conditional Attributes', function () {
                 ->and($arrayRegular)->not->toHaveKey('moderationPanel');
         });
 
-        it('works with getRoles method (Symfony UserInterface)', function () {
+        it('works with getRoles method (Symfony UserInterface)', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -243,7 +243,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->toHaveKey('adminPanel');
         });
 
-        it('works with role property (string)', function () {
+        it('works with role property (string)', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -261,7 +261,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->toHaveKey('adminPanel');
         });
 
-        it('works with security context', function () {
+        it('works with security context', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -276,7 +276,7 @@ describe('Symfony Conditional Attributes', function () {
             $security = new class {
                 public function isGranted(string $role): bool
                 {
-                    return $role === 'ROLE_ADMIN';
+                    return 'ROLE_ADMIN' === $role;
                 }
             };
 
@@ -286,8 +286,8 @@ describe('Symfony Conditional Attributes', function () {
         });
     });
 
-    describe('Combined Attributes', function () {
-        it('supports multiple Symfony attributes (AND logic)', function () {
+    describe('Combined Attributes', function(): void {
+        it('supports multiple Symfony attributes (AND logic)', function(): void {
             $dto = new class('Secret Content', 'Top secret data') {
                 use SimpleDTOTrait;
 
@@ -325,8 +325,8 @@ describe('Symfony Conditional Attributes', function () {
         });
     });
 
-    describe('Edge Cases', function () {
-        it('handles empty roles array', function () {
+    describe('Edge Cases', function(): void {
+        it('handles empty roles array', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -344,7 +344,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->not->toHaveKey('adminPanel');
         });
 
-        it('handles missing roles property', function () {
+        it('handles missing roles property', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -362,7 +362,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->not->toHaveKey('adminPanel');
         });
 
-        it('handles empty grants array', function () {
+        it('handles empty grants array', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -380,7 +380,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->not->toHaveKey('editLink');
         });
 
-        it('handles missing grants property', function () {
+        it('handles missing grants property', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -398,7 +398,7 @@ describe('Symfony Conditional Attributes', function () {
             expect($array)->not->toHaveKey('editLink');
         });
 
-        it('handles null user in context', function () {
+        it('handles null user in context', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -420,7 +420,7 @@ describe('Symfony Conditional Attributes', function () {
                 ->and($array)->toHaveKey('name');
         });
 
-        it('handles empty context', function () {
+        it('handles empty context', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -439,8 +439,8 @@ describe('Symfony Conditional Attributes', function () {
         });
     });
 
-    describe('JSON Serialization', function () {
-        it('works with json_encode and WhenRole', function () {
+    describe('JSON Serialization', function(): void {
+        it('works with json_encode and WhenRole', function(): void {
             $dto = new class('John', '/admin') {
                 use SimpleDTOTrait;
 
@@ -460,7 +460,7 @@ describe('Symfony Conditional Attributes', function () {
                 ->and($decoded['adminPanel'])->toBe('/admin');
         });
 
-        it('works with json_encode and WhenGranted', function () {
+        it('works with json_encode and WhenGranted', function(): void {
             $dto = new class('My Post', '/edit') {
                 use SimpleDTOTrait;
 
@@ -481,8 +481,8 @@ describe('Symfony Conditional Attributes', function () {
         });
     });
 
-    describe('Complex Scenarios', function () {
-        it('handles multiple properties with different conditions', function () {
+    describe('Complex Scenarios', function(): void {
+        it('handles multiple properties with different conditions', function(): void {
             $dto = new class('Content', '/edit', '/delete', '/publish', '/admin') {
                 use SimpleDTOTrait;
 
@@ -516,7 +516,7 @@ describe('Symfony Conditional Attributes', function () {
                 ->and($array)->toHaveKey('adminLink');
         });
 
-        it('handles hierarchical roles', function () {
+        it('handles hierarchical roles', function(): void {
             $dto = new class('Content', '/user', '/moderator', '/admin') {
                 use SimpleDTOTrait;
 

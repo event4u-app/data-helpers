@@ -55,17 +55,13 @@ final readonly class ValidationResult
         return new self(false, $errors, []);
     }
 
-    /**
-     * Check if validation passed.
-     */
+    /** Check if validation passed. */
     public function isValid(): bool
     {
         return $this->valid;
     }
 
-    /**
-     * Check if validation failed.
-     */
+    /** Check if validation failed. */
     public function isFailed(): bool
     {
         return !$this->valid;
@@ -91,9 +87,7 @@ final readonly class ValidationResult
         return $this->errors[$field] ?? [];
     }
 
-    /**
-     * Get first error for a specific field.
-     */
+    /** Get first error for a specific field. */
     public function firstError(string $field): ?string
     {
         return $this->errors[$field][0] ?? null;
@@ -123,17 +117,13 @@ final readonly class ValidationResult
         return $this->validated;
     }
 
-    /**
-     * Check if a specific field has errors.
-     */
+    /** Check if a specific field has errors. */
     public function hasError(string $field): bool
     {
         return isset($this->errors[$field]) && count($this->errors[$field]) > 0;
     }
 
-    /**
-     * Get error count.
-     */
+    /** Get error count. */
     public function errorCount(): int
     {
         return array_sum(array_map('count', $this->errors));

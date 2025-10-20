@@ -14,14 +14,12 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Between;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\Min;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
-use event4u\DataHelpers\Laravel\DTOFormRequest;
 
 echo "=== Phase 15.2: Laravel Request Validation Integration ===\n\n";
 

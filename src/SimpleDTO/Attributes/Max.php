@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -40,7 +40,6 @@ class Max implements ValidationRule, SymfonyConstraint
     {
         return 'max:' . $this->value;
     }
-
 
     public function constraint(): Constraint|array
     {

@@ -287,6 +287,7 @@ describe('Computed Properties', function(): void {
 
             // First toArray() call
             $instance->toArray();
+
             expect($dto::$callCount)->toBe(1);
 
             // Second toArray() call - should use cache
@@ -320,6 +321,7 @@ describe('Computed Properties', function(): void {
 
             // First call
             $instance->toArray();
+
             expect($dto::$callCount)->toBe(1);
 
             // Clear cache
@@ -327,6 +329,7 @@ describe('Computed Properties', function(): void {
 
             // Should recompute
             $instance->toArray();
+
             expect($dto::$callCount)->toBe(2);
         });
 
@@ -362,6 +365,7 @@ describe('Computed Properties', function(): void {
 
             // First call
             $instance->toArray();
+
             expect($dto::$callCount1)->toBe(1);
             expect($dto::$callCount2)->toBe(1);
 
@@ -370,6 +374,7 @@ describe('Computed Properties', function(): void {
 
             // Should recompute both
             $instance->toArray();
+
             expect($dto::$callCount1)->toBe(2);
             expect($dto::$callCount2)->toBe(2);
         });

@@ -23,8 +23,6 @@ trait SimpleDTOPipelineTrait
      * Create a DTO from array with pipeline processing.
      *
      * @param array<string, mixed> $data
-     * @param DTOPipeline $pipeline
-     * @return static
      */
     public static function fromArrayWithPipeline(
         array $data,
@@ -39,9 +37,6 @@ trait SimpleDTOPipelineTrait
      * Process the DTO data through a pipeline.
      *
      * This creates a new DTO instance with processed data.
-     *
-     * @param DTOPipeline $pipeline
-     * @return static
      */
     public function processWith(DTOPipeline $pipeline): static
     {

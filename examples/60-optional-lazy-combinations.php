@@ -53,11 +53,11 @@ $user1 = UserDTO::fromArray([
     'notes' => 'Some notes...',
 ]);
 
-echo "  name: {$user1->name}\n";
-echo "  age: {$user1->age}\n";
+echo sprintf('  name: %s%s', $user1->name, PHP_EOL);
+echo sprintf('  age: %s%s', $user1->age, PHP_EOL);
 echo "  email present: " . ($user1->email->isPresent() ? 'yes' : 'no') . "\n";
 echo "  biography loaded: " . ($user1->biography->isLoaded() ? 'yes' : 'no') . "\n";
-echo "  phone: " . ($user1->phone === null ? 'null' : $user1->phone) . "\n";
+echo "  phone: " . ($user1->phone ?? 'null') . "\n";
 echo "  address present: " . ($user1->address->isPresent() ? 'yes' : 'no') . "\n";
 echo "  notes loaded: " . ($user1->notes->isLoaded() ? 'yes' : 'no') . "\n";
 echo "  preferences present: " . ($user1->preferences->isPresent() ? 'yes' : 'no') . "\n";
@@ -160,7 +160,7 @@ echo "  settings present: " . ($profile2->settings->isPresent() ? 'yes' : 'no') 
 echo "  avatar present: " . ($profile2->avatar->isPresent() ? 'yes' : 'no') . "\n";
 $avatarValue = $profile2->avatar->get(); // Get Lazy wrapper
 $avatarActualValue = $avatarValue instanceof Lazy ? $avatarValue->get() : $avatarValue;
-echo "  avatar value: " . ($avatarActualValue === null ? 'null' : 'not null') . "\n";
+echo "  avatar value: " . (null === $avatarActualValue ? 'null' : 'not null') . "\n";
 echo "  toArray (lazy excluded): " . json_encode($profile2->toArray()) . "\n";
 echo "  toArray (lazy included): " . json_encode($profile2->includeAll()->toArray()) . "\n";
 echo "\n";

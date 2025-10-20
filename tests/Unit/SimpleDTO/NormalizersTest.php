@@ -291,7 +291,7 @@ describe('Normalizers', function(): void {
                 public function normalize(array $data): array
                 {
                     if (isset($data['name'])) {
-                        $data['name'] = ucwords($data['name']);
+                        $data['name'] = ucwords((string) $data['name']);
                     }
 
                     return $data;

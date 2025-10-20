@@ -39,9 +39,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class RuleGroup
 {
-    /**
-     * @param array<string> $groups Validation groups this rule belongs to
-     */
+    /** @param array<string> $groups Validation groups this rule belongs to */
     public function __construct(
         public readonly array $groups,
     ) {}
@@ -50,7 +48,6 @@ class RuleGroup
      * Check if this rule belongs to a specific group.
      *
      * @param string $group Group name to check
-     * @return bool
      */
     public function belongsToGroup(string $group): bool
     {
@@ -61,11 +58,10 @@ class RuleGroup
      * Check if this rule belongs to any of the specified groups.
      *
      * @param array<string> $groups Groups to check
-     * @return bool
      */
     public function belongsToAnyGroup(array $groups): bool
     {
-        return count(array_intersect($this->groups, $groups)) > 0;
+        return array_intersect($this->groups, $groups) !== [];
     }
 
     /**

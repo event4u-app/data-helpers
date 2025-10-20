@@ -22,8 +22,6 @@ use Throwable;
  */
 class TimestampCast implements CastsAttributes
 {
-    public function __construct() {}
-
     public function get(mixed $value, array $attributes): ?DateTimeImmutable
     {
         if (null === $value) {
@@ -44,7 +42,7 @@ class TimestampCast implements CastsAttributes
         if (is_int($value) || (is_string($value) && is_numeric($value))) {
             try {
                 return (new DateTimeImmutable())->setTimestamp((int)$value);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 return null;
             }
         }

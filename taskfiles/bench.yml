@@ -18,7 +18,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Running Benchmarks" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer benchmark
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpbench run --report=table
 
   readme:
     desc: Update benchmark results in README (use PHP=8.2|8.3|8.4)
@@ -27,7 +27,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Updating Benchmark Results in README" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer benchmark:readme
+          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-benchmark-results.php
 
   dto:
     desc: Run DTO benchmarks (Traditional vs SimpleDTO)
@@ -36,7 +36,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Running DTO Benchmarks" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer bench:dto
+          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/dto-benchmark.php
 
   dto:readme:
     desc: Update DTO benchmark results in docs/simple-dto.md
@@ -45,7 +45,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Updating DTO Benchmark Results" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer bench:dto:readme
+          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-dto-benchmark-results.php
 
   all:
     desc: Run all benchmarks and update documentation

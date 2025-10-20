@@ -39,23 +39,19 @@ class RequiredIf implements ValidationRule
 
     /**
      * Convert to Laravel validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
         $value = is_bool($this->value) ? ($this->value ? 'true' : 'false') : $this->value;
-        return "required_if:{$this->field},{$value}";
+        return sprintf('required_if:%s,%s', $this->field, $value);
     }
 
     /**
      * Get validation error message.
-     *
-     * @return string|null
      */
     public function message(): ?string
     {
-        return "The attribute field is required when {$this->field} is {$this->value}.";
+        return sprintf('The attribute field is required when %s is %s.', $this->field, $this->value);
     }
 }
 

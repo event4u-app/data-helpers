@@ -243,7 +243,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
 
             $instance = $dto::fromArray(['name' => 'John']);
 
-            expect(fn() => $instance->toEntity('NonExistentClass'))
+            expect(fn(): object => $instance->toEntity('NonExistentClass'))
                 ->toThrow(InvalidArgumentException::class);
         });
     });

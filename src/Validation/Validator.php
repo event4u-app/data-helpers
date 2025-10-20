@@ -47,9 +47,7 @@ class Validator
         private readonly array $attributes = [],
     ) {}
 
-    /**
-     * Run validation.
-     */
+    /** Run validation. */
     public function validate(): array
     {
         $this->errors = [];
@@ -62,7 +60,7 @@ class Validator
 
             foreach ($rules as $rule) {
                 $error = $this->validateRule($field, $value, $rule);
-                if ($error !== null) {
+                if (null !== $error) {
                     $fieldErrors[] = $error;
                     if ($this->stopOnFirstFailure) {
                         break 2;
@@ -70,14 +68,14 @@ class Validator
                 }
             }
 
-            if (count($fieldErrors) > 0) {
+            if ($fieldErrors !== []) {
                 $this->errors[$field] = $fieldErrors;
             } else {
                 $this->validated[$field] = $value;
             }
         }
 
-        if (count($this->errors) > 0) {
+        if ($this->errors !== []) {
             // Use ValidationException for consistency
             throw \event4u\DataHelpers\Exceptions\ValidationException::withMessages($this->errors);
         }
@@ -85,9 +83,7 @@ class Validator
         return $this->validated;
     }
 
-    /**
-     * Check if validation fails.
-     */
+    /** Check if validation fails. */
     public function fails(): bool
     {
         try {
@@ -98,9 +94,7 @@ class Validator
         }
     }
 
-    /**
-     * Check if validation passes.
-     */
+    /** Check if validation passes. */
     public function passes(): bool
     {
         return !$this->fails();
@@ -126,18 +120,14 @@ class Validator
         return $this->validated;
     }
 
-    /**
-     * Set stop on first failure.
-     */
+    /** Set stop on first failure. */
     public function stopOnFirstFailure(bool $stop = true): self
     {
         $this->stopOnFirstFailure = $stop;
         return $this;
     }
 
-    /**
-     * Validate a single rule.
-     */
+    /** Validate a single rule. */
     private function validateRule(string $field, mixed $value, string $rule): ?string
     {
         // Parse rule and parameters
@@ -157,7 +147,12 @@ class Validator
             'array' => $this->validateArray($attribute, $value),
             'min' => $this->validateMin($attribute, $value, (float)($parameters[0] ?? 0)),
             'max' => $this->validateMax($attribute, $value, (float)($parameters[0] ?? 0)),
-            'between' => $this->validateBetween($attribute, $value, (float)($parameters[0] ?? 0), (float)($parameters[1] ?? 0)),
+            'between' => $this->validateBetween(
+                $attribute,
+                $value,
+                (float)($parameters[0] ?? 0),
+                (float)($parameters[1] ?? 0)
+            ),
             'in' => $this->validateIn($attribute, $value, $parameters),
             'not_in' => $this->validateNotIn($attribute, $value, $parameters),
             'regex' => $this->validateRegex($attribute, $value, $parameters[0] ?? ''),
@@ -192,108 +187,106 @@ class Validator
         return [$name, explode(',', $params)];
     }
 
-    /**
-     * Get custom error message or default.
-     */
+    /** Get custom error message or default. */
     private function getMessage(string $field, string $rule, string $default): string
     {
-        return $this->messages["$field.$rule"] ?? $this->messages[$rule] ?? $default;
+        return $this->messages[sprintf('%s.%s', $field, $rule)] ?? $this->messages[$rule] ?? $default;
     }
 
     // Validation methods
     private function validateRequired(string $attribute, mixed $value): ?string
     {
-        if ($value === null || $value === '' || (is_array($value) && count($value) === 0)) {
-            return $this->getMessage($attribute, 'required', "The $attribute field is required.");
+        if (null === $value || '' === $value || (is_array($value) && $value === [])) {
+            return $this->getMessage($attribute, 'required', sprintf('The %s field is required.', $attribute));
         }
         return null;
     }
 
     private function validateEmail(string $attribute, mixed $value): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            return $this->getMessage($attribute, 'email', "The $attribute must be a valid email address.");
+            return $this->getMessage($attribute, 'email', sprintf('The %s must be a valid email address.', $attribute));
         }
         return null;
     }
 
     private function validateString(string $attribute, mixed $value): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
         if (!is_string($value)) {
-            return $this->getMessage($attribute, 'string', "The $attribute must be a string.");
+            return $this->getMessage($attribute, 'string', sprintf('The %s must be a string.', $attribute));
         }
         return null;
     }
 
     private function validateInteger(string $attribute, mixed $value): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
         if (!is_int($value) && !ctype_digit((string)$value)) {
-            return $this->getMessage($attribute, 'integer', "The $attribute must be an integer.");
+            return $this->getMessage($attribute, 'integer', sprintf('The %s must be an integer.', $attribute));
         }
         return null;
     }
 
     private function validateNumeric(string $attribute, mixed $value): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
         if (!is_numeric($value)) {
-            return $this->getMessage($attribute, 'numeric', "The $attribute must be a number.");
+            return $this->getMessage($attribute, 'numeric', sprintf('The %s must be a number.', $attribute));
         }
         return null;
     }
 
     private function validateBoolean(string $attribute, mixed $value): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
         if (!is_bool($value) && !in_array($value, [0, 1, '0', '1', 'true', 'false'], true)) {
-            return $this->getMessage($attribute, 'boolean', "The $attribute must be true or false.");
+            return $this->getMessage($attribute, 'boolean', sprintf('The %s must be true or false.', $attribute));
         }
         return null;
     }
 
     private function validateArray(string $attribute, mixed $value): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
         if (!is_array($value)) {
-            return $this->getMessage($attribute, 'array', "The $attribute must be an array.");
+            return $this->getMessage($attribute, 'array', sprintf('The %s must be an array.', $attribute));
         }
         return null;
     }
 
     private function validateMin(string $attribute, mixed $value, int|float $min): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
         if (is_string($value)) {
             $length = mb_strlen($value);
             if ($length < $min) {
-                return $this->getMessage($attribute, 'min', "The $attribute must be at least $min characters.");
+                return $this->getMessage($attribute, 'min', sprintf('The %s must be at least %s characters.', $attribute, $min));
             }
         } elseif (is_numeric($value)) {
             if ($value < $min) {
-                return $this->getMessage($attribute, 'min', "The $attribute must be at least $min.");
+                return $this->getMessage($attribute, 'min', sprintf('The %s must be at least %s.', $attribute, $min));
             }
         } elseif (is_array($value)) {
             $count = count($value);
             if ($count < $min) {
-                return $this->getMessage($attribute, 'min', "The $attribute must have at least $min items.");
+                return $this->getMessage($attribute, 'min', sprintf('The %s must have at least %s items.', $attribute, $min));
             }
         }
 
@@ -302,23 +295,23 @@ class Validator
 
     private function validateMax(string $attribute, mixed $value, int|float $max): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
         if (is_string($value)) {
             $length = mb_strlen($value);
             if ($length > $max) {
-                return $this->getMessage($attribute, 'max', "The $attribute must not exceed $max characters.");
+                return $this->getMessage($attribute, 'max', sprintf('The %s must not exceed %s characters.', $attribute, $max));
             }
         } elseif (is_numeric($value)) {
             if ($value > $max) {
-                return $this->getMessage($attribute, 'max', "The $attribute must not exceed $max.");
+                return $this->getMessage($attribute, 'max', sprintf('The %s must not exceed %s.', $attribute, $max));
             }
         } elseif (is_array($value)) {
             $count = count($value);
             if ($count > $max) {
-                return $this->getMessage($attribute, 'max', "The $attribute must not have more than $max items.");
+                return $this->getMessage($attribute, 'max', sprintf('The %s must not have more than %s items.', $attribute, $max));
             }
         }
 
@@ -327,83 +320,83 @@ class Validator
 
     private function validateBetween(string $attribute, mixed $value, int|float $min, int|float $max): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
         if (is_string($value)) {
             $length = mb_strlen($value);
             if ($length < $min || $length > $max) {
-                return $this->getMessage($attribute, 'between', "The $attribute must be between $min and $max characters.");
+                return $this->getMessage(
+                    $attribute,
+                    'between',
+                    sprintf('The %s must be between %s and %s characters.', $attribute, $min, $max)
+                );
             }
         } elseif (is_numeric($value)) {
             if ($value < $min || $value > $max) {
-                return $this->getMessage($attribute, 'between', "The $attribute must be between $min and $max.");
+                return $this->getMessage($attribute, 'between', sprintf('The %s must be between %s and %s.', $attribute, $min, $max));
             }
         }
 
         return null;
     }
 
-    /**
-     * @param array<string> $allowed
-     */
+    /** @param array<string> $allowed */
     private function validateIn(string $attribute, mixed $value, array $allowed): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
         if (!in_array($value, $allowed, true)) {
             $list = implode(', ', $allowed);
-            return $this->getMessage($attribute, 'in', "The $attribute must be one of: $list.");
+            return $this->getMessage($attribute, 'in', sprintf('The %s must be one of: %s.', $attribute, $list));
         }
         return null;
     }
 
-    /**
-     * @param array<string> $disallowed
-     */
+    /** @param array<string> $disallowed */
     private function validateNotIn(string $attribute, mixed $value, array $disallowed): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
         if (in_array($value, $disallowed, true)) {
-            return $this->getMessage($attribute, 'not_in', "The $attribute contains an invalid value.");
+            return $this->getMessage($attribute, 'not_in', sprintf('The %s contains an invalid value.', $attribute));
         }
         return null;
     }
 
     private function validateRegex(string $attribute, mixed $value, string $pattern): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
         if (!is_string($value) || !preg_match($pattern, $value)) {
-            return $this->getMessage($attribute, 'regex', "The $attribute format is invalid.");
+            return $this->getMessage($attribute, 'regex', sprintf('The %s format is invalid.', $attribute));
         }
         return null;
     }
 
     private function validateUrl(string $attribute, mixed $value): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
         if (!filter_var($value, FILTER_VALIDATE_URL)) {
-            return $this->getMessage($attribute, 'url', "The $attribute must be a valid URL.");
+            return $this->getMessage($attribute, 'url', sprintf('The %s must be a valid URL.', $attribute));
         }
         return null;
     }
 
     private function validateUuid(string $attribute, mixed $value): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
         $pattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
         if (!is_string($value) || !preg_match($pattern, $value)) {
-            return $this->getMessage($attribute, 'uuid', "The $attribute must be a valid UUID.");
+            return $this->getMessage($attribute, 'uuid', sprintf('The %s must be a valid UUID.', $attribute));
         }
         return null;
     }
@@ -414,28 +407,28 @@ class Validator
         $confirmValue = $this->data[$confirmField] ?? null;
 
         if ($value !== $confirmValue) {
-            return $this->getMessage($attribute, 'confirmed', "The $attribute confirmation does not match.");
+            return $this->getMessage($attribute, 'confirmed', sprintf('The %s confirmation does not match.', $attribute));
         }
         return null;
     }
 
     private function validateSize(string $attribute, mixed $value, int $size): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
         if (is_string($value)) {
             if (mb_strlen($value) !== $size) {
-                return $this->getMessage($attribute, 'size', "The $attribute must be $size characters.");
+                return $this->getMessage($attribute, 'size', sprintf('The %s must be %d characters.', $attribute, $size));
             }
         } elseif (is_array($value)) {
             if (count($value) !== $size) {
-                return $this->getMessage($attribute, 'size', "The $attribute must contain $size items.");
+                return $this->getMessage($attribute, 'size', sprintf('The %s must contain %d items.', $attribute, $size));
             }
         } elseif (is_numeric($value)) {
             if ((float)$value !== (float)$size) {
-                return $this->getMessage($attribute, 'size', "The $attribute must be $size.");
+                return $this->getMessage($attribute, 'size', sprintf('The %s must be %d.', $attribute, $size));
             }
         }
 
@@ -444,13 +437,13 @@ class Validator
 
     private function validateSame(string $field, string $attribute, mixed $value, string $otherField): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
         $otherValue = $this->data[$otherField] ?? null;
         if ($value !== $otherValue) {
-            return $this->getMessage($attribute, 'same', "The $attribute and $otherField must match.");
+            return $this->getMessage($attribute, 'same', sprintf('The %s and %s must match.', $attribute, $otherField));
         }
 
         return null;
@@ -458,29 +451,27 @@ class Validator
 
     private function validateDifferent(string $field, string $attribute, mixed $value, string $otherField): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
         $otherValue = $this->data[$otherField] ?? null;
         if ($value === $otherValue) {
-            return $this->getMessage($attribute, 'different', "The $attribute and $otherField must be different.");
+            return $this->getMessage($attribute, 'different', sprintf('The %s and %s must be different.', $attribute, $otherField));
         }
 
         return null;
     }
 
-    /**
-     * @param array<string> $prefixes
-     */
+    /** @param array<string> $prefixes */
     private function validateStartsWith(string $attribute, mixed $value, array $prefixes): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
 
         if (!is_string($value)) {
-            return $this->getMessage($attribute, 'starts_with', "The $attribute must be a string.");
+            return $this->getMessage($attribute, 'starts_with', sprintf('The %s must be a string.', $attribute));
         }
 
         foreach ($prefixes as $prefix) {
@@ -490,20 +481,18 @@ class Validator
         }
 
         $prefixList = implode(', ', $prefixes);
-        return $this->getMessage($attribute, 'starts_with', "The $attribute must start with one of: $prefixList.");
+        return $this->getMessage($attribute, 'starts_with', sprintf('The %s must start with one of: %s.', $attribute, $prefixList));
     }
 
-    /**
-     * @param array<string> $suffixes
-     */
+    /** @param array<string> $suffixes */
     private function validateEndsWith(string $attribute, mixed $value, array $suffixes): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
 
         if (!is_string($value)) {
-            return $this->getMessage($attribute, 'ends_with', "The $attribute must be a string.");
+            return $this->getMessage($attribute, 'ends_with', sprintf('The %s must be a string.', $attribute));
         }
 
         foreach ($suffixes as $suffix) {
@@ -513,17 +502,17 @@ class Validator
         }
 
         $suffixList = implode(', ', $suffixes);
-        return $this->getMessage($attribute, 'ends_with', "The $attribute must end with one of: $suffixList.");
+        return $this->getMessage($attribute, 'ends_with', sprintf('The %s must end with one of: %s.', $attribute, $suffixList));
     }
 
     private function validateIp(string $attribute, mixed $value): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
 
         if (!filter_var($value, FILTER_VALIDATE_IP)) {
-            return $this->getMessage($attribute, 'ip', "The $attribute must be a valid IP address.");
+            return $this->getMessage($attribute, 'ip', sprintf('The %s must be a valid IP address.', $attribute));
         }
 
         return null;
@@ -531,12 +520,12 @@ class Validator
 
     private function validateIpv4(string $attribute, mixed $value): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
 
         if (!filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            return $this->getMessage($attribute, 'ipv4', "The $attribute must be a valid IPv4 address.");
+            return $this->getMessage($attribute, 'ipv4', sprintf('The %s must be a valid IPv4 address.', $attribute));
         }
 
         return null;
@@ -544,12 +533,12 @@ class Validator
 
     private function validateIpv6(string $attribute, mixed $value): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
 
         if (!filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            return $this->getMessage($attribute, 'ipv6', "The $attribute must be a valid IPv6 address.");
+            return $this->getMessage($attribute, 'ipv6', sprintf('The %s must be a valid IPv6 address.', $attribute));
         }
 
         return null;
@@ -557,17 +546,17 @@ class Validator
 
     private function validateJson(string $attribute, mixed $value): ?string
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
 
         if (!is_string($value)) {
-            return $this->getMessage($attribute, 'json', "The $attribute must be a valid JSON string.");
+            return $this->getMessage($attribute, 'json', sprintf('The %s must be a valid JSON string.', $attribute));
         }
 
         json_decode($value);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            return $this->getMessage($attribute, 'json', "The $attribute must be a valid JSON string.");
+            return $this->getMessage($attribute, 'json', sprintf('The %s must be a valid JSON string.', $attribute));
         }
 
         return null;

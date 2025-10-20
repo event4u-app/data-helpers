@@ -30,9 +30,6 @@ trait SimpleDTOTransformerTrait
      * Transform the DTO data using a transformer.
      *
      * This creates a new DTO instance with transformed data.
-     *
-     * @param TransformerInterface|TransformerPipeline $transformer
-     * @return static
      */
     public function transformWith(TransformerInterface|TransformerPipeline $transformer): static
     {
@@ -53,8 +50,6 @@ trait SimpleDTOTransformerTrait
      * This is a static method that transforms data before DTO creation.
      *
      * @param array<string, mixed> $data
-     * @param TransformerInterface|TransformerPipeline $transformer
-     * @return static
      */
     public static function fromArrayWithTransformer(
         array $data,

@@ -52,17 +52,13 @@ abstract class DTOFactory
      */
     protected string $dtoClass;
 
-    /**
-     * Create a new factory instance.
-     */
+    /** Create a new factory instance. */
     public function __construct(?Faker $faker = null)
     {
         $this->faker = $faker ?? FakerFactory::create();
     }
 
-    /**
-     * Create a new factory instance.
-     */
+    /** Create a new factory instance. */
     public static function new(?Faker $faker = null): static
     {
         return new static($faker);
@@ -78,9 +74,7 @@ abstract class DTOFactory
      */
     abstract protected function definition(): array;
 
-    /**
-     * Set the number of DTOs to create.
-     */
+    /** Set the number of DTOs to create. */
     public function count(int $count): static
     {
         $this->count = $count;
@@ -96,7 +90,7 @@ abstract class DTOFactory
      */
     public function create(array $attributes = []): mixed
     {
-        if ($this->count === 1) {
+        if (1 === $this->count) {
             return $this->createOne($attributes);
         }
 
@@ -112,7 +106,6 @@ abstract class DTOFactory
      * Create a single DTO instance.
      *
      * @param array<string, mixed> $attributes
-     * @return mixed
      */
     protected function createOne(array $attributes = []): mixed
     {
@@ -129,7 +122,7 @@ abstract class DTOFactory
      */
     public function make(array $attributes = []): array
     {
-        if ($this->count === 1) {
+        if (1 === $this->count) {
             return $this->makeOne($attributes);
         }
 
@@ -173,17 +166,13 @@ abstract class DTOFactory
         return $this;
     }
 
-    /**
-     * Get the Faker instance.
-     */
+    /** Get the Faker instance. */
     public function faker(): Faker
     {
         return $this->faker;
     }
 
-    /**
-     * Set a custom Faker instance.
-     */
+    /** Set a custom Faker instance. */
     public function withFaker(Faker $faker): static
     {
         $this->faker = $faker;
@@ -191,9 +180,7 @@ abstract class DTOFactory
         return $this;
     }
 
-    /**
-     * Reset the factory to its initial state.
-     */
+    /** Reset the factory to its initial state. */
     public function reset(): static
     {
         $this->count = 1;

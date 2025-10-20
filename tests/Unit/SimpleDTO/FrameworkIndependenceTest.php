@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
 use event4u\DataHelpers\SimpleDTO;
 
 describe('Framework Independence', function(): void {
@@ -59,7 +61,7 @@ describe('Framework Independence', function(): void {
 
         it('has fromModel method when using SimpleDTOEloquentTrait', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+                use SimpleDTOEloquentTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -74,7 +76,7 @@ describe('Framework Independence', function(): void {
 
         it('has toModel method when using SimpleDTOEloquentTrait', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+                use SimpleDTOEloquentTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -88,7 +90,7 @@ describe('Framework Independence', function(): void {
 
         it('fromModel is a static method', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+                use SimpleDTOEloquentTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -102,7 +104,7 @@ describe('Framework Independence', function(): void {
 
         it('toModel is an instance method', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+                use SimpleDTOEloquentTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -116,7 +118,7 @@ describe('Framework Independence', function(): void {
 
         it('fromModel requires Illuminate\Database\Eloquent\Model parameter', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+                use SimpleDTOEloquentTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -133,7 +135,7 @@ describe('Framework Independence', function(): void {
 
         it('toModel returns Illuminate\Database\Eloquent\Model', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+                use SimpleDTOEloquentTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -195,7 +197,7 @@ describe('Framework Independence', function(): void {
 
         it('can use SimpleDTOTrait with SimpleDTOEloquentTrait', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+                use SimpleDTOEloquentTrait;
 
                 public function __construct(
                     public readonly string $name = 'Test',
@@ -222,7 +224,7 @@ describe('Framework Independence', function(): void {
             };
 
             $dtoWithEloquent = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+                use SimpleDTOEloquentTrait;
 
                 public function __construct(
                     public readonly string $name = 'Test',
@@ -246,7 +248,7 @@ describe('Framework Independence', function(): void {
             // In our test environment, Eloquent IS available, so we just verify the type hints
 
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+                use SimpleDTOEloquentTrait;
 
                 public function __construct(
                     public readonly string $name = 'Test',
@@ -266,7 +268,7 @@ describe('Framework Independence', function(): void {
     describe('SimpleDTODoctrineTrait (Doctrine/Symfony)', function(): void {
         it('has fromEntity method when using SimpleDTODoctrineTrait', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
+                use SimpleDTODoctrineTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -281,7 +283,7 @@ describe('Framework Independence', function(): void {
 
         it('has toEntity method when using SimpleDTODoctrineTrait', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
+                use SimpleDTODoctrineTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -295,7 +297,7 @@ describe('Framework Independence', function(): void {
 
         it('fromEntity is a static method', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
+                use SimpleDTODoctrineTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -309,7 +311,7 @@ describe('Framework Independence', function(): void {
 
         it('toEntity is an instance method', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
+                use SimpleDTODoctrineTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -323,7 +325,7 @@ describe('Framework Independence', function(): void {
 
         it('fromEntity requires object parameter', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
+                use SimpleDTODoctrineTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -340,7 +342,7 @@ describe('Framework Independence', function(): void {
 
         it('toEntity returns object', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
+                use SimpleDTODoctrineTrait;
 
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -405,8 +407,8 @@ describe('Framework Independence', function(): void {
     describe('Multiple Framework Traits', function(): void {
         it('can use both SimpleDTOEloquentTrait and SimpleDTODoctrineTrait', function(): void {
             $dto = new class extends SimpleDTO {
-                use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
-                use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
+                use SimpleDTOEloquentTrait;
+                use SimpleDTODoctrineTrait;
 
                 public function __construct(
                     public readonly string $name = 'Test',

@@ -80,7 +80,7 @@ class DtoBenchmarkRunner
             return;
         }
 
-        $maxNameLen = max(array_map(fn($b) => strlen($b['name']), $benchmarks));
+        $maxNameLen = max(array_map(fn(array $b): int => strlen((string) $b['name']), $benchmarks));
         $maxNameLen = max($maxNameLen, 30);
 
         echo "\n";
@@ -173,12 +173,12 @@ echo str_repeat('─', 64) . "\n";
 
 $benchmarks = [];
 
-$benchmarks[] = DtoBenchmarkRunner::run('Traditional Mutable DTO', function() use ($jsonFile, $mapping) {
+$benchmarks[] = DtoBenchmarkRunner::run('Traditional Mutable DTO', function() use ($jsonFile, $mapping): void {
     $company = new CompanyDto();
     DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 }, 1000);
 
-$benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO Immutable', function() use ($jsonFile, $mapping) {
+$benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO Immutable', function() use ($jsonFile, $mapping): void {
     $mappedArray = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->toArray();
 
     /** @var array<int, array<string, mixed>> $departmentsData */
@@ -214,7 +214,7 @@ echo str_repeat('─', 64) . "\n";
 
 $benchmarks = [];
 
-$benchmarks[] = DtoBenchmarkRunner::run('Traditional: new + assign', function() use ($testData) {
+$benchmarks[] = DtoBenchmarkRunner::run('Traditional: new + assign', function() use ($testData): void {
     $dto = new DepartmentDto();
     $dto->name = $testData['name'];
     $dto->code = $testData['code'];
@@ -223,7 +223,7 @@ $benchmarks[] = DtoBenchmarkRunner::run('Traditional: new + assign', function() 
     $dto->manager_name = $testData['manager_name'];
 }, 100000);
 
-$benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO: fromArray()', function() use ($testData) {
+$benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO: fromArray()', function() use ($testData): void {
     DepartmentSimpleDto::fromArray($testData);
 }, 100000);
 
@@ -246,11 +246,11 @@ $dtoImmutable = DepartmentSimpleDto::fromArray($testData);
 
 $benchmarks = [];
 
-$benchmarks[] = DtoBenchmarkRunner::run('Traditional: toArray()', function() use ($dtoMutable) {
+$benchmarks[] = DtoBenchmarkRunner::run('Traditional: toArray()', function() use ($dtoMutable): void {
     $dtoMutable->toArray();
 }, 100000);
 
-$benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO: toArray()', function() use ($dtoImmutable) {
+$benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO: toArray()', function() use ($dtoImmutable): void {
     $dtoImmutable->toArray();
 }, 100000);
 

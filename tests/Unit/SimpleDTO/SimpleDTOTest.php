@@ -40,9 +40,9 @@ class TestCustomerDTO extends SimpleDTO
     ) {}
 }
 
-describe('SimpleDTO', function (): void {
-    describe('Basic Functionality', function (): void {
-        it('can be created from array', function (): void {
+describe('SimpleDTO', function(): void {
+    describe('Basic Functionality', function(): void {
+        it('can be created from array', function(): void {
             $dto = TestUserDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -55,7 +55,7 @@ describe('SimpleDTO', function (): void {
             expect($dto->age)->toBe(30);
         });
 
-        it('can be converted to array', function (): void {
+        it('can be converted to array', function(): void {
             $dto = TestUserDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -72,7 +72,7 @@ describe('SimpleDTO', function (): void {
             ]);
         });
 
-        it('implements DTOInterface', function (): void {
+        it('implements DTOInterface', function(): void {
             $dto = TestUserDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -82,7 +82,7 @@ describe('SimpleDTO', function (): void {
             expect($dto)->toBeInstanceOf(DTOInterface::class);
         });
 
-        it('implements JsonSerializable', function (): void {
+        it('implements JsonSerializable', function(): void {
             $dto = TestUserDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -93,8 +93,8 @@ describe('SimpleDTO', function (): void {
         });
     });
 
-    describe('JSON Serialization', function (): void {
-        it('can be serialized to JSON', function (): void {
+    describe('JSON Serialization', function(): void {
+        it('can be serialized to JSON', function(): void {
             $dto = TestUserDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -111,7 +111,7 @@ describe('SimpleDTO', function (): void {
             ]);
         });
 
-        it('handles special characters in JSON', function (): void {
+        it('handles special characters in JSON', function(): void {
             $dto = TestUserDTO::fromArray([
                 'name' => 'John "The Boss" Doe',
                 'email' => 'john@example.com',
@@ -125,8 +125,8 @@ describe('SimpleDTO', function (): void {
         });
     });
 
-    describe('Optional Properties', function (): void {
-        it('handles optional properties with values', function (): void {
+    describe('Optional Properties', function(): void {
+        it('handles optional properties with values', function(): void {
             $dto = TestProductDTO::fromArray([
                 'name' => 'Laptop',
                 'price' => 999.99,
@@ -138,7 +138,7 @@ describe('SimpleDTO', function (): void {
             expect($dto->description)->toBe('High-performance laptop');
         });
 
-        it('handles optional properties without values', function (): void {
+        it('handles optional properties without values', function(): void {
             $dto = TestProductDTO::fromArray([
                 'name' => 'Mouse',
                 'price' => 29.99,
@@ -149,7 +149,7 @@ describe('SimpleDTO', function (): void {
             expect($dto->description)->toBeNull();
         });
 
-        it('includes null values in toArray', function (): void {
+        it('includes null values in toArray', function(): void {
             $dto = TestProductDTO::fromArray([
                 'name' => 'Mouse',
                 'price' => 29.99,
@@ -162,8 +162,8 @@ describe('SimpleDTO', function (): void {
         });
     });
 
-    describe('Nested DTOs', function (): void {
-        it('supports nested DTOs', function (): void {
+    describe('Nested DTOs', function(): void {
+        it('supports nested DTOs', function(): void {
             $address = TestAddressDTO::fromArray([
                 'street' => '123 Main St',
                 'city' => 'New York',
@@ -180,7 +180,7 @@ describe('SimpleDTO', function (): void {
             expect($customer->address->city)->toBe('New York');
         });
 
-        it('serializes nested DTOs to JSON', function (): void {
+        it('serializes nested DTOs to JSON', function(): void {
             $address = TestAddressDTO::fromArray([
                 'street' => '123 Main St',
                 'city' => 'New York',
@@ -203,7 +203,7 @@ describe('SimpleDTO', function (): void {
             ]);
         });
 
-        it('converts nested DTOs to array', function (): void {
+        it('converts nested DTOs to array', function(): void {
             $address = TestAddressDTO::fromArray([
                 'street' => '123 Main St',
                 'city' => 'New York',
@@ -221,30 +221,30 @@ describe('SimpleDTO', function (): void {
         });
     });
 
-    describe('Immutability', function (): void {
-        it('has readonly properties', function (): void {
+    describe('Immutability', function(): void {
+        it('has readonly properties', function(): void {
             $dto = TestUserDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
             ]);
 
-            expect(fn () => $dto->name = 'Jane Doe')
+            expect(fn(): string => $dto->name = 'Jane Doe')
                 ->toThrow(Error::class);
         });
     });
 
-    describe('Type Safety', function (): void {
-        it('enforces type constraints', function (): void {
-            expect(fn () => TestUserDTO::fromArray([
+    describe('Type Safety', function(): void {
+        it('enforces type constraints', function(): void {
+            expect(fn(): \TestUserDTO => TestUserDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 'thirty', // Wrong type
             ]))->toThrow(TypeError::class);
         });
 
-        it('requires all mandatory properties', function (): void {
-            expect(fn () => TestUserDTO::fromArray([
+        it('requires all mandatory properties', function(): void {
+            expect(fn(): \TestUserDTO => TestUserDTO::fromArray([
                 'name' => 'John Doe',
                 // Missing email and age
             ]))->toThrow(ArgumentCountError::class);

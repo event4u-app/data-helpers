@@ -155,7 +155,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_test "Running Quick Test (PHP 8.4)" \
-          docker exec {{.PHP_84}} composer test
+          docker exec {{.PHP_84}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
 
   check:
     desc: Quick quality check (PHP 8.4)
@@ -163,15 +163,15 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_header "Running Quick Quality Check (PHP 8.4)"
-        
+
         task_step "Running ECS..."
-        docker exec {{.PHP_84}} composer ecs
+        docker exec {{.PHP_84}} vendor/bin/ecs check
         ECS_EXIT=$?
-        
+
         task_step "Running PHPStan..."
-        docker exec {{.PHP_84}} composer phpstan
+        docker exec {{.PHP_84}} vendor/bin/phpstan analyse --memory-limit=512M
         PHPSTAN_EXIT=$?
-        
+
         echo ""
         if [ $ECS_EXIT -eq 0 ] && [ $PHPSTAN_EXIT -eq 0 ]; then
           task_success "Quality check passed!"
@@ -193,17 +193,17 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_header "Running Pre-Commit Checks"
-        
+
         task_step "Fixing code style with ECS..."
-        docker exec {{.PHP_84}} composer ecs:fix
-        
+        docker exec {{.PHP_84}} vendor/bin/ecs check --fix
+
         task_step "Applying Rector fixes..."
-        docker exec {{.PHP_84}} composer rector:fix
-        
+        docker exec {{.PHP_84}} vendor/bin/rector process
+
         task_step "Running tests..."
-        docker exec {{.PHP_84}} composer test
+        docker exec {{.PHP_84}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
         TEST_EXIT=$?
-        
+
         echo ""
         if [ $TEST_EXIT -eq 0 ]; then
           task_success "Pre-commit checks passed!"
@@ -221,23 +221,29 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_header "Running Pre-Push Checks"
-        
+
         task_step "Fixing code style with ECS..."
-        docker exec {{.PHP_84}} composer ecs:fix
-        
+        docker exec {{.PHP_84}} vendor/bin/ecs check --fix
+
         task_step "Applying Rector fixes..."
-        docker exec {{.PHP_84}} composer rector:fix
-        
+        docker exec {{.PHP_84}} vendor/bin/rector process
+
         task_step "Running PHPStan..."
-        docker exec {{.PHP_84}} composer phpstan
+        docker exec {{.PHP_84}} vendor/bin/phpstan analyse --memory-limit=512M
         PHPSTAN_EXIT=$?
-        
+
         task_step "Running full test suite..."
-        docker exec {{.PHP_84}} composer test:full
-        TEST_EXIT=$?
-        
         echo ""
-        if [ $PHPSTAN_EXIT -eq 0 ] && [ $TEST_EXIT -eq 0 ]; then
+        task_step "  → Unit tests..."
+        docker exec {{.PHP_84}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
+        TEST_EXIT=$?
+        echo ""
+        task_step "  → E2E tests..."
+        docker exec {{.PHP_84}} bash tests-e2e/run-e2e-tests.sh
+        E2E_EXIT=$?
+
+        echo ""
+        if [ $PHPSTAN_EXIT -eq 0 ] && [ $TEST_EXIT -eq 0 ] && [ $E2E_EXIT -eq 0 ]; then
           task_success "Pre-push checks passed!"
           task_footer
           exit 0
@@ -257,7 +263,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Clearing Cache" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer cache:clear
+          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/cache-clear.php
 
   cache:stats:
     desc: Show cache statistics (use PHP=8.2|8.3|8.4)
@@ -265,7 +271,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Cache Statistics" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer cache:stats
+          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/cache-stats.php
 
   # ============================================================================
   # Utilities
@@ -277,7 +283,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Sorting Dependencies" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} composer sort-deps
+          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/sort-dependencies.php
 
   info:
     desc: Show environment information

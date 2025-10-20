@@ -33,8 +33,6 @@ class Sometimes implements ValidationRule
 {
     /**
      * Convert to Laravel validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
@@ -43,8 +41,6 @@ class Sometimes implements ValidationRule
 
     /**
      * Get validation error message.
-     *
-     * @return string|null
      */
     public function message(): ?string
     {

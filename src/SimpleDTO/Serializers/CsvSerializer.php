@@ -47,7 +47,7 @@ class CsvSerializer implements SerializerInterface
      */
     private function isCollection(array $data): bool
     {
-        if (empty($data)) {
+        if ($data === []) {
             return false;
         }
 
@@ -64,7 +64,7 @@ class CsvSerializer implements SerializerInterface
      */
     private function serializeCollection(array $data): string
     {
-        if (empty($data)) {
+        if ($data === []) {
             return '';
         }
 
@@ -72,7 +72,7 @@ class CsvSerializer implements SerializerInterface
         $first = reset($data);
 
         // Flatten nested arrays
-        $flatData = array_map(fn($row) => $this->flattenArray($row), $data);
+        $flatData = array_map(fn($row): array => $this->flattenArray($row), $data);
 
         // Get headers from first row
         $headers = array_keys($flatData[0]);
@@ -122,7 +122,7 @@ class CsvSerializer implements SerializerInterface
         $result = [];
 
         foreach ($array as $key => $value) {
-            $newKey = $prefix === '' ? $key : $prefix . '.' . $key;
+            $newKey = '' === $prefix ? $key : $prefix . '.' . $key;
 
             if (is_array($value)) {
                 $result = array_merge($result, $this->flattenArray($value, $newKey));
@@ -150,9 +150,7 @@ class CsvSerializer implements SerializerInterface
         return implode($this->delimiter, $formatted);
     }
 
-    /**
-     * Format a value for CSV output.
-     */
+    /** Format a value for CSV output. */
     private function formatValue(mixed $value): string
     {
         if (null === $value) {
@@ -163,7 +161,7 @@ class CsvSerializer implements SerializerInterface
             return $value ? 'true' : 'false';
         }
 
-        $value = (string) $value;
+        $value = (string)$value;
 
         // Check if value needs enclosure
         if ($this->needsEnclosure($value)) {
@@ -176,9 +174,7 @@ class CsvSerializer implements SerializerInterface
         return $value;
     }
 
-    /**
-     * Check if a value needs enclosure.
-     */
+    /** Check if a value needs enclosure. */
     private function needsEnclosure(string $value): bool
     {
         return str_contains($value, $this->delimiter)

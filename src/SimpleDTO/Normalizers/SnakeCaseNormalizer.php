@@ -43,16 +43,14 @@ class SnakeCaseNormalizer implements NormalizerInterface
         return $result;
     }
 
-    /**
-     * Convert a string to snake_case.
-     */
+    /** Convert a string to snake_case. */
     private function toSnakeCase(string $string): string
     {
         // Insert underscore before uppercase letters
         $string = preg_replace('/([a-z])([A-Z])/', '$1_$2', $string);
 
         // Convert to lowercase
-        return strtolower($string);
+        return strtolower((string) $string);
     }
 }
 

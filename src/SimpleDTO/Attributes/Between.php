@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -42,15 +42,14 @@ class Between implements ValidationRule, SymfonyConstraint
         return 'between:' . $this->min . ',' . $this->max;
     }
 
-
     public function constraint(): Constraint|array
     {
         $this->ensureSymfonyValidatorAvailable();
 
         return new Assert\Range(
+            notInRangeMessage: $this->message,
             min: $this->min,
-            max: $this->max,
-            notInRangeMessage: $this->message
+            max: $this->max
         );
     }
     public function message(): ?string

@@ -192,4 +192,3 @@ describe('CollectionCast', function(): void {
     });
 });
 
-

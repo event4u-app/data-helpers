@@ -11,9 +11,7 @@ namespace event4u\DataHelpers\SimpleDTO\Normalizers;
  */
 class DefaultValuesNormalizer implements NormalizerInterface
 {
-    /**
-     * @param array<string, mixed> $defaults Map of field names to default values
-     */
+    /** @param array<string, mixed> $defaults Map of field names to default values */
     public function __construct(
         private readonly array $defaults = []
     ) {}

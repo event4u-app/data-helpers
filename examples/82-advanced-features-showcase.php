@@ -62,7 +62,7 @@ class AdvancedUserDTO extends SimpleDTO
         public readonly string $password,
         
         // Core conditional attributes
-        #[WhenCallback(fn() => true)]
+        #[WhenCallback(fn(): true => true)]
         public readonly ?string $callbackField = null,
         
         #[WhenValue('status', 'active')]
@@ -115,7 +115,7 @@ class AdvancedUserDTO extends SimpleDTO
     #[Computed]
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return 'admin' === $this->role;
     }
     
     #[Computed]
@@ -167,10 +167,10 @@ $user = new AdvancedUserDTO(
     posts: null,
 );
 
-echo "User: {$user->name}\n";
-echo "Role: {$user->role}\n";
-echo "Status: {$user->status}\n";
-echo "Full Name (Computed): {$user->fullName()}\n";
+echo sprintf('User: %s%s', $user->name, PHP_EOL);
+echo sprintf('Role: %s%s', $user->role, PHP_EOL);
+echo sprintf('Status: %s%s', $user->status, PHP_EOL);
+echo sprintf('Full Name (Computed): %s%s', $user->fullName(), PHP_EOL);
 echo "Is Admin (Computed): " . ($user->isAdmin() ? 'Yes' : 'No') . "\n";
 echo "Account Age (Computed): {$user->accountAge()} days\n\n";
 
@@ -247,9 +247,9 @@ $users = [
 
 $collection = DataCollection::make($users, AdvancedUserDTO::class);
 
-echo "Total users: {$collection->count()}\n";
+echo sprintf('Total users: %s%s', $collection->count(), PHP_EOL);
 echo "Active users: " . $collection->filter(fn($u) => $u->isActive)->count() . "\n";
-echo "Admins: " . $collection->filter(fn($u) => $u->role === 'admin')->count() . "\n\n";
+echo "Admins: " . $collection->filter(fn($u): bool => 'admin' === $u->role)->count() . "\n\n";
 
 // 7. Collection methods
 echo "7. Collection Methods:\n";
@@ -265,7 +265,7 @@ echo "\n";
 $sortedByName = $collection->sortBy('name');
 echo "Sorted by name:\n";
 foreach ($sortedByName as $u) {
-    echo "  - {$u->name}\n";
+    echo sprintf('  - %s%s', $u->name, PHP_EOL);
 }
 echo "\n";
 
@@ -286,13 +286,13 @@ class PostDTO extends SimpleDTO
 }
 
 $post = new PostDTO(
-    id: 1,
     title: 'My First Post',
+    id: 1,
     author: $user,
 );
 
-echo "Post: {$post->title}\n";
-echo "Author: {$post->author->name}\n";
+echo sprintf('Post: %s%s', $post->title, PHP_EOL);
+echo sprintf('Author: %s%s', $post->author->name, PHP_EOL);
 echo "Author Role: {$post->author->role}\n\n";
 
 echo json_encode($post->toArray(), JSON_PRETTY_PRINT) . "\n\n";

@@ -6,8 +6,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenGuest;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenCan;
+use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenGuest;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenRole;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
@@ -202,7 +202,7 @@ $adminWithPermission = new class {
     public string $role = 'admin';
     public function can(string $ability): bool
     {
-        return $ability === 'view-secrets';
+        return 'view-secrets' === $ability;
     }
 };
 
@@ -287,7 +287,7 @@ $adminWithPayment = new class {
     public string $role = 'admin';
     public function can(string $ability): bool
     {
-        return $ability === 'view-payment-details';
+        return 'view-payment-details' === $ability;
     }
 };
 print_r($order->withContext(['user' => $adminWithPayment])->toArray());

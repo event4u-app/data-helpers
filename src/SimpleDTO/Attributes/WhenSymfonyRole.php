@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use Throwable;
 
 /**
  * Include property only when user has the specified Symfony role(s).
@@ -31,9 +32,7 @@ class WhenSymfonyRole implements ConditionalProperty
 {
     private readonly array $roles;
 
-    /**
-     * @param string|array $roles Role(s) to check
-     */
+    /** @param string|array $roles Role(s) to check */
     public function __construct(
         string|array $roles,
     ) {
@@ -70,7 +69,7 @@ class WhenSymfonyRole implements ConditionalProperty
                         return false;
                     }
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable) {
                 // Silently fail if Symfony Security is not available
             }
         }

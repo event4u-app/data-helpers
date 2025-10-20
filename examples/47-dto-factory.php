@@ -69,8 +69,8 @@ echo "------------------------------------------\n";
 
 $userData = UserDTOFactory::new()->make();
 echo "User data array:\n";
-echo "  Name: {$userData['name']}\n";
-echo "  Email: {$userData['email']}\n";
+echo sprintf('  Name: %s%s', $userData['name'], PHP_EOL);
+echo sprintf('  Email: %s%s', $userData['email'], PHP_EOL);
 echo "  Age: {$userData['age']}\n\n";
 
 // Example 5: Factory States
@@ -80,7 +80,7 @@ echo "-------------------------\n";
 $adminUser = UserDTOFactory::new()
     ->state('admin', ['age' => 99])
     ->create();
-echo "Admin user: {$adminUser->name}, Age: {$adminUser->age}\n";
+echo sprintf('Admin user: %s, Age: %s%s', $adminUser->name, $adminUser->age, PHP_EOL);
 
 $verifiedUser = UserDTOFactory::new()
     ->state('verified', ['name' => 'Verified User'])
@@ -94,7 +94,7 @@ echo "--------------------------------------------\n";
 $users = UserDTOFactory::new()->count(3)->make();
 echo "Created " . count($users) . " user data arrays:\n";
 foreach ($users as $userData) {
-    echo "  - {$userData['name']} ({$userData['email']}), Age: {$userData['age']}\n";
+    echo sprintf('  - %s (%s), Age: %s%s', $userData['name'], $userData['email'], $userData['age'], PHP_EOL);
 }
 echo "\n";
 
@@ -103,8 +103,8 @@ echo "Example 7: Factory with Validation\n";
 echo "-----------------------------------\n";
 
 use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Min;
 use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Max;
+use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Min;
 
 class ValidatedUserDTO extends SimpleDTO
 {

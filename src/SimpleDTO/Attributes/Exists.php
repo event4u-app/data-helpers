@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Validation attribute: Value must exist in database table.
@@ -50,24 +49,17 @@ class Exists implements ValidationRule, SymfonyConstraint
 
     /**
      * Get validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
-        $rule = "exists:{$this->table},{$this->column}";
-
         if (null !== $this->connection) {
-            $rule = "exists:{$this->connection}.{$this->table},{$this->column}";
+            return sprintf('exists:%s.%s,%s', $this->connection, $this->table, $this->column);
         }
-
-        return $rule;
+        return sprintf('exists:%s,%s', $this->table, $this->column);
     }
 
     /**
      * Get validation error message.
-     *
-     * @return string|null
      */
     public function message(): ?string
     {
@@ -83,8 +75,6 @@ class Exists implements ValidationRule, SymfonyConstraint
      *
      * For now, we return an empty array to indicate this constraint
      * needs special handling at the application level.
-     *
-     * @return Constraint|array
      */
     public function constraint(): Constraint|array
     {

@@ -120,7 +120,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
             // DateTimeCast throws exception for invalid format - we expect this
             // PHP 8.3+ throws DateMalformedStringException, PHP 8.2 throws Exception
             $expectedException = PHP_VERSION_ID >= 80300 ? DateMalformedStringException::class : Exception::class;
-            expect(fn() => $dto::fromArray(['date' => 'invalid-date-format']))
+            expect(fn(): object => $dto::fromArray(['date' => 'invalid-date-format']))
                 ->toThrow($expectedException);
         });
 

@@ -43,9 +43,7 @@ class CamelCaseNormalizer implements NormalizerInterface
         return $result;
     }
 
-    /**
-     * Convert a string to camelCase.
-     */
+    /** Convert a string to camelCase. */
     private function toCamelCase(string $string): string
     {
         // Convert snake_case to camelCase

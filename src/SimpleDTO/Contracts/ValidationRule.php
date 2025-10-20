@@ -35,8 +35,6 @@ interface ValidationRule
      * Get custom error message for this rule (optional).
      *
      * Returns null to use Laravel's default message.
-     *
-     * @return string|null
      */
     public function message(): ?string;
 }

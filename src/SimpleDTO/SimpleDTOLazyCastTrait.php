@@ -55,9 +55,6 @@ trait SimpleDTOLazyCastTrait
      * Check if a cast is required even for null values.
      *
      * Some casts (like default values) should be applied even for null.
-     *
-     * @param string $cast
-     * @return bool
      */
     private static function isCastRequired(string $cast): bool
     {
@@ -107,8 +104,6 @@ trait SimpleDTOLazyCastTrait
 
     /**
      * Mark a property as casted.
-     *
-     * @param string $property
      */
     private function markPropertyAsCasted(string $property): void
     {
@@ -117,18 +112,13 @@ trait SimpleDTOLazyCastTrait
 
     /**
      * Check if a property has been casted.
-     *
-     * @param string $property
-     * @return bool
      */
     private function isPropertyCasted(string $property): bool
     {
         return $this->castedProperties[$property] ?? false;
     }
 
-    /**
-     * Clear casted properties tracking.
-     */
+    /** Clear casted properties tracking. */
     private function clearCastedProperties(): void
     {
         $this->castedProperties = [];
@@ -192,19 +182,11 @@ trait SimpleDTOLazyCastTrait
 
     /**
      * Optimize nested DTO casting by checking if value is already a DTO instance.
-     *
-     * @param mixed $value
-     * @param string $dtoClass
-     * @return bool
      */
     private static function isAlreadyCasted(mixed $value, string $dtoClass): bool
     {
         // Check if value is already an instance of the target DTO class
-        if (is_object($value) && $value instanceof $dtoClass) {
-            return true;
-        }
-
-        return false;
+        return $value instanceof $dtoClass;
     }
 
     /**

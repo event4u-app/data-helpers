@@ -5,9 +5,9 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\Support\ReflectionCache;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\Support\ReflectionCache;
 
 echo "=== Optimized Reflection Caching ===\n\n";
 
@@ -48,9 +48,12 @@ $user = UserDTO::fromArray(['user_name' => 'John Doe', 'age' => 30, 'email' => '
 
 $properties = ReflectionCache::getProperties($user);
 echo "Properties found: " . count($properties) . "\n";
-foreach ($properties as $name => $property) {
-    if (!str_starts_with($name, '__') && !in_array($name, ['onlyProperties', 'exceptProperties', 'visibilityContext', 'computedCache', 'includedComputed', 'includedLazy', 'includeAllLazy', 'wrapKey', 'objectVarsCache', 'castedProperties'])) {
-        echo "  - $name\n";
+foreach (array_keys($properties) as $name) {
+    if (!str_starts_with($name, '__') && !in_array(
+        $name,
+        ['onlyProperties', 'exceptProperties', 'visibilityContext', 'computedCache', 'includedComputed', 'includedLazy', 'includeAllLazy', 'wrapKey', 'objectVarsCache', 'castedProperties']
+    )) {
+        echo sprintf('  - %s%s', $name, PHP_EOL);
     }
 }
 echo "\n";
@@ -62,9 +65,9 @@ echo "----------------\n";
 $methods = ReflectionCache::getMethods($user);
 echo "Public methods found: " . count($methods) . "\n";
 $displayedCount = 0;
-foreach ($methods as $name => $method) {
-    if (!str_starts_with($name, '__') && $displayedCount < 5) {
-        echo "  - $name\n";
+foreach (array_keys($methods) as $name) {
+    if (!str_starts_with($name, '__') && 5 > $displayedCount) {
+        echo sprintf('  - %s%s', $name, PHP_EOL);
         $displayedCount++;
     }
 }
@@ -82,7 +85,7 @@ foreach ($nameAttrs as $attrName => $attr) {
 
 $methodAttrs = ReflectionCache::getMethodAttributes($user, 'displayName');
 echo "Attributes on 'displayName' method: " . count($methodAttrs) . "\n";
-foreach ($methodAttrs as $attrName => $attr) {
+foreach (array_keys($methodAttrs) as $attrName) {
     echo "  - " . basename(str_replace('\\', '/', $attrName)) . "\n";
 }
 echo "\n";
@@ -92,12 +95,12 @@ echo "5. Cache Statistics\n";
 echo "------------------\n";
 
 $stats = ReflectionCache::getStats();
-echo "Classes cached: {$stats['classes']}\n";
-echo "Properties cached: {$stats['properties']}\n";
-echo "Methods cached: {$stats['methods']}\n";
-echo "Property attributes cached: {$stats['propertyAttributes']}\n";
-echo "Method attributes cached: {$stats['methodAttributes']}\n";
-echo "Class attributes cached: {$stats['classAttributes']}\n";
+echo sprintf('Classes cached: %d%s', $stats['classes'], PHP_EOL);
+echo sprintf('Properties cached: %d%s', $stats['properties'], PHP_EOL);
+echo sprintf('Methods cached: %d%s', $stats['methods'], PHP_EOL);
+echo sprintf('Property attributes cached: %d%s', $stats['propertyAttributes'], PHP_EOL);
+echo sprintf('Method attributes cached: %d%s', $stats['methodAttributes'], PHP_EOL);
+echo sprintf('Class attributes cached: %d%s', $stats['classAttributes'], PHP_EOL);
 echo "Estimated memory: " . number_format($stats['estimatedMemory']) . " bytes\n\n";
 
 // Example 6: Performance Comparison
@@ -109,7 +112,7 @@ ReflectionCache::clear();
 
 // Without cache (first call)
 $start = microtime(true);
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     $ref = ReflectionCache::getClass(UserDTO::class);
     $props = ReflectionCache::getProperties(UserDTO::class);
 }
@@ -117,7 +120,7 @@ $firstRun = microtime(true) - $start;
 
 // With cache (subsequent calls)
 $start = microtime(true);
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     $ref = ReflectionCache::getClass(UserDTO::class);
     $props = ReflectionCache::getProperties(UserDTO::class);
 }
@@ -155,7 +158,7 @@ ReflectionCache::getClass(AddressDTO::class);
 ReflectionCache::getClass(OrderDTO::class);
 
 $stats = ReflectionCache::getStats();
-echo "Total classes cached: {$stats['classes']}\n";
+echo sprintf('Total classes cached: %d%s', $stats['classes'], PHP_EOL);
 echo "Total estimated memory: " . number_format($stats['estimatedMemory']) . " bytes\n\n";
 
 // Example 8: Cache Clearing
@@ -164,14 +167,14 @@ echo "----------------\n";
 
 $statsBefore = ReflectionCache::getStats();
 echo "Before clearing:\n";
-echo "  Classes: {$statsBefore['classes']}\n";
-echo "  Properties: {$statsBefore['properties']}\n";
+echo sprintf('  Classes: %d%s', $statsBefore['classes'], PHP_EOL);
+echo sprintf('  Properties: %d%s', $statsBefore['properties'], PHP_EOL);
 
 ReflectionCache::clear();
 
 $statsAfter = ReflectionCache::getStats();
 echo "After clearing:\n";
-echo "  Classes: {$statsAfter['classes']}\n";
+echo sprintf('  Classes: %d%s', $statsAfter['classes'], PHP_EOL);
 echo "  Properties: {$statsAfter['properties']}\n\n";
 
 // Example 9: Selective Cache Clearing
@@ -185,7 +188,7 @@ ReflectionCache::getClass(OrderDTO::class);
 
 $statsBefore = ReflectionCache::getStats();
 echo "Before clearing UserDTO:\n";
-echo "  Classes: {$statsBefore['classes']}\n";
+echo sprintf('  Classes: %d%s', $statsBefore['classes'], PHP_EOL);
 
 ReflectionCache::clearClass(UserDTO::class);
 
@@ -201,11 +204,11 @@ $start = microtime(true);
 
 // Create 1000 DTO instances
 $users = [];
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     $users[] = UserDTO::fromArray([
-        'user_name' => "User $i",
+        'user_name' => 'User ' . $i,
         'age' => 20 + ($i % 50),
-        'email' => "user$i@example.com",
+        'email' => sprintf('user%d@example.com', $i),
     ]);
 }
 
@@ -217,9 +220,9 @@ echo "Throughput: " . number_format(1000 / $duration) . " instances/second\n\n";
 
 $finalStats = ReflectionCache::getStats();
 echo "Final cache statistics:\n";
-echo "  Classes: {$finalStats['classes']}\n";
-echo "  Properties: {$finalStats['properties']}\n";
-echo "  Methods: {$finalStats['methods']}\n";
+echo sprintf('  Classes: %d%s', $finalStats['classes'], PHP_EOL);
+echo sprintf('  Properties: %d%s', $finalStats['properties'], PHP_EOL);
+echo sprintf('  Methods: %d%s', $finalStats['methods'], PHP_EOL);
 echo "  Estimated memory: " . number_format($finalStats['estimatedMemory']) . " bytes\n\n";
 
 echo "=== Optimized Reflection Complete ===\n";

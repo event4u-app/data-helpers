@@ -62,7 +62,7 @@ class UserResourceDTO extends SimpleDTO
     #[Computed]
     public function url(): string
     {
-        return "https://api.example.com/users/{$this->id}";
+        return 'https://api.example.com/users/' . $this->id;
     }
 }
 
@@ -88,7 +88,7 @@ class PostResourceDTO extends SimpleDTO
     #[Computed]
     public function url(): string
     {
-        return "https://api.example.com/posts/{$this->slug}";
+        return 'https://api.example.com/posts/' . $this->slug;
     }
 }
 

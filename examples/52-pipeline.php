@@ -41,7 +41,7 @@ $data = ['name' => '  John Doe  ', 'age' => '30', 'active' => '1'];
 $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
 
 echo "Original: name='{$data['name']}', age='{$data['age']}', active='{$data['active']}'\n";
-echo "After pipeline: name='{$user->name}', age={$user->age}, active=" . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf("After pipeline: name='%s', age=%s, active=", $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 2: Pipeline with Validation
 echo "Example 2: Pipeline with Validation\n";
@@ -58,16 +58,16 @@ $pipeline->addStage(new ValidationStage([
 try {
     $data = ['name' => 'Jane Smith', 'age' => 25];
     $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
-    echo "✅  Validation passed: {$user->name}, age {$user->age}\n";
-} catch (ValidationException $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n";
+    echo sprintf('✅  Validation passed: %s, age %s%s', $user->name, $user->age, PHP_EOL);
+} catch (ValidationException $validationException) {
+    echo sprintf('❌  Validation failed: %s%s', $validationException->getMessage(), PHP_EOL);
 }
 
 try {
     $data = ['name' => 'Too Young', 'age' => 15, 'active' => true];
     $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
-} catch (ValidationException $e) {
-    echo "❌  Validation failed for age 15: " . implode(', ', $e->getFieldErrors('age')) . "\n";
+} catch (ValidationException $validationException) {
+    echo "❌  Validation failed for age 15: " . implode(', ', $validationException->getFieldErrors('age')) . "\n";
 }
 
 echo "\n";
@@ -84,7 +84,7 @@ $data = ['name' => 'Bob'];
 $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
 
 echo "Input: " . json_encode($data) . "\n";
-echo "After pipeline: name={$user->name}, age={$user->age}, active=" . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf('After pipeline: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 4: CallbackStage
 echo "Example 4: CallbackStage\n";
@@ -93,7 +93,7 @@ echo "------------------------\n";
 $pipeline = new DTOPipeline();
 $pipeline->addStage(new CallbackStage(function(array $data): array {
     if (isset($data['name'])) {
-        $data['name'] = strtoupper($data['name']);
+        $data['name'] = strtoupper((string) $data['name']);
     }
 
     return $data;
@@ -102,7 +102,7 @@ $pipeline->addStage(new CallbackStage(function(array $data): array {
 $data = ['name' => 'alice', 'age' => 28, 'active' => true];
 $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
 
-echo "Original: {$data['name']}\n";
+echo sprintf('Original: %s%s', $data['name'], PHP_EOL);
 echo "After callback: {$user->name}\n\n";
 
 // Example 5: Complex Pipeline
@@ -118,12 +118,12 @@ $pipeline->addStage(new ValidationStage(['name' => ['required'], 'age' => ['min:
 $data = ['name' => '  Charlie  ', 'age' => '35'];
 $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
 
-echo "Processed: name={$user->name}, age={$user->age}, active=" . ($user->active ? 'true' : 'false') . "\n";
+echo sprintf('Processed: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n";
 
 $context = $pipeline->getContext();
 echo "Pipeline stages executed:\n";
 foreach ($context as $stageName => $stageContext) {
-    echo "  - {$stageName}: {$stageContext['status']}\n";
+    echo sprintf('  - %s: %s%s', $stageName, $stageContext['status'], PHP_EOL);
 }
 
 echo "\n";
@@ -137,7 +137,7 @@ class EmailNormalizerStage implements PipelineStageInterface
     public function process(array $data): array
     {
         if (isset($data['email'])) {
-            $data['email'] = strtolower(trim($data['email']));
+            $data['email'] = strtolower(trim((string) $data['email']));
         }
 
         return $data;
@@ -174,16 +174,16 @@ echo "------------------------------------------\n";
 $pipeline = new DTOPipeline();
 $pipeline->setStopOnError(true);
 $pipeline->addStage(new ValidationStage(['name' => ['required']], 'validation'));
-$pipeline->addStage(new CallbackStage(fn($data) => $data, 'never_reached'));
+$pipeline->addStage(new CallbackStage(fn($data): array => $data, 'never_reached'));
 
 try {
     $data = ['age' => 30];
     $pipeline->process($data);
-} catch (ValidationException $e) {
+} catch (ValidationException) {
     echo "❌  Pipeline stopped on validation error\n";
     $context = $pipeline->getContext();
     echo "Stages executed: " . implode(', ', array_keys($context)) . "\n";
-    echo "Validation stage status: {$context['validation']['status']}\n";
+    echo sprintf('Validation stage status: %s%s', $context['validation']['status'], PHP_EOL);
 }
 
 echo "\n";
@@ -195,7 +195,7 @@ echo "----------------------------------------------\n";
 $pipeline = new DTOPipeline();
 $pipeline->setStopOnError(false);
 $pipeline->addStage(new ValidationStage(['name' => ['required']], 'validation'));
-$pipeline->addStage(new CallbackStage(function($data) {
+$pipeline->addStage(new CallbackStage(function($data): array {
     $data['processed'] = true;
 
     return $data;
@@ -208,7 +208,7 @@ echo "Pipeline continued despite validation error\n";
 echo "Result: " . json_encode($result) . "\n";
 
 $context = $pipeline->getContext();
-echo "Validation status: {$context['validation']['status']}\n";
+echo sprintf('Validation status: %s%s', $context['validation']['status'], PHP_EOL);
 echo "Callback status: {$context['callback']['status']}\n\n";
 
 // Example 9: processWith Method
@@ -219,7 +219,7 @@ $user = UserDTO::fromArray(['name' => '  eve  ', 'age' => 40, 'active' => true])
 
 $pipeline = new DTOPipeline();
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
-$pipeline->addStage(new CallbackStage(function($data) {
+$pipeline->addStage(new CallbackStage(function($data): array {
     if (isset($data['name'])) {
         $data['name'] = ucwords($data['name']);
     }
@@ -254,7 +254,7 @@ echo "Processing multiple users with same pipeline:\n";
 foreach ($users as $userData) {
     $userPipeline->clearContext();
     $user = UserDTO::fromArrayWithPipeline($userData, $userPipeline);
-    echo "  - {$user->name}, age {$user->age}\n";
+    echo sprintf('  - %s, age %s%s', $user->name, $user->age, PHP_EOL);
 }
 
 echo "\n";

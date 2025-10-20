@@ -37,7 +37,6 @@ trait SimpleDTOWithTrait
      *
      * @param string|array<string, mixed> $key Property name or array of properties
      * @param mixed $value Property value (only used when $key is string)
-     * @return static
      */
     public function with(string|array $key, mixed $value = null): static
     {
@@ -63,7 +62,7 @@ trait SimpleDTOWithTrait
      */
     private function getAdditionalData(): array
     {
-        if ($this->additionalData === null) {
+        if (null === $this->additionalData) {
             return [];
         }
 
@@ -88,12 +87,10 @@ trait SimpleDTOWithTrait
 
     /**
      * Check if additional data exists.
-     *
-     * @return bool
      */
     private function hasAdditionalData(): bool
     {
-        return $this->additionalData !== null && !empty($this->additionalData);
+        return null !== $this->additionalData && !empty($this->additionalData);
     }
 }
 

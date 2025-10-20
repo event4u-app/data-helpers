@@ -6,7 +6,7 @@ namespace event4u\DataHelpers\SimpleDTO;
 
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 use event4u\DataHelpers\Support\ReflectionCache;
-use ReflectionClass;
+use ReflectionAttribute;
 use ReflectionProperty;
 
 /**
@@ -28,7 +28,6 @@ trait SimpleDTOConditionalTrait
      * Set context for conditional property evaluation.
      *
      * @param array<string, mixed> $context Context data
-     * @return static
      */
     public function withContext(array $context): static
     {
@@ -59,7 +58,7 @@ trait SimpleDTOConditionalTrait
         foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $attributes = $property->getAttributes(
                 ConditionalProperty::class,
-                \ReflectionAttribute::IS_INSTANCEOF
+                ReflectionAttribute::IS_INSTANCEOF
             );
 
             if (empty($attributes)) {
@@ -114,7 +113,7 @@ trait SimpleDTOConditionalTrait
     {
         $conditionals = static::getConditionalProperties();
 
-        if (empty($conditionals)) {
+        if ($conditionals === []) {
             return $data;
         }
 

@@ -31,11 +31,11 @@ class WhenPremium implements ConditionalProperty
 
         // Check if user has premium property
         if ($user && isset($user->premium)) {
-            return (bool) $user->premium;
+            return (bool)$user->premium;
         }
 
         // Check context directly
-        return ($context['is_premium'] ?? false) === true;
+        return true === ($context['is_premium'] ?? false);
     }
 }
 
@@ -140,7 +140,7 @@ class WhenFeatureFlag implements ConditionalProperty
         $features = $context['features'] ?? [];
 
         return in_array($this->flag, $features, true)
-            || ($features[$this->flag] ?? false) === true;
+            || true === ($features[$this->flag] ?? false);
     }
 }
 
@@ -173,7 +173,7 @@ print_r($profile->withContext(['features' => ['new_profile_design']])->toArray()
 
 echo "\nWith all feature flags:\n";
 print_r($profile->withContext([
-    'features' => ['new_profile_design', 'social_features']
+    'features' => ['new_profile_design', 'social_features'],
 ])->toArray());
 
 echo "\n✅  Custom WhenFeatureFlag attribute works!\n";
@@ -247,9 +247,9 @@ class DashboardDTO extends SimpleDTO
 }
 
 // Mock user objects
-$adminUser = (object) ['name' => 'Admin', 'role' => 'admin'];
-$moderatorUser = (object) ['name' => 'Moderator', 'role' => 'moderator'];
-$regularUser = (object) ['name' => 'User', 'role' => 'user'];
+$adminUser = (object)['name' => 'Admin', 'role' => 'admin'];
+$moderatorUser = (object)['name' => 'Moderator', 'role' => 'moderator'];
+$regularUser = (object)['name' => 'User', 'role' => 'user'];
 
 $dashboard = new DashboardDTO(
     'Dashboard',

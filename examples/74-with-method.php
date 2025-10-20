@@ -88,9 +88,9 @@ class ProductDTO extends SimpleDTO
 $product = new ProductDTO('Laptop', 999.99, 0.19);
 
 $productWithCalculations = $product->with([
-    'priceWithTax' => fn($dto) => round($dto->price * (1 + $dto->taxRate), 2),
-    'tax' => fn($dto) => round($dto->price * $dto->taxRate, 2),
-    'discount10' => fn($dto) => round($dto->price * 0.9, 2),
+    'priceWithTax' => fn($dto): float => round($dto->price * (1 + $dto->taxRate), 2),
+    'tax' => fn($dto): float => round($dto->price * $dto->taxRate, 2),
+    'discount10' => fn($dto): float => round($dto->price * 0.9, 2),
 ]);
 
 echo "Product with calculated values:\n";
@@ -188,7 +188,7 @@ class ArticleDTO extends SimpleDTO
 $article = new ArticleDTO('Premium Article', 'This is premium content...', true);
 
 $publicArticle = $article->with([
-    'preview' => fn($dto) => $dto->isPremium ? substr($dto->content, 0, 50) . '...' : $dto->content,
+    'preview' => fn($dto) => $dto->isPremium ? substr((string) $dto->content, 0, 50) . '...' : $dto->content,
     'requiresSubscription' => fn($dto) => $dto->isPremium,
 ]);
 
@@ -237,8 +237,8 @@ class ReportDTO extends SimpleDTO
 $report = new ReportDTO('Sales Report', ['jan' => 1000, 'feb' => 1200, 'mar' => 1500]);
 
 $enrichedReport = $report
-    ->with('total', fn($dto) => array_sum($dto->data))
-    ->with('average', fn($dto) => round(array_sum($dto->data) / count($dto->data), 2))
+    ->with('total', fn($dto): float|int => array_sum($dto->data))
+    ->with('average', fn($dto): float => round(array_sum($dto->data) / count($dto->data), 2))
     ->with('generated', date('Y-m-d H:i:s'))
     ->wrap('report');
 

@@ -34,8 +34,6 @@ class Nullable implements ValidationRule
 {
     /**
      * Convert to Laravel validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
@@ -44,8 +42,6 @@ class Nullable implements ValidationRule
 
     /**
      * Get validation error message.
-     *
-     * @return string|null
      */
     public function message(): ?string
     {

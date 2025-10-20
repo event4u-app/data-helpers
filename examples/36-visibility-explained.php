@@ -37,7 +37,7 @@ class UserDTO extends SimpleDTO
     private function canViewEmail(mixed $context): bool
     {
         // Prüfe, ob der Context eine 'role' Property hat und ob diese 'admin' ist
-        return ($context?->role ?? null) === 'admin';
+        return 'admin' === ($context?->role ?? null);
     }
 }
 
@@ -48,8 +48,8 @@ $user = UserDTO::fromArray([
 ]);
 
 echo "Schritt 1: DTO erstellt\n";
-echo "  Name: {$user->name}\n";
-echo "  Username: {$user->username}\n";
+echo sprintf('  Name: %s%s', $user->name, PHP_EOL);
+echo sprintf('  Username: %s%s', $user->username, PHP_EOL);
 echo "  Email: {$user->email}\n\n";
 
 echo "Schritt 2: toArray() OHNE Context (email wird versteckt):\n";
@@ -103,15 +103,13 @@ class ProfileDTO extends SimpleDTO
     private function canViewEmail(mixed $context): bool
     {
         return ($context?->userId ?? null) === $this->userId
-            || ($context?->role ?? null) === 'admin';
+            || 'admin' === ($context?->role ?? null);
     }
 
-    /**
-     * Phone ist nur für Admins sichtbar
-     */
+    /** Phone ist nur für Admins sichtbar */
     private function canViewPhone(mixed $context): bool
     {
-        return ($context?->role ?? null) === 'admin';
+        return 'admin' === ($context?->role ?? null);
     }
 }
 
@@ -190,9 +188,7 @@ class OrderDTO extends SimpleDTO
         return in_array($context?->role ?? null, ['finance', 'admin'], true);
     }
 
-    /**
-     * Internal Notes sind nur für interne Mitarbeiter sichtbar
-     */
+    /** Internal Notes sind nur für interne Mitarbeiter sichtbar */
     private function canViewInternalNotes(mixed $context): bool
     {
         return in_array($context?->role ?? null, ['support', 'finance', 'admin'], true);
@@ -276,17 +272,17 @@ class DocumentDTO extends SimpleDTO
     {
         // Context kann ein Array sein
         if (is_array($context)) {
-            return ($context['hasAccess'] ?? false) === true;
+            return true === ($context['hasAccess'] ?? false);
         }
 
         // Context kann ein Objekt sein
         if (is_object($context)) {
-            return ($context->hasAccess ?? false) === true;
+            return true === ($context->hasAccess ?? false);
         }
 
         // Context kann auch ein String sein
         if (is_string($context)) {
-            return $context === 'granted';
+            return 'granted' === $context;
         }
 
         return false;

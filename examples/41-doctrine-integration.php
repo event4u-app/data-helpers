@@ -84,17 +84,17 @@ $user->setAge(30);
 $dto = UserDTO::fromEntity($user);
 
 echo "Entity data:\n";
-echo "  ID: {$user->getId()}\n";
-echo "  Name: {$user->getName()}\n";
-echo "  Email: {$user->getEmail()}\n";
-echo "  Age: {$user->getAge()}\n";
+echo sprintf('  ID: %s%s', $user->getId(), PHP_EOL);
+echo sprintf('  Name: %s%s', $user->getName(), PHP_EOL);
+echo sprintf('  Email: %s%s', $user->getEmail(), PHP_EOL);
+echo sprintf('  Age: %s%s', $user->getAge(), PHP_EOL);
 echo "\n";
 
 echo "DTO data:\n";
-echo "  ID: {$dto->id}\n";
-echo "  Name: {$dto->name}\n";
-echo "  Email: {$dto->email}\n";
-echo "  Age: {$dto->age}\n";
+echo sprintf('  ID: %s%s', $dto->id, PHP_EOL);
+echo sprintf('  Name: %s%s', $dto->name, PHP_EOL);
+echo sprintf('  Email: %s%s', $dto->email, PHP_EOL);
+echo sprintf('  Age: %s%s', $dto->age, PHP_EOL);
 echo "\n\n";
 
 // Example 2: Create Entity from DTO
@@ -110,15 +110,15 @@ $dto2 = UserDTO::fromArray([
 $entity = $dto2->toEntity(User::class);
 
 echo "DTO data:\n";
-echo "  Name: {$dto2->name}\n";
-echo "  Email: {$dto2->email}\n";
-echo "  Age: {$dto2->age}\n";
+echo sprintf('  Name: %s%s', $dto2->name, PHP_EOL);
+echo sprintf('  Email: %s%s', $dto2->email, PHP_EOL);
+echo sprintf('  Age: %s%s', $dto2->age, PHP_EOL);
 echo "\n";
 
 echo "Entity data:\n";
-echo "  Name: {$entity->getName()}\n";
-echo "  Email: {$entity->getEmail()}\n";
-echo "  Age: {$entity->getAge()}\n";
+echo sprintf('  Name: %s%s', $entity->getName(), PHP_EOL);
+echo sprintf('  Email: %s%s', $entity->getEmail(), PHP_EOL);
+echo sprintf('  Age: %s%s', $entity->getAge(), PHP_EOL);
 echo "\n\n";
 
 // Example 3: Update Entity from DTO
@@ -132,10 +132,10 @@ $existingEntity->setEmail('old@example.com');
 $existingEntity->setAge(40);
 
 echo "Before update:\n";
-echo "  ID: {$existingEntity->getId()}\n";
-echo "  Name: {$existingEntity->getName()}\n";
-echo "  Email: {$existingEntity->getEmail()}\n";
-echo "  Age: {$existingEntity->getAge()}\n";
+echo sprintf('  ID: %s%s', $existingEntity->getId(), PHP_EOL);
+echo sprintf('  Name: %s%s', $existingEntity->getName(), PHP_EOL);
+echo sprintf('  Email: %s%s', $existingEntity->getEmail(), PHP_EOL);
+echo sprintf('  Age: %s%s', $existingEntity->getAge(), PHP_EOL);
 echo "\n";
 
 $updateDto = UserDTO::fromArray([
@@ -150,10 +150,10 @@ $existingEntity->setEmail($updateDto->email);
 $existingEntity->setAge($updateDto->age);
 
 echo "After update:\n";
-echo "  ID: {$existingEntity->getId()}\n";
-echo "  Name: {$existingEntity->getName()}\n";
-echo "  Email: {$existingEntity->getEmail()}\n";
-echo "  Age: {$existingEntity->getAge()}\n";
+echo sprintf('  ID: %s%s', $existingEntity->getId(), PHP_EOL);
+echo sprintf('  Name: %s%s', $existingEntity->getName(), PHP_EOL);
+echo sprintf('  Email: %s%s', $existingEntity->getEmail(), PHP_EOL);
+echo sprintf('  Age: %s%s', $existingEntity->getAge(), PHP_EOL);
 echo "\n\n";
 
 // Example 4: Round-trip (Entity → DTO → Entity)
@@ -167,19 +167,19 @@ $originalEntity->setEmail('roundtrip@example.com');
 $originalEntity->setAge(35);
 
 echo "Original entity:\n";
-echo "  ID: {$originalEntity->getId()}\n";
-echo "  Name: {$originalEntity->getName()}\n";
-echo "  Email: {$originalEntity->getEmail()}\n";
-echo "  Age: {$originalEntity->getAge()}\n";
+echo sprintf('  ID: %s%s', $originalEntity->getId(), PHP_EOL);
+echo sprintf('  Name: %s%s', $originalEntity->getName(), PHP_EOL);
+echo sprintf('  Email: %s%s', $originalEntity->getEmail(), PHP_EOL);
+echo sprintf('  Age: %s%s', $originalEntity->getAge(), PHP_EOL);
 echo "\n";
 
 $roundTripDto = UserDTO::fromEntity($originalEntity);
 $roundTripEntity = $roundTripDto->toEntity(User::class);
 
 echo "After round-trip:\n";
-echo "  Name: {$roundTripEntity->getName()}\n";
-echo "  Email: {$roundTripEntity->getEmail()}\n";
-echo "  Age: {$roundTripEntity->getAge()}\n";
+echo sprintf('  Name: %s%s', $roundTripEntity->getName(), PHP_EOL);
+echo sprintf('  Email: %s%s', $roundTripEntity->getEmail(), PHP_EOL);
+echo sprintf('  Age: %s%s', $roundTripEntity->getAge(), PHP_EOL);
 echo "\n";
 
 echo "Data preserved: " . (

@@ -43,12 +43,12 @@ try {
     ]);
 
     echo "✅  Validation passed!\n";
-    echo "    Email: {$user->email}\n";
-    echo "    Name: {$user->name}\n";
-    echo "    Age: {$user->age}\n";
-} catch (ValidationException $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n";
-    print_r($e->errors());
+    echo sprintf('    Email: %s%s', $user->email, PHP_EOL);
+    echo sprintf('    Name: %s%s', $user->name, PHP_EOL);
+    echo sprintf('    Age: %s%s', $user->age, PHP_EOL);
+} catch (ValidationException $validationException) {
+    echo sprintf('❌  Validation failed: %s%s', $validationException->getMessage(), PHP_EOL);
+    print_r($validationException->errors());
 }
 
 echo "\n";
@@ -63,14 +63,14 @@ try {
         'name' => 'Jo',  // Too short
         'age' => 15,     // Too young
     ]);
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed!\n";
-    echo "    Error count: {$e->errorCount()}\n\n";
+    echo "    Error count: {$validationException->errorCount()}\n\n";
 
-    foreach ($e->errors() as $field => $messages) {
-        echo "    $field:\n";
+    foreach ($validationException->errors() as $field => $messages) {
+        echo "    {$field}:\n";
         foreach ($messages as $message) {
-            echo "      - $message\n";
+            echo sprintf('      - %s%s', $message, PHP_EOL);
         }
     }
 }
@@ -103,15 +103,15 @@ if ($result->isValid()) {
     echo "✅  Validation passed!\n";
     echo "    Validated data:\n";
     foreach ($result->validated() as $key => $value) {
-        echo "      $key: $value\n";
+        echo sprintf('      %s: %s%s', $key, $value, PHP_EOL);
     }
 
     $product = ProductDTO::fromArray($result->validated());
-    echo "    Created DTO: {$product->name} - \${$product->price}\n";
+    echo sprintf('    Created DTO: %s - $%s%s', $product->name, $product->price, PHP_EOL);
 } else {
     echo "❌  Validation failed!\n";
     foreach ($result->errors() as $field => $messages) {
-        echo "    $field: " . implode(', ', $messages) . "\n";
+        echo sprintf('    %s: ', $field) . implode(', ', $messages) . "\n";
     }
 }
 
@@ -131,9 +131,9 @@ if ($result->isFailed()) {
     echo "    Error count: {$result->errorCount()}\n\n";
 
     foreach ($result->errors() as $field => $messages) {
-        echo "    $field:\n";
+        echo "    {$field}:\n";
         foreach ($messages as $message) {
-            echo "      - $message\n";
+            echo sprintf('      - %s%s', $message, PHP_EOL);
         }
     }
 
@@ -172,13 +172,13 @@ try {
     ]);
 
     echo "✅  Validation passed (only email and name validated)!\n";
-    echo "    Email: {$user->email}\n";
-    echo "    Name: {$user->name}\n";
+    echo sprintf('    Email: %s%s', $user->email, PHP_EOL);
+    echo sprintf('    Name: %s%s', $user->name, PHP_EOL);
     echo "    Bio: {$user->bio} (not validated)\n";
-} catch (ValidationException $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n";
-    foreach ($e->errors() as $field => $messages) {
-        echo "    $field: " . implode(', ', $messages) . "\n";
+} catch (ValidationException $validationException) {
+    echo sprintf('❌  Validation failed: %s%s', $validationException->getMessage(), PHP_EOL);
+    foreach ($validationException->errors() as $field => $messages) {
+        echo sprintf('    %s: ', $field) . implode(', ', $messages) . "\n";
     }
 }
 
@@ -216,12 +216,12 @@ try {
         'email' => 'invalid',
         'username' => 'ab',
     ]);
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed with custom messages:\n";
-    foreach ($e->errors() as $field => $messages) {
-        echo "    $field:\n";
+    foreach ($validationException->errors() as $field => $messages) {
+        echo "    {$field}:\n";
         foreach ($messages as $message) {
-            echo "      - $message\n";
+            echo sprintf('      - %s%s', $message, PHP_EOL);
         }
     }
 }
@@ -258,12 +258,12 @@ try {
         'email' => 'invalid',
         'password' => 'short',
     ]);
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed with custom attribute names:\n";
-    foreach ($e->errors() as $field => $messages) {
-        echo "    $field:\n";
+    foreach ($validationException->errors() as $field => $messages) {
+        echo "    {$field}:\n";
         foreach ($messages as $message) {
-            echo "      - $message\n";
+            echo sprintf('      - %s%s', $message, PHP_EOL);
         }
     }
 }
@@ -278,12 +278,12 @@ echo "UserDTO should auto-validate: " . (UserDTO::shouldAutoValidate() ? 'Yes' :
 echo "ProductDTO should auto-validate: " . (ProductDTO::shouldAutoValidate() ? 'Yes' : 'No') . "\n";
 
 $attr = UserDTO::getValidateRequestAttribute();
-if ($attr !== null) {
+if ($attr instanceof ValidateRequest) {
     echo "UserDTO ValidateRequest settings:\n";
     echo "  - throw: " . ($attr->throw ? 'true' : 'false') . "\n";
     echo "  - stopOnFirstFailure: " . ($attr->stopOnFirstFailure ? 'true' : 'false') . "\n";
-    echo "  - only: " . (count($attr->only) > 0 ? implode(', ', $attr->only) : 'none') . "\n";
-    echo "  - except: " . (count($attr->except) > 0 ? implode(', ', $attr->except) : 'none') . "\n";
+    echo "  - only: " . ($attr->only !== [] ? implode(', ', $attr->only) : 'none') . "\n";
+    echo "  - except: " . ($attr->except !== [] ? implode(', ', $attr->except) : 'none') . "\n";
 }
 
 echo "\n=== All Examples Completed! ===\n";

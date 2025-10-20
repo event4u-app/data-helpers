@@ -15,7 +15,6 @@ class CallbackStage implements PipelineStageInterface
 {
     /**
      * @param Closure(array<string, mixed>): array<string, mixed> $callback
-     * @param string $name
      */
     public function __construct(
         private readonly Closure $callback,

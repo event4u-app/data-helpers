@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Symfony;
 
+use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
-use event4u\DataHelpers\Exceptions\ValidationException;
 use ReflectionClass;
 
 // Create stub interfaces if Symfony is not installed
@@ -21,7 +21,10 @@ if (!interface_exists('Symfony\Component\HttpKernel\Controller\ValueResolverInte
         public function resolve($request, $argument): iterable;
     }
 } else {
-    class_alias('Symfony\Component\HttpKernel\Controller\ValueResolverInterface', 'event4u\DataHelpers\Symfony\ValueResolverInterface');
+    class_alias(
+        'Symfony\Component\HttpKernel\Controller\ValueResolverInterface',
+        'event4u\DataHelpers\Symfony\ValueResolverInterface'
+    );
 }
 
 if (!class_exists('Symfony\Component\HttpFoundation\Request')) {
@@ -33,7 +36,10 @@ if (!class_exists('Symfony\Component\HttpFoundation\Request')) {
 if (!class_exists('Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata')) {
     class ArgumentMetadata {}
 } else {
-    class_alias('Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata', 'event4u\DataHelpers\Symfony\ArgumentMetadata');
+    class_alias(
+        'Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata',
+        'event4u\DataHelpers\Symfony\ArgumentMetadata'
+    );
 }
 
 if (!interface_exists('Symfony\Component\Validator\Validator\ValidatorInterface')) {
@@ -99,7 +105,7 @@ class DTOValueResolver implements ValueResolverInterface
         $reflection = new ReflectionClass($type);
         $attributes = $reflection->getAttributes(ValidateRequest::class);
 
-        if (count($attributes) > 0) {
+        if ($attributes !== []) {
             /** @var ValidateRequest $validateAttr */
             $validateAttr = $attributes[0]->newInstance();
 

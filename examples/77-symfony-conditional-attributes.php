@@ -130,7 +130,7 @@ $userWithMethod = new class {
 $userViewOnly = new class {
     public function isGranted(string $attribute, $subject = null): bool
     {
-        return $attribute === 'VIEW';
+        return 'VIEW' === $attribute;
     }
 };
 
@@ -250,7 +250,7 @@ $owner = new class {
     public function isGranted(string $attribute, $subject = null): bool
     {
         // In real Symfony, this would check if user owns the article
-        return $attribute === 'EDIT' && $subject !== null;
+        return 'EDIT' === $attribute && null !== $subject;
     }
 };
 

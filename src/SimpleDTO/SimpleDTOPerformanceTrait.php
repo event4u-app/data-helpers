@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO;
 
 use ReflectionClass;
+use ReflectionNamedType;
 use ReflectionProperty;
 
 /**
@@ -69,19 +70,19 @@ trait SimpleDTOPerformanceTrait
         }
 
         $params = [];
-        foreach ($constructor->getParameters() as $param) {
-            $type = $param->getType();
+        foreach ($constructor->getParameters() as $parameter) {
+            $type = $parameter->getType();
             $typeName = null;
 
             if (null !== $type) {
-                $typeName = $type instanceof \ReflectionNamedType ? $type->getName() : (string) $type;
+                $typeName = $type instanceof ReflectionNamedType ? $type->getName() : (string)$type;
             }
 
-            $params[$param->getName()] = [
-                'name' => $param->getName(),
+            $params[$parameter->getName()] = [
+                'name' => $parameter->getName(),
                 'type' => $typeName,
-                'hasDefault' => $param->isDefaultValueAvailable(),
-                'defaultValue' => $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null,
+                'hasDefault' => $parameter->isDefaultValueAvailable(),
+                'defaultValue' => $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null,
             ];
         }
 
@@ -112,7 +113,7 @@ trait SimpleDTOPerformanceTrait
             $isNullable = false;
 
             if (null !== $type) {
-                $typeName = $type instanceof \ReflectionNamedType ? $type->getName() : (string) $type;
+                $typeName = $type instanceof ReflectionNamedType ? $type->getName() : (string)$type;
                 $isNullable = $type->allowsNull();
             }
 
@@ -132,7 +133,6 @@ trait SimpleDTOPerformanceTrait
     /**
      * Get cached attributes for a property.
      *
-     * @param string $propertyName
      * @return array<string, object>
      */
     public static function getCachedPropertyAttributes(string $propertyName): array

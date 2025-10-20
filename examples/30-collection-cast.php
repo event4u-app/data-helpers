@@ -50,10 +50,10 @@ $teamDTO = TeamDTO::fromArray([
     ],
 ]);
 
-echo "Team: {$teamDTO->name}\n";
-echo "Members: {$teamDTO->members->count()}\n";
+echo sprintf('Team: %s%s', $teamDTO->name, PHP_EOL);
+echo sprintf('Members: %d%s', $teamDTO->members->count(), PHP_EOL);
 echo "First member: {$teamDTO->members->first()->name} ({$teamDTO->members->first()->age} years)\n";
-echo "Last member: {$teamDTO->members->last()->name}\n";
+echo sprintf('Last member: %s%s', $teamDTO->members->last()->name, PHP_EOL);
 echo "toArray(): " . json_encode($teamDTO->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // Example 2: DataCollectionOf Attribute
@@ -89,10 +89,10 @@ $orderDTO = OrderDTO::fromArray([
     'total' => 1109.97,
 ]);
 
-echo "Order: {$orderDTO->orderNumber}\n";
-echo "Items: {$orderDTO->items->count()}\n";
+echo sprintf('Order: %s%s', $orderDTO->orderNumber, PHP_EOL);
+echo sprintf('Items: %s%s', $orderDTO->items->count(), PHP_EOL);
 echo "First item: {$orderDTO->items->first()->name} (\${$orderDTO->items->first()->price})\n";
-echo "Total: \${$orderDTO->total}\n";
+echo sprintf('Total: $%s%s', $orderDTO->total, PHP_EOL);
 echo "toArray(): " . json_encode($orderDTO->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // Example 3: Nested Collections
@@ -147,10 +147,10 @@ $blogDTO = BlogDTO::fromArray([
     ],
 ]);
 
-echo "Blog: {$blogDTO->name}\n";
-echo "Posts: {$blogDTO->posts->count()}\n";
-echo "First post: {$blogDTO->posts->first()->title}\n";
-echo "First post comments: {$blogDTO->posts->first()->comments->count()}\n";
+echo sprintf('Blog: %s%s', $blogDTO->name, PHP_EOL);
+echo sprintf('Posts: %d%s', $blogDTO->posts->count(), PHP_EOL);
+echo sprintf('First post: %s%s', $blogDTO->posts->first()->title, PHP_EOL);
+echo sprintf('First post comments: %s%s', $blogDTO->posts->first()->comments->count(), PHP_EOL);
 echo "toArray(): " . json_encode($blogDTO->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // Example 4: Empty Collections
@@ -162,12 +162,11 @@ $emptyTeam = TeamDTO::fromArray([
     'members' => [],
 ]);
 
-echo "Team: {$emptyTeam->name}\n";
-echo "Members: {$emptyTeam->members->count()}\n";
+echo sprintf('Team: %s%s', $emptyTeam->name, PHP_EOL);
+echo sprintf('Members: %d%s', $emptyTeam->members->count(), PHP_EOL);
 echo "Is empty: " . ($emptyTeam->members->isEmpty() ? 'Yes' : 'No') . "\n\n";
 
 echo "================================================================================\n";
 echo "All examples completed successfully!\n";
 echo "================================================================================\n";
-
 

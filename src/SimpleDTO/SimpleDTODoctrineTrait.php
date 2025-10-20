@@ -39,7 +39,7 @@ trait SimpleDTODoctrineTrait
     {
         // Check if entity class exists
         if (!class_exists($entityClass)) {
-            throw new InvalidArgumentException("Entity class {$entityClass} does not exist");
+            throw new InvalidArgumentException(sprintf('Entity class %s does not exist', $entityClass));
         }
 
         // Create new entity instance

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO;
 
 // Helper function to clear caches
@@ -87,7 +88,7 @@ describe('SimpleDTO Performance', function(): void {
         it('caches property attributes', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
-                    #[\event4u\DataHelpers\SimpleDTO\Attributes\MapFrom('user_name')]
+                    #[MapFrom('user_name')]
                     public readonly string $name = '',
                 ) {}
             };
@@ -99,7 +100,7 @@ describe('SimpleDTO Performance', function(): void {
             $attrs2 = $dto::getCachedPropertyAttributes('name');
 
             expect($attrs1)->toBe($attrs2)
-                ->and($attrs1)->toHaveKey(\event4u\DataHelpers\SimpleDTO\Attributes\MapFrom::class);
+                ->and($attrs1)->toHaveKey(MapFrom::class);
         });
 
         it('returns empty array for non-existent property', function(): void {
@@ -148,7 +149,7 @@ describe('SimpleDTO Performance', function(): void {
         it('warms up all caches', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
-                    #[\event4u\DataHelpers\SimpleDTO\Attributes\MapFrom('user_name')]
+                    #[MapFrom('user_name')]
                     public readonly string $name = '',
                     public readonly int $age = 0,
                 ) {}
@@ -211,7 +212,7 @@ describe('SimpleDTO Performance', function(): void {
 
             // Measure with cache
             $start = microtime(true);
-            for ($i = 0; $i < 100; $i++) {
+            for ($i = 0; 100 > $i; $i++) {
                 $dto::fromArray($data);
             }
             $withCache = microtime(true) - $start;
@@ -221,7 +222,7 @@ describe('SimpleDTO Performance', function(): void {
 
             // Measure without cache (first call will rebuild)
             $start = microtime(true);
-            for ($i = 0; $i < 100; $i++) {
+            for ($i = 0; 100 > $i; $i++) {
                 $dto::fromArray($data);
             }
             $withoutCache = microtime(true) - $start;
@@ -246,7 +247,7 @@ describe('SimpleDTO Performance', function(): void {
 
             $start = microtime(true);
             $instances = [];
-            for ($i = 0; $i < 1000; $i++) {
+            for ($i = 0; 1000 > $i; $i++) {
                 $instances[] = $dto::fromArray($data);
             }
             $duration = microtime(true) - $start;
@@ -268,7 +269,7 @@ describe('SimpleDTO Performance', function(): void {
             $instance = $dto::fromArray(['name' => 'John', 'age' => 30, 'email' => 'john@example.com']);
 
             $start = microtime(true);
-            for ($i = 0; $i < 1000; $i++) {
+            for ($i = 0; 1000 > $i; $i++) {
                 $instance->toArray();
             }
             $duration = microtime(true) - $start;
@@ -297,7 +298,7 @@ describe('SimpleDTO Performance', function(): void {
             $memoryBefore = memory_get_usage();
 
             // Create many instances
-            for ($i = 0; $i < 1000; $i++) {
+            for ($i = 0; 1000 > $i; $i++) {
                 $instance = $dto::fromArray($data);
                 unset($instance); // Explicitly unset to allow GC
             }

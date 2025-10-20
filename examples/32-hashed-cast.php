@@ -35,9 +35,9 @@ $user = UserDTO::fromArray([
     'password' => 'MySecretPassword123!',
 ]);
 
-echo "Username: {$user->username}\n";
-echo "Email: {$user->email}\n";
-echo "Password (hashed): {$user->password}\n";
+echo sprintf('Username: %s%s', $user->username, PHP_EOL);
+echo sprintf('Email: %s%s', $user->email, PHP_EOL);
+echo sprintf('Password (hashed): %s%s', $user->password, PHP_EOL);
 echo "Hash starts with \$2y\$: " . (str_starts_with($user->password, '$2y$') ? 'Yes' : 'No') . "\n\n";
 
 // Example 2: Password Verification
@@ -76,10 +76,16 @@ if (defined('PASSWORD_ARGON2ID')) {
         'password' => 'SuperSecure456!',
     ]);
 
-    echo "Username: {$secureUser->username}\n";
-    echo "Password (argon2id): {$secureUser->password}\n";
-    echo "Hash starts with \$argon2id\$: " . (str_starts_with($secureUser->password, '$argon2id$') ? 'Yes' : 'No') . "\n";
-    echo "Verification: " . (HashedCast::verify('SuperSecure456!', $secureUser->password) ? 'Valid ✅' : 'Invalid ❌') . "\n\n";
+    echo sprintf('Username: %s%s', $secureUser->username, PHP_EOL);
+    echo sprintf('Password (argon2id): %s%s', $secureUser->password, PHP_EOL);
+    echo "Hash starts with \$argon2id\$: " . (str_starts_with(
+        $secureUser->password,
+        '$argon2id$'
+    ) ? 'Yes' : 'No') . "\n";
+    echo "Verification: " . (HashedCast::verify(
+        'SuperSecure456!',
+        $secureUser->password
+    ) ? 'Valid ✅' : 'Invalid ❌') . "\n\n";
 } else {
     echo "Argon2id not available on this system\n\n";
 }
@@ -96,9 +102,12 @@ $existingUser = UserDTO::fromArray([
     'password' => $hashedPassword, // Already hashed
 ]);
 
-echo "Username: {$existingUser->username}\n";
+echo sprintf('Username: %s%s', $existingUser->username, PHP_EOL);
 echo "Password unchanged: " . ($existingUser->password === $hashedPassword ? 'Yes ✅' : 'No ❌') . "\n";
-echo "Verification: " . (HashedCast::verify('ExistingPassword', $existingUser->password) ? 'Valid ✅' : 'Invalid ❌') . "\n\n";
+echo "Verification: " . (HashedCast::verify(
+    'ExistingPassword',
+    $existingUser->password
+) ? 'Valid ✅' : 'Invalid ❌') . "\n\n";
 
 // Example 5: API Response (Password Not Exposed)
 echo "Example 5: API Response (Password Not Exposed)\n";
@@ -131,8 +140,8 @@ $user2 = UserDTO::fromArray([
     'password' => 'SamePassword',
 ]);
 
-echo "User 1 password hash: {$user1->password}\n";
-echo "User 2 password hash: {$user2->password}\n";
+echo sprintf('User 1 password hash: %s%s', $user1->password, PHP_EOL);
+echo sprintf('User 2 password hash: %s%s', $user2->password, PHP_EOL);
 echo "Hashes are different: " . ($user1->password !== $user2->password ? 'Yes ✅' : 'No ❌') . "\n";
 echo "(This is expected - bcrypt uses random salts)\n\n";
 

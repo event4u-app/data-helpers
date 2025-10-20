@@ -30,15 +30,11 @@ trait SimpleDTOLazyTrait
 
     /**
      * Whether to include all lazy properties.
-     *
-     * @var bool
      */
     private bool $includeAllLazy = false;
 
     /**
      * Include all lazy properties in serialization.
-     *
-     * @return static
      */
     public function includeAll(): static
     {
@@ -93,7 +89,7 @@ trait SimpleDTOLazyTrait
                     }
                 }
             }
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             // If reflection fails, return empty array
             return [];
         }
@@ -108,8 +104,6 @@ trait SimpleDTOLazyTrait
      *
      * @param string $propertyName The property name
      * @param Lazy|true $lazyAttr The Lazy attribute instance or true for union types
-     *
-     * @return bool
      */
     private function shouldIncludeLazy(string $propertyName, Lazy|bool $lazyAttr): bool
     {
@@ -119,22 +113,17 @@ trait SimpleDTOLazyTrait
         }
 
         // If property is explicitly included via include()
-        if ($this->includedLazy !== null && in_array($propertyName, $this->includedLazy, true)) {
+        if (null !== $this->includedLazy && in_array($propertyName, $this->includedLazy, true)) {
             return true;
         }
 
         // For union types (true), check only explicit inclusion
-        if ($lazyAttr === true) {
+        if (true === $lazyAttr) {
             return false;
         }
-
         // Check conditional loading based on context
-        if ($lazyAttr->when !== null && $this->visibilityContext === $lazyAttr->when) {
-            return true;
-        }
-
         // By default, lazy properties are not included
-        return false;
+        return null !== $lazyAttr->when && $this->visibilityContext === $lazyAttr->when;
     }
 
     /**
@@ -148,7 +137,7 @@ trait SimpleDTOLazyTrait
     {
         $lazyProperties = static::getLazyProperties();
 
-        if (empty($lazyProperties)) {
+        if ($lazyProperties === []) {
             return $data;
         }
 
@@ -180,8 +169,6 @@ trait SimpleDTOLazyTrait
      * Check if a property is lazy.
      *
      * @param string $propertyName The property name
-     *
-     * @return bool
      */
     private function isLazyProperty(string $propertyName): bool
     {
@@ -201,13 +188,13 @@ trait SimpleDTOLazyTrait
     {
         $lazyProperties = static::getLazyProperties();
 
-        if (empty($lazyProperties)) {
+        if ($lazyProperties === []) {
             return $data;
         }
 
         $wrapped = [];
 
-        foreach ($lazyProperties as $propertyName => $lazyAttr) {
+        foreach (array_keys($lazyProperties) as $propertyName) {
             if (array_key_exists($propertyName, $data)) {
                 // Wrap value in Lazy wrapper
                 $value = $data[$propertyName];

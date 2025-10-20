@@ -71,7 +71,7 @@ trait SimpleDTOOptionalTrait
                     }
                 }
             }
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             // If reflection fails, return empty array
             return [];
         }
@@ -85,8 +85,6 @@ trait SimpleDTOOptionalTrait
      * Check if a property is optional.
      *
      * @param string $propertyName The property name
-     *
-     * @return bool
      */
     private static function isOptionalProperty(string $propertyName): bool
     {
@@ -106,7 +104,7 @@ trait SimpleDTOOptionalTrait
     {
         $optionalProperties = static::getOptionalProperties();
 
-        if (empty($optionalProperties)) {
+        if ($optionalProperties === []) {
             return $data;
         }
 
@@ -119,7 +117,7 @@ trait SimpleDTOOptionalTrait
             } else {
                 // Value is missing
                 $default = $optionalAttr instanceof OptionalAttribute ? $optionalAttr->default : null;
-                $wrapped[$propertyName] = $default !== null ? Optional::of($default) : Optional::empty();
+                $wrapped[$propertyName] = null !== $default ? Optional::of($default) : Optional::empty();
             }
 
             // Remove from original data

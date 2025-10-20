@@ -50,8 +50,8 @@ class TestUserDTO5 extends SimpleDTO
     ) {}
 }
 
-describe('Optional Properties', function () {
-    it('wraps optional properties with attribute syntax', function () {
+describe('Optional Properties', function(): void {
+    it('wraps optional properties with attribute syntax', function(): void {
         $dto = TestUserDTO1::fromArray(['name' => 'John']);
 
         expect($dto->name)->toBe('John')
@@ -59,7 +59,7 @@ describe('Optional Properties', function () {
             ->and($dto->email->isEmpty())->toBeTrue();
     });
 
-    it('wraps optional properties with union type syntax', function () {
+    it('wraps optional properties with union type syntax', function(): void {
         $dto = TestUserDTO2::fromArray(['name' => 'John']);
 
         expect($dto->name)->toBe('John')
@@ -67,7 +67,7 @@ describe('Optional Properties', function () {
             ->and($dto->email->isEmpty())->toBeTrue();
     });
 
-    it('distinguishes between null and missing values', function () {
+    it('distinguishes between null and missing values', function(): void {
         // Missing values
         $dto1 = TestUserDTO3::fromArray([]);
         expect($dto1->name->isEmpty())->toBeTrue()
@@ -87,7 +87,7 @@ describe('Optional Properties', function () {
             ->and($dto3->email->get())->toBe('john@example.com');
     });
 
-    it('supports partial updates', function () {
+    it('supports partial updates', function(): void {
         // Only update email
         $dto = TestUserDTO4::fromArray(['email' => 'new@example.com']);
         $partial = $dto->partial();
@@ -97,7 +97,7 @@ describe('Optional Properties', function () {
             ->and(array_key_exists('age', $partial))->toBeFalse();
     });
 
-    it('includes all values in toArray by default', function () {
+    it('includes all values in toArray by default', function(): void {
         $dto = TestUserDTO2::fromArray(['name' => 'John', 'email' => 'john@example.com']);
         $array = $dto->toArray();
 
@@ -107,7 +107,7 @@ describe('Optional Properties', function () {
         ]);
     });
 
-    it('includes present null values in toArray', function () {
+    it('includes present null values in toArray', function(): void {
         $dto = TestUserDTO3::fromArray(['name' => 'John', 'email' => null]);
         $array = $dto->toArray();
 
@@ -117,7 +117,7 @@ describe('Optional Properties', function () {
         ]);
     });
 
-    it('includes empty optional values in toArray', function () {
+    it('includes empty optional values in toArray', function(): void {
         $dto = TestUserDTO2::fromArray(['name' => 'John']);
         $array = $dto->toArray();
 
@@ -127,21 +127,21 @@ describe('Optional Properties', function () {
         ]);
     });
 
-    it('supports default values', function () {
+    it('supports default values', function(): void {
         $dto = TestUserDTO5::fromArray(['name' => 'John']);
 
         expect($dto->email->isPresent())->toBeTrue()
             ->and($dto->email->get())->toBe('default@example.com');
     });
 
-    it('works with JSON serialization', function () {
+    it('works with JSON serialization', function(): void {
         $dto = TestUserDTO2::fromArray(['name' => 'John', 'email' => 'john@example.com']);
         $json = json_encode($dto);
 
         expect($json)->toBe('{"name":"John","email":"john@example.com"}');
     });
 
-    it('handles missing values in JSON serialization', function () {
+    it('handles missing values in JSON serialization', function(): void {
         $dto = TestUserDTO2::fromArray(['name' => 'John']);
         $json = json_encode($dto);
 
@@ -149,8 +149,8 @@ describe('Optional Properties', function () {
     });
 });
 
-describe('Optional Wrapper', function () {
-    it('creates present optional', function () {
+describe('Optional Wrapper', function(): void {
+    it('creates present optional', function(): void {
         $optional = Optional::of('value');
 
         expect($optional->isPresent())->toBeTrue()
@@ -158,7 +158,7 @@ describe('Optional Wrapper', function () {
             ->and($optional->get())->toBe('value');
     });
 
-    it('creates empty optional', function () {
+    it('creates empty optional', function(): void {
         $optional = Optional::empty();
 
         expect($optional->isEmpty())->toBeTrue()
@@ -166,40 +166,40 @@ describe('Optional Wrapper', function () {
             ->and($optional->get())->toBeNull();
     });
 
-    it('wraps null value', function () {
+    it('wraps null value', function(): void {
         $optional = Optional::of(null);
 
         expect($optional->isPresent())->toBeTrue()
             ->and($optional->get())->toBeNull();
     });
 
-    it('returns default value when empty', function () {
+    it('returns default value when empty', function(): void {
         $optional = Optional::empty();
 
         expect($optional->get('default'))->toBe('default')
             ->and($optional->orElse('default'))->toBe('default');
     });
 
-    it('maps present value', function () {
+    it('maps present value', function(): void {
         $optional = Optional::of(5);
-        $mapped = $optional->map(fn($x) => $x * 2);
+        $mapped = $optional->map(fn($x): int => $x * 2);
 
         expect($mapped->isPresent())->toBeTrue()
             ->and($mapped->get())->toBe(10);
     });
 
-    it('does not map empty value', function () {
+    it('does not map empty value', function(): void {
         $optional = Optional::empty();
-        $mapped = $optional->map(fn($x) => $x * 2);
+        $mapped = $optional->map(fn($x): int|float => $x * 2);
 
         expect($mapped->isEmpty())->toBeTrue();
     });
 
-    it('executes callback if present', function () {
+    it('executes callback if present', function(): void {
         $called = false;
         $optional = Optional::of('value');
 
-        $optional->ifPresent(function ($value) use (&$called) {
+        $optional->ifPresent(function($value) use (&$called): void {
             $called = true;
             expect($value)->toBe('value');
         });
@@ -207,46 +207,46 @@ describe('Optional Wrapper', function () {
         expect($called)->toBeTrue();
     });
 
-    it('does not execute callback if empty', function () {
+    it('does not execute callback if empty', function(): void {
         $called = false;
         $optional = Optional::empty();
 
-        $optional->ifPresent(function () use (&$called) {
+        $optional->ifPresent(function() use (&$called): void {
             $called = true;
         });
 
         expect($called)->toBeFalse();
     });
 
-    it('executes callback if empty', function () {
+    it('executes callback if empty', function(): void {
         $called = false;
         $optional = Optional::empty();
 
-        $optional->ifEmpty(function () use (&$called) {
+        $optional->ifEmpty(function() use (&$called): void {
             $called = true;
         });
 
         expect($called)->toBeTrue();
     });
 
-    it('filters present value', function () {
+    it('filters present value', function(): void {
         $optional = Optional::of(5);
 
-        $filtered1 = $optional->filter(fn($x) => $x > 3);
+        $filtered1 = $optional->filter(fn($x): bool => 3 < $x);
         expect($filtered1->isPresent())->toBeTrue();
 
-        $filtered2 = $optional->filter(fn($x) => $x > 10);
+        $filtered2 = $optional->filter(fn($x): bool => 10 < $x);
         expect($filtered2->isEmpty())->toBeTrue();
     });
 
-    it('throws exception when empty', function () {
+    it('throws exception when empty', function(): void {
         $optional = Optional::empty();
 
-        expect(fn() => $optional->orThrow('Value not present'))
+        expect(fn(): mixed => $optional->orThrow('Value not present'))
             ->toThrow(RuntimeException::class, 'Value not present');
     });
 
-    it('converts to array', function () {
+    it('converts to array', function(): void {
         $optional = Optional::of('value');
 
         expect($optional->toArray())->toBe([
@@ -255,11 +255,11 @@ describe('Optional Wrapper', function () {
         ]);
     });
 
-    it('converts to string', function () {
-        expect((string) Optional::empty())->toBe('Optional.empty')
-            ->and((string) Optional::of(null))->toBe('Optional[null]')
-            ->and((string) Optional::of('value'))->toBe('Optional[value]')
-            ->and((string) Optional::of(123))->toBe('Optional[123]');
+    it('converts to string', function(): void {
+        expect((string)Optional::empty())->toBe('Optional.empty')
+            ->and((string)Optional::of(null))->toBe('Optional[null]')
+            ->and((string)Optional::of('value'))->toBe('Optional[value]')
+            ->and((string)Optional::of(123))->toBe('Optional[123]');
     });
 });
 

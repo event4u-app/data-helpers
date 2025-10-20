@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -39,27 +39,21 @@ class Size implements ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
 
-    /**
-     * @param int $size Exact size required
-     */
+    /** @param int $size Exact size required */
     public function __construct(
         public readonly int $size,
     ) {}
 
     /**
      * Convert to Laravel validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
-        return "size:{$this->size}";
+        return 'size:' . $this->size;
     }
 
     /**
      * Convert to Symfony constraint.
-     *
-     * @return Constraint
      */
     public function constraint(): Constraint
     {
@@ -79,7 +73,7 @@ class Size implements ValidationRule, SymfonyConstraint
      */
     public function message(): ?string
     {
-        return "The attribute must be {$this->size}.";
+        return sprintf('The attribute must be %d.', $this->size);
     }
 }
 

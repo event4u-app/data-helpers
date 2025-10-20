@@ -71,23 +71,21 @@ class XmlSerializer implements SerializerInterface
                 $child->setAttribute('nil', 'true');
                 $parent->appendChild($child);
             } else {
-                $child = $dom->createElement($key, htmlspecialchars((string) $value, ENT_XML1));
+                $child = $dom->createElement($key, htmlspecialchars((string)$value, ENT_XML1));
                 $parent->appendChild($child);
             }
         }
     }
 
-    /**
-     * Sanitize tag name to be valid XML.
-     */
+    /** Sanitize tag name to be valid XML. */
     private function sanitizeTagName(string $name): string
     {
         // Replace invalid characters with underscore
         $name = preg_replace('/[^a-zA-Z0-9_\-.]/', '_', $name);
 
         // Ensure it starts with a letter or underscore
-        if (!preg_match('/^[a-zA-Z_]/', $name)) {
-            $name = '_' . $name;
+        if (!preg_match('/^[a-zA-Z_]/', (string) $name)) {
+            return '_' . $name;
         }
 
         return $name;

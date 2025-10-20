@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Confirmed validation attribute.
@@ -41,9 +40,7 @@ class Confirmed implements ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
 
-    /**
-     * @param string|null $field Custom confirmation field name (optional)
-     */
+    /** @param string|null $field Custom confirmation field name (optional) */
     public function __construct(
         public readonly ?string $field = null,
     ) {}
@@ -67,8 +64,6 @@ class Confirmed implements ValidationRule, SymfonyConstraint
      *
      * For now, we return an empty array to indicate this constraint
      * needs special handling.
-     *
-     * @return Constraint|array
      */
     public function constraint(): Constraint|array
     {

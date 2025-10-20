@@ -47,11 +47,11 @@ $userData = [
 
 $user = UserDto::fromArray($userData);
 
-echo "Name: {$user->name}\n";
-echo "Email: {$user->email}\n";
+echo sprintf('Name: %s%s', $user->name, PHP_EOL);
+echo sprintf('Email: %s%s', $user->email, PHP_EOL);
 echo "Is Active: " . ($user->is_active ? 'Yes' : 'No') . " (type: " . gettype($user->is_active) . ")\n";
 echo "Roles: " . implode(', ', $user->roles) . " (type: " . gettype($user->roles) . ")\n";
-echo "Created At: " . $user->created_at->format('Y-m-d H:i:s') . " (type: " . get_class($user->created_at) . ")\n";
+echo "Created At: " . $user->created_at->format('Y-m-d H:i:s') . " (type: " . $user->created_at::class . ")\n";
 
 echo "\n";
 
@@ -92,8 +92,8 @@ $productData = [
 
 $product = ProductDto::fromArray($productData);
 
-echo "Product: {$product->name}\n";
-echo "Price: €{$product->price}\n";
+echo sprintf('Product: %s%s', $product->name, PHP_EOL);
+echo sprintf('Price: €%s%s', $product->price, PHP_EOL);
 echo "In Stock: " . ($product->in_stock ? 'Yes' : 'No') . "\n";
 echo "Tags: " . implode(', ', $product->tags) . "\n";
 echo "Available From: " . $product->available_from->format('d.m.Y') . "\n";
@@ -132,7 +132,7 @@ $eventData = [
 
 $event = EventDto::fromArray($eventData);
 
-echo "Event: {$event->title}\n";
+echo sprintf('Event: %s%s', $event->title, PHP_EOL);
 echo "Date: " . $event->event_date->format('l, F j, Y') . "\n";
 echo "Registration Deadline: " . $event->registration_deadline->format('d.m.Y') . "\n";
 
@@ -188,11 +188,11 @@ $companyData = [
 
 $company = CompanyDto::fromArray($companyData);
 
-echo "Company: {$company->name}\n";
+echo sprintf('Company: %s%s', $company->name, PHP_EOL);
 echo "Active: " . ($company->is_active ? 'Yes' : 'No') . "\n";
 echo "Departments: " . implode(', ', $company->departments) . "\n";
 echo "Founded: " . $company->founded_at->format('Y') . "\n";
-echo "Address: {$company->address->street}, {$company->address->city}, {$company->address->country}\n";
+echo sprintf('Address: %s, %s, %s%s', $company->address->street, $company->address->city, $company->address->country, PHP_EOL);
 
 echo "\n";
 

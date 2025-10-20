@@ -60,15 +60,15 @@ $product = ProductDto::fromArray($apiData);
 
 echo "Product Details:\n";
 echo "----------------\n";
-echo "Name: {$product->name}\n";
-echo "SKU: {$product->sku} (type: " . gettype($product->sku) . ")\n";
-echo "Quantity: {$product->quantity} (type: " . gettype($product->quantity) . ")\n";
-echo "Weight: {$product->weight} kg (type: " . gettype($product->weight) . ")\n";
-echo "Price: €{$product->price} (type: " . gettype($product->price) . ")\n";
+echo sprintf('Name: %s%s', $product->name, PHP_EOL);
+echo sprintf('SKU: %s (type: ', $product->sku) . gettype($product->sku) . ")\n";
+echo sprintf('Quantity: %s (type: ', $product->quantity) . gettype($product->quantity) . ")\n";
+echo sprintf('Weight: %s kg (type: ', $product->weight) . gettype($product->weight) . ")\n";
+echo sprintf('Price: €%s (type: ', $product->price) . gettype($product->price) . ")\n";
 echo "Available: " . ($product->is_available ? 'Yes' : 'No') . " (type: " . gettype($product->is_available) . ")\n";
 echo "Tags: " . implode(', ', $product->tags) . " (type: " . gettype($product->tags) . ")\n";
 echo "Metadata: " . json_encode($product->metadata) . " (type: " . gettype($product->metadata) . ")\n";
-echo "Created: " . $product->created_at->format('Y-m-d H:i:s') . " (type: " . get_class($product->created_at) . ")\n";
+echo "Created: " . $product->created_at->format('Y-m-d H:i:s') . " (type: " . $product->created_at::class . ")\n";
 
 echo "\n";
 
@@ -120,10 +120,10 @@ $conversions = ConversionDto::fromArray([
 
 echo "Type Conversions:\n";
 echo "-----------------\n";
-echo "String '42' → Integer: {$conversions->int_from_string}\n";
-echo "Float 42.7 → Integer: {$conversions->int_from_float}\n";
-echo "String '99.99' → Float: {$conversions->float_from_string}\n";
-echo "Integer 100 → Float: {$conversions->float_from_int}\n";
+echo sprintf("String '42' → Integer: %d%s", $conversions->int_from_string, PHP_EOL);
+echo sprintf('Float 42.7 → Integer: %d%s', $conversions->int_from_float, PHP_EOL);
+echo sprintf("String '99.99' → Float: %s%s", $conversions->float_from_string, PHP_EOL);
+echo sprintf('Integer 100 → Float: %s%s', $conversions->float_from_int, PHP_EOL);
 echo "Integer 12345 → String: '{$conversions->string_from_int}'\n";
 echo "Boolean true → String: '{$conversions->string_from_bool}'\n";
 echo "String 'yes' → Boolean: " . ($conversions->bool_from_string ? 'true' : 'false') . "\n";
@@ -164,9 +164,9 @@ $money = MoneyDto::fromArray([
 
 echo "Decimal Precision:\n";
 echo "------------------\n";
-echo "99.9 with 2 decimals: {$money->amount_2_decimals}\n";
-echo "0.12345 with 4 decimals: {$money->amount_4_decimals}\n";
-echo "0.19 with 6 decimals: {$money->tax_rate}\n";
+echo sprintf('99.9 with 2 decimals: %s%s', $money->amount_2_decimals, PHP_EOL);
+echo sprintf('0.12345 with 4 decimals: %s%s', $money->amount_4_decimals, PHP_EOL);
+echo sprintf('0.19 with 6 decimals: %s%s', $money->tax_rate, PHP_EOL);
 
 echo "\n";
 

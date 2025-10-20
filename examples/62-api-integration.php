@@ -28,12 +28,12 @@ class UserDTO extends SimpleDTO
 }
 
 $user = new UserDTO(
-    id: 1,
     name: 'John Doe',
     email: 'john@example.com',
+    id: 1,
     bio: 'Software developer',
-    posts: Lazy::of(fn() => ['post1', 'post2', 'post3']),
-    comments: Lazy::of(fn() => ['comment1', 'comment2']),
+    posts: Lazy::of(fn(): array => ['post1', 'post2', 'post3']),
+    comments: Lazy::of(fn(): array => ['comment1', 'comment2']),
     createdAt: '2024-01-01T00:00:00Z',
 );
 
@@ -64,26 +64,26 @@ class CreateUserDTO extends SimpleDTO
 
 $requestBody = '{"name":"Jane Doe","email":"jane@example.com","bio":"Designer"}';
 echo "POST /api/users\n";
-echo "Request body:\n$requestBody\n\n";
+echo "Request body:\n{$requestBody}\n\n";
 
 $createData = json_decode($requestBody, true);
 $createUser = CreateUserDTO::fromArray($createData);
 
 echo "Parsed DTO:\n";
-echo "  name: {$createUser->name}\n";
-echo "  email: {$createUser->email}\n";
+echo sprintf('  name: %s%s', $createUser->name, PHP_EOL);
+echo sprintf('  email: %s%s', $createUser->email, PHP_EOL);
 echo "  bio present: " . ($createUser->bio->isPresent() ? 'yes' : 'no') . "\n";
 echo "  bio value: " . ($createUser->bio->get() ?? 'null') . "\n";
 echo "\n";
 
 // Simulate creating user
 $newUser = new UserDTO(
-    id: 2,
     name: $createUser->name,
     email: $createUser->email,
+    id: 2,
     bio: $createUser->bio->get(),
-    posts: Lazy::of(fn() => []),
-    comments: Lazy::of(fn() => []),
+    posts: Lazy::of(fn(): array => []),
+    comments: Lazy::of(fn(): array => []),
     createdAt: date('c'),
 );
 
@@ -105,7 +105,7 @@ class UpdateUserDTO extends SimpleDTO
 
 $patchBody = '{"name":"John Smith","bio":null}';
 echo "PATCH /api/users/1\n";
-echo "Request body:\n$patchBody\n\n";
+echo "Request body:\n{$patchBody}\n\n";
 
 $patchData = json_decode($patchBody, true);
 $updateUser = UpdateUserDTO::fromArray($patchData);
@@ -122,9 +122,9 @@ echo json_encode($changes, JSON_PRETTY_PRINT) . "\n\n";
 
 // Apply changes to existing user
 $updatedUser = new UserDTO(
-    id: $user->id,
     name: $changes['name'] ?? $user->name,
     email: $changes['email'] ?? $user->email,
+    id: $user->id,
     bio: array_key_exists('bio', $changes) ? $changes['bio'] : $user->bio,
     posts: $user->posts,
     comments: $user->comments,
@@ -140,18 +140,18 @@ echo str_repeat('-', 50) . "\n";
 
 $putBody = '{"name":"John Updated","email":"john.updated@example.com","bio":"Updated bio"}';
 echo "PUT /api/users/1\n";
-echo "Request body:\n$putBody\n\n";
+echo "Request body:\n{$putBody}\n\n";
 
 $putData = json_decode($putBody, true);
 $fullUpdateUser = CreateUserDTO::fromArray($putData);
 
 $replacedUser = new UserDTO(
-    id: $user->id,
     name: $fullUpdateUser->name,
     email: $fullUpdateUser->email,
+    id: $user->id,
     bio: $fullUpdateUser->bio->get(),
-    posts: Lazy::of(fn() => ['post1', 'post2', 'post3']),
-    comments: Lazy::of(fn() => ['comment1', 'comment2']),
+    posts: Lazy::of(fn(): array => ['post1', 'post2', 'post3']),
+    comments: Lazy::of(fn(): array => ['comment1', 'comment2']),
     createdAt: $user->createdAt,
 );
 

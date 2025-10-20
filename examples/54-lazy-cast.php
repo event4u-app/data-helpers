@@ -36,8 +36,8 @@ class UserDTO extends SimpleDTO
 $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => '30']);
 
 echo "Provided: name, age\n";
-echo "Name: {$user->name}\n";
-echo "Age: {$user->age}\n";
+echo sprintf('Name: %s%s', $user->name, PHP_EOL);
+echo sprintf('Age: %s%s', $user->age, PHP_EOL);
 echo "Email: " . ($user->email ?? 'null') . "\n";
 echo "Phone: " . ($user->phone ?? 'null') . "\n\n";
 
@@ -52,7 +52,7 @@ $userWithNull = UserDTO::fromArray([
 ]);
 
 echo "Provided: name (value), age (null), email (value)\n";
-echo "Name: {$userWithNull->name}\n";
+echo sprintf('Name: %s%s', $userWithNull->name, PHP_EOL);
 echo "Age: " . ($userWithNull->age ?? 'null') . "\n";
 echo "Email: {$userWithNull->email}\n\n";
 
@@ -107,7 +107,7 @@ $allFieldsData = [
 ];
 
 $start = microtime(true);
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     LargeDTO::fromArray($allFieldsData);
 }
 $allFieldsDuration = microtime(true) - $start;
@@ -119,7 +119,7 @@ $fewFieldsData = [
 ];
 
 $start = microtime(true);
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     LargeDTO::fromArray($fewFieldsData);
 }
 $fewFieldsDuration = microtime(true) - $start;
@@ -135,8 +135,8 @@ echo "-----------------\n";
 $partialUser = UserDTO::fromArray(['name' => 'Bob', 'age' => '25']);
 $stats = $partialUser->getCastStatistics();
 
-echo "Total properties: {$stats['total']}\n";
-echo "Casted properties: {$stats['casted']}\n";
+echo sprintf('Total properties: %d%s', $stats['total'], PHP_EOL);
+echo sprintf('Casted properties: %d%s', $stats['casted'], PHP_EOL);
 echo "Uncasted properties: {$stats['uncasted']}\n\n";
 
 // Example 5: Complex Casts with Lazy Resolution
@@ -148,7 +148,7 @@ class ComplexDTO extends SimpleDTO
     public function __construct(
         public readonly ?array $data = null,
         public readonly ?string $json = null,
-        public readonly ?\DateTimeImmutable $createdAt = null,
+        public readonly ?DateTimeImmutable $createdAt = null,
         public readonly ?bool $active = null,
     ) {}
 
@@ -182,11 +182,11 @@ echo "-------------------\n";
 $memoryBefore = memory_get_usage();
 
 $instances = [];
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     // Only provide 2 fields out of 10
     $instances[] = LargeDTO::fromArray([
-        'field1' => "value$i",
-        'field5' => "value$i",
+        'field1' => 'value' . $i,
+        'field5' => 'value' . $i,
     ]);
 }
 
@@ -207,8 +207,8 @@ $originalUser = UserDTO::fromArray([
 ]);
 
 echo "Original user:\n";
-echo "  Name: {$originalUser->name}\n";
-echo "  Age: {$originalUser->age}\n";
+echo sprintf('  Name: %s%s', $originalUser->name, PHP_EOL);
+echo sprintf('  Age: %s%s', $originalUser->age, PHP_EOL);
 echo "  Email: {$originalUser->email}\n\n";
 
 // Update only name (lazy cast resolution only applies to 'name')
@@ -219,8 +219,8 @@ $updatedUser = UserDTO::fromArray([
 ]);
 
 echo "Updated user (only name changed):\n";
-echo "  Name: {$updatedUser->name}\n";
-echo "  Age: {$updatedUser->age}\n";
+echo sprintf('  Name: %s%s', $updatedUser->name, PHP_EOL);
+echo sprintf('  Age: %s%s', $updatedUser->age, PHP_EOL);
 echo "  Email: {$updatedUser->email}\n\n";
 
 echo "=== Lazy Cast Resolution Complete ===\n";

@@ -115,7 +115,7 @@ class UppercaseNameTransformer implements TransformerInterface
     public function transform(array $data): array
     {
         if (isset($data['name'])) {
-            $data['name'] = strtoupper($data['name']);
+            $data['name'] = strtoupper((string) $data['name']);
         }
 
         return $data;
@@ -125,7 +125,7 @@ class UppercaseNameTransformer implements TransformerInterface
 $user = UserDTO::fromArray(['name' => 'david', 'email' => 'david@example.com', 'age' => 32]);
 $transformed = $user->transformWith(new UppercaseNameTransformer());
 
-echo "Original: {$user->name}\n";
+echo sprintf('Original: %s%s', $user->name, PHP_EOL);
 echo "Transformed: {$transformed->name}\n\n";
 
 // Example 7: Chaining Custom Transformers
@@ -203,7 +203,7 @@ $data = [
 
 $user = UserDTO::fromArrayWithTransformer($data, $pipeline);
 
-echo "Original: Name='{$data['Name']}', EMAIL='{$data['EMAIL']}', Phone=" . json_encode($data['Phone']) . "\n";
+echo sprintf("Original: Name='%s', EMAIL='%s', Phone=", $data['Name'], $data['EMAIL']) . json_encode($data['Phone']) . "\n";
 echo "After pipeline: name='{$user->name}', email='{$user->email}'\n\n";
 
 // Example 10: Conditional Transformer
@@ -214,11 +214,11 @@ class ConditionalAgeTransformer implements TransformerInterface
 {
     public function transform(array $data): array
     {
-        if (isset($data['age']) && $data['age'] < 0) {
+        if (isset($data['age']) && 0 > $data['age']) {
             $data['age'] = 0;
         }
 
-        if (isset($data['age']) && $data['age'] > 120) {
+        if (isset($data['age']) && 120 < $data['age']) {
             $data['age'] = 120;
         }
 
@@ -236,7 +236,7 @@ $user2 = UserDTO::fromArrayWithTransformer(
     new ConditionalAgeTransformer()
 );
 
-echo "Age -5 becomes: {$user1->age}\n";
+echo sprintf('Age -5 becomes: %s%s', $user1->age, PHP_EOL);
 echo "Age 150 becomes: {$user2->age}\n\n";
 
 echo "================================================================================\n";

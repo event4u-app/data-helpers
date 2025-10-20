@@ -73,16 +73,14 @@ class YamlSerializer implements SerializerInterface
      */
     private function isSequentialArray(array $array): bool
     {
-        if (empty($array)) {
+        if ($array === []) {
             return true;
         }
 
         return array_keys($array) === range(0, count($array) - 1);
     }
 
-    /**
-     * Format a value for YAML output.
-     */
+    /** Format a value for YAML output. */
     private function formatValue(mixed $value): string
     {
         if (null === $value) {
@@ -102,12 +100,10 @@ class YamlSerializer implements SerializerInterface
             return $value;
         }
 
-        return (string) $value;
+        return (string)$value;
     }
 
-    /**
-     * Check if a string needs quoting in YAML.
-     */
+    /** Check if a string needs quoting in YAML. */
     private function needsQuoting(string $value): bool
     {
         // Quote if contains special YAML characters

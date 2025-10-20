@@ -32,8 +32,8 @@ class TestLazyDTO3 extends SimpleDTO
     ) {}
 }
 
-describe('Lazy Union Types', function () {
-    it('wraps lazy properties with union type syntax', function () {
+describe('Lazy Union Types', function(): void {
+    it('wraps lazy properties with union type syntax', function(): void {
         $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         
         expect($dto->title)->toBe('Test')
@@ -42,7 +42,7 @@ describe('Lazy Union Types', function () {
             ->and($dto->content->get())->toBe('Content...');
     });
 
-    it('wraps lazy properties with attribute syntax', function () {
+    it('wraps lazy properties with attribute syntax', function(): void {
         $dto = TestLazyDTO2::fromArray(['title' => 'Test', 'content' => 'Content...']);
         
         expect($dto->title)->toBe('Test')
@@ -51,7 +51,7 @@ describe('Lazy Union Types', function () {
             ->and($dto->content->get())->toBe('Content...');
     });
 
-    it('excludes lazy properties from toArray by default', function () {
+    it('excludes lazy properties from toArray by default', function(): void {
         $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $array = $dto->toArray();
         
@@ -59,7 +59,7 @@ describe('Lazy Union Types', function () {
             ->and(array_key_exists('content', $array))->toBeFalse();
     });
 
-    it('includes lazy properties when explicitly requested', function () {
+    it('includes lazy properties when explicitly requested', function(): void {
         $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $array = $dto->include(['content'])->toArray();
         
@@ -69,7 +69,7 @@ describe('Lazy Union Types', function () {
         ]);
     });
 
-    it('includes all lazy properties with includeAll', function () {
+    it('includes all lazy properties with includeAll', function(): void {
         $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $array = $dto->includeAll()->toArray();
         
@@ -79,21 +79,21 @@ describe('Lazy Union Types', function () {
         ]);
     });
 
-    it('handles nullable lazy properties', function () {
+    it('handles nullable lazy properties', function(): void {
         $dto = TestLazyDTO3::fromArray(['title' => 'Test', 'content' => null]);
         
         expect($dto->content)->toBeInstanceOf(Lazy::class)
             ->and($dto->content->get())->toBeNull();
     });
 
-    it('excludes lazy properties from JSON by default', function () {
+    it('excludes lazy properties from JSON by default', function(): void {
         $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $json = json_encode($dto);
         
         expect($json)->toBe('{"title":"Test"}');
     });
 
-    it('includes lazy properties in JSON when requested', function () {
+    it('includes lazy properties in JSON when requested', function(): void {
         $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $json = json_encode($dto->includeAll());
         
@@ -101,16 +101,16 @@ describe('Lazy Union Types', function () {
     });
 });
 
-describe('Lazy Wrapper', function () {
-    it('creates lazy with value', function () {
+describe('Lazy Wrapper', function(): void {
+    it('creates lazy with value', function(): void {
         $lazy = Lazy::value('test');
         
         expect($lazy->isLoaded())->toBeTrue()
             ->and($lazy->get())->toBe('test');
     });
 
-    it('creates lazy with loader', function () {
-        $lazy = Lazy::of(fn() => 'computed');
+    it('creates lazy with loader', function(): void {
+        $lazy = Lazy::of(fn(): string => 'computed');
         
         expect($lazy->isLoaded())->toBeFalse();
         
@@ -120,9 +120,9 @@ describe('Lazy Wrapper', function () {
             ->and($lazy->isLoaded())->toBeTrue();
     });
 
-    it('caches loaded value', function () {
+    it('caches loaded value', function(): void {
         $counter = 0;
-        $lazy = Lazy::of(function () use (&$counter) {
+        $lazy = Lazy::of(function() use (&$counter): string {
             $counter++;
             return 'value';
         });
@@ -134,48 +134,48 @@ describe('Lazy Wrapper', function () {
         expect($counter)->toBe(1);
     });
 
-    it('maps lazy value', function () {
+    it('maps lazy value', function(): void {
         $lazy = Lazy::value('hello');
         $mapped = $lazy->map(fn($v) => strtoupper($v));
         
         expect($mapped->get())->toBe('HELLO');
     });
 
-    it('executes callback if loaded', function () {
+    it('executes callback if loaded', function(): void {
         $lazy = Lazy::value('test');
         $executed = false;
         
-        $lazy->ifLoaded(function ($value) use (&$executed) {
+        $lazy->ifLoaded(function($value) use (&$executed): void {
             $executed = true;
         });
         
         expect($executed)->toBeTrue();
     });
 
-    it('does not execute callback if not loaded', function () {
-        $lazy = Lazy::of(fn() => 'test');
+    it('does not execute callback if not loaded', function(): void {
+        $lazy = Lazy::of(fn(): string => 'test');
         $executed = false;
         
-        $lazy->ifLoaded(function ($value) use (&$executed) {
+        $lazy->ifLoaded(function($value) use (&$executed): void {
             $executed = true;
         });
         
         expect($executed)->toBeFalse();
     });
 
-    it('executes callback if not loaded', function () {
-        $lazy = Lazy::of(fn() => 'test');
+    it('executes callback if not loaded', function(): void {
+        $lazy = Lazy::of(fn(): string => 'test');
         $executed = false;
         
-        $lazy->ifNotLoaded(function () use (&$executed) {
+        $lazy->ifNotLoaded(function() use (&$executed): void {
             $executed = true;
         });
         
         expect($executed)->toBeTrue();
     });
 
-    it('loads value explicitly', function () {
-        $lazy = Lazy::of(fn() => 'test');
+    it('loads value explicitly', function(): void {
+        $lazy = Lazy::of(fn(): string => 'test');
         
         expect($lazy->isLoaded())->toBeFalse();
         

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 
 /**
@@ -43,9 +43,7 @@ class UserDTO extends SimpleDTO
         ];
     }
 
-    /**
-     * Define pipeline filters in DTO.
-     */
+    /** Define pipeline filters in DTO. */
     protected function mapperPipeline(): array
     {
         return [
@@ -76,9 +74,9 @@ $apiResponse = [
 $user = UserDTO::fromSource($apiResponse);
 
 echo "User from API:\n";
-echo "  ID: {$user->id}\n";
-echo "  Name: {$user->name}\n";  // "John doe" (trimmed, ucfirst)
-echo "  Email: {$user->email}\n";  // "john@example.com" (lowercased)
+echo sprintf('  ID: %s%s', $user->id, PHP_EOL);
+echo sprintf('  Name: %s%s', $user->name, PHP_EOL);  // "John doe" (trimmed, ucfirst)
+echo sprintf('  Email: %s%s', $user->email, PHP_EOL);  // "john@example.com" (lowercased)
 echo "  Age: {$user->age}\n\n";
 
 // ============================================================================
@@ -89,9 +87,7 @@ echo "--- Example 2: Template Priority over Attributes ---\n\n";
 
 class ProductDTO extends SimpleDTO
 {
-    /**
-     * Template has HIGHEST priority!
-     */
+    /** Template has HIGHEST priority! */
     protected function mapperTemplate(): array
     {
         return [
@@ -126,8 +122,8 @@ $productData = [
 $product = ProductDTO::fromSource($productData);
 
 echo "Product:\n";
-echo "  ID: {$product->id}\n";      // 123 (from template)
-echo "  Name: {$product->name}\n";  // "Laptop" (from template)
+echo sprintf('  ID: %d%s', $product->id, PHP_EOL);      // 123 (from template)
+echo sprintf('  Name: %s%s', $product->name, PHP_EOL);  // "Laptop" (from template)
 echo "  Price: {$product->price}\n\n";  // 999.99 (from template)
 
 // ============================================================================
@@ -138,9 +134,7 @@ echo "--- Example 3: Dynamic Template Override ---\n\n";
 
 class OrderDTO extends SimpleDTO
 {
-    /**
-     * Default template.
-     */
+    /** Default template. */
     protected function mapperTemplate(): array
     {
         return [
@@ -167,8 +161,8 @@ $orderData = [
 // Use default template
 $order1 = OrderDTO::fromSource($orderData);
 echo "Order 1 (default template):\n";
-echo "  ID: {$order1->id}\n";
-echo "  Total: {$order1->total}\n";
+echo sprintf('  ID: %d%s', $order1->id, PHP_EOL);
+echo sprintf('  Total: %s%s', $order1->total, PHP_EOL);
 echo "  Status: " . ($order1->status ?? 'null') . "\n\n";
 
 // Override template dynamically
@@ -180,8 +174,8 @@ $customTemplate = [
 
 $order2 = OrderDTO::fromSource($orderData, $customTemplate);
 echo "Order 2 (custom template):\n";
-echo "  ID: {$order2->id}\n";
-echo "  Total: {$order2->total}\n";
+echo sprintf('  ID: %d%s', $order2->id, PHP_EOL);
+echo sprintf('  Total: %s%s', $order2->total, PHP_EOL);
 echo "  Status: {$order2->status}\n\n";
 
 // ============================================================================
@@ -216,8 +210,8 @@ $customerData = [
 $customer = CustomerDTO::fromArray($customerData);
 
 echo "Customer (using attributes):\n";
-echo "  ID: {$customer->id}\n";
-echo "  Name: {$customer->name}\n";
+echo sprintf('  ID: %d%s', $customer->id, PHP_EOL);
+echo sprintf('  Name: %s%s', $customer->name, PHP_EOL);
 echo "  Email: {$customer->email}\n\n";
 
 // ============================================================================
@@ -248,8 +242,8 @@ $simpleData = [
 $simpleUser = SimpleUserDTO::fromArray($simpleData);
 
 echo "Simple User (automapping):\n";
-echo "  ID: {$simpleUser->id}\n";
-echo "  Name: {$simpleUser->name}\n";
+echo sprintf('  ID: %d%s', $simpleUser->id, PHP_EOL);
+echo sprintf('  Name: %s%s', $simpleUser->name, PHP_EOL);
 echo "  Email: {$simpleUser->email}\n\n";
 
 // ============================================================================
@@ -302,10 +296,10 @@ $blogData = [
 $post = BlogPostDTO::fromSource($blogData);
 
 echo "Blog Post:\n";
-echo "  ID: {$post->id}\n";
-echo "  Title: {$post->title}\n";      // "My first post" (trimmed, ucfirst)
-echo "  Slug: {$post->slug}\n";        // "my-first-post" (lowercased)
-echo "  Author: {$post->author}\n";    // "John Doe" (trimmed)
+echo sprintf('  ID: %s%s', $post->id, PHP_EOL);
+echo sprintf('  Title: %s%s', $post->title, PHP_EOL);      // "My first post" (trimmed, ucfirst)
+echo sprintf('  Slug: %s%s', $post->slug, PHP_EOL);        // "my-first-post" (lowercased)
+echo sprintf('  Author: %s%s', $post->author, PHP_EOL);    // "John Doe" (trimmed)
 echo "  Published: {$post->published}\n\n";
 
 // ============================================================================
@@ -329,5 +323,4 @@ echo "✅ Dot notation for nested data ({{ user.profile.name }})\n";
 echo "✅ Backward compatible - existing code still works!\n\n";
 
 echo "Done!\n";
-
 

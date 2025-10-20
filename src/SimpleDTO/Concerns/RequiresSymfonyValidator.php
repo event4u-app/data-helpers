@@ -16,8 +16,6 @@ trait RequiresSymfonyValidator
 {
     /**
      * Check if Symfony Validator is installed.
-     *
-     * @return bool
      */
     protected function isSymfonyValidatorAvailable(): bool
     {

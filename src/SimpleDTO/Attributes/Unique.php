@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 
 /**
@@ -57,16 +57,14 @@ class Unique implements ValidationRule, SymfonyConstraint
 
     /**
      * Convert to Laravel validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
-        $table = $this->connection ? "{$this->connection}.{$this->table}" : $this->table;
-        $rule = "unique:{$table},{$this->column}";
+        $table = $this->connection ? sprintf('%s.%s', $this->connection, $this->table) : $this->table;
+        $rule = sprintf('unique:%s,%s', $table, $this->column);
 
         if (null !== $this->ignore) {
-            $rule .= ",{$this->ignore},{$this->idColumn}";
+            $rule .= sprintf(',%s,%s', $this->ignore, $this->idColumn);
         }
 
         return $rule;
@@ -93,8 +91,6 @@ class Unique implements ValidationRule, SymfonyConstraint
      *
      * For now, we return an empty array to indicate this constraint
      * needs special handling at the application level.
-     *
-     * @return Constraint|array
      */
     public function constraint(): Constraint|array
     {

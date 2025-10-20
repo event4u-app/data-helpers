@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -33,17 +33,13 @@ class Mimes implements ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
 
-    /**
-     * @param array<string> $types Allowed file extensions
-     */
+    /** @param array<string> $types Allowed file extensions */
     public function __construct(
         public readonly array $types,
     ) {}
 
     /**
      * Convert to Laravel validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
@@ -59,13 +55,11 @@ class Mimes implements ValidationRule, SymfonyConstraint
     public function message(): ?string
     {
         $types = implode(', ', $this->types);
-        return "The attribute must be a file of type: {$types}.";
+        return sprintf('The attribute must be a file of type: %s.', $types);
     }
 
     /**
      * Get Symfony constraint.
-     *
-     * @return Constraint
      */
     public function constraint(): Constraint
     {
@@ -97,7 +91,7 @@ class Mimes implements ValidationRule, SymfonyConstraint
                 '7z' => 'application/x-7z-compressed',
                 'tar' => 'application/x-tar',
                 'gz' => 'application/gzip',
-                default => "application/{$ext}",
+                default => 'application/' . $ext,
             };
         }
 

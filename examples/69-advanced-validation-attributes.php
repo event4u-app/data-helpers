@@ -5,19 +5,19 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Size;
-use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
+use event4u\DataHelpers\SimpleDTO\Attributes\Different;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\EndsWith;
+use event4u\DataHelpers\SimpleDTO\Attributes\In;
 use event4u\DataHelpers\SimpleDTO\Attributes\Ip;
 use event4u\DataHelpers\SimpleDTO\Attributes\Json;
-use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
 use event4u\DataHelpers\SimpleDTO\Attributes\Regex;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\Same;
-use event4u\DataHelpers\SimpleDTO\Attributes\Different;
+use event4u\DataHelpers\SimpleDTO\Attributes\Size;
+use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
+use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
 use event4u\DataHelpers\Validation\ValidationException;
 
 echo "=================================================================\n";
@@ -39,16 +39,16 @@ class PhoneDTO extends SimpleDTO
 
 try {
     $phone = PhoneDTO::validateAndCreate(['phoneNumber' => '1234567890']);
-    echo "✅  Valid phone: {$phone->phoneNumber}\n";
-} catch (ValidationException $e) {
+    echo sprintf('✅  Valid phone: %s%s', $phone->phoneNumber, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed\n";
 }
 
 try {
     $phone = PhoneDTO::validateAndCreate(['phoneNumber' => '123']);
     echo "✅  Valid phone (unexpected)\n";
-} catch (ValidationException $e) {
-    echo "❌  Invalid phone (expected): " . $e->firstError('phoneNumber') . "\n";
+} catch (ValidationException $validationException) {
+    echo "❌  Invalid phone (expected): " . $validationException->firstError('phoneNumber') . "\n";
 }
 echo "\n";
 
@@ -74,8 +74,8 @@ try {
         'url' => 'https://example.com',
         'domain' => 'example.com',
     ]);
-    echo "✅  Valid website: {$website->url}\n";
-} catch (ValidationException $e) {
+    echo sprintf('✅  Valid website: %s%s', $website->url, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed\n";
 }
 
@@ -85,10 +85,10 @@ try {
         'domain' => 'example.de',
     ]);
     echo "✅  Valid website (unexpected)\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Invalid website (expected):\n";
-    foreach ($e->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+    foreach ($validationException->errors() as $field => $errors) {
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";
@@ -108,16 +108,16 @@ class ServerDTO extends SimpleDTO
 
 try {
     $server = ServerDTO::validateAndCreate(['ipAddress' => '192.168.1.1']);
-    echo "✅  Valid IP: {$server->ipAddress}\n";
-} catch (ValidationException $e) {
+    echo sprintf('✅  Valid IP: %s%s', $server->ipAddress, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed\n";
 }
 
 try {
     $server = ServerDTO::validateAndCreate(['ipAddress' => '999.999.999.999']);
     echo "✅  Valid IP (unexpected)\n";
-} catch (ValidationException $e) {
-    echo "❌  Invalid IP (expected): " . $e->firstError('ipAddress') . "\n";
+} catch (ValidationException $validationException) {
+    echo "❌  Invalid IP (expected): " . $validationException->firstError('ipAddress') . "\n";
 }
 echo "\n";
 
@@ -136,16 +136,16 @@ class ConfigDTO extends SimpleDTO
 
 try {
     $config = ConfigDTO::validateAndCreate(['settings' => '{"key": "value"}']);
-    echo "✅  Valid JSON: {$config->settings}\n";
-} catch (ValidationException $e) {
+    echo sprintf('✅  Valid JSON: %s%s', $config->settings, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed\n";
 }
 
 try {
     $config = ConfigDTO::validateAndCreate(['settings' => 'not-json']);
     echo "✅  Valid JSON (unexpected)\n";
-} catch (ValidationException $e) {
-    echo "❌  Invalid JSON (expected): " . $e->firstError('settings') . "\n";
+} catch (ValidationException $validationException) {
+    echo "❌  Invalid JSON (expected): " . $validationException->firstError('settings') . "\n";
 }
 echo "\n";
 
@@ -164,16 +164,16 @@ class EntityDTO extends SimpleDTO
 
 try {
     $entity = EntityDTO::validateAndCreate(['id' => '550e8400-e29b-41d4-a716-446655440000']);
-    echo "✅  Valid UUID: {$entity->id}\n";
-} catch (ValidationException $e) {
+    echo sprintf('✅  Valid UUID: %s%s', $entity->id, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed\n";
 }
 
 try {
     $entity = EntityDTO::validateAndCreate(['id' => 'not-a-uuid']);
     echo "✅  Valid UUID (unexpected)\n";
-} catch (ValidationException $e) {
-    echo "❌  Invalid UUID (expected): " . $e->firstError('id') . "\n";
+} catch (ValidationException $validationException) {
+    echo "❌  Invalid UUID (expected): " . $validationException->firstError('id') . "\n";
 }
 echo "\n";
 
@@ -199,7 +199,7 @@ try {
         'passwordConfirmation' => 'secret123',
     ]);
     echo "✅  Passwords match\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed\n";
 }
 
@@ -209,8 +209,8 @@ try {
         'passwordConfirmation' => 'different',
     ]);
     echo "✅  Passwords match (unexpected)\n";
-} catch (ValidationException $e) {
-    echo "❌  Passwords don't match (expected): " . $e->firstError('passwordConfirmation') . "\n";
+} catch (ValidationException $validationException) {
+    echo "❌  Passwords don't match (expected): " . $validationException->firstError('passwordConfirmation') . "\n";
 }
 echo "\n";
 
@@ -234,7 +234,7 @@ try {
         'alternativeEmail' => 'jane@example.com',
     ]);
     echo "✅  Emails are different\n";
-} catch (ValidationException $e) {
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed\n";
 }
 
@@ -244,8 +244,8 @@ try {
         'alternativeEmail' => 'john@example.com',
     ]);
     echo "✅  Emails are different (unexpected)\n";
-} catch (ValidationException $e) {
-    echo "❌  Emails must be different (expected): " . $e->firstError('alternativeEmail') . "\n";
+} catch (ValidationException $validationException) {
+    echo "❌  Emails must be different (expected): " . $validationException->firstError('alternativeEmail') . "\n";
 }
 echo "\n";
 
@@ -277,7 +277,7 @@ class UserDTO extends SimpleDTO
         public readonly string $id,
         
         #[Required]
-        #[Regex('/^[A-Z]{2}[0-9]{6}$/')]  // e.g., AB123456
+        #[Regex('/^[A-Z]{2}\d{6}$/')]  // e.g., AB123456
         public readonly string $code,
     ) {}
 }
@@ -292,16 +292,16 @@ try {
         'code' => 'AB123456',
     ]);
     echo "✅  Valid user created\n";
-    echo "    Name: {$user->name}\n";
-    echo "    Email: {$user->email}\n";
-    echo "    Age: {$user->age}\n";
-    echo "    Role: {$user->role}\n";
-    echo "    ID: {$user->id}\n";
-    echo "    Code: {$user->code}\n";
-} catch (ValidationException $e) {
+    echo sprintf('    Name: %s%s', $user->name, PHP_EOL);
+    echo sprintf('    Email: %s%s', $user->email, PHP_EOL);
+    echo sprintf('    Age: %s%s', $user->age, PHP_EOL);
+    echo sprintf('    Role: %s%s', $user->role, PHP_EOL);
+    echo sprintf('    ID: %s%s', $user->id, PHP_EOL);
+    echo sprintf('    Code: %s%s', $user->code, PHP_EOL);
+} catch (ValidationException $validationException) {
     echo "❌  Validation failed:\n";
-    foreach ($e->errors() as $field => $errors) {
-        echo "    - {$field}: " . implode(', ', $errors) . "\n";
+    foreach ($validationException->errors() as $field => $errors) {
+        echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
 }
 echo "\n";

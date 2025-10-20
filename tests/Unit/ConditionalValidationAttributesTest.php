@@ -4,35 +4,35 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\In;
+use event4u\DataHelpers\SimpleDTO\Attributes\Min;
+use event4u\DataHelpers\SimpleDTO\Attributes\Nullable;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredIf;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredUnless;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWith;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWithout;
 use event4u\DataHelpers\SimpleDTO\Attributes\Sometimes;
-use event4u\DataHelpers\SimpleDTO\Attributes\Nullable;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
+use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 
-describe('Conditional Validation Attributes', function () {
-    describe('RequiredIf Attribute', function () {
-        it('generates required_if rule', function () {
+describe('Conditional Validation Attributes', function(): void {
+    describe('RequiredIf Attribute', function(): void {
+        it('generates required_if rule', function(): void {
             $attribute = new RequiredIf('shippingMethod', 'delivery');
             $rule = $attribute->rule();
 
             expect($rule)->toBe('required_if:shippingMethod,delivery');
         });
 
-        it('handles boolean values', function () {
+        it('handles boolean values', function(): void {
             $attribute = new RequiredIf('isActive', true);
             $rule = $attribute->rule();
 
             expect($rule)->toBe('required_if:isActive,true');
         });
 
-        it('validates DTO with RequiredIf', function () {
+        it('validates DTO with RequiredIf', function(): void {
             $dto = new class('delivery', '123 Main St') {
                 use SimpleDTOTrait;
 
@@ -52,15 +52,15 @@ describe('Conditional Validation Attributes', function () {
         });
     });
 
-    describe('RequiredUnless Attribute', function () {
-        it('generates required_unless rule', function () {
+    describe('RequiredUnless Attribute', function(): void {
+        it('generates required_unless rule', function(): void {
             $attribute = new RequiredUnless('paymentMethod', 'free');
             $rule = $attribute->rule();
 
             expect($rule)->toBe('required_unless:paymentMethod,free');
         });
 
-        it('validates DTO with RequiredUnless', function () {
+        it('validates DTO with RequiredUnless', function(): void {
             $dto = new class('card', 'VISA-1234') {
                 use SimpleDTOTrait;
 
@@ -80,15 +80,15 @@ describe('Conditional Validation Attributes', function () {
         });
     });
 
-    describe('RequiredWith Attribute', function () {
-        it('generates required_with rule', function () {
+    describe('RequiredWith Attribute', function(): void {
+        it('generates required_with rule', function(): void {
             $attribute = new RequiredWith(['phone', 'email']);
             $rule = $attribute->rule();
 
             expect($rule)->toBe('required_with:phone,email');
         });
 
-        it('validates DTO with RequiredWith', function () {
+        it('validates DTO with RequiredWith', function(): void {
             $dto = new class('555-1234', 'mobile') {
                 use SimpleDTOTrait;
 
@@ -107,15 +107,15 @@ describe('Conditional Validation Attributes', function () {
         });
     });
 
-    describe('RequiredWithout Attribute', function () {
-        it('generates required_without rule', function () {
+    describe('RequiredWithout Attribute', function(): void {
+        it('generates required_without rule', function(): void {
             $attribute = new RequiredWithout(['phone']);
             $rule = $attribute->rule();
 
             expect($rule)->toBe('required_without:phone');
         });
 
-        it('validates DTO with RequiredWithout', function () {
+        it('validates DTO with RequiredWithout', function(): void {
             $dto = new class('test@example.com') {
                 use SimpleDTOTrait;
 
@@ -133,15 +133,15 @@ describe('Conditional Validation Attributes', function () {
         });
     });
 
-    describe('Sometimes Attribute', function () {
-        it('generates sometimes rule', function () {
+    describe('Sometimes Attribute', function(): void {
+        it('generates sometimes rule', function(): void {
             $attribute = new Sometimes();
             $rule = $attribute->rule();
 
             expect($rule)->toBe('sometimes');
         });
 
-        it('validates DTO with Sometimes', function () {
+        it('validates DTO with Sometimes', function(): void {
             $dto = new class('test@example.com') {
                 use SimpleDTOTrait;
 
@@ -163,15 +163,15 @@ describe('Conditional Validation Attributes', function () {
         });
     });
 
-    describe('Nullable Attribute', function () {
-        it('generates nullable rule', function () {
+    describe('Nullable Attribute', function(): void {
+        it('generates nullable rule', function(): void {
             $attribute = new Nullable();
             $rule = $attribute->rule();
 
             expect($rule)->toBe('nullable');
         });
 
-        it('validates DTO with Nullable', function () {
+        it('validates DTO with Nullable', function(): void {
             $dto = new class(null, null) {
                 use SimpleDTOTrait;
 
@@ -192,8 +192,8 @@ describe('Conditional Validation Attributes', function () {
         });
     });
 
-    describe('Complex Conditional Scenarios', function () {
-        it('handles multiple conditional rules on same property', function () {
+    describe('Complex Conditional Scenarios', function(): void {
+        it('handles multiple conditional rules on same property', function(): void {
             $dto = new class('delivery', 'card', '123 Main St', 'VISA-1234') {
                 use SimpleDTOTrait;
 

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
@@ -58,7 +56,6 @@ class IDESupportCustomerDTO extends SimpleDTO
 }
 
 describe('IDE Support', function(): void {
-
     it('provides type inference for fromArray()', function(): void {
         $user = IDESupportUserDTO::fromArray([
             'name' => 'John Doe',

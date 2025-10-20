@@ -13,7 +13,6 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Max;
 use event4u\DataHelpers\SimpleDTO\Attributes\Min;
 use event4u\DataHelpers\SimpleDTO\Attributes\NotIn;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use Illuminate\Validation\ValidationException;
 
 echo "=== SimpleDTO Advanced Validation Examples ===\n\n";
 echo "Note: This example shows validation rules extraction.\n";

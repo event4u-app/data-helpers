@@ -126,10 +126,10 @@ class CreatePostDTO extends SimpleDTO
         public readonly ?string $excerpt = null,
         
         #[Required, In(['draft', 'published'])]
-        public readonly string $status,
+        public readonly string $status = '',
         
         #[Required]
-        public readonly int $categoryId,
+        public readonly int $categoryId = 0,
         
         #[Nullable]
         public readonly ?array $tags = null,
@@ -206,11 +206,11 @@ try {
     $dto = RegisterUserDTO::validateAndCreate($registerData);
     
     echo "✅  Registration data validated successfully!\n";
-    echo "Name: {$dto->name}\n";
-    echo "Email: {$dto->email}\n";
+    echo sprintf('Name: %s%s', $dto->name, PHP_EOL);
+    echo sprintf('Email: %s%s', $dto->email, PHP_EOL);
     echo "Terms Accepted: " . ($dto->termsAccepted ? 'Yes' : 'No') . "\n\n";
-} catch (\Exception $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n\n";
+} catch (Exception $exception) {
+    echo "❌  Validation failed: {$exception->getMessage()}\n\n";
 }
 
 // 2. Update Profile (Partial Update)
@@ -228,12 +228,12 @@ try {
     $dto = UpdateProfileDTO::validateAndCreate($profileData);
     
     echo "✅  Profile data validated successfully!\n";
-    echo "Name: {$dto->name}\n";
-    echo "Bio: {$dto->bio}\n";
-    echo "Website: {$dto->website}\n";
+    echo sprintf('Name: %s%s', $dto->name, PHP_EOL);
+    echo sprintf('Bio: %s%s', $dto->bio, PHP_EOL);
+    echo sprintf('Website: %s%s', $dto->website, PHP_EOL);
     echo "Location: {$dto->location}\n\n";
-} catch (\Exception $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n\n";
+} catch (Exception $exception) {
+    echo "❌  Validation failed: {$exception->getMessage()}\n\n";
 }
 
 // 3. Create Order (Nested Data)
@@ -268,12 +268,12 @@ try {
     $dto = CreateOrderDTO::validateAndCreate($orderData);
     
     echo "✅  Order data validated successfully!\n";
-    echo "Customer ID: {$dto->customerId}\n";
+    echo sprintf('Customer ID: %d%s', $dto->customerId, PHP_EOL);
     echo "Items: " . count($dto->items) . "\n";
-    echo "Shipping: {$dto->shippingAddress->city}, {$dto->shippingAddress->state}\n";
+    echo sprintf('Shipping: %s, %s%s', $dto->shippingAddress->city, $dto->shippingAddress->state, PHP_EOL);
     echo "Coupon: {$dto->couponCode}\n\n";
-} catch (\Exception $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n\n";
+} catch (Exception $exception) {
+    echo "❌  Validation failed: {$exception->getMessage()}\n\n";
 }
 
 // 4. Create Post
@@ -293,12 +293,12 @@ try {
     $dto = CreatePostDTO::validateAndCreate($postData);
     
     echo "✅  Post data validated successfully!\n";
-    echo "Title: {$dto->title}\n";
-    echo "Status: {$dto->status}\n";
-    echo "Category ID: {$dto->categoryId}\n";
+    echo sprintf('Title: %s%s', $dto->title, PHP_EOL);
+    echo sprintf('Status: %s%s', $dto->status, PHP_EOL);
+    echo sprintf('Category ID: %d%s', $dto->categoryId, PHP_EOL);
     echo "Tags: " . implode(', ', $dto->tags ?? []) . "\n\n";
-} catch (\Exception $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n\n";
+} catch (Exception $exception) {
+    echo "❌  Validation failed: {$exception->getMessage()}\n\n";
 }
 
 // 5. Contact Form
@@ -316,11 +316,11 @@ try {
     $dto = ContactFormDTO::validateAndCreate($contactData);
     
     echo "✅  Contact form validated successfully!\n";
-    echo "Name: {$dto->name}\n";
-    echo "Email: {$dto->email}\n";
+    echo sprintf('Name: %s%s', $dto->name, PHP_EOL);
+    echo sprintf('Email: %s%s', $dto->email, PHP_EOL);
     echo "Subject: {$dto->subject}\n\n";
-} catch (\Exception $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n\n";
+} catch (Exception $exception) {
+    echo "❌  Validation failed: {$exception->getMessage()}\n\n";
 }
 
 // 6. Change Password
@@ -337,8 +337,8 @@ try {
     $dto = ChangePasswordDTO::validateAndCreate($passwordData);
     
     echo "✅  Password change validated successfully!\n\n";
-} catch (\Exception $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n\n";
+} catch (Exception $exception) {
+    echo "❌  Validation failed: {$exception->getMessage()}\n\n";
 }
 
 // 7. Search Form
@@ -356,12 +356,12 @@ try {
     $dto = SearchDTO::validateAndCreate($searchData);
     
     echo "✅  Search data validated successfully!\n";
-    echo "Query: {$dto->query}\n";
-    echo "Type: {$dto->type}\n";
-    echo "Sort By: {$dto->sortBy}\n";
+    echo sprintf('Query: %s%s', $dto->query, PHP_EOL);
+    echo sprintf('Type: %s%s', $dto->type, PHP_EOL);
+    echo sprintf('Sort By: %s%s', $dto->sortBy, PHP_EOL);
     echo "Per Page: {$dto->perPage}\n\n";
-} catch (\Exception $e) {
-    echo "❌  Validation failed: {$e->getMessage()}\n\n";
+} catch (Exception $exception) {
+    echo "❌  Validation failed: {$exception->getMessage()}\n\n";
 }
 
 // 8. Validation Error Example
@@ -378,9 +378,9 @@ try {
     ];
     
     $dto = RegisterUserDTO::validateAndCreate($invalidData);
-} catch (\Exception $e) {
+} catch (Exception $exception) {
     echo "❌  Validation failed (as expected):\n";
-    echo "Error: {$e->getMessage()}\n\n";
+    echo "Error: {$exception->getMessage()}\n\n";
 }
 
 echo "✅  Complete form requests example completed!\n";

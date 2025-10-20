@@ -25,9 +25,9 @@ class UserDTO extends SimpleDTO
 UserDTO::warmUpCache();
 
 $stats = UserDTO::getPerformanceCacheStats();
-echo "Constructor Params Cached: {$stats['constructorParams']}\n";
-echo "Property Metadata Cached: {$stats['propertyMetadata']}\n";
-echo "Attribute Metadata Cached: {$stats['attributeMetadata']}\n";
+echo sprintf('Constructor Params Cached: %d%s', $stats['constructorParams'], PHP_EOL);
+echo sprintf('Property Metadata Cached: %d%s', $stats['propertyMetadata'], PHP_EOL);
+echo sprintf('Attribute Metadata Cached: %d%s', $stats['attributeMetadata'], PHP_EOL);
 echo "Total Memory Used: " . number_format($stats['totalMemory']) . " bytes\n\n";
 
 // Example 2: Performance Comparison
@@ -39,7 +39,7 @@ $data = ['name' => 'John Doe', 'age' => 30, 'email' => 'john@example.com'];
 // With cache
 UserDTO::warmUpCache();
 $start = microtime(true);
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     UserDTO::fromArray($data);
 }
 $withCache = microtime(true) - $start;
@@ -47,7 +47,7 @@ $withCache = microtime(true) - $start;
 // Without cache
 UserDTO::clearPerformanceCache();
 $start = microtime(true);
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     UserDTO::fromArray($data);
 }
 $withoutCache = microtime(true) - $start;
@@ -65,7 +65,7 @@ UserDTO::warmUpCache();
 $memoryBefore = memory_get_usage();
 
 $instances = [];
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     $instances[] = UserDTO::fromArray($data);
 }
 
@@ -82,7 +82,7 @@ echo "---------------------\n";
 $user = UserDTO::fromArray($data);
 
 $start = microtime(true);
-for ($i = 0; $i < 10000; $i++) {
+for ($i = 0; 10000 > $i; $i++) {
     $user->toArray();
 }
 $duration = microtime(true) - $start;
@@ -125,7 +125,7 @@ $complexData = [
 ];
 
 $start = microtime(true);
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; 1000 > $i; $i++) {
     ComplexUserDTO::fromArray($complexData);
 }
 $duration = microtime(true) - $start;
@@ -139,14 +139,14 @@ echo "------------------\n";
 
 $statsBefore = UserDTO::getPerformanceCacheStats();
 echo "Before clearing:\n";
-echo "  Constructor Params: {$statsBefore['constructorParams']}\n";
-echo "  Property Metadata: {$statsBefore['propertyMetadata']}\n";
+echo sprintf('  Constructor Params: %d%s', $statsBefore['constructorParams'], PHP_EOL);
+echo sprintf('  Property Metadata: %d%s', $statsBefore['propertyMetadata'], PHP_EOL);
 
 UserDTO::clearPerformanceCache();
 
 $statsAfter = UserDTO::getPerformanceCacheStats();
 echo "After clearing:\n";
-echo "  Constructor Params: {$statsAfter['constructorParams']}\n";
+echo sprintf('  Constructor Params: %d%s', $statsAfter['constructorParams'], PHP_EOL);
 echo "  Property Metadata: {$statsAfter['propertyMetadata']}\n\n";
 
 // Example 7: Batch Processing Performance
@@ -156,16 +156,16 @@ echo "------------------------------\n";
 UserDTO::warmUpCache();
 
 $batchData = [];
-for ($i = 0; $i < 100; $i++) {
+for ($i = 0; 100 > $i; $i++) {
     $batchData[] = [
-        'name' => "User $i",
+        'name' => 'User ' . $i,
         'age' => 20 + ($i % 50),
-        'email' => "user$i@example.com",
+        'email' => sprintf('user%d@example.com', $i),
     ];
 }
 
 $start = microtime(true);
-$users = array_map(fn($data) => UserDTO::fromArray($data), $batchData);
+$users = array_map(fn($data): \UserDTO => UserDTO::fromArray($data), $batchData);
 $duration = microtime(true) - $start;
 
 echo "Processed 100 users in: " . number_format($duration * 1000, 2) . " ms\n";

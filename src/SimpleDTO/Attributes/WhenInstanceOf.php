@@ -26,9 +26,7 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class WhenInstanceOf implements ConditionalProperty
 {
-    /**
-     * @param string $className Class name to check against
-     */
+    /** @param string $className Class name to check against */
     public function __construct(
         public readonly string $className,
     ) {}
@@ -39,11 +37,10 @@ class WhenInstanceOf implements ConditionalProperty
      * @param mixed $value The property value
      * @param object $dto The DTO instance
      * @param array<string, mixed> $context Additional context
-     * @return bool
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
-        return is_object($value) && $value instanceof $this->className;
+        return $value instanceof $this->className;
     }
 }
 

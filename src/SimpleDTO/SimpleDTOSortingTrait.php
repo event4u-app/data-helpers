@@ -47,8 +47,6 @@ trait SimpleDTOSortingTrait
      * Enable sorting with optional direction.
      *
      * @param string $direction Sort direction: 'asc' or 'desc' (default: 'asc')
-     *
-     * @return static
      */
     public function sorted(string $direction = 'asc'): static
     {
@@ -61,8 +59,6 @@ trait SimpleDTOSortingTrait
 
     /**
      * Disable sorting.
-     *
-     * @return static
      */
     public function unsorted(): static
     {
@@ -78,8 +74,6 @@ trait SimpleDTOSortingTrait
      * When enabled, nested arrays will also be sorted recursively.
      *
      * @param bool $enabled Whether to enable nested sorting (default: true)
-     *
-     * @return static
      */
     public function withNestedSort(bool $enabled = true): static
     {
@@ -101,8 +95,6 @@ trait SimpleDTOSortingTrait
      *   $sorted = $dto->sortedBy(fn($a, $b) => strcmp($b, $a)); // Reverse alphabetical
      *
      * @param callable $callback Sort callback (receives two keys)
-     *
-     * @return static
      */
     public function sortedBy(callable $callback): static
     {
@@ -131,7 +123,7 @@ trait SimpleDTOSortingTrait
 
         // Apply nested sorting if enabled
         if ($this->nestedSort) {
-            $data = $this->sortNestedArrays($data);
+            return $this->sortNestedArrays($data);
         }
 
         return $data;
@@ -147,14 +139,14 @@ trait SimpleDTOSortingTrait
     private function sortArray(array $data): array
     {
         // Use custom callback if provided
-        if ($this->sortCallback !== null) {
+        if (null !== $this->sortCallback) {
             uksort($data, $this->sortCallback);
 
             return $data;
         }
 
         // Sort by keys
-        if ($this->sortDirection === 'desc') {
+        if ('desc' === $this->sortDirection) {
             krsort($data, SORT_NATURAL | SORT_FLAG_CASE);
         } else {
             ksort($data, SORT_NATURAL | SORT_FLAG_CASE);

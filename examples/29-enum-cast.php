@@ -44,7 +44,7 @@ $order = OrderDTO::fromArray([
     'total' => 99.99,
 ]);
 
-echo "Order ID: {$order->orderId}\n";
+echo sprintf('Order ID: %s%s', $order->orderId, PHP_EOL);
 echo "Status: {$order->status->value} ({$order->status->name})\n";
 echo "Total: \${$order->total}\n\n";
 
@@ -93,7 +93,7 @@ $task = TaskDTO::fromArray([
     'completed' => 0,
 ]);
 
-echo "Task: {$task->title}\n";
+echo sprintf('Task: %s%s', $task->title, PHP_EOL);
 echo "Priority: {$task->priority->name} (value: {$task->priority->value})\n";
 echo "Completed: ".($task->completed ? 'Yes' : 'No')."\n\n";
 
@@ -138,8 +138,8 @@ $product = ProductDTO::fromArray([
     'price' => 29.99,
 ]);
 
-echo "Product: {$product->name}\n";
-echo "Color: {$product->color->name}\n";
+echo sprintf('Product: %s%s', $product->name, PHP_EOL);
+echo sprintf('Color: %s%s', $product->color->name, PHP_EOL);
 echo "Price: \${$product->price}\n\n";
 
 // toArray() konvertiert Unit Enum zurück zu Name (String)
@@ -173,7 +173,7 @@ $newUser = UserDTO::fromArray([
     'lastOrderStatus' => null,
 ]);
 
-echo "Username: {$newUser->username}\n";
+echo sprintf('Username: %s%s', $newUser->username, PHP_EOL);
 echo "Last Order Status: ".($newUser->lastOrderStatus?->value ?? 'None')."\n\n";
 
 $existingUser = UserDTO::fromArray([
@@ -181,7 +181,7 @@ $existingUser = UserDTO::fromArray([
     'lastOrderStatus' => 'delivered',
 ]);
 
-echo "Username: {$existingUser->username}\n";
+echo sprintf('Username: %s%s', $existingUser->username, PHP_EOL);
 echo "Last Order Status: {$existingUser->lastOrderStatus->value}\n\n";
 
 // ============================================================================
@@ -212,7 +212,7 @@ $config = ConfigDTO::fromArray([
     'priority' => 999,  // Invalid value
 ]);
 
-echo "Config: {$config->name}\n";
+echo sprintf('Config: %s%s', $config->name, PHP_EOL);
 echo "Priority: ".($config->priority?->name ?? 'Invalid (null)')."\n\n";
 
 // ============================================================================
@@ -258,10 +258,10 @@ $invoice = InvoiceDTO::fromArray([
     'amount' => 1299.99,
 ]);
 
-echo "Invoice: {$invoice->invoiceNumber}\n";
-echo "Status: {$invoice->status->value}\n";
-echo "Payment Method: {$invoice->paymentMethod->value}\n";
-echo "Priority: {$invoice->priority->name}\n";
+echo sprintf('Invoice: %s%s', $invoice->invoiceNumber, PHP_EOL);
+echo sprintf('Status: %s%s', $invoice->status->value, PHP_EOL);
+echo sprintf('Payment Method: %s%s', $invoice->paymentMethod->value, PHP_EOL);
+echo sprintf('Priority: %s%s', $invoice->priority->name, PHP_EOL);
 echo "Amount: \${$invoice->amount}\n\n";
 
 $array = $invoice->toArray();

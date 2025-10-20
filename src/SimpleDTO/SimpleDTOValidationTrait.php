@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\Validation\Validator;
+use Symfony\Component\Validator\Constraint;
 use event4u\DataHelpers\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Validation\ValidationException as LaravelValidationException;
 use ReflectionClass;
 use ReflectionNamedType;
-use ReflectionProperty;
 use RuntimeException;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 use Throwable;
 
 /**
@@ -103,7 +103,6 @@ trait SimpleDTOValidationTrait
      * Throws ValidationException if validation fails.
      *
      * @param array<string, mixed> $data
-     * @return static
      * @throws ValidationException
      */
     public static function validateAndCreate(array $data): static
@@ -140,7 +139,7 @@ trait SimpleDTOValidationTrait
 
             // Also validate with framework-independent validator for fields that don't have Symfony constraints
             // This handles cases like Same/Different attributes that need access to all fields
-            $validator = new \event4u\DataHelpers\Validation\Validator($data, $rules, $messages, $attributes);
+            $validator = new Validator($data, $rules, $messages, $attributes);
             return $validator->validate();
         }
 
@@ -157,7 +156,7 @@ trait SimpleDTOValidationTrait
         }
 
         // Fallback to framework-independent validator
-        $validator = new \event4u\DataHelpers\Validation\Validator($data, $rules, $messages, $attributes);
+        $validator = new Validator($data, $rules, $messages, $attributes);
         return $validator->validate();
     }
 
@@ -334,7 +333,6 @@ trait SimpleDTOValidationTrait
         try {
             $reflection = new ReflectionClass(static::class);
             $method = $reflection->getMethod('rules');
-            $method->setAccessible(true);
 
             $instance = $reflection->newInstanceWithoutConstructor();
 
@@ -380,7 +378,6 @@ trait SimpleDTOValidationTrait
         try {
             $reflection = new ReflectionClass(static::class);
             $method = $reflection->getMethod('messages');
-            $method->setAccessible(true);
 
             $instance = $reflection->newInstanceWithoutConstructor();
             $customMessages = $method->invoke($instance);
@@ -403,7 +400,6 @@ trait SimpleDTOValidationTrait
         try {
             $reflection = new ReflectionClass(static::class);
             $method = $reflection->getMethod('attributes');
-            $method->setAccessible(true);
 
             $instance = $reflection->newInstanceWithoutConstructor();
 
@@ -415,8 +411,6 @@ trait SimpleDTOValidationTrait
 
     /**
      * Get Laravel validator instance.
-     *
-     * @return ValidationFactory
      */
     private static function getValidator(): ValidationFactory
     {
@@ -431,25 +425,19 @@ trait SimpleDTOValidationTrait
         );
     }
 
-    /**
-     * Check if Laravel validator is available.
-     */
+    /** Check if Laravel validator is available. */
     protected static function hasLaravelValidator(): bool
     {
         return function_exists('app') && app()->bound('validator');
     }
 
-    /**
-     * Check if Symfony validator is available.
-     */
+    /** Check if Symfony validator is available. */
     protected static function hasSymfonyValidator(): bool
     {
         return class_exists(Validation::class);
     }
 
-    /**
-     * Check if DTO has any Symfony constraints.
-     */
+    /** Check if DTO has any Symfony constraints. */
     protected static function hasSymfonyConstraints(): bool
     {
         try {
@@ -511,7 +499,7 @@ trait SimpleDTOValidationTrait
     /**
      * Get Symfony constraints from validation attributes.
      *
-     * @return array<string, \Symfony\Component\Validator\Constraint|\Symfony\Component\Validator\Constraint[]>
+     * @return array<string, Constraint|Constraint[]>
      */
     protected static function getSymfonyConstraints(): array
     {
@@ -558,7 +546,6 @@ trait SimpleDTOValidationTrait
     /**
      * Format Symfony constraint violations into Laravel-style error array.
      *
-     * @param ConstraintViolationListInterface $violations
      * @return array<string, array<int, string>>
      */
     protected static function formatSymfonyViolations(ConstraintViolationListInterface $violations): array

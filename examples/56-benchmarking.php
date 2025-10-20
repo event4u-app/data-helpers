@@ -5,9 +5,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 
 echo "=== SimpleDTO Benchmarking ===\n\n";
 
@@ -95,7 +94,7 @@ class ComplexDTO extends SimpleDTO
         #[MapFrom('user_name')]
         public readonly string $name,
         public readonly int $age,
-        public readonly \DateTimeImmutable $createdAt,
+        public readonly DateTimeImmutable $createdAt,
         public readonly array $tags,
         public readonly ?string $description = null,
     ) {}
@@ -184,7 +183,7 @@ $allResults = SimpleDTO1::getBenchmarkResults();
 echo "Comparison of DTOs:\n";
 foreach ($allResults as $class => $results) {
     $className = basename(str_replace('\\', '/', $class));
-    echo "\n$className:\n";
+    echo "\n{$className}:\n";
     echo "  Instantiation: " . number_format($results['instantiation']['throughput']) . " ops/sec\n";
     echo "  toArray: " . number_format($results['toArray']['throughput']) . " ops/sec\n";
     echo "  JSON: " . number_format($results['jsonSerialize']['throughput']) . " ops/sec\n";
@@ -207,11 +206,11 @@ echo "----------------------\n";
 // Simulate API response processing
 $start = microtime(true);
 $users = [];
-for ($i = 0; $i < 10000; $i++) {
+for ($i = 0; 10000 > $i; $i++) {
     $users[] = UserDTO::fromArray([
-        'name' => "User $i",
+        'name' => 'User ' . $i,
         'age' => 20 + ($i % 50),
-        'email' => "user$i@example.com",
+        'email' => sprintf('user%d@example.com', $i),
     ]);
 }
 $duration = microtime(true) - $start;

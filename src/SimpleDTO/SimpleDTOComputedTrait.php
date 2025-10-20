@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromArray;
+use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromJson;
 use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\Support\ReflectionCache;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionMethod;
 use Throwable;
 
 /**
@@ -39,8 +41,6 @@ trait SimpleDTOComputedTrait
      * This is used for lazy computed properties that are not included by default.
      *
      * @param array<string> $properties List of computed property names to include
-     *
-     * @return static
      */
     public function includeComputed(array $properties): static
     {
@@ -84,7 +84,7 @@ trait SimpleDTOComputedTrait
                     $computed[$method->getName()] = $attributes[Computed::class];
                 }
             }
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             // If reflection fails, return empty array
             return [];
         }
@@ -99,8 +99,6 @@ trait SimpleDTOComputedTrait
      *
      * @param string $methodName The method name
      * @param Computed $computedAttr The Computed attribute
-     *
-     * @return mixed
      */
     private function getComputedValue(string $methodName, Computed $computedAttr): mixed
     {
@@ -119,7 +117,7 @@ trait SimpleDTOComputedTrait
             }
 
             return $value;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             // If computation fails, return null
             return null;
         }
@@ -130,8 +128,6 @@ trait SimpleDTOComputedTrait
      *
      * @param string $methodName The method name
      * @param Computed $computedAttr The Computed attribute
-     *
-     * @return bool
      */
     private function shouldIncludeComputed(string $methodName, Computed $computedAttr): bool
     {
@@ -149,8 +145,6 @@ trait SimpleDTOComputedTrait
      *
      * @param string $methodName The method name
      * @param string $context 'array' or 'json'
-     *
-     * @return bool
      */
     private function isComputedPropertyVisible(string $methodName, string $context): bool
     {
@@ -159,7 +153,7 @@ trait SimpleDTOComputedTrait
             $method = $reflection->getMethod($methodName);
 
             // Check for Hidden attribute
-            $hiddenAttrs = $method->getAttributes(\event4u\DataHelpers\SimpleDTO\Attributes\Hidden::class);
+            $hiddenAttrs = $method->getAttributes(Hidden::class);
             if (!empty($hiddenAttrs)) {
                 return false;
             }
@@ -167,7 +161,7 @@ trait SimpleDTOComputedTrait
             // Check for HiddenFromArray attribute
             if ('array' === $context) {
                 $hiddenFromArrayAttrs = $method->getAttributes(
-                    \event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromArray::class
+                    HiddenFromArray::class
                 );
                 if (!empty($hiddenFromArrayAttrs)) {
                     return false;
@@ -177,7 +171,7 @@ trait SimpleDTOComputedTrait
             // Check for HiddenFromJson attribute
             if ('json' === $context) {
                 $hiddenFromJsonAttrs = $method->getAttributes(
-                    \event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromJson::class
+                    HiddenFromJson::class
                 );
                 if (!empty($hiddenFromJsonAttrs)) {
                     return false;
@@ -185,7 +179,7 @@ trait SimpleDTOComputedTrait
             }
 
             return true;
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             return true;
         }
     }
@@ -194,8 +188,6 @@ trait SimpleDTOComputedTrait
      * Check if a computed property should be included based on only/except filters.
      *
      * @param string $outputName The output name of the computed property
-     *
-     * @return bool
      */
     private function isComputedPropertyInFilter(string $outputName): bool
     {
@@ -254,8 +246,6 @@ trait SimpleDTOComputedTrait
      * This is useful when you want to force recomputation of computed properties.
      *
      * @param string|null $property Specific property to clear, or null to clear all
-     *
-     * @return static
      */
     public function clearComputedCache(?string $property = null): static
     {
@@ -272,8 +262,6 @@ trait SimpleDTOComputedTrait
      * Check if a computed property value is cached.
      *
      * @param string $property The property name
-     *
-     * @return bool
      */
     public function hasComputedCache(string $property): bool
     {

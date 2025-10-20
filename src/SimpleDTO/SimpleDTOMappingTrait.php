@@ -10,7 +10,6 @@ use event4u\DataHelpers\SimpleDTO\Attributes\MapOutputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDTO\Support\NameTransformer;
 use ReflectionClass;
-use ReflectionParameter;
 
 /**
  * Trait for handling property mapping in SimpleDTOs.
@@ -114,7 +113,7 @@ trait SimpleDTOMappingTrait
         $reflection = new ReflectionClass($class);
         $attributes = $reflection->getAttributes(MapInputName::class);
 
-        if (empty($attributes)) {
+        if ($attributes === []) {
             self::$inputNameTransformCache[$class] = null;
 
             return null;
@@ -285,7 +284,7 @@ trait SimpleDTOMappingTrait
         $reflection = new ReflectionClass($class);
         $attributes = $reflection->getAttributes(MapOutputName::class);
 
-        if (empty($attributes)) {
+        if ($attributes === []) {
             self::$outputNameTransformCache[$class] = null;
 
             return null;

@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\Min;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
-use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\Validation\ValidationResult;
 
-describe('Validation Modes', function () {
-    it('auto-validates on fromArray when auto: true', function () {
+describe('Validation Modes', function(): void {
+    it('auto-validates on fromArray when auto: true', function(): void {
         // Note: Attributes on anonymous classes don't work in PHP
         // So we test the auto-validation logic directly
 
@@ -31,7 +31,7 @@ describe('Validation Modes', function () {
         expect(true)->toBeTrue();
     });
 
-    it('does not auto-validate when auto: false', function () {
+    it('does not auto-validate when auto: false', function(): void {
         $dto = new class ('', '') extends SimpleDTO {
             #[ValidateRequest(throw: true, auto: false)]
             public function __construct(
@@ -57,7 +57,7 @@ describe('Validation Modes', function () {
         expect($result->name)->toBe('Jo');
     });
 
-    it('validates manually with validate()', function () {
+    it('validates manually with validate()', function(): void {
         $dto = new class ('', '') extends SimpleDTO {
             public function __construct(
                 #[Required]
@@ -88,7 +88,7 @@ describe('Validation Modes', function () {
         ]))->toThrow(ValidationException::class);
     });
 
-    it('validates with validateOrFail()', function () {
+    it('validates with validateOrFail()', function(): void {
         $dto = new class ('', '') extends SimpleDTO {
             public function __construct(
                 #[Required]
@@ -119,7 +119,7 @@ describe('Validation Modes', function () {
         ]))->toThrow(ValidationException::class);
     });
 
-    it('validates without throwing using validateData()', function () {
+    it('validates without throwing using validateData()', function(): void {
         $dto = new class ('', '') extends SimpleDTO {
             public function __construct(
                 #[Required]
@@ -157,7 +157,7 @@ describe('Validation Modes', function () {
         expect($result->errors())->toHaveKey('name');
     });
 
-    it('validates with throw: true', function () {
+    it('validates with throw: true', function(): void {
         $dto = new class ('', '') extends SimpleDTO {
             #[ValidateRequest(throw: true)]
             public function __construct(
@@ -189,7 +189,7 @@ describe('Validation Modes', function () {
         ]))->toThrow(ValidationException::class);
     });
 
-    it('validates with throw: false', function () {
+    it('validates with throw: false', function(): void {
         $dto = new class ('', '') extends SimpleDTO {
             #[ValidateRequest(throw: false)]
             public function __construct(
@@ -222,25 +222,25 @@ describe('Validation Modes', function () {
         expect($result->isFailed())->toBeTrue();
     });
 
-    it('validates only specified fields', function () {
+    it('validates only specified fields', function(): void {
         // Note: Attributes on anonymous classes don't work reliably in PHP
         // This is tested in the example file examples/66-validation-modes.php
         expect(true)->toBeTrue();
     });
 
-    it('validates except specified fields', function () {
+    it('validates except specified fields', function(): void {
         // Note: Attributes on anonymous classes don't work reliably in PHP
         // This is tested in the example file examples/66-validation-modes.php
         expect(true)->toBeTrue();
     });
 
-    it('checks if DTO should auto-validate', function () {
+    it('checks if DTO should auto-validate', function(): void {
         // Note: Attributes on anonymous classes don't work reliably in PHP
         // This is tested in the example file examples/66-validation-modes.php
         expect(true)->toBeTrue();
     });
 
-    it('gets ValidateRequest attribute', function () {
+    it('gets ValidateRequest attribute', function(): void {
         // Note: Attributes on anonymous classes don't work reliably in PHP
         // This is tested in the example file examples/66-validation-modes.php
         expect(true)->toBeTrue();

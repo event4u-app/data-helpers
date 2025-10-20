@@ -41,7 +41,7 @@ class ValidationStage implements PipelineStageInterface
             }
         }
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             throw new ValidationException('Validation failed', $errors);
         }
 
@@ -53,9 +53,7 @@ class ValidationStage implements PipelineStageInterface
         return $this->name;
     }
 
-    /**
-     * Validate a single rule.
-     */
+    /** Validate a single rule. */
     private function validateRule(string $field, mixed $value, string $rule): ?string
     {
         return match ($rule) {
@@ -69,7 +67,7 @@ class ValidationStage implements PipelineStageInterface
     private function validateRequired(string $field, mixed $value): ?string
     {
         if (null === $value || '' === $value) {
-            return "The {$field} field is required.";
+            return sprintf('The %s field is required.', $field);
         }
 
         return null;
@@ -82,7 +80,7 @@ class ValidationStage implements PipelineStageInterface
         }
 
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            return "The {$field} must be a valid email address.";
+            return sprintf('The %s must be a valid email address.', $field);
         }
 
         return null;
@@ -95,7 +93,7 @@ class ValidationStage implements PipelineStageInterface
         }
 
         if (!is_numeric($value)) {
-            return "The {$field} must be numeric.";
+            return sprintf('The %s must be numeric.', $field);
         }
 
         return null;
@@ -108,8 +106,8 @@ class ValidationStage implements PipelineStageInterface
             [$ruleName, $parameter] = explode(':', $rule, 2);
 
             return match ($ruleName) {
-                'min' => $this->validateMin($field, $value, (int) $parameter),
-                'max' => $this->validateMax($field, $value, (int) $parameter),
+                'min' => $this->validateMin($field, $value, (int)$parameter),
+                'max' => $this->validateMax($field, $value, (int)$parameter),
                 default => null,
             };
         }
@@ -124,11 +122,11 @@ class ValidationStage implements PipelineStageInterface
         }
 
         if (is_numeric($value) && $value < $min) {
-            return "The {$field} must be at least {$min}.";
+            return sprintf('The %s must be at least %d.', $field, $min);
         }
 
         if (is_string($value) && strlen($value) < $min) {
-            return "The {$field} must be at least {$min} characters.";
+            return sprintf('The %s must be at least %d characters.', $field, $min);
         }
 
         return null;
@@ -141,11 +139,11 @@ class ValidationStage implements PipelineStageInterface
         }
 
         if (is_numeric($value) && $value > $max) {
-            return "The {$field} must not be greater than {$max}.";
+            return sprintf('The %s must not be greater than %d.', $field, $max);
         }
 
         if (is_string($value) && strlen($value) > $max) {
-            return "The {$field} must not be greater than {$max} characters.";
+            return sprintf('The %s must not be greater than %d characters.', $field, $max);
         }
 
         return null;

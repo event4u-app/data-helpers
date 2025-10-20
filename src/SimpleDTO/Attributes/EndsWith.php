@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -33,17 +33,13 @@ class EndsWith implements ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
 
-    /**
-     * @param string|array<string> $values Value(s) that the field must end with
-     */
+    /** @param string|array<string> $values Value(s) that the field must end with */
     public function __construct(
         public readonly string|array $values,
     ) {}
 
     /**
      * Convert to Laravel validation rule.
-     *
-     * @return string
      */
     public function rule(): string
     {
@@ -53,8 +49,6 @@ class EndsWith implements ValidationRule, SymfonyConstraint
 
     /**
      * Get Symfony constraint for this validation attribute.
-     *
-     * @return Constraint
      */
     public function constraint(): Constraint
     {
@@ -63,7 +57,7 @@ class EndsWith implements ValidationRule, SymfonyConstraint
         $values = is_array($this->values) ? $this->values : [$this->values];
         // Create regex pattern: (value1|value2|...)$
         // Use # as delimiter to avoid issues with / in values
-        $pattern = '#(' . implode('|', array_map(fn($v) => preg_quote($v, '#'), $values)) . ')$#';
+        $pattern = '#(' . implode('|', array_map(fn(string $v): string => preg_quote($v, '#'), $values)) . ')$#';
 
         return new Assert\Regex(
             pattern: $pattern,
@@ -80,7 +74,7 @@ class EndsWith implements ValidationRule, SymfonyConstraint
     public function message(): ?string
     {
         $values = is_array($this->values) ? implode(', ', $this->values) : $this->values;
-        return "The attribute must end with one of the following: {$values}.";
+        return sprintf('The attribute must end with one of the following: %s.', $values);
     }
 }
 

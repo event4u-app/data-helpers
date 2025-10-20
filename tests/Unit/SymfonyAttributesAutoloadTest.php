@@ -3,9 +3,15 @@
 declare(strict_types=1);
 
 namespace Tests\Unit;
+use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted;
+use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole;
+use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use stdClass;
+use Throwable;
 
-describe('Symfony Attributes Autoload Safety', function () {
-    it('can load Symfony attributes without Symfony being installed', function () {
+describe('Symfony Attributes Autoload Safety', function(): void {
+    it('can load Symfony attributes without Symfony being installed', function(): void {
         // This test ensures that Symfony attributes can be loaded
         // even when Symfony is not installed (they just won't use Security component)
 
@@ -13,14 +19,14 @@ describe('Symfony Attributes Autoload Safety', function () {
             ->and(class_exists('event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole'))->toBeTrue();
     });
 
-    it('Symfony attributes work with context even without Symfony', function () {
+    it('Symfony attributes work with context even without Symfony', function(): void {
         $dto = new class('My Post', '/edit') {
-            use \event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+            use SimpleDTOTrait;
 
             public function __construct(
                 public readonly string $title,
 
-                #[\event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted('EDIT')]
+                #[WhenGranted('EDIT')]
                 public readonly string $editLink,
             ) {}
         };
@@ -32,42 +38,46 @@ describe('Symfony Attributes Autoload Safety', function () {
         expect($array)->toHaveKey('editLink');
     });
 
-    it('does not throw errors when Symfony Security is not available', function () {
+    it('does not throw errors when Symfony Security is not available', function(): void {
         $dto = new class('My Post', '/edit') {
-            use \event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+            use SimpleDTOTrait;
 
             public function __construct(
                 public readonly string $title,
 
-                #[\event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted('EDIT')]
+                #[WhenGranted('EDIT')]
                 public readonly string $editLink,
             ) {}
         };
 
         // Should not throw error even without Symfony
-        expect(fn() => $dto->toArray())->not->toThrow(\Throwable::class);
+        expect(fn(): array => $dto->toArray())->not->toThrow(Throwable::class);
     });
 
-    it('Symfony attributes implement ConditionalProperty interface', function () {
-        $whenGranted = new \event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted('EDIT');
-        $whenRole = new \event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole('ROLE_ADMIN');
+    it('Symfony attributes implement ConditionalProperty interface', function(): void {
+        $whenGranted = new WhenGranted('EDIT');
+        $whenRole = new WhenRole('ROLE_ADMIN');
 
-        expect($whenGranted)->toBeInstanceOf(\event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty::class)
-            ->and($whenRole)->toBeInstanceOf(\event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty::class);
+        expect($whenGranted)->toBeInstanceOf(ConditionalProperty::class)
+            ->and($whenRole)->toBeInstanceOf(ConditionalProperty::class);
     });
 
-    it('Symfony attributes can be instantiated without Symfony', function () {
+    it('Symfony attributes can be instantiated without Symfony', function(): void {
         // Should not throw errors during instantiation
-        expect(fn() => new \event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted('EDIT'))->not->toThrow(\Throwable::class)
-            ->and(fn() => new \event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole('ROLE_ADMIN'))->not->toThrow(\Throwable::class);
+        expect(fn(): WhenGranted => new WhenGranted('EDIT'))->not->toThrow(
+            Throwable::class
+        )
+            ->and(fn(): WhenRole => new WhenRole('ROLE_ADMIN'))->not->toThrow(
+                Throwable::class
+            );
     });
 
-    it('Symfony attributes shouldInclude works without Symfony', function () {
-        $whenGranted = new \event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted('EDIT');
-        $dto = new \stdClass();
+    it('Symfony attributes shouldInclude works without Symfony', function(): void {
+        $whenGranted = new WhenGranted('EDIT');
+        $dto = new stdClass();
 
         // Should not throw error
-        expect(fn() => $whenGranted->shouldInclude('value', $dto, []))->not->toThrow(\Throwable::class);
+        expect(fn(): bool => $whenGranted->shouldInclude('value', $dto, []))->not->toThrow(Throwable::class);
 
         // Should return false without context
         expect($whenGranted->shouldInclude('value', $dto, []))->toBeFalse();
@@ -77,17 +87,17 @@ describe('Symfony Attributes Autoload Safety', function () {
         expect($whenGranted->shouldInclude('value', $dto, ['user' => $user]))->toBeTrue();
     });
 
-    it('all Symfony attributes work in plain PHP without Symfony', function () {
+    it('all Symfony attributes work in plain PHP without Symfony', function(): void {
         $dto = new class('Test', '/admin', '/edit') {
-            use \event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+            use SimpleDTOTrait;
 
             public function __construct(
                 public readonly string $name,
 
-                #[\event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole('ROLE_ADMIN')]
+                #[WhenRole('ROLE_ADMIN')]
                 public readonly string $adminPanel,
 
-                #[\event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted('EDIT')]
+                #[WhenGranted('EDIT')]
                 public readonly string $editLink,
             ) {}
         };
@@ -110,39 +120,39 @@ describe('Symfony Attributes Autoload Safety', function () {
             ->and($arrayWithContext)->toHaveKey('editLink');
     });
 
-    it('Symfony attributes do not cause autoload issues', function () {
+    it('Symfony attributes do not cause autoload issues', function(): void {
         // This test ensures that using Symfony attributes doesn't
         // trigger autoload errors for Symfony classes
 
         // Create a DTO with all Symfony attributes
         $class = new class('Test') {
-            use \event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+            use SimpleDTOTrait;
 
             public function __construct(
                 public readonly string $name,
 
-                #[\event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole('ROLE_ADMIN')]
+                #[WhenRole('ROLE_ADMIN')]
                 public readonly string $role = 'role',
 
-                #[\event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted('EDIT')]
+                #[WhenGranted('EDIT')]
                 public readonly string $granted = 'granted',
             ) {}
         };
 
         // Should not throw any errors
-        expect(fn() => $class->toArray())->not->toThrow(\Throwable::class);
-        expect(fn() => $class->jsonSerialize())->not->toThrow(\Throwable::class);
-        expect(fn() => json_encode($class))->not->toThrow(\Throwable::class);
+        expect(fn(): array => $class->toArray())->not->toThrow(Throwable::class);
+        expect(fn(): array => $class->jsonSerialize())->not->toThrow(Throwable::class);
+        expect(fn() => json_encode($class))->not->toThrow(Throwable::class);
     });
 
-    it('works with security context object', function () {
+    it('works with security context object', function(): void {
         $dto = new class('Test', '/admin') {
-            use \event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+            use SimpleDTOTrait;
 
             public function __construct(
                 public readonly string $name,
 
-                #[\event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole('ROLE_ADMIN')]
+                #[WhenRole('ROLE_ADMIN')]
                 public readonly string $adminPanel,
             ) {}
         };
@@ -150,7 +160,7 @@ describe('Symfony Attributes Autoload Safety', function () {
         $security = new class {
             public function isGranted(string $attribute): bool
             {
-                return $attribute === 'ROLE_ADMIN';
+                return 'ROLE_ADMIN' === $attribute;
             }
         };
 
@@ -158,14 +168,14 @@ describe('Symfony Attributes Autoload Safety', function () {
         expect($array)->toHaveKey('adminPanel');
     });
 
-    it('WhenGranted works with subject parameter', function () {
+    it('WhenGranted works with subject parameter', function(): void {
         $dto = new class('Post', '/edit') {
-            use \event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+            use SimpleDTOTrait;
 
             public function __construct(
                 public readonly string $title,
 
-                #[\event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted('EDIT', 'post')]
+                #[WhenGranted('EDIT', 'post')]
                 public readonly string $editLink,
             ) {}
         };
@@ -174,7 +184,7 @@ describe('Symfony Attributes Autoload Safety', function () {
         $user = new class {
             public function isGranted(string $attribute, $subject = null): bool
             {
-                return $attribute === 'EDIT' && $subject !== null;
+                return 'EDIT' === $attribute && null !== $subject;
             }
         };
 

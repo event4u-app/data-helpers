@@ -30,9 +30,7 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class WhenContextNotNull implements ConditionalProperty
 {
-    /**
-     * @param string $key Context key to check
-     */
+    /** @param string $key Context key to check */
     public function __construct(
         public readonly string $key,
     ) {}
@@ -43,11 +41,10 @@ class WhenContextNotNull implements ConditionalProperty
      * @param mixed $value Property value
      * @param object $dto DTO instance
      * @param array<string, mixed> $context Context data
-     * @return bool
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
-        return array_key_exists($this->key, $context) && $context[$this->key] !== null;
+        return array_key_exists($this->key, $context) && null !== $context[$this->key];
     }
 }
 

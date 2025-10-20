@@ -6,6 +6,8 @@ namespace event4u\DataHelpers\SimpleDTO;
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use ReflectionClass;
+use Throwable;
 
 /**
  * Trait for integrating DataMapper functionality into SimpleDTOs.
@@ -158,7 +160,7 @@ trait SimpleDTOMapperTrait
         }
 
         // Check if mapperTemplate() method is overridden
-        $reflection = new \ReflectionClass($class);
+        $reflection = new ReflectionClass($class);
 
         try {
             $method = $reflection->getMethod('mapperTemplate');
@@ -177,7 +179,7 @@ trait SimpleDTOMapperTrait
             self::$templateCache[$class] = $template;
 
             return $template;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             self::$templateCache[$class] = null;
 
             return null;
@@ -198,7 +200,7 @@ trait SimpleDTOMapperTrait
         }
 
         // Check if mapperFilters() method is overridden
-        $reflection = new \ReflectionClass($class);
+        $reflection = new ReflectionClass($class);
 
         try {
             $method = $reflection->getMethod('mapperFilters');
@@ -217,7 +219,7 @@ trait SimpleDTOMapperTrait
             self::$filterCache[$class] = $filters;
 
             return $filters;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             self::$filterCache[$class] = null;
 
             return null;
@@ -238,7 +240,7 @@ trait SimpleDTOMapperTrait
         }
 
         // Check if mapperPipeline() method is overridden
-        $reflection = new \ReflectionClass($class);
+        $reflection = new ReflectionClass($class);
 
         try {
             $method = $reflection->getMethod('mapperPipeline');
@@ -257,7 +259,7 @@ trait SimpleDTOMapperTrait
             self::$pipelineCache[$class] = $pipeline;
 
             return $pipeline;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             self::$pipelineCache[$class] = null;
 
             return null;
@@ -285,8 +287,6 @@ trait SimpleDTOMapperTrait
      * @param array<string, mixed>|null $template Optional template override
      * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters (property => filter) for setFilters()
      * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters for pipe()
-     *
-     * @return static
      */
     public static function fromSource(
         mixed $source,
@@ -295,10 +295,10 @@ trait SimpleDTOMapperTrait
         ?array $pipeline = null
     ): static {
         // Step 1: Get template (parameter > DTO definition)
-        $template = $template ?? static::getTemplateConfig();
+        $template ??= static::getTemplateConfig();
 
         // Step 2: Get property filters (parameter > DTO definition)
-        $filters = $filters ?? static::getFilterConfig();
+        $filters ??= static::getFilterConfig();
 
         // Step 3: Get pipeline filters from DTO definition
         $dtoPipeline = static::getPipelineConfig();
@@ -341,7 +341,7 @@ trait SimpleDTOMapperTrait
         if (is_string($source)) {
             $source = json_decode($source, true) ?? [];
         } elseif (is_object($source)) {
-            $source = (array) $source;
+            $source = (array)$source;
         }
 
         // Step 5: Apply property mapping (#[MapFrom] attributes)
@@ -378,7 +378,5 @@ trait SimpleDTOMapperTrait
         /** @phpstan-ignore new.static */
         return new static(...$data);
     }
-
 }
-
 

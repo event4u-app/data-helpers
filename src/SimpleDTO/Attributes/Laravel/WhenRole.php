@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Attributes\Laravel;
 
+use Illuminate\Support\Facades\Auth;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use Throwable;
 
 /**
  * Attribute to conditionally include a property based on user role.
@@ -44,14 +46,10 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class WhenRole implements ConditionalProperty
 {
-    /**
-     * @var array<string>
-     */
+    /** @var array<string> */
     private readonly array $roles;
 
-    /**
-     * @param string|array<string> $role Role(s) to check
-     */
+    /** @param string|array<string> $role Role(s) to check */
     public function __construct(
         string|array $role,
     ) {
@@ -64,7 +62,6 @@ class WhenRole implements ConditionalProperty
      * @param mixed $value Property value
      * @param object $dto DTO instance
      * @param array<string, mixed> $context Context data
-     * @return bool
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
@@ -73,7 +70,7 @@ class WhenRole implements ConditionalProperty
             $user = $context['user'];
 
             // No user = no role
-            if ($user === null) {
+            if (null === $user) {
                 return false;
             }
 
@@ -115,9 +112,9 @@ class WhenRole implements ConditionalProperty
         // Fall back to Laravel Auth if available
         if (class_exists('Illuminate\Support\Facades\Auth')) {
             try {
-                $user = \Illuminate\Support\Facades\Auth::user();
+                $user = Auth::user();
 
-                if ($user === null) {
+                if (null === $user) {
                     return false;
                 }
 
@@ -135,11 +132,11 @@ class WhenRole implements ConditionalProperty
                     return $user->hasAnyRole($this->roles);
                 }
 
-                if (isset($user->role)) {
+                if (property_exists($user, 'role') && $user->role !== null) {
                     return in_array($user->role, $this->roles, true);
                 }
 
-                if (isset($user->roles)) {
+                if (property_exists($user, 'roles') && $user->roles !== null) {
                     $userRoles = is_array($user->roles) ? $user->roles : [$user->roles];
                     foreach ($this->roles as $role) {
                         if (in_array($role, $userRoles, true)) {
@@ -150,7 +147,7 @@ class WhenRole implements ConditionalProperty
                 }
 
                 return false;
-            } catch (\Throwable $e) {
+            } catch (Throwable) {
                 // Laravel not properly initialized, treat as no role
                 return false;
             }

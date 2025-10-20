@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Model;
+
 // Skip this file entirely if Laravel is not installed
 if (!class_exists('Illuminate\Database\Eloquent\Model')) {
     return;
@@ -13,7 +15,7 @@ use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
 /**
  * Mock Eloquent Model for edge case testing.
  */
-class EdgeCaseTestModel extends Illuminate\Database\Eloquent\Model
+class EdgeCaseTestModel extends Model
 {
     protected $guarded = [];
     public $timestamps = false;

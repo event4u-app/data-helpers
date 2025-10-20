@@ -23,22 +23,16 @@ use Illuminate\Support\ServiceProvider;
  */
 class DTOServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     */
+    /** Register services. */
     public function register(): void
     {
-        $this->app->singleton(DTOValueResolver::class, function (Application $app) {
-            return new DTOValueResolver(
-                $app->make('request'),
-                $app->make('validator')
-            );
-        });
+        $this->app->singleton(DTOValueResolver::class, fn(Application $app): DTOValueResolver => new DTOValueResolver(
+            $app->make('request'),
+            $app->make('validator')
+        ));
     }
 
-    /**
-     * Bootstrap services.
-     */
+    /** Bootstrap services. */
     public function boot(): void
     {
         // Register custom parameter resolver for Laravel 11+

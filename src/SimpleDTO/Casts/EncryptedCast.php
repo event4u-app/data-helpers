@@ -32,13 +32,9 @@ use Throwable;
  */
 class EncryptedCast implements CastsAttributes
 {
-    /** @var object|null */
     private static ?object $customEncrypter = null;
 
-    /** @var object|null */
     private static ?object $encrypter = null;
-
-    public function __construct() {}
 
     /**
      * Set a custom encrypter.
@@ -77,7 +73,7 @@ class EncryptedCast implements CastsAttributes
             }
 
             return $encrypter->decrypt($value);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             // Decryption failed - return null
             return null;
         }
@@ -100,7 +96,7 @@ class EncryptedCast implements CastsAttributes
             $encrypted = $encrypter->encrypt($value);
 
             return is_string($encrypted) ? $encrypted : null;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             // Encryption failed - return null
             return null;
         }
@@ -167,7 +163,7 @@ class EncryptedCast implements CastsAttributes
 
         try {
             return new $encrypterClass($key, 'AES-256-CBC');
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return null;
         }
     }
@@ -203,11 +199,8 @@ class EncryptedCast implements CastsAttributes
         $key = hash('sha256', $key, true);
 
         return new class($key) {
-            private string $key;
-
-            public function __construct(string $key)
+            public function __construct(private readonly string $key)
             {
-                $this->key = $key;
             }
 
             public function encrypt(mixed $value): string

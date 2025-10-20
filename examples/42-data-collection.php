@@ -5,7 +5,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\DataCollection;
 
 echo "================================================================================\n";
 echo "SimpleDTO - DataCollection Examples\n";
@@ -39,7 +38,7 @@ echo "\n";
 echo "Example 2: Filtering\n";
 echo "----------------------------\n";
 
-$adults = $users->filter(fn(UserDTO $user) => $user->age >= 30);
+$adults = $users->filter(fn(UserDTO $user): bool => 30 <= $user->age);
 
 echo "Adults (age >= 30):\n";
 foreach ($adults as $user) {
@@ -51,8 +50,8 @@ echo "\n";
 echo "Example 3: Mapping\n";
 echo "----------------------------\n";
 
-$names = $users->map(fn(UserDTO $user) => $user->name);
-$emails = $users->map(fn(UserDTO $user) => $user->email);
+$names = $users->map(fn(UserDTO $user): string => $user->name);
+$emails = $users->map(fn(UserDTO $user): string => $user->email);
 
 echo "Names: " . implode(', ', $names) . "\n";
 echo "Emails: " . implode(', ', $emails) . "\n";
@@ -63,22 +62,22 @@ echo "Example 4: Reducing\n";
 echo "----------------------------\n";
 
 $totalAge = $users->reduce(
-    fn(int $carry, UserDTO $user) => $carry + $user->age,
+    fn(int $carry, UserDTO $user): int|float => $carry + $user->age,
     0
 );
 
 $averageAge = $totalAge / $users->count();
 
-echo "Total age: {$totalAge}\n";
-echo "Average age: {$averageAge}\n";
+echo sprintf('Total age: %s%s', $totalAge, PHP_EOL);
+echo sprintf('Average age: %s%s', $averageAge, PHP_EOL);
 echo "\n";
 
 // Example 5: Array Access
 echo "Example 5: Array Access\n";
 echo "----------------------------\n";
 
-echo "User at index 0: {$users[0]->name}\n";
-echo "User at index 1: {$users[1]->name}\n";
+echo sprintf('User at index 0: %s%s', $users[0]->name, PHP_EOL);
+echo sprintf('User at index 1: %s%s', $users[1]->name, PHP_EOL);
 echo "User exists at index 0: " . (isset($users[0]) ? 'Yes' : 'No') . "\n";
 echo "User exists at index 10: " . (isset($users[10]) ? 'Yes' : 'No') . "\n";
 echo "\n";
@@ -119,7 +118,7 @@ $newUsers->prepend(['name' => 'David Lee', 'age' => 27, 'email' => 'david@exampl
 
 echo "Users after push/prepend:\n";
 foreach ($newUsers as $user) {
-    echo "  - {$user->name}\n";
+    echo sprintf('  - %s%s', $user->name, PHP_EOL);
 }
 echo "\n";
 
@@ -146,12 +145,12 @@ $products = ProductDTO::collection([
 ]);
 
 $availableElectronics = $products->filter(
-    fn(ProductDTO $p) => $p->category === 'Electronics' && $p->inStock
+    fn(ProductDTO $p): false => 'Electronics' === $p->category && $p->inStock
 );
 
 echo "Available Electronics:\n";
 foreach ($availableElectronics as $product) {
-    echo "  - {$product->name}: \${$product->price}\n";
+    echo sprintf('  - %s: $%s%s', $product->name, $product->price, PHP_EOL);
 }
 echo "\n";
 
@@ -160,12 +159,12 @@ echo "Example 10: Chaining Operations\n";
 echo "----------------------------\n";
 
 $expensiveProductNames = $products
-    ->filter(fn(ProductDTO $p) => $p->price > 200)
-    ->map(fn(ProductDTO $p) => $p->name);
+    ->filter(fn(ProductDTO $p): bool => 200 < $p->price)
+    ->map(fn(ProductDTO $p): string => $p->name);
 
 echo "Expensive products (> \$200):\n";
 foreach ($expensiveProductNames as $name) {
-    echo "  - {$name}\n";
+    echo sprintf('  - %s%s', $name, PHP_EOL);
 }
 echo "\n";
 
@@ -184,8 +183,8 @@ echo "\n";
 echo "Example 12: Finding Items\n";
 echo "----------------------------\n";
 
-$youngUser = $users->first(fn(UserDTO $u) => $u->age < 30);
-$oldUser = $users->last(fn(UserDTO $u) => $u->age >= 30);
+$youngUser = $users->first(fn(UserDTO $u): bool => 30 > $u->age);
+$oldUser = $users->last(fn(UserDTO $u): bool => 30 <= $u->age);
 
 echo "Youngest user (< 30): " . ($youngUser ? $youngUser->name : 'None') . "\n";
 echo "Oldest user (>= 30): " . ($oldUser ? $oldUser->name : 'None') . "\n";

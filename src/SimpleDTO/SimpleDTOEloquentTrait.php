@@ -46,7 +46,6 @@ trait SimpleDTOEloquentTrait
      *
      * @param Model $model The Eloquent Model instance
      *
-     * @return static
      *
      * @throws InvalidArgumentException If the model does not have a toArray() method
      */
@@ -76,13 +75,13 @@ trait SimpleDTOEloquentTrait
     {
         // Check if model class exists
         if (!class_exists($modelClass)) {
-            throw new InvalidArgumentException("Model class {$modelClass} does not exist");
+            throw new InvalidArgumentException(sprintf('Model class %s does not exist', $modelClass));
         }
 
         // Check if model class is an Eloquent Model
         if (!is_subclass_of($modelClass, Model::class)) {
             throw new InvalidArgumentException(
-                "Model class {$modelClass} must extend " . Model::class
+                sprintf('Model class %s must extend ', $modelClass) . Model::class
             );
         }
 

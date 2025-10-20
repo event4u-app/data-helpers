@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Attributes\Laravel;
 
+use Illuminate\Support\Facades\Gate;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use Throwable;
 
 /**
  * Attribute to conditionally include a property based on authorization.
@@ -60,7 +62,6 @@ class WhenCan implements ConditionalProperty
      * @param mixed $value Property value
      * @param object $dto DTO instance
      * @param array<string, mixed> $context Context data
-     * @return bool
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
@@ -69,7 +70,7 @@ class WhenCan implements ConditionalProperty
             $user = $context['user'];
 
             // No user = no permission
-            if ($user === null) {
+            if (null === $user) {
                 return false;
             }
 
@@ -78,7 +79,7 @@ class WhenCan implements ConditionalProperty
 
             // Check if user has 'can' method (Laravel User model)
             if (is_object($user) && method_exists($user, 'can')) {
-                return $modelArgument !== null
+                return null !== $modelArgument
                     ? $user->can($this->ability, $modelArgument)
                     : $user->can($this->ability);
             }
@@ -101,10 +102,10 @@ class WhenCan implements ConditionalProperty
             try {
                 $modelArgument = $this->getModelArgument($context);
 
-                return $modelArgument !== null
-                    ? \Illuminate\Support\Facades\Gate::allows($this->ability, $modelArgument)
-                    : \Illuminate\Support\Facades\Gate::allows($this->ability);
-            } catch (\Throwable $e) {
+                return null !== $modelArgument
+                    ? Gate::allows($this->ability, $modelArgument)
+                    : Gate::allows($this->ability);
+            } catch (Throwable) {
                 // Laravel not properly initialized, treat as no permission
                 return false;
             }
@@ -118,11 +119,10 @@ class WhenCan implements ConditionalProperty
      * Get model argument from context.
      *
      * @param array<string, mixed> $context Context data
-     * @return mixed
      */
     private function getModelArgument(array $context): mixed
     {
-        if ($this->model === null) {
+        if (null === $this->model) {
             return null;
         }
 

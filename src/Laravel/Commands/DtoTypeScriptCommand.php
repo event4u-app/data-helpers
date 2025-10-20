@@ -7,7 +7,6 @@ namespace event4u\DataHelpers\Laravel\Commands;
 use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 use Throwable;
@@ -78,8 +77,8 @@ class DtoTypeScriptCommand extends Command
         // Find all DTO classes
         $dtoClasses = $this->findDtoClasses($scanPath);
 
-        if (empty($dtoClasses)) {
-            $this->warn("No DTO classes found in {$scanPath}");
+        if ($dtoClasses === []) {
+            $this->warn('No DTO classes found in ' . $scanPath);
 
             return self::FAILURE;
         }
@@ -104,7 +103,7 @@ class DtoTypeScriptCommand extends Command
         $files->put($outputPath, $typescript);
 
         $this->info("✅  TypeScript interfaces generated successfully!");
-        $this->info("📄 Output: {$outputPath}");
+        $this->info('📄 Output: ' . $outputPath);
         $this->info("📊 Size: " . $files->size($outputPath) . " bytes");
 
         return self::SUCCESS;
@@ -120,8 +119,8 @@ class DtoTypeScriptCommand extends Command
         bool $sort
     ): int {
         $this->info('👀 Watching for changes...');
-        $this->info("📁 Scanning: {$scanPath}");
-        $this->info("📄 Output: {$outputPath}");
+        $this->info('📁 Scanning: ' . $scanPath);
+        $this->info('📄 Output: ' . $outputPath);
         $this->info('Press Ctrl+C to stop');
         $this->newLine();
 
@@ -224,7 +223,7 @@ class DtoTypeScriptCommand extends Command
             $traits = $this->getAllTraits($reflection);
 
             return in_array('event4u\DataHelpers\SimpleDTO\SimpleDTOTrait', $traits, true);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return false;
         }
     }

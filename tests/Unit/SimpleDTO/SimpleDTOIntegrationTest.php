@@ -6,7 +6,6 @@ use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Between;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDTO\Attributes\Min;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;

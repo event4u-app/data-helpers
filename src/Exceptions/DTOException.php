@@ -15,13 +15,6 @@ class DTOException extends RuntimeException
 {
     /**
      * Create exception for type mismatch.
-     *
-     * @param string $dtoClass
-     * @param string $property
-     * @param string $expectedType
-     * @param mixed $actualValue
-     * @param string $propertyPath
-     * @return self
      */
     public static function typeMismatch(
         string $dtoClass,
@@ -59,10 +52,7 @@ class DTOException extends RuntimeException
     /**
      * Create exception for missing required property.
      *
-     * @param string $dtoClass
-     * @param string $property
      * @param array<string> $availableKeys
-     * @return self
      */
     public static function missingProperty(
         string $dtoClass,
@@ -91,13 +81,6 @@ class DTOException extends RuntimeException
 
     /**
      * Create exception for invalid cast.
-     *
-     * @param string $dtoClass
-     * @param string $property
-     * @param string $castType
-     * @param mixed $value
-     * @param string $reason
-     * @return self
      */
     public static function invalidCast(
         string $dtoClass,
@@ -119,7 +102,8 @@ class DTOException extends RuntimeException
         );
 
         if ('' !== $reason) {
-            $message .= "\n  Reason: {$reason}";
+            $message .= '
+  Reason: ' . $reason;
         }
 
         return new self($message);
@@ -127,13 +111,6 @@ class DTOException extends RuntimeException
 
     /**
      * Create exception for nested DTO error.
-     *
-     * @param string $dtoClass
-     * @param string $property
-     * @param string $nestedDtoClass
-     * @param string $nestedProperty
-     * @param string $originalMessage
-     * @return self
      */
     public static function nestedError(
         string $dtoClass,
@@ -162,9 +139,6 @@ class DTOException extends RuntimeException
 
     /**
      * Format value for display in error messages.
-     *
-     * @param mixed $value
-     * @return string
      */
     private static function formatValue(mixed $value): string
     {
@@ -179,28 +153,25 @@ class DTOException extends RuntimeException
         if (is_string($value)) {
             $truncated = mb_strlen($value) > 50 ? mb_substr($value, 0, 50) . '...' : $value;
 
-            return "'{$truncated}'";
+            return sprintf("'%s'", $truncated);
         }
 
         if (is_array($value)) {
             $count = count($value);
 
-            return "array({$count} items)";
+            return sprintf('array(%d items)', $count);
         }
 
         if (is_object($value)) {
-            return get_class($value) . ' object';
+            return $value::class . ' object';
         }
 
-        return (string) $value;
+        return (string)$value;
     }
 
     /**
      * Get suggestions for type mismatch.
      *
-     * @param string $expectedType
-     * @param string $actualType
-     * @param mixed $actualValue
      * @return array<string>
      */
     private static function getSuggestionsForTypeMismatch(
@@ -213,25 +184,25 @@ class DTOException extends RuntimeException
         // String to int/float
         if ('string' === $actualType && in_array($expectedType, ['int', 'float'], true)) {
             if (is_numeric($actualValue)) {
-                $suggestions[] = "Cast the string to {$expectedType}: (int) '{$actualValue}' or use a cast in casts() method";
+                $suggestions[] = sprintf("Cast the string to %s: (int) '%s' or use a cast in casts() method", $expectedType, $actualValue);
             } else {
-                $suggestions[] = "The string '{$actualValue}' is not numeric. Provide a valid number.";
+                $suggestions[] = sprintf("The string '%s' is not numeric. Provide a valid number.", $actualValue);
             }
         }
 
         // Int to string
         if ('int' === $actualType && 'string' === $expectedType) {
-            $suggestions[] = "Cast the integer to string: (string) {$actualValue} or use 'string' cast in casts() method";
+            $suggestions[] = sprintf("Cast the integer to string: (string) %s or use 'string' cast in casts() method", $actualValue);
         }
 
         // Array to object
         if ('array' === $actualType && str_contains($expectedType, '\\')) {
-            $suggestions[] = "Convert array to {$expectedType} using {$expectedType}::fromArray(\$value)";
+            $suggestions[] = sprintf('Convert array to %s using %s::fromArray($value)', $expectedType, $expectedType);
         }
 
         // Null to non-nullable
         if ('null' === $actualType && !str_contains($expectedType, '?')) {
-            $suggestions[] = "Make the property nullable: ?{$expectedType} \${property}";
+            $suggestions[] = sprintf('Make the property nullable: ?%s ${property}', $expectedType);
             $suggestions[] = "Or provide a non-null value in the data array";
         }
 
@@ -241,7 +212,6 @@ class DTOException extends RuntimeException
     /**
      * Get similar keys using Levenshtein distance.
      *
-     * @param string $needle
      * @param array<string> $haystack
      * @return array<string>
      */
@@ -254,7 +224,7 @@ class DTOException extends RuntimeException
         $similar = [];
         foreach ($haystack as $key) {
             $distance = levenshtein(strtolower($needle), strtolower($key));
-            if ($distance <= 3) { // Max distance of 3 characters
+            if (3 >= $distance) { // Max distance of 3 characters
                 $similar[$key] = $distance;
             }
         }

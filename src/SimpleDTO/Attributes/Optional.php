@@ -115,9 +115,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final readonly class Optional
 {
-    /**
-     * @param mixed $default Default value to use when the property is missing
-     */
+    /** @param mixed $default Default value to use when the property is missing */
     public function __construct(
         public mixed $default = null,
     ) {}

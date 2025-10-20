@@ -27,15 +27,9 @@ use RuntimeException;
  */
 class CollectionCast implements CastsAttributes
 {
-    private readonly ?string $dtoClass;
-
-    /**
-     * @param string|null $dtoClass Optional DTO class for typed collections
-     */
-    public function __construct(
-        ?string $dtoClass = null,
-    ) {
-        $this->dtoClass = $dtoClass;
+    /** @param string|null $dtoClass Optional DTO class for typed collections */
+    public function __construct(private readonly ?string $dtoClass = null)
+    {
     }
 
     /** @return DataCollection<int, mixed>|null */

@@ -47,7 +47,7 @@ class NameTransformer
         $words = self::toWords($name);
 
         // Handle empty words array
-        if (empty($words)) {
+        if ($words === []) {
             return $name;
         }
 

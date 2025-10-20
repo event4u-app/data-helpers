@@ -25,8 +25,8 @@ $user = UserDTO::fromArray([
     'age' => 30,
 ]);
 
-echo "User Name: {$user->name}\n";
-echo "User Email: {$user->email}\n";
+echo sprintf('User Name: %s%s', $user->name, PHP_EOL);
+echo sprintf('User Email: %s%s', $user->email, PHP_EOL);
 echo "User Age: {$user->age}\n\n";
 
 echo "As Array:\n";
@@ -56,9 +56,9 @@ $product1 = ProductDTO::fromArray([
 ]);
 
 echo "Product 1:\n";
-echo "  Name: {$product1->name}\n";
-echo "  Price: \${$product1->price}\n";
-echo "  Description: {$product1->description}\n";
+echo sprintf('  Name: %s%s', $product1->name, PHP_EOL);
+echo sprintf('  Price: $%s%s', $product1->price, PHP_EOL);
+echo sprintf('  Description: %s%s', $product1->description, PHP_EOL);
 echo "  Category: " . ($product1->category ?? 'N/A') . "\n\n";
 
 $product2 = ProductDTO::fromArray([
@@ -67,8 +67,8 @@ $product2 = ProductDTO::fromArray([
 ]);
 
 echo "Product 2:\n";
-echo "  Name: {$product2->name}\n";
-echo "  Price: \${$product2->price}\n";
+echo sprintf('  Name: %s%s', $product2->name, PHP_EOL);
+echo sprintf('  Price: $%s%s', $product2->price, PHP_EOL);
 echo "  Description: " . ($product2->description ?? 'N/A') . "\n";
 echo "  Category: " . ($product2->category ?? 'N/A') . "\n\n";
 
@@ -108,11 +108,11 @@ $customer = new CustomerDTO(
     address: $address,
 );
 
-echo "Customer: {$customer->name}\n";
-echo "Email: {$customer->email}\n";
+echo sprintf('Customer: %s%s', $customer->name, PHP_EOL);
+echo sprintf('Email: %s%s', $customer->email, PHP_EOL);
 echo "Address:\n";
-echo "  {$customer->address->street}\n";
-echo "  {$customer->address->city}, {$customer->address->zipCode}\n";
+echo sprintf('  %s%s', $customer->address->street, PHP_EOL);
+echo sprintf('  %s, %s%s', $customer->address->city, $customer->address->zipCode, PHP_EOL);
 echo "  {$customer->address->country}\n\n";
 
 echo "As JSON:\n";
@@ -144,8 +144,8 @@ $mappedData = DataMapper::source($apiResponse)
 $userDto = UserDTO::fromArray($mappedData);
 
 echo "Mapped User DTO:\n";
-echo "  Name: {$userDto->name}\n";
-echo "  Email: {$userDto->email}\n";
+echo sprintf('  Name: %s%s', $userDto->name, PHP_EOL);
+echo sprintf('  Email: %s%s', $userDto->email, PHP_EOL);
 echo "  Age: {$userDto->age}\n\n";
 
 // Example 5: Array of DTOs
@@ -159,7 +159,7 @@ $productsData = [
 ];
 
 $products = array_map(
-    fn (array $data) => ProductDTO::fromArray($data),
+    fn(array $data): \ProductDTO => ProductDTO::fromArray($data),
     $productsData
 );
 
