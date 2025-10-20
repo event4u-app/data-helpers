@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 namespace Tests\Unit;
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted;
 use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 use stdClass;
 use Throwable;
 

@@ -81,7 +81,7 @@ class Image implements ValidationRule, SymfonyConstraint
             $dimensions[] = 'max_height=' . $this->maxHeight;
         }
 
-        if ($dimensions !== []) {
+        if ([] !== $dimensions) {
             $rules[] = 'dimensions:' . implode(',', $dimensions);
         }
 
@@ -99,9 +99,7 @@ class Image implements ValidationRule, SymfonyConstraint
         return "The attribute must be an image.";
     }
 
-    /**
-     * Get Symfony constraint.
-     */
+    /** Get Symfony constraint. */
     public function constraint(): Constraint
     {
         $this->ensureSymfonyValidatorAvailable();

@@ -37,18 +37,14 @@ class RequiredUnless implements ValidationRule
         public readonly mixed $value,
     ) {}
 
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         $value = is_bool($this->value) ? ($this->value ? 'true' : 'false') : $this->value;
         return sprintf('required_unless:%s,%s', $this->field, $value);
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         return sprintf('The attribute field is required unless %s is %s.', $this->field, $this->value);

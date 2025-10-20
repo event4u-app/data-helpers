@@ -41,7 +41,7 @@ class ValidationStage implements PipelineStageInterface
             }
         }
 
-        if ($errors !== []) {
+        if ([] !== $errors) {
             throw new ValidationException('Validation failed', $errors);
         }
 

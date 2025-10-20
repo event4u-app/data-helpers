@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Attributes\Laravel;
 
-use Illuminate\Support\Facades\Auth;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 /**
@@ -132,11 +132,11 @@ class WhenRole implements ConditionalProperty
                     return $user->hasAnyRole($this->roles);
                 }
 
-                if (property_exists($user, 'role') && $user->role !== null) {
+                if (property_exists($user, 'role') && null !== $user->role) {
                     return in_array($user->role, $this->roles, true);
                 }
 
-                if (property_exists($user, 'roles') && $user->roles !== null) {
+                if (property_exists($user, 'roles') && null !== $user->roles) {
                     $userRoles = is_array($user->roles) ? $user->roles : [$user->roles];
                     foreach ($this->roles as $role) {
                         if (in_array($role, $userRoles, true)) {

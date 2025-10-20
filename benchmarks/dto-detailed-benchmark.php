@@ -56,7 +56,7 @@ class DetailedBenchmark
 
     public static function printResults(array $results): void
     {
-        $maxNameLen = max(array_map(fn(array $r): int => strlen((string) $r['name']), $results));
+        $maxNameLen = max(array_map(fn(array $r): int => strlen((string)$r['name']), $results));
 
         echo "\n";
         printf("  %-{$maxNameLen}s  %12s  %12s  %15s\n", 'Operation', 'Total', 'Avg', 'Ops/sec');
@@ -79,9 +79,17 @@ class DetailedBenchmark
 
         echo "\n  📊 ";
         if (0 < $diff) {
-            echo $result2['name'] . ' is ' . number_format(abs($diff), 1) . sprintf('%% SLOWER than %s%s', $result1['name'], PHP_EOL);
+            echo $result2['name'] . ' is ' . number_format(abs($diff), 1) . sprintf(
+                '%% SLOWER than %s%s',
+                $result1['name'],
+                PHP_EOL
+            );
         } else {
-            echo $result2['name'] . ' is ' . number_format(abs($diff), 1) . sprintf('%% FASTER than %s%s', $result1['name'], PHP_EOL);
+            echo $result2['name'] . ' is ' . number_format(abs($diff), 1) . sprintf(
+                '%% FASTER than %s%s',
+                $result1['name'],
+                PHP_EOL
+            );
         }
     }
 }

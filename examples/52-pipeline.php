@@ -41,7 +41,11 @@ $data = ['name' => '  John Doe  ', 'age' => '30', 'active' => '1'];
 $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
 
 echo "Original: name='{$data['name']}', age='{$data['age']}', active='{$data['active']}'\n";
-echo sprintf("After pipeline: name='%s', age=%s, active=", $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf(
+    "After pipeline: name='%s', age=%s, active=",
+    $user->name,
+    $user->age
+) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 2: Pipeline with Validation
 echo "Example 2: Pipeline with Validation\n";
@@ -84,7 +88,11 @@ $data = ['name' => 'Bob'];
 $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
 
 echo "Input: " . json_encode($data) . "\n";
-echo sprintf('After pipeline: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf(
+    'After pipeline: name=%s, age=%s, active=',
+    $user->name,
+    $user->age
+) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 4: CallbackStage
 echo "Example 4: CallbackStage\n";
@@ -93,7 +101,7 @@ echo "------------------------\n";
 $pipeline = new DTOPipeline();
 $pipeline->addStage(new CallbackStage(function(array $data): array {
     if (isset($data['name'])) {
-        $data['name'] = strtoupper((string) $data['name']);
+        $data['name'] = strtoupper((string)$data['name']);
     }
 
     return $data;
@@ -118,7 +126,11 @@ $pipeline->addStage(new ValidationStage(['name' => ['required'], 'age' => ['min:
 $data = ['name' => '  Charlie  ', 'age' => '35'];
 $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
 
-echo sprintf('Processed: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n";
+echo sprintf(
+    'Processed: name=%s, age=%s, active=',
+    $user->name,
+    $user->age
+) . ($user->active ? 'true' : 'false') . "\n";
 
 $context = $pipeline->getContext();
 echo "Pipeline stages executed:\n";
@@ -137,7 +149,7 @@ class EmailNormalizerStage implements PipelineStageInterface
     public function process(array $data): array
     {
         if (isset($data['email'])) {
-            $data['email'] = strtolower(trim((string) $data['email']));
+            $data['email'] = strtolower(trim((string)$data['email']));
         }
 
         return $data;

@@ -72,7 +72,13 @@ try {
     echo "✅  Valid nested DTO created:\n";
     echo sprintf('    Email: %s%s', $user->email, PHP_EOL);
     echo sprintf('    Name: %s%s', $user->name, PHP_EOL);
-    echo sprintf('    Address: %s, %s %s%s', $user->address->street, $user->address->city, $user->address->zipCode, PHP_EOL);
+    echo sprintf(
+        '    Address: %s, %s %s%s',
+        $user->address->street,
+        $user->address->city,
+        $user->address->zipCode,
+        PHP_EOL
+    );
 } catch (ValidationException $validationException) {
     echo "❌  Validation failed (unexpected)\n";
 }

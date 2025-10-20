@@ -110,11 +110,11 @@ echo "Original:\n";
 print_r($data->toArray());
 
 echo "\nSorted by key length:\n";
-$sorted = $data->sortedBy(fn($a, $b): int => strlen((string) $a) <=> strlen((string) $b));
+$sorted = $data->sortedBy(fn($a, $b): int => strlen((string)$a) <=> strlen((string)$b));
 print_r($sorted->toArray());
 
 echo "\nSorted reverse alphabetically:\n";
-$sorted = $data->sortedBy(fn($a, $b): int => strcmp((string) $b, (string) $a));
+$sorted = $data->sortedBy(fn($a, $b): int => strcmp((string)$b, (string)$a));
 print_r($sorted->toArray());
 
 echo "\n";

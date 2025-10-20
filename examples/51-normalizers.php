@@ -69,7 +69,11 @@ $user = UserDTO::fromArrayWithNormalizer($data, new DefaultValuesNormalizer([
 ]));
 
 echo "Original data: " . json_encode($data) . "\n";
-echo sprintf('With defaults: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf(
+    'With defaults: name=%s, age=%s, active=',
+    $user->name,
+    $user->age
+) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 4: SnakeCaseNormalizer
 echo "Example 4: SnakeCaseNormalizer\n";
@@ -117,7 +121,11 @@ $user = UserDTO::fromArrayWithNormalizers($data, [
 ]);
 
 echo "Original: " . json_encode($data) . "\n";
-echo sprintf('After normalizers: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf(
+    'After normalizers: name=%s, age=%s, active=',
+    $user->name,
+    $user->age
+) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 7: Custom Normalizer
 echo "Example 7: Custom Normalizer\n";
@@ -128,7 +136,7 @@ class UppercaseNameNormalizer implements NormalizerInterface
     public function normalize(array $data): array
     {
         if (isset($data['name'])) {
-            $data['name'] = strtoupper((string) $data['name']);
+            $data['name'] = strtoupper((string)$data['name']);
         }
 
         return $data;
@@ -159,7 +167,7 @@ class EmailNormalizer implements NormalizerInterface
     public function normalize(array $data): array
     {
         if (isset($data['email'])) {
-            $data['email'] = strtolower(trim((string) $data['email']));
+            $data['email'] = strtolower(trim((string)$data['email']));
         }
 
         return $data;
@@ -189,7 +197,11 @@ $user = UserDTO::fromArrayWithNormalizers($data, [
 ]);
 
 echo sprintf('Original: name=%s, age=%s%s', $data['name'], $data['age'], PHP_EOL);
-echo sprintf('After chain: name=%s, age=%s, active=', $user->name, $user->age) . ($user->active ? 'true' : 'false') . "\n\n";
+echo sprintf(
+    'After chain: name=%s, age=%s, active=',
+    $user->name,
+    $user->age
+) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 10: API Data Normalization
 echo "Example 10: API Data Normalization\n";
@@ -220,7 +232,11 @@ $user = ApiUserDTO::fromArrayWithNormalizers($apiResponse, [
 ]);
 
 echo "API Response: " . json_encode($apiResponse) . "\n";
-echo sprintf('Normalized DTO: userName=%s, userAge=%d, isActive=', $user->userName, $user->userAge) . ($user->isActive ? 'true' : 'false') . "\n\n";
+echo sprintf(
+    'Normalized DTO: userName=%s, userAge=%d, isActive=',
+    $user->userName,
+    $user->userAge
+) . ($user->isActive ? 'true' : 'false') . "\n\n";
 
 // Example 11: Conditional Normalizer
 echo "Example 11: Conditional Normalizer\n";

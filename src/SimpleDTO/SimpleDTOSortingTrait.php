@@ -57,9 +57,7 @@ trait SimpleDTOSortingTrait
         return $clone;
     }
 
-    /**
-     * Disable sorting.
-     */
+    /** Disable sorting. */
     public function unsorted(): static
     {
         $clone = clone $this;

@@ -61,7 +61,10 @@ describe('Laravel DTOValueResolver', function(): void {
 
         // Create parameter
         $dummyClassName = 'DummyController_' . uniqid();
-        eval(sprintf('class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }', $dummyClassName));
+        eval(sprintf(
+            'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
+            $dummyClassName
+        ));
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
@@ -81,7 +84,10 @@ describe('Laravel DTOValueResolver', function(): void {
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         $dummyClassName = 'DummyController_' . uniqid();
-        eval(sprintf('class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }', $dummyClassName));
+        eval(sprintf(
+            'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
+            $dummyClassName
+        ));
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
@@ -98,7 +104,10 @@ describe('Laravel DTOValueResolver', function(): void {
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         $dummyClassName = 'DummyController_' . uniqid();
-        eval(sprintf('class %s { public function action(Tests\Integration\Laravel\TestProductDTO $dto) {} }', $dummyClassName));
+        eval(sprintf(
+            'class %s { public function action(Tests\Integration\Laravel\TestProductDTO $dto) {} }',
+            $dummyClassName
+        ));
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
@@ -117,7 +126,10 @@ describe('Laravel DTOValueResolver', function(): void {
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         $dummyClassName = 'DummyController_' . uniqid();
-        eval(sprintf('class %s { public function action(Tests\Integration\Laravel\TestProductDTO $dto) {} }', $dummyClassName));
+        eval(sprintf(
+            'class %s { public function action(Tests\Integration\Laravel\TestProductDTO $dto) {} }',
+            $dummyClassName
+        ));
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
@@ -139,7 +151,10 @@ describe('Laravel DTOValueResolver', function(): void {
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         $dummyClassName = 'DummyController_' . uniqid();
-        eval(sprintf('class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }', $dummyClassName));
+        eval(sprintf(
+            'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
+            $dummyClassName
+        ));
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
@@ -156,7 +171,10 @@ describe('Laravel DTOValueResolver', function(): void {
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         $dummyClassName = 'DummyController_' . uniqid();
-        eval(sprintf('class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }', $dummyClassName));
+        eval(sprintf(
+            'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
+            $dummyClassName
+        ));
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
@@ -173,7 +191,10 @@ describe('Laravel DTOValueResolver', function(): void {
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         $dummyClassName = 'DummyController_' . uniqid();
-        eval(sprintf('class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }', $dummyClassName));
+        eval(sprintf(
+            'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
+            $dummyClassName
+        ));
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
@@ -214,7 +235,10 @@ describe('Laravel DTOValueResolver', function(): void {
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         $dummyClassName = 'DummyController_' . uniqid();
-        eval(sprintf('class %s { public function action(Tests\Integration\Laravel\TestProductDTO $dto) {} }', $dummyClassName));
+        eval(sprintf(
+            'class %s { public function action(Tests\Integration\Laravel\TestProductDTO $dto) {} }',
+            $dummyClassName
+        ));
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 

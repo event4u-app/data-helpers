@@ -28,14 +28,10 @@ trait SimpleDTOLazyTrait
      */
     private ?array $includedLazy = null;
 
-    /**
-     * Whether to include all lazy properties.
-     */
+    /** Whether to include all lazy properties. */
     private bool $includeAllLazy = false;
 
-    /**
-     * Include all lazy properties in serialization.
-     */
+    /** Include all lazy properties in serialization. */
     public function includeAll(): static
     {
         $clone = clone $this;
@@ -137,7 +133,7 @@ trait SimpleDTOLazyTrait
     {
         $lazyProperties = static::getLazyProperties();
 
-        if ($lazyProperties === []) {
+        if ([] === $lazyProperties) {
             return $data;
         }
 
@@ -188,7 +184,7 @@ trait SimpleDTOLazyTrait
     {
         $lazyProperties = static::getLazyProperties();
 
-        if ($lazyProperties === []) {
+        if ([] === $lazyProperties) {
             return $data;
         }
 

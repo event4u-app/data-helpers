@@ -67,7 +67,11 @@ $memoryBefore = memory_get_usage();
 
 $instances = [];
 for ($i = 0; 10000 > $i; $i++) {
-    $instances[] = UserDTO::fromArray(['name' => 'User ' . $i, 'age' => 20 + ($i % 50), 'email' => sprintf('user%d@example.com', $i)]);
+    $instances[] = UserDTO::fromArray([
+        'name' => 'User ' . $i,
+        'age' => 20 + ($i % 50),
+        'email' => sprintf('user%d@example.com', $i),
+    ]);
 }
 
 $memoryAfter = memory_get_usage();

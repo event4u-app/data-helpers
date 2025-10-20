@@ -47,7 +47,7 @@ class CsvSerializer implements SerializerInterface
      */
     private function isCollection(array $data): bool
     {
-        if ($data === []) {
+        if ([] === $data) {
             return false;
         }
 
@@ -64,7 +64,7 @@ class CsvSerializer implements SerializerInterface
      */
     private function serializeCollection(array $data): string
     {
-        if ($data === []) {
+        if ([] === $data) {
             return '';
         }
 

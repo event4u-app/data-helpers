@@ -121,7 +121,10 @@ $testData = [
 $results = [];
 
 echo "  Running Benchmark 1: DTO Creation with DataMapper...\n";
-$results['datamapper_traditional'] = runBenchmark('Traditional Mutable DTO', function() use ($jsonFile, $mapping): void {
+$results['datamapper_traditional'] = runBenchmark('Traditional Mutable DTO', function() use (
+    $jsonFile,
+    $mapping
+): void {
     $company = new CompanyDto();
     DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 }, 1000);

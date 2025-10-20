@@ -194,7 +194,7 @@ describe('Pipeline', function(): void {
         it('can modify data', function(): void {
             $stage = new CallbackStage(function(array $data): array {
                 if (isset($data['name'])) {
-                    $data['name'] = strtoupper((string) $data['name']);
+                    $data['name'] = strtoupper((string)$data['name']);
                 }
 
                 return $data;
@@ -258,7 +258,7 @@ describe('Pipeline', function(): void {
                 public function process(array $data): array
                 {
                     if (isset($data['name'])) {
-                        $data['name'] = ucwords((string) $data['name']);
+                        $data['name'] = ucwords((string)$data['name']);
                     }
 
                     return $data;

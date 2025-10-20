@@ -123,7 +123,9 @@ describe('DataCollection Edge Cases', function(): void {
 
             $names = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): string => $u->name);
             $ages = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): int => $u->age);
-            $combined = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): string => sprintf('%s:%d', $u->name, $u->age));
+            $combined = $collection->map(
+                fn(DataCollectionEdgeCaseUserDTO $u): string => sprintf('%s:%d', $u->name, $u->age)
+            );
 
             expect($names)->toBe(['John', 'Jane'])
                 ->and($ages)->toBe([30, 25])

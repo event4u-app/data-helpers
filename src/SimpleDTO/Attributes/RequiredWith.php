@@ -32,17 +32,13 @@ class RequiredWith implements ValidationRule
         public readonly array $fields,
     ) {}
 
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         return 'required_with:' . implode(',', $this->fields);
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         $fields = implode(', ', $this->fields);

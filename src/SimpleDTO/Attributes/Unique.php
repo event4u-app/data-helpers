@@ -55,9 +55,7 @@ class Unique implements ValidationRule, SymfonyConstraint
         public readonly ?string $connection = null,
     ) {}
 
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         $table = $this->connection ? sprintf('%s.%s', $this->connection, $this->table) : $this->table;

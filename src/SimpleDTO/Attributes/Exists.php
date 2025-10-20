@@ -47,9 +47,7 @@ class Exists implements ValidationRule, SymfonyConstraint
         public readonly ?string $connection = null,
     ) {}
 
-    /**
-     * Get validation rule.
-     */
+    /** Get validation rule. */
     public function rule(): string
     {
         if (null !== $this->connection) {
@@ -58,9 +56,7 @@ class Exists implements ValidationRule, SymfonyConstraint
         return sprintf('exists:%s,%s', $this->table, $this->column);
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         return null; // Use default Laravel message

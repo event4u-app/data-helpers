@@ -13,9 +13,7 @@ use Closure;
  */
 class CallbackStage implements PipelineStageInterface
 {
-    /**
-     * @param Closure(array<string, mixed>): array<string, mixed> $callback
-     */
+    /** @param Closure(array<string, mixed>): array<string, mixed> $callback */
     public function __construct(
         private readonly Closure $callback,
         private readonly string $name = 'callback'

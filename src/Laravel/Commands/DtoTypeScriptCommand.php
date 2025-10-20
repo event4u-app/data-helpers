@@ -77,7 +77,7 @@ class DtoTypeScriptCommand extends Command
         // Find all DTO classes
         $dtoClasses = $this->findDtoClasses($scanPath);
 
-        if ($dtoClasses === []) {
+        if ([] === $dtoClasses) {
             $this->warn('No DTO classes found in ' . $scanPath);
 
             return self::FAILURE;

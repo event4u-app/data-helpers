@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromArray;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromJson;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\Support\ReflectionCache;
 use ReflectionClass;
 use ReflectionException;

@@ -73,7 +73,7 @@ class YamlSerializer implements SerializerInterface
      */
     private function isSequentialArray(array $array): bool
     {
-        if ($array === []) {
+        if ([] === $array) {
             return true;
         }
 

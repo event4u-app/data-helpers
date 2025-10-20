@@ -38,18 +38,14 @@ class StartsWith implements ValidationRule, SymfonyConstraint
         public readonly string|array $values,
     ) {}
 
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         $values = is_array($this->values) ? $this->values : [$this->values];
         return 'starts_with:' . implode(',', $values);
     }
 
-    /**
-     * Get Symfony constraint for this validation attribute.
-     */
+    /** Get Symfony constraint for this validation attribute. */
     public function constraint(): Constraint
     {
         $this->ensureSymfonyValidatorAvailable();

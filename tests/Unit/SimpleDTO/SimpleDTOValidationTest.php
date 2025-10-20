@@ -356,7 +356,7 @@ describe('SimpleDTO Validation', function(): void {
             $rules = TestDTOWithRegexAttribute::getAllRules();
 
             expect($rules)->toHaveKey('code')
-                ->and($rules['code'])->toContain('regex:/^[A-Z]{2}[0-9]{4}$/');
+                ->and($rules['code'])->toContain('regex:/^[A-Z]{2}\d{4}$/');
         });
 
         it('applies multiple attributes', function(): void {

@@ -50,7 +50,7 @@ class SnakeCaseNormalizer implements NormalizerInterface
         $string = preg_replace('/([a-z])([A-Z])/', '$1_$2', $string);
 
         // Convert to lowercase
-        return strtolower((string) $string);
+        return strtolower((string)$string);
     }
 }
 

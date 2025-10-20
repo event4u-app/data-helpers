@@ -113,7 +113,7 @@ trait SimpleDTOMappingTrait
         $reflection = new ReflectionClass($class);
         $attributes = $reflection->getAttributes(MapInputName::class);
 
-        if ($attributes === []) {
+        if ([] === $attributes) {
             self::$inputNameTransformCache[$class] = null;
 
             return null;
@@ -284,7 +284,7 @@ trait SimpleDTOMappingTrait
         $reflection = new ReflectionClass($class);
         $attributes = $reflection->getAttributes(MapOutputName::class);
 
-        if ($attributes === []) {
+        if ([] === $attributes) {
             self::$outputNameTransformCache[$class] = null;
 
             return null;

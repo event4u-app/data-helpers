@@ -33,9 +33,7 @@ class Json implements ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
 
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         return 'json';

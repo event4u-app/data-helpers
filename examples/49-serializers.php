@@ -134,7 +134,7 @@ class MarkdownTableSerializer implements SerializerInterface
 {
     public function serialize(array $data): string
     {
-        if ($data === []) {
+        if ([] === $data) {
             return '';
         }
 

@@ -104,7 +104,7 @@ trait SimpleDTOOptionalTrait
     {
         $optionalProperties = static::getOptionalProperties();
 
-        if ($optionalProperties === []) {
+        if ([] === $optionalProperties) {
             return $data;
         }
 

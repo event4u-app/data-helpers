@@ -76,7 +76,7 @@ trait SimpleDTORequestValidationTrait
     {
         $reflection = new ReflectionClass(static::class);
         $attributes = $reflection->getAttributes(ValidateRequest::class);
-        return $attributes !== [];
+        return [] !== $attributes;
     }
 
     /** Get ValidateRequest attribute if present. */
@@ -85,7 +85,7 @@ trait SimpleDTORequestValidationTrait
         $reflection = new ReflectionClass(static::class);
         $attributes = $reflection->getAttributes(ValidateRequest::class);
 
-        if ($attributes === []) {
+        if ([] === $attributes) {
             return null;
         }
 
@@ -112,10 +112,10 @@ trait SimpleDTORequestValidationTrait
 
         // Filter rules if only/except specified
         if ($validateAttr instanceof ValidateRequest) {
-            if ($validateAttr->only !== []) {
+            if ([] !== $validateAttr->only) {
                 $rules = array_intersect_key($rules, array_flip($validateAttr->only));
             }
-            if ($validateAttr->except !== []) {
+            if ([] !== $validateAttr->except) {
                 $rules = array_diff_key($rules, array_flip($validateAttr->except));
             }
         }

@@ -201,7 +201,7 @@ describe('Laravel Validation Integration', function(): void {
 
         it('generates Laravel-compatible rule for Regex attribute', function(): void {
             $attribute = new Regex('/^[A-Z]{2}\d{4}$/');
-            expect($attribute->rule())->toBe('regex:/^[A-Z]{2}[0-9]{4}$/');
+            expect($attribute->rule())->toBe('regex:/^[A-Z]{2}\d{4}$/');
         });
     })->group('laravel');
 

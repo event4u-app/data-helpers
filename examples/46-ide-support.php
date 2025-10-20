@@ -107,7 +107,13 @@ $order = OrderDTO::fromArray([
     'total' => '99.99',
 ]);
 
-echo sprintf('✅  Order created: #%d, %s, $%s%s', $order->id, $order->createdAt->format('Y-m-d'), $order->total, PHP_EOL);
+echo sprintf(
+    '✅  Order created: #%d, %s, $%s%s',
+    $order->id,
+    $order->createdAt->format('Y-m-d'),
+    $order->total,
+    PHP_EOL
+);
 echo "    IDE provides autocomplete for cast types in casts() method\n\n";
 
 // Example 5: Validation Attribute Autocomplete

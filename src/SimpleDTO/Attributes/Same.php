@@ -36,9 +36,7 @@ class Same implements ValidationRule, SymfonyConstraint
         public readonly string $field,
     ) {}
 
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         return 'same:' . $this->field;

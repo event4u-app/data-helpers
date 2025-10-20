@@ -14,9 +14,7 @@ use RuntimeException;
  */
 trait RequiresSymfonyValidator
 {
-    /**
-     * Check if Symfony Validator is installed.
-     */
+    /** Check if Symfony Validator is installed. */
     protected function isSymfonyValidatorAvailable(): bool
     {
         return class_exists('Symfony\Component\Validator\Constraint');

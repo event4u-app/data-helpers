@@ -84,7 +84,7 @@ class XmlSerializer implements SerializerInterface
         $name = preg_replace('/[^a-zA-Z0-9_\-.]/', '_', $name);
 
         // Ensure it starts with a letter or underscore
-        if (!preg_match('/^[a-zA-Z_]/', (string) $name)) {
+        if (!preg_match('/^[a-zA-Z_]/', (string)$name)) {
             return '_' . $name;
         }
 

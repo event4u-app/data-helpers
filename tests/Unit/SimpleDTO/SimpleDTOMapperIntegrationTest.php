@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 use event4u\DataHelpers\SimpleDTO;
 
 describe('SimpleDTO Mapper Integration', function(): void {

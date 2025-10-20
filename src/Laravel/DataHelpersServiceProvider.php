@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Laravel;
 
-use event4u\DataHelpers\Laravel\Commands\MakeDtoCommand;
-use event4u\DataHelpers\Laravel\Commands\DtoTypeScriptCommand;
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Laravel\Commands\DtoTypeScriptCommand;
+use event4u\DataHelpers\Laravel\Commands\MakeDtoCommand;
 use event4u\DataHelpers\MappedDataModel;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;

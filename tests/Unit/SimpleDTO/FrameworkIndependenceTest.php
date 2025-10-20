@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
-use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
 use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
+use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
 
 describe('Framework Independence', function(): void {
     describe('SimpleDTOTrait (Core)', function(): void {

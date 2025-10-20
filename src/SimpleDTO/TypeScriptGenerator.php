@@ -76,7 +76,7 @@ class TypeScriptGenerator
         $interfaces = [];
 
         // Process all DTOs in queue (including nested DTOs discovered during processing)
-        while ($this->dtoQueue !== []) {
+        while ([] !== $this->dtoQueue) {
             $dtoClass = array_shift($this->dtoQueue);
 
             if (isset($this->processedDtos[$dtoClass])) {
@@ -202,7 +202,7 @@ TS;
     {
         $lazyAttrs = $property->getAttributes(Lazy::class);
 
-        return $lazyAttrs !== [];
+        return [] !== $lazyAttrs;
     }
 
     /**
@@ -259,7 +259,7 @@ TS;
 
         // Check for DataCollectionOf attribute
         $collectionAttrs = $property->getAttributes(DataCollectionOf::class);
-        if ($collectionAttrs !== []) {
+        if ([] !== $collectionAttrs) {
             /** @var DataCollectionOf $collection */
             $collection = $collectionAttrs[0]->newInstance();
             $dtoClass = $collection->dtoClass;

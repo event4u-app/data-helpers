@@ -73,9 +73,7 @@ class File implements ValidationRule, SymfonyConstraint
         return "The attribute must be a file.";
     }
 
-    /**
-     * Get Symfony constraint.
-     */
+    /** Get Symfony constraint. */
     public function constraint(): Constraint
     {
         $this->ensureSymfonyValidatorAvailable();

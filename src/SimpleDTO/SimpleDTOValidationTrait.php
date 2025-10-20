@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
-use event4u\DataHelpers\Validation\Validator;
-use Symfony\Component\Validator\Constraint;
 use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
+use event4u\DataHelpers\Validation\Validator;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Validation\ValidationException as LaravelValidationException;
 use ReflectionClass;
 use ReflectionNamedType;
 use RuntimeException;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
@@ -409,9 +409,7 @@ trait SimpleDTOValidationTrait
         }
     }
 
-    /**
-     * Get Laravel validator instance.
-     */
+    /** Get Laravel validator instance. */
     private static function getValidator(): ValidationFactory
     {
         // Try to get validator from Laravel container

@@ -102,17 +102,13 @@ trait SimpleDTOLazyCastTrait
         return $data;
     }
 
-    /**
-     * Mark a property as casted.
-     */
+    /** Mark a property as casted. */
     private function markPropertyAsCasted(string $property): void
     {
         $this->castedProperties[$property] = true;
     }
 
-    /**
-     * Check if a property has been casted.
-     */
+    /** Check if a property has been casted. */
     private function isPropertyCasted(string $property): bool
     {
         return $this->castedProperties[$property] ?? false;
@@ -180,9 +176,7 @@ trait SimpleDTOLazyCastTrait
         return $data;
     }
 
-    /**
-     * Optimize nested DTO casting by checking if value is already a DTO instance.
-     */
+    /** Optimize nested DTO casting by checking if value is already a DTO instance. */
     private static function isAlreadyCasted(mixed $value, string $dtoClass): bool
     {
         // Check if value is already an instance of the target DTO class

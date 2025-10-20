@@ -99,9 +99,7 @@ class ValidationException extends RuntimeException
         return $this->getFieldErrors($field);
     }
 
-    /**
-     * Get the first error message for a field.
-     */
+    /** Get the first error message for a field. */
     public function first(string $field): ?string
     {
         return $this->errors[$field][0] ?? null;

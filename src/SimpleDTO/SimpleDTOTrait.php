@@ -101,9 +101,7 @@ trait SimpleDTOTrait
         return $clone;
     }
 
-    /**
-     * Include all lazy properties in serialization.
-     */
+    /** Include all lazy properties in serialization. */
     public function includeAll(): static
     {
         $clone = clone $this;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Attributes\Laravel;
 
-use Illuminate\Support\Facades\Gate;
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use Illuminate\Support\Facades\Gate;
 use Throwable;
 
 /**

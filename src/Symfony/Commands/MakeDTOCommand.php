@@ -44,7 +44,7 @@ class MakeDTOCommand extends Command
         $force = $input->getOption('force');
 
         // Ensure name ends with DTO
-        if (!str_ends_with((string) $name, 'DTO')) {
+        if (!str_ends_with((string)$name, 'DTO')) {
             $name .= 'DTO';
         }
 

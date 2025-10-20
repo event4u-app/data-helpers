@@ -13,9 +13,7 @@ use RuntimeException;
  */
 class DTOException extends RuntimeException
 {
-    /**
-     * Create exception for type mismatch.
-     */
+    /** Create exception for type mismatch. */
     public static function typeMismatch(
         string $dtoClass,
         string $property,
@@ -79,9 +77,7 @@ class DTOException extends RuntimeException
         return new self($message);
     }
 
-    /**
-     * Create exception for invalid cast.
-     */
+    /** Create exception for invalid cast. */
     public static function invalidCast(
         string $dtoClass,
         string $property,
@@ -109,9 +105,7 @@ class DTOException extends RuntimeException
         return new self($message);
     }
 
-    /**
-     * Create exception for nested DTO error.
-     */
+    /** Create exception for nested DTO error. */
     public static function nestedError(
         string $dtoClass,
         string $property,
@@ -137,9 +131,7 @@ class DTOException extends RuntimeException
         return new self($message);
     }
 
-    /**
-     * Format value for display in error messages.
-     */
+    /** Format value for display in error messages. */
     private static function formatValue(mixed $value): string
     {
         if (null === $value) {
@@ -184,7 +176,11 @@ class DTOException extends RuntimeException
         // String to int/float
         if ('string' === $actualType && in_array($expectedType, ['int', 'float'], true)) {
             if (is_numeric($actualValue)) {
-                $suggestions[] = sprintf("Cast the string to %s: (int) '%s' or use a cast in casts() method", $expectedType, $actualValue);
+                $suggestions[] = sprintf(
+                    "Cast the string to %s: (int) '%s' or use a cast in casts() method",
+                    $expectedType,
+                    $actualValue
+                );
             } else {
                 $suggestions[] = sprintf("The string '%s' is not numeric. Provide a valid number.", $actualValue);
             }
@@ -192,7 +188,10 @@ class DTOException extends RuntimeException
 
         // Int to string
         if ('int' === $actualType && 'string' === $expectedType) {
-            $suggestions[] = sprintf("Cast the integer to string: (string) %s or use 'string' cast in casts() method", $actualValue);
+            $suggestions[] = sprintf(
+                "Cast the integer to string: (string) %s or use 'string' cast in casts() method",
+                $actualValue
+            );
         }
 
         // Array to object

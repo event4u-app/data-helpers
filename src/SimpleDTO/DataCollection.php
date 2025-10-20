@@ -316,13 +316,13 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     /** Determine if the collection is empty or not. */
     public function isEmpty(): bool
     {
-        return $this->items === [];
+        return [] === $this->items;
     }
 
     /** Determine if the collection is not empty. */
     public function isNotEmpty(): bool
     {
-        return $this->items !== [];
+        return [] !== $this->items;
     }
 
     /**

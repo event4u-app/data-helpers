@@ -68,14 +68,14 @@ class Validator
                 }
             }
 
-            if ($fieldErrors !== []) {
+            if ([] !== $fieldErrors) {
                 $this->errors[$field] = $fieldErrors;
             } else {
                 $this->validated[$field] = $value;
             }
         }
 
-        if ($this->errors !== []) {
+        if ([] !== $this->errors) {
             // Use ValidationException for consistency
             throw \event4u\DataHelpers\Exceptions\ValidationException::withMessages($this->errors);
         }
@@ -196,7 +196,7 @@ class Validator
     // Validation methods
     private function validateRequired(string $attribute, mixed $value): ?string
     {
-        if (null === $value || '' === $value || (is_array($value) && $value === [])) {
+        if (null === $value || '' === $value || (is_array($value) && [] === $value)) {
             return $this->getMessage($attribute, 'required', sprintf('The %s field is required.', $attribute));
         }
         return null;
@@ -277,7 +277,11 @@ class Validator
         if (is_string($value)) {
             $length = mb_strlen($value);
             if ($length < $min) {
-                return $this->getMessage($attribute, 'min', sprintf('The %s must be at least %s characters.', $attribute, $min));
+                return $this->getMessage(
+                    $attribute,
+                    'min',
+                    sprintf('The %s must be at least %s characters.', $attribute, $min)
+                );
             }
         } elseif (is_numeric($value)) {
             if ($value < $min) {
@@ -286,7 +290,11 @@ class Validator
         } elseif (is_array($value)) {
             $count = count($value);
             if ($count < $min) {
-                return $this->getMessage($attribute, 'min', sprintf('The %s must have at least %s items.', $attribute, $min));
+                return $this->getMessage(
+                    $attribute,
+                    'min',
+                    sprintf('The %s must have at least %s items.', $attribute, $min)
+                );
             }
         }
 
@@ -302,7 +310,11 @@ class Validator
         if (is_string($value)) {
             $length = mb_strlen($value);
             if ($length > $max) {
-                return $this->getMessage($attribute, 'max', sprintf('The %s must not exceed %s characters.', $attribute, $max));
+                return $this->getMessage(
+                    $attribute,
+                    'max',
+                    sprintf('The %s must not exceed %s characters.', $attribute, $max)
+                );
             }
         } elseif (is_numeric($value)) {
             if ($value > $max) {
@@ -311,7 +323,11 @@ class Validator
         } elseif (is_array($value)) {
             $count = count($value);
             if ($count > $max) {
-                return $this->getMessage($attribute, 'max', sprintf('The %s must not have more than %s items.', $attribute, $max));
+                return $this->getMessage(
+                    $attribute,
+                    'max',
+                    sprintf('The %s must not have more than %s items.', $attribute, $max)
+                );
             }
         }
 
@@ -335,7 +351,11 @@ class Validator
             }
         } elseif (is_numeric($value)) {
             if ($value < $min || $value > $max) {
-                return $this->getMessage($attribute, 'between', sprintf('The %s must be between %s and %s.', $attribute, $min, $max));
+                return $this->getMessage(
+                    $attribute,
+                    'between',
+                    sprintf('The %s must be between %s and %s.', $attribute, $min, $max)
+                );
             }
         }
 
@@ -407,7 +427,11 @@ class Validator
         $confirmValue = $this->data[$confirmField] ?? null;
 
         if ($value !== $confirmValue) {
-            return $this->getMessage($attribute, 'confirmed', sprintf('The %s confirmation does not match.', $attribute));
+            return $this->getMessage(
+                $attribute,
+                'confirmed',
+                sprintf('The %s confirmation does not match.', $attribute)
+            );
         }
         return null;
     }
@@ -420,11 +444,19 @@ class Validator
 
         if (is_string($value)) {
             if (mb_strlen($value) !== $size) {
-                return $this->getMessage($attribute, 'size', sprintf('The %s must be %d characters.', $attribute, $size));
+                return $this->getMessage(
+                    $attribute,
+                    'size',
+                    sprintf('The %s must be %d characters.', $attribute, $size)
+                );
             }
         } elseif (is_array($value)) {
             if (count($value) !== $size) {
-                return $this->getMessage($attribute, 'size', sprintf('The %s must contain %d items.', $attribute, $size));
+                return $this->getMessage(
+                    $attribute,
+                    'size',
+                    sprintf('The %s must contain %d items.', $attribute, $size)
+                );
             }
         } elseif (is_numeric($value)) {
             if ((float)$value !== (float)$size) {
@@ -457,7 +489,11 @@ class Validator
 
         $otherValue = $this->data[$otherField] ?? null;
         if ($value === $otherValue) {
-            return $this->getMessage($attribute, 'different', sprintf('The %s and %s must be different.', $attribute, $otherField));
+            return $this->getMessage(
+                $attribute,
+                'different',
+                sprintf('The %s and %s must be different.', $attribute, $otherField)
+            );
         }
 
         return null;
@@ -481,7 +517,11 @@ class Validator
         }
 
         $prefixList = implode(', ', $prefixes);
-        return $this->getMessage($attribute, 'starts_with', sprintf('The %s must start with one of: %s.', $attribute, $prefixList));
+        return $this->getMessage(
+            $attribute,
+            'starts_with',
+            sprintf('The %s must start with one of: %s.', $attribute, $prefixList)
+        );
     }
 
     /** @param array<string> $suffixes */
@@ -502,7 +542,11 @@ class Validator
         }
 
         $suffixList = implode(', ', $suffixes);
-        return $this->getMessage($attribute, 'ends_with', sprintf('The %s must end with one of: %s.', $attribute, $suffixList));
+        return $this->getMessage(
+            $attribute,
+            'ends_with',
+            sprintf('The %s must end with one of: %s.', $attribute, $suffixList)
+        );
     }
 
     private function validateIp(string $attribute, mixed $value): ?string

@@ -80,7 +80,7 @@ class DtoBenchmarkRunner
             return;
         }
 
-        $maxNameLen = max(array_map(fn(array $b): int => strlen((string) $b['name']), $benchmarks));
+        $maxNameLen = max(array_map(fn(array $b): int => strlen($b['name']), $benchmarks));
         $maxNameLen = max($maxNameLen, 30);
 
         echo "\n";

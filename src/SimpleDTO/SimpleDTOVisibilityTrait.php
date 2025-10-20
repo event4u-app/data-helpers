@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
-use Illuminate\Support\Facades\Gate;
 use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromArray;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromJson;
 use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
+use Illuminate\Support\Facades\Gate;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -172,11 +172,7 @@ trait SimpleDTOVisibilityTrait
         return null;
     }
 
-    /**
-     * Check if a property should be visible based on #[Visible] attribute.
-     *
-     *
-     */
+    /** Check if a property should be visible based on #[Visible] attribute. */
     private function isPropertyVisible(string $propertyName, Visible $visibleAttr): bool
     {
         // Get context (from provider or manual)
@@ -189,7 +185,10 @@ trait SimpleDTOVisibilityTrait
                 if (count($visibleAttr->callback) === 2) {
                     [$class, $method] = $visibleAttr->callback;
 
-                    if (is_string($class) && is_string($method) && (class_exists($class) && method_exists($class, $method))) {
+                    if (is_string($class) && is_string($method) && (class_exists($class) && method_exists(
+                        $class,
+                        $method
+                    ))) {
                         try {
                             $reflection = new ReflectionMethod($class, $method);
 

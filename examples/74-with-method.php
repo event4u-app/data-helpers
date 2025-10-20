@@ -188,7 +188,7 @@ class ArticleDTO extends SimpleDTO
 $article = new ArticleDTO('Premium Article', 'This is premium content...', true);
 
 $publicArticle = $article->with([
-    'preview' => fn($dto) => $dto->isPremium ? substr((string) $dto->content, 0, 50) . '...' : $dto->content,
+    'preview' => fn($dto) => $dto->isPremium ? substr((string)$dto->content, 0, 50) . '...' : $dto->content,
     'requiresSubscription' => fn($dto) => $dto->isPremium,
 ]);
 

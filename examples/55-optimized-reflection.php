@@ -51,7 +51,18 @@ echo "Properties found: " . count($properties) . "\n";
 foreach (array_keys($properties) as $name) {
     if (!str_starts_with($name, '__') && !in_array(
         $name,
-        ['onlyProperties', 'exceptProperties', 'visibilityContext', 'computedCache', 'includedComputed', 'includedLazy', 'includeAllLazy', 'wrapKey', 'objectVarsCache', 'castedProperties']
+        [
+            'onlyProperties',
+            'exceptProperties',
+            'visibilityContext',
+            'computedCache',
+            'includedComputed',
+            'includedLazy',
+            'includeAllLazy',
+            'wrapKey',
+            'objectVarsCache',
+            'castedProperties',
+        ]
     )) {
         echo sprintf('  - %s%s', $name, PHP_EOL);
     }
@@ -79,7 +90,7 @@ echo "-------------------\n";
 
 $nameAttrs = ReflectionCache::getPropertyAttributes($user, 'name');
 echo "Attributes on 'name' property: " . count($nameAttrs) . "\n";
-foreach ($nameAttrs as $attrName => $attr) {
+foreach (array_keys($nameAttrs) as $attrName) {
     echo "  - " . basename(str_replace('\\', '/', $attrName)) . "\n";
 }
 

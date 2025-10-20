@@ -192,7 +192,13 @@ echo sprintf('Company: %s%s', $company->name, PHP_EOL);
 echo "Active: " . ($company->is_active ? 'Yes' : 'No') . "\n";
 echo "Departments: " . implode(', ', $company->departments) . "\n";
 echo "Founded: " . $company->founded_at->format('Y') . "\n";
-echo sprintf('Address: %s, %s, %s%s', $company->address->street, $company->address->city, $company->address->country, PHP_EOL);
+echo sprintf(
+    'Address: %s, %s, %s%s',
+    $company->address->street,
+    $company->address->city,
+    $company->address->country,
+    PHP_EOL
+);
 
 echo "\n";
 

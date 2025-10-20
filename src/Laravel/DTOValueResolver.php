@@ -66,7 +66,7 @@ class DTOValueResolver
         $reflection = new ReflectionClass($className);
         $attributes = $reflection->getAttributes(ValidateRequest::class);
 
-        if ($attributes !== []) {
+        if ([] !== $attributes) {
             /** @var ValidateRequest $validateAttr */
             $validateAttr = $attributes[0]->newInstance();
 

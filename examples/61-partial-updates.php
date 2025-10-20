@@ -203,7 +203,7 @@ class ValidatedUpdateDTO extends SimpleDTO
 echo "Valid update:\n";
 $validUpdate = ValidatedUpdateDTO::fromArray(['email' => 'valid@example.com', 'age' => 25]);
 $validErrors = $validUpdate->validatePartial();
-echo "  errors: " . ($validErrors === [] ? 'none' : json_encode($validErrors)) . "\n";
+echo "  errors: " . ([] === $validErrors ? 'none' : json_encode($validErrors)) . "\n";
 echo "  partial: " . json_encode($validUpdate->partial()) . "\n";
 echo "\n";
 
@@ -222,7 +222,7 @@ echo "Empty update (no fields):\n";
 $emptyUpdate = UserUpdateDTO::fromArray([]);
 $emptyPartial = $emptyUpdate->partial();
 echo "  partial: " . json_encode($emptyPartial) . "\n";
-echo "  is empty: " . ($emptyPartial === [] ? 'yes' : 'no') . "\n";
+echo "  is empty: " . ([] === $emptyPartial ? 'yes' : 'no') . "\n";
 echo "\n";
 
 // Example 7: Partial with All Fields

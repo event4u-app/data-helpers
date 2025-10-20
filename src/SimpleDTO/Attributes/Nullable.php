@@ -32,17 +32,13 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Nullable implements ValidationRule
 {
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         return 'nullable';
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         return null;

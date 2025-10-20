@@ -85,9 +85,7 @@ trait SimpleDTOWithTrait
         return $evaluated;
     }
 
-    /**
-     * Check if additional data exists.
-     */
+    /** Check if additional data exists. */
     private function hasAdditionalData(): bool
     {
         return null !== $this->additionalData && !empty($this->additionalData);

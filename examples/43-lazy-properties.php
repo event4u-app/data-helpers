@@ -160,7 +160,7 @@ echo "Base64 data size: " . strlen($largeBase64) . " bytes (not included)\n\n";
 
 echo "With base64 data (slower, includes large data):\n";
 $fullData = $image->includeComputed(['base64Data'])->toArray();
-echo "Base64 data size: " . strlen((string) $fullData['base64Data']) . " bytes (included)\n\n";
+echo "Base64 data size: " . strlen((string)$fullData['base64Data']) . " bytes (included)\n\n";
 
 // ============================================================================
 // Example 5: Lazy Properties with Chaining

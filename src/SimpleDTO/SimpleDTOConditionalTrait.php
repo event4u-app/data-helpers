@@ -113,7 +113,7 @@ trait SimpleDTOConditionalTrait
     {
         $conditionals = static::getConditionalProperties();
 
-        if ($conditionals === []) {
+        if ([] === $conditionals) {
             return $data;
         }
 

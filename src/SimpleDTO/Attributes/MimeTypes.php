@@ -40,9 +40,7 @@ class MimeTypes implements ValidationRule, SymfonyConstraint
         public readonly array $types,
     ) {}
 
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         return 'mimetypes:' . implode(',', $this->types);
@@ -60,9 +58,7 @@ class MimeTypes implements ValidationRule, SymfonyConstraint
         return sprintf('The attribute must be a file of type: %s.', $types);
     }
 
-    /**
-     * Get Symfony constraint.
-     */
+    /** Get Symfony constraint. */
     public function constraint(): Constraint
     {
         $this->ensureSymfonyValidatorAvailable();

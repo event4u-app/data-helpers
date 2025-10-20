@@ -282,8 +282,8 @@ if ($attr instanceof ValidateRequest) {
     echo "UserDTO ValidateRequest settings:\n";
     echo "  - throw: " . ($attr->throw ? 'true' : 'false') . "\n";
     echo "  - stopOnFirstFailure: " . ($attr->stopOnFirstFailure ? 'true' : 'false') . "\n";
-    echo "  - only: " . ($attr->only !== [] ? implode(', ', $attr->only) : 'none') . "\n";
-    echo "  - except: " . ($attr->except !== [] ? implode(', ', $attr->except) : 'none') . "\n";
+    echo "  - only: " . ([] !== $attr->only ? implode(', ', $attr->only) : 'none') . "\n";
+    echo "  - except: " . ([] !== $attr->except ? implode(', ', $attr->except) : 'none') . "\n";
 }
 
 echo "\n=== All Examples Completed! ===\n";

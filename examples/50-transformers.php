@@ -115,7 +115,7 @@ class UppercaseNameTransformer implements TransformerInterface
     public function transform(array $data): array
     {
         if (isset($data['name'])) {
-            $data['name'] = strtoupper((string) $data['name']);
+            $data['name'] = strtoupper((string)$data['name']);
         }
 
         return $data;
@@ -203,7 +203,9 @@ $data = [
 
 $user = UserDTO::fromArrayWithTransformer($data, $pipeline);
 
-echo sprintf("Original: Name='%s', EMAIL='%s', Phone=", $data['Name'], $data['EMAIL']) . json_encode($data['Phone']) . "\n";
+echo sprintf("Original: Name='%s', EMAIL='%s', Phone=", $data['Name'], $data['EMAIL']) . json_encode(
+    $data['Phone']
+) . "\n";
 echo "After pipeline: name='{$user->name}', email='{$user->email}'\n\n";
 
 // Example 10: Conditional Transformer

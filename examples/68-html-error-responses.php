@@ -90,7 +90,12 @@ try {
     echo "------------------------------------------------------------\n";
     echo "Name field class: " . HtmlErrorFormatter::fieldClass($validationException, 'name') . "\n";
     echo "Email field class: " . HtmlErrorFormatter::fieldClass($validationException, 'email') . "\n";
-    echo "Valid field class: " . HtmlErrorFormatter::fieldClass($validationException, 'phone', 'is-invalid', 'is-valid') . "\n";
+    echo "Valid field class: " . HtmlErrorFormatter::fieldClass(
+        $validationException,
+        'phone',
+        'is-invalid',
+        'is-valid'
+    ) . "\n";
     echo "\n";
 
     echo "8. JSON RESPONSE (for AJAX):\n";

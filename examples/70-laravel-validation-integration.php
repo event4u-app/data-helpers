@@ -151,7 +151,7 @@ try {
         'ipAddress' => '192.168.1.1',
     ]);
     echo "\n✅  Valid website created\n";
-} catch (ValidationException $validationException) {
+} catch (ValidationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
 
@@ -181,7 +181,7 @@ try {
         'password_confirmation' => 'secret123',
     ]);
     echo "\n✅  Password validated successfully\n";
-} catch (ValidationException $validationException) {
+} catch (ValidationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
 

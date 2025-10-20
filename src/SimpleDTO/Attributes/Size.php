@@ -44,17 +44,13 @@ class Size implements ValidationRule, SymfonyConstraint
         public readonly int $size,
     ) {}
 
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         return 'size:' . $this->size;
     }
 
-    /**
-     * Convert to Symfony constraint.
-     */
+    /** Convert to Symfony constraint. */
     public function constraint(): Constraint
     {
         $this->ensureSymfonyValidatorAvailable();

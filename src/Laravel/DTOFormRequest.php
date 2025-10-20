@@ -87,9 +87,7 @@ abstract class DTOFormRequest extends FormRequest
         return $this->dtoClass::getAllAttributes();
     }
 
-    /**
-     * Convert validated data to DTO.
-     */
+    /** Convert validated data to DTO. */
     public function toDTO(): SimpleDTO
     {
         if (!isset($this->dtoClass)) {

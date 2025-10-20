@@ -43,9 +43,7 @@ class Ip implements ValidationRule, SymfonyConstraint
         public readonly ?string $version = null,
     ) {}
 
-    /**
-     * Convert to Laravel validation rule.
-     */
+    /** Convert to Laravel validation rule. */
     public function rule(): string
     {
         if (null === $this->version) {
