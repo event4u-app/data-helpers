@@ -2,6 +2,20 @@
 
 declare(strict_types=1);
 
+// Helper function for test setup
+// Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
+function setupBenchmark(): void
+{
+    // Clear benchmark results before each test
+$dto = new class extends SimpleDTO {
+public function __construct(
+public readonly string $name = '',
+) {}
+};
+$dto::clearBenchmarkResults();
+}
+
+
 use event4u\DataHelpers\SimpleDTO;
 
 describe('SimpleDTO Benchmarking', function(): void {
@@ -16,6 +30,8 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Instantiation', function(): void {
+        beforeEach(fn() => setupBenchmark());
+
         it('benchmarks DTO instantiation', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -50,6 +66,8 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark toArray', function(): void {
+        beforeEach(fn() => setupBenchmark());
+
         it('benchmarks toArray serialization', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -69,6 +87,8 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark JSON Serialization', function(): void {
+        beforeEach(fn() => setupBenchmark());
+
         it('benchmarks JSON serialization', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -88,6 +108,8 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Validation', function(): void {
+        beforeEach(fn() => setupBenchmark());
+
         it('benchmarks validation', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -107,6 +129,8 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Suite', function(): void {
+        beforeEach(fn() => setupBenchmark());
+
         it('runs comprehensive benchmark suite', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -142,6 +166,8 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Cache Performance Comparison', function(): void {
+        beforeEach(fn() => setupBenchmark());
+
         it('compares performance with and without cache', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -161,6 +187,8 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Report', function(): void {
+        beforeEach(fn() => setupBenchmark());
+
         it('generates benchmark report', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -181,6 +209,8 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Results Management', function(): void {
+        beforeEach(fn() => setupBenchmark());
+
         it('clears benchmark results', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -201,6 +231,8 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Complex DTO Benchmarking', function(): void {
+        beforeEach(fn() => setupBenchmark());
+
         it('benchmarks complex DTO with nested structures', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(

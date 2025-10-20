@@ -2,6 +2,31 @@
 
 declare(strict_types=1);
 
+// Helper function for test setup
+// Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
+function setupEncryptedCast(): void
+{
+    // Load .env file if exists
+$envFile = __DIR__ . '/../../../.env';
+if (file_exists($envFile)) {
+$lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+foreach ($lines as $line) {
+if (str_starts_with(trim($line), '#')) {
+continue;
+}
+if (str_contains($line, '=')) {
+[$key, $value] = explode('=', $line, 2);
+$_ENV[trim($key)] = trim($value);
+putenv(trim($key) . '=' . trim($value));
+}
+}
+}
+
+// Reset encrypter before each test
+EncryptedCast::clearEncrypter();
+}
+
+
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Casts\EncryptedCast;
 
@@ -28,6 +53,8 @@ describe('EncryptedCast', function(): void {
     });
 
     describe('Encryption/Decryption', function(): void {
+        beforeEach(fn() => setupEncryptedCast());
+
         it('encrypts and decrypts values with fallback encrypter', function(): void {
             // Use custom encrypter to simulate the flow
             $fallbackEncrypter = new class {
@@ -141,6 +168,8 @@ describe('EncryptedCast', function(): void {
     });
 
     describe('Output Cast', function(): void {
+        beforeEach(fn() => setupEncryptedCast());
+
         it('encrypts value in toArray', function(): void {
             if (!class_exists('Illuminate\Encryption\Encrypter')) {
                 $this->markTestSkipped('Laravel Encryption not available');
@@ -186,6 +215,8 @@ describe('EncryptedCast', function(): void {
     });
 
     describe('Edge Cases', function(): void {
+        beforeEach(fn() => setupEncryptedCast());
+
         it('handles decryption failures gracefully', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -247,6 +278,8 @@ describe('EncryptedCast', function(): void {
     });
 
     describe('Custom Encrypter', function(): void {
+        beforeEach(fn() => setupEncryptedCast());
+
         it('allows setting custom encrypter object', function(): void {
             $mockEncrypter = new class {
                 public function encrypt(mixed $value): string

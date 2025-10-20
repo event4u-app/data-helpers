@@ -139,17 +139,25 @@ jobs:
 
       - name: Install Laravel ${{ matrix.laravel }} packages
         run: |
-          # Install Laravel packages first
-          composer require --dev \
-            illuminate/support:^${{ matrix.laravel }}.0 \
-            illuminate/database:^${{ matrix.laravel }}.0 \
-            --with-all-dependencies --no-interaction --quiet
-
-          # Then install Pest (will resolve to compatible version)
-          composer require --dev \
-            pestphp/pest \
-            pestphp/pest-plugin-laravel \
-            --with-all-dependencies --no-interaction --quiet
+          # Install Laravel packages AND Pest together
+          # This ensures Composer resolves all dependencies with the correct framework version
+          # For Laravel 10, we need to specify Pest 2.x explicitly
+          # For Laravel 11+, Composer will automatically pick the right version
+          if [ "${{ matrix.laravel }}" = "10" ]; then
+            composer require --dev \
+              illuminate/support:^${{ matrix.laravel }}.0 \
+              illuminate/database:^${{ matrix.laravel }}.0 \
+              "pestphp/pest:^2.0" \
+              "pestphp/pest-plugin-laravel:^2.0" \
+              --with-all-dependencies --no-interaction --quiet
+          else
+            composer require --dev \
+              illuminate/support:^${{ matrix.laravel }}.0 \
+              illuminate/database:^${{ matrix.laravel }}.0 \
+              pestphp/pest \
+              pestphp/pest-plugin-laravel \
+              --with-all-dependencies --no-interaction --quiet
+          fi
 
       - name: Run Laravel ${{ matrix.laravel }} Tests
         run: |

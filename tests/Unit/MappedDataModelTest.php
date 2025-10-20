@@ -62,21 +62,7 @@ class TestDataModelWithPipeline extends MappedDataModel
 }
 
 describe('MappedDataModel', function(): void {
-//    beforeEach(function (): void {
-//        //MapperExceptions::reset();
-//    });
-//    afterEach(function (): void {
-//        //MapperExceptions::reset();
-//    });
-
     describe('Basic functionality', function(): void {
-//        beforeEach(function (): void {
-//            //MapperExceptions::reset();
-//        });
-//        afterEach(function (): void {
-//            //MapperExceptions::reset();
-//        });
-
         test('it creates instance with data', function(): void {
             $data = [
                 'email' => 'alice@example.com',

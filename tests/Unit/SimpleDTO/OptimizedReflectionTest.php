@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+// Helper function for test setup
+// Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
+function setupOptimizedReflection(): void
+{
+    ReflectionCache::clear();
+}
+
+
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\Support\ReflectionCache;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
@@ -13,6 +21,8 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('ReflectionClass Caching', function(): void {
+        beforeEach(fn() => setupOptimizedReflection());
+
         it('caches ReflectionClass instances', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -41,6 +51,8 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('ReflectionProperty Caching', function(): void {
+        beforeEach(fn() => setupOptimizedReflection());
+
         it('caches ReflectionProperty instances', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -85,6 +97,8 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('ReflectionMethod Caching', function(): void {
+        beforeEach(fn() => setupOptimizedReflection());
+
         it('caches ReflectionMethod instances', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -121,6 +135,8 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Property Attributes Caching', function(): void {
+        beforeEach(fn() => setupOptimizedReflection());
+
         it('caches property attributes', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -151,6 +167,8 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Method Attributes Caching', function(): void {
+        beforeEach(fn() => setupOptimizedReflection());
+
         it('caches method attributes', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -173,6 +191,8 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Class Attributes Caching', function(): void {
+        beforeEach(fn() => setupOptimizedReflection());
+
         it('caches class attributes', function(): void {
             $dto = new #[\event4u\DataHelpers\SimpleDTO\Attributes\MapInputName('snake_case')]
             class extends SimpleDTO {
@@ -190,6 +210,8 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Cache Statistics', function(): void {
+        beforeEach(fn() => setupOptimizedReflection());
+
         it('provides cache statistics', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -228,6 +250,8 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Cache Clearing', function(): void {
+        beforeEach(fn() => setupOptimizedReflection());
+
         it('clears all caches', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -277,6 +301,8 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Performance', function(): void {
+        beforeEach(fn() => setupOptimizedReflection());
+
         it('completes quickly with caching', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(

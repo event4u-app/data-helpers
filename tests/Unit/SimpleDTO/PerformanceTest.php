@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDTO;
 
-describe('SimpleDTO Performance', function(): void {
-    beforeEach(function(): void {
-        // Clear all caches before each test
-        TestPerformanceDTO::clearPerformanceCache();
-        TestPerformanceDTO::clearCastCache();
-        TestPerformanceDTO::clearRulesCache();
-    });
+// Helper function to clear caches
+// Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
+function clearPerformanceCaches(): void
+{
+    TestPerformanceDTO::clearPerformanceCache();
+    TestPerformanceDTO::clearCastCache();
+    TestPerformanceDTO::clearRulesCache();
+}
 
+describe('SimpleDTO Performance', function(): void {
     describe('Constructor Params Cache', function(): void {
+        beforeEach(fn() => clearPerformanceCaches());
         it('caches constructor parameters', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -51,6 +54,8 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Property Metadata Cache', function(): void {
+        beforeEach(fn() => clearPerformanceCaches());
+
         it('caches property metadata', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -77,6 +82,8 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Attribute Metadata Cache', function(): void {
+        beforeEach(fn() => clearPerformanceCaches());
+
         it('caches property attributes', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -110,6 +117,8 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Cache Statistics', function(): void {
+        beforeEach(fn() => clearPerformanceCaches());
+
         it('provides cache statistics', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -134,6 +143,8 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Cache Warm Up', function(): void {
+        beforeEach(fn() => clearPerformanceCaches());
+
         it('warms up all caches', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -155,6 +166,8 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Cache Clearing', function(): void {
+        beforeEach(fn() => clearPerformanceCaches());
+
         it('clears all performance caches', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -180,6 +193,8 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Performance Benchmarks', function(): void {
+        beforeEach(fn() => clearPerformanceCaches());
+
         it('fromArray is faster with cache', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -264,6 +279,8 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Memory Efficiency', function(): void {
+        beforeEach(fn() => clearPerformanceCaches());
+
         it('does not leak memory with repeated instantiation', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(

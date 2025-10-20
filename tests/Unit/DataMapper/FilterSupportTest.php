@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+// Helper function for test setup
+// Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
+function setupFilterSupport(): void
+{
+    // Clear transformer registry before each test
+FilterRegistry::clear();
+}
+
+
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
@@ -33,6 +42,8 @@ describe('Filter Support Across All Mapping Methods', function(): void {
     });
 
     describe('mapFromFile() - Filter Support', function(): void {
+        beforeEach(fn() => setupFilterSupport());
+
         it('applies single filter to simple field', function(): void {
             $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
 
@@ -138,6 +149,8 @@ describe('Filter Support Across All Mapping Methods', function(): void {
     });
 
     describe('map() - Filter Support', function(): void {
+        beforeEach(fn() => setupFilterSupport());
+
         it('applies single filter to simple field', function(): void {
             $source = ['email' => 'ALICE@EXAMPLE.COM'];
 
@@ -273,6 +286,8 @@ describe('Filter Support Across All Mapping Methods', function(): void {
     });
 
     describe('mapFromTemplate() - Filter Support (Baseline)', function(): void {
+        beforeEach(fn() => setupFilterSupport());
+
         it('applies single filter to simple field', function(): void {
             $template = ['email' => '{{ user.email | lower }}'];
             $sources = ['user' => ['email' => 'ALICE@EXAMPLE.COM']];

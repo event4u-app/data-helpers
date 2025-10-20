@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+// Helper function for test setup
+// Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
+function setupDTOFactory(): void
+{
+    // Create a test factory
+$this->factory = new TestUserDTOFactory();
+}
+
+
 use event4u\DataHelpers\SimpleDTO\DTOFactory;
 use Faker\Factory as FakerFactory;
 use Faker\Generator as Faker;
@@ -114,6 +123,8 @@ describe('DTOFactory', function(): void {
     });
 
     describe('Static Constructor', function(): void {
+        beforeEach(fn() => setupDTOFactory());
+
         it('creates factory using new() method', function(): void {
             $factory = new class extends DTOFactory {
                 protected string $dtoClass = UserDTO::class;

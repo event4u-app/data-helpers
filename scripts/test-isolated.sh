@@ -508,24 +508,22 @@ else
         exit 1
     fi
 
-    # Add framework packages to composer.json BEFORE composer install
+    # Add framework packages AND Pest to composer.json together
     # This ensures Composer resolves all dependencies with the correct framework version
-    echo -e "${YELLOW}  Adding ${FRAMEWORK} ${VERSION} to composer.json...${NC}"
-    run_in_container composer require --dev $PACKAGES --no-update --no-interaction > /dev/null 2>&1
+    # For Laravel 10, we need to specify Pest 2.x explicitly
+    # For Laravel 11+, Composer will automatically pick the right version
+    echo -e "${YELLOW}  Adding ${FRAMEWORK} ${VERSION} and Pest to composer.json...${NC}"
+
+    if [[ "$FRAMEWORK" == "laravel" && "$VERSION" == "10" ]]; then
+        # Laravel 10 requires Pest 2.x
+        run_in_container composer require --dev $PACKAGES "pestphp/pest:^2.0" "pestphp/pest-plugin-laravel:^2.0" --no-update --no-interaction > /dev/null 2>&1
+    else
+        # For other versions, let Composer resolve automatically
+        run_in_container composer require --dev $PACKAGES pestphp/pest pestphp/pest-plugin-laravel --no-update --no-interaction > /dev/null 2>&1
+    fi
 
     echo -e "${YELLOW}  Installing all dependencies with ${FRAMEWORK} ${VERSION}...${NC}"
     run_in_container composer install --no-interaction --quiet
-
-    # Reinstall Pest packages after framework installation to ensure compatibility
-    echo -e "${YELLOW}  Reinstalling Pest packages for compatibility...${NC}"
-
-    # Delete vendor directory again to avoid file locking issues
-    # Use find with -delete for more robust deletion
-    run_in_container sh -c 'find vendor -type f -delete 2>/dev/null || true'
-    run_in_container sh -c 'find vendor -type d -delete 2>/dev/null || true'
-    run_in_container rm -rf vendor 2>/dev/null || true
-
-    run_in_container composer require --dev pestphp/pest pestphp/pest-plugin-laravel --with-all-dependencies --no-interaction --quiet
 fi
 
 echo -e "${GREEN}✓${NC}  Dependencies installed"
@@ -563,14 +561,15 @@ if [[ "$RUN_TESTS" == true ]]; then
     TEST_EXIT=$?
 
     # Check if there are any failures or errors in the output
-    if grep -q "FAILED\|FAIL\|Error\|Fatal error" "$TEMP_OUTPUT"; then
+    # Use more specific patterns to avoid false positives from test names
+    if grep -q " FAILED\| FAIL \|Fatal error\|Tests:.*failed" "$TEMP_OUTPUT"; then
         echo ""
         echo -e "${RED}✗${NC}  Tests failed!"
         echo ""
         echo -e "${YELLOW}Failed test details:${NC}"
         echo ""
-        # Show only the failure details (lines after "FAILED", "FAIL", or "Error")
-        grep -A 50 "FAILED\|FAIL\|Error\|Fatal error" "$TEMP_OUTPUT" | head -100
+        # Show only the failure details (lines after "FAILED", "FAIL", or "Fatal error")
+        grep -A 50 " FAILED\| FAIL \|Fatal error\|Tests:.*failed" "$TEMP_OUTPUT" | head -100
         rm -f "$TEMP_OUTPUT"
         exit 1
     elif [ $TEST_EXIT -eq 0 ] || [ $TEST_EXIT -eq 255 ]; then
