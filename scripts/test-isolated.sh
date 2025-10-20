@@ -441,11 +441,15 @@ if [[ "$TEST_TYPE" == "plain" ]]; then
         symfony/cache symfony/config symfony/dependency-injection \
         symfony/http-foundation symfony/http-kernel symfony/yaml \
         symfony/serializer symfony/property-info symfony/property-access symfony/validator \
-        doctrine/orm doctrine/dbal \
+        doctrine/collections doctrine/orm doctrine/dbal \
+        nesbot/carbon \
         --no-interaction --no-update 2>&1 | grep -v "is not required" || true
 
+    echo -e "${YELLOW}  Deleting composer.lock...${NC}"
+    run_in_container rm -f composer.lock
+
     echo -e "${YELLOW}  Installing base dependencies (no frameworks)...${NC}"
-    run_in_container composer update --no-interaction -W
+    run_in_container composer install --no-interaction
 else
     # Remove composer.lock to avoid version conflicts
     # Note: vendor/ is already excluded by rsync, so it doesn't exist in the container
@@ -457,6 +461,9 @@ else
     ALL_SYMFONY_PACKAGES="symfony/cache symfony/config symfony/dependency-injection symfony/http-foundation symfony/http-kernel symfony/yaml symfony/serializer symfony/property-info symfony/property-access symfony/validator"
     ALL_DOCTRINE_PACKAGES="doctrine/collections doctrine/orm doctrine/dbal"
 
+    # Carbon needs to be removed so Composer can install the correct version based on framework constraints
+    CARBON_PACKAGE="nesbot/carbon"
+
     # Define code quality tools that pull in unnecessary dependencies
     CODE_QUALITY_PACKAGES="symplify/coding-standard symplify/easy-coding-standard friendsofphp/php-cs-fixer rector/rector"
 
@@ -464,19 +471,19 @@ else
     PACKAGES_TO_REMOVE=""
     case "$FRAMEWORK" in
         laravel)
-            # For Laravel tests: remove ALL Laravel, Symfony, Doctrine packages and code quality tools
+            # For Laravel tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, and code quality tools
             echo -e "${YELLOW}  Removing all framework packages and code quality tools (testing Laravel only)...${NC}"
-            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CODE_QUALITY_PACKAGES"
+            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $CODE_QUALITY_PACKAGES"
             ;;
         symfony)
-            # For Symfony tests: remove ALL Laravel, Symfony, Doctrine packages and code quality tools
+            # For Symfony tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, and code quality tools
             echo -e "${YELLOW}  Removing all framework packages and code quality tools (testing Symfony only)...${NC}"
-            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CODE_QUALITY_PACKAGES"
+            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $CODE_QUALITY_PACKAGES"
             ;;
         doctrine)
-            # For Doctrine tests: remove ALL Laravel, Symfony, Doctrine packages and code quality tools
+            # For Doctrine tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, and code quality tools
             echo -e "${YELLOW}  Removing all framework packages and code quality tools (testing Doctrine only)...${NC}"
-            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CODE_QUALITY_PACKAGES"
+            PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $CODE_QUALITY_PACKAGES"
             ;;
     esac
 
@@ -487,6 +494,12 @@ else
             --no-interaction --no-update 2>&1 | grep -v "is not required" || true
     fi
 
+    echo -e "${YELLOW}  Deleting composer.lock...${NC}"
+    run_in_container rm -f composer.lock
+
+    echo -e "${YELLOW}  Installing minimal dependencies...${NC}"
+    run_in_container composer install --no-interaction
+
     # Get packages to install
     PACKAGES=$(get_composer_packages "$FRAMEWORK" "$VERSION")
 
@@ -496,10 +509,7 @@ else
     fi
 
     echo -e "${YELLOW}  Installing ${FRAMEWORK} ${VERSION}...${NC}"
-    run_in_container composer require --dev $PACKAGES --no-interaction --no-update
-
-    echo -e "${YELLOW}  Updating all dependencies with --with-all-dependencies...${NC}"
-    run_in_container composer update --with-all-dependencies --no-interaction
+    run_in_container composer require --dev $PACKAGES --with-all-dependencies --no-interaction
 fi
 
 echo -e "${GREEN}✓${NC}  Dependencies installed"

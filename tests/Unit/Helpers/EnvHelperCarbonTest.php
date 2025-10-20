@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+// Skip this file entirely if Carbon is not installed
+if (!class_exists('Carbon\Carbon')) {
+    return;
+}
+
 use Carbon\Carbon;
 use event4u\DataHelpers\Helpers\EnvHelper;
 
