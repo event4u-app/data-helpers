@@ -52,6 +52,9 @@ jobs:
 
       - name: Install minimal dependencies (no frameworks)
         run: |
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
+
           # Remove framework packages from composer.json temporarily
           composer remove --dev \
             illuminate/support illuminate/validation illuminate/database \
@@ -110,6 +113,9 @@ jobs:
 
       - name: Install minimal dependencies (no frameworks)
         run: |
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
+
           # Remove framework packages from composer.json temporarily
           composer remove --dev \
             illuminate/support illuminate/validation illuminate/database \
@@ -162,6 +168,9 @@ jobs:
 
       - name: Install minimal dependencies (no frameworks)
         run: |
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
+
           # Remove framework packages from composer.json temporarily
           composer remove --dev \
             illuminate/support illuminate/validation illuminate/database \
@@ -214,6 +223,9 @@ jobs:
 
       - name: Install minimal dependencies (no frameworks)
         run: |
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
+
           # Remove framework packages from composer.json temporarily
           composer remove --dev \
             illuminate/support illuminate/validation illuminate/database \
