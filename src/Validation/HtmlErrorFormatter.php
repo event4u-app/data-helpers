@@ -35,7 +35,7 @@ class HtmlErrorFormatter
     {
         $errors = $exception->errors();
 
-        if (empty($errors)) {
+        if ([] === $errors) {
             return '';
         }
 
@@ -70,7 +70,7 @@ class HtmlErrorFormatter
     ): string {
         $errors = $exception->errors();
 
-        if (empty($errors)) {
+        if ([] === $errors) {
             return '';
         }
 
@@ -103,7 +103,7 @@ class HtmlErrorFormatter
     {
         $errors = $exception->errors();
 
-        if (empty($errors)) {
+        if ([] === $errors) {
             return '';
         }
 
@@ -138,7 +138,7 @@ class HtmlErrorFormatter
     {
         $errors = $exception->errorsFor($field);
 
-        if (empty($errors)) {
+        if ([] === $errors) {
             return '';
         }
 

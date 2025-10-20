@@ -18,8 +18,9 @@ use event4u\DataHelpers\SimpleDTO\Casts\HashedCast;
 use event4u\DataHelpers\SimpleDTO\Casts\IntegerCast;
 use event4u\DataHelpers\SimpleDTO\Casts\JsonCast;
 use event4u\DataHelpers\SimpleDTO\Casts\StringCast;
-use event4u\DataHelpers\SimpleDTO\Contracts\CastsAttributes;
 use event4u\DataHelpers\SimpleDTO\Casts\TimestampCast;
+use event4u\DataHelpers\SimpleDTO\Contracts\CastsAttributes;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;
 use Throwable;
@@ -374,7 +375,7 @@ trait SimpleDTOCastsTrait
                 : new $castClass(...$parameters);
 
             if (!$instance instanceof CastsAttributes) {
-                throw new \InvalidArgumentException("Cast class {$castClass} must implement CastsAttributes");
+                throw new InvalidArgumentException(sprintf('Cast class %s must implement CastsAttributes', $castClass));
             }
 
             self::$castCache[$cacheKey] = $instance;
@@ -383,7 +384,7 @@ trait SimpleDTOCastsTrait
         $caster = self::$castCache[$cacheKey];
 
         if (!$caster instanceof CastsAttributes) {
-            throw new \InvalidArgumentException("Cached cast class must implement CastsAttributes");
+            throw new InvalidArgumentException("Cached cast class must implement CastsAttributes");
         }
 
         return $caster;

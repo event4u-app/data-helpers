@@ -10,6 +10,7 @@ use event4u\DataHelpers\SimpleDTO;
 use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
+use RuntimeException;
 use Traversable;
 
 /**
@@ -34,14 +35,14 @@ use Traversable;
 final class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonSerializable
 {
     /** @var array<int, TDto> */
-    protected array $items = [];
+    private array $items = [];
 
     /**
      * @param class-string<TDto> $dtoClass
      * @param array<int|string, mixed> $items
      */
     public function __construct(
-        protected readonly string $dtoClass,
+        private readonly string $dtoClass,
         array $items = [],
     ) {
         foreach ($items as $item) {
@@ -61,7 +62,7 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
      */
     public static function forDto(string $dtoClass, array $items = []): static
     {
-        return new static($dtoClass, $items);
+        return new self($dtoClass, $items);
     }
 
     /**
@@ -98,7 +99,7 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
             }
         }
 
-        return new static($this->dtoClass, $filtered);
+        return new self($this->dtoClass, $filtered);
     }
 
     /**
@@ -211,7 +212,7 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
     {
         $json = json_encode($this->jsonSerialize(), $options);
         if (false === $json) {
-            throw new \RuntimeException('Failed to encode collection to JSON: ' . json_last_error_msg());
+            throw new RuntimeException('Failed to encode collection to JSON: ' . json_last_error_msg());
         }
 
         return $json;
@@ -303,7 +304,7 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
             return $items;
         }
 
-        return new static($dtoClass, is_array($items) ? $items : [$items]);
+        return new self($dtoClass, is_array($items) ? $items : [$items]);
     }
 
     /**

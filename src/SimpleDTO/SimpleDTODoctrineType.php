@@ -5,29 +5,18 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO;
 
 use event4u\DataHelpers\SimpleDTO;
+use InvalidArgumentException;
+use RuntimeException;
 
 // Create stub classes if Doctrine is not installed
 if (!class_exists('Doctrine\DBAL\Types\Type')) {
     abstract class Type
     {
-        /**
-         * @param array<string, mixed> $column
-         * @param mixed $platform
-         */
+        /** @param array<string, mixed> $column */
         abstract public function getSQLDeclaration(array $column, mixed $platform): string;
 
-        /**
-         * @param mixed $value
-         * @param mixed $platform
-         * @return mixed
-         */
         abstract public function convertToPHPValue(mixed $value, mixed $platform): mixed;
 
-        /**
-         * @param mixed $value
-         * @param mixed $platform
-         * @return mixed
-         */
         abstract public function convertToDatabaseValue(mixed $value, mixed $platform): mixed;
 
         abstract public function getName(): string;
@@ -37,9 +26,7 @@ if (!class_exists('Doctrine\DBAL\Types\Type')) {
 if (!class_exists('Doctrine\DBAL\Platforms\AbstractPlatform')) {
     abstract class AbstractPlatform
     {
-        /**
-         * @param array<string, mixed> $column
-         */
+        /** @param array<string, mixed> $column */
         public function getJsonTypeDeclarationSQL(array $column): string
         {
             return 'JSON';
@@ -85,12 +72,11 @@ class SimpleDTODoctrineType extends Type
      * {@inheritdoc}
      *
      * @param array<string, mixed> $column
-     * @param mixed $platform
      */
     public function getSQLDeclaration(array $column, mixed $platform): string
     {
         if (!is_object($platform) || !method_exists($platform, 'getJsonTypeDeclarationSQL')) {
-            throw new \InvalidArgumentException('Platform must have getJsonTypeDeclarationSQL method');
+            throw new InvalidArgumentException('Platform must have getJsonTypeDeclarationSQL method');
         }
 
         return $platform->getJsonTypeDeclarationSQL($column);
@@ -99,8 +85,6 @@ class SimpleDTODoctrineType extends Type
     /**
      * {@inheritdoc}
      *
-     * @param mixed $value
-     * @param mixed $platform
      * @return TDto|null
      */
     public function convertToPHPValue(mixed $value, mixed $platform): ?SimpleDTO
@@ -143,12 +127,7 @@ class SimpleDTODoctrineType extends Type
         return null;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @param mixed $value
-     * @param mixed $platform
-     */
+    /** {@inheritdoc} */
     public function convertToDatabaseValue(mixed $value, mixed $platform): ?string
     {
         if (null === $value) {
@@ -159,7 +138,7 @@ class SimpleDTODoctrineType extends Type
         if ($value instanceof SimpleDTO) {
             $json = json_encode($value->toArray());
             if (false === $json) {
-                throw new \RuntimeException('Failed to encode DTO to JSON: ' . json_last_error_msg());
+                throw new RuntimeException('Failed to encode DTO to JSON: ' . json_last_error_msg());
             }
             return $json;
         }
@@ -168,7 +147,7 @@ class SimpleDTODoctrineType extends Type
         if (is_array($value)) {
             $json = json_encode($value);
             if (false === $json) {
-                throw new \RuntimeException('Failed to encode array to JSON: ' . json_last_error_msg());
+                throw new RuntimeException('Failed to encode array to JSON: ' . json_last_error_msg());
             }
             return $json;
         }

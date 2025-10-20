@@ -58,9 +58,7 @@ class StartsWith implements ValidationRule, SymfonyConstraint
         return new Assert\Regex(pattern: $pattern, message: $this->message());
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         $values = is_array($this->values) ? implode(', ', $this->values) : $this->values;

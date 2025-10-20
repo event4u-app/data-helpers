@@ -41,13 +41,13 @@ class RequiredUnless implements ValidationRule
     public function rule(): string
     {
         $value = is_bool($this->value) ? ($this->value ? 'true' : 'false') : $this->value;
-        return sprintf('required_unless:%s,%s', $this->field, (string) $value);
+        return sprintf('required_unless:%s,%s', $this->field, (string)$value);
     }
 
     /** Get validation error message. */
     public function message(): ?string
     {
-        $valueStr = is_bool($this->value) ? ($this->value ? 'true' : 'false') : (string) $this->value;
+        $valueStr = is_bool($this->value) ? ($this->value ? 'true' : 'false') : (string)$this->value;
         return sprintf('The attribute field is required unless %s is %s.', $this->field, $valueStr);
     }
 }

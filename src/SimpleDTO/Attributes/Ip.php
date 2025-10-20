@@ -65,9 +65,7 @@ class Ip implements ValidationRule, SymfonyConstraint
         return new Assert\Ip(version: 'ipv4' === $this->version ? Assert\Ip::V4 : Assert\Ip::V6);
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         if (null === $this->version) {

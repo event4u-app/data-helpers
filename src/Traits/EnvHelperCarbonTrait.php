@@ -41,7 +41,7 @@ if (class_exists('Carbon\Carbon')) {
             try {
                 // Carbon accepts string|null, so we need to convert int/float to string
                 if (is_int($value) || is_float($value)) {
-                    $value = (string) $value;
+                    $value = (string)$value;
                 }
                 /** @var string|null $value */
                 $carbon = new Carbon($value);

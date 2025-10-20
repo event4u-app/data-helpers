@@ -48,7 +48,7 @@ class NotIn implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\Choice(choices: $this->values, match: false, message: $this->message);
+        return new Assert\Choice(choices: $this->values, message: $this->message, match: false);
     }
     public function message(): ?string
     {

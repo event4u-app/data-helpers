@@ -8,6 +8,7 @@ use event4u\DataHelpers\SimpleDTO;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Eloquent custom cast for SimpleDTOs.
@@ -121,7 +122,7 @@ class SimpleDTOEloquentCast implements CastsAttributes
         // Serialize DTO to JSON
         $json = json_encode($value->toArray());
         if (false === $json) {
-            throw new \RuntimeException('Failed to encode DTO to JSON: ' . json_last_error_msg());
+            throw new RuntimeException('Failed to encode DTO to JSON: ' . json_last_error_msg());
         }
         return $json;
     }

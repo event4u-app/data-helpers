@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException as LaravelValidationException;
 use ReflectionClass;
 use ReflectionNamedType;
 use RuntimeException;
+use Stringable;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -597,8 +598,8 @@ trait SimpleDTOValidationTrait
             }
 
             $message = $violation->getMessage();
-            if ($message instanceof \Stringable) {
-                $message = (string) $message;
+            if ($message instanceof Stringable) {
+                $message = (string)$message;
             }
 
             $errors[$propertyPath][] = $message;

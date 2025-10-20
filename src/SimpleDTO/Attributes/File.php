@@ -62,9 +62,7 @@ class File implements ValidationRule, SymfonyConstraint
         return count($rules) === 1 ? $rules[0] : $rules;
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         return "The attribute must be a file.";
@@ -75,7 +73,7 @@ class File implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        if (null !== $this->maxSize && $this->maxSize > 0) {
+        if (null !== $this->maxSize && 0 < $this->maxSize) {
             // Symfony uses bytes, Laravel uses kilobytes
             return new Assert\File(maxSize: $this->maxSize * 1024);
         }

@@ -50,7 +50,7 @@ final class ValidationException extends RuntimeException
             $normalizedErrors[$field] = is_array($messages) ? $messages : [$messages];
         }
 
-        return new static('Validation failed', $normalizedErrors);
+        return new self('Validation failed', $normalizedErrors);
     }
 
     /**
@@ -169,7 +169,7 @@ final class ValidationException extends RuntimeException
     {
         $json = json_encode($this->toArray(), $options);
         if (false === $json) {
-            throw new \RuntimeException('Failed to encode validation errors to JSON: ' . json_last_error_msg());
+            throw new RuntimeException('Failed to encode validation errors to JSON: ' . json_last_error_msg());
         }
 
         return $json;

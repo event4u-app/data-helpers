@@ -6,7 +6,6 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes\Symfony;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
-use Throwable;
 
 /**
  * Attribute to conditionally include a property based on Symfony user role.

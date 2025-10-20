@@ -46,9 +46,7 @@ class MimeTypes implements ValidationRule, SymfonyConstraint
         return 'mimetypes:' . implode(',', $this->types);
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         $types = implode(', ', $this->types);

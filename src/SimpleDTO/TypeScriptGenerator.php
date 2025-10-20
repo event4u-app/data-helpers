@@ -9,6 +9,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 use ReflectionClass;
+use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
@@ -475,7 +476,7 @@ TS;
         foreach ($type->getTypes() as $namedType) {
             if ($namedType instanceof ReflectionNamedType) {
                 $types[] = $this->convertNamedType($namedType);
-            } elseif (class_exists('ReflectionIntersectionType') && $namedType instanceof \ReflectionIntersectionType) {
+            } elseif (class_exists('ReflectionIntersectionType') && $namedType instanceof ReflectionIntersectionType) {
                 // For intersection types, just use 'any' for now
                 $types[] = 'any';
             }

@@ -27,9 +27,7 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class WhenCallback implements ConditionalProperty
 {
-    /**
-     * @param callable(mixed, object, array<string, mixed>): bool $callback Callback that determines if property should be included
-     */
+    /** @param callable(mixed, object, array<string, mixed>): bool $callback Callback that determines if property should be included */
     public function __construct(
         public readonly mixed $callback,
     ) {}

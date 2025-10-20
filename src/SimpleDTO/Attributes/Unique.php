@@ -62,15 +62,13 @@ class Unique implements ValidationRule, SymfonyConstraint
         $rule = sprintf('unique:%s,%s', $table, $this->column);
 
         if (null !== $this->ignore) {
-            $rule .= sprintf(',%s,%s', (string) $this->ignore, $this->idColumn);
+            $rule .= sprintf(',%s,%s', (string)$this->ignore, $this->idColumn);
         }
 
         return $rule;
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         return "The attribute has already been taken.";

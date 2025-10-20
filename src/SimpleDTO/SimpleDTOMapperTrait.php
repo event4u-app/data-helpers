@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\SimpleDTO;
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use InvalidArgumentException;
 use ReflectionClass;
 use Throwable;
 
@@ -350,14 +351,14 @@ trait SimpleDTOMapperTrait
             $data = $source;
         } else {
             if (!is_array($source)) {
-                throw new \InvalidArgumentException('Source data must be an array');
+                throw new InvalidArgumentException('Source data must be an array');
             }
             /** @var array<string, mixed> $source */
             $data = static::applyMapping($source);
         }
 
         if (!is_array($data)) {
-            throw new \InvalidArgumentException('Data must be an array after mapping');
+            throw new InvalidArgumentException('Data must be an array after mapping');
         }
 
         /** @var array<string, mixed> $data */

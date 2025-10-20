@@ -182,7 +182,10 @@ class DTOException extends RuntimeException
                     $actualValue
                 );
             } else {
-                $suggestions[] = sprintf("The string '%s' is not numeric. Provide a valid number.", (string) $actualValue);
+                $suggestions[] = sprintf(
+                    "The string '%s' is not numeric. Provide a valid number.",
+                    (string)$actualValue
+                );
             }
         }
 
@@ -190,7 +193,7 @@ class DTOException extends RuntimeException
         if ('int' === $actualType && 'string' === $expectedType) {
             $suggestions[] = sprintf(
                 "Cast the integer to string: (string) %s or use 'string' cast in casts() method",
-                (string) $actualValue
+                (string)$actualValue
             );
         }
 

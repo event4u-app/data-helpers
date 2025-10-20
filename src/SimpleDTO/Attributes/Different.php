@@ -42,9 +42,7 @@ class Different implements ValidationRule, SymfonyConstraint
         return 'different:' . $this->field;
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         return sprintf('The attribute and %s must be different.', $this->field);

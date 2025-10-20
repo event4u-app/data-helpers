@@ -33,9 +33,7 @@ class WhenSymfonyRole implements ConditionalProperty
     /** @var array<string> */
     private readonly array $roles;
 
-    /**
-     * @param string|array<string> $roles Role(s) to check
-     */
+    /** @param string|array<string> $roles Role(s) to check */
     public function __construct(
         string|array $roles,
     ) {
@@ -96,9 +94,7 @@ class WhenSymfonyRole implements ConditionalProperty
         return false;
     }
 
-    /**
-     * @return array<string>
-     */
+    /** @return array<string> */
     public function getRoles(): array
     {
         return $this->roles;

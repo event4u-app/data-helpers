@@ -42,9 +42,7 @@ class Same implements ValidationRule, SymfonyConstraint
         return 'same:' . $this->field;
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         return sprintf('The attribute and %s must match.', $this->field);

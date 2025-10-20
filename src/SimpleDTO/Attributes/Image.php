@@ -88,9 +88,7 @@ class Image implements ValidationRule, SymfonyConstraint
         return $rules;
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         return "The attribute must be an image.";
@@ -129,12 +127,12 @@ class Image implements ValidationRule, SymfonyConstraint
         }
 
         return new Assert\Image(
+            maxSize: null !== $this->maxSize && 0 < $this->maxSize ? $this->maxSize * 1024 : null,
             mimeTypes: $mimeTypes,
-            maxSize: null !== $this->maxSize && $this->maxSize > 0 ? $this->maxSize * 1024 : null,
-            minWidth: null !== $this->minWidth && $this->minWidth > 0 ? $this->minWidth : null,
-            maxWidth: null !== $this->maxWidth && $this->maxWidth > 0 ? $this->maxWidth : null,
-            minHeight: null !== $this->minHeight && $this->minHeight > 0 ? $this->minHeight : null,
-            maxHeight: null !== $this->maxHeight && $this->maxHeight > 0 ? $this->maxHeight : null,
+            minWidth: null !== $this->minWidth && 0 < $this->minWidth ? $this->minWidth : null,
+            maxWidth: null !== $this->maxWidth && 0 < $this->maxWidth ? $this->maxWidth : null,
+            maxHeight: null !== $this->maxHeight && 0 < $this->maxHeight ? $this->maxHeight : null,
+            minHeight: null !== $this->minHeight && 0 < $this->minHeight ? $this->minHeight : null,
         );
     }
 }

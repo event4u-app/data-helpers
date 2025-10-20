@@ -46,9 +46,7 @@ class Json implements ValidationRule, SymfonyConstraint
         return new Assert\Json();
     }
 
-    /**
-     * Get validation error message.
-     */
+    /** Get validation error message. */
     public function message(): ?string
     {
         return "The attribute must be a valid JSON string.";

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Casts;
 
+use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Contracts\CastsAttributes;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
 use RuntimeException;
@@ -32,9 +33,7 @@ class CollectionCast implements CastsAttributes
     {
     }
 
-    /**
-     * @return DataCollection<\event4u\DataHelpers\SimpleDTO>|null
-     */
+    /** @return DataCollection<SimpleDTO>|null */
     public function get(mixed $value, array $attributes): ?DataCollection
     {
         if (null === $value) {
@@ -53,7 +52,7 @@ class CollectionCast implements CastsAttributes
 
         // If DTO class is specified, create typed DataCollection
         if (null !== $this->dtoClass && class_exists($this->dtoClass)) {
-            /** @var class-string<\event4u\DataHelpers\SimpleDTO> $dtoClass */
+            /** @var class-string<SimpleDTO> $dtoClass */
             $dtoClass = $this->dtoClass;
             return DataCollection::forDto($dtoClass, $value);
         }

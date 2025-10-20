@@ -60,11 +60,7 @@ abstract class DTOFactory
         $this->faker = $faker ?? FakerFactory::create();
     }
 
-    /**
-     * Create a new factory instance.
-     *
-     * @return static
-     */
+    /** Create a new factory instance. */
     public static function new(?Faker $faker = null): static
     {
         return new static($faker); // @phpstan-ignore new.static
