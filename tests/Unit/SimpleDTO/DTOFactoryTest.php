@@ -12,6 +12,7 @@ use Tests\Unit\SimpleDTO\Fixtures\UserDTO;
 function setupDTOFactory(): void
 {
     // Create a test factory
+    /** @phpstan-ignore-next-line property.notFound (Pest test context) */
     test()->factory = new TestUserDTOFactory();
 }
 
@@ -173,6 +174,7 @@ describe('DTOFactory', function(): void {
 
             $user = $factory->create();
 
+            assert($user instanceof UserDTO);
             expect($user)->toBeInstanceOf(UserDTO::class)
                 ->and($user->name)->toBeString();
         });
@@ -282,6 +284,7 @@ describe('DTOFactory', function(): void {
 
             // With same seed, names should be different (because we call faker twice)
             // but both should be valid strings
+            assert($user1 instanceof UserDTO && $user2 instanceof UserDTO);
             expect($user1->name)->toBeString()
                 ->and($user2->name)->toBeString()
                 ->and($user1->name)->not->toBe($user2->name);

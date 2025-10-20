@@ -27,8 +27,8 @@ class Regex implements ValidationRule, SymfonyConstraint
     use RequiresSymfonyValidator;
 
     public function __construct(
-        private readonly string $pattern,
-        private readonly ?string $message = null
+        public readonly string $pattern,
+        public readonly ?string $message = null
     ) {
     }
 

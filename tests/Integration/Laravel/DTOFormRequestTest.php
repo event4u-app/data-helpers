@@ -52,10 +52,13 @@ describe('Laravel DTOFormRequest', function(): void {
         }
 
         // Create validation factory
+        /** @phpstan-ignore-next-line class.notFound */
         $translator = new Translator(new ArrayLoader(), 'en');
+        /** @phpstan-ignore-next-line class.notFound */
         $this->validationFactory = new ValidationFactory($translator);
 
         // Create container
+        /** @phpstan-ignore-next-line class.notFound */
         $this->container = new Container();
         $this->container->instance('validator', $this->validationFactory);
         Container::setInstance($this->container);
@@ -66,6 +69,7 @@ describe('Laravel DTOFormRequest', function(): void {
     });
 
     test('it creates dto from valid data', function(): void {
+        /** @phpstan-ignore-next-line staticMethod.notFound */
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -101,6 +105,7 @@ describe('Laravel DTOFormRequest', function(): void {
     })->group('laravel');
 
     test('it handles optional fields', function(): void {
+        /** @phpstan-ignore-next-line staticMethod.notFound */
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -120,6 +125,7 @@ describe('Laravel DTOFormRequest', function(): void {
     })->group('laravel');
 
     test('it validates data automatically', function(): void {
+        /** @phpstan-ignore-next-line staticMethod.notFound */
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'J',  // Too short
             'email' => 'invalid-email',
@@ -188,6 +194,7 @@ describe('Laravel DTOFormRequest', function(): void {
     })->group('laravel');
 
     test('it handles json request', function(): void {
+        /** @phpstan-ignore-next-line staticMethod.notFound */
         $request = UserFormRequest::create(
             '/test',
             'POST',
@@ -253,6 +260,7 @@ describe('Laravel DTOFormRequest', function(): void {
     })->group('laravel');
 
     test('it converts dto back to array', function(): void {
+        /** @phpstan-ignore-next-line staticMethod.notFound */
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',

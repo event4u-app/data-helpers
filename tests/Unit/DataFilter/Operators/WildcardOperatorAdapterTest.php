@@ -47,10 +47,10 @@ describe('WildcardOperatorAdapter', function(): void {
 
         expect($result)->toBe($items);
         expect($operator->capturedContext)->toBeInstanceOf(OperatorContext::class);
-        expect($operator->capturedContext->source)->toBe($sources);
-        expect($operator->capturedContext->target)->toBe($aliases);
-        expect($operator->capturedContext->isWildcardMode)->toBeTrue();
-        expect($operator->capturedContext->originalItems)->toBe($items);
+        expect($operator->capturedContext?->source)->toBe($sources);
+        expect($operator->capturedContext?->target)->toBe($aliases);
+        expect($operator->capturedContext?->isWildcardMode)->toBeTrue();
+        expect($operator->capturedContext?->originalItems)->toBe($items);
     });
 
     it('passes items through operator', function(): void {
@@ -62,7 +62,10 @@ describe('WildcardOperatorAdapter', function(): void {
                     return $items;
                 }
 
-                return array_filter($items, fn(array $item): bool => ($item['status'] ?? null) === $config['status']);
+                return array_filter(
+                    $items,
+                    fn(mixed $item): bool => is_array($item) && ($item['status'] ?? null) === $config['status']
+                );
             }
 
             public function getName(): string
@@ -117,7 +120,7 @@ describe('WildcardOperatorAdapter', function(): void {
         $adapted = WildcardOperatorAdapter::adapt($operator);
         $adapted([], null, null, []);
 
-        expect($operator->capturedContext->isWildcardMode)->toBeTrue();
+        expect($operator->capturedContext?->isWildcardMode)->toBeTrue();
     });
 
     it('passes sources to context', function(): void {
@@ -146,7 +149,7 @@ describe('WildcardOperatorAdapter', function(): void {
         $sources = ['key' => 'value', 'nested' => ['data' => 123]];
         $adapted([], null, $sources, []);
 
-        expect($operator->capturedContext->source)->toBe($sources);
+        expect($operator->capturedContext?->source)->toBe($sources);
     });
 
     it('passes aliases to context as target', function(): void {
@@ -175,7 +178,7 @@ describe('WildcardOperatorAdapter', function(): void {
         $aliases = ['alias1' => 'value1', 'alias2' => 'value2'];
         $adapted([], null, null, $aliases);
 
-        expect($operator->capturedContext->target)->toBe($aliases);
+        expect($operator->capturedContext?->target)->toBe($aliases);
     });
 
     it('passes original items to context', function(): void {
@@ -204,7 +207,7 @@ describe('WildcardOperatorAdapter', function(): void {
         $items = [['id' => 1], ['id' => 2], ['id' => 3]];
         $adapted($items, null, null, []);
 
-        expect($operator->capturedContext->originalItems)->toBe($items);
+        expect($operator->capturedContext?->originalItems)->toBe($items);
     });
 
     it('handles empty items array', function(): void {
@@ -283,7 +286,7 @@ describe('WildcardOperatorAdapter', function(): void {
         $adapted = WildcardOperatorAdapter::adapt($operator);
         $adapted([], null, null, []);
 
-        expect($operator->capturedContext->source)->toBeNull();
+        expect($operator->capturedContext?->source)->toBeNull();
     });
 
     it('handles empty aliases array', function(): void {
@@ -311,7 +314,7 @@ describe('WildcardOperatorAdapter', function(): void {
         $adapted = WildcardOperatorAdapter::adapt($operator);
         $adapted([], null, null, []);
 
-        expect($operator->capturedContext->target)->toBe([]);
+        expect($operator->capturedContext?->target)->toBe([]);
     });
 
     it('is final class', function(): void {
@@ -328,7 +331,10 @@ describe('WildcardOperatorAdapter', function(): void {
                     return $items;
                 }
 
-                return array_filter($items, fn(array $item): bool => ($item['status'] ?? null) === $config['status']);
+                return array_filter(
+                    $items,
+                    fn(mixed $item): bool => is_array($item) && ($item['status'] ?? null) === $config['status']
+                );
             }
 
             public function getName(): string

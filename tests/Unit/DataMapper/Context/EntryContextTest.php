@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\Enums\Mode;
@@ -96,8 +97,11 @@ describe('EntryContext', function(): void {
 
         expect($context->source)->toBe($source);
         expect($context->target)->toBe($target);
-        expect($context->source->id)->toBe(1);
-        expect($context->target->id)->toBe(2);
+
+        $sourceAcc = new DataAccessor($context->source);
+        $targetAcc = new DataAccessor($context->target);
+        expect($sourceAcc->get('id'))->toBe(1);
+        expect($targetAcc->get('id'))->toBe(2);
     });
 
     it('allows modification of entry array', function(): void {

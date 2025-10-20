@@ -97,9 +97,11 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
                 ->autoMap();
 
             $targetObj = $result->getTarget();
+            assert(is_object($targetObj));
 
-            expect($targetObj->userName)->toBe('Alice');
-            expect($targetObj->userEmail)->toBe('alice@example.com');
+            $acc = new DataAccessor($targetObj);
+            expect($acc->get('userName'))->toBe('Alice');
+            expect($acc->get('userEmail'))->toBe('alice@example.com');
         });
 
         it('respects skipNull setting', function(): void {
@@ -277,8 +279,10 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
             ];
 
             $res = DataMapper::source($source)->target([])->deep(true)->autoMap()->getTarget();
+            assert(is_array($res));
 
             $users = $res['users'];
+            assert(is_array($users));
 
             // Expect indices 0 and 2 present, 1 omitted due to skipNull=true
             expect(array_keys($users))->toBe([0, 2]);
@@ -294,6 +298,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
             ];
 
             $dto = new class {
+                /** @var array<string, mixed> */
                 public array $shippingAddress = [];
             };
 

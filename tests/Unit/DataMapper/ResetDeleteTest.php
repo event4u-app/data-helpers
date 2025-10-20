@@ -9,6 +9,7 @@ use event4u\DataHelpers\DataMapper\FluentDataMapper;
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
 function setupProductsSource(): void
 {
+    /** @phpstan-ignore-next-line property.notFound (Pest dynamic property) */
     test()->source = [
         'products' => [
             ['id' => 1, 'name' => 'Product A', 'status' => 'active', 'price' => 100],
@@ -36,9 +37,10 @@ describe('DataMapper Reset & Delete', function(): void {
                 ]);
 
             // Add query WHERE
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->where('price', '>', 75)
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             // Reset to original
             $mapper->reset()->all();
@@ -64,11 +66,12 @@ describe('DataMapper Reset & Delete', function(): void {
                 ]);
 
             // Multiple modifications
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->where('status', 'active')
                 ->orderBy('price', 'DESC')
                 ->limit(2)
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             // Reset
             $mapper->reset()->all();
@@ -97,9 +100,10 @@ describe('DataMapper Reset & Delete', function(): void {
                     ],
                 ]);
 
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->where('price', '>', 75)
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             $mapper->reset()->template();
 
@@ -127,9 +131,10 @@ describe('DataMapper Reset & Delete', function(): void {
                 ]);
 
             // Add query WHERE
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->where('price', '>', 75)
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             // Reset WHERE only
             $mapper->reset()->where();
@@ -152,9 +157,10 @@ describe('DataMapper Reset & Delete', function(): void {
                 ]);
 
             // Add query WHERE
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->where('status', 'active')
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             // Reset WHERE
             $mapper->reset()->where();
@@ -188,9 +194,10 @@ describe('DataMapper Reset & Delete', function(): void {
                 ]);
 
             // Add query ORDER BY
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->orderBy('price', 'ASC')
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             // Reset ORDER BY
             $mapper->reset()->orderBy();
@@ -223,9 +230,10 @@ describe('DataMapper Reset & Delete', function(): void {
                 ]);
 
             // Add query LIMIT
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->limit(1)
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             // Reset LIMIT
             $mapper->reset()->limit();
@@ -256,9 +264,10 @@ describe('DataMapper Reset & Delete', function(): void {
                 ]);
 
             // Add query OFFSET
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->offset(2)
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             // Reset OFFSET
             $mapper->reset()->offset();
@@ -321,10 +330,11 @@ describe('DataMapper Reset & Delete', function(): void {
                 ]);
 
             // Modify
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->where('price', '>', 75)
                 ->orderBy('price', 'ASC')
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             // Reset both
             $mapper->reset()->where()->orderBy();
@@ -615,10 +625,11 @@ describe('DataMapper Reset & Delete', function(): void {
                 ]);
 
             // Modify
-            $mapper->query('products.*')
+            $query = $mapper->query('products.*')
                 ->where('price', '>', 75)
                 ->limit(1)
                 ->end();
+            expect($query)->toBeInstanceOf(FluentDataMapper::class);
 
             // Reset WHERE (back to status=active only)
             $mapper->reset()->where();

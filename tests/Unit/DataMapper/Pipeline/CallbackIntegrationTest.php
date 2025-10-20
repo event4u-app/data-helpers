@@ -284,12 +284,13 @@ describe('Callback Integration Tests', function(): void {
 
         $originalSource = $source;
 
-        DataMapper::source($source)->target([])->template(
+        $result = DataMapper::source($source)->target([])->template(
             $mapping
         )->pipe([new CallbackFilter(fn(CallbackParameters $p): mixed => // Try to modify source (should not affect original)
                 // Note: CallbackParameters is readonly, so this would fail at runtime
                 // This test documents that source is passed by value
             $p->value),])->map()->getTarget();
+        expect($result)->toBeArray();
 
         // Source should be unchanged
         expect($source)->toBe($originalSource);

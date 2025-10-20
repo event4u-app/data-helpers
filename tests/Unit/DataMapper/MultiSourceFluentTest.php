@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 
 describe('Multi-Source Fluent Mapping (mapFromTemplate equivalent)', function(): void {
@@ -128,8 +129,10 @@ describe('Multi-Source Fluent Mapping (mapFromTemplate equivalent)', function():
             ->map();
 
         $data = $result->getTarget();
-        expect($data->userName)->toBe('Eve');
-        expect($data->userAge)->toBe('25');
-        expect($data->companyName)->toBe('StartUp Inc');
+        assert(is_object($data));
+        $acc = new DataAccessor($data);
+        expect($acc->get('userName'))->toBe('Eve');
+        expect($acc->get('userAge'))->toBe('25');
+        expect($acc->get('companyName'))->toBe('StartUp Inc');
     });
 });

@@ -133,6 +133,7 @@ describe('SimpleDTO Mapping Edge Cases', function(): void {
                 }
             };
 
+/** @phpstan-ignore-next-line return.type (Mapping result type) */
             $instance = $dto::fromArray([
                 '0' => 'first',
                 '1' => 'second',
@@ -161,6 +162,7 @@ describe('SimpleDTO Mapping Edge Cases', function(): void {
 
         it('handles array values in nested structures', function(): void {
             $dto = new class([]) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Mapping result type) */
                 public function __construct(
                     #[MapFrom('user.tags')]
                     public readonly array $tags,
@@ -274,6 +276,7 @@ describe('SimpleDTO Mapping Edge Cases', function(): void {
 
         it('handles arrays as values in output', function(): void {
             $dto = new class(['tag1', 'tag2']) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Mapping result type) */
                 public function __construct(
                     #[MapTo('user_tags')]
                     public readonly array $tags,
@@ -617,6 +620,7 @@ describe('SimpleDTO Mapping Edge Cases', function(): void {
                 ) {
                 }
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['isActive' => 'boolean'];
@@ -771,6 +775,7 @@ describe('SimpleDTO Mapping Edge Cases', function(): void {
         });
 
         it('handles mapping with validation', function(): void {
+/** @phpstan-ignore-next-line argument.type (Mapping edge case) */
             $dto = new class extends SimpleDTO {
                 public function __construct(
                     #[MapFrom('user_email')]

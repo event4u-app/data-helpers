@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
@@ -29,7 +30,8 @@ describe('PairContext', function(): void {
     });
 
     it('creates context with extra data', function(): void {
-        $extraData = ['arg1' => 'value1', 'arg2' => 'value2'];
+        /** @var array<int, mixed> $extraData */
+        $extraData = ['value1', 'value2'];
         $context = new PairContext('simple', 0, 'src', 'tgt', [], [], null, $extraData);
 
         expect($context->extra())->toBe($extraData);
@@ -99,8 +101,11 @@ describe('PairContext', function(): void {
 
         expect($context->source)->toBe($source);
         expect($context->target)->toBe($target);
-        expect($context->source->id)->toBe(1);
-        expect($context->target->id)->toBe(2);
+
+        $sourceAcc = new DataAccessor($context->source);
+        $targetAcc = new DataAccessor($context->target);
+        expect($sourceAcc->get('id'))->toBe(1);
+        expect($targetAcc->get('id'))->toBe(2);
     });
 
     it('handles high pair index', function(): void {
@@ -110,17 +115,19 @@ describe('PairContext', function(): void {
     });
 
     it('handles complex extra data', function(): void {
+        /** @var array<int, mixed> $extraData */
         $extraData = [
-            'transformer' => 'uppercase',
-            'args' => ['trim' => true, 'maxLength' => 100],
-            'filters' => ['required', 'email'],
+            'uppercase',
+            ['trim' => true, 'maxLength' => 100],
+            ['required', 'email'],
         ];
 
         $context = new PairContext('simple', 0, 'src', 'tgt', [], [], null, $extraData);
 
-        expect($context->extra())->toBe($extraData);
-        expect($context->extra()['transformer'])->toBe('uppercase');
-        expect($context->extra()['args'])->toBeArray();
+        $extra = $context->extra();
+        expect($extra)->toBe($extraData);
+        expect($extra[0] ?? null)->toBe('uppercase');
+        expect($extra[1] ?? null)->toBeArray();
     });
 
     it('is not final class', function(): void {
@@ -131,8 +138,9 @@ describe('PairContext', function(): void {
 
     it('can be extended by WriteContext', function(): void {
         $reflection = new ReflectionClass(WriteContext::class);
+        $parent = $reflection->getParentClass();
 
-        expect($reflection->getParentClass()->getName())->toBe(PairContext::class);
+        expect(false !== $parent ? $parent->getName() : null)->toBe(PairContext::class);
     });
 
     it('handles empty paths', function(): void {

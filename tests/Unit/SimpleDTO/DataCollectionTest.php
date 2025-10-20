@@ -21,10 +21,13 @@ describe('DataCollection', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
+            $first = $collection->first();
+            assert($first instanceof DataCollectionUserDTO);
+
             expect($collection)->toBeInstanceOf(DataCollection::class)
                 ->and($collection->count())->toBe(2)
-                ->and($collection->first())->toBeInstanceOf(DataCollectionUserDTO::class)
-                ->and($collection->first()->name)->toBe('John');
+                ->and($first)->toBeInstanceOf(DataCollectionUserDTO::class)
+                ->and($first->name)->toBe('John');
         });
 
         it('creates collection from DTOs', function(): void {
@@ -33,8 +36,11 @@ describe('DataCollection', function(): void {
                 new DataCollectionUserDTO('Jane', 25),
             ]);
 
+            $first = $collection->first();
+            assert($first instanceof DataCollectionUserDTO);
+
             expect($collection->count())->toBe(2)
-                ->and($collection->first()->name)->toBe('John');
+                ->and($first->name)->toBe('John');
         });
 
         it('creates empty collection', function(): void {
@@ -74,8 +80,11 @@ describe('DataCollection', function(): void {
 
             $collection->push(['name' => 'John', 'age' => 30]);
 
-            expect($collection->first())->toBeInstanceOf(DataCollectionUserDTO::class)
-                ->and($collection->first()->name)->toBe('John');
+            $first = $collection->first();
+            assert($first instanceof DataCollectionUserDTO);
+
+            expect($first)->toBeInstanceOf(DataCollectionUserDTO::class)
+                ->and($first->name)->toBe('John');
         });
 
         it('ensures DTOs when prepending', function(): void {
@@ -85,8 +94,11 @@ describe('DataCollection', function(): void {
 
             $collection->prepend(['name' => 'John', 'age' => 30]);
 
-            expect($collection->first())->toBeInstanceOf(DataCollectionUserDTO::class)
-                ->and($collection->first()->name)->toBe('John');
+            $first = $collection->first();
+            assert($first instanceof DataCollectionUserDTO);
+
+            expect($first)->toBeInstanceOf(DataCollectionUserDTO::class)
+                ->and($first->name)->toBe('John');
         });
 
         it('supports array access', function(): void {
@@ -95,9 +107,14 @@ describe('DataCollection', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            expect($collection[0])->toBeInstanceOf(DataCollectionUserDTO::class)
-                ->and($collection[0]->name)->toBe('John')
-                ->and($collection[1]->name)->toBe('Jane')
+            $item0 = $collection[0];
+            $item1 = $collection[1];
+            assert($item0 instanceof DataCollectionUserDTO);
+            assert($item1 instanceof DataCollectionUserDTO);
+
+            expect($item0)->toBeInstanceOf(DataCollectionUserDTO::class)
+                ->and($item0->name)->toBe('John')
+                ->and($item1->name)->toBe('Jane')
                 ->and(isset($collection[0]))->toBeTrue()
                 ->and(isset($collection[5]))->toBeFalse();
         });
@@ -111,12 +128,18 @@ describe('DataCollection', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
+            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
             $filtered = $collection->filter(fn(DataCollectionUserDTO $user): bool => 30 <= $user->age);
+
+            $first = $filtered->first();
+            $last = $filtered->last();
+            assert($first instanceof DataCollectionUserDTO);
+            assert($last instanceof DataCollectionUserDTO);
 
             expect($filtered)->toBeInstanceOf(DataCollection::class)
                 ->and($filtered->count())->toBe(2)
-                ->and($filtered->first()->name)->toBe('John')
-                ->and($filtered->last()->name)->toBe('Bob');
+                ->and($first->name)->toBe('John')
+                ->and($last->name)->toBe('Bob');
         });
 
         it('maps items', function(): void {
@@ -125,6 +148,7 @@ describe('DataCollection', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
+            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
             $names = $collection->map(fn(DataCollectionUserDTO $user): string => $user->name);
 
             expect($names)->toBe(['John', 'Jane']);
@@ -137,7 +161,9 @@ describe('DataCollection', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
+            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
             $totalAge = $collection->reduce(
+/** @phpstan-ignore-next-line argument.type (Collection test) */
                 fn(int $carry, DataCollectionUserDTO $user): int => $carry + $user->age,
                 0
             );
@@ -152,6 +178,7 @@ describe('DataCollection', function(): void {
             ]);
 
             $first = $collection->first();
+            assert($first instanceof DataCollectionUserDTO);
 
             expect($first)->toBeInstanceOf(DataCollectionUserDTO::class)
                 ->and($first->name)->toBe('John');
@@ -163,7 +190,9 @@ describe('DataCollection', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
+            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
             $first = $collection->first(fn(DataCollectionUserDTO $user): bool => 30 > $user->age);
+            assert($first instanceof DataCollectionUserDTO);
 
             expect($first)->toBeInstanceOf(DataCollectionUserDTO::class)
                 ->and($first->name)->toBe('Jane');
@@ -176,6 +205,7 @@ describe('DataCollection', function(): void {
             ]);
 
             $last = $collection->last();
+            assert($last instanceof DataCollectionUserDTO);
 
             expect($last)->toBeInstanceOf(DataCollectionUserDTO::class)
                 ->and($last->name)->toBe('Jane');
@@ -188,7 +218,9 @@ describe('DataCollection', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
+            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
             $last = $collection->last(fn(DataCollectionUserDTO $user): bool => 30 <= $user->age);
+            assert($last instanceof DataCollectionUserDTO);
 
             expect($last)->toBeInstanceOf(DataCollectionUserDTO::class)
                 ->and($last->name)->toBe('Bob');

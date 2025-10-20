@@ -38,14 +38,18 @@ describe('HookContext Interface', function(): void {
         $reflection = new ReflectionClass(HookContext::class);
 
         expect($reflection->hasMethod('mode'))->toBeTrue();
-        expect($reflection->getMethod('mode')->getReturnType()->getName())->toBe('string');
+        $returnType = $reflection->getMethod('mode')->getReturnType();
+        assert($returnType instanceof ReflectionNamedType);
+        expect($returnType->getName())->toBe('string');
     });
 
     it('requires modeEnum method', function(): void {
         $reflection = new ReflectionClass(HookContext::class);
 
         expect($reflection->hasMethod('modeEnum'))->toBeTrue();
-        expect($reflection->getMethod('modeEnum')->getReturnType()->getName())->toBe(Mode::class);
+        $returnType = $reflection->getMethod('modeEnum')->getReturnType();
+        assert($returnType instanceof ReflectionNamedType);
+        expect($returnType->getName())->toBe(Mode::class);
     });
 
     it('requires srcPath method', function(): void {

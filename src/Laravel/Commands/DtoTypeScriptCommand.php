@@ -42,6 +42,7 @@ if (!class_exists('Illuminate\Console\Command')) {
  */
 class DtoTypeScriptCommand extends Command
 {
+    public mixed $laravel;
     /**
      * The name and signature of the console command.
      *

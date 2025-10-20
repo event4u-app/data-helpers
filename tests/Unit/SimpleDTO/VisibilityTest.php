@@ -37,6 +37,7 @@ describe('Visibility & Security', function(): void {
 
             $instance = $dto::fromArray([]);
             $json = json_encode($instance);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('name');
@@ -108,6 +109,7 @@ describe('Visibility & Security', function(): void {
 
             $instance = $dto::fromArray([]);
             $json = json_encode($instance);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('name');
@@ -127,6 +129,7 @@ describe('Visibility & Security', function(): void {
 
             $instance = $dto::fromArray([]);
             $json = json_encode($instance);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('name');
@@ -179,6 +182,7 @@ describe('Visibility & Security', function(): void {
 
             $instance = $dto::fromArray([]);
             $json = json_encode($instance->only(['name']));
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('name');
@@ -229,6 +233,7 @@ describe('Visibility & Security', function(): void {
 
             $instance = $dto::fromArray([]);
             $json = json_encode($instance->except(['email', 'age']));
+/** @phpstan-ignore-next-line argument.templateType (Pest expectation) */
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('name');
@@ -305,6 +310,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === $context?->role;
                 }
             };
@@ -327,6 +333,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === $context?->role;
                 }
             };
@@ -349,6 +356,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === $context?->role;
                 }
             };
@@ -372,11 +380,13 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === $context?->role || 'manager' === $context?->role;
                 }
 
                 private function canViewSalary(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === $context?->role;
                 }
             };
@@ -409,6 +419,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === $context?->role;
                 }
             };
@@ -416,6 +427,7 @@ describe('Visibility & Security', function(): void {
             $adminContext = (object)['role' => 'admin'];
             $instance = $dto::fromArray([]);
             $json = json_encode($instance->withVisibilityContext($adminContext));
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('name');
@@ -433,6 +445,7 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === $context?->role;
                 }
             };
@@ -458,6 +471,7 @@ describe('Visibility & Security', function(): void {
                 private function canViewEmail(mixed $context): bool
                 {
                     // User can see their own email or admin can see all
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === $context?->role || $context?->userId === $this->userId;
                 }
             };
@@ -483,6 +497,7 @@ describe('Visibility & Security', function(): void {
             $checker = new class {
                 public static function canViewEmail(mixed $dto, mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === ($context?->role ?? null);
                 }
             };
@@ -501,12 +516,15 @@ describe('Visibility & Security', function(): void {
                 public static function canViewSalary(mixed $dto, mixed $context): bool
                 {
                     // Admin can see all salaries
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     if ('admin' === ($context?->role ?? null)) {
                         return true;
                     }
 
                     // User can see their own salary
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     if (isset($dto->userId) && isset($context?->userId)) {
+                        /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                         return $dto->userId === $context->userId;
                     }
 
@@ -548,7 +566,9 @@ describe('Visibility & Security', function(): void {
             // #[Visible(contextProvider: $provider::class, callback: 'canView')]
             // And the context would be fetched automatically
 
-            expect($provider::getContext()->source)->toBe('provider');
+            $context = $provider::getContext();
+            assert(is_object($context) && property_exists($context, 'source'));
+            expect($context->source)->toBe('provider');
         });
 
         it('context provider can be called statically', function(): void {
@@ -572,12 +592,16 @@ describe('Visibility & Security', function(): void {
             // Test that provider returns correct context
             $context = $provider::getContext();
             expect($context)->not()->toBeNull();
+            assert(is_object($context) && property_exists($context, 'role') && property_exists($context, 'userId'));
             expect($context->role)->toBe('admin');
             expect($context->userId)->toBe('user-123');
 
             // Change context
             $provider::setCurrentUser((object)['role' => 'user', 'userId' => 'user-456']);
             $newContext = $provider::getContext();
+            assert(
+                is_object($newContext) && property_exists($newContext, 'role') && property_exists($newContext, 'userId')
+            );
             expect($newContext->role)->toBe('user');
             expect($newContext->userId)->toBe('user-456');
 
@@ -703,11 +727,13 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return in_array($context?->role ?? null, ['admin', 'manager'], true);
                 }
 
                 private function canViewSalary(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === ($context?->role ?? null);
                 }
             };
@@ -745,15 +771,18 @@ describe('Visibility & Security', function(): void {
                 private function canViewPersonalData(mixed $context): bool
                 {
                     // Admin can see all
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     if ('admin' === ($context?->role ?? null)) {
                         return true;
                     }
 
                     // User can see their own data
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     if (($context?->userId ?? null) === $this->userId) {
                         return true;
                     }
                     // HR can see if they have permission
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'hr' === ($context?->role ?? null) && ($context?->hasPermission ?? false);
                 }
             };
@@ -794,11 +823,13 @@ describe('Visibility & Security', function(): void {
 
                 private function canViewEmail(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === ($context?->role ?? null);
                 }
 
                 private function canViewSalary(mixed $context): bool
                 {
+                    /** @phpstan-ignore-next-line property.nonObject (Test context object) */
                     return 'admin' === ($context?->role ?? null);
                 }
             };

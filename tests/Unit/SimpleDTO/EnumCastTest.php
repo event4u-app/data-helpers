@@ -16,6 +16,7 @@ describe('EnumCast', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -35,6 +36,7 @@ describe('EnumCast', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -58,6 +60,7 @@ describe('EnumCast', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -76,6 +79,7 @@ describe('EnumCast', function(): void {
                     public readonly ?StatusEnum $status = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -93,6 +97,7 @@ describe('EnumCast', function(): void {
                     public readonly ?StatusEnum $status = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -110,6 +115,7 @@ describe('EnumCast', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => EnumCast::class.':Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -129,6 +135,7 @@ describe('EnumCast', function(): void {
                     public readonly RoleEnum $role,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['role' => 'enum:Tests\Unit\SimpleDTO\Fixtures\RoleEnum'];
@@ -148,6 +155,7 @@ describe('EnumCast', function(): void {
                     public readonly RoleEnum $role,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['role' => 'enum:Tests\Unit\SimpleDTO\Fixtures\RoleEnum'];
@@ -171,6 +179,7 @@ describe('EnumCast', function(): void {
                     public readonly RoleEnum $role,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['role' => 'enum:Tests\Unit\SimpleDTO\Fixtures\RoleEnum'];
@@ -189,6 +198,7 @@ describe('EnumCast', function(): void {
                     public readonly ?RoleEnum $role = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['role' => 'enum:Tests\Unit\SimpleDTO\Fixtures\RoleEnum'];
@@ -208,6 +218,7 @@ describe('EnumCast', function(): void {
                     public readonly ColorEnum $color,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['color' => 'enum:Tests\Unit\SimpleDTO\Fixtures\ColorEnum'];
@@ -227,6 +238,7 @@ describe('EnumCast', function(): void {
                     public readonly ColorEnum $color,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['color' => 'enum:Tests\Unit\SimpleDTO\Fixtures\ColorEnum'];
@@ -250,6 +262,7 @@ describe('EnumCast', function(): void {
                     public readonly ColorEnum $color,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['color' => 'enum:Tests\Unit\SimpleDTO\Fixtures\ColorEnum'];
@@ -268,6 +281,7 @@ describe('EnumCast', function(): void {
                     public readonly ?ColorEnum $color = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['color' => 'enum:Tests\Unit\SimpleDTO\Fixtures\ColorEnum'];
@@ -287,6 +301,7 @@ describe('EnumCast', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -304,6 +319,7 @@ describe('EnumCast', function(): void {
                     public readonly ?string $status = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:NonExistentEnum'];
@@ -321,6 +337,7 @@ describe('EnumCast', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -328,6 +345,7 @@ describe('EnumCast', function(): void {
             };
 
             $json = json_encode($dto);
+/** @phpstan-ignore-next-line argument.type (Enum cast test) */
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('status')

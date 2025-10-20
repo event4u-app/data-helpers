@@ -550,7 +550,10 @@ describe('DataMapper to Array', function(): void {
             $target = [];
             $mapping = ['number' => 'number'];
 
-            DataMapper::sourceFile('/non/existent/file.xml')->target($target)->template($mapping)->map()->getTarget();
+            $result = DataMapper::sourceFile('/non/existent/file.xml')->target($target)->template(
+                $mapping
+            )->map()->getTarget();
+            expect($result)->toBeArray();
         })->throws(InvalidArgumentException::class, 'File not found');
 
         it('throws exception for unsupported file format', function(): void {
@@ -562,7 +565,8 @@ describe('DataMapper to Array', function(): void {
             $mapping = ['number' => 'number'];
 
             try {
-                DataMapper::sourceFile($txtFile)->target($target)->template($mapping)->map()->getTarget();
+                $result = DataMapper::sourceFile($txtFile)->target($target)->template($mapping)->map()->getTarget();
+                expect($result)->toBeArray();
             } finally {
                 unlink($txtFile);
             }
@@ -577,7 +581,8 @@ describe('DataMapper to Array', function(): void {
             $mapping = ['number' => 'number'];
 
             try {
-                DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
+                $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
+                expect($result)->toBeArray();
             } finally {
                 unlink($xmlFile);
             }
@@ -592,7 +597,8 @@ describe('DataMapper to Array', function(): void {
             $mapping = ['number' => 'number'];
 
             try {
-                DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
+                $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
+                expect($result)->toBeArray();
             } finally {
                 unlink($jsonFile);
             }

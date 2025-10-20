@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\In;
 use event4u\DataHelpers\SimpleDTO\Attributes\Min;
@@ -14,7 +15,85 @@ use event4u\DataHelpers\SimpleDTO\Attributes\RequiredUnless;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWith;
 use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWithout;
 use event4u\DataHelpers\SimpleDTO\Attributes\Sometimes;
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+
+// Test DTOs
+class ConditionalValidationTestDTO1 extends SimpleDTO
+{
+    public function __construct(
+        #[Required]
+        #[In(['pickup', 'delivery'])]
+        public readonly string $shippingMethod,
+        #[RequiredIf('shippingMethod', 'delivery')]
+        public readonly ?string $address = null,
+    ) {}
+}
+
+class ConditionalValidationTestDTO2 extends SimpleDTO
+{
+    public function __construct(
+        #[Required]
+        #[In(['card', 'cash', 'free'])]
+        public readonly string $paymentMethod,
+        #[RequiredUnless('paymentMethod', 'free')]
+        public readonly ?string $paymentDetails = null,
+    ) {}
+}
+
+class ConditionalValidationTestDTO3 extends SimpleDTO
+{
+    public function __construct(
+        public readonly ?string $phone = null,
+        public readonly ?string $email = null,
+        #[RequiredWith(['phone', 'email'])]
+        public readonly ?string $contactPreference = null,
+    ) {}
+}
+
+class ConditionalValidationTestDTO4 extends SimpleDTO
+{
+    public function __construct(
+        public readonly ?string $phone = null,
+        #[RequiredWithout(['phone'])]
+        public readonly ?string $email = null,
+    ) {}
+}
+
+class ConditionalValidationTestDTO5 extends SimpleDTO
+{
+    public function __construct(
+        #[Sometimes]
+        #[Email]
+        public readonly ?string $email = null,
+        #[Sometimes]
+        #[Min(8)]
+        public readonly ?string $password = null,
+    ) {}
+}
+
+class ConditionalValidationTestDTO6 extends SimpleDTO
+{
+    public function __construct(
+        #[Nullable]
+        #[Email]
+        public readonly ?string $email = null,
+        #[Nullable]
+        public readonly ?string $website = null,
+    ) {}
+}
+
+class ConditionalValidationTestDTO7 extends SimpleDTO
+{
+    public function __construct(
+        #[Required]
+        public readonly string $shippingMethod,
+        #[Required]
+        public readonly string $paymentMethod,
+        #[RequiredIf('shippingMethod', 'delivery')]
+        public readonly ?string $address = null,
+        #[RequiredUnless('paymentMethod', 'free')]
+        public readonly ?string $paymentDetails = null,
+    ) {}
+}
 
 describe('Conditional Validation Attributes', function(): void {
     describe('RequiredIf Attribute', function(): void {
@@ -33,18 +112,7 @@ describe('Conditional Validation Attributes', function(): void {
         });
 
         it('validates DTO with RequiredIf', function(): void {
-            $dto = new class('delivery', '123 Main St') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    #[Required]
-                    #[In(['pickup', 'delivery'])]
-                    public readonly string $shippingMethod,
-
-                    #[RequiredIf('shippingMethod', 'delivery')]
-                    public readonly ?string $address = null,
-                ) {}
-            };
+            $dto = new ConditionalValidationTestDTO1('delivery', '123 Main St');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('address')
@@ -61,18 +129,7 @@ describe('Conditional Validation Attributes', function(): void {
         });
 
         it('validates DTO with RequiredUnless', function(): void {
-            $dto = new class('card', 'VISA-1234') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    #[Required]
-                    #[In(['card', 'cash', 'free'])]
-                    public readonly string $paymentMethod,
-
-                    #[RequiredUnless('paymentMethod', 'free')]
-                    public readonly ?string $paymentDetails = null,
-                ) {}
-            };
+            $dto = new ConditionalValidationTestDTO2('card', 'VISA-1234');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('paymentDetails')
@@ -89,17 +146,7 @@ describe('Conditional Validation Attributes', function(): void {
         });
 
         it('validates DTO with RequiredWith', function(): void {
-            $dto = new class('555-1234', 'mobile') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly ?string $phone = null,
-                    public readonly ?string $email = null,
-
-                    #[RequiredWith(['phone', 'email'])]
-                    public readonly ?string $contactPreference = null,
-                ) {}
-            };
+            $dto = new ConditionalValidationTestDTO3('555-1234', 'mobile');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('contactPreference')
@@ -116,16 +163,7 @@ describe('Conditional Validation Attributes', function(): void {
         });
 
         it('validates DTO with RequiredWithout', function(): void {
-            $dto = new class('test@example.com') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly ?string $phone = null,
-
-                    #[RequiredWithout(['phone'])]
-                    public readonly ?string $email = null,
-                ) {}
-            };
+            $dto = new ConditionalValidationTestDTO4(null, 'test@example.com');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('email')
@@ -142,19 +180,7 @@ describe('Conditional Validation Attributes', function(): void {
         });
 
         it('validates DTO with Sometimes', function(): void {
-            $dto = new class('test@example.com') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    #[Sometimes]
-                    #[Email]
-                    public readonly ?string $email = null,
-
-                    #[Sometimes]
-                    #[Min(8)]
-                    public readonly ?string $password = null,
-                ) {}
-            };
+            $dto = new ConditionalValidationTestDTO5('test@example.com');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('email')
@@ -172,18 +198,7 @@ describe('Conditional Validation Attributes', function(): void {
         });
 
         it('validates DTO with Nullable', function(): void {
-            $dto = new class(null, null) {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    #[Nullable]
-                    #[Email]
-                    public readonly ?string $email = null,
-
-                    #[Nullable]
-                    public readonly ?string $website = null,
-                ) {}
-            };
+            $dto = new ConditionalValidationTestDTO6(null, null);
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('email')
@@ -194,23 +209,7 @@ describe('Conditional Validation Attributes', function(): void {
 
     describe('Complex Conditional Scenarios', function(): void {
         it('handles multiple conditional rules on same property', function(): void {
-            $dto = new class('delivery', 'card', '123 Main St', 'VISA-1234') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    #[Required]
-                    public readonly string $shippingMethod,
-
-                    #[Required]
-                    public readonly string $paymentMethod,
-
-                    #[RequiredIf('shippingMethod', 'delivery')]
-                    public readonly ?string $address = null,
-
-                    #[RequiredUnless('paymentMethod', 'free')]
-                    public readonly ?string $paymentDetails = null,
-                ) {}
-            };
+            $dto = new ConditionalValidationTestDTO7('delivery', 'card', '123 Main St', 'VISA-1234');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('address')

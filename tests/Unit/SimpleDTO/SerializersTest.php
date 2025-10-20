@@ -180,6 +180,7 @@ describe('Serializers', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ];
 
+/** @phpstan-ignore-next-line argument.type (Serializer test) */
             $csv = $serializer->serialize($data);
 
             expect($csv)->toContain('name,age')

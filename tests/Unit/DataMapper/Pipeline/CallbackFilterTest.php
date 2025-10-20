@@ -55,12 +55,13 @@ describe('CallbackFilter', function(): void {
 
         $capturedParams = null;
 
-        DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
             [new CallbackFilter(function(CallbackParameters $params) use (&$capturedParams) {
                 $capturedParams = $params;
                 return $params->value;
             }),]
         )->map()->getTarget();
+        expect($result)->toBeArray();
 
         expect($capturedParams)->not->toBeNull();
         assert($capturedParams instanceof CallbackParameters);
@@ -128,6 +129,7 @@ describe('CallbackFilter', function(): void {
         expect(MapperExceptions::hasExceptions())->toBeTrue();
         $exception = MapperExceptions::getLastException();
         expect($exception)->toBeInstanceOf(RuntimeException::class);
+        assert($exception instanceof RuntimeException);
         expect($exception->getMessage())->toContain('Callback filter failed');
         expect($exception->getMessage())->toContain('Callback failed!');
     });

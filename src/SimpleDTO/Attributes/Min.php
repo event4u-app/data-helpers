@@ -31,8 +31,8 @@ class Min implements ValidationRule, SymfonyConstraint
     use RequiresSymfonyValidator;
 
     public function __construct(
-        private readonly int|float $value,
-        private readonly ?string $message = null
+        public readonly int|float $value,
+        public readonly ?string $message = null
     ) {
     }
 

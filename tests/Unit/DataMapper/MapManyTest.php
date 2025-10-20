@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 
 /**
@@ -99,7 +100,10 @@ describe('DataMapper mapMany() and mapManyReverse()', function(): void {
                 ]);
 
             expect($results)->toHaveCount(2);
-            expect($results[0]->getTarget()->name)->toBe('Alice');
+            $target0 = $results[0]->getTarget();
+            assert(is_object($target0));
+            $acc0 = new DataAccessor($target0);
+            expect($acc0->get('name'))->toBe('Alice');
             expect($results[1]->toArray())->toBe(['name' => 'Bob']);
         });
 

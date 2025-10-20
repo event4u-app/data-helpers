@@ -35,6 +35,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'fromModel'))->toBeFalse();
         });
 
@@ -47,6 +48,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'toModel'))->toBeFalse();
         });
     });
@@ -70,7 +72,9 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'fromModel'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($dto, 'fromModel'))->toBeTrue();
         });
 
@@ -85,6 +89,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'toModel'))->toBeTrue();
         });
 
@@ -128,9 +133,12 @@ describe('Framework Independence', function(): void {
             $reflection = new ReflectionMethod($dto, 'fromModel');
             $parameters = $reflection->getParameters();
 
+            $paramType = $parameters[0]->getType();
+            assert($paramType instanceof ReflectionNamedType);
+
             expect($parameters)->toHaveCount(1);
             expect($parameters[0]->getName())->toBe('model');
-            expect($parameters[0]->getType()->getName())->toBe('Illuminate\Database\Eloquent\Model');
+            expect($paramType->getName())->toBe('Illuminate\Database\Eloquent\Model');
         });
 
         it('toModel returns Illuminate\Database\Eloquent\Model', function(): void {
@@ -144,6 +152,7 @@ describe('Framework Independence', function(): void {
 
             $reflection = new ReflectionMethod($dto, 'toModel');
             $returnType = $reflection->getReturnType();
+            assert($returnType instanceof ReflectionNamedType);
 
             expect($returnType->getName())->toBe('Illuminate\Database\Eloquent\Model');
         });
@@ -191,7 +200,9 @@ describe('Framework Independence', function(): void {
             expect(json_encode($instance))->toBeJson();
 
             // Eloquent methods not available
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'fromModel'))->toBeFalse();
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'toModel'))->toBeFalse();
         });
 
@@ -211,7 +222,9 @@ describe('Framework Independence', function(): void {
             expect(json_encode($instance))->toBeJson();
 
             // Eloquent methods available
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'fromModel'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'toModel'))->toBeTrue();
         });
 
@@ -258,6 +271,7 @@ describe('Framework Independence', function(): void {
             $reflection = new ReflectionMethod($dto, 'fromModel');
             $parameters = $reflection->getParameters();
             $paramType = $parameters[0]->getType();
+            assert($paramType instanceof ReflectionNamedType);
 
             // Verify that the parameter type is Eloquent Model
             expect($paramType->getName())->toBe('Illuminate\Database\Eloquent\Model');
@@ -277,7 +291,9 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'fromEntity'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($dto, 'fromEntity'))->toBeTrue();
         });
 
@@ -292,6 +308,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'toEntity'))->toBeTrue();
         });
 
@@ -337,7 +354,10 @@ describe('Framework Independence', function(): void {
 
             expect($parameters)->toHaveCount(1);
             expect($parameters[0]->getName())->toBe('entity');
-            expect($parameters[0]->getType()->getName())->toBe('object');
+
+            $paramType = $parameters[0]->getType();
+            assert($paramType instanceof ReflectionNamedType);
+            expect($paramType->getName())->toBe('object');
         });
 
         it('toEntity returns object', function(): void {
@@ -352,6 +372,7 @@ describe('Framework Independence', function(): void {
             $reflection = new ReflectionMethod($dto, 'toEntity');
             $returnType = $reflection->getReturnType();
 
+            assert($returnType instanceof ReflectionNamedType);
             expect($returnType->getName())->toBe('object');
         });
 
@@ -364,6 +385,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'fromEntity'))->toBeFalse();
         });
 
@@ -376,6 +398,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'toEntity'))->toBeFalse();
         });
     });
@@ -390,6 +413,7 @@ describe('Framework Independence', function(): void {
             $parentClass = $reflection->getParentClass();
 
             expect($parentClass)->not->toBeFalse();
+            assert($parentClass instanceof ReflectionClass);
             // Parent class can be either the real Doctrine Type or the stub Type
             expect($parentClass->getName())->toBeIn(['Doctrine\DBAL\Types\Type', 'event4u\DataHelpers\SimpleDTO\Type']);
         });
@@ -418,9 +442,13 @@ describe('Framework Independence', function(): void {
             $instance = $dto::fromArray([]);
 
             // Both Eloquent and Doctrine methods available
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'fromModel'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'toModel'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'fromEntity'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
             expect(method_exists($instance, 'toEntity'))->toBeTrue();
 
             // Core functionality still works

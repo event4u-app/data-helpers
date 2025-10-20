@@ -116,7 +116,7 @@ describe('Symfony DTOValueResolver', function(): void {
             json_encode([
                 'name' => 'Jane Doe',
                 'email' => 'jane@example.com',
-            ])
+            ]) ?: ''
         );
 
         $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
@@ -204,7 +204,7 @@ describe('Symfony DTOValueResolver', function(): void {
             json_encode([
                 'name' => 'Updated Name',
                 'email' => 'updated@example.com',
-            ])
+            ]) ?: ''
         );
 
         $argument = new ArgumentMetadata('dto', SymfonyTestUserDTO::class, false, false, null);
@@ -227,7 +227,7 @@ describe('Symfony DTOValueResolver', function(): void {
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 'title' => 'Patched Title',
-            ])
+            ]) ?: ''
         );
 
         $argument = new ArgumentMetadata('dto', SymfonyTestProductDTO::class, false, false, null);

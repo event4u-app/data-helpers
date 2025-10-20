@@ -58,15 +58,13 @@ class DetailedBenchmark
         ];
     }
 
-    /**
-     * @param array<array{name: string, iterations: int, total_time: float, avg_time: float, formatted_total: string, formatted_avg: string, ops_per_sec: string}> $results
-     */
+    /** @param array<array{name: string, iterations: int, total_time: float, avg_time: float, formatted_total: string, formatted_avg: string, ops_per_sec: string}> $results */
     public static function printResults(array $results): void
     {
-        if (empty($results)) {
+        if ([] === $results) {
             return;
         }
-        $maxNameLen = max(array_map(fn(array $r): int => strlen((string)$r['name']), $results));
+        $maxNameLen = max(array_map(fn(array $r): int => strlen($r['name']), $results));
 
         echo "\n";
         printf("  %-{$maxNameLen}s  %12s  %12s  %15s\n", 'Operation', 'Total', 'Avg', 'Ops/sec');

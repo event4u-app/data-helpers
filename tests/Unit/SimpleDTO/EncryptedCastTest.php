@@ -13,6 +13,7 @@ function setupEncryptedCast(): void
     $envFile = __DIR__ . '/../../../.env';
     if (file_exists($envFile)) {
         $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        /** @phpstan-ignore-next-line argument.type (file() returns list<string>|false) */
         foreach ($lines as $line) {
             if (str_starts_with(trim($line), '#')) {
                 continue;
@@ -35,6 +36,7 @@ describe('EncryptedCast', function(): void {
         $envFile = __DIR__ . '/../../../.env';
         if (file_exists($envFile)) {
             $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            /** @phpstan-ignore-next-line argument.type (file() returns list<string>|false) */
             foreach ($lines as $line) {
                 if (str_starts_with(trim($line), '#')) {
                     continue;
@@ -85,6 +87,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -116,6 +119,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -153,6 +157,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -182,6 +187,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -200,6 +206,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -222,6 +229,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -240,6 +248,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -264,6 +273,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -283,6 +293,7 @@ describe('EncryptedCast', function(): void {
             $mockEncrypter = new class {
                 public function encrypt(mixed $value): string
                 {
+                    /** @phpstan-ignore-next-line binaryOp.invalid (Test with mixed value) */
                     return 'encrypted:' . $value;
                 }
 
@@ -299,6 +310,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -334,6 +346,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -356,6 +369,7 @@ describe('EncryptedCast', function(): void {
             $mockEncrypter = new class {
                 public function encrypt(mixed $value): string
                 {
+                    /** @phpstan-ignore-next-line binaryOp.invalid (Test with mixed value) */
                     return 'mock:' . $value;
                 }
 
@@ -376,6 +390,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];
@@ -440,6 +455,7 @@ describe('EncryptedCast', function(): void {
                     public readonly ?string $secret = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['secret' => 'encrypted'];

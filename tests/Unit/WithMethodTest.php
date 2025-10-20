@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+
+// Test DTOs
+class WithMethodDTO1 extends SimpleDTO { public function __construct(public readonly string $name, public readonly string $email) {} }
+class WithMethodDTO2 extends SimpleDTO { public function __construct(public readonly string $name) {} }
+class WithMethodDTO3 extends SimpleDTO { public function __construct(public readonly string $name, public readonly int $age) {} }
+class WithMethodDTO4 extends SimpleDTO { public function __construct(public readonly string $firstName, public readonly string $lastName) {} }
+class WithMethodDTO5 extends SimpleDTO { public function __construct(public readonly int $a, public readonly int $b) {} }
+class WithMethodDTO6 extends SimpleDTO { public function __construct(public readonly string $street, public readonly string $city) {} }
+class WithMethodDTO7 extends SimpleDTO { public function __construct(public readonly string $name, public readonly object $address) {} }
+class WithMethodDTO8 extends SimpleDTO { public function __construct(public readonly string $name) {} }
+class WithMethodDTO9 extends SimpleDTO { public function __construct(public readonly string $name, public readonly int $age) {} }
 
 describe('With Method', function(): void {
     describe('Basic with() Method', function(): void {
         it('adds single property with key-value syntax', function(): void {
-            $dto = new class('John', 'john@example.com') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                    public readonly string $email,
-                ) {}
-            };
+            $dto = new WithMethodDTO1('John', 'john@example.com');
 
             $result = $dto->with('role', 'admin')->toArray();
 
@@ -28,13 +31,7 @@ describe('With Method', function(): void {
         });
 
         it('adds multiple properties with array syntax', function(): void {
-            $dto = new class('John') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                ) {}
-            };
+            $dto = new WithMethodDTO2('John');
 
             $result = $dto->with([
                 'role' => 'admin',
@@ -52,13 +49,7 @@ describe('With Method', function(): void {
         });
 
         it('chains multiple with() calls', function(): void {
-            $dto = new class('John') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                ) {}
-            };
+            $dto = new WithMethodDTO2('John');
 
             $result = $dto
                 ->with('role', 'admin')
@@ -75,13 +66,7 @@ describe('With Method', function(): void {
         });
 
         it('does not modify original DTO', function(): void {
-            $dto = new class('John') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                ) {}
-            };
+            $dto = new WithMethodDTO2('John');
 
             $original = $dto->toArray();
             $modified = $dto->with('role', 'admin')->toArray();
@@ -93,14 +78,7 @@ describe('With Method', function(): void {
 
     describe('Lazy Evaluation', function(): void {
         it('evaluates callbacks lazily', function(): void {
-            $dto = new class('John', 30) {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                    public readonly int $age,
-                ) {}
-            };
+            $dto = new WithMethodDTO3('John', 30);
 
             $result = $dto->with('isAdult', fn($dto): bool => 18 <= $dto->age)->toArray();
 
@@ -109,14 +87,7 @@ describe('With Method', function(): void {
         });
 
         it('passes DTO instance to callback', function(): void {
-            $dto = new class('John', 'Doe') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $firstName,
-                    public readonly string $lastName,
-                ) {}
-            };
+            $dto = new WithMethodDTO4('John', 'Doe');
 
             $result = $dto->with('fullName', fn($dto): string => $dto->firstName . ' ' . $dto->lastName)->toArray();
 
@@ -125,14 +96,7 @@ describe('With Method', function(): void {
         });
 
         it('evaluates multiple callbacks', function(): void {
-            $dto = new class(10, 20) {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly int $a,
-                    public readonly int $b,
-                ) {}
-            };
+            $dto = new WithMethodDTO5(10, 20);
 
             $result = $dto->with([
                 'sum' => fn($dto): float|int|array => $dto->a + $dto->b,
@@ -148,22 +112,9 @@ describe('With Method', function(): void {
 
     describe('Nested DTOs', function(): void {
         it('converts nested DTOs to arrays', function(): void {
-            $addressDTO = new class('123 Main St', 'New York') {
-                use SimpleDTOTrait;
+            $addressDTO = new WithMethodDTO6('123 Main St', 'New York');
 
-                public function __construct(
-                    public readonly string $street,
-                    public readonly string $city,
-                ) {}
-            };
-
-            $userDTO = new class('John') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                ) {}
-            };
+            $userDTO = new WithMethodDTO2('John');
 
             $result = $userDTO->with('address', $addressDTO)->toArray();
 
@@ -176,23 +127,9 @@ describe('With Method', function(): void {
         });
 
         it('handles nested DTOs in callbacks', function(): void {
-            $addressDTO = new class('123 Main St', 'New York') {
-                use SimpleDTOTrait;
+            $addressDTO = new WithMethodDTO6('123 Main St', 'New York');
 
-                public function __construct(
-                    public readonly string $street,
-                    public readonly string $city,
-                ) {}
-            };
-
-            $userDTO = new class('John', $addressDTO) {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                    public readonly object $address,
-                ) {}
-            };
+            $userDTO = new WithMethodDTO7('John', $addressDTO);
 
             $result = $userDTO->with('location', fn($dto) => $dto->address)->toArray();
 
@@ -204,13 +141,10 @@ describe('With Method', function(): void {
 
     describe('JSON Serialization', function(): void {
         it('includes additional data in JSON serialization', function(): void {
-            $dto = new class('John') extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name,
-                ) {}
-            };
+            $dto = new WithMethodDTO8('John');
 
             $json = json_encode($dto->with('role', 'admin'));
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('name')
@@ -219,14 +153,10 @@ describe('With Method', function(): void {
         });
 
         it('evaluates callbacks in JSON serialization', function(): void {
-            $dto = new class('John', 30) extends SimpleDTO {
-                public function __construct(
-                    public readonly string $name,
-                    public readonly int $age,
-                ) {}
-            };
+            $dto = new WithMethodDTO9('John', 30);
 
             $json = json_encode($dto->with('isAdult', fn($dto): bool => 18 <= $dto->age));
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('isAdult')
@@ -236,13 +166,7 @@ describe('With Method', function(): void {
 
     describe('Edge Cases', function(): void {
         it('handles null values', function(): void {
-            $dto = new class('John') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                ) {}
-            };
+            $dto = new WithMethodDTO2('John');
 
             $result = $dto->with('phone', null)->toArray();
 
@@ -251,13 +175,7 @@ describe('With Method', function(): void {
         });
 
         it('handles empty arrays', function(): void {
-            $dto = new class('John') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                ) {}
-            };
+            $dto = new WithMethodDTO2('John');
 
             $result = $dto->with('tags', [])->toArray();
 
@@ -266,13 +184,7 @@ describe('With Method', function(): void {
         });
 
         it('overwrites existing properties', function(): void {
-            $dto = new class('John') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                ) {}
-            };
+            $dto = new WithMethodDTO2('John');
 
             $result = $dto->with('name', 'Jane')->toArray();
 
@@ -280,13 +192,7 @@ describe('With Method', function(): void {
         });
 
         it('handles complex nested structures', function(): void {
-            $dto = new class('John') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-                ) {}
-            };
+            $dto = new WithMethodDTO2('John');
 
             $result = $dto->with('metadata', [
                 'created' => '2024-01-01',

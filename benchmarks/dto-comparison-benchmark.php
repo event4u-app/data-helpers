@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Tests\utils\DTOs\DepartmentDto;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
@@ -76,9 +78,7 @@ class Benchmark
         ];
     }
 
-    /**
-     * @param array{name: string, iterations: int, total_time: float, avg_time: float, memory_used: int, formatted_total: string, formatted_avg: string, formatted_memory: string} $result
-     */
+    /** @param array{name: string, iterations: int, total_time: float, avg_time: float, memory_used: int, formatted_total: string, formatted_avg: string, formatted_memory: string} $result */
     public static function printResult(array $result): void
     {
         echo sprintf('  %s%s', $result['name'], PHP_EOL);
@@ -240,7 +240,7 @@ $result3 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMu
         'name' => $company->name,
         'email' => $company->email,
         'founded_year' => $company->founded_year,
-        'departments' => array_map(fn($d): array => [
+        'departments' => array_map(fn(DepartmentDto $d): array => [
             'name' => $d->name,
             'code' => $d->code,
         ], $company->departments),
@@ -274,7 +274,7 @@ $result5 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMu
         'name' => $company->name,
         'email' => $company->email,
         'founded_year' => $company->founded_year,
-        'departments' => array_map(fn($d): array => [
+        'departments' => array_map(fn(DepartmentDto $d): array => [
             'name' => $d->name,
             'code' => $d->code,
         ], $company->departments),

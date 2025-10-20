@@ -102,6 +102,7 @@ describe('SimpleDTO', function(): void {
             ]);
 
             $json = json_encode($dto);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toBe([
@@ -119,6 +120,7 @@ describe('SimpleDTO', function(): void {
             ]);
 
             $json = json_encode($dto);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded['name'])->toBe('John "The Boss" Doe');
@@ -192,6 +194,7 @@ describe('SimpleDTO', function(): void {
             );
 
             $json = json_encode($customer);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toBe([
@@ -217,6 +220,7 @@ describe('SimpleDTO', function(): void {
             $array = $customer->toArray();
 
             expect($array['address'])->toBeInstanceOf(TestAddressDTO::class);
+            /** @phpstan-ignore-next-line property.nonObject (Mixed array value) */
             expect($array['address']->street)->toBe('123 Main St');
         });
     });
@@ -229,6 +233,7 @@ describe('SimpleDTO', function(): void {
                 'age' => 30,
             ]);
 
+            /** @phpstan-ignore-next-line assign.propertyReadOnly (Test immutability) */
             expect(fn(): string => $dto->name = 'Jane Doe')
                 ->toThrow(Error::class);
         });

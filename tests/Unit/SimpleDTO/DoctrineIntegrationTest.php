@@ -139,7 +139,9 @@ describe('Doctrine Integration', function(): void {
             $entity = $instance->toEntity(TestUserEntity::class);
 
             expect($entity)->toBeInstanceOf(TestUserEntity::class);
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($entity->getName())->toBe('Jane Smith');
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($entity->getEmail())->toBe('jane@example.com');
         });
 
@@ -154,6 +156,7 @@ describe('Doctrine Integration', function(): void {
 
             $instance = $dto::fromArray(['name' => 'Test']);
 
+            /** @phpstan-ignore-next-line argument.type (Test with invalid class name) */
             expect(fn(): object => $instance->toEntity('NonExistentClass'))
                 ->toThrow(InvalidArgumentException::class, 'Entity class NonExistentClass does not exist');
         });
@@ -179,8 +182,11 @@ describe('Doctrine Integration', function(): void {
             $dtoInstance = $dto::fromEntity($originalEntity);
             $newEntity = $dtoInstance->toEntity(TestUserEntity::class);
 
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($newEntity->getName())->toBe($originalEntity->getName());
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($newEntity->getEmail())->toBe($originalEntity->getEmail());
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($newEntity->getAge())->toBe($originalEntity->getAge());
         });
 
@@ -203,7 +209,9 @@ describe('Doctrine Integration', function(): void {
             $dto2 = $dto::fromEntity($entity2);
             $entity3 = $dto2->toEntity(TestUserEntity::class);
 
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($entity3->getName())->toBe('Test User');
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($entity3->getEmail())->toBe('test@example.com');
         });
     });
@@ -233,7 +241,9 @@ describe('Doctrine Integration', function(): void {
             $entity->setEmail($updateDto->email);
 
             expect($entity->getId())->toBe(42);
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($entity->getName())->toBe('New Name');
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($entity->getEmail())->toBe('new@example.com');
         });
     });
@@ -286,8 +296,11 @@ describe('Doctrine Integration', function(): void {
             $entity = $instance->toEntity(TestUserEntity::class);
 
             // Verify setters were called correctly
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($entity->getName())->toBe('New User');
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($entity->getEmail())->toBe('new@example.com');
+            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
             expect($entity->getAge())->toBe(30);
         });
 
@@ -335,7 +348,9 @@ describe('Doctrine Integration', function(): void {
             // toEntity should convert snake_case to camelCase for setters
             $entity = $instance->toEntity($mockEntity::class);
 
+            /** @phpstan-ignore-next-line method.nonObject,argument.templateType (Doctrine entity dynamic method) */
             expect($entity->getFirstName())->toBe('John');
+            /** @phpstan-ignore-next-line method.nonObject,argument.templateType (Doctrine entity dynamic method) */
             expect($entity->getLastName())->toBe('Doe');
         });
     });

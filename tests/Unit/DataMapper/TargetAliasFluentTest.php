@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 
 describe('Target Alias Fluent Mapping (mapToTargetsFromTemplate equivalent)', function(): void {
@@ -31,8 +32,11 @@ describe('Target Alias Fluent Mapping (mapToTargetsFromTemplate equivalent)', fu
             ->map();
 
         $targets = $result->getTarget();
-        expect($targets['user']->name)->toBe('Alice Smith');
-        expect($targets['user']->email)->toBe('alice@example.com');
+        $user = $targets['user'];
+        assert(is_object($user));
+        $accUser = new DataAccessor($user);
+        expect($accUser->get('name'))->toBe('Alice Smith');
+        expect($accUser->get('email'))->toBe('alice@example.com');
     });
 
     test('map data to target aliases with @ prefix', function(): void {
@@ -61,8 +65,11 @@ describe('Target Alias Fluent Mapping (mapToTargetsFromTemplate equivalent)', fu
             ->map();
 
         $targets = $result->getTarget();
-        expect($targets['user']->name)->toBe('Bob Jones');
-        expect($targets['user']->email)->toBe('bob@example.com');
+        $user = $targets['user'];
+        assert(is_object($user));
+        $accUser = new DataAccessor($user);
+        expect($accUser->get('name'))->toBe('Bob Jones');
+        expect($accUser->get('email'))->toBe('bob@example.com');
     });
 
     test('map data to target aliases with {{ }} format', function(): void {
@@ -91,8 +98,11 @@ describe('Target Alias Fluent Mapping (mapToTargetsFromTemplate equivalent)', fu
             ->map();
 
         $targets = $result->getTarget();
-        expect($targets['user']->name)->toBe('Charlie Brown');
-        expect($targets['user']->email)->toBe('charlie@example.com');
+        $user = $targets['user'];
+        assert(is_object($user));
+        $accUser = new DataAccessor($user);
+        expect($accUser->get('name'))->toBe('Charlie Brown');
+        expect($accUser->get('email'))->toBe('charlie@example.com');
     });
 
     test('map data to multiple target aliases', function(): void {
@@ -124,7 +134,10 @@ describe('Target Alias Fluent Mapping (mapToTargetsFromTemplate equivalent)', fu
             ->map();
 
         $targets = $result->getTarget();
-        expect($targets['user']->name)->toBe('David Lee');
+        $user = $targets['user'];
+        assert(is_object($user));
+        $accUser = new DataAccessor($user);
+        expect($accUser->get('name'))->toBe('David Lee');
         expect($targets['addr'])->toBe(['street' => 'Main St 123', 'city' => 'Berlin']);
     });
 
@@ -164,6 +177,9 @@ describe('Target Alias Fluent Mapping (mapToTargetsFromTemplate equivalent)', fu
             ->map();
 
         $targets = $result->getTarget();
-        expect($targets['profile']->email)->toBe('eve@example.com');
+        $profile = $targets['profile'];
+        assert(is_object($profile));
+        $accProfile = new DataAccessor($profile);
+        expect($accProfile->get('email'))->toBe('eve@example.com');
     });
 });

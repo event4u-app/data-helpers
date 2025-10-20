@@ -31,9 +31,9 @@ class Between implements ValidationRule, SymfonyConstraint
     use RequiresSymfonyValidator;
 
     public function __construct(
-        private readonly int|float $min,
-        private readonly int|float $max,
-        private readonly ?string $message = null
+        public readonly int|float $min,
+        public readonly int|float $max,
+        public readonly ?string $message = null
     ) {
     }
 

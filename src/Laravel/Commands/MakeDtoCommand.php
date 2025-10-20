@@ -41,6 +41,7 @@ use Illuminate\Support\Str;
  */
 class MakeDtoCommand extends Command
 {
+    public mixed $laravel;
     /**
      * The name and signature of the console command.
      *

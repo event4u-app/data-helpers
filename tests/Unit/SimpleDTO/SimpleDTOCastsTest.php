@@ -14,6 +14,7 @@ use event4u\DataHelpers\SimpleDTO\Casts\StringCast;
 // Test DTOs
 class UserDtoWithCasts extends SimpleDTO
 {
+/** @phpstan-ignore-next-line missingType.iterableValue (Test array) */
     public function __construct(
         public readonly string $name,
         public readonly bool $is_active,
@@ -21,6 +22,7 @@ class UserDtoWithCasts extends SimpleDTO
         public readonly DateTimeImmutable $created_at,
     ) {}
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -39,6 +41,7 @@ class ProductDtoWithCasts extends SimpleDTO
         public readonly ?DateTimeImmutable $available_from = null,
     ) {}
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -55,6 +58,7 @@ class EventDtoWithCasts extends SimpleDTO
         public readonly DateTimeImmutable $event_date,
     ) {}
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -212,8 +216,9 @@ describe('SimpleDTO Casts', function(): void {
             ]);
 
             expect($dto->available_from)
-                ->toBeInstanceOf(DateTimeImmutable::class)
-                ->and($dto->available_from->format('Y-m-d'))
+                ->toBeInstanceOf(DateTimeImmutable::class);
+            /** @phpstan-ignore-next-line method.nonObject (DateTimeImmutable null check) */
+            expect($dto->available_from->format('Y-m-d'))
                 ->toBe('2024-02-01');
         });
 
@@ -295,6 +300,7 @@ describe('SimpleDTO Casts', function(): void {
                     public readonly int $quantity,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['quantity' => 'integer'];
@@ -312,6 +318,7 @@ describe('SimpleDTO Casts', function(): void {
                     public readonly int $quantity,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['quantity' => IntegerCast::class];
@@ -331,6 +338,7 @@ describe('SimpleDTO Casts', function(): void {
                     public readonly float $price,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['price' => 'float'];
@@ -348,6 +356,7 @@ describe('SimpleDTO Casts', function(): void {
                     public readonly float $price,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['price' => FloatCast::class];
@@ -366,6 +375,7 @@ describe('SimpleDTO Casts', function(): void {
                     public readonly string $code,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['code' => 'string'];
@@ -382,6 +392,7 @@ describe('SimpleDTO Casts', function(): void {
                     public readonly string $value,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['value' => StringCast::class];
@@ -400,6 +411,7 @@ describe('SimpleDTO Casts', function(): void {
                     public readonly string $price,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['price' => 'decimal:2'];
@@ -416,6 +428,7 @@ describe('SimpleDTO Casts', function(): void {
                     public readonly string $rate,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['rate' => DecimalCast::class . ':4'];
@@ -430,10 +443,12 @@ describe('SimpleDTO Casts', function(): void {
     describe('Json Cast', function(): void {
         it('decodes JSON string to array', function(): void {
             $dto = new class ([]) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Cast result type) */
                 public function __construct(
                     public readonly array $metadata,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['metadata' => 'json'];
@@ -448,10 +463,12 @@ describe('SimpleDTO Casts', function(): void {
 
         it('keeps array as array', function(): void {
             $dto = new class ([]) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Cast result type) */
                 public function __construct(
                     public readonly array $metadata,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['metadata' => JsonCast::class];
@@ -475,6 +492,7 @@ describe('SimpleDTO Casts', function(): void {
                 ) {
                 }
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -500,6 +518,7 @@ describe('SimpleDTO Casts', function(): void {
                 ) {
                 }
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -525,6 +544,7 @@ describe('SimpleDTO Casts', function(): void {
                 ) {
                 }
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -549,6 +569,7 @@ describe('SimpleDTO Casts', function(): void {
                 ) {
                 }
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -573,6 +594,7 @@ describe('SimpleDTO Casts', function(): void {
                 ) {
                 }
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -599,6 +621,7 @@ describe('SimpleDTO Casts', function(): void {
                 ) {
                 }
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -616,6 +639,7 @@ describe('SimpleDTO Casts', function(): void {
 
         it('handles JSON edge cases', function(): void {
             $dto = new class([], [], []) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Cast result type) */
                 public function __construct(
                     public readonly array $emptyObject,
                     public readonly array $emptyArray,
@@ -623,6 +647,7 @@ describe('SimpleDTO Casts', function(): void {
                 ) {
                 }
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -651,6 +676,7 @@ describe('SimpleDTO Casts', function(): void {
                 ) {
                 }
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [

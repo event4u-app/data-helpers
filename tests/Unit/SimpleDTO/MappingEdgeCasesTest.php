@@ -89,6 +89,7 @@ describe('Property Mapping Edge Cases', function(): void {
                 ) {}
             };
 
+/** @phpstan-ignore-next-line argument.type (Mapping edge case) */
             $instance = $dto::fromArray(['0' => 'value']);
 
             expect($instance->first)->toBe('value');

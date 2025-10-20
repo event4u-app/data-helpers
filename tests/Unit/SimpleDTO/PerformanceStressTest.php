@@ -66,6 +66,7 @@ describe('Performance & Stress Testing', function(): void {
 
         it('handles complex DTOs efficiently', function(): void {
             $dto = new class extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Performance test) */
                 public function __construct(
                     public readonly string $name = '',
                     public readonly int $age = 0,
@@ -174,6 +175,7 @@ describe('Performance & Stress Testing', function(): void {
 
         it('handles large arrays efficiently', function(): void {
             $dto = new class extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Performance test) */
                 public function __construct(
                     public readonly array $data = [],
                 ) {}

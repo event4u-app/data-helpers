@@ -18,6 +18,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -36,6 +37,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -55,6 +57,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly StatusEnum $orderStatus,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['orderStatus' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -74,6 +77,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -102,6 +106,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly ColorEnum $color,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -135,6 +140,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly ?ColorEnum $color,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -160,10 +166,12 @@ describe('EnumCastEdgeCases', function(): void {
     describe('Enum Arrays', function(): void {
         it('handles array of enum values', function(): void {
             $dto = new class([]) extends SimpleDTO {
+/** @phpstan-ignore-next-line argument.type (Enum cast edge case) */
                 public function __construct(
                     public readonly array $statuses,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['statuses' => 'array'];
@@ -186,6 +194,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly DateTimeImmutable $createdAt = new DateTimeImmutable(),
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -215,6 +224,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly string $amount,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -243,6 +253,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly bool $active,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -269,6 +280,7 @@ describe('EnumCastEdgeCases', function(): void {
                     public readonly ?ColorEnum $color = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['color' => 'enum:Tests\Unit\SimpleDTO\Fixtures\ColorEnum'];

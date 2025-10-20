@@ -3,12 +3,78 @@
 declare(strict_types=1);
 
 namespace Tests\Unit;
+use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted;
 use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 use stdClass;
 use Throwable;
+
+// Test DTOs
+class SymfonyTestDTO1 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $title,
+        #[WhenGranted('EDIT')]
+        public readonly string $editLink,
+    ) {}
+}
+
+class SymfonyTestDTO2 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[WhenRole('ROLE_ADMIN')]
+        public readonly string $adminPanel,
+        #[WhenGranted('EDIT')]
+        public readonly string $editLink,
+    ) {}
+}
+
+class SymfonyTestDTO3 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[WhenRole('ROLE_ADMIN')]
+        public readonly string $role = 'role',
+        #[WhenGranted('EDIT')]
+        public readonly string $granted = 'granted',
+    ) {}
+}
+
+class SymfonyTestDTO4 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[WhenRole('ROLE_ADMIN')]
+        public readonly string $adminPanel,
+    ) {}
+}
+
+class SymfonyTestDTO5 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $title,
+        #[WhenGranted('EDIT', 'post')]
+        public readonly string $editLink,
+    ) {}
+}
+
+class SymfonyTestSecurity
+{
+    public function isGranted(string $attribute): bool
+    {
+        return 'ROLE_ADMIN' === $attribute;
+    }
+}
+
+class SymfonyTestUser
+{
+    public function isGranted(string $attribute, mixed $subject = null): bool
+    {
+        return 'EDIT' === $attribute && null !== $subject;
+    }
+}
 
 describe('Symfony Attributes Autoload Safety', function(): void {
     it('can load Symfony attributes without Symfony being installed', function(): void {
@@ -20,16 +86,7 @@ describe('Symfony Attributes Autoload Safety', function(): void {
     });
 
     it('Symfony attributes work with context even without Symfony', function(): void {
-        $dto = new class('My Post', '/edit') {
-            use SimpleDTOTrait;
-
-            public function __construct(
-                public readonly string $title,
-
-                #[WhenGranted('EDIT')]
-                public readonly string $editLink,
-            ) {}
-        };
+        $dto = new SymfonyTestDTO1('My Post', '/edit');
 
         // Should work with context
         $user = (object)['grants' => ['EDIT']];
@@ -39,16 +96,7 @@ describe('Symfony Attributes Autoload Safety', function(): void {
     });
 
     it('does not throw errors when Symfony Security is not available', function(): void {
-        $dto = new class('My Post', '/edit') {
-            use SimpleDTOTrait;
-
-            public function __construct(
-                public readonly string $title,
-
-                #[WhenGranted('EDIT')]
-                public readonly string $editLink,
-            ) {}
-        };
+        $dto = new SymfonyTestDTO1('My Post', '/edit');
 
         // Should not throw error even without Symfony
         expect(fn(): array => $dto->toArray())->not->toThrow(Throwable::class);
@@ -88,19 +136,7 @@ describe('Symfony Attributes Autoload Safety', function(): void {
     });
 
     it('all Symfony attributes work in plain PHP without Symfony', function(): void {
-        $dto = new class('Test', '/admin', '/edit') {
-            use SimpleDTOTrait;
-
-            public function __construct(
-                public readonly string $name,
-
-                #[WhenRole('ROLE_ADMIN')]
-                public readonly string $adminPanel,
-
-                #[WhenGranted('EDIT')]
-                public readonly string $editLink,
-            ) {}
-        };
+        $dto = new SymfonyTestDTO2('Test', '/admin', '/edit');
 
         // Without context - should work without errors
         $arrayNoContext = $dto->toArray();
@@ -125,19 +161,7 @@ describe('Symfony Attributes Autoload Safety', function(): void {
         // trigger autoload errors for Symfony classes
 
         // Create a DTO with all Symfony attributes
-        $class = new class('Test') {
-            use SimpleDTOTrait;
-
-            public function __construct(
-                public readonly string $name,
-
-                #[WhenRole('ROLE_ADMIN')]
-                public readonly string $role = 'role',
-
-                #[WhenGranted('EDIT')]
-                public readonly string $granted = 'granted',
-            ) {}
-        };
+        $class = new SymfonyTestDTO3('Test');
 
         // Should not throw any errors
         expect(fn(): array => $class->toArray())->not->toThrow(Throwable::class);
@@ -146,47 +170,17 @@ describe('Symfony Attributes Autoload Safety', function(): void {
     });
 
     it('works with security context object', function(): void {
-        $dto = new class('Test', '/admin') {
-            use SimpleDTOTrait;
-
-            public function __construct(
-                public readonly string $name,
-
-                #[WhenRole('ROLE_ADMIN')]
-                public readonly string $adminPanel,
-            ) {}
-        };
-
-        $security = new class {
-            public function isGranted(string $attribute): bool
-            {
-                return 'ROLE_ADMIN' === $attribute;
-            }
-        };
+        $dto = new SymfonyTestDTO4('Test', '/admin');
+        $security = new SymfonyTestSecurity();
 
         $array = $dto->withContext(['security' => $security])->toArray();
         expect($array)->toHaveKey('adminPanel');
     });
 
     it('WhenGranted works with subject parameter', function(): void {
-        $dto = new class('Post', '/edit') {
-            use SimpleDTOTrait;
-
-            public function __construct(
-                public readonly string $title,
-
-                #[WhenGranted('EDIT', 'post')]
-                public readonly string $editLink,
-            ) {}
-        };
-
+        $dto = new SymfonyTestDTO5('Post', '/edit');
         $post = (object)['id' => 1];
-        $user = new class {
-            public function isGranted(string $attribute, $subject = null): bool
-            {
-                return 'EDIT' === $attribute && null !== $subject;
-            }
-        };
+        $user = new SymfonyTestUser();
 
         $array = $dto->withContext(['user' => $user, 'post' => $post])->toArray();
         expect($array)->toHaveKey('editLink');

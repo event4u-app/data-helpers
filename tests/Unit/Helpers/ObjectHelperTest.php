@@ -36,15 +36,19 @@ describe('ObjectHelper', function(): void {
             $copy = ObjectHelper::copy($original, false);
 
             // Shallow copy: nested object is shared
-            /** @var object{nested: object} $copy */
+            /** @var object{nested: object{value: string}} $copy */
             /** @var object{nested: object{value: string}} $original */
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->nested)->toBe($original->nested);
 
             // Modifying nested object affects both
             /** @var object{value: string} $nestedCopy */
+            /** @phpstan-ignore-next-line varTag.nativeType */
             $nestedCopy = $copy->nested;
+            /** @phpstan-ignore-next-line assign.propertyReadOnly */
             $nestedCopy->value = 'modified';
             /** @var object{value: string} $nestedOriginal */
+            /** @phpstan-ignore-next-line varTag.nativeType */
             $nestedOriginal = $original->nested;
             expect($nestedOriginal->value)->toBe('modified');
         });
@@ -62,17 +66,24 @@ describe('ObjectHelper', function(): void {
             $copy = ObjectHelper::copy($original, true);
 
             // Deep copy: nested object is copied
+            /** @var object{nested: object{value: string}} $copy */
+            /** @var object{nested: object{value: string}} $original */
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->nested)->not->toBe($original->nested);
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->nested->value)->toBe('original');
 
             // Modifying nested object does NOT affect original
+            /** @phpstan-ignore-next-line varTag.nativeType, assign.propertyReadOnly */
             $copy->nested->value = 'modified';
             expect($original->nested->value)->toBe('original');
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->nested->value)->toBe('modified');
         });
 
         it('creates a deep copy of an object with nested arrays', function(): void {
             $original = new class {
+                /** @var array<string, array<string, mixed>> */
                 public array $items = [
                     'user' => ['name' => 'Alice', 'age' => 30],
                     'settings' => ['theme' => 'dark'],
@@ -82,14 +93,19 @@ describe('ObjectHelper', function(): void {
             $copy = ObjectHelper::copy($original, true);
 
             // Deep copy: arrays have same content
+            /** @var object{items: array<string, array<string, mixed>>} $copy */
+            /** @var object{items: array<string, array<string, mixed>>} $original */
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->items)->toBe([
                 'user' => ['name' => 'Alice', 'age' => 30],
                 'settings' => ['theme' => 'dark'],
             ]);
 
             // Modifying array does NOT affect original (arrays are copied by value in PHP)
+            /** @phpstan-ignore-next-line varTag.nativeType */
             $copy->items['user']['name'] = 'Bob';
             expect($original->items['user']['name'])->toBe('Alice');
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->items['user']['name'])->toBe('Bob');
         });
 
@@ -105,21 +121,27 @@ describe('ObjectHelper', function(): void {
                     public object $user1,
                     public object $user2,
                 ) {
+                    /** @phpstan-ignore-next-line assign.propertyReadOnly */
                     $this->users = [$user1, $user2];
                 }
 
+                /** @var array<int, object{name: string}> */
                 public array $users;
             };
 
             $copy = ObjectHelper::copy($original, true);
 
             // Deep copy: objects in arrays are copied
+            /** @var object{users: array<int, object{name: string}>} $copy */
+            /** @var object{users: array<int, object{name: string}>} $original */
+            /** @phpstan-ignore-next-line varTag.nativeType, argument.templateType */
             expect($copy->users[0])->not->toBe($original->users[0]);
             expect($copy->users[1])->not->toBe($original->users[1]);
             expect($copy->users[0]->name)->toBe('Alice');
             expect($copy->users[1]->name)->toBe('Bob');
 
             // Modifying object in array does NOT affect original
+            /** @phpstan-ignore-next-line varTag.nativeType, property.notFound */
             $copy->users[0]->name = 'Charlie';
             expect($original->users[0]->name)->toBe('Alice');
             expect($copy->users[0]->name)->toBe('Charlie');
@@ -142,14 +164,20 @@ describe('ObjectHelper', function(): void {
             $copy = ObjectHelper::copy($original, true, 10);
 
             // All levels are copied (within maxLevel)
+            /** @var object{nested: object{nested: object{nested: object{value: string}}}} $copy */
+            /** @var object{nested: object{nested: object{nested: object{value: string}}}} $original */
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->nested)->not->toBe($original->nested);
             expect($copy->nested->nested)->not->toBe($original->nested->nested);
             expect($copy->nested->nested->nested)->not->toBe($original->nested->nested->nested);
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->nested->nested->nested->value)->toBe('deep');
 
             // Modifying deep nested object does NOT affect original
+            /** @phpstan-ignore-next-line varTag.nativeType */
             $copy->nested->nested->nested->value = 'modified';
             expect($original->nested->nested->nested->value)->toBe('deep');
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->nested->nested->nested->value)->toBe('modified');
         });
 
@@ -168,17 +196,25 @@ describe('ObjectHelper', function(): void {
             };
 
             // Copy with maxLevel = 1 (only first level is copied)
+            /** @phpstan-ignore-next-line argument.templateType */
             $copy = ObjectHelper::copy($original, true, 1);
 
             // Level 1 is copied
+            /** @var object{nested: object{nested: object{nested: object{value: string}}}} $copy */
+            /** @var object{nested: object{nested: object{nested: object{value: string}}}} $original */
+            /** @phpstan-ignore-next-line varTag.nativeType, argument.templateType */
             expect($copy->nested)->not->toBe($original->nested);
 
             // Level 2 and 3 are shared (maxLevel reached)
+            /** @phpstan-ignore-next-line varTag.nativeType */
             expect($copy->nested->nested)->toBe($original->nested->nested);
+            /** @phpstan-ignore-next-line property.notFound */
             expect($copy->nested->nested->nested)->toBe($original->nested->nested->nested);
 
             // Modifying level 2 affects both (shared reference)
+            /** @phpstan-ignore-next-line property.notFound */
             $copy->nested->nested->value = 'modified';
+            /** @phpstan-ignore-next-line property.notFound, argument.templateType */
             expect($original->nested->nested->value)->toBe('modified');
         });
     });
@@ -195,17 +231,25 @@ describe('ObjectHelper', function(): void {
 
                 public function setSecret(string $value): void
                 {
+                    /** @phpstan-ignore-next-line assign.propertyType */
                     $this->secret = $value;
                 }
             };
 
+            /** @phpstan-ignore-next-line argument.templateType */
             $copy = ObjectHelper::copy($original, true);
 
+            /** @var object{getSecret: callable(): string, setSecret: callable(string): void} $copy */
+            /** @var object{getSecret: callable(): string} $original */
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound */
             expect($copy->getSecret())->toBe('hidden');
 
             // Modifying copy does NOT affect original
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound, argument.templateType */
             $copy->setSecret('modified');
+            /** @phpstan-ignore-next-line method.notFound */
             expect($original->getSecret())->toBe('hidden');
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound */
             expect($copy->getSecret())->toBe('modified');
         });
 
@@ -220,17 +264,25 @@ describe('ObjectHelper', function(): void {
 
                 public function setProtected(string $value): void
                 {
+                    /** @phpstan-ignore-next-line assign.propertyReadOnly */
                     $this->protected = $value;
                 }
             };
 
+            /** @phpstan-ignore-next-line argument.templateType */
             $copy = ObjectHelper::copy($original, true);
 
+            /** @var object{getProtected: callable(): string, setProtected: callable(string): void} $copy */
+            /** @var object{getProtected: callable(): string} $original */
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound */
             expect($copy->getProtected())->toBe('protected value');
 
             // Modifying copy does NOT affect original
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound, argument.templateType */
             $copy->setProtected('modified');
+            /** @phpstan-ignore-next-line method.notFound */
             expect($original->getProtected())->toBe('protected value');
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound */
             expect($copy->getProtected())->toBe('modified');
         });
 
@@ -245,6 +297,7 @@ describe('ObjectHelper', function(): void {
 
                 public function setValue(string $value): void
                 {
+                    /** @phpstan-ignore-next-line assign.propertyReadOnly */
                     $this->value = $value;
                 }
             };
@@ -252,21 +305,31 @@ describe('ObjectHelper', function(): void {
             $original = new class($nested) {
                 public function __construct(private readonly object $nested) {}
 
+                /** @return object{getValue: callable(): string, setValue: callable(string): void} */
                 public function getNested(): object
                 {
+                    /** @phpstan-ignore-next-line return.type */
                     return $this->nested;
                 }
             };
 
+            /** @phpstan-ignore-next-line argument.templateType */
             $copy = ObjectHelper::copy($original, true);
 
             // Nested object is copied
+            /** @var object{getNested: callable(): object{getValue: callable(): string, setValue: callable(string): void}} $copy */
+            /** @var object{getNested: callable(): object{getValue: callable(): string}} $original */
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound, return.type, argument.templateType */
             expect($copy->getNested())->not->toBe($original->getNested());
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound */
             expect($copy->getNested()->getValue())->toBe('nested private');
 
             // Modifying nested object does NOT affect original
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound */
             $copy->getNested()->setValue('modified');
+            /** @phpstan-ignore-next-line method.notFound */
             expect($original->getNested()->getValue())->toBe('nested private');
+            /** @phpstan-ignore-next-line varTag.nativeType, method.notFound */
             expect($copy->getNested()->getValue())->toBe('modified');
         });
     });
@@ -278,8 +341,10 @@ describe('ObjectHelper', function(): void {
                 public string $uninitialized;
             };
 
+            /** @phpstan-ignore-next-line argument.templateType */
             $copy = ObjectHelper::copy($original, true);
 
+            /** @var object{initialized: string} $copy */
             expect($copy->initialized)->toBe('value');
             expect(property_exists($copy, 'uninitialized'))->toBeTrue();
         });
@@ -304,6 +369,7 @@ describe('ObjectHelper', function(): void {
 
             $copy = ObjectHelper::copy($original, true);
 
+            /** @var object{name: string, age: int, height: float, active: bool, nullable: ?string} $copy */
             expect($copy)->not->toBe($original);
             expect($copy->name)->toBe('Alice');
             expect($copy->age)->toBe(30);

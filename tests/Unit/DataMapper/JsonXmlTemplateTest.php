@@ -171,7 +171,7 @@ XML;
 
         $sources = ['user' => ['name' => 'Test']];
 
-        expect(fn(): array => DataMapper::source($sources)->template($invalidTemplate)->map()->getTarget())
+        expect(fn(): mixed => DataMapper::source($sources)->template($invalidTemplate)->map()->getTarget())
             ->toThrow(InvalidArgumentException::class, 'Template must be a valid JSON or XML string, or an array');
     });
 });

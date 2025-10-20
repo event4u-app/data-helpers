@@ -28,8 +28,8 @@ class In implements ValidationRule, SymfonyConstraint
 
     /** @param array<int|string> $values */
     public function __construct(
-        private readonly array $values,
-        private readonly ?string $message = null
+        public readonly array $values,
+        public readonly ?string $message = null
     ) {
     }
 

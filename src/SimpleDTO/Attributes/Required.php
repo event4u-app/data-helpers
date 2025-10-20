@@ -24,7 +24,7 @@ class Required implements ValidationRule, SymfonyConstraint
     use RequiresSymfonyValidator;
 
     public function __construct(
-        private readonly ?string $message = null
+        public readonly ?string $message = null
     ) {
     }
 

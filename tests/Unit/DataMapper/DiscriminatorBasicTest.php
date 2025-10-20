@@ -63,11 +63,13 @@ describe('DataMapper - Discriminator Basic', function(): void {
             ])
             ->map();
 
-        expect($result->getTarget())->toBeInstanceOf(Dog::class);
-        expect($result->getTarget()->name)->toBe('Bello');
-        expect($result->getTarget()->age)->toBe(5);
-        expect($result->getTarget()->breed)->toBe('Golden Retriever');
-        expect($result->getTarget()->bark())->toBe('Woof!');
+        $target = $result->getTarget();
+        expect($target)->toBeInstanceOf(Dog::class);
+        assert($target instanceof Dog);
+        expect($target->name)->toBe('Bello');
+        expect($target->age)->toBe(5);
+        expect($target->breed)->toBe('Golden Retriever');
+        expect($target->bark())->toBe('Woof!');
     });
 
     it('selects different subclass for different discriminator value', function(): void {
@@ -91,11 +93,13 @@ describe('DataMapper - Discriminator Basic', function(): void {
             ])
             ->map();
 
-        expect($result->getTarget())->toBeInstanceOf(Cat::class);
-        expect($result->getTarget()->name)->toBe('Whiskers');
-        expect($result->getTarget()->age)->toBe(3);
-        expect($result->getTarget()->color)->toBe('orange');
-        expect($result->getTarget()->meow())->toBe('Meow!');
+        $target = $result->getTarget();
+        expect($target)->toBeInstanceOf(Cat::class);
+        assert($target instanceof Cat);
+        expect($target->name)->toBe('Whiskers');
+        expect($target->age)->toBe(3);
+        expect($target->color)->toBe('orange');
+        expect($target->meow())->toBe('Meow!');
     });
 
     it('falls back to original target if discriminator value not in map', function(): void {
@@ -153,12 +157,15 @@ describe('DataMapper - Discriminator Basic', function(): void {
             'breed' => 'Labrador',
         ];
 
+        $map = [
+            '1' => Dog::class,
+            '2' => Cat::class,
+        ];
+
         $result = DataMapper::source($source)
             ->target(Bird::class)
-            ->discriminator('type', [
-                '1' => Dog::class,
-                '2' => Cat::class,
-            ])
+            /** @phpstan-ignore-next-line argument.type (String keys are valid) */
+            ->discriminator('type', $map)
             ->template([
                 'name' => '{{ name }}',
                 'age' => '{{ age }}',
@@ -193,8 +200,10 @@ describe('DataMapper - Discriminator Basic', function(): void {
             ])
             ->map();
 
-        expect($result->getTarget())->toBeInstanceOf(Bird::class);
-        expect($result->getTarget()->chirp())->toBe('Chirp!');
+        $target = $result->getTarget();
+        expect($target)->toBeInstanceOf(Bird::class);
+        assert($target instanceof Bird);
+        expect($target->chirp())->toBe('Chirp!');
     });
 
     it('handles null discriminator value', function(): void {

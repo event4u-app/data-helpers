@@ -14,6 +14,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
                     public readonly ?string $email = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -39,6 +40,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
                     public readonly ?float $price = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -64,6 +66,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
                     public readonly ?int $age = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -87,6 +90,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
                     public readonly ?int $age = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -115,6 +119,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
                     public readonly ?string $field5 = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -200,6 +205,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
                     public readonly ?string $field50 = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     $casts = [];
@@ -238,6 +244,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
                     public readonly ?int $age = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -267,6 +274,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
                     public readonly ?string $field4 = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -295,11 +303,13 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
 
         it('works with complex casts', function(): void {
             $dto = new class extends SimpleDTO {
+/** @phpstan-ignore-next-line argument.type (Lazy cast test) */
                 public function __construct(
                     public readonly ?array $data = null,
                     public readonly ?string $json = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [

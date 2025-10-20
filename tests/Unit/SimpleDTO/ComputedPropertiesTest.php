@@ -46,6 +46,7 @@ describe('Computed Properties', function(): void {
 
             $instance = $dto::fromArray([]);
             $json = json_encode($instance);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('total');
@@ -253,11 +254,13 @@ describe('Computed Properties', function(): void {
 
             // Without include
             $json1 = json_encode($instance);
+            assert(is_string($json1));
             $decoded1 = json_decode($json1, true);
             expect($decoded1)->not()->toHaveKey('uppercase');
 
             // With include
             $json2 = json_encode($instance->includeComputed(['uppercase']));
+            assert(is_string($json2));
             $decoded2 = json_decode($json2, true);
             expect($decoded2)->toHaveKey('uppercase');
             expect($decoded2['uppercase'])->toBe('TEST');

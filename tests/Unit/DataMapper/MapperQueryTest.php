@@ -332,10 +332,10 @@ describe('MapperQuery', function(): void {
     describe('Multiple queries on same mapper', function(): void {
         it('can create multiple independent queries', function(): void {
             $mapper = DataMapper::source(['items' => [], 'users' => []]);
-            
+
             $query1 = $mapper->query('items.*')
                 ->where('status', 'active');
-            
+
             $query2 = $mapper->query('users.*')
                 ->where('role', 'admin');
 
@@ -346,9 +346,11 @@ describe('MapperQuery', function(): void {
 
         it('queries are stored in mapper', function(): void {
             $mapper = DataMapper::source(['items' => [], 'users' => []]);
-            
-            $mapper->query('items.*')->where('status', 'active')->end();
-            $mapper->query('users.*')->where('role', 'admin')->end();
+
+            $result1 = $mapper->query('items.*')->where('status', 'active')->end();
+            expect($result1)->toBeInstanceOf(FluentDataMapper::class);
+            $result2 = $mapper->query('users.*')->where('role', 'admin')->end();
+            expect($result2)->toBeInstanceOf(FluentDataMapper::class);
 
             $queries = $mapper->getQueries();
             expect($queries)->toHaveCount(2);

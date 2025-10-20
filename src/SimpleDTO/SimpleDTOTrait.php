@@ -284,8 +284,10 @@ trait SimpleDTOTrait
      */
     public static function collection(array $items = []): DataCollection
     {
-        /** @var DataCollection<static> */
-        return DataCollection::forDto(static::class, $items);
+        /** @var DataCollection<static> $dataCollection */
+        $dataCollection = DataCollection::forDto(static::class, $items);
+
+        return $dataCollection;
     }
 }
 

@@ -10,6 +10,58 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
 use event4u\DataHelpers\Validation\ValidationResult;
 
+// Test DTOs
+class ValidationTestDTO1 extends SimpleDTO
+{
+    #[ValidateRequest(throw: true, auto: false)]
+    public function __construct(
+        #[Required]
+        #[Email]
+        public readonly string $email,
+        #[Required]
+        #[Min(3)]
+        public readonly string $name,
+    ) {}
+}
+
+class ValidationTestDTO2 extends SimpleDTO
+{
+    public function __construct(
+        #[Required]
+        #[Email]
+        public readonly string $email,
+        #[Required]
+        #[Min(3)]
+        public readonly string $name,
+    ) {}
+}
+
+class ValidationTestDTO3 extends SimpleDTO
+{
+    #[ValidateRequest(throw: true)]
+    public function __construct(
+        #[Required]
+        #[Email]
+        public readonly string $email,
+        #[Required]
+        #[Min(3)]
+        public readonly string $name,
+    ) {}
+}
+
+class ValidationTestDTO4 extends SimpleDTO
+{
+    #[ValidateRequest(throw: false)]
+    public function __construct(
+        #[Required]
+        #[Email]
+        public readonly string $email,
+        #[Required]
+        #[Min(3)]
+        public readonly string $name,
+    ) {}
+}
+
 describe('Validation Modes', function(): void {
     it('auto-validates on fromArray when auto: true', function(): void {
         // Note: Attributes on anonymous classes don't work in PHP
@@ -32,23 +84,8 @@ describe('Validation Modes', function(): void {
     });
 
     it('does not auto-validate when auto: false', function(): void {
-        $dto = new class ('', '') extends SimpleDTO {
-            #[ValidateRequest(throw: true, auto: false)]
-            public function __construct(
-                #[Required]
-                #[Email]
-                public readonly string $email,
-
-                #[Required]
-                #[Min(3)]
-                public readonly string $name,
-            ) {}
-        };
-
-        $class = $dto::class;
-
         // Invalid data should NOT throw (no auto-validation)
-        $result = $class::fromArray([
+        $result = ValidationTestDTO1::fromArray([
             'email' => 'invalid',
             'name' => 'Jo',
         ]);
@@ -58,22 +95,8 @@ describe('Validation Modes', function(): void {
     });
 
     it('validates manually with validate()', function(): void {
-        $dto = new class ('', '') extends SimpleDTO {
-            public function __construct(
-                #[Required]
-                #[Email]
-                public readonly string $email,
-
-                #[Required]
-                #[Min(3)]
-                public readonly string $name,
-            ) {}
-        };
-
-        $class = $dto::class;
-
         // Valid data
-        $validated = $class::validate([
+        $validated = ValidationTestDTO2::validate([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -82,29 +105,15 @@ describe('Validation Modes', function(): void {
         expect($validated)->toHaveKey('name', 'John Doe');
 
         // Invalid data should throw
-        expect(fn() => $class::validate([
+        expect(fn(): array => ValidationTestDTO2::validate([
             'email' => 'invalid',
             'name' => 'Jo',
         ]))->toThrow(ValidationException::class);
     });
 
     it('validates with validateOrFail()', function(): void {
-        $dto = new class ('', '') extends SimpleDTO {
-            public function __construct(
-                #[Required]
-                #[Email]
-                public readonly string $email,
-
-                #[Required]
-                #[Min(3)]
-                public readonly string $name,
-            ) {}
-        };
-
-        $class = $dto::class;
-
         // Valid data
-        $validated = $class::validateOrFail([
+        $validated = ValidationTestDTO2::validateOrFail([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -113,29 +122,15 @@ describe('Validation Modes', function(): void {
         expect($validated)->toHaveKey('name', 'John Doe');
 
         // Invalid data should throw
-        expect(fn() => $class::validateOrFail([
+        expect(fn(): array => ValidationTestDTO2::validateOrFail([
             'email' => 'invalid',
             'name' => 'Jo',
         ]))->toThrow(ValidationException::class);
     });
 
     it('validates without throwing using validateData()', function(): void {
-        $dto = new class ('', '') extends SimpleDTO {
-            public function __construct(
-                #[Required]
-                #[Email]
-                public readonly string $email,
-
-                #[Required]
-                #[Min(3)]
-                public readonly string $name,
-            ) {}
-        };
-
-        $class = $dto::class;
-
         // Valid data
-        $result = $class::validateData([
+        $result = ValidationTestDTO2::validateData([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -146,7 +141,7 @@ describe('Validation Modes', function(): void {
         expect($result->validated())->toHaveKey('name', 'John Doe');
 
         // Invalid data
-        $result = $class::validateData([
+        $result = ValidationTestDTO2::validateData([
             'email' => 'invalid',
             'name' => 'Jo',
         ]);
@@ -158,23 +153,8 @@ describe('Validation Modes', function(): void {
     });
 
     it('validates with throw: true', function(): void {
-        $dto = new class ('', '') extends SimpleDTO {
-            #[ValidateRequest(throw: true)]
-            public function __construct(
-                #[Required]
-                #[Email]
-                public readonly string $email,
-
-                #[Required]
-                #[Min(3)]
-                public readonly string $name,
-            ) {}
-        };
-
-        $class = $dto::class;
-
         // Valid data
-        $result = $class::validateAndCreate([
+        $result = ValidationTestDTO3::validateAndCreate([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -183,30 +163,15 @@ describe('Validation Modes', function(): void {
         expect($result->name)->toBe('John Doe');
 
         // Invalid data should throw
-        expect(fn() => $class::validateAndCreate([
+        expect(fn(): \ValidationTestDTO3 => ValidationTestDTO3::validateAndCreate([
             'email' => 'invalid',
             'name' => 'Jo',
         ]))->toThrow(ValidationException::class);
     });
 
     it('validates with throw: false', function(): void {
-        $dto = new class ('', '') extends SimpleDTO {
-            #[ValidateRequest(throw: false)]
-            public function __construct(
-                #[Required]
-                #[Email]
-                public readonly string $email,
-
-                #[Required]
-                #[Min(3)]
-                public readonly string $name,
-            ) {}
-        };
-
-        $class = $dto::class;
-
         // Valid data
-        $result = $class::validateData([
+        $result = ValidationTestDTO4::validateData([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -214,7 +179,7 @@ describe('Validation Modes', function(): void {
         expect($result->isValid())->toBeTrue();
 
         // Invalid data should not throw
-        $result = $class::validateData([
+        $result = ValidationTestDTO4::validateData([
             'email' => 'invalid',
             'name' => 'Jo',
         ]);

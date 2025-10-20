@@ -193,11 +193,14 @@ describe('Normalizers', function(): void {
             $normalizer = new SnakeCaseNormalizer();
             $data = [0 => 'first', 1 => 'second', 'firstName' => 'John'];
 
+/** @phpstan-ignore-next-line argument.type (Normalizer test) */
             $result = $normalizer->normalize($data);
 
-            expect($result[0])->toBe('first')
-                ->and($result[1])->toBe('second')
-                ->and($result['first_name'])->toBe('John');
+            /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible,argument.templateType (Array offset access) */
+            expect($result[0])->toBe('first');
+            /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible,argument.templateType (Array offset access) */
+            expect($result[1])->toBe('second');
+            expect($result['first_name'])->toBe('John');
         });
     });
 

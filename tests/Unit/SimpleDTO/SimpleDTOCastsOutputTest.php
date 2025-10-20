@@ -13,6 +13,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly DateTimeImmutable $createdAt,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['createdAt' => 'datetime'];
@@ -32,6 +33,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly DateTimeImmutable $date,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['date' => 'datetime:Y-m-d'];
@@ -49,6 +51,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly DateTimeImmutable $timestamp,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['timestamp' => 'datetime'];
@@ -56,6 +59,7 @@ describe('SimpleDTOCastsOutput', function(): void {
             };
 
             $json = json_encode($dto);
+/** @phpstan-ignore-next-line argument.type (Cast output test) */
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('timestamp')
@@ -70,6 +74,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly string $price,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['price' => 'decimal:2'];
@@ -87,6 +92,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly string $amount,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['amount' => 'decimal:4'];
@@ -106,6 +112,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly bool $active,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['active' => 'boolean'];
@@ -123,6 +130,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly bool $active,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['active' => 'boolean'];
@@ -142,6 +150,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly int $count,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['count' => 'integer'];
@@ -161,6 +170,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly float $pi,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['pi' => 'float'];
@@ -180,6 +190,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly string $message,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['message' => 'string'];
@@ -195,10 +206,12 @@ describe('SimpleDTOCastsOutput', function(): void {
     describe('Array Output Cast', function(): void {
         it('converts array to json string in toArray', function(): void {
             $dto = new class(['a', 'b', 'c']) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Cast output type) */
                 public function __construct(
                     public readonly array $tags,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['tags' => 'array'];
@@ -216,10 +229,12 @@ describe('SimpleDTOCastsOutput', function(): void {
     describe('Json Output Cast', function(): void {
         it('converts array to json string in toArray', function(): void {
             $dto = new class(['key' => 'value', 'nested' => ['foo' => 'bar']]) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Cast output type) */
                 public function __construct(
                     public readonly array $config,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['config' => 'json'];
@@ -240,6 +255,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['status' => 'enum:Tests\Unit\SimpleDTO\Fixtures\StatusEnum'];
@@ -267,6 +283,7 @@ describe('SimpleDTOCastsOutput', function(): void {
                     public readonly StatusEnum $status,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [

@@ -134,6 +134,7 @@ describe('Wrapping', function(): void {
             $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => 30]);
             $wrapped = $user->wrap('data');
             $json = json_encode($wrapped);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('data')
@@ -144,6 +145,7 @@ describe('Wrapping', function(): void {
         it('does not wrap JSON by default', function(): void {
             $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => 30]);
             $json = json_encode($user);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('name')

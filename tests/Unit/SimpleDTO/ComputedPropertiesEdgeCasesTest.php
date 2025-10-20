@@ -87,11 +87,14 @@ describe('Computed Properties - Edge Cases', function(): void {
 
         it('handles computed method returning empty array', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.iterableValue (Test with generic array) */
                 public function __construct(
                     public readonly array $items = [],
                 ) {}
 
+/** @phpstan-ignore-next-line return.type (Computed property) */
                 #[Computed]
+                /** @phpstan-ignore-next-line missingType.iterableValue,return.type (Test with generic array) */
                 public function emptyArray(): array
                 {
                     return $this->items;
@@ -174,6 +177,7 @@ describe('Computed Properties - Edge Cases', function(): void {
                 ) {}
 
                 #[Computed]
+                /** @phpstan-ignore-next-line attribute.notClass (Attribute class validation) */
                 #[Hidden]
                 public function secret(): int
                 {
@@ -194,6 +198,7 @@ describe('Computed Properties - Edge Cases', function(): void {
                 ) {}
 
                 #[Computed]
+                /** @phpstan-ignore-next-line attribute.notClass (Attribute class validation) */
                 #[HiddenFromArray]
                 public function secretFromArray(): int
                 {
@@ -209,6 +214,7 @@ describe('Computed Properties - Edge Cases', function(): void {
 
             // But in JSON
             $json = json_encode($instance);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
             expect($decoded)->toHaveKey('secretFromArray');
             expect($decoded['secretFromArray'])->toBe(84);
@@ -221,6 +227,7 @@ describe('Computed Properties - Edge Cases', function(): void {
                 ) {}
 
                 #[Computed]
+                /** @phpstan-ignore-next-line attribute.notClass (Attribute class validation) */
                 #[HiddenFromJson]
                 public function secretFromJson(): int
                 {
@@ -237,6 +244,7 @@ describe('Computed Properties - Edge Cases', function(): void {
 
             // Not in JSON
             $json = json_encode($instance);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
             expect($decoded)->not()->toHaveKey('secretFromJson');
         });
@@ -299,11 +307,14 @@ describe('Computed Properties - Edge Cases', function(): void {
     describe('Different Return Types', function(): void {
         it('handles computed method returning array', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.iterableValue (Test with generic array) */
                 public function __construct(
                     public readonly array $items = [1, 2, 3],
                 ) {}
 
+/** @phpstan-ignore-next-line return.type (Computed property) */
                 #[Computed]
+                /** @phpstan-ignore-next-line missingType.iterableValue,return.type (Test with generic array) */
                 public function stats(): array
                 {
                     return [
@@ -339,8 +350,10 @@ describe('Computed Properties - Edge Cases', function(): void {
             $array = $instance->toArray();
 
             expect($array['metadata'])->toBeObject();
-            expect($array['metadata']->name)->toBe('Test');
-            expect($array['metadata']->length)->toBe(4);
+            $metadata = $array['metadata'];
+            assert(is_object($metadata) && property_exists($metadata, 'name') && property_exists($metadata, 'length'));
+            expect($metadata->name)->toBe('Test');
+            expect($metadata->length)->toBe(4);
         });
 
         it('handles computed method returning nested DTO', function(): void {
@@ -349,7 +362,9 @@ describe('Computed Properties - Edge Cases', function(): void {
                     public readonly string $name = 'John',
                 ) {}
 
+/** @phpstan-ignore-next-line return.type (Computed property) */
                 #[Computed]
+                /** @phpstan-ignore-next-line missingType.iterableValue,return.type (Test with generic array) */
                 public function address(): array
                 {
                     return [

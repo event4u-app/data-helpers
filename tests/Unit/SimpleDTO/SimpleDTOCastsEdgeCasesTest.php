@@ -20,6 +20,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly bool $active,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -55,6 +56,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly string $amount,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -78,11 +80,13 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                 config: [],
                 metadata: [],
             ) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Cast edge case) */
                 public function __construct(
                     public readonly array $config,
                     public readonly array $metadata,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -111,6 +115,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly ?DateTimeImmutable $date,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['date' => 'datetime'];
@@ -128,10 +133,12 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
             $dto = new class(
                 data: null,
             ) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Cast edge case) */
                 public function __construct(
                     public readonly ?array $data,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['data' => 'json'];
@@ -152,6 +159,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly ?int $count,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['count' => 'integer'];
@@ -172,6 +180,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly ?float $value,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['value' => 'float'];
@@ -192,6 +201,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly ?string $price,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['price' => 'decimal:2'];
@@ -212,6 +222,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly ?string $text,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['text' => 'string'];
@@ -232,6 +243,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly bool $flag,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['flag' => 'boolean'];
@@ -254,6 +266,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                 data: null,
                 text: null,
             ) extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Cast edge case) */
                 public function __construct(
                     public readonly ?DateTimeImmutable $date,
                     public readonly ?string $price,
@@ -263,6 +276,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly ?string $text,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -309,6 +323,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly string $text,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -348,6 +363,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly string $price,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [
@@ -384,6 +400,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                     public readonly bool $flag3,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return [

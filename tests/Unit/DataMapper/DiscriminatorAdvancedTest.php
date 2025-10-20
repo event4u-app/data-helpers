@@ -68,8 +68,10 @@ describe('DataMapper - Discriminator Advanced Tests', function(): void {
                 ])
                 ->map();
 
-            expect($result->getTarget())->toBeInstanceOf(BirdAdv::class);
-            expect($result->getTarget()->chirp())->toBe('Chirp!');
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(BirdAdv::class);
+            assert($target instanceof BirdAdv);
+            expect($target->chirp())->toBe('Chirp!');
         });
 
         it('handles deeply nested discriminator field', function(): void {
@@ -181,9 +183,11 @@ describe('DataMapper - Discriminator Advanced Tests', function(): void {
                 ->map();
 
             // Pipeline returns the discriminated object
-            expect($result->getTarget())->toBeInstanceOf(DogAdv::class);
-            expect($result->getTarget()->name)->toBe('Buddy');
-            expect($result->getTarget()->breed)->toBe('Poodle');
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(DogAdv::class);
+            assert($target instanceof DogAdv);
+            expect($target->name)->toBe('Buddy');
+            expect($target->breed)->toBe('Poodle');
         });
 
         it('works with property filters', function(): void {
@@ -208,8 +212,10 @@ describe('DataMapper - Discriminator Advanced Tests', function(): void {
                 ->setValueFilters('name', new TrimStrings())
                 ->map();
 
-            expect($result->getTarget())->toBeInstanceOf(CatAdv::class);
-            expect($result->getTarget()->name)->toBe('MITTENS');
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(CatAdv::class);
+            assert($target instanceof CatAdv);
+            expect($target->name)->toBe('MITTENS');
         });
     });
 
@@ -222,12 +228,15 @@ describe('DataMapper - Discriminator Advanced Tests', function(): void {
                 'breed' => 'Terrier',
             ];
 
+            /** @var array<string, class-string> $map */
+            $map = [
+                '1' => DogAdv::class,
+                '' => CatAdv::class,
+            ];
+
             $result = DataMapper::source($source)
                 ->target(BirdAdv::class)
-                ->discriminator('type', [
-                    '1' => DogAdv::class,
-                    '' => CatAdv::class,
-                ])
+                ->discriminator('type', $map)
                 ->template([
                     'name' => '{{ name }}',
                     'age' => '{{ age }}',
@@ -305,9 +314,11 @@ describe('DataMapper - Discriminator Advanced Tests', function(): void {
                 ])
                 ->map();
 
-            expect($result->getTarget())->toBeInstanceOf(CatAdv::class);
-            expect($result->getTarget()->name)->toBe('NullSkipper');
-            expect($result->getTarget()->age)->toBe(0); // Default value
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(CatAdv::class);
+            assert($target instanceof CatAdv);
+            expect($target->name)->toBe('NullSkipper');
+            expect($target->age)->toBe(0); // Default value
         });
 
         it('works with large discriminator map', function(): void {
@@ -333,7 +344,10 @@ describe('DataMapper - Discriminator Advanced Tests', function(): void {
                 ])
                 ->map();
 
-            expect($result->getTarget())->toBeInstanceOf(DogAdv::class);
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(DogAdv::class);
+            assert($target instanceof DogAdv);
+            expect($target->name)->toBe('LargeMap');
         });
     });
 });

@@ -99,6 +99,7 @@ describe('SimpleDTO Sorting', function(): void {
     describe('Nested Sorting', function(): void {
         it('does not sort nested arrays by default', function(): void {
             $dto = new class extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Sorting result type) */
                 public function __construct(
                     public readonly string $name = 'test',
                     public readonly array $nested = [],
@@ -120,11 +121,13 @@ describe('SimpleDTO Sorting', function(): void {
             // Top level sorted
             expect(array_keys($array))->toBe(['name', 'nested']);
             // Nested not sorted
+            assert(is_array($array['nested']));
             expect(array_keys($array['nested']))->toBe(['zebra', 'alpha', 'beta']);
         });
 
         it('sorts nested arrays when enabled', function(): void {
             $dto = new class extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Sorting result type) */
                 public function __construct(
                     public readonly string $name = 'test',
                     public readonly array $nested = [],
@@ -146,11 +149,13 @@ describe('SimpleDTO Sorting', function(): void {
             // Top level sorted
             expect(array_keys($array))->toBe(['name', 'nested']);
             // Nested also sorted
+            assert(is_array($array['nested']));
             expect(array_keys($array['nested']))->toBe(['alpha', 'beta', 'zebra']);
         });
 
         it('sorts deeply nested arrays', function(): void {
             $dto = new class extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Sorting result type) */
                 public function __construct(
                     public readonly array $data = [],
                 ) {}
@@ -173,8 +178,11 @@ describe('SimpleDTO Sorting', function(): void {
             $array = $sorted->toArray();
 
             // Top level sorted
+            assert(is_array($array['data']));
             expect(array_keys($array['data']))->toBe(['alpha', 'zebra']);
             // Nested also sorted
+            assert(is_array($array['data']['alpha']));
+            assert(is_array($array['data']['zebra']));
             expect(array_keys($array['data']['alpha']))->toBe(['nested_a', 'nested_z']);
             expect(array_keys($array['data']['zebra']))->toBe(['nested_a', 'nested_z']);
         });
@@ -194,6 +202,7 @@ describe('SimpleDTO Sorting', function(): void {
             $result = $dto::fromArray($data);
 
             // Reverse alphabetical
+            /** @phpstan-ignore-next-line argument.type (Callback with mixed parameters) */
             $sorted = $result->sortedBy(fn($a, $b): int => strcmp($b, $a));
             $array = $sorted->toArray();
 
@@ -213,6 +222,7 @@ describe('SimpleDTO Sorting', function(): void {
             $result = $dto::fromArray($data);
 
             // Sort by key length
+            /** @phpstan-ignore-next-line argument.type (Callback with mixed parameters) */
             $sorted = $result->sortedBy(fn($a, $b): int => strlen($a) <=> strlen($b));
             $array = $sorted->toArray();
 

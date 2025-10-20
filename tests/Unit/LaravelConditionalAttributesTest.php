@@ -4,25 +4,117 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenAuth;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenCan;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenGuest;
 use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenRole;
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+
+// Test DTOs - WhenAuth
+class LaravelCondDTO1 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[WhenAuth]
+        public readonly string $email,
+    ) {}
+}
+
+// Test DTOs - WhenGuest
+class LaravelCondDTO2 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $title,
+        #[WhenGuest]
+        public readonly string $loginPrompt,
+    ) {}
+}
+
+// Test DTOs - WhenCan
+class LaravelCondDTO3 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $title,
+        #[WhenCan('edit-post')]
+        public readonly string $editLink,
+    ) {}
+}
+
+// Test DTOs - WhenRole (single)
+class LaravelCondDTO4 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[WhenRole('admin')]
+        public readonly string $adminPanel,
+    ) {}
+}
+
+// Test DTOs - WhenRole (multiple)
+class LaravelCondDTO5 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[WhenRole(['admin', 'moderator'])]
+        public readonly string $moderationPanel,
+    ) {}
+}
+
+// Test DTOs - Combined attributes
+class LaravelCondDTO6 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $title,
+        #[WhenAuth]
+        #[WhenRole('admin')]
+        #[WhenCan('view-secrets')]
+        public readonly string $secretData,
+    ) {}
+}
+
+class LaravelCondDTO7 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $title,
+        #[WhenGuest]
+        public readonly string $loginLink,
+        #[WhenAuth]
+        public readonly string $dashboardLink,
+    ) {}
+}
+
+// Test DTOs - Edge cases
+class LaravelCondDTO8 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $title,
+        #[WhenCan('edit-post')]
+        public readonly string $editLink,
+    ) {}
+}
+
+class LaravelCondDTO9 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        #[WhenRole(['admin', 'moderator'])]
+        public readonly string $adminPanel,
+    ) {}
+}
+
+class LaravelCondDTO10 extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $title,
+        #[WhenCan('edit', 'post')]
+        public readonly string $editLink,
+    ) {}
+}
 
 describe('Laravel Conditional Attributes', function(): void {
     describe('WhenAuth Attribute', function(): void {
         it('includes property when user is authenticated (context)', function(): void {
-            $dto = new class('John', 'john@example.com') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenAuth]
-                    public readonly string $email,
-                ) {}
-            };
+            $dto = new LaravelCondDTO1('John', 'john@example.com');
 
             $user = (object)['id' => 1, 'name' => 'John'];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -32,16 +124,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('excludes property when user is not authenticated (context)', function(): void {
-            $dto = new class('John', 'john@example.com') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenAuth]
-                    public readonly string $email,
-                ) {}
-            };
+            $dto = new LaravelCondDTO1('John', 'john@example.com');
 
             $array = $dto->withContext(['user' => null])->toArray();
 
@@ -49,16 +132,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('excludes property when no context provided', function(): void {
-            $dto = new class('John', 'john@example.com') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenAuth]
-                    public readonly string $email,
-                ) {}
-            };
+            $dto = new LaravelCondDTO1('John', 'john@example.com');
 
             $array = $dto->toArray();
 
@@ -68,16 +142,7 @@ describe('Laravel Conditional Attributes', function(): void {
 
     describe('WhenGuest Attribute', function(): void {
         it('includes property when user is guest (context)', function(): void {
-            $dto = new class('Home', 'Please log in') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenGuest]
-                    public readonly string $loginPrompt,
-                ) {}
-            };
+            $dto = new LaravelCondDTO2('Home', 'Please log in');
 
             $array = $dto->withContext(['user' => null])->toArray();
 
@@ -86,16 +151,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('excludes property when user is authenticated (context)', function(): void {
-            $dto = new class('Home', 'Please log in') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenGuest]
-                    public readonly string $loginPrompt,
-                ) {}
-            };
+            $dto = new LaravelCondDTO2('Home', 'Please log in');
 
             $user = (object)['id' => 1];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -104,16 +160,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('includes property when no context provided (assumes guest)', function(): void {
-            $dto = new class('Home', 'Please log in') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenGuest]
-                    public readonly string $loginPrompt,
-                ) {}
-            };
+            $dto = new LaravelCondDTO2('Home', 'Please log in');
 
             $array = $dto->toArray();
 
@@ -123,16 +170,7 @@ describe('Laravel Conditional Attributes', function(): void {
 
     describe('WhenCan Attribute', function(): void {
         it('includes property when user has ability (can method)', function(): void {
-            $dto = new class('My Post', '/edit') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenCan('edit-post')]
-                    public readonly string $editLink,
-                ) {}
-            };
+            $dto = new LaravelCondDTO3('My Post', '/edit');
 
             $user = new class {
                 public function can(string $ability): bool
@@ -148,16 +186,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('excludes property when user does not have ability', function(): void {
-            $dto = new class('My Post', '/edit') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenCan('edit-post')]
-                    public readonly string $editLink,
-                ) {}
-            };
+            $dto = new LaravelCondDTO3('My Post', '/edit');
 
             $user = new class {
                 public function can(string $ability): bool
@@ -172,16 +201,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('includes property when user has ability in abilities array', function(): void {
-            $dto = new class('My Post', '/edit') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenCan('edit-post')]
-                    public readonly string $editLink,
-                ) {}
-            };
+            $dto = new LaravelCondDTO3('My Post', '/edit');
 
             $user = (object)['abilities' => ['edit-post', 'delete-post']];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -190,16 +210,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('excludes property when user is guest', function(): void {
-            $dto = new class('My Post', '/edit') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenCan('edit-post')]
-                    public readonly string $editLink,
-                ) {}
-            };
+            $dto = new LaravelCondDTO3('My Post', '/edit');
 
             $array = $dto->withContext(['user' => null])->toArray();
 
@@ -209,16 +220,7 @@ describe('Laravel Conditional Attributes', function(): void {
 
     describe('WhenRole Attribute', function(): void {
         it('includes property when user has role (single role)', function(): void {
-            $dto = new class('John', '/admin') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenRole('admin')]
-                    public readonly string $adminPanel,
-                ) {}
-            };
+            $dto = new LaravelCondDTO4('John', '/admin');
 
             $user = (object)['role' => 'admin'];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -228,16 +230,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('excludes property when user does not have role', function(): void {
-            $dto = new class('John', '/admin') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenRole('admin')]
-                    public readonly string $adminPanel,
-                ) {}
-            };
+            $dto = new LaravelCondDTO4('John', '/admin');
 
             $user = (object)['role' => 'user'];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -246,16 +239,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('includes property when user has one of multiple roles', function(): void {
-            $dto = new class('John', '/moderation') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenRole(['admin', 'moderator'])]
-                    public readonly string $moderationPanel,
-                ) {}
-            };
+            $dto = new LaravelCondDTO5('John', '/moderation');
 
             $userAdmin = (object)['role' => 'admin'];
             $userModerator = (object)['role' => 'moderator'];
@@ -271,16 +255,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('works with roles array property', function(): void {
-            $dto = new class('John', '/admin') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenRole('admin')]
-                    public readonly string $adminPanel,
-                ) {}
-            };
+            $dto = new LaravelCondDTO4('John', '/admin');
 
             $user = (object)['roles' => ['admin', 'editor']];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -289,16 +264,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('works with hasRole method', function(): void {
-            $dto = new class('John', '/admin') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenRole('admin')]
-                    public readonly string $adminPanel,
-                ) {}
-            };
+            $dto = new LaravelCondDTO4('John', '/admin');
 
             $user = new class {
                 public function hasRole(string $role): bool
@@ -315,18 +281,7 @@ describe('Laravel Conditional Attributes', function(): void {
 
     describe('Combined Attributes', function(): void {
         it('supports multiple Laravel attributes (AND logic)', function(): void {
-            $dto = new class('Secret Content', 'Top secret data') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenAuth]
-                    #[WhenRole('admin')]
-                    #[WhenCan('view-secrets')]
-                    public readonly string $secretData,
-                ) {}
-            };
+            $dto = new LaravelCondDTO6('Secret Content', 'Top secret data');
 
             $adminWithPermission = new class {
                 public string $role = 'admin';
@@ -354,19 +309,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('combines WhenAuth and WhenGuest correctly', function(): void {
-            $dto = new class('Page', 'Login', 'Dashboard') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenGuest]
-                    public readonly string $loginLink,
-
-                    #[WhenAuth]
-                    public readonly string $dashboardLink,
-                ) {}
-            };
+            $dto = new LaravelCondDTO7('Page', 'Login', 'Dashboard');
 
             $arrayAuth = $dto->withContext(['user' => (object)['id' => 1]])->toArray();
             $arrayGuest = $dto->withContext(['user' => null])->toArray();
@@ -380,16 +323,7 @@ describe('Laravel Conditional Attributes', function(): void {
 
     describe('Edge Cases', function(): void {
         it('handles user with permissions array', function(): void {
-            $dto = new class('Post', '/edit') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenCan('edit-post')]
-                    public readonly string $editLink,
-                ) {}
-            };
+            $dto = new LaravelCondDTO8('Post', '/edit');
 
             $user = (object)['permissions' => ['edit-post', 'delete-post']];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -398,18 +332,10 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('handles user with hasAnyRole method', function(): void {
-            $dto = new class('John', '/admin') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenRole(['admin', 'moderator'])]
-                    public readonly string $adminPanel,
-                ) {}
-            };
+            $dto = new LaravelCondDTO9('John', '/admin');
 
             $user = new class {
+                /** @param array<string> $roles */
                 public function hasAnyRole(array $roles): bool
                 {
                     return in_array('admin', $roles, true);
@@ -422,20 +348,11 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('handles WhenCan with model argument', function(): void {
-            $dto = new class('Post', '/edit') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $title,
-
-                    #[WhenCan('edit', 'post')]
-                    public readonly string $editLink,
-                ) {}
-            };
+            $dto = new LaravelCondDTO10('Post', '/edit');
 
             $post = (object)['id' => 1, 'title' => 'My Post'];
             $user = new class {
-                public function can(string $ability, $model = null): bool
+                public function can(string $ability, mixed $model = null): bool
                 {
                     return 'edit' === $ability && null !== $model;
                 }
@@ -447,16 +364,7 @@ describe('Laravel Conditional Attributes', function(): void {
         });
 
         it('handles empty roles array', function(): void {
-            $dto = new class('John', '/admin') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenRole('admin')]
-                    public readonly string $adminPanel,
-                ) {}
-            };
+            $dto = new LaravelCondDTO4('John', '/admin');
 
             $user = (object)['roles' => []];
             $array = $dto->withContext(['user' => $user])->toArray();

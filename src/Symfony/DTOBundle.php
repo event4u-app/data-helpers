@@ -25,9 +25,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
  */
 class DTOBundle extends AbstractBundle
 {
-    /**
-     * @param array<string, mixed> $config
-     */
+    /** @param array<string, mixed> $config */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         // Register DTOValueResolver

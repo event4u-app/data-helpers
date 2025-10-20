@@ -33,15 +33,13 @@ use ReflectionParameter;
  */
 class DTOValueResolver
 {
-    /** @phpstan-ignore-next-line */
-    private readonly Request $request;
-    /** @phpstan-ignore-next-line */
-    private readonly ValidationFactory $validator;
-
-    public function __construct(Request $request, ValidationFactory $validator)
+    public function __construct(
+        /** @phpstan-ignore-next-line */
+        private readonly Request $request,
+        /** @phpstan-ignore-next-line */
+        private readonly ValidationFactory $validator
+    )
     {
-        $this->request = $request;
-        $this->validator = $validator;
     }
 
     /**

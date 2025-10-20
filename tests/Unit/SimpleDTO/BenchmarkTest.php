@@ -196,6 +196,7 @@ describe('SimpleDTO Benchmarking', function(): void {
             };
 
             $results = $dto::runBenchmarkSuite(['name' => 'John'], 100);
+            /** @phpstan-ignore-next-line argument.type (Benchmark result type) */
             $report = $dto::generateBenchmarkReport($results);
 
             expect($report)->toBeString()
@@ -234,6 +235,7 @@ describe('SimpleDTO Benchmarking', function(): void {
 
         it('benchmarks complex DTO with nested structures', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.iterableValue (Test with generic array) */
                 public function __construct(
                     public readonly string $name = '',
                     public readonly int $age = 0,

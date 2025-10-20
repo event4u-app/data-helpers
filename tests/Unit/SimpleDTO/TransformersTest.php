@@ -96,11 +96,14 @@ describe('Transformers', function(): void {
                 'Name' => 'John',
             ];
 
+/** @phpstan-ignore-next-line argument.type (Transformer result type) */
             $result = $transformer->transform($data);
 
-            expect($result[0])->toBe('first')
-                ->and($result[1])->toBe('second')
-                ->and($result['name'])->toBe('John');
+            /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible,argument.templateType (Array offset access) */
+            expect($result[0])->toBe('first');
+            /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible,argument.templateType (Array offset access) */
+            expect($result[1])->toBe('second');
+            expect($result['name'])->toBe('John');
         });
     });
 
@@ -298,6 +301,7 @@ describe('Transformers', function(): void {
                 public function transform(array $data): array
                 {
                     if (isset($data['name'])) {
+                        /** @phpstan-ignore-next-line binaryOp.invalid (Mixed array value) */
                         $data['name'] = 'Mr. ' . $data['name'];
                     }
 

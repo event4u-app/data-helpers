@@ -169,13 +169,16 @@ describe('SimpleDTO Edge Cases', function(): void {
                 'user' => $user,
             ]);
 
-            expect($dto->user)->toBeInstanceOf(EdgeCaseUserDTO::class)
-                ->and($dto->user->name)->toBe('Child')
-                ->and($dto->user->age)->toBe(10);
+            expect($dto->user)->toBeInstanceOf(EdgeCaseUserDTO::class);
+            /** @phpstan-ignore-next-line property.nonObject (Nullable DTO property) */
+            expect($dto->user->name)->toBe('Child');
+            /** @phpstan-ignore-next-line property.nonObject (Nullable DTO property) */
+            expect($dto->user->age)->toBe(10);
         });
 
         it('handles deeply nested arrays', function(): void {
             $dto = new class extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Edge case result) */
                 public function __construct(
                     public readonly array $level1 = [],
                 ) {}
@@ -215,8 +218,9 @@ describe('SimpleDTO Edge Cases', function(): void {
 
             $array = $dto->toArray();
 
-            expect($array['user'])->toBeInstanceOf(EdgeCaseUserDTO::class)
-                ->and($array['user']->name)->toBe('Child');
+            expect($array['user'])->toBeInstanceOf(EdgeCaseUserDTO::class);
+            /** @phpstan-ignore-next-line property.nonObject (Mixed array value) */
+            expect($array['user']->name)->toBe('Child');
         });
 
         it('converts empty values correctly', function(): void {
@@ -241,6 +245,7 @@ describe('SimpleDTO Edge Cases', function(): void {
             ]);
 
             $json = json_encode($dto);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded['email'])->toBeNull();
@@ -253,6 +258,7 @@ describe('SimpleDTO Edge Cases', function(): void {
             ]);
 
             $json = json_encode($dto);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded['name'])->toBe('')
@@ -271,6 +277,7 @@ describe('SimpleDTO Edge Cases', function(): void {
             ]);
 
             $json = json_encode($dto);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded['user'])->toBeArray()
@@ -284,6 +291,7 @@ describe('SimpleDTO Edge Cases', function(): void {
             ]);
 
             $json = json_encode($dto);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded['name'])->toBe('John "Doe" & Jane');
@@ -296,6 +304,7 @@ describe('SimpleDTO Edge Cases', function(): void {
             ]);
 
             $json = json_encode($dto);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded['name'])->toBe('Jöhn Döe 日本語');
@@ -325,7 +334,9 @@ describe('SimpleDTO Edge Cases', function(): void {
                 'age' => 30,
             ]);
 
+            /** @phpstan-ignore-next-line assign.propertyReadOnly (Test immutability) */
             expect(function() use ($dto): void {
+/** @phpstan-ignore-next-line argument.templateType (Pest expectation) */
                 $dto->name = 'Jane';
             })->toThrow(Error::class);
         });

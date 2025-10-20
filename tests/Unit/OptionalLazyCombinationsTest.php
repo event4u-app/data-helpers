@@ -9,6 +9,7 @@ use event4u\DataHelpers\Support\Optional;
 // Test DTOs
 class TestComboDTO1 extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line missingType.generics (Optional+Lazy union type test) */
     public function __construct(
         public readonly string $title,
         public readonly Optional|Lazy|string $content,
@@ -17,6 +18,7 @@ class TestComboDTO1 extends SimpleDTO
 
 class TestComboDTO2 extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line missingType.generics (Optional+Lazy union type test) */
     public function __construct(
         public readonly string $title,
         public readonly Optional|Lazy|string|null $metadata,
@@ -25,6 +27,7 @@ class TestComboDTO2 extends SimpleDTO
 
 class TestComboDTO3 extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line missingType.generics (Optional+Lazy union type test) */
     public function __construct(
         public readonly Optional|string $name,
         public readonly Optional|string $email,
@@ -36,21 +39,25 @@ describe('Optional + Lazy Combinations', function(): void {
     it('handles missing optional lazy property', function(): void {
         $dto = TestComboDTO1::fromArray(['title' => 'Test']);
 
-        expect($dto->title)->toBe('Test')
-            ->and($dto->content)->toBeInstanceOf(Optional::class)
-            ->and($dto->content->isEmpty())->toBeTrue();
+        expect($dto->title)->toBe('Test');
+        expect($dto->content)->toBeInstanceOf(Optional::class);
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->content->isEmpty())->toBeTrue();
     });
 
     it('handles present optional lazy property', function(): void {
         $dto = TestComboDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
 
-        expect($dto->title)->toBe('Test')
-            ->and($dto->content)->toBeInstanceOf(Optional::class)
-            ->and($dto->content->isPresent())->toBeTrue();
+        expect($dto->title)->toBe('Test');
+        expect($dto->content)->toBeInstanceOf(Optional::class);
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->content->isPresent())->toBeTrue();
 
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
         $value = $dto->content->get();
-        expect($value)->toBeInstanceOf(Lazy::class)
-            ->and($value->get())->toBe('Content...');
+        expect($value)->toBeInstanceOf(Lazy::class);
+        /** @phpstan-ignore-next-line method.nonObject (Lazy type) */
+        expect($value->get())->toBe('Content...');
     });
 
     it('excludes optional lazy from toArray when missing', function(): void {
@@ -81,12 +88,15 @@ describe('Optional + Lazy Combinations', function(): void {
     it('handles nullable optional lazy property', function(): void {
         $dto = TestComboDTO2::fromArray(['title' => 'Test', 'metadata' => null]);
 
-        expect($dto->metadata)->toBeInstanceOf(Optional::class)
-            ->and($dto->metadata->isPresent())->toBeTrue();
+        expect($dto->metadata)->toBeInstanceOf(Optional::class);
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->metadata->isPresent())->toBeTrue();
 
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
         $value = $dto->metadata->get();
-        expect($value)->toBeInstanceOf(Lazy::class)
-            ->and($value->get())->toBeNull();
+        expect($value)->toBeInstanceOf(Lazy::class);
+        /** @phpstan-ignore-next-line method.nonObject (Lazy type) */
+        expect($value->get())->toBeNull();
     });
 
     it('supports partial updates with optional lazy', function(): void {
@@ -104,10 +114,14 @@ describe('Optional + Lazy Combinations', function(): void {
         $dto = TestComboDTO3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
         $partial = $dto->partial();
 
-        expect($partial['name'])->toBe('John')
-            ->and($partial['bio'])->toBe('Bio...')
-            ->and($partial['bio'])->not->toBeInstanceOf(Lazy::class)
-            ->and($partial['bio'])->not->toBeInstanceOf(Optional::class);
+        /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (Array offset access) */
+        expect($partial['name'])->toBe('John');
+        /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (Array offset access) */
+        expect($partial['bio'])->toBe('Bio...');
+        /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (Array offset access) */
+        expect($partial['bio'])->not->toBeInstanceOf(Lazy::class);
+        /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (Array offset access) */
+        expect($partial['bio'])->not->toBeInstanceOf(Optional::class);
     });
 });
 
@@ -115,18 +129,25 @@ describe('Multiple Optional Properties', function(): void {
     it('handles multiple missing optional properties', function(): void {
         $dto = TestComboDTO3::fromArray([]);
 
-        expect($dto->name->isEmpty())->toBeTrue()
-            ->and($dto->email->isEmpty())->toBeTrue()
-            ->and($dto->bio->isEmpty())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->name->isEmpty())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->email->isEmpty())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->bio->isEmpty())->toBeTrue();
     });
 
     it('handles mixed present and missing optional properties', function(): void {
         $dto = TestComboDTO3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
 
-        expect($dto->name->isPresent())->toBeTrue()
-            ->and($dto->name->get())->toBe('John')
-            ->and($dto->email->isEmpty())->toBeTrue()
-            ->and($dto->bio->isPresent())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->name->isPresent())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->name->get())->toBe('John');
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->email->isEmpty())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->bio->isPresent())->toBeTrue();
     });
 
     it('partial returns only present optional properties', function(): void {
@@ -181,9 +202,12 @@ describe('Edge Cases', function(): void {
     it('handles empty array input', function(): void {
         $dto = TestComboDTO3::fromArray([]);
 
-        expect($dto->name->isEmpty())->toBeTrue()
-            ->and($dto->email->isEmpty())->toBeTrue()
-            ->and($dto->bio->isEmpty())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->name->isEmpty())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->email->isEmpty())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->bio->isEmpty())->toBeTrue();
 
         $partial = $dto->partial();
         expect($partial)->toBe([]);
@@ -196,9 +220,12 @@ describe('Edge Cases', function(): void {
             'bio' => 'Bio...',
         ]);
 
-        expect($dto->name->isPresent())->toBeTrue()
-            ->and($dto->email->isPresent())->toBeTrue()
-            ->and($dto->bio->isPresent())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->name->isPresent())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->email->isPresent())->toBeTrue();
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        expect($dto->bio->isPresent())->toBeTrue();
 
         $partial = $dto->partial();
         expect($partial)->toBe([
@@ -211,11 +238,14 @@ describe('Edge Cases', function(): void {
     it('handles null values correctly', function(): void {
         $dto = TestComboDTO2::fromArray(['title' => 'Test', 'metadata' => null]);
 
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
         expect($dto->metadata->isPresent())->toBeTrue();
 
+        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
         $value = $dto->metadata->get();
-        expect($value)->toBeInstanceOf(Lazy::class)
-            ->and($value->get())->toBeNull();
+        expect($value)->toBeInstanceOf(Lazy::class);
+        /** @phpstan-ignore-next-line method.nonObject (Lazy type) */
+        expect($value->get())->toBeNull();
     });
 });
 

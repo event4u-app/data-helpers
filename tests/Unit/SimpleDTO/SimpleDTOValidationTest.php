@@ -59,6 +59,7 @@ class TestDTOWithBool extends SimpleDTO
 
 class TestDTOWithArray extends SimpleDTO
 {
+/** @phpstan-ignore-next-line argument.type (Validation test) */
     public function __construct(
         public readonly array $tags,
     ) {
@@ -641,6 +642,7 @@ describe('SimpleDTO Validation', function(): void {
 
         it('handles nullable nested DTO', function(): void {
             $dto = new class('test') extends SimpleDTO {
+/** @phpstan-ignore-next-line return.type (Validation result type) */
                 public function __construct(
                     #[Required]
                     public readonly string $name,

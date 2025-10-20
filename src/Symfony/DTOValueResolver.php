@@ -73,12 +73,11 @@ if (!interface_exists('Symfony\Component\Validator\Validator\ValidatorInterface'
  */
 class DTOValueResolver implements ValueResolverInterface
 {
-    /** @phpstan-ignore-next-line */
-    private readonly ?ValidatorInterface $validator;
-
-    public function __construct(?ValidatorInterface $validator = null)
+    public function __construct(
+        /** @phpstan-ignore-next-line */
+        private readonly ?ValidatorInterface $validator = null
+    )
     {
-        $this->validator = $validator;
     }
 
     /**

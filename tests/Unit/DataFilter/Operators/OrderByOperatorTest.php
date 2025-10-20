@@ -250,7 +250,10 @@ describe('OrderByOperator', function(): void {
 
         $result = $operator->apply($items, $config, $context);
 
-        $ages = array_map(fn(array $item) => $item['user']['age'], array_values($result));
+        $ages = array_map(
+            fn(mixed $item): mixed => is_array($item) ? $item['user']['age'] : null,
+            array_values($result)
+        );
         expect($ages)->toBe([20, 25, 30]);
     });
 

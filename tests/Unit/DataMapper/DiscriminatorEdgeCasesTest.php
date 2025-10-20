@@ -15,6 +15,7 @@ abstract class AnimalEdge
 class DogEdge extends AnimalEdge
 {
     public string $breed = '';
+    /** @var array<int, mixed> */
     public array $items = [];
 }
 
@@ -52,8 +53,10 @@ describe('DataMapper - Discriminator Edge Cases', function(): void {
                 ->reverseMap();
 
             // reverseMap should also use discriminator
-            expect($result->getTarget())->toBeInstanceOf(DogEdge::class);
-            expect($result->getTarget()->name)->toBe('Rex');
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(DogEdge::class);
+            assert($target instanceof DogEdge);
+            expect($target->name)->toBe('Rex');
         });
 
         it('works with extendTemplate()', function(): void {
@@ -82,10 +85,12 @@ describe('DataMapper - Discriminator Edge Cases', function(): void {
 
             $result = $extended->map();
 
-            expect($result->getTarget())->toBeInstanceOf(CatEdge::class);
-            expect($result->getTarget()->name)->toBe('Whiskers');
-            expect($result->getTarget()->age)->toBe(3);
-            expect($result->getTarget()->color)->toBe('orange');
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(CatEdge::class);
+            assert($target instanceof CatEdge);
+            expect($target->name)->toBe('Whiskers');
+            expect($target->age)->toBe(3);
+            expect($target->color)->toBe('orange');
         });
 
         it('handles empty discriminator map', function(): void {
@@ -317,8 +322,10 @@ describe('DataMapper - Discriminator Edge Cases', function(): void {
                 ->map();
 
             // caseInsensitiveReplace allows case-insensitive template matching
-            expect($result->getTarget())->toBeInstanceOf(DogEdge::class);
-            expect($result->getTarget()->name)->toBe('Rex');
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(DogEdge::class);
+            assert($target instanceof DogEdge);
+            expect($target->name)->toBe('Rex');
         });
 
         it('works with trimValues option', function(): void {
@@ -341,8 +348,10 @@ describe('DataMapper - Discriminator Edge Cases', function(): void {
 
                 ->map();
 
-            expect($result->getTarget())->toBeInstanceOf(DogEdge::class);
-            expect($result->getTarget()->name)->toBe('Rex');
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(DogEdge::class);
+            assert($target instanceof DogEdge);
+            expect($target->name)->toBe('Rex');
         });
     });
 
@@ -353,11 +362,14 @@ describe('DataMapper - Discriminator Edge Cases', function(): void {
                 'name' => 'Sparkle',
             ];
 
+            $map = [
+                'unicorn' => 'NonExistentClass', // Class doesn't exist
+            ];
+
             $result = DataMapper::source($source)
                 ->target(BirdEdge::class)
-                ->discriminator('type', [
-                    'unicorn' => 'NonExistentClass', // Class doesn't exist
-                ])
+                /** @phpstan-ignore-next-line argument.type (Testing with non-existent class) */
+                ->discriminator('type', $map)
                 ->template([
                     'name' => '{{ name }}',
                 ])
@@ -449,8 +461,10 @@ describe('DataMapper - Discriminator Edge Cases', function(): void {
 
                 ->map();
 
-            expect($result->getTarget())->toBeInstanceOf(DogEdge::class);
-            expect($result->getTarget()->name)->toBe('Rex');
+            $target = $result->getTarget();
+            expect($target)->toBeInstanceOf(DogEdge::class);
+            assert($target instanceof DogEdge);
+            expect($target->name)->toBe('Rex');
         });
     });
 });

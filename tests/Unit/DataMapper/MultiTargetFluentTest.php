@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 
 describe('Multi-Target Fluent Mapping', function(): void {
@@ -68,9 +69,16 @@ describe('Multi-Target Fluent Mapping', function(): void {
         $data = $result->getTarget();
 
         expect($data)->toBeArray();
-        expect($data['user']->name)->toBe('Bob');
-        expect($data['user']->email)->toBe('bob@example.com');
-        expect($data['company']->name)->toBe('Acme Inc');
+        $user = $data['user'];
+        assert(is_object($user));
+        $accUser = new DataAccessor($user);
+        expect($accUser->get('name'))->toBe('Bob');
+        expect($accUser->get('email'))->toBe('bob@example.com');
+
+        $company = $data['company'];
+        assert(is_object($company));
+        $accCompany = new DataAccessor($company);
+        expect($accCompany->get('name'))->toBe('Acme Inc');
     });
 
     test('map with skipNull to multiple targets', function(): void {

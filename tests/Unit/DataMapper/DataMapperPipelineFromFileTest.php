@@ -235,8 +235,9 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
             $target = [];
             $mapping = ['name' => '{{ name }}'];
 
-            DataMapper::pipeQuery([new TrimStrings()])
+            $result = DataMapper::pipeQuery([new TrimStrings()])
                 ->sourceFile('/non/existent/file.json')->target($target)->template($mapping)->map()->getTarget();
+            expect($result)->toBeArray();
         })->throws(InvalidArgumentException::class, 'File not found');
 
         it('throws exception for unsupported file format', function(): void {
@@ -247,8 +248,9 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
             $mapping = ['name' => '{{ name }}'];
 
             try {
-                DataMapper::pipeQuery([new TrimStrings()])
+                $result = DataMapper::pipeQuery([new TrimStrings()])
                     ->sourceFile($tempFile)->target($target)->template($mapping)->map()->getTarget();
+                expect($result)->toBeArray();
             } finally {
                 unlink($tempFile);
             }

@@ -14,9 +14,12 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
+            $first = $users->first();
+            assert($first instanceof UserDTO);
+
             expect($users->count())->toBe(2)
-                ->and($users->first()->name)->toBe('John')
-                ->and($users->first()->age)->toBe(30);
+                ->and($first->name)->toBe('John')
+                ->and($first->age)->toBe(30);
         });
 
         it('handles empty collections', function(): void {
@@ -32,9 +35,12 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'John', 'age' => 30],
             ]);
 
+            $first = $users->first();
+            assert($first instanceof UserDTO);
+
             expect($users->count())->toBe(1)
-                ->and($users->first())->toBe($users->last())
-                ->and($users->first()->name)->toBe('John');
+                ->and($first)->toBe($users->last())
+                ->and($first->name)->toBe('John');
         });
     });
 
@@ -63,6 +69,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
             ]);
 
             $names = [];
+            /** @var UserDTO $user */
             foreach ($users as $user) {
                 $names[] = $user->name;
             }
@@ -76,7 +83,8 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            $names = $users->map(fn($user) => $user->name);
+            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+            $names = $users->map(fn(UserDTO $user): string => $user->name);
 
             expect($names)->toBe(['John', 'Jane']);
         });
@@ -88,22 +96,30 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            $filtered = $users->filter(fn($user): bool => 28 < $user->age);
+            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+            $filtered = $users->filter(fn(UserDTO $user): bool => 28 < $user->age);
+
+            $first = $filtered->first();
+            $last = $filtered->last();
+            assert($first instanceof UserDTO);
+            assert($last instanceof UserDTO);
 
             expect($filtered->count())->toBe(2)
-                ->and($filtered->first()->name)->toBe('John')
-                ->and($filtered->last()->name)->toBe('Bob');
+                ->and($first->name)->toBe('John')
+                ->and($last->name)->toBe('Bob');
         });
     });
 
     describe('Collection with Null Values', function(): void {
         it('handles null collection property', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly string $name = '',
                     public readonly ?DataCollection $users = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -121,11 +137,13 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
         it('handles missing collection property', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly string $name = '',
                     public readonly ?DataCollection $users = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -149,6 +167,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
             ]);
 
             $json = json_encode($users);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded)->toBeArray()
@@ -159,11 +178,13 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
         it('serializes DTO with collection to JSON', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly string $name = '',
                     public readonly ?DataCollection $users = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -179,6 +200,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
             ]);
 
             $json = json_encode($instance);
+            assert(is_string($json));
             $decoded = json_decode($json, true);
 
             expect($decoded['name'])->toBe('Team')
@@ -220,8 +242,13 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            expect($users->first()->name)->toBe('John')
-                ->and($users->last()->name)->toBe('Bob');
+            $first = $users->first();
+            $last = $users->last();
+            assert($first instanceof UserDTO);
+            assert($last instanceof UserDTO);
+
+            expect($first->name)->toBe('John')
+                ->and($last->name)->toBe('Bob');
         });
 
         it('returns null for first/last on empty collection', function(): void {
@@ -240,8 +267,10 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            $found = $users->first(fn($user): bool => 28 < $user->age);
+            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+            $found = $users->first(fn(UserDTO $user): bool => 28 < $user->age);
 
+            assert($found instanceof UserDTO);
             expect($found)->not->toBeNull()
                 ->and($found->name)->toBe('John');
         });
@@ -252,7 +281,8 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            $found = $users->first(fn($user): bool => 50 < $user->age);
+            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+            $found = $users->first(fn(UserDTO $user): bool => 50 < $user->age);
 
             expect($found)->toBeNull();
         });

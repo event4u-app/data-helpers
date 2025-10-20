@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\FluentDataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
@@ -43,8 +44,11 @@ describe('DataMapper Multi-Target Mapping', function(): void {
 
             $result = DataMapper::source($data)->target($targets)->template($template)->map()->getTarget();
 
-            expect($result['user']->name)->toBe('Alice');
-            expect($result['user']->email)->toBe('alice@example.com');
+            $user = $result['user'];
+            assert(is_object($user));
+            $accUser = new DataAccessor($user);
+            expect($accUser->get('name'))->toBe('Alice');
+            expect($accUser->get('email'))->toBe('alice@example.com');
             expect($result['addr'])->toBe(['street' => 'Main Street 1']);
         });
 
@@ -144,9 +148,13 @@ describe('DataMapper Multi-Target Mapping', function(): void {
             expect($targets)->toBeArray();
             expect($targets)->toHaveKey('user');
             expect($targets)->toHaveKey('addr');
-            expect($targets['user'])->toBe($userDto);
-            expect($targets['user']->name)->toBe('Alice');
-            expect($targets['user']->email)->toBe('alice@example.com');
+
+            $user = $targets['user'];
+            expect($user)->toBe($userDto);
+            assert(is_object($user));
+            $accUser = new DataAccessor($user);
+            expect($accUser->get('name'))->toBe('Alice');
+            expect($accUser->get('email'))->toBe('alice@example.com');
             expect($targets['addr'])->toBe(['street' => 'Main Street 1']);
         });
 
@@ -158,6 +166,7 @@ describe('DataMapper Multi-Target Mapping', function(): void {
             };
 
             $messagesDto = new class {
+                /** @var array<int, mixed> */
                 public array $items = [];
             };
 
@@ -187,9 +196,16 @@ describe('DataMapper Multi-Target Mapping', function(): void {
 
             $targets = $result->getTarget();
 
-            expect($targets['profile']->fullName)->toBe('Bob');
-            expect($targets['profile']->age)->toBe(30);
-            expect($targets['messages']->items)->toBe(['Hello World']);
+            $profile = $targets['profile'];
+            assert(is_object($profile));
+            $accProfile = new DataAccessor($profile);
+            expect($accProfile->get('fullName'))->toBe('Bob');
+            expect($accProfile->get('age'))->toBe(30);
+
+            $messages = $targets['messages'];
+            assert(is_object($messages));
+            $accMessages = new DataAccessor($messages);
+            expect($accMessages->get('items'))->toBe(['Hello World']);
         });
 
         it('structured target mapping with nested arrays', function(): void {
@@ -264,8 +280,11 @@ describe('DataMapper Multi-Target Mapping', function(): void {
             // Use Fluent API for reverse multi-target mapping
             $result = DataMapper::source($data)->target($targets)->template($template)->map()->getTarget();
 
-            expect($result['user']->name)->toBe('Alice');
-            expect($result['user']->email)->toBe('alice@example.com');
+            $user = $result['user'];
+            assert(is_object($user));
+            $accUser = new DataAccessor($user);
+            expect($accUser->get('name'))->toBe('Alice');
+            expect($accUser->get('email'))->toBe('alice@example.com');
             expect($result['addr'])->toBe(['street' => 'Main Street 1']);
         });
     });

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Between;
 use event4u\DataHelpers\SimpleDTO\Attributes\Confirmed;
 use event4u\DataHelpers\SimpleDTO\Attributes\Different;
@@ -29,8 +30,34 @@ use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
 use event4u\DataHelpers\SimpleDTO\Attributes\Unique;
 use event4u\DataHelpers\SimpleDTO\Attributes\Url;
 use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
 use Symfony\Component\Validator\Constraints as Assert;
+
+// Test DTOs
+class SymfonyValidationTestDTO1 extends SimpleDTO
+{
+    public function __construct(
+        #[Required]
+        #[Email]
+        public readonly string $email,
+        #[Between(18, 120)]
+        public readonly int $age,
+    ) {}
+}
+
+class SymfonyValidationTestDTO2 extends SimpleDTO
+{
+    public function __construct(
+        #[Required]
+        #[Email]
+        public readonly string $email,
+        #[Between(18, 120)]
+        public readonly int $age,
+        #[Url]
+        public readonly string $website,
+        #[Uuid]
+        public readonly string $uuid,
+    ) {}
+}
 
 // Skip all tests if Symfony Validator is not installed
 if (!class_exists('Symfony\Component\Validator\Constraint')) {
@@ -151,101 +178,89 @@ describe('Symfony Validation Integration', function(): void {
     describe('Constraint with Custom Messages', function(): void {
         it('passes custom message to NotBlank constraint', function(): void {
             $attribute = new Required(message: 'This field is mandatory');
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\NotBlank::class);
-            expect($constraint->message)->toBe('This field is mandatory');
+            expect($attribute->message)->toBe('This field is mandatory');
+            expect($attribute->constraint())->toBeInstanceOf(Assert\NotBlank::class);
         })->group('symfony');
 
         it('passes custom message to Email constraint', function(): void {
             $attribute = new Email(message: 'Invalid email format');
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\Email::class);
-            expect($constraint->message)->toBe('Invalid email format');
+            expect($attribute->message)->toBe('Invalid email format');
+            expect($attribute->constraint())->toBeInstanceOf(Assert\Email::class);
         })->group('symfony');
 
         it('passes custom message to GreaterThanOrEqual constraint', function(): void {
             $attribute = new Min(3, message: 'Too short');
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\GreaterThanOrEqual::class);
-            expect($constraint->message)->toBe('Too short');
+            expect($attribute->message)->toBe('Too short');
+            expect($attribute->constraint())->toBeInstanceOf(Assert\GreaterThanOrEqual::class);
         })->group('symfony');
 
         it('passes custom message to LessThanOrEqual constraint', function(): void {
             $attribute = new Max(50, message: 'Too long');
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\LessThanOrEqual::class);
-            expect($constraint->message)->toBe('Too long');
+            expect($attribute->message)->toBe('Too long');
+            expect($attribute->constraint())->toBeInstanceOf(Assert\LessThanOrEqual::class);
         })->group('symfony');
 
         it('passes custom message to Range constraint', function(): void {
             $attribute = new Between(18, 65, message: 'Age must be between 18 and 65');
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\Range::class);
-            expect($constraint->notInRangeMessage)->toBe('Age must be between 18 and 65');
+            expect($attribute->message)->toBe('Age must be between 18 and 65');
+            expect($attribute->constraint())->toBeInstanceOf(Assert\Range::class);
         })->group('symfony');
 
         it('passes custom message to Choice constraint', function(): void {
             $attribute = new In(['admin', 'user'], message: 'Invalid role');
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\Choice::class);
-            expect($constraint->message)->toBe('Invalid role');
+            expect($attribute->message)->toBe('Invalid role');
+            expect($attribute->constraint())->toBeInstanceOf(Assert\Choice::class);
         })->group('symfony');
 
         it('passes custom message to Regex constraint', function(): void {
             $attribute = new Regex('/^[A-Z]+$/', message: 'Must be uppercase');
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\Regex::class);
-            expect($constraint->message)->toBe('Must be uppercase');
+            expect($attribute->message)->toBe('Must be uppercase');
+            expect($attribute->constraint())->toBeInstanceOf(Assert\Regex::class);
         })->group('symfony');
     })->group('symfony');
 
     describe('Constraint Parameters', function(): void {
         it('sets min value for GreaterThanOrEqual constraint', function(): void {
             $attribute = new Min(10);
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\GreaterThanOrEqual::class);
-            expect($constraint->value)->toBe(10);
+            expect($attribute->value)->toBe(10);
+            expect($attribute->constraint())->toBeInstanceOf(Assert\GreaterThanOrEqual::class);
         })->group('symfony');
 
         it('sets max value for LessThanOrEqual constraint', function(): void {
             $attribute = new Max(100);
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\LessThanOrEqual::class);
-            expect($constraint->value)->toBe(100);
+            expect($attribute->value)->toBe(100);
+            expect($attribute->constraint())->toBeInstanceOf(Assert\LessThanOrEqual::class);
         })->group('symfony');
 
         it('sets min and max for Range constraint', function(): void {
             $attribute = new Between(18, 65);
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\Range::class);
-            expect($constraint->min)->toBe(18);
-            expect($constraint->max)->toBe(65);
+            expect($attribute->min)->toBe(18);
+            expect($attribute->max)->toBe(65);
+            expect($attribute->constraint())->toBeInstanceOf(Assert\Range::class);
         })->group('symfony');
 
         it('sets choices for Choice constraint', function(): void {
             $attribute = new In(['admin', 'user', 'guest']);
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\Choice::class);
-            expect($constraint->choices)->toBe(['admin', 'user', 'guest']);
+            expect($attribute->values)->toBe(['admin', 'user', 'guest']);
+            expect($attribute->constraint())->toBeInstanceOf(Assert\Choice::class);
         })->group('symfony');
 
         it('sets pattern for Regex constraint', function(): void {
             $attribute = new Regex('/^[A-Z]{2}\d{4}$/');
-            $constraint = $attribute->constraint();
 
-            expect($constraint)->toBeInstanceOf(Assert\Regex::class);
-            expect($constraint->pattern)->toBe('/^[A-Z]{2}\d{4}$/');
+            expect($attribute->pattern)->toBe('/^[A-Z]{2}\d{4}$/');
+            expect($attribute->constraint())->toBeInstanceOf(Assert\Regex::class);
         })->group('symfony');
 
         it('sets exact length for Length constraint', function(): void {
@@ -253,6 +268,7 @@ describe('Symfony Validation Integration', function(): void {
             $constraint = $attribute->constraint();
 
             expect($constraint)->toBeInstanceOf(Assert\Length::class);
+            /** @var Assert\Length $constraint */
             expect($constraint->min)->toBe(10);
             expect($constraint->max)->toBe(10);
         })->group('symfony');
@@ -262,6 +278,7 @@ describe('Symfony Validation Integration', function(): void {
             $constraint = $attribute->constraint();
 
             expect($constraint)->toBeInstanceOf(Assert\Regex::class);
+            /** @var Assert\Regex $constraint */
             expect($constraint->pattern)->toContain('^');
         })->group('symfony');
 
@@ -270,71 +287,33 @@ describe('Symfony Validation Integration', function(): void {
             $constraint = $attribute->constraint();
 
             expect($constraint)->toBeInstanceOf(Assert\Regex::class);
+            /** @var Assert\Regex $constraint */
             expect($constraint->pattern)->toContain('$');
         })->group('symfony');
     })->group('symfony');
 
     describe('Automatic Validation Integration', function(): void {
         it('validates DTO using Symfony validator automatically', function(): void {
-            $dto = (new class('test@example.com', 25) {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    #[Required]
-                    #[Email]
-                    public readonly string $email,
-
-                    #[Between(18, 120)]
-                    public readonly int $age,
-                ) {}
-            });
+            $dto = new SymfonyValidationTestDTO1('test@example.com', 25);
 
             expect($dto->email)->toBe('test@example.com');
             expect($dto->age)->toBe(25);
         })->group('symfony');
 
         it('throws ValidationException when Symfony validation fails', function(): void {
-            $class = new class('test@example.com', 25) {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    #[Required]
-                    #[Email]
-                    public readonly string $email,
-
-                    #[Between(18, 120)]
-                    public readonly int $age,
-                ) {}
-            };
-
-            expect(fn(): object => $class::validateAndCreate(['email' => 'not-an-email', 'age' => 25]))
+            expect(
+                fn(): object => SymfonyValidationTestDTO1::validateAndCreate(['email' => 'not-an-email', 'age' => 25])
+            )
                 ->toThrow(ValidationException::class);
         })->group('symfony');
 
         it('validates complex DTO with multiple constraints', function(): void {
-            $dto = (new class(
+            $dto = new SymfonyValidationTestDTO2(
                 'test@example.com',
                 25,
                 'https://example.com',
                 '550e8400-e29b-41d4-a716-446655440000'
-            ) {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    #[Required]
-                    #[Email]
-                    public readonly string $email,
-
-                    #[Between(18, 120)]
-                    public readonly int $age,
-
-                    #[Url]
-                    public readonly string $website,
-
-                    #[Uuid]
-                    public readonly string $uuid,
-                ) {}
-            });
+            );
 
             expect($dto->email)->toBe('test@example.com');
             expect($dto->age)->toBe(25);

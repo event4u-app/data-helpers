@@ -35,7 +35,7 @@ class NotIn implements ValidationRule, SymfonyConstraint
 
     /** @param array<int|string> $values */
     public function __construct(
-        private readonly array $values,
+        public readonly array $values,
     ) {
     }
 

@@ -4,25 +4,128 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextEquals;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextIn;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextNotNull;
-use event4u\DataHelpers\SimpleDTO\SimpleDTOTrait;
+
+// Test DTOs
+class ContextDTO1 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'includeEmail'
+)] public readonly string $email) {} }
+class ContextDTO2 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'role',
+    'admin'
+)] public readonly string $secretKey) {} }
+class ContextDTO3 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextEquals(
+    'role',
+    'admin'
+)] public readonly string $adminPanel) {} }
+class ContextDTO4 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextIn(
+    'role',
+    [
+    'admin',
+    'moderator',
+])] public readonly string $modPanel) {} }
+class ContextDTO5 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextNotNull(
+    'userId'
+)] public readonly string $privateData) {} }
+class ContextDTO6 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'includeEmail'
+)] #[WhenContext(
+    'role',
+    'admin'
+)] public readonly string $email) {} }
+class ContextDTO7 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'userLevel',
+    '>=',
+    5
+)] public readonly float $wholesalePrice) {} }
+class ContextDTO8 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'stock',
+    '<',
+    10
+)] public readonly string $lowStockWarning) {} }
+class ContextDTO9 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'environment',
+    '!=',
+    'production'
+)] public readonly string $debugInfo) {} }
+class ContextDTO10 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'isOnSale'
+)] public readonly string $saleLabel) {} }
+class ContextDTO11 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextIn(
+    'role',
+    [
+    'admin',
+    'moderator',
+])] public readonly string $modPanel) {} }
+class ContextDTO12 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'hasSpecialBadge'
+)] public readonly string $badge) {} }
+class ContextDTO13 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextNotNull(
+    'userId'
+)] public readonly string $greeting) {} }
+class ContextDTO14 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'isPremium'
+)] public readonly string $premiumContent) {} }
+class ContextDTO15 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'includeEmail'
+)] public readonly string $email, #[WhenContext(
+    'role',
+    'admin'
+)] public readonly string $adminPanel) {} }
+class ContextDTO16 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextEquals(
+    'onSale',
+    1,
+    false
+)] public readonly string $saleLabel) {} }
+class ContextDTO17 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextIn(
+    'role',
+    [
+    'admin',
+    'moderator',
+])] public readonly string $modPanel) {} }
+class ContextDTO18 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContext(
+    'hasSpecialBadge'
+)] public readonly string $badge) {} }
 
 describe('Context-Based Conditions', function(): void {
+class ContextDTO19 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextIn(
+    'role',
+    [
+    'admin',
+    'moderator',
+])] public readonly string $moderationPanel) {} }
+class ContextDTO20 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextIn(
+    'status',
+    [
+    'featured',
+    'promoted',
+    'bestseller',
+])] public readonly string $badge) {} }
+class ContextDTO21 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextNotNull(
+    'user'
+)] public readonly string $welcomeMessage) {} }
+class ContextDTO22 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextEquals(
+    'role',
+    'admin'
+)] #[WhenContextEquals(
+    'subscription',
+    'premium'
+)] public readonly string $premiumContent) {} }
+class ContextDTO23 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenContextEquals(
+    'includeEmail',
+    true
+)] public readonly string $email, #[WhenContextEquals(
+    'role',
+    'admin'
+)] public readonly string $adminPanel) {} }
+
     describe('WhenContext Attribute', function(): void {
         it('includes property when context key exists', function(): void {
-            $dto = new class('John', 'john@example.com') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContext('includeEmail')]
-                    public readonly string $email,
-                ) {}
-            };
+            $dto = new ContextDTO1('John', 'john@example.com');
 
             $array = $dto->withContext(['includeEmail' => true])->toArray();
 
@@ -31,16 +134,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('excludes property when context key does not exist', function(): void {
-            $dto = new class('John', 'john@example.com') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContext('includeEmail')]
-                    public readonly string $email,
-                ) {}
-            };
+            $dto = new ContextDTO1('John', 'john@example.com');
 
             $array = $dto->toArray();
 
@@ -48,16 +142,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('includes property when context value equals specified value', function(): void {
-            $dto = new class('John', 'secret123') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContext('role', 'admin')]
-                    public readonly string $secretKey,
-                ) {}
-            };
+            $dto = new ContextDTO2('John', 'secret123');
 
             $array = $dto->withContext(['role' => 'admin'])->toArray();
 
@@ -66,16 +151,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('excludes property when context value does not equal specified value', function(): void {
-            $dto = new class('John', 'secret123') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContext('role', 'admin')]
-                    public readonly string $secretKey,
-                ) {}
-            };
+            $dto = new ContextDTO2('John', 'secret123');
 
             $array = $dto->withContext(['role' => 'user'])->toArray();
 
@@ -83,16 +159,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('supports greater than operator', function(): void {
-            $dto = new class('Product', 99.99) {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContext('userLevel', '>=', 5)]
-                    public readonly float $wholesalePrice,
-                ) {}
-            };
+            $dto = new ContextDTO7('Product', 99.99);
 
             $array = $dto->withContext(['userLevel' => 5])->toArray();
 
@@ -100,16 +167,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('supports less than operator', function(): void {
-            $dto = new class('Product', 'Limited offer') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContext('stock', '<', 10)]
-                    public readonly string $lowStockWarning,
-                ) {}
-            };
+            $dto = new ContextDTO8('Product', 'Limited offer');
 
             $array = $dto->withContext(['stock' => 5])->toArray();
 
@@ -117,16 +175,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('supports not equal operator', function(): void {
-            $dto = new class('User', 'Debug info') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContext('environment', '!=', 'production')]
-                    public readonly string $debugInfo,
-                ) {}
-            };
+            $dto = new ContextDTO9('User', 'Debug info');
 
             $array = $dto->withContext(['environment' => 'development'])->toArray();
 
@@ -136,16 +185,7 @@ describe('Context-Based Conditions', function(): void {
 
     describe('WhenContextEquals Attribute', function(): void {
         it('includes property when context value equals specified value (strict)', function(): void {
-            $dto = new class('John', '/admin') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextEquals('role', 'admin')]
-                    public readonly string $adminPanel,
-                ) {}
-            };
+            $dto = new ContextDTO3('John', '/admin');
 
             $array = $dto->withContext(['role' => 'admin'])->toArray();
 
@@ -154,16 +194,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('excludes property when context value does not equal specified value', function(): void {
-            $dto = new class('John', '/admin') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextEquals('role', 'admin')]
-                    public readonly string $adminPanel,
-                ) {}
-            };
+            $dto = new ContextDTO3('John', '/admin');
 
             $array = $dto->withContext(['role' => 'user'])->toArray();
 
@@ -171,16 +202,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('supports non-strict comparison', function(): void {
-            $dto = new class('Product', 'On sale') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextEquals('onSale', 1, false)]
-                    public readonly string $saleLabel,
-                ) {}
-            };
+            $dto = new ContextDTO16('Product', 'On sale');
 
             $array = $dto->withContext(['onSale' => true])->toArray();
 
@@ -190,16 +212,7 @@ describe('Context-Based Conditions', function(): void {
 
     describe('WhenContextIn Attribute', function(): void {
         it('includes property when context value is in list', function(): void {
-            $dto = new class('John', '/moderation') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextIn('role', ['admin', 'moderator'])]
-                    public readonly string $moderationPanel,
-                ) {}
-            };
+            $dto = new ContextDTO19('John', '/moderation');
 
             $array = $dto->withContext(['role' => 'admin'])->toArray();
 
@@ -208,16 +221,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('excludes property when context value is not in list', function(): void {
-            $dto = new class('John', '/moderation') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextIn('role', ['admin', 'moderator'])]
-                    public readonly string $moderationPanel,
-                ) {}
-            };
+            $dto = new ContextDTO19('John', '/moderation');
 
             $array = $dto->withContext(['role' => 'user'])->toArray();
 
@@ -225,16 +229,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('supports multiple values in list', function(): void {
-            $dto = new class('Product', 'Special badge') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextIn('status', ['featured', 'promoted', 'bestseller'])]
-                    public readonly string $badge,
-                ) {}
-            };
+            $dto = new ContextDTO20('Product', 'Special badge');
 
             $arrayFeatured = $dto->withContext(['status' => 'featured'])->toArray();
             $arrayPromoted = $dto->withContext(['status' => 'promoted'])->toArray();
@@ -250,16 +245,7 @@ describe('Context-Based Conditions', function(): void {
 
     describe('WhenContextNotNull Attribute', function(): void {
         it('includes property when context key exists and is not null', function(): void {
-            $dto = new class('John', 'Welcome back!') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextNotNull('user')]
-                    public readonly string $welcomeMessage,
-                ) {}
-            };
+            $dto = new ContextDTO21('John', 'Welcome back!');
 
             $array = $dto->withContext(['user' => (object)['id' => 1]])->toArray();
 
@@ -268,16 +254,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('excludes property when context key does not exist', function(): void {
-            $dto = new class('John', 'Welcome back!') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextNotNull('user')]
-                    public readonly string $welcomeMessage,
-                ) {}
-            };
+            $dto = new ContextDTO21('John', 'Welcome back!');
 
             $array = $dto->toArray();
 
@@ -285,16 +262,7 @@ describe('Context-Based Conditions', function(): void {
         });
 
         it('excludes property when context value is null', function(): void {
-            $dto = new class('John', 'Welcome back!') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextNotNull('user')]
-                    public readonly string $welcomeMessage,
-                ) {}
-            };
+            $dto = new ContextDTO21('John', 'Welcome back!');
 
             $array = $dto->withContext(['user' => null])->toArray();
 
@@ -304,17 +272,7 @@ describe('Context-Based Conditions', function(): void {
 
     describe('Multiple Context Conditions', function(): void {
         it('supports multiple context conditions (AND logic)', function(): void {
-            $dto = new class('John', 'Premium content') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextEquals('role', 'admin')]
-                    #[WhenContextEquals('subscription', 'premium')]
-                    public readonly string $premiumContent,
-                ) {}
-            };
+            $dto = new ContextDTO22('John', 'Premium content');
 
             $arrayBoth = $dto->withContext(['role' => 'admin', 'subscription' => 'premium'])->toArray();
             $arrayOnlyRole = $dto->withContext(['role' => 'admin', 'subscription' => 'basic'])->toArray();
@@ -328,19 +286,7 @@ describe('Context-Based Conditions', function(): void {
 
     describe('Context Chaining', function(): void {
         it('merges context from multiple withContext calls', function(): void {
-            $dto = new class('John', 'admin@example.com', '/admin') {
-                use SimpleDTOTrait;
-
-                public function __construct(
-                    public readonly string $name,
-
-                    #[WhenContextEquals('includeEmail', true)]
-                    public readonly string $email,
-
-                    #[WhenContextEquals('role', 'admin')]
-                    public readonly string $adminPanel,
-                ) {}
-            };
+            $dto = new ContextDTO23('John', 'admin@example.com', '/admin');
 
             $array = $dto
                 ->withContext(['includeEmail' => true])

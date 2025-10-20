@@ -133,6 +133,7 @@ describe('FluentDataMapper Entry Points', function(): void {
                 ->getTarget();
 
             expect($result)->toBeInstanceOf(stdClass::class);
+            assert($result instanceof stdClass);
             expect($result->name)->toBe('Henry');
         });
     });

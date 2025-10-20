@@ -106,7 +106,7 @@ describe('FluentDataMapper Factory Methods', function(): void {
 
         it('auto-detects file path and uses fromFile()', function(): void {
             // Create temp file
-            $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
+            $tempFile = sys_get_temp_dir() . '/test_' . bin2hex(random_bytes(8)) . '.json';
             file_put_contents($tempFile, '{"name":"John"}');
 
             $mapper = DataMapper::source($tempFile);
@@ -127,7 +127,7 @@ describe('FluentDataMapper Factory Methods', function(): void {
 
     describe('fromFile()', function(): void {
         it('creates mapper from JSON file', function(): void {
-            $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
+            $tempFile = sys_get_temp_dir() . '/test_' . bin2hex(random_bytes(8)) . '.json';
             file_put_contents($tempFile, '{"name":"John","age":30}');
 
             $mapper = DataMapper::sourceFile($tempFile);
@@ -138,7 +138,7 @@ describe('FluentDataMapper Factory Methods', function(): void {
         });
 
         it('creates mapper from empty JSON file', function(): void {
-            $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
+            $tempFile = sys_get_temp_dir() . '/test_' . bin2hex(random_bytes(8)) . '.json';
             file_put_contents($tempFile, '{}');
 
             $mapper = DataMapper::sourceFile($tempFile);
@@ -149,7 +149,7 @@ describe('FluentDataMapper Factory Methods', function(): void {
         });
 
         it('creates mapper from JSON array file', function(): void {
-            $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
+            $tempFile = sys_get_temp_dir() . '/test_' . bin2hex(random_bytes(8)) . '.json';
             file_put_contents($tempFile, '[{"name":"John"},{"name":"Jane"}]');
 
             $mapper = DataMapper::sourceFile($tempFile);
@@ -180,7 +180,7 @@ describe('FluentDataMapper Factory Methods', function(): void {
         });
 
         it('can chain methods after fromFile()', function(): void {
-            $tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.json';
+            $tempFile = sys_get_temp_dir() . '/test_' . bin2hex(random_bytes(8)) . '.json';
             file_put_contents($tempFile, '{"name":"John"}');
 
             $mapper = DataMapper::sourceFile($tempFile)

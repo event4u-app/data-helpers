@@ -11,10 +11,12 @@ describe('CollectionCast', function(): void {
     describe('DataCollection', function(): void {
         it('throws exception when no DTO class is specified', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly ?DataCollection $tags = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['tags' => 'collection'];
@@ -26,10 +28,12 @@ describe('CollectionCast', function(): void {
 
         it('casts array to DataCollection with DTO class', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly ?DataCollection $users = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -43,13 +47,19 @@ describe('CollectionCast', function(): void {
                 ],
             ]);
 
+            assert($instance->users instanceof DataCollection);
+            $first = $instance->users->first();
+            $last = $instance->users->last();
+            assert($first instanceof UserDTO);
+            assert($last instanceof UserDTO);
+
             expect($instance->users)->toBeInstanceOf(DataCollection::class)
                 ->and($instance->users->count())->toBe(2)
-                ->and($instance->users->first())->toBeInstanceOf(UserDTO::class)
-                ->and($instance->users->first()->name)->toBe('John')
-                ->and($instance->users->first()->age)->toBe(30)
-                ->and($instance->users->last()->name)->toBe('Jane')
-                ->and($instance->users->last()->age)->toBe(25);
+                ->and($first)->toBeInstanceOf(UserDTO::class)
+                ->and($first->name)->toBe('John')
+                ->and($first->age)->toBe(30)
+                ->and($last->name)->toBe('Jane')
+                ->and($last->age)->toBe(25);
         });
 
         it('keeps existing DataCollection', function(): void {
@@ -59,10 +69,12 @@ describe('CollectionCast', function(): void {
             ]);
 
             $dto = new class($collection) extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly DataCollection $users,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -77,10 +89,12 @@ describe('CollectionCast', function(): void {
 
         it('handles null values', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly ?DataCollection $users = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -99,10 +113,12 @@ describe('CollectionCast', function(): void {
             ]);
 
             $dto = new class($collection) extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly DataCollection $users,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -121,10 +137,12 @@ describe('CollectionCast', function(): void {
     describe('Edge Cases', function(): void {
         it('handles single item array', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly ?DataCollection $users = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -137,18 +155,24 @@ describe('CollectionCast', function(): void {
                 ],
             ]);
 
+            assert($instance->users instanceof DataCollection);
+            $first = $instance->users->first();
+            assert($first instanceof UserDTO);
+
             expect($instance->users)->toBeInstanceOf(DataCollection::class)
                 ->and($instance->users->count())->toBe(1)
-                ->and($instance->users->first())->toBeInstanceOf(UserDTO::class)
-                ->and($instance->users->first()->name)->toBe('John');
+                ->and($first)->toBeInstanceOf(UserDTO::class)
+                ->and($first->name)->toBe('John');
         });
 
         it('handles empty array', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     public readonly ?DataCollection $users = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -157,6 +181,7 @@ describe('CollectionCast', function(): void {
 
             $instance = $dto::fromArray(['users' => []]);
 
+            assert($instance->users instanceof DataCollection);
             expect($instance->users)->toBeInstanceOf(DataCollection::class)
                 ->and($instance->users->count())->toBe(0);
         });
@@ -165,11 +190,13 @@ describe('CollectionCast', function(): void {
     describe('DataCollectionOf Attribute', function(): void {
         it('uses DataCollectionOf attribute for casting', function(): void {
             $dto = new class extends SimpleDTO {
+                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
                 public function __construct(
                     #[DataCollectionOf(UserDTO::class)]
                     public readonly ?DataCollection $users = null,
                 ) {}
 
+                /** @return array<string, string> */
                 protected function casts(): array
                 {
                     return ['users' => 'collection:' . UserDTO::class];
@@ -183,11 +210,17 @@ describe('CollectionCast', function(): void {
                 ],
             ]);
 
+            assert($instance->users instanceof DataCollection);
+            $first = $instance->users->first();
+            $last = $instance->users->last();
+            assert($first instanceof UserDTO);
+            assert($last instanceof UserDTO);
+
             expect($instance->users)->toBeInstanceOf(DataCollection::class)
                 ->and($instance->users->count())->toBe(2)
-                ->and($instance->users->first())->toBeInstanceOf(UserDTO::class)
-                ->and($instance->users->first()->name)->toBe('Alice')
-                ->and($instance->users->last()->name)->toBe('Bob');
+                ->and($first)->toBeInstanceOf(UserDTO::class)
+                ->and($first->name)->toBe('Alice')
+                ->and($last->name)->toBe('Bob');
         });
     });
 });

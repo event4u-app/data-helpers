@@ -8,6 +8,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 // Test DTOs
 class BasicLazyDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
     public function __construct(
         public readonly string $name,
         #[Lazy]
@@ -17,6 +18,7 @@ class BasicLazyDTO extends SimpleDTO
 
 class MultipleLazyDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
     public function __construct(
         public readonly string $name,
         #[Lazy]
@@ -28,6 +30,7 @@ class MultipleLazyDTO extends SimpleDTO
 
 class SecretLazyDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
     public function __construct(
         public readonly string $name,
         #[Lazy]
@@ -37,6 +40,7 @@ class SecretLazyDTO extends SimpleDTO
 
 class InternalNotesDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
     public function __construct(
         public readonly string $name,
         #[Lazy]
@@ -46,6 +50,7 @@ class InternalNotesDTO extends SimpleDTO
 
 class MappedLazyDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
     public function __construct(
         public readonly string $name,
         public readonly string $email,
@@ -56,6 +61,7 @@ class MappedLazyDTO extends SimpleDTO
 
 class TypedLazyDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line missingType.generics,missingType.iterableValue (Lazy type inference) */
     public function __construct(
         public readonly string $name,
         #[Lazy]
@@ -87,6 +93,7 @@ describe('Lazy Properties', function(): void {
         it('property is still accessible directly', function(): void {
             $instance = BasicLazyDTO::fromArray(['name' => 'John', 'biography' => 'Bio text']);
 
+            assert($instance->biography instanceof \event4u\DataHelpers\Support\Lazy);
             expect($instance->name)->toBe('John')
                 ->and($instance->biography->get())->toBe('Bio text');
         });
@@ -138,7 +145,9 @@ describe('Lazy Properties', function(): void {
                 'secret' => 'Secret data',
             ]);
 
-            $json = json_decode(json_encode($instance), true);
+            $jsonString = json_encode($instance);
+            assert(is_string($jsonString));
+            $json = json_decode($jsonString, true);
 
             expect($json)->toHaveKey('name')
                 ->and($json)->not->toHaveKey('secret');
@@ -150,7 +159,9 @@ describe('Lazy Properties', function(): void {
                 'secret' => 'Secret data',
             ]);
 
-            $json = json_decode(json_encode($instance->include(['secret'])), true);
+            $jsonString = json_encode($instance->include(['secret']));
+            assert(is_string($jsonString));
+            $json = json_decode($jsonString, true);
 
             expect($json)->toHaveKey('name')
                 ->and($json)->toHaveKey('secret');

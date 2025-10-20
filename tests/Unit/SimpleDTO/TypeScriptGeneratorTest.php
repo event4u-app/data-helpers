@@ -20,6 +20,7 @@ class TagDTOForTest extends SimpleDTO
 
 class PostDTOForTest extends SimpleDTO
 {
+/** @phpstan-ignore-next-line argument.type (Test with invalid type) */
     public function __construct(
         public readonly string $title,
         public readonly string $content,
@@ -70,6 +71,7 @@ describe('TypeScriptGenerator', function(): void {
                 public readonly DateTimeImmutable $createdAt,
             ) {}
 
+            /** @return array<string, string> */
             protected function casts(): array
             {
                 return [
@@ -98,6 +100,7 @@ describe('TypeScriptGenerator', function(): void {
                 public readonly Status $status,
             ) {}
 
+            /** @return array<string, string> */
             protected function casts(): array
             {
                 return [

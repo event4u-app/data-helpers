@@ -36,6 +36,7 @@ class IDESupportOrderDTO extends SimpleDTO
         public readonly float $total,
     ) {}
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -154,6 +155,7 @@ describe('IDE Support', function(): void {
         $getUserNames = function(DataCollection $users): array {
             $names = [];
             foreach ($users as $user) {
+/** @phpstan-ignore-next-line argument.type (IDE support test) */
                 $names[] = $user->name;
             }
             return $names;
@@ -161,6 +163,7 @@ describe('IDE Support', function(): void {
 
         $names = $getUserNames($users);
 
+/** @phpstan-ignore-next-line argument.templateType (IDE support test) */
         expect($names)->toBe(['John', 'Jane']);
     });
 

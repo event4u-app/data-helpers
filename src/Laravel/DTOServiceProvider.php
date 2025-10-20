@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\Laravel;
 
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -26,15 +28,15 @@ class DTOServiceProvider extends ServiceProvider
     /** Register services. */
     public function register(): void
     {
-        $this->app->singleton(DTOValueResolver::class, function (Application $app): DTOValueResolver {
+        $this->app->singleton(DTOValueResolver::class, function(Application $app): DTOValueResolver {
             /**
              * @phpstan-ignore-next-line
-             * @var \Illuminate\Http\Request $request
+             * @var Request $request
              */
             $request = $app->make('request');
             /**
              * @phpstan-ignore-next-line
-             * @var \Illuminate\Contracts\Validation\Factory $validator
+             * @var Factory $validator
              */
             $validator = $app->make('validator');
             return new DTOValueResolver($request, $validator);

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\FluentDataMapper;
 
 describe('Query Builder Template Injection', function(): void {
     describe('Single Wildcard with WHERE', function(): void {
@@ -20,7 +21,8 @@ describe('Query Builder Template Injection', function(): void {
             ];
 
             $dataMapper = DataMapper::template($template);
-            $dataMapper->query('roles.*')->where('name', '=', 'admin')->end();
+            $result = $dataMapper->query('roles.*')->where('name', '=', 'admin')->end();
+            expect($result)->toBeInstanceOf(FluentDataMapper::class);
 
             // Get the modified template by calling map() with withQuery=true
             $reflection = new ReflectionClass($dataMapper);
@@ -75,7 +77,8 @@ describe('Query Builder Template Injection', function(): void {
             ];
 
             $dataMapper = DataMapper::template($template);
-            $dataMapper->query('products.*')->orderBy('price', 'DESC')->end();
+            $result = $dataMapper->query('products.*')->orderBy('price', 'DESC')->end();
+            expect($result)->toBeInstanceOf(FluentDataMapper::class);
 
             $reflection = new ReflectionClass($dataMapper);
             $method = $reflection->getMethod('applyQueriesToTemplate');
@@ -128,7 +131,8 @@ describe('Query Builder Template Injection', function(): void {
             ];
 
             $dataMapper = DataMapper::template($template);
-            $dataMapper->query('items.*')->limit(10)->end();
+            $result = $dataMapper->query('items.*')->limit(10)->end();
+            expect($result)->toBeInstanceOf(FluentDataMapper::class);
 
             $reflection = new ReflectionClass($dataMapper);
             $method = $reflection->getMethod('applyQueriesToTemplate');
@@ -149,7 +153,8 @@ describe('Query Builder Template Injection', function(): void {
             ];
 
             $dataMapper = DataMapper::template($template);
-            $dataMapper->query('items.*')->limit(10)->offset(5)->end();
+            $result = $dataMapper->query('items.*')->limit(10)->offset(5)->end();
+            expect($result)->toBeInstanceOf(FluentDataMapper::class);
 
             $reflection = new ReflectionClass($dataMapper);
             $method = $reflection->getMethod('applyQueriesToTemplate');
@@ -175,7 +180,8 @@ describe('Query Builder Template Injection', function(): void {
             ];
 
             $dataMapper = DataMapper::template($template);
-            $dataMapper->query('sales.*')->groupBy('category')->end();
+            $result = $dataMapper->query('sales.*')->groupBy('category')->end();
+            expect($result)->toBeInstanceOf(FluentDataMapper::class);
 
             $reflection = new ReflectionClass($dataMapper);
             $method = $reflection->getMethod('applyQueriesToTemplate');
@@ -347,8 +353,10 @@ describe('Query Builder Template Injection', function(): void {
             ];
 
             $dataMapper = DataMapper::template($template);
-            $dataMapper->query('users.*')->where('age', '>', 18)->end();
-            $dataMapper->query('products.*')->where('price', '<', 100)->end();
+            $result1 = $dataMapper->query('users.*')->where('age', '>', 18)->end();
+            expect($result1)->toBeInstanceOf(FluentDataMapper::class);
+            $result2 = $dataMapper->query('products.*')->where('price', '<', 100)->end();
+            expect($result2)->toBeInstanceOf(FluentDataMapper::class);
 
             $reflection = new ReflectionClass($dataMapper);
             $method = $reflection->getMethod('applyQueriesToTemplate');
@@ -382,7 +390,8 @@ describe('Query Builder Template Injection', function(): void {
             ];
 
             $dataMapper = DataMapper::template($template);
-            $dataMapper->query('roles.*')->where('name', '=', 'admin')->end();
+            $result = $dataMapper->query('roles.*')->where('name', '=', 'admin')->end();
+            expect($result)->toBeInstanceOf(FluentDataMapper::class);
 
             $reflection = new ReflectionClass($dataMapper);
             $method = $reflection->getMethod('applyQueriesToTemplate');
