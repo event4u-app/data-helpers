@@ -595,7 +595,7 @@ if [[ "$RUN_PHPSTAN" == true ]]; then
     echo -e "${YELLOW}🔍  Running PHPStan...${NC}"
     echo ""
 
-    if run_in_container vendor/bin/phpstan analyse --memory-limit=2G; then
+    if run_in_container vendor/bin/phpstan analyse --memory-limit=4G; then
         echo ""
         echo -e "${GREEN}✓${NC}  PHPStan passed!"
     else

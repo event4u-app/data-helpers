@@ -1,7 +1,7 @@
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
-    - vendor/jangregor/phpstan-prophecy/extension.neon
-    - vendor/phpstan/phpstan-mockery/extension.neon
+    #- vendor/jangregor/phpstan-prophecy/extension.neon
+    #- vendor/phpstan/phpstan-mockery/extension.neon
     - vendor/phpat/phpat/extension.neon
     - vendor/spaze/phpstan-disallowed-calls/extension.neon
     - vendor/spaze/phpstan-disallowed-calls/disallowed-dangerous-calls.neon
@@ -25,6 +25,7 @@ parameters:
         - src/Laravel/DTOFormRequest.php
         - src/Laravel/DTOServiceProvider.php
         - src/Laravel/DTOValueResolver.php
+        - tests/Unit/LaravelAttributesAutoloadTest.php
         - '*.stub.php'
         - tests-e2e/*/vendor
 
