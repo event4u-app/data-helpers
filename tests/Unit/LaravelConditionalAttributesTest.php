@@ -464,5 +464,5 @@ describe('Laravel Conditional Attributes', function () {
             expect($array)->not->toHaveKey('adminPanel');
         });
     });
-});
+})->group('laravel');
 

@@ -339,5 +339,5 @@ describe('Doctrine Integration', function(): void {
             expect($entity->getLastName())->toBe('Doe');
         });
     });
-});
+})->group('doctrine');
 

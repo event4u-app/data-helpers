@@ -146,7 +146,7 @@ describe('Symfony Validation Integration', function () {
 
             expect($constraint)->toBeInstanceOf(Assert\Json::class);
         })->group('symfony');
-    });
+    })->group('symfony');
 
     describe('Constraint with Custom Messages', function () {
         it('passes custom message to NotBlank constraint', function () {
@@ -204,7 +204,7 @@ describe('Symfony Validation Integration', function () {
             expect($constraint)->toBeInstanceOf(Assert\Regex::class);
             expect($constraint->message)->toBe('Must be uppercase');
         })->group('symfony');
-    });
+    })->group('symfony');
 
     describe('Constraint Parameters', function () {
         it('sets min value for GreaterThanOrEqual constraint', function () {
@@ -272,7 +272,7 @@ describe('Symfony Validation Integration', function () {
             expect($constraint)->toBeInstanceOf(Assert\Regex::class);
             expect($constraint->pattern)->toContain('$');
         })->group('symfony');
-    });
+    })->group('symfony');
 
     describe('Automatic Validation Integration', function () {
         it('validates DTO using Symfony validator automatically', function () {
@@ -341,7 +341,7 @@ describe('Symfony Validation Integration', function () {
             expect($dto->website)->toBe('https://example.com');
             expect($dto->uuid)->toBe('550e8400-e29b-41d4-a716-446655440000');
         })->group('symfony');
-    });
+    })->group('symfony');
 
     describe('Field Comparison Constraints', function () {
         it('returns empty array for Same attribute (needs special handling)', function () {
@@ -364,7 +364,7 @@ describe('Symfony Validation Integration', function () {
 
             expect($constraint)->toBe([]);
         })->group('symfony');
-    });
+    })->group('symfony');
 
     describe('File Upload Constraints', function () {
         it('generates Symfony File constraint for File attribute', function () {
@@ -394,7 +394,7 @@ describe('Symfony Validation Integration', function () {
 
             expect($constraint)->toBeInstanceOf(Assert\File::class);
         })->group('symfony');
-    });
+    })->group('symfony');
 
     describe('Database Constraints', function () {
         it('returns empty array for Exists attribute (needs Doctrine)', function () {
@@ -410,6 +410,6 @@ describe('Symfony Validation Integration', function () {
 
             expect($constraint)->toBe([]);
         })->group('symfony');
-    });
-});
+    })->group('symfony');
+})->group('symfony');
 

@@ -309,5 +309,5 @@ describe('Doctrine Integration Edge Cases', function(): void {
             expect($newEntity->getIsActive())->toBeTrue();
         });
     });
-});
+})->group('doctrine');
 

@@ -10,9 +10,6 @@ use Exception;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @group symfony
- */
 describe('Symfony Config Integration', function(): void {
     beforeEach(function(): void {
         // Skip if Symfony is not available

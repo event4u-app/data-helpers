@@ -553,5 +553,5 @@ describe('Symfony Conditional Attributes', function () {
                 ->and($arrayAdmin)->toHaveKey('adminFeature');
         });
     });
-});
+})->group('symfony');
 

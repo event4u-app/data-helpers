@@ -8,9 +8,6 @@ use Tests\utils\Entities\Company;
 use Tests\utils\Entities\Department;
 use Tests\utils\Entities\Project;
 
-/**
- * @group doctrine
- */
 describe('DataMapper to Doctrine Entity', function(): void {
     describe('Automatic relation mapping', function(): void {
         it('maps JSON file to Company entity with automatic relation mapping', function(): void {
@@ -240,7 +237,7 @@ describe('DataMapper to Doctrine Entity', function(): void {
             expect($company->getIsActive())->toBeBool();
             expect($proj0Entity->getBudget())->toBeFloat();
         });
-    });
+    })->group('doctrine');
 
     describe('Entity comparison', function(): void {
         it('compares JSON and XML entities with identical values', function(): void {
@@ -357,6 +354,6 @@ describe('DataMapper to Doctrine Entity', function(): void {
             expect($xmlDept->getEmployeeCount())->toBeInt();
             expect($jsonDept->getEmployeeCount())->toBe(120);
         });
-    });
+    })->group('doctrine');
 })->group('doctrine');
 

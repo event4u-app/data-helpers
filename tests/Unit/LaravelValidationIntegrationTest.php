@@ -203,7 +203,7 @@ describe('Laravel Validation Integration', function () {
             $attribute = new Regex('/^[A-Z]{2}[0-9]{4}$/');
             expect($attribute->rule())->toBe('regex:/^[A-Z]{2}[0-9]{4}$/');
         });
-    });
+    })->group('laravel');
 
     describe('DTO Rule Collection', function () {
         it('collects all rules from DTO attributes', function () {
@@ -295,6 +295,6 @@ describe('Laravel Validation Integration', function () {
             expect($rules['settings'])->toContain('required');
             expect($rules['settings'])->toContain('json');
         });
-    });
-});
+    })->group('laravel');
+})->group('laravel');
 

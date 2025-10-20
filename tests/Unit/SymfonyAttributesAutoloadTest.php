@@ -181,5 +181,5 @@ describe('Symfony Attributes Autoload Safety', function () {
         $array = $dto->withContext(['user' => $user, 'post' => $post])->toArray();
         expect($array)->toHaveKey('editLink');
     });
-});
+})->group('symfony');
 

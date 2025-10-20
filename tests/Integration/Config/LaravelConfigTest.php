@@ -8,9 +8,6 @@ use event4u\DataHelpers\DataHelpersConfig;
 use event4u\DataHelpers\Laravel\DataHelpersServiceProvider;
 use Illuminate\Container\Container;
 
-/**
- * @group laravel
- */
 describe('Laravel Config Integration', function(): void {
     beforeEach(function(): void {
         // Skip if Laravel is not available

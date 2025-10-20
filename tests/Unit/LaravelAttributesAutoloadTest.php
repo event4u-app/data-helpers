@@ -172,5 +172,5 @@ describe('Laravel Attributes Autoload Safety', function () {
         expect(fn() => $class->jsonSerialize())->not->toThrow(\Throwable::class);
         expect(fn() => json_encode($class))->not->toThrow(\Throwable::class);
     });
-});
+})->group('laravel');
 
