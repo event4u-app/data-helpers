@@ -175,6 +175,7 @@ $benchmarks = [];
 
 $benchmarks[] = DtoBenchmarkRunner::run('Traditional Mutable DTO', function() use ($jsonFile, $mapping): void {
     $company = new CompanyDto();
+    // @phpstan-ignore-next-line method.resultUnused
     DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 }, 1000);
 
