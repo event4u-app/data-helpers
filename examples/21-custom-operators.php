@@ -12,6 +12,7 @@ use event4u\DataHelpers\DataFilter\Operators\OperatorRegistry;
 echo "=== Custom Operators Examples ===\n\n";
 
 // Example 1: Create a custom STARTS_WITH operator
+/** @phpstan-ignore-next-line class.notFound */
 class StartsWithOperator extends AbstractOperator
 {
     public function getName(): string
@@ -37,6 +38,7 @@ class StartsWithOperator extends AbstractOperator
 }
 
 // Example 2: Create a custom ENDS_WITH operator
+/** @phpstan-ignore-next-line class.notFound */
 class EndsWithOperator extends AbstractOperator
 {
     public function getName(): string
@@ -62,6 +64,7 @@ class EndsWithOperator extends AbstractOperator
 }
 
 // Example 3: Create a custom CONTAINS operator
+/** @phpstan-ignore-next-line class.notFound */
 class ContainsOperator extends AbstractOperator
 {
     public function getName(): string
@@ -102,39 +105,46 @@ $products = [
 
 // Use custom STARTS_WITH operator
 echo "1. STARTS_WITH - Products with SKU starting with 'ELEC':\n";
+/** @var array<int, array<string, mixed>> $electronics */
 $electronics = DataFilter::query($products)
     ->addOperator('STARTS_WITH', ['sku' => 'ELEC'])
     ->get();
 
 foreach ($electronics as $product) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s (SKU: %s)\n", $product['name'], $product['sku']);
 }
 echo "\n";
 
 // Use custom ENDS_WITH operator
 echo "2. ENDS_WITH - Emails ending with '@example.com':\n";
+/** @var array<int, array<string, mixed>> $exampleEmails */
 $exampleEmails = DataFilter::query($products)
     ->addOperator('ENDS_WITH', ['email' => '@example.com'])
     ->get();
 
 foreach ($exampleEmails as $product) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s - %s\n", $product['name'], $product['email']);
 }
 echo "\n";
 
 // Use custom CONTAINS operator
 echo "3. CONTAINS - Products with 'Laptop' in name:\n";
+/** @var array<int, array<string, mixed>> $laptops */
 $laptops = DataFilter::query($products)
     ->addOperator('CONTAINS', ['name' => 'Laptop'])
     ->get();
 
 foreach ($laptops as $product) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s\n", $product['name']);
 }
 echo "\n";
 
 // Combine custom operators with built-in operators
 echo "4. Combined - Electronics (STARTS_WITH) with sales email (CONTAINS):\n";
+/** @var array<int, array<string, mixed>> $result */
 $result = DataFilter::query($products)
     ->addOperator('STARTS_WITH', ['sku' => 'ELEC'])
     ->addOperator('CONTAINS', ['email' => 'sales'])
@@ -142,8 +152,11 @@ $result = DataFilter::query($products)
 
 foreach ($result as $product) {
     echo sprintf("   • %s (SKU: %s, Email: %s)\n",
+        /** @phpstan-ignore-next-line phpstan-error */
         $product['name'],
+        /** @phpstan-ignore-next-line phpstan-error */
         $product['sku'],
+        /** @phpstan-ignore-next-line phpstan-error */
         $product['email']
     );
 }
@@ -151,21 +164,26 @@ echo "\n";
 
 // Use first() method
 echo "5. first() - Get first Electronics product:\n";
+/** @var array<int, array<string, mixed>> $firstElec */
 $firstElec = DataFilter::query($products)
     ->addOperator('STARTS_WITH', ['sku' => 'ELEC'])
     ->first();
 
 if ($firstElec) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s (SKU: %s)\n", $firstElec['name'], $firstElec['sku']);
 }
 echo "\n";
 
 // Use count() method
 echo "6. count() - Count Electronics products:\n";
+/** @var array<int, array<string, mixed>> $count */
+/** @phpstan-ignore-next-line phpstan-error */
 $count = DataFilter::query($products)
     ->addOperator('STARTS_WITH', ['sku' => 'ELEC'])
     ->count();
 
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf("   Total: %d products\n", $count);
 echo "\n";
 

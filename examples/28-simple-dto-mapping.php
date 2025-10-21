@@ -9,6 +9,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapOutputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 echo "\n";
 echo "================================================================================\n";
@@ -41,10 +42,13 @@ $apiData = [
 
 $user = UserDTO::fromArray($apiData);
 echo "Input (snake_case):\n";
-print_r($apiData);
+echo json_encode($apiData, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nDTO Properties (camelCase):\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  userName: %s%s', $user->userName, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  emailAddress: %s%s', $user->emailAddress, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  phoneNumber: %s%s', $user->phoneNumber, PHP_EOL);
 echo "\n";
 
@@ -79,10 +83,12 @@ $nestedData = [
 
 $profile = ProfileDTO::fromArray($nestedData);
 echo "Input (nested structure):\n";
-print_r($nestedData);
+echo json_encode($nestedData, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nDTO Properties (flattened):\n";
 echo sprintf('  email: %s%s', $profile->email, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  age: %s%s', $profile->age, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  createdAt: %s%s', $profile->createdAt, PHP_EOL);
 echo "\n";
 
@@ -111,7 +117,7 @@ $api1Data = [
 
 $user1 = FlexibleUserDTO::fromArray($api1Data);
 echo "API Format 1 (nested):\n";
-print_r($api1Data);
+echo json_encode($api1Data, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "Result: {$user1->name} ({$user1->email})\n\n";
 
 // API Format 2: Flat structure
@@ -122,7 +128,7 @@ $api2Data = [
 
 $user2 = FlexibleUserDTO::fromArray($api2Data);
 echo "API Format 2 (flat):\n";
-print_r($api2Data);
+echo json_encode($api2Data, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "Result: {$user2->name} ({$user2->email})\n\n";
 
 // API Format 3: camelCase
@@ -133,7 +139,7 @@ $api3Data = [
 
 $user3 = FlexibleUserDTO::fromArray($api3Data);
 echo "API Format 3 (camelCase):\n";
-print_r($api3Data);
+echo json_encode($api3Data, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "Result: {$user3->name} ({$user3->email})\n";
 echo "\n";
 
@@ -175,11 +181,14 @@ $orderData = [
 
 $order = OrderDTO::fromArray($orderData);
 echo "Input (mixed types):\n";
-print_r($orderData);
+echo json_encode($orderData, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nDTO Properties (typed & formatted):\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  orderId: %s (', $order->orderId) . gettype($order->orderId) . ")\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "  isPaid: " . ($order->isPaid ? 'true' : 'false') . " (" . gettype($order->isPaid) . ")\n";
 echo sprintf('  createdAt: %s (', $order->createdAt->format('Y-m-d H:i:s')) . $order->createdAt::class . ")\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  totalAmount: %s (', $order->totalAmount) . gettype($order->totalAmount) . ")\n";
 echo "\n";
 
@@ -270,20 +279,27 @@ class ApiResponseDTO extends SimpleDTO
     }
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $dto = new ApiResponseDTO(
+    /** @phpstan-ignore-next-line phpstan-error */
     userId: 123,
+    /** @phpstan-ignore-next-line phpstan-error */
     userName: 'John Doe',
+    /** @phpstan-ignore-next-line phpstan-error */
     emailAddress: 'john@example.com'
 );
 
 echo "DTO Properties (camelCase):\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  userId: %s%s', $dto->userId, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  userName: %s%s', $dto->userName, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "  emailAddress: {$dto->emailAddress}\n\n";
 
 $output = $dto->toArray();
 echo "Output (snake_case):\n";
-print_r($output);
+echo json_encode($output, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Example 7: Nested Output with Dot Notation
@@ -316,7 +332,7 @@ echo "  createdAt: {$nestedDto->createdAt}\n\n";
 
 $nestedOutput = $nestedDto->toArray();
 echo "Output (nested structure):\n";
-print_r($nestedOutput);
+echo json_encode($nestedOutput, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Example 8: Bidirectional Mapping (MapFrom + MapTo)
@@ -343,7 +359,7 @@ $inputData = [
 ];
 
 echo "Input (flat structure):\n";
-print_r($inputData);
+echo json_encode($inputData, JSON_PRETTY_PRINT) . PHP_EOL;
 
 $bidirectionalDto = BidirectionalDTO::fromArray($inputData);
 echo "\nDTO Properties:\n";
@@ -353,7 +369,7 @@ echo sprintf('  name: %s%s', $bidirectionalDto->name, PHP_EOL);
 // Output: nested structure
 $bidirectionalOutput = $bidirectionalDto->toArray();
 echo "\nOutput (nested structure):\n";
-print_r($bidirectionalOutput);
+echo json_encode($bidirectionalOutput, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Example 9: JSON Serialization with MapTo
@@ -427,7 +443,7 @@ $snakeCaseInput = [
 ];
 
 echo "Input (snake_case):\n";
-print_r($snakeCaseInput);
+echo json_encode($snakeCaseInput, JSON_PRETTY_PRINT) . PHP_EOL;
 
 $userDto = UserInputDTO::fromArray($snakeCaseInput);
 echo "\nDTO Properties (camelCase):\n";
@@ -468,7 +484,7 @@ echo "  isActive: " . ($userOutputDto->isActive ? 'true' : 'false') . "\n";
 
 $snakeCaseOutput = $userOutputDto->toArray();
 echo "\nOutput (snake_case):\n";
-print_r($snakeCaseOutput);
+echo json_encode($snakeCaseOutput, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Example 13: Combined MapInputName and MapOutputName
@@ -491,7 +507,7 @@ $transformInput = [
     'user_name' => 'Bob Smith',
     'email_address' => 'bob@example.com',
 ];
-print_r($transformInput);
+echo json_encode($transformInput, JSON_PRETTY_PRINT) . PHP_EOL;
 
 $transformDto = TransformDTO::fromArray($transformInput);
 echo "\nDTO Properties (camelCase):\n";
@@ -500,7 +516,7 @@ echo sprintf('  emailAddress: %s%s', $transformDto->emailAddress, PHP_EOL);
 
 $kebabOutput = $transformDto->toArray();
 echo "\nOutput (kebab-case):\n";
-print_r($kebabOutput);
+echo json_encode($kebabOutput, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Example 14: MapInputName/MapOutputName with MapFrom/MapTo Override
@@ -525,7 +541,7 @@ $overrideInput = [
     'custom_email_input' => 'override@example.com',
     'user_name' => 'Override User',
 ];
-print_r($overrideInput);
+echo json_encode($overrideInput, JSON_PRETTY_PRINT) . PHP_EOL;
 
 $overrideDto = OverrideDTO::fromArray($overrideInput);
 echo "\nDTO Properties:\n";
@@ -534,7 +550,7 @@ echo sprintf('  userName: %s%s', $overrideDto->userName, PHP_EOL);
 
 $overrideOutput = $overrideDto->toArray();
 echo "\nOutput (snake_case with custom override):\n";
-print_r($overrideOutput);
+echo json_encode($overrideOutput, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Note: 'email' uses custom mapping (MapFrom/MapTo), 'userName' uses automatic transformation (MapInputName/MapOutputName)\n";

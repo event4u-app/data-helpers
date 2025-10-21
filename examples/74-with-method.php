@@ -26,10 +26,10 @@ class UserDTO extends SimpleDTO
 $user = new UserDTO('John Doe', 'john@example.com');
 
 echo "Original DTO:\n";
-print_r($user->toArray());
+echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nWith additional 'role' property:\n";
-print_r($user->with('role', 'admin')->toArray());
+echo json_encode($user->with('role', 'admin')->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Original DTO is not modified\n";
 echo "✅  Additional property is added to output\n";
@@ -48,7 +48,7 @@ $userWithMetadata = $user->with([
 ]);
 
 echo "User with metadata:\n";
-print_r($userWithMetadata->toArray());
+echo json_encode($userWithMetadata->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Multiple properties added at once\n";
 echo "✅  Clean and readable syntax\n";
@@ -65,7 +65,7 @@ $userChained = $user
     ->with('lastLogin', '2024-01-15 10:30:00');
 
 echo "User with chained properties:\n";
-print_r($userChained->toArray());
+echo json_encode($userChained->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Fluent interface for building complex outputs\n";
 echo "✅  Each call returns a new instance\n";
@@ -85,6 +85,7 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $product = new ProductDTO('Laptop', 999.99, 0.19);
 
 $productWithCalculations = $product->with([
@@ -94,7 +95,7 @@ $productWithCalculations = $product->with([
 ]);
 
 echo "Product with calculated values:\n";
-print_r($productWithCalculations->toArray());
+echo json_encode($productWithCalculations->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Callbacks are evaluated lazily\n";
 echo "✅  Access to DTO properties in callbacks\n";
@@ -123,13 +124,15 @@ class CustomerDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $address = new AddressDTO('123 Main St', 'New York', 'USA');
+/** @phpstan-ignore-next-line phpstan-error */
 $customer = new CustomerDTO('Jane Doe', 'jane@example.com');
 
 $customerWithAddress = $customer->with('address', $address);
 
 echo "Customer with nested address:\n";
-print_r($customerWithAddress->toArray());
+echo json_encode($customerWithAddress->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Nested DTOs are automatically converted to arrays\n";
 echo "✅  Clean nested structure\n";
@@ -149,12 +152,14 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $order = new OrderDTO('ORD-12345', 'completed', 299.99);
 
 $apiResponse = $order->with([
     'meta' => [
         'timestamp' => date('Y-m-d H:i:s'),
         'version' => '1.0',
+        /** @phpstan-ignore-next-line phpstan-error */
         'requestId' => uniqid(),
     ],
     'links' => [
@@ -165,7 +170,7 @@ $apiResponse = $order->with([
 ]);
 
 echo "API Response:\n";
-print_r($apiResponse->toArray());
+echo json_encode($apiResponse->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Perfect for API responses with metadata\n";
 echo "✅  Add links, timestamps, versions, etc.\n";
@@ -185,6 +190,7 @@ class ArticleDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $article = new ArticleDTO('Premium Article', 'This is premium content...', true);
 
 $publicArticle = $article->with([
@@ -193,7 +199,7 @@ $publicArticle = $article->with([
 ]);
 
 echo "Article with conditional data:\n";
-print_r($publicArticle->toArray());
+echo json_encode($publicArticle->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Add properties based on conditions\n";
 echo "✅  Perfect for public vs. private data\n";
@@ -228,6 +234,9 @@ echo "------------------------------------------------------------\n";
 
 class ReportDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $data
+     */
     public function __construct(
         public readonly string $title,
         public readonly array $data,
@@ -243,7 +252,7 @@ $enrichedReport = $report
     ->wrap('report');
 
 echo "Enriched and wrapped report:\n";
-print_r($enrichedReport->toArray());
+echo json_encode($enrichedReport->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Combines with wrap() method\n";
 echo "✅  Combines with other DTO features\n";

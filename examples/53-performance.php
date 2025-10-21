@@ -96,6 +96,10 @@ echo "-------------------------\n";
 
 class ComplexUserDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $tags
+     * @param array<mixed> $metadata
+     */
     public function __construct(
         public readonly string $name = '',
         public readonly int $age = 0,

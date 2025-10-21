@@ -24,11 +24,18 @@ $hooks = Hooks::make()
     => is_string($v) ? trim($v) : $v)
     ->toArray();
 
-$res = DataMapper::map($src, $tgt, [
-    'profile' => [
-        'name' => '{{ user.name }}',
-    ],
-], true, false, $hooks);
+$res = DataMapper::source($src)
+    ->target($tgt)
+    ->template([
+        'profile' => [
+            'name' => '{{ user.name }}',
+        ],
+    ])
+    ->hooks($hooks)
+    ->skipNull(true)
+    ->reindexWildcard(false)
+    ->map()
+    ->getTarget();
 
 echo json_encode($res, JSON_PRETTY_PRINT);
 echo PHP_EOL;

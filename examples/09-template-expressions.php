@@ -55,7 +55,10 @@ $template = [
     ],
 ];
 
-$result = DataMapper::mapFromTemplate($template, $sources);
+$result = DataMapper::source($sources)
+    ->template($template)
+    ->map()
+    ->toArray();
 
 echo json_encode($result, JSON_PRETTY_PRINT);
 echo PHP_EOL;

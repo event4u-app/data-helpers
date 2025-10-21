@@ -28,9 +28,11 @@ class UserProfileDTO extends SimpleDTO
         public readonly string $name,
         public readonly string $username,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly string $email = 'john@example.com',
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly string $phone = '555-1234',
     ) {}
@@ -39,11 +41,11 @@ class UserProfileDTO extends SimpleDTO
 $profile = new UserProfileDTO('John Doe', 'johndoe');
 
 echo "As guest:\n";
-print_r($profile->withContext(['user' => null])->toArray());
+echo json_encode($profile->withContext(['user' => null])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs authenticated user:\n";
 $authenticatedUser = (object)['id' => 1, 'name' => 'John'];
-print_r($profile->withContext(['user' => $authenticatedUser])->toArray());
+echo json_encode($profile->withContext(['user' => $authenticatedUser])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Sensitive data only shown to authenticated users\n";
 
@@ -59,9 +61,11 @@ class PageDTO extends SimpleDTO
         public readonly string $title,
         public readonly string $content,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenGuest]
         public readonly string $loginPrompt = 'Please log in to see more',
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenGuest]
         public readonly string $registerLink = '/register',
     ) {}
@@ -70,10 +74,10 @@ class PageDTO extends SimpleDTO
 $page = new PageDTO('Welcome', 'Welcome to our site!');
 
 echo "As guest:\n";
-print_r($page->withContext(['user' => null])->toArray());
+echo json_encode($page->withContext(['user' => null])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs authenticated user:\n";
-print_r($page->withContext(['user' => $authenticatedUser])->toArray());
+echo json_encode($page->withContext(['user' => $authenticatedUser])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Guest-specific content only shown to non-authenticated users\n";
 
@@ -88,17 +92,21 @@ class DashboardDTO extends SimpleDTO
     public function __construct(
         public readonly string $title,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('admin')]
         public readonly string $adminPanel = '/admin',
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['admin', 'moderator'])]
         public readonly string $moderationPanel = '/moderation',
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('editor')]
         public readonly string $editorPanel = '/editor',
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $dashboard = new DashboardDTO('Dashboard');
 
 $admin = (object)['id' => 1, 'role' => 'admin'];
@@ -107,16 +115,16 @@ $editor = (object)['id' => 3, 'role' => 'editor'];
 $user = (object)['id' => 4, 'role' => 'user'];
 
 echo "As admin:\n";
-print_r($dashboard->withContext(['user' => $admin])->toArray());
+echo json_encode($dashboard->withContext(['user' => $admin])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs moderator:\n";
-print_r($dashboard->withContext(['user' => $moderator])->toArray());
+echo json_encode($dashboard->withContext(['user' => $moderator])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs editor:\n";
-print_r($dashboard->withContext(['user' => $editor])->toArray());
+echo json_encode($dashboard->withContext(['user' => $editor])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs regular user:\n";
-print_r($dashboard->withContext(['user' => $user])->toArray());
+echo json_encode($dashboard->withContext(['user' => $user])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Different panels based on user role\n";
 
@@ -143,6 +151,7 @@ class PostDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $post = new PostDTO('My Post', 'Post content...');
 
 // User with can() method (like Laravel User model)
@@ -168,13 +177,13 @@ $viewerUser = new class {
 };
 
 echo "As editor (can edit and publish):\n";
-print_r($post->withContext(['user' => $editorUser])->toArray());
+echo json_encode($post->withContext(['user' => $editorUser])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs admin (can do everything):\n";
-print_r($post->withContext(['user' => $adminUser])->toArray());
+echo json_encode($post->withContext(['user' => $adminUser])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs viewer (read-only):\n";
-print_r($post->withContext(['user' => $viewerUser])->toArray());
+echo json_encode($post->withContext(['user' => $viewerUser])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Actions based on user permissions\n";
 
@@ -189,7 +198,9 @@ class SecretDocumentDTO extends SimpleDTO
     public function __construct(
         public readonly string $title,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('admin')]
         #[WhenCan('view-secrets')]
         public readonly string $secretContent = 'Top secret information',
@@ -223,16 +234,16 @@ $regularUser = new class {
 };
 
 echo "Admin with permission:\n";
-print_r($document->withContext(['user' => $adminWithPermission])->toArray());
+echo json_encode($document->withContext(['user' => $adminWithPermission])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAdmin without permission:\n";
-print_r($document->withContext(['user' => $adminWithoutPermission])->toArray());
+echo json_encode($document->withContext(['user' => $adminWithoutPermission])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nRegular user:\n";
-print_r($document->withContext(['user' => $regularUser])->toArray());
+echo json_encode($document->withContext(['user' => $regularUser])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nGuest:\n";
-print_r($document->withContext(['user' => null])->toArray());
+echo json_encode($document->withContext(['user' => null])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  All conditions must be met (AND logic)\n";
 
@@ -244,17 +255,23 @@ echo "------------------------------------------------------------\n";
 
 class OrderDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $paymentDetails
+     */
     public function __construct(
         public readonly string $id,
         public readonly string $status,
         public readonly float $total,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly string $customerName = 'John Doe',
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly string $customerEmail = 'john@example.com',
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['admin', 'support'])]
         public readonly string $internalNotes = 'Customer requested express shipping',
 
@@ -263,14 +280,15 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $order = new OrderDTO('ORD-12345', 'completed', 299.99);
 
 echo "Public API (guest):\n";
-print_r($order->withContext(['user' => null])->toArray());
+echo json_encode($order->withContext(['user' => null])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAuthenticated customer:\n";
 $customer = (object)['id' => 1, 'role' => 'customer'];
-print_r($order->withContext(['user' => $customer])->toArray());
+echo json_encode($order->withContext(['user' => $customer])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nSupport staff:\n";
 $support = new class {
@@ -280,7 +298,7 @@ $support = new class {
         return false;
     }
 };
-print_r($order->withContext(['user' => $support])->toArray());
+echo json_encode($order->withContext(['user' => $support])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAdmin with payment access:\n";
 $adminWithPayment = new class {
@@ -290,7 +308,7 @@ $adminWithPayment = new class {
         return 'view-payment-details' === $ability;
     }
 };
-print_r($order->withContext(['user' => $adminWithPayment])->toArray());
+echo json_encode($order->withContext(['user' => $adminWithPayment])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Different data visibility based on user role and permissions\n";
 

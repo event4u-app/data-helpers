@@ -34,13 +34,13 @@ $user = UserDTO::fromArray([
 ]);
 
 echo "Original (unsorted):\n";
-print_r($user->toArray());
+echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nSorted (ascending):\n";
-print_r($user->sorted()->toArray());
+echo json_encode($user->sorted()->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nSorted (descending):\n";
-print_r($user->sorted('desc')->toArray());
+echo json_encode($user->sorted('desc')->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -53,6 +53,10 @@ echo str_repeat('-', 80) . "\n";
 
 class ProductDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $attributes
+     * @param array<mixed> $metadata
+     */
     public function __construct(
         public readonly string $name = '',
         public readonly array $attributes = [],
@@ -75,10 +79,10 @@ $product = ProductDTO::fromArray([
 ]);
 
 echo "Sorted (top level only):\n";
-print_r($product->sorted()->toArray());
+echo json_encode($product->sorted()->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nSorted (with nested):\n";
-print_r($product->sorted()->withNestedSort()->toArray());
+echo json_encode($product->sorted()->withNestedSort()->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -107,15 +111,15 @@ $data = DataDTO::fromArray([
 ]);
 
 echo "Original:\n";
-print_r($data->toArray());
+echo json_encode($data->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nSorted by key length:\n";
 $sorted = $data->sortedBy(fn($a, $b): int => strlen((string)$a) <=> strlen((string)$b));
-print_r($sorted->toArray());
+echo json_encode($sorted->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nSorted reverse alphabetically:\n";
 $sorted = $data->sortedBy(fn($a, $b): int => strcmp((string)$b, (string)$a));
-print_r($sorted->toArray());
+echo json_encode($sorted->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -150,6 +154,9 @@ echo str_repeat('-', 80) . "\n";
 
 class ConfigDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $config
+     */
     public function __construct(
         public readonly array $config = [],
     ) {}
@@ -173,7 +180,7 @@ $config = ConfigDTO::fromArray([
 ]);
 
 echo "Sorted with nested:\n";
-print_r($config->sorted()->withNestedSort()->toArray());
+echo json_encode($config->sorted()->withNestedSort()->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -194,10 +201,10 @@ $user = UserDTO::fromArray([
 $sorted = $user->sorted();
 
 echo "Original DTO (unchanged):\n";
-print_r(array_keys($user->toArray()));
+echo json_encode(array_keys($user->toArray()), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nSorted DTO:\n";
-print_r(array_keys($sorted->toArray()));
+echo json_encode(array_keys($sorted->toArray()), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -228,10 +235,10 @@ $response = ApiResponseDTO::fromArray([
 ]);
 
 echo "Sorted + Only specific fields:\n";
-print_r($response->sorted()->only(['name', 'email'])->toArray());
+echo json_encode($response->sorted()->only(['name', 'email'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nSorted + Except password:\n";
-print_r($response->sorted()->except(['password'])->toArray());
+echo json_encode($response->sorted()->except(['password'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 

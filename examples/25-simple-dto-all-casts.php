@@ -6,6 +6,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use DateTimeImmutable;
 use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 // ============================================================================
 // Example: All Built-in Casts
@@ -16,6 +17,10 @@ echo str_repeat('=', 80) . "\n\n";
 
 class ProductDto extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $tags
+     * @param array<mixed> $metadata
+     */
     public function __construct(
         public readonly string $name,
         public readonly string $sku,
@@ -56,18 +61,25 @@ $apiData = [
     'created_at' => '2024-01-15 10:30:00',      // String → DateTimeImmutable
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $product = ProductDto::fromArray($apiData);
 
 echo "Product Details:\n";
 echo "----------------\n";
 echo sprintf('Name: %s%s', $product->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('SKU: %s (type: ', $product->sku) . gettype($product->sku) . ")\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Quantity: %s (type: ', $product->quantity) . gettype($product->quantity) . ")\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Weight: %s kg (type: ', $product->weight) . gettype($product->weight) . ")\n";
 echo sprintf('Price: €%s (type: ', $product->price) . gettype($product->price) . ")\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Available: " . ($product->is_available ? 'Yes' : 'No') . " (type: " . gettype($product->is_available) . ")\n";
 echo "Tags: " . implode(', ', $product->tags) . " (type: " . gettype($product->tags) . ")\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Metadata: " . json_encode($product->metadata) . " (type: " . gettype($product->metadata) . ")\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Created: " . $product->created_at->format('Y-m-d H:i:s') . " (type: " . $product->created_at::class . ")\n";
 
 echo "\n";
@@ -179,6 +191,10 @@ echo str_repeat('=', 80) . "\n\n";
 
 class ConfigDto extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $settings
+     * @param array<mixed> $permissions
+     */
     public function __construct(
         public readonly array $settings,
         public readonly array $permissions,
@@ -193,6 +209,7 @@ class ConfigDto extends SimpleDTO
     }
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $config = ConfigDto::fromArray([
     'settings' => '{"theme":"dark","language":"en","notifications":true}',
     'permissions' => '{"read":true,"write":false,"admin":false}',
@@ -200,7 +217,9 @@ $config = ConfigDto::fromArray([
 
 echo "JSON Handling:\n";
 echo "--------------\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Settings: " . json_encode($config->settings, JSON_PRETTY_PRINT) . "\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Permissions: " . json_encode($config->permissions, JSON_PRETTY_PRINT) . "\n";
 
 echo "\n";

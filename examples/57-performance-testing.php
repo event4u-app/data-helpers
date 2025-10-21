@@ -138,6 +138,13 @@ echo "-------------------------\n";
 
 class ComplexDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $metadata
+     */
+    /**
+     * @param array<mixed> $tags
+     * @param array<mixed> $metadata
+     */
     public function __construct(
         public readonly string $name,
         public readonly int $age,

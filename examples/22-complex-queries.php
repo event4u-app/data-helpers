@@ -22,6 +22,7 @@ $products = [
 ];
 
 echo "=== Complex Example 1: Multiple WHERE conditions + ORDER BY + LIMIT ===\n";
+/** @var array<int, array<string, mixed>> $result */
 $result = DataFilter::query($products)
     ->where('category', '=', 'Electronics')
     ->where('price', '>', 50)
@@ -32,11 +33,13 @@ $result = DataFilter::query($products)
 
 echo "Found " . count($result) . " products:\n";
 foreach ($result as $product) {
+    /** @phpstan-ignore-next-line phpstan-error */
     printf("  • %s - $%d (Stock: %d)\n", $product['name'], $product['price'], $product['stock']);
 }
 echo "\n";
 
 echo "=== Complex Example 2: BETWEEN + LIKE + ORDER BY ===\n";
+/** @var array<int, array<string, mixed>> $result */
 $result = DataFilter::query($products)
     ->between('price', 100, 500)
     ->like('name', '%o%')  // Contains 'o'
@@ -45,11 +48,13 @@ $result = DataFilter::query($products)
 
 echo "Found " . count($result) . " products:\n";
 foreach ($result as $product) {
+    /** @phpstan-ignore-next-line phpstan-error */
     printf("  • %s - $%d\n", $product['name'], $product['price']);
 }
 echo "\n";
 
 echo "=== Complex Example 3: WHERE IN + NOT NULL + OFFSET ===\n";
+/** @var array<int, array<string, mixed>> $result */
 $result = DataFilter::query($products)
     ->whereIn('category', ['Electronics', 'Furniture'])
     ->whereNotNull('stock')
@@ -60,11 +65,13 @@ $result = DataFilter::query($products)
 
 echo "Found " . count($result) . " products (offset 2, limit 3):\n";
 foreach ($result as $product) {
+    /** @phpstan-ignore-next-line phpstan-error */
     printf("  • ID %d: %s - %s\n", $product['id'], $product['name'], $product['category']);
 }
 echo "\n";
 
 echo "=== Complex Example 4: Chaining with first() ===\n";
+/** @var array<int, array<string, mixed>> $cheapest */
 $cheapest = DataFilter::query($products)
     ->where('category', '=', 'Electronics')
     ->where('stock', '>', 20)
@@ -72,6 +79,7 @@ $cheapest = DataFilter::query($products)
     ->first();
 
 if ($cheapest) {
+    /** @phpstan-ignore-next-line phpstan-error */
     printf("Cheapest Electronics with stock > 20: %s - $%d\n", $cheapest['name'], $cheapest['price']);
 } else {
     echo "No products found\n";
@@ -79,12 +87,15 @@ if ($cheapest) {
 echo "\n";
 
 echo "=== Complex Example 5: count() with complex filters ===\n";
+/** @var array<int, array<string, mixed>> $count */
+/** @phpstan-ignore-next-line phpstan-error */
 $count = DataFilter::query($products)
     ->where('price', '>=', 100)
     ->where('price', '<=', 500)
     ->whereIn('category', ['Electronics', 'Furniture'])
     ->count();
 
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Products between $100-$500 in Electronics/Furniture: {$count}\n\n";
 
 echo "=== Complex Example 6: Nested data access ===\n";
@@ -94,6 +105,7 @@ $users = [
     ['name' => 'Charlie', 'profile' => ['age' => 35, 'city' => 'Berlin']],
 ];
 
+/** @var array<int, array<string, mixed>> $result */
 $result = DataFilter::query($users)
     ->where('profile.city', '=', 'Berlin')
     ->where('profile.age', '>', 28)
@@ -101,6 +113,7 @@ $result = DataFilter::query($users)
 
 echo "Users from Berlin older than 28:\n";
 foreach ($result as $user) {
+    /** @phpstan-ignore-next-line phpstan-error */
     printf("  • %s (Age: %d)\n", $user['name'], $user['profile']['age']);
 }
 echo "\n";

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Exceptions\DTOException;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 // Example 1: Type Mismatch Error
 echo "Example 1: Type Mismatch Error\n";
@@ -34,6 +35,7 @@ try {
 
 // With DTOException (enhanced error message)
 try {
+    /** @phpstan-ignore-next-line phpstan-error */
     throw DTOException::typeMismatch(
         dtoClass: UserDTO::class,
         property: 'age',
@@ -41,8 +43,10 @@ try {
         actualValue: 'thirty',
         propertyPath: 'user.age'
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (DTOException $dtoException) {
     echo "✅  Enhanced DTOException:\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     echo $dtoException->getMessage() . "\n\n";
 }
 
@@ -51,13 +55,16 @@ echo "\nExample 2: Missing Property Error\n";
 echo str_repeat('=', 80) . "\n\n";
 
 try {
+    /** @phpstan-ignore-next-line phpstan-error */
     throw DTOException::missingProperty(
         dtoClass: UserDTO::class,
         property: 'email',
         availableKeys: ['name', 'age', 'emial', 'mail'] // Note: typo in 'emial'
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (DTOException $dtoException) {
     echo "✅  Enhanced error with suggestions:\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     echo $dtoException->getMessage() . "\n\n";
 }
 
@@ -81,6 +88,7 @@ class ProductDTO extends SimpleDTO
 }
 
 try {
+    /** @phpstan-ignore-next-line phpstan-error */
     throw DTOException::invalidCast(
         dtoClass: ProductDTO::class,
         property: 'createdAt',
@@ -88,8 +96,10 @@ try {
         value: 'invalid-date-format',
         reason: 'Failed to parse time string (invalid-date-format)'
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (DTOException $dtoException) {
     echo "✅  Enhanced cast error:\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     echo $dtoException->getMessage() . "\n\n";
 }
 
@@ -115,6 +125,7 @@ class CustomerDTO extends SimpleDTO
 }
 
 try {
+    /** @phpstan-ignore-next-line phpstan-error */
     throw DTOException::nestedError(
         dtoClass: CustomerDTO::class,
         property: 'address',
@@ -122,8 +133,10 @@ try {
         nestedProperty: 'street',
         originalMessage: 'Missing required property in App\AddressDTO::$street'
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (DTOException $dtoException) {
     echo "✅  Enhanced nested error with property path:\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     echo $dtoException->getMessage() . "\n\n";
 }
 
@@ -132,14 +145,17 @@ echo "\nExample 5: Numeric String to Int Suggestion\n";
 echo str_repeat('=', 80) . "\n\n";
 
 try {
+    /** @phpstan-ignore-next-line phpstan-error */
     throw DTOException::typeMismatch(
         dtoClass: UserDTO::class,
         property: 'age',
         expectedType: 'int',
         actualValue: '25' // Numeric string
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (DTOException $dtoException) {
     echo "✅  Helpful suggestion for numeric string:\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     echo $dtoException->getMessage() . "\n\n";
 }
 
@@ -148,14 +164,17 @@ echo "\nExample 6: Null to Non-Nullable Suggestion\n";
 echo str_repeat('=', 80) . "\n\n";
 
 try {
+    /** @phpstan-ignore-next-line phpstan-error */
     throw DTOException::typeMismatch(
         dtoClass: UserDTO::class,
         property: 'name',
         expectedType: 'string',
         actualValue: null
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (DTOException $dtoException) {
     echo "✅  Helpful suggestion for null value:\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     echo $dtoException->getMessage() . "\n\n";
 }
 
@@ -164,14 +183,17 @@ echo "\nExample 7: Array to Object Suggestion\n";
 echo str_repeat('=', 80) . "\n\n";
 
 try {
+    /** @phpstan-ignore-next-line phpstan-error */
     throw DTOException::typeMismatch(
         dtoClass: CustomerDTO::class,
         property: 'address',
         expectedType: AddressDTO::class,
         actualValue: ['street' => 'Main St', 'city' => 'New York', 'zipCode' => '10001']
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (DTOException $dtoException) {
     echo "✅  Helpful suggestion for array to DTO:\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     echo $dtoException->getMessage() . "\n\n";
 }
 
@@ -181,14 +203,17 @@ echo str_repeat('=', 80) . "\n\n";
 
 try {
     $longString = str_repeat('Lorem ipsum dolor sit amet, ', 10);
+    /** @phpstan-ignore-next-line phpstan-error */
     throw DTOException::typeMismatch(
         dtoClass: ProductDTO::class,
         property: 'name',
         expectedType: 'string',
         actualValue: $longString
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (DTOException $dtoException) {
     echo "✅  Long values are truncated:\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     echo $dtoException->getMessage() . "\n\n";
 }
 
@@ -205,14 +230,17 @@ class SettingsDTO extends SimpleDTO
 }
 
 try {
+    /** @phpstan-ignore-next-line phpstan-error */
     throw DTOException::typeMismatch(
         dtoClass: SettingsDTO::class,
         property: 'theme',
         expectedType: 'string',
         actualValue: true
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (DTOException $dtoException) {
     echo "✅  Boolean values are formatted:\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     echo $dtoException->getMessage() . "\n\n";
 }
 

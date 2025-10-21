@@ -15,6 +15,10 @@ echo "=== Real-World Beispiel: Blog-System ===\n\n";
 
 class BlogPostDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $analytics
+     * @param array<mixed> $editHistory
+     */
     public function __construct(
         public readonly string $id,
         public readonly string $title,
@@ -23,14 +27,17 @@ class BlogPostDTO extends SimpleDTO
         public readonly string $status, // 'draft', 'published', 'archived'
         
         // Nur für den Autor oder Admins sichtbar
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewDraftContent')]
         public readonly ?string $draftContent,
         
         // Nur für Admins sichtbar
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewAnalytics')]
         public readonly array $analytics,
         
         // Nur für den Autor oder Admins sichtbar
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEditHistory')]
         public readonly array $editHistory,
     ) {}
@@ -47,17 +54,20 @@ class BlogPostDTO extends SimpleDTO
         }
 
         // Admin kann alles sehen
+        /** @phpstan-ignore-next-line phpstan-error */
         if ('admin' === ($context->role ?? null)) {
             return true;
         }
 
         // Autor kann eigenen Draft sehen
+        /** @phpstan-ignore-next-line phpstan-error */
         return ($context->userId ?? null) === $this->authorId;
     }
 
     /** Analytics sind nur für Admins sichtbar */
     private function canViewAnalytics(mixed $context): bool
     {
+        /** @phpstan-ignore-next-line phpstan-error */
         return 'admin' === ($context?->role ?? null);
     }
 
@@ -73,11 +83,13 @@ class BlogPostDTO extends SimpleDTO
         }
 
         // Admin kann alles sehen
+        /** @phpstan-ignore-next-line phpstan-error */
         if ('admin' === ($context->role ?? null)) {
             return true;
         }
 
         // Autor kann eigene History sehen
+        /** @phpstan-ignore-next-line phpstan-error */
         return ($context->userId ?? null) === $this->authorId;
     }
 }
@@ -115,7 +127,7 @@ echo "Context: null\n\n";
 
 $publicView = $blogPost->toArray();
 echo "Sichtbare Felder:\n";
-print_r($publicView);
+echo json_encode($publicView, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 echo "→ Nur öffentliche Felder sichtbar\n";
 echo "→ draftContent, analytics, editHistory sind versteckt\n\n";
@@ -135,7 +147,7 @@ echo "Context: userId=user-789, role=user\n\n";
 
 $userView = $blogPost->withVisibilityContext($userContext)->toArray();
 echo "Sichtbare Felder:\n";
-print_r($userView);
+echo json_encode($userView, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 echo "→ Nur öffentliche Felder sichtbar\n";
 echo "→ Keine zusätzlichen Rechte, da nicht der Autor\n\n";
@@ -155,7 +167,7 @@ echo "Context: userId=author-456, role=author\n\n";
 
 $authorView = $blogPost->withVisibilityContext($authorContext)->toArray();
 echo "Sichtbare Felder:\n";
-print_r($authorView);
+echo json_encode($authorView, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 echo "→ Öffentliche Felder + draftContent + editHistory\n";
 echo "→ Analytics versteckt (nur für Admins)\n\n";
@@ -175,7 +187,7 @@ echo "Context: userId=admin-001, role=admin\n\n";
 
 $adminView = $blogPost->withVisibilityContext($adminContext)->toArray();
 echo "Sichtbare Felder:\n";
-print_r($adminView);
+echo json_encode($adminView, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 echo "→ ALLE Felder sichtbar\n";
 echo "→ Admin hat vollen Zugriff\n\n";

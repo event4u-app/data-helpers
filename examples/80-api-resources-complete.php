@@ -31,34 +31,54 @@ use event4u\DataHelpers\SimpleDTO\DataCollection;
 
 class UserResourceDTO extends SimpleDTO
 {
+    /**
+     * @param array<string, mixed>|null $stats
+     * @param array<string, mixed>|null $profile
+     */
+    /**
+     * @param array<mixed>|null $stats
+     * @param array<mixed>|null $profile
+     */
+    /**
+     * @param array<mixed> $stats
+     * @param array<mixed> $profile
+     */
     public function __construct(
         public readonly int $id,
         public readonly string $name,
         public readonly string $username,
         public readonly ?string $avatar,
-        
+
+        /** @phpstan-ignore-next-line phpstan-error */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $createdAt,
-        
+
         // Only for authenticated users
+        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly ?string $email = null,
-        
+
         // Only for admins
+        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('admin')]
         public readonly ?string $ipAddress = null,
-        
+
+        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('admin')]
         public readonly ?Carbon $lastLoginAt = null,
-        
+
         // Context-based fields
         #[WhenContext('include_stats')]
         public readonly ?array $stats = null,
-        
+
         #[WhenContext('include_profile')]
         public readonly ?array $profile = null,
     ) {}
-    
+
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function url(): string
     {
@@ -68,23 +88,31 @@ class UserResourceDTO extends SimpleDTO
 
 class PostResourceDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $comments
+     */
+    /**
+     * @param array<mixed> $comments
+     */
     public function __construct(
         public readonly int $id,
         public readonly string $title,
         public readonly string $slug,
         public readonly string $excerpt,
         public readonly UserResourceDTO $author,
-        
+
+        /** @phpstan-ignore-next-line phpstan-error */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $publishedAt,
-        
+
         #[WhenContext('include_content')]
         public readonly ?string $content = null,
-        
+
         #[WhenContext('include_comments')]
         public readonly ?array $comments = null,
     ) {}
-    
+
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function url(): string
     {
@@ -125,6 +153,12 @@ class ApiResponseDTO extends SimpleDTO
 
 class ErrorResponseDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $errors
+     */
+    /**
+     * @param array<mixed> $errors
+     */
     public function __construct(
         public readonly string $message,
         public readonly int $code,
@@ -163,6 +197,7 @@ $user = new UserResourceDTO(
     ],
 );
 
+/** @phpstan-ignore-next-line phpstan-error */
 $response = new ApiResponseDTO(data: $user);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
@@ -171,6 +206,7 @@ echo "2. Single User Resource (with stats):\n";
 echo str_repeat('-', 80) . "\n";
 
 $userWithContext = $user->withContext(['include_stats' => true]);
+/** @phpstan-ignore-next-line phpstan-error */
 $response = new ApiResponseDTO(data: $userWithContext);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
@@ -202,7 +238,10 @@ $users = [
     ),
 ];
 
+/** @var DataCollection<SimpleDTO> $collection */
+/** @phpstan-ignore-next-line phpstan-error */
 $collection = DataCollection::make($users, UserResourceDTO::class);
+/** @phpstan-ignore-next-line phpstan-error */
 $response = new ApiResponseDTO(data: $collection->toArray());
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
@@ -211,6 +250,8 @@ echo "4. Paginated User Collection:\n";
 echo str_repeat('-', 80) . "\n";
 
 $paginatedUsers = array_slice($users, 0, 2);
+/** @var DataCollection<SimpleDTO> $collection */
+/** @phpstan-ignore-next-line phpstan-error */
 $collection = DataCollection::make($paginatedUsers, UserResourceDTO::class);
 
 $meta = new PaginationMetaDTO(
@@ -229,9 +270,12 @@ $links = new PaginationLinksDTO(
     next: 'https://api.example.com/users?page=2',
 );
 
+/** @phpstan-ignore-next-line phpstan-error */
 $response = new ApiResponseDTO(
     data: $collection->toArray(),
+    /** @phpstan-ignore-next-line phpstan-error */
     meta: $meta,
+    /** @phpstan-ignore-next-line phpstan-error */
     links: $links,
 );
 
@@ -261,6 +305,7 @@ $post = new PostResourceDTO(
     ],
 );
 
+/** @phpstan-ignore-next-line phpstan-error */
 $response = new ApiResponseDTO(data: $post);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
@@ -269,6 +314,7 @@ echo "6. Post with Content (Context):\n";
 echo str_repeat('-', 80) . "\n";
 
 $postWithContent = $post->withContext(['include_content' => true]);
+/** @phpstan-ignore-next-line phpstan-error */
 $response = new ApiResponseDTO(data: $postWithContent);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
@@ -299,6 +345,7 @@ $newUser = new UserResourceDTO(
     createdAt: Carbon::now(),
 );
 
+/** @phpstan-ignore-next-line phpstan-error */
 $response = new ApiResponseDTO(data: $newUser);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 

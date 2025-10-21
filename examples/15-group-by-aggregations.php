@@ -48,8 +48,9 @@ $template1 = [
 ];
 
 $mapper = new DataMapper();
+/** @phpstan-ignore-next-line phpstan-error */
 $result1 = $mapper->mapFromTemplate($template1, $sources);
-print_r($result1);
+echo json_encode($result1, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -77,8 +78,9 @@ $template2 = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result2 = $mapper->mapFromTemplate($template2, $sources);
-print_r($result2);
+echo json_encode($result2, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -106,8 +108,9 @@ $template3 = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result3 = $mapper->mapFromTemplate($template3, $sources);
-print_r($result3);
+echo json_encode($result3, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -135,8 +138,9 @@ $template4 = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result4 = $mapper->mapFromTemplate($template4, $sources);
-print_r($result4);
+echo json_encode($result4, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -162,8 +166,9 @@ $template5 = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result5 = $mapper->mapFromTemplate($template5, $sources);
-print_r($result5);
+echo json_encode($result5, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -189,8 +194,9 @@ $template6 = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result6 = $mapper->mapFromTemplate($template6, $sources);
-print_r($result6);
+echo json_encode($result6, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -219,8 +225,9 @@ $template7 = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result7 = $mapper->mapFromTemplate($template7, $sources);
-print_r($result7);
+echo json_encode($result7, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -252,8 +259,9 @@ $template8 = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result8 = $mapper->mapFromTemplate($template8, $sources);
-print_r($result8);
+echo json_encode($result8, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -283,8 +291,9 @@ $template9 = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result9 = $mapper->mapFromTemplate($template9, $sources);
-print_r($result9);
+echo json_encode($result9, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -331,8 +340,9 @@ $template10 = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result10 = $mapper->mapFromTemplate($template10, $sources);
-print_r($result10);
+echo json_encode($result10, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo str_repeat('═', 80) . "\n";

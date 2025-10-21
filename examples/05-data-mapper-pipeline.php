@@ -30,11 +30,16 @@ $mapping = [
 ];
 
 // Apply transformation pipeline
-$result = DataMapper::pipe([
-    new TrimStrings(),           // Trim whitespace
-    new LowercaseEmails(),       // Lowercase email addresses
-    new SkipEmptyValues(),       // Skip empty values
-])->map($source, [], $mapping);
+$result = DataMapper::source($source)
+    ->target([])
+    ->template($mapping)
+    ->pipeline([
+        new TrimStrings(),           // Trim whitespace
+        new LowercaseEmails(),       // Lowercase email addresses
+        new SkipEmptyValues(),       // Skip empty values
+    ])
+    ->map()
+    ->getTarget();
 
 echo json_encode($result, JSON_PRETTY_PRINT);
 echo PHP_EOL;

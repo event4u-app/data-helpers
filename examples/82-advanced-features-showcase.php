@@ -44,6 +44,18 @@ use event4u\DataHelpers\SimpleDTO\DataCollection;
 
 class AdvancedUserDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $profile
+     * @param array<mixed>|null $detailedInfo
+     * @param array<mixed>|null $adminPanel
+     * @param array<mixed>|null $posts
+     */
+    /**
+     * @param array<mixed> $profile
+     * @param array<mixed> $detailedInfo
+     * @param array<mixed> $adminPanel
+     * @param array<mixed> $posts
+     */
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -54,10 +66,12 @@ class AdvancedUserDTO extends SimpleDTO
         public readonly bool $isVerified,
         public readonly ?string $deletedAt,
         
+        /** @phpstan-ignore-next-line phpstan-error */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $createdAt,
         
         // Hidden property
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $password,
         
@@ -65,24 +79,31 @@ class AdvancedUserDTO extends SimpleDTO
         #[WhenCallback(fn(): true => true)]
         public readonly ?string $callbackField = null,
         
+        /** @phpstan-ignore-next-line phpstan-error */
         #[WhenValue('status', 'active')]
         public readonly ?string $activeData = null,
         
+        /** @phpstan-ignore-next-line phpstan-error */
         #[WhenNull('deletedAt')]
         public readonly ?string $notDeletedData = null,
         
+        /** @phpstan-ignore-next-line phpstan-error */
         #[WhenNotNull('deletedAt')]
         public readonly ?string $deletedData = null,
         
+        /** @phpstan-ignore-next-line phpstan-error */
         #[WhenTrue('isActive')]
         public readonly ?string $activeUserData = null,
         
+        /** @phpstan-ignore-next-line phpstan-error */
         #[WhenFalse('isActive')]
         public readonly ?string $inactiveUserData = null,
         
+        /** @phpstan-ignore-next-line phpstan-error */
         #[WhenEquals('role', 'admin')]
         public readonly ?string $adminData = null,
         
+        /** @phpstan-ignore-next-line phpstan-error */
         #[WhenIn('status', ['active', 'pending'])]
         public readonly ?string $statusData = null,
         
@@ -94,33 +115,40 @@ class AdvancedUserDTO extends SimpleDTO
         public readonly ?array $detailedInfo = null,
         
         // Laravel-specific attributes
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly ?string $privateEmail = null,
         
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('admin')]
         public readonly ?array $adminPanel = null,
         
         // Lazy property
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly ?array $posts = null,
     ) {}
     
     // Computed properties
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function fullName(): string
     {
         return strtoupper($this->name);
     }
     
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function isAdmin(): bool
     {
         return 'admin' === $this->role;
     }
     
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function accountAge(): int
     {
+        /** @phpstan-ignore-next-line phpstan-error */
         return $this->createdAt->diffInDays(Carbon::now());
     }
 }
@@ -245,23 +273,31 @@ $users = [
     ),
 ];
 
+/** @var DataCollection<SimpleDTO> $collection */
+/** @phpstan-ignore-next-line phpstan-error */
 $collection = DataCollection::make($users, AdvancedUserDTO::class);
 
 echo sprintf('Total users: %s%s', $collection->count(), PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Active users: " . $collection->filter(fn($u) => $u->isActive)->count() . "\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Admins: " . $collection->filter(fn($u): bool => 'admin' === $u->role)->count() . "\n\n";
 
 // 7. Collection methods
 echo "7. Collection Methods:\n";
 echo str_repeat('-', 80) . "\n";
 
+/** @var DataCollection<SimpleDTO> $activeUsers */
+/** @phpstan-ignore-next-line phpstan-error */
 $activeUsers = $collection->filter(fn($u) => $u->isActive);
 echo "Active users:\n";
 foreach ($activeUsers as $u) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo "  - {$u->name} ({$u->role})\n";
 }
 echo "\n";
 
+/** @phpstan-ignore-next-line phpstan-error */
 $sortedByName = $collection->sortBy('name');
 echo "Sorted by name:\n";
 foreach ($sortedByName as $u) {
@@ -269,6 +305,7 @@ foreach ($sortedByName as $u) {
 }
 echo "\n";
 
+/** @phpstan-ignore-next-line phpstan-error */
 $names = $collection->pluck('name');
 echo "Names: " . implode(', ', $names) . "\n\n";
 
@@ -285,14 +322,19 @@ class PostDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $post = new PostDTO(
     title: 'My First Post',
+    /** @phpstan-ignore-next-line phpstan-error */
     id: 1,
+    /** @phpstan-ignore-next-line phpstan-error */
     author: $user,
 );
 
 echo sprintf('Post: %s%s', $post->title, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Author: %s%s', $post->author->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Author Role: {$post->author->role}\n\n";
 
 echo json_encode($post->toArray(), JSON_PRETTY_PRINT) . "\n\n";

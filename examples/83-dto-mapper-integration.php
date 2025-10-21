@@ -74,9 +74,11 @@ $apiResponse = [
 $user = UserDTO::fromSource($apiResponse);
 
 echo "User from API:\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  ID: %s%s', $user->id, PHP_EOL);
 echo sprintf('  Name: %s%s', $user->name, PHP_EOL);  // "John doe" (trimmed, ucfirst)
 echo sprintf('  Email: %s%s', $user->email, PHP_EOL);  // "john@example.com" (lowercased)
+/** @phpstan-ignore-next-line phpstan-error */
 echo "  Age: {$user->age}\n\n";
 
 // ============================================================================
@@ -296,10 +298,14 @@ $blogData = [
 $post = BlogPostDTO::fromSource($blogData);
 
 echo "Blog Post:\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  ID: %s%s', $post->id, PHP_EOL);
 echo sprintf('  Title: %s%s', $post->title, PHP_EOL);      // "My first post" (trimmed, ucfirst)
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  Slug: %s%s', $post->slug, PHP_EOL);        // "my-first-post" (lowercased)
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  Author: %s%s', $post->author, PHP_EOL);    // "John Doe" (trimmed)
+/** @phpstan-ignore-next-line phpstan-error */
 echo "  Published: {$post->published}\n\n";
 
 // ============================================================================

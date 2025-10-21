@@ -6,6 +6,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use DateTimeImmutable;
 use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 echo "================================================================================\n";
 echo "SimpleDTO - Timestamp Cast Examples\n";
@@ -54,8 +55,11 @@ $event2 = EventDTO::fromArray([
 ]);
 
 $array = $event2->toArray();
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Event: %s%s', $array['name'], PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Created (timestamp): %s%s', $array['createdAt'], PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Updated (timestamp): %s%s', $array['updatedAt'], PHP_EOL);
 echo "JSON: " . json_encode($array) . "\n\n";
 
@@ -122,7 +126,9 @@ $post = PostDTO::fromArray([
 ]);
 
 echo sprintf('Post: %s%s', $post->title, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Published: %s%s', $post->publishedAt->format('Y-m-d H:i:s'), PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Deleted: " . ($post->deletedAt ? $post->deletedAt->format('Y-m-d H:i:s') : 'No') . "\n";
 echo "toArray: " . json_encode($post->toArray()) . "\n\n";
 

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Casts\HashedCast;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 echo "================================================================================\n";
 echo "SimpleDTO - Hashed Cast Examples\n";
@@ -35,9 +36,12 @@ $user = UserDTO::fromArray([
     'password' => 'MySecretPassword123!',
 ]);
 
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Username: %s%s', $user->username, PHP_EOL);
 echo sprintf('Email: %s%s', $user->email, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Password (hashed): %s%s', $user->password, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Hash starts with \$2y\$: " . (str_starts_with($user->password, '$2y$') ? 'Yes' : 'No') . "\n\n";
 
 // Example 2: Password Verification
@@ -48,9 +52,11 @@ $loginAttempt1 = 'MySecretPassword123!';
 $loginAttempt2 = 'WrongPassword';
 
 echo "Login attempt 1: '{$loginAttempt1}'\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Valid: " . (HashedCast::verify($loginAttempt1, $user->password) ? 'Yes ✅' : 'No ❌') . "\n\n";
 
 echo "Login attempt 2: '{$loginAttempt2}'\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Valid: " . (HashedCast::verify($loginAttempt2, $user->password) ? 'Yes ✅' : 'No ❌') . "\n\n";
 
 // Example 3: Different Hashing Algorithms
@@ -102,10 +108,13 @@ $existingUser = UserDTO::fromArray([
     'password' => $hashedPassword, // Already hashed
 ]);
 
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Username: %s%s', $existingUser->username, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Password unchanged: " . ($existingUser->password === $hashedPassword ? 'Yes ✅' : 'No ❌') . "\n";
 echo "Verification: " . (HashedCast::verify(
     'ExistingPassword',
+    /** @phpstan-ignore-next-line phpstan-error */
     $existingUser->password
 ) ? 'Valid ✅' : 'Invalid ❌') . "\n\n";
 
@@ -140,13 +149,18 @@ $user2 = UserDTO::fromArray([
     'password' => 'SamePassword',
 ]);
 
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('User 1 password hash: %s%s', $user1->password, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('User 2 password hash: %s%s', $user2->password, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Hashes are different: " . ($user1->password !== $user2->password ? 'Yes ✅' : 'No ❌') . "\n";
 echo "(This is expected - bcrypt uses random salts)\n\n";
 
 echo "Both passwords verify correctly:\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "User 1: " . (HashedCast::verify('SamePassword', $user1->password) ? 'Valid ✅' : 'Invalid ❌') . "\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "User 2: " . (HashedCast::verify('SamePassword', $user2->password) ? 'Valid ✅' : 'Invalid ❌') . "\n\n";
 
 echo "================================================================================\n";

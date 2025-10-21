@@ -13,10 +13,11 @@ $products = [
 ];
 
 echo "=== Test: orWhere ===\n";
+/** @var array<int, array<string, mixed>> $result */
 $result = DataFilter::query($products)
     ->where('category', '=', 'A')
     ->orWhere('category', '=', 'C')
     ->get();
 
 echo "Result count: " . count($result) . "\n";
-print_r($result);
+echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;

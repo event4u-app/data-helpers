@@ -39,10 +39,10 @@ $user1 = new UserDTO('John Doe', 'john@example.com', '555-1234', null);
 $user2 = new UserDTO('Jane Doe', 'jane@example.com', null, null);
 
 echo "User 1 (with phone):\n";
-print_r($user1->toArray());
+echo json_encode($user1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nUser 2 (without phone):\n";
-print_r($user2->toArray());
+echo json_encode($user2->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Phone is only included when it has a value\n";
 echo "✅  Website is excluded when null\n";
@@ -70,10 +70,10 @@ $feature1 = new FeatureDTO('Feature A', true, false);
 $feature2 = new FeatureDTO('Feature B', false, true);
 
 echo "Feature 1 (premium, enabled):\n";
-print_r($feature1->toArray());
+echo json_encode($feature1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nFeature 2 (not premium, disabled):\n";
-print_r($feature2->toArray());
+echo json_encode($feature2->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  isPremium is only included when true\n";
 echo "✅  isDisabled is only included when true (false value)\n";
@@ -97,14 +97,16 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $order1 = new OrderDTO('ORD-001', 'completed', 'express');
+/** @phpstan-ignore-next-line phpstan-error */
 $order2 = new OrderDTO('ORD-002', 'pending', 'standard');
 
 echo "Order 1 (completed, express):\n";
-print_r($order1->toArray());
+echo json_encode($order1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nOrder 2 (pending, standard):\n";
-print_r($order2->toArray());
+echo json_encode($order2->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Status is only included when 'completed'\n";
 echo "✅  ShippingType is only included when 'express'\n";
@@ -126,14 +128,16 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $product1 = new ProductDTO('Product A', 99.99, 'active');
+/** @phpstan-ignore-next-line phpstan-error */
 $product2 = new ProductDTO('Product B', 149.99, 'draft');
 
 echo "Product 1 (active):\n";
-print_r($product1->toArray());
+echo json_encode($product1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nProduct 2 (draft):\n";
-print_r($product2->toArray());
+echo json_encode($product2->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Status is only included when 'active' or 'featured'\n";
 echo "✅  Draft status is excluded\n";
@@ -159,10 +163,10 @@ $product1 = new PremiumProductDTO('Expensive Product', 150.0);
 $product2 = new PremiumProductDTO('Cheap Product', 50.0);
 
 echo "Product 1 (price > 100):\n";
-print_r($product1->toArray());
+echo json_encode($product1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nProduct 2 (price <= 100):\n";
-print_r($product2->toArray());
+echo json_encode($product2->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Premium badge is only included when price > 100\n";
 
@@ -174,6 +178,12 @@ echo "------------------------------------------------------------\n";
 
 class ApiResponseDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $data
+     */
+    /**
+     * @param array<mixed> $data
+     */
     public function __construct(
         public readonly bool $success,
         public readonly string $message,
@@ -211,10 +221,10 @@ $errorResponse = new ApiResponseDTO(
 );
 
 echo "Success Response:\n";
-print_r($successResponse->toArray());
+echo json_encode($successResponse->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nError Response:\n";
-print_r($errorResponse->toArray());
+echo json_encode($errorResponse->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Success response only includes data-related fields\n";
 echo "✅  Error response only includes error-related fields\n";

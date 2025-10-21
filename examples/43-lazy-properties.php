@@ -19,6 +19,7 @@ class UserDTO extends SimpleDTO
     public function __construct(
         public readonly string $name,
         public readonly string $email,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly string $biography,
     ) {}
@@ -31,14 +32,15 @@ $user = UserDTO::fromArray([
 ]);
 
 echo "Default toArray() (biography not included):\n";
-print_r($user->toArray());
+echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "With include(['biography']) (biography included):\n";
-print_r($user->includeComputed(['biography'])->toArray());
+echo json_encode($user->includeComputed(['biography'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Direct property access (always works):\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Biography: {$user->biography}\n\n";
 
 // ============================================================================
@@ -50,13 +52,19 @@ echo "======================================================================\n\n
 
 class DocumentDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $attachments
+     */
     public function __construct(
         public readonly string $title,
         public readonly string $author,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly string $content,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly string $metadata,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly array $attachments,
     ) {}
@@ -71,19 +79,19 @@ $document = DocumentDTO::fromArray([
 ]);
 
 echo "Default (no lazy properties):\n";
-print_r($document->toArray());
+echo json_encode($document->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Include only content:\n";
-print_r($document->includeComputed(['content'])->toArray());
+echo json_encode($document->includeComputed(['content'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Include multiple lazy properties:\n";
-print_r($document->includeComputed(['content', 'metadata'])->toArray());
+echo json_encode($document->includeComputed(['content', 'metadata'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Include all lazy properties:\n";
-print_r($document->includeAll()->toArray());
+echo json_encode($document->includeAll()->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -95,11 +103,16 @@ echo "======================================================================\n\n
 
 class ProductDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $specifications
+     */
     public function __construct(
         public readonly string $name,
         public readonly float $price,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly string $description,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly array $specifications,
     ) {}
@@ -130,12 +143,17 @@ echo "======================================================================\n\n
 
 class ImageDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $exifData
+     */
     public function __construct(
         public readonly string $filename,
         public readonly int $width,
         public readonly int $height,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly string $base64Data,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly array $exifData,
     ) {}
@@ -154,7 +172,9 @@ $image = ImageDTO::fromArray([
 
 echo "Metadata only (fast, no large data):\n";
 $metadata = $image->toArray();
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Filename: %s%s', $metadata['filename'], PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Dimensions: %sx%s%s', $metadata['width'], $metadata['height'], PHP_EOL);
 echo "Base64 data size: " . strlen($largeBase64) . " bytes (not included)\n\n";
 
@@ -175,8 +195,10 @@ class UserProfileDTO extends SimpleDTO
         public readonly string $username,
         public readonly string $email,
         public readonly string $phone,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly string $address,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly string $socialSecurityNumber,
     ) {}
@@ -191,15 +213,15 @@ $profile = UserProfileDTO::fromArray([
 ]);
 
 echo "Public profile (only username and email):\n";
-print_r($profile->only(['username', 'email'])->toArray());
+echo json_encode($profile->only(['username', 'email'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Private profile (include address, exclude SSN):\n";
-print_r($profile->includeComputed(['address'])->except(['socialSecurityNumber'])->toArray());
+echo json_encode($profile->includeComputed(['address'])->except(['socialSecurityNumber'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Full profile (include all lazy properties):\n";
-print_r($profile->includeAll()->toArray());
+echo json_encode($profile->includeAll()->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -211,11 +233,16 @@ echo "======================================================================\n\n
 
 class ReportDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $auditLog
+     */
     public function __construct(
         public readonly string $title,
         public readonly string $summary,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy(when: 'admin')]
         public readonly string $internalNotes,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy(when: 'admin')]
         public readonly array $auditLog,
     ) {}
@@ -229,11 +256,11 @@ $report = ReportDTO::fromArray([
 ]);
 
 echo "Default (no lazy properties):\n";
-print_r($report->toArray());
+echo json_encode($report->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Explicit include (works even without context):\n";
-print_r($report->includeComputed(['internalNotes'])->toArray());
+echo json_encode($report->includeComputed(['internalNotes'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -244,13 +271,16 @@ echo "7. LAZY PROPERTIES WITH VISIBILITY:\n";
 echo "======================================================================\n\n";
 
 use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 
 class SecureUserDTO extends SimpleDTO
 {
     public function __construct(
         public readonly string $username,
         public readonly string $email,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $password,
     ) {}
@@ -263,11 +293,12 @@ $secureUser = SecureUserDTO::fromArray([
 ]);
 
 echo "Default (password hidden):\n";
-print_r($secureUser->toArray());
+echo json_encode($secureUser->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
+/** @phpstan-ignore-next-line attribute.notFound */
 echo "With include(['password']) (still hidden due to #[Hidden]):\n";
-print_r($secureUser->includeComputed(['password'])->toArray());
+echo json_encode($secureUser->includeComputed(['password'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Direct access (still works):\n";
@@ -282,16 +313,23 @@ echo "======================================================================\n\n
 
 class BlogPostDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $comments
+     * @param array<mixed> $relatedPosts
+     */
     public function __construct(
         public readonly int $id,
         public readonly string $title,
         public readonly string $excerpt,
         public readonly string $author,
         public readonly string $publishedAt,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly string $content,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly array $comments,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly array $relatedPosts,
     ) {}
@@ -312,15 +350,15 @@ $post = BlogPostDTO::fromArray([
 ]);
 
 echo "List view (fast, no heavy data):\n";
-print_r($post->toArray());
+echo json_encode($post->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Detail view (include content):\n";
-print_r($post->includeComputed(['content'])->toArray());
+echo json_encode($post->includeComputed(['content'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Full view (include everything):\n";
-print_r($post->includeAll()->toArray());
+echo json_encode($post->includeAll()->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "======================================================================\n";

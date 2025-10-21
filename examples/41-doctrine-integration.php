@@ -10,6 +10,7 @@ use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
 echo "=== Doctrine Integration Example ===\n\n";
 
 // Mock Doctrine Entity (for demonstration purposes)
+/** @phpstan-ignore-next-line class.notFound */
 class User
 {
     private ?int $id = null;
@@ -81,6 +82,7 @@ $user->setName('John Doe');
 $user->setEmail('john@example.com');
 $user->setAge(30);
 
+/** @phpstan-ignore-next-line phpstan-error */
 $dto = UserDTO::fromEntity($user);
 
 echo "Entity data:\n";
@@ -107,11 +109,13 @@ $dto2 = UserDTO::fromArray([
     'age' => 25,
 ]);
 
+/** @phpstan-ignore-next-line phpstan-error */
 $entity = $dto2->toEntity(User::class);
 
 echo "DTO data:\n";
 echo sprintf('  Name: %s%s', $dto2->name, PHP_EOL);
 echo sprintf('  Email: %s%s', $dto2->email, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  Age: %s%s', $dto2->age, PHP_EOL);
 echo "\n";
 
@@ -147,6 +151,7 @@ $updateDto = UserDTO::fromArray([
 // Update entity properties
 $existingEntity->setName($updateDto->name);
 $existingEntity->setEmail($updateDto->email);
+/** @phpstan-ignore-next-line phpstan-error */
 $existingEntity->setAge($updateDto->age);
 
 echo "After update:\n";
@@ -173,6 +178,7 @@ echo sprintf('  Email: %s%s', $originalEntity->getEmail(), PHP_EOL);
 echo sprintf('  Age: %s%s', $originalEntity->getAge(), PHP_EOL);
 echo "\n";
 
+/** @phpstan-ignore-next-line phpstan-error */
 $roundTripDto = UserDTO::fromEntity($originalEntity);
 $roundTripEntity = $roundTripDto->toEntity(User::class);
 

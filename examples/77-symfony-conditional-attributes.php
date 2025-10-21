@@ -37,6 +37,7 @@ class PostDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $post = new PostDTO('My Post', 'Post content...');
 
 // User with grants array
@@ -45,13 +46,13 @@ $admin = (object)['grants' => ['EDIT', 'DELETE', 'PUBLISH']];
 $viewer = (object)['grants' => ['VIEW']];
 
 echo "As editor (can edit and publish):\n";
-print_r($post->withContext(['user' => $editor])->toArray());
+echo json_encode($post->withContext(['user' => $editor])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs admin (can do everything):\n";
-print_r($post->withContext(['user' => $admin])->toArray());
+echo json_encode($post->withContext(['user' => $admin])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs viewer (read-only):\n";
-print_r($post->withContext(['user' => $viewer])->toArray());
+echo json_encode($post->withContext(['user' => $viewer])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Actions based on user grants\n";
 
@@ -66,17 +67,21 @@ class DashboardDTO extends SimpleDTO
     public function __construct(
         public readonly string $title,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_ADMIN')]
         public readonly string $adminPanel = '/admin',
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['ROLE_ADMIN', 'ROLE_MODERATOR'])]
         public readonly string $moderationPanel = '/moderation',
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_EDITOR')]
         public readonly string $editorPanel = '/editor',
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $dashboard = new DashboardDTO('Dashboard');
 
 $admin = (object)['roles' => ['ROLE_ADMIN', 'ROLE_USER']];
@@ -85,16 +90,16 @@ $editor = (object)['roles' => ['ROLE_EDITOR', 'ROLE_USER']];
 $user = (object)['roles' => ['ROLE_USER']];
 
 echo "As ROLE_ADMIN:\n";
-print_r($dashboard->withContext(['user' => $admin])->toArray());
+echo json_encode($dashboard->withContext(['user' => $admin])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs ROLE_MODERATOR:\n";
-print_r($dashboard->withContext(['user' => $moderator])->toArray());
+echo json_encode($dashboard->withContext(['user' => $moderator])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs ROLE_EDITOR:\n";
-print_r($dashboard->withContext(['user' => $editor])->toArray());
+echo json_encode($dashboard->withContext(['user' => $editor])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs ROLE_USER:\n";
-print_r($dashboard->withContext(['user' => $user])->toArray());
+echo json_encode($dashboard->withContext(['user' => $user])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Different panels based on Symfony roles\n";
 
@@ -117,10 +122,12 @@ class DocumentDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $document = new DocumentDTO('Important Document');
 
 // User with isGranted method (like Symfony User)
 $userWithMethod = new class {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function isGranted(string $attribute, $subject = null): bool
     {
         return in_array($attribute, ['VIEW', 'EDIT'], true);
@@ -128,6 +135,7 @@ $userWithMethod = new class {
 };
 
 $userViewOnly = new class {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function isGranted(string $attribute, $subject = null): bool
     {
         return 'VIEW' === $attribute;
@@ -135,10 +143,10 @@ $userViewOnly = new class {
 };
 
 echo "User with VIEW and EDIT:\n";
-print_r($document->withContext(['user' => $userWithMethod])->toArray());
+echo json_encode($document->withContext(['user' => $userWithMethod])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nUser with VIEW only:\n";
-print_r($document->withContext(['user' => $userViewOnly])->toArray());
+echo json_encode($document->withContext(['user' => $userViewOnly])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Works with isGranted method\n";
 
@@ -154,6 +162,7 @@ class ApiResourceDTO extends SimpleDTO
         public readonly string $id,
         public readonly string $name,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_ADMIN')]
         public readonly string $internalId = 'INT-12345',
 
@@ -177,7 +186,7 @@ $security = new class {
 };
 
 echo "With security context:\n";
-print_r($resource->withContext(['security' => $security])->toArray());
+echo json_encode($resource->withContext(['security' => $security])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Works with security context object\n";
 
@@ -192,6 +201,7 @@ class SecretDocumentDTO extends SimpleDTO
     public function __construct(
         public readonly string $title,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_ADMIN')]
         #[WhenGranted('VIEW_SECRETS')]
         public readonly string $secretContent = 'Top secret information',
@@ -216,13 +226,13 @@ $userWithPermission = (object)[
 ];
 
 echo "Admin with VIEW_SECRETS:\n";
-print_r($document->withContext(['user' => $adminWithPermission])->toArray());
+echo json_encode($document->withContext(['user' => $adminWithPermission])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAdmin without VIEW_SECRETS:\n";
-print_r($document->withContext(['user' => $adminWithoutPermission])->toArray());
+echo json_encode($document->withContext(['user' => $adminWithoutPermission])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nUser with VIEW_SECRETS:\n";
-print_r($document->withContext(['user' => $userWithPermission])->toArray());
+echo json_encode($document->withContext(['user' => $userWithPermission])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  All conditions must be met (AND logic)\n";
 
@@ -247,6 +257,7 @@ $articleObject = (object)['id' => 1, 'title' => 'My Article', 'author_id' => 1];
 
 // User with isGranted method that checks subject
 $owner = new class {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function isGranted(string $attribute, $subject = null): bool
     {
         // In real Symfony, this would check if user owns the article
@@ -255,7 +266,7 @@ $owner = new class {
 };
 
 echo "Owner with article subject:\n";
-print_r($article->withContext(['user' => $owner, 'article' => $articleObject])->toArray());
+echo json_encode($article->withContext(['user' => $owner, 'article' => $articleObject])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Subject-based authorization\n";
 
@@ -267,14 +278,19 @@ echo "------------------------------------------------------------\n";
 
 class OrderDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $paymentDetails
+     */
     public function __construct(
         public readonly string $id,
         public readonly string $status,
         public readonly float $total,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_USER')]
         public readonly string $customerName = 'John Doe',
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['ROLE_ADMIN', 'ROLE_SUPPORT'])]
         public readonly string $internalNotes = 'Customer requested express shipping',
 
@@ -283,25 +299,26 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $order = new OrderDTO('ORD-12345', 'completed', 299.99);
 
 echo "Public API (no user):\n";
-print_r($order->toArray());
+echo json_encode($order->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAuthenticated customer (ROLE_USER):\n";
 $customer = (object)['roles' => ['ROLE_USER']];
-print_r($order->withContext(['user' => $customer])->toArray());
+echo json_encode($order->withContext(['user' => $customer])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nSupport staff (ROLE_SUPPORT):\n";
 $support = (object)['roles' => ['ROLE_SUPPORT', 'ROLE_USER']];
-print_r($order->withContext(['user' => $support])->toArray());
+echo json_encode($order->withContext(['user' => $support])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAdmin with payment access:\n";
 $adminWithPayment = (object)[
     'roles' => ['ROLE_ADMIN', 'ROLE_USER'],
     'grants' => ['VIEW_PAYMENT'],
 ];
-print_r($order->withContext(['user' => $adminWithPayment])->toArray());
+echo json_encode($order->withContext(['user' => $adminWithPayment])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Different data visibility based on Symfony roles and grants\n";
 

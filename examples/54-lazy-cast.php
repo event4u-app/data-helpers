@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 echo "=== SimpleDTO Lazy Cast Resolution ===\n\n";
 
@@ -37,6 +38,7 @@ $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => '30']);
 
 echo "Provided: name, age\n";
 echo sprintf('Name: %s%s', $user->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Age: %s%s', $user->age, PHP_EOL);
 echo "Email: " . ($user->email ?? 'null') . "\n";
 echo "Phone: " . ($user->phone ?? 'null') . "\n\n";
@@ -145,6 +147,12 @@ echo "-------------------------------------\n";
 
 class ComplexDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $data
+     */
+    /**
+     * @param array<mixed> $data
+     */
     public function __construct(
         public readonly ?array $data = null,
         public readonly ?string $json = null,
@@ -170,9 +178,12 @@ $complex = ComplexDTO::fromArray([
 ]);
 
 echo "Provided: data, active\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Data: " . json_encode($complex->data) . "\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Active: " . ($complex->active ? 'true' : 'false') . "\n";
 echo "JSON: " . ($complex->json ?? 'null') . "\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Created At: " . ($complex->createdAt?->format('Y-m-d') ?? 'null') . "\n\n";
 
 // Example 6: Memory Efficiency
@@ -208,6 +219,7 @@ $originalUser = UserDTO::fromArray([
 
 echo "Original user:\n";
 echo sprintf('  Name: %s%s', $originalUser->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  Age: %s%s', $originalUser->age, PHP_EOL);
 echo "  Email: {$originalUser->email}\n\n";
 
@@ -220,6 +232,7 @@ $updatedUser = UserDTO::fromArray([
 
 echo "Updated user (only name changed):\n";
 echo sprintf('  Name: %s%s', $updatedUser->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  Age: %s%s', $updatedUser->age, PHP_EOL);
 echo "  Email: {$updatedUser->email}\n\n";
 

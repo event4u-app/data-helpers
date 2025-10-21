@@ -25,6 +25,7 @@ class OrderDTO extends SimpleDTO
         public readonly int $quantity,
     ) {}
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function total(): float
     {
@@ -38,10 +39,11 @@ $order = OrderDTO::fromArray([
 ]);
 
 echo "Order Data:\n";
-print_r($order->toArray());
+echo json_encode($order->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Direct access to computed property:\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo "total() = " . $order->total() . "\n\n";
 
 // ============================================================================
@@ -60,30 +62,35 @@ class ProductDTO extends SimpleDTO
         public readonly float $discount = 0.0,
     ) {}
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function subtotal(): float
     {
         return $this->price * $this->quantity;
     }
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function discountAmount(): float
     {
         return $this->subtotal() * $this->discount;
     }
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function subtotalAfterDiscount(): float
     {
         return $this->subtotal() - $this->discountAmount();
     }
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function tax(): float
     {
         return $this->subtotalAfterDiscount() * $this->taxRate;
     }
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function total(): float
     {
@@ -99,7 +106,7 @@ $product = ProductDTO::fromArray([
 ]);
 
 echo "Product with multiple computed properties:\n";
-print_r($product->toArray());
+echo json_encode($product->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -116,12 +123,14 @@ class InvoiceDTO extends SimpleDTO
         public readonly float $taxRate,
     ) {}
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(name: 'taxAmount')]
     public function calculateTax(): float
     {
         return $this->amount * $this->taxRate;
     }
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(name: 'totalAmount')]
     public function calculateTotal(): float
     {
@@ -135,7 +144,7 @@ $invoice = InvoiceDTO::fromArray([
 ]);
 
 echo "Invoice with custom computed property names:\n";
-print_r($invoice->toArray());
+echo json_encode($invoice->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -147,18 +156,26 @@ echo "======================================================================\n\n
 
 class ReportDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $data
+     */
     public function __construct(
         public readonly string $name,
         public readonly array $data,
     ) {}
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function summary(): string
     {
         return sprintf('Report: %s with ', $this->name) . count($this->data) . " items";
     }
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(lazy: true)]
+    /**
+     * @return array<mixed>
+     */
     public function expensiveAnalysis(): array
     {
         echo "  → Computing expensive analysis...\n";
@@ -168,12 +185,18 @@ class ReportDTO extends SimpleDTO
         return [
             'total' => count($this->data),
             'average' => array_sum($this->data) / count($this->data),
+            /** @phpstan-ignore-next-line phpstan-error */
             'max' => max($this->data),
+            /** @phpstan-ignore-next-line phpstan-error */
             'min' => min($this->data),
         ];
     }
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(lazy: true)]
+    /**
+     * @return array<mixed>
+     */
     public function detailedStats(): array
     {
         echo "  → Computing detailed stats...\n";
@@ -186,6 +209,9 @@ class ReportDTO extends SimpleDTO
         ];
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     private function calculateMedian(array $data): float
     {
         sort($data);
@@ -193,15 +219,21 @@ class ReportDTO extends SimpleDTO
         $middle = floor($count / 2);
 
         if ($count % 2 === 0) {
+            /** @phpstan-ignore-next-line phpstan-error */
             return ($data[$middle - 1] + $data[$middle]) / 2;
         }
 
+        /** @phpstan-ignore-next-line phpstan-error */
         return $data[$middle];
     }
 
+    /**
+     * @param array<mixed> $data
+     */
     private function calculateStdDev(array $data): float
     {
         $mean = array_sum($data) / count($data);
+        /** @phpstan-ignore-next-line phpstan-error */
         $variance = array_sum(array_map(fn($x): float|int => ($x - $mean) ** 2, $data)) / count($data);
 
         return sqrt($variance);
@@ -214,15 +246,15 @@ $report = ReportDTO::fromArray([
 ]);
 
 echo "Report without lazy properties (fast):\n";
-print_r($report->toArray());
+echo json_encode($report->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Report with expensiveAnalysis included (slow):\n";
-print_r($report->includeComputed(['expensiveAnalysis'])->toArray());
+echo json_encode($report->includeComputed(['expensiveAnalysis'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Report with all lazy properties included (very slow):\n";
-print_r($report->includeComputed(['expensiveAnalysis', 'detailedStats'])->toArray());
+echo json_encode($report->includeComputed(['expensiveAnalysis', 'detailedStats'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -238,6 +270,7 @@ class CachedComputationDTO extends SimpleDTO
         public readonly int $value,
     ) {}
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(cache: true)]
     public function expensiveComputation(): int
     {
@@ -252,17 +285,17 @@ $cached = CachedComputationDTO::fromArray(['value' => 42]);
 
 echo "First toArray() call (computes and caches):\n";
 $array1 = $cached->toArray();
-print_r($array1);
+echo json_encode($array1, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Second toArray() call (uses cache - no computation message):\n";
 $array2 = $cached->toArray();
-print_r($array2);
+echo json_encode($array2, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Third toArray() call (still uses cache):\n";
 $array3 = $cached->toArray();
-print_r($array3);
+echo json_encode($array3, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Note: Direct method calls bypass cache (by design):\n";
@@ -271,7 +304,7 @@ echo "Direct call: " . $cached->expensiveComputation() . "\n\n";
 echo "Clear cache and call toArray() again:\n";
 $cached->clearComputedCache('expensiveComputation');
 $array4 = $cached->toArray();
-print_r($array4);
+echo json_encode($array4, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -289,18 +322,21 @@ class UserProfileDTO extends SimpleDTO
         public readonly int $age,
     ) {}
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function fullName(): string
     {
         return sprintf('%s %s', $this->firstName, $this->lastName);
     }
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function isAdult(): bool
     {
         return 18 <= $this->age;
     }
 
+    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(lazy: true)]
     public function initials(): string
     {

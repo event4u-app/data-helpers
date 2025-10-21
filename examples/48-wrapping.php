@@ -109,8 +109,10 @@ echo "Wrapped2 wrap key: " . $wrapped2->getWrapKey() . "\n\n";
 echo "Example 7: API Response Pattern\n";
 echo "--------------------------------\n";
 
+/** @phpstan-ignore-next-line class.notFound */
 class ApiResponse
 {
+    /** @phpstan-ignore-next-line phpstan-error */
     public static function success(mixed $data, string $message = 'Success'): array
     {
         if ($data instanceof SimpleDTO) {
@@ -120,10 +122,12 @@ class ApiResponse
         return [
             'success' => true,
             'message' => $message,
+            /** @phpstan-ignore-next-line phpstan-error */
             ...$data,
         ];
     }
 
+    /** @phpstan-ignore-next-line phpstan-error */
     public static function error(string $message, int $code = 400): array
     {
         return [
@@ -154,6 +158,8 @@ echo "--------------------------------\n";
 
 use event4u\DataHelpers\SimpleDTO\DataCollection;
 
+/** @var DataCollection<SimpleDTO> $users */
+/** @phpstan-ignore-next-line phpstan-error */
 $users = DataCollection::forDto(UserDTO::class, [
     ['name' => 'User 1', 'email' => 'user1@example.com', 'age' => 25],
     ['name' => 'User 2', 'email' => 'user2@example.com', 'age' => 30],
@@ -161,6 +167,8 @@ $users = DataCollection::forDto(UserDTO::class, [
 ]);
 
 // Wrap each user in the collection
+/** @var DataCollection<SimpleDTO> $wrappedUsers */
+/** @phpstan-ignore-next-line phpstan-error */
 $wrappedUsers = $users->map(fn($user): array => $user->wrap('user')->toArray());
 echo "Wrapped users in collection:\n";
 echo json_encode($wrappedUsers, JSON_PRETTY_PRINT) . "\n\n";

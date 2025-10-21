@@ -31,6 +31,7 @@ $mapping = [
     'profile.email' => '{{ user.email }}',
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result = DataMapper::pipe([
     new CallbackFilter(function(CallbackParameters $params) {
         // Custom transformation based on key
@@ -49,9 +50,9 @@ $result = DataMapper::pipe([
 ])->map($source, [], $mapping);
 
 echo "Source:\n";
-print_r($source);
+echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nResult:\n";
-print_r($result);
+echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -95,14 +96,15 @@ $template = [
     ],
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result = DataMapper::mapFromTemplate($template, ['article' => $source['article']]);
 
 echo "Source:\n";
-print_r($source);
+echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nTemplate:\n";
-print_r($template);
+echo json_encode($template, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nResult:\n";
-print_r($result);
+echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -127,6 +129,7 @@ $mapping = [
     'invoice.items.*.price' => '{{ order.items.*.price }}',
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result = DataMapper::pipe([
     new CallbackFilter(function(CallbackParameters $params) {
         // Apply discount to prices
@@ -148,9 +151,9 @@ $result = DataMapper::pipe([
 ])->map($source, [], $mapping);
 
 echo "Source:\n";
-print_r($source);
+echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nResult (with 10% discount applied):\n";
-print_r($result);
+echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -173,6 +176,7 @@ $mapping = [
     'activeAdults.*.age' => '{{ users.*.age }}',
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result = DataMapper::pipe([
     new CallbackFilter(function(CallbackParameters $params) {
         // Skip users under 18 or inactive
@@ -188,9 +192,9 @@ $result = DataMapper::pipe([
 ])->map($source, [], $mapping);
 
 echo "Source:\n";
-print_r($source);
+echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nResult (only active adults):\n";
-print_r($result);
+echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -228,12 +232,13 @@ $template = [
     'preview' => '{{ post.content | callback:sanitize | callback:truncate }}',
 ];
 
+/** @phpstan-ignore-next-line phpstan-error */
 $result = DataMapper::mapFromTemplate($template, ['post' => $source['post']]);
 
 echo "Source:\n";
-print_r($source);
+echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nResult (sanitized and truncated):\n";
-print_r($result);
+echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -269,10 +274,11 @@ $template = [
 ];
 
 try {
+    /** @phpstan-ignore-next-line phpstan-error */
     $result = DataMapper::mapFromTemplate($template, ['data' => $source['data']]);
 
     echo "Result:\n";
-    print_r($result);
+    echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;
 } catch (Throwable $throwable) {
     echo "❌  Exception caught: " . $throwable->getMessage() . "\n";
 }

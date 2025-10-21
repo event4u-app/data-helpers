@@ -23,7 +23,13 @@ $map = [
     ],
 ];
 
-$res = DataMapper::map($src, $tgt, $map, true, true);
+$res = DataMapper::source($src)
+    ->target($tgt)
+    ->template($map)
+    ->skipNull(true)
+    ->trimValues(true)
+    ->map()
+    ->getTarget();
 
 echo json_encode($res, JSON_PRETTY_PRINT);
 echo PHP_EOL;

@@ -44,7 +44,12 @@ $template1 = [
     ],
 ];
 
-$result1 = DataMapper::mapFromTemplate($template1, $products, true, true);
+$result1 = DataMapper::source($products)
+    ->template($template1)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Unique categories (first occurrence):\n";
 /** @var array<int|string, array{category: string, name: string}> $categories */
@@ -72,7 +77,12 @@ $template2 = [
     ],
 ];
 
-$result2 = DataMapper::mapFromTemplate($template2, $products, true, true);
+$result2 = DataMapper::source($products)
+    ->template($template2)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Products with 'Pro' in name:\n";
 /** @var array<int|string, array{name: string, price: int}> $proProducts */
@@ -100,7 +110,12 @@ $template3 = [
     ],
 ];
 
-$result3 = DataMapper::mapFromTemplate($template3, $products, true, true);
+$result3 = DataMapper::source($products)
+    ->template($template3)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Brands matching 'Tech____' pattern:\n";
 /** @var array<int|string, array{brand: string}> $techBrands */
@@ -132,7 +147,12 @@ $template4 = [
     ],
 ];
 
-$result4 = DataMapper::mapFromTemplate($template4, $products, true, true);
+$result4 = DataMapper::source($products)
+    ->template($template4)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Top 2 electronics brands (alphabetically):\n";
 /** @var array<int|string, array{brand: string}> $electronicsBrands */
@@ -162,7 +182,12 @@ $template5 = [
     ],
 ];
 
-$result5 = DataMapper::mapFromTemplate($template5, $products, true, true);
+$result5 = DataMapper::source($products)
+    ->template($template5)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Products ending with 'Pro' (case-sensitive):\n";
 /** @var array<int|string, array{name: string}> $uppercasePro */
@@ -191,7 +216,12 @@ $template6 = [
     ],
 ];
 
-$result6 = DataMapper::mapFromTemplate($template6, $products, true, true);
+$result6 = DataMapper::source($products)
+    ->template($template6)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "TechCorp electronics:\n";
 /** @var array<int|string, array{name: string, brand: string}> $techElectronics */
@@ -226,7 +256,12 @@ $template7 = [
     ],
 ];
 
-$result7 = DataMapper::mapFromTemplate($template7, $duplicateData, true, true);
+$result7 = DataMapper::source($duplicateData)
+    ->template($template7)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Unique items (exact match):\n";
 /** @var array<int|string, array{name: string, value: int}> $uniqueItems */

@@ -33,10 +33,10 @@ class UserDTO extends SimpleDTO
 $user = new UserDTO('John Doe', 'john@example.com', '555-1234');
 
 echo "Without context:\n";
-print_r($user->toArray());
+echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nWith context (includePhone = true):\n";
-print_r($user->withContext(['includePhone' => true])->toArray());
+echo json_encode($user->withContext(['includePhone' => true])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Property included only when context key exists\n";
 
@@ -62,13 +62,13 @@ class AdminDTO extends SimpleDTO
 $admin = new AdminDTO('John Doe');
 
 echo "As admin:\n";
-print_r($admin->withContext(['role' => 'admin'])->toArray());
+echo json_encode($admin->withContext(['role' => 'admin'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs moderator:\n";
-print_r($admin->withContext(['role' => 'moderator'])->toArray());
+echo json_encode($admin->withContext(['role' => 'moderator'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs user:\n";
-print_r($admin->withContext(['role' => 'user'])->toArray());
+echo json_encode($admin->withContext(['role' => 'user'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Different properties based on context value\n";
 
@@ -92,13 +92,14 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $product = new ProductDTO('Premium Widget', 99.99);
 
 echo "User level 5 (wholesale customer):\n";
-print_r($product->withContext(['userLevel' => 5, 'stock' => 50])->toArray());
+echo json_encode($product->withContext(['userLevel' => 5, 'stock' => 50])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nUser level 3 (regular customer) with low stock:\n";
-print_r($product->withContext(['userLevel' => 3, 'stock' => 5])->toArray());
+echo json_encode($product->withContext(['userLevel' => 3, 'stock' => 5])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Operators: >=, <=, >, <, !=, ==, ===\n";
 
@@ -125,10 +126,10 @@ class ContentDTO extends SimpleDTO
 $content = new ContentDTO('Article Title', 'Article content...');
 
 echo "As admin:\n";
-print_r($content->withContext(['role' => 'admin', 'status' => 'published'])->toArray());
+echo json_encode($content->withContext(['role' => 'admin', 'status' => 'published'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAs author with draft:\n";
-print_r($content->withContext(['role' => 'author', 'status' => 'draft'])->toArray());
+echo json_encode($content->withContext(['role' => 'author', 'status' => 'draft'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Include when context value is in a list\n";
 
@@ -152,13 +153,13 @@ class PremiumContentDTO extends SimpleDTO
 $premiumContent = new PremiumContentDTO('Premium Article');
 
 echo "Premium + Verified:\n";
-print_r($premiumContent->withContext(['subscription' => 'premium', 'verified' => true])->toArray());
+echo json_encode($premiumContent->withContext(['subscription' => 'premium', 'verified' => true])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nPremium but not verified:\n";
-print_r($premiumContent->withContext(['subscription' => 'premium', 'verified' => false])->toArray());
+echo json_encode($premiumContent->withContext(['subscription' => 'premium', 'verified' => false])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nVerified but not premium:\n";
-print_r($premiumContent->withContext(['subscription' => 'basic', 'verified' => true])->toArray());
+echo json_encode($premiumContent->withContext(['subscription' => 'basic', 'verified' => true])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  All conditions must be met (AND logic)\n";
 
@@ -170,6 +171,9 @@ echo "------------------------------------------------------------\n";
 
 class OrderDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $items
+     */
     public function __construct(
         public readonly string $id,
         public readonly string $status,
@@ -186,20 +190,21 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $order = new OrderDTO('ORD-12345', 'completed', 299.99);
 
 echo "Public API (no context):\n";
-print_r($order->toArray());
+echo json_encode($order->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAuthenticated user:\n";
-print_r($order->withContext(['user' => (object)['id' => 1]])->toArray());
+echo json_encode($order->withContext(['user' => (object)['id' => 1]])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAdmin view with items:\n";
-print_r($order->withContext([
+echo json_encode($order->withContext([
     'user' => (object)['id' => 1],
     'role' => 'admin',
     'includeItems' => true,
-])->toArray());
+])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Different data based on user context\n";
 echo "✅  Perfect for API responses\n";
@@ -212,6 +217,9 @@ echo "------------------------------------------------------------\n";
 
 class AppConfigDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $debugInfo
+     */
     public function __construct(
         public readonly string $appName,
         public readonly string $version,
@@ -230,10 +238,10 @@ class AppConfigDTO extends SimpleDTO
 $config = new AppConfigDTO('MyApp', '1.0.0');
 
 echo "Development environment:\n";
-print_r($config->withContext(['environment' => 'development'])->toArray());
+echo json_encode($config->withContext(['environment' => 'development'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nProduction environment:\n";
-print_r($config->withContext(['environment' => 'production'])->toArray());
+echo json_encode($config->withContext(['environment' => 'production'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Different features per environment\n";
 
@@ -245,6 +253,10 @@ echo "------------------------------------------------------------\n";
 
 class DashboardDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $statistics
+     * @param array<mixed> $charts
+     */
     public function __construct(
         public readonly string $title,
 
@@ -256,6 +268,7 @@ class DashboardDTO extends SimpleDTO
     ) {}
 }
 
+/** @phpstan-ignore-next-line phpstan-error */
 $dashboard = new DashboardDTO('Dashboard');
 
 $enriched = $dashboard
@@ -263,7 +276,7 @@ $enriched = $dashboard
     ->withContext(['showCharts' => true]);
 
 echo "Dashboard with stats and charts:\n";
-print_r($enriched->toArray());
+echo json_encode($enriched->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Context can be chained\n";
 echo "✅  Contexts are merged\n";

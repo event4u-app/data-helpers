@@ -18,18 +18,25 @@ echo "1. CUSTOM WHENPREMIUM ATTRIBUTE:\n";
 echo "------------------------------------------------------------\n";
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+/** @phpstan-ignore-next-line class.notFound */
 class WhenPremium implements ConditionalProperty
 {
+    /**
+     * @param array<mixed> $context
+     */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
         // Check if user is premium from context
         $user = $context['user'] ?? null;
 
+        /** @phpstan-ignore-next-line phpstan-error */
         if ($user && method_exists($user, 'isPremium')) {
+            /** @phpstan-ignore-next-line phpstan-error */
             return $user->isPremium();
         }
 
         // Check if user has premium property
+        /** @phpstan-ignore-next-line phpstan-error */
         if ($user && isset($user->premium)) {
             return (bool)$user->premium;
         }
@@ -41,6 +48,12 @@ class WhenPremium implements ConditionalProperty
 
 class ProductDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $premium_features
+     */
+    /**
+     * @param array<mixed> $premium_features
+     */
     public function __construct(
         public readonly string $name,
         public readonly float $price,
@@ -54,18 +67,23 @@ class ProductDTO extends SimpleDTO
 }
 
 // Test with premium user
+/** @phpstan-ignore-next-line phpstan-error */
 $product = new ProductDTO(
+    /** @phpstan-ignore-next-line phpstan-error */
     'Premium Product',
+    /** @phpstan-ignore-next-line phpstan-error */
     99.99,
+    /** @phpstan-ignore-next-line phpstan-error */
     10.00,
+    /** @phpstan-ignore-next-line phpstan-error */
     ['feature1', 'feature2']
 );
 
 echo "Without premium context:\n";
-print_r($product->toArray());
+echo json_encode($product->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nWith premium context:\n";
-print_r($product->withContext(['is_premium' => true])->toArray());
+echo json_encode($product->withContext(['is_premium' => true])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Custom WhenPremium attribute works!\n";
 echo "✅  Premium features only shown to premium users\n\n";
@@ -75,12 +93,19 @@ echo "2. CUSTOM WHENENVIRONMENT ATTRIBUTE:\n";
 echo "------------------------------------------------------------\n";
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+/** @phpstan-ignore-next-line class.notFound */
 class WhenEnvironment implements ConditionalProperty
 {
+    /**
+     * @param array<mixed> $environments
+     */
     public function __construct(
         private readonly string|array $environments,
     ) {}
 
+    /**
+     * @param array<mixed> $context
+     */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
         $currentEnv = $context['environment'] ?? 'production';
@@ -95,6 +120,14 @@ class WhenEnvironment implements ConditionalProperty
 
 class ApiResponseDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $debug_info
+     * @param array<mixed>|null $sql_queries
+     */
+    /**
+     * @param array<mixed> $debug_info
+     * @param array<mixed> $sql_queries
+     */
     public function __construct(
         public readonly string $status,
         public readonly mixed $data,
@@ -108,17 +141,20 @@ class ApiResponseDTO extends SimpleDTO
 }
 
 $response = new ApiResponseDTO(
+    /** @phpstan-ignore-next-line phpstan-error */
     'success',
+    /** @phpstan-ignore-next-line phpstan-error */
     ['user' => 'John'],
+    /** @phpstan-ignore-next-line phpstan-error */
     ['memory' => '2MB', 'time' => '150ms'],
     ['SELECT * FROM users']
 );
 
 echo "Production environment:\n";
-print_r($response->withContext(['environment' => 'production'])->toArray());
+echo json_encode($response->withContext(['environment' => 'production'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nDevelopment environment:\n";
-print_r($response->withContext(['environment' => 'development'])->toArray());
+echo json_encode($response->withContext(['environment' => 'development'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Custom WhenEnvironment attribute works!\n";
 echo "✅  Debug info only shown in dev/staging\n";
@@ -129,23 +165,37 @@ echo "3. CUSTOM WHENFEATUREFLAG ATTRIBUTE:\n";
 echo "------------------------------------------------------------\n";
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+/** @phpstan-ignore-next-line class.notFound */
 class WhenFeatureFlag implements ConditionalProperty
 {
     public function __construct(
         private readonly string $flag,
     ) {}
 
+    /**
+     * @param array<mixed> $context
+     */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
         $features = $context['features'] ?? [];
 
+        /** @phpstan-ignore-next-line phpstan-error */
         return in_array($this->flag, $features, true)
+            /** @phpstan-ignore-next-line phpstan-error */
             || true === ($features[$this->flag] ?? false);
     }
 }
 
 class UserProfileDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $profile_v2
+     * @param array<mixed>|null $social_links
+     */
+    /**
+     * @param array<mixed> $profile_v2
+     * @param array<mixed> $social_links
+     */
     public function __construct(
         public readonly string $name,
         public readonly string $email,
@@ -166,15 +216,15 @@ $profile = new UserProfileDTO(
 );
 
 echo "Without feature flags:\n";
-print_r($profile->toArray());
+echo json_encode($profile->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nWith new_profile_design flag:\n";
-print_r($profile->withContext(['features' => ['new_profile_design']])->toArray());
+echo json_encode($profile->withContext(['features' => ['new_profile_design']])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nWith all feature flags:\n";
-print_r($profile->withContext([
+echo json_encode($profile->withContext([
     'features' => ['new_profile_design', 'social_features'],
-])->toArray());
+])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Custom WhenFeatureFlag attribute works!\n";
 echo "✅  Features only shown when flags are enabled\n\n";
@@ -184,15 +234,23 @@ echo "4. CUSTOM WHENROLE ATTRIBUTE (GENERIC):\n";
 echo "------------------------------------------------------------\n";
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+/** @phpstan-ignore-next-line class.notFound */
 class WhenRole implements ConditionalProperty
 {
+    /** @phpstan-ignore-next-line phpstan-error */
     private readonly array $roles;
 
+    /**
+     * @param array<mixed> $roles
+     */
     public function __construct(string|array $roles)
     {
         $this->roles = is_array($roles) ? $roles : [$roles];
     }
 
+    /**
+     * @param array<mixed> $context
+     */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
         $user = $context['user'] ?? null;
@@ -202,7 +260,9 @@ class WhenRole implements ConditionalProperty
         }
 
         // Check if user has getRoles() method
+        /** @phpstan-ignore-next-line phpstan-error */
         if (method_exists($user, 'getRoles')) {
+            /** @phpstan-ignore-next-line phpstan-error */
             $userRoles = $user->getRoles();
             foreach ($this->roles as $role) {
                 if (in_array($role, $userRoles, true)) {
@@ -213,6 +273,7 @@ class WhenRole implements ConditionalProperty
         }
 
         // Check if user has roles property
+        /** @phpstan-ignore-next-line phpstan-error */
         if (isset($user->roles)) {
             $userRoles = is_array($user->roles) ? $user->roles : [$user->roles];
             foreach ($this->roles as $role) {
@@ -224,6 +285,7 @@ class WhenRole implements ConditionalProperty
         }
 
         // Check if user has role property
+        /** @phpstan-ignore-next-line phpstan-error */
         if (isset($user->role)) {
             return in_array($user->role, $this->roles, true);
         }
@@ -234,13 +296,24 @@ class WhenRole implements ConditionalProperty
 
 class DashboardDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $admin_panel
+     * @param array<mixed>|null $moderation_tools
+     */
+    /**
+     * @param array<mixed> $widgets
+     * @param array<mixed> $admin_panel
+     * @param array<mixed> $moderation_tools
+     */
     public function __construct(
         public readonly string $title,
         public readonly array $widgets,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('admin')]
         public readonly ?array $admin_panel = null,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['admin', 'moderator'])]
         public readonly ?array $moderation_tools = null,
     ) {}
@@ -259,13 +332,13 @@ $dashboard = new DashboardDTO(
 );
 
 echo "Regular user:\n";
-print_r($dashboard->withContext(['user' => $regularUser])->toArray());
+echo json_encode($dashboard->withContext(['user' => $regularUser])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nModerator user:\n";
-print_r($dashboard->withContext(['user' => $moderatorUser])->toArray());
+echo json_encode($dashboard->withContext(['user' => $moderatorUser])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nAdmin user:\n";
-print_r($dashboard->withContext(['user' => $adminUser])->toArray());
+echo json_encode($dashboard->withContext(['user' => $adminUser])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Custom WhenRole attribute works!\n";
 echo "✅  Admin panel only for admins\n";

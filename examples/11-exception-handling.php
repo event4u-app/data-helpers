@@ -47,7 +47,11 @@ echo "  - Exceptions enabled: " . (MapperExceptions::isExceptionsEnabled() ? 'tr
 echo "  - Collect exceptions: " . (MapperExceptions::isCollectExceptionsEnabled() ? 'true' : 'false') . "\n";
 echo "  - Throw on undefined source: " . (MapperExceptions::isThrowOnUndefinedSourceEnabled() ? 'true' : 'false') . "\n\n";
 
-$result = DataMapper::map($source, [], $mapping);
+$result = DataMapper::source($source)
+    ->target([])
+    ->template($mapping)
+    ->map()
+    ->getTarget();
 
 echo "Result:\n";
 echo json_encode($result, JSON_PRETTY_PRINT) . "\n\n";
@@ -81,7 +85,11 @@ echo "  - Collect exceptions: " . (MapperExceptions::isCollectExceptionsEnabled(
 echo "  - Throw on undefined source: " . (MapperExceptions::isThrowOnUndefinedSourceEnabled() ? 'true' : 'false') . "\n\n";
 
 try {
-    $result = DataMapper::map($source, [], $mapping);
+    $result = DataMapper::source($source)
+        ->target([])
+        ->template($mapping)
+        ->map()
+        ->getTarget();
     echo "Result:\n";
     echo json_encode($result, JSON_PRETTY_PRINT) . "\n\n";
 } catch (UndefinedSourceValueException $undefinedSourceValueException) {
@@ -127,7 +135,11 @@ echo "  - Collect exceptions: " . (MapperExceptions::isCollectExceptionsEnabled(
 echo "  - Throw on undefined source: " . (MapperExceptions::isThrowOnUndefinedSourceEnabled() ? 'true' : 'false') . "\n\n";
 
 try {
-    $result = DataMapper::map($source, [], $mapping);
+    $result = DataMapper::source($source)
+        ->target([])
+        ->template($mapping)
+        ->map()
+        ->getTarget();
     echo "Result:\n";
     echo json_encode($result, JSON_PRETTY_PRINT) . "\n\n";
 } catch (CollectedExceptionsException $collectedExceptionsException) {
@@ -178,7 +190,11 @@ echo json_encode($source, JSON_PRETTY_PRINT) . "\n\n";
 echo "Settings:\n";
 echo "  - Exceptions enabled: " . (MapperExceptions::isExceptionsEnabled() ? 'true' : 'false') . "\n\n";
 
-$result = DataMapper::map($source, [], $mapping);
+$result = DataMapper::source($source)
+    ->target([])
+    ->template($mapping)
+    ->map()
+    ->getTarget();
 
 echo "Result (missing values silently skipped):\n";
 echo json_encode($result, JSON_PRETTY_PRINT) . "\n\n";
@@ -218,7 +234,11 @@ echo "Mapping with default values:\n";
 echo "  - email: {{ email ?? \"no-email@example.com\" }}\n";
 echo "  - role: {{ role ?? \"USER\" }}\n\n";
 
-$result = DataMapper::map($source, [], $mapping);
+$result = DataMapper::source($source)
+    ->target([])
+    ->template($mapping)
+    ->map()
+    ->getTarget();
 
 echo "Result:\n";
 echo json_encode($result, JSON_PRETTY_PRINT) . "\n\n";
@@ -241,7 +261,11 @@ $mapping = ['email' => '{{ email }}'];  // Missing field
 echo "Source data:\n";
 echo json_encode($source, JSON_PRETTY_PRINT) . "\n\n";
 
-$result = DataMapper::map($source, [], $mapping);
+$result = DataMapper::source($source)
+    ->target([])
+    ->template($mapping)
+    ->map()
+    ->getTarget();
 
 echo "Result:\n";
 echo json_encode($result, JSON_PRETTY_PRINT) . "\n\n";

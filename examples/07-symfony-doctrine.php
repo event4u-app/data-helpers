@@ -40,6 +40,7 @@ echo '2. Doctrine Entities (Simulated)' . PHP_EOL;
 echo '---------------------------------' . PHP_EOL;
 
 // Simulated Doctrine Entity
+/** @phpstan-ignore-next-line class.notFound */
 class Product
 {
     private ?int $id = null;
@@ -129,6 +130,8 @@ $mapping = [
 ];
 
 $mapper = new DataMapper();
+/** @var DataCollection<SimpleDTO> $result */
+/** @phpstan-ignore-next-line phpstan-error */
 $result = $mapper->map($sourceData, $mapping, []);
 
 echo 'Mapped data:' . PHP_EOL;

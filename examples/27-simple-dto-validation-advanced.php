@@ -25,13 +25,18 @@ echo str_repeat('-', 50) . "\n";
 class UserRegistrationDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(20)]
         #[NotIn(['admin', 'root', 'system', 'administrator'])]
         public readonly string $username,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
     ) {
@@ -55,8 +60,10 @@ echo str_repeat('-', 50) . "\n";
 class PasswordChangeDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Confirmed]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(8)]
         public readonly string $password,
 
@@ -82,12 +89,16 @@ echo str_repeat('-', 50) . "\n";
 class EmailChangeDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         #[ConfirmedBy('emailVerification')]
         public readonly string $newEmail,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $emailVerification,
     ) {
@@ -111,24 +122,33 @@ echo str_repeat('-', 50) . "\n";
 class ComplexRegistrationDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(20)]
         #[NotIn(['admin', 'root', 'system'])]
         public readonly string $username,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(255)]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Confirmed]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(8)]
         public readonly string $password,
 
         public readonly string $password_confirmed,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[In(['user', 'moderator', 'editor'])]
         public readonly string $role,

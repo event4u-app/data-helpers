@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 echo "================================================================================\n";
 echo "SimpleDTO - Encrypted Cast Examples\n";
@@ -39,9 +40,12 @@ $payment = PaymentDTO::fromArray([
     'cvv' => '123',
 ]);
 
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Order ID: %s%s', $payment->orderId, PHP_EOL);
 echo sprintf('Amount: $%s%s', $payment->amount, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Credit Card: %s%s', $payment->creditCard, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('CVV: %s%s', $payment->cvv, PHP_EOL);
 echo "\nNote: Data is encrypted when stored, decrypted when accessed\n\n";
 
@@ -51,7 +55,9 @@ echo "----------------------------------\n";
 
 $storedData = $payment->toArray();
 echo "Stored data (encrypted):\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Credit Card: %s%s', $storedData['creditCard'], PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('CVV: %s%s', $storedData['cvv'], PHP_EOL);
 echo "\nNote: Values are encrypted in storage ✅\n\n";
 
@@ -84,9 +90,13 @@ $profile = UserProfileDTO::fromArray([
     'phoneNumber' => '+1-555-0123',
 ]);
 
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('User ID: %s%s', $profile->userId, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Username: %s%s', $profile->username, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('SSN: %s%s', $profile->ssn, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "Phone: {$profile->phoneNumber}\n\n";
 
 // Example 4: Null Values
@@ -100,7 +110,9 @@ $profileWithoutSensitiveData = UserProfileDTO::fromArray([
     'phoneNumber' => null,
 ]);
 
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('User ID: %s%s', $profileWithoutSensitiveData->userId, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Username: %s%s', $profileWithoutSensitiveData->username, PHP_EOL);
 echo "SSN: " . ($profileWithoutSensitiveData->ssn ?? 'Not provided') . "\n";
 echo "Phone: " . ($profileWithoutSensitiveData->phoneNumber ?? 'Not provided') . "\n\n";

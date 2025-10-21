@@ -20,8 +20,10 @@ class UserDTO extends SimpleDTO
     public function __construct(
         public readonly string $name,
         public readonly string $email,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $password,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $apiKey,
     ) {}
@@ -37,11 +39,13 @@ $user = UserDTO::fromArray([
 echo "Direct property access:\n";
 echo sprintf('  Name: %s%s', $user->name, PHP_EOL);
 echo sprintf('  Email: %s%s', $user->email, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('  Password: %s%s', $user->password, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "  API Key: {$user->apiKey}\n\n";
 
 echo "toArray() output:\n";
-print_r($user->toArray());
+echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "JSON output:\n";
@@ -56,8 +60,10 @@ class ProductDTO extends SimpleDTO
     public function __construct(
         public readonly string $name,
         public readonly float $price,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromArray]
         public readonly string $internalSku,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromArray]
         public readonly int $stockLevel,
     ) {}
@@ -71,7 +77,7 @@ $product = ProductDTO::fromArray([
 ]);
 
 echo "toArray() output (internal fields hidden):\n";
-print_r($product->toArray());
+echo json_encode($product->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "JSON output (internal fields visible):\n";
@@ -82,11 +88,16 @@ echo "3. HiddenFromJson - Hide from JSON only:\n";
 echo str_repeat('-', 60) . "\n";
 
 class OrderDTO extends SimpleDTO {
+    /**
+     * @param array<mixed> $processingSteps
+     */
     public function __construct(
         public readonly string $orderId,
         public readonly float $total,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromJson]
         public readonly string $debugInfo,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromJson]
         public readonly array $processingSteps,
     ) {}
@@ -100,7 +111,7 @@ $order = OrderDTO::fromArray([
 ]);
 
 echo "toArray() output (debug info visible):\n";
-print_r($order->toArray());
+echo json_encode($order->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "JSON output (debug info hidden):\n";
@@ -130,11 +141,11 @@ $customer = CustomerDTO::fromArray([
 ]);
 
 echo "Full output:\n";
-print_r($customer->toArray());
+echo json_encode($customer->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Only name and email:\n";
-print_r($customer->only(['name', 'email'])->toArray());
+echo json_encode($customer->only(['name', 'email'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Only id (JSON):\n";
@@ -145,7 +156,7 @@ echo "5. Partial Serialization - except():\n";
 echo str_repeat('-', 60) . "\n";
 
 echo "Exclude phone and address:\n";
-print_r($customer->except(['phone', 'address'])->toArray());
+echo json_encode($customer->except(['phone', 'address'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Exclude email (JSON):\n";
@@ -161,8 +172,10 @@ class SecureUserDTO extends SimpleDTO
         public readonly string $id,
         public readonly string $name,
         public readonly string $email,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $password,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $apiKey,
         public readonly string $role,
@@ -179,15 +192,15 @@ $secureUser = SecureUserDTO::fromArray([
 ]);
 
 echo "Full output (password & apiKey hidden):\n";
-print_r($secureUser->toArray());
+echo json_encode($secureUser->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Only name and email (password still hidden):\n";
-print_r($secureUser->only(['name', 'email', 'password'])->toArray());
+echo json_encode($secureUser->only(['name', 'email', 'password'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Except role (password & apiKey still hidden):\n";
-print_r($secureUser->except(['role'])->toArray());
+echo json_encode($secureUser->except(['role'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Example 7: Real-World API Response
@@ -200,8 +213,10 @@ class ApiUserDTO extends SimpleDTO
         public readonly string $id,
         public readonly string $username,
         public readonly string $email,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $passwordHash,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromJson]
         public readonly string $internalNotes,
         public readonly string $createdAt,
@@ -221,7 +236,7 @@ echo "Public API response (JSON):\n";
 echo json_encode($apiUser, JSON_PRETTY_PRINT) . "\n\n";
 
 echo "Internal database export (toArray):\n";
-print_r($apiUser->toArray());
+echo json_encode($apiUser->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Public profile (only specific fields):\n";

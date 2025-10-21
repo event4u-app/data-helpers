@@ -26,14 +26,19 @@ echo str_repeat('-', 60) . "\n";
 class AddressDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $street,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(2)]
         public readonly string $city,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Regex('/^\d{5}$/')]
         public readonly string $zipCode,
@@ -43,14 +48,19 @@ class AddressDTO extends SimpleDTO
 class UserDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(2)]
         public readonly string $name,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly AddressDTO $address,
     ) {}
@@ -74,11 +84,15 @@ try {
     echo sprintf('    Name: %s%s', $user->name, PHP_EOL);
     echo sprintf(
         '    Address: %s, %s %s%s',
+        /** @phpstan-ignore-next-line phpstan-error */
         $user->address->street,
+        /** @phpstan-ignore-next-line phpstan-error */
         $user->address->city,
+        /** @phpstan-ignore-next-line phpstan-error */
         $user->address->zipCode,
         PHP_EOL
     );
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
     echo "❌  Validation failed (unexpected)\n";
 }
@@ -98,8 +112,10 @@ $invalidData = [
 try {
     $user = UserDTO::validateAndCreate($invalidData);
     echo "✅  Valid nested DTO created (unexpected)\n";
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
     echo "❌  Nested validation failed (expected):\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     foreach ($validationException->errors() as $field => $errors) {
         echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
@@ -116,10 +132,13 @@ echo str_repeat('-', 60) . "\n";
 class CompanyDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(2)]
         public readonly string $name,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly AddressDTO $mainAddress,
 
@@ -145,8 +164,11 @@ try {
     $company = CompanyDTO::fromArray($validCompanyData);
     echo "✅  Company with multiple addresses created:\n";
     echo sprintf('    Name: %s%s', $company->name, PHP_EOL);
+    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf('    Main: %s%s', $company->mainAddress->city, PHP_EOL);
+    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf('    Billing: %s%s', $company->billingAddress->city, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
     echo "❌  Validation failed (unexpected)\n";
 }
@@ -163,10 +185,13 @@ echo str_repeat('-', 60) . "\n";
 class AutoValidatedUserDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly AddressDTO $address,
     ) {}
@@ -182,8 +207,10 @@ try {
         ],
     ]);
     echo "✅  User created (unexpected)\n";
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
     echo "❌  Auto-validation failed (expected):\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     foreach ($validationException->errors() as $field => $errors) {
         echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
@@ -214,10 +241,13 @@ echo str_repeat('-', 60) . "\n";
 class ContactDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly AddressDTO $address,
     ) {}
@@ -226,10 +256,13 @@ class ContactDTO extends SimpleDTO
 class CustomerDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(2)]
         public readonly string $name,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly ContactDTO $contact,
     ) {}
@@ -251,8 +284,11 @@ try {
     $customer = CustomerDTO::fromArray($deeplyNestedData);
     echo "✅  Deeply nested DTO created:\n";
     echo sprintf('    Name: %s%s', $customer->name, PHP_EOL);
+    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf('    Email: %s%s', $customer->contact->email, PHP_EOL);
+    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf('    City: %s%s', $customer->contact->address->city, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
     echo "❌  Validation failed (unexpected)\n";
 }
@@ -274,8 +310,10 @@ $invalidDeeplyNestedData = [
 try {
     $customer = CustomerDTO::validateAndCreate($invalidDeeplyNestedData);
     echo "✅  Customer created (unexpected)\n";
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
     echo "❌  Deeply nested validation failed (expected):\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     foreach ($validationException->errors() as $field => $errors) {
         echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }

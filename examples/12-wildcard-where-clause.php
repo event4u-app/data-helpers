@@ -57,7 +57,12 @@ $template1 = [
     ],
 ];
 
-$result1 = DataMapper::mapFromTemplate($template1, $constructionSite, true, true);
+$result1 = DataMapper::source($constructionSite)
+    ->template($template1)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 /** @var array{project: array{number: string, name: string}, positions: array<int|string, array{number: string, type: string, quantity: int}>} $result1 */
 echo sprintf('Project: %s - %s%s', $result1['project']['number'], $result1['project']['name'], PHP_EOL);
@@ -89,7 +94,12 @@ $template2 = [
     ],
 ];
 
-$result2 = DataMapper::mapFromTemplate($template2, $constructionSite, true, true);
+$result2 = DataMapper::source($constructionSite)
+    ->template($template2)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Gravel Positions for CS-123:\n";
 /** @var array<int|string, array{number: string, quantity: int}> $gravelPositions */
@@ -123,7 +133,12 @@ $template3 = [
     ],
 ];
 
-$result3 = DataMapper::mapFromTemplate($template3, $constructionSite, true, true);
+$result3 = DataMapper::source($constructionSite)
+    ->template($template3)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Gravel Positions for CS-123 (explicit AND):\n";
 /** @var array<int|string, array{number: string, quantity: int}> $gravelPositions */
@@ -160,7 +175,12 @@ $template4 = [
     ],
 ];
 
-$result4 = DataMapper::mapFromTemplate($template4, $constructionSite, true, true);
+$result4 = DataMapper::source($constructionSite)
+    ->template($template4)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Material Positions (gravel OR sand) for CS-123:\n";
 /** @var array<int|string, array{number: string, type: string, quantity: int}> $materialPositions */
@@ -202,7 +222,12 @@ $template5 = [
     ],
 ];
 
-$result5 = DataMapper::mapFromTemplate($template5, $constructionSite, true, true);
+$result5 = DataMapper::source($constructionSite)
+    ->template($template5)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "High Quantity Positions (gravel=100 OR sand=80):\n";
 /** @var array<int|string, array{number: string, type: string, quantity: int}> $highQuantityPositions */
@@ -239,7 +264,12 @@ $template6 = [
     ],
 ];
 
-$result6 = DataMapper::mapFromTemplate($template6, $constructionSite, true, true);
+$result6 = DataMapper::source($constructionSite)
+    ->template($template6)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Positions (case-insensitive keywords):\n";
 /** @var array<int|string, array{number: string, type: string}> $positions */
@@ -267,7 +297,12 @@ $template7 = [
     ],
 ];
 
-$result7 = DataMapper::mapFromTemplate($template7, $constructionSite, true, true);
+$result7 = DataMapper::source($constructionSite)
+    ->template($template7)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 /** @var array<int|string, mixed> $positions */
 $positions = $result7['positions'] ?? [];
@@ -298,7 +333,12 @@ $template8 = [
     ],
 ];
 
-$result8 = DataMapper::mapFromTemplate($template8, $constructionSite, true, true);
+$result8 = DataMapper::source($constructionSite)
+    ->template($template8)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Sorted Positions (by number ASC):\n";
 /** @var array<int|string, array{number: string, type: string}> $sortedPositions */
@@ -334,7 +374,12 @@ $template9 = [
     ],
 ];
 
-$result9 = DataMapper::mapFromTemplate($template9, $constructionSite, true, true);
+$result9 = DataMapper::source($constructionSite)
+    ->template($template9)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Sorted Positions (by priority ASC, quantity DESC):\n";
 /** @var array<int|string, array{number: string, priority: int, quantity: int}> $sortedPositions */
@@ -368,7 +413,12 @@ $template10 = [
     ],
 ];
 
-$result10 = DataMapper::mapFromTemplate($template10, $constructionSite, true, true);
+$result10 = DataMapper::source($constructionSite)
+    ->template($template10)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Sorted Positions (by quantity DESC):\n";
 /** @var array<int|string, array{number: string, quantity: int}> $sortedPositions */
@@ -405,7 +455,12 @@ $template11 = [
     ],
 ];
 
-$result11 = DataMapper::mapFromTemplate($template11, $constructionSite, true, true);
+$result11 = DataMapper::source($constructionSite)
+    ->template($template11)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Gravel Positions (sorted by quantity DESC):\n";
 /** @var array<int|string, array{number: string, quantity: int}> $gravelPositions */
@@ -439,7 +494,12 @@ $template12 = [
     ],
 ];
 
-$result12 = DataMapper::mapFromTemplate($template12, $constructionSite, true, true);
+$result12 = DataMapper::source($constructionSite)
+    ->template($template12)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Page 2 (items 2-3, sorted by position number):\n";
 /** @var array<int|string, array{number: string, type: string, quantity: int}> $paginatedPositions */
@@ -475,7 +535,12 @@ $template13 = [
     ],
 ];
 
-$result13 = DataMapper::mapFromTemplate($template13, $constructionSite, true, true);
+$result13 = DataMapper::source($constructionSite)
+    ->template($template13)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Top 2 Gravel Positions (CS-123, sorted by quantity DESC):\n";
 /** @var array<int|string, array{number: string, quantity: int}> $topGravelPositions */

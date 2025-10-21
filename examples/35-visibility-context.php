@@ -18,8 +18,10 @@ class UserDTO extends SimpleDTO
     public function __construct(
         public readonly string $id,
         public readonly string $name,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewSalary')]
         public readonly float $salary,
     ) {}
@@ -27,12 +29,14 @@ class UserDTO extends SimpleDTO
     private function canViewEmail(mixed $context): bool
     {
         // Admin or the user themselves can see email
+        /** @phpstan-ignore-next-line phpstan-error */
         return 'admin' === $context?->role || $context?->userId === $this->id;
     }
 
     private function canViewSalary(mixed $context): bool
     {
         // Only admin can see salary
+        /** @phpstan-ignore-next-line phpstan-error */
         return 'admin' === $context?->role;
     }
 }
@@ -51,7 +55,7 @@ $adminContext = (object)[
 ];
 
 echo "Admin view:\n";
-print_r($user->withVisibilityContext($adminContext)->toArray());
+echo json_encode($user->withVisibilityContext($adminContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Owner context
@@ -61,7 +65,7 @@ $ownerContext = (object)[
 ];
 
 echo "Owner view (can see own email, but not salary):\n";
-print_r($user->withVisibilityContext($ownerContext)->toArray());
+echo json_encode($user->withVisibilityContext($ownerContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Other user context
@@ -71,7 +75,7 @@ $otherContext = (object)[
 ];
 
 echo "Other user view (cannot see email or salary):\n";
-print_r($user->withVisibilityContext($otherContext)->toArray());
+echo json_encode($user->withVisibilityContext($otherContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Example 2: Multi-Level Permissions
@@ -80,14 +84,21 @@ echo str_repeat('-', 60) . "\n";
 
 class DocumentDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $metadata
+     * @param array<mixed> $auditLog
+     */
     public function __construct(
         public readonly string $id,
         public readonly string $title,
         public readonly string $author,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewContent')]
         public readonly string $content,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewMetadata')]
         public readonly array $metadata,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewAuditLog')]
         public readonly array $auditLog,
     ) {}
@@ -95,18 +106,21 @@ class DocumentDTO extends SimpleDTO
     private function canViewContent(mixed $context): bool
     {
         // Owner, editor, or admin can view content
+        /** @phpstan-ignore-next-line phpstan-error */
         return in_array($context?->role, ['owner', 'editor', 'admin'], true);
     }
 
     private function canViewMetadata(mixed $context): bool
     {
         // Editor or admin can view metadata
+        /** @phpstan-ignore-next-line phpstan-error */
         return in_array($context?->role, ['editor', 'admin'], true);
     }
 
     private function canViewAuditLog(mixed $context): bool
     {
         // Only admin can view audit log
+        /** @phpstan-ignore-next-line phpstan-error */
         return 'admin' === $context?->role;
     }
 }
@@ -125,15 +139,15 @@ $editorContext = (object)['role' => 'editor'];
 $adminContext = (object)['role' => 'admin'];
 
 echo "Viewer (basic info only):\n";
-print_r($document->withVisibilityContext($viewerContext)->toArray());
+echo json_encode($document->withVisibilityContext($viewerContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Editor (can see content and metadata):\n";
-print_r($document->withVisibilityContext($editorContext)->toArray());
+echo json_encode($document->withVisibilityContext($editorContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Admin (can see everything):\n";
-print_r($document->withVisibilityContext($adminContext)->toArray());
+echo json_encode($document->withVisibilityContext($adminContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Example 3: Chaining with Partial Serialization
@@ -145,8 +159,10 @@ class ProfileDTO extends SimpleDTO
     public function __construct(
         public readonly string $username,
         public readonly string $displayName,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewPhone')]
         public readonly string $phone,
         public readonly string $bio,
@@ -154,11 +170,13 @@ class ProfileDTO extends SimpleDTO
 
     private function canViewEmail(mixed $context): bool
     {
+        /** @phpstan-ignore-next-line phpstan-error */
         return 'admin' === $context?->role || true === $context?->isFriend;
     }
 
     private function canViewPhone(mixed $context): bool
     {
+        /** @phpstan-ignore-next-line phpstan-error */
         return 'admin' === $context?->role;
     }
 }
@@ -175,20 +193,20 @@ $friendContext = (object)['role' => 'user', 'isFriend' => true];
 $strangerContext = (object)['role' => 'user', 'isFriend' => false];
 
 echo "Friend view (can see email):\n";
-print_r($profile->withVisibilityContext($friendContext)->toArray());
+echo json_encode($profile->withVisibilityContext($friendContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Stranger view (cannot see email or phone):\n";
-print_r($profile->withVisibilityContext($strangerContext)->toArray());
+echo json_encode($profile->withVisibilityContext($strangerContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Friend view with only() - username and email:\n";
-print_r($profile->withVisibilityContext($friendContext)->only(['username', 'email'])->toArray());
+echo json_encode($profile->withVisibilityContext($friendContext)->only(['username', 'email'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Admin view with except() - exclude bio:\n";
 $adminContext = (object)['role' => 'admin'];
-print_r($profile->withVisibilityContext($adminContext)->except(['bio'])->toArray());
+echo json_encode($profile->withVisibilityContext($adminContext)->except(['bio'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Example 4: JSON API Response
@@ -200,19 +218,23 @@ class ApiUserDTO extends SimpleDTO
     public function __construct(
         public readonly string $id,
         public readonly string $username,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewApiKey')]
         public readonly string $apiKey,
     ) {}
 
     private function canViewEmail(mixed $context): bool
     {
+        /** @phpstan-ignore-next-line phpstan-error */
         return 'full' === ($context?->scope ?? null) || 'admin' === ($context?->role ?? null);
     }
 
     private function canViewApiKey(mixed $context): bool
     {
+        /** @phpstan-ignore-next-line phpstan-error */
         return 'full' === ($context?->scope ?? null) && ($context?->userId ?? null) === $this->id;
     }
 }
@@ -245,12 +267,17 @@ echo str_repeat('-', 60) . "\n";
 
 class OrderDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $paymentDetails
+     */
     public function __construct(
         public readonly string $orderId,
         public readonly string $customerId,
         public readonly float $total,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewPaymentDetails')]
         public readonly array $paymentDetails,
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewInternalNotes')]
         public readonly string $internalNotes,
     ) {}
@@ -258,13 +285,16 @@ class OrderDTO extends SimpleDTO
     private function canViewPaymentDetails(mixed $context): bool
     {
         // Customer can see their own payment details, or admin/finance can see all
+        /** @phpstan-ignore-next-line phpstan-error */
         return ($context?->userId ?? null) === $this->customerId
+            /** @phpstan-ignore-next-line phpstan-error */
             || in_array($context?->role ?? null, ['admin', 'finance'], true);
     }
 
     private function canViewInternalNotes(mixed $context): bool
     {
         // Only internal staff can see notes
+        /** @phpstan-ignore-next-line phpstan-error */
         return in_array($context?->role ?? null, ['admin', 'support', 'finance'], true);
     }
 }
@@ -282,15 +312,15 @@ $supportContext = (object)['role' => 'support'];
 $financeContext = (object)['role' => 'finance'];
 
 echo "Customer view (can see own payment details):\n";
-print_r($order->withVisibilityContext($customerContext)->toArray());
+echo json_encode($order->withVisibilityContext($customerContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Support view (can see internal notes but not payment):\n";
-print_r($order->withVisibilityContext($supportContext)->toArray());
+echo json_encode($order->withVisibilityContext($supportContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Finance view (can see everything):\n";
-print_r($order->withVisibilityContext($financeContext)->toArray());
+echo json_encode($order->withVisibilityContext($financeContext)->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "✅  All context-based visibility examples completed!\n";

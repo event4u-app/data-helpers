@@ -7,6 +7,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 echo "================================================================================\n";
 echo "SimpleDTO - Collection Cast Examples (Framework-Independent)\n";
@@ -15,8 +16,8 @@ echo "==========================================================================
 echo "Note: CollectionCast now creates DataCollection instances (framework-independent).\n";
 echo "You must specify a DTO class: 'collection:UserDTO'\n\n";
 
-// Example 1: DataCollection of DTOs
-echo "Example 1: DataCollection of DTOs\n";
+// Example 1: DataCollection<SimpleDTO> of DTOs
+echo "Example 1: DataCollection<SimpleDTO> of DTOs\n";
 echo "----------------------------------\n";
 
 class UserDTO extends SimpleDTO
@@ -30,6 +31,7 @@ class UserDTO extends SimpleDTO
 
 class TeamDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function __construct(
         public readonly string $name,
         public readonly DataCollection $members,
@@ -52,12 +54,14 @@ $teamDTO = TeamDTO::fromArray([
 
 echo sprintf('Team: %s%s', $teamDTO->name, PHP_EOL);
 echo sprintf('Members: %d%s', $teamDTO->members->count(), PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "First member: {$teamDTO->members->first()->name} ({$teamDTO->members->first()->age} years)\n";
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Last member: %s%s', $teamDTO->members->last()->name, PHP_EOL);
 echo "toArray(): " . json_encode($teamDTO->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
-// Example 2: DataCollectionOf Attribute
-echo "Example 2: DataCollectionOf Attribute\n";
+// Example 2: DataCollection<SimpleDTO>Of Attribute
+echo "Example 2: DataCollection<SimpleDTO>Of Attribute\n";
 echo "-------------------------------------\n";
 
 class ProductDTO extends SimpleDTO
@@ -71,6 +75,7 @@ class ProductDTO extends SimpleDTO
 
 class OrderDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function __construct(
         public readonly string $orderNumber,
         #[DataCollectionOf(ProductDTO::class)]
@@ -90,7 +95,9 @@ $orderDTO = OrderDTO::fromArray([
 ]);
 
 echo sprintf('Order: %s%s', $orderDTO->orderNumber, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Items: %s%s', $orderDTO->items->count(), PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo "First item: {$orderDTO->items->first()->name} (\${$orderDTO->items->first()->price})\n";
 echo sprintf('Total: $%s%s', $orderDTO->total, PHP_EOL);
 echo "toArray(): " . json_encode($orderDTO->toArray(), JSON_PRETTY_PRINT) . "\n\n";
@@ -109,6 +116,7 @@ class CommentDTO extends SimpleDTO
 
 class PostDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function __construct(
         public readonly string $title,
         public readonly string $content,
@@ -119,6 +127,7 @@ class PostDTO extends SimpleDTO
 
 class BlogDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function __construct(
         public readonly string $name,
         #[DataCollectionOf(PostDTO::class)]
@@ -149,7 +158,9 @@ $blogDTO = BlogDTO::fromArray([
 
 echo sprintf('Blog: %s%s', $blogDTO->name, PHP_EOL);
 echo sprintf('Posts: %d%s', $blogDTO->posts->count(), PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('First post: %s%s', $blogDTO->posts->first()->title, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('First post comments: %s%s', $blogDTO->posts->first()->comments->count(), PHP_EOL);
 echo "toArray(): " . json_encode($blogDTO->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 

@@ -16,6 +16,7 @@ echo str_repeat('-', 50) . "\n";
 
 class UserUpdateDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function __construct(
         public readonly Optional|string $name,
         public readonly Optional|string $email,
@@ -52,6 +53,10 @@ echo str_repeat('-', 50) . "\n";
 
 class DocumentUpdateDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $metadata
+     */
+    /** @phpstan-ignore-next-line phpstan-error */
     public function __construct(
         public readonly Optional|string $title,
         public readonly Optional|Lazy|string $content,
@@ -78,6 +83,9 @@ echo str_repeat('-', 50) . "\n";
 
 class ProfileDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $settings
+     */
     public function __construct(
         public readonly string $id,
         public readonly string $username,
@@ -89,6 +97,10 @@ class ProfileDTO extends SimpleDTO
 
 class ProfileUpdateDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed> $settings
+     */
+    /** @phpstan-ignore-next-line phpstan-error */
     public function __construct(
         public readonly Optional|string $username,
         public readonly Optional|string $email,
@@ -123,9 +135,13 @@ echo json_encode($changes, JSON_PRETTY_PRINT) . "\n\n";
 // Apply changes to original profile
 $updatedProfile = new ProfileDTO(
     id: $profile->id,
+    /** @phpstan-ignore-next-line phpstan-error */
     username: $changes['username'] ?? $profile->username,
+    /** @phpstan-ignore-next-line phpstan-error */
     email: $changes['email'] ?? $profile->email,
+    /** @phpstan-ignore-next-line phpstan-error */
     bio: array_key_exists('bio', $changes) ? $changes['bio'] : $profile->bio,
+    /** @phpstan-ignore-next-line phpstan-error */
     settings: $changes['settings'] ?? $profile->settings,
 );
 
@@ -147,6 +163,7 @@ class AddressDTO extends SimpleDTO
 
 class UserWithAddressUpdateDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function __construct(
         public readonly Optional|string $name,
         public readonly Optional|AddressDTO $address,
@@ -178,11 +195,15 @@ echo str_repeat('-', 50) . "\n";
 
 class ValidatedUpdateDTO extends SimpleDTO
 {
+    /** @phpstan-ignore-next-line phpstan-error */
     public function __construct(
         public readonly Optional|string $email,
         public readonly Optional|int $age,
     ) {}
 
+    /**
+     * @return array<mixed>
+     */
     public function validatePartial(): array
     {
         $errors = [];

@@ -5,7 +5,6 @@ declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
-use event4u\DataHelpers\ReverseDataMapper;
 
 echo "=== Reverse Mapping Examples ===\n\n";
 
@@ -23,15 +22,24 @@ $mapping = [
 
 // Forward mapping: user -> profile
 $user = ['user' => ['name' => 'John Doe', 'email' => 'john@example.com']];
-$forwardResult = DataMapper::map($user, [], $mapping);
+$forwardResult = DataMapper::source($user)
+    ->target([])
+    ->template($mapping)
+    ->map()
+    ->getTarget();
 echo "Forward (user -> profile):\n";
-print_r($forwardResult);
+echo json_encode($forwardResult, JSON_PRETTY_PRINT) . PHP_EOL;
 
 // Reverse mapping: profile -> user
 $profile = ['profile' => ['name' => 'Jane Doe', 'email' => 'jane@example.com']];
-$reverseResult = ReverseDataMapper::map($profile, [], $mapping);
+$reverseResult = DataMapper::source($profile)
+    ->target([])
+    ->template($mapping)
+    ->reverse()
+    ->map()
+    ->getTarget();
 echo "\nReverse (profile -> user):\n";
-print_r($reverseResult);
+echo json_encode($reverseResult, JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -60,9 +68,13 @@ $person = [
         'phone' => '+1234567890',
     ],
 ];
-$forwardDto = DataMapper::map($person, [], $nestedMapping);
+$forwardDto = DataMapper::source($person)
+    ->target([])
+    ->template($nestedMapping)
+    ->map()
+    ->getTarget();
 echo "Forward (person -> dto):\n";
-print_r($forwardDto);
+echo json_encode($forwardDto, JSON_PRETTY_PRINT) . PHP_EOL;
 
 // Reverse mapping: dto -> person
 $dto = [
@@ -74,9 +86,14 @@ $dto = [
         ],
     ],
 ];
-$reversePerson = ReverseDataMapper::map($dto, [], $nestedMapping);
+$reversePerson = DataMapper::source($dto)
+    ->target([])
+    ->template($nestedMapping)
+    ->reverse()
+    ->map()
+    ->getTarget();
 echo "\nReverse (dto -> person):\n";
-print_r($reversePerson);
+echo json_encode($reversePerson, JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -103,9 +120,12 @@ $sources = [
     'user' => ['name' => 'Charlie Brown', 'email' => 'charlie@example.com'],
     'location' => ['street' => '123 Main St', 'city' => 'Springfield'],
 ];
-$forwardTemplate = DataMapper::mapFromTemplate($template, $sources);
+$forwardTemplate = DataMapper::source($sources)
+    ->template($template)
+    ->map()
+    ->toArray();
 echo "Forward (sources -> template structure):\n";
-print_r($forwardTemplate);
+echo json_encode($forwardTemplate, JSON_PRETTY_PRINT) . PHP_EOL;
 
 // Reverse mapping: template structure -> sources
 $templateData = [
@@ -118,16 +138,20 @@ $templateData = [
         'city' => 'Shelbyville',
     ],
 ];
-$reverseSources = ReverseDataMapper::mapFromTemplate($template, $templateData);
+$reverseSources = DataMapper::source($templateData)
+    ->template($template)
+    ->reverse()
+    ->map()
+    ->toArray();
 echo "\nReverse (template structure -> sources):\n";
-print_r($reverseSources);
+echo json_encode($reverseSources, JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
 // ============================================================================
-// Example 4: Bidirectional Mapping with mapToTargetsFromTemplate
+// Example 4: Bidirectional Mapping with Target
 // ============================================================================
-echo "4. Bidirectional Mapping with mapToTargetsFromTemplate\n";
+echo "4. Bidirectional Mapping with Target\n";
 echo str_repeat('-', 50) . "\n";
 
 // Define a template
@@ -140,9 +164,12 @@ $bidirectionalTemplate = [
 
 // Forward: sources -> template structure
 $userSources = ['user' => ['name' => 'Eve Adams', 'email' => 'eve@example.com']];
-$profileData = DataMapper::mapFromTemplate($bidirectionalTemplate, $userSources);
+$profileData = DataMapper::source($userSources)
+    ->template($bidirectionalTemplate)
+    ->map()
+    ->toArray();
 echo "Forward (sources -> template structure):\n";
-print_r($profileData);
+echo json_encode($profileData, JSON_PRETTY_PRINT) . PHP_EOL;
 
 // Reverse: template structure -> targets
 $updatedProfileData = [
@@ -152,13 +179,14 @@ $updatedProfileData = [
     ],
 ];
 $userTargets = ['user' => ['name' => null, 'email' => null]];
-$updatedTargets = ReverseDataMapper::mapToTargetsFromTemplate(
-    $updatedProfileData,
-    $bidirectionalTemplate,
-    $userTargets
-);
+$updatedTargets = DataMapper::source($updatedProfileData)
+    ->target($userTargets)
+    ->template($bidirectionalTemplate)
+    ->reverse()
+    ->map()
+    ->getTarget();
 echo "\nReverse (template structure -> targets):\n";
-print_r($updatedTargets);
+echo json_encode($updatedTargets, JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -179,15 +207,24 @@ $users = [
     ['name' => 'Grace'],
     ['name' => 'Henry'],
 ];
-$forwardNames = DataMapper::map(['users' => $users], [], $wildcardMapping);
+$forwardNames = DataMapper::source(['users' => $users])
+    ->target([])
+    ->template($wildcardMapping)
+    ->map()
+    ->getTarget();
 echo "Forward (users -> names):\n";
-print_r($forwardNames);
+echo json_encode($forwardNames, JSON_PRETTY_PRINT) . PHP_EOL;
 
 // Reverse mapping: names -> users
 $names = ['Alice', 'Bob', 'Charlie'];
-$reverseUsers = ReverseDataMapper::map(['names' => $names], [], $wildcardMapping);
+$reverseUsers = DataMapper::source(['names' => $names])
+    ->target([])
+    ->template($wildcardMapping)
+    ->reverse()
+    ->map()
+    ->getTarget();
 echo "\nReverse (names -> users):\n";
-print_r($reverseUsers);
+echo json_encode($reverseUsers, JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -197,13 +234,16 @@ echo "\n";
 echo "6. Auto-Map (Symmetric)\n";
 echo str_repeat('-', 50) . "\n";
 
-// Auto-map is symmetric, so ReverseDataMapper just delegates to DataMapper
+// Auto-map is symmetric, so we can use autoMap in both directions
 $source = ['name' => 'Ivy Lee', 'email' => 'ivy@example.com'];
 $target = ['name' => null, 'email' => null];
 
-$autoMapped = ReverseDataMapper::autoMap($source, $target);
+$autoMapped = DataMapper::source($source)
+    ->target($target)
+    ->autoMap()
+    ->getTarget();
 echo "Auto-mapped:\n";
-print_r($autoMapped);
+echo json_encode($autoMapped, JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
 
@@ -222,14 +262,17 @@ $pipelineMapping = [
     'output.email' => '{{ input.email }}',
 ];
 
-// Create a pipeline with filters
-$pipeline = ReverseDataMapper::pipe([new TrimStrings(), new UppercaseStrings()]);
-
 // Reverse mapping with filters
 $input = ['input' => ['name' => '  jack brown  ', 'email' => '  jack@example.com  ']];
-$pipelineResult = $pipeline->map($input, [], $pipelineMapping);
+$pipelineResult = DataMapper::source($input)
+    ->target([])
+    ->template($pipelineMapping)
+    ->pipeline([new TrimStrings(), new UppercaseStrings()])
+    ->reverse()
+    ->map()
+    ->getTarget();
 echo "Reverse mapping with filters (trim + uppercase):\n";
-print_r($pipelineResult);
+echo json_encode($pipelineResult, JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n=== End of Examples ===\n";
 

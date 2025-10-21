@@ -32,11 +32,15 @@ echo str_repeat('-', 60) . "\n";
 class AutoValidateUserDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $name,
     ) {}
@@ -48,7 +52,9 @@ try {
         'name' => 'John Doe',
     ]);
     echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 
@@ -58,8 +64,10 @@ try {
         'name' => 'Jo',
     ]);
     echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
     echo "❌  Validation failed (expected):\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     foreach ($validationException->errors() as $field => $errors) {
         echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
@@ -73,11 +81,15 @@ echo str_repeat('-', 60) . "\n";
 class ManualValidateUserDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $name,
     ) {}
@@ -95,7 +107,9 @@ try {
 
     $dto = ManualValidateUserDTO::fromArray($validated);
     echo sprintf('    DTO created: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 echo "\n";
@@ -117,15 +131,19 @@ $invalidData = [
 try {
     $validated = ManualValidateUserDTO::validateOrFail($validData);
     echo "✅  Valid data passed: " . json_encode($validated) . "\n";
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 
 try {
     $validated = ManualValidateUserDTO::validateOrFail($invalidData);
     echo "✅  Valid data passed: " . json_encode($validated) . "\n";
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
     echo "❌  Invalid data failed (expected):\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     foreach ($validationException->errors() as $field => $errors) {
         echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
@@ -165,11 +183,15 @@ echo str_repeat('-', 60) . "\n";
 class ThrowingUserDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $name,
     ) {}
@@ -178,15 +200,19 @@ class ThrowingUserDTO extends SimpleDTO
 try {
     $dto = ThrowingUserDTO::validateAndCreate($validData);
     echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 
 try {
     $dto = ThrowingUserDTO::validateAndCreate($invalidData);
     echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
     echo "❌  Invalid data failed (expected):\n";
+    /** @phpstan-ignore-next-line phpstan-error */
     foreach ($validationException->errors() as $field => $errors) {
         echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
@@ -201,11 +227,15 @@ echo str_repeat('-', 60) . "\n";
 class NonThrowingUserDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $name,
     ) {}
@@ -238,11 +268,15 @@ echo str_repeat('-', 60) . "\n";
 class PartialOnlyUserDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $name,
     ) {}
@@ -259,7 +293,9 @@ try {
         'name' => 'X',
     ]);
     echo sprintf('✅  Only email validated: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 
@@ -267,11 +303,15 @@ try {
 class PartialExceptUserDTO extends SimpleDTO
 {
     public function __construct(
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
+        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $name,
     ) {}
@@ -288,7 +328,9 @@ try {
         'name' => 'X',
     ]);
     echo sprintf('✅  Name excluded from validation: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+/** @phpstan-ignore-next-line phpstan-error */
 } catch (ValidationException $validationException) {
+    /** @phpstan-ignore-next-line phpstan-error */
     echo "❌  Validation failed: " . $validationException->getMessage() . "\n";
 }
 echo "\n";

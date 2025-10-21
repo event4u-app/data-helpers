@@ -55,7 +55,12 @@ $template1 = [
     ],
 ];
 
-$result1 = DataMapper::mapFromTemplate($template1, $products, true, true);
+$result1 = DataMapper::source($products)
+    ->template($template1)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Top Electronics (2nd and 3rd most expensive):\n";
 /** @var array<int|string, array{name: string, price: float}> $topElectronics */
@@ -112,7 +117,12 @@ $template2 = [
     ],
 ];
 
-$result2 = DataMapper::mapFromTemplate($template2, $products, true, true);
+$result2 = DataMapper::source($products)
+    ->template($template2)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Unique Categories:\n";
 /** @var array<int|string, array{category: string}> $uniqueCategories */
@@ -178,7 +188,12 @@ $template3 = [
     ],
 ];
 
-$result3 = DataMapper::mapFromTemplate($template3, $products, true, true);
+$result3 = DataMapper::source($products)
+    ->template($template3)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "First Product per Category (sorted by price DESC):\n";
 /** @var array<int|string, array{name: string, category: string, price: float}> $groupedByCategory */
@@ -218,7 +233,12 @@ $template4 = [
     ],
 ];
 
-$result4 = DataMapper::mapFromTemplate($template4, $products, true, true);
+$result4 = DataMapper::source($products)
+    ->template($template4)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Products with Even IDs:\n";
 /** @var array<int|string, array{id: int, name: string}> $evenIdProducts */
@@ -253,7 +273,12 @@ $template5 = [
     ],
 ];
 
-$result5 = DataMapper::mapFromTemplate($template5, $products, true, true);
+$result5 = DataMapper::source($products)
+    ->template($template5)
+    ->skipNull(true)
+    ->reindexWildcard(true)
+    ->map()
+    ->toArray();
 
 echo "Complex Query (Electronics, sorted by price DESC, skip 1, limit 2):\n";
 /** @var array<int|string, array{name: string, category: string, price: float, stock: int}> $complexQuery */
