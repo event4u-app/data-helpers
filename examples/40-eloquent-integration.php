@@ -26,7 +26,6 @@ echo "======================================================================\n\n
  * User Model extending Laravel's Eloquent Model.
  * In a real Laravel app, this would be in app/Models/User.php
  */
-/** @phpstan-ignore-next-line class.notFound */
 class User extends Model
 {
     protected $fillable = ['name', 'email', 'age', 'address'];
@@ -55,7 +54,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $user = new User([
     'name' => 'John Doe',
     'email' => 'john@example.com',
@@ -63,11 +62,11 @@ $user = new User([
 ]);
 
 echo "Original Model:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $userDto = UserDTO::fromModel($user);
 
 echo "DTO created from Model:\n";
@@ -96,7 +95,7 @@ echo "Original DTO:\n";
 echo json_encode($dto->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $model = $dto->toModel(User::class);
 
 echo "Model created from DTO:\n";
@@ -112,7 +111,7 @@ echo "Model exists flag: " . ($model->exists ? 'true' : 'false') . "\n\n";
 echo "4. UPDATE MODEL FROM DTO:\n";
 echo "======================================================================\n\n";
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $existingModel = new User([
     'name' => 'Old Name',
     'email' => 'old@example.com',
@@ -120,7 +119,7 @@ $existingModel = new User([
 ]);
 
 echo "Existing Model (before update):\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo json_encode($existingModel->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
@@ -135,11 +134,11 @@ echo json_encode($updateDto->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Update model with DTO data
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $existingModel->fill($updateDto->toArray());
 
 echo "Model (after update):\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo json_encode($existingModel->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
@@ -150,7 +149,7 @@ echo "\n";
 echo "5. ROUND-TRIP (Model → DTO → Model):\n";
 echo "======================================================================\n\n";
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $originalModel = new User([
     'name' => 'Alice Brown',
     'email' => 'alice@example.com',
@@ -158,12 +157,12 @@ $originalModel = new User([
 ]);
 
 echo "Original Model:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo json_encode($originalModel->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // Model → DTO
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $dto = UserDTO::fromModel($originalModel);
 
 echo "DTO (from Model):\n";
@@ -177,7 +176,7 @@ echo "New Model (from DTO):\n";
 echo json_encode($newModel->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Data preserved: " . ($originalModel->toArray() === $newModel->toArray() ? 'YES ✅' : 'NO ❌') . "\n\n";
 
 // ============================================================================

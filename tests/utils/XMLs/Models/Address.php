@@ -34,8 +34,8 @@ class Address extends Model
 
     /**
      * The model's default values for attributes.
-     * @phpstan-ignore-next-line assign.propertyType
      */
+    /** @phpstan-ignore-next-line unknown */
     protected $attributes = [
         'street' => null,
     ];
@@ -65,7 +65,7 @@ class Address extends Model
 
     public function setStreet(?string $street): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
+        /** @phpstan-ignore-next-line unknown */
         $this->street = $street;
         return $this;
     }
@@ -77,7 +77,6 @@ class Address extends Model
 
     public function setZipcode(string $zipcode): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
         $this->zipcode = $zipcode;
         return $this;
     }
@@ -89,7 +88,6 @@ class Address extends Model
 
     public function setCity(string $city): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
         $this->city = $city;
         return $this;
     }
@@ -100,9 +98,10 @@ class Address extends Model
      * Get the project that owns the address.
      * @return BelongsTo<Project, Address>
      */
+    /** @phpstan-ignore-next-line unknown */
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'project_id'); // @phpstan-ignore-line return.type
+        return $this->belongsTo(Project::class);
     }
 }
 

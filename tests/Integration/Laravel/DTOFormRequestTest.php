@@ -9,7 +9,7 @@ if (!class_exists('Illuminate\Foundation\Http\FormRequest')) {
     return;
 }
 
-use event4u\DataHelpers\Laravel\DTOFormRequest;
+use event4u\DataHelpers\Frameworks\Laravel\DTOFormRequest;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\Min;
@@ -52,13 +52,10 @@ describe('Laravel DTOFormRequest', function(): void {
         }
 
         // Create validation factory
-        /** @phpstan-ignore-next-line class.notFound */
         $translator = new Translator(new ArrayLoader(), 'en');
-        /** @phpstan-ignore-next-line class.notFound */
         $this->validationFactory = new ValidationFactory($translator);
 
         // Create container
-        /** @phpstan-ignore-next-line class.notFound */
         $this->container = new Container();
         $this->container->instance('validator', $this->validationFactory);
         Container::setInstance($this->container);
@@ -69,7 +66,7 @@ describe('Laravel DTOFormRequest', function(): void {
     });
 
     test('it creates dto from valid data', function(): void {
-        /** @phpstan-ignore-next-line staticMethod.notFound */
+        /** @phpstan-ignore-next-line unknown */
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -89,7 +86,7 @@ describe('Laravel DTOFormRequest', function(): void {
             ->and($dto->name)->toBe('John Doe')
             ->and($dto->email)->toBe('john@example.com')
             ->and($dto->age)->toBe(30);
-    })->group('laravel');
+    });
 
     test('it generates rules from dto', function(): void {
         $request = new UserFormRequest();
@@ -102,10 +99,10 @@ describe('Laravel DTOFormRequest', function(): void {
             ->and($rules['name'])->toContain('required')
             ->and($rules['email'])->toContain('required')
             ->and($rules['email'])->toContain('email');
-    })->group('laravel');
+    });
 
     test('it handles optional fields', function(): void {
-        /** @phpstan-ignore-next-line staticMethod.notFound */
+        /** @phpstan-ignore-next-line unknown */
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -122,10 +119,10 @@ describe('Laravel DTOFormRequest', function(): void {
 
         expect($dto)->toBeInstanceOf(UserFormDTO::class)
             ->and($dto->age)->toBeNull();
-    })->group('laravel');
+    });
 
     test('it validates data automatically', function(): void {
-        /** @phpstan-ignore-next-line staticMethod.notFound */
+        /** @phpstan-ignore-next-line unknown */
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'J',  // Too short
             'email' => 'invalid-email',
@@ -141,7 +138,7 @@ describe('Laravel DTOFormRequest', function(): void {
         $request->setValidator($validator);
 
         expect($validator->passes())->toBeFalse();
-    })->group('laravel');
+    });
 
     test('it provides custom messages', function(): void {
         $request = new class extends DTOFormRequest {
@@ -166,7 +163,7 @@ describe('Laravel DTOFormRequest', function(): void {
         expect($messages)->toHaveKey('name.required')
             ->and($messages)->toHaveKey('email.email')
             ->and($messages['name.required'])->toBe('Please provide your name');
-    })->group('laravel');
+    });
 
     test('it provides custom attributes', function(): void {
         $request = new class extends DTOFormRequest {
@@ -191,10 +188,10 @@ describe('Laravel DTOFormRequest', function(): void {
         expect($attributes)->toHaveKey('name')
             ->and($attributes)->toHaveKey('email')
             ->and($attributes['name'])->toBe('full name');
-    })->group('laravel');
+    });
 
     test('it handles json request', function(): void {
-        /** @phpstan-ignore-next-line staticMethod.notFound */
+        /** @phpstan-ignore-next-line unknown */
         $request = UserFormRequest::create(
             '/test',
             'POST',
@@ -220,7 +217,7 @@ describe('Laravel DTOFormRequest', function(): void {
         expect($dto)->toBeInstanceOf(UserFormDTO::class)
             ->and($dto->name)->toBe('Jane Doe')
             ->and($dto->email)->toBe('jane@example.com');
-    })->group('laravel');
+    });
 
     test('it can be extended with additional rules', function(): void {
         $request = new class extends DTOFormRequest {
@@ -244,7 +241,7 @@ describe('Laravel DTOFormRequest', function(): void {
         expect($rules)->toHaveKey('age')
             ->and($rules['age'])->toContain('integer')
             ->and($rules['age'])->toContain('min:18');
-    })->group('laravel');
+    });
 
     test('it handles authorization', function(): void {
         $request = new class extends DTOFormRequest {
@@ -257,10 +254,10 @@ describe('Laravel DTOFormRequest', function(): void {
         };
 
         expect($request->authorize())->toBeFalse();
-    })->group('laravel');
+    });
 
     test('it converts dto back to array', function(): void {
-        /** @phpstan-ignore-next-line staticMethod.notFound */
+        /** @phpstan-ignore-next-line unknown */
         $request = UserFormRequest::create('/test', 'POST', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -282,6 +279,6 @@ describe('Laravel DTOFormRequest', function(): void {
             ->and($array)->toHaveKey('email')
             ->and($array)->toHaveKey('age')
             ->and($array['name'])->toBe('John Doe');
-    })->group('laravel');
-});
+    });
+})->group('laravel');;
 

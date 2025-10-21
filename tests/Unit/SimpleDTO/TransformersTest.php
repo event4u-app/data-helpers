@@ -96,12 +96,12 @@ describe('Transformers', function(): void {
                 'Name' => 'John',
             ];
 
-/** @phpstan-ignore-next-line argument.type (Transformer result type) */
+            /** @phpstan-ignore-next-line unknown */
             $result = $transformer->transform($data);
 
-            /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible,argument.templateType (Array offset access) */
+            /** @phpstan-ignore-next-line unknown */
             expect($result[0])->toBe('first');
-            /** @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible,argument.templateType (Array offset access) */
+            /** @phpstan-ignore-next-line unknown */
             expect($result[1])->toBe('second');
             expect($result['name'])->toBe('John');
         });
@@ -301,7 +301,7 @@ describe('Transformers', function(): void {
                 public function transform(array $data): array
                 {
                     if (isset($data['name'])) {
-                        /** @phpstan-ignore-next-line binaryOp.invalid (Mixed array value) */
+                        /** @phpstan-ignore-next-line unknown */
                         $data['name'] = 'Mr. ' . $data['name'];
                     }
 

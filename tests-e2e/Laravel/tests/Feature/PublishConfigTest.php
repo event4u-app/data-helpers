@@ -136,8 +136,8 @@ describe('Laravel Config Publishing', function(): void {
     });
 
     it('service provider registers publish tag', function(): void {
-        $publishes = \event4u\DataHelpers\Laravel\DataHelpersServiceProvider::pathsToPublish(
-            \event4u\DataHelpers\Laravel\DataHelpersServiceProvider::class,
+        $publishes = \event4u\DataHelpers\Frameworks\Laravel\DataHelpersServiceProvider::pathsToPublish(
+            \event4u\DataHelpers\Frameworks\Laravel\DataHelpersServiceProvider::class,
             'data-helpers-config'
         );
 
@@ -146,12 +146,13 @@ describe('Laravel Config Publishing', function(): void {
     });
 
     it('published config path is correct', function(): void {
-        $publishes = \event4u\DataHelpers\Laravel\DataHelpersServiceProvider::pathsToPublish(
-            \event4u\DataHelpers\Laravel\DataHelpersServiceProvider::class,
+        $publishes = \event4u\DataHelpers\Frameworks\Laravel\DataHelpersServiceProvider::pathsToPublish(
+            \event4u\DataHelpers\Frameworks\Laravel\DataHelpersServiceProvider::class,
             'data-helpers-config'
         );
 
         $sourcePath = realpath(base_path('vendor/event4u/data-helpers/config/data-helpers.php'));
+        /** @phpstan-ignore-next-line argument.type */
         $publishKeys = array_map('realpath', array_keys($publishes));
 
         expect($publishKeys)->toContain($sourcePath);

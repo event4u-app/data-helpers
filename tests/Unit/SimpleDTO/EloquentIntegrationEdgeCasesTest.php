@@ -173,11 +173,11 @@ describe('Eloquent Integration Edge Cases', function(): void {
 
             $model = $instance->toModel(EdgeCaseTestModel::class);
 
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->name)->toBe('John');
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->email)->toBeNull();
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->age)->toBeNull();
         });
 
@@ -198,10 +198,10 @@ describe('Eloquent Integration Edge Cases', function(): void {
 
             $model = $instance->toModel(EdgeCaseTestModel::class);
 
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->name)->toBe('');
             // Empty string is converted to null by mutator
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->email)->toBeNull();
         });
 
@@ -221,7 +221,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
             $model = $instance->toModel(EdgeCaseTestModel::class);
 
             // Mutator converts to lowercase
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->email)->toBe('john@example.com');
         });
 
@@ -242,10 +242,10 @@ describe('Eloquent Integration Edge Cases', function(): void {
 
             $model = $instance->toModel(EdgeCaseTestModel::class);
 
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->name)->toBe('John');
             // extraField is set but may not be in database
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->extraField)->toBe('Extra');
         });
 
@@ -288,9 +288,9 @@ describe('Eloquent Integration Edge Cases', function(): void {
             $dtoInstance = $dto::fromModel($model);
             $newModel = $dtoInstance->toModel(EdgeCaseTestModel::class);
 
-            /** @phpstan-ignore-next-line property.notFound,argument.templateType (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newModel->name)->toBe('John');
-            /** @phpstan-ignore-next-line property.notFound,argument.templateType (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newModel->email)->toBeNull();
         });
 
@@ -313,10 +313,10 @@ describe('Eloquent Integration Edge Cases', function(): void {
             $dtoInstance = $dto::fromModel($model);
             $newModel = $dtoInstance->toModel(EdgeCaseTestModel::class);
 
-            /** @phpstan-ignore-next-line property.notFound,argument.templateType (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newModel->name)->toBe('');
             // Empty string is converted to null by mutator
-            /** @phpstan-ignore-next-line property.notFound,argument.templateType (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newModel->email)->toBeNull();
         });
 
@@ -335,7 +335,7 @@ describe('Eloquent Integration Edge Cases', function(): void {
             $dtoInstance = $dto::fromModel($model);
             $newModel = $dtoInstance->toModel(EdgeCaseTestModel::class);
 
-            /** @phpstan-ignore-next-line property.notFound,argument.templateType (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newModel->is_active)->toBe(1);
         });
     });

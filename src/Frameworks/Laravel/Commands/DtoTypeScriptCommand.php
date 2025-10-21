@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Laravel\Commands;
+namespace event4u\DataHelpers\Frameworks\Laravel\Commands;
 
 use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
 use Illuminate\Filesystem\Filesystem;
@@ -12,22 +12,26 @@ use Throwable;
 
 // Create stub class if Laravel is not installed
 if (!class_exists('Illuminate\Console\Command')) {
-    abstract class Command
-    {
-        /** @phpstan-ignore-next-line */
-        public const SUCCESS = 0;
-        /** @phpstan-ignore-next-line */
-        public const FAILURE = 1;
+    if (!class_exists('event4u\DataHelpers\Frameworks\Laravel\Commands\Command')) {
+        abstract class Command
+        {
+            /** @phpstan-ignore-next-line */
+            public const SUCCESS = 0;
+            /** @phpstan-ignore-next-line */
+            public const FAILURE = 1;
 
-        /** @phpstan-ignore-next-line */
-        protected function info(string $message): void {}
-        /** @phpstan-ignore-next-line */
-        protected function error(string $message): void {}
-        /** @phpstan-ignore-next-line */
-        protected function option(string $name): mixed { return null; }
+            /** @phpstan-ignore-next-line */
+            protected function info(string $message): void {}
+            /** @phpstan-ignore-next-line */
+            protected function error(string $message): void {}
+            /** @phpstan-ignore-next-line */
+            protected function option(string $name): mixed { return null; }
+        }
     }
 } else {
-    class_alias('Illuminate\Console\Command', 'event4u\DataHelpers\Laravel\Commands\Command');
+    if (!class_exists('event4u\DataHelpers\Frameworks\Laravel\Commands\Command')) {
+        class_alias('Illuminate\Console\Command', 'event4u\DataHelpers\Frameworks\Laravel\Commands\Command');
+    }
 }
 
 /**
@@ -42,7 +46,6 @@ if (!class_exists('Illuminate\Console\Command')) {
  */
 class DtoTypeScriptCommand extends Command
 {
-    public mixed $laravel;
     /**
      * The name and signature of the console command.
      *

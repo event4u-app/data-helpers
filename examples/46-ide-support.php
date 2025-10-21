@@ -11,7 +11,6 @@ use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 // Example 1: Type Inference for fromArray()
 echo "Example 1: Type Inference for fromArray()\n";
@@ -33,7 +32,7 @@ $user = UserDTO::fromArray([
     'email' => 'john@example.com',
 ]);
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('✅  User created: %s, %s, %s%s', $user->name, $user->age, $user->email, PHP_EOL);
 echo "    IDE provides autocomplete for \$user->name, \$user->age, \$user->email\n\n";
 
@@ -44,10 +43,8 @@ echo str_repeat('=', 80) . "\n\n";
 class ProductDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly string $name,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Between(0, 999999)]
         public readonly float $price,
@@ -63,7 +60,6 @@ $product = ProductDTO::fromArray([
 
 echo sprintf('✅  Product created: %s, $%s%s', $product->name, $product->price, PHP_EOL);
 echo "    IDE provides autocomplete for \$product->name, \$product->price\n";
-/** @phpstan-ignore-next-line attribute.notFound */
 echo "    Validation attributes (#[Required], #[Between]) are recognized by IDE\n\n";
 
 // Example 3: Type Inference for collection()
@@ -82,7 +78,7 @@ echo "    IDE provides autocomplete for \$users->map(), \$users->filter(), etc.\
 
 // IDE knows $user is UserDTO in foreach
 foreach ($users as $user) {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo "    - {$user->name} ({$user->age})\n";
 }
 
@@ -129,12 +125,9 @@ echo str_repeat('=', 80) . "\n\n";
 class RegistrationDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email] // IDE knows this is a validation attribute
         public readonly string $email,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Between(18, 120)] // IDE suggests common values: 18, 100, etc.
         public readonly int $age,
@@ -148,7 +141,6 @@ $registration = RegistrationDTO::fromArray([
 
 echo sprintf('✅  Registration created: %s, %d%s', $registration->email, $registration->age, PHP_EOL);
 echo "    IDE provides autocomplete for validation attributes\n";
-/** @phpstan-ignore-next-line attribute.notFound */
 echo "    Attributes: #[Required], #[Email], #[Between]\n\n";
 
 // Example 6: Property Mapping Autocomplete
@@ -193,7 +185,8 @@ $response = ApiResponseDTO::fromArray([
     'email_address' => 'john@example.com',
 ]);
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('✅  API Response created: %s %s%s', $response->firstName, $response->lastName, PHP_EOL);
 echo "    IDE provides autocomplete for naming conventions\n\n";
 
@@ -214,7 +207,8 @@ echo "    IDE provides autocomplete for \$members->map(), \$members->filter(), e
 
 // IDE knows $member is UserDTO
 foreach ($members as $member) {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     echo "    - {$member->name} ({$member->age})\n";
 }
 

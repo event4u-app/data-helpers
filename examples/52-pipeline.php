@@ -44,9 +44,9 @@ echo "Original: name='{$data['name']}', age='{$data['age']}', active='{$data['ac
 echo sprintf(
     "After pipeline: name='%s', age=%s, active=",
     $user->name,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     $user->age
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 ) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 2: Pipeline with Validation
@@ -64,20 +64,20 @@ $pipeline->addStage(new ValidationStage([
 try {
     $data = ['name' => 'Jane Smith', 'age' => 25];
     $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo sprintf('✅  Validation passed: %s, age %s%s', $user->name, $user->age, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo sprintf('❌  Validation failed: %s%s', $validationException->getMessage(), PHP_EOL);
 }
 
 try {
     $data = ['name' => 'Too Young', 'age' => 15, 'active' => true];
     $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo "❌  Validation failed for age 15: " . implode(', ', $validationException->getFieldErrors('age')) . "\n";
 }
 
@@ -98,9 +98,9 @@ echo "Input: " . json_encode($data) . "\n";
 echo sprintf(
     'After pipeline: name=%s, age=%s, active=',
     $user->name,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     $user->age
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 ) . ($user->active ? 'true' : 'false') . "\n\n";
 
 // Example 4: CallbackStage
@@ -138,15 +138,14 @@ $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
 echo sprintf(
     'Processed: name=%s, age=%s, active=',
     $user->name,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     $user->age
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 ) . ($user->active ? 'true' : 'false') . "\n";
 
 $context = $pipeline->getContext();
 echo "Pipeline stages executed:\n";
 foreach ($context as $stageName => $stageContext) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf('  - %s: %s%s', $stageName, $stageContext['status'], PHP_EOL);
 }
 
@@ -156,15 +155,12 @@ echo "\n";
 echo "Example 6: Custom Pipeline Stage\n";
 echo "---------------------------------\n";
 
-/** @phpstan-ignore-next-line class.notFound */
 class EmailNormalizerStage implements PipelineStageInterface
 {
     /**
      * @return array<mixed>
      */
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function process(array $data): array
     {
         if (isset($data['email'])) {
@@ -210,12 +206,11 @@ $pipeline->addStage(new CallbackStage(fn($data): array => $data, 'never_reached'
 try {
     $data = ['age' => 30];
     $pipeline->process($data);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 } catch (ValidationException) {
     echo "❌  Pipeline stopped on validation error\n";
     $context = $pipeline->getContext();
     echo "Stages executed: " . implode(', ', array_keys($context)) . "\n";
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf('Validation stage status: %s%s', $context['validation']['status'], PHP_EOL);
 }
 
@@ -241,9 +236,8 @@ echo "Pipeline continued despite validation error\n";
 echo "Result: " . json_encode($result) . "\n";
 
 $context = $pipeline->getContext();
-/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Validation status: %s%s', $context['validation']['status'], PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Callback status: {$context['callback']['status']}\n\n";
 
 // Example 9: processWith Method
@@ -256,7 +250,6 @@ $pipeline = new DTOPipeline();
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
 $pipeline->addStage(new CallbackStage(function($data): array {
     if (isset($data['name'])) {
-        /** @phpstan-ignore-next-line phpstan-error */
         $data['name'] = ucwords($data['name']);
     }
 
@@ -290,7 +283,7 @@ echo "Processing multiple users with same pipeline:\n";
 foreach ($users as $userData) {
     $userPipeline->clearContext();
     $user = UserDTO::fromArrayWithPipeline($userData, $userPipeline);
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo sprintf('  - %s, age %s%s', $user->name, $user->age, PHP_EOL);
 }
 

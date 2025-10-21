@@ -24,7 +24,6 @@ use event4u\DataHelpers\MappedDataModel;
  * @property bool $is_active
  * @property int $registered_at
  */
-/** @phpstan-ignore-next-line class.notFound */
 class UserRegistrationModel extends MappedDataModel
 {
     protected function template(): array
@@ -70,7 +69,6 @@ class UserRegistrationModel extends MappedDataModel
  * @property int $quantity
  * @property array<int, string> $tags
  */
-/** @phpstan-ignore-next-line class.notFound */
 class ProductUpdateModel extends MappedDataModel
 {
     protected function template(): array
@@ -114,7 +112,6 @@ class ProductUpdateModel extends MappedDataModel
  * @property string $currency
  * @property string $status
  */
-/** @phpstan-ignore-next-line class.notFound */
 class OrderModel extends MappedDataModel
 {
     protected function template(): array
@@ -164,11 +161,8 @@ echo "Mapped Data:\n";
 echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . "\n";
 
 echo "\nAccess via magic getter (raw):\n";
-/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Email (raw): %s%s', $user->email, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('First name: %s%s', $user->first_name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
 echo sprintf('Last name: %s%s', $user->last_name, PHP_EOL);
 
 echo "\nAccess via custom getters (transformed):\n";
@@ -247,7 +241,6 @@ echo "\n=== Example 5: Validation Example ===\n\n";
  * @property string $email
  * @property int $age
  */
-/** @phpstan-ignore-next-line class.notFound */
 class ValidatedModel extends MappedDataModel
 {
     protected function template(): array
@@ -272,13 +265,11 @@ class ValidatedModel extends MappedDataModel
         $errors = [];
 
         // Validate email
-        /** @phpstan-ignore-next-line phpstan-error */
         if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Invalid email format';
         }
 
         // Validate age
-        /** @phpstan-ignore-next-line phpstan-error */
         if (18 > $this->age) {
             $errors['age'] = 'Must be 18 or older';
         }
@@ -337,7 +328,6 @@ echo "\n=== Example 7: Using Pipes for Data Transformation ===\n\n";
  * @property string $name
  * @property string $company
  */
-/** @phpstan-ignore-next-line class.notFound */
 class UserWithPipesModel extends MappedDataModel
 {
     protected function template(): array
@@ -389,7 +379,6 @@ echo "\n=== Example 8: Advanced Pipes - Type Casting ===\n\n";
  * @property bool $is_active
  * @property string $description
  */
-/** @phpstan-ignore-next-line class.notFound */
 class ProductModel extends MappedDataModel
 {
     protected function template(): array
@@ -451,7 +440,6 @@ echo "\n=== Example 9: Handling Empty Values ===\n\n";
  * @property string|null $phone
  * @property string|null $bio
  */
-/** @phpstan-ignore-next-line class.notFound */
 class UserProfileModel extends MappedDataModel
 {
     protected function template(): array

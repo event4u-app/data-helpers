@@ -44,9 +44,10 @@ $order = OrderDTO::fromArray([
     'total' => 99.99,
 ]);
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Order ID: %s%s', $order->orderId, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo "Status: {$order->status->value} ({$order->status->name})\n";
 echo "Total: \${$order->total}\n\n";
 
@@ -141,7 +142,7 @@ $product = ProductDTO::fromArray([
 ]);
 
 echo sprintf('Product: %s%s', $product->name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Color: %s%s', $product->color->name, PHP_EOL);
 echo "Price: \${$product->price}\n\n";
 
@@ -176,9 +177,9 @@ $newUser = UserDTO::fromArray([
     'lastOrderStatus' => null,
 ]);
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Username: %s%s', $newUser->username, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Last Order Status: ".($newUser->lastOrderStatus?->value ?? 'None')."\n\n";
 
 $existingUser = UserDTO::fromArray([
@@ -186,9 +187,9 @@ $existingUser = UserDTO::fromArray([
     'lastOrderStatus' => 'delivered',
 ]);
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Username: %s%s', $existingUser->username, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Last Order Status: {$existingUser->lastOrderStatus->value}\n\n";
 
 // ============================================================================
@@ -220,7 +221,7 @@ $config = ConfigDTO::fromArray([
 ]);
 
 echo sprintf('Config: %s%s', $config->name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Priority: ".($config->priority?->name ?? 'Invalid (null)')."\n\n";
 
 // ============================================================================

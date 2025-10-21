@@ -93,13 +93,13 @@
     "laravel": {
       "require": "^9.0|^10.0|^11.0",
       "providers": [
-        "event4u\\DataHelpers\\Laravel\\DataHelpersServiceProvider"
+        "event4u\\DataHelpers\\Frameworks\\Laravel\\DataHelpersServiceProvider"
       ]
     },
     "symfony": {
       "require": "^6.0|^7.0",
       "bundles": {
-        "event4u\\DataHelpers\\Symfony\\DataHelpersBundle": [
+        "event4u\\DataHelpers\\Frameworks\\Symfony\\DataHelpersBundle": [
           "all"
         ]
       }

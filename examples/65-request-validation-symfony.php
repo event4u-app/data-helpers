@@ -32,15 +32,11 @@ echo str_repeat('-', 60) . "\n";
 class CreateUserDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $name,
 
@@ -96,11 +92,9 @@ echo str_repeat('-', 60) . "\n";
 class UpdateUserDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly ?string $email = null,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly ?string $name = null,
 

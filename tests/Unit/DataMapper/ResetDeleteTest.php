@@ -9,7 +9,7 @@ use event4u\DataHelpers\DataMapper\FluentDataMapper;
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
 function setupProductsSource(): void
 {
-    /** @phpstan-ignore-next-line property.notFound (Pest dynamic property) */
+    /** @phpstan-ignore-next-line unknown */
     test()->source = [
         'products' => [
             ['id' => 1, 'name' => 'Product A', 'status' => 'active', 'price' => 100],

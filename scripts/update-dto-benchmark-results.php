@@ -126,7 +126,7 @@ $results['datamapper_traditional'] = runBenchmark('Traditional Mutable DTO', fun
     $mapping
 ): void {
     $company = new CompanyDto();
-    // @phpstan-ignore-next-line method.resultUnused
+    /** @phpstan-ignore-next-line unknown */
     DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 }, 1000);
 

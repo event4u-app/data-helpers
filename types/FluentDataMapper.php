@@ -3,10 +3,10 @@
 /** @noinspection PhpExpressionResultUnusedInspection */
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\DataMapperProperty;
 use event4u\DataHelpers\DataMapper\DataMapperResult;
 use event4u\DataHelpers\DataMapper\FluentDataMapper;
 use event4u\DataHelpers\DataMapper\MapperQuery;
-use event4u\DataHelpers\DataMapper\DataMapperProperty;
 use function PHPStan\Testing\assertType;
 
 // Test source data

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Symfony;
+namespace event4u\DataHelpers\Frameworks\Symfony;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDTO;
@@ -23,14 +23,14 @@ if (!interface_exists('Symfony\Component\HttpKernel\Controller\ValueResolverInte
 } else {
     class_alias(
         'Symfony\Component\HttpKernel\Controller\ValueResolverInterface',
-        'event4u\DataHelpers\Symfony\ValueResolverInterface'
+        'event4u\DataHelpers\Frameworks\Symfony\ValueResolverInterface'
     );
 }
 
 if (!class_exists('Symfony\Component\HttpFoundation\Request')) {
     class Request {}
 } else {
-    class_alias('Symfony\Component\HttpFoundation\Request', 'event4u\DataHelpers\Symfony\Request');
+    class_alias('Symfony\Component\HttpFoundation\Request', 'event4u\DataHelpers\Frameworks\Symfony\Request');
 }
 
 if (!class_exists('Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata')) {
@@ -38,7 +38,7 @@ if (!class_exists('Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetad
 } else {
     class_alias(
         'Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata',
-        'event4u\DataHelpers\Symfony\ArgumentMetadata'
+        'event4u\DataHelpers\Frameworks\Symfony\ArgumentMetadata'
     );
 }
 

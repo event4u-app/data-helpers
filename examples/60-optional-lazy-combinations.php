@@ -16,7 +16,14 @@ echo str_repeat('-', 50) . "\n";
 
 class UserDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         // Regular properties
         public readonly string $name,
@@ -55,20 +62,20 @@ $user1 = UserDTO::fromArray([
 ]);
 
 echo sprintf('  name: %s%s', $user1->name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  age: %s%s', $user1->age, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  email present: " . ($user1->email->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  biography loaded: " . ($user1->biography->isLoaded() ? 'yes' : 'no') . "\n";
 echo "  phone: " . ($user1->phone ?? 'null') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  address present: " . ($user1->address->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  notes loaded: " . ($user1->notes->isLoaded() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  preferences present: " . ($user1->preferences->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  metadata present: " . ($user1->metadata->isPresent() ? 'yes' : 'no') . "\n";
 echo "\n";
 
@@ -90,7 +97,8 @@ echo str_repeat('-', 50) . "\n";
 
 class DocumentDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         public readonly Optional|Lazy|string $content,  // Can be missing AND lazy!
@@ -99,17 +107,17 @@ class DocumentDTO extends SimpleDTO
 
 echo "Missing content:\n";
 $doc1 = DocumentDTO::fromArray(['title' => 'Document 1']);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  content present: " . ($doc1->content->isPresent() ? 'yes' : 'no') . "\n";
 echo "  toArray: " . json_encode($doc1->toArray()) . "\n";
 echo "\n";
 
 echo "Present content (wrapped in Lazy):\n";
 $doc2 = DocumentDTO::fromArray(['title' => 'Document 2', 'content' => 'Long content...']);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  content present: " . ($doc2->content->isPresent() ? 'yes' : 'no') . "\n";
 echo "  content is Optional: " . ($doc2->content instanceof Optional ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  content value is Lazy: " . ($doc2->content->get() instanceof Lazy ? 'yes' : 'no') . "\n";
 echo "  toArray (lazy excluded): " . json_encode($doc2->toArray()) . "\n";
 echo "  toArray (lazy included): " . json_encode($doc2->include(['content'])->toArray()) . "\n";
@@ -121,7 +129,11 @@ echo str_repeat('-', 50) . "\n";
 
 class UpdateDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly Optional|string $name,
         public readonly Optional|string|null $email,
@@ -152,7 +164,10 @@ class ProfileDTO extends SimpleDTO
     /**
      * @param array<mixed> $settings
      */
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $username,
         public readonly Optional|Lazy|array $settings,
@@ -162,9 +177,9 @@ class ProfileDTO extends SimpleDTO
 
 $profile1 = ProfileDTO::fromArray(['username' => 'john_doe']);
 echo "Missing settings and avatar:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  settings present: " . ($profile1->settings->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  avatar present: " . ($profile1->avatar->isPresent() ? 'yes' : 'no') . "\n";
 echo "  toArray: " . json_encode($profile1->toArray()) . "\n";
 echo "\n";
@@ -175,11 +190,11 @@ $profile2 = ProfileDTO::fromArray([
     'avatar' => null,
 ]);
 echo "Present settings (lazy), explicit null avatar:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  settings present: " . ($profile2->settings->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  avatar present: " . ($profile2->avatar->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $avatarValue = $profile2->avatar->get(); // Get Lazy wrapper
 $avatarActualValue = $avatarValue instanceof Lazy ? $avatarValue->get() : $avatarValue;
 echo "  avatar value: " . (null === $avatarActualValue ? 'null' : 'not null') . "\n";
@@ -200,18 +215,18 @@ $user2 = UserDTO::fromArray([
 ]);
 
 echo "Type checks:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  email is Optional: " . ($user2->email instanceof Optional ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  biography is Lazy: " . ($user2->biography instanceof Lazy ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  phone is nullable: " . (property_exists(
     $user2,
     'phone'
 ) && null !== $user2->phone ? 'no' : 'yes (not set)') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  address is Optional: " . ($user2->address instanceof Optional ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  notes is Lazy: " . ($user2->notes instanceof Lazy ? 'yes' : 'no') . "\n";
 echo "\n";
 

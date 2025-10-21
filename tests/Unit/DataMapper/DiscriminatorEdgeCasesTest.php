@@ -368,7 +368,7 @@ describe('DataMapper - Discriminator Edge Cases', function(): void {
 
             $result = DataMapper::source($source)
                 ->target(BirdEdge::class)
-                /** @phpstan-ignore-next-line argument.type (Testing with non-existent class) */
+                /** @phpstan-ignore-next-line unknown */
                 ->discriminator('type', $map)
                 ->template([
                     'name' => '{{ name }}',

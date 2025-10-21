@@ -87,14 +87,13 @@ describe('Computed Properties - Edge Cases', function(): void {
 
         it('handles computed method returning empty array', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.iterableValue (Test with generic array) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $items = [],
                 ) {}
 
-/** @phpstan-ignore-next-line return.type (Computed property) */
+                /** @phpstan-ignore-next-line unknown */
                 #[Computed]
-                /** @phpstan-ignore-next-line missingType.iterableValue,return.type (Test with generic array) */
                 public function emptyArray(): array
                 {
                     return $this->items;
@@ -177,7 +176,7 @@ describe('Computed Properties - Edge Cases', function(): void {
                 ) {}
 
                 #[Computed]
-                /** @phpstan-ignore-next-line attribute.notClass (Attribute class validation) */
+                /** @phpstan-ignore-next-line unknown */
                 #[Hidden]
                 public function secret(): int
                 {
@@ -198,7 +197,7 @@ describe('Computed Properties - Edge Cases', function(): void {
                 ) {}
 
                 #[Computed]
-                /** @phpstan-ignore-next-line attribute.notClass (Attribute class validation) */
+                /** @phpstan-ignore-next-line unknown */
                 #[HiddenFromArray]
                 public function secretFromArray(): int
                 {
@@ -227,7 +226,7 @@ describe('Computed Properties - Edge Cases', function(): void {
                 ) {}
 
                 #[Computed]
-                /** @phpstan-ignore-next-line attribute.notClass (Attribute class validation) */
+                /** @phpstan-ignore-next-line unknown */
                 #[HiddenFromJson]
                 public function secretFromJson(): int
                 {
@@ -307,14 +306,13 @@ describe('Computed Properties - Edge Cases', function(): void {
     describe('Different Return Types', function(): void {
         it('handles computed method returning array', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.iterableValue (Test with generic array) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $items = [1, 2, 3],
                 ) {}
 
-/** @phpstan-ignore-next-line return.type (Computed property) */
+                /** @phpstan-ignore-next-line unknown */
                 #[Computed]
-                /** @phpstan-ignore-next-line missingType.iterableValue,return.type (Test with generic array) */
                 public function stats(): array
                 {
                     return [
@@ -362,9 +360,8 @@ describe('Computed Properties - Edge Cases', function(): void {
                     public readonly string $name = 'John',
                 ) {}
 
-/** @phpstan-ignore-next-line return.type (Computed property) */
+                /** @phpstan-ignore-next-line unknown */
                 #[Computed]
-                /** @phpstan-ignore-next-line missingType.iterableValue,return.type (Test with generic array) */
                 public function address(): array
                 {
                     return [

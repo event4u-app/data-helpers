@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Laravel;
+namespace event4u\DataHelpers\Frameworks\Laravel;
 
 use event4u\DataHelpers\DataHelpersConfig;
-use event4u\DataHelpers\Laravel\Commands\DtoTypeScriptCommand;
-use event4u\DataHelpers\Laravel\Commands\MakeDtoCommand;
+use event4u\DataHelpers\Frameworks\Laravel\Commands\DtoTypeScriptCommand;
+use event4u\DataHelpers\Frameworks\Laravel\Commands\MakeDtoCommand;
 use event4u\DataHelpers\MappedDataModel;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
@@ -56,7 +56,7 @@ final class DataHelpersServiceProvider extends ServiceProvider
     {
         // Merge config
         $this->mergeConfigFrom(
-            __DIR__ . '/../../config/data-helpers.php',
+            __DIR__ . '/../../../config/data-helpers.php',
             'data-helpers'
         );
 
@@ -76,7 +76,7 @@ final class DataHelpersServiceProvider extends ServiceProvider
         // Publish config
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../../config/data-helpers.php' => $this->app->configPath('data-helpers.php'),
+                __DIR__ . '/../../../config/data-helpers.php' => $this->app->configPath('data-helpers.php'),
             ], 'data-helpers-config');
 
             // Register commands

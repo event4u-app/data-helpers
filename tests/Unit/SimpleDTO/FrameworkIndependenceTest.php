@@ -35,7 +35,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromModel'))->toBeFalse();
         });
 
@@ -48,7 +48,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'toModel'))->toBeFalse();
         });
     });
@@ -72,9 +72,9 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromModel'))->toBeTrue();
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($dto, 'fromModel'))->toBeTrue();
         });
 
@@ -89,7 +89,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'toModel'))->toBeTrue();
         });
 
@@ -200,9 +200,9 @@ describe('Framework Independence', function(): void {
             expect(json_encode($instance))->toBeJson();
 
             // Eloquent methods not available
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromModel'))->toBeFalse();
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'toModel'))->toBeFalse();
         });
 
@@ -222,9 +222,9 @@ describe('Framework Independence', function(): void {
             expect(json_encode($instance))->toBeJson();
 
             // Eloquent methods available
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromModel'))->toBeTrue();
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'toModel'))->toBeTrue();
         });
 
@@ -291,9 +291,9 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromEntity'))->toBeTrue();
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($dto, 'fromEntity'))->toBeTrue();
         });
 
@@ -308,7 +308,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'toEntity'))->toBeTrue();
         });
 
@@ -385,7 +385,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromEntity'))->toBeFalse();
         });
 
@@ -398,7 +398,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'toEntity'))->toBeFalse();
         });
     });
@@ -442,13 +442,13 @@ describe('Framework Independence', function(): void {
             $instance = $dto::fromArray([]);
 
             // Both Eloquent and Doctrine methods available
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromModel'))->toBeTrue();
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'toModel'))->toBeTrue();
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromEntity'))->toBeTrue();
-            /** @phpstan-ignore-next-line function.impossibleType (Test with anonymous class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'toEntity'))->toBeTrue();
 
             // Core functionality still works

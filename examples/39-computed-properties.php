@@ -25,7 +25,6 @@ class OrderDTO extends SimpleDTO
         public readonly int $quantity,
     ) {}
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function total(): float
     {
@@ -43,7 +42,7 @@ echo json_encode($order->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Direct access to computed property:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "total() = " . $order->total() . "\n\n";
 
 // ============================================================================
@@ -62,35 +61,30 @@ class ProductDTO extends SimpleDTO
         public readonly float $discount = 0.0,
     ) {}
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function subtotal(): float
     {
         return $this->price * $this->quantity;
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function discountAmount(): float
     {
         return $this->subtotal() * $this->discount;
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function subtotalAfterDiscount(): float
     {
         return $this->subtotal() - $this->discountAmount();
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function tax(): float
     {
         return $this->subtotalAfterDiscount() * $this->taxRate;
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function total(): float
     {
@@ -123,14 +117,12 @@ class InvoiceDTO extends SimpleDTO
         public readonly float $taxRate,
     ) {}
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(name: 'taxAmount')]
     public function calculateTax(): float
     {
         return $this->amount * $this->taxRate;
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(name: 'totalAmount')]
     public function calculateTotal(): float
     {
@@ -156,26 +148,21 @@ echo "======================================================================\n\n
 
 class ReportDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function __construct(
         public readonly string $name,
         public readonly array $data,
     ) {}
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function summary(): string
     {
         return sprintf('Report: %s with ', $this->name) . count($this->data) . " items";
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
+    /** @phpstan-ignore-next-line unknown */
     #[Computed(lazy: true)]
-    /**
-     * @return array<mixed>
-     */
+    /** @return array<mixed> */
     public function expensiveAnalysis(): array
     {
         echo "  → Computing expensive analysis...\n";
@@ -185,18 +172,16 @@ class ReportDTO extends SimpleDTO
         return [
             'total' => count($this->data),
             'average' => array_sum($this->data) / count($this->data),
-            /** @phpstan-ignore-next-line phpstan-error */
+            /** @phpstan-ignore-next-line unknown */
             'max' => max($this->data),
-            /** @phpstan-ignore-next-line phpstan-error */
+            /** @phpstan-ignore-next-line unknown */
             'min' => min($this->data),
         ];
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
+    /** @phpstan-ignore-next-line unknown */
     #[Computed(lazy: true)]
-    /**
-     * @return array<mixed>
-     */
+    /** @return array<mixed> */
     public function detailedStats(): array
     {
         echo "  → Computing detailed stats...\n";
@@ -209,9 +194,7 @@ class ReportDTO extends SimpleDTO
         ];
     }
 
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     private function calculateMedian(array $data): float
     {
         sort($data);
@@ -219,21 +202,25 @@ class ReportDTO extends SimpleDTO
         $middle = floor($count / 2);
 
         if ($count % 2 === 0) {
-            /** @phpstan-ignore-next-line phpstan-error */
+            /** @phpstan-ignore-next-line unknown */
+            /** @phpstan-ignore-next-line unknown */
+            /** @phpstan-ignore-next-line unknown */
+            /** @phpstan-ignore-next-line unknown */
+            /** @phpstan-ignore-next-line unknown */
             return ($data[$middle - 1] + $data[$middle]) / 2;
         }
 
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return $data[$middle];
     }
 
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     private function calculateStdDev(array $data): float
     {
         $mean = array_sum($data) / count($data);
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         $variance = array_sum(array_map(fn($x): float|int => ($x - $mean) ** 2, $data)) / count($data);
 
         return sqrt($variance);
@@ -254,7 +241,10 @@ echo json_encode($report->includeComputed(['expensiveAnalysis'])->toArray(), JSO
 echo "\n";
 
 echo "Report with all lazy properties included (very slow):\n";
-echo json_encode($report->includeComputed(['expensiveAnalysis', 'detailedStats'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
+echo json_encode(
+    $report->includeComputed(['expensiveAnalysis', 'detailedStats'])->toArray(),
+    JSON_PRETTY_PRINT
+) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
@@ -270,7 +260,6 @@ class CachedComputationDTO extends SimpleDTO
         public readonly int $value,
     ) {}
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(cache: true)]
     public function expensiveComputation(): int
     {
@@ -322,21 +311,18 @@ class UserProfileDTO extends SimpleDTO
         public readonly int $age,
     ) {}
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function fullName(): string
     {
         return sprintf('%s %s', $this->firstName, $this->lastName);
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function isAdult(): bool
     {
         return 18 <= $this->age;
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(lazy: true)]
     public function initials(): string
     {

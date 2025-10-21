@@ -27,17 +27,14 @@ class BlogPostDTO extends SimpleDTO
         public readonly string $status, // 'draft', 'published', 'archived'
         
         // Nur für den Autor oder Admins sichtbar
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewDraftContent')]
         public readonly ?string $draftContent,
         
         // Nur für Admins sichtbar
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewAnalytics')]
         public readonly array $analytics,
         
         // Nur für den Autor oder Admins sichtbar
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEditHistory')]
         public readonly array $editHistory,
     ) {}
@@ -54,20 +51,21 @@ class BlogPostDTO extends SimpleDTO
         }
 
         // Admin kann alles sehen
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         if ('admin' === ($context->role ?? null)) {
             return true;
         }
 
         // Autor kann eigenen Draft sehen
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         return ($context->userId ?? null) === $this->authorId;
     }
 
     /** Analytics sind nur für Admins sichtbar */
     private function canViewAnalytics(mixed $context): bool
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return 'admin' === ($context?->role ?? null);
     }
 
@@ -83,13 +81,13 @@ class BlogPostDTO extends SimpleDTO
         }
 
         // Admin kann alles sehen
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         if ('admin' === ($context->role ?? null)) {
             return true;
         }
 
         // Autor kann eigene History sehen
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         return ($context->userId ?? null) === $this->authorId;
     }
 }

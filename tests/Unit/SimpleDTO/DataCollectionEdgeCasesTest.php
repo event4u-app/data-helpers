@@ -76,7 +76,6 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
             $filtered = $collection->filter(fn(): false => false);
 
             expect($filtered->count())->toBe(0)
@@ -86,7 +85,7 @@ describe('DataCollection Edge Cases', function(): void {
         it('filter on empty collection', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDTO $u): bool => 20 < $u->age);
 
             expect($filtered->count())->toBe(0);
@@ -98,7 +97,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDTO $u): bool => 25 < $u->age);
 
             expect($collection->count())->toBe(2)
@@ -112,7 +111,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDTO $u): bool => 25 < $u->age);
 
             $first = $filtered->get(0);
@@ -133,14 +132,12 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $names = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): string => $u->name);
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $ages = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): int => $u->age);
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
             $combined = $collection->map(
-                /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 fn(DataCollectionEdgeCaseUserDTO $u): string => sprintf('%s:%d', $u->name, $u->age)
             );
 
@@ -152,7 +149,7 @@ describe('DataCollection Edge Cases', function(): void {
         it('maps on empty collection', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $result = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): string => $u->name);
 
             expect($result)->toBe([]);
@@ -163,7 +160,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'John', 'age' => 30],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $names = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): string => $u->name);
 
             expect($collection->count())->toBe(1)
@@ -176,7 +173,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $result = $collection->map(fn(DataCollectionEdgeCaseUserDTO $u): array => [
                 'fullName' => strtoupper($u->name),
                 'ageInMonths' => $u->age * 12,
@@ -196,9 +193,8 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
             $result = $collection->reduce(
-/** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 fn(?int $carry, DataCollectionEdgeCaseUserDTO $u): int => ($carry ?? 0) + $u->age
             );
 
@@ -208,9 +204,8 @@ describe('DataCollection Edge Cases', function(): void {
         it('reduces on empty collection with initial value', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
             $result = $collection->reduce(
-/** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 fn(int $carry, DataCollectionEdgeCaseUserDTO $u): int => $carry + $u->age,
                 100
             );
@@ -221,9 +216,8 @@ describe('DataCollection Edge Cases', function(): void {
         it('reduces on empty collection without initial value', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
             $result = $collection->reduce(
-/** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 fn(?int $carry, DataCollectionEdgeCaseUserDTO $u): int => ($carry ?? 0) + $u->age
             );
 
@@ -237,9 +231,8 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
             $result = $collection->reduce(
-/** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 fn(array $carry, DataCollectionEdgeCaseUserDTO $u): array => array_merge($carry, [$u->name => $u->age]),
                 []
             );
@@ -267,7 +260,7 @@ describe('DataCollection Edge Cases', function(): void {
             ]);
 
             $default = new DataCollectionEdgeCaseUserDTO('Default', 0);
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $result = $collection->first(fn(DataCollectionEdgeCaseUserDTO $u): bool => 100 < $u->age, $default);
 
             expect($result)->toBe($default);
@@ -279,7 +272,7 @@ describe('DataCollection Edge Cases', function(): void {
             ]);
 
             $default = new DataCollectionEdgeCaseUserDTO('Default', 0);
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $result = $collection->last(fn(DataCollectionEdgeCaseUserDTO $u): bool => 100 < $u->age, $default);
 
             expect($result)->toBe($default);
@@ -292,7 +285,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 40],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $result = $collection->first(fn(DataCollectionEdgeCaseUserDTO $u): bool => 30 < $u->age);
             assert($result instanceof DataCollectionEdgeCaseUserDTO);
 
@@ -306,7 +299,7 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 40],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $result = $collection->last(fn(DataCollectionEdgeCaseUserDTO $u): bool => 40 > $u->age);
             assert($result instanceof DataCollectionEdgeCaseUserDTO);
 
@@ -337,13 +330,12 @@ describe('DataCollection Edge Cases', function(): void {
                 ['name' => 'John', 'age' => 30],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Test with array assignment) */
             $collection[0] = ['name' => 'Jane', 'age' => 25];
 
             $item = $collection[0];
-            /** @phpstan-ignore-next-line instanceof.alwaysFalse (Test with array assignment) */
+            /** @phpstan-ignore-next-line unknown */
+            /** @phpstan-ignore-next-line unknown */
             assert($item instanceof DataCollectionEdgeCaseUserDTO);
-            /** @phpstan-ignore-next-line argument.templateType (Pest expectation type inference) */
             expect($item->name)->toBe('Jane');
         });
 
@@ -376,7 +368,7 @@ describe('DataCollection Edge Cases', function(): void {
         it('throws exception when setting invalid data via array access', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            /** @phpstan-ignore-next-line argument.type (Test with invalid type) */
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): string => $collection[0] = 'invalid')->toThrow(InvalidArgumentException::class);
         });
     });
@@ -432,14 +424,14 @@ describe('DataCollection Edge Cases', function(): void {
         it('push throws exception for invalid data', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            /** @phpstan-ignore-next-line argument.type (Test with invalid type) */
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): DataCollection => $collection->push('invalid'))->toThrow(InvalidArgumentException::class);
         });
 
         it('prepend throws exception for invalid data', function(): void {
             $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDTO::class, []);
 
-            /** @phpstan-ignore-next-line argument.type (Test with invalid type) */
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): DataCollection => $collection->prepend('invalid'))->toThrow(InvalidArgumentException::class);
         });
 

@@ -29,20 +29,22 @@ class Project extends Model
 
     /**
      * Get the company that owns the project.
-     * @phpstan-ignore-next-line missingType.generics
      */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class); // @phpstan-ignore-line
+        return $this->belongsTo(Company::class);
     }
 
     /**
      * Get the employees working on the project.
-     * @phpstan-ignore-next-line missingType.generics
      */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function employees(): BelongsToMany
     {
-        return $this->belongsToMany(Employee::class); // @phpstan-ignore-line
+        return $this->belongsToMany(Employee::class);
     }
 }
 

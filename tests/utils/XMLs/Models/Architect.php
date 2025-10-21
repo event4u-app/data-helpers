@@ -42,8 +42,8 @@ class Architect extends Model
 
     /**
      * The model's default values for attributes.
-     * @phpstan-ignore-next-line assign.propertyType
      */
+    /** @phpstan-ignore-next-line unknown */
     protected $attributes = [
         'external_id' => null,
         'description' => null,
@@ -75,7 +75,7 @@ class Architect extends Model
 
     public function setExternalId(?string $externalId): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
+        /** @phpstan-ignore-next-line unknown */
         $this->external_id = $externalId;
         return $this;
     }
@@ -87,7 +87,7 @@ class Architect extends Model
 
     public function setDescription(?string $description): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
+        /** @phpstan-ignore-next-line unknown */
         $this->description = $description;
         return $this;
     }
@@ -99,7 +99,6 @@ class Architect extends Model
 
     public function setFirstname(string $firstname): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
         $this->firstname = $firstname;
         return $this;
     }
@@ -111,7 +110,6 @@ class Architect extends Model
 
     public function setSurname(string $surname): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
         $this->surname = $surname;
         return $this;
     }
@@ -123,7 +121,7 @@ class Architect extends Model
 
     public function setStreet(?string $street): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
+        /** @phpstan-ignore-next-line unknown */
         $this->street = $street;
         return $this;
     }
@@ -135,7 +133,6 @@ class Architect extends Model
 
     public function setZipcode(string $zipcode): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
         $this->zipcode = $zipcode;
         return $this;
     }
@@ -147,7 +144,6 @@ class Architect extends Model
 
     public function setCity(string $city): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
         $this->city = $city;
         return $this;
     }
@@ -158,9 +154,10 @@ class Architect extends Model
      * Get the project that owns the architect.
      * @return BelongsTo<Project, Architect>
      */
+    /** @phpstan-ignore-next-line unknown */
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'project_id'); // @phpstan-ignore-line return.type
+        return $this->belongsTo(Project::class);
     }
 }
 

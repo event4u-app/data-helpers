@@ -2,82 +2,62 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Laravel\Commands;
+namespace event4u\DataHelpers\Frameworks\Symfony\Command;
 
-use Illuminate\Filesystem\Filesystem;
-
-// Create stub class if Laravel is not installed
-if (!class_exists('Illuminate\Console\Command')) {
-    abstract class Command
-    {
-        /** @phpstan-ignore-next-line */
-        public const SUCCESS = 0;
-        /** @phpstan-ignore-next-line */
-        public const FAILURE = 1;
-
-        /** @phpstan-ignore-next-line */
-        protected function info(string $message): void {}
-        /** @phpstan-ignore-next-line */
-        protected function error(string $message): void {}
-        /** @phpstan-ignore-next-line */
-        protected function option(string $name): mixed { return null; }
-        /** @phpstan-ignore-next-line */
-        protected function argument(string $name): mixed { return null; }
-    }
-} else {
-    class_alias('Illuminate\Console\Command', 'event4u\DataHelpers\Laravel\Commands\Command');
-}
-use Illuminate\Support\Str;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Artisan command to generate SimpleDTO classes.
+ * Console command to generate SimpleDTO classes.
  *
  * Usage:
- *   php artisan make:dto UserDTO
- *   php artisan make:dto UserDTO --validation
- *   php artisan make:dto UserDTO --collection
- *   php artisan make:dto UserDTO --resource
- *
+ *   bin/console make:dto UserDTO
+ *   bin/console make:dto UserDTO --validation
+ *   bin/console make:dto UserDTO --collection
+ *   bin/console make:dto UserDTO --resource
  */
+#[AsCommand(
+    name: 'make:dto',
+    description: 'Create a new SimpleDTO class',
+)]
 class MakeDtoCommand extends Command
 {
-    public mixed $laravel;
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'make:dto {name : The name of the DTO class}
-                            {--validation : Add validation attributes}
-                            {--validate-request : Add ValidateRequest attribute for automatic validation}
-                            {--form-request : Generate a DTOFormRequest instead}
-                            {--collection : Add DataCollection support}
-                            {--resource : Generate a resource DTO with common fields}
-                            {--force : Overwrite existing file}';
+    private readonly Filesystem $filesystem;
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Create a new SimpleDTO class';
-
-    /** Execute the console command. */
-    public function handle(Filesystem $files): int
+    public function __construct(private readonly string $projectDir)
     {
-        /** @phpstan-ignore-next-line */
-        $name = (string)$this->argument('name');
-        /** @phpstan-ignore-next-line */
-        $validation = (bool)$this->option('validation');
-        /** @phpstan-ignore-next-line */
-        $collection = (bool)$this->option('collection');
-        /** @phpstan-ignore-next-line */
-        $resource = (bool)$this->option('resource');
-        /** @phpstan-ignore-next-line */
-        $force = (bool)$this->option('force');
+        parent::__construct();
+        $this->filesystem = new Filesystem();
+    }
+
+    protected function configure(): void
+    {
+        $this
+            ->addArgument('name', InputArgument::REQUIRED, 'The name of the DTO class')
+            ->addOption('validation', null, InputOption::VALUE_NONE, 'Add validation attributes')
+            ->addOption('collection', null, InputOption::VALUE_NONE, 'Add DataCollection support')
+            ->addOption('resource', null, InputOption::VALUE_NONE, 'Generate a resource DTO with common fields')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Overwrite existing file');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $io = new SymfonyStyle($input, $output);
+
+        $name = (string)$input->getArgument('name');
+        $validation = (bool)$input->getOption('validation');
+        $collection = (bool)$input->getOption('collection');
+        $resource = (bool)$input->getOption('resource');
+        $force = (bool)$input->getOption('force');
 
         // Ensure name ends with DTO
-        if (!Str::endsWith($name, 'DTO')) {
+        if (!str_ends_with($name, 'DTO')) {
             $name .= 'DTO';
         }
 
@@ -85,54 +65,42 @@ class MakeDtoCommand extends Command
         $path = $this->getPath($name);
 
         // Check if file exists
-        if ($files->exists($path) && !$force) {
-            /** @phpstan-ignore-next-line */
-            $this->error(sprintf('DTO [%s] already exists!', $name));
-            /** @phpstan-ignore-next-line */
-            $this->info('Use --force to overwrite.');
+        if ($this->filesystem->exists($path) && !$force) {
+            $io->error(sprintf('DTO [%s] already exists!', $name));
+            $io->info('Use --force to overwrite.');
 
-            return self::FAILURE;
+            return Command::FAILURE;
         }
 
         // Create directory if needed
         $directory = dirname($path);
-        if (!$files->isDirectory($directory)) {
-            $files->makeDirectory($directory, 0755, true);
+        if (!$this->filesystem->exists($directory)) {
+            $this->filesystem->mkdir($directory, 0755);
         }
 
         // Generate content
         $content = $this->generateContent($name, $validation, $collection, $resource);
 
         // Write file
-        $files->put($path, $content);
+        $this->filesystem->dumpFile($path, $content);
 
-        /** @phpstan-ignore-next-line */
-        $this->info(sprintf('DTO [%s] created successfully.', $name));
-        /** @phpstan-ignore-next-line */
-        $this->info('Location: ' . $path);
+        $io->success(sprintf('DTO [%s] created successfully.', $name));
+        $io->info('Location: ' . $path);
 
-        return self::SUCCESS;
+        return Command::SUCCESS;
     }
 
     /** Get the destination path for the DTO. */
     protected function getPath(string $name): string
     {
-        /** @phpstan-ignore-next-line */
-        return $this->laravel->basePath('app') . '/DTOs/' . $name . '.php';
-    }
-
-    /** Get the root namespace for the application. */
-    protected function rootNamespace(): string
-    {
-        /** @phpstan-ignore-next-line */
-        return $this->laravel->getNamespace();
+        return $this->projectDir . '/src/DTO/' . $name . '.php';
     }
 
     /** Generate the DTO content. */
     protected function generateContent(string $name, bool $validation, bool $collection, bool $resource): string
     {
-        $namespace = $this->rootNamespace() . 'DTOs';
-        $className = class_basename($name);
+        $namespace = 'App\\DTO';
+        $className = $name;
 
         $uses = [
             'use event4u\DataHelpers\SimpleDTO;',
@@ -166,8 +134,7 @@ class MakeDtoCommand extends Command
         string $uses,
         bool $validation,
         bool $collection
-    ): string
-    {
+    ): string {
         $properties = [];
 
         if ($validation) {
@@ -227,8 +194,7 @@ PHP;
         string $uses,
         bool $validation,
         bool $collection
-    ): string
-    {
+    ): string {
         $properties = [];
 
         if ($validation) {

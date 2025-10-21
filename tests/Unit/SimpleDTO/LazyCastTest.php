@@ -303,7 +303,7 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
 
         it('works with complex casts', function(): void {
             $dto = new class extends SimpleDTO {
-/** @phpstan-ignore-next-line argument.type (Lazy cast test) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly ?array $data = null,
                     public readonly ?string $json = null,

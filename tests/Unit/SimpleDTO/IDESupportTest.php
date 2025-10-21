@@ -155,7 +155,7 @@ describe('IDE Support', function(): void {
         $getUserNames = function(DataCollection $users): array {
             $names = [];
             foreach ($users as $user) {
-/** @phpstan-ignore-next-line argument.type (IDE support test) */
+                /** @phpstan-ignore-next-line unknown */
                 $names[] = $user->name;
             }
             return $names;
@@ -163,7 +163,8 @@ describe('IDE Support', function(): void {
 
         $names = $getUserNames($users);
 
-/** @phpstan-ignore-next-line argument.templateType (IDE support test) */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         expect($names)->toBe(['John', 'Jane']);
     });
 

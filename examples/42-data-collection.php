@@ -30,9 +30,9 @@ $users = UserDTO::collection([
 ]);
 
 echo "Total users: " . $users->count() . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "First user: " . $users->first()->name . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Last user: " . $users->last()->name . "\n";
 echo "\n";
 
@@ -41,11 +41,13 @@ echo "Example 2: Filtering\n";
 echo "----------------------------\n";
 
 /** @var DataCollection<SimpleDTO> $adults */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $adults = $users->filter(fn(UserDTO $user): bool => 30 <= $user->age);
 
 echo "Adults (age >= 30):\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 foreach ($adults as $user) {
     echo "  - {$user->name} ({$user->age} years)\n";
 }
@@ -56,15 +58,17 @@ echo "Example 3: Mapping\n";
 echo "----------------------------\n";
 
 /** @var DataCollection<SimpleDTO> $names */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $names = $users->map(fn(UserDTO $user): string => $user->name);
 /** @var DataCollection<SimpleDTO> $emails */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $emails = $users->map(fn(UserDTO $user): string => $user->email);
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Names: " . implode(', ', $names) . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Emails: " . implode(', ', $emails) . "\n";
 echo "\n";
 
@@ -73,7 +77,7 @@ echo "Example 4: Reducing\n";
 echo "----------------------------\n";
 
 $totalAge = $users->reduce(
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     fn(int $carry, UserDTO $user): int => $carry + $user->age,
     0
 );
@@ -88,9 +92,9 @@ echo "\n";
 echo "Example 5: Array Access\n";
 echo "----------------------------\n";
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('User at index 0: %s%s', $users[0]->name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('User at index 1: %s%s', $users[1]->name, PHP_EOL);
 echo "User exists at index 0: " . (isset($users[0]) ? 'Yes' : 'No') . "\n";
 echo "User exists at index 10: " . (isset($users[10]) ? 'Yes' : 'No') . "\n";
@@ -159,14 +163,15 @@ $products = ProductDTO::collection([
 ]);
 
 /** @var DataCollection<SimpleDTO> $availableElectronics */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $availableElectronics = $products->filter(
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     fn(ProductDTO $p): false => 'Electronics' === $p->category && $p->inStock
 );
 
 echo "Available Electronics:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 foreach ($availableElectronics as $product) {
     echo sprintf('  - %s: $%s%s', $product->name, $product->price, PHP_EOL);
 }
@@ -201,9 +206,9 @@ echo "\n";
 echo "Example 12: Finding Items\n";
 echo "----------------------------\n";
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $youngUser = $users->first(fn(UserDTO $u): bool => 30 > $u->age);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $oldUser = $users->last(fn(UserDTO $u): bool => 30 <= $u->age);
 
 echo "Youngest user (< 30): " . ($youngUser ? $youngUser->name : 'None') . "\n";

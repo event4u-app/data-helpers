@@ -85,7 +85,7 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $product = new ProductDTO('Laptop', 999.99, 0.19);
 
 $productWithCalculations = $product->with([
@@ -124,9 +124,9 @@ class CustomerDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $address = new AddressDTO('123 Main St', 'New York', 'USA');
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $customer = new CustomerDTO('Jane Doe', 'jane@example.com');
 
 $customerWithAddress = $customer->with('address', $address);
@@ -152,14 +152,14 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $order = new OrderDTO('ORD-12345', 'completed', 299.99);
 
 $apiResponse = $order->with([
     'meta' => [
         'timestamp' => date('Y-m-d H:i:s'),
         'version' => '1.0',
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         'requestId' => uniqid(),
     ],
     'links' => [
@@ -190,7 +190,7 @@ class ArticleDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $article = new ArticleDTO('Premium Article', 'This is premium content...', true);
 
 $publicArticle = $article->with([
@@ -234,9 +234,7 @@ echo "------------------------------------------------------------\n";
 
 class ReportDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function __construct(
         public readonly string $title,
         public readonly array $data,

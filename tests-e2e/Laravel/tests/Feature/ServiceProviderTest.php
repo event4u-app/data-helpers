@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataHelpersConfig;
-use event4u\DataHelpers\Laravel\DataHelpersServiceProvider;
+use event4u\DataHelpers\Frameworks\Laravel\DataHelpersServiceProvider;
 
 describe('Laravel Service Provider E2E', function(): void {
     it('service provider class exists', function(): void {

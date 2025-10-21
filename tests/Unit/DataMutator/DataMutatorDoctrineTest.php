@@ -22,10 +22,9 @@ describe('DataMutator with Doctrine', function(): void {
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
-        /** @phpstan-ignore method.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         $array = $result->toArray();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['email'])->toBe('john@example.com');
     });
 
@@ -48,13 +47,11 @@ describe('DataMutator with Doctrine', function(): void {
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
-        /** @phpstan-ignore method.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         $array = $result->toArray();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['active'])->toBeTrue();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][1]['active'])->toBeTrue();
     });
 
@@ -72,13 +69,11 @@ describe('DataMutator with Doctrine', function(): void {
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
-        /** @phpstan-ignore method.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         $array = $result->toArray();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['user']['name'])->toBe('John');
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['user']['age'])->toBe(30);
     });
 
@@ -103,16 +98,13 @@ describe('DataMutator with Doctrine', function(): void {
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
-        /** @phpstan-ignore method.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         $array = $result->toArray();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0])->not->toHaveKey('email');
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][1])->not->toHaveKey('email');
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['name'])->toBe('John');
         expect($array['users'][1]['name'])->toBe('Jane');
     });
@@ -174,10 +166,9 @@ describe('DataMutator with Doctrine', function(): void {
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
-        /** @phpstan-ignore method.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         $array = $result->toArray();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['categories'][0]['products'][0]['stock'])->toBe(10);
     });
 
@@ -212,16 +203,13 @@ describe('DataMutator with Doctrine', function(): void {
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
-        /** @phpstan-ignore method.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         $array = $result->toArray();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['categories'][0]['products'][0]['inStock'])->toBeTrue();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['categories'][0]['products'][1]['inStock'])->toBeTrue();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['categories'][1]['products'][0]['inStock'])->toBeTrue();
     });
 
@@ -248,19 +236,15 @@ describe('DataMutator with Doctrine', function(): void {
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
-        /** @phpstan-ignore method.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         $array = $result->toArray();
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['profile'])->not->toHaveKey('phone');
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][1]['profile'])->not->toHaveKey('phone');
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][0]['profile']['email'])->toBe('john@example.com');
 
-        /** @phpstan-ignore offsetAccess.nonOffsetAccessible */
         expect($array['users'][1]['profile']['email'])->toBe('jane@example.com');
     });
 })->group('doctrine');

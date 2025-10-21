@@ -66,12 +66,11 @@ class AdvancedUserDTO extends SimpleDTO
         public readonly bool $isVerified,
         public readonly ?string $deletedAt,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $createdAt,
         
         // Hidden property
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $password,
         
@@ -79,31 +78,32 @@ class AdvancedUserDTO extends SimpleDTO
         #[WhenCallback(fn(): true => true)]
         public readonly ?string $callbackField = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenValue('status', 'active')]
         public readonly ?string $activeData = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenNull('deletedAt')]
         public readonly ?string $notDeletedData = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenNotNull('deletedAt')]
         public readonly ?string $deletedData = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenTrue('isActive')]
         public readonly ?string $activeUserData = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenFalse('isActive')]
         public readonly ?string $inactiveUserData = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenEquals('role', 'admin')]
         public readonly ?string $adminData = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenIn('status', ['active', 'pending'])]
         public readonly ?string $statusData = null,
         
@@ -115,40 +115,36 @@ class AdvancedUserDTO extends SimpleDTO
         public readonly ?array $detailedInfo = null,
         
         // Laravel-specific attributes
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?string $privateEmail = null,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?array $adminPanel = null,
         
         // Lazy property
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly ?array $posts = null,
     ) {}
     
     // Computed properties
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function fullName(): string
     {
         return strtoupper($this->name);
     }
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function isAdmin(): bool
     {
         return 'admin' === $this->role;
     }
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function accountAge(): int
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         return $this->createdAt->diffInDays(Carbon::now());
     }
 }
@@ -274,13 +270,13 @@ $users = [
 ];
 
 /** @var DataCollection<SimpleDTO> $collection */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $collection = DataCollection::make($users, AdvancedUserDTO::class);
 
 echo sprintf('Total users: %s%s', $collection->count(), PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Active users: " . $collection->filter(fn($u) => $u->isActive)->count() . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Admins: " . $collection->filter(fn($u): bool => 'admin' === $u->role)->count() . "\n\n";
 
 // 7. Collection methods
@@ -288,16 +284,17 @@ echo "7. Collection Methods:\n";
 echo str_repeat('-', 80) . "\n";
 
 /** @var DataCollection<SimpleDTO> $activeUsers */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $activeUsers = $collection->filter(fn($u) => $u->isActive);
 echo "Active users:\n";
 foreach ($activeUsers as $u) {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     echo "  - {$u->name} ({$u->role})\n";
 }
 echo "\n";
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $sortedByName = $collection->sortBy('name');
 echo "Sorted by name:\n";
 foreach ($sortedByName as $u) {
@@ -305,7 +302,7 @@ foreach ($sortedByName as $u) {
 }
 echo "\n";
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $names = $collection->pluck('name');
 echo "Names: " . implode(', ', $names) . "\n\n";
 
@@ -322,19 +319,20 @@ class PostDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $post = new PostDTO(
     title: 'My First Post',
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     id: 1,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     author: $user,
 );
 
 echo sprintf('Post: %s%s', $post->title, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Author: %s%s', $post->author->name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Author Role: {$post->author->role}\n\n";
 
 echo json_encode($post->toArray(), JSON_PRETTY_PRINT) . "\n\n";

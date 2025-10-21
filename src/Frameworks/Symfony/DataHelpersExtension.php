@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Symfony;
+namespace event4u\DataHelpers\Frameworks\Symfony;
 
 use event4u\DataHelpers\DataHelpersConfig;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -60,7 +60,7 @@ final class DataHelpersExtension extends Extension implements ConfigurationInter
     /** Get the path to the configuration file that should be copied. */
     public function getConfigPath(): string
     {
-        return __DIR__ . '/../../recipe/config/packages/data_helpers.yaml';
+        return __DIR__ . '/../../../recipe/config/packages/data_helpers.yaml';
     }
 
     /** Configuration tree builder. */

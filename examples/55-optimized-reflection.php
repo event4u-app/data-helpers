@@ -24,7 +24,6 @@ class UserDTO extends SimpleDTO
         public readonly string $email,
     ) {}
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function displayName(): string
     {

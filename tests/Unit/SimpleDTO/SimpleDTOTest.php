@@ -220,7 +220,7 @@ describe('SimpleDTO', function(): void {
             $array = $customer->toArray();
 
             expect($array['address'])->toBeInstanceOf(TestAddressDTO::class);
-            /** @phpstan-ignore-next-line property.nonObject (Mixed array value) */
+            /** @phpstan-ignore-next-line unknown */
             expect($array['address']->street)->toBe('123 Main St');
         });
     });
@@ -233,7 +233,7 @@ describe('SimpleDTO', function(): void {
                 'age' => 30,
             ]);
 
-            /** @phpstan-ignore-next-line assign.propertyReadOnly (Test immutability) */
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): string => $dto->name = 'Jane Doe')
                 ->toThrow(Error::class);
         });

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataHelpersConfig;
-use event4u\DataHelpers\Symfony\DataHelpersBundle;
+use event4u\DataHelpers\Frameworks\Symfony\DataHelpersBundle;
 
 describe('Symfony Bundle E2E', function(): void {
     it('bundle class exists', function(): void {

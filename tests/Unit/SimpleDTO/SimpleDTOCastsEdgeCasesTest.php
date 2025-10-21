@@ -80,7 +80,8 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                 config: [],
                 metadata: [],
             ) extends SimpleDTO {
-/** @phpstan-ignore-next-line return.type (Cast edge case) */
+                /** @phpstan-ignore-next-line unknown */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $config,
                     public readonly array $metadata,
@@ -133,7 +134,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
             $dto = new class(
                 data: null,
             ) extends SimpleDTO {
-/** @phpstan-ignore-next-line return.type (Cast edge case) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly ?array $data,
                 ) {}
@@ -266,7 +267,7 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
                 data: null,
                 text: null,
             ) extends SimpleDTO {
-/** @phpstan-ignore-next-line return.type (Cast edge case) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly ?DateTimeImmutable $date,
                     public readonly ?string $price,

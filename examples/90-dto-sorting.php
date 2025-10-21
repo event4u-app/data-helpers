@@ -154,9 +154,7 @@ echo str_repeat('-', 80) . "\n";
 
 class ConfigDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $config
-     */
+    /** @param array<mixed> $config */
     public function __construct(
         public readonly array $config = [],
     ) {}

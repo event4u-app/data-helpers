@@ -8,7 +8,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 // Test DTOs
 class BasicLazyDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[Lazy]
@@ -18,7 +18,8 @@ class BasicLazyDTO extends SimpleDTO
 
 class MultipleLazyDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[Lazy]
@@ -30,7 +31,7 @@ class MultipleLazyDTO extends SimpleDTO
 
 class SecretLazyDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[Lazy]
@@ -40,7 +41,7 @@ class SecretLazyDTO extends SimpleDTO
 
 class InternalNotesDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[Lazy]
@@ -50,7 +51,7 @@ class InternalNotesDTO extends SimpleDTO
 
 class MappedLazyDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Lazy type inference) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         public readonly string $email,
@@ -61,7 +62,9 @@ class MappedLazyDTO extends SimpleDTO
 
 class TypedLazyDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics,missingType.iterableValue (Lazy type inference) */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[Lazy]

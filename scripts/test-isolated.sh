@@ -554,10 +554,9 @@ if [[ "$RUN_TESTS" == true ]]; then
             ;;
     esac
 
-    # Run tests (without --compact to see summary)
     # Save output to temp file to check for failures while still showing it
     TEMP_OUTPUT=$(mktemp)
-    run_in_container vendor/bin/pest --no-coverage $EXCLUDE_GROUPS 2>&1 | tee "$TEMP_OUTPUT"
+    run_in_container vendor/bin/pest --no-coverage --compact $EXCLUDE_GROUPS 2>&1 | tee "$TEMP_OUTPUT"
     TEST_EXIT=$?
 
     # Check if there are any failures or errors in the output

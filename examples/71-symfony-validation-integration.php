@@ -28,17 +28,12 @@ echo str_repeat('-', 80) . "\n";
 class UserDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(50)]
         public readonly string $name,
 
@@ -59,11 +54,11 @@ $requiredAttr = new Required();
 $minAttr = new Min(3);
 
 echo "Attribute Interfaces:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  - Email implements SymfonyConstraint: " . ($emailAttr instanceof SymfonyConstraint ? '✅ Yes' : '❌ No') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  - Required implements SymfonyConstraint: " . ($requiredAttr instanceof SymfonyConstraint ? '✅ Yes' : '❌ No') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  - Min implements SymfonyConstraint: " . ($minAttr instanceof SymfonyConstraint ? '✅ Yes' : '❌ No') . "\n";
 
 // Example 2: Laravel vs Symfony Rule Generation
@@ -79,7 +74,7 @@ echo "\nSymfony Constraints (object format):\n";
 if (class_exists('Symfony\Component\Validator\Constraints\NotBlank')) {
     echo "  - Required: " . $requiredAttr->constraint()::class . "\n";
     echo "  - Email: " . $emailAttr->constraint()::class . "\n";
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo "  - Min(3): " . $minAttr->constraint()::class . "\n";
 } else {
     echo "  ⚠️  Symfony Validator not installed\n";
@@ -93,22 +88,18 @@ echo str_repeat('-', 80) . "\n";
 class AdvancedDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Uuid]
         public readonly string $id,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Ip]
         public readonly string $ipAddress,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Json]
         public readonly string $settings,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Size(10)]
         public readonly string $phoneNumber,
@@ -128,11 +119,11 @@ echo "  - Size(10): " . $sizeAttr->rule() . "\n";
 
 echo "\nSymfony Constraints:\n";
 if (class_exists('Symfony\Component\Validator\Constraints\Uuid')) {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo "  - Uuid: " . $uuidAttr->constraint()::class . "\n";
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo "  - Ip: " . $ipAttr->constraint()::class . "\n";
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo "  - Json: " . $jsonAttr->constraint()::class . "\n";
     echo "  - Size(10): " . $sizeAttr->constraint()::class . "\n";
 } else {
@@ -177,11 +168,9 @@ use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
 class UserDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required, Email]
         public readonly string $email,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required, Min(3)]
         public readonly string $name,
         
@@ -191,7 +180,6 @@ class UserDTO extends SimpleDTO
 }
 
 // Controller - automatic validation!
-/** @phpstan-ignore-next-line class.notFound */
 class UserController extends AbstractController
 {
     #[Route('/users', methods: ['POST'])]

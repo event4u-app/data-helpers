@@ -97,9 +97,9 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $order1 = new OrderDTO('ORD-001', 'completed', 'express');
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $order2 = new OrderDTO('ORD-002', 'pending', 'standard');
 
 echo "Order 1 (completed, express):\n";
@@ -128,9 +128,9 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $product1 = new ProductDTO('Product A', 99.99, 'active');
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $product2 = new ProductDTO('Product B', 149.99, 'draft');
 
 echo "Product 1 (active):\n";
@@ -181,9 +181,7 @@ class ApiResponseDTO extends SimpleDTO
     /**
      * @param array<mixed>|null $data
      */
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function __construct(
         public readonly bool $success,
         public readonly string $message,

@@ -345,7 +345,6 @@ describe('EnumCast', function(): void {
             };
 
             $json = json_encode($dto);
-/** @phpstan-ignore-next-line argument.type (Enum cast test) */
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('status')

@@ -92,7 +92,7 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $product = new ProductDTO('Premium Widget', 99.99);
 
 echo "User level 5 (wholesale customer):\n";
@@ -126,10 +126,16 @@ class ContentDTO extends SimpleDTO
 $content = new ContentDTO('Article Title', 'Article content...');
 
 echo "As admin:\n";
-echo json_encode($content->withContext(['role' => 'admin', 'status' => 'published'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
+echo json_encode(
+    $content->withContext(['role' => 'admin', 'status' => 'published'])->toArray(),
+    JSON_PRETTY_PRINT
+) . PHP_EOL;
 
 echo "\nAs author with draft:\n";
-echo json_encode($content->withContext(['role' => 'author', 'status' => 'draft'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
+echo json_encode(
+    $content->withContext(['role' => 'author', 'status' => 'draft'])->toArray(),
+    JSON_PRETTY_PRINT
+) . PHP_EOL;
 
 echo "\n✅  Include when context value is in a list\n";
 
@@ -153,13 +159,22 @@ class PremiumContentDTO extends SimpleDTO
 $premiumContent = new PremiumContentDTO('Premium Article');
 
 echo "Premium + Verified:\n";
-echo json_encode($premiumContent->withContext(['subscription' => 'premium', 'verified' => true])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
+echo json_encode(
+    $premiumContent->withContext(['subscription' => 'premium', 'verified' => true])->toArray(),
+    JSON_PRETTY_PRINT
+) . PHP_EOL;
 
 echo "\nPremium but not verified:\n";
-echo json_encode($premiumContent->withContext(['subscription' => 'premium', 'verified' => false])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
+echo json_encode(
+    $premiumContent->withContext(['subscription' => 'premium', 'verified' => false])->toArray(),
+    JSON_PRETTY_PRINT
+) . PHP_EOL;
 
 echo "\nVerified but not premium:\n";
-echo json_encode($premiumContent->withContext(['subscription' => 'basic', 'verified' => true])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
+echo json_encode(
+    $premiumContent->withContext(['subscription' => 'basic', 'verified' => true])->toArray(),
+    JSON_PRETTY_PRINT
+) . PHP_EOL;
 
 echo "\n✅  All conditions must be met (AND logic)\n";
 
@@ -171,9 +186,7 @@ echo "------------------------------------------------------------\n";
 
 class OrderDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $items
-     */
+    /** @param array<mixed> $items */
     public function __construct(
         public readonly string $id,
         public readonly string $status,
@@ -190,7 +203,7 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $order = new OrderDTO('ORD-12345', 'completed', 299.99);
 
 echo "Public API (no context):\n";
@@ -217,9 +230,7 @@ echo "------------------------------------------------------------\n";
 
 class AppConfigDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $debugInfo
-     */
+    /** @param array<mixed> $debugInfo */
     public function __construct(
         public readonly string $appName,
         public readonly string $version,
@@ -268,7 +279,7 @@ class DashboardDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $dashboard = new DashboardDTO('Dashboard');
 
 $enriched = $dashboard

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Symfony\Command;
+namespace event4u\DataHelpers\Frameworks\Symfony\Command;
 
 use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
 use ReflectionClass;

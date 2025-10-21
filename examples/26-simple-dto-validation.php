@@ -43,20 +43,15 @@ echo str_repeat('=', 80) . "\n\n";
 class ProductDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(100)]
         public readonly string $name,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Between(0, 999999)]
         public readonly float $price,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[In(['draft', 'published', 'archived'])]
         public readonly string $status,
@@ -81,15 +76,11 @@ echo str_repeat('=', 80) . "\n\n";
 class ContactDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(255)]
         public readonly string $email,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Url]
         public readonly string $website,
@@ -114,14 +105,11 @@ echo str_repeat('=', 80) . "\n\n";
 class EntityDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Uuid]
         public readonly string $id,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(1)]
         public readonly string $name,
     ) {
@@ -142,19 +130,14 @@ echo str_repeat('=', 80) . "\n\n";
 class RegistrationDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(8)]
         public readonly string $password,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly string $password_confirmation,
     ) {
@@ -197,28 +180,22 @@ echo str_repeat('=', 80) . "\n\n";
 class OrderDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Uuid]
         public readonly string $order_id,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $customer_email,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Between(1, 1000)]
         public readonly int $quantity,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Between(0.01, 999999.99)]
         public readonly float $total_amount,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[In(['pending', 'processing', 'completed', 'cancelled'])]
         public readonly string $status,

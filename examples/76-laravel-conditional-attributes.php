@@ -28,11 +28,9 @@ class UserProfileDTO extends SimpleDTO
         public readonly string $name,
         public readonly string $username,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly string $email = 'john@example.com',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly string $phone = '555-1234',
     ) {}
@@ -61,11 +59,9 @@ class PageDTO extends SimpleDTO
         public readonly string $title,
         public readonly string $content,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenGuest]
         public readonly string $loginPrompt = 'Please log in to see more',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenGuest]
         public readonly string $registerLink = '/register',
     ) {}
@@ -92,21 +88,18 @@ class DashboardDTO extends SimpleDTO
     public function __construct(
         public readonly string $title,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('admin')]
         public readonly string $adminPanel = '/admin',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['admin', 'moderator'])]
         public readonly string $moderationPanel = '/moderation',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('editor')]
         public readonly string $editorPanel = '/editor',
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $dashboard = new DashboardDTO('Dashboard');
 
 $admin = (object)['id' => 1, 'role' => 'admin'];
@@ -151,7 +144,7 @@ class PostDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $post = new PostDTO('My Post', 'Post content...');
 
 // User with can() method (like Laravel User model)
@@ -198,9 +191,7 @@ class SecretDocumentDTO extends SimpleDTO
     public function __construct(
         public readonly string $title,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('admin')]
         #[WhenCan('view-secrets')]
         public readonly string $secretContent = 'Top secret information',
@@ -255,23 +246,18 @@ echo "------------------------------------------------------------\n";
 
 class OrderDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $paymentDetails
-     */
+    /** @param array<mixed> $paymentDetails */
     public function __construct(
         public readonly string $id,
         public readonly string $status,
         public readonly float $total,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly string $customerName = 'John Doe',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenAuth]
         public readonly string $customerEmail = 'john@example.com',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['admin', 'support'])]
         public readonly string $internalNotes = 'Customer requested express shipping',
 
@@ -280,7 +266,7 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $order = new OrderDTO('ORD-12345', 'completed', 299.99);
 
 echo "Public API (guest):\n";

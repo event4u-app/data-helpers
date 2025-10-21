@@ -4,7 +4,7 @@
     'require' => '^9.0|^10.0|^11.0',
     'providers' => 
     array (
-      0 => 'event4u\\DataHelpers\\Laravel\\DataHelpersServiceProvider',
+      0 => 'event4u\\DataHelpers\\Frameworks\\Laravel\\DataHelpersServiceProvider',
     ),
   ),
   'nesbot/carbon' => 

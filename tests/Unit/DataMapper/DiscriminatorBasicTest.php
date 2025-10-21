@@ -164,7 +164,7 @@ describe('DataMapper - Discriminator Basic', function(): void {
 
         $result = DataMapper::source($source)
             ->target(Bird::class)
-            /** @phpstan-ignore-next-line argument.type (String keys are valid) */
+            /** @phpstan-ignore-next-line unknown */
             ->discriminator('type', $map)
             ->template([
                 'name' => '{{ name }}',

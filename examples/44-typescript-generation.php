@@ -10,7 +10,6 @@ use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
 use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 echo "================================================================================\n";
 echo "SimpleDTO - TypeScript Generation Examples\n";
@@ -110,7 +109,7 @@ class TagDTO extends SimpleDTO
 
 class PostDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         public readonly string $content,
@@ -135,14 +134,12 @@ class PersonDTO extends SimpleDTO
         public readonly int $age,
     ) {}
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function fullName(): string
     {
         return sprintf('%s %s', $this->firstName, $this->lastName);
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed(lazy: true)]
     public function isAdult(): bool
     {
@@ -160,16 +157,12 @@ echo "-----------------------------------\n";
 
 class DocumentDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $metadata
-     */
+    /** @param array<mixed> $metadata */
     public function __construct(
         public readonly string $title,
         public readonly string $summary,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly string $content,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Lazy]
         public readonly array $metadata,
     ) {}
@@ -202,7 +195,7 @@ class BookDTO extends SimpleDTO
 
 class LibraryDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[DataCollectionOf(BookDTO::class)]

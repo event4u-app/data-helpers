@@ -9,7 +9,6 @@ use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapOutputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 echo "\n";
 echo "================================================================================\n";
@@ -44,11 +43,11 @@ $user = UserDTO::fromArray($apiData);
 echo "Input (snake_case):\n";
 echo json_encode($apiData, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nDTO Properties (camelCase):\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  userName: %s%s', $user->userName, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  emailAddress: %s%s', $user->emailAddress, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  phoneNumber: %s%s', $user->phoneNumber, PHP_EOL);
 echo "\n";
 
@@ -86,9 +85,9 @@ echo "Input (nested structure):\n";
 echo json_encode($nestedData, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nDTO Properties (flattened):\n";
 echo sprintf('  email: %s%s', $profile->email, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  age: %s%s', $profile->age, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  createdAt: %s%s', $profile->createdAt, PHP_EOL);
 echo "\n";
 
@@ -183,12 +182,14 @@ $order = OrderDTO::fromArray($orderData);
 echo "Input (mixed types):\n";
 echo json_encode($orderData, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nDTO Properties (typed & formatted):\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  orderId: %s (', $order->orderId) . gettype($order->orderId) . ")\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  isPaid: " . ($order->isPaid ? 'true' : 'false') . " (" . gettype($order->isPaid) . ")\n";
 echo sprintf('  createdAt: %s (', $order->createdAt->format('Y-m-d H:i:s')) . $order->createdAt::class . ")\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  totalAmount: %s (', $order->totalAmount) . gettype($order->totalAmount) . ")\n";
 echo "\n";
 
@@ -279,22 +280,23 @@ class ApiResponseDTO extends SimpleDTO
     }
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $dto = new ApiResponseDTO(
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     userId: 123,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     userName: 'John Doe',
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     emailAddress: 'john@example.com'
 );
 
 echo "DTO Properties (camelCase):\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  userId: %s%s', $dto->userId, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  userName: %s%s', $dto->userName, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  emailAddress: {$dto->emailAddress}\n\n";
 
 $output = $dto->toArray();

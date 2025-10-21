@@ -27,7 +27,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Regex;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 use event4u\DataHelpers\SimpleDTO\Attributes\Same;
 use event4u\DataHelpers\SimpleDTO\Attributes\StringType;
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 use event4u\DataHelpers\SimpleDTO\Attributes\URL;
 
 // ============================================================================
@@ -37,23 +37,20 @@ use event4u\DataHelpers\SimpleDTO\Attributes\URL;
 class RegisterUserDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Min(3), Max(50)]
         public readonly string $name,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required, Email]
         public readonly string $email,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required, Min(8), Regex('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)/')]
         public readonly string $password,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required, Same('password')]
         public readonly string $passwordConfirmation,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, Accepted]
         public readonly bool $termsAccepted,
     ) {}
@@ -62,19 +59,19 @@ class RegisterUserDTO extends SimpleDTO
 class UpdateProfileDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Nullable, StringType, Min(3), Max(50)]
         public readonly ?string $name = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Nullable, StringType, Max(500)]
         public readonly ?string $bio = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Nullable, URL]
         public readonly ?string $website = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Nullable, StringType, Max(100)]
         public readonly ?string $location = null,
     ) {}
@@ -83,23 +80,23 @@ class UpdateProfileDTO extends SimpleDTO
 class AddressDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Max(100)]
         public readonly string $street,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Max(50)]
         public readonly string $city,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Max(50)]
         public readonly string $state,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Regex('/^\d{5}$/')]
         public readonly string $zipCode,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Max(50)]
         public readonly string $country,
     ) {}
@@ -107,31 +104,25 @@ class AddressDTO extends SimpleDTO
 
 class CreateOrderDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $items
-     */
+    /** @param array<mixed> $items */
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly int $customerId,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly array $items,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly AddressDTO $shippingAddress,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly AddressDTO $billingAddress,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Nullable, StringType, Max(50)]
         public readonly ?string $couponCode = null,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Nullable, StringType, Max(500)]
         public readonly ?string $notes = null,
     ) {}
@@ -142,27 +133,23 @@ class CreatePostDTO extends SimpleDTO
     /**
      * @param array<mixed>|null $tags
      */
-    /**
-     * @param array<mixed> $tags
-     */
+    /** @param array<mixed> $tags */
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Min(5), Max(200)]
         public readonly string $title,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Min(10)]
         public readonly string $content,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Nullable, StringType, Max(500)]
         public readonly ?string $excerpt = null,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required, In(['draft', 'published'])]
         public readonly string $status = '',
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly int $categoryId = 0,
         
@@ -174,19 +161,18 @@ class CreatePostDTO extends SimpleDTO
 class ContactFormDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Min(2), Max(100)]
         public readonly string $name,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required, Email]
         public readonly string $email,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Max(200)]
         public readonly string $subject,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Min(10), Max(5000)]
         public readonly string $message,
     ) {}
@@ -195,15 +181,12 @@ class ContactFormDTO extends SimpleDTO
 class ChangePasswordDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly string $currentPassword,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required, Min(8), Regex('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)/')]
         public readonly string $newPassword,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required, Same('newPassword')]
         public readonly string $newPasswordConfirmation,
     ) {}
@@ -212,7 +195,7 @@ class ChangePasswordDTO extends SimpleDTO
 class SearchDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Required, StringType, Min(2), Max(100)]
         public readonly string $query,
         
@@ -249,10 +232,10 @@ try {
     $dto = RegisterUserDTO::validateAndCreate($registerData);
     
     echo "✅  Registration data validated successfully!\n";
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo sprintf('Name: %s%s', $dto->name, PHP_EOL);
     echo sprintf('Email: %s%s', $dto->email, PHP_EOL);
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo "Terms Accepted: " . ($dto->termsAccepted ? 'Yes' : 'No') . "\n\n";
 } catch (Exception $exception) {
     echo "❌  Validation failed: {$exception->getMessage()}\n\n";
@@ -363,7 +346,7 @@ try {
     echo "✅  Contact form validated successfully!\n";
     echo sprintf('Name: %s%s', $dto->name, PHP_EOL);
     echo sprintf('Email: %s%s', $dto->email, PHP_EOL);
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo "Subject: {$dto->subject}\n\n";
 } catch (Exception $exception) {
     echo "❌  Validation failed: {$exception->getMessage()}\n\n";

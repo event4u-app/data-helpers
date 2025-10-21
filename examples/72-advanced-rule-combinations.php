@@ -29,20 +29,15 @@ echo "------------------------------------------------------------\n";
 class ShippingDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[In(['pickup', 'delivery'])]
         public readonly string $shippingMethod,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[RequiredIf('shippingMethod', 'delivery')]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(255)]
         public readonly ?string $address = null,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[RequiredIf('shippingMethod', 'delivery')]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(100)]
         public readonly ?string $city = null,
     ) {}
@@ -66,14 +61,11 @@ echo "------------------------------------------------------------\n";
 class PaymentDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[In(['card', 'cash', 'free'])]
         public readonly string $paymentMethod,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[RequiredUnless('paymentMethod', 'free')]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(255)]
         public readonly ?string $paymentDetails = null,
     ) {}
@@ -100,11 +92,9 @@ class ContactDTO extends SimpleDTO
         public readonly ?string $phone = null,
 
         #[Nullable]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly ?string $email = null,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[RequiredWith(['phone', 'email'])]
         #[In(['phone', 'email', 'both'])]
         public readonly ?string $contactPreference = null,
@@ -131,9 +121,7 @@ class AlternativeContactDTO extends SimpleDTO
         #[Nullable]
         public readonly ?string $phone = null,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[RequiredWithout(['phone'])]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly ?string $email = null,
     ) {}
@@ -158,23 +146,17 @@ class UpdateUserDTO extends SimpleDTO
 {
     public function __construct(
         #[Sometimes]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(255)]
         public readonly ?string $email = null,
 
         #[Sometimes]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(8)]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(255)]
         public readonly ?string $password = null,
 
         #[Sometimes]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(100)]
         public readonly ?string $name = null,
     ) {}
@@ -198,17 +180,14 @@ echo "------------------------------------------------------------\n";
 class ProfileDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         public readonly string $name,
 
         #[Nullable]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly ?string $email = null,
 
         #[Nullable]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(500)]
         public readonly ?string $bio = null,
     ) {}
@@ -231,34 +210,26 @@ echo "------------------------------------------------------------\n";
 class OrderDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[In(['pickup', 'delivery'])]
         public readonly string $shippingMethod,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[RequiredIf('shippingMethod', 'delivery')]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(255)]
         public readonly ?string $deliveryAddress = null,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[In(['card', 'cash', 'free'])]
         public readonly string $paymentMethod = '',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[RequiredUnless('paymentMethod', 'free')]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(255)]
         public readonly ?string $paymentDetails = null,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[RequiredWith(['deliveryAddress'])]
         public readonly ?string $deliveryInstructions = null,
 
         #[Sometimes]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(500)]
         public readonly ?string $notes = null,
     ) {}

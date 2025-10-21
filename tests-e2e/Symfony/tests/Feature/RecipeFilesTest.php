@@ -18,6 +18,10 @@ describe('Symfony Recipe Files', function(): void {
         expect(file_exists($manifestPath))->toBeTrue();
 
         $content = file_get_contents($manifestPath);
+        expect($content)->not->toBeFalse();
+        assert(is_string($content));
+
+        /** @var array<string, mixed> $manifest */
         $manifest = json_decode($content, true);
 
         expect($manifest)->toBeArray()
@@ -27,15 +31,27 @@ describe('Symfony Recipe Files', function(): void {
 
     it('manifest.json has correct bundle configuration', function(): void {
         $manifestPath = __DIR__ . '/../../../../recipe/manifest.json';
-        $manifest = json_decode(file_get_contents($manifestPath), true);
+        $content = file_get_contents($manifestPath);
+        expect($content)->not->toBeFalse();
+        assert(is_string($content));
 
-        expect($manifest['bundles'])->toHaveKey('event4u\\DataHelpers\\Symfony\\DataHelpersBundle')
-            ->and($manifest['bundles']['event4u\\DataHelpers\\Symfony\\DataHelpersBundle'])->toBe(['all']);
+        /** @var array<string, mixed> $manifest */
+        $manifest = json_decode($content, true);
+        assert(is_array($manifest['bundles']));
+
+        expect($manifest['bundles'])->toHaveKey('event4u\\DataHelpers\\Frameworks\\Symfony\\DataHelpersBundle')
+            ->and($manifest['bundles']['event4u\\DataHelpers\\Frameworks\\Symfony\\DataHelpersBundle'])->toBe(['all']);
     });
 
     it('manifest.json has correct copy-from-recipe configuration', function(): void {
         $manifestPath = __DIR__ . '/../../../../recipe/manifest.json';
-        $manifest = json_decode(file_get_contents($manifestPath), true);
+        $content = file_get_contents($manifestPath);
+        expect($content)->not->toBeFalse();
+        assert(is_string($content));
+
+        /** @var array<string, mixed> $manifest */
+        $manifest = json_decode($content, true);
+        assert(is_array($manifest['copy-from-recipe']));
 
         expect($manifest['copy-from-recipe'])->toHaveKey('config/packages/')
             ->and($manifest['copy-from-recipe'])->toHaveKey('config/services/')
@@ -51,6 +67,7 @@ describe('Symfony Recipe Files', function(): void {
 
     it('package config is valid YAML', function(): void {
         $configPath = __DIR__ . '/../../../../recipe/config/packages/data_helpers.yaml';
+        /** @var array<string, mixed> $config */
         $config = Yaml::parseFile($configPath);
 
         expect($config)->toBeArray()
@@ -60,14 +77,18 @@ describe('Symfony Recipe Files', function(): void {
 
     it('package config has correct structure', function(): void {
         $configPath = __DIR__ . '/../../../../recipe/config/packages/data_helpers.yaml';
+        /** @var array<string, mixed> $config */
         $config = Yaml::parseFile($configPath);
+        assert(is_array($config['data_helpers']));
 
         expect($config['data_helpers'])->toHaveKey('performance_mode');
     });
 
     it('package config has correct default parameters', function(): void {
         $configPath = __DIR__ . '/../../../../recipe/config/packages/data_helpers.yaml';
+        /** @var array<string, mixed> $config */
         $config = Yaml::parseFile($configPath);
+        assert(is_array($config['parameters']));
 
         expect($config['parameters'])->toHaveKey('env(DATA_HELPERS_PERFORMANCE_MODE)')
             ->and($config['parameters']['env(DATA_HELPERS_PERFORMANCE_MODE)'])->toBe('fast');
@@ -81,6 +102,7 @@ describe('Symfony Recipe Files', function(): void {
 
     it('services config is valid YAML', function(): void {
         $servicesPath = __DIR__ . '/../../../../recipe/config/services/data_helpers.yaml';
+        /** @var array<string, mixed> $services */
         $services = Yaml::parseFile($servicesPath);
 
         expect($services)->toBeArray()
@@ -89,7 +111,10 @@ describe('Symfony Recipe Files', function(): void {
 
     it('services config has DataMapper service', function(): void {
         $servicesPath = __DIR__ . '/../../../../recipe/config/services/data_helpers.yaml';
+        /** @var array<string, mixed> $services */
         $services = Yaml::parseFile($servicesPath);
+        assert(is_array($services['services']));
+        assert(is_array($services['services']['event4u\DataHelpers\DataMapper']));
 
         expect($services['services'])->toHaveKey('event4u\DataHelpers\DataMapper')
             ->and($services['services']['event4u\DataHelpers\DataMapper'])->toHaveKey('public')
@@ -98,16 +123,22 @@ describe('Symfony Recipe Files', function(): void {
 
     it('services config has MappedModelResolver service', function(): void {
         $servicesPath = __DIR__ . '/../../../../recipe/config/services/data_helpers.yaml';
+        /** @var array<string, mixed> $services */
         $services = Yaml::parseFile($servicesPath);
+        assert(is_array($services['services']));
+        assert(is_array($services['services']['event4u\DataHelpers\Frameworks\Symfony\MappedModelResolver']));
 
-        expect($services['services'])->toHaveKey('event4u\DataHelpers\Symfony\MappedModelResolver')
-            ->and($services['services']['event4u\DataHelpers\Symfony\MappedModelResolver'])->toHaveKey('tags')
-            ->and($services['services']['event4u\DataHelpers\Symfony\MappedModelResolver']['tags'])->toBeArray();
+        expect($services['services'])->toHaveKey('event4u\DataHelpers\Frameworks\Symfony\MappedModelResolver')
+            ->and($services['services']['event4u\DataHelpers\Frameworks\Symfony\MappedModelResolver'])->toHaveKey('tags')
+            ->and($services['services']['event4u\DataHelpers\Frameworks\Symfony\MappedModelResolver']['tags'])->toBeArray();
     });
 
     it('services config has correct service defaults', function(): void {
         $servicesPath = __DIR__ . '/../../../../recipe/config/services/data_helpers.yaml';
+        /** @var array<string, mixed> $services */
         $services = Yaml::parseFile($servicesPath);
+        assert(is_array($services['services']));
+        assert(is_array($services['services']['_defaults']));
 
         expect($services['services'])->toHaveKey('_defaults')
             ->and($services['services']['_defaults'])->toHaveKey('autowire')
@@ -138,15 +169,22 @@ describe('Symfony Recipe Files', function(): void {
     it('package config uses environment variables', function(): void {
         $configPath = __DIR__ . '/../../../../recipe/config/packages/data_helpers.yaml';
         $content = file_get_contents($configPath);
+        expect($content)->not->toBeFalse();
+        assert(is_string($content));
 
         expect($content)->toContain('%env(DATA_HELPERS_PERFORMANCE_MODE)%');
     });
 
     it('services config has correct tag for MappedModelResolver', function(): void {
         $servicesPath = __DIR__ . '/../../../../recipe/config/services/data_helpers.yaml';
+        /** @var array<string, mixed> $services */
         $services = Yaml::parseFile($servicesPath);
+        assert(is_array($services['services']));
+        assert(is_array($services['services']['event4u\DataHelpers\Frameworks\Symfony\MappedModelResolver']));
+        assert(is_array($services['services']['event4u\DataHelpers\Frameworks\Symfony\MappedModelResolver']['tags']));
 
-        $tags = $services['services']['event4u\DataHelpers\Symfony\MappedModelResolver']['tags'];
+        $tags = $services['services']['event4u\DataHelpers\Frameworks\Symfony\MappedModelResolver']['tags'];
+        assert(is_array($tags[0]));
 
         expect($tags)->toBeArray()
             ->and($tags)->toHaveCount(1)
@@ -159,6 +197,8 @@ describe('Symfony Recipe Files', function(): void {
     it('manifest.json is valid JSON', function(): void {
         $manifestPath = __DIR__ . '/../../../../recipe/manifest.json';
         $content = file_get_contents($manifestPath);
+        expect($content)->not->toBeFalse();
+        assert(is_string($content));
 
         json_decode($content);
 

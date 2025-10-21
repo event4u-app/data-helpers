@@ -20,7 +20,7 @@ class TagDTOForTest extends SimpleDTO
 
 class PostDTOForTest extends SimpleDTO
 {
-/** @phpstan-ignore-next-line argument.type (Test with invalid type) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         public readonly string $content,

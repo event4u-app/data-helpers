@@ -18,10 +18,8 @@ class UserDTO extends SimpleDTO
     public function __construct(
         public readonly string $id,
         public readonly string $name,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewSalary')]
         public readonly float $salary,
     ) {}
@@ -29,14 +27,15 @@ class UserDTO extends SimpleDTO
     private function canViewEmail(mixed $context): bool
     {
         // Admin or the user themselves can see email
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return 'admin' === $context?->role || $context?->userId === $this->id;
     }
 
     private function canViewSalary(mixed $context): bool
     {
         // Only admin can see salary
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         return 'admin' === $context?->role;
     }
 }
@@ -92,13 +91,10 @@ class DocumentDTO extends SimpleDTO
         public readonly string $id,
         public readonly string $title,
         public readonly string $author,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewContent')]
         public readonly string $content,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewMetadata')]
         public readonly array $metadata,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewAuditLog')]
         public readonly array $auditLog,
     ) {}
@@ -106,21 +102,21 @@ class DocumentDTO extends SimpleDTO
     private function canViewContent(mixed $context): bool
     {
         // Owner, editor, or admin can view content
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         return in_array($context?->role, ['owner', 'editor', 'admin'], true);
     }
 
     private function canViewMetadata(mixed $context): bool
     {
         // Editor or admin can view metadata
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         return in_array($context?->role, ['editor', 'admin'], true);
     }
 
     private function canViewAuditLog(mixed $context): bool
     {
         // Only admin can view audit log
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         return 'admin' === $context?->role;
     }
 }
@@ -159,10 +155,8 @@ class ProfileDTO extends SimpleDTO
     public function __construct(
         public readonly string $username,
         public readonly string $displayName,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewPhone')]
         public readonly string $phone,
         public readonly string $bio,
@@ -170,13 +164,14 @@ class ProfileDTO extends SimpleDTO
 
     private function canViewEmail(mixed $context): bool
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return 'admin' === $context?->role || true === $context?->isFriend;
     }
 
     private function canViewPhone(mixed $context): bool
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         return 'admin' === $context?->role;
     }
 }
@@ -201,12 +196,18 @@ echo json_encode($profile->withVisibilityContext($strangerContext)->toArray(), J
 echo "\n";
 
 echo "Friend view with only() - username and email:\n";
-echo json_encode($profile->withVisibilityContext($friendContext)->only(['username', 'email'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
+echo json_encode(
+    $profile->withVisibilityContext($friendContext)->only(['username', 'email'])->toArray(),
+    JSON_PRETTY_PRINT
+) . PHP_EOL;
 echo "\n";
 
 echo "Admin view with except() - exclude bio:\n";
 $adminContext = (object)['role' => 'admin'];
-echo json_encode($profile->withVisibilityContext($adminContext)->except(['bio'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
+echo json_encode(
+    $profile->withVisibilityContext($adminContext)->except(['bio'])->toArray(),
+    JSON_PRETTY_PRINT
+) . PHP_EOL;
 echo "\n";
 
 // Example 4: JSON API Response
@@ -218,23 +219,27 @@ class ApiUserDTO extends SimpleDTO
     public function __construct(
         public readonly string $id,
         public readonly string $username,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewApiKey')]
         public readonly string $apiKey,
     ) {}
 
     private function canViewEmail(mixed $context): bool
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return 'full' === ($context?->scope ?? null) || 'admin' === ($context?->role ?? null);
     }
 
     private function canViewApiKey(mixed $context): bool
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return 'full' === ($context?->scope ?? null) && ($context?->userId ?? null) === $this->id;
     }
 }
@@ -267,17 +272,13 @@ echo str_repeat('-', 60) . "\n";
 
 class OrderDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $paymentDetails
-     */
+    /** @param array<mixed> $paymentDetails */
     public function __construct(
         public readonly string $orderId,
         public readonly string $customerId,
         public readonly float $total,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewPaymentDetails')]
         public readonly array $paymentDetails,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewInternalNotes')]
         public readonly string $internalNotes,
     ) {}
@@ -285,16 +286,19 @@ class OrderDTO extends SimpleDTO
     private function canViewPaymentDetails(mixed $context): bool
     {
         // Customer can see their own payment details, or admin/finance can see all
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return ($context?->userId ?? null) === $this->customerId
-            /** @phpstan-ignore-next-line phpstan-error */
+            /** @phpstan-ignore-next-line unknown */
+            /** @phpstan-ignore-next-line unknown */
             || in_array($context?->role ?? null, ['admin', 'finance'], true);
     }
 
     private function canViewInternalNotes(mixed $context): bool
     {
         // Only internal staff can see notes
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return in_array($context?->role ?? null, ['admin', 'support', 'finance'], true);
     }
 }

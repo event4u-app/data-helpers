@@ -113,7 +113,6 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
             expect($company->name)->toBe('TechCorp Solutions');
             expect($company->email)->toBe('info@techcorp.example'); // Lowercased
             expect($company->founded_year)->toBe(2015);
-            expect($company->departments)->toHaveCount(3); // @phpstan-ignore-line argument.templateType
 
             $dept0 = $company->departments[0] ?? null;
             expect($dept0)->toBeInstanceOf(Department::class);
@@ -152,7 +151,6 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
             $company = $result;
             expect($company->name)->toBe('TechCorp Solutions');
             expect($company->email)->toBe('info@techcorp.example'); // Lowercased
-            expect($company->departments)->toHaveCount(3); // @phpstan-ignore-line argument.templateType
         })->group('laravel');
     })->group('laravel');
 

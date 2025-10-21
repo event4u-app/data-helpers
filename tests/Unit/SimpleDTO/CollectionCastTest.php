@@ -11,7 +11,7 @@ describe('CollectionCast', function(): void {
     describe('DataCollection', function(): void {
         it('throws exception when no DTO class is specified', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly ?DataCollection $tags = null,
                 ) {}
@@ -28,7 +28,7 @@ describe('CollectionCast', function(): void {
 
         it('casts array to DataCollection with DTO class', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly ?DataCollection $users = null,
                 ) {}
@@ -69,7 +69,7 @@ describe('CollectionCast', function(): void {
             ]);
 
             $dto = new class($collection) extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly DataCollection $users,
                 ) {}
@@ -89,7 +89,7 @@ describe('CollectionCast', function(): void {
 
         it('handles null values', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly ?DataCollection $users = null,
                 ) {}
@@ -113,7 +113,7 @@ describe('CollectionCast', function(): void {
             ]);
 
             $dto = new class($collection) extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly DataCollection $users,
                 ) {}
@@ -137,7 +137,7 @@ describe('CollectionCast', function(): void {
     describe('Edge Cases', function(): void {
         it('handles single item array', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly ?DataCollection $users = null,
                 ) {}
@@ -167,7 +167,7 @@ describe('CollectionCast', function(): void {
 
         it('handles empty array', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly ?DataCollection $users = null,
                 ) {}
@@ -190,7 +190,7 @@ describe('CollectionCast', function(): void {
     describe('DataCollectionOf Attribute', function(): void {
         it('uses DataCollectionOf attribute for casting', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     #[DataCollectionOf(UserDTO::class)]
                     public readonly ?DataCollection $users = null,

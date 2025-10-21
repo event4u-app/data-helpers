@@ -59,26 +59,25 @@ class ProductDTO extends SimpleDTO
         public readonly int $stock,
         public readonly bool $inStock,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $createdAt,
         
         // Only visible to authenticated users
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?bool $inWishlist = null,
         
         // Only visible to admins
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?float $cost = null,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?int $totalSold = null,
     ) {}
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function discount(): ?float
     {
@@ -89,7 +88,6 @@ class ProductDTO extends SimpleDTO
         return round((($this->price - $this->salePrice) / $this->price) * 100, 2);
     }
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function finalPrice(): float
     {
@@ -104,7 +102,6 @@ class CartItemDTO extends SimpleDTO
         public readonly int $quantity,
     ) {}
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function subtotal(): float
     {
@@ -114,9 +111,7 @@ class CartItemDTO extends SimpleDTO
 
 class CartDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $items
-     */
+    /** @param array<mixed> $items */
     public function __construct(
         public readonly int $userId,
         /** @var CartItemDTO[] */
@@ -124,7 +119,6 @@ class CartDTO extends SimpleDTO
         public readonly ?string $couponCode,
     ) {}
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function subtotal(): float
     {
@@ -134,7 +128,6 @@ class CartDTO extends SimpleDTO
         ));
     }
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function discount(): float
     {
@@ -146,21 +139,18 @@ class CartDTO extends SimpleDTO
         return $this->subtotal() * 0.1;
     }
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function tax(): float
     {
         return ($this->subtotal() - $this->discount()) * 0.19; // 19% VAT
     }
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function total(): float
     {
         return $this->subtotal() - $this->discount() + $this->tax();
     }
     
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function itemCount(): int
     {
@@ -189,7 +179,7 @@ class CustomerDTO extends SimpleDTO
         public readonly string $name,
         public readonly string $email,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?string $phone = null,
     ) {}
@@ -202,15 +192,14 @@ class PaymentDTO extends SimpleDTO
         public readonly string $status,
         public readonly float $amount,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $paidAt,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $transactionId,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?string $gatewayResponse = null,
     ) {}
@@ -251,19 +240,19 @@ class OrderDTO extends SimpleDTO
         public readonly float $shipping,
         public readonly float $total,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $createdAt,
         
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly ?Carbon $shippedAt,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?PaymentDTO $payment = null,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?array $internalNotes = null,
     ) {}

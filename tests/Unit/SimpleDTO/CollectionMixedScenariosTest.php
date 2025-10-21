@@ -83,7 +83,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $names = $users->map(fn(UserDTO $user): string => $user->name);
 
             expect($names)->toBe(['John', 'Jane']);
@@ -96,7 +96,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $filtered = $users->filter(fn(UserDTO $user): bool => 28 < $user->age);
 
             $first = $filtered->first();
@@ -113,7 +113,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
     describe('Collection with Null Values', function(): void {
         it('handles null collection property', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly string $name = '',
                     public readonly ?DataCollection $users = null,
@@ -137,7 +137,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
         it('handles missing collection property', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly string $name = '',
                     public readonly ?DataCollection $users = null,
@@ -178,7 +178,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
         it('serializes DTO with collection to JSON', function(): void {
             $dto = new class extends SimpleDTO {
-                /** @phpstan-ignore-next-line missingType.generics (DataCollection type inference) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly string $name = '',
                     public readonly ?DataCollection $users = null,
@@ -267,7 +267,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $found = $users->first(fn(UserDTO $user): bool => 28 < $user->age);
 
             assert($found instanceof UserDTO);
@@ -281,7 +281,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $found = $users->first(fn(UserDTO $user): bool => 50 < $user->age);
 
             expect($found)->toBeNull();

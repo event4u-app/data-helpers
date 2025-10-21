@@ -34,18 +34,18 @@ class UserDTO1 extends SimpleDTO
 $user1 = UserDTO1::fromArray(['name' => 'John Doe']);
 echo "Missing email and age:\n";
 echo sprintf('  name: %s%s', $user1->name, PHP_EOL);
-/** @phpstan-ignore-next-line method.nonObject */
+/** @phpstan-ignore-next-line unknown */
 echo "  email present: " . ($user1->email->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line method.nonObject */
+/** @phpstan-ignore-next-line unknown */
 echo "  age present: " . ($user1->age->isPresent() ? 'yes' : 'no') . "\n";
 echo "\n";
 
 $user2 = UserDTO1::fromArray(['name' => 'Jane Doe', 'email' => 'jane@example.com', 'age' => 30]);
 echo "All fields present:\n";
 echo sprintf('  name: %s%s', $user2->name, PHP_EOL);
-/** @phpstan-ignore-next-line method.nonObject, binaryOp.invalid */
+/** @phpstan-ignore-next-line unknown */
 echo "  email: " . $user2->email->get() . "\n";
-/** @phpstan-ignore-next-line method.nonObject, binaryOp.invalid */
+/** @phpstan-ignore-next-line unknown */
 echo "  age: " . $user2->age->get() . "\n";
 echo "\n";
 
@@ -55,7 +55,8 @@ echo str_repeat('-', 50) . "\n";
 
 class UserDTO2 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[OptionalAttribute]
@@ -68,16 +69,17 @@ class UserDTO2 extends SimpleDTO
 
 echo "Missing email, explicit null phone:\n";
 $user3 = UserDTO2::fromArray(['name' => 'John', 'phone' => null]);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  email present: " . ($user3->email->isPresent() ? 'yes' : 'no') . "\n";
 echo "  phone: " . ($user3->phone ?? 'null') . "\n";
 echo "\n";
 
 echo "Explicit null bio:\n";
 $user4 = UserDTO2::fromArray(['name' => 'Jane', 'phone' => '123-456', 'bio' => null]);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  bio present: " . ($user4->bio->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo "  bio value: " . ($user4->bio->get() ?? 'null') . "\n";
 echo "\n";
 
@@ -87,7 +89,9 @@ echo str_repeat('-', 50) . "\n";
 
 class UserDTO3 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         #[OptionalAttribute]
         public readonly Optional|string $name,
@@ -118,7 +122,8 @@ echo str_repeat('-', 50) . "\n";
 
 class UserDTO4 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         public readonly Optional|string $email,  // Union type!
@@ -129,9 +134,9 @@ class UserDTO4 extends SimpleDTO
 $user5 = UserDTO4::fromArray(['name' => 'Alice']);
 echo "Missing email and age:\n";
 echo sprintf('  name: %s%s', $user5->name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  email present: " . ($user5->email->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  age present: " . ($user5->age->isPresent() ? 'yes' : 'no') . "\n";
 echo "\n";
 
@@ -150,9 +155,9 @@ echo "\n";
 
 echo "Empty value:\n";
 echo "  isEmpty: " . ($empty->isEmpty() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  get with default: " . $empty->get('default') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  orElse: " . $empty->orElse('fallback') . "\n";
 echo "\n";
 
@@ -167,21 +172,24 @@ echo str_repeat('-', 50) . "\n";
 
 $number = Optional::of(5);
 /** @var DataCollection<SimpleDTO> $doubled */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $doubled = $number->map(fn($x): int => $x * 2);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Map 5 * 2: " . $doubled->get() . "\n";
 
 /** @var DataCollection<SimpleDTO> $filtered1 */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $filtered1 = $number->filter(fn($x): bool => 3 < $x);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Filter 5 > 3: " . ($filtered1->isPresent() ? 'present' : 'empty') . "\n";
 
 /** @var DataCollection<SimpleDTO> $filtered2 */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $filtered2 = $number->filter(fn($x): bool => 10 < $x);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Filter 5 > 10: " . ($filtered2->isPresent() ? 'present' : 'empty') . "\n";
 echo "\n";
 
@@ -205,7 +213,7 @@ echo str_repeat('-', 50) . "\n";
 
 class UserDTO5 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[OptionalAttribute(default: 'default@example.com')]
@@ -215,9 +223,10 @@ class UserDTO5 extends SimpleDTO
 
 $user8 = UserDTO5::fromArray(['name' => 'David']);
 echo "Missing email with default:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  email present: " . ($user8->email->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo "  email value: " . $user8->email->get() . "\n";
 echo "\n";
 

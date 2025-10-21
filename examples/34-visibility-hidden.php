@@ -20,10 +20,8 @@ class UserDTO extends SimpleDTO
     public function __construct(
         public readonly string $name,
         public readonly string $email,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $password,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $apiKey,
     ) {}
@@ -39,9 +37,9 @@ $user = UserDTO::fromArray([
 echo "Direct property access:\n";
 echo sprintf('  Name: %s%s', $user->name, PHP_EOL);
 echo sprintf('  Email: %s%s', $user->email, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  Password: %s%s', $user->password, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  API Key: {$user->apiKey}\n\n";
 
 echo "toArray() output:\n";
@@ -60,10 +58,8 @@ class ProductDTO extends SimpleDTO
     public function __construct(
         public readonly string $name,
         public readonly float $price,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromArray]
         public readonly string $internalSku,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromArray]
         public readonly int $stockLevel,
     ) {}
@@ -88,16 +84,12 @@ echo "3. HiddenFromJson - Hide from JSON only:\n";
 echo str_repeat('-', 60) . "\n";
 
 class OrderDTO extends SimpleDTO {
-    /**
-     * @param array<mixed> $processingSteps
-     */
+    /** @param array<mixed> $processingSteps */
     public function __construct(
         public readonly string $orderId,
         public readonly float $total,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromJson]
         public readonly string $debugInfo,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromJson]
         public readonly array $processingSteps,
     ) {}
@@ -172,10 +164,8 @@ class SecureUserDTO extends SimpleDTO
         public readonly string $id,
         public readonly string $name,
         public readonly string $email,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $password,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $apiKey,
         public readonly string $role,
@@ -213,10 +203,8 @@ class ApiUserDTO extends SimpleDTO
         public readonly string $id,
         public readonly string $username,
         public readonly string $email,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Hidden]
         public readonly string $passwordHash,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[HiddenFromJson]
         public readonly string $internalNotes,
         public readonly string $createdAt,

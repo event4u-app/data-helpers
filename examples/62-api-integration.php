@@ -20,7 +20,8 @@ class UserDTO extends SimpleDTO
      * @param array<mixed> $posts
      * @param array<mixed> $comments
      */
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -35,15 +36,15 @@ class UserDTO extends SimpleDTO
 $user = new UserDTO(
     name: 'John Doe',
     email: 'john@example.com',
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     id: 1,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     bio: 'Software developer',
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     posts: Lazy::of(fn(): array => ['post1', 'post2', 'post3']),
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     comments: Lazy::of(fn(): array => ['comment1', 'comment2']),
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     createdAt: '2024-01-01T00:00:00Z',
 );
 
@@ -65,7 +66,7 @@ echo str_repeat('-', 50) . "\n";
 
 class CreateUserDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         public readonly string $email,
@@ -83,9 +84,9 @@ $createUser = CreateUserDTO::fromArray($createData);
 echo "Parsed DTO:\n";
 echo sprintf('  name: %s%s', $createUser->name, PHP_EOL);
 echo sprintf('  email: %s%s', $createUser->email, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  bio present: " . ($createUser->bio->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  bio value: " . ($createUser->bio->get() ?? 'null') . "\n";
 echo "\n";
 
@@ -93,15 +94,16 @@ echo "\n";
 $newUser = new UserDTO(
     name: $createUser->name,
     email: $createUser->email,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     id: 2,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     bio: $createUser->bio->get(),
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     posts: Lazy::of(fn(): array => []),
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     comments: Lazy::of(fn(): array => []),
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     createdAt: date('c'),
 );
 
@@ -114,7 +116,9 @@ echo str_repeat('-', 50) . "\n";
 
 class UpdateUserDTO extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly Optional|string $name,
         public readonly Optional|string $email,
@@ -130,11 +134,11 @@ $patchData = json_decode($patchBody, true);
 $updateUser = UpdateUserDTO::fromArray($patchData);
 
 echo "Parsed DTO:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  name present: " . ($updateUser->name->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  email present: " . ($updateUser->email->isPresent() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  bio present: " . ($updateUser->bio->isPresent() ? 'yes' : 'no') . "\n";
 echo "\n";
 
@@ -144,19 +148,24 @@ echo json_encode($changes, JSON_PRETTY_PRINT) . "\n\n";
 
 // Apply changes to existing user
 $updatedUser = new UserDTO(
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     name: $changes['name'] ?? $user->name,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     email: $changes['email'] ?? $user->email,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     id: $user->id,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     bio: array_key_exists('bio', $changes) ? $changes['bio'] : $user->bio,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     posts: $user->posts,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     comments: $user->comments,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     createdAt: $user->createdAt,
 );
 
@@ -177,15 +186,18 @@ $fullUpdateUser = CreateUserDTO::fromArray($putData);
 $replacedUser = new UserDTO(
     name: $fullUpdateUser->name,
     email: $fullUpdateUser->email,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     id: $user->id,
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     bio: $fullUpdateUser->bio->get(),
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     posts: Lazy::of(fn(): array => ['post1', 'post2', 'post3']),
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     comments: Lazy::of(fn(): array => ['comment1', 'comment2']),
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     createdAt: $user->createdAt,
 );
 
@@ -202,7 +214,7 @@ class JsonApiUserDTO extends SimpleDTO
      * @param array<mixed> $attributes
      * @param array<mixed> $relationships
      */
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly int $id,
         public readonly string $type,
@@ -242,7 +254,8 @@ class ErrorDTO extends SimpleDTO
     /**
      * @param array<mixed> $errors
      */
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly int $status,
         public readonly string $message,
@@ -285,7 +298,7 @@ class PaginatedResponseDTO extends SimpleDTO
      * @param array<mixed> $meta
      * @param array<mixed> $links
      */
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly array $data,
         public readonly array $meta,

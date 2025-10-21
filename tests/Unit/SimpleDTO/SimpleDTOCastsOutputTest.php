@@ -59,7 +59,6 @@ describe('SimpleDTOCastsOutput', function(): void {
             };
 
             $json = json_encode($dto);
-/** @phpstan-ignore-next-line argument.type (Cast output test) */
             $decoded = json_decode($json, true);
 
             expect($decoded)->toHaveKey('timestamp')
@@ -206,7 +205,7 @@ describe('SimpleDTOCastsOutput', function(): void {
     describe('Array Output Cast', function(): void {
         it('converts array to json string in toArray', function(): void {
             $dto = new class(['a', 'b', 'c']) extends SimpleDTO {
-/** @phpstan-ignore-next-line return.type (Cast output type) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $tags,
                 ) {}
@@ -229,7 +228,7 @@ describe('SimpleDTOCastsOutput', function(): void {
     describe('Json Output Cast', function(): void {
         it('converts array to json string in toArray', function(): void {
             $dto = new class(['key' => 'value', 'nested' => ['foo' => 'bar']]) extends SimpleDTO {
-/** @phpstan-ignore-next-line return.type (Cast output type) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $config,
                 ) {}

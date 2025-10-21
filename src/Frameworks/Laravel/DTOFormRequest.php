@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Laravel;
+namespace event4u\DataHelpers\Frameworks\Laravel;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDTO;
@@ -21,7 +21,7 @@ if (!class_exists('Illuminate\Foundation\Http\FormRequest')) {
         public function all(): array { return []; }
     }
 } else {
-    class_alias('Illuminate\Foundation\Http\FormRequest', 'event4u\DataHelpers\Laravel\FormRequest');
+    class_alias('Illuminate\Foundation\Http\FormRequest', 'event4u\DataHelpers\Frameworks\Laravel\FormRequest');
 }
 
 /**

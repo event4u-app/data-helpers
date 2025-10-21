@@ -169,11 +169,11 @@ describe('Doctrine Integration Edge Cases', function(): void {
 
             $entity = $instance->toEntity(EdgeCaseTestEntity::class);
 
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($entity->getName())->toBe('John');
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($entity->getEmail())->toBeNull();
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($entity->getAge())->toBeNull();
         });
 
@@ -194,9 +194,9 @@ describe('Doctrine Integration Edge Cases', function(): void {
 
             $entity = $instance->toEntity(EdgeCaseTestEntity::class);
 
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($entity->getName())->toBe('');
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($entity->getEmail())->toBe('');
         });
 
@@ -213,7 +213,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
 
             $entity = $instance->toEntity(EdgeCaseTestEntity::class);
 
-            /** @phpstan-ignore-next-line method.nonObject,argument.templateType (Doctrine entity dynamic method) */
+            /** @phpstan-ignore-next-line unknown */
             expect($entity->getIsActive())->toBeTrue();
         });
 
@@ -235,7 +235,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
             // Should not throw error, just ignore extra field
             $entity = $instance->toEntity(EdgeCaseTestEntity::class);
 
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($entity->getName())->toBe('John');
         });
 
@@ -250,7 +250,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
 
             $instance = $dto::fromArray(['name' => 'John']);
 
-            /** @phpstan-ignore-next-line argument.type (Test with invalid class name) */
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): object => $instance->toEntity('NonExistentClass'))
                 ->toThrow(InvalidArgumentException::class);
         });
@@ -274,9 +274,9 @@ describe('Doctrine Integration Edge Cases', function(): void {
             $dtoInstance = $dto::fromEntity($entity);
             $newEntity = $dtoInstance->toEntity(EdgeCaseTestEntity::class);
 
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newEntity->getName())->toBe('John');
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newEntity->getEmail())->toBeNull();
         });
 
@@ -297,9 +297,9 @@ describe('Doctrine Integration Edge Cases', function(): void {
             $dtoInstance = $dto::fromEntity($entity);
             $newEntity = $dtoInstance->toEntity(EdgeCaseTestEntity::class);
 
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newEntity->getName())->toBe('');
-            /** @phpstan-ignore-next-line method.notFound (Doctrine entity getter) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newEntity->getEmail())->toBe('');
         });
 
@@ -318,7 +318,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
             $dtoInstance = $dto::fromEntity($entity);
             $newEntity = $dtoInstance->toEntity(EdgeCaseTestEntity::class);
 
-            /** @phpstan-ignore-next-line method.nonObject,argument.templateType (Doctrine entity dynamic method) */
+            /** @phpstan-ignore-next-line unknown */
             expect($newEntity->getIsActive())->toBeTrue();
         });
     });

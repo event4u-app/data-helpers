@@ -98,7 +98,7 @@ class ConditionalPropsTestDTO9 extends SimpleDTO
 // Test callback function for WhenCallback tests
 function isAdult(mixed $dto): bool
 {
-    // @phpstan-ignore property.nonObject
+    /** @phpstan-ignore-next-line unknown */
     return 18 <= $dto->age;
 }
 

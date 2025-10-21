@@ -16,7 +16,7 @@ echo str_repeat('-', 50) . "\n";
 
 class DocumentDTO1 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         public readonly Lazy|string $content,  // Union type syntax!
@@ -31,7 +31,7 @@ $doc1 = DocumentDTO1::fromArray([
 echo "Document created:\n";
 echo sprintf('  title: %s%s', $doc1->title, PHP_EOL);
 echo "  content type: " . $doc1->content::class . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  content loaded: " . ($doc1->content->isLoaded() ? 'yes' : 'no') . "\n";
 echo "\n";
 
@@ -49,10 +49,9 @@ echo str_repeat('-', 50) . "\n";
 
 class DocumentDTO2 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[LazyAttribute]
         public readonly Lazy|string $content,  // Attribute syntax
     ) {}
@@ -65,7 +64,7 @@ $doc2 = DocumentDTO2::fromArray([
 
 echo "Document with attribute:\n";
 echo sprintf('  title: %s%s', $doc2->title, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  content loaded: " . ($doc2->content->isLoaded() ? 'yes' : 'no') . "\n";
 echo "\n";
 
@@ -95,14 +94,15 @@ echo str_repeat('-', 50) . "\n";
 
 $lazy3 = Lazy::of(fn(): string => 'hello');
 /** @var DataCollection<SimpleDTO> $mapped */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $mapped = $lazy3->map(fn($x) => strtoupper($x));
 
 echo "Map before loading:\n";
 echo "  original loaded: " . ($lazy3->isLoaded() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  mapped loaded: " . ($mapped->isLoaded() ? 'yes' : 'no') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  mapped value: " . $mapped->get() . "\n";
 echo "\n";
 
@@ -112,10 +112,9 @@ echo str_repeat('-', 50) . "\n";
 
 class DocumentDTO3 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[LazyAttribute(when: 'admin')]
         public readonly Lazy|string $internalNotes,
     ) {}
@@ -144,7 +143,9 @@ class BlogPostDTO extends SimpleDTO
      * @param array<mixed> $comments
      * @param array<mixed> $relatedPosts
      */
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         public readonly string $excerpt,

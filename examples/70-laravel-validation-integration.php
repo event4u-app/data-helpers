@@ -33,17 +33,12 @@ echo str_repeat('-', 80) . "\n";
 class UserDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Max(50)]
         public readonly string $name,
 
@@ -71,7 +66,7 @@ try {
         'role' => 'admin',
     ]);
     echo "\n✅  Valid user created: {$user->name} ({$user->email})\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
@@ -85,10 +80,10 @@ try {
         'role' => 'superadmin',
     ]);
     echo "\n❌  Invalid user created (unexpected)\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
     echo "\n✅  Validation failed (expected):\n";
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     foreach ($validationException->errors() as $field => $errors) {
         echo sprintf('    - %s: ', $field) . implode(', ', $errors) . "\n";
     }
@@ -101,20 +96,15 @@ echo str_repeat('-', 80) . "\n";
 class ProductDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Exists('categories', 'id')]
         public readonly int $categoryId,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Unique('products', 'sku')]
         public readonly string $sku,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $name,
     ) {}
@@ -136,18 +126,15 @@ echo str_repeat('-', 80) . "\n";
 class WebsiteDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[StartsWith(['http://', 'https://'])]
         #[EndsWith(['.com', '.org', '.net'])]
         public readonly string $url,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Size(10)]
         public readonly string $phoneNumber,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Ip]
         public readonly string $ipAddress,
@@ -167,7 +154,7 @@ try {
         'ipAddress' => '192.168.1.1',
     ]);
     echo "\n✅  Valid website created\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 } catch (ValidationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
@@ -179,9 +166,7 @@ echo str_repeat('-', 80) . "\n";
 class PasswordDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(8)]
         #[Confirmed]
         public readonly string $password,
@@ -200,7 +185,7 @@ try {
         'password_confirmation' => 'secret123',
     ]);
     echo "\n✅  Password validated successfully\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 } catch (ValidationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
@@ -211,7 +196,7 @@ try {
         'password_confirmation' => 'different',
     ]);
     echo "\n❌  Password mismatch not detected (unexpected)\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 } catch (ValidationException) {
     echo "\n✅  Password mismatch detected (expected)\n";
 }
@@ -223,12 +208,10 @@ echo str_repeat('-', 80) . "\n";
 class SettingsDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Json]
         public readonly string $preferences,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
         #[Uuid]
         public readonly string $userId,
@@ -247,7 +230,7 @@ try {
         'userId' => '550e8400-e29b-41d4-a716-446655440000',
     ]);
     echo "\n✅  Valid settings created\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 } catch (ValidationException) {
     echo "\n❌  Validation failed (unexpected)\n";
 }
@@ -259,15 +242,11 @@ echo str_repeat('-', 80) . "\n";
 class CustomUserDTO extends SimpleDTO
 {
     public function __construct(
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Email]
         public readonly string $email,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Required]
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Min(3)]
         public readonly string $name,
     ) {}
@@ -326,7 +305,6 @@ public function store(Request $request)
 }
 
 // In a Laravel FormRequest:
-/** @phpstan-ignore-next-line class.notFound */
 class StoreUserRequest extends DTOFormRequest
 {
     protected string $dtoClass = UserDTO::class;

@@ -31,7 +31,7 @@ $mapping = [
     'profile.email' => '{{ user.email }}',
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $result = DataMapper::pipe([
     new CallbackFilter(function(CallbackParameters $params) {
         // Custom transformation based on key
@@ -96,7 +96,7 @@ $template = [
     ],
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $result = DataMapper::mapFromTemplate($template, ['article' => $source['article']]);
 
 echo "Source:\n";
@@ -129,7 +129,7 @@ $mapping = [
     'invoice.items.*.price' => '{{ order.items.*.price }}',
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $result = DataMapper::pipe([
     new CallbackFilter(function(CallbackParameters $params) {
         // Apply discount to prices
@@ -176,7 +176,7 @@ $mapping = [
     'activeAdults.*.age' => '{{ users.*.age }}',
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $result = DataMapper::pipe([
     new CallbackFilter(function(CallbackParameters $params) {
         // Skip users under 18 or inactive
@@ -232,7 +232,7 @@ $template = [
     'preview' => '{{ post.content | callback:sanitize | callback:truncate }}',
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $result = DataMapper::mapFromTemplate($template, ['post' => $source['post']]);
 
 echo "Source:\n";
@@ -274,7 +274,7 @@ $template = [
 ];
 
 try {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     $result = DataMapper::mapFromTemplate($template, ['data' => $source['data']]);
 
     echo "Result:\n";

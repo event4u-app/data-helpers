@@ -117,7 +117,9 @@ $mapping = [
 
 $mapper = new DataMapper();
 /** @var DataCollection<SimpleDTO> $result */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $result = $mapper->map($sourceCollection->all(), $mapping, []);
 
 echo 'Mapped data:' . PHP_EOL;
@@ -172,7 +174,6 @@ echo '----------------------' . PHP_EOL;
 /**
  * @implements Arrayable<int|string, mixed>
  */
-/** @phpstan-ignore-next-line class.notFound */
 class CustomArrayable implements Arrayable
 {
     /** @param array<int|string, mixed> $data */
@@ -180,9 +181,7 @@ class CustomArrayable implements Arrayable
         private readonly array $data,
     ) {}
 
-    /**
-     * @return array<mixed>
-     */
+    /** @return array<mixed> */
     public function toArray(): array
     {
         return $this->data;

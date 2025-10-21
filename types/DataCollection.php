@@ -42,11 +42,11 @@ $last = $products->last();
 assertType('event4u\DataHelpers\SimpleDTO|null', $last);
 
 // Test filter - PHPStan doesn't narrow the generic type
-$filtered = $products->filter(fn($p) => $p instanceof ProductDTO && $p->price > 100);
+$filtered = $products->filter(fn($p): bool => $p instanceof ProductDTO && 100 < $p->price);
 assertType('event4u\DataHelpers\SimpleDTO\DataCollection<event4u\DataHelpers\SimpleDTO>', $filtered);
 
 // Test map - returns array, not collection
-$names = $products->map(fn($p) => $p instanceof ProductDTO ? $p->name : '');
+$names = $products->map(fn($p): string => $p instanceof ProductDTO ? $p->name : '');
 assertType('array<int, string>', $names);
 
 // Test toArray

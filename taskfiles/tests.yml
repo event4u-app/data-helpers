@@ -115,16 +115,34 @@ tasks:
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
-        task_test "Running Laravel E2E Tests" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Laravel && composer install --quiet && bash setup.sh && vendor/bin/pest --compact"
+        task_header "Running Laravel E2E Tests"
+        docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Laravel && composer install --quiet && bash setup.sh && vendor/bin/pest --compact"
+        EXIT_CODE=$?
+        echo ""
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All tests passed!"
+        else
+          task_error "Tests failed!"
+        fi
+        task_footer
+        exit $EXIT_CODE
 
   e2e:symfony:
     desc: Run Symfony e2e tests (use PHP=8.2|8.3|8.4)
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
-        task_test "Running Symfony E2E Tests" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Symfony && composer install --quiet && vendor/bin/pest --compact"
+        task_header "Running Symfony E2E Tests"
+        docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Symfony && composer install --quiet && vendor/bin/pest --compact"
+        EXIT_CODE=$?
+        echo ""
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All tests passed!"
+        else
+          task_error "Tests failed!"
+        fi
+        task_footer
+        exit $EXIT_CODE
 
   # ============================================================================
   # Framework-Specific Tests (Isolated Containers)
@@ -176,18 +194,21 @@ tasks:
   # ============================================================================
 
   all:laravel:
+    aliases: [laravel]
     desc: Test all Laravel versions
     cmds:
       - task: laravel10
       - task: laravel11
 
   all:symfony:
+    aliases: [symfony]
     desc: Test all Symfony versions
     cmds:
       - task: symfony6
       - task: symfony7
 
   all:doctrine:
+    aliases: [doctrine]
     desc: Test all Doctrine versions
     cmds:
       - task: doctrine2
@@ -439,5 +460,3 @@ tasks:
         fi
         task_footer
         exit $EXIT_CODE
-
-

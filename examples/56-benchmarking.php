@@ -90,9 +90,7 @@ echo "--------------------------\n";
 
 class ComplexDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $tags
-     */
+    /** @param array<mixed> $tags */
     public function __construct(
         #[MapFrom('user_name')]
         public readonly string $name,
@@ -109,7 +107,6 @@ class ComplexDTO extends SimpleDTO
         ];
     }
 
-    /** @phpstan-ignore-next-line attribute.notFound */
     #[Computed]
     public function displayName(): string
     {
@@ -139,7 +136,7 @@ echo "7. Benchmark Report Generation\n";
 echo "-----------------------------\n";
 
 $results = UserDTO::runBenchmarkSuite($data, 1000);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $report = UserDTO::generateBenchmarkReport($results);
 echo $report;
 
@@ -165,9 +162,7 @@ class SimpleDTO2 extends SimpleDTO
 
 class SimpleDTO3 extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $tags
-     */
+    /** @param array<mixed> $tags */
     public function __construct(
         public readonly string $name,
         public readonly int $age,

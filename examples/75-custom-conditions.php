@@ -18,25 +18,21 @@ echo "1. CUSTOM WHENPREMIUM ATTRIBUTE:\n";
 echo "------------------------------------------------------------\n";
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-/** @phpstan-ignore-next-line class.notFound */
 class WhenPremium implements ConditionalProperty
 {
-    /**
-     * @param array<mixed> $context
-     */
+    /** @param array<mixed> $context */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
         // Check if user is premium from context
         $user = $context['user'] ?? null;
 
-        /** @phpstan-ignore-next-line phpstan-error */
         if ($user && method_exists($user, 'isPremium')) {
-            /** @phpstan-ignore-next-line phpstan-error */
+            /** @phpstan-ignore-next-line unknown */
             return $user->isPremium();
         }
 
         // Check if user has premium property
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         if ($user && isset($user->premium)) {
             return (bool)$user->premium;
         }
@@ -51,9 +47,7 @@ class ProductDTO extends SimpleDTO
     /**
      * @param array<mixed>|null $premium_features
      */
-    /**
-     * @param array<mixed> $premium_features
-     */
+    /** @param array<mixed> $premium_features */
     public function __construct(
         public readonly string $name,
         public readonly float $price,
@@ -67,15 +61,11 @@ class ProductDTO extends SimpleDTO
 }
 
 // Test with premium user
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $product = new ProductDTO(
-    /** @phpstan-ignore-next-line phpstan-error */
     'Premium Product',
-    /** @phpstan-ignore-next-line phpstan-error */
     99.99,
-    /** @phpstan-ignore-next-line phpstan-error */
     10.00,
-    /** @phpstan-ignore-next-line phpstan-error */
     ['feature1', 'feature2']
 );
 
@@ -93,19 +83,14 @@ echo "2. CUSTOM WHENENVIRONMENT ATTRIBUTE:\n";
 echo "------------------------------------------------------------\n";
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-/** @phpstan-ignore-next-line class.notFound */
 class WhenEnvironment implements ConditionalProperty
 {
-    /**
-     * @param array<mixed> $environments
-     */
+    /** @param array<mixed> $environments */
     public function __construct(
         private readonly string|array $environments,
     ) {}
 
-    /**
-     * @param array<mixed> $context
-     */
+    /** @param array<mixed> $context */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
         $currentEnv = $context['environment'] ?? 'production';
@@ -141,11 +126,8 @@ class ApiResponseDTO extends SimpleDTO
 }
 
 $response = new ApiResponseDTO(
-    /** @phpstan-ignore-next-line phpstan-error */
     'success',
-    /** @phpstan-ignore-next-line phpstan-error */
     ['user' => 'John'],
-    /** @phpstan-ignore-next-line phpstan-error */
     ['memory' => '2MB', 'time' => '150ms'],
     ['SELECT * FROM users']
 );
@@ -165,23 +147,18 @@ echo "3. CUSTOM WHENFEATUREFLAG ATTRIBUTE:\n";
 echo "------------------------------------------------------------\n";
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-/** @phpstan-ignore-next-line class.notFound */
 class WhenFeatureFlag implements ConditionalProperty
 {
     public function __construct(
         private readonly string $flag,
     ) {}
 
-    /**
-     * @param array<mixed> $context
-     */
+    /** @param array<mixed> $context */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
         $features = $context['features'] ?? [];
 
-        /** @phpstan-ignore-next-line phpstan-error */
         return in_array($this->flag, $features, true)
-            /** @phpstan-ignore-next-line phpstan-error */
             || true === ($features[$this->flag] ?? false);
     }
 }
@@ -234,23 +211,18 @@ echo "4. CUSTOM WHENROLE ATTRIBUTE (GENERIC):\n";
 echo "------------------------------------------------------------\n";
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-/** @phpstan-ignore-next-line class.notFound */
 class WhenRole implements ConditionalProperty
 {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     private readonly array $roles;
 
-    /**
-     * @param array<mixed> $roles
-     */
+    /** @param array<mixed> $roles */
     public function __construct(string|array $roles)
     {
         $this->roles = is_array($roles) ? $roles : [$roles];
     }
 
-    /**
-     * @param array<mixed> $context
-     */
+    /** @param array<mixed> $context */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
         $user = $context['user'] ?? null;
@@ -260,9 +232,8 @@ class WhenRole implements ConditionalProperty
         }
 
         // Check if user has getRoles() method
-        /** @phpstan-ignore-next-line phpstan-error */
         if (method_exists($user, 'getRoles')) {
-            /** @phpstan-ignore-next-line phpstan-error */
+            /** @phpstan-ignore-next-line unknown */
             $userRoles = $user->getRoles();
             foreach ($this->roles as $role) {
                 if (in_array($role, $userRoles, true)) {
@@ -273,7 +244,7 @@ class WhenRole implements ConditionalProperty
         }
 
         // Check if user has roles property
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         if (isset($user->roles)) {
             $userRoles = is_array($user->roles) ? $user->roles : [$user->roles];
             foreach ($this->roles as $role) {
@@ -285,7 +256,7 @@ class WhenRole implements ConditionalProperty
         }
 
         // Check if user has role property
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         if (isset($user->role)) {
             return in_array($user->role, $this->roles, true);
         }
@@ -309,11 +280,9 @@ class DashboardDTO extends SimpleDTO
         public readonly string $title,
         public readonly array $widgets,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('admin')]
         public readonly ?array $admin_panel = null,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['admin', 'moderator'])]
         public readonly ?array $moderation_tools = null,
     ) {}

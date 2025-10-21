@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Symfony;
+namespace event4u\DataHelpers\Frameworks\Symfony;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,7 +21,7 @@ final class DataHelpersBundle extends Bundle
 {
     public function getPath(): string
     {
-        return dirname(__DIR__, 2);
+        return dirname(__DIR__, 3);
     }
 
     public function getContainerExtension(): ExtensionInterface

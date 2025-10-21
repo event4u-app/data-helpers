@@ -89,7 +89,8 @@ echo "-----------------------------------\n";
 use event4u\DataHelpers\SimpleDTO\DataCollection;
 
 /** @var DataCollection<SimpleDTO> $users */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 $users = DataCollection::forDto(UserDTO::class, [
     ['name' => 'John Doe', 'email' => 'john@example.com', 'age' => 30],
     ['name' => 'Jane Smith', 'email' => 'jane@example.com', 'age' => 25],
@@ -97,7 +98,7 @@ $users = DataCollection::forDto(UserDTO::class, [
 ]);
 
 // Convert collection to array and serialize
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $usersArray = $users->toArray();
 
 use event4u\DataHelpers\SimpleDTO\Serializers\CsvSerializer;
@@ -112,15 +113,12 @@ echo $csv . "\n\n";
 echo "Example 9: Custom Serializer\n";
 echo "----------------------------\n";
 
-/** @phpstan-ignore-next-line class.notFound */
 class JsonPrettySerializer implements SerializerInterface
 {
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function serialize(array $data): string
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
         return json_encode($data, JSON_PRETTY_PRINT);
     }
 
@@ -138,12 +136,9 @@ echo $custom . "\n\n";
 echo "Example 10: Markdown Table Serializer\n";
 echo "--------------------------------------\n";
 
-/** @phpstan-ignore-next-line class.notFound */
 class MarkdownTableSerializer implements SerializerInterface
 {
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function serialize(array $data): string
     {
         if ([] === $data) {
@@ -157,13 +152,11 @@ class MarkdownTableSerializer implements SerializerInterface
             $data = [$data];
         }
 
-        /** @phpstan-ignore-next-line phpstan-error */
         $headers = array_keys($data[0]);
         $output = '| ' . implode(' | ', $headers) . " |\n";
         $output .= '| ' . implode(' | ', array_fill(0, count($headers), '---')) . " |\n";
 
         foreach ($data as $row) {
-            /** @phpstan-ignore-next-line phpstan-error */
             $output .= '| ' . implode(' | ', array_values($row)) . " |\n";
         }
 

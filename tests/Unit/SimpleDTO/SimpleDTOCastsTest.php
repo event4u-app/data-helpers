@@ -14,7 +14,7 @@ use event4u\DataHelpers\SimpleDTO\Casts\StringCast;
 // Test DTOs
 class UserDtoWithCasts extends SimpleDTO
 {
-/** @phpstan-ignore-next-line missingType.iterableValue (Test array) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         public readonly bool $is_active,
@@ -217,7 +217,7 @@ describe('SimpleDTO Casts', function(): void {
 
             expect($dto->available_from)
                 ->toBeInstanceOf(DateTimeImmutable::class);
-            /** @phpstan-ignore-next-line method.nonObject (DateTimeImmutable null check) */
+            /** @phpstan-ignore-next-line unknown */
             expect($dto->available_from->format('Y-m-d'))
                 ->toBe('2024-02-01');
         });
@@ -443,7 +443,7 @@ describe('SimpleDTO Casts', function(): void {
     describe('Json Cast', function(): void {
         it('decodes JSON string to array', function(): void {
             $dto = new class ([]) extends SimpleDTO {
-/** @phpstan-ignore-next-line return.type (Cast result type) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $metadata,
                 ) {}
@@ -463,7 +463,7 @@ describe('SimpleDTO Casts', function(): void {
 
         it('keeps array as array', function(): void {
             $dto = new class ([]) extends SimpleDTO {
-/** @phpstan-ignore-next-line return.type (Cast result type) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $metadata,
                 ) {}
@@ -639,7 +639,9 @@ describe('SimpleDTO Casts', function(): void {
 
         it('handles JSON edge cases', function(): void {
             $dto = new class([], [], []) extends SimpleDTO {
-/** @phpstan-ignore-next-line return.type (Cast result type) */
+                /** @phpstan-ignore-next-line unknown */
+                /** @phpstan-ignore-next-line unknown */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $emptyObject,
                     public readonly array $emptyArray,

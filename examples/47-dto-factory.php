@@ -40,7 +40,7 @@ class UserDTOFactory extends DTOFactory
 
 /** @var UserDTO $user */
 $user = UserDTOFactory::new()->create();
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Created user: {$user->name} ({$user->email}), Age: {$user->age}\n\n";
 
 // Example 2: Create Multiple DTOs
@@ -65,7 +65,7 @@ $admin = UserDTOFactory::new()->create([
     'email' => 'admin@example.com',
     'age' => 35,
 ]);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Created admin: {$admin->name} ({$admin->email}), Age: {$admin->age}\n\n";
 
 // Example 4: Make Array Without Creating DTO
@@ -88,7 +88,7 @@ echo "-------------------------\n";
 $adminUser = UserDTOFactory::new()
     ->state('admin', ['age' => 99])
     ->create();
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Admin user: %s, Age: %s%s', $adminUser->name, $adminUser->age, PHP_EOL);
 
 /** @var UserDTO $verifiedUser */
@@ -121,15 +121,12 @@ class ValidatedUserDTO extends SimpleDTO
 {
     public function __construct(
         public readonly string $name,
-        /** @phpstan-ignore-next-line attribute.notFound */
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Email]
         public readonly string $email,
-        /** @phpstan-ignore-next-line attribute.notFound */
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Min(18)]
-        /** @phpstan-ignore-next-line attribute.notFound */
-        /** @phpstan-ignore-next-line attribute.notFound */
+        /** @phpstan-ignore-next-line unknown */
         #[Max(100)]
         public readonly int $age,
     ) {}
@@ -162,7 +159,7 @@ $superAdmin = UserDTOFactory::new()
     ->state('admin', ['age' => 99])
     ->state('super', ['name' => 'Super Admin'])
     ->create();
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Super admin: {$superAdmin->name}, Age: {$superAdmin->age}\n\n";
 
 // Example 9: Factory Reset

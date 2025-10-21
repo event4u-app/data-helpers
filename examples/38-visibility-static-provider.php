@@ -16,21 +16,23 @@ echo "=== Static Callbacks & Context Providers ===\n\n";
 /**
  * Permission Checker mit statischen Methoden
  */
-/** @phpstan-ignore-next-line class.notFound */
 class PermissionChecker
 {
     public static function canViewEmail(mixed $dto, mixed $context): bool
     {
         // Admin kann alles sehen
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         if ('admin' === ($context?->role ?? null)) {
             return true;
         }
 
         // User kann eigene Email sehen
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         if (isset($dto->userId) && isset($context?->userId)) {
-            /** @phpstan-ignore-next-line phpstan-error */
+            /** @phpstan-ignore-next-line unknown */
             return $context->userId === $dto->userId;
         }
 
@@ -40,14 +42,16 @@ class PermissionChecker
     public static function canViewSalary(mixed $dto, mixed $context): bool
     {
         // Nur Admin und HR können Gehälter sehen
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return in_array($context?->role ?? null, ['admin', 'hr'], true);
     }
 
     public static function canViewInternalNotes(mixed $dto, mixed $context): bool
     {
         // Nur interne Mitarbeiter
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return in_array($context?->role ?? null, ['admin', 'hr', 'support'], true);
     }
 }
@@ -55,7 +59,6 @@ class PermissionChecker
 /**
  * Context Provider - holt automatisch den aktuellen User
  */
-/** @phpstan-ignore-next-line class.notFound */
 class AuthContextProvider
 {
     private static ?object $currentUser = null;
@@ -74,7 +77,6 @@ class AuthContextProvider
 /**
  * Alternative Context Provider für API Requests
  */
-/** @phpstan-ignore-next-line class.notFound */
 class ApiContextProvider
 {
     private static ?object $apiContext = null;
@@ -105,15 +107,12 @@ class EmployeeDTO extends SimpleDTO
         public readonly string $department,
         
         // Static callback - keine Instanz-Methode nötig!
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: [PermissionChecker::class, 'canViewEmail'])]
         public readonly string $email,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: [PermissionChecker::class, 'canViewSalary'])]
         public readonly float $salary,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: [PermissionChecker::class, 'canViewInternalNotes'])]
         public readonly string $internalNotes,
     ) {}
@@ -171,14 +170,12 @@ class UserProfileDTO extends SimpleDTO
         public readonly string $displayName,
         
         // Context wird automatisch von AuthContextProvider geholt!
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(
             contextProvider: AuthContextProvider::class,
             callback: [PermissionChecker::class, 'canViewEmail']
         )]
         public readonly string $email,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(
             contextProvider: AuthContextProvider::class,
             callback: [PermissionChecker::class, 'canViewInternalNotes']
@@ -235,14 +232,12 @@ class OrderDTO extends SimpleDTO
         public readonly float $total,
         
         // Kombiniert: Context Provider + Static Callback
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(
             contextProvider: AuthContextProvider::class,
             callback: [PermissionChecker::class, 'canViewEmail']
         )]
         public readonly string $customerEmail,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(
             contextProvider: AuthContextProvider::class,
             callback: [PermissionChecker::class, 'canViewInternalNotes']
@@ -305,7 +300,6 @@ class ApiResponseDTO extends SimpleDTO
         public readonly string $title,
         
         // Verwendet API Context Provider
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(
             contextProvider: ApiContextProvider::class,
             callback: [PermissionChecker::class, 'canViewInternalNotes']

@@ -9,7 +9,6 @@ use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Casts\ArrayCast;
 use event4u\DataHelpers\SimpleDTO\Casts\BooleanCast;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 // ============================================================================
 // Example 1: Built-in Casts
@@ -20,9 +19,7 @@ echo str_repeat('=', 80) . "\n\n";
 
 class UserDto extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $roles
-     */
+    /** @param array<mixed> $roles */
     public function __construct(
         public readonly string $name,
         public readonly string $email,
@@ -49,16 +46,18 @@ $userData = [
     'created_at' => '2024-01-15 10:30:00',  // String will be cast to DateTimeImmutable
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $user = UserDto::fromArray($userData);
 
 echo sprintf('Name: %s%s', $user->name, PHP_EOL);
 echo sprintf('Email: %s%s', $user->email, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Is Active: " . ($user->is_active ? 'Yes' : 'No') . " (type: " . gettype($user->is_active) . ")\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo "Roles: " . implode(', ', $user->roles) . " (type: " . gettype($user->roles) . ")\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo "Created At: " . $user->created_at->format('Y-m-d H:i:s') . " (type: " . $user->created_at::class . ")\n";
 
 echo "\n";
@@ -72,9 +71,7 @@ echo str_repeat('=', 80) . "\n\n";
 
 class ProductDto extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $tags
-     */
+    /** @param array<mixed> $tags */
     public function __construct(
         public readonly string $name,
         public readonly float $price,
@@ -101,15 +98,15 @@ $productData = [
     'available_from' => '2024-02-01 00:00:00',
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $product = ProductDto::fromArray($productData);
 
 echo sprintf('Product: %s%s', $product->name, PHP_EOL);
 echo sprintf('Price: €%s%s', $product->price, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "In Stock: " . ($product->in_stock ? 'Yes' : 'No') . "\n";
 echo "Tags: " . implode(', ', $product->tags) . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Available From: " . $product->available_from->format('d.m.Y') . "\n";
 
 echo "\n";
@@ -144,14 +141,14 @@ $eventData = [
     'registration_deadline' => '31.05.2024',
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $event = EventDto::fromArray($eventData);
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Event: %s%s', $event->title, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Date: " . $event->event_date->format('l, F j, Y') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Registration Deadline: " . $event->registration_deadline->format('d.m.Y') . "\n";
 
 echo "\n";
@@ -174,15 +171,14 @@ class AddressDto extends SimpleDTO
 
 class CompanyDto extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $departments
-     */
+    /** @param array<mixed> $departments */
     public function __construct(
         public readonly string $name,
         public readonly bool $is_active,
         public readonly array $departments,
         public readonly DateTimeImmutable $founded_at,
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         public readonly ?AddressDto $address = null,
     ) {}
 
@@ -201,7 +197,7 @@ $companyData = [
     'is_active' => '1',
     'departments' => '["Engineering","Sales","Marketing"]',
     'founded_at' => '2010-03-15',
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     'address' => AddressDto::fromArray([
         'street' => 'Main Street 123',
         'city' => 'Berlin',
@@ -209,15 +205,15 @@ $companyData = [
     ]),
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $company = CompanyDto::fromArray($companyData);
 
 echo sprintf('Company: %s%s', $company->name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Active: " . ($company->is_active ? 'Yes' : 'No') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Departments: " . implode(', ', $company->departments) . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Founded: " . $company->founded_at->format('Y') . "\n";
 echo sprintf(
     'Address: %s, %s, %s%s',

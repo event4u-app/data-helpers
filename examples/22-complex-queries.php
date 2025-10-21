@@ -33,7 +33,6 @@ $result = DataFilter::query($products)
 
 echo "Found " . count($result) . " products:\n";
 foreach ($result as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     printf("  • %s - $%d (Stock: %d)\n", $product['name'], $product['price'], $product['stock']);
 }
 echo "\n";
@@ -48,7 +47,6 @@ $result = DataFilter::query($products)
 
 echo "Found " . count($result) . " products:\n";
 foreach ($result as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     printf("  • %s - $%d\n", $product['name'], $product['price']);
 }
 echo "\n";
@@ -65,7 +63,6 @@ $result = DataFilter::query($products)
 
 echo "Found " . count($result) . " products (offset 2, limit 3):\n";
 foreach ($result as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     printf("  • ID %d: %s - %s\n", $product['id'], $product['name'], $product['category']);
 }
 echo "\n";
@@ -79,7 +76,8 @@ $cheapest = DataFilter::query($products)
     ->first();
 
 if ($cheapest) {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     printf("Cheapest Electronics with stock > 20: %s - $%d\n", $cheapest['name'], $cheapest['price']);
 } else {
     echo "No products found\n";
@@ -88,14 +86,14 @@ echo "\n";
 
 echo "=== Complex Example 5: count() with complex filters ===\n";
 /** @var array<int, array<string, mixed>> $count */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $count = DataFilter::query($products)
     ->where('price', '>=', 100)
     ->where('price', '<=', 500)
     ->whereIn('category', ['Electronics', 'Furniture'])
     ->count();
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Products between $100-$500 in Electronics/Furniture: {$count}\n\n";
 
 echo "=== Complex Example 6: Nested data access ===\n";
@@ -113,7 +111,6 @@ $result = DataFilter::query($users)
 
 echo "Users from Berlin older than 28:\n";
 foreach ($result as $user) {
-    /** @phpstan-ignore-next-line phpstan-error */
     printf("  • %s (Age: %d)\n", $user['name'], $user['profile']['age']);
 }
 echo "\n";

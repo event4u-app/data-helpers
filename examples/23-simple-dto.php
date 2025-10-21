@@ -27,7 +27,7 @@ $user = UserDTO::fromArray([
 
 echo sprintf('User Name: %s%s', $user->name, PHP_EOL);
 echo sprintf('User Email: %s%s', $user->email, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "User Age: {$user->age}\n\n";
 
 echo "As Array:\n";
@@ -60,7 +60,7 @@ echo "Product 1:\n";
 echo sprintf('  Name: %s%s', $product1->name, PHP_EOL);
 echo sprintf('  Price: $%s%s', $product1->price, PHP_EOL);
 echo sprintf('  Description: %s%s', $product1->description, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  Category: " . ($product1->category ?? 'N/A') . "\n\n";
 
 $product2 = ProductDTO::fromArray([
@@ -72,7 +72,7 @@ echo "Product 2:\n";
 echo sprintf('  Name: %s%s', $product2->name, PHP_EOL);
 echo sprintf('  Price: $%s%s', $product2->price, PHP_EOL);
 echo "  Description: " . ($product2->description ?? 'N/A') . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  Category: " . ($product2->category ?? 'N/A') . "\n\n";
 
 // Example 3: Nested DTOs
@@ -105,22 +105,23 @@ $address = AddressDTO::fromArray([
     'country' => 'USA',
 ]);
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $customer = new CustomerDTO(
     name: 'Jane Smith',
     email: 'jane@example.com',
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     address: $address,
 );
 
 echo sprintf('Customer: %s%s', $customer->name, PHP_EOL);
 echo sprintf('Email: %s%s', $customer->email, PHP_EOL);
 echo "Address:\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  %s%s', $customer->address->street, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  %s, %s%s', $customer->address->city, $customer->address->zipCode, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  {$customer->address->country}\n\n";
 
 echo "As JSON:\n";
@@ -149,13 +150,13 @@ $mappedData = DataMapper::source($apiResponse)
     ->map()
     ->toArray();
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $userDto = UserDTO::fromArray($mappedData);
 
 echo "Mapped User DTO:\n";
 echo sprintf('  Name: %s%s', $userDto->name, PHP_EOL);
 echo sprintf('  Email: %s%s', $userDto->email, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "  Age: {$userDto->age}\n\n";
 
 // Example 5: Array of DTOs
@@ -175,7 +176,7 @@ $products = array_map(
 
 echo "Products:\n";
 foreach ($products as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     echo "  - {$product->name}: \${$product->price} ({$product->category})\n";
 }
 

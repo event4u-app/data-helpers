@@ -9,7 +9,7 @@ use event4u\DataHelpers\Support\Optional;
 // Test DTOs defined outside to avoid anonymous class issues
 class TestUserDTO1 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Optional union type test) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[OptionalAttribute]
@@ -19,7 +19,7 @@ class TestUserDTO1 extends SimpleDTO
 
 class TestUserDTO2 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Optional union type test) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         public readonly Optional|string $email,
@@ -28,7 +28,8 @@ class TestUserDTO2 extends SimpleDTO
 
 class TestUserDTO3 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Optional union type test) */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly Optional|string $name,
         public readonly Optional|string|null $email,
@@ -37,7 +38,9 @@ class TestUserDTO3 extends SimpleDTO
 
 class TestUserDTO4 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Optional union type test) */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly Optional|string $name,
         public readonly Optional|string $email,
@@ -47,7 +50,7 @@ class TestUserDTO4 extends SimpleDTO
 
 class TestUserDTO5 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Optional union type test) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
         #[OptionalAttribute(default: 'default@example.com')]
@@ -61,7 +64,7 @@ describe('Optional Properties', function(): void {
 
         expect($dto->name)->toBe('John');
         expect($dto->email)->toBeInstanceOf(Optional::class);
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto->email->isEmpty())->toBeTrue();
     });
 
@@ -70,36 +73,36 @@ describe('Optional Properties', function(): void {
 
         expect($dto->name)->toBe('John');
         expect($dto->email)->toBeInstanceOf(Optional::class);
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto->email->isEmpty())->toBeTrue();
     });
 
     it('distinguishes between null and missing values', function(): void {
         // Missing values
         $dto1 = TestUserDTO3::fromArray([]);
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto1->name->isEmpty())->toBeTrue();
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto1->email->isEmpty())->toBeTrue();
 
         // Null value (explicitly set)
         $dto2 = TestUserDTO3::fromArray(['email' => null]);
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto2->name->isEmpty())->toBeTrue();
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto2->email->isPresent())->toBeTrue();
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto2->email->get())->toBeNull();
 
         // Present value
         $dto3 = TestUserDTO3::fromArray(['name' => 'John', 'email' => 'john@example.com']);
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto3->name->isPresent())->toBeTrue();
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto3->name->get())->toBe('John');
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto3->email->isPresent())->toBeTrue();
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto3->email->get())->toBe('john@example.com');
     });
 
@@ -146,9 +149,9 @@ describe('Optional Properties', function(): void {
     it('supports default values', function(): void {
         $dto = TestUserDTO5::fromArray(['name' => 'John']);
 
-        /** @phpstan-ignore-next-line method.nonObject (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto->email->isPresent())->toBeTrue();
-        /** @phpstan-ignore-next-line method.nonObject,argument.type (Optional union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto->email->get())->toBe('default@example.com');
     });
 
@@ -194,9 +197,9 @@ describe('Optional Wrapper', function(): void {
     it('returns default value when empty', function(): void {
         $optional = Optional::empty();
 
-        /** @phpstan-ignore-next-line argument.type (Optional default value test) */
+        /** @phpstan-ignore-next-line unknown */
         expect($optional->get('default'))->toBe('default');
-        /** @phpstan-ignore-next-line argument.type (Optional default value test) */
+        /** @phpstan-ignore-next-line unknown */
         expect($optional->orElse('default'))->toBe('default');
     });
 

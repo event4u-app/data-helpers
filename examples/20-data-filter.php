@@ -28,7 +28,6 @@ $electronics = DataFilter::query($products)
     ->get();
 
 foreach ($electronics as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s - $%d\n", $product['name'], $product['price']);
 }
 echo "\n";
@@ -41,7 +40,6 @@ $expensive = DataFilter::query($products)
     ->get();
 
 foreach ($expensive as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s - $%d (%s)\n", $product['name'], $product['price'], $product['category']);
 }
 echo "\n";
@@ -54,7 +52,6 @@ $midRange = DataFilter::query($products)
     ->get();
 
 foreach ($midRange as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s - $%d\n", $product['name'], $product['price']);
 }
 echo "\n";
@@ -76,7 +73,6 @@ $proProducts = DataFilter::query($products)
     ->get();
 
 foreach ($proProducts as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s\n", $product['name']);
 }
 echo "\n";
@@ -90,7 +86,6 @@ $sorted = DataFilter::query($products)
     ->get();
 
 foreach ($sorted as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s - $%d\n", $product['name'], $product['price']);
 }
 echo "\n";
@@ -107,11 +102,8 @@ $topElectronics = DataFilter::query($products)
 
 foreach ($topElectronics as $product) {
     echo sprintf("   • %s - Rating: %.1f (Stock: %d)\n",
-        /** @phpstan-ignore-next-line phpstan-error */
         $product['name'],
-        /** @phpstan-ignore-next-line phpstan-error */
         $product['rating'],
-        /** @phpstan-ignore-next-line phpstan-error */
         $product['stock']
     );
 }
@@ -132,7 +124,6 @@ $active = DataFilter::query($productsWithNulls)
 
 echo "   Active products:\n";
 foreach ($active as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("     • %s\n", $product['name']);
 }
 echo "\n";

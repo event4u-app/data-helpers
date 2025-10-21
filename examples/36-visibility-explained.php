@@ -22,7 +22,6 @@ class UserDTO extends SimpleDTO
         public readonly string $username,
         
         // Diese Property ist nur sichtbar, wenn canViewEmail() true zurückgibt
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
     ) {}
@@ -38,7 +37,8 @@ class UserDTO extends SimpleDTO
     private function canViewEmail(mixed $context): bool
     {
         // Prüfe, ob der Context eine 'role' Property hat und ob diese 'admin' ist
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return 'admin' === ($context?->role ?? null);
     }
 }
@@ -51,7 +51,7 @@ $user = UserDTO::fromArray([
 
 echo "Schritt 1: DTO erstellt\n";
 echo sprintf('  Name: %s%s', $user->name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('  Username: %s%s', $user->username, PHP_EOL);
 echo "  Email: {$user->email}\n\n";
 
@@ -91,11 +91,9 @@ class ProfileDTO extends SimpleDTO
         public readonly string $userId,
         public readonly string $name,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewPhone')]
         public readonly string $phone,
     ) {}
@@ -107,16 +105,19 @@ class ProfileDTO extends SimpleDTO
      */
     private function canViewEmail(mixed $context): bool
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return ($context?->userId ?? null) === $this->userId
-            /** @phpstan-ignore-next-line phpstan-error */
+            /** @phpstan-ignore-next-line unknown */
+            /** @phpstan-ignore-next-line unknown */
             || 'admin' === ($context?->role ?? null);
     }
 
     /** Phone ist nur für Admins sichtbar */
     private function canViewPhone(mixed $context): bool
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return 'admin' === ($context?->role ?? null);
     }
 }
@@ -166,20 +167,16 @@ echo str_repeat('=', 70) . "\n\n";
 
 class OrderDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $paymentDetails
-     */
+    /** @param array<mixed> $paymentDetails */
     public function __construct(
         public readonly string $orderId,
         public readonly string $customerId,
         public readonly float $total,
         public readonly string $status,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewPaymentDetails')]
         public readonly array $paymentDetails,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewInternalNotes')]
         public readonly string $internalNotes,
     ) {}
@@ -193,20 +190,23 @@ class OrderDTO extends SimpleDTO
     private function canViewPaymentDetails(mixed $context): bool
     {
         // Kunde kann eigene Payment Details sehen
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         if (($context?->userId ?? null) === $this->customerId) {
             return true;
         }
 
         // Finance und Admin können alle Payment Details sehen
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return in_array($context?->role ?? null, ['finance', 'admin'], true);
     }
 
     /** Internal Notes sind nur für interne Mitarbeiter sichtbar */
     private function canViewInternalNotes(mixed $context): bool
     {
-        /** @phpstan-ignore-next-line phpstan-error */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         return in_array($context?->role ?? null, ['support', 'finance', 'admin'], true);
     }
 }
@@ -280,7 +280,6 @@ class DocumentDTO extends SimpleDTO
     public function __construct(
         public readonly string $title,
         
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[Visible(callback: 'canViewContent')]
         public readonly string $content,
     ) {}
@@ -334,7 +333,6 @@ echo "\n" . str_repeat('=', 70) . "\n";
 echo "ZUSAMMENFASSUNG:\n";
 echo str_repeat('=', 70) . "\n\n";
 
-/** @phpstan-ignore-next-line attribute.notFound */
 echo "1. #[Visible(callback: 'methodName')] markiert eine Property als bedingt sichtbar\n";
 echo "2. Die Callback-Methode muss bool zurückgeben (true = sichtbar, false = versteckt)\n";
 echo "3. withVisibilityContext(\$context) setzt den Context für die Visibility-Checks\n";
@@ -343,7 +341,6 @@ echo "5. Der Context kann beliebig sein (Object, Array, String, etc.)\n";
 echo "6. Callback-Methoden können auf DTO-Properties zugreifen (\$this->userId)\n";
 echo "7. Callback-Methoden können private/protected sein\n";
 echo "8. withVisibilityContext() ist chainable mit only() und except()\n";
-/** @phpstan-ignore-next-line attribute.notFound */
 echo "9. Ohne Context werden #[Visible] Properties standardmäßig versteckt\n\n";
 
 echo "✅  Alle Beispiele abgeschlossen!\n";

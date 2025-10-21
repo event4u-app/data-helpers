@@ -9,7 +9,7 @@ use event4u\DataHelpers\Support\Lazy;
 // Test DTOs
 class TestLazyDTO1 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Lazy union type test) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         public readonly Lazy|string $content,
@@ -18,7 +18,7 @@ class TestLazyDTO1 extends SimpleDTO
 
 class TestLazyDTO2 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Lazy union type test) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         #[LazyAttribute]
@@ -28,7 +28,7 @@ class TestLazyDTO2 extends SimpleDTO
 
 class TestLazyDTO3 extends SimpleDTO
 {
-    /** @phpstan-ignore-next-line missingType.generics (Lazy union type test) */
+    /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         public readonly Lazy|string|null $content,
@@ -41,9 +41,9 @@ describe('Lazy Union Types', function(): void {
 
         expect($dto->title)->toBe('Test');
         expect($dto->content)->toBeInstanceOf(Lazy::class);
-        /** @phpstan-ignore-next-line method.nonObject (Lazy union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto->content->isLoaded())->toBeTrue();
-        /** @phpstan-ignore-next-line method.nonObject (Lazy union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto->content->get())->toBe('Content...');
     });
 
@@ -52,9 +52,9 @@ describe('Lazy Union Types', function(): void {
 
         expect($dto->title)->toBe('Test');
         expect($dto->content)->toBeInstanceOf(Lazy::class);
-        /** @phpstan-ignore-next-line method.nonObject (Lazy union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto->content->isLoaded())->toBeTrue();
-        /** @phpstan-ignore-next-line method.nonObject (Lazy union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto->content->get())->toBe('Content...');
     });
 
@@ -90,7 +90,7 @@ describe('Lazy Union Types', function(): void {
         $dto = TestLazyDTO3::fromArray(['title' => 'Test', 'content' => null]);
 
         expect($dto->content)->toBeInstanceOf(Lazy::class);
-        /** @phpstan-ignore-next-line method.nonObject (Lazy union type) */
+        /** @phpstan-ignore-next-line unknown */
         expect($dto->content->get())->toBeNull();
     });
 

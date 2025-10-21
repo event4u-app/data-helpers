@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Symfony;
+namespace event4u\DataHelpers\Frameworks\Symfony;
 
 use event4u\DataHelpers\MappedDataModel;
 use JsonException;

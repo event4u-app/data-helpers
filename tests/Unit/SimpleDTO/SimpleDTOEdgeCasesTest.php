@@ -170,15 +170,15 @@ describe('SimpleDTO Edge Cases', function(): void {
             ]);
 
             expect($dto->user)->toBeInstanceOf(EdgeCaseUserDTO::class);
-            /** @phpstan-ignore-next-line property.nonObject (Nullable DTO property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($dto->user->name)->toBe('Child');
-            /** @phpstan-ignore-next-line property.nonObject (Nullable DTO property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($dto->user->age)->toBe(10);
         });
 
         it('handles deeply nested arrays', function(): void {
             $dto = new class extends SimpleDTO {
-/** @phpstan-ignore-next-line return.type (Edge case result) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $level1 = [],
                 ) {}
@@ -219,7 +219,7 @@ describe('SimpleDTO Edge Cases', function(): void {
             $array = $dto->toArray();
 
             expect($array['user'])->toBeInstanceOf(EdgeCaseUserDTO::class);
-            /** @phpstan-ignore-next-line property.nonObject (Mixed array value) */
+            /** @phpstan-ignore-next-line unknown */
             expect($array['user']->name)->toBe('Child');
         });
 
@@ -334,9 +334,8 @@ describe('SimpleDTO Edge Cases', function(): void {
                 'age' => 30,
             ]);
 
-            /** @phpstan-ignore-next-line assign.propertyReadOnly (Test immutability) */
             expect(function() use ($dto): void {
-/** @phpstan-ignore-next-line argument.templateType (Pest expectation) */
+                /** @phpstan-ignore-next-line unknown */
                 $dto->name = 'Jane';
             })->toThrow(Error::class);
         });

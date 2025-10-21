@@ -37,7 +37,7 @@ class PostDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $post = new PostDTO('My Post', 'Post content...');
 
 // User with grants array
@@ -67,21 +67,18 @@ class DashboardDTO extends SimpleDTO
     public function __construct(
         public readonly string $title,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_ADMIN')]
         public readonly string $adminPanel = '/admin',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['ROLE_ADMIN', 'ROLE_MODERATOR'])]
         public readonly string $moderationPanel = '/moderation',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_EDITOR')]
         public readonly string $editorPanel = '/editor',
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $dashboard = new DashboardDTO('Dashboard');
 
 $admin = (object)['roles' => ['ROLE_ADMIN', 'ROLE_USER']];
@@ -122,12 +119,12 @@ class DocumentDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $document = new DocumentDTO('Important Document');
 
 // User with isGranted method (like Symfony User)
 $userWithMethod = new class {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function isGranted(string $attribute, $subject = null): bool
     {
         return in_array($attribute, ['VIEW', 'EDIT'], true);
@@ -135,7 +132,7 @@ $userWithMethod = new class {
 };
 
 $userViewOnly = new class {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function isGranted(string $attribute, $subject = null): bool
     {
         return 'VIEW' === $attribute;
@@ -162,7 +159,6 @@ class ApiResourceDTO extends SimpleDTO
         public readonly string $id,
         public readonly string $name,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_ADMIN')]
         public readonly string $internalId = 'INT-12345',
 
@@ -201,7 +197,6 @@ class SecretDocumentDTO extends SimpleDTO
     public function __construct(
         public readonly string $title,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_ADMIN')]
         #[WhenGranted('VIEW_SECRETS')]
         public readonly string $secretContent = 'Top secret information',
@@ -257,7 +252,7 @@ $articleObject = (object)['id' => 1, 'title' => 'My Article', 'author_id' => 1];
 
 // User with isGranted method that checks subject
 $owner = new class {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
     public function isGranted(string $attribute, $subject = null): bool
     {
         // In real Symfony, this would check if user owns the article
@@ -266,7 +261,10 @@ $owner = new class {
 };
 
 echo "Owner with article subject:\n";
-echo json_encode($article->withContext(['user' => $owner, 'article' => $articleObject])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
+echo json_encode(
+    $article->withContext(['user' => $owner, 'article' => $articleObject])->toArray(),
+    JSON_PRETTY_PRINT
+) . PHP_EOL;
 
 echo "\n✅  Subject-based authorization\n";
 
@@ -278,19 +276,15 @@ echo "------------------------------------------------------------\n";
 
 class OrderDTO extends SimpleDTO
 {
-    /**
-     * @param array<mixed> $paymentDetails
-     */
+    /** @param array<mixed> $paymentDetails */
     public function __construct(
         public readonly string $id,
         public readonly string $status,
         public readonly float $total,
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole('ROLE_USER')]
         public readonly string $customerName = 'John Doe',
 
-        /** @phpstan-ignore-next-line attribute.notFound */
         #[WhenRole(['ROLE_ADMIN', 'ROLE_SUPPORT'])]
         public readonly string $internalNotes = 'Customer requested express shipping',
 
@@ -299,7 +293,7 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $order = new OrderDTO('ORD-12345', 'completed', 299.99);
 
 echo "Public API (no user):\n";

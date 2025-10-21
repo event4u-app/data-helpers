@@ -61,7 +61,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Clearing PHPStan Cache" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan --clear-result-cache
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpstan clear-result-cache
 
   # ============================================================================
   # ECS (Easy Coding Standard)

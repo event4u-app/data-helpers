@@ -6,7 +6,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use DateTimeImmutable;
 use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 
 // ============================================================================
 // Example: All Built-in Casts
@@ -61,25 +60,30 @@ $apiData = [
     'created_at' => '2024-01-15 10:30:00',      // String → DateTimeImmutable
 ];
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $product = ProductDto::fromArray($apiData);
 
 echo "Product Details:\n";
 echo "----------------\n";
 echo sprintf('Name: %s%s', $product->name, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('SKU: %s (type: ', $product->sku) . gettype($product->sku) . ")\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Quantity: %s (type: ', $product->quantity) . gettype($product->quantity) . ")\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Weight: %s kg (type: ', $product->weight) . gettype($product->weight) . ")\n";
 echo sprintf('Price: €%s (type: ', $product->price) . gettype($product->price) . ")\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Available: " . ($product->is_available ? 'Yes' : 'No') . " (type: " . gettype($product->is_available) . ")\n";
 echo "Tags: " . implode(', ', $product->tags) . " (type: " . gettype($product->tags) . ")\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo "Metadata: " . json_encode($product->metadata) . " (type: " . gettype($product->metadata) . ")\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
+/** @phpstan-ignore-next-line unknown */
 echo "Created: " . $product->created_at->format('Y-m-d H:i:s') . " (type: " . $product->created_at::class . ")\n";
 
 echo "\n";
@@ -209,7 +213,7 @@ class ConfigDto extends SimpleDTO
     }
 }
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $config = ConfigDto::fromArray([
     'settings' => '{"theme":"dark","language":"en","notifications":true}',
     'permissions' => '{"read":true,"write":false,"admin":false}',
@@ -217,9 +221,9 @@ $config = ConfigDto::fromArray([
 
 echo "JSON Handling:\n";
 echo "--------------\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Settings: " . json_encode($config->settings, JSON_PRETTY_PRINT) . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Permissions: " . json_encode($config->permissions, JSON_PRETTY_PRINT) . "\n";
 
 echo "\n";

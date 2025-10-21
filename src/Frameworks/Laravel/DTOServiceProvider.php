@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Laravel;
+namespace event4u\DataHelpers\Frameworks\Laravel;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Validation\Factory;

@@ -99,7 +99,7 @@ describe('Eloquent Integration', function(): void {
                 public string $name = 'John';
             };
 
-            /** @phpstan-ignore-next-line argument.type (Test with invalid model) */
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): object => $dto::fromModel($invalidModel))
                 ->toThrow(TypeError::class);
         });
@@ -166,7 +166,7 @@ describe('Eloquent Integration', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line argument.type (Test with invalid class name) */
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): Model => $instance->toModel('NonExistentClass'))
                 ->toThrow(InvalidArgumentException::class, 'Model class NonExistentClass does not exist');
         });
@@ -186,7 +186,7 @@ describe('Eloquent Integration', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line argument.type (Test with invalid class) */
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): Model => $instance->toModel($invalidModelClass::class))
                 ->toThrow(InvalidArgumentException::class, 'must extend');
         });
@@ -298,9 +298,9 @@ describe('Eloquent Integration', function(): void {
             $updateData = $updateDto->only(['name'])->toArray();
             $model->fill($updateData);
 
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->name)->toBe('Jane Doe');
-            /** @phpstan-ignore-next-line property.notFound (Eloquent dynamic property) */
+            /** @phpstan-ignore-next-line unknown */
             expect($model->email)->toBe('john@example.com');
         });
     });

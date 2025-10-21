@@ -128,7 +128,7 @@ describe('DataCollection', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $filtered = $collection->filter(fn(DataCollectionUserDTO $user): bool => 30 <= $user->age);
 
             $first = $filtered->first();
@@ -148,7 +148,7 @@ describe('DataCollection', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $names = $collection->map(fn(DataCollectionUserDTO $user): string => $user->name);
 
             expect($names)->toBe(['John', 'Jane']);
@@ -161,9 +161,8 @@ describe('DataCollection', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Callback parameter type inference) */
             $totalAge = $collection->reduce(
-/** @phpstan-ignore-next-line argument.type (Collection test) */
+                /** @phpstan-ignore-next-line unknown */
                 fn(int $carry, DataCollectionUserDTO $user): int => $carry + $user->age,
                 0
             );
@@ -190,7 +189,7 @@ describe('DataCollection', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $first = $collection->first(fn(DataCollectionUserDTO $user): bool => 30 > $user->age);
             assert($first instanceof DataCollectionUserDTO);
 
@@ -218,7 +217,7 @@ describe('DataCollection', function(): void {
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
-            /** @phpstan-ignore-next-line argument.type (Generic type inference) */
+            /** @phpstan-ignore-next-line unknown */
             $last = $collection->last(fn(DataCollectionUserDTO $user): bool => 30 <= $user->age);
             assert($last instanceof DataCollectionUserDTO);
 

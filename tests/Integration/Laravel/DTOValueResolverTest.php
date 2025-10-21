@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration\Laravel;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
-use event4u\DataHelpers\Laravel\DTOValueResolver;
+use event4u\DataHelpers\Frameworks\Laravel\DTOValueResolver;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 use event4u\DataHelpers\SimpleDTO\Attributes\Required;
@@ -47,9 +47,7 @@ describe('Laravel DTOValueResolver', function(): void {
         }
 
         // Create validation factory
-        /** @phpstan-ignore-next-line class.notFound */
         $translator = new Translator(new ArrayLoader(), 'en');
-        /** @phpstan-ignore-next-line class.notFound */
         $this->validationFactory = new ValidationFactory($translator);
     });
 
@@ -62,25 +60,25 @@ describe('Laravel DTOValueResolver', function(): void {
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         // Create parameter
-        /** @phpstan-ignore-next-line disallowed.function */
+        /** @phpstan-ignore-next-line unknown */
         $dummyClassName = 'DummyController_' . uniqid();
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         eval(sprintf(
             'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
             $dummyClassName
         ));
-        /** @phpstan-ignore-next-line argument.type */
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
         expect($result)->toBeInstanceOf(TestUserDTO::class);
-        /** @phpstan-ignore-next-line property.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         expect($result->name)->toBe('John Doe');
-        /** @phpstan-ignore-next-line property.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         expect($result->email)->toBe('john@example.com');
-    })->group('laravel');
+    });
 
     test('it validates dto with validate request attribute', function(): void {
         $request = Request::create('/test', 'POST', [
@@ -90,20 +88,20 @@ describe('Laravel DTOValueResolver', function(): void {
 
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
-        /** @phpstan-ignore-next-line disallowed.function */
+        /** @phpstan-ignore-next-line unknown */
         $dummyClassName = 'DummyController_' . uniqid();
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         eval(sprintf(
             'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
             $dummyClassName
         ));
-        /** @phpstan-ignore-next-line argument.type */
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         expect(fn(): mixed => $resolver->resolve($parameter))
             ->toThrow(ValidationException::class);
-    })->group('laravel');
+    });
 
     test('it resolves dto without validation', function(): void {
         $request = Request::create('/test', 'POST', [
@@ -113,25 +111,25 @@ describe('Laravel DTOValueResolver', function(): void {
 
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
-        /** @phpstan-ignore-next-line disallowed.function */
+        /** @phpstan-ignore-next-line unknown */
         $dummyClassName = 'DummyController_' . uniqid();
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         eval(sprintf(
             'class %s { public function action(Tests\Integration\Laravel\TestProductDTO $dto) {} }',
             $dummyClassName
         ));
-        /** @phpstan-ignore-next-line argument.type */
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
         expect($result)->toBeInstanceOf(TestProductDTO::class);
-        /** @phpstan-ignore-next-line property.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         expect($result->title)->toBe('Product Title');
-        /** @phpstan-ignore-next-line property.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         expect($result->description)->toBe('Product Description');
-    })->group('laravel');
+    });
 
     test('it handles missing optional fields', function(): void {
         $request = Request::create('/test', 'POST', [
@@ -140,25 +138,25 @@ describe('Laravel DTOValueResolver', function(): void {
 
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
-        /** @phpstan-ignore-next-line disallowed.function */
+        /** @phpstan-ignore-next-line unknown */
         $dummyClassName = 'DummyController_' . uniqid();
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         eval(sprintf(
             'class %s { public function action(Tests\Integration\Laravel\TestProductDTO $dto) {} }',
             $dummyClassName
         ));
-        /** @phpstan-ignore-next-line argument.type */
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
         expect($result)->toBeInstanceOf(TestProductDTO::class);
-        /** @phpstan-ignore-next-line property.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         expect($result->title)->toBe('Product Title');
-        /** @phpstan-ignore-next-line property.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         expect($result->description)->toBeNull();
-    })->group('laravel');
+    });
 
     test('it handles json request', function(): void {
         $request = Request::create('/test', 'POST', [], [], [], [
@@ -170,45 +168,45 @@ describe('Laravel DTOValueResolver', function(): void {
 
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
-        /** @phpstan-ignore-next-line disallowed.function */
+        /** @phpstan-ignore-next-line unknown */
         $dummyClassName = 'DummyController_' . uniqid();
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         eval(sprintf(
             'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
             $dummyClassName
         ));
-        /** @phpstan-ignore-next-line argument.type */
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
         expect($result)->toBeInstanceOf(TestUserDTO::class);
-        /** @phpstan-ignore-next-line property.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         expect($result->name)->toBe('Jane Doe');
-        /** @phpstan-ignore-next-line property.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         expect($result->email)->toBe('jane@example.com');
-    })->group('laravel');
+    });
 
     test('it handles empty request', function(): void {
         $request = Request::create('/test', 'POST', []);
 
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
-        /** @phpstan-ignore-next-line disallowed.function */
+        /** @phpstan-ignore-next-line unknown */
         $dummyClassName = 'DummyController_' . uniqid();
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         eval(sprintf(
             'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
             $dummyClassName
         ));
-        /** @phpstan-ignore-next-line argument.type */
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         expect(fn(): mixed => $resolver->resolve($parameter))
             ->toThrow(ValidationException::class);
-    })->group('laravel');
+    });
 
     test('it returns validation errors with correct structure', function(): void {
         $request = Request::create('/test', 'POST', [
@@ -218,14 +216,14 @@ describe('Laravel DTOValueResolver', function(): void {
 
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
-        /** @phpstan-ignore-next-line disallowed.function */
+        /** @phpstan-ignore-next-line unknown */
         $dummyClassName = 'DummyController_' . uniqid();
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         eval(sprintf(
             'class %s { public function action(Tests\Integration\Laravel\TestUserDTO $dto) {} }',
             $dummyClassName
         ));
-        /** @phpstan-ignore-next-line argument.type */
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
@@ -239,7 +237,7 @@ describe('Laravel DTOValueResolver', function(): void {
                 ->and($errors['name'])->toBeArray()
                 ->and($errors['email'])->toBeArray();
         }
-    })->group('laravel');
+    });
 
     test('it returns null for non dto parameters', function(): void {
         $request = Request::create('/test', 'POST', []);
@@ -247,18 +245,18 @@ describe('Laravel DTOValueResolver', function(): void {
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
         // Create parameter for built-in type
-        /** @phpstan-ignore-next-line disallowed.function */
+        /** @phpstan-ignore-next-line unknown */
         $dummyClassName = 'DummyController_' . uniqid();
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         eval(sprintf('class %s { public function action(string $name) {} }', $dummyClassName));
-        /** @phpstan-ignore-next-line argument.type */
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
         expect($result)->toBeNull();
-    })->group('laravel');
+    });
 
     test('it preserves request data types', function(): void {
         $request = Request::create('/test', 'POST', [
@@ -268,22 +266,22 @@ describe('Laravel DTOValueResolver', function(): void {
 
         $resolver = new DTOValueResolver($request, $this->validationFactory);
 
-        /** @phpstan-ignore-next-line disallowed.function */
+        /** @phpstan-ignore-next-line unknown */
         $dummyClassName = 'DummyController_' . uniqid();
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+        /** @phpstan-ignore-next-line unknown */
+        /** @phpstan-ignore-next-line unknown */
         eval(sprintf(
             'class %s { public function action(Tests\Integration\Laravel\TestProductDTO $dto) {} }',
             $dummyClassName
         ));
-        /** @phpstan-ignore-next-line argument.type */
         $reflection = new ReflectionClass($dummyClassName);
         $parameter = $reflection->getMethod('action')->getParameters()[0];
 
         $result = $resolver->resolve($parameter);
 
         expect($result)->toBeInstanceOf(TestProductDTO::class);
-        /** @phpstan-ignore-next-line property.nonObject */
+        /** @phpstan-ignore-next-line unknown */
         expect($result->description)->toBeNull();
-    })->group('laravel');
-});
+    });
+})->group('laravel');
 

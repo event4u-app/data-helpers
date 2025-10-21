@@ -12,7 +12,6 @@ use event4u\DataHelpers\DataFilter\Operators\OperatorRegistry;
 echo "=== Custom Operators Examples ===\n\n";
 
 // Example 1: Create a custom STARTS_WITH operator
-/** @phpstan-ignore-next-line class.notFound */
 class StartsWithOperator extends AbstractOperator
 {
     public function getName(): string
@@ -38,7 +37,6 @@ class StartsWithOperator extends AbstractOperator
 }
 
 // Example 2: Create a custom ENDS_WITH operator
-/** @phpstan-ignore-next-line class.notFound */
 class EndsWithOperator extends AbstractOperator
 {
     public function getName(): string
@@ -64,7 +62,6 @@ class EndsWithOperator extends AbstractOperator
 }
 
 // Example 3: Create a custom CONTAINS operator
-/** @phpstan-ignore-next-line class.notFound */
 class ContainsOperator extends AbstractOperator
 {
     public function getName(): string
@@ -111,7 +108,6 @@ $electronics = DataFilter::query($products)
     ->get();
 
 foreach ($electronics as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s (SKU: %s)\n", $product['name'], $product['sku']);
 }
 echo "\n";
@@ -124,7 +120,6 @@ $exampleEmails = DataFilter::query($products)
     ->get();
 
 foreach ($exampleEmails as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s - %s\n", $product['name'], $product['email']);
 }
 echo "\n";
@@ -137,7 +132,6 @@ $laptops = DataFilter::query($products)
     ->get();
 
 foreach ($laptops as $product) {
-    /** @phpstan-ignore-next-line phpstan-error */
     echo sprintf("   • %s\n", $product['name']);
 }
 echo "\n";
@@ -152,11 +146,8 @@ $result = DataFilter::query($products)
 
 foreach ($result as $product) {
     echo sprintf("   • %s (SKU: %s, Email: %s)\n",
-        /** @phpstan-ignore-next-line phpstan-error */
         $product['name'],
-        /** @phpstan-ignore-next-line phpstan-error */
         $product['sku'],
-        /** @phpstan-ignore-next-line phpstan-error */
         $product['email']
     );
 }
@@ -170,7 +161,8 @@ $firstElec = DataFilter::query($products)
     ->first();
 
 if ($firstElec) {
-    /** @phpstan-ignore-next-line phpstan-error */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     echo sprintf("   • %s (SKU: %s)\n", $firstElec['name'], $firstElec['sku']);
 }
 echo "\n";
@@ -178,12 +170,12 @@ echo "\n";
 // Use count() method
 echo "6. count() - Count Electronics products:\n";
 /** @var array<int, array<string, mixed>> $count */
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 $count = DataFilter::query($products)
     ->addOperator('STARTS_WITH', ['sku' => 'ELEC'])
     ->count();
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf("   Total: %d products\n", $count);
 echo "\n";
 

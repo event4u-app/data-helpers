@@ -166,7 +166,7 @@ describe('EnumCastEdgeCases', function(): void {
     describe('Enum Arrays', function(): void {
         it('handles array of enum values', function(): void {
             $dto = new class([]) extends SimpleDTO {
-/** @phpstan-ignore-next-line argument.type (Enum cast edge case) */
+                /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly array $statuses,
                 ) {}

@@ -52,7 +52,7 @@ $data = [
 $user = UserDTO::fromArrayWithTransformer($data, new LowercaseKeysTransformer());
 
 echo "Original keys: " . implode(', ', array_keys($data)) . "\n";
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Transformed user: {$user->name}, {$user->email}, {$user->age}\n\n";
 
 // Example 3: RemoveNullValuesTransformer
@@ -111,15 +111,12 @@ echo "Original unchanged: name='{$user->name}'\n\n";
 echo "Example 6: Custom Transformer\n";
 echo "------------------------------\n";
 
-/** @phpstan-ignore-next-line class.notFound */
 class UppercaseNameTransformer implements TransformerInterface
 {
     /**
      * @return array<mixed>
      */
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function transform(array $data): array
     {
         if (isset($data['name'])) {
@@ -140,7 +137,6 @@ echo "Transformed: {$transformed->name}\n\n";
 echo "Example 7: Chaining Custom Transformers\n";
 echo "----------------------------------------\n";
 
-/** @phpstan-ignore-next-line class.notFound */
 class AddPrefixTransformer implements TransformerInterface
 {
     public function __construct(private readonly string $prefix) {}
@@ -148,13 +144,11 @@ class AddPrefixTransformer implements TransformerInterface
     /**
      * @return array<mixed>
      */
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function transform(array $data): array
     {
         if (isset($data['name'])) {
-            /** @phpstan-ignore-next-line phpstan-error */
+            /** @phpstan-ignore-next-line unknown */
             $data['name'] = $this->prefix . ' ' . $data['name'];
         }
 
@@ -177,15 +171,12 @@ echo "After pipeline: '{$transformed->name}'\n\n";
 echo "Example 8: Email Normalizer Transformer\n";
 echo "----------------------------------------\n";
 
-/** @phpstan-ignore-next-line class.notFound */
 class EmailNormalizerTransformer implements TransformerInterface
 {
     /**
      * @return array<mixed>
      */
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function transform(array $data): array
     {
         if (isset($data['email']) && is_string($data['email'])) {
@@ -235,15 +226,12 @@ echo "After pipeline: name='{$user->name}', email='{$user->email}'\n\n";
 echo "Example 10: Conditional Transformer\n";
 echo "------------------------------------\n";
 
-/** @phpstan-ignore-next-line class.notFound */
 class ConditionalAgeTransformer implements TransformerInterface
 {
     /**
      * @return array<mixed>
      */
-    /**
-     * @param array<mixed> $data
-     */
+    /** @param array<mixed> $data */
     public function transform(array $data): array
     {
         if (isset($data['age']) && 0 > $data['age']) {
@@ -268,9 +256,9 @@ $user2 = UserDTO::fromArrayWithTransformer(
     new ConditionalAgeTransformer()
 );
 
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo sprintf('Age -5 becomes: %s%s', $user1->age, PHP_EOL);
-/** @phpstan-ignore-next-line phpstan-error */
+/** @phpstan-ignore-next-line unknown */
 echo "Age 150 becomes: {$user2->age}\n\n";
 
 echo "================================================================================\n";

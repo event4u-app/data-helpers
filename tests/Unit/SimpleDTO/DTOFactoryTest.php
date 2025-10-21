@@ -12,7 +12,7 @@ use Tests\Unit\SimpleDTO\Fixtures\UserDTO;
 function setupDTOFactory(): void
 {
     // Create a test factory
-    /** @phpstan-ignore-next-line property.notFound (Pest test context) */
+    /** @phpstan-ignore-next-line unknown */
     test()->factory = new TestUserDTOFactory();
 }
 
