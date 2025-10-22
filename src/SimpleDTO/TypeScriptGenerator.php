@@ -8,7 +8,7 @@ use DateTimeInterface;
 use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
-use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
+use event4u\DataHelpers\SimpleDTO\Config\TypeScriptGeneratorOptions;
 use ReflectionClass;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
@@ -33,7 +33,8 @@ use Throwable;
  * @example
  * ```php
  * $generator = new TypeScriptGenerator();
- * $typescript = $generator->generate([UserDTO::class, ProductDTO::class]);
+ * $options = TypeScriptGeneratorOptions::default();
+ * $typescript = $generator->generate([UserDTO::class, ProductDTO::class], $options);
  * file_put_contents('types.ts', $typescript);
  * ```
  */
@@ -63,27 +64,17 @@ class TypeScriptGenerator
     /**
      * Generate TypeScript interfaces for given DTO classes.
      *
-     * @param array<class-string> $dtoClasses
-     * @param array{exportType?: string|TypeScriptExportType, includeComments?: bool, sortProperties?: bool} $options
+     * @param array<class-string> $dtoClasses Array of DTO class names to generate interfaces for
+     * @param TypeScriptGeneratorOptions $options Configuration options for generation
      */
-    public function generate(array $dtoClasses, array $options = []): string
+    public function generate(
+        array $dtoClasses,
+        TypeScriptGeneratorOptions $options = new TypeScriptGeneratorOptions()
+    ): string
     {
-        $exportTypeOption = $options['exportType'] ?? 'export';
-
-        if (is_string($exportTypeOption)) {
-            // Handle empty string as "none"
-            if ('' === $exportTypeOption) {
-                $exportType = '';
-            } else {
-                $parsed = TypeScriptExportType::fromString($exportTypeOption);
-                $exportType = $parsed instanceof TypeScriptExportType ? $parsed->getPrefix() : 'export';
-            }
-        } else {
-            $exportType = $exportTypeOption->getPrefix();
-        }
-
-        $includeComments = $options['includeComments'] ?? true;
-        $sortProperties = $options['sortProperties'] ?? false;
+        $exportType = $options->exportType->getPrefix();
+        $includeComments = $options->includeComments;
+        $sortProperties = $options->sortProperties;
 
         $this->processedDtos = [];
         $this->dtoQueue = $dtoClasses;

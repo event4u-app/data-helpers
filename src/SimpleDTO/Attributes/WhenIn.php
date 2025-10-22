@@ -42,6 +42,7 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 class WhenIn implements ConditionalProperty
 {
     private readonly ?string $field;
+    /** @var array<mixed> */
     private readonly array $values;
 
     /**

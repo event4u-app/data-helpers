@@ -21,7 +21,9 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('ReflectionClass Caching', function(): void {
-        beforeEach(setupOptimizedReflection(...));
+        beforeEach(function(): void {
+            setupOptimizedReflection();
+        });
 
         it('caches ReflectionClass instances', function(): void {
             $dto = new class extends SimpleDTO {
@@ -51,7 +53,9 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('ReflectionProperty Caching', function(): void {
-        beforeEach(setupOptimizedReflection(...));
+        beforeEach(function(): void {
+            setupOptimizedReflection();
+        });
 
         it('caches ReflectionProperty instances', function(): void {
             $dto = new class extends SimpleDTO {
@@ -97,7 +101,9 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('ReflectionMethod Caching', function(): void {
-        beforeEach(setupOptimizedReflection(...));
+        beforeEach(function(): void {
+            setupOptimizedReflection();
+        });
 
         it('caches ReflectionMethod instances', function(): void {
             $dto = new class extends SimpleDTO {
@@ -135,7 +141,9 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Property Attributes Caching', function(): void {
-        beforeEach(setupOptimizedReflection(...));
+        beforeEach(function(): void {
+            setupOptimizedReflection();
+        });
 
         it('caches property attributes', function(): void {
             $dto = new class extends SimpleDTO {
@@ -167,7 +175,9 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Method Attributes Caching', function(): void {
-        beforeEach(setupOptimizedReflection(...));
+        beforeEach(function(): void {
+            setupOptimizedReflection();
+        });
 
         it('caches method attributes', function(): void {
             $dto = new class extends SimpleDTO {
@@ -191,7 +201,9 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Class Attributes Caching', function(): void {
-        beforeEach(setupOptimizedReflection(...));
+        beforeEach(function(): void {
+            setupOptimizedReflection();
+        });
 
         it('caches class attributes', function(): void {
             $dto = new #[MapInputName('snake_case')]
@@ -210,7 +222,9 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Cache Statistics', function(): void {
-        beforeEach(setupOptimizedReflection(...));
+        beforeEach(function(): void {
+            setupOptimizedReflection();
+        });
 
         it('provides cache statistics', function(): void {
             $dto = new class extends SimpleDTO {
@@ -250,7 +264,9 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Cache Clearing', function(): void {
-        beforeEach(setupOptimizedReflection(...));
+        beforeEach(function(): void {
+            setupOptimizedReflection();
+        });
 
         it('clears all caches', function(): void {
             $dto = new class extends SimpleDTO {
@@ -301,7 +317,9 @@ describe('Optimized Reflection', function(): void {
     });
 
     describe('Performance', function(): void {
-        beforeEach(setupOptimizedReflection(...));
+        beforeEach(function(): void {
+            setupOptimizedReflection();
+        });
 
         it('completes quickly with caching', function(): void {
             $dto = new class extends SimpleDTO {

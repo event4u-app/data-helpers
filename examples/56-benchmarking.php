@@ -185,7 +185,7 @@ SimpleDTO3::runBenchmarkSuite([
 $allResults = SimpleDTO1::getBenchmarkResults();
 echo "Comparison of DTOs:\n";
 foreach ($allResults as $class => $results) {
-    $className = basename(str_replace('\\', '/', $class));
+    $className = basename(str_replace('\\', '/', (string)$class));
     echo "\n{$className}:\n";
     echo "  Instantiation: " . number_format($results['instantiation']['throughput']) . " ops/sec\n";
     echo "  toArray: " . number_format($results['toArray']['throughput']) . " ops/sec\n";

@@ -23,17 +23,20 @@ class ConditionalPropsTestDTO1 extends SimpleDTO
         public readonly int $age,
     ) {}
 
+    /** @param array<string, mixed> $context */
     public static function checkAge(object $dto, mixed $value, array $context, int $minAge): bool
     {
         /** @phpstan-ignore-next-line unknown */
         return $dto->age >= $minAge;
     }
 
+    /** @param array<string, mixed> $context */
     public static function hasPermission(object $dto, mixed $value, array $context, string $permission): bool
     {
         return in_array($permission, $context['permissions'] ?? []);
     }
 
+    /** @param array<string, mixed> $context */
     public static function checkRole(
         object $dto,
         mixed $value,
@@ -129,17 +132,26 @@ function isAdult(object $dto): bool
     return 18 <= $dto->age;
 }
 
+/**
+ * @param array<string, mixed> $context
+ */
 function isAdultWithParams(object $dto, mixed $value, array $context, int $minAge = 18): bool
 {
     /** @phpstan-ignore-next-line unknown */
     return $dto->age >= $minAge;
 }
 
+/**
+ * @param array<string, mixed> $context
+ */
 function checkPermission(object $dto, mixed $value, array $context, string $permission): bool
 {
     return in_array($permission, $context['permissions'] ?? []);
 }
 
+/**
+ * @param array<string, mixed> $context
+ */
 function checkRole(object $dto, mixed $value, array $context, string $role, bool $strict = false): bool
 {
     if ($strict) {

@@ -18,16 +18,26 @@ use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenCallback;
 
 // Global helper functions
+/**
+ * @param object{age: int} $dto
+ * @param array<string, mixed> $context
+ */
 function hasMinimumAge(object $dto, mixed $value, array $context, int $minAge): bool
 {
     return $dto->age >= $minAge;
 }
 
+/**
+ * @param array<string, mixed> $context
+ */
 function hasPermission(object $dto, mixed $value, array $context, string $permission): bool
 {
     return in_array($permission, $context['permissions'] ?? []);
 }
 
+/**
+ * @param array<string, mixed> $context
+ */
 function hasRole(object $dto, mixed $value, array $context, string $role, bool $strict = false): bool
 {
     if ($strict) {
@@ -40,6 +50,11 @@ function hasRole(object $dto, mixed $value, array $context, string $role, bool $
 // DTO with WhenCallback using various syntaxes
 class UserDTO extends SimpleDTO
 {
+    /**
+     * @param array<mixed>|null $premiumFeatures
+     * @param array<mixed>|null $adminData
+     * @param array<mixed>|null $reports
+     */
     public function __construct(
         public readonly string $name,
         public readonly int $age,
@@ -70,11 +85,13 @@ class UserDTO extends SimpleDTO
         public readonly ?string $editorTools = null,
     ) {}
 
+    /** @param array<string, mixed> $context */
     public static function checkSubscription(object $dto, mixed $value, array $context, string $tier): bool
     {
         return ($context['subscription'] ?? null) === $tier;
     }
 
+    /** @param array<string, mixed> $context */
     public static function hasAccessLevel(
         object $dto,
         mixed $value,

@@ -41,7 +41,9 @@ describe('Filter Support Across All Mapping Methods', function(): void {
     });
 
     describe('mapFromFile() - Filter Support', function(): void {
-        beforeEach(setupFilterSupport(...));
+        beforeEach(function(): void {
+            setupFilterSupport();
+        });
 
         it('applies single filter to simple field', function(): void {
             $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
@@ -148,7 +150,9 @@ describe('Filter Support Across All Mapping Methods', function(): void {
     });
 
     describe('map() - Filter Support', function(): void {
-        beforeEach(setupFilterSupport(...));
+        beforeEach(function(): void {
+            setupFilterSupport();
+        });
 
         it('applies single filter to simple field', function(): void {
             $source = ['email' => 'ALICE@EXAMPLE.COM'];
@@ -285,7 +289,9 @@ describe('Filter Support Across All Mapping Methods', function(): void {
     });
 
     describe('mapFromTemplate() - Filter Support (Baseline)', function(): void {
-        beforeEach(setupFilterSupport(...));
+        beforeEach(function(): void {
+            setupFilterSupport();
+        });
 
         it('applies single filter to simple field', function(): void {
             $template = ['email' => '{{ user.email | lower }}'];

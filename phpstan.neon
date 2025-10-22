@@ -13,8 +13,7 @@ includes:
 parameters:
     paths:
         - benchmarks
-        # - config
-        - examples
+        - config
         - scripts
         - src
         - tests

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Enums;
 
+use event4u\DataHelpers\SimpleDTO\Config\SerializerOptions;
 use event4u\DataHelpers\SimpleDTO\Serializers\CsvSerializer;
 use event4u\DataHelpers\SimpleDTO\Serializers\SerializerInterface;
 use event4u\DataHelpers\SimpleDTO\Serializers\XmlSerializer;
@@ -43,17 +44,24 @@ enum SerializationFormat: string
     /**
      * Get the serializer instance for this format.
      *
-     * @param array<string, mixed> $options Format-specific options
+     * @param SerializerOptions|null $options Format-specific options (uses default if null)
      *
      * @return SerializerInterface The serializer instance
      */
-    public function getSerializer(array $options = []): SerializerInterface
+    public function getSerializer(?SerializerOptions $options = null): SerializerInterface
     {
+        $options ??= SerializerOptions::default();
+
         return match ($this) {
             self::Json => throw new RuntimeException('JSON serialization is built-in, use toJson() method'),
-            self::Xml => new XmlSerializer($options['rootElement'] ?? 'root'),
-            self::Yaml => new YamlSerializer($options['indent'] ?? 2),
-            self::Csv => new CsvSerializer($options['includeHeaders'] ?? true, $options['delimiter'] ?? ','),
+            self::Xml => new XmlSerializer($options->rootElement, $options->xmlVersion, $options->encoding),
+            self::Yaml => new YamlSerializer($options->indent),
+            self::Csv => new CsvSerializer(
+                $options->includeHeaders,
+                $options->delimiter,
+                $options->enclosure,
+                $options->escape
+            ),
         };
     }
 

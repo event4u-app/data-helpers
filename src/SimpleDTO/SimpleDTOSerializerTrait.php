@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use event4u\DataHelpers\SimpleDTO\Config\SerializerOptions;
 use event4u\DataHelpers\SimpleDTO\Enums\SerializationFormat;
 use event4u\DataHelpers\SimpleDTO\Serializers\CsvSerializer;
 use event4u\DataHelpers\SimpleDTO\Serializers\SerializerInterface;
@@ -36,11 +37,16 @@ trait SimpleDTOSerializerTrait
     /**
      * Serialize to XML.
      *
-     * @param string $rootElement The root element name (default: 'root')
+     * @param SerializerOptions|null $options Serializer options (uses default if null)
      */
-    public function toXml(string $rootElement = 'root'): string
+    public function toXml(?SerializerOptions $options = null): string
     {
-        $serializer = new XmlSerializer($rootElement);
+        $options ??= SerializerOptions::xml();
+        $serializer = new XmlSerializer(
+            $options->rootElement,
+            $options->xmlVersion,
+            $options->encoding
+        );
 
         return $serializer->serialize($this->toArray());
     }
@@ -48,11 +54,12 @@ trait SimpleDTOSerializerTrait
     /**
      * Serialize to YAML.
      *
-     * @param int $indent The indentation level (default: 2)
+     * @param SerializerOptions|null $options Serializer options (uses default if null)
      */
-    public function toYaml(int $indent = 2): string
+    public function toYaml(?SerializerOptions $options = null): string
     {
-        $serializer = new YamlSerializer($indent);
+        $options ??= SerializerOptions::yaml();
+        $serializer = new YamlSerializer($options->indent);
 
         return $serializer->serialize($this->toArray());
     }
@@ -60,12 +67,17 @@ trait SimpleDTOSerializerTrait
     /**
      * Serialize to CSV.
      *
-     * @param bool $includeHeaders Whether to include headers (default: true)
-     * @param string $delimiter The delimiter character (default: ',')
+     * @param SerializerOptions|null $options Serializer options (uses default if null)
      */
-    public function toCsv(bool $includeHeaders = true, string $delimiter = ','): string
+    public function toCsv(?SerializerOptions $options = null): string
     {
-        $serializer = new CsvSerializer($includeHeaders, $delimiter);
+        $options ??= SerializerOptions::csv();
+        $serializer = new CsvSerializer(
+            $options->includeHeaders,
+            $options->delimiter,
+            $options->enclosure,
+            $options->escape
+        );
 
         return $serializer->serialize($this->toArray());
     }
@@ -80,17 +92,22 @@ trait SimpleDTOSerializerTrait
      * Serialize to a specific format using enum.
      *
      * @param SerializationFormat $format The serialization format
-     * @param array<string, mixed> $options Format-specific options
+     * @param SerializerOptions|null $options Format-specific options (uses default if null)
      *
      * @return string The serialized data
      */
-    public function serializeTo(SerializationFormat $format, array $options = []): string
+    public function serializeTo(SerializationFormat $format, ?SerializerOptions $options = null): string
     {
+        $options ??= SerializerOptions::default();
+
         return match ($format) {
-            SerializationFormat::Json => json_encode($this->toArray(), JSON_THROW_ON_ERROR),
-            SerializationFormat::Xml => $this->toXml($options['rootElement'] ?? 'root'),
-            SerializationFormat::Yaml => $this->toYaml($options['indent'] ?? 2),
-            SerializationFormat::Csv => $this->toCsv($options['includeHeaders'] ?? true, $options['delimiter'] ?? ','),
+            SerializationFormat::Json => json_encode(
+                $this->toArray(),
+                $options->prettyPrint ? JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR : JSON_THROW_ON_ERROR
+            ),
+            SerializationFormat::Xml => $this->toXml($options),
+            SerializationFormat::Yaml => $this->toYaml($options),
+            SerializationFormat::Csv => $this->toCsv($options),
         };
     }
 }

@@ -280,6 +280,7 @@ $users = [
 /** @phpstan-ignore-next-line unknown */
 $collection = DataCollection::forDto(AdvancedUserDTO::class, $users);
 
+/** @phpstan-ignore-next-line class.notFound */
 echo sprintf('Total users: %s%s', $collection->count(), PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 echo "Active users: " . $collection->filter(fn($u) => $u->isActive)->count() . "\n";
@@ -294,6 +295,7 @@ echo str_repeat('-', 80) . "\n";
 /** @phpstan-ignore-next-line unknown */
 $activeUsers = $collection->filter(fn($u) => $u->isActive);
 echo "Active users:\n";
+/** @phpstan-ignore-next-line class.notFound */
 foreach ($activeUsers as $u) {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */

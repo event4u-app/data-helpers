@@ -69,7 +69,7 @@ CallbackRegistry::register('slugify', function(CallbackParameters $params) {
     }
 
     // Convert to lowercase and replace spaces with hyphens
-    return strtolower(str_replace(' ', '-', $params->value));
+    return strtolower(str_replace(' ', '-', (string)$params->value));
 });
 
 CallbackRegistry::register('initials', function(CallbackParameters $params) {

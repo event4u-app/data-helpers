@@ -29,7 +29,7 @@ describe('Examples Directory', function(): void {
         $files = glob($examplesDir . '/*.php');
 
         // Filter out debug files
-        $files = array_filter($files, fn($file): bool => ! str_starts_with(basename($file), 'debug-'));
+        $files = array_filter($files ?: [], fn(string $file): bool => ! str_starts_with(basename($file), 'debug-'));
 
         // Sort files
         sort($files);

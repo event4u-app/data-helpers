@@ -69,7 +69,9 @@ describe('XML to Model Mapping', function(): void {
     $snapshotDir = __DIR__ . '/snapshots';
 
     describe('Version 1 (DataFields)', function() use ($snapshotDir): void {
-        beforeEach(setupXmlToModelMapping(...));
+        beforeEach(function(): void {
+            setupXmlToModelMapping();
+        });
 
         it('maps complete project with all relations from version1 XML', function() use ($snapshotDir): void {
             // Load XML file
@@ -165,7 +167,9 @@ describe('XML to Model Mapping', function(): void {
     });
 
     describe('Version 2 (VitaCost/ConstructionSite)', function() use ($snapshotDir): void {
-        beforeEach(setupXmlToModelMapping(...));
+        beforeEach(function(): void {
+            setupXmlToModelMapping();
+        });
 
         it('maps complete project with all relations from version2 XML', function() use ($snapshotDir): void {
             // Load XML file
@@ -271,7 +275,9 @@ describe('XML to Model Mapping', function(): void {
     });
 
     describe('Version 3 (lv_nesting/lvdata)', function() use ($snapshotDir): void {
-        beforeEach(setupXmlToModelMapping(...));
+        beforeEach(function(): void {
+            setupXmlToModelMapping();
+        });
 
         it('maps complete project with all relations from version3 XML', function() use ($snapshotDir): void {
             // Load XML file

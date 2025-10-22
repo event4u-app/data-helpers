@@ -278,7 +278,8 @@ echo json_encode($secureUser->includeComputed(['password'])->toArray(), JSON_PRE
 echo "\n";
 
 echo "Direct access (still works):\n";
-echo "Password: {$secureUser->password}\n\n";
+/** @phpstan-ignore-next-line binaryOp.invalid */
+echo "Password: " . $secureUser->password . "\n\n";
 
 // ============================================================================
 // Example 8: Real-World Use Case - API Response

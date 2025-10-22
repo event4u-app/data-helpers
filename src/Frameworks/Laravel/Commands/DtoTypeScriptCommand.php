@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Frameworks\Laravel\Commands;
 
+use event4u\DataHelpers\SimpleDTO\Config\TypeScriptGeneratorOptions;
+use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
 use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
 use Illuminate\Filesystem\Filesystem;
 use ReflectionClass;
@@ -123,11 +125,15 @@ class DtoTypeScriptCommand extends Command
         $generator = new TypeScriptGenerator();
         /** @var array<class-string> $dtoClassStrings */
         $dtoClassStrings = $dtoClasses;
-        $typescript = $generator->generate($dtoClassStrings, [
-            'exportType' => $exportType,
-            'includeComments' => $includeComments,
-            'sortProperties' => $sort,
-        ]);
+
+        // Build options from command parameters
+        $options = new TypeScriptGeneratorOptions(
+            exportType: TypeScriptExportType::fromString($exportType) ?? TypeScriptExportType::None,
+            includeComments: $includeComments,
+            sortProperties: $sort,
+        );
+
+        $typescript = $generator->generate($dtoClassStrings, $options);
 
         // Ensure directory exists
         $directory = dirname($outputPath);

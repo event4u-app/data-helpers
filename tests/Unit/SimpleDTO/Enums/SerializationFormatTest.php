@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Config\SerializerOptions;
 use event4u\DataHelpers\SimpleDTO\Enums\SerializationFormat;
 use event4u\DataHelpers\SimpleDTO\Serializers\CsvSerializer;
 use event4u\DataHelpers\SimpleDTO\Serializers\XmlSerializer;
@@ -125,13 +126,13 @@ describe('SerializationFormat Enum', function(): void {
         });
 
         it('passes options to serializers', function(): void {
-            $xmlSerializer = SerializationFormat::Xml->getSerializer(['rootElement' => 'custom']);
+            $xmlSerializer = SerializationFormat::Xml->getSerializer(SerializerOptions::xml(rootElement: 'custom'));
             expect($xmlSerializer)->toBeInstanceOf(XmlSerializer::class);
 
-            $yamlSerializer = SerializationFormat::Yaml->getSerializer(['indent' => 4]);
+            $yamlSerializer = SerializationFormat::Yaml->getSerializer(SerializerOptions::yaml(indent: 4));
             expect($yamlSerializer)->toBeInstanceOf(YamlSerializer::class);
 
-            $csvSerializer = SerializationFormat::Csv->getSerializer(['delimiter' => ';']);
+            $csvSerializer = SerializationFormat::Csv->getSerializer(SerializerOptions::csv(delimiter: ';'));
             expect($csvSerializer)->toBeInstanceOf(CsvSerializer::class);
         });
     });
@@ -276,6 +277,7 @@ describe('SerializationFormat Enum', function(): void {
 
         it('handles nested arrays', function(): void {
             $dto = new class('John Doe', ['street' => '123 Main St', 'city' => 'NYC']) extends SimpleDTO {
+                /** @param array<string, string> $address */
                 public function __construct(
                     public readonly string $name,
                     public readonly array $address,

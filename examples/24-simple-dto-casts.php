@@ -215,13 +215,15 @@ echo "Active: " . ($company->is_active ? 'Yes' : 'No') . "\n";
 echo "Departments: " . implode(', ', $company->departments) . "\n";
 /** @phpstan-ignore-next-line unknown */
 echo "Founded: " . $company->founded_at->format('Y') . "\n";
-echo sprintf(
-    'Address: %s, %s, %s%s',
-    $company->address->street,
-    $company->address->city,
-    $company->address->country,
-    PHP_EOL
-);
+if ($company->address instanceof \AddressDTO) {
+    echo sprintf(
+        'Address: %s, %s, %s%s',
+        $company->address->street,
+        $company->address->city,
+        $company->address->country,
+        PHP_EOL
+    );
+}
 
 echo "\n";
 

@@ -58,7 +58,7 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 class WhenCallback implements ConditionalProperty
 {
     /**
-     * @param string|array|object $callback Function name, 'static::methodName', array callable, or invokable object
+     * @param string|array<string>|object $callback Function name, 'static::methodName', array callable, or invokable object
      * @param array<string|int, mixed> $parameters Parameters to pass to the callback (positional or named)
      */
     public function __construct(
@@ -108,9 +108,9 @@ class WhenCallback implements ConditionalProperty
      * Resolve the callback to a callable.
      *
      * @param object $dto The DTO instance
-     * @return callable|null
+     * @return (callable(object, mixed, array<string, mixed>, mixed...): mixed)|null
      */
-    private function resolveCallback(object $dto): mixed
+    private function resolveCallback(object $dto): callable|null
     {
         // If string, resolve to function or static method
         if (is_string($this->callback)) {
@@ -120,6 +120,7 @@ class WhenCallback implements ConditionalProperty
                 $class = $dto::class;
 
                 if (method_exists($class, $method)) {
+                    // @phpstan-ignore return.type (Array callable is valid)
                     return [$class, $method];
                 }
 
@@ -130,6 +131,7 @@ class WhenCallback implements ConditionalProperty
             if (str_contains($this->callback, '::')) {
                 $parts = explode('::', $this->callback, 2);
                 if (2 === count($parts) && method_exists($parts[0], $parts[1])) {
+                    // @phpstan-ignore return.type (Array callable is valid)
                     return $parts;
                 }
 

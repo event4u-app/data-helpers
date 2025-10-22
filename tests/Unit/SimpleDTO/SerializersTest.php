@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDTO\Config\SerializerOptions;
 use event4u\DataHelpers\SimpleDTO\Enums\SerializationFormat;
 use event4u\DataHelpers\SimpleDTO\Serializers\CsvSerializer;
 use event4u\DataHelpers\SimpleDTO\Serializers\SerializerInterface;
@@ -24,7 +25,8 @@ describe('Serializers', function(): void {
 
         it('serializes with custom root element', function(): void {
             $user = UserDTO::fromArray(['name' => 'Jane', 'age' => 25]);
-            $xml = $user->toXml('user');
+            $options = SerializerOptions::xml(rootElement: 'user');
+            $xml = $user->toXml($options);
 
             expect($xml)->toContain('<user>')
                 ->and($xml)->toContain('</user>');
@@ -79,7 +81,8 @@ describe('Serializers', function(): void {
 
         it('serializes with custom indent', function(): void {
             $user = UserDTO::fromArray(['name' => 'Jane', 'age' => 25]);
-            $yaml = $user->toYaml(4);
+            $options = SerializerOptions::yaml(indent: 4);
+            $yaml = $user->toYaml($options);
 
             expect($yaml)->toContain('name: Jane');
         });
@@ -153,7 +156,8 @@ describe('Serializers', function(): void {
 
         it('serializes without headers', function(): void {
             $user = UserDTO::fromArray(['name' => 'Jane', 'age' => 25]);
-            $csv = $user->toCsv(false);
+            $options = SerializerOptions::csv(includeHeaders: false);
+            $csv = $user->toCsv($options);
 
             expect($csv)->not->toContain('name,age')
                 ->and($csv)->toContain('Jane,25');
@@ -161,7 +165,8 @@ describe('Serializers', function(): void {
 
         it('serializes with custom delimiter', function(): void {
             $user = UserDTO::fromArray(['name' => 'John', 'age' => 30]);
-            $csv = $user->toCsv(true, ';');
+            $options = SerializerOptions::csv(delimiter: ';');
+            $csv = $user->toCsv($options);
 
             expect($csv)->toContain('name;age')
                 ->and($csv)->toContain('John;30');

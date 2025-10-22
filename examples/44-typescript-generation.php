@@ -8,8 +8,8 @@ use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDTO\Config\TypeScriptGeneratorOptions;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
-use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
 use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
 
 echo "================================================================================\n";
@@ -31,7 +31,8 @@ class UserDTO extends SimpleDTO
 }
 
 $generator = new TypeScriptGenerator();
-$typescript = $generator->generate([UserDTO::class]);
+$options = TypeScriptGeneratorOptions::default();
+$typescript = $generator->generate([UserDTO::class], $options);
 
 echo $typescript;
 echo "\n";
@@ -67,7 +68,7 @@ class ProductDTO extends SimpleDTO
     }
 }
 
-$typescript = $generator->generate([ProductDTO::class]);
+$typescript = $generator->generate([ProductDTO::class], $options);
 echo $typescript;
 echo "\n";
 
@@ -92,7 +93,7 @@ class CompanyDTO extends SimpleDTO
     ) {}
 }
 
-$typescript = $generator->generate([CompanyDTO::class]);
+$typescript = $generator->generate([CompanyDTO::class], $options);
 echo $typescript;
 echo "\n";
 
@@ -119,7 +120,7 @@ class PostDTO extends SimpleDTO
     ) {}
 }
 
-$typescript = $generator->generate([PostDTO::class]);
+$typescript = $generator->generate([PostDTO::class], $options);
 echo $typescript;
 echo "\n";
 
@@ -148,7 +149,7 @@ class PersonDTO extends SimpleDTO
     }
 }
 
-$typescript = $generator->generate([PersonDTO::class]);
+$typescript = $generator->generate([PersonDTO::class], $options);
 echo $typescript;
 echo "\n";
 
@@ -169,7 +170,7 @@ class DocumentDTO extends SimpleDTO
     ) {}
 }
 
-$typescript = $generator->generate([DocumentDTO::class]);
+$typescript = $generator->generate([DocumentDTO::class], $options);
 echo $typescript;
 echo "\n";
 
@@ -204,13 +205,13 @@ class LibraryDTO extends SimpleDTO
     ) {}
 }
 
-$typescript = $generator->generate([LibraryDTO::class, AuthorDTO::class, BookDTO::class]);
+$typescript = $generator->generate([LibraryDTO::class, AuthorDTO::class, BookDTO::class], $options);
 echo $typescript;
 echo "\n";
 
-// Example 8: Generate to File
-echo "Example 8: Generate to File\n";
-echo "---------------------------\n";
+// Example 8: Generate to File with Custom Options
+echo "Example 8: Generate to File with Custom Options\n";
+echo "-----------------------------------------------\n";
 
 $outputPath = __DIR__ . '/../storage/generated-types.ts';
 
@@ -220,13 +221,11 @@ if (!is_dir($dir)) {
     mkdir($dir, 0755, true);
 }
 
+// Use sorted() factory method for alphabetically sorted properties
+$sortedOptions = TypeScriptGeneratorOptions::sorted();
 $typescript = $generator->generate(
     [UserDTO::class, ProductDTO::class, CompanyDTO::class, PostDTO::class],
-    [
-        'exportType' => 'export',
-        'includeComments' => true,
-        'sortProperties' => true,
-    ]
+    $sortedOptions
 );
 
 file_put_contents($outputPath, $typescript);
@@ -239,24 +238,27 @@ unlink($outputPath);
 // Example 9: Different Export Types
 echo "Example 9: Different Export Types\n";
 echo "---------------------------------\n";
-echo "💡 Tip: Use TypeScriptExportType enum for type-safe export types!\n";
-echo "    Available: Export, Declare, None\n\n";
+echo "💡 Use TypeScriptGeneratorOptions factory methods for type-safe configuration!\n\n";
 
-// Export (using enum) ✨
-$typescript = $generator->generate([UserDTO::class], ['exportType' => TypeScriptExportType::Export]);
-echo "Export (enum):\n{$typescript}\n";
+// Export (default)
+$exportOptions = TypeScriptGeneratorOptions::export();
+$typescript = $generator->generate([UserDTO::class], $exportOptions);
+echo "Export:\n{$typescript}\n";
 
-// Declare (using enum) ✨
-$typescript = $generator->generate([UserDTO::class], ['exportType' => TypeScriptExportType::Declare]);
-echo "Declare (enum):\n{$typescript}\n";
+// Declare
+$declareOptions = TypeScriptGeneratorOptions::declare();
+$typescript = $generator->generate([UserDTO::class], $declareOptions);
+echo "Declare:\n{$typescript}\n";
 
-// None (using enum) ✨
-$typescript = $generator->generate([UserDTO::class], ['exportType' => TypeScriptExportType::None]);
-echo "None (enum):\n{$typescript}\n";
+// Plain (no export/declare)
+$plainOptions = TypeScriptGeneratorOptions::plain();
+$typescript = $generator->generate([UserDTO::class], $plainOptions);
+echo "Plain:\n{$typescript}\n";
 
-// Backward compatibility with strings still works
-$typescript = $generator->generate([UserDTO::class], ['exportType' => 'export']);
-echo "Export (string - BC):\n{$typescript}\n";
+// Without comments
+$noCommentsOptions = TypeScriptGeneratorOptions::withoutComments();
+$typescript = $generator->generate([UserDTO::class], $noCommentsOptions);
+echo "Without Comments:\n{$typescript}\n";
 
 echo "================================================================================\n";
 echo "✅  All TypeScript generation examples completed!\n";

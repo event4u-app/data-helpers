@@ -160,6 +160,7 @@ echo str_repeat('-', 50) . "\n";
 
 class UserDTO extends SimpleDTO
 {
+    /** @param array<string>|null $adminPanel */
     public function __construct(
         public readonly string $name,
         public readonly int $age,

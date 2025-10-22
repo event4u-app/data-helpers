@@ -109,6 +109,7 @@ $dto2 = UserDTO::fromArray([
 ]);
 
 /** @phpstan-ignore-next-line unknown */
+/** @var User $entity */
 $entity = $dto2->toEntity(User::class);
 
 echo "DTO data:\n";
@@ -179,6 +180,7 @@ echo "\n";
 
 /** @phpstan-ignore-next-line unknown */
 $roundTripDto = UserDTO::fromEntity($originalEntity);
+/** @var User $roundTripEntity */
 $roundTripEntity = $roundTripDto->toEntity(User::class);
 
 echo "After round-trip:\n";

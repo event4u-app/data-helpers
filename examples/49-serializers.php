@@ -39,7 +39,10 @@ echo $xml . "\n\n";
 echo "Example 2: XML with Custom Root Element\n";
 echo "----------------------------------------\n";
 
-$xml = $user->toXml('user');
+use event4u\DataHelpers\SimpleDTO\Config\SerializerOptions;
+
+$options = SerializerOptions::xml(rootElement: 'user');
+$xml = $user->toXml($options);
 echo "XML with 'user' root:\n";
 echo $xml . "\n\n";
 
@@ -55,7 +58,8 @@ echo $yaml . "\n";
 echo "Example 4: YAML with Custom Indent\n";
 echo "-----------------------------------\n";
 
-$yaml = $user->toYaml(4);
+$options = SerializerOptions::yaml(indent: 4);
+$yaml = $user->toYaml($options);
 echo "YAML with 4-space indent:\n";
 echo $yaml . "\n";
 
@@ -71,7 +75,8 @@ echo $csv . "\n\n";
 echo "Example 6: CSV without Headers\n";
 echo "-------------------------------\n";
 
-$csv = $user->toCsv(false);
+$options = SerializerOptions::csv(includeHeaders: false);
+$csv = $user->toCsv($options);
 echo "CSV without headers:\n";
 echo $csv . "\n\n";
 
@@ -79,7 +84,8 @@ echo $csv . "\n\n";
 echo "Example 7: CSV with Custom Delimiter\n";
 echo "-------------------------------------\n";
 
-$csv = $user->toCsv(true, ';');
+$options = SerializerOptions::csv(delimiter: ';');
+$csv = $user->toCsv($options);
 echo "CSV with semicolon delimiter:\n";
 echo $csv . "\n\n";
 
