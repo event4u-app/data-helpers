@@ -9,6 +9,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
 use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
 
 echo "================================================================================\n";
@@ -238,18 +239,24 @@ unlink($outputPath);
 // Example 9: Different Export Types
 echo "Example 9: Different Export Types\n";
 echo "---------------------------------\n";
+echo "💡 Tip: Use TypeScriptExportType enum for type-safe export types!\n";
+echo "    Available: Export, Declare, None\n\n";
 
-// Export (default)
+// Export (using enum) ✨
+$typescript = $generator->generate([UserDTO::class], ['exportType' => TypeScriptExportType::Export]);
+echo "Export (enum):\n{$typescript}\n";
+
+// Declare (using enum) ✨
+$typescript = $generator->generate([UserDTO::class], ['exportType' => TypeScriptExportType::Declare]);
+echo "Declare (enum):\n{$typescript}\n";
+
+// None (using enum) ✨
+$typescript = $generator->generate([UserDTO::class], ['exportType' => TypeScriptExportType::None]);
+echo "None (enum):\n{$typescript}\n";
+
+// Backward compatibility with strings still works
 $typescript = $generator->generate([UserDTO::class], ['exportType' => 'export']);
-echo "Export:\n{$typescript}\n";
-
-// Declare
-$typescript = $generator->generate([UserDTO::class], ['exportType' => 'declare']);
-echo "Declare:\n{$typescript}\n";
-
-// No export
-$typescript = $generator->generate([UserDTO::class], ['exportType' => '']);
-echo "No export:\n{$typescript}\n";
+echo "Export (string - BC):\n{$typescript}\n";
 
 echo "================================================================================\n";
 echo "✅  All TypeScript generation examples completed!\n";

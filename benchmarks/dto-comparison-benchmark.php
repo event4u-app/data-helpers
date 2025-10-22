@@ -173,14 +173,14 @@ $result2 = Benchmark::run('SimpleDTO Immutable', function() use ($jsonFile, $map
     /** @var array<int, array<string, mixed>> $departmentsData */
     $departmentsData = $mappedArray['departments'];
     $departments = array_map(
-        fn(array $dept): DepartmentSimpleDto => DepartmentSimpleDto::fromArray($dept),
+        DepartmentSimpleDto::fromArray(...),
         $departmentsData
     );
 
     /** @var array<int, array<string, mixed>> $projectsData */
     $projectsData = $mappedArray['projects'];
     $projects = array_map(
-        fn(array $proj): ProjectSimpleDto => ProjectSimpleDto::fromArray($proj),
+        ProjectSimpleDto::fromArray(...),
         $projectsData
     );
 
@@ -213,13 +213,13 @@ $mappedArray = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)
 /** @var array<int, array<string, mixed>> $departmentsData */
 $departmentsData = $mappedArray['departments'];
 $departments = array_map(
-    fn(array $dept): DepartmentSimpleDto => DepartmentSimpleDto::fromArray($dept),
+    DepartmentSimpleDto::fromArray(...),
     $departmentsData
 );
 /** @var array<int, array<string, mixed>> $projectsData */
 $projectsData = $mappedArray['projects'];
 $projects = array_map(
-    fn(array $proj): ProjectSimpleDto => ProjectSimpleDto::fromArray($proj),
+    ProjectSimpleDto::fromArray(...),
     $projectsData
 );
 /** @var array<string, mixed> $companyData */

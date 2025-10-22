@@ -159,7 +159,7 @@ describe('DataMapperResult', function(): void {
                 []
             );
 
-            expect(fn(): string => $result->toJson())->toThrow(ConversionException::class);
+            expect($result->toJson(...))->toThrow(ConversionException::class);
         });
     });
 
@@ -267,7 +267,7 @@ describe('DataMapperResult', function(): void {
         it('toArray throws exception for non-convertible types', function(): void {
             $result = new DataMapperResult(42, [], []);
 
-            expect(fn(): array => $result->toArray())->toThrow(ConversionException::class);
+            expect($result->toArray(...))->toThrow(ConversionException::class);
         });
     });
 });

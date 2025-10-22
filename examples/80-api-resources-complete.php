@@ -25,6 +25,12 @@ use event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
 
+// Skip if Carbon is not available
+if (!class_exists('Carbon\Carbon')) {
+    echo "⚠️  Skipping: Carbon is not available\n";
+    exit(0);
+}
+
 // ============================================================================
 // Resource DTOs
 // ============================================================================

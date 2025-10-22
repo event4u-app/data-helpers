@@ -144,7 +144,7 @@ describe('Lazy Wrapper', function(): void {
 
     it('maps lazy value', function(): void {
         $lazy = Lazy::value('hello');
-        $mapped = $lazy->map(fn($v) => strtoupper($v));
+        $mapped = $lazy->map(strtoupper(...));
 
         expect($mapped->get())->toBe('HELLO');
     });

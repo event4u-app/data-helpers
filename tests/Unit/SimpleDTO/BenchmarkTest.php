@@ -29,7 +29,7 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Instantiation', function(): void {
-        beforeEach(fn() => setupBenchmark());
+        beforeEach(setupBenchmark(...));
 
         it('benchmarks DTO instantiation', function(): void {
             $dto = new class extends SimpleDTO {
@@ -65,7 +65,7 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark toArray', function(): void {
-        beforeEach(fn() => setupBenchmark());
+        beforeEach(setupBenchmark(...));
 
         it('benchmarks toArray serialization', function(): void {
             $dto = new class extends SimpleDTO {
@@ -86,7 +86,7 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark JSON Serialization', function(): void {
-        beforeEach(fn() => setupBenchmark());
+        beforeEach(setupBenchmark(...));
 
         it('benchmarks JSON serialization', function(): void {
             $dto = new class extends SimpleDTO {
@@ -107,7 +107,7 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Validation', function(): void {
-        beforeEach(fn() => setupBenchmark());
+        beforeEach(setupBenchmark(...));
 
         it('benchmarks validation', function(): void {
             $dto = new class extends SimpleDTO {
@@ -128,7 +128,7 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Suite', function(): void {
-        beforeEach(fn() => setupBenchmark());
+        beforeEach(setupBenchmark(...));
 
         it('runs comprehensive benchmark suite', function(): void {
             $dto = new class extends SimpleDTO {
@@ -165,7 +165,7 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Cache Performance Comparison', function(): void {
-        beforeEach(fn() => setupBenchmark());
+        beforeEach(setupBenchmark(...));
 
         it('compares performance with and without cache', function(): void {
             $dto = new class extends SimpleDTO {
@@ -186,7 +186,7 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Report', function(): void {
-        beforeEach(fn() => setupBenchmark());
+        beforeEach(setupBenchmark(...));
 
         it('generates benchmark report', function(): void {
             $dto = new class extends SimpleDTO {
@@ -209,7 +209,7 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Benchmark Results Management', function(): void {
-        beforeEach(fn() => setupBenchmark());
+        beforeEach(setupBenchmark(...));
 
         it('clears benchmark results', function(): void {
             $dto = new class extends SimpleDTO {
@@ -231,7 +231,7 @@ describe('SimpleDTO Benchmarking', function(): void {
     });
 
     describe('Complex DTO Benchmarking', function(): void {
-        beforeEach(fn() => setupBenchmark());
+        beforeEach(setupBenchmark(...));
 
         it('benchmarks complex DTO with nested structures', function(): void {
             $dto = new class extends SimpleDTO {

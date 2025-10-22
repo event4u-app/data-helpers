@@ -236,8 +236,8 @@ trait SimpleDTOValidationTrait
                 return [];
             }
 
-            foreach ($constructor->getParameters() as $parameter) {
-                $type = $parameter->getType();
+            foreach ($constructor->getParameters() as $reflectionParameter) {
+                $type = $reflectionParameter->getType();
 
                 if (!$type instanceof ReflectionNamedType) {
                     continue;
@@ -248,7 +248,7 @@ trait SimpleDTOValidationTrait
                 $isNullable = $type->allowsNull();
 
                 // Add required rule if not nullable and no default value
-                if (!$isNullable && !$parameter->isDefaultValueAvailable()) {
+                if (!$isNullable && !$reflectionParameter->isDefaultValueAvailable()) {
                     $propertyRules[] = 'required';
                 }
 
@@ -272,7 +272,7 @@ trait SimpleDTOValidationTrait
                             // Get nested DTO rules and add them with dot notation
                             $nestedRules = $typeName::getAllRules();
                             foreach ($nestedRules as $nestedField => $nestedFieldRules) {
-                                $rules[$parameter->getName() . '.' . $nestedField] = $nestedFieldRules;
+                                $rules[$reflectionParameter->getName() . '.' . $nestedField] = $nestedFieldRules;
                             }
                         }
                     } catch (Throwable) {
@@ -281,7 +281,7 @@ trait SimpleDTOValidationTrait
                 }
 
                 if ([] !== $propertyRules) {
-                    $rules[$parameter->getName()] = $propertyRules;
+                    $rules[$reflectionParameter->getName()] = $propertyRules;
                 }
             }
         } catch (Throwable) {
@@ -308,11 +308,11 @@ trait SimpleDTOValidationTrait
                 return [];
             }
 
-            foreach ($constructor->getParameters() as $parameter) {
+            foreach ($constructor->getParameters() as $reflectionParameter) {
                 $propertyRules = [];
 
                 // Get all attributes from parameter
-                $attributes = $parameter->getAttributes();
+                $attributes = $reflectionParameter->getAttributes();
 
                 foreach ($attributes as $attribute) {
                     try {
@@ -332,7 +332,7 @@ trait SimpleDTOValidationTrait
                 }
 
                 if ([] !== $propertyRules) {
-                    $rules[$parameter->getName()] = $propertyRules;
+                    $rules[$reflectionParameter->getName()] = $propertyRules;
                 }
             }
         } catch (Throwable) {
@@ -383,15 +383,15 @@ trait SimpleDTOValidationTrait
             $constructor = $reflection->getConstructor();
 
             if (null !== $constructor) {
-                foreach ($constructor->getParameters() as $parameter) {
-                    foreach ($parameter->getAttributes() as $attribute) {
+                foreach ($constructor->getParameters() as $reflectionParameter) {
+                    foreach ($reflectionParameter->getAttributes() as $attribute) {
                         $instance = $attribute->newInstance();
 
                         if ($instance instanceof ValidationRule && null !== $instance->message()) {
                             $rule = $instance->rule();
                             $ruleName = is_array($rule) ? $rule[0] : $rule;
                             $ruleName = explode(':', $ruleName)[0];
-                            $messages[$parameter->getName() . '.' . $ruleName] = $instance->message();
+                            $messages[$reflectionParameter->getName() . '.' . $ruleName] = $instance->message();
                         }
                     }
                 }
@@ -483,8 +483,8 @@ trait SimpleDTOValidationTrait
                 return false;
             }
 
-            foreach ($constructor->getParameters() as $parameter) {
-                foreach ($parameter->getAttributes() as $attribute) {
+            foreach ($constructor->getParameters() as $reflectionParameter) {
+                foreach ($reflectionParameter->getAttributes() as $attribute) {
                     try {
                         $instance = $attribute->newInstance();
                         if ($instance instanceof SymfonyConstraint) {
@@ -548,10 +548,10 @@ trait SimpleDTOValidationTrait
                 return [];
             }
 
-            foreach ($constructor->getParameters() as $parameter) {
+            foreach ($constructor->getParameters() as $reflectionParameter) {
                 $propertyConstraints = [];
 
-                foreach ($parameter->getAttributes() as $attribute) {
+                foreach ($reflectionParameter->getAttributes() as $attribute) {
                     try {
                         $instance = $attribute->newInstance();
 
@@ -568,7 +568,7 @@ trait SimpleDTOValidationTrait
                 }
 
                 if ([] !== $propertyConstraints) {
-                    $constraints[$parameter->getName()] = $propertyConstraints;
+                    $constraints[$reflectionParameter->getName()] = $propertyConstraints;
                 }
             }
         } catch (Throwable) {

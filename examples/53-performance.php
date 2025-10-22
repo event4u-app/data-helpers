@@ -169,7 +169,7 @@ for ($i = 0; 100 > $i; $i++) {
 }
 
 $start = microtime(true);
-$users = array_map(fn($data): \UserDTO => UserDTO::fromArray($data), $batchData);
+$users = array_map(UserDTO::fromArray(...), $batchData);
 $duration = microtime(true) - $start;
 
 echo "Processed 100 users in: " . number_format($duration * 1000, 2) . " ms\n";

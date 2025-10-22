@@ -112,7 +112,7 @@ $youngUser = new UserDTO(
 
 $array = $youngUser->toArray();
 echo "Properties included:\n";
-foreach ($array as $key => $value) {
+foreach (array_keys($array) as $key) {
     echo sprintf('  • %s%s', $key, PHP_EOL);
 }
 echo "\n✅  Age-restricted content excluded (age < 18)\n\n";
@@ -134,7 +134,7 @@ $adultUser = new UserDTO(
 
 $array = $adultUser->toArray();
 echo "Properties included:\n";
-foreach ($array as $key => $value) {
+foreach (array_keys($array) as $key) {
     echo sprintf('  • %s%s', $key, PHP_EOL);
 }
 echo "\n✅  Adult content included (age >= 18)\n";
@@ -163,7 +163,7 @@ $context = [
 
 $array = $premiumUser->withContext($context)->toArray();
 echo "Properties included:\n";
-foreach ($array as $key => $value) {
+foreach (array_keys($array) as $key) {
     echo sprintf('  • %s%s', $key, PHP_EOL);
 }
 echo "\n✅  Premium features included (subscription = premium)\n";

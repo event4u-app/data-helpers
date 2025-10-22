@@ -63,14 +63,14 @@ trait SimpleDTOVisibilityTrait
         $hidden = [];
         $reflection = new ReflectionClass($this);
 
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            $attributes = $property->getAttributes();
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+            $attributes = $reflectionProperty->getAttributes();
 
             foreach ($attributes as $attribute) {
                 $attributeName = $attribute->getName();
 
                 if (Hidden::class === $attributeName || HiddenFromArray::class === $attributeName) {
-                    $hidden[] = $property->getName();
+                    $hidden[] = $reflectionProperty->getName();
                     break;
                 }
             }
@@ -108,14 +108,14 @@ trait SimpleDTOVisibilityTrait
         $hidden = [];
         $reflection = new ReflectionClass($this);
 
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            $attributes = $property->getAttributes();
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+            $attributes = $reflectionProperty->getAttributes();
 
             foreach ($attributes as $attribute) {
                 $attributeName = $attribute->getName();
 
                 if (Hidden::class === $attributeName || HiddenFromJson::class === $attributeName) {
-                    $hidden[] = $property->getName();
+                    $hidden[] = $reflectionProperty->getName();
                     break;
                 }
             }
@@ -149,13 +149,13 @@ trait SimpleDTOVisibilityTrait
         $visible = [];
         $reflection = new ReflectionClass($this);
 
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            $attributes = $property->getAttributes(Visible::class);
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+            $attributes = $reflectionProperty->getAttributes(Visible::class);
 
             if (!empty($attributes)) {
                 $instance = $attributes[0]->newInstance();
                 if ($instance instanceof Visible) {
-                    $visible[$property->getName()] = $instance;
+                    $visible[$reflectionProperty->getName()] = $instance;
                 }
             }
         }

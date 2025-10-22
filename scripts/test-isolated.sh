@@ -132,8 +132,8 @@ get_composer_packages() {
     case "$fw" in
         laravel)
             case "$ver" in
-                10) echo "illuminate/support:^10.0 illuminate/validation:^10.0 illuminate/database:^10.0" ;;
-                11) echo "illuminate/support:^11.0 illuminate/validation:^11.0 illuminate/database:^11.0" ;;
+                10) echo "illuminate/support:^10.0 illuminate/validation:^10.0 illuminate/translation:^10.0 illuminate/database:^10.0" ;;
+                11) echo "illuminate/support:^11.0 illuminate/validation:^11.0 illuminate/translation:^11.0 illuminate/database:^11.0" ;;
                 *) echo ""; return 1 ;;
             esac
             ;;
@@ -452,7 +452,7 @@ else
     run_in_container rm -f composer.lock
 
     # Define all framework packages that exist in composer.json
-    ALL_ILLUMINATE_PACKAGES="illuminate/cache illuminate/database illuminate/http illuminate/support"
+    ALL_ILLUMINATE_PACKAGES="illuminate/cache illuminate/database illuminate/http illuminate/support illuminate/translation illuminate/validation"
     ALL_SYMFONY_PACKAGES="symfony/cache symfony/config symfony/dependency-injection symfony/http-foundation symfony/http-kernel symfony/yaml symfony/serializer symfony/property-info symfony/property-access symfony/validator"
     ALL_DOCTRINE_PACKAGES="doctrine/collections doctrine/orm doctrine/dbal"
 
@@ -514,16 +514,21 @@ else
     # For Laravel 11+, Composer will automatically pick the right version
     echo -e "${YELLOW}  Adding ${FRAMEWORK} ${VERSION} and Pest to composer.json...${NC}"
 
-    if [[ "$FRAMEWORK" == "laravel" && "$VERSION" == "10" ]]; then
-        # Laravel 10 requires Pest 2.x
-        run_in_container composer require --dev $PACKAGES "pestphp/pest:^2.0" "pestphp/pest-plugin-laravel:^2.0" --no-update --no-interaction > /dev/null 2>&1
+    if [[ "$FRAMEWORK" == "laravel" ]]; then
+        if [[ "$VERSION" == "10" ]]; then
+            # Laravel 10 requires Pest 2.x
+            run_in_container composer require --dev $PACKAGES "pestphp/pest:^2.0" "pestphp/pest-plugin-laravel:^2.0" --no-update --no-interaction > /dev/null 2>&1
+        else
+            # Laravel 11+ - let Composer resolve automatically
+            run_in_container composer require --dev $PACKAGES pestphp/pest pestphp/pest-plugin-laravel --no-update --no-interaction > /dev/null 2>&1
+        fi
     else
-        # For other versions, let Composer resolve automatically
-        run_in_container composer require --dev $PACKAGES pestphp/pest pestphp/pest-plugin-laravel --no-update --no-interaction > /dev/null 2>&1
+        # For Symfony and Doctrine, only add Pest (no Laravel plugin)
+        run_in_container composer require --dev $PACKAGES pestphp/pest --no-update --no-interaction > /dev/null 2>&1
     fi
 
     echo -e "${YELLOW}  Installing all dependencies with ${FRAMEWORK} ${VERSION}...${NC}"
-    run_in_container composer install --no-interaction --quiet
+    run_in_container composer install --no-interaction
 fi
 
 echo -e "${GREEN}✓${NC}  Dependencies installed"

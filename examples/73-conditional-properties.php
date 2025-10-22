@@ -11,6 +11,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenTrue;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
+use event4u\DataHelpers\SimpleDTO\Enums\ComparisonOperator;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                    CONDITIONAL PROPERTIES                                  ║\n";
@@ -147,6 +148,9 @@ echo "\n";
 // Example 5: WhenValue - Field comparison
 echo "5. WHEN VALUE - FIELD COMPARISON:\n";
 echo "------------------------------------------------------------\n";
+echo "💡 Tip: Use ComparisonOperator enum for type-safe comparisons!\n";
+echo "    Available: Equal, LooseEqual, StrictEqual, NotEqual, StrictNotEqual,\n";
+echo "               GreaterThan, LessThan, GreaterThanOrEqual, LessThanOrEqual\n\n";
 
 class PremiumProductDTO extends SimpleDTO
 {
@@ -154,7 +158,7 @@ class PremiumProductDTO extends SimpleDTO
         public readonly string $name,
         public readonly float $price,
 
-        #[WhenValue('price', '>', 100)]
+        #[WhenValue('price', ComparisonOperator::GreaterThan, 100)]  // ✨ Using enum!
         public readonly ?string $premiumBadge = 'PREMIUM',
     ) {}
 }

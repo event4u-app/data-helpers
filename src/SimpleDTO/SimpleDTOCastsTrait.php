@@ -134,8 +134,8 @@ trait SimpleDTOCastsTrait
         try {
             $reflection = new ReflectionClass(static::class);
 
-            foreach ($reflection->getProperties() as $property) {
-                $attributes = $property->getAttributes(
+            foreach ($reflection->getProperties() as $reflectionProperty) {
+                $attributes = $reflectionProperty->getAttributes(
                     DataCollectionOf::class
                 );
 
@@ -146,7 +146,7 @@ trait SimpleDTOCastsTrait
                     // Build cast string: collection:dtoClass
                     $castString = 'collection:' . $instance->dtoClass;
 
-                    $casts[$property->getName()] = $castString;
+                    $casts[$reflectionProperty->getName()] = $castString;
                 }
             }
         } catch (Throwable) {
@@ -173,8 +173,8 @@ trait SimpleDTOCastsTrait
                 return [];
             }
 
-            foreach ($constructor->getParameters() as $parameter) {
-                $type = $parameter->getType();
+            foreach ($constructor->getParameters() as $reflectionParameter) {
+                $type = $reflectionParameter->getType();
 
                 if (!$type instanceof ReflectionNamedType) {
                     continue;
@@ -189,7 +189,7 @@ trait SimpleDTOCastsTrait
 
                         // Check if it has fromArray method (indicates it's a DTO)
                         if ($typeReflection->hasMethod('fromArray')) {
-                            $casts[$parameter->getName()] = 'dto:' . $typeName;
+                            $casts[$reflectionParameter->getName()] = 'dto:' . $typeName;
                         }
                     } catch (Throwable) {
                         // Not a DTO, skip

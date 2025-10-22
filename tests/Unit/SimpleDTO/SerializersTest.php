@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDTO\Enums\SerializationFormat;
 use event4u\DataHelpers\SimpleDTO\Serializers\CsvSerializer;
 use event4u\DataHelpers\SimpleDTO\Serializers\SerializerInterface;
 use event4u\DataHelpers\SimpleDTO\Serializers\XmlSerializer;
@@ -260,6 +261,63 @@ describe('Serializers', function(): void {
 
             expect($xml)->toContain('<user>')
                 ->and($yaml)->toContain('user:');
+        });
+    });
+
+    describe('SerializationFormat Enum', function(): void {
+        it('serializes to XML using enum', function(): void {
+            $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => 30]);
+            $xml = $user->serializeTo(SerializationFormat::Xml);
+
+            expect($xml)->toContain('<?xml version="1.0"')
+                ->and($xml)->toContain('<name>John Doe</name>')
+                ->and($xml)->toContain('<age>30</age>');
+        });
+
+        it('serializes to YAML using enum', function(): void {
+            $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => 30]);
+            $yaml = $user->serializeTo(SerializationFormat::Yaml);
+
+            expect($yaml)->toContain('name: John Doe')
+                ->and($yaml)->toContain('age: 30');
+        });
+
+        it('serializes to CSV using enum', function(): void {
+            $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => 30]);
+            $csv = $user->serializeTo(SerializationFormat::Csv);
+
+            expect($csv)->toContain('name,age')
+                ->and($csv)->toContain('John Doe,30');
+        });
+
+        it('serializes to JSON using enum', function(): void {
+            $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => 30]);
+            $json = $user->serializeTo(SerializationFormat::Json);
+
+            expect($json)->toContain('"name":"John Doe"')
+                ->and($json)->toContain('"age":30');
+        });
+
+        it('supports backward compatibility with toXml()', function(): void {
+            $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => 30]);
+            $xml = $user->toXml();
+
+            expect($xml)->toContain('<?xml version="1.0"')
+                ->and($xml)->toContain('<name>John Doe</name>');
+        });
+
+        it('supports backward compatibility with toYaml()', function(): void {
+            $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => 30]);
+            $yaml = $user->toYaml();
+
+            expect($yaml)->toContain('name: John Doe');
+        });
+
+        it('supports backward compatibility with toCsv()', function(): void {
+            $user = UserDTO::fromArray(['name' => 'John Doe', 'age' => 30]);
+            $csv = $user->toCsv();
+
+            expect($csv)->toContain('name,age');
         });
     });
 });

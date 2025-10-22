@@ -81,12 +81,12 @@ trait SimpleDTOMappingTrait
 
         $mapping = [];
 
-        foreach ($constructor->getParameters() as $parameter) {
-            $mapFromAttributes = $parameter->getAttributes(MapFrom::class);
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            $mapFromAttributes = $reflectionParameter->getAttributes(MapFrom::class);
 
             if (!empty($mapFromAttributes)) {
                 $mapFrom = $mapFromAttributes[0]->newInstance();
-                $mapping[$parameter->getName()] = $mapFrom->source;
+                $mapping[$reflectionParameter->getName()] = $mapFrom->source;
             }
         }
 
@@ -120,9 +120,9 @@ trait SimpleDTOMappingTrait
         }
 
         $mapInputName = $attributes[0]->newInstance();
-        self::$inputNameTransformCache[$class] = $mapInputName->format;
+        self::$inputNameTransformCache[$class] = $mapInputName->getFormat();
 
-        return $mapInputName->format;
+        return $mapInputName->getFormat();
     }
 
     /**
@@ -152,8 +152,8 @@ trait SimpleDTOMappingTrait
         $constructor = $reflection->getConstructor();
 
         if (null !== $constructor) {
-            foreach ($constructor->getParameters() as $parameter) {
-                $propertyName = $parameter->getName();
+            foreach ($constructor->getParameters() as $reflectionParameter) {
+                $propertyName = $reflectionParameter->getName();
 
                 // Step 1: Check if property has #[MapFrom] (highest priority)
                 if (isset($mapping[$propertyName])) {
@@ -252,12 +252,12 @@ trait SimpleDTOMappingTrait
 
         $mapping = [];
 
-        foreach ($constructor->getParameters() as $parameter) {
-            $mapToAttributes = $parameter->getAttributes(MapTo::class);
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            $mapToAttributes = $reflectionParameter->getAttributes(MapTo::class);
 
             if (!empty($mapToAttributes)) {
                 $mapTo = $mapToAttributes[0]->newInstance();
-                $mapping[$parameter->getName()] = $mapTo->target;
+                $mapping[$reflectionParameter->getName()] = $mapTo->target;
             }
         }
 
@@ -291,9 +291,9 @@ trait SimpleDTOMappingTrait
         }
 
         $mapOutputName = $attributes[0]->newInstance();
-        self::$outputNameTransformCache[$class] = $mapOutputName->format;
+        self::$outputNameTransformCache[$class] = $mapOutputName->getFormat();
 
-        return $mapOutputName->format;
+        return $mapOutputName->getFormat();
     }
 
     /**

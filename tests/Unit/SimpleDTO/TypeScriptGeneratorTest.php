@@ -7,6 +7,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
 use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
 
 // Test DTOs for collection test
@@ -220,15 +221,29 @@ describe('TypeScriptGenerator', function(): void {
 
         $generator = new TypeScriptGenerator();
 
-        // Export
+        // Export with enum
+        $typescript = $generator->generate([$dto::class], ['exportType' => TypeScriptExportType::Export]);
+        expect($typescript)->toContain('export interface');
+
+        // Declare with enum
+        $typescript = $generator->generate([$dto::class], ['exportType' => TypeScriptExportType::Declare]);
+        expect($typescript)->toContain('declare interface');
+
+        // None with enum
+        $typescript = $generator->generate([$dto::class], ['exportType' => TypeScriptExportType::None]);
+        expect($typescript)->toContain(' interface');
+        expect($typescript)->not->toContain('export interface');
+        expect($typescript)->not->toContain('declare interface');
+
+        // Export with string (BC)
         $typescript = $generator->generate([$dto::class], ['exportType' => 'export']);
         expect($typescript)->toContain('export interface');
 
-        // Declare
+        // Declare with string (BC)
         $typescript = $generator->generate([$dto::class], ['exportType' => 'declare']);
         expect($typescript)->toContain('declare interface');
 
-        // No export
+        // No export with empty string (BC)
         $typescript = $generator->generate([$dto::class], ['exportType' => '']);
         expect($typescript)->toContain(' interface');
         expect($typescript)->not->toContain('export interface');

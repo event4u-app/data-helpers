@@ -8,6 +8,7 @@ use DateTimeInterface;
 use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
 use ReflectionClass;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
@@ -63,11 +64,24 @@ class TypeScriptGenerator
      * Generate TypeScript interfaces for given DTO classes.
      *
      * @param array<class-string> $dtoClasses
-     * @param array{exportType?: string, includeComments?: bool, sortProperties?: bool} $options
+     * @param array{exportType?: string|TypeScriptExportType, includeComments?: bool, sortProperties?: bool} $options
      */
     public function generate(array $dtoClasses, array $options = []): string
     {
-        $exportType = $options['exportType'] ?? 'export';
+        $exportTypeOption = $options['exportType'] ?? 'export';
+
+        if (is_string($exportTypeOption)) {
+            // Handle empty string as "none"
+            if ('' === $exportTypeOption) {
+                $exportType = '';
+            } else {
+                $parsed = TypeScriptExportType::fromString($exportTypeOption);
+                $exportType = $parsed instanceof TypeScriptExportType ? $parsed->getPrefix() : 'export';
+            }
+        } else {
+            $exportType = $exportTypeOption->getPrefix();
+        }
+
         $includeComments = $options['includeComments'] ?? true;
         $sortProperties = $options['sortProperties'] ?? false;
 
@@ -172,8 +186,8 @@ TS;
         // Get constructor properties
         $constructor = $reflection->getConstructor();
         if (null !== $constructor) {
-            foreach ($constructor->getParameters() as $parameter) {
-                $propertyName = $parameter->getName();
+            foreach ($constructor->getParameters() as $reflectionParameter) {
+                $propertyName = $reflectionParameter->getName();
                 $property = $reflection->getProperty($propertyName);
 
                 // Check if property is lazy (should be optional)
@@ -217,8 +231,8 @@ TS;
     {
         $properties = [];
 
-        foreach ($reflection->getMethods() as $method) {
-            $computedAttrs = $method->getAttributes(Computed::class);
+        foreach ($reflection->getMethods() as $reflectionMethod) {
+            $computedAttrs = $reflectionMethod->getAttributes(Computed::class);
             if (empty($computedAttrs)) {
                 continue;
             }
@@ -227,7 +241,7 @@ TS;
             $computed = $computedAttrs[0]->newInstance();
 
             // Use custom name if provided
-            $propertyName = $computed->name ?? $method->getName();
+            $propertyName = $computed->name ?? $reflectionMethod->getName();
 
             // Make lazy computed properties optional
             if ($computed->lazy) {
@@ -235,7 +249,7 @@ TS;
             }
 
             // Get return type
-            $returnType = $method->getReturnType();
+            $returnType = $reflectionMethod->getReturnType();
             $tsType = $this->convertPhpTypeToTypeScript($returnType);
 
             $properties[$propertyName] = $tsType;

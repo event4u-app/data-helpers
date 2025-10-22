@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Enums\SerializationFormat;
 use event4u\DataHelpers\SimpleDTO\Serializers\SerializerInterface;
 
 echo "================================================================================\n";
@@ -215,6 +216,34 @@ $yamlSerializer = new YamlSerializer();
 $yaml = $yamlSerializer->serialize($nestedData);
 echo "Nested YAML:\n";
 echo $yaml . "\n";
+
+// Example 11: Using SerializationFormat Enum
+echo "Example 11: Using SerializationFormat Enum\n";
+echo "-------------------------------------------\n";
+echo "💡 Tip: Use SerializationFormat enum for type-safe serialization!\n";
+echo "    Available: Json, Xml, Yaml, Csv\n\n";
+
+$user = UserDTO::fromArray([
+    'name' => 'Jane Doe',
+    'email' => 'jane@example.com',
+    'age' => 25,
+]);
+
+// Serialize to different formats using enum ✨
+echo "XML (using enum):\n";
+echo $user->serializeTo(SerializationFormat::Xml) . "\n\n";
+
+echo "YAML (using enum):\n";
+echo $user->serializeTo(SerializationFormat::Yaml) . "\n\n";
+
+echo "CSV (using enum):\n";
+echo $user->serializeTo(SerializationFormat::Csv) . "\n\n";
+
+echo "JSON (using enum):\n";
+echo $user->serializeTo(SerializationFormat::Json) . "\n\n";
+
+echo "✅  Enum provides IDE autocomplete and type safety!\n";
+echo "✅  Backward compatibility: toXml(), toYaml(), toCsv() still work!\n\n";
 
 echo "================================================================================\n";
 echo "All examples completed successfully!\n";

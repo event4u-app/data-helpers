@@ -96,7 +96,7 @@ $lazy3 = Lazy::of(fn(): string => 'hello');
 /** @var DataCollection<SimpleDTO> $mapped */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$mapped = $lazy3->map(fn($x) => strtoupper($x));
+$mapped = $lazy3->map(strtoupper(...));
 
 echo "Map before loading:\n";
 echo "  original loaded: " . ($lazy3->isLoaded() ? 'yes' : 'no') . "\n";

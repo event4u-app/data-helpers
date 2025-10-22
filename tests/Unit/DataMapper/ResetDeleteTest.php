@@ -22,7 +22,7 @@ function setupProductsSource(): void
 
 describe('DataMapper Reset & Delete', function(): void {
     describe('reset()->all()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
         it('resets entire template to original', function(): void {
             $mapper = DataMapper::source($this->source)
                 ->template([
@@ -85,7 +85,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('reset()->template()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('is an alias for reset()->all()', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -115,7 +115,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('reset()->where()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('resets WHERE to original template WHERE', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -174,7 +174,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('reset()->orderBy()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('resets ORDER BY to original template ORDER BY', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -213,7 +213,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('reset()->limit()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('resets LIMIT to original template LIMIT', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -247,7 +247,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('reset()->offset()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('resets OFFSET to original template OFFSET', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -282,7 +282,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('reset()->groupBy()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('resets GROUP BY to original template GROUP BY', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -311,7 +311,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('Chaining reset methods', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('allows chaining multiple reset methods', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -365,7 +365,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('delete()->all()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('deletes all operators from template', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -396,7 +396,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('delete()->where()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('deletes WHERE from template', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -442,7 +442,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('delete()->orderBy()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('deletes ORDER BY from template', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -476,7 +476,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('delete()->limit()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('deletes LIMIT from template', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -504,7 +504,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('delete()->offset()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('deletes OFFSET from template', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -533,7 +533,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('delete()->groupBy()', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('deletes GROUP BY from template', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -560,7 +560,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('Chaining delete methods', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('allows chaining multiple delete methods', function(): void {
             $mapper = DataMapper::source($this->source)
@@ -606,7 +606,7 @@ describe('DataMapper Reset & Delete', function(): void {
     });
 
     describe('Combining reset and delete', function(): void {
-        beforeEach(fn() => setupProductsSource());
+        beforeEach(setupProductsSource(...));
 
         it('allows using reset and delete in sequence', function(): void {
             $mapper = DataMapper::source($this->source)

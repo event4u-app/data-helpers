@@ -99,7 +99,7 @@ describe('Examples Directory', function(): void {
                         "%s: Exit code %d\n  Output: %s",
                         $filename,
                         $returnCode,
-                        substr($outputText, 0, 500)
+                        substr($outputText, -2000) // Last 2000 chars to see the error
                     );
                 }
             } elseif (! str_contains($filename, 'performance') && ! str_contains($filename, 'benchmarking')) {

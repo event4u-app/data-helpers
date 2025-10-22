@@ -17,6 +17,12 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// Skip if Carbon is not available
+if (!class_exists('Carbon\Carbon')) {
+    echo "⚠️  Skipping: Carbon is not available\n";
+    exit(0);
+}
+
 use Carbon\Carbon;
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
@@ -26,12 +32,8 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextEquals;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenFalse;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenNull;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenTrue;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
@@ -89,19 +91,19 @@ class AdvancedUserDTO extends SimpleDTO
         public readonly ?string $activeData = null,
 
         /** @phpstan-ignore-next-line unknown */
-        #[WhenNull('deletedAt')]
+        #[WhenValue('deletedAt', '=', null)]
         public readonly ?string $notDeletedData = null,
 
         /** @phpstan-ignore-next-line unknown */
-        #[WhenNotNull('deletedAt')]
+        #[WhenValue('deletedAt', '!=', null)]
         public readonly ?string $deletedData = null,
 
         /** @phpstan-ignore-next-line unknown */
-        #[WhenTrue('isActive')]
+        #[WhenValue('isActive', '=', true)]
         public readonly ?string $activeUserData = null,
 
         /** @phpstan-ignore-next-line unknown */
-        #[WhenFalse('isActive')]
+        #[WhenValue('isActive', '=', false)]
         public readonly ?string $inactiveUserData = null,
 
         /** @phpstan-ignore-next-line unknown */

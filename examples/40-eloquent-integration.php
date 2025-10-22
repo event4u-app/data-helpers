@@ -8,6 +8,12 @@ use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
 use Illuminate\Database\Eloquent\Model;
 
+// Skip if Eloquent is not available
+if (!class_exists('Illuminate\Database\Eloquent\Model')) {
+    echo "⚠️  Skipping: Eloquent is not available\n";
+    exit(0);
+}
+
 echo "================================================================================\n";
 echo "ELOQUENT INTEGRATION - EXAMPLES\n";
 echo "================================================================================\n\n";

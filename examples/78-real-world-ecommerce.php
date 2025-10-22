@@ -24,6 +24,12 @@ use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 
+// Skip if Carbon is not available
+if (!class_exists('Carbon\Carbon')) {
+    echo "⚠️  Skipping: Carbon is not available\n";
+    exit(0);
+}
+
 // ============================================================================
 // DTOs
 // ============================================================================
@@ -58,36 +64,36 @@ class ProductDTO extends SimpleDTO
         public readonly array $tags,
         public readonly int $stock,
         public readonly bool $inStock,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $createdAt,
-        
+
         // Only visible to authenticated users
         /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?bool $inWishlist = null,
-        
+
         // Only visible to admins
         /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?float $cost = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?int $totalSold = null,
     ) {}
-    
+
     #[Computed]
     public function discount(): ?float
     {
         if (!$this->salePrice) {
             return null;
         }
-        
+
         return round((($this->price - $this->salePrice) / $this->price) * 100, 2);
     }
-    
+
     #[Computed]
     public function finalPrice(): float
     {
@@ -101,7 +107,7 @@ class CartItemDTO extends SimpleDTO
         public readonly ProductDTO $product,
         public readonly int $quantity,
     ) {}
-    
+
     #[Computed]
     public function subtotal(): float
     {
@@ -118,7 +124,7 @@ class CartDTO extends SimpleDTO
         public readonly array $items,
         public readonly ?string $couponCode,
     ) {}
-    
+
     #[Computed]
     public function subtotal(): float
     {
@@ -127,30 +133,30 @@ class CartDTO extends SimpleDTO
             $this->items
         ));
     }
-    
+
     #[Computed]
     public function discount(): float
     {
         if (!$this->couponCode) {
             return 0;
         }
-        
+
         // Example: 10% discount
         return $this->subtotal() * 0.1;
     }
-    
+
     #[Computed]
     public function tax(): float
     {
         return ($this->subtotal() - $this->discount()) * 0.19; // 19% VAT
     }
-    
+
     #[Computed]
     public function total(): float
     {
         return $this->subtotal() - $this->discount() + $this->tax();
     }
-    
+
     #[Computed]
     public function itemCount(): int
     {
@@ -178,7 +184,7 @@ class CustomerDTO extends SimpleDTO
         public readonly int $id,
         public readonly string $name,
         public readonly string $email,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?string $phone = null,
@@ -191,14 +197,14 @@ class PaymentDTO extends SimpleDTO
         public readonly string $method,
         public readonly string $status,
         public readonly float $amount,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $paidAt,
-        
+
         #[Hidden]
         public readonly string $transactionId,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?string $gatewayResponse = null,
@@ -239,19 +245,19 @@ class OrderDTO extends SimpleDTO
         public readonly float $tax,
         public readonly float $shipping,
         public readonly float $total,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $createdAt,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly ?Carbon $shippedAt,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?PaymentDTO $payment = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?array $internalNotes = null,

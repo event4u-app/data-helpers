@@ -123,7 +123,7 @@ describe('DTOFactory', function(): void {
     });
 
     describe('Static Constructor', function(): void {
-        beforeEach(fn() => setupDTOFactory());
+        beforeEach(setupDTOFactory(...));
 
         it('creates factory using new() method', function(): void {
             $factory = new class extends DTOFactory {

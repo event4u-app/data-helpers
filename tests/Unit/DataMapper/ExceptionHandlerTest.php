@@ -72,7 +72,7 @@ describe('DataMapper Exception Handling', function(): void {
             $exception = new RuntimeException('Test exception');
             $handler->addException($exception);
 
-            expect(fn() => $handler->throwCollectedExceptions())
+            expect($handler->throwCollectedExceptions(...))
                 ->toThrow(RuntimeException::class, 'Test exception');
         });
 
@@ -103,7 +103,7 @@ describe('DataMapper Exception Handling', function(): void {
             $handler->addException($exception1);
             $handler->addException($exception2);
 
-            expect(fn() => $handler->throwLastException())
+            expect($handler->throwLastException(...))
                 ->toThrow(RuntimeException::class, 'Exception 2');
         });
 

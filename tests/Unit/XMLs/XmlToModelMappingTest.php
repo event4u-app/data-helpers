@@ -25,7 +25,7 @@ function normalizeForSnapshot(mixed $data): mixed
     }
 
     if (is_array($data)) {
-        return array_map(fn($item): mixed => normalizeForSnapshot($item), $data);
+        return array_map(normalizeForSnapshot(...), $data);
     }
 
     return $data;
@@ -69,7 +69,7 @@ describe('XML to Model Mapping', function(): void {
     $snapshotDir = __DIR__ . '/snapshots';
 
     describe('Version 1 (DataFields)', function() use ($snapshotDir): void {
-        beforeEach(fn() => setupXmlToModelMapping());
+        beforeEach(setupXmlToModelMapping(...));
 
         it('maps complete project with all relations from version1 XML', function() use ($snapshotDir): void {
             // Load XML file
@@ -165,7 +165,7 @@ describe('XML to Model Mapping', function(): void {
     });
 
     describe('Version 2 (VitaCost/ConstructionSite)', function() use ($snapshotDir): void {
-        beforeEach(fn() => setupXmlToModelMapping());
+        beforeEach(setupXmlToModelMapping(...));
 
         it('maps complete project with all relations from version2 XML', function() use ($snapshotDir): void {
             // Load XML file
@@ -271,7 +271,7 @@ describe('XML to Model Mapping', function(): void {
     });
 
     describe('Version 3 (lv_nesting/lvdata)', function() use ($snapshotDir): void {
-        beforeEach(fn() => setupXmlToModelMapping());
+        beforeEach(setupXmlToModelMapping(...));
 
         it('maps complete project with all relations from version3 XML', function() use ($snapshotDir): void {
             // Load XML file

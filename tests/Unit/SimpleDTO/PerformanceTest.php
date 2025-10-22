@@ -16,7 +16,7 @@ function clearPerformanceCaches(): void
 
 describe('SimpleDTO Performance', function(): void {
     describe('Constructor Params Cache', function(): void {
-        beforeEach(fn() => clearPerformanceCaches());
+        beforeEach(clearPerformanceCaches(...));
         it('caches constructor parameters', function(): void {
             $dto = new class extends SimpleDTO {
                 public function __construct(
@@ -55,7 +55,7 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Property Metadata Cache', function(): void {
-        beforeEach(fn() => clearPerformanceCaches());
+        beforeEach(clearPerformanceCaches(...));
 
         it('caches property metadata', function(): void {
             $dto = new class extends SimpleDTO {
@@ -83,7 +83,7 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Attribute Metadata Cache', function(): void {
-        beforeEach(fn() => clearPerformanceCaches());
+        beforeEach(clearPerformanceCaches(...));
 
         it('caches property attributes', function(): void {
             $dto = new class extends SimpleDTO {
@@ -118,7 +118,7 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Cache Statistics', function(): void {
-        beforeEach(fn() => clearPerformanceCaches());
+        beforeEach(clearPerformanceCaches(...));
 
         it('provides cache statistics', function(): void {
             $dto = new class extends SimpleDTO {
@@ -144,7 +144,7 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Cache Warm Up', function(): void {
-        beforeEach(fn() => clearPerformanceCaches());
+        beforeEach(clearPerformanceCaches(...));
 
         it('warms up all caches', function(): void {
             $dto = new class extends SimpleDTO {
@@ -167,7 +167,7 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Cache Clearing', function(): void {
-        beforeEach(fn() => clearPerformanceCaches());
+        beforeEach(clearPerformanceCaches(...));
 
         it('clears all performance caches', function(): void {
             $dto = new class extends SimpleDTO {
@@ -194,7 +194,7 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Performance Benchmarks', function(): void {
-        beforeEach(fn() => clearPerformanceCaches());
+        beforeEach(clearPerformanceCaches(...));
 
         it('fromArray is faster with cache', function(): void {
             $dto = new class extends SimpleDTO {
@@ -280,7 +280,7 @@ describe('SimpleDTO Performance', function(): void {
     });
 
     describe('Memory Efficiency', function(): void {
-        beforeEach(fn() => clearPerformanceCaches());
+        beforeEach(clearPerformanceCaches(...));
 
         it('does not leak memory with repeated instantiation', function(): void {
             $dto = new class extends SimpleDTO {

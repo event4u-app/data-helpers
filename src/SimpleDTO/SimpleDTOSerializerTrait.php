@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use event4u\DataHelpers\SimpleDTO\Enums\SerializationFormat;
 use event4u\DataHelpers\SimpleDTO\Serializers\CsvSerializer;
 use event4u\DataHelpers\SimpleDTO\Serializers\SerializerInterface;
 use event4u\DataHelpers\SimpleDTO\Serializers\XmlSerializer;
@@ -73,5 +74,23 @@ trait SimpleDTOSerializerTrait
     public function serializeWith(SerializerInterface $serializer): string
     {
         return $serializer->serialize($this->toArray());
+    }
+
+    /**
+     * Serialize to a specific format using enum.
+     *
+     * @param SerializationFormat $format The serialization format
+     * @param array<string, mixed> $options Format-specific options
+     *
+     * @return string The serialized data
+     */
+    public function serializeTo(SerializationFormat $format, array $options = []): string
+    {
+        return match ($format) {
+            SerializationFormat::Json => json_encode($this->toArray(), JSON_THROW_ON_ERROR),
+            SerializationFormat::Xml => $this->toXml($options['rootElement'] ?? 'root'),
+            SerializationFormat::Yaml => $this->toYaml($options['indent'] ?? 2),
+            SerializationFormat::Csv => $this->toCsv($options['includeHeaders'] ?? true, $options['delimiter'] ?? ','),
+        };
     }
 }

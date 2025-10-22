@@ -286,7 +286,7 @@ describe('FluentDataMapper Edge Cases', function(): void {
 
             $template = array_combine(
                 array_map(fn($i): string => 'field' . $i, range(1, 100)),
-                array_map(fn($i): string => sprintf('{{ field%s }}', $i), range(1, 100))
+                array_map(fn(string $i): string => sprintf('{{ field%s }}', $i), range(1, 100))
             );
 
             $result = DataMapper::source($source)

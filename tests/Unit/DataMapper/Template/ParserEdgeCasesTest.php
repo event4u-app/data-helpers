@@ -26,7 +26,7 @@ describe('Parser Edge Cases', function(): void {
         FilterEngine::useFastSplit(true);
     });
     describe('Escaped Quotes in Arguments', function(): void {
-        beforeEach(fn() => setupParserEdgeCases());
+        beforeEach(setupParserEdgeCases(...));
 
         it('handles escaped double quotes in double-quoted string', function(): void {
             // Ensure safe mode is active
@@ -64,7 +64,7 @@ describe('Parser Edge Cases', function(): void {
     });
 
     describe('Special Characters in Arguments', function(): void {
-        beforeEach(fn() => setupParserEdgeCases());
+        beforeEach(setupParserEdgeCases(...));
 
         it('handles pipe character in quoted argument', function(): void {
             $template = ['result' => '{{ data.tags | join:" | " }}'];
@@ -113,7 +113,7 @@ describe('Parser Edge Cases', function(): void {
     });
 
     describe('Empty and Whitespace Arguments', function(): void {
-        beforeEach(fn() => setupParserEdgeCases());
+        beforeEach(setupParserEdgeCases(...));
 
         it('handles empty string argument', function(): void {
             $template = ['result' => '{{ data.tags | join:"" }}'];
@@ -144,7 +144,7 @@ describe('Parser Edge Cases', function(): void {
     });
 
     describe('Multiple Filters with Complex Arguments', function(): void {
-        beforeEach(fn() => setupParserEdgeCases());
+        beforeEach(setupParserEdgeCases(...));
 
         it('chains filters with quoted arguments', function(): void {
             $template = ['result' => '{{ data.value | default:"N/A" | upper }}'];
@@ -175,7 +175,7 @@ describe('Parser Edge Cases', function(): void {
     });
 
     describe('Mixed Quote Types', function(): void {
-        beforeEach(fn() => setupParserEdgeCases());
+        beforeEach(setupParserEdgeCases(...));
 
         it('handles double quotes inside single-quoted argument', function(): void {
             $template = ['result' => '{{ data.value | default:\'Say "Hello"\' }}'];
@@ -197,7 +197,7 @@ describe('Parser Edge Cases', function(): void {
     });
 
     describe('Numeric Arguments', function(): void {
-        beforeEach(fn() => setupParserEdgeCases());
+        beforeEach(setupParserEdgeCases(...));
 
         it('handles integer arguments', function(): void {
             $template = ['result' => '{{ data.value | clamp:0:100 }}'];
@@ -237,7 +237,7 @@ describe('Parser Edge Cases', function(): void {
     });
 
     describe('Unicode and Special Characters', function(): void {
-        beforeEach(fn() => setupParserEdgeCases());
+        beforeEach(setupParserEdgeCases(...));
 
         it('handles unicode characters in arguments', function(): void {
             $template = ['result' => '{{ data.value | default:"Hello 世界 🌍" }}'];
@@ -268,7 +268,7 @@ describe('Parser Edge Cases', function(): void {
     });
 
     describe('Edge Cases with Backslashes', function(): void {
-        beforeEach(fn() => setupParserEdgeCases());
+        beforeEach(setupParserEdgeCases(...));
 
         it('handles single backslash', function(): void {
             $template = ['result' => '{{ data.value | default:"Path\\File" }}'];
@@ -304,7 +304,7 @@ describe('Parser Edge Cases', function(): void {
     });
 
     describe('Malformed Input Handling', function(): void {
-        beforeEach(fn() => setupParserEdgeCases());
+        beforeEach(setupParserEdgeCases(...));
 
         it('handles unclosed quotes gracefully', function(): void {
             $template = ['result' => '{{ data.value | default:"Unclosed }}'];

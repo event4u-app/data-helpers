@@ -170,7 +170,7 @@ $productsData = [
 ];
 
 $products = array_map(
-    fn(array $data): \ProductDTO => ProductDTO::fromArray($data),
+    ProductDTO::fromArray(...),
     $productsData
 );
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Casts;
 
 use event4u\DataHelpers\SimpleDTO\Contracts\CastsAttributes;
+use event4u\DataHelpers\SimpleDTO\Enums\HashAlgorithm;
 
 /**
  * Cast attribute to hashed string (one-way).
@@ -20,18 +21,26 @@ use event4u\DataHelpers\SimpleDTO\Contracts\CastsAttributes;
  * Example:
  *   protected function casts(): array {
  *       return ['password' => 'hashed'];
- *       // or with algorithm:
+ *       // or with algorithm (enum - recommended):
+ *       return ['password' => new HashedCast(HashAlgorithm::Argon2id)];
+ *       // or with algorithm (string - backward compatible):
  *       return ['password' => 'hashed:argon2id'];
  *   }
  */
 class HashedCast implements CastsAttributes
 {
-    private readonly string $algorithm;
+    private readonly HashAlgorithm $hashAlgorithm;
 
     public function __construct(
-        ?string $algorithm = null,
+        null|string|HashAlgorithm $algorithm = null,
     ) {
-        $this->algorithm = $algorithm ?? 'bcrypt';
+        if (null === $algorithm) {
+            $this->hashAlgorithm = HashAlgorithm::Bcrypt;
+        } elseif (is_string($algorithm)) {
+            $this->hashAlgorithm = HashAlgorithm::fromString($algorithm) ?? HashAlgorithm::Bcrypt;
+        } else {
+            $this->hashAlgorithm = $algorithm;
+        }
     }
 
     public function get(mixed $value, array $attributes): ?string
@@ -89,12 +98,7 @@ class HashedCast implements CastsAttributes
     /** Get the password hashing algorithm constant. */
     private function getAlgorithm(): string
     {
-        return match (strtolower($this->algorithm)) {
-            'argon2i' => PASSWORD_ARGON2I,
-            'argon2id' => PASSWORD_ARGON2ID,
-            'bcrypt', 'default' => PASSWORD_BCRYPT,
-            default => PASSWORD_DEFAULT,
-        };
+        return $this->hashAlgorithm->getConstant();
     }
 
     /**

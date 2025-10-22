@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
+use event4u\DataHelpers\SimpleDTO\Enums\NamingConvention;
+use InvalidArgumentException;
 
 /**
  * Attribute to specify automatic input name transformation for all properties.
@@ -19,13 +21,18 @@ use Attribute;
  * - 'PascalCase': UserName → userName
  *
  * Example:
- *   #[MapInputName('snake_case')]
+ *   // Using enum (recommended)
+ *   #[MapInputName(NamingConvention::SnakeCase)]
  *   class UserDTO extends SimpleDTO {
  *       public function __construct(
  *           public readonly string $userName,      // Accepts 'user_name' from input
  *           public readonly string $emailAddress,  // Accepts 'email_address' from input
  *       ) {}
  *   }
+ *
+ *   // Using string (backward compatible)
+ *   #[MapInputName('snake_case')]
+ *   class UserDTO extends SimpleDTO { ... }
  *
  *   $dto = UserDTO::fromArray([
  *       'user_name' => 'John Doe',
@@ -35,9 +42,22 @@ use Attribute;
 #[Attribute(Attribute::TARGET_CLASS)]
 class MapInputName
 {
-    /** @param string $format The naming format of input keys: 'snake_case', 'camelCase', 'kebab-case', 'PascalCase' */
+    public readonly NamingConvention $convention;
+
+    /** @param string|NamingConvention $format The naming format of input keys */
     public function __construct(
-        public readonly string $format,
+        string|NamingConvention $format,
     ) {
+        $this->convention = is_string($format)
+            ? (NamingConvention::fromString($format) ?? throw new InvalidArgumentException(
+                'Invalid naming convention: ' . $format
+            ))
+            : $format;
+    }
+
+    /** Get the format string for backward compatibility. */
+    public function getFormat(): string
+    {
+        return $this->convention->value;
     }
 }

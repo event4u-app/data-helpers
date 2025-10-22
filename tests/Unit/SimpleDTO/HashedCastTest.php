@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Casts\HashedCast;
+use event4u\DataHelpers\SimpleDTO\Enums\HashAlgorithm;
 
 describe('HashedCast', function(): void {
     describe('Hashing', function(): void {
@@ -98,7 +99,45 @@ describe('HashedCast', function(): void {
             expect(str_starts_with($instance->password, '$2y$'))->toBeTrue();
         });
 
-        it('supports argon2id algorithm', function(): void {
+        it('supports bcrypt with enum value', function(): void {
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $password = '',
+                ) {}
+
+                protected function casts(): array
+                {
+                    return ['password' => 'hashed:' . HashAlgorithm::Bcrypt->value];
+                }
+            };
+
+            $instance = $dto::fromArray(['password' => 'secret123']);
+
+            expect(str_starts_with($instance->password, '$2y$'))->toBeTrue();
+        });
+
+        it('supports argon2id algorithm with enum value', function(): void {
+            if (!defined('PASSWORD_ARGON2ID')) {
+                $this->markTestSkipped('Argon2id not available');
+            }
+
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $password = '',
+                ) {}
+
+                protected function casts(): array
+                {
+                    return ['password' => 'hashed:' . HashAlgorithm::Argon2id->value];
+                }
+            };
+
+            $instance = $dto::fromArray(['password' => 'secret123']);
+
+            expect(str_starts_with($instance->password, '$argon2id$'))->toBeTrue();
+        });
+
+        it('supports argon2id algorithm with string (BC)', function(): void {
             if (!defined('PASSWORD_ARGON2ID')) {
                 $this->markTestSkipped('Argon2id not available');
             }
@@ -119,7 +158,28 @@ describe('HashedCast', function(): void {
             expect(str_starts_with($instance->password, '$argon2id$'))->toBeTrue();
         });
 
-        it('supports argon2i algorithm', function(): void {
+        it('supports argon2i algorithm with enum value', function(): void {
+            if (!defined('PASSWORD_ARGON2I')) {
+                $this->markTestSkipped('Argon2i not available');
+            }
+
+            $dto = new class extends SimpleDTO {
+                public function __construct(
+                    public readonly string $password = '',
+                ) {}
+
+                protected function casts(): array
+                {
+                    return ['password' => 'hashed:' . HashAlgorithm::Argon2i->value];
+                }
+            };
+
+            $instance = $dto::fromArray(['password' => 'secret123']);
+
+            expect(str_starts_with($instance->password, '$argon2i$'))->toBeTrue();
+        });
+
+        it('supports argon2i algorithm with string (BC)', function(): void {
             if (!defined('PASSWORD_ARGON2I')) {
                 $this->markTestSkipped('Argon2i not available');
             }

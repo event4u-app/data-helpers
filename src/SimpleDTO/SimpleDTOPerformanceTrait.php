@@ -70,19 +70,19 @@ trait SimpleDTOPerformanceTrait
         }
 
         $params = [];
-        foreach ($constructor->getParameters() as $parameter) {
-            $type = $parameter->getType();
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            $type = $reflectionParameter->getType();
             $typeName = null;
 
             if (null !== $type) {
                 $typeName = $type instanceof ReflectionNamedType ? $type->getName() : (string)$type;
             }
 
-            $params[$parameter->getName()] = [
-                'name' => $parameter->getName(),
+            $params[$reflectionParameter->getName()] = [
+                'name' => $reflectionParameter->getName(),
                 'type' => $typeName,
-                'hasDefault' => $parameter->isDefaultValueAvailable(),
-                'defaultValue' => $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null,
+                'hasDefault' => $reflectionParameter->isDefaultValueAvailable(),
+                'defaultValue' => $reflectionParameter->isDefaultValueAvailable() ? $reflectionParameter->getDefaultValue() : null,
             ];
         }
 
@@ -107,8 +107,8 @@ trait SimpleDTOPerformanceTrait
         $reflection = new ReflectionClass($class);
         $properties = [];
 
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            $type = $property->getType();
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+            $type = $reflectionProperty->getType();
             $typeName = null;
             $isNullable = false;
 
@@ -117,11 +117,11 @@ trait SimpleDTOPerformanceTrait
                 $isNullable = $type->allowsNull();
             }
 
-            $properties[$property->getName()] = [
+            $properties[$reflectionProperty->getName()] = [
                 'type' => $typeName,
                 'isNullable' => $isNullable,
-                'hasDefault' => $property->hasDefaultValue(),
-                'defaultValue' => $property->hasDefaultValue() ? $property->getDefaultValue() : null,
+                'hasDefault' => $reflectionProperty->hasDefaultValue(),
+                'defaultValue' => $reflectionProperty->hasDefaultValue() ? $reflectionProperty->getDefaultValue() : null,
             ];
         }
 

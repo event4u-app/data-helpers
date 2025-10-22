@@ -218,12 +218,12 @@ for ($i = 0; 1000 > $i; $i++) {
 $start = microtime(true);
 
 $processedUsers = array_map(
-    fn($response): \UserDTO => UserDTO::fromArray($response),
+    UserDTO::fromArray(...),
     $apiResponses
 );
 
 $jsonResults = array_map(
-    fn($user) => json_encode($user),
+    json_encode(...),
     $processedUsers
 );
 

@@ -264,7 +264,7 @@ $results[] = DetailedBenchmark::run('Traditional: 100 DTOs', function() use ($ba
 
 $results[] = DetailedBenchmark::run('SimpleDTO: 100 DTOs', function() use ($batchData): void {
     $dtos = array_map(
-        fn(array $data): DepartmentSimpleDto => DepartmentSimpleDto::fromArray($data),
+        DepartmentSimpleDto::fromArray(...),
         $batchData
     );
 }, $iterations);

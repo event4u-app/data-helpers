@@ -9,6 +9,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapOutputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
+use event4u\DataHelpers\SimpleDTO\Enums\NamingConvention;
 
 echo "\n";
 echo "================================================================================\n";
@@ -424,8 +425,10 @@ echo "\n";
 // Example 11: MapInputName - Automatic Input Transformation
 echo "Example 11: MapInputName - Automatic Input Transformation\n";
 echo "--------------------------------------------------------------------------------\n";
+echo "💡 Tip: Use NamingConvention enum for type-safe naming conventions!\n";
+echo "    Available: SnakeCase, CamelCase, KebabCase, PascalCase\n\n";
 
-#[MapInputName('snake_case')]
+#[MapInputName(NamingConvention::SnakeCase)]  // ✨ Using enum instead of string!
 class UserInputDTO extends SimpleDTO
 {
     public function __construct(
@@ -458,8 +461,9 @@ echo "\n";
 // Example 12: MapOutputName - Automatic Output Transformation
 echo "Example 12: MapOutputName - Automatic Output Transformation\n";
 echo "--------------------------------------------------------------------------------\n";
+echo "💡 Tip: Enum provides IDE autocomplete and prevents typos!\n\n";
 
-#[MapOutputName('snake_case')]
+#[MapOutputName(NamingConvention::SnakeCase)]  // ✨ Using enum!
 class UserOutputDTO extends SimpleDTO
 {
     public function __construct(
@@ -492,9 +496,10 @@ echo "\n";
 // Example 13: Combined MapInputName and MapOutputName
 echo "Example 13: Combined MapInputName and MapOutputName\n";
 echo "--------------------------------------------------------------------------------\n";
+echo "💡 Tip: Mix different conventions for input and output!\n\n";
 
-#[MapInputName('snake_case')]
-#[MapOutputName('kebab-case')]
+#[MapInputName(NamingConvention::SnakeCase)]   // ✨ Input: snake_case
+#[MapOutputName(NamingConvention::KebabCase)]  // ✨ Output: kebab-case
 class TransformDTO extends SimpleDTO
 {
     public function __construct(

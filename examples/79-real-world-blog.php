@@ -24,6 +24,12 @@ use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenCan;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 
+// Skip if Carbon is not available
+if (!class_exists('Carbon\Carbon')) {
+    echo "⚠️  Skipping: Carbon is not available\n";
+    exit(0);
+}
+
 // ============================================================================
 // DTOs
 // ============================================================================
@@ -36,7 +42,7 @@ class AuthorDTO extends SimpleDTO
         public readonly string $username,
         public readonly ?string $avatar,
         public readonly ?string $bio,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?string $email = null,
@@ -65,18 +71,18 @@ class CommentDTO extends SimpleDTO
         public readonly string $content,
         public readonly AuthorDTO $author,
         public readonly ?int $parentId,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $createdAt,
-        
+
         #[Lazy]
         public readonly ?array $replies = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?bool $canEdit = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?bool $canDelete = null,
@@ -105,40 +111,40 @@ class PostDTO extends SimpleDTO
         public readonly string $status,
         public readonly int $views,
         public readonly int $commentCount,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $publishedAt,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly ?Carbon $updatedAt,
-        
+
         #[Lazy]
         public readonly ?array $comments = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?string $editUrl = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenCan('edit')]
         public readonly ?string $deleteUrl = null,
     ) {}
-    
+
     #[Computed]
     public function readingTime(): int
     {
         $words = str_word_count(strip_tags($this->content));
         return (int)ceil($words / 200); // 200 words per minute
     }
-    
+
     #[Computed]
     public function url(): string
     {
         return 'https://blog.example.com/posts/' . $this->slug;
     }
-    
+
     #[Computed]
     public function isRecent(): bool
     {
@@ -160,12 +166,12 @@ class PostListItemDTO extends SimpleDTO
         public readonly array $tags,
         public readonly int $views,
         public readonly int $commentCount,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $publishedAt,
     ) {}
-    
+
     #[Computed]
     public function url(): string
     {

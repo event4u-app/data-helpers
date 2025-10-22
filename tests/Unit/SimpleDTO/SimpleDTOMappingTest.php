@@ -7,6 +7,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapOutputName;
 use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
+use event4u\DataHelpers\SimpleDTO\Enums\NamingConvention;
 use event4u\DataHelpers\SimpleDTO\Support\NameTransformer;
 
 describe('SimpleDTO Mapping', function(): void {
@@ -529,7 +530,25 @@ describe('SimpleDTO Mapping', function(): void {
     });
 
     describe('MapInputName Attribute', function(): void {
-        it('transforms all input keys with snake_case', function(): void {
+        it('transforms all input keys with snake_case using enum', function(): void {
+            $dto = new #[MapInputName(NamingConvention::SnakeCase)] class('', '') extends SimpleDTO {
+                public function __construct(
+                    public readonly string $userName,
+                    public readonly string $emailAddress,
+                ) {
+                }
+            };
+
+            $instance = $dto::fromArray([
+                'user_name' => 'John Doe',
+                'email_address' => 'john@example.com',
+            ]);
+
+            expect($instance->userName)->toBe('John Doe')
+                ->and($instance->emailAddress)->toBe('john@example.com');
+        });
+
+        it('transforms all input keys with snake_case using string (BC)', function(): void {
             $dto = new #[MapInputName('snake_case')] class('', '') extends SimpleDTO {
                 public function __construct(
                     public readonly string $userName,
@@ -547,8 +566,8 @@ describe('SimpleDTO Mapping', function(): void {
                 ->and($instance->emailAddress)->toBe('john@example.com');
         });
 
-        it('transforms all input keys with kebab-case', function(): void {
-            $dto = new #[MapInputName('kebab-case')] class('', '') extends SimpleDTO {
+        it('transforms all input keys with kebab-case using enum', function(): void {
+            $dto = new #[MapInputName(NamingConvention::KebabCase)] class('', '') extends SimpleDTO {
                 public function __construct(
                     public readonly string $userName,
                     public readonly string $emailAddress,
@@ -565,8 +584,8 @@ describe('SimpleDTO Mapping', function(): void {
                 ->and($instance->emailAddress)->toBe('john@example.com');
         });
 
-        it('transforms all input keys with PascalCase', function(): void {
-            $dto = new #[MapInputName('PascalCase')] class('', '') extends SimpleDTO {
+        it('transforms all input keys with PascalCase using enum', function(): void {
+            $dto = new #[MapInputName(NamingConvention::PascalCase)] class('', '') extends SimpleDTO {
                 public function __construct(
                     public readonly string $userName,
                     public readonly string $emailAddress,
@@ -604,7 +623,25 @@ describe('SimpleDTO Mapping', function(): void {
     });
 
     describe('MapOutputName Attribute', function(): void {
-        it('transforms all output keys with snake_case', function(): void {
+        it('transforms all output keys with snake_case using enum', function(): void {
+            $dto = new #[MapOutputName(
+                NamingConvention::SnakeCase
+            )] class('John Doe', 'john@example.com') extends SimpleDTO {
+                public function __construct(
+                    public readonly string $userName,
+                    public readonly string $emailAddress,
+                ) {
+                }
+            };
+
+            $output = $dto->toArray();
+            expect($output)->toHaveKey('user_name')
+                ->and($output)->toHaveKey('email_address')
+                ->and($output['user_name'])->toBe('John Doe')
+                ->and($output['email_address'])->toBe('john@example.com');
+        });
+
+        it('transforms all output keys with snake_case using string (BC)', function(): void {
             $dto = new #[MapOutputName('snake_case')] class('John Doe', 'john@example.com') extends SimpleDTO {
                 public function __construct(
                     public readonly string $userName,

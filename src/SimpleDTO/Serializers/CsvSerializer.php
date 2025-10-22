@@ -73,7 +73,7 @@ class CsvSerializer implements SerializerInterface
         $first = reset($data);
 
         // Flatten nested arrays
-        $flatData = array_map(fn($row): array => $this->flattenArray($row), $data);
+        $flatData = array_map($this->flattenArray(...), $data);
 
         // Get headers from first row
         $headers = array_keys($flatData[0]);

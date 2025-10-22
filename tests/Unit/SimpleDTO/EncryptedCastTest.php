@@ -54,7 +54,7 @@ describe('EncryptedCast', function(): void {
     });
 
     describe('Encryption/Decryption', function(): void {
-        beforeEach(fn() => setupEncryptedCast());
+        beforeEach(setupEncryptedCast(...));
 
         it('encrypts and decrypts values with fallback encrypter', function(): void {
             // Use custom encrypter to simulate the flow
@@ -172,7 +172,7 @@ describe('EncryptedCast', function(): void {
     });
 
     describe('Output Cast', function(): void {
-        beforeEach(fn() => setupEncryptedCast());
+        beforeEach(setupEncryptedCast(...));
 
         it('encrypts value in toArray', function(): void {
             if (!class_exists('Illuminate\Encryption\Encrypter')) {
@@ -221,7 +221,7 @@ describe('EncryptedCast', function(): void {
     });
 
     describe('Edge Cases', function(): void {
-        beforeEach(fn() => setupEncryptedCast());
+        beforeEach(setupEncryptedCast(...));
 
         it('handles decryption failures gracefully', function(): void {
             $dto = new class extends SimpleDTO {
@@ -287,7 +287,7 @@ describe('EncryptedCast', function(): void {
     });
 
     describe('Custom Encrypter', function(): void {
-        beforeEach(fn() => setupEncryptedCast());
+        beforeEach(setupEncryptedCast(...));
 
         it('allows setting custom encrypter object', function(): void {
             $mockEncrypter = new class {

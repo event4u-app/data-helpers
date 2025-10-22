@@ -229,7 +229,7 @@ final class FluentDataMapper
 
             $hookName = $filter->getHook();
             $filterName = $filter->getFilter();
-            $callback = fn($value, $context) => $filter->transform($value, $context);
+            $callback = $filter->transform(...);
 
             if (null !== $filterName) {
                 if (!isset($hooks[$hookName])) {

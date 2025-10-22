@@ -13,6 +13,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenNull;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenTrue;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
+use event4u\DataHelpers\SimpleDTO\Enums\ComparisonOperator;
 
 // Test DTOs
 class ConditionalPropsTestDTO1 extends SimpleDTO
@@ -356,6 +357,64 @@ describe('Conditional Properties', function(): void {
 
         it('supports different comparison operators', function(): void {
             $dto = new ConditionalPropsTestDTO3('Product', 100.0, 'Exact');
+
+            $array = $dto->toArray();
+            expect($array)->toHaveKey('badge');
+        });
+
+        it('supports ComparisonOperator enum', function(): void {
+            $dto = new class('Product', 150.0, 'Premium') extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name,
+                    public readonly float $price,
+                    #[WhenValue('price', ComparisonOperator::GreaterThan, 100)]
+                    public readonly ?string $badge = null,
+                ) {}
+            };
+
+            $array = $dto->toArray();
+            expect($array)->toHaveKey('badge')
+                ->and($array['badge'])->toBe('Premium');
+        });
+
+        it('supports string operator for backward compatibility', function(): void {
+            $dto = new class('Product', 150.0, 'Premium') extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name,
+                    public readonly float $price,
+                    #[WhenValue('price', '>', 100)]
+                    public readonly ?string $badge = null,
+                ) {}
+            };
+
+            $array = $dto->toArray();
+            expect($array)->toHaveKey('badge')
+                ->and($array['badge'])->toBe('Premium');
+        });
+
+        it('supports strict equality with enum', function(): void {
+            $dto = new class('Product', '100', 'Match') extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name,
+                    public readonly string $price,
+                    #[WhenValue('price', ComparisonOperator::StrictEqual, '100')]
+                    public readonly ?string $badge = null,
+                ) {}
+            };
+
+            $array = $dto->toArray();
+            expect($array)->toHaveKey('badge');
+        });
+
+        it('supports loose equality with enum', function(): void {
+            $dto = new class('Product', 100, 'Match') extends SimpleDTO {
+                public function __construct(
+                    public readonly string $name,
+                    public readonly int $price,
+                    #[WhenValue('price', ComparisonOperator::LooseEqual, '100')]
+                    public readonly ?string $badge = null,
+                ) {}
+            };
 
             $array = $dto->toArray();
             expect($array)->toHaveKey('badge');

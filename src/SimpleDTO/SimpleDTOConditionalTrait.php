@@ -55,8 +55,8 @@ trait SimpleDTOConditionalTrait
         $reflection = ReflectionCache::getClass($class);
         $conditionals = [];
 
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            $attributes = $property->getAttributes(
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+            $attributes = $reflectionProperty->getAttributes(
                 ConditionalProperty::class,
                 ReflectionAttribute::IS_INSTANCEOF
             );
@@ -70,7 +70,7 @@ trait SimpleDTOConditionalTrait
                 $propertyConditionals[] = $attribute->newInstance();
             }
 
-            $conditionals[$property->getName()] = $propertyConditionals;
+            $conditionals[$reflectionProperty->getName()] = $propertyConditionals;
         }
 
         $cache[$class] = $conditionals;

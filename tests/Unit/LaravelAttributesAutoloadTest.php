@@ -93,7 +93,7 @@ describe('Laravel Attributes Autoload Safety', function(): void {
         $dto = new LaravelAutoloadTestDTO2('John', 'john@example.com');
 
         // Should not throw error even without Laravel
-        expect(fn(): array => $dto->toArray())->not->toThrow(Throwable::class);
+        expect($dto->toArray(...))->not->toThrow(Throwable::class);
     });
 
     it('Laravel attributes implement ConditionalProperty interface', function(): void {
@@ -180,8 +180,8 @@ describe('Laravel Attributes Autoload Safety', function(): void {
         $class = new LaravelAutoloadTestDTO5('Test');
 
         // Should not throw any errors
-        expect(fn(): array => $class->toArray())->not->toThrow(Throwable::class);
-        expect(fn(): array => $class->jsonSerialize())->not->toThrow(Throwable::class);
+        expect($class->toArray(...))->not->toThrow(Throwable::class);
+        expect($class->jsonSerialize(...))->not->toThrow(Throwable::class);
         expect(fn() => json_encode($class))->not->toThrow(Throwable::class);
     });
 })->group('laravel');

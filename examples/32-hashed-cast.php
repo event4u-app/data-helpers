@@ -6,6 +6,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Casts\HashedCast;
+use event4u\DataHelpers\SimpleDTO\Enums\HashAlgorithm;
 
 echo "================================================================================\n";
 echo "SimpleDTO - Hashed Cast Examples\n";
@@ -61,6 +62,8 @@ echo "Valid: " . (HashedCast::verify($loginAttempt2, $user->password) ? 'Yes ✅
 // Example 3: Different Hashing Algorithms
 echo "Example 3: Different Hashing Algorithms\n";
 echo "----------------------------------------\n";
+echo "💡 Tip: Use HashAlgorithm enum for type-safe algorithm selection!\n";
+echo "    Available: Bcrypt, Argon2i, Argon2id\n\n";
 
 class SecureUserDTO extends SimpleDTO
 {
@@ -71,7 +74,8 @@ class SecureUserDTO extends SimpleDTO
 
     protected function casts(): array
     {
-        return ['password' => 'hashed:argon2id'];
+        // ✨ Using enum value for type safety!
+        return ['password' => 'hashed:' . HashAlgorithm::Argon2id->value];
     }
 }
 

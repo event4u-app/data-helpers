@@ -99,7 +99,7 @@ describe('Symfony Attributes Autoload Safety', function(): void {
         $dto = new SymfonyTestDTO1('My Post', '/edit');
 
         // Should not throw error even without Symfony
-        expect(fn(): array => $dto->toArray())->not->toThrow(Throwable::class);
+        expect($dto->toArray(...))->not->toThrow(Throwable::class);
     });
 
     it('Symfony attributes implement ConditionalProperty interface', function(): void {
@@ -164,8 +164,8 @@ describe('Symfony Attributes Autoload Safety', function(): void {
         $class = new SymfonyTestDTO3('Test');
 
         // Should not throw any errors
-        expect(fn(): array => $class->toArray())->not->toThrow(Throwable::class);
-        expect(fn(): array => $class->jsonSerialize())->not->toThrow(Throwable::class);
+        expect($class->toArray(...))->not->toThrow(Throwable::class);
+        expect($class->jsonSerialize(...))->not->toThrow(Throwable::class);
         expect(fn() => json_encode($class))->not->toThrow(Throwable::class);
     });
 

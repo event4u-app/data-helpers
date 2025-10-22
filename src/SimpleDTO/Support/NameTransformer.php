@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO\Support;
 
+use event4u\DataHelpers\SimpleDTO\Enums\NamingConvention;
+
 /**
  * Utility class for transforming property names between different naming conventions.
  *
@@ -226,19 +228,23 @@ class NameTransformer
     /**
      * Transform a name based on the specified format.
      *
-     * @param string $name   The name to transform
-     * @param string $format The target format: 'snake_case', 'camelCase', 'kebab-case', 'PascalCase'
+     * @param string $name The name to transform
+     * @param string|NamingConvention $format The target format
      *
      * @return string The transformed name
      */
-    public static function transform(string $name, string $format): string
+    public static function transform(string $name, string|NamingConvention $format): string
     {
-        return match ($format) {
-            'snake_case' => self::toSnakeCase($name),
-            'camelCase' => self::toCamelCase($name),
-            'kebab-case' => self::toKebabCase($name),
-            'PascalCase' => self::toPascalCase($name),
-            default => $name,
-        };
+        // Convert string to enum if needed
+        if (is_string($format)) {
+            $convention = NamingConvention::fromString($format);
+            if (!$convention instanceof NamingConvention) {
+                return $name; // Invalid format, return unchanged
+            }
+            $format = $convention;
+        }
+
+        // Use enum's transform method
+        return $format->transform($name);
     }
 }

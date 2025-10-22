@@ -6,6 +6,8 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use event4u\DataHelpers\SimpleDTO\Enums\ComparisonOperator;
+use InvalidArgumentException;
 
 /**
  * Conditional attribute: Include property based on value comparison.
@@ -17,9 +19,14 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
  *     public function __construct(
  *         public readonly string $name,
  *         public readonly float $price,
- *         
- *         #[WhenValue('price', '>', 100)]
+ *
+ *         // Using enum (recommended)
+ *         #[WhenValue('price', ComparisonOperator::GreaterThan, 100)]
  *         public readonly ?string $premiumBadge = null,
+ *
+ *         // Using string (backward compatible)
+ *         #[WhenValue('price', '>', 100)]
+ *         public readonly ?string $premiumBadge2 = null,
  *     ) {}
  * }
  * ```
@@ -27,16 +34,24 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class WhenValue implements ConditionalProperty
 {
+    public readonly ComparisonOperator $comparisonOperator;
+
     /**
      * @param string $field Field name to compare
-     * @param string $operator Comparison operator (=, !=, >, <, >=, <=)
+     * @param string|ComparisonOperator $operator Comparison operator
      * @param mixed $value Value to compare against
      */
     public function __construct(
         public readonly string $field,
-        public readonly string $operator,
+        string|ComparisonOperator $operator,
         public readonly mixed $value,
-    ) {}
+    ) {
+        $this->comparisonOperator = is_string($operator)
+            ? (ComparisonOperator::fromString($operator) ?? throw new InvalidArgumentException(
+                'Invalid comparison operator: ' . $operator
+            ))
+            : $operator;
+    }
 
     /**
      * Determine if the property should be included in serialization.
@@ -53,17 +68,6 @@ class WhenValue implements ConditionalProperty
 
         $fieldValue = $dto->{$this->field};
 
-        return match ($this->operator) {
-            '=' => $fieldValue == $this->value,
-            '==' => $fieldValue == $this->value,
-            '===' => $fieldValue === $this->value,
-            '!=' => $fieldValue != $this->value,
-            '!==' => $fieldValue !== $this->value,
-            '>' => $fieldValue > $this->value,
-            '<' => $fieldValue < $this->value,
-            '>=' => $fieldValue >= $this->value,
-            '<=' => $fieldValue <= $this->value,
-            default => false,
-        };
+        return $this->comparisonOperator->compare($fieldValue, $this->value);
     }
 }
