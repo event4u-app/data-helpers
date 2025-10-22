@@ -24,4 +24,3 @@ assertType('float', $result);
 // Test boolean
 $result = EnvHelper::boolean('APP_DEBUG', false);
 assertType('bool', $result);
-

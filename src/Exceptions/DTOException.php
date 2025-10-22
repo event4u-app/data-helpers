@@ -238,4 +238,3 @@ class DTOException extends RuntimeException
         return array_slice(array_keys($similar), 0, 3);
     }
 }
-

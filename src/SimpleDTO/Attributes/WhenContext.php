@@ -132,4 +132,3 @@ class WhenContext implements ConditionalProperty
         };
     }
 }
-

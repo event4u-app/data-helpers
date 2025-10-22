@@ -377,4 +377,3 @@ echo "Inactive User:\n";
 echo json_encode($inactiveUser->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 echo "✅  Advanced features showcase completed!\n";
-

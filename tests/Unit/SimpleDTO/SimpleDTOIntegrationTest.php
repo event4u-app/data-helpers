@@ -300,4 +300,3 @@ describe('SimpleDTOIntegration', function(): void {
         })->skip('Laravel Validator not available in unit tests');
     });
 });
-

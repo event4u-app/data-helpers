@@ -242,4 +242,3 @@ echo "   - The .phpstorm.meta.php file provides enhanced autocomplete\n";
 echo "   - Use PHPDoc annotations for complex types\n";
 echo "   - Enable strict types with declare(strict_types=1)\n";
 echo "   - Use readonly properties for immutability\n";
-

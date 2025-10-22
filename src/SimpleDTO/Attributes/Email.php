@@ -45,4 +45,3 @@ class Email implements ValidationRule, SymfonyConstraint
         return $this->message;
     }
 }
-

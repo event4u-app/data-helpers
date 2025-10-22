@@ -100,4 +100,3 @@ class XmlSerializer implements SerializerInterface
         return 'application/xml';
     }
 }
-

@@ -148,4 +148,3 @@ echo "✅  Confirmed ensures password match\n";
 echo "✅  In restricts role to allowed values\n";
 
 echo "\n=== Examples Complete ===\n";
-

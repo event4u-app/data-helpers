@@ -67,4 +67,3 @@ final class DecodeHtmlEntities implements FilterInterface
         return ['decode_html', 'html_decode', 'decode_entities'];
     }
 }
-

@@ -410,4 +410,3 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
         return json_encode($this->mappedData, JSON_THROW_ON_ERROR);
     }
 }
-

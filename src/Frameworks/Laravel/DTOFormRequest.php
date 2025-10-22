@@ -142,4 +142,3 @@ abstract class DTOFormRequest extends FormRequest
      */
     abstract public function authorize(): bool;
 }
-

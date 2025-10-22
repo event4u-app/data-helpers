@@ -136,4 +136,3 @@ class Image implements ValidationRule, SymfonyConstraint
         );
     }
 }
-

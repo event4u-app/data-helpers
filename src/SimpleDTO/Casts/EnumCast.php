@@ -101,4 +101,3 @@ class EnumCast implements CastsAttributes
         return $value->name;
     }
 }
-

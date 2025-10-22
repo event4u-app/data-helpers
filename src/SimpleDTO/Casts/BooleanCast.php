@@ -53,4 +53,3 @@ class BooleanCast implements CastsAttributes
         return $value ? 1 : 0;
     }
 }
-

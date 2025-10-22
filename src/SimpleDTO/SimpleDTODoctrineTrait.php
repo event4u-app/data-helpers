@@ -58,4 +58,3 @@ trait SimpleDTODoctrineTrait
         return $entity;
     }
 }
-

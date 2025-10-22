@@ -65,4 +65,3 @@ class Size implements ValidationRule, SymfonyConstraint
         return sprintf('The attribute must be %d.', $this->size);
     }
 }
-

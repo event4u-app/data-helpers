@@ -39,4 +39,3 @@ final class RemoveNullValues implements FilterInterface
         return [];
     }
 }
-

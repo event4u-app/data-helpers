@@ -275,4 +275,3 @@ echo "Reverse mapping with filters (trim + uppercase):\n";
 echo json_encode($pipelineResult, JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n=== End of Examples ===\n";
-

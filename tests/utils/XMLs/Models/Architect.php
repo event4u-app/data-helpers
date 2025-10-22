@@ -160,4 +160,3 @@ class Architect extends Model
         return $this->belongsTo(Project::class);
     }
 }
-

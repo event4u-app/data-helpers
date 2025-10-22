@@ -351,4 +351,3 @@ describe('DataMapper - Discriminator Advanced Tests', function(): void {
         });
     });
 });
-

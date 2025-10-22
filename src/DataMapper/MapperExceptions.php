@@ -254,4 +254,3 @@ class MapperExceptions
         self::handleException($exception);
     }
 }
-

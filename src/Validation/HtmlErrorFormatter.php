@@ -257,4 +257,3 @@ class HtmlErrorFormatter
         return $exception->hasError($field) ? $errorClass : $validClass;
     }
 }
-

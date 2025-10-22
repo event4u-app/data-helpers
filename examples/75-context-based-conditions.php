@@ -309,4 +309,3 @@ echo "✅  Chainable - withContext() can be chained\n";
 echo "✅  Perfect for role-based access, environment configs, API responses\n";
 
 echo "\n";
-

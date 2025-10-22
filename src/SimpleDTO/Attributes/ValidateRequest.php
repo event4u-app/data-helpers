@@ -52,4 +52,3 @@ class ValidateRequest
         public readonly array $except = [],
     ) {}
 }
-

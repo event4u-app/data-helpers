@@ -51,4 +51,3 @@ final class NullLogger implements DataHelpersLogger
         return false;
     }
 }
-

@@ -75,4 +75,3 @@ assertType(ProfileDTO::class, $updated);
 // assertType('string', $profile->fullName); // Skipped due to PHPStan limitation with promoted properties
 // assertType(AddressDTO::class, $profile->address); // Skipped due to PHPStan limitation with promoted properties
 // assertType('string', $profile->address->city); // Skipped due to PHPStan limitation with promoted properties
-

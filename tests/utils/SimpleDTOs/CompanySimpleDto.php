@@ -28,4 +28,3 @@ class CompanySimpleDto extends SimpleDTO
         public readonly array $projects = [],
     ) {}
 }
-

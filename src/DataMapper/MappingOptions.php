@@ -205,4 +205,3 @@ final readonly class MappingOptions
         ];
     }
 }
-

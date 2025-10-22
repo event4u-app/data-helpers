@@ -128,4 +128,3 @@ trait SimpleDTOConditionalTrait
         return $filtered;
     }
 }
-

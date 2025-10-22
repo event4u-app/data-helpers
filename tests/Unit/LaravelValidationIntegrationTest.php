@@ -297,4 +297,3 @@ describe('Laravel Validation Integration', function(): void {
         });
     })->group('laravel');
 })->group('laravel');
-

@@ -30,4 +30,3 @@ class TransformerStage implements PipelineStageInterface
         return $this->name;
     }
 }
-

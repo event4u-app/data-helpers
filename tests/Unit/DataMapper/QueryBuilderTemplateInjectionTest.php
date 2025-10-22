@@ -418,4 +418,3 @@ describe('Query Builder Template Injection', function(): void {
         });
     });
 });
-

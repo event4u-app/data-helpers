@@ -71,4 +71,3 @@ final class CastToInteger implements FilterInterface
         return [];
     }
 }
-

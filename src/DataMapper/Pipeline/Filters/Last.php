@@ -38,4 +38,3 @@ final class Last implements FilterInterface
         return ['last'];
     }
 }
-

@@ -271,4 +271,3 @@ echo "  💡 Use Traditional DTO for performance-critical hot paths\n";
 echo "\n";
 echo "  Run 'composer bench:dto:readme' to update docs/simple-dto.md\n";
 echo "\n";
-

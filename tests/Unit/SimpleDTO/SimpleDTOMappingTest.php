@@ -730,4 +730,3 @@ describe('SimpleDTO Mapping', function(): void {
         });
     });
 });
-

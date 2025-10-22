@@ -311,4 +311,3 @@ describe('DataCollection', function(): void {
         });
     });
 });
-

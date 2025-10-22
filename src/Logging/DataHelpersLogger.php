@@ -71,4 +71,3 @@ interface DataHelpersLogger
      */
     public function isLevelEnabled(LogLevel $level): bool;
 }
-

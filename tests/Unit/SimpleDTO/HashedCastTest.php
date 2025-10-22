@@ -238,4 +238,3 @@ describe('HashedCast', function(): void {
         });
     });
 });
-

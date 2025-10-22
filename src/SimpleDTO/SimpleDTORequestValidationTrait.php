@@ -189,4 +189,3 @@ trait SimpleDTORequestValidationTrait
      */
     abstract protected static function getAllAttributes(): array;
 }
-

@@ -694,4 +694,3 @@ describe('SimpleDTO Casts', function(): void {
         });
     });
 });
-

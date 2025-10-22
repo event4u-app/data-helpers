@@ -38,4 +38,3 @@ final class Ucwords implements FilterInterface
         return ['ucwords'];
     }
 }
-

@@ -40,4 +40,3 @@ class TrimStringsTransformer implements TransformerInterface
         return $data;
     }
 }
-

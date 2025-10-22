@@ -292,4 +292,3 @@ echo "  ✅  Partial updates (PATCH)\n";
 echo "  ✅  JSON API support\n";
 echo "  ✅  Error handling (EventListener)\n";
 echo "  ✅  Console command (make:dto)\n";
-

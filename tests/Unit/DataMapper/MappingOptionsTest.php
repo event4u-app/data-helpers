@@ -112,4 +112,3 @@ test('MappingOptions → it converts to array', function(): void {
         'caseInsensitiveReplace' => false,
     ]);
 });
-

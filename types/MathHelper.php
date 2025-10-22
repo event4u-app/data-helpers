@@ -59,4 +59,3 @@ assertType('float', $result);
 // Test convertMinutesToDecimalHoursRounded
 $result = MathHelper::convertMinutesToDecimalHoursRounded(90);
 assertType('float', $result);
-

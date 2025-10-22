@@ -332,4 +332,3 @@ echo "Response:\n";
 echo json_encode($paginatedResponse, JSON_PRETTY_PRINT) . "\n\n";
 
 echo "✅  All examples completed successfully!\n";
-

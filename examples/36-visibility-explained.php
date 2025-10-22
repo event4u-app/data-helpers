@@ -344,4 +344,3 @@ echo "8. withVisibilityContext() ist chainable mit only() und except()\n";
 echo "9. Ohne Context werden #[Visible] Properties standardmäßig versteckt\n\n";
 
 echo "✅  Alle Beispiele abgeschlossen!\n";
-

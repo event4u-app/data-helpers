@@ -468,4 +468,3 @@ describe('DataMapper - Discriminator Edge Cases', function(): void {
         });
     });
 });
-

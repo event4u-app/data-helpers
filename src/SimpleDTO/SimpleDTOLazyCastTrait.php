@@ -235,4 +235,3 @@ trait SimpleDTOLazyCastTrait
         ];
     }
 }
-

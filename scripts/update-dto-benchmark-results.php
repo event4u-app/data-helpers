@@ -311,4 +311,3 @@ file_put_contents($readmePath, $newReadme);
 
 echo "✅  Benchmark results updated in docs/simple-dto.md\n";
 echo "\n";
-

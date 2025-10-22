@@ -175,4 +175,3 @@ describe('FluentDataMapper Entry Points', function(): void {
         });
     });
 });
-

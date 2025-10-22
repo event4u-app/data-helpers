@@ -315,4 +315,3 @@ echo "✅  Works with Laravel: Automatically uses Auth::user() and Gate::allows(
 echo "✅  Perfect for API responses, role-based access, permission checks\n";
 
 echo "\n";
-

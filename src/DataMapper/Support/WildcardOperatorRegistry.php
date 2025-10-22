@@ -170,4 +170,3 @@ class WildcardOperatorRegistry
         self::$builtInRegistered = true;
     }
 }
-

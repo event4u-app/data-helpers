@@ -43,4 +43,3 @@ class Sometimes implements ValidationRule
         return null;
     }
 }
-

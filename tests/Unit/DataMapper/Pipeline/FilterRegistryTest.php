@@ -93,4 +93,3 @@ describe('FilterRegistry', function(): void {
         expect(FilterRegistry::has('alternating'))->toBeFalse();
     });
 });
-

@@ -263,4 +263,3 @@ describe('Serializers', function(): void {
         });
     });
 });
-

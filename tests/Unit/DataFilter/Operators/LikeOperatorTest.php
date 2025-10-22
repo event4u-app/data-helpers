@@ -282,4 +282,3 @@ describe('LikeOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

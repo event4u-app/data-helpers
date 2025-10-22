@@ -171,4 +171,3 @@ describe('Symfony Config Integration', function(): void {
     !class_exists('Symfony\Component\DependencyInjection\ContainerBuilder'),
     'Symfony is not available'
 );
-

@@ -166,4 +166,3 @@ echo "User 2: " . (HashedCast::verify('SamePassword', $user2->password) ? 'Valid
 echo "================================================================================\n";
 echo "All examples completed successfully!\n";
 echo "================================================================================\n";
-

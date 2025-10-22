@@ -187,4 +187,3 @@ describe('OffsetOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

@@ -46,4 +46,3 @@ trait SimpleDTOPipelineTrait
         return static::fromArray($data);
     }
 }
-

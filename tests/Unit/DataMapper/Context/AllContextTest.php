@@ -148,4 +148,3 @@ describe('AllContext', function(): void {
         expect($context->mapping)->toBeArray();
     });
 });
-

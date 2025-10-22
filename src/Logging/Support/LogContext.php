@@ -119,4 +119,3 @@ final class LogContext
         return $this->data;
     }
 }
-

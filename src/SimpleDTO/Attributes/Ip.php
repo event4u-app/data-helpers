@@ -76,4 +76,3 @@ class Ip implements ValidationRule, SymfonyConstraint
         return sprintf('The attribute must be a valid %s address.', $version);
     }
 }
-

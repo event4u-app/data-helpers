@@ -44,4 +44,3 @@ class Nullable implements ValidationRule
         return null;
     }
 }
-

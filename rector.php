@@ -156,4 +156,3 @@ return RectorConfig::configure()
         RemoveUnusedPrivateMethodRector::class,
         SortNamedParamRector::class,
     ]);
-

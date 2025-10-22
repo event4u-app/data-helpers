@@ -90,4 +90,3 @@ describe('LogContext', function(): void {
         expect($context)->toHaveKey('memory');
     });
 });
-

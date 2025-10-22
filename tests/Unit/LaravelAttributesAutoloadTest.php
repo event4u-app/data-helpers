@@ -185,4 +185,3 @@ describe('Laravel Attributes Autoload Safety', function(): void {
         expect(fn() => json_encode($class))->not->toThrow(Throwable::class);
     });
 })->group('laravel');
-

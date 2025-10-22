@@ -305,4 +305,3 @@ describe('Eloquent Integration', function(): void {
         });
     });
 });
-

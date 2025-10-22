@@ -135,4 +135,3 @@ final class OperatorRegistry
         self::$builtInRegistered = true;
     }
 }
-

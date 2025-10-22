@@ -18,4 +18,3 @@ class EmployeeSimpleDto extends SimpleDTO
         public readonly array $projects = [],
     ) {}
 }
-

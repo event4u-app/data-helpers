@@ -165,4 +165,3 @@ describe('WhereNullOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

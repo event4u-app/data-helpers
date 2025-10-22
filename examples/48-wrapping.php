@@ -192,4 +192,3 @@ echo json_encode($wrappedFiltered, JSON_PRETTY_PRINT) . "\n\n";
 echo "================================================================================\n";
 echo "All examples completed successfully!\n";
 echo "================================================================================\n";
-

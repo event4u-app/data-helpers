@@ -318,4 +318,3 @@ describe('Performance & Stress Testing', function(): void {
         });
     });
 });
-

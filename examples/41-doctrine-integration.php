@@ -218,4 +218,3 @@ echo "The DTO will be automatically serialized to JSON when saving\n";
 echo "and deserialized back to DTO when loading from database.\n\n";
 
 echo "=== Example Complete ===\n";
-

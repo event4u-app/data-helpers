@@ -171,4 +171,3 @@ describe('LimitOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

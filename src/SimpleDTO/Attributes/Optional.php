@@ -120,4 +120,3 @@ final readonly class Optional
         public mixed $default = null,
     ) {}
 }
-

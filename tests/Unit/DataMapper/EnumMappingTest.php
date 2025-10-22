@@ -227,4 +227,3 @@ describe('DataMapper Enum Support - Doctrine', function(): void {
         expect($result->getName())->toBe('John Doe');
     });
 })->group('doctrine');
-

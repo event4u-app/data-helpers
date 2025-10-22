@@ -64,4 +64,3 @@ class Different implements ValidationRule, SymfonyConstraint
         return [];
     }
 }
-

@@ -129,4 +129,3 @@ final readonly class DataMapperDelete
         return $this->mapper;
     }
 }
-

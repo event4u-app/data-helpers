@@ -313,4 +313,3 @@ describe('Pipeline', function(): void {
         });
     });
 });
-

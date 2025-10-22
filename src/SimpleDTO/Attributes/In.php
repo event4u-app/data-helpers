@@ -51,4 +51,3 @@ class In implements ValidationRule, SymfonyConstraint
         return $this->message;
     }
 }
-

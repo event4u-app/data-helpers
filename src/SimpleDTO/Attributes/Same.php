@@ -64,4 +64,3 @@ class Same implements ValidationRule, SymfonyConstraint
         return [];
     }
 }
-

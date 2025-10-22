@@ -240,4 +240,3 @@ final class LoggerFactory
         return LogLevel::INFO;
     }
 }
-

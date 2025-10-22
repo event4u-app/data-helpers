@@ -72,4 +72,3 @@ assertType('array<int|string, mixed>', $array);
 
 $json = $result->toJson();
 assertType('string', $json);
-

@@ -222,4 +222,3 @@ trait SimpleDTOOptionalTrait
         return array_keys(static::getOptionalProperties());
     }
 }
-

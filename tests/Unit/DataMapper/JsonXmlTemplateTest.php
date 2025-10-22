@@ -209,4 +209,3 @@ describe('Template Format Detection', function(): void {
         expect($result)->toBe(['name' => 'XML User']);
     });
 });
-

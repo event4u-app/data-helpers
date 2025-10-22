@@ -38,4 +38,3 @@ final class Count implements FilterInterface
         return ['count'];
     }
 }
-

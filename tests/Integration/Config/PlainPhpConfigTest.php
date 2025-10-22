@@ -116,4 +116,3 @@ describe('Plain PHP Config Integration', function(): void {
         expect($helper->get('performance_mode'))->toBeIn(['fast', 'safe']);
     });
 });
-

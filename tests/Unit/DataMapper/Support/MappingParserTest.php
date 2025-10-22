@@ -155,4 +155,3 @@ describe('MappingParser', function(): void {
         });
     });
 });
-

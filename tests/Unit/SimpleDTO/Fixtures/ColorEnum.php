@@ -14,4 +14,3 @@ enum ColorEnum
     case BLUE;
     case YELLOW;
 }
-

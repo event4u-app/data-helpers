@@ -243,4 +243,3 @@ describe('SimpleDTO Mapper Integration', function(): void {
         });
     });
 });
-

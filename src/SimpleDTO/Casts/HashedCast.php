@@ -107,4 +107,3 @@ class HashedCast implements CastsAttributes
         return password_verify($plainText, $hashedValue);
     }
 }
-

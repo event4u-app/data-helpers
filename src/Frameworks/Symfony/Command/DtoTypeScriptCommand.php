@@ -291,4 +291,3 @@ class DtoTypeScriptCommand extends Command
         return hash('sha256', implode('', $hashes));
     }
 }
-

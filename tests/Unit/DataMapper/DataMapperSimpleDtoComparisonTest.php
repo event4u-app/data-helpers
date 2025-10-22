@@ -266,4 +266,3 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
         });
     });
 });
-

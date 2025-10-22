@@ -147,4 +147,3 @@ class Customer extends Model
         return $this->belongsTo(Project::class);
     }
 }
-

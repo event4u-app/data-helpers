@@ -337,4 +337,3 @@ describe('Property Mapping Edge Cases', function(): void {
         });
     });
 });
-

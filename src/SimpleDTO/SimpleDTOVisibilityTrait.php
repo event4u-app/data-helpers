@@ -388,4 +388,3 @@ trait SimpleDTOVisibilityTrait
         return $this->filterVisibleProperties($data, $hiddenProperties);
     }
 }
-

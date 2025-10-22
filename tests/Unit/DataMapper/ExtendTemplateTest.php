@@ -565,4 +565,3 @@ describe('DataMapper - extendTemplate() and addPipelineFilter()', function(): vo
         });
     });
 });
-

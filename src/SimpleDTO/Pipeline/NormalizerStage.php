@@ -30,4 +30,3 @@ class NormalizerStage implements PipelineStageInterface
         return $this->name;
     }
 }
-

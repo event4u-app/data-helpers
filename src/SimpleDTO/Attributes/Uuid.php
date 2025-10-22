@@ -44,4 +44,3 @@ class Uuid implements ValidationRule, SymfonyConstraint
         return $this->message;
     }
 }
-

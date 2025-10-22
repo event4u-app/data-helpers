@@ -73,4 +73,3 @@ describe('LogSampler', function(): void {
         expect($logged)->toBeLessThan(100);
     });
 });
-

@@ -629,4 +629,3 @@ class DataCollectionEdgeCaseProductDTO extends SimpleDTO
         public readonly float $price,
     ) {}
 }
-

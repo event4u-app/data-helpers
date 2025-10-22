@@ -120,4 +120,3 @@ class YamlSerializer implements SerializerInterface
         return 'application/x-yaml';
     }
 }
-

@@ -248,4 +248,3 @@ describe('Lazy Properties', function(): void {
         });
     });
 });
-

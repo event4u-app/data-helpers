@@ -56,4 +56,3 @@ class CamelCaseNormalizer implements NormalizerInterface
         return lcfirst($string);
     }
 }
-

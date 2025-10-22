@@ -389,4 +389,3 @@ echo str_repeat('-', 80) . "\n";
 echo json_encode($product->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 echo "✅  E-Commerce example completed!\n";
-

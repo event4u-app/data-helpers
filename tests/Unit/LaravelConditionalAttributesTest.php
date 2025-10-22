@@ -373,4 +373,3 @@ describe('Laravel Conditional Attributes', function(): void {
         });
     });
 })->group('laravel');
-

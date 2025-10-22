@@ -163,4 +163,3 @@ class DTOValueResolver implements ValueResolverInterface
         return $all;
     }
 }
-

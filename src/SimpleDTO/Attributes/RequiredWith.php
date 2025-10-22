@@ -45,4 +45,3 @@ class RequiredWith implements ValidationRule
         return sprintf('The attribute field is required when %s is present.', $fields);
     }
 }
-

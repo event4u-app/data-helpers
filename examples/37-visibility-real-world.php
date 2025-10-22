@@ -274,4 +274,3 @@ echo "  - Testbar und wartbar\n";
 echo "  - Type-Safe durch PHP 8.2+\n\n";
 
 echo "✅  Beispiel abgeschlossen!\n";
-

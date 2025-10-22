@@ -59,4 +59,3 @@ class WhenContextIn implements ConditionalProperty
         return in_array($contextValue, $this->values, $this->strict);
     }
 }
-

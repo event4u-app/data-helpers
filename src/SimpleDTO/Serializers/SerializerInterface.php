@@ -26,4 +26,3 @@ interface SerializerInterface
      */
     public function getContentType(): string;
 }
-

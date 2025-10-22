@@ -38,4 +38,3 @@ final class Values implements FilterInterface
         return ['values'];
     }
 }
-

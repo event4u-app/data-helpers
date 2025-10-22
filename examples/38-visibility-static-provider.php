@@ -357,4 +357,3 @@ echo "  - withVisibilityContext() überschreibt Provider\n";
 echo "  - Nützlich für Tests oder spezielle Cases\n\n";
 
 echo "✅  Beispiele abgeschlossen!\n";
-

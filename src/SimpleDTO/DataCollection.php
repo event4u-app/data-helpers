@@ -399,4 +399,3 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
         unset($this->items[$offset]);
     }
 }
-

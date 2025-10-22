@@ -173,4 +173,3 @@ describe('DataMapper Exception Handling', function(): void {
         expect($exception->getMessage())->toBe('Collected 2 exceptions during mapping');
     });
 });
-

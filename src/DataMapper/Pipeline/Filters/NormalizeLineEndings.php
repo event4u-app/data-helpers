@@ -44,4 +44,3 @@ final class NormalizeLineEndings implements FilterInterface
         return [];
     }
 }
-

@@ -38,4 +38,3 @@ final class OffsetOperator extends AbstractOperator
         return array_slice($items, $config, null, true);
     }
 }
-

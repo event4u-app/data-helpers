@@ -218,4 +218,3 @@ final class WhereOperator extends AbstractOperator
         return $actualValue == $expectedValue;
     }
 }
-

@@ -337,4 +337,3 @@ describe('Parser Edge Cases', function(): void {
         });
     });
 });
-

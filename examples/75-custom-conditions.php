@@ -333,4 +333,3 @@ echo "  4. WhenRole - Generic role-based access\n\n";
 
 echo "All examples demonstrate the power and flexibility of the\n";
 echo "conditional properties system in SimpleDTO!\n";
-

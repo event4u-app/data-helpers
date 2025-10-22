@@ -57,4 +57,3 @@ class Between implements ValidationRule, SymfonyConstraint
         return $this->message;
     }
 }
-

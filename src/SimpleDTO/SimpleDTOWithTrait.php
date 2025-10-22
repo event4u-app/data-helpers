@@ -91,4 +91,3 @@ trait SimpleDTOWithTrait
         return null !== $this->additionalData && !empty($this->additionalData);
     }
 }
-

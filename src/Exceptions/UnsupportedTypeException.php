@@ -12,4 +12,3 @@ use InvalidArgumentException;
 class UnsupportedTypeException extends InvalidArgumentException
 {
 }
-

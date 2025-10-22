@@ -72,4 +72,3 @@ class DateTimeCast implements CastsAttributes
         return is_string($value) ? $value : null;
     }
 }
-

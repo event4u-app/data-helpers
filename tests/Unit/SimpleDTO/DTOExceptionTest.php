@@ -224,4 +224,3 @@ describe('DTOException', function(): void {
         });
     });
 });
-

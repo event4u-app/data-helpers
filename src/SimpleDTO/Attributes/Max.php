@@ -52,4 +52,3 @@ class Max implements ValidationRule, SymfonyConstraint
         return $this->message;
     }
 }
-

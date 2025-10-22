@@ -37,4 +37,3 @@ class CollectedExceptionsException extends RuntimeException
         return count($this->exceptions);
     }
 }
-

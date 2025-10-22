@@ -97,4 +97,3 @@ describe('SlackMessageFormatter', function(): void {
         expect($payload['attachments'][0]['footer'])->toBe('Data Helpers');
     });
 });
-

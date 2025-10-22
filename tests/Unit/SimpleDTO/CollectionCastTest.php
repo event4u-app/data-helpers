@@ -224,4 +224,3 @@ describe('CollectionCast', function(): void {
         });
     });
 });
-

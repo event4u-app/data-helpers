@@ -39,4 +39,3 @@ final class StripTags implements FilterInterface
         return [];
     }
 }
-

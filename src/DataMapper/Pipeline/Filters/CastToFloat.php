@@ -71,4 +71,3 @@ final class CastToFloat implements FilterInterface
         return [];
     }
 }
-

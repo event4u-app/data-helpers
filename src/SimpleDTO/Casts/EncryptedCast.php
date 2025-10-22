@@ -257,4 +257,3 @@ class EncryptedCast implements CastsAttributes
         };
     }
 }
-

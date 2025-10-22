@@ -296,4 +296,3 @@ echo "   • CallbackParameters: Access full context (source, target, key, keyPa
 echo "   • Return '__skip__': Skip values conditionally\n";
 echo "   • Error Handling: Exceptions are collected and thrown at the end\n";
 echo "   • Chainable: Combine multiple callbacks for complex transformations\n";
-

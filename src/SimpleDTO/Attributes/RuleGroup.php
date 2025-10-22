@@ -74,4 +74,3 @@ class RuleGroup
         return $this->groups;
     }
 }
-

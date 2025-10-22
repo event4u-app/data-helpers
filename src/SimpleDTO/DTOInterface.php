@@ -26,4 +26,3 @@ interface DTOInterface
      */
     public static function fromArray(array $data): static;
 }
-

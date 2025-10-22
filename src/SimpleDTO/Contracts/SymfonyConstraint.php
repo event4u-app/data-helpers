@@ -45,4 +45,3 @@ interface SymfonyConstraint
      */
     public function constraint(): Constraint|array;
 }
-

@@ -285,4 +285,3 @@ describe('Optional Wrapper', function(): void {
             ->and((string)Optional::of(123))->toBe('Optional[123]');
     });
 });
-

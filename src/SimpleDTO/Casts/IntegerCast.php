@@ -47,4 +47,3 @@ class IntegerCast implements CastsAttributes
         return is_numeric($value) ? (int)$value : null;
     }
 }
-

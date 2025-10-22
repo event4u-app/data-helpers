@@ -95,4 +95,3 @@ describe('Laravel Config Integration', function(): void {
     !class_exists('Illuminate\Container\Container'),
     'Laravel is not available'
 );
-

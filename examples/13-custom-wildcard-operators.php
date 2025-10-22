@@ -296,4 +296,3 @@ foreach ($complexQuery as $product) {
 echo "\n";
 
 echo "✅  All examples completed successfully!\n";
-

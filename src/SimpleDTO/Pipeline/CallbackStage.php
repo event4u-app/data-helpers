@@ -33,4 +33,3 @@ class CallbackStage implements PipelineStageInterface
         return $this->name;
     }
 }
-

@@ -33,4 +33,3 @@ final class BetweenOperator extends AbstractOperator
         return $actualValue >= $min && $actualValue <= $max;
     }
 }
-

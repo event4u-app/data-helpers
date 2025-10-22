@@ -308,4 +308,3 @@ describe('Transformers with Arguments', function(): void {
         });
     });
 });
-

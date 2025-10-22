@@ -148,4 +148,3 @@ class Department
         return $this;
     }
 }
-

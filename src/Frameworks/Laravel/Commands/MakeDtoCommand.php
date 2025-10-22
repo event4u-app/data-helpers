@@ -26,10 +26,8 @@ if (!class_exists('Illuminate\Console\Command')) {
             protected function argument(string $name): mixed { return null; }
         }
     }
-} else {
-    if (!class_exists('event4u\DataHelpers\Frameworks\Laravel\Commands\Command')) {
-        class_alias('Illuminate\Console\Command', 'event4u\DataHelpers\Frameworks\Laravel\Commands\Command');
-    }
+} elseif (!class_exists('event4u\DataHelpers\Frameworks\Laravel\Commands\Command')) {
+    class_alias('Illuminate\Console\Command', 'event4u\DataHelpers\Frameworks\Laravel\Commands\Command');
 }
 use Illuminate\Support\Str;
 
@@ -45,6 +43,7 @@ use Illuminate\Support\Str;
  */
 class MakeDtoCommand extends Command
 {
+    public $laravel;
     /**
      * The name and signature of the console command.
      *
@@ -323,4 +322,3 @@ class {$className} extends SimpleDTO
 PHP;
     }
 }
-

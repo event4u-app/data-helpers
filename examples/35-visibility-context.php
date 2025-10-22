@@ -328,4 +328,3 @@ echo json_encode($order->withVisibilityContext($financeContext)->toArray(), JSON
 echo "\n";
 
 echo "✅  All context-based visibility examples completed!\n";
-

@@ -61,4 +61,3 @@ class StringCast implements CastsAttributes
         return null;
     }
 }
-

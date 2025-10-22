@@ -61,4 +61,3 @@ class ArrayCast implements CastsAttributes
         return is_string($value) ? $value : null;
     }
 }
-

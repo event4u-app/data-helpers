@@ -38,4 +38,3 @@ final class First implements FilterInterface
         return ['first'];
     }
 }
-

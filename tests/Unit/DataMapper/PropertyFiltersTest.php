@@ -855,4 +855,3 @@ describe('FluentDataMapper - Property-specific Filters - Edge Cases', function()
         }
     });
 });
-

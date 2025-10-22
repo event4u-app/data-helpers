@@ -255,4 +255,3 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
         })->throws(InvalidArgumentException::class, 'Unsupported file format');
     })->group('doctrine');
 });
-

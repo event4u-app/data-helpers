@@ -282,4 +282,3 @@ describe('Wildcard WHERE Clause', function(): void {
         expect($result['positions'][2]['number'])->toBe('1.2');
     });
 });
-

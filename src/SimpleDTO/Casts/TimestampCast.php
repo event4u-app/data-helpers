@@ -74,4 +74,3 @@ class TimestampCast implements CastsAttributes
         return null;
     }
 }
-

@@ -81,4 +81,3 @@ class File implements ValidationRule, SymfonyConstraint
         return new Assert\File();
     }
 }
-

@@ -208,4 +208,3 @@ describe('Wrapping', function(): void {
         });
     });
 });
-

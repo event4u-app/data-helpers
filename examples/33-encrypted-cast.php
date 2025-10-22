@@ -191,4 +191,3 @@ echo "- Supports Laravel, Symfony (sodium), or fallback to base64\n";
 echo "- Fallback (base64) is NOT secure - only for development!\n";
 echo "- Always use proper encryption in production\n";
 echo "================================================================================\n";
-

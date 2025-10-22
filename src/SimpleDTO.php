@@ -37,4 +37,3 @@ abstract class SimpleDTO implements DTOInterface, JsonSerializable
 {
     use SimpleDTOTrait;
 }
-

@@ -252,4 +252,3 @@ describe('SimpleDTO Sorting', function(): void {
         });
     });
 });
-

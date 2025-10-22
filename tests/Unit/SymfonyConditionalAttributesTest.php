@@ -425,4 +425,3 @@ describe('Symfony Conditional Attributes', function(): void {
         });
     });
 })->group('symfony');
-

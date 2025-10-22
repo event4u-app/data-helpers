@@ -366,4 +366,3 @@ echo str_repeat('-', 80) . "\n";
 echo json_encode($post->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 echo "✅  Blog platform example completed!\n";
-

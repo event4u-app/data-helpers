@@ -327,4 +327,3 @@ describe('SimpleDTO Lazy Cast Resolution', function(): void {
         });
     });
 });
-

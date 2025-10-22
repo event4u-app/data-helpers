@@ -286,4 +286,3 @@ class {$className} extends SimpleDTO
 PHP;
     }
 }
-

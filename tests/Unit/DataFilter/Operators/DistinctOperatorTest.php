@@ -226,4 +226,3 @@ describe('DistinctOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

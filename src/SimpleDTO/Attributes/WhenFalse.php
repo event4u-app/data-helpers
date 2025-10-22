@@ -39,4 +39,3 @@ class WhenFalse implements ConditionalProperty
         return false === $value;
     }
 }
-

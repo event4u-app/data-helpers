@@ -222,4 +222,3 @@ final class TemplateParser
         return self::extractPath($value);
     }
 }
-

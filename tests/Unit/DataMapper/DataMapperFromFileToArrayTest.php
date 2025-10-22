@@ -639,4 +639,3 @@ describe('DataMapper to Array', function(): void {
         });
     });
 });
-

@@ -353,4 +353,3 @@ $response = new ApiResponseDTO(data: $newUser);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 echo "✅  Complete API resources example completed!\n";
-

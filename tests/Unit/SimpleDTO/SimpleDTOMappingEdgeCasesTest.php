@@ -871,4 +871,3 @@ describe('SimpleDTO Mapping Edge Cases', function(): void {
         });
     });
 });
-

@@ -130,4 +130,3 @@ describe('DataMapper copy()', function(): void {
         expect($results[1]->hasExceptions())->toBeFalse();
     });
 });
-

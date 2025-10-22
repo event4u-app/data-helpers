@@ -647,4 +647,3 @@ describe('DataMapper Reset & Delete', function(): void {
         });
     });
 });
-

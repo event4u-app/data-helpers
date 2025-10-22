@@ -40,4 +40,3 @@ final class ConvertEmptyToNull implements FilterInterface
         return ['empty_to_null'];
     }
 }
-

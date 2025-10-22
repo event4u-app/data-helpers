@@ -237,4 +237,3 @@ echo sprintf('  Methods: %d%s', $finalStats['methods'], PHP_EOL);
 echo "  Estimated memory: " . number_format($finalStats['estimatedMemory']) . " bytes\n\n";
 
 echo "=== Optimized Reflection Complete ===\n";
-

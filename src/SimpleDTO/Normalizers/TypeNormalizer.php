@@ -114,4 +114,3 @@ class TypeNormalizer implements NormalizerInterface
         return [$value];
     }
 }
-

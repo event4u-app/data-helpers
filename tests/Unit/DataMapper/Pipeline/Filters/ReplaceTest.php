@@ -100,4 +100,3 @@ describe('Replace Filter', function(): void {
         expect($filter->getHook())->toBe(DataMapperHook::BeforeTransform->value);
     });
 });
-

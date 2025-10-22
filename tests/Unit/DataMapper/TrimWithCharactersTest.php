@@ -220,4 +220,3 @@ describe('Trim Transformer with Custom Characters', function(): void {
         });
     });
 });
-

@@ -307,4 +307,3 @@ describe('Normalizers', function(): void {
         });
     });
 });
-

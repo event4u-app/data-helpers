@@ -224,4 +224,3 @@ describe('WhereInOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

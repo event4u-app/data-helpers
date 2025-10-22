@@ -176,4 +176,3 @@ final readonly class PrometheusLogger implements DataHelpersLogger
         }
     }
 }
-

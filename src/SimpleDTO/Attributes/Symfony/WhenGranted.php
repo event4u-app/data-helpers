@@ -132,4 +132,3 @@ class WhenGranted implements ConditionalProperty
         return $context[$this->subject] ?? null;
     }
 }
-

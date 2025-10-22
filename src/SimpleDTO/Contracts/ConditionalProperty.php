@@ -22,4 +22,3 @@ interface ConditionalProperty
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool;
 }
-

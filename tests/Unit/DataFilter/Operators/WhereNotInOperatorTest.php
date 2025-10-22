@@ -193,4 +193,3 @@ describe('WhereNotInOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

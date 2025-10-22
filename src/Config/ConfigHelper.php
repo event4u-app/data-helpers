@@ -365,4 +365,3 @@ final class ConfigHelper
         return $array;
     }
 }
-

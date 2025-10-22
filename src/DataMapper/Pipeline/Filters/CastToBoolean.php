@@ -81,4 +81,3 @@ final class CastToBoolean implements FilterInterface
         return [];
     }
 }
-

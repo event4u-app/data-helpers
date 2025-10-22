@@ -38,4 +38,3 @@ final class Unique implements FilterInterface
         return ['unique'];
     }
 }
-

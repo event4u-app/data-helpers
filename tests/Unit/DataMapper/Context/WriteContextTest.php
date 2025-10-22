@@ -194,4 +194,3 @@ describe('WriteContext', function(): void {
         expect($context->tgtPath)->not->toBe($context->resolvedTargetPath);
     });
 });
-

@@ -31,4 +31,3 @@ class DefaultValuesNormalizer implements NormalizerInterface
         return $data;
     }
 }
-

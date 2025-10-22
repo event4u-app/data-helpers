@@ -13,4 +13,3 @@ class UserDTO extends SimpleDTO
         public readonly int $age = 0,
     ) {}
 }
-

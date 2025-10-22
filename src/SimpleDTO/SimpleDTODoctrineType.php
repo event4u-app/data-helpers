@@ -176,4 +176,3 @@ class SimpleDTODoctrineType extends Type
         return true;
     }
 }
-

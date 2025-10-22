@@ -63,4 +63,3 @@ class WhenContextEquals implements ConditionalProperty
             : $contextValue == $this->value;
     }
 }
-

@@ -135,4 +135,3 @@ class WhenCan implements ConditionalProperty
         return $context[$this->model] ?? null;
     }
 }
-

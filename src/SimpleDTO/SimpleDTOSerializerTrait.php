@@ -75,4 +75,3 @@ trait SimpleDTOSerializerTrait
         return $serializer->serialize($this->toArray());
     }
 }
-

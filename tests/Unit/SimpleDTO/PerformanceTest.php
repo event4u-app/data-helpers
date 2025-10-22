@@ -323,4 +323,3 @@ class TestPerformanceDTO extends SimpleDTO
         public readonly int $age = 0,
     ) {}
 }
-

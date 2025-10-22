@@ -210,4 +210,3 @@ final class TemplateExpressionProcessor
         return $parsed['path'];
     }
 }
-

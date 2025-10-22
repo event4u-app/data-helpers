@@ -361,4 +361,3 @@ describe('WildcardOperatorAdapter', function(): void {
         expect(array_keys($result))->toBe(['a', 'c']);
     });
 });
-

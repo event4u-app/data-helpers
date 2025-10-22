@@ -273,4 +273,3 @@ describe('MapperQuery Integration', function(): void {
         });
     });
 });
-

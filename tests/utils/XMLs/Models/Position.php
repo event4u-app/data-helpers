@@ -363,4 +363,3 @@ class Position extends Model
     {
     }
 }
-

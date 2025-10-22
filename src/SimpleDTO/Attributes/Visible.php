@@ -94,4 +94,3 @@ final readonly class Visible
         public ?string $attribute = null,
     ) {}
 }
-

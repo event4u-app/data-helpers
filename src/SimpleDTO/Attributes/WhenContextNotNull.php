@@ -47,4 +47,3 @@ class WhenContextNotNull implements ConditionalProperty
         return array_key_exists($this->key, $context) && null !== $context[$this->key];
     }
 }
-

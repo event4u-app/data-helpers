@@ -278,4 +278,3 @@ echo "  - LIKE supports SQL-style pattern matching with % and _\n";
 echo "  - LIKE is case-insensitive by default\n";
 echo "  - Both operators can be combined with WHERE, ORDER BY, LIMIT, OFFSET\n";
 echo "  - Operators are applied in the order they appear in the template\n";
-

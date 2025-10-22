@@ -239,4 +239,3 @@ describe('Symfony DTOValueResolver', function(): void {
             ->and($result[0]->title)->toBe('Patched Title');
     });
 })->group('symfony');
-

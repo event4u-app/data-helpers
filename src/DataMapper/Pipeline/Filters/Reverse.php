@@ -38,4 +38,3 @@ final class Reverse implements FilterInterface
         return ['reverse'];
     }
 }
-

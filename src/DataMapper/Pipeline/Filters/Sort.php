@@ -45,4 +45,3 @@ final class Sort implements FilterInterface
         return ['sort'];
     }
 }
-

@@ -120,4 +120,3 @@ describe('EntryContext', function(): void {
         expect($reflection->isFinal())->toBeTrue();
     });
 });
-

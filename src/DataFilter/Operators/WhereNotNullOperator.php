@@ -31,4 +31,3 @@ final class WhereNotNullOperator extends AbstractOperator
         return null !== $actualValue;
     }
 }
-

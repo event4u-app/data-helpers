@@ -353,4 +353,3 @@ describe('Doctrine Integration', function(): void {
         });
     });
 })->group('doctrine');
-

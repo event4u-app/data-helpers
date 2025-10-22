@@ -193,4 +193,3 @@ describe('Lazy Wrapper', function(): void {
             ->and($lazy->get())->toBe('test');
     });
 });
-

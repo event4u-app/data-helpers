@@ -390,4 +390,3 @@ trait SimpleDTOMapperTrait
         return new static(...$data);
     }
 }
-

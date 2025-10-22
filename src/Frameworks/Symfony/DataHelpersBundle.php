@@ -41,4 +41,3 @@ final class DataHelpersBundle extends Bundle
         $loader->load('services.yaml');
     }
 }
-

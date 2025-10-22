@@ -39,4 +39,3 @@ final class SendLogToSlackMessageHandler
         curl_close($ch);
     }
 }
-

@@ -39,4 +39,3 @@ enum LogLevel: string
         return $this->severity() >= $level->severity();
     }
 }
-

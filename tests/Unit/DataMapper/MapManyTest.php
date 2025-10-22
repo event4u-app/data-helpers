@@ -182,4 +182,3 @@ describe('DataMapper mapMany() and mapManyReverse()', function(): void {
         });
     });
 });
-

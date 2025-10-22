@@ -241,4 +241,3 @@ echo json_encode($response->sorted()->except(['password'])->toArray(), JSON_PRET
 echo "\n";
 
 echo "✅  All examples completed!\n";
-

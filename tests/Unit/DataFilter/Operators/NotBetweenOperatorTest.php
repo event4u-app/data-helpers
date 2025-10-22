@@ -219,4 +219,3 @@ describe('NotBetweenOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

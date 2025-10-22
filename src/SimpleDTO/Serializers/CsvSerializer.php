@@ -190,4 +190,3 @@ class CsvSerializer implements SerializerInterface
         return 'text/csv';
     }
 }
-

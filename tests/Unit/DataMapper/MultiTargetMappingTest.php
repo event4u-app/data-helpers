@@ -419,4 +419,3 @@ describe('DataMapper Multi-Target Mapping', function(): void {
         });
     });
 });
-

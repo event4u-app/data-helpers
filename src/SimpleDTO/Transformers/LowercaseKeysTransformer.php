@@ -44,4 +44,3 @@ class LowercaseKeysTransformer implements TransformerInterface
         return $result;
     }
 }
-

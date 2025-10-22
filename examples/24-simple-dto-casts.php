@@ -236,4 +236,3 @@ $json = json_encode($user, JSON_PRETTY_PRINT);
 echo "User as JSON:\n{$json}\n";
 
 echo "\n✅ All examples completed successfully!\n";
-

@@ -126,4 +126,3 @@ class MappedModelResolver implements ValueResolverInterface
         return $request->request->all();
     }
 }
-

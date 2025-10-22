@@ -276,4 +276,3 @@ echo "  ✅  Custom validation messages\n";
 echo "  ✅  Partial updates (PATCH)\n";
 echo "  ✅  JSON API support\n";
 echo "  ✅  Error handling\n";
-

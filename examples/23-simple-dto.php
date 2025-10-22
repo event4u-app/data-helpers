@@ -182,4 +182,3 @@ foreach ($products as $product) {
 
 echo "\nAs JSON Array:\n";
 echo json_encode($products, JSON_PRETTY_PRINT) . "\n";
-

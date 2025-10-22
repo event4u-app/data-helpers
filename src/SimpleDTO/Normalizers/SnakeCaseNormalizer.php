@@ -54,4 +54,3 @@ class SnakeCaseNormalizer implements NormalizerInterface
         return strtolower((string)$string);
     }
 }
-

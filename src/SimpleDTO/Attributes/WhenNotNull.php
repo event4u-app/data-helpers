@@ -38,4 +38,3 @@ class WhenNotNull implements ConditionalProperty
         return null !== $value;
     }
 }
-

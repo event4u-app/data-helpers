@@ -224,4 +224,3 @@ trait SimpleDTOBenchmarkTrait
         self::$benchmarkResults = [];
     }
 }
-

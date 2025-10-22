@@ -149,4 +149,3 @@ class ValidationStage implements PipelineStageInterface
         return null;
     }
 }
-

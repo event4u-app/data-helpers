@@ -424,4 +424,3 @@ trait SimpleDTOCastsTrait
         ];
     }
 }
-

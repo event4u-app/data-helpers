@@ -64,4 +64,3 @@ class WithMessage
         return $this->messages;
     }
 }
-

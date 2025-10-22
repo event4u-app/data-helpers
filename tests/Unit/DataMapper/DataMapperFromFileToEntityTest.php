@@ -356,4 +356,3 @@ describe('DataMapper to Doctrine Entity', function(): void {
         });
     })->group('doctrine');
 })->group('doctrine');
-

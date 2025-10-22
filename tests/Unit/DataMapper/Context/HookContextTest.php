@@ -135,4 +135,3 @@ describe('HookContext Interface', function(): void {
         expect($entry->tgtPath())->toBeNull();
     });
 });
-

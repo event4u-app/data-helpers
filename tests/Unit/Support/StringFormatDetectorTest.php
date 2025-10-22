@@ -132,4 +132,3 @@ describe('StringFormatDetector', function(): void {
         });
     });
 });
-

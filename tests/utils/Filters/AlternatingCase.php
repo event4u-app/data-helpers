@@ -57,4 +57,3 @@ final class AlternatingCase implements FilterInterface
         return ['alternating', 'alt_case', 'zigzag'];
     }
 }
-

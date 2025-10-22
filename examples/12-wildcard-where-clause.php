@@ -551,4 +551,3 @@ foreach ($topGravelPositions as $pos) {
 echo "\n";
 
 echo "=== All Examples Completed ===\n";
-

@@ -71,4 +71,3 @@ describe('DataHelpers Config', function(): void {
         expect(DataHelpersConfig::isFastMode())->toBeFalse();
     });
 });
-

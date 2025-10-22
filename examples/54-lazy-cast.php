@@ -234,4 +234,3 @@ echo sprintf('  Age: %s%s', $updatedUser->age, PHP_EOL);
 echo "  Email: {$updatedUser->email}\n\n";
 
 echo "=== Lazy Cast Resolution Complete ===\n";
-

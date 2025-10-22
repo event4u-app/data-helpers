@@ -186,4 +186,3 @@ describe('Symfony Attributes Autoload Safety', function(): void {
         expect($array)->toHaveKey('editLink');
     });
 })->group('symfony');
-

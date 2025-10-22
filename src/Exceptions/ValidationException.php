@@ -175,4 +175,3 @@ final class ValidationException extends RuntimeException
         return $json;
     }
 }
-

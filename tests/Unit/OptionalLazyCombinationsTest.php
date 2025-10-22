@@ -249,4 +249,3 @@ describe('Edge Cases', function(): void {
         expect($value->get())->toBeNull();
     });
 });
-

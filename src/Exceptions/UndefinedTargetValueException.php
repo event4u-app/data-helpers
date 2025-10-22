@@ -33,4 +33,3 @@ class UndefinedTargetValueException extends RuntimeException
         return $this->target;
     }
 }
-

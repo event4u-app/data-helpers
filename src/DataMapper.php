@@ -96,4 +96,3 @@ class DataMapper
         return new DataMapperQuery();
     }
 }
-

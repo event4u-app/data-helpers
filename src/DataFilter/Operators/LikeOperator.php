@@ -35,4 +35,3 @@ final class LikeOperator extends AbstractOperator
         return 1 === preg_match($regex, $actualValue);
     }
 }
-

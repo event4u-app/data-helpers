@@ -485,4 +485,3 @@ TS;
         return implode(' | ', array_unique($types));
     }
 }
-

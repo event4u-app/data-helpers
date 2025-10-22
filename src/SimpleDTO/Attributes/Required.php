@@ -45,4 +45,3 @@ class Required implements ValidationRule, SymfonyConstraint
         return $this->message;
     }
 }
-

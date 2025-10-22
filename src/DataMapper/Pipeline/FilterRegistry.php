@@ -166,4 +166,3 @@ final class FilterRegistry
         self::$initialized = true;
     }
 }
-

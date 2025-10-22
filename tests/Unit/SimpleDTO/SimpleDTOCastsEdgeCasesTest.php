@@ -424,4 +424,3 @@ describe('SimpleDTOCastsEdgeCases', function(): void {
         });
     });
 });
-

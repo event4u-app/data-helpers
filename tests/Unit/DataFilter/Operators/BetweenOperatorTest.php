@@ -275,4 +275,3 @@ describe('BetweenOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

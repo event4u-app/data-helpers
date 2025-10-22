@@ -806,4 +806,3 @@ describe('WhereOperator', function(): void {
         expect($result)->toHaveCount(3);
     });
 });
-

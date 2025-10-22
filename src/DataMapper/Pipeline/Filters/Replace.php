@@ -229,4 +229,3 @@ final readonly class Replace implements FilterInterface
         return ['replace'];
     }
 }
-

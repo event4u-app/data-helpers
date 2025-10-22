@@ -47,4 +47,3 @@ class WhenIn implements ConditionalProperty
         return in_array($value, $this->values, $this->strict);
     }
 }
-

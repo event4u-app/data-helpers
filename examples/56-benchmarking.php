@@ -227,4 +227,3 @@ echo "  Avg per user: " . number_format(($duration / 10000) * 1000, 2) . " ms\n\
 UserDTO::clearBenchmarkResults();
 
 echo "=== Benchmarking Complete ===\n";
-

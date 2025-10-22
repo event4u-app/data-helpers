@@ -92,4 +92,3 @@ class CollectionCast implements CastsAttributes
         return null;
     }
 }
-

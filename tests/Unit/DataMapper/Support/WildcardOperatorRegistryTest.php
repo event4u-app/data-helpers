@@ -188,4 +188,3 @@ describe('Wildcard Operator Registry', function(): void {
         expect(WildcardOperatorRegistry::has('MY_OPERATOR'))->toBeTrue();
     });
 });
-

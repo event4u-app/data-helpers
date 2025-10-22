@@ -366,4 +366,3 @@ describe('ObjectHelper', function(): void {
         });
     });
 });
-

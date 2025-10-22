@@ -478,4 +478,3 @@ describe('EncryptedCast', function(): void {
         });
     });
 });
-

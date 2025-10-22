@@ -85,4 +85,3 @@ class WhenGranted implements ConditionalProperty
         return false;
     }
 }
-

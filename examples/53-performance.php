@@ -177,4 +177,3 @@ echo "Average per user: " . number_format(($duration / 100) * 1000, 2) . " ms\n"
 echo "Throughput: " . number_format(100 / $duration) . " users/second\n\n";
 
 echo "=== Performance Optimization Complete ===\n";
-

@@ -565,4 +565,3 @@ describe('DataMapper Property Accessor', function(): void {
         });
     });
 });
-

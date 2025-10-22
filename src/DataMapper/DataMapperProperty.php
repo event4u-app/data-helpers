@@ -99,4 +99,3 @@ final readonly class DataMapperProperty
         return $this->mapper;
     }
 }
-

@@ -280,4 +280,3 @@ describe('DataMapper to DTO', function(): void {
         });
     });
 });
-

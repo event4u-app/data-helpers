@@ -279,4 +279,3 @@ describe('SimpleDTO Mapper Priority', function(): void {
         });
     });
 });
-

@@ -392,4 +392,3 @@ trait SimpleDTOMappingTrait
         self::$outputNameTransformCache = [];
     }
 }
-

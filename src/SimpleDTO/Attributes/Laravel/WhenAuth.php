@@ -76,4 +76,3 @@ class WhenAuth implements ConditionalProperty
         return false;
     }
 }
-

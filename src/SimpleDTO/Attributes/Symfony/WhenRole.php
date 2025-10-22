@@ -121,4 +121,3 @@ class WhenRole implements ConditionalProperty
         return false;
     }
 }
-

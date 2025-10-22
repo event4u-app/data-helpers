@@ -76,4 +76,3 @@ class WhenGuest implements ConditionalProperty
         return true;
     }
 }
-

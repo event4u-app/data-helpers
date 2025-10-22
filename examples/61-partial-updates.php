@@ -271,4 +271,3 @@ echo "  keys: " . implode(', ', array_keys($fullPartial)) . "\n";
 echo "\n";
 
 echo "✅  All examples completed successfully!\n";
-

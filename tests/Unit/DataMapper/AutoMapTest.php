@@ -309,4 +309,3 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
         });
     });
 });
-

@@ -37,4 +37,3 @@ class ReverseString implements FilterInterface
         return ['reverse_str', 'rev_str'];
     }
 }
-

@@ -223,4 +223,3 @@ describe('IDE Support', function(): void {
             ->and($content)->toContain("'camelCase'");
     });
 });
-

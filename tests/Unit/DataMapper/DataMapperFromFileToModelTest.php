@@ -407,4 +407,3 @@ describe('DataMapper to Model', function(): void {
         });
     });
 })->group('laravel');
-

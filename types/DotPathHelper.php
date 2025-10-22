@@ -22,4 +22,3 @@ assertType('bool', $result);
 
 $result = DotPathHelper::isWildcard('name');
 assertType('bool', $result);
-

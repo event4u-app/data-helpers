@@ -101,4 +101,3 @@ trait SimpleDTOEloquentTrait
         return $model;
     }
 }
-

@@ -13,4 +13,3 @@ enum LogDriver: string
     case FRAMEWORK = 'framework';
     case NONE = 'none';
 }
-

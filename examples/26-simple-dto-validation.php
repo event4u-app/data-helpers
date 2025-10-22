@@ -244,4 +244,3 @@ echo "Note: To use validateAndCreate(), you need Laravel's validator configured.
 echo "Example usage:\n";
 echo "  \$user = UserDTO::validateAndCreate(\$request->all());\n";
 echo "\n";
-

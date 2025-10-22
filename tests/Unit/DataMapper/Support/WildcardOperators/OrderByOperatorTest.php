@@ -319,4 +319,3 @@ describe('Wildcard ORDER BY', function(): void {
         expect($result['sorted_positions'][0]['number'])->toBe('1.1');
     });
 });
-

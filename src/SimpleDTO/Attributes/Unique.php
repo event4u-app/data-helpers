@@ -96,4 +96,3 @@ class Unique implements ValidationRule, SymfonyConstraint
         return [];
     }
 }
-

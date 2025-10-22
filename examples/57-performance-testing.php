@@ -252,4 +252,3 @@ foreach ($summary as $metric => $value) {
 }
 
 echo "\n=== Performance Testing Complete ===\n";
-

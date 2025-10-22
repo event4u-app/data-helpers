@@ -358,4 +358,3 @@ describe('XML to Model Mapping', function(): void {
         });
     });
 });
-

@@ -695,4 +695,3 @@ describe('SimpleDTO Validation', function(): void {
         });
     });
 })->group('laravel');
-

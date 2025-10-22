@@ -88,4 +88,3 @@ trait SimpleDTONormalizerTrait
         return [];
     }
 }
-

@@ -304,4 +304,3 @@ describe('CallbackRegistry', function(): void {
         expect(CallbackRegistry::count())->toBe(0);
     });
 });
-

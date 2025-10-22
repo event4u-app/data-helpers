@@ -90,4 +90,3 @@ trait SimpleDTOWrappingTrait
         return [$this->wrapKey => $data];
     }
 }
-

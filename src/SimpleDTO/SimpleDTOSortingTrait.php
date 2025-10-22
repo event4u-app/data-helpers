@@ -179,4 +179,3 @@ trait SimpleDTOSortingTrait
         return $data;
     }
 }
-

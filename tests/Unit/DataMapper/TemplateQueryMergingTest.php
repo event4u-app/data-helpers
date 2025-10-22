@@ -343,4 +343,3 @@ describe('Template Query Merging', function(): void {
         });
     });
 });
-

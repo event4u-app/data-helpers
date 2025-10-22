@@ -38,4 +38,3 @@ interface ValidationRule
      */
     public function message(): ?string;
 }
-

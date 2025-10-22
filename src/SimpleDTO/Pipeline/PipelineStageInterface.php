@@ -24,4 +24,3 @@ interface PipelineStageInterface
     /** Get the name of this stage. */
     public function getName(): string;
 }
-

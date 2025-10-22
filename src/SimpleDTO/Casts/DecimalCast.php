@@ -56,4 +56,3 @@ class DecimalCast implements CastsAttributes
         return null;
     }
 }
-

@@ -195,4 +195,3 @@ echo "Scalar value: " . $lazy6 . "\n";
 echo "\n";
 
 echo "✅  All examples completed successfully!\n";
-

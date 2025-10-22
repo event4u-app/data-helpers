@@ -372,4 +372,3 @@ describe('SimpleDTO Edge Cases', function(): void {
         });
     });
 });
-

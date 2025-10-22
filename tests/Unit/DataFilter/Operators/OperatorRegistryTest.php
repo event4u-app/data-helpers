@@ -254,4 +254,3 @@ describe('OperatorRegistry', function(): void {
         expect($uniqueOperators)->toHaveKey('WHERE NOT NULL');
     });
 });
-

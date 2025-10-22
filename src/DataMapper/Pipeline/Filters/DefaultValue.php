@@ -56,4 +56,3 @@ final readonly class DefaultValue implements FilterInterface
         return ['default'];
     }
 }
-

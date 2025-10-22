@@ -303,4 +303,3 @@ describe('SimpleDTOCastsOutput', function(): void {
         });
     });
 });
-

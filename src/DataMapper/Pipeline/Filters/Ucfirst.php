@@ -38,4 +38,3 @@ final class Ucfirst implements FilterInterface
         return ['ucfirst'];
     }
 }
-

@@ -168,4 +168,3 @@ describe('PairContext', function(): void {
         expect($context->tgtPath())->toBeString();
     });
 });
-

@@ -18,4 +18,3 @@ class DepartmentSimpleDto extends SimpleDTO
         public readonly array $employees = [],
     ) {}
 }
-

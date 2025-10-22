@@ -258,4 +258,3 @@ describe('SimpleDTO Benchmarking', function(): void {
         });
     });
 });
-

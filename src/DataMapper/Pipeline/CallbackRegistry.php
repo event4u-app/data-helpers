@@ -106,4 +106,3 @@ final class CallbackRegistry
         return count(self::$callbacks);
     }
 }
-

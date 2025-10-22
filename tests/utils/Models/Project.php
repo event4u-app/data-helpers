@@ -47,4 +47,3 @@ class Project extends Model
         return $this->belongsToMany(Employee::class);
     }
 }
-

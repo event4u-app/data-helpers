@@ -277,4 +277,3 @@ $array = $invoice->toArray();
 echo "toArray(): ".json_encode($array, JSON_PRETTY_PRINT)."\n\n";
 
 echo "✅  All examples completed successfully!\n";
-

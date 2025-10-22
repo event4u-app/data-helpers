@@ -211,4 +211,3 @@ echo "  - All validation attributes implement SymfonyConstraint interface\n";
 echo "  - Symfony constraints are generated automatically when Symfony Validator is available\n";
 echo "  - Falls back to framework-independent validator when Symfony is not available\n";
 echo "  - Same attributes work for both Laravel and Symfony!\n";
-

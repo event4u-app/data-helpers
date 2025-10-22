@@ -135,4 +135,3 @@ final class Callback implements FilterInterface
         return end($parts);
     }
 }
-

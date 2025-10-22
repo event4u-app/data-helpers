@@ -46,4 +46,3 @@ class RemoveNullValuesTransformer implements TransformerInterface
         return $result;
     }
 }
-

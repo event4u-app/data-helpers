@@ -26,4 +26,3 @@ assertType('object', $copy);
 // Test copy with maxLevel
 $copy = ObjectHelper::copy($original, true, 5);
 assertType('object', $copy);
-

@@ -150,4 +150,3 @@ class SimpleDTOEloquentCast implements CastsAttributes
         return $value->toArray();
     }
 }
-

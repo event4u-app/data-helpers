@@ -47,4 +47,3 @@ class ConfirmedBy implements ValidationRule
         return null;
     }
 }
-

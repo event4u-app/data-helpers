@@ -391,4 +391,3 @@ describe('Symfony Validation Integration', function(): void {
         })->group('symfony');
     })->group('symfony');
 })->group('symfony');
-

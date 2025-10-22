@@ -41,4 +41,3 @@ interface CastsAttributes
      */
     public function set(mixed $value, array $attributes): mixed;
 }
-

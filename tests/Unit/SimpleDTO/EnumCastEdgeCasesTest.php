@@ -296,4 +296,3 @@ describe('EnumCastEdgeCases', function(): void {
         });
     });
 });
-

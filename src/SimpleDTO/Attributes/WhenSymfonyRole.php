@@ -100,4 +100,3 @@ class WhenSymfonyRole implements ConditionalProperty
         return $this->roles;
     }
 }
-

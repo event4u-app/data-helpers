@@ -154,4 +154,3 @@ describe('DecodeHtmlEntities Transformer', function(): void {
         expect($result['result'])->toBe('Sample - Swimming Pool -');
     });
 });
-

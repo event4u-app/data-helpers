@@ -252,4 +252,3 @@ trait SimpleDTOPerformanceTrait
         }
     }
 }
-

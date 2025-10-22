@@ -17,4 +17,3 @@ enum StatusEnum: string
     case DELIVERED = 'delivered';
     case CANCELLED = 'cancelled';
 }
-

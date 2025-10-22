@@ -52,4 +52,3 @@ class Min implements ValidationRule, SymfonyConstraint
         return $this->message;
     }
 }
-

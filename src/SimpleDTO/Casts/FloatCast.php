@@ -47,4 +47,3 @@ class FloatCast implements CastsAttributes
         return is_numeric($value) ? (float)$value : null;
     }
 }
-

@@ -68,4 +68,3 @@ class JsonCast implements CastsAttributes
         return null;
     }
 }
-

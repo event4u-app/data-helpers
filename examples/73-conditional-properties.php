@@ -246,4 +246,3 @@ echo "✅  All conditions work with toArray() and jsonSerialize()\n";
 echo "✅  Perfect for flexible API responses\n";
 
 echo "\n";
-

@@ -196,4 +196,3 @@ describe('TimestampCast', function(): void {
         });
     });
 });
-

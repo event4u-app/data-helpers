@@ -306,4 +306,3 @@ describe('DataMapper to JSON/XML String', function(): void {
         });
     });
 });
-

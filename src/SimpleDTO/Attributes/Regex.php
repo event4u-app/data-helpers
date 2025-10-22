@@ -48,4 +48,3 @@ class Regex implements ValidationRule, SymfonyConstraint
         return $this->message;
     }
 }
-

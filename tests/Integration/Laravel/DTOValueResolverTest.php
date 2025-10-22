@@ -284,4 +284,3 @@ describe('Laravel DTOValueResolver', function(): void {
         expect($result->description)->toBeNull();
     });
 })->group('laravel');
-

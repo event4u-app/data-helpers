@@ -43,4 +43,3 @@ class WhenInstanceOf implements ConditionalProperty
         return $value instanceof $this->className;
     }
 }
-

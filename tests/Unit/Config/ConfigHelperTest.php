@@ -173,4 +173,3 @@ describe('ConfigHelper', function(): void {
         expect($value)->toBe(['default']);
     });
 });
-

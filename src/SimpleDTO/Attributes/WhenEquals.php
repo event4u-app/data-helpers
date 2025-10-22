@@ -49,4 +49,3 @@ class WhenEquals implements ConditionalProperty
             : $value == $this->value;
     }
 }
-

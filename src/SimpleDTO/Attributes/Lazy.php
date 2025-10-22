@@ -85,4 +85,3 @@ final readonly class Lazy
         public ?string $when = null,
     ) {}
 }
-

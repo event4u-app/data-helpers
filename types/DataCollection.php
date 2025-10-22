@@ -65,4 +65,3 @@ assertType('bool', isset($products[0]));
 foreach ($products as $product) {
     assertType('event4u\DataHelpers\SimpleDTO', $product);
 }
-

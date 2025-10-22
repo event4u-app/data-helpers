@@ -68,4 +68,3 @@ class DTOCast implements CastsAttributes
         return $value;
     }
 }
-

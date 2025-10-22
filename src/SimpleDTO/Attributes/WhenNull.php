@@ -38,4 +38,3 @@ class WhenNull implements ConditionalProperty
         return null === $value;
     }
 }
-

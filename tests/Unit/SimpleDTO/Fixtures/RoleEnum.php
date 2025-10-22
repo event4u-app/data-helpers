@@ -14,4 +14,3 @@ enum RoleEnum: int
     case MODERATOR = 2;
     case ADMIN = 3;
 }
-

@@ -314,4 +314,3 @@ class StoreUserRequest extends DTOFormRequest
 // All validation attributes generate Laravel-compatible rules.
 USAGE;
 echo "\n" . str_repeat('=', 80) . "\n";
-

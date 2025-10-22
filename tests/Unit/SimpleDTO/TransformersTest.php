@@ -320,4 +320,3 @@ describe('Transformers', function(): void {
         });
     });
 });
-

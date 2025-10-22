@@ -314,4 +314,3 @@ echo "  ✓ Use default values ({{ field ?? \"default\" }}) when possible\n";
 echo "  ✓ Always reset() between different contexts\n";
 echo "  ✓ Log collected exceptions even in production\n";
 echo "  ✓ Re-enable exceptions after using silent mode\n\n";
-

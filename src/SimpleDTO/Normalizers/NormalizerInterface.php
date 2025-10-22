@@ -20,4 +20,3 @@ interface NormalizerInterface
      */
     public function normalize(array $data): array;
 }
-

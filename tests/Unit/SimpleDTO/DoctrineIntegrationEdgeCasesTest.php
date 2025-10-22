@@ -323,4 +323,3 @@ describe('Doctrine Integration Edge Cases', function(): void {
         });
     });
 })->group('doctrine');
-

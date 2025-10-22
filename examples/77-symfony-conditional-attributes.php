@@ -335,4 +335,3 @@ echo "✅  Supports user->getRoles() method (Symfony UserInterface)\n";
 echo "✅  Perfect for API responses, role-based access, permission checks\n";
 
 echo "\n";
-

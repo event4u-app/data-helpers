@@ -110,4 +110,3 @@ final readonly class CallbackFilter implements FilterInterface
         return end($parts);
     }
 }
-

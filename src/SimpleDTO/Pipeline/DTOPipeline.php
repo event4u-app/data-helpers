@@ -110,4 +110,3 @@ class DTOPipeline
         return $this;
     }
 }
-

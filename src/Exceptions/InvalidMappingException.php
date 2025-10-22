@@ -12,4 +12,3 @@ use InvalidArgumentException;
 class InvalidMappingException extends InvalidArgumentException
 {
 }
-

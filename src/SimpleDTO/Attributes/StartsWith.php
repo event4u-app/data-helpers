@@ -65,4 +65,3 @@ class StartsWith implements ValidationRule, SymfonyConstraint
         return sprintf('The attribute must start with one of the following: %s.', $values);
     }
 }
-

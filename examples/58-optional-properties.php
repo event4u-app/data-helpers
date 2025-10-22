@@ -231,4 +231,3 @@ echo "  email value: " . $user8->email->get() . "\n";
 echo "\n";
 
 echo "✅  All examples completed successfully!\n";
-

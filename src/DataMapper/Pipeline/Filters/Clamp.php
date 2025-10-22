@@ -78,4 +78,3 @@ final readonly class Clamp implements FilterInterface
         return ['clamp'];
     }
 }
-

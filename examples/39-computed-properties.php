@@ -345,4 +345,3 @@ echo json_encode($profile->includeComputed(['initials']), JSON_PRETTY_PRINT) . "
 echo "================================================================================\n";
 echo "ALL EXAMPLES COMPLETED SUCCESSFULLY!\n";
 echo "================================================================================\n";
-

@@ -35,4 +35,3 @@ describe('LogLevel', function(): void {
         expect(LogLevel::DEBUG->value)->toBe('debug');
     });
 });
-

@@ -175,4 +175,3 @@ describe('EnvHelper::boolean()', function(): void {
         expect(EnvHelper::boolean('NON_EXISTENT', true))->toBeTrue();
     });
 });
-

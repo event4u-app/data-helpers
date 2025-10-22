@@ -239,4 +239,3 @@ $json = json_encode($product, JSON_PRETTY_PRINT);
 echo "Product as JSON:\n{$json}\n";
 
 echo "\n✅ All examples completed successfully!\n";
-

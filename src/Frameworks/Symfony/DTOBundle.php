@@ -38,4 +38,3 @@ class DTOBundle extends AbstractBundle
             ->tag('controller.argument_value_resolver', ['priority' => 100]);
     }
 }
-

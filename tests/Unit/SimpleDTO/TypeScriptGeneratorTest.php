@@ -289,4 +289,3 @@ describe('TypeScriptGenerator', function(): void {
         expect($typescript)->toContain('email: string');
     });
 });
-

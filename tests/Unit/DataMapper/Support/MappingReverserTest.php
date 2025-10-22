@@ -185,4 +185,3 @@ describe('MappingReverser', function(): void {
         expect($reversed)->toBe([]);
     });
 });
-

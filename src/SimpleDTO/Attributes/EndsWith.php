@@ -65,4 +65,3 @@ class EndsWith implements ValidationRule, SymfonyConstraint
         return sprintf('The attribute must end with one of the following: %s.', $values);
     }
 }
-

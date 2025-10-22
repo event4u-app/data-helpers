@@ -290,4 +290,3 @@ trait SimpleDTOTrait
         return $dataCollection;
     }
 }
-

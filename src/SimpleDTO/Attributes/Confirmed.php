@@ -75,4 +75,3 @@ class Confirmed implements ValidationRule, SymfonyConstraint
         return [];
     }
 }
-

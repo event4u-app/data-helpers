@@ -38,4 +38,3 @@ final class JsonEncode implements FilterInterface
         return ['json'];
     }
 }
-

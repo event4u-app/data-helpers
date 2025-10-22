@@ -89,4 +89,3 @@ class Mimes implements ValidationRule, SymfonyConstraint
         return new Assert\File(mimeTypes: $mimeTypes);
     }
 }
-

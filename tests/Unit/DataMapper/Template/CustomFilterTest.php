@@ -180,4 +180,3 @@ describe('Custom Filter Filters in Template Expressions', function(): void {
         ]);
     });
 });
-

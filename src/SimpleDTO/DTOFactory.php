@@ -192,4 +192,3 @@ abstract class DTOFactory
         return $this;
     }
 }
-

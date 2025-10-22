@@ -269,4 +269,3 @@ describe('OrderByOperator', function(): void {
         expect($operator)->toBeInstanceOf(AbstractOperator::class);
     });
 });
-

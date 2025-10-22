@@ -145,4 +145,3 @@ describe('Replace Filter Integration', function(): void {
         expect($result['result'])->toBe('Version 2.0');
     });
 });
-

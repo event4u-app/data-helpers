@@ -33,4 +33,3 @@ class DataCollectionOf
         public readonly string $dtoClass,
     ) {}
 }
-

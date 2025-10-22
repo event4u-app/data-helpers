@@ -50,4 +50,3 @@ class WhenCallback implements ConditionalProperty
         return (bool)$callback($dto, $value, $context);
     }
 }
-

@@ -329,4 +329,3 @@ describe('Optimized Reflection', function(): void {
         });
     });
 });
-

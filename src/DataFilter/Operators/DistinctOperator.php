@@ -54,4 +54,3 @@ final class DistinctOperator extends AbstractOperator
         return $result;
     }
 }
-

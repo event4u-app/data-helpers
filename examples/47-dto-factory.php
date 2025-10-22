@@ -180,4 +180,3 @@ echo "After reset, created single user: {$user2->name}\n\n";
 echo "================================================================================\n";
 echo "All examples completed successfully!\n";
 echo "================================================================================\n";
-

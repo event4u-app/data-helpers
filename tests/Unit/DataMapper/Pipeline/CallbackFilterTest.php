@@ -378,4 +378,3 @@ describe('CallbackFilter', function(): void {
         ]);
     });
 });
-

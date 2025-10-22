@@ -231,4 +231,3 @@ echo "Public profile (only specific fields):\n";
 echo json_encode($apiUser->only(['username', 'createdAt']), JSON_PRETTY_PRINT) . "\n\n";
 
 echo "✅  All visibility examples completed!\n";
-

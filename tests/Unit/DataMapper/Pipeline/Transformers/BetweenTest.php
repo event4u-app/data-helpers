@@ -155,4 +155,3 @@ describe('Between Transformer', function(): void {
         expect($clampResult2['result'])->toBe(5.0);
     });
 });
-

@@ -256,4 +256,3 @@ describe('SimpleDTO', function(): void {
         });
     });
 });
-

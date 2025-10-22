@@ -620,4 +620,3 @@ trait SimpleDTOValidationTrait
         self::$rulesCache = [];
     }
 }
-
