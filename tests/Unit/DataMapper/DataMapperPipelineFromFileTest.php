@@ -28,7 +28,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
                 'dept_names' => '{{ company.departments.*.name }}',
             ];
 
-            $result = DataMapper::pipeQuery([
+            $result = DataMapper::pipeline([
                 new TrimStrings(),
                 new LowercaseEmails(),
             ])->sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
@@ -50,7 +50,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
                 'dept_codes' => '{{ departments.department.*.code }}',
             ];
 
-            $result = DataMapper::pipeQuery([
+            $result = DataMapper::pipeline([
                 new TrimStrings(),
                 new UppercaseStrings(),
             ])->sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
@@ -72,7 +72,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
                 'phone' => '{{ company.phone }}',
             ];
 
-            $result = DataMapper::pipeQuery([
+            $result = DataMapper::pipeline([
                 new TrimStrings(),
                 new LowercaseEmails(),
             ])->sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
@@ -102,7 +102,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
                 ],
             ];
 
-            $result = DataMapper::pipeQuery([
+            $result = DataMapper::pipeline([
                 new TrimStrings(),
                 new LowercaseEmails(),
             ])->sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
@@ -141,7 +141,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
                 ],
             ];
 
-            $result = DataMapper::pipeQuery([
+            $result = DataMapper::pipeline([
                 new TrimStrings(),
                 new LowercaseEmails(),
             ])->sourceFile($xmlFile)->target($company)->template($mapping)->map()->getTarget();
@@ -174,7 +174,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
                 ],
             ];
 
-            $result = DataMapper::pipeQuery([
+            $result = DataMapper::pipeline([
                 new TrimStrings(),
                 new LowercaseEmails(),
             ])->sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
@@ -214,7 +214,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
                 ],
             ];
 
-            $result = DataMapper::pipeQuery([
+            $result = DataMapper::pipeline([
                 new TrimStrings(),
                 new LowercaseEmails(),
             ])->sourceFile($xmlFile)->target($company)->template($mapping)->map()->getTarget();
@@ -233,7 +233,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
             $target = [];
             $mapping = ['name' => '{{ name }}'];
 
-            $result = DataMapper::pipeQuery([new TrimStrings()])
+            $result = DataMapper::pipeline([new TrimStrings()])
                 ->sourceFile('/non/existent/file.json')->target($target)->template($mapping)->map()->getTarget();
             expect($result)->toBeArray();
         })->throws(InvalidArgumentException::class, 'File not found');
@@ -246,7 +246,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
             $mapping = ['name' => '{{ name }}'];
 
             try {
-                $result = DataMapper::pipeQuery([new TrimStrings()])
+                $result = DataMapper::pipeline([new TrimStrings()])
                     ->sourceFile($tempFile)->target($target)->template($mapping)->map()->getTarget();
                 expect($result)->toBeArray();
             } finally {

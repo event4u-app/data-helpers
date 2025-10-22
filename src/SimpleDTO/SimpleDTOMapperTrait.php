@@ -331,7 +331,7 @@ trait SimpleDTOMapperTrait
 
             // Apply pipeline filters if defined (pipe)
             if ([] !== $finalPipeline) {
-                $mapper = $mapper->pipe($finalPipeline);
+                $mapper = $mapper->pipeline($finalPipeline);
             }
 
             // Map and get result

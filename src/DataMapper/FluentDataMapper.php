@@ -205,7 +205,7 @@ final class FluentDataMapper
      *
      * @param array<int, FilterInterface|class-string<FilterInterface>> $filters Filter instances or class names
      */
-    public function pipe(array $filters): self
+    public function pipeline(array $filters): self
     {
         $this->pipelineFilters = $filters;
 
@@ -390,18 +390,6 @@ final class FluentDataMapper
     public function extendTemplate(array $template): self
     {
         $this->template = array_merge($this->template, $template);
-
-        return $this;
-    }
-
-    /**
-     * Set the pipeline filters.
-     *
-     * @param array<int, FilterInterface> $filters Pipeline filters
-     */
-    public function pipeline(array $filters): self
-    {
-        $this->pipelineFilters = $filters;
 
         return $this;
     }

@@ -59,29 +59,29 @@ class DataMapper
     }
 
     /**
-     * Create a DataMapperQuery starting with a pipeline.
-     *
-     * @param array<int, FilterInterface> $filters Filter instances
-     */
-    public static function pipeline(array $filters): DataMapperQuery
-    {
-        return self::createQuery()->pipeline($filters);
-    }
-
-    /**
      * Create a FluentDataMapper starting with a pipeline.
      *
      * @param array<int, FilterInterface> $filters Filter instances
      */
-    public static function pipeQuery(array $filters): FluentDataMapper
+    public static function pipeline(array $filters): FluentDataMapper
     {
-        return self::createFluentMapper()->pipe($filters);
+        return self::createFluentMapper()->pipeline($filters);
     }
 
     /** Create a DataMapperQuery. */
     public static function query(): DataMapperQuery
     {
         return self::createQuery();
+    }
+
+    /**
+     * Create a DataMapperQuery starting with a pipeline.
+     *
+     * @param array<int, FilterInterface> $filters Filter instances
+     */
+    public static function queryPipeline(array $filters): DataMapperQuery
+    {
+        return self::createQuery()->pipeline($filters);
     }
 
     /** Create a new FluentDataMapper instance. */

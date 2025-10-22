@@ -525,7 +525,7 @@ class DataMapperQuery
                 ->sources($this->sources)
                 ->skipNull($this->skipNull)
                 ->reindexWildcard($this->reindexWildcard)
-                ->pipe($this->pipelineFilters)
+                ->pipeline($this->pipelineFilters)
                 ->map()
                 ->getTarget();
         } else {

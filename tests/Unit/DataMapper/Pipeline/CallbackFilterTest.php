@@ -27,7 +27,7 @@ describe('CallbackFilter', function(): void {
             'profile.email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline(
             [new CallbackFilter(fn(CallbackParameters $params): mixed => is_string($params->value) ? strtoupper(
                 $params->value
             ) : $params->value),]
@@ -55,7 +55,7 @@ describe('CallbackFilter', function(): void {
 
         $capturedParams = null;
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline(
             [new CallbackFilter(function(CallbackParameters $params) use (&$capturedParams) {
                 $capturedParams = $params;
                 return $params->value;
@@ -86,7 +86,7 @@ describe('CallbackFilter', function(): void {
             'profile.phone' => '{{ user.phone }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $params
         ) {
                 // Skip empty values
@@ -119,7 +119,7 @@ describe('CallbackFilter', function(): void {
         ];
 
         // Exception should be collected, NOT thrown
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline(
             [new CallbackFilter(function(CallbackParameters $params): void {
                 throw new RuntimeException('Callback failed!');
             }),]
@@ -147,7 +147,7 @@ describe('CallbackFilter', function(): void {
             'profile.name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $params
         ) {
                 // Only lowercase emails
@@ -176,7 +176,7 @@ describe('CallbackFilter', function(): void {
             'profile.name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline(
             [new CallbackFilter(fn(CallbackParameters $p): mixed => is_string($p->value) ? trim($p->value) : $p->value),
             new CallbackFilter(fn(CallbackParameters $p): mixed => is_string($p->value) ? strtoupper(
                 $p->value
@@ -204,7 +204,7 @@ describe('CallbackFilter', function(): void {
             'org.teams' => '{{ company.departments }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $params
         ) {
                 // Uppercase department names in nested arrays
@@ -246,7 +246,7 @@ describe('CallbackFilter', function(): void {
             'result.count' => '{{ data.count }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $params
         ) {
                 // Only skip null, not empty string or false or 0
@@ -277,7 +277,7 @@ describe('CallbackFilter', function(): void {
             'profile.tags' => '{{ user.tags }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $params
         ) {
                 // Uppercase all array elements
@@ -308,7 +308,7 @@ describe('CallbackFilter', function(): void {
 
         $capturedKeys = [];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline(
             [new CallbackFilter(function(CallbackParameters $params) use (&$capturedKeys) {
                 $capturedKeys[] = $params->key;
                 return $params->value;
@@ -333,7 +333,7 @@ describe('CallbackFilter', function(): void {
 
         $result = DataMapper::source($source)->target([])->template(
             $mapping
-        )->pipe([new CallbackFilter(fn(CallbackParameters $params): null =>
+        )->pipeline([new CallbackFilter(fn(CallbackParameters $params): null =>
                 // Explicitly return null (not __skip__)
                 null),])->map()->getTarget();
 
@@ -357,7 +357,7 @@ describe('CallbackFilter', function(): void {
             'profile.email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $params
         ) {
                 if ('' === $params->value) {

@@ -29,7 +29,7 @@ describe('Callback Integration Tests', function(): void {
             'profile.email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new TrimStrings(),
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new TrimStrings(),
             new CallbackFilter(fn(CallbackParameters $p): mixed => is_string($p->value) ? strtolower(
                 $p->value
             ) : $p->value),])->map()->getTarget();
@@ -53,7 +53,7 @@ describe('Callback Integration Tests', function(): void {
             'profile.name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $p
         ): mixed {
                 // Add prefix
@@ -89,7 +89,7 @@ describe('Callback Integration Tests', function(): void {
             'team' => '{{ users }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $p
         ): mixed {
                 // Transform array of users
@@ -119,7 +119,7 @@ describe('Callback Integration Tests', function(): void {
         ];
 
         // Forward mapping with callback filter
-        $forward = DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $forward = DataMapper::source($source)->target([])->template($mapping)->pipeline(
             [new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),]
         )->map()->getTarget();
 
@@ -148,7 +148,7 @@ describe('Callback Integration Tests', function(): void {
             'activeUsers' => '{{ users }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $p
         ): mixed {
                 // Filter active users and uppercase names
@@ -194,7 +194,7 @@ describe('Callback Integration Tests', function(): void {
             'org.teams' => '{{ company.departments }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $p
         ): mixed {
                 if (is_array($p->value) && 'teams' === $p->key) {
@@ -230,7 +230,7 @@ describe('Callback Integration Tests', function(): void {
             'item.price' => '{{ product.price }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new CallbackFilter(function(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new CallbackFilter(function(
             CallbackParameters $p
         ) {
                 // Apply tax from config
@@ -286,7 +286,7 @@ describe('Callback Integration Tests', function(): void {
 
         $result = DataMapper::source($source)->target([])->template(
             $mapping
-        )->pipe([new CallbackFilter(fn(CallbackParameters $p): mixed => // Try to modify source (should not affect original)
+        )->pipeline([new CallbackFilter(fn(CallbackParameters $p): mixed => // Try to modify source (should not affect original)
                 // Note: CallbackParameters is readonly, so this would fail at runtime
                 // This test documents that source is passed by value
             $p->value),])->map()->getTarget();
@@ -342,7 +342,7 @@ describe('Callback Integration Tests', function(): void {
                 'profile.email' => '{{ user.email }}',
             ];
 
-            $result = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->pipe(
+            $result = DataMapper::sourceFile($tempFile)->target([])->template($mapping)->pipeline(
                 [new CallbackFilter(function(CallbackParameters $p) {
                     if ('name' === $p->key && is_string($p->value)) {
                         return strtoupper($p->value);
@@ -369,7 +369,7 @@ describe('Callback Integration Tests', function(): void {
             'profile.email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([
             new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),
         ])->map()->getTarget();
 
@@ -421,7 +421,7 @@ describe('Callback Integration Tests', function(): void {
         $source = (object)['user' => (object)['name' => 'alice']];
         $mapping = ['profile.name' => '{{ user.name }}'];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline(
             [new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),]
         )->map()->getTarget();
 
@@ -443,7 +443,7 @@ describe('Callback Integration Tests', function(): void {
         ];
         $mapping = ['result' => '{{ level1.level2.level3.level4.level5.value }}'];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline(
             [new CallbackFilter(fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value),]
         )->map()->getTarget();
 

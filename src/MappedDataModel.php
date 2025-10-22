@@ -153,7 +153,7 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
             /** @var array<string, mixed> $result */
             $result = DataMapper::source($source)->target($staticValues)->template($mappings)->skipNull(
                 false
-            )->pipe(
+            )->pipeline(
                 $pipes
             )->map()->getTarget();
 

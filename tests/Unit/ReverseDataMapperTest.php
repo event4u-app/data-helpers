@@ -325,7 +325,7 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward with pipeline
-        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->pipe([
+        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->pipeline([
             new TrimStrings(),
         ])->map()->getTarget();
 
@@ -334,7 +334,7 @@ describe('ReverseDataMapper', function(): void {
 
         // Reverse with pipeline
         $reverseSource = ['profile' => ['name' => '  bob  ', 'email' => '  BOB@EXAMPLE.COM  ']];
-        $reverseResult = DataMapper::source($reverseSource)->target([])->template($mapping)->pipe([
+        $reverseResult = DataMapper::source($reverseSource)->target([])->template($mapping)->pipeline([
             new TrimStrings(),
         ])->reverse()->map()->getTarget();
 

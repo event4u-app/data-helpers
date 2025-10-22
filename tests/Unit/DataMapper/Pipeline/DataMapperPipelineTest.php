@@ -24,7 +24,7 @@ describe('DataMapper Pipeline', function(): void {
             'email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new TrimStrings()])
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new TrimStrings()])
             ->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
@@ -44,7 +44,7 @@ describe('DataMapper Pipeline', function(): void {
             'email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new LowercaseEmails()])
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new LowercaseEmails()])
             ->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
@@ -66,7 +66,7 @@ describe('DataMapper Pipeline', function(): void {
             'phone' => '{{ user.phone }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new SkipEmptyValues()])
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new SkipEmptyValues()])
             ->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
@@ -87,7 +87,7 @@ describe('DataMapper Pipeline', function(): void {
             'email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([
             new TrimStrings(),
             new LowercaseEmails(),
         ])->map()->getTarget();
@@ -111,7 +111,7 @@ describe('DataMapper Pipeline', function(): void {
             'phone' => '{{ user.phone }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new TrimStrings(),
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new TrimStrings(),
             new SkipEmptyValues(),])->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
@@ -132,7 +132,7 @@ describe('DataMapper Pipeline', function(): void {
             'ages.*' => '{{ users.*.age }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe(
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline(
             [new TrimStrings(),]
         )->map()->getTarget();
 
@@ -151,7 +151,7 @@ describe('DataMapper Pipeline', function(): void {
             'name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::source($source)->target([])->template($mapping)->pipe([new TrimStrings()])
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new TrimStrings()])
             ->hooks([
                 DataMapperHook::AfterTransform->value => fn($value) => is_string($value) ? strtoupper($value) : $value,
             ])

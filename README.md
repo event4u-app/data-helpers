@@ -735,7 +735,7 @@ $stats = DataMapper::query()
 // ]
 
 // Combine with pipeline for data transformation
-$result = DataMapper::pipeQuery([
+$result = DataMapper::pipeline([
         new TrimStrings(),
     ])
     ->source('products', $products)
