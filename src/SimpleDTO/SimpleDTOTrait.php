@@ -81,6 +81,7 @@ trait SimpleDTOTrait
     use SimpleDTOConditionalTrait;
     use SimpleDTOWithTrait;
     use SimpleDTOSortingTrait;
+    use SimpleDTODiffTrait;
 
     /**
      * Include specific properties in serialization.

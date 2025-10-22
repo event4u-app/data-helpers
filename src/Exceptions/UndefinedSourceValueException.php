@@ -15,12 +15,7 @@ class UndefinedSourceValueException extends RuntimeException
         private readonly string $path,
         private readonly mixed $source,
     ) {
-        parent::__construct(
-            sprintf(
-                'Source value at path "%s" is undefined',
-                $path
-            )
-        );
+        parent::__construct('Source value at path „' . $path . '" is undefined');
     }
 
     public function getPath(): string

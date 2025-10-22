@@ -24,24 +24,16 @@ class DTOException extends RuntimeException
         $actualType = get_debug_type($actualValue);
         $path = '' !== $propertyPath ? $propertyPath : $property;
 
-        $message = sprintf(
-            "Type mismatch in %s::\$%s\n" .
-            "  Property path: %s\n" .
-            "  Expected type: %s\n" .
-            "  Actual type: %s\n" .
-            "  Actual value: %s",
-            $dtoClass,
-            $property,
-            $path,
-            $expectedType,
-            $actualType,
-            self::formatValue($actualValue)
-        );
+        $message = 'Type mismatch in ' . $dtoClass . '::$' . $property . PHP_EOL .
+            '  Property path: ' . $path . PHP_EOL .
+            '  Expected type: ' . $expectedType . PHP_EOL .
+            '  Actual type: ' . $actualType . PHP_EOL .
+            '  Actual value: ' . self::formatValue($actualValue);
 
         // Add suggestions
         $suggestions = self::getSuggestionsForTypeMismatch($expectedType, $actualType, $actualValue);
         if ([] !== $suggestions) {
-            $message .= "\n\nSuggestions:\n  - " . implode("\n  - ", $suggestions);
+            $message .= PHP_EOL . PHP_EOL . 'Suggestions:' . PHP_EOL . '  - ' . implode(PHP_EOL . '  - ', $suggestions);
         }
 
         return new self($message);
@@ -57,21 +49,17 @@ class DTOException extends RuntimeException
         string $property,
         array $availableKeys = []
     ): self {
-        $message = sprintf(
-            "Missing required property in %s::\$%s",
-            $dtoClass,
-            $property
-        );
+        $message = 'Missing required property in ' . $dtoClass . '::$' . $property;
 
         // Add available keys
         if ([] !== $availableKeys) {
-            $message .= "\n\nAvailable keys in data:\n  - " . implode("\n  - ", $availableKeys);
+            $message .= PHP_EOL . PHP_EOL . 'Available keys in data:' . PHP_EOL . '  - ' . implode(PHP_EOL . '  - ', $availableKeys);
         }
 
         // Add suggestions for similar keys
         $suggestions = self::getSimilarKeys($property, $availableKeys);
         if ([] !== $suggestions) {
-            $message .= "\n\nDid you mean:\n  - " . implode("\n  - ", $suggestions);
+            $message .= PHP_EOL . PHP_EOL . 'Did you mean:' . PHP_EOL . '  - ' . implode(PHP_EOL . '  - ', $suggestions);
         }
 
         return new self($message);
@@ -85,21 +73,13 @@ class DTOException extends RuntimeException
         mixed $value,
         string $reason = ''
     ): self {
-        $message = sprintf(
-            "Cast failed in %s::\$%s\n" .
-            "  Cast type: %s\n" .
-            "  Value: %s\n" .
-            "  Value type: %s",
-            $dtoClass,
-            $property,
-            $castType,
-            self::formatValue($value),
-            get_debug_type($value)
-        );
+        $message = 'Cast failed in ' . $dtoClass . '::$' . $property . PHP_EOL .
+            '  Cast type: ' . $castType . PHP_EOL .
+            '  Value: ' . self::formatValue($value) . PHP_EOL .
+            '  Value type: ' . get_debug_type($value);
 
         if ('' !== $reason) {
-            $message .= '
-  Reason: ' . $reason;
+            $message .= PHP_EOL . '  Reason: ' . $reason;
         }
 
         return new self($message);
@@ -113,20 +93,11 @@ class DTOException extends RuntimeException
         string $nestedProperty,
         string $originalMessage
     ): self {
-        $message = sprintf(
-            "Error in nested DTO %s::\$%s\n" .
-            "  Nested DTO: %s\n" .
-            "  Nested property: %s\n" .
-            "  Property path: %s.%s\n\n" .
-            "Original error:\n%s",
-            $dtoClass,
-            $property,
-            $nestedDtoClass,
-            $nestedProperty,
-            $property,
-            $nestedProperty,
-            $originalMessage
-        );
+        $message = 'Error in nested DTO ' . $dtoClass . '::$' . $property . PHP_EOL .
+            '  Nested DTO: ' . $nestedDtoClass . PHP_EOL .
+            '  Nested property: ' . $nestedProperty . PHP_EOL .
+            '  Property path: ' . $property . '.' . $nestedProperty . PHP_EOL . PHP_EOL .
+            'Original error:' . PHP_EOL . $originalMessage;
 
         return new self($message);
     }
@@ -145,13 +116,13 @@ class DTOException extends RuntimeException
         if (is_string($value)) {
             $truncated = mb_strlen($value) > 50 ? mb_substr($value, 0, 50) . '...' : $value;
 
-            return sprintf("'%s'", $truncated);
+            return '„' . $truncated . '"';
         }
 
         if (is_array($value)) {
             $count = count($value);
 
-            return sprintf('array(%d items)', $count);
+            return 'array(' . $count . ' items)';
         }
 
         if (is_object($value)) {
@@ -176,36 +147,26 @@ class DTOException extends RuntimeException
         // String to int/float
         if ('string' === $actualType && in_array($expectedType, ['int', 'float'], true)) {
             if (is_numeric($actualValue)) {
-                $suggestions[] = sprintf(
-                    "Cast the string to %s: (int) '%s' or use a cast in casts() method",
-                    $expectedType,
-                    $actualValue
-                );
+                $suggestions[] = 'Cast the string to ' . $expectedType . ': (int) „' . $actualValue . '" or use a cast in casts() method';
             } else {
-                $suggestions[] = sprintf(
-                    "The string '%s' is not numeric. Provide a valid number.",
-                    (string)$actualValue
-                );
+                $suggestions[] = 'The string „' . (string)$actualValue . '" is not numeric. Provide a valid number.';
             }
         }
 
         // Int to string
         if ('int' === $actualType && 'string' === $expectedType) {
-            $suggestions[] = sprintf(
-                "Cast the integer to string: (string) %s or use 'string' cast in casts() method",
-                (string)$actualValue
-            );
+            $suggestions[] = 'Cast the integer to string: (string) ' . (string)$actualValue . ' or use „string" cast in casts() method';
         }
 
         // Array to object
         if ('array' === $actualType && str_contains($expectedType, '\\')) {
-            $suggestions[] = sprintf('Convert array to %s using %s::fromArray($value)', $expectedType, $expectedType);
+            $suggestions[] = 'Convert array to ' . $expectedType . ' using ' . $expectedType . '::fromArray($value)';
         }
 
         // Null to non-nullable
         if ('null' === $actualType && !str_contains($expectedType, '?')) {
-            $suggestions[] = sprintf('Make the property nullable: ?%s ${property}', $expectedType);
-            $suggestions[] = "Or provide a non-null value in the data array";
+            $suggestions[] = 'Make the property nullable: ?' . $expectedType . ' ${property}';
+            $suggestions[] = 'Or provide a non-null value in the data array';
         }
 
         return $suggestions;

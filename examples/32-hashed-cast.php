@@ -42,7 +42,7 @@ echo sprintf('Email: %s%s', $user->email, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 echo sprintf('Password (hashed): %s%s', $user->password, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
-echo "Hash starts with \$2y\$: " . (str_starts_with($user->password, '$2y$') ? 'Yes' : 'No') . "\n\n";
+echo "Hash starts with \$2y\$: " . (str_starts_with((string)$user->password, '$2y$') ? 'Yes' : 'No') . "\n\n";
 
 // Example 2: Password Verification
 echo "Example 2: Password Verification\n";

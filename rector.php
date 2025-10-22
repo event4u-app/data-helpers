@@ -66,6 +66,7 @@ return RectorConfig::configure()
     ->withSkipPath(__DIR__ . '/tests-e2e/*/vendor')
     ->withSkipPath(__DIR__ . '/tests-e2e/*/composer.lock')
     ->withRootFiles()
+    ->withPHPStanConfigs([__DIR__ . '/phpstan.neon'])
     ->withPhpSets(php82: true)
     ->withSets([
         LevelSetList::UP_TO_PHP_82,

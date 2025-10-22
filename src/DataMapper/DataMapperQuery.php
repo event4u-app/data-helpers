@@ -246,10 +246,7 @@ class DataMapperQuery
 
         $normalizedDirection = strtoupper($direction);
         if (!in_array($normalizedDirection, ['ASC', 'DESC'], true)) {
-            throw new InvalidArgumentException(sprintf(
-                'Invalid ORDER BY direction: %s. Must be ASC or DESC.',
-                $direction
-            ));
+            throw new InvalidArgumentException('Invalid ORDER BY direction: ' . $direction . '. Must be ASC or DESC.');
         }
 
         $this->orderByFields[$field] = $normalizedDirection;

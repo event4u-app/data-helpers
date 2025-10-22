@@ -22,7 +22,8 @@
   ],
   "require": {
     "php": "^8.2",
-    "composer-plugin-api": "^2.0"
+    "composer-plugin-api": "^2.0",
+    "ext-simplexml": "*"
   },
   "require-dev": {
     "composer/composer": "^2.0",

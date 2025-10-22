@@ -17,11 +17,7 @@ class CollectedExceptionsException extends RuntimeException
         private readonly array $exceptions,
     ) {
         $count = count($exceptions);
-        $message = sprintf(
-            'Collected %d exception%s during mapping',
-            $count,
-            1 === $count ? '' : 's'
-        );
+        $message = 'Collected ' . $count . ' exception' . (1 === $count ? '' : 's') . ' during mapping';
 
         parent::__construct($message);
     }

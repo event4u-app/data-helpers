@@ -251,14 +251,14 @@ final readonly class Optional
         }
 
         if (is_scalar($this->value)) {
-            return sprintf('Optional[%s]', $this->value);
+            return 'Optional[' . $this->value . ']';
         }
 
         if (is_object($this->value)) {
-            return sprintf('Optional[%s]', get_class($this->value));
+            return 'Optional[' . get_class($this->value) . ']';
         }
 
-        return sprintf('Optional[%s]', gettype($this->value));
+        return 'Optional[' . gettype($this->value) . ']';
     }
 }
 
