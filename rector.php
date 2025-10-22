@@ -34,6 +34,7 @@ use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableR
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php73\Rector\BooleanOr\IsCountableRector;
 use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
+use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\Set\ValueObject\LevelSetList;
@@ -156,4 +157,5 @@ return RectorConfig::configure()
         DisallowedEmptyRuleFixerRector::class,
         RemoveUnusedPrivateMethodRector::class,
         SortNamedParamRector::class,
+        NullToStrictStringFuncCallArgRector::class,
     ]);

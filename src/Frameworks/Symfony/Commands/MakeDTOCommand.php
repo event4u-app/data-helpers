@@ -85,8 +85,8 @@ class MakeDTOCommand extends Command
     /** Get DTO stub content. */
     private function getDTOStub(string $className, bool $validate): string
     {
-        $validateAttribute = $validate ? "#[ValidateRequest(throw: true)]\n" : '';
-        $validateUse = $validate ? "use event4u\\DataHelpers\\SimpleDTO\\Attributes\\ValidateRequest;\n" : '';
+        $validateAttribute = $validate ? '#[ValidateRequest(throw: true)]' . PHP_EOL : '';
+        $validateUse = $validate ? 'use event4u\\DataHelpers\\SimpleDTO\\Attributes\\ValidateRequest;' . PHP_EOL : '';
 
         return <<<PHP
 <?php

@@ -53,13 +53,19 @@ class DTOException extends RuntimeException
 
         // Add available keys
         if ([] !== $availableKeys) {
-            $message .= PHP_EOL . PHP_EOL . 'Available keys in data:' . PHP_EOL . '  - ' . implode(PHP_EOL . '  - ', $availableKeys);
+            $message .= PHP_EOL . PHP_EOL . 'Available keys in data:' . PHP_EOL . '  - ' . implode(
+                PHP_EOL . '  - ',
+                $availableKeys
+            );
         }
 
         // Add suggestions for similar keys
         $suggestions = self::getSimilarKeys($property, $availableKeys);
         if ([] !== $suggestions) {
-            $message .= PHP_EOL . PHP_EOL . 'Did you mean:' . PHP_EOL . '  - ' . implode(PHP_EOL . '  - ', $suggestions);
+            $message .= PHP_EOL . PHP_EOL . 'Did you mean:' . PHP_EOL . '  - ' . implode(
+                PHP_EOL . '  - ',
+                $suggestions
+            );
         }
 
         return new self($message);
@@ -116,7 +122,7 @@ class DTOException extends RuntimeException
         if (is_string($value)) {
             $truncated = mb_strlen($value) > 50 ? mb_substr($value, 0, 50) . '...' : $value;
 
-            return '„' . $truncated . '"';
+            return '"' . $truncated . '"';
         }
 
         if (is_array($value)) {
@@ -147,15 +153,15 @@ class DTOException extends RuntimeException
         // String to int/float
         if ('string' === $actualType && in_array($expectedType, ['int', 'float'], true)) {
             if (is_numeric($actualValue)) {
-                $suggestions[] = 'Cast the string to ' . $expectedType . ': (int) „' . $actualValue . '" or use a cast in casts() method';
+                $suggestions[] = 'Cast the string to ' . $expectedType . ': (int) "' . $actualValue . '" or use a cast in casts() method';
             } else {
-                $suggestions[] = 'The string „' . (string)$actualValue . '" is not numeric. Provide a valid number.';
+                $suggestions[] = 'The string "' . $actualValue . '" is not numeric. Provide a valid number.';
             }
         }
 
         // Int to string
         if ('int' === $actualType && 'string' === $expectedType) {
-            $suggestions[] = 'Cast the integer to string: (string) ' . (string)$actualValue . ' or use „string" cast in casts() method';
+            $suggestions[] = 'Cast the integer to string: (string) ' . $actualValue . ' or use "string" cast in casts() method';
         }
 
         // Array to object

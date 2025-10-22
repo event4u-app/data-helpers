@@ -147,11 +147,11 @@ class DtoTypeScriptCommand extends Command
         $files->put($outputPath, $typescript);
 
         /** @phpstan-ignore-next-line */
-        $this->info("✅  TypeScript interfaces generated successfully!");
+        $this->info('✅  TypeScript interfaces generated successfully!');
         /** @phpstan-ignore-next-line */
         $this->info('📄 Output: ' . $outputPath);
         /** @phpstan-ignore-next-line */
-        $this->info("📊 Size: " . $files->size($outputPath) . " bytes");
+        $this->info('📊 Size: ' . $files->size($outputPath) . ' bytes');
 
         return self::SUCCESS;
     }

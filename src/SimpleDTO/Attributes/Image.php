@@ -91,7 +91,7 @@ class Image implements ValidationRule, SymfonyConstraint
     /** Get validation error message. */
     public function message(): ?string
     {
-        return "The attribute must be an image.";
+        return 'The attribute must be an image.';
     }
 
     /** Get Symfony constraint. */

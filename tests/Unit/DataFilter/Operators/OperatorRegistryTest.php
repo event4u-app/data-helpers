@@ -60,7 +60,7 @@ describe('OperatorRegistry', function(): void {
 
     it('throws exception when getting non-existent operator', function(): void {
         OperatorRegistry::get('NON_EXISTENT');
-    })->throws(InvalidArgumentException::class, "Operator 'NON_EXISTENT' is not registered");
+    })->throws(InvalidArgumentException::class, 'Operator "NON_EXISTENT" is not registered');
 
     it('returns false for non-existent operator', function(): void {
         expect(OperatorRegistry::has('NON_EXISTENT'))->toBeFalse();

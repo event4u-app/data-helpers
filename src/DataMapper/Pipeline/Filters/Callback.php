@@ -50,11 +50,10 @@ final class Callback implements FilterInterface
 
         if (!$callback instanceof Closure) {
             $exception = new InvalidArgumentException(
-                sprintf(
-                    'Callback "%s" is not registered. Available callbacks: %s',
-                    $callbackName,
-                    implode(', ', CallbackRegistry::getRegisteredNames()) ?: 'none'
-                )
+                'Callback "' . $callbackName . '" is not registered. Available callbacks: ' . (implode(
+                    ', ',
+                    CallbackRegistry::getRegisteredNames()
+                ) ?: 'none')
             );
             MapperExceptions::handleException($exception);
             return $value;
@@ -84,12 +83,7 @@ final class Callback implements FilterInterface
         } catch (Throwable $throwable) {
             // Wrap exception with context and handle via MapperExceptions
             $exception = new RuntimeException(
-                sprintf(
-                    'Callback "%s" failed for path "%s": %s',
-                    $callbackName,
-                    $context->tgtPath() ?? 'unknown',
-                    $throwable->getMessage()
-                ),
+                'Callback "' . $callbackName . '" failed for path "' . ($context->tgtPath() ?? 'unknown') . '": ' . $throwable->getMessage(),
                 0,
                 $throwable
             );

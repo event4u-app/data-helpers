@@ -384,7 +384,7 @@ trait SimpleDTOCastsTrait
         $caster = self::$castCache[$cacheKey];
 
         if (!$caster instanceof CastsAttributes) {
-            throw new InvalidArgumentException("Cached cast class must implement CastsAttributes");
+            throw new InvalidArgumentException('Cached cast class must implement CastsAttributes');
         }
 
         return $caster;

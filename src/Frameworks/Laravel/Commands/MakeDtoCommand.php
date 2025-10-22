@@ -154,7 +154,7 @@ class MakeDtoCommand extends Command
             $uses[] = 'use event4u\DataHelpers\SimpleDTO\DataCollection;';
         }
 
-        $usesStr = implode("\n", $uses);
+        $usesStr = implode(PHP_EOL, $uses);
 
         if ($resource) {
             return $this->generateResourceDto($namespace, $className, $usesStr, $validation, $collection);

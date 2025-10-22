@@ -49,6 +49,6 @@ class Json implements ValidationRule, SymfonyConstraint
     /** Get validation error message. */
     public function message(): ?string
     {
-        return "The attribute must be a valid JSON string.";
+        return 'The attribute must be a valid JSON string.';
     }
 }

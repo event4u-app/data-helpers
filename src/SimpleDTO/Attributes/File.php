@@ -65,7 +65,7 @@ class File implements ValidationRule, SymfonyConstraint
     /** Get validation error message. */
     public function message(): ?string
     {
-        return "The attribute must be a file.";
+        return 'The attribute must be a file.';
     }
 
     /** Get Symfony constraint. */

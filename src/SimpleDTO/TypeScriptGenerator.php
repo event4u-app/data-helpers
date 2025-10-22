@@ -460,11 +460,11 @@ TS;
             if (is_object($case) && property_exists($case, 'value')) {
                 $value = $case->value;
 
-                return is_string($value) ? sprintf("'%s'", $value) : $value;
+                return is_string($value) ? ("'" . $value . "'") : $value;
             }
 
             if (is_object($case) && property_exists($case, 'name')) {
-                return sprintf("'%s'", $case->name);
+                return "'" . $case->name . "'";
             }
 
             return 'any';

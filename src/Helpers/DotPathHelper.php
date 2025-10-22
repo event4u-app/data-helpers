@@ -45,13 +45,13 @@ class DotPathHelper
 
         // Fast checks for empty segments with specific messages
         if ('.' === $path[0]) {
-            throw new InvalidArgumentException(sprintf("Invalid dot-path syntax: leading dot in '%s'", $path));
+            throw new InvalidArgumentException('Invalid dot-path syntax: leading dot in "' . $path . '"');
         }
         if (str_ends_with($path, '.')) {
-            throw new InvalidArgumentException(sprintf("Invalid dot-path syntax: trailing dot in '%s'", $path));
+            throw new InvalidArgumentException('Invalid dot-path syntax: trailing dot in "' . $path . '"');
         }
         if (str_contains($path, '..')) {
-            throw new InvalidArgumentException(sprintf("Invalid dot-path syntax: double dot in '%s'", $path));
+            throw new InvalidArgumentException('Invalid dot-path syntax: double dot in "' . $path . '"');
         }
 
         $segments = explode('.', $path);
@@ -59,7 +59,7 @@ class DotPathHelper
         // Defensive check (covers rare cases like "a." or ".a" even if above changes)
         foreach ($segments as $seg) {
             if ('' === $seg) {
-                throw new InvalidArgumentException(sprintf("Invalid dot-path syntax: empty segment in '%s'", $path));
+                throw new InvalidArgumentException('Invalid dot-path syntax: empty segment in "' . $path . '"');
             }
         }
 

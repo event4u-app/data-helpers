@@ -1289,7 +1289,7 @@ describe('DataMutator', function(): void {
             $data = [];
 
             expect(fn(): array|object => DataMutator::set($data, 'a..b', 'value'))
-                ->toThrow(InvalidArgumentException::class, "Invalid dot-path syntax: double dot in 'a..b'");
+                ->toThrow(InvalidArgumentException::class, 'Invalid dot-path syntax: double dot in "a..b"');
         });
 
         test('can set values in mixed object-array structures', function(): void {

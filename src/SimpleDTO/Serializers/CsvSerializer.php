@@ -80,15 +80,15 @@ class CsvSerializer implements SerializerInterface
 
         // Add headers
         if ($this->includeHeaders) {
-            $output .= $this->formatRow($headers) . "\n";
+            $output .= $this->formatRow($headers) . PHP_EOL;
         }
 
         // Add rows
         foreach ($flatData as $row) {
-            $output .= $this->formatRow(array_values($row)) . "\n";
+            $output .= $this->formatRow(array_values($row)) . PHP_EOL;
         }
 
-        return rtrim($output, "\n");
+        return rtrim($output, PHP_EOL);
     }
 
     /**
@@ -103,7 +103,7 @@ class CsvSerializer implements SerializerInterface
 
         // Add headers
         if ($this->includeHeaders) {
-            $output .= $this->formatRow(array_keys($flat)) . "\n";
+            $output .= $this->formatRow(array_keys($flat)) . PHP_EOL;
         }
 
         // Add values

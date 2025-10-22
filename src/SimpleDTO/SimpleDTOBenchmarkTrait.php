@@ -192,17 +192,17 @@ trait SimpleDTOBenchmarkTrait
      */
     public static function generateBenchmarkReport(array $results): string
     {
-        $report = "=== Benchmark Report ===\n\n";
-        $report .= "Class: " . static::class . "\n\n";
+        $report = '=== Benchmark Report ===' . PHP_EOL . PHP_EOL;
+        $report .= 'Class: ' . static::class . PHP_EOL . PHP_EOL;
 
         foreach ($results as $operation => $metrics) {
-            $report .= ucfirst($operation) . ":\n";
-            $report .= "  Duration: " . number_format($metrics['duration'] * 1000, 2) . " ms\n";
-            $report .= "  Memory: " . number_format($metrics['memory'] / 1024, 2) . " KB\n";
-            $report .= "  Throughput: " . number_format($metrics['throughput']) . " ops/sec\n";
-            $report .= "  Avg Duration: " . number_format($metrics['avgDuration'] * 1000000, 2) . " μs\n";
-            $report .= "  Avg Memory: " . number_format($metrics['avgMemory']) . " bytes\n";
-            $report .= "\n";
+            $report .= ucfirst($operation) . ':' . PHP_EOL;
+            $report .= '  Duration: ' . number_format($metrics['duration'] * 1000, 2) . ' ms' . PHP_EOL;
+            $report .= '  Memory: ' . number_format($metrics['memory'] / 1024, 2) . ' KB' . PHP_EOL;
+            $report .= '  Throughput: ' . number_format($metrics['throughput']) . ' ops/sec' . PHP_EOL;
+            $report .= '  Avg Duration: ' . number_format($metrics['avgDuration'] * 1000000, 2) . ' μs' . PHP_EOL;
+            $report .= '  Avg Memory: ' . number_format($metrics['avgMemory']) . ' bytes' . PHP_EOL;
+            $report .= PHP_EOL;
         }
 
         return $report;

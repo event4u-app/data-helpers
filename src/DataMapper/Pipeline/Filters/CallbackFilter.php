@@ -60,7 +60,7 @@ final readonly class CallbackFilter implements FilterInterface
         } catch (Throwable $throwable) {
             // Wrap exception with context and handle via MapperExceptions
             $exception = new RuntimeException(
-                'Callback filter failed for path „' . ($context->tgtPath() ?? 'unknown') . '": ' . $throwable->getMessage(),
+                'Callback filter failed for path "' . ($context->tgtPath() ?? 'unknown') . '": ' . $throwable->getMessage(),
                 0,
                 $throwable
             );

@@ -15,7 +15,7 @@ class UndefinedTargetValueException extends RuntimeException
         private readonly string $path,
         private readonly mixed $target,
     ) {
-        parent::__construct('Target path „' . $path . '" does not exist in target data');
+        parent::__construct('Target path "' . $path . '" does not exist in target data');
     }
 
     public function getPath(): string

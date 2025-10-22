@@ -46,22 +46,24 @@ class YamlSerializer implements SerializerInterface
                 /** @var array<string, mixed> $value */
                 // Check if it's a sequential array
                 if ($this->isSequentialArray($value)) {
-                    $yaml .= $indent . $key . ":\n";
+                    $yaml .= $indent . $key . ':' . PHP_EOL;
                     foreach ($value as $item) {
                         if (is_array($item)) {
                             /** @var array<string, mixed> $item */
-                            $yaml .= $indent . str_repeat(' ', $this->indent) . "-\n";
+                            $yaml .= $indent . str_repeat(' ', $this->indent) . '-' . PHP_EOL;
                             $yaml .= $this->arrayToYaml($item, $level + 2);
                         } else {
-                            $yaml .= $indent . str_repeat(' ', $this->indent) . '- ' . $this->formatValue($item) . "\n";
+                            $yaml .= $indent . str_repeat(' ', $this->indent) . '- ' . $this->formatValue(
+                                $item
+                            ) . PHP_EOL;
                         }
                     }
                 } else {
-                    $yaml .= $indent . $key . ":\n";
+                    $yaml .= $indent . $key . ':' . PHP_EOL;
                     $yaml .= $this->arrayToYaml($value, $level + 1);
                 }
             } else {
-                $yaml .= $indent . $key . ': ' . $this->formatValue($value) . "\n";
+                $yaml .= $indent . $key . ': ' . $this->formatValue($value) . PHP_EOL;
             }
         }
 

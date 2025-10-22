@@ -69,7 +69,7 @@ class Ip implements ValidationRule, SymfonyConstraint
     public function message(): ?string
     {
         if (null === $this->version) {
-            return "The attribute must be a valid IP address.";
+            return 'The attribute must be a valid IP address.';
         }
 
         $version = strtoupper(str_replace('ipv', 'IPv', $this->version));

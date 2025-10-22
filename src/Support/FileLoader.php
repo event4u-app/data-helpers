@@ -30,7 +30,7 @@ final class FileLoader
         }
 
         if (!file_exists($filePath)) {
-            throw new InvalidArgumentException("File not found: {$filePath}");
+            throw new InvalidArgumentException('File not found: ' . $filePath);
         }
 
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
@@ -39,7 +39,7 @@ final class FileLoader
             'json' => self::loadJsonFile($filePath),
             'xml' => self::loadXmlFile($filePath),
             default => throw new InvalidArgumentException(
-                "Unsupported file format: {$extension}. Only XML and JSON are supported."
+                'Unsupported file format: ' . $extension . '. Only XML and JSON are supported.'
             ),
         };
 
@@ -63,7 +63,7 @@ final class FileLoader
         $content = file_get_contents($filePath);
 
         if (false === $content) {
-            throw new InvalidArgumentException("Failed to read file: {$filePath}");
+            throw new InvalidArgumentException('Failed to read file: ' . $filePath);
         }
 
         $result = json_decode($content, true);
@@ -71,7 +71,7 @@ final class FileLoader
         if (JSON_ERROR_NONE !== json_last_error()) {
             $error = json_last_error_msg();
             throw new InvalidArgumentException(
-                "Failed to parse JSON file: {$filePath}. Error: {$error}"
+                'Failed to parse JSON file: ' . $filePath . '. Error: ' . $error
             );
         }
 
@@ -100,12 +100,12 @@ final class FileLoader
         }
 
         if (false === $xml) {
-            throw new InvalidArgumentException("Failed to parse XML file: {$filePath}");
+            throw new InvalidArgumentException('Failed to parse XML file: ' . $filePath);
         }
 
         $jsonString = json_encode($xml);
         if (false === $jsonString) {
-            throw new InvalidArgumentException("Failed to encode XML to JSON: {$filePath}");
+            throw new InvalidArgumentException('Failed to encode XML to JSON: ' . $filePath);
         }
 
         $result = json_decode($jsonString, true);

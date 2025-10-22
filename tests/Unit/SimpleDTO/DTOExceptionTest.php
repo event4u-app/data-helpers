@@ -20,7 +20,7 @@ describe('DTOException', function(): void {
                 ->toContain('Property path: user.age')
                 ->toContain('Expected type: int')
                 ->toContain('Actual type: string')
-                ->toContain("Actual value: 'thirty'");
+                ->toContain('Actual value: "thirty"');
         });
 
         it('provides suggestions for string to int conversion', function(): void {
@@ -73,7 +73,7 @@ describe('DTOException', function(): void {
             );
 
             expect($exception->getMessage())
-                ->toContain("Actual value: '" . str_repeat('a', 50) . "...'");
+                ->toContain('Actual value: "' . str_repeat('a', 50) . '..."');
         });
 
         it('formats boolean values', function(): void {
@@ -185,7 +185,7 @@ describe('DTOException', function(): void {
             expect($exception->getMessage())
                 ->toContain('Cast failed in App\UserDTO::$createdAt')
                 ->toContain('Cast type: datetime')
-                ->toContain("Value: 'invalid-date'")
+                ->toContain('Value: "invalid-date"')
                 ->toContain('Value type: string')
                 ->toContain('Reason: Invalid date format');
         });

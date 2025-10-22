@@ -78,7 +78,7 @@ final class OperatorRegistry
         $normalizedName = self::normalizeName($name);
 
         if (!isset(self::$operators[$normalizedName])) {
-            throw new InvalidArgumentException('Operator „' . $name . '" is not registered');
+            throw new InvalidArgumentException('Operator "' . $name . '" is not registered');
         }
 
         return self::$operators[$normalizedName];

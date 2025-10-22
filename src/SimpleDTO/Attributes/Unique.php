@@ -71,7 +71,7 @@ class Unique implements ValidationRule, SymfonyConstraint
     /** Get validation error message. */
     public function message(): ?string
     {
-        return "The attribute has already been taken.";
+        return 'The attribute has already been taken.';
     }
 
     /**

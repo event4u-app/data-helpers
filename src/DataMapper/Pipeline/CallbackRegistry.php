@@ -34,7 +34,7 @@ final class CallbackRegistry
     public static function register(string $name, Closure $callback): void
     {
         if (isset(self::$callbacks[$name])) {
-            throw new InvalidArgumentException('Callback „' . $name . '" is already registered');
+            throw new InvalidArgumentException('Callback "' . $name . '" is already registered');
         }
 
         self::$callbacks[$name] = $callback;
