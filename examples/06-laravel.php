@@ -115,12 +115,11 @@ $mapping = [
     'users.*.user_email' => '{{ people.*.email }}',
 ];
 
-$mapper = new DataMapper();
 /** @var DataCollection<SimpleDTO> $result */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$result = $mapper->map($sourceCollection->all(), $mapping, []);
+$result = DataMapper::source($sourceCollection->all())->template($mapping)->map()->getTarget();
 
 echo 'Mapped data:' . PHP_EOL;
 echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;

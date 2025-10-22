@@ -21,6 +21,32 @@ class ConditionalPropsTestDTO1 extends SimpleDTO
         public readonly string $name,
         public readonly int $age,
     ) {}
+
+    public static function checkAge(object $dto, mixed $value, array $context, int $minAge): bool
+    {
+        /** @phpstan-ignore-next-line unknown */
+        return $dto->age >= $minAge;
+    }
+
+    public static function hasPermission(object $dto, mixed $value, array $context, string $permission): bool
+    {
+        return in_array($permission, $context['permissions'] ?? []);
+    }
+
+    public static function checkRole(
+        object $dto,
+        mixed $value,
+        array $context,
+        string $role,
+        bool $strict = false
+    ): bool
+    {
+        if ($strict) {
+            return ($context['role'] ?? null) === $role;
+        }
+
+        return in_array($role, $context['roles'] ?? []);
+    }
 }
 
 class ConditionalPropsTestDTO2 extends SimpleDTO
@@ -95,29 +121,220 @@ class ConditionalPropsTestDTO9 extends SimpleDTO
     ) {}
 }
 
-// Test callback function for WhenCallback tests
-function isAdult(mixed $dto): bool
+// Test callback functions for WhenCallback tests
+function isAdult(object $dto): bool
 {
     /** @phpstan-ignore-next-line unknown */
     return 18 <= $dto->age;
 }
 
+function isAdultWithParams(object $dto, mixed $value, array $context, int $minAge = 18): bool
+{
+    /** @phpstan-ignore-next-line unknown */
+    return $dto->age >= $minAge;
+}
+
+function checkPermission(object $dto, mixed $value, array $context, string $permission): bool
+{
+    return in_array($permission, $context['permissions'] ?? []);
+}
+
+function checkRole(object $dto, mixed $value, array $context, string $role, bool $strict = false): bool
+{
+    if ($strict) {
+        return ($context['role'] ?? null) === $role;
+    }
+
+    return in_array($role, $context['roles'] ?? []);
+}
+
 describe('Conditional Properties', function(): void {
     describe('WhenCallback Attribute', function(): void {
-        it('includes property when callback returns true', function(): void {
+        it('works with global function reference', function(): void {
             $attr = new WhenCallback('Tests\Unit\isAdult');
             $dto = new ConditionalPropsTestDTO1('John', 25);
 
-            $shouldInclude = $attr->shouldInclude('Adult content', $dto);
-            expect($shouldInclude)->toBeTrue();
+            expect($attr->shouldInclude('Adult content', $dto))->toBeTrue();
+
+            $dto2 = new ConditionalPropsTestDTO1('Jane', 16);
+            expect($attr->shouldInclude('Adult content', $dto2))->toBeFalse();
         });
 
-        it('excludes property when callback returns false', function(): void {
-            $attr = new WhenCallback('Tests\Unit\isAdult');
-            $dto = new ConditionalPropsTestDTO1('Jane', 16);
+        it('works with static method reference using static::', function(): void {
+            $attr = new WhenCallback('static::checkAge', [21]);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
 
-            $shouldInclude = $attr->shouldInclude('Adult content', $dto);
-            expect($shouldInclude)->toBeFalse();
+            expect($attr->shouldInclude('data', $dto))->toBeTrue();
+
+            $dto2 = new ConditionalPropsTestDTO1('Jane', 18);
+            expect($attr->shouldInclude('data', $dto2))->toBeFalse();
+        });
+
+        it('works with positional parameters', function(): void {
+            $attr = new WhenCallback('Tests\Unit\isAdultWithParams', [21]);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto))->toBeTrue();
+
+            $dto2 = new ConditionalPropsTestDTO1('Jane', 18);
+            expect($attr->shouldInclude('data', $dto2))->toBeFalse();
+        });
+
+        it('works with named parameters', function(): void {
+            $attr = new WhenCallback('Tests\Unit\isAdultWithParams', ['minAge' => 21]);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto))->toBeTrue();
+
+            $dto2 = new ConditionalPropsTestDTO1('Jane', 18);
+            expect($attr->shouldInclude('data', $dto2))->toBeFalse();
+        });
+
+        it('works with context-based callback and positional parameters', function(): void {
+            $attr = new WhenCallback('Tests\Unit\checkPermission', ['admin']);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto, ['permissions' => ['admin', 'editor']]))->toBeTrue();
+            expect($attr->shouldInclude('data', $dto, ['permissions' => ['editor']]))->toBeFalse();
+        });
+
+        it('works with context-based callback and named parameters', function(): void {
+            $attr = new WhenCallback('Tests\Unit\checkRole', ['role' => 'admin', 'strict' => true]);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto, ['role' => 'admin']))->toBeTrue();
+            expect($attr->shouldInclude('data', $dto, ['role' => 'editor']))->toBeFalse();
+        });
+
+        it('works with static method and positional parameters', function(): void {
+            $attr = new WhenCallback('static::hasPermission', ['admin']);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto, ['permissions' => ['admin']]))->toBeTrue();
+            expect($attr->shouldInclude('data', $dto, ['permissions' => ['editor']]))->toBeFalse();
+        });
+
+        it('works with static method and named parameters', function(): void {
+            $attr = new WhenCallback('static::checkRole', ['role' => 'admin', 'strict' => true]);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto, ['role' => 'admin']))->toBeTrue();
+            expect($attr->shouldInclude('data', $dto, ['role' => 'editor']))->toBeFalse();
+        });
+
+        it('works with fully qualified class name', function(): void {
+            $attr = new WhenCallback('Tests\Unit\ConditionalPropsTestDTO1::checkAge', [21]);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto))->toBeTrue();
+
+            $dto2 = new ConditionalPropsTestDTO1('Jane', 18);
+            expect($attr->shouldInclude('data', $dto2))->toBeFalse();
+        });
+
+        it('returns false when callback function does not exist', function(): void {
+            $attr = new WhenCallback('not_a_function');
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto))->toBeFalse();
+        });
+
+        it('returns false when static method does not exist', function(): void {
+            $attr = new WhenCallback('static::nonExistentMethod');
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto))->toBeFalse();
+        });
+
+        it('supports legacy closure callbacks', function(): void {
+            $attr = new WhenCallback(fn($dto): bool => 18 <= $dto->age);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto))->toBeTrue();
+
+            $dto2 = new ConditionalPropsTestDTO1('Jane', 16);
+            expect($attr->shouldInclude('data', $dto2))->toBeFalse();
+        });
+
+        it('supports legacy invokable class callbacks', function(): void {
+            $invokable = new class {
+                public function __invoke(object $dto): bool
+                {
+                    /** @phpstan-ignore-next-line unknown */
+                    return 18 <= $dto->age;
+                }
+            };
+
+            $attr = new WhenCallback($invokable);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto))->toBeTrue();
+
+            $dto2 = new ConditionalPropsTestDTO1('Jane', 16);
+            expect($attr->shouldInclude('data', $dto2))->toBeFalse();
+        });
+
+        it('supports legacy array callable callbacks', function(): void {
+            $callable = [new class {
+                public function check(object $dto): bool
+                {
+                    /** @phpstan-ignore-next-line unknown */
+                    return 18 <= $dto->age;
+                }
+            }, 'check'];
+
+            $attr = new WhenCallback($callable);
+            $dto = new ConditionalPropsTestDTO1('John', 25);
+
+            expect($attr->shouldInclude('data', $dto))->toBeTrue();
+
+            $dto2 = new ConditionalPropsTestDTO1('Jane', 16);
+            expect($attr->shouldInclude('data', $dto2))->toBeFalse();
+        });
+
+        it('casts callback result to boolean', function(): void {
+            // Test that non-boolean return values are cast to bool
+            $attr = new WhenCallback(fn($dto) => $dto->age); // Returns int
+            $dto1 = new ConditionalPropsTestDTO1('John', 25);
+            $dto2 = new ConditionalPropsTestDTO1('Baby', 0);
+
+            expect($attr->shouldInclude('data', $dto1))->toBeTrue(); // 25 -> true
+            expect($attr->shouldInclude('data', $dto2))->toBeFalse(); // 0 -> false
+        });
+
+        it('documents recommended usage in attributes', function(): void {
+            // PHP does not allow closures as attribute arguments at parse time
+            // This is a PHP language limitation, not a library limitation
+            //
+            // ❌ This will NOT work:
+            // #[WhenCallback(fn($dto) => $dto->age >= 18)]
+            // public readonly ?string $adultContent = null;
+            //
+            // Error: "Constant expression contains invalid operations"
+            //
+            // ✅ Recommended approach - Use string reference with parameters:
+            // 1. Global function:
+            //    #[WhenCallback('isAdult')]
+            //    public readonly ?string $adultContent = null;
+            //
+            // 2. Global function with parameters:
+            //    #[WhenCallback('isAdultWithParams', [21])]
+            //    public readonly ?string $adultContent = null;
+            //
+            // 3. Static method with 'static::':
+            //    #[WhenCallback('static::checkAge', [21])]
+            //    public readonly ?string $adultContent = null;
+            //
+            // 4. Static method with named parameters:
+            //    #[WhenCallback('static::checkRole', ['role' => 'admin', 'strict' => true])]
+            //    public readonly ?string $adminContent = null;
+            //
+            // 5. Fully qualified class name:
+            //    #[WhenCallback('App\Services\UserService::canAccess', ['resource' => 'admin'])]
+            //    public readonly ?string $adminContent = null;
+
+            // This test documents the recommended usage patterns
+            expect(true)->toBeTrue();
         });
     });
 

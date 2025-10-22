@@ -233,6 +233,8 @@ file_put_contents($outputPath, $typescript);
 echo sprintf('✅  TypeScript interfaces generated to: %s%s', $outputPath, PHP_EOL);
 echo "File size: " . filesize($outputPath) . " bytes\n\n";
 
+unlink($outputPath);
+
 // Example 9: Different Export Types
 echo "Example 9: Different Export Types\n";
 echo "---------------------------------\n";

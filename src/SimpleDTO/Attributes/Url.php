@@ -37,7 +37,7 @@ class Url implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\Url();
+        return new Assert\Url(requireTld: true);
     }
     public function message(): ?string
     {

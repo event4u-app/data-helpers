@@ -515,11 +515,11 @@ trait SimpleDTOValidationTrait
         $constraints = static::getSymfonyConstraints();
 
         // Create a Collection constraint with all field constraints
-        $collectionConstraint = new Assert\Collection([
-            'fields' => $constraints,
-            'allowExtraFields' => true,
-            'allowMissingFields' => false,
-        ]);
+        $collectionConstraint = new Assert\Collection(
+            fields: $constraints,
+            allowExtraFields: true,
+            allowMissingFields: false,
+        );
 
         $violations = $validator->validate($data, $collectionConstraint);
 

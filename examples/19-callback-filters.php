@@ -32,7 +32,7 @@ $mapping = [
 ];
 
 /** @phpstan-ignore-next-line unknown */
-$result = DataMapper::pipe([
+$result = DataMapper::source($source)->template($mapping)->pipeline([
     new CallbackFilter(function(CallbackParameters $params) {
         // Custom transformation based on key
         if ('fullName' === $params->key && is_string($params->value)) {
@@ -47,7 +47,7 @@ $result = DataMapper::pipe([
 
         return $params->value;
     }),
-])->map($source, [], $mapping);
+])->map()->getTarget();
 
 echo "Source:\n";
 echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
@@ -97,7 +97,7 @@ $template = [
 ];
 
 /** @phpstan-ignore-next-line unknown */
-$result = DataMapper::mapFromTemplate($template, ['article' => $source['article']]);
+$result = DataMapper::source(['article' => $source['article']])->template($template)->map()->getTarget();
 
 echo "Source:\n";
 echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
@@ -130,7 +130,7 @@ $mapping = [
 ];
 
 /** @phpstan-ignore-next-line unknown */
-$result = DataMapper::pipe([
+$result = DataMapper::source($source)->template($mapping)->pipeline([
     new CallbackFilter(function(CallbackParameters $params) {
         // Apply discount to prices
         if ('price' === $params->key && is_numeric($params->value)) {
@@ -148,7 +148,7 @@ $result = DataMapper::pipe([
 
         return $params->value;
     }),
-])->map($source, [], $mapping);
+])->map()->getTarget();
 
 echo "Source:\n";
 echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
@@ -177,7 +177,7 @@ $mapping = [
 ];
 
 /** @phpstan-ignore-next-line unknown */
-$result = DataMapper::pipe([
+$result = DataMapper::source($source)->template($mapping)->pipeline([
     new CallbackFilter(function(CallbackParameters $params) {
         // Skip users under 18 or inactive
         if ('activeAdults.*.age' === $params->keyPath) {
@@ -189,7 +189,7 @@ $result = DataMapper::pipe([
 
         return $params->value;
     }),
-])->map($source, [], $mapping);
+])->map()->getTarget();
 
 echo "Source:\n";
 echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
@@ -233,7 +233,7 @@ $template = [
 ];
 
 /** @phpstan-ignore-next-line unknown */
-$result = DataMapper::mapFromTemplate($template, ['post' => $source['post']]);
+$result = DataMapper::source(['post' => $source['post']])->template($template)->map()->getTarget();
 
 echo "Source:\n";
 echo json_encode($source, JSON_PRETTY_PRINT) . PHP_EOL;
@@ -275,7 +275,7 @@ $template = [
 
 try {
     /** @phpstan-ignore-next-line unknown */
-    $result = DataMapper::mapFromTemplate($template, ['data' => $source['data']]);
+    $result = DataMapper::source(['data' => $source['data']])->template($template)->map()->getTarget();
 
     echo "Result:\n";
     echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;

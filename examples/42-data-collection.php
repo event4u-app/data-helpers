@@ -167,7 +167,7 @@ $products = ProductDTO::collection([
 /** @phpstan-ignore-next-line unknown */
 $availableElectronics = $products->filter(
     /** @phpstan-ignore-next-line unknown */
-    fn(ProductDTO $p): false => 'Electronics' === $p->category && $p->inStock
+    fn(ProductDTO $p): bool => 'Electronics' === $p->category && $p->inStock
 );
 
 echo "Available Electronics:\n";

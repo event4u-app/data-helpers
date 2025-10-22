@@ -10,14 +10,29 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 /**
  * Conditional attribute: Include property when value is in a list.
  *
- * Example:
+ * Supports two syntaxes:
+ * 1. WhenIn(['value1', 'value2']) - Check if property's own value is in list
+ * 2. WhenIn('field', ['value1', 'value2']) - Check if another field's value is in list
+ *
+ * Example 1 (check own value):
+ * ```php
+ * class ProductDTO extends SimpleDTO
+ * {
+ *     public function __construct(
+ *         #[WhenIn(['active', 'featured'])]
+ *         public readonly string $status = 'draft',
+ *     ) {}
+ * }
+ * ```
+ *
+ * Example 2 (check another field):
  * ```php
  * class OrderDTO extends SimpleDTO
  * {
  *     public function __construct(
  *         public readonly string $status,
- *         
- *         #[WhenIn(['completed', 'shipped'])]
+ *
+ *         #[WhenIn('status', ['completed', 'shipped'])]
  *         public readonly ?string $trackingNumber = null,
  *     ) {}
  * }
@@ -26,14 +41,30 @@ use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class WhenIn implements ConditionalProperty
 {
+    private readonly ?string $field;
+    private readonly array $values;
+
     /**
-     * @param array<mixed> $values List of values to check against
+     * @param string|array<mixed> $fieldOrValues Field name (if 2 params) or values array (if 1 param)
+     * @param array<mixed>|bool $valuesOrStrict Values array (if 2 params) or strict flag (if 1 param)
      * @param bool $strict Use strict comparison
      */
     public function __construct(
-        public readonly array $values,
+        string|array $fieldOrValues,
+        array|bool $valuesOrStrict = true,
         public readonly bool $strict = true,
-    ) {}
+    ) {
+        // Syntax 1: WhenIn(['value1', 'value2'])
+        if (is_array($fieldOrValues)) {
+            $this->field = null;
+            $this->values = $fieldOrValues;
+        }
+        // Syntax 2: WhenIn('field', ['value1', 'value2'])
+        else {
+            $this->field = $fieldOrValues;
+            $this->values = is_array($valuesOrStrict) ? $valuesOrStrict : [];
+        }
+    }
 
     /**
      * Determine if the property should be included in serialization.
@@ -44,6 +75,18 @@ class WhenIn implements ConditionalProperty
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
+        // If field is specified, check that field's value
+        if (null !== $this->field) {
+            if (!property_exists($dto, $this->field)) {
+                return false;
+            }
+
+            $fieldValue = $dto->{$this->field};
+
+            return in_array($fieldValue, $this->values, $this->strict);
+        }
+
+        // Otherwise, check the property's own value
         return in_array($value, $this->values, $this->strict);
     }
 }

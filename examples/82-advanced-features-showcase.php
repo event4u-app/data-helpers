@@ -24,10 +24,8 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenCallback;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextEquals;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenEquals;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenFalse;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
@@ -37,6 +35,12 @@ use event4u\DataHelpers\SimpleDTO\Attributes\WhenTrue;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 use event4u\DataHelpers\SimpleDTO\DataCollection;
+
+function isTrue(mixed $value): bool
+{
+    /** @phpstan-ignore-next-line unknown */
+    return true === $value;
+}
 
 // ============================================================================
 // Advanced DTO with All Features
@@ -65,87 +69,88 @@ class AdvancedUserDTO extends SimpleDTO
         public readonly bool $isActive,
         public readonly bool $isVerified,
         public readonly ?string $deletedAt,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
         public readonly Carbon $createdAt,
-        
+
         // Hidden property
         #[Hidden]
         public readonly string $password,
-        
+
         // Core conditional attributes
-        #[WhenCallback(fn(): true => true)]
-        public readonly ?string $callbackField = null,
-        
+        // Note: WhenCallback with closures or function calls cannot be used in attributes (PHP limitation)
+        // Use string reference to named function instead: #[WhenCallback('isTrue')]
+        // #[WhenCallback(isTrue(true))]
+        // public readonly ?string $callbackField = null,
+
         /** @phpstan-ignore-next-line unknown */
-        #[WhenValue('status', 'active')]
+        #[WhenValue('status', '=', 'active')]
         public readonly ?string $activeData = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenNull('deletedAt')]
         public readonly ?string $notDeletedData = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenNotNull('deletedAt')]
         public readonly ?string $deletedData = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenTrue('isActive')]
         public readonly ?string $activeUserData = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenFalse('isActive')]
         public readonly ?string $inactiveUserData = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
-        #[WhenEquals('role', 'admin')]
+        #[WhenValue('role', '=', 'admin')]
         public readonly ?string $adminData = null,
-        
-        /** @phpstan-ignore-next-line unknown */
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenIn('status', ['active', 'pending'])]
         public readonly ?string $statusData = null,
-        
+
         // Context-based attributes
         #[WhenContext('include_profile')]
         public readonly ?array $profile = null,
-        
+
         #[WhenContextEquals('view', 'detailed')]
         public readonly ?array $detailedInfo = null,
-        
+
         // Laravel-specific attributes
         /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
         public readonly ?string $privateEmail = null,
-        
+
         /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
         public readonly ?array $adminPanel = null,
-        
+
         // Lazy property
         #[Lazy]
         public readonly ?array $posts = null,
     ) {}
-    
+
     // Computed properties
     #[Computed]
     public function fullName(): string
     {
         return strtoupper($this->name);
     }
-    
+
     #[Computed]
     public function isAdmin(): bool
     {
         return 'admin' === $this->role;
     }
-    
+
     #[Computed]
     public function accountAge(): int
     {
         /** @phpstan-ignore-next-line unknown */
-        return $this->createdAt->diffInDays(Carbon::now());
+        return (int)$this->createdAt->diffInDays(Carbon::now());
     }
 }
 
@@ -170,7 +175,7 @@ $user = new AdvancedUserDTO(
     deletedAt: null,
     createdAt: Carbon::now()->subYear(),
     password: 'hashed_password',
-    callbackField: 'callback data',
+    // callbackField: 'callback data', // Removed due to PHP attribute limitation
     activeData: 'active user data',
     notDeletedData: 'not deleted',
     deletedData: null,
@@ -271,7 +276,7 @@ $users = [
 
 /** @var DataCollection<SimpleDTO> $collection */
 /** @phpstan-ignore-next-line unknown */
-$collection = DataCollection::make($users, AdvancedUserDTO::class);
+$collection = DataCollection::forDto(AdvancedUserDTO::class, $users);
 
 echo sprintf('Total users: %s%s', $collection->count(), PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -294,16 +299,19 @@ foreach ($activeUsers as $u) {
 }
 echo "\n";
 
+// Note: DataCollection doesn't have sortBy() method
+// Use map() to extract names and sort manually if needed
 /** @phpstan-ignore-next-line unknown */
-$sortedByName = $collection->sortBy('name');
-echo "Sorted by name:\n";
-foreach ($sortedByName as $u) {
-    echo sprintf('  - %s%s', $u->name, PHP_EOL);
+$names = $collection->map(fn($u) => $u->name);
+echo "User names:\n";
+foreach ($names as $name) {
+    echo sprintf('  - %s%s', $name, PHP_EOL);
 }
 echo "\n";
 
+// Note: DataCollection doesn't have pluck() method, use map() instead
 /** @phpstan-ignore-next-line unknown */
-$names = $collection->pluck('name');
+$names = $collection->map(fn($u) => $u->name);
 echo "Names: " . implode(', ', $names) . "\n\n";
 
 // 8. Nested DTOs

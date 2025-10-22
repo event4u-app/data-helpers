@@ -128,12 +128,11 @@ $mapping = [
     'products.*.product_price' => '{{ items.*.price }}',
 ];
 
-$mapper = new DataMapper();
 /** @var DataCollection<SimpleDTO> $result */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$result = $mapper->map($sourceData, $mapping, []);
+$result = DataMapper::source($sourceData)->template($mapping)->map()->getTarget();
 
 echo 'Mapped data:' . PHP_EOL;
 echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;

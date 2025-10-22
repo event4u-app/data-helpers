@@ -20,7 +20,7 @@ class UserDTO extends SimpleDTO
         public readonly string $name,
         public readonly string $email,
         #[Lazy]
-        public readonly string $biography,
+        public readonly mixed $biography,
     ) {}
 }
 
@@ -56,11 +56,11 @@ class DocumentDTO extends SimpleDTO
         public readonly string $title,
         public readonly string $author,
         #[Lazy]
-        public readonly string $content,
+        public readonly mixed $content,
         #[Lazy]
-        public readonly string $metadata,
+        public readonly mixed $metadata,
         #[Lazy]
-        public readonly array $attachments,
+        public readonly mixed $attachments,
     ) {}
 }
 
@@ -102,9 +102,9 @@ class ProductDTO extends SimpleDTO
         public readonly string $name,
         public readonly float $price,
         #[Lazy]
-        public readonly string $description,
+        public readonly mixed $description,
         #[Lazy]
-        public readonly array $specifications,
+        public readonly mixed $specifications,
     ) {}
 }
 
@@ -139,9 +139,9 @@ class ImageDTO extends SimpleDTO
         public readonly int $width,
         public readonly int $height,
         #[Lazy]
-        public readonly string $base64Data,
+        public readonly mixed $base64Data,
         #[Lazy]
-        public readonly array $exifData,
+        public readonly mixed $exifData,
     ) {}
 }
 
@@ -180,9 +180,9 @@ class UserProfileDTO extends SimpleDTO
         public readonly string $email,
         public readonly string $phone,
         #[Lazy]
-        public readonly string $address,
+        public readonly mixed $address,
         #[Lazy]
-        public readonly string $socialSecurityNumber,
+        public readonly mixed $socialSecurityNumber,
     ) {}
 }
 
@@ -223,9 +223,9 @@ class ReportDTO extends SimpleDTO
         public readonly string $title,
         public readonly string $summary,
         #[Lazy(when: 'admin')]
-        public readonly string $internalNotes,
+        public readonly mixed $internalNotes,
         #[Lazy(when: 'admin')]
-        public readonly array $auditLog,
+        public readonly mixed $auditLog,
     ) {}
 }
 
@@ -259,7 +259,7 @@ class SecureUserDTO extends SimpleDTO
         public readonly string $email,
         #[Lazy]
         #[Hidden]
-        public readonly string $password,
+        public readonly mixed $password,
     ) {}
 }
 
@@ -300,11 +300,11 @@ class BlogPostDTO extends SimpleDTO
         public readonly string $author,
         public readonly string $publishedAt,
         #[Lazy]
-        public readonly string $content,
+        public readonly mixed $content,
         #[Lazy]
-        public readonly array $comments,
+        public readonly mixed $comments,
         #[Lazy]
-        public readonly array $relatedPosts,
+        public readonly mixed $relatedPosts,
     ) {}
 }
 

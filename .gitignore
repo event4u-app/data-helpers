@@ -55,3 +55,6 @@ auth.json
 /tests-e2e/Symfony/var/
 /tests-e2e/Symfony/storage/*
 /tests-e2e/Symfony/config/packages/data_helpers.yaml
+
+# storage for testing, etc.
+/storage/

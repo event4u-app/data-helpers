@@ -235,7 +235,7 @@ $users = [
 
 /** @var DataCollection<SimpleDTO> $collection */
 /** @phpstan-ignore-next-line unknown */
-$collection = DataCollection::make($users, UserResourceDTO::class);
+$collection = DataCollection::forDto(UserResourceDTO::class, $users);
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 $response = new ApiResponseDTO(data: $collection->toArray());
@@ -248,7 +248,7 @@ echo str_repeat('-', 80) . "\n";
 $paginatedUsers = array_slice($users, 0, 2);
 /** @var DataCollection<SimpleDTO> $collection */
 /** @phpstan-ignore-next-line unknown */
-$collection = DataCollection::make($paginatedUsers, UserResourceDTO::class);
+$collection = DataCollection::forDto(UserResourceDTO::class, $paginatedUsers);
 
 $meta = new PaginationMetaDTO(
     currentPage: 1,
