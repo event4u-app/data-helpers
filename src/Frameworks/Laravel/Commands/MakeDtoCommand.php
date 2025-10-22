@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Frameworks\Laravel\Commands;
 
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
 
 // Create stub class if Laravel is not installed
@@ -43,6 +44,7 @@ use Illuminate\Support\Str;
  */
 class MakeDtoCommand extends Command
 {
+    /** @var Application */
     public $laravel;
     /**
      * The name and signature of the console command.

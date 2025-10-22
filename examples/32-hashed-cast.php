@@ -88,7 +88,7 @@ if (defined('PASSWORD_ARGON2ID')) {
     echo sprintf('Username: %s%s', $secureUser->username, PHP_EOL);
     echo sprintf('Password (argon2id): %s%s', $secureUser->password, PHP_EOL);
     echo "Hash starts with \$argon2id\$: " . (str_starts_with(
-        $secureUser->password,
+            $secureUser->password,
         '$argon2id$'
     ) ? 'Yes' : 'No') . "\n";
     echo "Verification: " . (HashedCast::verify(

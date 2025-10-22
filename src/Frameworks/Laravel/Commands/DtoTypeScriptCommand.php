@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\Frameworks\Laravel\Commands;
 use event4u\DataHelpers\SimpleDTO\Config\TypeScriptGeneratorOptions;
 use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
 use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
@@ -46,6 +47,7 @@ if (!class_exists('Illuminate\Console\Command')) {
  */
 class DtoTypeScriptCommand extends Command
 {
+    /** @var Application */
     public $laravel;
     /**
      * The name and signature of the console command.

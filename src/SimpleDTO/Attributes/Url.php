@@ -8,6 +8,7 @@ use Attribute;
 use event4u\DataHelpers\SimpleDTO\Concerns\RequiresSymfonyValidator;
 use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
+use ReflectionClass;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -37,7 +38,27 @@ class Url implements ValidationRule, SymfonyConstraint
     {
         $this->ensureSymfonyValidatorAvailable();
 
-        return new Assert\Url(requireTld: true);
+        // Symfony 7+ requires requireTld parameter, Symfony 6 doesn't have it
+        static $hasRequireTld = null;
+
+        if (null === $hasRequireTld) {
+            $reflection = new ReflectionClass(Assert\Url::class);
+            $constructor = $reflection->getConstructor();
+            $hasRequireTld = false;
+
+            if ($constructor) {
+                foreach ($constructor->getParameters() as $reflectionParameter) {
+                    if ($reflectionParameter->getName() === 'requireTld') {
+                        $hasRequireTld = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $hasRequireTld
+            ? new Assert\Url(requireTld: true)
+            : new Assert\Url();
     }
     public function message(): ?string
     {
