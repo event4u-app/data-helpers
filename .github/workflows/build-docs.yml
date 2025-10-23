@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'starlight/**'
   pull_request:
     branches:
       - main
