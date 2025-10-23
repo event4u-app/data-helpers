@@ -161,8 +161,8 @@ describe('Transformers', function(): void {
     describe('TransformerPipeline', function(): void {
         it('applies multiple transformers in sequence', function(): void {
             $pipeline = new TransformerPipeline();
-            $pipeline->pipe(new TrimStringsTransformer());
-            $pipeline->pipe(new LowercaseKeysTransformer());
+            $pipeline->pipeline(new TrimStringsTransformer());
+            $pipeline->pipeline(new LowercaseKeysTransformer());
 
             $data = [
                 'Name' => '  John  ',
@@ -179,8 +179,8 @@ describe('Transformers', function(): void {
 
         it('applies transformers in correct order', function(): void {
             $pipeline = new TransformerPipeline();
-            $pipeline->pipe(new LowercaseKeysTransformer());
-            $pipeline->pipe(new RemoveNullValuesTransformer());
+            $pipeline->pipeline(new LowercaseKeysTransformer());
+            $pipeline->pipeline(new RemoveNullValuesTransformer());
 
             $data = [
                 'Name' => 'John',
@@ -195,7 +195,7 @@ describe('Transformers', function(): void {
 
         it('can clear transformers', function(): void {
             $pipeline = new TransformerPipeline();
-            $pipeline->pipe(new TrimStringsTransformer());
+            $pipeline->pipeline(new TrimStringsTransformer());
             $pipeline->clear();
 
             expect($pipeline->getTransformers())->toBeEmpty();
@@ -206,8 +206,8 @@ describe('Transformers', function(): void {
             $transformer1 = new TrimStringsTransformer();
             $transformer2 = new LowercaseKeysTransformer();
 
-            $pipeline->pipe($transformer1);
-            $pipeline->pipe($transformer2);
+            $pipeline->pipeline($transformer1);
+            $pipeline->pipeline($transformer2);
 
             $transformers = $pipeline->getTransformers();
 
@@ -237,7 +237,7 @@ describe('Transformers', function(): void {
             ]);
 
             $pipeline = new TransformerPipeline();
-            $pipeline->pipe(new TrimStringsTransformer());
+            $pipeline->pipeline(new TrimStringsTransformer());
 
             $transformed = $user->transformWith($pipeline);
 
@@ -310,8 +310,8 @@ describe('Transformers', function(): void {
             };
 
             $pipeline = new TransformerPipeline();
-            $pipeline->pipe($uppercase);
-            $pipeline->pipe($addPrefix);
+            $pipeline->pipeline($uppercase);
+            $pipeline->pipeline($addPrefix);
 
             $user = UserDTO::fromArray(['name' => 'john', 'age' => 30]);
             $transformed = $user->transformWith($pipeline);

@@ -20,8 +20,8 @@ use event4u\DataHelpers\SimpleDTO\Transformers\TransformerPipeline;
  *
  *   // Or use a pipeline
  *   $pipeline = new TransformerPipeline();
- *   $pipeline->pipe(new TrimStringsTransformer());
- *   $pipeline->pipe(new LowercaseEmailTransformer());
+ *   $pipeline->add(new TrimStringsTransformer());
+ *   $pipeline->add(new LowercaseEmailTransformer());
  *   $user = UserDTO::fromArray($data)->transformWith($pipeline);
  */
 trait SimpleDTOTransformerTrait

@@ -76,8 +76,8 @@ echo "Example 4: TransformerPipeline\n";
 echo "-------------------------------\n";
 
 $pipeline = new TransformerPipeline();
-$pipeline->pipe(new TrimStringsTransformer());
-$pipeline->pipe(new LowercaseKeysTransformer());
+$pipeline->pipeline(new TrimStringsTransformer());
+$pipeline->pipeline(new LowercaseKeysTransformer());
 
 $data = [
     'Name' => '  Alice Johnson  ',
@@ -157,9 +157,9 @@ class AddPrefixTransformer implements TransformerInterface
 }
 
 $pipeline = new TransformerPipeline();
-$pipeline->pipe(new TrimStringsTransformer());
-$pipeline->pipe(new UppercaseNameTransformer());
-$pipeline->pipe(new AddPrefixTransformer('Mr.'));
+$pipeline->pipeline(new TrimStringsTransformer());
+$pipeline->pipeline(new UppercaseNameTransformer());
+$pipeline->pipeline(new AddPrefixTransformer('Mr.'));
 
 $user = UserDTO::fromArray(['name' => '  edward  ', 'email' => 'edward@example.com', 'age' => 45]);
 $transformed = $user->transformWith($pipeline);
@@ -203,10 +203,10 @@ echo "Example 9: Complex Pipeline\n";
 echo "---------------------------\n";
 
 $pipeline = new TransformerPipeline();
-$pipeline->pipe(new TrimStringsTransformer());
-$pipeline->pipe(new LowercaseKeysTransformer());
-$pipeline->pipe(new RemoveNullValuesTransformer());
-$pipeline->pipe(new EmailNormalizerTransformer());
+$pipeline->pipeline(new TrimStringsTransformer());
+$pipeline->pipeline(new LowercaseKeysTransformer());
+$pipeline->pipeline(new RemoveNullValuesTransformer());
+$pipeline->pipeline(new EmailNormalizerTransformer());
 
 $data = [
     'Name' => '  Grace Hopper  ',

@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Returns the values of an array.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Values::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([Values::class])->map()->getTarget();
  *   Template: {{ value | values }}
  */
 final class Values implements FilterInterface

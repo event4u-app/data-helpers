@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Sorts an array in ascending order.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Sort::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([Sort::class])->map()->getTarget();
  *   Template: {{ value | sort }}
  */
 final class Sort implements FilterInterface

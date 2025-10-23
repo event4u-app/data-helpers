@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Converts all string values to uppercase.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([UppercaseStrings::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([UppercaseStrings::class])->map()->getTarget();
  *   Template: {{ value | upper }} or {{ value | uppercase }}
  */
 final class UppercaseStrings implements FilterInterface

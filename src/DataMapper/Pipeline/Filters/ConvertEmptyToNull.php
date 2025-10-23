@@ -14,7 +14,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Useful for database operations where empty strings should be stored as NULL.
  *
  * Examples:
- *   Pipeline: DataMapper::source($source)->target($target)->template($mapping)->pipe([new ConvertEmptyToNull()])->map()->getTarget();
+ *   Pipeline: DataMapper::source($source)->target($target)->template($mapping)->pipeline([new ConvertEmptyToNull()])->map()->getTarget();
  *   Template: {{ value | empty_to_null }}
  */
 final class ConvertEmptyToNull implements FilterInterface

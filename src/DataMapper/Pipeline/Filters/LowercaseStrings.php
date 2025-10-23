@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Converts all string values to lowercase.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([LowercaseStrings::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([LowercaseStrings::class])->map()->getTarget();
  *   Template: {{ value | lower }} or {{ value | lowercase }}
  */
 final class LowercaseStrings implements FilterInterface

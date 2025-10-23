@@ -14,7 +14,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Returns '__skip__' to prevent writing null values.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([RemoveNullValues::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([RemoveNullValues::class])->map()->getTarget();
  */
 final class RemoveNullValues implements FilterInterface
 {

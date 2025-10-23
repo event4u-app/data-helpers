@@ -132,7 +132,7 @@ trait SimpleDTOMapperTrait
      * Override this method to define pipeline filters that will be applied
      * to all values when creating DTOs from source data.
      *
-     * Pipeline filters are applied globally using pipe().
+     * Pipeline filters are applied globally using pipeline().
      *
      * Example:
      *   return [
@@ -287,7 +287,7 @@ trait SimpleDTOMapperTrait
      * @param mixed $source Source data (array, object, JSON, XML, file path, etc.)
      * @param array<string, mixed>|null $template Optional template override
      * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters (property => filter) for setFilters()
-     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters for pipe()
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters for pipeline()
      */
     public static function fromSource(
         mixed $source,

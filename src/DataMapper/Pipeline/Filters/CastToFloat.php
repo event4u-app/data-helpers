@@ -15,7 +15,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Skips null values and non-numeric strings.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([CastToFloat::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToFloat::class])->map()->getTarget();
  */
 final class CastToFloat implements FilterInterface
 {

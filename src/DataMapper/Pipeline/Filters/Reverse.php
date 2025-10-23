@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Reverses the order of elements in an array.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Reverse::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([Reverse::class])->map()->getTarget();
  *   Template: {{ value | reverse }}
  */
 final class Reverse implements FilterInterface

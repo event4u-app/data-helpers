@@ -11,8 +11,8 @@ namespace event4u\DataHelpers\SimpleDTO\Transformers;
  *
  * Example:
  *   $pipeline = new TransformerPipeline();
- *   $pipeline->pipe(new TrimStringsTransformer());
- *   $pipeline->pipe(new LowercaseEmailTransformer());
+ *   $pipeline->add(new TrimStringsTransformer());
+ *   $pipeline->add(new LowercaseEmailTransformer());
  *   $data = $pipeline->process($data);
  */
 class TransformerPipeline
@@ -21,7 +21,7 @@ class TransformerPipeline
     private array $transformers = [];
 
     /** Add a transformer to the pipeline. */
-    public function pipe(TransformerInterface $transformer): self
+    public function pipeline(TransformerInterface $transformer): self
     {
         $this->transformers[] = $transformer;
 

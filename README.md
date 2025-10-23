@@ -446,11 +446,15 @@ $mapping = [
     ],
 ];
 
-$result = DataMapper::pipe([
-    new TrimStrings(),
-    new LowercaseEmails(),
-    new SkipEmptyValues(),
-])->map($source, [], $mapping);
+$result = DataMapper::from($source)
+    ->template($mapping)
+    ->pipeline([
+        new TrimStrings(),
+        new LowercaseEmails(),
+        new SkipEmptyValues(),
+    ])
+    ->map()
+    ->getTarget();
 
 // Result: {
 //     "profile": {
@@ -913,11 +917,15 @@ foreach ($oldData as $row) {
 ```php
 // Clean and normalize user input
 $formData = $_POST;
-$result = DataMapper::pipe([
-    new TrimStrings(),
-    new LowercaseEmails(),
-    new SkipEmptyValues(),
-])->map($formData, [], $mapping);
+$result = DataMapper::from($formData)
+    ->template($mapping)
+    ->pipeline([
+        new TrimStrings(),
+        new LowercaseEmails(),
+        new SkipEmptyValues(),
+    ])
+    ->map()
+    ->getTarget();
 ```
 
 ---

@@ -16,7 +16,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  *          '0', 'false', 'no', 'off', '' -> false
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([CastToBoolean::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToBoolean::class])->map()->getTarget();
  */
 final class CastToBoolean implements FilterInterface
 {

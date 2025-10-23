@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Counts elements in an array or countable object.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Count::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([Count::class])->map()->getTarget();
  *   Template: {{ value | count }}
  */
 final class Count implements FilterInterface

@@ -21,7 +21,7 @@ use Throwable;
  * and returns the transformed value or '__skip__' to skip the value.
  *
  * Example:
- *   DataMapper::source($source)->target([])->template($mapping)->pipe([
+ *   DataMapper::source($source)->target([])->template($mapping)->pipeline([
  *       new CallbackFilter(function(CallbackParameters $params) {
  *           return strtoupper($params->value);
  *       }),

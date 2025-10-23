@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Removes duplicate values from an array.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Unique::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([Unique::class])->map()->getTarget();
  *   Template: {{ value | unique }}
  */
 final class Unique implements FilterInterface

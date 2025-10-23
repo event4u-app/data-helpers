@@ -14,7 +14,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Useful for sanitizing user input.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([StripTags::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([StripTags::class])->map()->getTarget();
  */
 final class StripTags implements FilterInterface
 {

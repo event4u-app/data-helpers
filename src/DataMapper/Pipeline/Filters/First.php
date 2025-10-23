@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Returns the first element of an array.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([First::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([First::class])->map()->getTarget();
  *   Template: {{ value | first }}
  */
 final class First implements FilterInterface

@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Capitalizes the first character of a string.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Ucfirst::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([Ucfirst::class])->map()->getTarget();
  *   Template: {{ value | ucfirst }}
  */
 final class Ucfirst implements FilterInterface

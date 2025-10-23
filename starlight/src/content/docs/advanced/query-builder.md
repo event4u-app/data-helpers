@@ -80,7 +80,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
 
 $result = DataMapper::query()
     ->source('products', $products)
-    ->pipe([
+    ->pipeline([
         new TrimStrings(),
         new LowercaseStrings(),
     ])
@@ -281,7 +281,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\RemoveEmpty;
 
 $result = DataMapper::query()
     ->source('products', $products)
-    ->pipe([
+    ->pipeline([
         new TrimStrings(),
         new RemoveEmpty(),
     ])
@@ -322,7 +322,7 @@ $result = DataMapper::query()
 
 - `distinct()` - Remove duplicates
 - `select(array $fields)` - Select specific fields
-- `pipe(array $filters)` - Add pipeline filters
+- `pipeline(array $filters)` - Add pipeline filters
 - `get()` - Execute query and get results
 
 ## See Also

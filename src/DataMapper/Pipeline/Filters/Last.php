@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Returns the last element of an array.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Last::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([Last::class])->map()->getTarget();
  *   Template: {{ value | last }}
  */
 final class Last implements FilterInterface

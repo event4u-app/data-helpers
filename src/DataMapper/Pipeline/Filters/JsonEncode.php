@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Encodes a value as JSON.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([JsonEncode::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([JsonEncode::class])->map()->getTarget();
  *   Template: {{ value | json }}
  */
 final class JsonEncode implements FilterInterface

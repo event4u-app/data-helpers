@@ -61,15 +61,19 @@ $mapping = [
     'profile.email' => '{{ user.email }}',
 ];
 
-$result = DataMapper::pipe([
-    new CallbackFilter(function(CallbackParameters $params) {
-        // Lowercase all emails
-        if ($params->key === 'email' && is_string($params->value)) {
-            return strtolower($params->value);
-        }
-        return $params->value;
-    }),
-])->map($source, [], $mapping);
+$result = DataMapper::from($source)
+    ->template($mapping)
+    ->pipeline([
+        new CallbackFilter(function(CallbackParameters $params) {
+            // Lowercase all emails
+            if ($params->key === 'email' && is_string($params->value)) {
+                return strtolower($params->value);
+            }
+            return $params->value;
+        }),
+    ])
+    ->map()
+    ->getTarget();
 
 // Result: ['profile' => ['email' => 'john@example.com']]
 ```
@@ -79,16 +83,20 @@ $result = DataMapper::pipe([
 Access the full context to make intelligent decisions:
 
 ```php
-$result = DataMapper::pipe([
-    new CallbackFilter(function(CallbackParameters $params) {
-        // Apply discount from source data
-        if ($params->key === 'price' && is_numeric($params->value)) {
-            $discount = $params->source['order']['discount'] ?? 0;
-            return $params->value * (1 - $discount / 100);
-        }
-        return $params->value;
-    }),
-])->map($source, [], $mapping);
+$result = DataMapper::from($source)
+    ->template($mapping)
+    ->pipeline([
+        new CallbackFilter(function(CallbackParameters $params) {
+            // Apply discount from source data
+            if ($params->key === 'price' && is_numeric($params->value)) {
+                $discount = $params->source['order']['discount'] ?? 0;
+                return $params->value * (1 - $discount / 100);
+            }
+            return $params->value;
+        }),
+    ])
+    ->map()
+    ->getTarget();
 ```
 
 ### Conditional Skipping
@@ -96,15 +104,19 @@ $result = DataMapper::pipe([
 Return `'__skip__'` to skip values:
 
 ```php
-$result = DataMapper::pipe([
-    new CallbackFilter(function(CallbackParameters $params) {
-        // Skip empty values
-        if ('' === $params->value || [] === $params->value) {
-            return '__skip__';
-        }
-        return $params->value;
-    }),
-])->map($source, [], $mapping);
+$result = DataMapper::from($source)
+    ->template($mapping)
+    ->pipeline([
+        new CallbackFilter(function(CallbackParameters $params) {
+            // Skip empty values
+            if ('' === $params->value || [] === $params->value) {
+                return '__skip__';
+            }
+            return $params->value;
+        }),
+    ])
+    ->map()
+    ->getTarget();
 ```
 
 ## Template Expression Usage
@@ -164,10 +176,10 @@ $template = [
 CallbackRegistry::register('applyDiscount', function(CallbackParameters $params) {
     // Access source data
     $discount = $params->source['order']['discount'] ?? 0;
-    
+
     // Access target data
     $existingTotal = $params->target['order']['total'] ?? 0;
-    
+
     // Apply transformation
     return $params->value * (1 - $discount / 100);
 });

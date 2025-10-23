@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Returns the keys of an array.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([Keys::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([Keys::class])->map()->getTarget();
  *   Template: {{ value | keys }}
  */
 final class Keys implements FilterInterface

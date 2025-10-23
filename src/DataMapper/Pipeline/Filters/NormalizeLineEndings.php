@@ -14,7 +14,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Converts Windows (\r\n) and Mac (\r) line endings to Unix (\n).
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([NormalizeLineEndings::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([NormalizeLineEndings::class])->map()->getTarget();
  */
 final class NormalizeLineEndings implements FilterInterface
 {

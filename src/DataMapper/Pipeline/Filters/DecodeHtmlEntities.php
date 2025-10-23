@@ -17,7 +17,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Uses html_entity_decode() with ENT_QUOTES | ENT_HTML5 flags.
  *
  * Example:
- *   DataMapper::source($source)->target($target)->template($mapping)->pipe([DecodeHtmlEntities::class])->map()->getTarget();
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([DecodeHtmlEntities::class])->map()->getTarget();
  *   Template: {{ value | decode_html }}
  *   Template: {{ value | html_decode }}
  *
