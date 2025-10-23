@@ -13,7 +13,7 @@ declare(strict_types=1);
  * - Conditional visibility based on user roles
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../bootstrap.php';
 
 use Carbon\Carbon;
 use event4u\DataHelpers\SimpleDTO;

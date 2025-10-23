@@ -9,7 +9,7 @@ declare(strict_types=1);
  * for filtering and deduplicating wildcard arrays.
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\DataMapper;
 

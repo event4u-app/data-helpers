@@ -15,7 +15,7 @@ declare(strict_types=1);
  * - Nested DTOs
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../bootstrap.php';
 
 // Skip if Carbon is not available
 if (!class_exists('Carbon\Carbon')) {

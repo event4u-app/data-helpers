@@ -26,10 +26,22 @@ describe('Examples Directory', function(): void {
 
     it('executes all example files without errors', function(): void {
         $examplesDir = __DIR__ . '/../../examples';
-        $files = glob($examplesDir . '/*.php');
+
+        // Recursively find all PHP files in examples directory
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($examplesDir, RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        $files = [];
+        /** @var SplFileInfo $file */
+        foreach ($iterator as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                $files[] = $file->getPathname();
+            }
+        }
 
         // Filter out debug files
-        $files = array_filter($files ?: [], fn(string $file): bool => ! str_starts_with(basename($file), 'debug-'));
+        $files = array_filter($files, fn(string $file): bool => ! str_starts_with(basename($file), 'debug-'));
 
         // Sort files
         sort($files);
@@ -60,10 +72,23 @@ describe('Examples Directory', function(): void {
             }
 
             // Execute the example file in a separate process to avoid conflicts
-            $command = sprintf('php %s 2>&1', escapeshellarg($filepath));
+            // Change to repository root directory so relative paths work correctly
+            $repoRoot = __DIR__ . '/../..';
+            $command = sprintf('cd %s && php %s 2>&1', escapeshellarg($repoRoot), escapeshellarg($filepath));
             exec($command, $output, $returnCode);
 
             $outputText = implode("\n", $output);
+
+            // Check if example was skipped (e.g., missing dependencies)
+            if (str_starts_with($outputText, 'Skipping:') || str_contains($outputText, 'Skipping:')) {
+                // Extract the reason from the output
+                if (preg_match('/Skipping:\s*(.+)/', $outputText, $matches)) {
+                    $skipped[] = $filename . ' (' . trim($matches[1]) . ')';
+                } else {
+                    $skipped[] = $filename . ' (skipped)';
+                }
+                continue;
+            }
 
             // Check if example produces output
             $hasOutput = ! empty(trim($outputText));

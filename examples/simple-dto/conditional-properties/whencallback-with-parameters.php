@@ -12,7 +12,7 @@ declare(strict_types=1);
  * - Works in PHP attributes (no closure limitation!)
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenCallback;

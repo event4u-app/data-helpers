@@ -2,7 +2,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../bootstrap.php';
+
+// Check if Laravel dependencies are available
+if (! class_exists('Illuminate\Support\Collection')) {
+    echo 'Skipping: Laravel dependencies not available' . PHP_EOL;
+    exit(0);
+}
 
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
@@ -51,7 +57,7 @@ echo '2. Eloquent Models' . PHP_EOL;
 echo '------------------' . PHP_EOL;
 
 // Using test model
-require_once __DIR__ . '/../tests/utils/Models/User.php';
+require_once __DIR__ . '/../../../tests/utils/Models/User.php';
 
 $user = new User([
     'name' => 'Alice',

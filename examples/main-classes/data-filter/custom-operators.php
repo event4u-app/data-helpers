@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\DataFilter;
 use event4u\DataHelpers\DataFilter\Operators\AbstractOperator;

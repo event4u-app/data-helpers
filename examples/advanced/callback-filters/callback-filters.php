@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;

@@ -11,7 +11,7 @@ declare(strict_types=1);
  * paginate results before mapping.
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\DataMapper;
 

@@ -13,7 +13,7 @@ declare(strict_types=1);
  * - Controller injection with auto-validation
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\Email;

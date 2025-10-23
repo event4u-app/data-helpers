@@ -11,7 +11,7 @@ declare(strict_types=1);
  * - Combining multiple operators
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
