@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDTO;
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\DataMutator;
 
 /**
  * Trait providing default implementations for DTOs.
@@ -289,5 +291,104 @@ trait SimpleDTOTrait
         $dataCollection = DataCollection::forDto(static::class, $items);
 
         return $dataCollection;
+    }
+
+    /**
+     * Get a value from the DTO using dot notation.
+     *
+     * Supports nested property access and wildcards for arrays.
+     *
+     * Examples:
+     *   $dto->get('name')                    // Get simple property
+     *   $dto->get('address.city')            // Get nested property
+     *   $dto->get('emails.*.email')          // Get all emails from array
+     *   $dto->get('user.orders.*.total')     // Nested wildcards
+     *   $dto->get('missing', 'default')      // With default value
+     *
+     * @param string $path Dot-notation path to the property
+     * @param mixed $default Default value if path doesn't exist
+     * @return mixed The value at the path, or default if not found
+     */
+    public function get(string $path, mixed $default = null): mixed
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->get($path, $default);
+    }
+
+    /**
+     * Convert DTO to array recursively, including nested DTOs.
+     *
+     * @return array<string, mixed>
+     */
+    private function toArrayRecursive(): array
+    {
+        $data = $this->toArray();
+        $result = $this->convertToArrayRecursive($data);
+
+        // Ensure we return an array
+        if (!is_array($result)) {
+            return [];
+        }
+
+        /** @var array<string, mixed> $result */
+        return $result;
+    }
+
+    /**
+     * Recursively convert nested DTOs and arrays of DTOs to arrays.
+     *
+     * @param mixed $value The value to convert
+     * @return mixed The converted value
+     */
+    private function convertToArrayRecursive(mixed $value): mixed
+    {
+        // Handle arrays
+        if (is_array($value)) {
+            return array_map(fn($item) => $this->convertToArrayRecursive($item), $value);
+        }
+
+        // Handle DTOs
+        if ($value instanceof DTOInterface) {
+            return $this->convertToArrayRecursive($value->toArray());
+        }
+
+        // Handle objects with toArray method
+        if (is_object($value) && method_exists($value, 'toArray')) {
+            return $this->convertToArrayRecursive($value->toArray());
+        }
+
+        return $value;
+    }
+
+    /**
+     * Set a value in the DTO using dot notation and return a new instance.
+     *
+     * Since DTOs are immutable, this method returns a new instance with the updated value.
+     * Supports nested property access and wildcards for arrays.
+     *
+     * Examples:
+     *   $newDto = $dto->set('name', 'John')                    // Set simple property
+     *   $newDto = $dto->set('address.city', 'Berlin')          // Set nested property
+     *   $newDto = $dto->set('emails.*.verified', true)         // Set all emails as verified
+     *   $newDto = $dto->set('user.orders.*.status', 'shipped') // Nested wildcards
+     *
+     * @param string $path Dot-notation path to the property
+     * @param mixed $value Value to set
+     * @return static New DTO instance with the updated value
+     */
+    public function set(string $path, mixed $value): static
+    {
+        $data = $this->toArrayRecursive();
+        $updatedData = DataMutator::set($data, $path, $value);
+
+        // Ensure we have an array with string keys
+        if (!is_array($updatedData)) {
+            return static::fromArray([]);
+        }
+
+        /** @var array<string, mixed> $updatedData */
+        return static::fromArray($updatedData);
     }
 }
