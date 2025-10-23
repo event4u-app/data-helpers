@@ -58,3 +58,6 @@ auth.json
 
 # storage for testing, etc.
 /storage/
+
+# documentation build output
+/dist/

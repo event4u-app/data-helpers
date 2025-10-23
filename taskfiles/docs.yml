@@ -73,6 +73,25 @@ tasks:
         task_info "Output directory: {{.DOCS_DIR}}/dist"
         task_footer
 
+  build:dist:
+    desc: Build documentation and copy to dist/ directory
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Building Documentation to dist/"
+        task_step "Building static site in Docker..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} npm run build
+        task_step "Copying to dist/ directory..."
+        rm -rf dist
+        mkdir -p dist
+        cp -r {{.DOCS_DIR}}/dist/* dist/
+        task_success "Documentation built and copied to dist/"
+        task_info "Output directory: dist/"
+        echo ""
+        task_info "Files in dist/:"
+        ls -lah dist/ | head -20
+        task_footer
+
   preview:
     desc: Preview production build locally
     cmds:
@@ -258,6 +277,7 @@ tasks:
         echo "🚀 Development:"
         echo "  task docs:dev           Start development server (http://localhost:4321)"
         echo "  task docs:build         Build for production"
+        echo "  task docs:build:dist    Build and copy to dist/ directory"
         echo "  task docs:preview       Preview production build"
         echo "  task docs:check         Check for errors"
         echo ""

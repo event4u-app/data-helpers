@@ -101,6 +101,49 @@ A final job that checks all test results and provides a summary.
 
 ---
 
+### 4. Build Documentation - `build-docs.yml`
+
+**Purpose:** Build static documentation site and deploy to GitHub Pages
+
+**Runs on:**
+- Push to `main` branch
+- Pull requests to `main`
+
+**Jobs:**
+
+#### Job 1: build-docs
+1. Checkout code
+2. Setup Node.js 18
+3. Install npm dependencies
+4. Build documentation with Astro/Starlight
+5. Copy to `dist/` directory
+6. Upload as artifact (30 days)
+
+#### Job 2: deploy-pages (only on push to main)
+1. Download artifact
+2. Setup GitHub Pages
+3. Upload Pages artifact
+4. Deploy to GitHub Pages
+
+**Output:**
+- Static HTML documentation in `dist/`
+- Artifact available for 30 days (temporary)
+- **GitHub Pages deployment (permanent)**
+
+**URLs:**
+- GitHub Pages: `https://event4u-app.github.io/data-helpers/`
+- Artifact: Available in Actions tab for 30 days
+
+**Local Build:**
+```bash
+task docs:build:dist
+```
+
+**Setup Required:**
+See [GITHUB_PAGES_SETUP.md](../GITHUB_PAGES_SETUP.md) for initial setup instructions.
+
+---
+
 ## Why Isolated Testing?
 
 ### Problem
