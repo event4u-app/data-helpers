@@ -167,6 +167,13 @@ export default defineConfig({
 					],
 				},
 				{
+				label: 'Guides',
+				collapsed: true,
+				items: [
+					{ label: 'Migration from Spatie', slug: 'guides/migration-from-spatie' },
+				],
+			},
+			{
 				label: 'Testing',
 				collapsed: true,
 				items: [

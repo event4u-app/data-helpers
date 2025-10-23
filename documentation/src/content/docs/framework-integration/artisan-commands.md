@@ -11,6 +11,7 @@ SimpleDTO provides several Artisan commands for Laravel:
 
 - **make:dto** - Create new DTOs
 - **dto:typescript** - Generate TypeScript types
+- **dto:migrate-spatie** - Migrate Spatie Laravel Data to SimpleDTO
 - **dto:list** - List all DTOs
 - **dto:validate** - Validate DTO structure
 - **dto:cache** - Cache validation rules
@@ -70,7 +71,7 @@ class CreateUserDTO extends SimpleDTO
     public function __construct(
         #[Required]
         public readonly string $name,
-        
+
         #[Required, Email]
         public readonly string $email,
     ) {}
@@ -132,6 +133,99 @@ php artisan dto:typescript --export=export  # export interface
 php artisan dto:typescript --export=declare # declare interface
 php artisan dto:typescript --export=        # no export
 ```
+
+## dto:migrate-spatie
+
+Migrate Spatie Laravel Data classes to SimpleDTO.
+
+### Basic Usage
+
+```bash
+php artisan dto:migrate-spatie
+```
+
+Migrates all Spatie Data classes in `app/Data` directory.
+
+### Options
+
+#### --path
+
+Specify directory to scan:
+
+```bash
+php artisan dto:migrate-spatie --path=app/Data/Api
+```
+
+#### --dry-run
+
+Preview changes without modifying files:
+
+```bash
+php artisan dto:migrate-spatie --dry-run
+```
+
+#### --backup
+
+Create backup files before migration:
+
+```bash
+php artisan dto:migrate-spatie --backup
+```
+
+This creates `.backup` files for each migrated file.
+
+#### --force
+
+Skip confirmation prompt:
+
+```bash
+php artisan dto:migrate-spatie --force
+```
+
+### What it does
+
+The command automatically:
+
+1. Finds all Spatie Data classes
+2. Replaces `Data` with `SimpleDTO` base class
+3. Updates namespace imports
+4. Adds `readonly` to properties
+5. Updates attribute namespaces
+6. Replaces `WithCast` with `Cast` attribute
+
+### Example
+
+**Before migration:**
+```php
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Attributes\Validation\Required;
+
+class UserData extends Data
+{
+    public function __construct(
+        #[Required]
+        public string $name,
+        public string $email,
+    ) {}
+}
+```
+
+**After migration:**
+```php
+use event4u\DataHelpers\SimpleDTO\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+
+class UserData extends SimpleDTO
+{
+    public function __construct(
+        #[Required]
+        public readonly string $name,
+        public readonly string $email,
+    ) {}
+}
+```
+
+**See also:** [Migration from Spatie](/guides/migration-from-spatie/) - Complete migration guide
 
 ## dto:list
 

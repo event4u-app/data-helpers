@@ -70,7 +70,7 @@ class CreateUserDTO extends SimpleDTO
     public function __construct(
         #[Required]
         public readonly string $name,
-        
+
         #[Required, Email]
         public readonly string $email,
     ) {}
