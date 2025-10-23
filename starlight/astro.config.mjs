@@ -7,6 +7,7 @@ import starlightThemeRapide from 'starlight-theme-rapide';
 export default defineConfig({
 	site: 'https://event4u-app.github.io',
 	base: '/data-helpers',
+	trailingSlash: 'always',
 	integrations: [
 		starlight({
 			title: 'event4u Data Helpers',
@@ -15,7 +16,7 @@ export default defineConfig({
 				{
 					icon: 'heart',
 					label: 'Sponsor',
-					href: '/getting-started/sponsoring/',
+					href: 'https://event4u-app.github.io/data-helpers/getting-started/sponsoring/',
 				},
 				{
 					icon: 'github',
