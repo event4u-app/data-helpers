@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Frameworks\Laravel\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
@@ -59,7 +60,7 @@ class MigrateSpatieCommand extends Command
 
         if (!$files->isDirectory($scanPath)) {
             /** @phpstan-ignore-next-line */
-            $this->error("Directory not found: {$scanPath}");
+            $this->error('Directory not found: ' . $scanPath);
             return self::FAILURE;
         }
 
@@ -97,13 +98,11 @@ class MigrateSpatieCommand extends Command
         }
 
         // Confirm migration
-        if (!$force && !$dryRun) {
+        /** @phpstan-ignore-next-line */
+        if (!$force && !$dryRun && !$this->confirm('Do you want to proceed with the migration?')) {
             /** @phpstan-ignore-next-line */
-            if (!$this->confirm('Do you want to proceed with the migration?')) {
-                /** @phpstan-ignore-next-line */
-                $this->info('Migration cancelled.');
-                return self::SUCCESS;
-            }
+            $this->info('Migration cancelled.');
+            return self::SUCCESS;
         }
 
         // Migrate files
@@ -114,7 +113,7 @@ class MigrateSpatieCommand extends Command
             try {
                 $this->migrateFile($files, $file, $dryRun, $backup);
                 $migrated++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 /** @phpstan-ignore-next-line */
                 $this->error('Failed to migrate ' . $file . ': ' . $e->getMessage());
                 $failed++;
@@ -126,18 +125,18 @@ class MigrateSpatieCommand extends Command
 
         if ($dryRun) {
             /** @phpstan-ignore-next-line */
-            $this->info("✅  Would migrate {$migrated} files");
+            $this->info(sprintf('✅  Would migrate %d files', $migrated));
         } else {
             /** @phpstan-ignore-next-line */
-            $this->info("✅  Successfully migrated {$migrated} files");
+            $this->info(sprintf('✅  Successfully migrated %d files', $migrated));
         }
 
-        if ($failed > 0) {
+        if (0 < $failed) {
             /** @phpstan-ignore-next-line */
-            $this->error("❌  Failed to migrate {$failed} files");
+            $this->error(sprintf('❌  Failed to migrate %d files', $failed));
         }
 
-        if (!$dryRun && $migrated > 0) {
+        if (!$dryRun && 0 < $migrated) {
             /** @phpstan-ignore-next-line */
             $this->newLine();
             /** @phpstan-ignore-next-line */
@@ -150,7 +149,7 @@ class MigrateSpatieCommand extends Command
             $this->info('  3. Remove Spatie Data package: composer remove spatie/laravel-data');
         }
 
-        return $failed > 0 ? self::FAILURE : self::SUCCESS;
+        return 0 < $failed ? self::FAILURE : self::SUCCESS;
     }
 
     /**
@@ -223,7 +222,11 @@ class MigrateSpatieCommand extends Command
 
         // 5. Replace WithCast attribute with Cast
         $content = str_replace('#[WithCast(', '#[Cast(', $content);
-        $content = str_replace('use event4u\\DataHelpers\\SimpleDTO\\Attributes\\WithCast;', 'use event4u\\DataHelpers\\SimpleDTO\\Attributes\\Cast;', $content);
+        $content = str_replace(
+            'use event4u\\DataHelpers\\SimpleDTO\\Attributes\\WithCast;',
+            'use event4u\\DataHelpers\\SimpleDTO\\Attributes\\Cast;',
+            $content
+        );
 
         // 6. Add readonly to public properties (if not already present)
         // This matches both regular properties and constructor properties
@@ -253,4 +256,3 @@ class MigrateSpatieCommand extends Command
         $this->info('✅  Migrated: ' . $filePath);
     }
 }
-

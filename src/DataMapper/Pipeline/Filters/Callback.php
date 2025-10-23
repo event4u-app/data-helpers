@@ -9,21 +9,21 @@ use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;
-use event4u\DataHelpers\DataMapper\Pipeline\CallbackRegistry;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\Enums\DataMapperHook;
+use event4u\DataHelpers\Support\CallbackHelper;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
 
 /**
- * Filter that applies a registered callback from CallbackRegistry.
+ * Filter that applies a registered callback from CallbackHelper.
  *
  * Used in template expressions with the 'callback' alias.
  *
  * Example:
  *   // Register callback
- *   CallbackRegistry::register('upper', fn($p) => strtoupper($p->value));
+ *   CallbackHelper::register('upper', fn($p) => strtoupper($p->value));
  *
  *   // Use in template
  *   $template = ['name' => '{{ user.name | callback:upper }}'];
@@ -46,13 +46,13 @@ final class Callback implements FilterInterface
         $callbackName = (string)$args[0];
 
         // Get callback from registry
-        $callback = CallbackRegistry::get($callbackName);
+        $callback = CallbackHelper::get($callbackName);
 
         if (!$callback instanceof Closure) {
             $exception = new InvalidArgumentException(
                 'Callback "' . $callbackName . '" is not registered. Available callbacks: ' . (implode(
                     ', ',
-                    CallbackRegistry::getRegisteredNames()
+                    CallbackHelper::getRegisteredNames()
                 ) ?: 'none')
             );
             MapperExceptions::handleException($exception);

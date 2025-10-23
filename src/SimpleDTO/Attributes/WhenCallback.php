@@ -6,6 +6,8 @@ namespace event4u\DataHelpers\SimpleDTO\Attributes;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use event4u\DataHelpers\Support\CallbackHelper;
+use InvalidArgumentException;
 
 /**
  * Conditional attribute: Include property based on a callback.
@@ -75,82 +77,31 @@ class WhenCallback implements ConditionalProperty
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
-        $callback = $this->resolveCallback($dto);
+        try {
+            // Build arguments: always start with ($dto, $value, $context)
+            $args = [$dto, $value, $context];
 
-        if (!is_callable($callback)) {
+            // Add additional parameters
+            if ([] !== $this->parameters) {
+                // Check if parameters are named (associative array)
+                $isNamed = array_keys($this->parameters) !== range(0, count($this->parameters) - 1);
+
+                if ($isNamed) {
+                    // Named parameters: merge with base args
+                    $args = array_merge($args, $this->parameters);
+                } else {
+                    // Positional parameters: append to base args
+                    foreach ($this->parameters as $param) {
+                        $args[] = $param;
+                    }
+                }
+            }
+
+            // CallbackHelper will resolve 'static::method' automatically
+            $result = CallbackHelper::execute($this->callback, ...$args);
+            return (bool)$result;
+        } catch (InvalidArgumentException) {
             return false;
         }
-
-        // Build arguments: always start with ($dto, $value, $context)
-        $args = [$dto, $value, $context];
-
-        // Add additional parameters
-        if ([] !== $this->parameters) {
-            // Check if parameters are named (associative array)
-            $isNamed = array_keys($this->parameters) !== range(0, count($this->parameters) - 1);
-
-            if ($isNamed) {
-                // Named parameters: merge with base args
-                $args = array_merge($args, $this->parameters);
-            } else {
-                // Positional parameters: append to base args
-                foreach ($this->parameters as $param) {
-                    $args[] = $param;
-                }
-            }
-        }
-
-        // @phpstan-ignore argument.type (Callback signature is flexible)
-        return (bool)$callback(...$args);
-    }
-
-    /**
-     * Resolve the callback to a callable.
-     *
-     * @param object $dto The DTO instance
-     * @return (callable(object, mixed, array<string, mixed>, mixed...): mixed)|null
-     */
-    private function resolveCallback(object $dto): callable|null
-    {
-        // If string, resolve to function or static method
-        if (is_string($this->callback)) {
-            // Check for 'static::methodName' pattern
-            if (str_starts_with($this->callback, 'static::')) {
-                $method = substr($this->callback, 8); // Remove 'static::'
-                $class = $dto::class;
-
-                if (method_exists($class, $method)) {
-                    // @phpstan-ignore return.type (Array callable is valid)
-                    return [$class, $method];
-                }
-
-                return null;
-            }
-
-            // Check for 'ClassName::methodName' pattern
-            if (str_contains($this->callback, '::')) {
-                $parts = explode('::', $this->callback, 2);
-                if (2 === count($parts) && method_exists($parts[0], $parts[1])) {
-                    // @phpstan-ignore return.type (Array callable is valid)
-                    return $parts;
-                }
-
-                return null;
-            }
-
-            // Check for global function
-            if (function_exists($this->callback)) {
-                return $this->callback;
-            }
-
-            return null;
-        }
-
-        // If already callable (legacy support for closures, invokables, array callables)
-        if (is_callable($this->callback)) {
-            return $this->callback;
-        }
-
-        return null;
     }
 }

@@ -5,29 +5,29 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;
-use event4u\DataHelpers\DataMapper\Pipeline\CallbackRegistry;
+use event4u\DataHelpers\Support\CallbackHelper;
 
-describe('CallbackRegistry', function(): void {
+describe('CallbackHelper (DataMapper Integration)', function(): void {
     beforeEach(function(): void {
-        CallbackRegistry::clear();
+        CallbackHelper::clear();
         MapperExceptions::reset();
     });
 
     it('registers and retrieves callbacks', function(): void {
         $callback = fn(CallbackParameters $p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value;
 
-        CallbackRegistry::register('upper', $callback);
+        CallbackHelper::register('upper', $callback);
 
-        expect(CallbackRegistry::has('upper'))->toBeTrue();
-        expect(CallbackRegistry::get('upper'))->toBe($callback);
+        expect(CallbackHelper::has('upper'))->toBeTrue();
+        expect(CallbackHelper::get('upper'))->toBe($callback);
     });
 
     it('throws exception when registering duplicate callback', function(): void {
         $callback = fn(CallbackParameters $p): mixed => $p->value;
 
-        CallbackRegistry::register('test', $callback);
+        CallbackHelper::register('test', $callback);
 
-        expect(fn() => CallbackRegistry::register('test', $callback))
+        expect(fn() => CallbackHelper::register('test', $callback))
             ->toThrow(InvalidArgumentException::class, 'already registered');
     });
 
@@ -35,46 +35,46 @@ describe('CallbackRegistry', function(): void {
         $callback1 = fn(CallbackParameters $p): string => 'first';
         $callback2 = fn(CallbackParameters $p): string => 'second';
 
-        CallbackRegistry::register('test', $callback1);
-        CallbackRegistry::registerOrReplace('test', $callback2);
+        CallbackHelper::register('test', $callback1);
+        CallbackHelper::registerOrReplace('test', $callback2);
 
-        expect(CallbackRegistry::get('test'))->toBe($callback2);
+        expect(CallbackHelper::get('test'))->toBe($callback2);
     });
 
     it('unregisters callbacks', function(): void {
         $callback = fn(CallbackParameters $p): mixed => $p->value;
 
-        CallbackRegistry::register('test', $callback);
-        expect(CallbackRegistry::has('test'))->toBeTrue();
+        CallbackHelper::register('test', $callback);
+        expect(CallbackHelper::has('test'))->toBeTrue();
 
-        CallbackRegistry::unregister('test');
-        expect(CallbackRegistry::has('test'))->toBeFalse();
+        CallbackHelper::unregister('test');
+        expect(CallbackHelper::has('test'))->toBeFalse();
     });
 
     it('clears all callbacks', function(): void {
-        CallbackRegistry::register('test1', fn($p): mixed => $p->value);
-        CallbackRegistry::register('test2', fn($p): mixed => $p->value);
+        CallbackHelper::register('test1', fn($p): mixed => $p->value);
+        CallbackHelper::register('test2', fn($p): mixed => $p->value);
 
-        expect(CallbackRegistry::count())->toBe(2);
+        expect(CallbackHelper::count())->toBe(2);
 
-        CallbackRegistry::clear();
+        CallbackHelper::clear();
 
-        expect(CallbackRegistry::count())->toBe(0);
-        expect(CallbackRegistry::has('test1'))->toBeFalse();
-        expect(CallbackRegistry::has('test2'))->toBeFalse();
+        expect(CallbackHelper::count())->toBe(0);
+        expect(CallbackHelper::has('test1'))->toBeFalse();
+        expect(CallbackHelper::has('test2'))->toBeFalse();
     });
 
     it('returns registered callback names', function(): void {
-        CallbackRegistry::register(
+        CallbackHelper::register(
             'upper',
             fn(CallbackParameters $p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value
         );
-        CallbackRegistry::register(
+        CallbackHelper::register(
             'lower',
             fn(CallbackParameters $p): mixed => is_string($p->value) ? strtolower($p->value) : $p->value
         );
 
-        $names = CallbackRegistry::getRegisteredNames();
+        $names = CallbackHelper::getRegisteredNames();
 
         expect($names)->toContain('upper');
         expect($names)->toContain('lower');
@@ -83,7 +83,7 @@ describe('CallbackRegistry', function(): void {
 
     it('works with template expressions', function(): void {
         // Register callback
-        CallbackRegistry::register(
+        CallbackHelper::register(
             'upper',
             fn(CallbackParameters $p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value
         );
@@ -145,7 +145,7 @@ describe('CallbackRegistry', function(): void {
     it('handles callback exceptions gracefully', function(): void {
         MapperExceptions::setCollectExceptionsEnabled(true);
 
-        CallbackRegistry::register('failing', function(CallbackParameters $p): void {
+        CallbackHelper::register('failing', function(CallbackParameters $p): void {
             throw new RuntimeException('Callback error!');
         });
 
@@ -180,11 +180,11 @@ describe('CallbackRegistry', function(): void {
     });
 
     it('can use multiple registered callbacks', function(): void {
-        CallbackRegistry::register(
+        CallbackHelper::register(
             'upper',
             fn(CallbackParameters $p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value
         );
-        CallbackRegistry::register(
+        CallbackHelper::register(
             'prefix',
             fn(CallbackParameters $p): mixed => is_string($p->value) ? 'Mr. ' . $p->value : $p->value
         );
@@ -214,31 +214,31 @@ describe('CallbackRegistry', function(): void {
     });
 
     it('returns null when getting non-existent callback', function(): void {
-        expect(CallbackRegistry::get('nonexistent'))->toBeNull();
-        expect(CallbackRegistry::has('nonexistent'))->toBeFalse();
+        expect(CallbackHelper::get('nonexistent'))->toBeNull();
+        expect(CallbackHelper::has('nonexistent'))->toBeFalse();
     });
 
     it('callback names are case-sensitive', function(): void {
-        CallbackRegistry::register('Upper', fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value);
+        CallbackHelper::register('Upper', fn($p): mixed => is_string($p->value) ? strtoupper($p->value) : $p->value);
 
-        expect(CallbackRegistry::has('Upper'))->toBeTrue();
-        expect(CallbackRegistry::has('upper'))->toBeFalse();
-        expect(CallbackRegistry::has('UPPER'))->toBeFalse();
+        expect(CallbackHelper::has('Upper'))->toBeTrue();
+        expect(CallbackHelper::has('upper'))->toBeFalse();
+        expect(CallbackHelper::has('UPPER'))->toBeFalse();
     });
 
     it('handles special characters in callback names', function(): void {
-        CallbackRegistry::register('my-callback', fn($p): mixed => $p->value);
-        CallbackRegistry::register('my_callback', fn($p): mixed => $p->value);
-        CallbackRegistry::register('my.callback', fn($p): mixed => $p->value);
+        CallbackHelper::register('my-callback', fn($p): mixed => $p->value);
+        CallbackHelper::register('my_callback', fn($p): mixed => $p->value);
+        CallbackHelper::register('my.callback', fn($p): mixed => $p->value);
 
-        expect(CallbackRegistry::has('my-callback'))->toBeTrue();
-        expect(CallbackRegistry::has('my_callback'))->toBeTrue();
-        expect(CallbackRegistry::has('my.callback'))->toBeTrue();
-        expect(CallbackRegistry::count())->toBe(3);
+        expect(CallbackHelper::has('my-callback'))->toBeTrue();
+        expect(CallbackHelper::has('my_callback'))->toBeTrue();
+        expect(CallbackHelper::has('my.callback'))->toBeTrue();
+        expect(CallbackHelper::count())->toBe(3);
     });
 
     it('works with nested array values', function(): void {
-        CallbackRegistry::register('processArray', function(CallbackParameters $p): mixed {
+        CallbackHelper::register('processArray', function(CallbackParameters $p): mixed {
             if (is_array($p->value)) {
                 return array_map(fn($v): mixed => is_string($v) ? strtoupper($v) : $v, $p->value);
             }
@@ -259,8 +259,8 @@ describe('CallbackRegistry', function(): void {
     });
 
     it('can chain callbacks with other filters', function(): void {
-        CallbackRegistry::register('double', fn($p): mixed => is_numeric($p->value) ? $p->value * 2 : $p->value);
-        CallbackRegistry::register(
+        CallbackHelper::register('double', fn($p): mixed => is_numeric($p->value) ? $p->value * 2 : $p->value);
+        CallbackHelper::register(
             'roundTwo',
             fn($p): mixed => is_numeric($p->value) ? round((float)$p->value, 2) : $p->value
         );
@@ -279,28 +279,28 @@ describe('CallbackRegistry', function(): void {
     });
 
     it('handles empty callback registry gracefully', function(): void {
-        CallbackRegistry::clear();
+        CallbackHelper::clear();
 
-        expect(CallbackRegistry::count())->toBe(0);
-        expect(CallbackRegistry::getRegisteredNames())->toBe([]);
-        expect(CallbackRegistry::get('anything'))->toBeNull();
+        expect(CallbackHelper::count())->toBe(0);
+        expect(CallbackHelper::getRegisteredNames())->toBe([]);
+        expect(CallbackHelper::get('anything'))->toBeNull();
     });
 
     it('can handle many registered callbacks', function(): void {
         // Register 100 callbacks
         for ($i = 0; 100 > $i; $i++) {
-            CallbackRegistry::register('callback' . $i, fn($p): mixed => $p->value);
+            CallbackHelper::register('callback' . $i, fn($p): mixed => $p->value);
         }
 
-        expect(CallbackRegistry::count())->toBe(100);
+        expect(CallbackHelper::count())->toBe(100);
 
         // All should be retrievable
         for ($i = 0; 100 > $i; $i++) {
-            expect(CallbackRegistry::has('callback' . $i))->toBeTrue();
+            expect(CallbackHelper::has('callback' . $i))->toBeTrue();
         }
 
         // Clear should remove all
-        CallbackRegistry::clear();
-        expect(CallbackRegistry::count())->toBe(0);
+        CallbackHelper::clear();
+        expect(CallbackHelper::count())->toBe(0);
     });
 });

@@ -10,7 +10,7 @@ Callback filters allow you to define custom transformation logic using closures 
 Callback filters come in two flavors:
 
 1. **CallbackFilter** - For use in pipelines with inline closures
-2. **CallbackRegistry** - For named callbacks in template expressions
+2. **CallbackHelper** - For named callbacks in template expressions
 
 Both receive a `CallbackParameters` DTO with complete context about the current transformation.
 
@@ -121,16 +121,16 @@ $result = DataMapper::from($source)
 
 ## Template Expression Usage
 
-Use `CallbackRegistry` to register named callbacks for template expressions.
+Use `CallbackHelper` to register named callbacks for template expressions.
 
 ### Registering Callbacks
 
 ```php
-use event4u\DataHelpers\DataMapper\Pipeline\CallbackRegistry;
+use event4u\DataHelpers\Support\CallbackHelper;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;
 
 // Register a callback
-CallbackRegistry::register('slugify', function(CallbackParameters $params) {
+CallbackHelper::register('slugify', function(CallbackParameters $params) {
     if (!is_string($params->value)) {
         return $params->value;
     }
@@ -160,8 +160,8 @@ $result = DataMapper::mapFromTemplate($template, $sources);
 ### Multiple Callbacks
 
 ```php
-CallbackRegistry::register('uppercase', fn($p) => strtoupper($p->value));
-CallbackRegistry::register('reverse', fn($p) => strrev($p->value));
+CallbackHelper::register('uppercase', fn($p) => strtoupper($p->value));
+CallbackHelper::register('reverse', fn($p) => strrev($p->value));
 
 $template = [
     'text' => '{{ input | callback:uppercase | callback:reverse }}',
@@ -173,7 +173,7 @@ $template = [
 ### Access Full Context
 
 ```php
-CallbackRegistry::register('applyDiscount', function(CallbackParameters $params) {
+CallbackHelper::register('applyDiscount', function(CallbackParameters $params) {
     // Access source data
     $discount = $params->source['order']['discount'] ?? 0;
 
@@ -188,7 +188,7 @@ CallbackRegistry::register('applyDiscount', function(CallbackParameters $params)
 ### Conditional Logic
 
 ```php
-CallbackRegistry::register('formatPrice', function(CallbackParameters $params) {
+CallbackHelper::register('formatPrice', function(CallbackParameters $params) {
     // Check key path
     if (str_contains($params->keyPath, 'price')) {
         return '$' . number_format($params->value, 2);
@@ -200,7 +200,7 @@ CallbackRegistry::register('formatPrice', function(CallbackParameters $params) {
 ### Error Handling
 
 ```php
-CallbackRegistry::register('safeJson', function(CallbackParameters $params) {
+CallbackHelper::register('safeJson', function(CallbackParameters $params) {
     try {
         return json_decode($params->value, true);
     } catch (\Exception $e) {
@@ -215,10 +215,10 @@ CallbackRegistry::register('safeJson', function(CallbackParameters $params) {
 
 ```php
 // ✅ Good - Single responsibility
-CallbackRegistry::register('trim', fn($p) => trim($p->value));
+CallbackHelper::register('trim', fn($p) => trim($p->value));
 
 // ❌ Bad - Too complex
-CallbackRegistry::register('processEverything', function($p) {
+CallbackHelper::register('processEverything', function($p) {
     // 50 lines of complex logic
 });
 ```
@@ -227,7 +227,7 @@ CallbackRegistry::register('processEverything', function($p) {
 
 ```php
 // ✅ Good
-CallbackRegistry::register('uppercase', function($p) {
+CallbackHelper::register('uppercase', function($p) {
     if (!is_string($p->value)) {
         return $p->value;
     }
@@ -239,7 +239,7 @@ CallbackRegistry::register('uppercase', function($p) {
 
 ```php
 // ✅ Good
-CallbackRegistry::register('formatDate', function($p) {
+CallbackHelper::register('formatDate', function($p) {
     if (!$p->value instanceof DateTime) {
         return $p->value; // Return unchanged
     }
@@ -251,12 +251,12 @@ CallbackRegistry::register('formatDate', function($p) {
 
 ```php
 // ✅ Good
-CallbackRegistry::register('formatCurrency', ...);
-CallbackRegistry::register('slugifyTitle', ...);
+CallbackHelper::register('formatCurrency', ...);
+CallbackHelper::register('slugifyTitle', ...);
 
 // ❌ Bad
-CallbackRegistry::register('fn1', ...);
-CallbackRegistry::register('process', ...);
+CallbackHelper::register('fn1', ...);
+CallbackHelper::register('process', ...);
 ```
 
 ## Real-World Examples
@@ -264,7 +264,7 @@ CallbackRegistry::register('process', ...);
 ### Format Currency
 
 ```php
-CallbackRegistry::register('formatCurrency', function($p) {
+CallbackHelper::register('formatCurrency', function($p) {
     if (!is_numeric($p->value)) {
         return $p->value;
     }
@@ -279,7 +279,7 @@ $template = [
 ### Generate Slug
 
 ```php
-CallbackRegistry::register('slugify', function($p) {
+CallbackHelper::register('slugify', function($p) {
     if (!is_string($p->value)) {
         return $p->value;
     }
@@ -290,7 +290,7 @@ CallbackRegistry::register('slugify', function($p) {
 ### Calculate Age
 
 ```php
-CallbackRegistry::register('calculateAge', function($p) {
+CallbackHelper::register('calculateAge', function($p) {
     if (!$p->value instanceof DateTime) {
         return null;
     }

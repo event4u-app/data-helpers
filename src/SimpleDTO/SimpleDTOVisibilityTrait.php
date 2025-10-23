@@ -8,10 +8,11 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromArray;
 use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromJson;
 use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
+use event4u\DataHelpers\Support\CallbackHelper;
 use Illuminate\Support\Facades\Gate;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionMethod;
 use ReflectionProperty;
 
 /**
@@ -212,43 +213,10 @@ trait SimpleDTOVisibilityTrait
 
         // Check callback
         if (null !== $visibleAttr->callback) {
-            // Static callback: [Class::class, 'method']
-            if (is_array($visibleAttr->callback)) {
-                if (count($visibleAttr->callback) === 2) {
-                    [$class, $method] = $visibleAttr->callback;
-
-                    if (is_string($class) && is_string($method) && (class_exists($class) && method_exists(
-                        $class,
-                        $method
-                    ))) {
-                        try {
-                            $reflection = new ReflectionMethod($class, $method);
-
-                            if ($reflection->isStatic()) {
-                                return (bool)$reflection->invoke(null, $this, $context);
-                            }
-                        } catch (ReflectionException) {
-                            return false;
-                        }
-                    }
-                }
-
-                return false;
-            }
-
-            // Instance method callback: 'methodName'
-            if (is_string($visibleAttr->callback)) {
-                if (method_exists($this, $visibleAttr->callback)) {
-                    try {
-                        // Use Reflection to call private/protected methods
-                        $reflection = new ReflectionMethod($this, $visibleAttr->callback);
-
-                        return (bool)$reflection->invoke($this, $context);
-                    } catch (ReflectionException) {
-                        return false;
-                    }
-                }
-
+            try {
+                $result = CallbackHelper::execute($visibleAttr->callback, $this, $context);
+                return (bool)$result;
+            } catch (InvalidArgumentException) {
                 return false;
             }
         }

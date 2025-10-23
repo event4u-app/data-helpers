@@ -5,13 +5,13 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;
-use event4u\DataHelpers\DataMapper\Pipeline\CallbackRegistry;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\CallbackFilter;
+use event4u\DataHelpers\Support\CallbackHelper;
 
 describe('CallbackFilter', function(): void {
     beforeEach(function(): void {
         MapperExceptions::reset();
-        CallbackRegistry::clear();
+        CallbackHelper::clear();
     });
 
     it('transforms values using callback in pipeline', function(): void {

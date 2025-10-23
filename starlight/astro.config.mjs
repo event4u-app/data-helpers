@@ -13,7 +13,7 @@ export default defineConfig({
 				{
 					icon: 'heart',
 					label: 'Sponsor',
-					href: '/sponsoring/',
+					href: '/getting-started/sponsoring/',
 				},
 				{
 					icon: 'github',
@@ -36,6 +36,7 @@ export default defineConfig({
                     collapsed: false,
 					items: [
 						{ label: 'Introduction', slug: 'getting-started/introduction' },
+                        { label: 'Support Us', slug: 'getting-started/sponsoring' },
 						{ label: 'Installation', slug: 'getting-started/installation' },
 						{ label: 'Requirements', slug: 'getting-started/requirements' },
 						{ label: 'Quick Start', slug: 'getting-started/quick-start' },
@@ -123,6 +124,7 @@ export default defineConfig({
                     label: 'Helpers',
                     collapsed: true,
                     items: [
+                        { label: 'CallbackHelper', slug: 'helpers/callback-helper' },
                         { label: 'EnvHelper', slug: 'helpers/env-helper' },
                         { label: 'MathHelper', slug: 'helpers/math-helper' },
                         { label: 'ConfigHelper', slug: 'helpers/config-helper' },
@@ -200,18 +202,11 @@ export default defineConfig({
 				],
 			},
 			{
-					label: 'Troubleshooting',
-					collapsed: true,
-					items: [
-						{ label: 'Common Issues', slug: 'troubleshooting/common-issues' },
-					],
-				},
-			{
-				label: 'Sponsoring',
-				collapsed: true,
-				items: [
-					{ label: 'Support Our Work', slug: 'sponsoring' },
-				],
+                label: 'Troubleshooting',
+                collapsed: true,
+                items: [
+                    { label: 'Common Issues', slug: 'troubleshooting/common-issues' },
+                ],
 			},
 			],
 		}),

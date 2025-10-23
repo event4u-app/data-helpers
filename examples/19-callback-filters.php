@@ -6,8 +6,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;
-use event4u\DataHelpers\DataMapper\Pipeline\CallbackRegistry;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\CallbackFilter;
+use event4u\DataHelpers\Support\CallbackHelper;
 
 echo "=== Callback Filters - Custom Transformations ===\n\n";
 
@@ -56,14 +56,14 @@ echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
-// Example 2: CallbackRegistry with Template Expressions
+// Example 2: CallbackHelper with Template Expressions
 // ============================================================================
 
-echo "2️⃣  CallbackRegistry with Template Expressions\n";
+echo "2️⃣  CallbackHelper with Template Expressions\n";
 echo str_repeat('-', 80) . "\n";
 
 // Register custom callbacks
-CallbackRegistry::register('slugify', function(CallbackParameters $params) {
+CallbackHelper::register('slugify', function(CallbackParameters $params) {
     if (!is_string($params->value)) {
         return $params->value;
     }
@@ -72,7 +72,7 @@ CallbackRegistry::register('slugify', function(CallbackParameters $params) {
     return strtolower(str_replace(' ', '-', (string)$params->value));
 });
 
-CallbackRegistry::register('initials', function(CallbackParameters $params) {
+CallbackHelper::register('initials', function(CallbackParameters $params) {
     if (!is_string($params->value)) {
         return $params->value;
     }
@@ -204,7 +204,7 @@ echo "\n";
 echo "5️⃣  Multiple Callbacks in Chain\n";
 echo str_repeat('-', 80) . "\n";
 
-CallbackRegistry::register('sanitize', function(CallbackParameters $params) {
+CallbackHelper::register('sanitize', function(CallbackParameters $params) {
     if (!is_string($params->value)) {
         return $params->value;
     }
@@ -213,7 +213,7 @@ CallbackRegistry::register('sanitize', function(CallbackParameters $params) {
     return trim(strip_tags($params->value));
 });
 
-CallbackRegistry::register('truncate', function(CallbackParameters $params) {
+CallbackHelper::register('truncate', function(CallbackParameters $params) {
     if (!is_string($params->value)) {
         return $params->value;
     }
@@ -252,7 +252,7 @@ use event4u\DataHelpers\DataMapper\MapperExceptions;
 
 MapperExceptions::setCollectExceptionsEnabled(true);
 
-CallbackRegistry::register('divide', function(CallbackParameters $params): int|float {
+CallbackHelper::register('divide', function(CallbackParameters $params): int|float {
     if (!is_numeric($params->value)) {
         throw new RuntimeException('Value must be numeric');
     }
@@ -291,7 +291,7 @@ echo "\n";
 
 echo "✅  Callback Filters Summary:\n";
 echo "   • CallbackFilter: Use closures in pipeline for custom transformations\n";
-echo "   • CallbackRegistry: Register named callbacks for template expressions\n";
+echo "   • CallbackHelper: Register named callbacks for template expressions\n";
 echo "   • CallbackParameters: Access full context (source, target, key, keyPath, value)\n";
 echo "   • Return '__skip__': Skip values conditionally\n";
 echo "   • Error Handling: Exceptions are collected and thrown at the end\n";

@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Support;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\Enums\DataMapperHook;
+use event4u\DataHelpers\Support\CallbackHelper;
 
 /**
  * Handles hook invocation and normalization.
@@ -249,29 +250,31 @@ class HookInvoker
 
     /**
      * Invoke a callback with automatic context conversion (array vs object).
-     * Uses reflection to detect if callback expects array or HookContext.
+     * Uses CallbackHelper for unified callback execution.
      *
-     * @param callable(HookContext): mixed $callback
+     * @param callable $callback
      */
     private static function invokeCallback(callable $callback, HookContext $context): mixed
     {
-        return $callback($context);
+        return CallbackHelper::execute($callback, $context);
     }
 
     /**
      * Invoke a value-transforming callback with automatic context conversion.
+     * Uses CallbackHelper for unified callback execution.
      *
-     * @param callable(mixed, HookContext): mixed $callback
+     * @param callable $callback
      */
     private static function invokeValueCallback(callable $callback, mixed $value, HookContext $context): mixed
     {
-        return $callback($value, $context);
+        return CallbackHelper::execute($callback, $value, $context);
     }
 
     /**
      * Invoke a target-mutating callback with automatic context conversion.
+     * Uses CallbackHelper for unified callback execution.
      *
-     * @param callable(mixed, HookContext, mixed): mixed $callback
+     * @param callable $callback
      */
     private static function invokeTargetCallback(
         callable $callback,
@@ -279,6 +282,6 @@ class HookInvoker
         HookContext $context,
         mixed $writtenValue
     ): mixed {
-        return $callback($target, $context, $writtenValue);
+        return CallbackHelper::execute($callback, $target, $context, $writtenValue);
     }
 }

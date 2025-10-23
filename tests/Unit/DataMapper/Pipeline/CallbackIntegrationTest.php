@@ -5,15 +5,15 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;
-use event4u\DataHelpers\DataMapper\Pipeline\CallbackRegistry;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\CallbackFilter;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\Enums\DataMapperHook;
+use event4u\DataHelpers\Support\CallbackHelper;
 
 describe('Callback Integration Tests', function(): void {
     beforeEach(function(): void {
         MapperExceptions::reset();
-        CallbackRegistry::clear();
+        CallbackHelper::clear();
     });
 
     it('works with TrimStrings filter', function(): void {
@@ -251,11 +251,11 @@ describe('Callback Integration Tests', function(): void {
     });
 
     it('works with template expression chaining', function(): void {
-        CallbackRegistry::register(
+        CallbackHelper::register(
             'addPrefix',
             fn($p): mixed => is_string($p->value) ? 'PREFIX_' . $p->value : $p->value
         );
-        CallbackRegistry::register(
+        CallbackHelper::register(
             'addSuffix',
             fn($p): mixed => is_string($p->value) ? $p->value . '_SUFFIX' : $p->value
         );

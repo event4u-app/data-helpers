@@ -3,7 +3,7 @@ title: Sponsoring
 description: Support the development of Data Helpers and the event4u ecosystem
 ---
 
-## 💖 Support Our Work
+## 💖 Support Us
 
 This package is part of the **event4u** ecosystem - a comprehensive event management platform. We're passionate about building high-quality, open-source tools for the PHP community.
 
