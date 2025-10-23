@@ -5,7 +5,7 @@ description: Learn about Data Helpers - a powerful, framework-agnostic PHP libra
 
 <div align="center" style="margin-bottom: 2rem;">
   <a href="https://event4u.app">
-    <img alt="Data Helpers - Framework-agnostic PHP library for data manipulation, transformation, and validation" src="/banner.png" style="max-width: 100%; height: auto; border-radius: 8px;" />
+    <img alt="Data Helpers - Framework-agnostic PHP library for data manipulation, transformation, and validation" src="/data-helpers/banner.png" style="max-width: 100%; height: auto; border-radius: 8px;" />
   </a>
 </div>
 
