@@ -12,6 +12,7 @@ export default defineConfig({
 		starlight({
 			title: 'event4u Data Helpers',
 			description: 'Framework-agnostic PHP library for data manipulation, transformation, and validation',
+			favicon: '/favicon.png',
 			social: [
 				{
 					icon: 'heart',
