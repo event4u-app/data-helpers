@@ -1,0 +1,32 @@
+/* Custom styles for Data Helpers documentation */
+
+:root {
+  --sl-color-accent: #3b82f6;
+  --sl-color-accent-high: #2563eb;
+}
+
+/* Code blocks */
+pre {
+  border-radius: 0.5rem;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background-color: var(--sl-color-gray-6);
+  font-weight: 600;
+}
+
+/* Callouts */
+.callout {
+  padding: 1rem;
+  border-left: 4px solid var(--sl-color-accent);
+  background-color: var(--sl-color-gray-6);
+  border-radius: 0.25rem;
+  margin: 1rem 0;
+}
+

@@ -1,0 +1,281 @@
+version: '3'
+
+# Documentation Tasks
+# Handles documentation building, development, and deployment
+
+vars:
+  OUTPUT_HELPER: ./scripts/task-output.sh
+  DOCS_DIR: documentation
+  NODE_IMAGE: node:18-alpine
+  DOCS_CONTAINER: data-helpers-docs
+
+tasks:
+  setup:
+    desc: Initialize documentation project with Starlight and Rapide theme
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Documentation Setup"
+        task_step "Creating documentation directory..."
+        mkdir -p {{.DOCS_DIR}}
+        task_step "Initializing Starlight project in Docker..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} sh -c "
+          npm create astro@latest . -- --template starlight --yes --skip-houston &&
+          npm install
+        "
+        task_step "Installing Rapide theme..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} sh -c "
+          npm install starlight-theme-rapide
+        "
+        task_success "Documentation project initialized"
+        task_info "Next steps:"
+        task_info "  1. Configure Rapide theme in astro.config.mjs"
+        task_info "  2. Run 'task docs:dev' to start development server"
+        task_footer
+
+  install:
+    desc: Install documentation dependencies
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Installing Documentation Dependencies"
+        task_step "Installing npm packages in Docker..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} npm install
+        task_success "Dependencies installed"
+        task_footer
+
+  dev:
+    desc: Start documentation development server
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Starting Documentation Development Server"
+        task_info "Server will be available at http://localhost:4321"
+        task_info "Press Ctrl+C to stop"
+        echo ""
+        docker run --rm -it \
+          -v "$(pwd)/{{.DOCS_DIR}}:/app" \
+          -w /app \
+          -p 4321:4321 \
+          --name {{.DOCS_CONTAINER}} \
+          {{.NODE_IMAGE}} \
+          npm run dev -- --host 0.0.0.0
+
+  build:
+    desc: Build documentation for production
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Building Documentation"
+        task_step "Building static site in Docker..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} npm run build
+        task_success "Documentation built successfully"
+        task_info "Output directory: {{.DOCS_DIR}}/dist"
+        task_footer
+
+  preview:
+    desc: Preview production build locally
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Previewing Production Build"
+        task_info "Preview will be available at http://localhost:4321"
+        task_info "Press Ctrl+C to stop"
+        echo ""
+        docker run --rm -it \
+          -v "$(pwd)/{{.DOCS_DIR}}:/app" \
+          -w /app \
+          -p 4321:4321 \
+          --name {{.DOCS_CONTAINER}}-preview \
+          {{.NODE_IMAGE}} \
+          npm run preview -- --host 0.0.0.0
+
+  check:
+    desc: Check documentation for errors
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Checking Documentation"
+        task_step "Running Astro check in Docker..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} npm run astro check
+        task_success "Documentation check completed"
+        task_footer
+
+  clean:
+    desc: Clean documentation build artifacts
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Cleaning Documentation"
+        task_step "Removing build artifacts..."
+        rm -rf {{.DOCS_DIR}}/dist
+        rm -rf {{.DOCS_DIR}}/.astro
+        rm -rf {{.DOCS_DIR}}/node_modules/.astro
+        task_success "Documentation cleaned"
+        task_footer
+
+  clean:all:
+    desc: Clean all documentation files including node_modules
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Deep Cleaning Documentation"
+        task_step "Removing all build artifacts and dependencies..."
+        rm -rf {{.DOCS_DIR}}/dist
+        rm -rf {{.DOCS_DIR}}/.astro
+        rm -rf {{.DOCS_DIR}}/node_modules
+        task_success "Documentation deep cleaned"
+        task_footer
+
+  update:
+    desc: Update documentation dependencies
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Updating Documentation Dependencies"
+        task_step "Updating npm packages in Docker..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} npm update
+        task_success "Dependencies updated"
+        task_footer
+
+  upgrade:
+    desc: Upgrade documentation dependencies to latest versions
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Upgrading Documentation Dependencies"
+        task_step "Upgrading npm packages in Docker..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} sh -c "
+          npm install -g npm-check-updates &&
+          ncu -u &&
+          npm install
+        "
+        task_success "Dependencies upgraded"
+        task_footer
+
+  lint:
+    desc: Lint documentation content
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Linting Documentation"
+        task_step "Running linters in Docker..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} sh -c "
+          if [ -f package.json ] && grep -q '\"lint\"' package.json; then
+            npm run lint
+          else
+            echo 'No lint script found in package.json'
+          fi
+        "
+        task_success "Linting completed"
+        task_footer
+
+  format:
+    desc: Format documentation content
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Formatting Documentation"
+        task_step "Running formatters in Docker..."
+        docker run --rm -v "$(pwd)/{{.DOCS_DIR}}:/app" -w /app {{.NODE_IMAGE}} sh -c "
+          if [ -f package.json ] && grep -q '\"format\"' package.json; then
+            npm run format
+          else
+            echo 'No format script found in package.json'
+          fi
+        "
+        task_success "Formatting completed"
+        task_footer
+
+  shell:
+    desc: Open shell in documentation container
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Documentation Shell"
+        task_info "Opening shell in Node.js container..."
+        echo ""
+        docker run --rm -it \
+          -v "$(pwd)/{{.DOCS_DIR}}:/app" \
+          -w /app \
+          {{.NODE_IMAGE}} \
+          sh
+
+  stop:
+    desc: Stop running documentation server
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Stopping Documentation Server"
+        task_step "Stopping container..."
+        docker stop {{.DOCS_CONTAINER}} 2>/dev/null || true
+        docker stop {{.DOCS_CONTAINER}}-preview 2>/dev/null || true
+        task_success "Documentation server stopped"
+        task_footer
+
+  logs:
+    desc: Show documentation server logs
+    cmds:
+      - docker logs -f {{.DOCS_CONTAINER}} 2>/dev/null || echo "No running documentation server found"
+
+  info:
+    desc: Show documentation project information
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Documentation Information"
+        echo ""
+        if [ -d "{{.DOCS_DIR}}" ]; then
+          task_info "Documentation directory: {{.DOCS_DIR}}"
+          if [ -f "{{.DOCS_DIR}}/package.json" ]; then
+            task_info "Project initialized: Yes"
+            cd {{.DOCS_DIR}}
+            task_info "Astro version: $(docker run --rm -v "$(pwd):/app" -w /app {{.NODE_IMAGE}} npm list astro --depth=0 2>/dev/null | grep astro@ || echo 'Not installed')"
+            task_info "Starlight version: $(docker run --rm -v "$(pwd):/app" -w /app {{.NODE_IMAGE}} npm list @astrojs/starlight --depth=0 2>/dev/null | grep starlight@ || echo 'Not installed')"
+            task_info "Rapide theme: $(docker run --rm -v "$(pwd):/app" -w /app {{.NODE_IMAGE}} npm list starlight-theme-rapide --depth=0 2>/dev/null | grep rapide@ || echo 'Not installed')"
+          else
+            task_warning "Project not initialized"
+            task_info "Run 'task docs:setup' to initialize"
+          fi
+        else
+          task_warning "Documentation directory does not exist"
+          task_info "Run 'task docs:setup' to create it"
+        fi
+        echo ""
+        task_footer
+
+  help:
+    desc: Show documentation tasks help
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Documentation Tasks Help"
+        echo ""
+        echo "📚 Setup & Installation:"
+        echo "  task docs:setup         Initialize documentation project"
+        echo "  task docs:install       Install dependencies"
+        echo ""
+        echo "🚀 Development:"
+        echo "  task docs:dev           Start development server (http://localhost:4321)"
+        echo "  task docs:build         Build for production"
+        echo "  task docs:preview       Preview production build"
+        echo "  task docs:check         Check for errors"
+        echo ""
+        echo "🧹 Maintenance:"
+        echo "  task docs:clean         Clean build artifacts"
+        echo "  task docs:clean:all     Clean everything including node_modules"
+        echo "  task docs:update        Update dependencies"
+        echo "  task docs:upgrade       Upgrade to latest versions"
+        echo ""
+        echo "✨ Quality:"
+        echo "  task docs:lint          Lint documentation"
+        echo "  task docs:format        Format documentation"
+        echo ""
+        echo "🔧 Utilities:"
+        echo "  task docs:shell         Open shell in container"
+        echo "  task docs:stop          Stop running server"
+        echo "  task docs:logs          Show server logs"
+        echo "  task docs:info          Show project information"
+        echo ""
+        task_footer
+

@@ -26,6 +26,7 @@ includes:
   quality: ./taskfiles/quality.yml
   dev: ./taskfiles/dev.yml
   bench: ./taskfiles/bench.yml
+  docs: ./taskfiles/docs.yml
 
 tasks:
   default:
@@ -43,11 +44,13 @@ tasks:
         echo "  ✨ quality:*    - Code quality checks (PHPStan, ECS, Rector)"
         echo "  💻 dev:*        - Development workflows and utilities"
         echo "  ⚡ bench:*      - Performance benchmarking"
+        echo "  📚 docs:*       - Documentation (Starlight)"
         echo ""
         echo "💡 Quick commands:"
         echo "  task docker:up          Start containers"
         echo "  task dev:setup          Complete dev setup"
         echo "  task test:run           Run tests (normal container)"
+        echo "  task docs:dev           Start documentation server"
         echo "  task test:e2e           Run E2E tests (normal setup)"
         echo "  task test:matrix        Run complete test matrix (isolated)"
         echo "  task quality:check      Run all quality checks"
