@@ -15,7 +15,6 @@ class Company
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    /** @phpstan-ignore property.onlyWritten */
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -253,4 +252,3 @@ class Company
         return $this;
     }
 }
-

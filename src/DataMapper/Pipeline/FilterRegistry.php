@@ -49,9 +49,7 @@ final class FilterRegistry
     public static function register(string $filterClass): void
     {
         if (!is_subclass_of($filterClass, FilterInterface::class)) {
-            throw new InvalidArgumentException(
-                sprintf('Class %s must implement FilterInterface', $filterClass)
-            );
+            throw new InvalidArgumentException('Class ' . $filterClass . ' must implement FilterInterface');
         }
 
         /** @var FilterInterface $instance */
@@ -166,4 +164,3 @@ final class FilterRegistry
         self::$initialized = true;
     }
 }
-

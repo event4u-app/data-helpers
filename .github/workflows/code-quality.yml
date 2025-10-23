@@ -4,9 +4,23 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'phpunit.xml'
+      - 'scripts/test-without-framework-deps.sh'
+      - '.github/workflows/plain-php-tests.yml'
   pull_request:
     branches:
       - main
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'phpunit.xml'
+      - 'scripts/test-without-framework-deps.sh'
+      - '.github/workflows/plain-php-tests.yml'
   workflow_dispatch:
 
 permissions:
@@ -29,17 +43,15 @@ jobs:
           php-version: '8.4'
           coverage: none
 
-      - name: Install dependencies
+      - name: Install Task
+        run: |
+          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
+      - name: Install dependencies (with all frameworks for analysis)
         run: composer update --prefer-dist --no-interaction
 
       - name: Run ECS
-        run: composer ecs:fix
+        run: vendor/bin/ecs check --clear-cache
 
       - name: Run Rector
-        run: composer rector:fix
-
-#      - name: Commit changes
-#        uses: stefanzweifel/git-auto-commit-action@v5
-#        with:
-#          commit_message: Fix code quality (ECS + Rector)
-#        continue-on-error: true
+        run: vendor/bin/rector process --dry-run --clear-cache

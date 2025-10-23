@@ -18,5 +18,10 @@ class DepartmentDto
 
     /** @var EmployeeDto[] */
     public array $employees = [];
-}
 
+    /** @return array<string, mixed> */
+    public function toArray(): array
+    {
+        return get_object_vars($this);
+    }
+}

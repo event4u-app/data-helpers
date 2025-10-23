@@ -6,12 +6,13 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Returns the first element of an array.
  *
  * Example:
- *   DataMapper::pipe([First::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([First::class])->map()->getTarget();
  *   Template: {{ value | first }}
  */
 final class First implements FilterInterface
@@ -23,7 +24,7 @@ final class First implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string
@@ -37,4 +38,3 @@ final class First implements FilterInterface
         return ['first'];
     }
 }
-

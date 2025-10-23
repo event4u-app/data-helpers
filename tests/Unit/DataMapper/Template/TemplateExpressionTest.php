@@ -16,7 +16,7 @@ describe('Template Expressions', function(): void {
             'user' => ['name' => 'Alice'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['fullname'])->toBe('Alice');
     });
@@ -30,7 +30,7 @@ describe('Template Expressions', function(): void {
             'user' => ['email' => 'alice@example.com'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['fullname'])->toBe('Unknown');
     });
@@ -44,7 +44,7 @@ describe('Template Expressions', function(): void {
             'user' => ['email' => 'ALICE@EXAMPLE.COM'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['email'])->toBe('alice@example.com');
     });
@@ -58,7 +58,7 @@ describe('Template Expressions', function(): void {
             'user' => ['name' => 'ALICE'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
     });
@@ -73,7 +73,7 @@ describe('Template Expressions', function(): void {
             'user' => ['name' => 'Alice'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['fullname'])->toBe('Alice');
         expect($result['copy'])->toBe('Alice'); // Copies value from 'fullname' in target
@@ -89,7 +89,7 @@ describe('Template Expressions', function(): void {
             'user' => ['name' => 'Alice'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['fullname'])->toBe('Alice');
         expect($result['copy'])->toBe('Alice'); // Copies value from 'fullname' in target
@@ -107,7 +107,7 @@ describe('Template Expressions', function(): void {
             'user' => ['name' => 'Alice'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');              // From source
         expect($result['copyName'])->toBe('Alice');          // Copied from target 'name'
@@ -127,7 +127,7 @@ describe('Template Expressions', function(): void {
             'user' => ['firstName' => 'Alice', 'lastName' => 'Smith'],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['firstName'])->toBe('Alice');
         expect($result['lastName'])->toBe('Smith');
@@ -147,7 +147,7 @@ describe('Template Expressions', function(): void {
             'address' => [],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['name'])->toBe('ALICE');
         expect($result['email'])->toBe('alice@example.com');

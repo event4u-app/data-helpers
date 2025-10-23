@@ -1,0 +1,79 @@
+version: '3'
+
+# Data Helpers - Main Taskfile
+# Organized task structure with beautiful output
+#
+# Usage:
+#   task                    Show all available tasks
+#   task docker:up          Start Docker containers
+#   task test:run           Run tests
+#   task quality:check      Run quality checks
+#   task dev:setup          Setup development environment
+#
+# Use PHP=8.2|8.3|8.4 to specify PHP version for most tasks
+# Example: task test:run PHP=8.2
+
+vars:
+  PHP_82: data-helpers-php82
+  PHP_83: data-helpers-php83
+  PHP_84: data-helpers-php84
+  DEFAULT_PHP: "{{.PHP_84}}"
+
+# Include task files from taskfiles/ directory
+includes:
+  docker: ./taskfiles/docker.yml
+  test: ./taskfiles/tests.yml
+  quality: ./taskfiles/quality.yml
+  dev: ./taskfiles/dev.yml
+  bench: ./taskfiles/bench.yml
+  docs: ./taskfiles/docs.yml
+
+tasks:
+  default:
+    desc: Show available tasks with categories
+    cmds:
+      - |
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  Data Helpers - Task Runner"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        echo "📋 Available task categories:"
+        echo ""
+        echo "  🐳 docker:*     - Docker container management"
+        echo "  🧪 test:*       - Testing operations"
+        echo "  ✨ quality:*    - Code quality checks (PHPStan, ECS, Rector)"
+        echo "  💻 dev:*        - Development workflows and utilities"
+        echo "  ⚡ bench:*      - Performance benchmarking"
+        echo "  📚 docs:*       - Documentation (Starlight)"
+        echo ""
+        echo "💡 Quick commands:"
+        echo "  task docker:up          Start containers"
+        echo "  task dev:setup          Complete dev setup"
+        echo "  task test:run           Run tests (normal container)"
+        echo "  task docs:dev           Start documentation server"
+        echo "  task test:e2e           Run E2E tests (normal setup)"
+        echo "  task test:matrix        Run complete test matrix (isolated)"
+        echo "  task quality:check      Run all quality checks"
+        echo "  task dev:pre-commit     Pre-commit checks"
+        echo ""
+        echo "🧪 Test matrix (isolated containers):"
+        echo "  task test:matrix:plain      Plain PHP (no frameworks)"
+        echo "  task test:matrix:laravel    All Laravel versions"
+        echo "  task test:matrix:symfony    All Symfony versions"
+        echo "  task test:matrix:doctrine   All Doctrine versions"
+        echo ""
+        echo "🎯 Individual framework tests (isolated):"
+        echo "  task test:laravel10     Laravel 10 (isolated)"
+        echo "  task test:laravel11     Laravel 11 (isolated)"
+        echo "  task test:symfony6      Symfony 6 (isolated)"
+        echo "  task test:symfony7      Symfony 7 (isolated)"
+        echo ""
+        echo "📖 For detailed list: task --list"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+
+
+
+
+
+

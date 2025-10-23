@@ -117,4 +117,3 @@ final class OrderByOperator extends AbstractOperator
         return strcmp($strA, $strB);
     }
 }
-

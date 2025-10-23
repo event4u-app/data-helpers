@@ -28,7 +28,7 @@ if (!function_exists('setupLaravelCache')) {
             fn(): Repository => new Repository(new ArrayStore())
         );
         $app->singleton('cache.store', fn($app) => $app['cache']);
-        // @phpstan-ignore-next-line - Container is compatible with Application for testing
+        /** @phpstan-ignore-next-line unknown */
         Facade::setFacadeApplication($app);
         Container::setInstance($app);
     }

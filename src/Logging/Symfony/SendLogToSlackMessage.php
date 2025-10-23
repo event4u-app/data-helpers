@@ -29,4 +29,3 @@ final readonly class SendLogToSlackMessage
         return $this->payload;
     }
 }
-

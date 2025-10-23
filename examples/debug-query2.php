@@ -19,4 +19,4 @@ $result = DataMapper::query()
     ->get();
 
 echo "Result count: " . count($result) . "\n";
-print_r($result);
+echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;

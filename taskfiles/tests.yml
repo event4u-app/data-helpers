@@ -1,0 +1,471 @@
+version: '3'
+
+# Test Tasks
+# Handles all testing operations
+
+vars:
+  PHP_82: data-helpers-php82
+  PHP_83: data-helpers-php83
+  PHP_84: data-helpers-php84
+  DEFAULT_PHP: "{{.PHP_84}}"
+  OUTPUT_HELPER: ./scripts/task-output.sh
+
+tasks:
+  # ============================================================================
+  # Basic Tests
+  # ============================================================================
+
+  run:
+    desc: Run tests in normal container (use PHP=8.2|8.3|8.4)
+    aliases: [test]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
+
+  unit:
+    desc: Run unit tests only (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Unit Tests (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
+
+  documentation:
+    desc: Run documentation tests (examples + docblock examples)
+    aliases: [test:docs, test:documentation]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Documentation Tests (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --testsuite=Documentation
+
+  run:82:
+    desc: Run tests with PHP 8.2
+    aliases: [test:82]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests (PHP 8.2)" \
+          docker exec {{.PHP_82}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
+
+  run:83:
+    desc: Run tests with PHP 8.3
+    aliases: [test:83]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests (PHP 8.3)" \
+          docker exec {{.PHP_83}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
+
+  run:84:
+    desc: Run tests with PHP 8.4
+    aliases: [test:84]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests (PHP 8.4)" \
+          docker exec {{.PHP_84}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
+
+  coverage:
+    desc: Run tests with coverage (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Running Tests with Coverage" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact
+
+  full:
+    desc: Run full test suite including e2e (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Full Test Suite"
+        echo ""
+        task_step "Running unit tests..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
+        TEST_EXIT=$?
+        echo ""
+        task_step "Running E2E tests..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} bash tests-e2e/run-e2e-tests.sh
+        E2E_EXIT=$?
+        echo ""
+        if [ $TEST_EXIT -eq 0 ] && [ $E2E_EXIT -eq 0 ]; then
+          task_success "All tests passed"
+        else
+          task_error "Some tests failed"
+        fi
+        task_footer
+        exit $(( TEST_EXIT + E2E_EXIT ))
+
+  # ============================================================================
+  # E2E Tests
+  # ============================================================================
+
+  e2e:
+    desc: Run e2e tests in normal setup (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running E2E Tests (Normal Setup)"
+        docker exec {{.PHP | default .DEFAULT_PHP}} bash tests-e2e/run-e2e-tests.sh
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "E2E tests passed"
+        else
+          task_error "E2E tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  e2e:laravel:
+    desc: Run Laravel e2e tests (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Laravel E2E Tests"
+        docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Laravel && composer install --quiet && bash setup.sh && vendor/bin/pest --compact"
+        EXIT_CODE=$?
+        echo ""
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All tests passed!"
+        else
+          task_error "Tests failed!"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  e2e:symfony:
+    desc: Run Symfony e2e tests (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Symfony E2E Tests"
+        docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Symfony && composer install --quiet && vendor/bin/pest --compact"
+        EXIT_CODE=$?
+        echo ""
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All tests passed!"
+        else
+          task_error "Tests failed!"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  # ============================================================================
+  # Framework-Specific Tests (Isolated Containers)
+  # ============================================================================
+
+  plain:
+    desc: Test plain PHP in isolated container (use PHP=8.2|8.3|8.4)
+    cmds:
+      - ./scripts/test-isolated.sh --plain --php {{.PHP | default "8.4"}}
+
+  laravel10:
+    desc: Test with Laravel 10 in isolated container (use PHP=8.2|8.3)
+    aliases: [l10]
+    cmds:
+      - ./scripts/test-isolated.sh --laravel 10 --php {{.PHP | default "8.3"}}
+
+  laravel11:
+    desc: Test with Laravel 11 in isolated container (use PHP=8.2|8.3|8.4)
+    aliases: [l11]
+    cmds:
+      - ./scripts/test-isolated.sh --laravel 11 --php {{.PHP | default "8.4"}}
+
+  symfony6:
+    desc: Test with Symfony 6 in isolated container (use PHP=8.2|8.3|8.4)
+    aliases: [s6]
+    cmds:
+      - ./scripts/test-isolated.sh --symfony 6 --php {{.PHP | default "8.4"}}
+
+  symfony7:
+    desc: Test with Symfony 7 in isolated container (use PHP=8.2|8.3|8.4)
+    aliases: [s7]
+    cmds:
+      - ./scripts/test-isolated.sh --symfony 7 --php {{.PHP | default "8.4"}}
+
+  doctrine2:
+    desc: Test with Doctrine 2 in isolated container (use PHP=8.2|8.3|8.4)
+    aliases: [d2]
+    cmds:
+      - ./scripts/test-isolated.sh --doctrine 2 --php {{.PHP | default "8.4"}}
+
+  doctrine3:
+    desc: Test with Doctrine 3 in isolated container (use PHP=8.2|8.3|8.4)
+    aliases: [d3]
+    cmds:
+      - ./scripts/test-isolated.sh --doctrine 3 --php {{.PHP | default "8.4"}}
+
+  # ============================================================================
+  # Test All
+  # ============================================================================
+
+  all:laravel:
+    aliases: [laravel]
+    desc: Test all Laravel versions
+    cmds:
+      - task: laravel10
+      - task: laravel11
+
+  all:symfony:
+    aliases: [symfony]
+    desc: Test all Symfony versions
+    cmds:
+      - task: symfony6
+      - task: symfony7
+
+  all:doctrine:
+    aliases: [doctrine]
+    desc: Test all Doctrine versions
+    cmds:
+      - task: doctrine2
+      - task: doctrine3
+
+  all:
+    desc: Run all framework tests
+    cmds:
+      - task: all:laravel
+      - task: all:symfony
+      - task: all:doctrine
+
+  # ============================================================================
+  # Test Matrix (Comprehensive - Isolated Framework Tests)
+  # ============================================================================
+
+  matrix:
+    desc: Run complete test matrix (plain + all frameworks isolated)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Complete Test Matrix"
+        ./docker/test-matrix.sh
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All matrix tests passed"
+        else
+          task_error "Some matrix tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  # ============================================================================
+  # Matrix by PHP Version
+  # ============================================================================
+
+  matrix:82:
+    desc: Run all PHP 8.2 tests (plain + all frameworks)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Test Matrix (PHP 8.2)"
+        ./docker/test-matrix.sh -p 8.2
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All PHP 8.2 tests passed"
+        else
+          task_error "Some PHP 8.2 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:83:
+    desc: Run all PHP 8.3 tests (plain + all frameworks)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Test Matrix (PHP 8.3)"
+        ./docker/test-matrix.sh -p 8.3
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All PHP 8.3 tests passed"
+        else
+          task_error "Some PHP 8.3 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:84:
+    desc: Run all PHP 8.4 tests (plain + all frameworks)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Test Matrix (PHP 8.4)"
+        ./docker/test-matrix.sh -p 8.4
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All PHP 8.4 tests passed"
+        else
+          task_error "Some PHP 8.4 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  # ============================================================================
+  # Matrix by Framework (Isolated)
+  # ============================================================================
+
+  matrix:plain:
+    desc: Run all plain PHP tests (no frameworks)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Plain PHP Tests"
+        ./docker/test-matrix.sh -f plain
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All plain PHP tests passed"
+        else
+          task_error "Some plain PHP tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:laravel:
+    desc: Run all Laravel tests (isolated, all versions)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Laravel Tests (Isolated)"
+        ./docker/test-matrix.sh -f laravel
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All Laravel tests passed"
+        else
+          task_error "Some Laravel tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:symfony:
+    desc: Run all Symfony tests (isolated, all versions)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Symfony Tests (Isolated)"
+        ./docker/test-matrix.sh -f symfony
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All Symfony tests passed"
+        else
+          task_error "Some Symfony tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:doctrine:
+    desc: Run all Doctrine tests (isolated, all versions)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Doctrine Tests (Isolated)"
+        ./docker/test-matrix.sh -f doctrine
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All Doctrine tests passed"
+        else
+          task_error "Some Doctrine tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  # ============================================================================
+  # Matrix by Framework Version (Isolated)
+  # ============================================================================
+
+  matrix:laravel10:
+    desc: Run all Laravel 10 tests (isolated, all PHP versions)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Laravel 10 Tests (Isolated)"
+        ./docker/test-matrix.sh -f laravel -v 10
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All Laravel 10 tests passed"
+        else
+          task_error "Some Laravel 10 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:laravel11:
+    desc: Run all Laravel 11 tests (isolated, all PHP versions)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Laravel 11 Tests (Isolated)"
+        ./docker/test-matrix.sh -f laravel -v 11
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All Laravel 11 tests passed"
+        else
+          task_error "Some Laravel 11 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:symfony6:
+    desc: Run all Symfony 6 tests (isolated, all PHP versions)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Symfony 6 Tests (Isolated)"
+        ./docker/test-matrix.sh -f symfony -v 6
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All Symfony 6 tests passed"
+        else
+          task_error "Some Symfony 6 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:symfony7:
+    desc: Run all Symfony 7 tests (isolated, all PHP versions)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Symfony 7 Tests (Isolated)"
+        ./docker/test-matrix.sh -f symfony -v 7
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All Symfony 7 tests passed"
+        else
+          task_error "Some Symfony 7 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:doctrine2:
+    desc: Run all Doctrine 2 tests (isolated, all PHP versions)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Doctrine 2 Tests (Isolated)"
+        ./docker/test-matrix.sh -f doctrine -v 2
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All Doctrine 2 tests passed"
+        else
+          task_error "Some Doctrine 2 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
+
+  matrix:doctrine3:
+    desc: Run all Doctrine 3 tests (isolated, all PHP versions)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Doctrine 3 Tests (Isolated)"
+        ./docker/test-matrix.sh -f doctrine -v 3
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "All Doctrine 3 tests passed"
+        else
+          task_error "Some Doctrine 3 tests failed"
+        fi
+        task_footer
+        exit $EXIT_CODE

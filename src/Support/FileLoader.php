@@ -69,8 +69,9 @@ final class FileLoader
         $result = json_decode($content, true);
 
         if (JSON_ERROR_NONE !== json_last_error()) {
+            $error = json_last_error_msg();
             throw new InvalidArgumentException(
-                'Failed to parse JSON file: ' . $filePath . '. Error: ' . json_last_error_msg()
+                'Failed to parse JSON file: ' . $filePath . '. Error: ' . $error
             );
         }
 

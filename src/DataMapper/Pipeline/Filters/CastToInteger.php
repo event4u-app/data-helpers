@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Casts numeric values to integers.
@@ -14,7 +15,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
  * Skips null values and non-numeric strings.
  *
  * Example:
- *   DataMapper::pipe([CastToInteger::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToInteger::class])->map()->getTarget();
  */
 final class CastToInteger implements FilterInterface
 {
@@ -56,7 +57,7 @@ final class CastToInteger implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string
@@ -70,4 +71,3 @@ final class CastToInteger implements FilterInterface
         return [];
     }
 }
-

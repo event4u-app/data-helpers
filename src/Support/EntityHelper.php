@@ -298,8 +298,8 @@ class EntityHelper
                     return null;
                 }
 
-                $lines = explode("\n", $source);
-                $methodBody = implode("\n", array_slice($lines, $startLine - 1, $endLine - $startLine + 1));
+                $lines = explode(PHP_EOL, $source);
+                $methodBody = implode(PHP_EOL, array_slice($lines, $startLine - 1, $endLine - $startLine + 1));
 
                 // Look for patterns like:
                 // - $this->hasMany(Department::class)

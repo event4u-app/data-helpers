@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Support;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\Enums\DataMapperHook;
+use event4u\DataHelpers\Support\CallbackHelper;
 
 /**
  * Handles hook invocation and normalization.
@@ -140,7 +141,7 @@ class HookInvoker
     }
 
     /**
-     * Invoke a value-transforming hook (preTransform, postTransform).
+     * Invoke a value-transforming hook (beforeTransform, afterTransform).
      * The callable signature should be: function(mixed $value, array|HookContext $context): mixed
      * When a list or associative list of hooks is provided, they are applied in order.
      *
@@ -249,29 +250,33 @@ class HookInvoker
 
     /**
      * Invoke a callback with automatic context conversion (array vs object).
-     * Uses reflection to detect if callback expects array or HookContext.
+     * Uses CallbackHelper for unified callback execution.
      *
-     * @param callable(HookContext): mixed $callback
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     private static function invokeCallback(callable $callback, HookContext $context): mixed
     {
-        return $callback($context);
+        /** @phpstan-ignore-next-line - CallbackHelper accepts various callable formats */
+        return CallbackHelper::execute($callback, $context);
     }
 
     /**
      * Invoke a value-transforming callback with automatic context conversion.
+     * Uses CallbackHelper for unified callback execution.
      *
-     * @param callable(mixed, HookContext): mixed $callback
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     private static function invokeValueCallback(callable $callback, mixed $value, HookContext $context): mixed
     {
-        return $callback($value, $context);
+        /** @phpstan-ignore-next-line - CallbackHelper accepts various callable formats */
+        return CallbackHelper::execute($callback, $value, $context);
     }
 
     /**
      * Invoke a target-mutating callback with automatic context conversion.
+     * Uses CallbackHelper for unified callback execution.
      *
-     * @param callable(mixed, HookContext, mixed): mixed $callback
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     private static function invokeTargetCallback(
         callable $callback,
@@ -279,6 +284,7 @@ class HookInvoker
         HookContext $context,
         mixed $writtenValue
     ): mixed {
-        return $callback($target, $context, $writtenValue);
+        /** @phpstan-ignore-next-line - CallbackHelper accepts various callable formats */
+        return CallbackHelper::execute($callback, $target, $context, $writtenValue);
     }
 }

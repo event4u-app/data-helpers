@@ -19,4 +19,3 @@ class EmployeeDto
     /** @var array<int, ProjectDto> */
     public array $projects = [];
 }
-

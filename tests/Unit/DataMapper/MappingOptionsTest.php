@@ -10,7 +10,12 @@ test('MappingOptions → it uses default options', function(): void {
     $target = [];
     $mapping = ['fullName' => '{{ name }}', 'years' => '{{ age }}'];
 
-    $result = DataMapper::map($source, $target, $mapping, MappingOptions::default());
+    $result = DataMapper::source($source)
+        ->target($target)
+        ->template($mapping)
+        ->options(MappingOptions::default())
+        ->map()
+        ->getTarget();
 
     expect($result)->toBe(['fullName' => 'John']);
 });
@@ -20,7 +25,12 @@ test('MappingOptions → it includes null values with includeNull()', function()
     $target = [];
     $mapping = ['fullName' => '{{ name }}', 'years' => '{{ age }}'];
 
-    $result = DataMapper::map($source, $target, $mapping, MappingOptions::includeNull());
+    $result = DataMapper::source($source)
+        ->target($target)
+        ->template($mapping)
+        ->options(MappingOptions::includeNull())
+        ->map()
+        ->getTarget();
 
     expect($result)->toBe(['fullName' => 'John', 'years' => null]);
 });
@@ -30,7 +40,12 @@ test('MappingOptions → it reindexes wildcard results with reindexed()', functi
     $target = [];
     $mapping = ['values.*' => '{{ items.* }}'];
 
-    $result = DataMapper::map($source, $target, $mapping, MappingOptions::reindexed());
+    $result = DataMapper::source($source)
+        ->target($target)
+        ->template($mapping)
+        ->options(MappingOptions::reindexed())
+        ->map()
+        ->getTarget();
 
     expect($result)->toBe(['values' => [0 => 'a', 1 => 'b', 2 => 'c']]);
 });
@@ -44,7 +59,12 @@ test('MappingOptions → it chains multiple with methods', function(): void {
         ->withSkipNull(false)
         ->withTrimValues(false);
 
-    $result = DataMapper::map($source, $target, $mapping, $options);
+    $result = DataMapper::source($source)
+        ->target($target)
+        ->template($mapping)
+        ->options($options)
+        ->map()
+        ->getTarget();
 
     expect($result)->toBe(['fullName' => '  John  ', 'years' => null]);
 });
@@ -54,7 +74,9 @@ test('MappingOptions → it works with mapFromFile()', function(): void {
     $target = [];
     $mapping = ['companyName' => '{{ company.name }}'];
 
-    $result = DataMapper::mapFromFile($filePath, $target, $mapping, MappingOptions::default());
+    $result = DataMapper::sourceFile($filePath)->target($target)->template($mapping)->options(
+        MappingOptions::default()
+    )->map()->getTarget();
 
     expect($result)->toHaveKey('companyName')
         ->and($result['companyName'])->toBe('TechCorp Solutions');
@@ -66,7 +88,11 @@ test('MappingOptions → backward compatibility with old API', function(): void 
     $mapping = ['fullName' => '{{ name }}', 'years' => '{{ age }}'];
 
     // Old API still works
-    $result = DataMapper::map($source, $target, $mapping, true, false, [], true, false);
+    $result = DataMapper::source($source)
+        ->target($target)
+        ->template($mapping)
+        ->map()
+        ->getTarget();
 
     expect($result)->toBe(['fullName' => 'John']);
 });
@@ -86,4 +112,3 @@ test('MappingOptions → it converts to array', function(): void {
         'caseInsensitiveReplace' => false,
     ]);
 });
-

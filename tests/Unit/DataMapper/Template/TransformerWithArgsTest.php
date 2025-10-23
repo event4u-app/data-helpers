@@ -10,7 +10,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | default }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('');
         });
@@ -19,7 +19,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | default }}'];
             $sources = ['data' => ['value' => '']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('');
         });
@@ -28,7 +28,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | default }}'];
             $sources = ['data' => ['value' => 'Hello']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Hello');
         });
@@ -37,7 +37,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | default:"Unknown" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Unknown');
         });
@@ -46,7 +46,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | default:"Unknown" }}'];
             $sources = ['data' => ['value' => '']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Unknown');
         });
@@ -55,7 +55,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | default:"0" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('0');
         });
@@ -64,7 +64,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | default:0 }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('0');
         });
@@ -73,7 +73,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | default:"Unknown" }}'];
             $sources = ['data' => ['value' => 0]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(0);
         });
@@ -84,7 +84,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.tags | join }}'];
             $sources = ['data' => ['tags' => ['php', 'laravel', 'testing']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('php, laravel, testing');
         });
@@ -93,7 +93,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.tags | join:" | " }}'];
             $sources = ['data' => ['tags' => ['php', 'laravel', 'testing']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('php | laravel | testing');
         });
@@ -102,7 +102,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.tags | join:"" }}'];
             $sources = ['data' => ['tags' => ['a', 'b', 'c']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('abc');
         });
@@ -111,7 +111,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.tags | join:"," }}'];
             $sources = ['data' => ['tags' => ['one', 'two', 'three']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('one,two,three');
         });
@@ -120,7 +120,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | join }}'];
             $sources = ['data' => ['value' => 'not-an-array']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('not-an-array');
         });
@@ -131,7 +131,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | between:0:100 }}'];
             $sources = ['data' => ['value' => 50]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBeTrue();
         });
@@ -140,7 +140,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | between:0:100 }}'];
             $sources = ['data' => ['value' => 150]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBeFalse();
         });
@@ -149,7 +149,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | between:0:100 }}'];
             $sources = ['data' => ['value' => -50]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBeFalse();
         });
@@ -157,8 +157,8 @@ describe('Transformers with Arguments', function(): void {
         it('returns true for boundary values (inclusive)', function(): void {
             $template = ['result' => '{{ data.value | between:0:100 }}'];
 
-            $result1 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 0]]);
-            $result2 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 100]]);
+            $result1 = DataMapper::source(['data' => ['value' => 0]])->template($template)->map()->getTarget();
+            $result2 = DataMapper::source(['data' => ['value' => 100]])->template($template)->map()->getTarget();
 
             expect($result1['result'])->toBeTrue();
             expect($result2['result'])->toBeTrue();
@@ -167,9 +167,9 @@ describe('Transformers with Arguments', function(): void {
         it('works with strict mode (exclusive boundaries)', function(): void {
             $template = ['result' => '{{ data.value | between:0:100:strict }}'];
 
-            $result1 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 0]]);
-            $result2 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 50]]);
-            $result3 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 100]]);
+            $result1 = DataMapper::source(['data' => ['value' => 0]])->template($template)->map()->getTarget();
+            $result2 = DataMapper::source(['data' => ['value' => 50]])->template($template)->map()->getTarget();
+            $result3 = DataMapper::source(['data' => ['value' => 100]])->template($template)->map()->getTarget();
 
             expect($result1['result'])->toBeFalse(); // 0 is not > 0
             expect($result2['result'])->toBeTrue();  // 50 is > 0 and < 100
@@ -179,8 +179,8 @@ describe('Transformers with Arguments', function(): void {
         it('works with negative ranges', function(): void {
             $template = ['result' => '{{ data.value | between:-10:10 }}'];
 
-            $result1 = DataMapper::mapFromTemplate($template, ['data' => ['value' => -15]]);
-            $result2 = DataMapper::mapFromTemplate($template, ['data' => ['value' => 0]]);
+            $result1 = DataMapper::source(['data' => ['value' => -15]])->template($template)->map()->getTarget();
+            $result2 = DataMapper::source(['data' => ['value' => 0]])->template($template)->map()->getTarget();
 
             expect($result1['result'])->toBeFalse();
             expect($result2['result'])->toBeTrue();
@@ -190,7 +190,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | between:0:1 }}'];
             $sources = ['data' => ['value' => 0.75]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBeTrue();
         });
@@ -199,7 +199,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | between:0:100 }}'];
             $sources = ['data' => ['value' => 'not-a-number']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBeFalse();
         });
@@ -208,7 +208,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | between:0 }}'];
             $sources = ['data' => ['value' => 150]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBeFalse();
         });
@@ -219,7 +219,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | clamp:0:100 }}'];
             $sources = ['data' => ['value' => 150]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(100.0);
         });
@@ -228,7 +228,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | clamp:0:100 }}'];
             $sources = ['data' => ['value' => -50]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(0.0);
         });
@@ -237,7 +237,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | clamp:0:100 }}'];
             $sources = ['data' => ['value' => 50]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(50.0);
         });
@@ -246,7 +246,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | clamp:-10:10 }}'];
             $sources = ['data' => ['value' => -15]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(-10.0);
         });
@@ -255,7 +255,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | clamp:0:1 }}'];
             $sources = ['data' => ['value' => 0.75]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(0.75);
         });
@@ -264,7 +264,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | clamp:0:100 }}'];
             $sources = ['data' => ['value' => 'not-a-number']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('not-a-number');
         });
@@ -273,7 +273,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | clamp:0 }}'];
             $sources = ['data' => ['value' => 150]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(150);
         });
@@ -284,7 +284,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | default:"unknown" | upper }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('UNKNOWN');
         });
@@ -293,7 +293,7 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.tags | join:" - " | trim }}'];
             $sources = ['data' => ['tags' => ['php', 'laravel']]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('php - laravel');
         });
@@ -302,10 +302,9 @@ describe('Transformers with Arguments', function(): void {
             $template = ['result' => '{{ data.value | clamp:0:100 | default:"N/A" }}'];
             $sources = ['data' => ['value' => 50]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(50.0);
         });
     });
 });
-

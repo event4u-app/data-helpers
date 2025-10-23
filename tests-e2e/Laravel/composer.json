@@ -10,7 +10,8 @@
   },
   "require-dev": {
     "pestphp/pest": "^3.0",
-    "pestphp/pest-plugin-laravel": "^3.0"
+    "pestphp/pest-plugin-laravel": "^3.0",
+    "fakerphp/faker": "^1.24"
   },
   "autoload": {
     "psr-4": {

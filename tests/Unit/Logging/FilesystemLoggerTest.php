@@ -162,4 +162,3 @@ describe('FilesystemLogger', function(): void {
         expect($content)->toContain('Test exception');
     });
 });
-

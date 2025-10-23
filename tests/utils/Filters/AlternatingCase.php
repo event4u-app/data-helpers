@@ -6,6 +6,7 @@ namespace Tests\utils\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Transforms strings to alternating case (every 2nd, 4th, 6th... character uppercase).
@@ -42,7 +43,7 @@ final class AlternatingCase implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string
@@ -56,4 +57,3 @@ final class AlternatingCase implements FilterInterface
         return ['alternating', 'alt_case', 'zigzag'];
     }
 }
-

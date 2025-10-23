@@ -118,4 +118,3 @@ enum LogEvent: string
         };
     }
 }
-

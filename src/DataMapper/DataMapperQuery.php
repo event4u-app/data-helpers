@@ -7,6 +7,8 @@ namespace event4u\DataHelpers\DataMapper;
 use Closure;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\DataMapper\Support\MappingFacade;
+use InvalidArgumentException;
 
 /**
  * Fluent query builder for DataMapper with Laravel-style syntax.
@@ -77,7 +79,7 @@ class DataMapperQuery
      *
      * @param array<int, FilterInterface> $filters Filter instances
      */
-    public function pipe(array $filters): self
+    public function pipeline(array $filters): self
     {
         $this->pipelineFilters = $filters;
 
@@ -242,7 +244,12 @@ class DataMapperQuery
             $this->operatorOrder[] = 'ORDER BY';
         }
 
-        $this->orderByFields[$field] = strtoupper($direction);
+        $normalizedDirection = strtoupper($direction);
+        if (!in_array($normalizedDirection, ['ASC', 'DESC'], true)) {
+            throw new InvalidArgumentException('Invalid ORDER BY direction: ' . $direction . '. Must be ASC or DESC.');
+        }
+
+        $this->orderByFields[$field] = $normalizedDirection;
 
         return $this;
     }
@@ -511,14 +518,24 @@ class DataMapperQuery
 
         // Use pipeline if filters are set
         if ([] !== $this->pipelineFilters) {
-            $result = DataMapper::pipe($this->pipelineFilters)
-                ->mapFromTemplate($template, $this->sources, $this->skipNull, $this->reindexWildcard);
+            $result = DataMapper::template($template)
+                ->sources($this->sources)
+                ->skipNull($this->skipNull)
+                ->reindexWildcard($this->reindexWildcard)
+                ->pipeline($this->pipelineFilters)
+                ->map()
+                ->getTarget();
         } else {
-            $result = DataMapper::mapFromTemplate($template, $this->sources, $this->skipNull, $this->reindexWildcard);
+            $result = MappingFacade::mapFromTemplate(
+                $template,
+                $this->sources,
+                $this->skipNull,
+                $this->reindexWildcard
+            );
         }
 
         // If we have a primary source, return the wildcard data from it
-        if (null !== $this->primarySource && isset($result[$this->primarySource])) {
+        if (null !== $this->primarySource && is_array($result) && isset($result[$this->primarySource])) {
             $sourceData = $result[$this->primarySource];
 
             // If the result has a '*' key (wildcard mapping), return that
@@ -531,7 +548,7 @@ class DataMapperQuery
             }
         }
 
-        return $result;
+        return is_array($result) ? $result : [];
     }
 
     /**

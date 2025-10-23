@@ -35,4 +35,3 @@ interface OperatorInterface
      */
     public function getAliases(): array;
 }
-

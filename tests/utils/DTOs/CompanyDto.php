@@ -34,4 +34,3 @@ class CompanyDto
     /** @var array<int, ProjectDto> */
     public array $projects = [];
 }
-

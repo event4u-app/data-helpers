@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace Tests\Integration\Config;
 
 use event4u\DataHelpers\DataHelpersConfig;
-use event4u\DataHelpers\Laravel\DataHelpersServiceProvider;
+use event4u\DataHelpers\Frameworks\Laravel\DataHelpersServiceProvider;
 use Illuminate\Container\Container;
 
-/**
- * @group laravel
- */
 describe('Laravel Config Integration', function(): void {
     beforeEach(function(): void {
         // Skip if Laravel is not available
@@ -83,7 +80,6 @@ describe('Laravel Config Integration', function(): void {
 
     it('provides publishable config path', function(): void {
         $app = new Container();
-        // @phpstan-ignore-next-line - Container is compatible with Application for testing
         $provider = new DataHelpersServiceProvider($app);
 
         // The config file should exist
@@ -99,4 +95,3 @@ describe('Laravel Config Integration', function(): void {
     !class_exists('Illuminate\Container\Container'),
     'Laravel is not available'
 );
-

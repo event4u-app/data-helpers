@@ -50,4 +50,3 @@ describe('ArrayableHelper', function(): void {
         });
     });
 });
-

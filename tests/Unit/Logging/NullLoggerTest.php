@@ -37,4 +37,3 @@ describe('NullLogger', function(): void {
         expect(true)->toBeTrue(); // No exception thrown
     });
 });
-

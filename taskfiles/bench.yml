@@ -1,0 +1,60 @@
+version: '3'
+
+# Benchmark Tasks
+# Handles performance benchmarking
+
+vars:
+  PHP_82: data-helpers-php82
+  PHP_83: data-helpers-php83
+  PHP_84: data-helpers-php84
+  DEFAULT_PHP: "{{.PHP_84}}"
+  OUTPUT_HELPER: ./scripts/task-output.sh
+
+tasks:
+  run:
+    desc: Run benchmarks (use PHP=8.2|8.3|8.4)
+    aliases: [benchmark]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Running Benchmarks" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpbench run --report=table
+
+  readme:
+    desc: Update benchmark results in README (use PHP=8.2|8.3|8.4)
+    aliases: [benchmark:readme]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Updating Benchmark Results in README" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-benchmark-results.php
+
+  dto:
+    desc: Run DTO benchmarks (Traditional vs SimpleDTO)
+    aliases: [bench:dto]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Running DTO Benchmarks" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/dto-benchmark.php
+
+  dto:readme:
+    desc: Update DTO benchmark results in docs/simple-dto.md
+    aliases: [bench:dto:readme]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Updating DTO Benchmark Results" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-dto-benchmark-results.php
+
+  all:
+    desc: Run all benchmarks and update documentation
+    cmds:
+      - task: run
+      - task: readme
+      - task: dto
+      - task: dto:readme
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_success "All benchmarks completed and documentation updated"
+

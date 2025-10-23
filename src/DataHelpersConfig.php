@@ -85,4 +85,3 @@ final class DataHelpersConfig
         return ConfigHelper::getInstance()->getSource();
     }
 }
-

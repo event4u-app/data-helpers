@@ -161,7 +161,7 @@ final readonly class PrometheusLogger implements DataHelpersLogger
 
         $parts = [];
         foreach ($labels as $key => $value) {
-            $parts[] = sprintf('%s="%s"', $key, $value);
+            $parts[] = $key . '="' . $value . '"';
         }
 
         return '{' . implode(',', $parts) . '}';
@@ -176,4 +176,3 @@ final readonly class PrometheusLogger implements DataHelpersLogger
         }
     }
 }
-

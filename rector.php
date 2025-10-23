@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Concat\JoinStringConcatRector;
+use Rector\CodeQuality\Rector\FuncCall\SortNamedParamRector;
 use Rector\CodeQuality\Rector\Identical\SimplifyBoolIdenticalTrueRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\Switch_\SwitchTrueToIfRector;
 use Rector\CodingStyle\Rector\ClassMethod\MakeInheritedMethodVisibilitySameAsParentRector;
+use Rector\CodingStyle\Rector\FuncCall\FunctionFirstClassCallableRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\CodingStyle\Rector\Stmt\RemoveUselessAliasInUseStatementRector;
 use Rector\CodingStyle\Rector\String_\SymplifyQuoteEscapeRector;
@@ -33,6 +35,7 @@ use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableR
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php73\Rector\BooleanOr\IsCountableRector;
 use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
+use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
 use Rector\Renaming\Rector\FuncCall\RenameFunctionRector;
 use Rector\Set\ValueObject\LevelSetList;
@@ -65,6 +68,7 @@ return RectorConfig::configure()
     ->withSkipPath(__DIR__ . '/tests-e2e/*/vendor')
     ->withSkipPath(__DIR__ . '/tests-e2e/*/composer.lock')
     ->withRootFiles()
+    ->withPHPStanConfigs([__DIR__ . '/phpstan.neon'])
     ->withPhpSets(php82: true)
     ->withSets([
         LevelSetList::UP_TO_PHP_82,
@@ -153,5 +157,7 @@ return RectorConfig::configure()
         SymplifyQuoteEscapeRector::class,
         DisallowedEmptyRuleFixerRector::class,
         RemoveUnusedPrivateMethodRector::class,
+        SortNamedParamRector::class,
+        NullToStrictStringFuncCallArgRector::class,
+        FunctionFirstClassCallableRector::class,
     ]);
-

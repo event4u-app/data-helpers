@@ -214,4 +214,3 @@ final class MappingReverser
         return $array;
     }
 }
-

@@ -112,4 +112,3 @@ final class FrameworkLogger implements DataHelpersLogger
         return $level->isAtLeast($this->minLevel);
     }
 }
-

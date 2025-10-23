@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 
-describe('DataMapper::mapFromFile() to Array', function(): void {
+describe('DataMapper to Array', function(): void {
     describe('Basic array mapping', function(): void {
         it('loads identical data from JSON and XML files', function(): void {
             $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
@@ -18,7 +18,9 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'company_email' => '{{ company.email }}',
                 'company_phone' => '{{ company.phone }}',
             ];
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonTarget, $jsonMapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonTarget)->template(
+                $jsonMapping
+            )->map()->getTarget();
 
             // Map from XML (different structure)
             $xmlTarget = [];
@@ -28,7 +30,9 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'company_email' => '{{ email }}',
                 'company_phone' => '{{ phone }}',
             ];
-            $xmlResult = DataMapper::mapFromFile($xmlFile, $xmlTarget, $xmlMapping);
+            $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlTarget)->template(
+                $xmlMapping
+            )->map()->getTarget();
 
             // Compare string values - should be identical
             expect($jsonResult['company_name'])->toBe($xmlResult['company_name']);
@@ -57,7 +61,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'value' => '{{ value }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeArray();
             expect($result['name'])->toBe('Test');
@@ -89,7 +93,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'department_employee_counts' => '{{ company.departments.*.employee_count }}',
                 'department_manager_names' => '{{ company.departments.*.manager_name }}',
             ];
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Verify Company data
             expect($result)->toBeArray();
@@ -144,7 +148,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'department_employee_counts' => '{{ departments.department.*.employee_count }}',
                 'department_manager_names' => '{{ departments.department.*.manager_name }}',
             ];
-            $result = DataMapper::mapFromFile($xmlFile, $target, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Verify Company data (XML values are strings, but casts should convert them)
             expect($result)->toBeArray();
@@ -197,7 +201,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeArray();
             expect($result['all_departments'])->toBeArray();
@@ -230,7 +234,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $target, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeArray();
             expect($result['all_departments'])->toBeArray();
@@ -258,7 +262,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'dept_budgets' => '{{ company.departments.*.budget }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Verify all arrays have 3 elements
             expect($result['dept_names'])->toBeArray();
@@ -291,7 +295,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'dept_budgets' => '{{ departments.department.*.budget }}',
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $target, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Verify all arrays have 3 elements
             expect($result['dept_names'])->toBeArray();
@@ -327,7 +331,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'dept2_code' => '{{ company.departments.2.code }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Verify individual access
             expect($result['dept0_name'])->toBe('Engineering');
@@ -353,7 +357,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'dept2_code' => '{{ departments.department.2.code }}',
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $target, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
             // Verify individual access
             expect($result['dept0_name'])->toBe('Engineering');
@@ -375,7 +379,9 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'names' => '{{ company.departments.*.name }}',
                 'codes' => '{{ company.departments.*.code }}',
             ];
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonTarget, $jsonMapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonTarget)->template(
+                $jsonMapping
+            )->map()->getTarget();
 
             // Map from XML
             $xmlTarget = [];
@@ -383,7 +389,9 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'names' => '{{ departments.department.*.name }}',
                 'codes' => '{{ departments.department.*.code }}',
             ];
-            $xmlResult = DataMapper::mapFromFile($xmlFile, $xmlTarget, $xmlMapping);
+            $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlTarget)->template(
+                $xmlMapping
+            )->map()->getTarget();
 
             // Compare - should be identical
             expect($jsonResult['names'])->toEqual($xmlResult['names']);
@@ -405,7 +413,9 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'dept_names' => '{{ company.departments.*.name }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping, true, true); // reindexWildcard = true
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->reindexWildcard(
+                true
+            )->map()->getTarget(); // reindexWildcard = true
 
             // Verify array is reindexed (0, 1, 2)
             expect($result['dept_names'])->toBeArray();
@@ -427,7 +437,9 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'dept_names' => '{{ company.departments.*.name }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping, true, false); // reindexWildcard = false
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->reindexWildcard(
+                false
+            )->map()->getTarget(); // reindexWildcard = false
 
             // Verify array keeps original indices (0, 1, 2)
             expect($result['dept_names'])->toBeArray();
@@ -452,7 +464,9 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'first_dept' => '{{ company.departments.0.name }}',
                 'dept_count' => '{{ company.employee_count }}',
             ];
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonTarget, $jsonMapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonTarget)->template(
+                $jsonMapping
+            )->map()->getTarget();
 
             // Map complete structure from XML
             $xmlTarget = [];
@@ -462,7 +476,9 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'first_dept' => '{{ departments.department.0.name }}',
                 'dept_count' => '{{ employee_count }}',
             ];
-            $xmlResult = DataMapper::mapFromFile($xmlFile, $xmlTarget, $xmlMapping);
+            $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlTarget)->template(
+                $xmlMapping
+            )->map()->getTarget();
 
             // Compare company names
             expect($jsonResult['company_name'])->toBe($xmlResult['company_name']);
@@ -519,7 +535,7 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
                 'amount' => '{{ total_amount }}',
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $target, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeArray();
             expect($result['number'])->toBe('PRJ-12345');
@@ -534,7 +550,10 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
             $target = [];
             $mapping = ['number' => 'number'];
 
-            DataMapper::mapFromFile('/non/existent/file.xml', $target, $mapping);
+            $result = DataMapper::sourceFile('/non/existent/file.xml')->target($target)->template(
+                $mapping
+            )->map()->getTarget();
+            expect($result)->toBeArray();
         })->throws(InvalidArgumentException::class, 'File not found');
 
         it('throws exception for unsupported file format', function(): void {
@@ -546,7 +565,8 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
             $mapping = ['number' => 'number'];
 
             try {
-                DataMapper::mapFromFile($txtFile, $target, $mapping);
+                $result = DataMapper::sourceFile($txtFile)->target($target)->template($mapping)->map()->getTarget();
+                expect($result)->toBeArray();
             } finally {
                 unlink($txtFile);
             }
@@ -561,7 +581,8 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
             $mapping = ['number' => 'number'];
 
             try {
-                DataMapper::mapFromFile($xmlFile, $target, $mapping);
+                $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
+                expect($result)->toBeArray();
             } finally {
                 unlink($xmlFile);
             }
@@ -576,7 +597,8 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
             $mapping = ['number' => 'number'];
 
             try {
-                DataMapper::mapFromFile($jsonFile, $target, $mapping);
+                $result = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->map()->getTarget();
+                expect($result)->toBeArray();
             } finally {
                 unlink($jsonFile);
             }
@@ -600,12 +622,16 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
             ];
 
             // With skipNull = true (default)
-            $result1 = DataMapper::mapFromFile($jsonFile, $target, $mapping, true);
+            $result1 = DataMapper::sourceFile($jsonFile)->target($target)->template($mapping)->skipNull(
+                true
+            )->map()->getTarget();
             expect($result1['description'])->toBe('existing value'); // Not overwritten
 
             // With skipNull = false
             $target2 = ['description' => 'existing value'];
-            $result2 = DataMapper::mapFromFile($jsonFile, $target2, $mapping, false);
+            $result2 = DataMapper::sourceFile($jsonFile)->target($target2)->template($mapping)->skipNull(
+                false
+            )->map()->getTarget();
             expect($result2['description'])->toBeNull(); // Overwritten with null
 
             // Cleanup
@@ -613,4 +639,3 @@ describe('DataMapper::mapFromFile() to Array', function(): void {
         });
     });
 });
-

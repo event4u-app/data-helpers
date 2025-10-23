@@ -27,19 +27,21 @@ final class Department extends Model
 
     /**
      * Get the company that owns the department.
-     * @phpstan-ignore-next-line missingType.generics
      */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class); // @phpstan-ignore-line
+        return $this->belongsTo(Company::class);
     }
 
     /**
      * Get the employees for the department.
-     * @phpstan-ignore-next-line missingType.generics
      */
+    /** @phpstan-ignore-next-line unknown */
+    /** @phpstan-ignore-next-line unknown */
     public function employees(): HasMany
     {
-        return $this->hasMany(Employee::class); // @phpstan-ignore-line
+        return $this->hasMany(Employee::class);
     }
 }

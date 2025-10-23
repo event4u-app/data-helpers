@@ -78,7 +78,7 @@ final class OperatorRegistry
         $normalizedName = self::normalizeName($name);
 
         if (!isset(self::$operators[$normalizedName])) {
-            throw new InvalidArgumentException(sprintf("Operator '%s' is not registered", $name));
+            throw new InvalidArgumentException('Operator "' . $name . '" is not registered');
         }
 
         return self::$operators[$normalizedName];
@@ -135,4 +135,3 @@ final class OperatorRegistry
         self::$builtInRegistered = true;
     }
 }
-

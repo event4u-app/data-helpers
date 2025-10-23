@@ -499,4 +499,3 @@ final class DataFilter
         }
     }
 }
-

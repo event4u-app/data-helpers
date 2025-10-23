@@ -215,4 +215,3 @@ final readonly class SlackLogger implements DataHelpersLogger
         $this->sendSync($payload);
     }
 }
-

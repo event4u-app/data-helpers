@@ -299,4 +299,3 @@ describe('DataAccessor Typed Getters', function(): void {
         });
     });
 });
-

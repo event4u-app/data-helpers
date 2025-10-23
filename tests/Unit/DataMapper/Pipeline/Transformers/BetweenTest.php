@@ -8,9 +8,9 @@ describe('Between Transformer', function(): void {
     it('returns true for value within range (inclusive by default)', function(): void {
         $template = ['result' => '{{ value | between:3:5 }}'];
 
-        $result1 = DataMapper::mapFromTemplate($template, ['value' => 3]);
-        $result2 = DataMapper::mapFromTemplate($template, ['value' => 4]);
-        $result3 = DataMapper::mapFromTemplate($template, ['value' => 5]);
+        $result1 = DataMapper::source(['value' => 3])->template($template)->map()->getTarget();
+        $result2 = DataMapper::source(['value' => 4])->template($template)->map()->getTarget();
+        $result3 = DataMapper::source(['value' => 5])->template($template)->map()->getTarget();
 
         expect($result1['result'])->toBeTrue();
         expect($result2['result'])->toBeTrue();
@@ -20,10 +20,10 @@ describe('Between Transformer', function(): void {
     it('returns false for value outside range', function(): void {
         $template = ['result' => '{{ value | between:3:5 }}'];
 
-        $result1 = DataMapper::mapFromTemplate($template, ['value' => 2]);
-        $result2 = DataMapper::mapFromTemplate($template, ['value' => 6]);
-        $result3 = DataMapper::mapFromTemplate($template, ['value' => 0]);
-        $result4 = DataMapper::mapFromTemplate($template, ['value' => 10]);
+        $result1 = DataMapper::source(['value' => 2])->template($template)->map()->getTarget();
+        $result2 = DataMapper::source(['value' => 6])->template($template)->map()->getTarget();
+        $result3 = DataMapper::source(['value' => 0])->template($template)->map()->getTarget();
+        $result4 = DataMapper::source(['value' => 10])->template($template)->map()->getTarget();
 
         expect($result1['result'])->toBeFalse();
         expect($result2['result'])->toBeFalse();
@@ -35,11 +35,11 @@ describe('Between Transformer', function(): void {
         $template = ['result' => '{{ value | between:3:5:strict }}'];
 
         // In strict mode, 3 and 5 are NOT included
-        $result1 = DataMapper::mapFromTemplate($template, ['value' => 3]);
-        $result2 = DataMapper::mapFromTemplate($template, ['value' => 4]);
-        $result3 = DataMapper::mapFromTemplate($template, ['value' => 5]);
-        $result4 = DataMapper::mapFromTemplate($template, ['value' => 2]);
-        $result5 = DataMapper::mapFromTemplate($template, ['value' => 6]);
+        $result1 = DataMapper::source(['value' => 3])->template($template)->map()->getTarget();
+        $result2 = DataMapper::source(['value' => 4])->template($template)->map()->getTarget();
+        $result3 = DataMapper::source(['value' => 5])->template($template)->map()->getTarget();
+        $result4 = DataMapper::source(['value' => 2])->template($template)->map()->getTarget();
+        $result5 = DataMapper::source(['value' => 6])->template($template)->map()->getTarget();
 
         expect($result1['result'])->toBeFalse(); // 3 is not > 3
         expect($result2['result'])->toBeTrue();  // 4 is > 3 and < 5
@@ -51,11 +51,11 @@ describe('Between Transformer', function(): void {
     it('works with negative ranges', function(): void {
         $template = ['result' => '{{ value | between:-5:5 }}'];
 
-        $result1 = DataMapper::mapFromTemplate($template, ['value' => -5]);
-        $result2 = DataMapper::mapFromTemplate($template, ['value' => 0]);
-        $result3 = DataMapper::mapFromTemplate($template, ['value' => 5]);
-        $result4 = DataMapper::mapFromTemplate($template, ['value' => -6]);
-        $result5 = DataMapper::mapFromTemplate($template, ['value' => 6]);
+        $result1 = DataMapper::source(['value' => -5])->template($template)->map()->getTarget();
+        $result2 = DataMapper::source(['value' => 0])->template($template)->map()->getTarget();
+        $result3 = DataMapper::source(['value' => 5])->template($template)->map()->getTarget();
+        $result4 = DataMapper::source(['value' => -6])->template($template)->map()->getTarget();
+        $result5 = DataMapper::source(['value' => 6])->template($template)->map()->getTarget();
 
         expect($result1['result'])->toBeTrue();
         expect($result2['result'])->toBeTrue();
@@ -67,11 +67,11 @@ describe('Between Transformer', function(): void {
     it('works with decimal values', function(): void {
         $template = ['result' => '{{ value | between:1.5:3.5 }}'];
 
-        $result1 = DataMapper::mapFromTemplate($template, ['value' => 1.5]);
-        $result2 = DataMapper::mapFromTemplate($template, ['value' => 2.5]);
-        $result3 = DataMapper::mapFromTemplate($template, ['value' => 3.5]);
-        $result4 = DataMapper::mapFromTemplate($template, ['value' => 1.4]);
-        $result5 = DataMapper::mapFromTemplate($template, ['value' => 3.6]);
+        $result1 = DataMapper::source(['value' => 1.5])->template($template)->map()->getTarget();
+        $result2 = DataMapper::source(['value' => 2.5])->template($template)->map()->getTarget();
+        $result3 = DataMapper::source(['value' => 3.5])->template($template)->map()->getTarget();
+        $result4 = DataMapper::source(['value' => 1.4])->template($template)->map()->getTarget();
+        $result5 = DataMapper::source(['value' => 3.6])->template($template)->map()->getTarget();
 
         expect($result1['result'])->toBeTrue();
         expect($result2['result'])->toBeTrue();
@@ -83,8 +83,8 @@ describe('Between Transformer', function(): void {
     it('returns false for non-numeric values', function(): void {
         $template = ['result' => '{{ value | between:3:5 }}'];
 
-        $result1 = DataMapper::mapFromTemplate($template, ['value' => 'abc']);
-        $result2 = DataMapper::mapFromTemplate($template, ['value' => null]);
+        $result1 = DataMapper::source(['value' => 'abc'])->template($template)->map()->getTarget();
+        $result2 = DataMapper::source(['value' => null])->template($template)->map()->getTarget();
 
         expect($result1['result'])->toBeFalse();
         expect($result2['result'])->toBeFalse();
@@ -93,11 +93,11 @@ describe('Between Transformer', function(): void {
     it('handles string numeric values', function(): void {
         $template = ['result' => '{{ value | between:3:5 }}'];
 
-        $result1 = DataMapper::mapFromTemplate($template, ['value' => '3']);
-        $result2 = DataMapper::mapFromTemplate($template, ['value' => '4']);
-        $result3 = DataMapper::mapFromTemplate($template, ['value' => '5']);
-        $result4 = DataMapper::mapFromTemplate($template, ['value' => '2']);
-        $result5 = DataMapper::mapFromTemplate($template, ['value' => '6']);
+        $result1 = DataMapper::source(['value' => '3'])->template($template)->map()->getTarget();
+        $result2 = DataMapper::source(['value' => '4'])->template($template)->map()->getTarget();
+        $result3 = DataMapper::source(['value' => '5'])->template($template)->map()->getTarget();
+        $result4 = DataMapper::source(['value' => '2'])->template($template)->map()->getTarget();
+        $result5 = DataMapper::source(['value' => '6'])->template($template)->map()->getTarget();
 
         expect($result1['result'])->toBeTrue();
         expect($result2['result'])->toBeTrue();
@@ -109,11 +109,11 @@ describe('Between Transformer', function(): void {
     it('works with zero boundaries', function(): void {
         $template = ['result' => '{{ value | between:0:10 }}'];
 
-        $result1 = DataMapper::mapFromTemplate($template, ['value' => 0]);
-        $result2 = DataMapper::mapFromTemplate($template, ['value' => 5]);
-        $result3 = DataMapper::mapFromTemplate($template, ['value' => 10]);
-        $result4 = DataMapper::mapFromTemplate($template, ['value' => -1]);
-        $result5 = DataMapper::mapFromTemplate($template, ['value' => 11]);
+        $result1 = DataMapper::source(['value' => 0])->template($template)->map()->getTarget();
+        $result2 = DataMapper::source(['value' => 5])->template($template)->map()->getTarget();
+        $result3 = DataMapper::source(['value' => 10])->template($template)->map()->getTarget();
+        $result4 = DataMapper::source(['value' => -1])->template($template)->map()->getTarget();
+        $result5 = DataMapper::source(['value' => 11])->template($template)->map()->getTarget();
 
         expect($result1['result'])->toBeTrue();
         expect($result2['result'])->toBeTrue();
@@ -125,9 +125,9 @@ describe('Between Transformer', function(): void {
     it('handles edge case where min equals max', function(): void {
         $template = ['result' => '{{ value | between:5:5 }}'];
 
-        $result1 = DataMapper::mapFromTemplate($template, ['value' => 5]);
-        $result2 = DataMapper::mapFromTemplate($template, ['value' => 4]);
-        $result3 = DataMapper::mapFromTemplate($template, ['value' => 6]);
+        $result1 = DataMapper::source(['value' => 5])->template($template)->map()->getTarget();
+        $result2 = DataMapper::source(['value' => 4])->template($template)->map()->getTarget();
+        $result3 = DataMapper::source(['value' => 6])->template($template)->map()->getTarget();
 
         expect($result1['result'])->toBeTrue();
         expect($result2['result'])->toBeFalse();
@@ -139,20 +139,19 @@ describe('Between Transformer', function(): void {
         $clampTemplate = ['result' => '{{ value | clamp:3:5 }}'];
 
         // Between returns boolean
-        $betweenResult1 = DataMapper::mapFromTemplate($betweenTemplate, ['value' => 2]);
-        $betweenResult2 = DataMapper::mapFromTemplate($betweenTemplate, ['value' => 3]);
-        $betweenResult3 = DataMapper::mapFromTemplate($betweenTemplate, ['value' => 6]);
+        $betweenResult1 = DataMapper::source(['value' => 2])->template($betweenTemplate)->map()->getTarget();
+        $betweenResult2 = DataMapper::source(['value' => 3])->template($betweenTemplate)->map()->getTarget();
+        $betweenResult3 = DataMapper::source(['value' => 6])->template($betweenTemplate)->map()->getTarget();
 
         expect($betweenResult1['result'])->toBeFalse();
         expect($betweenResult2['result'])->toBeTrue();
         expect($betweenResult3['result'])->toBeFalse();
 
         // Clamp limits the value
-        $clampResult1 = DataMapper::mapFromTemplate($clampTemplate, ['value' => 2]);
-        $clampResult2 = DataMapper::mapFromTemplate($clampTemplate, ['value' => 6]);
+        $clampResult1 = DataMapper::source(['value' => 2])->template($clampTemplate)->map()->getTarget();
+        $clampResult2 = DataMapper::source(['value' => 6])->template($clampTemplate)->map()->getTarget();
 
         expect($clampResult1['result'])->toBe(3.0);
         expect($clampResult2['result'])->toBe(5.0);
     });
 });
-

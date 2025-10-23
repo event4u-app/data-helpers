@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Clamps a numeric value between a minimum and maximum.
@@ -63,7 +64,7 @@ final readonly class Clamp implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string
@@ -77,4 +78,3 @@ final readonly class Clamp implements FilterInterface
         return ['clamp'];
     }
 }
-

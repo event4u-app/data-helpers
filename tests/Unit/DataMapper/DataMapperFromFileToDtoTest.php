@@ -7,7 +7,7 @@ use Tests\utils\DTOs\CompanyDto;
 use Tests\utils\DTOs\DepartmentDto;
 use Tests\utils\DTOs\ProjectDto;
 
-describe('DataMapper::mapFromFile() to DTO', function(): void {
+describe('DataMapper to DTO', function(): void {
     describe('Automatic nested DTO mapping', function(): void {
         it('maps JSON file to Company DTO with nested DTOs', function(): void {
             $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
@@ -47,7 +47,7 @@ describe('DataMapper::mapFromFile() to DTO', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $company, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 
             // Verify Company DTO data
             expect($result)->toBeInstanceOf(CompanyDto::class);
@@ -150,7 +150,7 @@ describe('DataMapper::mapFromFile() to DTO', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $company, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($company)->template($mapping)->map()->getTarget();
 
             // Verify Company DTO data
             expect($result)->toBeInstanceOf(CompanyDto::class);
@@ -208,7 +208,9 @@ describe('DataMapper::mapFromFile() to DTO', function(): void {
                     ],
                 ],
             ];
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonCompany, $jsonMapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonCompany)->template(
+                $jsonMapping
+            )->map()->getTarget();
 
             // XML mapping
             $xmlCompany = new CompanyDto();
@@ -223,7 +225,9 @@ describe('DataMapper::mapFromFile() to DTO', function(): void {
                     ],
                 ],
             ];
-            $xmlResult = DataMapper::mapFromFile($xmlFile, $xmlCompany, $xmlMapping);
+            $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlCompany)->template(
+                $xmlMapping
+            )->map()->getTarget();
 
             /** @var CompanyDto $jsonCompanyDto */
             $jsonCompanyDto = $jsonResult;
@@ -264,7 +268,7 @@ describe('DataMapper::mapFromFile() to DTO', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $departments, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($departments)->template($mapping)->map()->getTarget();
 
             expect($result)->toBeArray();
             expect($result)->toHaveCount(3);
@@ -276,4 +280,3 @@ describe('DataMapper::mapFromFile() to DTO', function(): void {
         });
     });
 });
-

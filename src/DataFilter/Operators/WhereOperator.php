@@ -56,22 +56,24 @@ final class WhereOperator extends AbstractOperator
      */
     private function matchesCondition(array $condition, int|string $index, mixed $item, OperatorContext $context): bool
     {
-        // Check for AND/OR operators (case-insensitive)
-        foreach ($condition as $key => $value) {
+        // Check if condition has only one key and it's AND or OR
+        if (1 === count($condition)) {
+            $key = array_key_first($condition);
             $keyUpper = strtoupper((string)$key);
+            $value = $condition[$key];
 
-            if ('AND' === $keyUpper && is_array($value)) {
-                /** @var array<int|string, mixed> $value */
+            if ('AND' === $keyUpper) {
+                assert(is_array($value));
                 return $this->matchesAndCondition($value, $index, $item, $context);
             }
 
-            if ('OR' === $keyUpper && is_array($value)) {
-                /** @var array<int|string, mixed> $value */
+            if ('OR' === $keyUpper) {
+                assert(is_array($value));
                 return $this->matchesOrCondition($value, $index, $item, $context);
             }
         }
 
-        // No explicit AND/OR - treat as implicit AND
+        // Multiple keys or no explicit AND/OR - treat as implicit AND
         return $this->matchesAndCondition($condition, $index, $item, $context);
     }
 
@@ -216,4 +218,3 @@ final class WhereOperator extends AbstractOperator
         return $actualValue == $expectedValue;
     }
 }
-

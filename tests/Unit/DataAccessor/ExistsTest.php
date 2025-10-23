@@ -92,4 +92,3 @@ describe('DataAccessor exists()', function(): void {
         expect($accessor->exists('user.name'))->toBeFalse();
     });
 });
-

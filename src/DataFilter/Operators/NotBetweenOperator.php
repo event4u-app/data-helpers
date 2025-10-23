@@ -34,4 +34,3 @@ final class NotBetweenOperator extends AbstractOperator
         return !($actualValue >= $min && $actualValue <= $max);
     }
 }
-

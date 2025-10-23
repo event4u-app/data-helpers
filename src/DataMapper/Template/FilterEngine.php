@@ -107,11 +107,8 @@ final class FilterEngine
 
         // Unknown filter alias - throw exception
         throw new InvalidArgumentException(
-            sprintf(
-                "Unknown filter alias '%s'. " .
-                "Create a Filter class with getAliases() method and register it using FilterRegistry::register().",
-                $filterName
-            )
+            'Unknown filter alias "' . $filterName . '". ' .
+            'Create a Filter class with getAliases() method and register it using FilterRegistry::register().'
         );
     }
 

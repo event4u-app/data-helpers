@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+// Skip this file entirely if Laravel is not installed
+if (!class_exists('Illuminate\Database\Eloquent\Model')) {
+    return;
+}
+
 use event4u\DataHelpers\DataAccessor;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;

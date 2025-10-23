@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
-use event4u\DataHelpers\ReverseDataMapper;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 describe('ReverseDataMapper', function(): void {
     it('reverses simple mapping', function(): void {
@@ -16,7 +16,7 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward mapping
-        $forwardResult = DataMapper::map($user, $dto, $mapping);
+        $forwardResult = DataMapper::source($user)->target($dto)->template($mapping)->map()->getTarget();
 
         expect($forwardResult['full_name'])->toBe('John');
         expect($forwardResult['contact_email'])->toBe('john@example.com');
@@ -24,7 +24,9 @@ describe('ReverseDataMapper', function(): void {
         // Reverse mapping
         $dtoData = ['full_name' => 'Jane', 'contact_email' => 'jane@example.com'];
         $userData = ['firstName' => null, 'email' => null];
-        $reverseResult = ReverseDataMapper::map($dtoData, $userData, $mapping);
+        $reverseResult = DataMapper::source($dtoData)->target($userData)->template(
+            $mapping
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult['firstName'])->toBe('Jane');
         expect($reverseResult['email'])->toBe('jane@example.com');
@@ -50,7 +52,7 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward mapping
-        $forwardResult = DataMapper::map($source, $target, $mapping);
+        $forwardResult = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
 
         expect($forwardResult['profile']['fullName'])->toBe('Alice');
         expect($forwardResult['profile']['years'])->toBe(30);
@@ -65,7 +67,9 @@ describe('ReverseDataMapper', function(): void {
             'user' => ['name' => null, 'age' => null],
             'address' => ['city' => null],
         ];
-        $reverseResult = ReverseDataMapper::map($reverseSource, $reverseTarget, $mapping);
+        $reverseResult = DataMapper::source($reverseSource)->target($reverseTarget)->template(
+            $mapping
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult['user']['name'])->toBe('Bob');
         expect($reverseResult['user']['age'])->toBe(25);
@@ -88,7 +92,7 @@ describe('ReverseDataMapper', function(): void {
             'user' => ['name' => 'Charlie', 'email' => 'charlie@example.com'],
             'organization' => ['name' => 'Acme Corp'],
         ];
-        $forwardResult = DataMapper::mapFromTemplate($template, $sources);
+        $forwardResult = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($forwardResult['profile']['name'])->toBe('Charlie');
         expect($forwardResult['profile']['email'])->toBe('charlie@example.com');
@@ -103,7 +107,9 @@ describe('ReverseDataMapper', function(): void {
             'user' => ['name' => null, 'email' => null],
             'organization' => ['name' => null],
         ];
-        $reverseResult = ReverseDataMapper::mapToTargetsFromTemplate($data, $template, $targets);
+        $reverseResult = DataMapper::source($data)->target($targets)->template(
+            $template
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult['user']['name'])->toBe('David');
         expect($reverseResult['user']['email'])->toBe('david@example.com');
@@ -125,14 +131,16 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward mapping
-        $forwardResult = DataMapper::map($source, $target, $mapping);
+        $forwardResult = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
 
         expect($forwardResult['names'])->toBe(['Alice', 'Bob']);
 
         // Reverse mapping
         $reverseSource = ['names' => ['Charlie', 'David']];
         $reverseTarget = ['users' => []];
-        $reverseResult = ReverseDataMapper::map($reverseSource, $reverseTarget, $mapping);
+        $reverseResult = DataMapper::source($reverseSource)->target($reverseTarget)->template(
+            $mapping
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult['users'])->toHaveCount(2);
         expect($reverseResult['users'][0]['name'])->toBe('Charlie');
@@ -144,13 +152,13 @@ describe('ReverseDataMapper', function(): void {
         $target = ['name' => null, 'email' => null];
 
         // Forward mapping
-        $forwardResult = DataMapper::autoMap($source, $target);
+        $forwardResult = DataMapper::source($source)->target($target)->autoMap()->getTarget();
 
         expect($forwardResult['name'])->toBe('John');
         expect($forwardResult['email'])->toBe('john@example.com');
 
         // Reverse mapping (should be the same as forward)
-        $reverseResult = ReverseDataMapper::autoMap($source, $target);
+        $reverseResult = DataMapper::source($source)->target($target)->reverse()->autoMap()->getTarget();
 
         expect($reverseResult['name'])->toBe('John');
         expect($reverseResult['email'])->toBe('john@example.com');
@@ -164,13 +172,13 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward: User -> DTO
-        $dto = DataMapper::map($originalUser, [], $mapping);
+        $dto = DataMapper::source($originalUser)->target([])->template($mapping)->map()->getTarget();
 
         expect($dto['full_name'])->toBe('John');
         expect($dto['contact_email'])->toBe('john@example.com');
 
         // Reverse: DTO -> User
-        $reconstructedUser = ReverseDataMapper::map($dto, [], $mapping);
+        $reconstructedUser = DataMapper::source($dto)->target([])->template($mapping)->reverse()->map()->getTarget();
 
         expect($reconstructedUser['firstName'])->toBe('John');
         expect($reconstructedUser['email'])->toBe('john@example.com');
@@ -250,7 +258,7 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Step 1: Forward mapping (original -> transformed)
-        $transformedData = DataMapper::map($originalData, [], $mapping);
+        $transformedData = DataMapper::source($originalData)->target([])->template($mapping)->map()->getTarget();
 
         expect($transformedData['organization']['companyName'])->toBe('TechCorp Solutions');
         expect($transformedData['organization']['yearFounded'])->toBe(2015);
@@ -273,7 +281,9 @@ describe('ReverseDataMapper', function(): void {
         expect($transformedData['initiatives'][0]['projectBudget'])->toBe(500000);
 
         // Step 2: Reverse mapping (transformed -> reconstructed)
-        $reconstructedData = ReverseDataMapper::map($transformedData, [], $mapping);
+        $reconstructedData = DataMapper::source($transformedData)->target([])->template(
+            $mapping
+        )->reverse()->map()->getTarget();
 
         expect($reconstructedData['company']['name'])->toBe($originalData['company']['name']);
         expect($reconstructedData['company']['founded'])->toBe($originalData['company']['founded']);
@@ -300,7 +310,9 @@ describe('ReverseDataMapper', function(): void {
         expect($reconstructedData['projects'][1]['title'])->toBe($originalData['projects'][1]['title']);
 
         // Step 3: Forward mapping again (reconstructed -> final)
-        $finalTransformedData = DataMapper::map($reconstructedData, [], $mapping);
+        $finalTransformedData = DataMapper::source($reconstructedData)->target([])->template(
+            $mapping
+        )->map()->getTarget();
 
         expect($finalTransformedData)->toEqual($transformedData);
     });
@@ -313,18 +325,18 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward with pipeline
-        $forwardResult = DataMapper::pipe([
+        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->pipeline([
             new TrimStrings(),
-        ])->map($source, [], $mapping);
+        ])->map()->getTarget();
 
         expect($forwardResult['profile']['name'])->toBe('alice');
         expect($forwardResult['profile']['email'])->toBe('ALICE@EXAMPLE.COM');
 
         // Reverse with pipeline
         $reverseSource = ['profile' => ['name' => '  bob  ', 'email' => '  BOB@EXAMPLE.COM  ']];
-        $reverseResult = ReverseDataMapper::pipe([
+        $reverseResult = DataMapper::source($reverseSource)->target([])->template($mapping)->pipeline([
             new TrimStrings(),
-        ])->map($reverseSource, [], $mapping);
+        ])->reverse()->map()->getTarget();
 
         expect($reverseResult['user']['name'])->toBe('bob');
         expect($reverseResult['user']['email'])->toBe('BOB@EXAMPLE.COM');
@@ -336,14 +348,14 @@ describe('ReverseDataMapper', function(): void {
 
         $hookCalled = false;
         $hooks = [
-            'preTransform' => function($value) use (&$hookCalled) {
+            DataMapperHook::BeforeTransform->value => function($value) use (&$hookCalled) {
                 $hookCalled = true;
                 return is_string($value) ? strtoupper($value) : $value;
             },
         ];
 
         // Forward with hooks
-        $forwardResult = DataMapper::map($source, [], $mapping, true, false, $hooks);
+        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->hooks($hooks)->map()->getTarget();
 
         expect($hookCalled)->toBeTrue();
         expect($forwardResult['profile']['name'])->toBe('ALICE');
@@ -351,7 +363,9 @@ describe('ReverseDataMapper', function(): void {
         // Reverse with hooks
         $hookCalled = false;
         $reverseSource = ['profile' => ['name' => 'bob']];
-        $reverseResult = ReverseDataMapper::map($reverseSource, [], $mapping, true, false, $hooks);
+        $reverseResult = DataMapper::source($reverseSource)->target([])->template($mapping)->hooks(
+            $hooks
+        )->reverse()->map()->getTarget();
 
         expect($hookCalled)->toBeTrue();
         expect($reverseResult['user']['name'])->toBe('BOB');
@@ -365,14 +379,16 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward mapping
-        $forwardResult = DataMapper::map($source, [], $mapping);
+        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->map()->getTarget();
 
         expect($forwardResult['profile']['name'])->toBe('Alice');
         expect($forwardResult['profile']['type'])->toBe('premium');
 
         // Reverse mapping - static values should be ignored
         $reverseSource = ['profile' => ['name' => 'Bob', 'type' => 'premium']];
-        $reverseResult = ReverseDataMapper::map($reverseSource, [], $mapping);
+        $reverseResult = DataMapper::source($reverseSource)->target([])->template(
+            $mapping
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult['user']['name'])->toBe('Bob');
     });
@@ -385,13 +401,15 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward with skipNull
-        $forwardResult = DataMapper::map($source, [], $mapping, true);
+        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->map()->getTarget();
 
         expect($forwardResult)->toBe(['profile' => ['name' => 'Alice']]);
 
         // Reverse with skipNull
         $reverseSource = ['profile' => ['name' => 'Bob', 'email' => null]];
-        $reverseResult = ReverseDataMapper::map($reverseSource, [], $mapping, true);
+        $reverseResult = DataMapper::source($reverseSource)->target([])->template(
+            $mapping
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult)->toBe(['user' => ['name' => 'Bob']]);
     });
@@ -408,7 +426,9 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward with reindexWildcard
-        $forwardResult = DataMapper::map($source, [], $mapping, true, true);
+        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->reindexWildcard(
+            true
+        )->map()->getTarget();
 
         expect($forwardResult['users'])->toHaveKey(0);
         expect($forwardResult['users'])->toHaveKey(1);
@@ -422,7 +442,9 @@ describe('ReverseDataMapper', function(): void {
                 12 => 'david',
             ],
         ];
-        $reverseResult = ReverseDataMapper::map($reverseSource, [], $mapping, true, true);
+        $reverseResult = DataMapper::source($reverseSource)->target([])->template($mapping)->reindexWildcard(
+            true
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult['items'])->toHaveKey(0);
         expect($reverseResult['items'])->toHaveKey(1);
@@ -435,13 +457,15 @@ describe('ReverseDataMapper', function(): void {
         $mapping = ['profile.name' => '{{ user.name }}'];
 
         // Forward mapping
-        $forwardResult = DataMapper::map($source, [], $mapping);
+        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->map()->getTarget();
 
         expect($forwardResult['profile']['name'])->toBe('Alice');
 
         // Reverse mapping
         $reverseSource = ['profile' => ['name' => 'Bob']];
-        $reverseResult = ReverseDataMapper::map($reverseSource, [], $mapping);
+        $reverseResult = DataMapper::source($reverseSource)->target([])->template(
+            $mapping
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult['user']['name'])->toBe('Bob');
     });
@@ -461,7 +485,7 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward mapping
-        $forwardResult = DataMapper::map($source, [], $mapping);
+        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->map()->getTarget();
 
         expect($forwardResult['org']['teams'][0]['name'])->toBe('Engineering');
         expect($forwardResult['org']['teams'][0]['city'])->toBe('Berlin');
@@ -477,7 +501,9 @@ describe('ReverseDataMapper', function(): void {
                 ],
             ],
         ];
-        $reverseResult = ReverseDataMapper::map($reverseSource, [], $mapping);
+        $reverseResult = DataMapper::source($reverseSource)->target([])->template(
+            $mapping
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult['company']['departments'][0]['name'])->toBe('Sales');
         expect($reverseResult['company']['departments'][0]['location'])->toBe('Hamburg');
@@ -493,13 +519,15 @@ describe('ReverseDataMapper', function(): void {
         ];
 
         // Forward mapping with exception
-        $forwardResult = DataMapper::map($source, [], $mapping);
+        $forwardResult = DataMapper::source($source)->target([])->template($mapping)->map()->getTarget();
 
         expect($forwardResult['profile']['name'])->toBe('Alice');
 
         // Reverse mapping with exception
         $reverseSource = ['profile' => ['name' => 'Bob']];
-        $reverseResult = ReverseDataMapper::map($reverseSource, [], $mapping);
+        $reverseResult = DataMapper::source($reverseSource)->target([])->template(
+            $mapping
+        )->reverse()->map()->getTarget();
 
         expect($reverseResult['user']['name'])->toBe('Bob');
     });

@@ -315,4 +315,3 @@ abstract class AbstractOperator implements OperatorInterface
         return [];
     }
 }
-

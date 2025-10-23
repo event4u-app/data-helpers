@@ -1,0 +1,115 @@
+version: '3'
+
+# Docker Management Tasks
+# Handles Docker container lifecycle and operations
+
+vars:
+  OUTPUT_HELPER: ./scripts/task-output.sh
+
+tasks:
+  build:
+    desc: Build all Docker containers
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Building Docker Containers"
+        task_step "Building all containers..."
+        docker-compose build
+        task_success "Containers built successfully"
+        task_footer
+
+  up:
+    desc: Start all Docker containers
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Starting Docker Containers"
+        task_step "Starting all containers..."
+        docker-compose up -d
+        sleep 2
+        task_success "Containers started"
+        task_footer
+
+  down:
+    desc: Stop all Docker containers
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Stopping Docker Containers"
+        task_step "Stopping all containers..."
+        docker-compose down
+        task_success "Containers stopped"
+        task_footer
+
+  restart:
+    desc: Restart all Docker containers
+    cmds:
+      - task: down
+      - task: up
+
+  logs:
+    desc: Show logs from all containers
+    cmds:
+      - docker-compose logs -f
+
+  logs:follow:
+    desc: Follow logs from all containers
+    aliases: [logs:f]
+    cmds:
+      - docker-compose logs -f --tail=100
+
+  logs:php82:
+    desc: Show logs from PHP 8.2 container
+    cmds:
+      - docker-compose logs -f data-helpers-php82
+
+  logs:php83:
+    desc: Show logs from PHP 8.3 container
+    cmds:
+      - docker-compose logs -f data-helpers-php83
+
+  logs:php84:
+    desc: Show logs from PHP 8.4 container
+    cmds:
+      - docker-compose logs -f data-helpers-php84
+
+  clean:
+    desc: Remove all containers and volumes
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Cleaning Docker Environment"
+        task_step "Removing containers and volumes..."
+        docker-compose down -v
+        task_success "Cleanup complete"
+        task_footer
+
+  rebuild:
+    desc: Rebuild everything from scratch
+    cmds:
+      - task: clean
+      - task: build
+      - task: up
+
+  ps:
+    desc: Show container status
+    cmds:
+      - docker-compose ps
+
+  stats:
+    desc: Show container resource usage
+    cmds:
+      - docker stats --no-stream
+
+  prune:
+    desc: Remove unused Docker resources
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Pruning Docker Resources"
+        task_warning "This will remove unused containers, networks, images, and volumes"
+        task_step "Pruning..."
+        docker system prune -af --volumes
+        task_success "Prune complete"
+        task_footer
+

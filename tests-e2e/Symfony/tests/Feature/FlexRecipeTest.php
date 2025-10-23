@@ -141,7 +141,7 @@ describe('Symfony Flex Recipe Installation', function(): void {
         $services = Yaml::parseFile($configDir . '/services/data_helpers.yaml');
 
         expect($services['services'])->toHaveKey('event4u\DataHelpers\DataMapper')
-            ->and($services['services'])->toHaveKey('event4u\DataHelpers\Symfony\MappedModelResolver')
+            ->and($services['services'])->toHaveKey('event4u\DataHelpers\Frameworks\Symfony\MappedModelResolver')
             ->and($services['services']['event4u\DataHelpers\DataMapper'])->toHaveKey('public')
             ->and($services['services']['event4u\DataHelpers\DataMapper']['public'])->toBeTrue();
     });

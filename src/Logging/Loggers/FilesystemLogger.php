@@ -199,4 +199,3 @@ final class FilesystemLogger implements DataHelpersLogger
         }
     }
 }
-

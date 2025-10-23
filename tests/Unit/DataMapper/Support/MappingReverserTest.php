@@ -2,15 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Tests\Unit\DataMapper\Support;
-
 use event4u\DataHelpers\DataMapper\Support\MappingReverser;
-use PHPUnit\Framework\TestCase;
 
-class MappingReverserTest extends TestCase
-{
-    public function test_reverse_simple_mapping(): void
-    {
+describe('MappingReverser', function(): void {
+    test('it reverses simple mapping', function(): void {
         $mapping = [
             'full_name' => '{{ firstName }}',
             'contact_email' => '{{ email }}',
@@ -18,14 +13,13 @@ class MappingReverserTest extends TestCase
 
         $reversed = MappingReverser::reverseMapping($mapping);
 
-        $this->assertSame([
+        expect($reversed)->toBe([
             'firstName' => '{{ full_name }}',
             'email' => '{{ contact_email }}',
-        ], $reversed);
-    }
+        ]);
+    });
 
-    public function test_reverse_nested_mapping(): void
-    {
+    test('it reverses nested mapping', function(): void {
         $mapping = [
             'profile' => [
                 'fullName' => '{{ user.name }}',
@@ -38,15 +32,14 @@ class MappingReverserTest extends TestCase
 
         $reversed = MappingReverser::reverseMapping($mapping);
 
-        $this->assertSame([
+        expect($reversed)->toBe([
             'user.name' => '{{ profile.fullName }}',
             'user.age' => '{{ profile.age }}',
             'address.city' => '{{ location.city }}',
-        ], $reversed);
-    }
+        ]);
+    });
 
-    public function test_reverse_mapping_without_template_syntax(): void
-    {
+    test('it reverses mapping without template syntax', function(): void {
         $mapping = [
             'full_name' => 'firstName',
             'email' => 'contact.email',
@@ -54,14 +47,13 @@ class MappingReverserTest extends TestCase
 
         $reversed = MappingReverser::reverseMapping($mapping);
 
-        $this->assertSame([
+        expect($reversed)->toBe([
             'firstName' => '{{ full_name }}',
             'contact.email' => '{{ email }}',
-        ], $reversed);
-    }
+        ]);
+    });
 
-    public function test_reverse_mapping_with_mixed_syntax(): void
-    {
+    test('it reverses mapping with mixed syntax', function(): void {
         $mapping = [
             'full_name' => '{{ firstName }}',
             'email' => 'contact.email',
@@ -70,15 +62,14 @@ class MappingReverserTest extends TestCase
 
         $reversed = MappingReverser::reverseMapping($mapping);
 
-        $this->assertSame([
+        expect($reversed)->toBe([
             'firstName' => '{{ full_name }}',
             'contact.email' => '{{ email }}',
             'user.age' => '{{ age }}',
-        ], $reversed);
-    }
+        ]);
+    });
 
-    public function test_reverse_mapping_skips_non_string_keys(): void
-    {
+    test('it skips non-string keys when reversing mapping', function(): void {
         $mapping = [
             'full_name' => '{{ firstName }}',
             0 => 'should be skipped',
@@ -87,14 +78,13 @@ class MappingReverserTest extends TestCase
 
         $reversed = MappingReverser::reverseMapping($mapping);
 
-        $this->assertSame([
+        expect($reversed)->toBe([
             'firstName' => '{{ full_name }}',
             'contact.email' => '{{ email }}',
-        ], $reversed);
-    }
+        ]);
+    });
 
-    public function test_reverse_mapping_skips_callbacks(): void
-    {
+    test('it skips callbacks when reversing mapping', function(): void {
         $mapping = [
             'full_name' => '{{ firstName }}',
             'computed' => fn($source): int|float => $source['value'] * 2,
@@ -103,14 +93,13 @@ class MappingReverserTest extends TestCase
 
         $reversed = MappingReverser::reverseMapping($mapping);
 
-        $this->assertSame([
+        expect($reversed)->toBe([
             'firstName' => '{{ full_name }}',
             'contact.email' => '{{ email }}',
-        ], $reversed);
-    }
+        ]);
+    });
 
-    public function test_reverse_template(): void
-    {
+    test('it reverses template', function(): void {
         $template = [
             'profile' => [
                 'name' => 'user.name',
@@ -133,11 +122,10 @@ class MappingReverserTest extends TestCase
             ],
         ];
 
-        $this->assertSame($expected, $reversed);
-    }
+        expect($reversed)->toBe($expected);
+    });
 
-    public function test_reverse_template_with_deep_nesting(): void
-    {
+    test('it reverses template with deep nesting', function(): void {
         $template = [
             'data' => [
                 'user' => [
@@ -158,11 +146,10 @@ class MappingReverserTest extends TestCase
             ],
         ];
 
-        $this->assertSame($expected, $reversed);
-    }
+        expect($reversed)->toBe($expected);
+    });
 
-    public function test_reverse_template_with_template_syntax(): void
-    {
+    test('it reverses template with template syntax', function(): void {
         $template = [
             'profile' => [
                 'name' => '{{ user.name }}',
@@ -179,25 +166,22 @@ class MappingReverserTest extends TestCase
             ],
         ];
 
-        $this->assertSame($expected, $reversed);
-    }
+        expect($reversed)->toBe($expected);
+    });
 
-    public function test_reverse_empty_mapping(): void
-    {
+    test('it reverses empty mapping', function(): void {
         $mapping = [];
 
         $reversed = MappingReverser::reverseMapping($mapping);
 
-        $this->assertSame([], $reversed);
-    }
+        expect($reversed)->toBe([]);
+    });
 
-    public function test_reverse_empty_template(): void
-    {
+    test('it reverses empty template', function(): void {
         $template = [];
 
         $reversed = MappingReverser::reverseTemplate($template);
 
-        $this->assertSame([], $reversed);
-    }
-}
-
+        expect($reversed)->toBe([]);
+    });
+});

@@ -105,4 +105,3 @@ describe('LoggerFactory', function(): void {
         expect($logger)->toBeInstanceOf(NullLogger::class);
     });
 });
-

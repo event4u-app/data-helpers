@@ -37,4 +37,3 @@ final class WhereNotInOperator extends AbstractOperator
         return !in_array($actualValue, $values, true);
     }
 }
-

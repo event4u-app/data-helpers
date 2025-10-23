@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Tests\Integration\Config;
 
 use event4u\DataHelpers\DataHelpersConfig;
-use event4u\DataHelpers\Symfony\DataHelpersExtension;
+use event4u\DataHelpers\Frameworks\Symfony\DataHelpersExtension;
 use Exception;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @group symfony
- */
 describe('Symfony Config Integration', function(): void {
     beforeEach(function(): void {
         // Skip if Symfony is not available
@@ -83,7 +80,7 @@ describe('Symfony Config Integration', function(): void {
         $extension = new DataHelpersExtension();
 
         // Load extension with custom config
-        // @phpstan-ignore-next-line - Array structure is correct for Symfony config
+        /** @phpstan-ignore-next-line unknown */
         $extension->load([
             'data_helpers' => [
                 'performance_mode' => 'safe',
@@ -112,7 +109,7 @@ describe('Symfony Config Integration', function(): void {
         $extension = new DataHelpersExtension();
 
         // Load extension
-        // @phpstan-ignore-next-line - Array structure is correct for Symfony config
+        /** @phpstan-ignore-next-line unknown */
         $extension->load([
             'data_helpers' => [
                 'performance_mode' => 'safe',
@@ -135,7 +132,7 @@ describe('Symfony Config Integration', function(): void {
         // For testing, we simulate this
         $performanceMode = $_ENV['DATA_HELPERS_PERFORMANCE_MODE'];
 
-        // @phpstan-ignore-next-line - Array structure is correct for Symfony config
+        /** @phpstan-ignore-next-line unknown */
         $extension->load([
             'data_helpers' => [
                 'performance_mode' => $performanceMode,
@@ -174,4 +171,3 @@ describe('Symfony Config Integration', function(): void {
     !class_exists('Symfony\Component\DependencyInjection\ContainerBuilder'),
     'Symfony is not available'
 );
-

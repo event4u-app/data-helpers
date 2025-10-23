@@ -12,4 +12,3 @@ use RuntimeException;
 class ConversionException extends RuntimeException
 {
 }
-

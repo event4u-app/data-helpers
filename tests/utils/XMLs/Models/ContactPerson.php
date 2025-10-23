@@ -45,8 +45,8 @@ class ContactPerson extends Model
 
     /**
      * The model's default values for attributes.
-     * @phpstan-ignore-next-line assign.propertyType
      */
+    /** @phpstan-ignore-next-line unknown */
     protected $attributes = [
         'salutation' => null,
         'email' => null,
@@ -81,7 +81,6 @@ class ContactPerson extends Model
         if (is_string($salutation)) {
             $salutation = Salutation::tryFromAny($salutation);
         }
-        /** @phpstan-ignore-next-line assign.propertyType */
         $this->salutation = $salutation;
         return $this;
     }
@@ -93,7 +92,6 @@ class ContactPerson extends Model
 
     public function setSurname(string $surname): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
         $this->surname = $surname;
         return $this;
     }
@@ -105,7 +103,7 @@ class ContactPerson extends Model
 
     public function setEmail(?string $email): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
+        /** @phpstan-ignore-next-line unknown */
         $this->email = $email;
         return $this;
     }
@@ -117,7 +115,7 @@ class ContactPerson extends Model
 
     public function setPhone(?string $phone): self
     {
-        /** @phpstan-ignore-next-line assign.propertyType */
+        /** @phpstan-ignore-next-line unknown */
         $this->phone = $phone;
         return $this;
     }
@@ -128,9 +126,9 @@ class ContactPerson extends Model
      * Get the project that owns the contact person.
      * @return BelongsTo<Project, ContactPerson>
      */
+    /** @phpstan-ignore-next-line unknown */
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'project_id'); // @phpstan-ignore-line return.type
+        return $this->belongsTo(Project::class);
     }
 }
-

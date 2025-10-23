@@ -184,4 +184,3 @@ describe('QueryBuilder Advanced Features', function(): void {
         expect($result[2]['name'])->toBe('Charlie');
     });
 });
-

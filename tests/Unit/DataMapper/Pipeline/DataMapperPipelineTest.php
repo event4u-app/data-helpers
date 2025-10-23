@@ -8,6 +8,7 @@ use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\SkipEmptyValues;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 describe('DataMapper Pipeline', function(): void {
     it('works with TrimStrings transformer', function(): void {
@@ -23,8 +24,8 @@ describe('DataMapper Pipeline', function(): void {
             'email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::pipe([new TrimStrings()])
-            ->map($source, [], $mapping);
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new TrimStrings()])
+            ->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
         expect($result['email'])->toBe('alice@example.com');
@@ -43,8 +44,8 @@ describe('DataMapper Pipeline', function(): void {
             'email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::pipe([new LowercaseEmails()])
-            ->map($source, [], $mapping);
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new LowercaseEmails()])
+            ->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
         expect($result['email'])->toBe('alice@example.com');
@@ -65,8 +66,8 @@ describe('DataMapper Pipeline', function(): void {
             'phone' => '{{ user.phone }}',
         ];
 
-        $result = DataMapper::pipe([new SkipEmptyValues()])
-            ->map($source, [], $mapping);
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new SkipEmptyValues()])
+            ->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
         expect($result)->not->toHaveKey('email');
@@ -86,10 +87,10 @@ describe('DataMapper Pipeline', function(): void {
             'email' => '{{ user.email }}',
         ];
 
-        $result = DataMapper::pipe([
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([
             new TrimStrings(),
             new LowercaseEmails(),
-        ])->map($source, [], $mapping);
+        ])->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
         expect($result['email'])->toBe('alice@example.com');
@@ -110,10 +111,8 @@ describe('DataMapper Pipeline', function(): void {
             'phone' => '{{ user.phone }}',
         ];
 
-        $result = DataMapper::pipe([
-            new TrimStrings(),
-            new SkipEmptyValues(),
-        ])->map($source, [], $mapping);
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new TrimStrings(),
+            new SkipEmptyValues(),])->map()->getTarget();
 
         expect($result['name'])->toBe('Alice');
         expect($result)->not->toHaveKey('email'); // Trimmed to empty, then skipped
@@ -133,9 +132,9 @@ describe('DataMapper Pipeline', function(): void {
             'ages.*' => '{{ users.*.age }}',
         ];
 
-        $result = DataMapper::pipe([
-            new TrimStrings(),
-        ])->map($source, [], $mapping);
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline(
+            [new TrimStrings(),]
+        )->map()->getTarget();
 
         expect($result['names'])->toBe(['Alice', 'Bob']);
         expect($result['ages'])->toBe([30, 25]);
@@ -152,11 +151,11 @@ describe('DataMapper Pipeline', function(): void {
             'name' => '{{ user.name }}',
         ];
 
-        $result = DataMapper::pipe([new TrimStrings()])
-            ->withHooks([
-                'postTransform' => fn($value) => is_string($value) ? strtoupper($value) : $value,
+        $result = DataMapper::source($source)->target([])->template($mapping)->pipeline([new TrimStrings()])
+            ->hooks([
+                DataMapperHook::AfterTransform->value => fn($value) => is_string($value) ? strtoupper($value) : $value,
             ])
-            ->map($source, [], $mapping);
+            ->map()->getTarget();
 
         expect($result['name'])->toBe('ALICE'); // Trimmed then uppercased
     });

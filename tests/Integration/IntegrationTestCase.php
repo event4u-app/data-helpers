@@ -13,4 +13,3 @@ abstract class IntegrationTestCase extends TestCase
 {
     // Integration test base class
 }
-

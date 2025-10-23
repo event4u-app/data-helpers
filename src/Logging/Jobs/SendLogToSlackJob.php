@@ -64,4 +64,3 @@ final class SendLogToSlackJob implements ShouldQueue
         curl_close($ch);
     }
 }
-

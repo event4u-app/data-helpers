@@ -7,6 +7,13 @@ use event4u\DataHelpers\DataMapper\MapperExceptions;
 use Tests\utils\XMLs\Enums\PositionType;
 use Tests\utils\XMLs\Enums\ProjectStatus;
 
+// Helper function for test setup
+// Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
+function setupXmlToModelMapping(): void
+{
+    MapperExceptions::reset();
+}
+
 /**
  * Helper function to normalize data for snapshot comparison
  * Converts Enums to their string values
@@ -18,7 +25,7 @@ function normalizeForSnapshot(mixed $data): mixed
     }
 
     if (is_array($data)) {
-        return array_map(fn($item): mixed => normalizeForSnapshot($item), $data);
+        return array_map(normalizeForSnapshot(...), $data);
     }
 
     return $data;
@@ -62,6 +69,10 @@ describe('XML to Model Mapping', function(): void {
     $snapshotDir = __DIR__ . '/snapshots';
 
     describe('Version 1 (DataFields)', function() use ($snapshotDir): void {
+        beforeEach(function(): void {
+            setupXmlToModelMapping();
+        });
+
         it('maps complete project with all relations from version1 XML', function() use ($snapshotDir): void {
             // Load XML file
             $xmlFile = __DIR__ . '/../../utils/XMLs/version1.xml';
@@ -107,7 +118,9 @@ describe('XML to Model Mapping', function(): void {
                 ],
             ];
 
-            $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping, false);
+            $completeData = DataMapper::sourceFile($xmlFile)->target([])->template($mapping)->skipNull(
+                false
+            )->map()->getTarget();
             /** @var array<string, mixed> $completeData */
 
             // Normalize contact_persons (XML single element issue)
@@ -154,6 +167,10 @@ describe('XML to Model Mapping', function(): void {
     });
 
     describe('Version 2 (VitaCost/ConstructionSite)', function() use ($snapshotDir): void {
+        beforeEach(function(): void {
+            setupXmlToModelMapping();
+        });
+
         it('maps complete project with all relations from version2 XML', function() use ($snapshotDir): void {
             // Load XML file
             $xmlFile = __DIR__ . '/../../utils/XMLs/version2.xml';
@@ -215,7 +232,9 @@ describe('XML to Model Mapping', function(): void {
                 ],
             ];
 
-            $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping);
+            $completeData = DataMapper::sourceFile($xmlFile)->target([])->template($mapping)->trimValues(
+                true
+            )->map()->getTarget();
             /** @var array<string, mixed> $completeData */
 
             // Convert Enums
@@ -256,6 +275,10 @@ describe('XML to Model Mapping', function(): void {
     });
 
     describe('Version 3 (lv_nesting/lvdata)', function() use ($snapshotDir): void {
+        beforeEach(function(): void {
+            setupXmlToModelMapping();
+        });
+
         it('maps complete project with all relations from version3 XML', function() use ($snapshotDir): void {
             // Load XML file
             $xmlFile = __DIR__ . '/../../utils/XMLs/version3.xml';
@@ -303,7 +326,7 @@ describe('XML to Model Mapping', function(): void {
                 ],
             ];
 
-            $completeData = DataMapper::mapFromFile($xmlFile, [], $mapping);
+            $completeData = DataMapper::sourceFile($xmlFile)->target([])->template($mapping)->map()->getTarget();
             /** @var array<string, mixed> $completeData */
 
             // Convert Enums
@@ -341,4 +364,3 @@ describe('XML to Model Mapping', function(): void {
         });
     });
 });
-

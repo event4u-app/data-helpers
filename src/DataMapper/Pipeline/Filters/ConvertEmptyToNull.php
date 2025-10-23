@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Converts empty strings to null.
@@ -13,7 +14,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
  * Useful for database operations where empty strings should be stored as NULL.
  *
  * Examples:
- *   Pipeline: DataMapper::pipe([new ConvertEmptyToNull()])->map($source, $target, $mapping);
+ *   Pipeline: DataMapper::source($source)->target($target)->template($mapping)->pipeline([new ConvertEmptyToNull()])->map()->getTarget();
  *   Template: {{ value | empty_to_null }}
  */
 final class ConvertEmptyToNull implements FilterInterface
@@ -25,7 +26,7 @@ final class ConvertEmptyToNull implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string
@@ -39,4 +40,3 @@ final class ConvertEmptyToNull implements FilterInterface
         return ['empty_to_null'];
     }
 }
-

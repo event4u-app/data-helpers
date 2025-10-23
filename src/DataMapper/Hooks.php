@@ -13,7 +13,12 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Enums\Mode;
 
 /**
- * Helper to build and merge DataMapper hook definitions using the enum safely.
+ * Helper to build and merge DataMapper hook definitions using the DataMapperHook enum.
+ *
+ * Only accepts DataMapperHook enum values to ensure type safety and prevent typos.
+ * Custom hook names are not supported - use the predefined hooks with filters instead.
+ *
+ * @see DataMapperHook for available hook names
  */
 final class Hooks
 {
@@ -29,10 +34,9 @@ final class Hooks
     }
 
     /** Register a hook payload under the given name. */
-    public function on(DataMapperHook|string $name, mixed $payload): self
+    public function on(DataMapperHook $name, mixed $payload): self
     {
-        $key = $name instanceof DataMapperHook ? $name->value : $name;
-        $this->hooks[$key] = is_array($payload) ? self::normalizeArrayKeys($payload) : $payload;
+        $this->hooks[$name->value] = is_array($payload) ? self::normalizeArrayKeys($payload) : $payload;
 
         return $this;
     }
@@ -42,9 +46,9 @@ final class Hooks
      *
      * @phpstan-param callable(array<string, mixed>):((mixed | bool))|callable(HookContext):((mixed | bool))|callable(AllContext):((mixed | bool))|callable(EntryContext):((mixed | bool))|callable(PairContext):((mixed | bool))|callable(WriteContext):((mixed | bool))|callable(mixed, array<string, mixed>):mixed|callable(mixed, HookContext):mixed|callable(mixed, PairContext):mixed|callable(mixed, WriteContext):mixed $callback
      */
-    public function onForSrc(DataMapperHook|string $name, string $srcPrefix, callable $callback): self
+    public function onForSrc(DataMapperHook $name, string $srcPrefix, callable $callback): self
     {
-        $key = $name instanceof DataMapperHook ? $name->value : $name;
+        $key = $name->value;
         $this->ensureHookBucketArray($key);
 
         /** @var array<int|string, mixed> $bucket */
@@ -60,9 +64,9 @@ final class Hooks
      *
      * @phpstan-param callable(array<string, mixed>):((mixed | bool))|callable(HookContext):((mixed | bool))|callable(AllContext):((mixed | bool))|callable(EntryContext):((mixed | bool))|callable(PairContext):((mixed | bool))|callable(WriteContext):((mixed | bool))|callable(mixed, array<string, mixed>):mixed|callable(mixed, HookContext):mixed|callable(mixed, PairContext):mixed|callable(mixed, WriteContext):mixed $callback
      */
-    public function onForTgt(DataMapperHook|string $name, string $targetPrefix, callable $callback): self
+    public function onForTgt(DataMapperHook $name, string $targetPrefix, callable $callback): self
     {
-        $key = $name instanceof DataMapperHook ? $name->value : $name;
+        $key = $name->value;
         $this->ensureHookBucketArray($key);
 
         /** @var array<int|string, mixed> $bucket */
@@ -78,14 +82,14 @@ final class Hooks
      *
      * @phpstan-param callable(array<string, mixed>):((mixed | bool))|callable(HookContext):((mixed | bool))|callable(AllContext):((mixed | bool))|callable(EntryContext):((mixed | bool))|callable(PairContext):((mixed | bool))|callable(WriteContext):((mixed | bool))|callable(mixed, array<string, mixed>):mixed|callable(mixed, HookContext):mixed|callable(mixed, PairContext):mixed|callable(mixed, WriteContext):mixed $callback
      */
-    public function onForMode(DataMapperHook|string $name, string $mode, callable $callback): self
+    public function onForMode(DataMapperHook $name, string $mode, callable $callback): self
     {
         $mode = in_array(
             $mode,
             ['simple', 'structured', 'structured-assoc', 'structured-pairs'],
             true
         ) ? $mode : 'simple';
-        $key = $name instanceof DataMapperHook ? $name->value : $name;
+        $key = $name->value;
         $this->ensureHookBucketArray($key);
 
         /** @var array<int|string, mixed> $bucket */
@@ -101,7 +105,7 @@ final class Hooks
      *
      * @phpstan-param callable(array<string, mixed>):((mixed | bool))|callable(HookContext):((mixed | bool))|callable(AllContext):((mixed | bool))|callable(EntryContext):((mixed | bool))|callable(PairContext):((mixed | bool))|callable(WriteContext):((mixed | bool))|callable(mixed, array<string, mixed>):mixed|callable(mixed, HookContext):mixed|callable(mixed, PairContext):mixed|callable(mixed, WriteContext):mixed $callback
      */
-    public function onForModeEnum(DataMapperHook|string $name, Mode $mode, callable $callback): self
+    public function onForModeEnum(DataMapperHook $name, Mode $mode, callable $callback): self
     {
         return $this->onForMode($name, $mode->value, $callback);
     }
@@ -119,9 +123,9 @@ final class Hooks
      *
      * @phpstan-param callable(array<string, mixed>):((mixed | bool))|callable(HookContext):((mixed | bool))|callable(AllContext):((mixed | bool))|callable(EntryContext):((mixed | bool))|callable(PairContext):((mixed | bool))|callable(WriteContext):((mixed | bool))|callable(mixed, array<string, mixed>):mixed|callable(mixed, HookContext):mixed|callable(mixed, PairContext):mixed|callable(mixed, WriteContext):mixed $callback
      */
-    public function onForPrefix(DataMapperHook|string $name, string $prefix, callable $callback): self
+    public function onForPrefix(DataMapperHook $name, string $prefix, callable $callback): self
     {
-        $key = $name instanceof DataMapperHook ? $name->value : $name;
+        $key = $name->value;
         $this->ensureHookBucketArray($key);
 
         /** @var array<int|string, mixed> $bucket */
@@ -218,13 +222,16 @@ final class Hooks
     /**
      * Register multiple hooks from list of pairs [name, payload].
      *
-     * @param array<int, array{0: DataMapperHook|string, 1: mixed}> $pairs
+     * @param array<int, array{0: DataMapperHook, 1: mixed}> $pairs
      */
     public function onMany(array $pairs): self
     {
         foreach ($pairs as $definition) {
             if (is_array($definition) && array_key_exists(0, $definition) && array_key_exists(1, $definition)) {
-                $this->on($definition[0], $definition[1]);
+                $name = $definition[0];
+                if ($name instanceof DataMapperHook) {
+                    $this->on($name, $definition[1]);
+                }
             }
         }
 
@@ -254,26 +261,64 @@ final class Hooks
     }
 
     /**
-     * Build hooks from either an associative array (string keys) or a list of pairs
-     * [DataMapperHook|string, mixed]. Nested arrays are normalized recursively.
+     * Build hooks from a list of pairs [DataMapperHook, mixed].
+     * Nested arrays are normalized recursively.
      *
-     * @param array<int|string, mixed> $hooks
+     * @param array<int, array{0: DataMapperHook, 1: mixed}> $hooks
      * @return array<string, mixed>
      */
     public static function build(array $hooks): array
     {
         $normalized = [];
+        foreach ($hooks as $value) {
+            if (is_array($value) && array_key_exists(0, $value) && array_key_exists(1, $value)) {
+                $name = $value[0];
+                if ($name instanceof DataMapperHook) {
+                    $payload = $value[1];
+                    $normalized[$name->value] = is_array($payload) ? self::normalizeArrayKeys($payload) : $payload;
+                }
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Normalize a hook array (internal helper for merge).
+     * Accepts both list-of-pairs and already-normalized string-keyed arrays.
+     *
+     * @param array<int|string, mixed> $hooks
+     * @return array<string, mixed>
+     */
+    private static function normalizeHookArray(array $hooks): array
+    {
+        // Check if it's a list-of-pairs (numeric keys with [DataMapperHook, payload] tuples)
+        $isListOfPairs = true;
         foreach ($hooks as $key => $value) {
-            if (is_int($key)) {
+            if (!is_int($key)) {
+                $isListOfPairs = false;
+                break;
+            }
+        }
+
+        if ($isListOfPairs) {
+            // Build from list of pairs
+            $normalized = [];
+            foreach ($hooks as $value) {
                 if (is_array($value) && array_key_exists(0, $value) && array_key_exists(1, $value)) {
                     $name = $value[0];
-                    $payload = $value[1];
-                    $hookName = $name instanceof DataMapperHook ? $name->value : (string)$name;
-                    $normalized[$hookName] = is_array($payload) ? self::normalizeArrayKeys($payload) : $payload;
+                    if ($name instanceof DataMapperHook) {
+                        $payload = $value[1];
+                        $normalized[$name->value] = is_array($payload) ? self::normalizeArrayKeys($payload) : $payload;
+                    }
                 }
-
-                continue;
             }
+            return $normalized;
+        }
+
+        // Already normalized (string keys) - just normalize nested arrays
+        $normalized = [];
+        foreach ($hooks as $key => $value) {
             $normalized[$key] = is_array($value) ? self::normalizeArrayKeys($value) : $value;
         }
 
@@ -290,7 +335,7 @@ final class Hooks
     {
         $merged = [];
         foreach ($sets as $set) {
-            $normalized = self::build($set);
+            $normalized = self::normalizeHookArray($set);
             foreach ($normalized as $key => $value) {
                 if (isset($merged[$key]) && is_array($merged[$key]) && is_array($value)) {
                     // Avoid array_merge - use foreach for better performance

@@ -25,7 +25,11 @@ describe('DataMapper Enum Support', function(): void {
         ];
 
         $contactPerson = new ContactPerson();
-        $result = DataMapper::map($data, $contactPerson, $mapping);
+        $result = DataMapper::source($data)
+            ->target($contactPerson)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
 
         expect($result)->toBeInstanceOf(ContactPerson::class);
         /** @var ContactPerson $result */
@@ -47,7 +51,11 @@ describe('DataMapper Enum Support', function(): void {
             $mapping = ['salutation' => '{{ salutation }}'];
 
             $contactPerson = new ContactPerson();
-            $result = DataMapper::map($data, $contactPerson, $mapping);
+            $result = DataMapper::source($data)
+                ->target($contactPerson)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             /** @var ContactPerson $result */
             expect($result->getSalutation())->toBe($testCase['expected']);
@@ -72,7 +80,11 @@ describe('DataMapper Enum Support', function(): void {
             $mapping = ['salutation' => '{{ salutation }}'];
 
             $contactPerson = new ContactPerson();
-            $result = DataMapper::map($data, $contactPerson, $mapping);
+            $result = DataMapper::source($data)
+                ->target($contactPerson)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             /** @var ContactPerson $result */
             expect($result->getSalutation())->toBe($expected)
@@ -85,7 +97,11 @@ describe('DataMapper Enum Support', function(): void {
         $mapping = ['salutation' => '{{ salutation }}', 'surname' => '{{ surname }}'];
 
         $contactPerson = new ContactPerson();
-        $result = DataMapper::map($data, $contactPerson, $mapping);
+        $result = DataMapper::source($data)
+            ->target($contactPerson)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
 
         /** @var ContactPerson $result */
         expect($result->getSalutation())->toBeNull();
@@ -97,7 +113,11 @@ describe('DataMapper Enum Support', function(): void {
         $mapping = ['salutation' => '{{ salutation }}'];
 
         $contactPerson = new ContactPerson();
-        $result = DataMapper::map($data, $contactPerson, $mapping);
+        $result = DataMapper::source($data)
+            ->target($contactPerson)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
 
         /** @var ContactPerson $result */
         expect($result->getSalutation())->toBe(Salutation::MRS);
@@ -113,7 +133,7 @@ describe('DataMapper Enum Support', function(): void {
         ];
 
         $contactPerson = new ContactPerson();
-        $result = DataMapper::mapFromFile($xmlFile, $contactPerson, $mapping);
+        $result = DataMapper::sourceFile($xmlFile)->target($contactPerson)->template($mapping)->map()->getTarget();
 
         expect($result)->toBeInstanceOf(ContactPerson::class);
         /** @var ContactPerson $result */
@@ -150,7 +170,11 @@ describe('DataMapper Enum Support - Doctrine', function(): void {
         ];
 
         $user = new User();
-        $result = DataMapper::map($data, $user, $mapping);
+        $result = DataMapper::source($data)
+            ->target($user)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
 
         expect($result)->toBeInstanceOf(User::class);
         /** @var User $result */
@@ -175,7 +199,11 @@ describe('DataMapper Enum Support - Doctrine', function(): void {
             $mapping = ['status' => '{{ status }}'];
 
             $user = new User();
-            $result = DataMapper::map($data, $user, $mapping);
+            $result = DataMapper::source($data)
+                ->target($user)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             /** @var User $result */
             expect($result->getStatus())->toBe($expected)
@@ -188,11 +216,14 @@ describe('DataMapper Enum Support - Doctrine', function(): void {
         $mapping = ['name' => '{{ name }}', 'status' => '{{ status }}'];
 
         $user = new User();
-        $result = DataMapper::map($data, $user, $mapping);
+        $result = DataMapper::source($data)
+            ->target($user)
+            ->template($mapping)
+            ->map()
+            ->getTarget();
 
         /** @var User $result */
         expect($result->getStatus())->toBeNull();
         expect($result->getName())->toBe('John Doe');
     });
 })->group('doctrine');
-

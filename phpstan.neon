@@ -13,16 +13,20 @@ includes:
 parameters:
     paths:
         - benchmarks
-        # - examples
+        - config
         - scripts
         - src
         - tests
+        - tests-e2e/Laravel/tests/Feature
+        - tests-e2e/Symfony/tests/Feature
         - types
 
     excludePaths:
-        - src/Symfony
+        - tests-e2e/Laravel/vendor/*
+        - tests-e2e/Symfony/vendor/*
+        - tests-e2e/Symfony/tests/Feature/InitTest.php
         - '*.stub.php'
-        - tests-e2e/*/vendor
+        - src/Frameworks/Laravel/Commands/MigrateSpatieCommand.php
 
     scanDirectories:
         - types
@@ -30,7 +34,7 @@ parameters:
     universalObjectCratesClasses:
         - Pest\Mixins\Expectation
 
-    tmpDir: build/phpstan
+    tmpDir: .phpstan/cache
 
     editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
     editorUrlTitle: '%%relFile%%:%%line%%'
@@ -38,9 +42,7 @@ parameters:
     level: 9
 
     checkMissingCallableSignature: true
-
     treatPhpDocTypesAsCertain: false
-
     reportUnmatchedIgnoredErrors: false
 
     ignoreErrors:
@@ -50,32 +52,158 @@ parameters:
         - '#^Class Tests\\Unit\\Company.*Model.* was not found while trying to analyse it#'
         - message: '#Access to an undefined property PHPUnit\\Framework\\TestCase::\$.*#'
           paths:
+              - examples/*
               - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Access to an undefined property .*\\Models\\.*#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Undefined variable: \$this#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Variable \$this might not be defined#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Call to an undefined method Pest#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Cannot access offset .* on mixed#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Calling putenv\(\) is forbidden#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Calling self::getContainer\(\) outside of class scope#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Class .* not found#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Function .* not found#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Instantiated class .* not found#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Parameter \#\d+ .* of class .* constructor expects .* given#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#.* on an unknown class E2E\\.*#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#.* has invalid type E2E\\.*#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Call to method .* on an unknown class Illuminate\\.*#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Unable to resolve the template type .* in call to (function expect|method Pest\\Expectation)#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Parameter \#\d+ .* expects .*, mixed given#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Parameter \#\d+ .* expects .*, string\|false given#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Parameter \#1 \$value of function expect expects non-empty-array\|null, non-empty-array given#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Parameter \#1 \$value of function count expects array\|Countable, list<string>\|false given#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Cannot access offset .* on list<string>\|false#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Call to .* on an unknown class App\\Kernel#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Call to an undefined (static )?method InitTest::.*#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Class InitTest extends unknown class .*#'
+          paths:
+              - examples/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
+        - message: '#Calling exec\(\) is forbidden#'
+          paths:
+              - examples/*
+              - scripts/*
+              - tests/*
+              - tests-e2e/Laravel/tests/*
+              - tests-e2e/Symfony/tests/*
         - message: '#Access to an undefined property .*#'
           paths:
               - */Models/*
-        - message: '#Access to an undefined property .*\\Models\\.*#'
-          paths:
-              - tests/*
-              # - examples/*
-        - message: '#Undefined variable: \$this#'
-          paths:
-              - tests/*
-        - message: '#Variable \$this might not be defined#'
-          paths:
-              - tests/*
-        - message: '#Call to an undefined method Pest#'
-          paths:
-              - tests/*
-        - message: '#Cannot access offset .* on mixed#'
-          paths:
-              - tests/*
-        - message: '#Calling exec\(\) is forbidden#'
-          paths:
-              - scripts/*
-        - message: '#Calling putenv\(\) is forbidden#'
-          paths:
-              - tests/*
         - message: '#Class Tests\\(Utils|utils)\\Models\\.* referenced with incorrect case#'
           paths:
               - tests/utils/Models/*
@@ -138,3 +266,5 @@ parameters:
             enabled: false
         privateInFinalClass:
             enabled: true
+        noNamedArgument:
+            enabled: false

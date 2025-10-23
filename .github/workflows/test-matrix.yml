@@ -1,0 +1,368 @@
+name: Test Matrix (Isolated)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'phpunit.xml'
+      - 'scripts/test-isolated.sh'
+      - '.github/workflows/test-matrix.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.php'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'phpunit.xml'
+      - 'scripts/test-isolated.sh'
+      - '.github/workflows/test-matrix.yml'
+  workflow_dispatch:
+
+jobs:
+  # Plain PHP Tests (no frameworks)
+  plain-php:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [8.2, 8.3, 8.4]
+
+    name: Plain PHP ${{ matrix.php }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Install minimal dependencies (no frameworks)
+        run: |
+          # Remove ALL framework packages from composer.json temporarily
+          composer remove --dev \
+            illuminate/cache illuminate/http illuminate/support illuminate/database \
+            symfony/cache symfony/config symfony/dependency-injection \
+            symfony/http-foundation symfony/http-kernel symfony/yaml \
+            symfony/serializer symfony/property-info symfony/property-access symfony/validator \
+            doctrine/collections doctrine/orm doctrine/dbal \
+            nesbot/carbon \
+            --no-update --no-interaction --quiet 2>&1 | grep -v "is not required" || true
+
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
+
+          # Remove vendor directory for clean install
+          rm -rf vendor
+
+          # Install only the minimal required packages
+          composer install --prefer-dist --no-interaction --quiet
+
+      - name: Run Plain PHP Tests
+        run: |
+          echo "🧪  Running Plain PHP Tests (no frameworks) on PHP ${{ matrix.php }}..."
+          vendor/bin/pest --colors=always --no-coverage --exclude-group=laravel --exclude-group=symfony --exclude-group=doctrine
+
+  # Laravel Isolated Tests
+  laravel-isolated:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Laravel 10 - PHP 8.2, 8.3
+          - php: 8.2
+            laravel: 10
+          - php: 8.3
+            laravel: 10
+          # Laravel 11 - PHP 8.2, 8.3, 8.4
+          - php: 8.2
+            laravel: 11
+          - php: 8.3
+            laravel: 11
+          - php: 8.4
+            laravel: 11
+
+    name: Laravel ${{ matrix.laravel }} (isolated) - PHP ${{ matrix.php }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Install minimal dependencies (no frameworks)
+        run: |
+          # Remove ALL framework packages from composer.json temporarily
+          # NOTE: Also remove Pest temporarily to avoid Symfony Console conflicts
+          composer remove --dev \
+            illuminate/cache illuminate/http illuminate/support illuminate/database \
+            symfony/cache symfony/config symfony/dependency-injection \
+            symfony/http-foundation symfony/http-kernel symfony/yaml \
+            symfony/serializer symfony/property-info symfony/property-access symfony/validator \
+            doctrine/collections doctrine/orm doctrine/dbal \
+            nesbot/carbon \
+            pestphp/pest pestphp/pest-plugin-laravel \
+            --no-update --no-interaction --quiet 2>&1 | grep -v "is not required" || true
+
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
+
+          # Remove vendor directory for clean install
+          rm -rf vendor
+
+          # Install only the minimal required packages (without Pest)
+          composer install --prefer-dist --no-interaction --quiet
+
+      - name: Install Laravel ${{ matrix.laravel }} packages
+        run: |
+          # Install Laravel packages AND Pest together
+          # This ensures Composer resolves all dependencies with the correct framework version
+          # For Laravel 10, we need to specify Pest 2.x explicitly
+          # For Laravel 11+, Composer will automatically pick the right version
+          if [ "${{ matrix.laravel }}" = "10" ]; then
+            composer require --dev \
+              illuminate/support:^${{ matrix.laravel }}.0 \
+              illuminate/database:^${{ matrix.laravel }}.0 \
+              "pestphp/pest:^2.0" \
+              "pestphp/pest-plugin-laravel:^2.0" \
+              --with-all-dependencies --no-interaction --quiet
+          else
+            composer require --dev \
+              illuminate/support:^${{ matrix.laravel }}.0 \
+              illuminate/database:^${{ matrix.laravel }}.0 \
+              pestphp/pest \
+              pestphp/pest-plugin-laravel \
+              --with-all-dependencies --no-interaction --quiet
+          fi
+
+      - name: Run Laravel ${{ matrix.laravel }} Tests
+        run: |
+          echo "🧪  Running Laravel ${{ matrix.laravel }} Tests on PHP ${{ matrix.php }}..."
+          vendor/bin/pest --colors=always --no-coverage --exclude-group=symfony --exclude-group=doctrine
+
+  # Symfony Isolated Tests
+  symfony-isolated:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [8.2, 8.3, 8.4]
+        symfony: [6, 7]
+
+    name: Symfony ${{ matrix.symfony }} (isolated) - PHP ${{ matrix.php }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Install minimal dependencies (no frameworks)
+        run: |
+          # Remove ALL framework packages from composer.json temporarily
+          composer remove --dev \
+            illuminate/cache illuminate/http illuminate/support illuminate/database \
+            symfony/cache symfony/config symfony/dependency-injection \
+            symfony/http-foundation symfony/http-kernel symfony/yaml \
+            symfony/serializer symfony/property-info symfony/property-access symfony/validator \
+            doctrine/collections doctrine/orm doctrine/dbal \
+            nesbot/carbon \
+            --no-update --no-interaction --quiet 2>&1 | grep -v "is not required" || true
+
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
+
+          # Remove vendor directory for clean install
+          rm -rf vendor
+
+          # Install only the minimal required packages
+          composer install --prefer-dist --no-interaction --quiet
+
+      - name: Install Symfony ${{ matrix.symfony }} packages
+        run: |
+          composer require --dev \
+            symfony/validator:^${{ matrix.symfony }}.0 \
+            symfony/http-kernel:^${{ matrix.symfony }}.0 \
+            symfony/http-foundation:^${{ matrix.symfony }}.0 \
+            pestphp/pest \
+            --with-all-dependencies --no-interaction --quiet
+
+      - name: Run Symfony ${{ matrix.symfony }} Tests
+        run: |
+          echo "🧪  Running Symfony ${{ matrix.symfony }} Tests on PHP ${{ matrix.php }}..."
+          vendor/bin/pest --colors=always --no-coverage --exclude-group=laravel --exclude-group=doctrine
+
+  # Doctrine Isolated Tests
+  doctrine-isolated:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [8.2, 8.3, 8.4]
+        doctrine: [2, 3]
+
+    name: Doctrine ${{ matrix.doctrine }} (isolated) - PHP ${{ matrix.php }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Install minimal dependencies (no frameworks)
+        run: |
+          # Remove ALL framework packages from composer.json temporarily
+          composer remove --dev \
+            illuminate/cache illuminate/http illuminate/support illuminate/database \
+            symfony/cache symfony/config symfony/dependency-injection \
+            symfony/http-foundation symfony/http-kernel symfony/yaml \
+            symfony/serializer symfony/property-info symfony/property-access symfony/validator \
+            doctrine/collections doctrine/orm doctrine/dbal \
+            nesbot/carbon \
+            --no-update --no-interaction --quiet 2>&1 | grep -v "is not required" || true
+
+          # Remove composer.lock to avoid conflicts with locked versions
+          rm -f composer.lock
+
+          # Remove vendor directory for clean install
+          rm -rf vendor
+
+          # Install only the minimal required packages
+          composer install --prefer-dist --no-interaction --quiet
+
+      - name: Install Doctrine ${{ matrix.doctrine }} packages
+        run: |
+          composer require --dev \
+            doctrine/orm:^${{ matrix.doctrine }}.0 \
+            doctrine/dbal:^${{ matrix.doctrine }}.0 \
+            pestphp/pest \
+            --with-all-dependencies --no-interaction --quiet
+
+      - name: Run Doctrine ${{ matrix.doctrine }} Tests
+        run: |
+          echo "🧪  Running Doctrine ${{ matrix.doctrine }} Tests on PHP ${{ matrix.php }}..."
+          vendor/bin/pest --colors=always --no-coverage --exclude-group=laravel --exclude-group=symfony
+
+  # E2E Tests (all frameworks combined)
+  e2e-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [8.2, 8.3, 8.4]
+        framework: [laravel, symfony]
+
+    name: E2E ${{ matrix.framework }} - PHP ${{ matrix.php }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Install main package dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Install E2E dependencies
+        run: |
+          cd tests-e2e/${{ matrix.framework == 'laravel' && 'Laravel' || 'Symfony' }}
+          composer install --prefer-dist --no-interaction
+
+      - name: Setup E2E environment (Laravel only)
+        if: matrix.framework == 'laravel'
+        run: |
+          cd tests-e2e/Laravel
+          bash setup.sh
+
+      - name: Execute E2E tests
+        run: |
+          cd tests-e2e/${{ matrix.framework == 'laravel' && 'Laravel' || 'Symfony' }}
+          vendor/bin/pest --no-coverage
+
+  # Summary job that depends on all others
+  test-matrix-summary:
+    runs-on: ubuntu-latest
+    needs: [plain-php, laravel-isolated, symfony-isolated, doctrine-isolated, e2e-tests]
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  Test Matrix Summary"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "Plain PHP:        ${{ needs.plain-php.result }}"
+          echo "Laravel:          ${{ needs.laravel-isolated.result }}"
+          echo "Symfony:          ${{ needs.symfony-isolated.result }}"
+          echo "Doctrine:         ${{ needs.doctrine-isolated.result }}"
+          echo "E2E Tests:        ${{ needs.e2e-tests.result }}"
+          echo ""
+          
+          if [ "${{ needs.plain-php.result }}" != "success" ] || \
+             [ "${{ needs.laravel-isolated.result }}" != "success" ] || \
+             [ "${{ needs.symfony-isolated.result }}" != "success" ] || \
+             [ "${{ needs.doctrine-isolated.result }}" != "success" ] || \
+             [ "${{ needs.e2e-tests.result }}" != "success" ]; then
+            echo "❌  Some tests failed"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            exit 1
+          else
+            echo "✅  All tests passed!"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          fi
+

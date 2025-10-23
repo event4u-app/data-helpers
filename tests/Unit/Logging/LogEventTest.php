@@ -36,4 +36,3 @@ describe('LogEvent', function(): void {
         expect(LogEvent::MAPPING_PERFORMANCE->value)->toBe('performance.mapping');
     });
 });
-

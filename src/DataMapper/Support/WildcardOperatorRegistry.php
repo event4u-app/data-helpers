@@ -84,7 +84,7 @@ class WildcardOperatorRegistry
         $normalizedName = self::normalizeName($name);
 
         if (!isset(self::$operators[$normalizedName])) {
-            throw new InvalidArgumentException(sprintf("Wildcard operator '%s' is not registered", $name));
+            throw new InvalidArgumentException('Wildcard operator "' . $name . '" is not registered');
         }
 
         return self::$operators[$normalizedName];
@@ -170,4 +170,3 @@ class WildcardOperatorRegistry
         self::$builtInRegistered = true;
     }
 }
-

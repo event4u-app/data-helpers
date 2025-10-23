@@ -6,9 +6,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use event4u\DataHelpers\DataAccessor;
 use Tests\utils\Entities\Product;
 
-/**
- * @group doctrine
- */
 describe('DataAccessor with Doctrine', function(): void {
     it('can read from Doctrine ArrayCollection', function(): void {
         $collection = new ArrayCollection([

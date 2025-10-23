@@ -110,4 +110,3 @@ if (false === $result) {
 echo "🎉 composer.json dependencies sorted successfully!\n";
 echo "\n";
 echo "📖 Review changes with: git diff composer.json\n";
-

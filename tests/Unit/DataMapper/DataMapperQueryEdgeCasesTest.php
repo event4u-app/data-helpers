@@ -286,4 +286,3 @@ describe('DataMapperQuery - Edge Cases', function(): void {
         expect($result[1]['name'])->toBe('Keyboard'); // 80
     });
 });
-

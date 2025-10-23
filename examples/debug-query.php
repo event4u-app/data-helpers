@@ -20,7 +20,7 @@ $result = DataMapper::query()
     ->get();
 
 echo "Result count: " . count($result) . "\n";
-print_r($result);
+echo json_encode($result, JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n=== Test 2: exists ===\n";
 $result2 = DataMapper::query()
@@ -29,4 +29,4 @@ $result2 = DataMapper::query()
     ->get();
 
 echo "Result count: " . count($result2) . "\n";
-print_r($result2);
+echo json_encode($result2, JSON_PRETTY_PRINT) . PHP_EOL;

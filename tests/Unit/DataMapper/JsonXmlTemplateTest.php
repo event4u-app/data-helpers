@@ -20,7 +20,7 @@ describe('JSON Template Mapping', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($jsonTemplate, $sources);
+        $result = DataMapper::source($sources)->template($jsonTemplate)->map()->getTarget();
 
         expect($result)->toBe([
             'name' => 'John Doe',
@@ -56,7 +56,7 @@ describe('JSON Template Mapping', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($jsonTemplate, $sources, true, true);
+        $result = DataMapper::source($sources)->template($jsonTemplate)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['filtered_items'])->toBe([
             ['id' => 3, 'name' => 'Banana'],
@@ -94,7 +94,7 @@ describe('JSON Template Mapping', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($jsonTemplate, $sources, true, true);
+        $result = DataMapper::source($sources)->template($jsonTemplate)->reindexWildcard(true)->map()->getTarget();
 
         expect($result['products'])->toBe([
             ['name' => 'Monitor', 'price' => 300],
@@ -120,7 +120,7 @@ XML;
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($xmlTemplate, $sources);
+        $result = DataMapper::source($sources)->template($xmlTemplate)->map()->getTarget();
 
         expect($result)->toBe([
             'name' => 'Jane Doe',
@@ -159,7 +159,7 @@ XML;
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($xmlTemplate, $sources, true, true);
+        $result = DataMapper::source($sources)->template($xmlTemplate)->reindexWildcard(true)->map()->getTarget();
 
         // XML converts to nested structure
         expect($result['filtered_items'])->toBeArray();
@@ -171,7 +171,7 @@ XML;
 
         $sources = ['user' => ['name' => 'Test']];
 
-        expect(fn(): array => DataMapper::mapFromTemplate($invalidTemplate, $sources))
+        expect(fn(): mixed => DataMapper::source($sources)->template($invalidTemplate)->map()->getTarget())
             ->toThrow(InvalidArgumentException::class, 'Template must be a valid JSON or XML string, or an array');
     });
 });
@@ -184,7 +184,7 @@ describe('Template Format Detection', function(): void {
 
         $sources = ['user' => ['name' => 'Test User']];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result)->toBe(['name' => 'Test User']);
     });
@@ -194,7 +194,7 @@ describe('Template Format Detection', function(): void {
 
         $sources = ['user' => ['name' => 'JSON User']];
 
-        $result = DataMapper::mapFromTemplate($jsonTemplate, $sources);
+        $result = DataMapper::source($sources)->template($jsonTemplate)->map()->getTarget();
 
         expect($result)->toBe(['name' => 'JSON User']);
     });
@@ -204,9 +204,8 @@ describe('Template Format Detection', function(): void {
 
         $sources = ['user' => ['name' => 'XML User']];
 
-        $result = DataMapper::mapFromTemplate($xmlTemplate, $sources);
+        $result = DataMapper::source($sources)->template($xmlTemplate)->map()->getTarget();
 
         expect($result)->toBe(['name' => 'XML User']);
     });
 });
-

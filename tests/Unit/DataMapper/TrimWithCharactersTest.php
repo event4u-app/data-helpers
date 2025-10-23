@@ -11,7 +11,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim }}'];
             $sources = ['data' => ['value' => '  hello  ']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('hello');
         });
@@ -20,7 +20,11 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $source = ['value' => '  hello  '];
             $mapping = ['result' => '{{ value | trim }}'];
 
-            $result = DataMapper::map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->target([])
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result['result'])->toBe('hello');
         });
@@ -29,8 +33,11 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $source = ['value' => '  hello  '];
             $mapping = ['result' => '{{ value }}'];
 
-            $result = DataMapper::pipe([new TrimStrings()])
-                ->map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->template($mapping)
+                ->pipeline([new TrimStrings()])
+                ->map()
+                ->getTarget();
 
             expect($result['result'])->toBe('hello');
         });
@@ -41,7 +48,11 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"-" }}'];
             $sources = ['data' => ['value' => '- Sample - Swimming Pool -']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)
+                ->template($template)
+                ->trimValues(false)
+                ->map()
+                ->getTarget();
 
             expect($result['result'])->toBe(' Sample - Swimming Pool ');
         });
@@ -50,7 +61,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:" -" }}'];
             $sources = ['data' => ['value' => '- Sample - Swimming Pool -']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Sample - Swimming Pool');
         });
@@ -59,7 +70,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"- " }}'];
             $sources = ['data' => ['value' => '- Sample - Swimming Pool -']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Sample - Swimming Pool');
         });
@@ -68,7 +79,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"-" }}'];
             $sources = ['data' => ['value' => '---Sample---']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Sample');
         });
@@ -77,7 +88,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"-" }}'];
             $sources = ['data' => ['value' => '---Sample-Text---']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('Sample-Text');
         });
@@ -88,8 +99,11 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $source = ['value' => '- Sample - Swimming Pool -'];
             $mapping = ['result' => '{{ value }}'];
 
-            $result = DataMapper::pipe([new TrimStrings(' -')])
-                ->map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->template($mapping)
+                ->pipeline([new TrimStrings(' -')])
+                ->map()
+                ->getTarget();
 
             expect($result['result'])->toBe('Sample - Swimming Pool');
         });
@@ -98,8 +112,11 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $source = ['value' => '---Sample---'];
             $mapping = ['result' => '{{ value }}'];
 
-            $result = DataMapper::pipe([new TrimStrings('-')])
-                ->map($source, [], $mapping);
+            $result = DataMapper::source($source)
+                ->template($mapping)
+                ->pipeline([new TrimStrings('-')])
+                ->map()
+                ->getTarget();
 
             expect($result['result'])->toBe('Sample');
         });
@@ -110,7 +127,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"-" }}'];
             $sources = ['data' => ['value' => '']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('');
         });
@@ -119,7 +136,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"-" }}'];
             $sources = ['data' => ['value' => '---']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('');
         });
@@ -128,7 +145,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"-" }}'];
             $sources = ['data' => ['value' => 123]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(123);
         });
@@ -137,7 +154,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"-" }}'];
             $sources = ['data' => ['value' => null]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             // Null values are skipped by default in mapFromTemplate
             expect($result)->not->toHaveKey('result');
@@ -149,7 +166,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"-" | upper }}'];
             $sources = ['data' => ['value' => '- sample -']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe(' SAMPLE ');
         });
@@ -158,7 +175,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:"-" | trim }}'];
             $sources = ['data' => ['value' => '- sample -']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('sample');
         });
@@ -167,7 +184,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['result' => '{{ data.value | trim:" -" | upper | trim }}'];
             $sources = ['data' => ['value' => '  - sample -  ']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['result'])->toBe('SAMPLE');
         });
@@ -178,7 +195,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
             $template = ['description' => '{{ data.description | trim:" -" }}'];
             $sources = ['data' => ['description' => '- Sample - Swimming Pool -']];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['description'])->toBe('Sample - Swimming Pool');
         });
@@ -195,7 +212,7 @@ describe('Trim Transformer with Custom Characters', function(): void {
                 'code' => '__CODE123__',
             ]];
 
-            $result = DataMapper::mapFromTemplate($template, $sources);
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
             expect($result['title'])->toBe('Important');
             expect($result['description'])->toBe('Sample - Swimming Pool');
@@ -203,4 +220,3 @@ describe('Trim Transformer with Custom Characters', function(): void {
         });
     });
 });
-

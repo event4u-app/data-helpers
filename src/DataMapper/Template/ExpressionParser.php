@@ -32,14 +32,27 @@ final class ExpressionParser
         if (preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $value, $matches)) {
             $expression = trim($matches[1]);
 
-            // Check for alias reference: {{ @fullname }}
+            // Check for alias reference: {{ @fullname }} or {{ @user.name ?? 'Unknown' | upper }}
             if (str_starts_with($expression, '@')) {
-                $path = substr($expression, 1); // Remove @
+                $withoutAt = substr($expression, 1); // Remove @
+
+                // Parse filters: @user.email | lower | trim
+                $parts = self::splitByPipe($withoutAt);
+                $pathWithDefault = array_shift($parts) ?? '';
+                $filters = $parts;
+
+                // Parse default value: @user.name ?? 'Unknown'
+                $default = null;
+                if ('' !== $pathWithDefault && str_contains($pathWithDefault, '??')) {
+                    [$pathWithDefault, $defaultStr] = array_map('trim', explode('??', $pathWithDefault, 2));
+                    $default = self::parseDefaultValue($defaultStr);
+                }
+
                 $result = [
                     'type' => 'alias',
-                    'path' => $path,
-                    'default' => null,
-                    'filters' => [],
+                    'path' => $pathWithDefault,
+                    'default' => $default,
+                    'filters' => $filters,
                 ];
                 $cache[$value] = $result;
                 return $result;

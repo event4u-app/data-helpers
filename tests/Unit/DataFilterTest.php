@@ -869,4 +869,3 @@ describe('DataFilter - Input/Output Formats', function(): void {
         expect($result)->toHaveCount(0);
     });
 });
-

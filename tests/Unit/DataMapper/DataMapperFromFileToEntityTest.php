@@ -8,7 +8,7 @@ use Tests\utils\Entities\Company;
 use Tests\utils\Entities\Department;
 use Tests\utils\Entities\Project;
 
-describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
+describe('DataMapper to Doctrine Entity', function(): void {
     describe('Automatic relation mapping', function(): void {
         it('maps JSON file to Company entity with automatic relation mapping', function(): void {
             $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
@@ -48,7 +48,7 @@ describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($jsonFile, $company, $mapping);
+            $result = DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 
             // Verify Company data
             expect($result)->toBeInstanceOf(Company::class);
@@ -162,7 +162,7 @@ describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
                 ],
             ];
 
-            $result = DataMapper::mapFromFile($xmlFile, $company, $mapping);
+            $result = DataMapper::sourceFile($xmlFile)->target($company)->template($mapping)->map()->getTarget();
 
             // Verify Company data (XML values are strings, but setters should convert them)
             expect($result)->toBeInstanceOf(Company::class);
@@ -237,7 +237,7 @@ describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
             expect($company->getIsActive())->toBeBool();
             expect($proj0Entity->getBudget())->toBeFloat();
         });
-    });
+    })->group('doctrine');
 
     describe('Entity comparison', function(): void {
         it('compares JSON and XML entities with identical values', function(): void {
@@ -256,7 +256,9 @@ describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
                 'annual_revenue' => '{{ company.annual_revenue }}',
                 'is_active' => '{{ company.is_active }}',
             ];
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonCompany, $jsonMapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonCompany)->template(
+                $jsonMapping
+            )->map()->getTarget();
 
             // Map XML to Company entity
             $xmlCompany = new Company();
@@ -270,7 +272,9 @@ describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
                 'annual_revenue' => '{{ annual_revenue }}',
                 'is_active' => '{{ is_active }}',
             ];
-            $xmlResult = DataMapper::mapFromFile($xmlFile, $xmlCompany, $xmlMapping);
+            $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlCompany)->template(
+                $xmlMapping
+            )->map()->getTarget();
 
             /** @var Company $jsonCompany */
             $jsonCompany = $jsonResult;
@@ -314,7 +318,9 @@ describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
                 'employee_count' => '{{ company.departments.0.employee_count }}',
                 'manager_name' => '{{ company.departments.0.manager_name }}',
             ];
-            $jsonResult = DataMapper::mapFromFile($jsonFile, $jsonDept, $jsonMapping);
+            $jsonResult = DataMapper::sourceFile($jsonFile)->target($jsonDept)->template(
+                $jsonMapping
+            )->map()->getTarget();
 
             // Map XML departments to Department entity
             $xmlDept = new Department();
@@ -325,7 +331,7 @@ describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
                 'employee_count' => '{{ departments.department.0.employee_count }}',
                 'manager_name' => '{{ departments.department.0.manager_name }}',
             ];
-            $xmlResult = DataMapper::mapFromFile($xmlFile, $xmlDept, $xmlMapping);
+            $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlDept)->template($xmlMapping)->map()->getTarget();
 
             /** @var Department $jsonDept */
             $jsonDept = $jsonResult;
@@ -348,6 +354,5 @@ describe('DataMapper::mapFromFile() to Doctrine Entity', function(): void {
             expect($xmlDept->getEmployeeCount())->toBeInt();
             expect($jsonDept->getEmployeeCount())->toBe(120);
         });
-    });
+    })->group('doctrine');
 })->group('doctrine');
-

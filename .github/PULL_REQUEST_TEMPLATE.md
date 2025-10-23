@@ -43,10 +43,10 @@ Related to #
 ### Test Commands Run
 
 ```bash
-composer refactor:fix
-composer phpstan
-composer test
-composer test:e2e
+task quality:fix
+task quality:phpstan
+task test:run
+task test:e2e
 ```
 
 ## Checklist

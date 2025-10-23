@@ -150,13 +150,12 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
             $pipes = $this->pipes();
             $source = ['request' => $data];
 
-            if ([] === $pipes) {
-                /** @var array<string, mixed> $result */
-                $result = DataMapper::map($source, $staticValues, $mappings, false);
-            } else {
-                /** @var array<string, mixed> $result */
-                $result = DataMapper::pipe($pipes)->map($source, $staticValues, $mappings, false);
-            }
+            /** @var array<string, mixed> $result */
+            $result = DataMapper::source($source)->target($staticValues)->template($mappings)->skipNull(
+                false
+            )->pipeline(
+                $pipes
+            )->map()->getTarget();
 
             $this->mappedData = $result;
         }
@@ -411,4 +410,3 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
         return json_encode($this->mappedData, JSON_THROW_ON_ERROR);
     }
 }
-

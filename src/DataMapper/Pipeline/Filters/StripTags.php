@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Strips HTML and PHP tags from string values.
@@ -13,7 +14,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
  * Useful for sanitizing user input.
  *
  * Example:
- *   DataMapper::pipe([StripTags::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([StripTags::class])->map()->getTarget();
  */
 final class StripTags implements FilterInterface
 {
@@ -24,7 +25,7 @@ final class StripTags implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string
@@ -38,4 +39,3 @@ final class StripTags implements FilterInterface
         return [];
     }
 }
-

@@ -10,6 +10,7 @@ use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\Pipeline\CallbackParameters;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 use RuntimeException;
 use Throwable;
 
@@ -20,11 +21,11 @@ use Throwable;
  * and returns the transformed value or '__skip__' to skip the value.
  *
  * Example:
- *   DataMapper::pipe([
+ *   DataMapper::source($source)->target([])->template($mapping)->pipeline([
  *       new CallbackFilter(function(CallbackParameters $params) {
  *           return strtoupper($params->value);
  *       }),
- *   ])->map($source, [], $mapping);
+ *   ])->map()->getTarget();
  */
 final readonly class CallbackFilter implements FilterInterface
 {
@@ -59,11 +60,7 @@ final readonly class CallbackFilter implements FilterInterface
         } catch (Throwable $throwable) {
             // Wrap exception with context and handle via MapperExceptions
             $exception = new RuntimeException(
-                sprintf(
-                    'Callback filter failed for path "%s": %s',
-                    $context->tgtPath() ?? 'unknown',
-                    $throwable->getMessage()
-                ),
+                'Callback filter failed for path "' . ($context->tgtPath() ?? 'unknown') . '": ' . $throwable->getMessage(),
                 0,
                 $throwable
             );
@@ -77,7 +74,7 @@ final readonly class CallbackFilter implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string
@@ -109,4 +106,3 @@ final readonly class CallbackFilter implements FilterInterface
         return end($parts);
     }
 }
-

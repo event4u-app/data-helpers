@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\DataMapper\Pipeline\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
  * Decodes HTML entities in string values.
@@ -16,7 +17,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
  * Uses html_entity_decode() with ENT_QUOTES | ENT_HTML5 flags.
  *
  * Example:
- *   DataMapper::pipe([DecodeHtmlEntities::class])->map($source, $target, $mapping);
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([DecodeHtmlEntities::class])->map()->getTarget();
  *   Template: {{ value | decode_html }}
  *   Template: {{ value | html_decode }}
  *
@@ -52,7 +53,7 @@ final class DecodeHtmlEntities implements FilterInterface
 
     public function getHook(): string
     {
-        return 'preTransform';
+        return DataMapperHook::BeforeTransform->value;
     }
 
     public function getFilter(): ?string
@@ -66,4 +67,3 @@ final class DecodeHtmlEntities implements FilterInterface
         return ['decode_html', 'html_decode', 'decode_entities'];
     }
 }
-

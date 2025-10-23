@@ -47,7 +47,7 @@ tests-e2e/
 ### Run All E2E Tests
 
 ```bash
-composer test:e2e
+task test:e2e
 ```
 
 This will:
@@ -60,12 +60,12 @@ This will:
 
 **Laravel only:**
 ```bash
-composer test:e2e-laravel
+task test:e2e:laravel
 ```
 
 **Symfony only:**
 ```bash
-composer test:e2e-symfony
+task test:e2e:symfony
 ```
 
 ### Manual Execution
@@ -154,7 +154,7 @@ The E2E tests can be integrated into CI/CD pipelines:
 ```yaml
 # GitHub Actions example
 - name: Run E2E Tests
-  run: composer test:e2e
+  run: task test:e2e
 ```
 
 **Note:** E2E tests are slower than unit tests, so consider:

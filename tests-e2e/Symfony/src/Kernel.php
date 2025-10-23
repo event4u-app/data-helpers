@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
-use event4u\DataHelpers\Symfony\DataHelpersBundle;
+use event4u\DataHelpers\Frameworks\Symfony\DataHelpersBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;

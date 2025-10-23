@@ -43,4 +43,3 @@ final class LimitOperator extends AbstractOperator
         return array_slice($items, 0, $config, true);
     }
 }
-

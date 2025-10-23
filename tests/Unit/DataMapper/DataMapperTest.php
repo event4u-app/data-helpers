@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 use Illuminate\Database\Eloquent\Model;
 
 describe('DataMapper', function(): void {
@@ -21,7 +22,11 @@ describe('DataMapper', function(): void {
                 'target2.subtarget4.subsub9' => '{{ key1.subkey3 }}',
             ];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'target2' => [
@@ -45,7 +50,11 @@ describe('DataMapper', function(): void {
                 'profile.contact.email' => '{{ user.email }}',
             ];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'profile' => [
@@ -74,7 +83,11 @@ describe('DataMapper', function(): void {
                 ],
             ];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'profile' => [
@@ -102,7 +115,11 @@ describe('DataMapper', function(): void {
                 'emails.*' => '{{ users.*.email }}',
             ];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'emails' => [
@@ -121,7 +138,11 @@ describe('DataMapper', function(): void {
                 'third' => '{{ 2 }}',
             ];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'first' => 'Alice',
@@ -145,7 +166,11 @@ describe('DataMapper', function(): void {
                 'result.nested' => '{{ nested.sub }}',
             ];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'result' => [
@@ -186,7 +211,11 @@ describe('DataMapper', function(): void {
                 ],
             ];
 
-            $result = DataMapper::map(null, null, $structured);
+            $result = DataMapper::source(null)
+                ->target(null)
+                ->template($structured)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'profile' => [
@@ -211,17 +240,19 @@ describe('DataMapper', function(): void {
             ]);
             $resultDTO = [];
 
-            $results = DataMapper::mapMany([
-                [
-                    'source' => $userModel,
-                    'sourceMapping' => ['name', 'email'],
-                    'target' => $resultDTO,
-                    'targetMapping' => ['profile.fullname', 'profile.contact.email'],
-                ],
-            ]);
+            $template = [
+                'profile.fullname' => '{{ name }}',
+                'profile.contact.email' => '{{ email }}',
+            ];
+
+            $results = DataMapper::template($template)
+                ->target($resultDTO)
+                ->mapMany([
+                    ['source' => $userModel, 'target' => $resultDTO],
+                ]);
 
             expect($results)->toHaveCount(1);
-            expect($results[0])->toBe([
+            expect($results[0]->getTarget())->toBe([
                 'profile' => [
                     'fullname' => 'Alice',
                     'contact' => [
@@ -239,18 +270,20 @@ describe('DataMapper', function(): void {
                 'email' => null,
             ]);
 
+            $template = [
+                'profile.fullname' => '{{ name }}',
+                'profile.contact.email' => '{{ email }}',
+            ];
+
             // Global skipNull=false => null included
-            $results = DataMapper::mapMany([
-                [
-                    'source' => $userModel,
-                    'sourceMapping' => ['name', 'email'],
-                    'target' => [],
-                    'targetMapping' => ['profile.fullname', 'profile.contact.email'],
-                ],
-            ], false);
+            $results = DataMapper::template($template)
+                ->skipNull(false)
+                ->mapMany([
+                    ['source' => $userModel, 'target' => []],
+                ]);
 
             expect($results)->toHaveCount(1);
-            expect($results[0])->toBe([
+            expect($results[0]->getTarget())->toBe([
                 'profile' => [
                     'fullname' => 'Alice',
                     'contact' => [
@@ -260,17 +293,13 @@ describe('DataMapper', function(): void {
             ]);
 
             // Per-entry override skipNull=true => null skipped
-            $results2 = DataMapper::mapMany([
-                [
-                    'source' => $userModel,
-                    'sourceMapping' => ['name', 'email'],
-                    'target' => [],
-                    'targetMapping' => ['profile.fullname', 'profile.contact.email'],
-                    'skipNull' => true,
-                ],
-            ], false);
+            $results2 = DataMapper::template($template)
+                ->skipNull(true)
+                ->mapMany([
+                    ['source' => $userModel, 'target' => []],
+                ]);
 
-            expect($results2[0])->toBe([
+            expect($results2[0]->getTarget())->toBe([
                 'profile' => [
                     'fullname' => 'Alice',
                 ],
@@ -299,7 +328,11 @@ describe('DataMapper', function(): void {
                 ],
             ];
 
-            $result = DataMapper::map(null, null, $structured);
+            $result = DataMapper::source(null)
+                ->target(null)
+                ->template($structured)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'profile' => [
@@ -331,7 +364,11 @@ describe('DataMapper', function(): void {
                 ],
             ];
 
-            $result = DataMapper::map(null, null, $structured);
+            $result = DataMapper::source(null)
+                ->target(null)
+                ->template($structured)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'profile' => [
@@ -354,7 +391,11 @@ describe('DataMapper', function(): void {
                 'user.email' => '{{ email }}',
             ];
 
-            $result = DataMapper::map($source, $target, $mapping);
+            $result = DataMapper::source($source)
+                ->target($target)
+                ->template($mapping)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'user' => [
@@ -381,7 +422,11 @@ describe('DataMapper', function(): void {
                 ],
             ];
 
-            $result = DataMapper::map(null, null, $structured);
+            $result = DataMapper::source(null)
+                ->target(null)
+                ->template($structured)
+                ->map()
+                ->getTarget();
 
             expect($result)->toBe([
                 'user' => [
@@ -403,8 +448,14 @@ describe('DataMapper', function(): void {
                 ],
             ];
 
-            expect(fn(): mixed => DataMapper::map(null, null, $structured))
-                ->toThrow(InvalidArgumentException::class, 'source=2, target=1');
+            expect(function() use ($structured): mixed {
+                MapperExceptions::setCollectExceptionsEnabled(false);
+                return DataMapper::source(null)
+                    ->target(null)
+                    ->template($structured)
+                    ->map()
+                    ->getTarget();
+            })->toThrow(InvalidArgumentException::class, 'source=2, target=1');
         });
 
         test('throws when mapping pair is invalid', function(): void {
@@ -418,8 +469,14 @@ describe('DataMapper', function(): void {
                 ],
             ];
 
-            expect(fn(): mixed => DataMapper::map(null, null, $structured))
-                ->toThrow(InvalidArgumentException::class, 'Invalid mapping pair');
+            expect(function() use ($structured): mixed {
+                MapperExceptions::setCollectExceptionsEnabled(false);
+                return DataMapper::source(null)
+                    ->target(null)
+                    ->template($structured)
+                    ->map()
+                    ->getTarget();
+            })->toThrow(InvalidArgumentException::class, 'Invalid mapping pair');
         });
 
         test('throws when mapping paths are not strings', function(): void {
@@ -433,8 +490,14 @@ describe('DataMapper', function(): void {
                 ],
             ];
 
-            expect(fn(): mixed => DataMapper::map(null, null, $structured))
-                ->toThrow(InvalidArgumentException::class, 'Mapping paths must be strings.');
+            expect(function() use ($structured): mixed {
+                MapperExceptions::setCollectExceptionsEnabled(false);
+                return DataMapper::source(null)
+                    ->target(null)
+                    ->template($structured)
+                    ->map()
+                    ->getTarget();
+            })->toThrow(InvalidArgumentException::class, 'Mapping paths must be strings.');
         });
     });
 
@@ -449,7 +512,12 @@ describe('DataMapper', function(): void {
             'user.email' => '{{ email }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping, false);
+        $result = DataMapper::source($source)
+            ->target($target)
+            ->template($mapping)
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
 
         expect($result)->toBe([
             'user' => [
@@ -478,7 +546,12 @@ describe('DataMapper', function(): void {
             ],
         ];
 
-        $result = DataMapper::map(null, null, $structured, false);
+        $result = DataMapper::source(null)
+            ->target(null)
+            ->template($structured)
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
         expect($result)->toBe([
             'user' => [
                 'name' => 'Alice',
@@ -499,7 +572,12 @@ describe('DataMapper', function(): void {
             ],
         ];
 
-        $result2 = DataMapper::map(null, null, $structuredOverride, false);
+        $result2 = DataMapper::source(null)
+            ->target(null)
+            ->template($structuredOverride)
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
         expect($result2)->toBe([
             'user' => [
                 'name' => 'Alice',
@@ -537,7 +615,7 @@ describe('Template mapping', function(): void {
             ],
         ];
 
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::template($template)->sources($sources)->map()->getTarget();
 
         expect($result)->toBe([
             'profile' => [
@@ -568,11 +646,11 @@ describe('Template mapping', function(): void {
             ],
         ];
 
-        $json = json_encode([
+        $template = [
             'emails' => '{{ src.users.*.email }}',
-        ], JSON_THROW_ON_ERROR);
+        ];
 
-        $result = DataMapper::mapFromTemplate($json, $sources, true);
+        $result = DataMapper::template($template)->sources($sources)->skipNull(true)->map()->getTarget();
 
         expect($result)->toBe([
             'emails' => [
@@ -591,7 +669,7 @@ describe('Template mapping', function(): void {
         $template = [
             'out' => '{{ src.value }}',
         ];
-        $result = DataMapper::mapFromTemplate($template, $sources, false);
+        $result = DataMapper::template($template)->sources($sources)->skipNull(false)->map()->getTarget();
         expect($result)->toBe([
             'out' => null,
         ]);
@@ -608,7 +686,7 @@ describe('Template mapping', function(): void {
             'unknown' => '{{ foo.bar }}',
             'fullname' => '{{ user.name }}',
         ];
-        $result = DataMapper::mapFromTemplate($template, $sources);
+        $result = DataMapper::template($template)->sources($sources)->map()->getTarget();
         expect($result)->toBe([
             'title' => 'Hello',
             // 'unknown' is skipped because it's null and skipNull=true (default)
@@ -637,7 +715,11 @@ describe('Reindexing in map and mapMany', function(): void {
             'emails.*' => '{{ users.*.email }}',
         ];
 
-        $resultDefault = DataMapper::map($source, [], $mapping, true);
+        $resultDefault = DataMapper::source($source)
+            ->target([])
+            ->template($mapping)
+            ->map()
+            ->getTarget();
         expect($resultDefault)->toBe([
             'emails' => [
                 0 => 'a@example.com',
@@ -645,7 +727,12 @@ describe('Reindexing in map and mapMany', function(): void {
             ],
         ]);
 
-        $resultReindexed = DataMapper::map($source, [], $mapping, true, true);
+        $resultReindexed = DataMapper::source($source)
+            ->target([])
+            ->template($mapping)
+            ->reindexWildcard(true)
+            ->map()
+            ->getTarget();
         expect($resultReindexed)->toBe([
             'emails' => ['a@example.com', 'b@example.com'],
         ]);
@@ -666,32 +753,32 @@ describe('Reindexing in map and mapMany', function(): void {
             ],
         ];
 
-        $resultsDefault = DataMapper::mapMany([
-            [
-                'source' => $source,
-                'target' => [],
-                'sourceMapping' => ['users.*.email'],
-                'targetMapping' => ['emails.*'],
-            ],
-        ], true);
+        $template = [
+            'emails.*' => '{{ users.*.email }}',
+        ];
 
-        expect($resultsDefault[0])->toBe([
+        $resultsDefault = DataMapper::template($template)
+            ->skipNull(true)
+            ->reindexWildcard(false)
+            ->mapMany([
+                ['source' => $source, 'target' => []],
+            ]);
+
+        expect($resultsDefault[0]->getTarget())->toBe([
             'emails' => [
                 0 => 'a@example.com',
                 2 => 'b@example.com',
             ],
         ]);
 
-        $resultsReindexed = DataMapper::mapMany([
-            [
-                'source' => $source,
-                'target' => [],
-                'sourceMapping' => ['users.*.email'],
-                'targetMapping' => ['emails.*'],
-            ],
-        ], true, true);
+        $resultsReindexed = DataMapper::template($template)
+            ->skipNull(true)
+            ->reindexWildcard(true)
+            ->mapMany([
+                ['source' => $source, 'target' => []],
+            ]);
 
-        expect($resultsReindexed[0])->toBe([
+        expect($resultsReindexed[0]->getTarget())->toBe([
             'emails' => ['a@example.com', 'b@example.com'],
         ]);
     });
@@ -713,16 +800,20 @@ describe('Structured mapping per-entry reindex override', function(): void {
             ],
         ];
 
-        $result = DataMapper::map(null, [], [
-            [
-                'source' => $source,
-                'target' => [],
-                'sourceMapping' => ['users.*.email'],
-                'targetMapping' => ['emails.*'],
-                'skipNull' => true,
-                'reindexWildcard' => true,
-            ],
-        ], true, false);
+        $result = DataMapper::source(null)
+            ->target([])
+            ->template([
+                [
+                    'source' => $source,
+                    'target' => [],
+                    'sourceMapping' => ['users.*.email'],
+                    'targetMapping' => ['emails.*'],
+                    'skipNull' => true,
+                    'reindexWildcard' => true,
+                ],
+            ])
+            ->map()
+            ->getTarget();
 
         expect($result)->toBe([
             'emails' => ['a@example.com', 'b@example.com'],
@@ -744,16 +835,21 @@ describe('Structured mapping per-entry reindex override', function(): void {
             ],
         ];
 
-        $result = DataMapper::map(null, [], [
-            [
-                'source' => $source,
-                'target' => [],
-                'sourceMapping' => ['users.*.email'],
-                'targetMapping' => ['emails.*'],
-                'skipNull' => true,
-                'reindexWildcard' => false,
-            ],
-        ], true, true);
+        $result = DataMapper::source(null)
+            ->target([])
+            ->template([
+                [
+                    'source' => $source,
+                    'target' => [],
+                    'sourceMapping' => ['users.*.email'],
+                    'targetMapping' => ['emails.*'],
+                    'skipNull' => true,
+                    'reindexWildcard' => false,
+                ],
+            ])
+            ->reindexWildcard(true)
+            ->map()
+            ->getTarget();
 
         expect($result)->toBe([
             'emails' => [
@@ -781,11 +877,13 @@ test('JSON template with wildcard can reindex sequentially', function(): void {
         ],
     ];
 
-    $json = json_encode([
+    $template = [
         'emails' => '{{ src.users.*.email }}',
-    ], JSON_THROW_ON_ERROR);
+    ];
 
-    $result = DataMapper::mapFromTemplate($json, $sources, true, true);
+    $result = DataMapper::template($template)->sources($sources)->skipNull(true)->reindexWildcard(
+        true
+    )->map()->getTarget();
 
     expect($result)->toBe([
         'emails' => ['a@example.com', 'b@example.com'],
@@ -822,7 +920,7 @@ describe('Inverse template mapping (apply values to targets)', function(): void 
             ],
         ];
 
-        $res = DataMapper::mapToTargetsFromTemplate($data, $template, $targets);
+        $res = DataMapper::source($data)->target($targets)->template($template)->map()->getTarget();
 
         $acc = new DataAccessor($res['user']);
         expect($acc->get('name'))->toBe('Alice');
@@ -843,7 +941,9 @@ describe('Inverse template mapping (apply values to targets)', function(): void 
             'names' => ['Alice', null, 'Bob'],
         ];
 
-        $res = DataMapper::mapToTargetsFromTemplate($data, $template, $targets, true, false);
+        $res = DataMapper::source($data)->target($targets)->template($template)->skipNull(true)->reindexWildcard(
+            false
+        )->map()->getTarget();
 
         expect($res['people'])->toBe([
             0 => [
@@ -866,7 +966,9 @@ describe('Inverse template mapping (apply values to targets)', function(): void 
             'names' => ['Alice', null, 'Bob'],
         ];
 
-        $res = DataMapper::mapToTargetsFromTemplate($data, $template, $targets, true, true);
+        $res = DataMapper::source($data)->target($targets)->template($template)->skipNull(true)->reindexWildcard(
+            true
+        )->map()->getTarget();
 
         expect($res['people'])->toBe([
             [
@@ -885,15 +987,19 @@ describe('Transforms', function(): void {
             'name' => 'Alice',
             'email' => 'ALICE@EXAMPLE.COM',
         ];
-        $res = DataMapper::map(null, [], [
-            [
-                'source' => $source,
-                'target' => [],
-                'sourceMapping' => ['name', 'email'],
-                'targetMapping' => ['out.nameUpper', 'out.emailLower'],
-                'transforms' => ['strtoupper', 'strtolower'],
-            ],
-        ]);
+        $res = DataMapper::source(null)
+            ->target([])
+            ->template([
+                [
+                    'source' => $source,
+                    'target' => [],
+                    'sourceMapping' => ['name', 'email'],
+                    'targetMapping' => ['out.nameUpper', 'out.emailLower'],
+                    'transforms' => ['strtoupper', 'strtolower'],
+                ],
+            ])
+            ->map()
+            ->getTarget();
 
         expect($res)->toBe([
             'out' => [
@@ -911,20 +1017,24 @@ describe('Transforms', function(): void {
             ],
         ];
         $dto = [];
-        $res = DataMapper::map(null, null, [
-            [
-                'source' => $source,
-                'target' => $dto,
-                'mapping' => [
-                    'user.name' => 'profile.fullname',
-                    'user.email' => 'profile.email',
+        $res = DataMapper::source(null)
+            ->target(null)
+            ->template([
+                [
+                    'source' => $source,
+                    'target' => $dto,
+                    'mapping' => [
+                        'user.name' => 'profile.fullname',
+                        'user.email' => 'profile.email',
+                    ],
+                    'transforms' => [
+                        'user.name' => 'strtoupper',
+                        'user.email' => 'strtolower',
+                    ],
                 ],
-                'transforms' => [
-                    'user.name' => 'strtoupper',
-                    'user.email' => 'strtolower',
-                ],
-            ],
-        ]);
+            ])
+            ->map()
+            ->getTarget();
 
         expect($res)->toBe([
             'profile' => [
@@ -942,17 +1052,21 @@ describe('Transforms', function(): void {
             ],
         ];
         $dto = [];
-        $res = DataMapper::map(null, null, [
-            [
-                'source' => $source,
-                'target' => $dto,
-                'mapping' => [
-                    ['user.name', 'profile.fullname'],
-                    ['user.email', 'profile.email'],
+        $res = DataMapper::source(null)
+            ->target(null)
+            ->template([
+                [
+                    'source' => $source,
+                    'target' => $dto,
+                    'mapping' => [
+                        ['user.name', 'profile.fullname'],
+                        ['user.email', 'profile.email'],
+                    ],
+                    'transforms' => ['strtoupper', 'strtolower'],
                 ],
-                'transforms' => ['strtoupper', 'strtolower'],
-            ],
-        ]);
+            ])
+            ->map()
+            ->getTarget();
 
         expect($res)->toBe([
             'profile' => [
@@ -977,19 +1091,23 @@ describe('Transforms', function(): void {
             ],
         ];
 
-        $res = DataMapper::map(null, [], [
-            [
-                'source' => $source,
-                'target' => [],
-                'sourceMapping' => ['users.*.email'],
-                'targetMapping' => ['out.*'],
-                'skipNull' => true,
-                'reindexWildcard' => true,
-                'transforms' => [
-                    static fn(mixed $v): mixed => is_string($v) ? strtoupper($v) : $v,
+        $res = DataMapper::source(null)
+            ->target([])
+            ->template([
+                [
+                    'source' => $source,
+                    'target' => [],
+                    'sourceMapping' => ['users.*.email'],
+                    'targetMapping' => ['out.*'],
+                    'skipNull' => true,
+                    'reindexWildcard' => true,
+                    'transforms' => [
+                        static fn(mixed $v): mixed => is_string($v) ? strtoupper($v) : $v,
+                    ],
                 ],
-            ],
-        ]);
+            ])
+            ->map()
+            ->getTarget();
 
         expect($res)->toBe([
             'out' => ['A@EXAMPLE.COM', 'B@EXAMPLE.COM'],

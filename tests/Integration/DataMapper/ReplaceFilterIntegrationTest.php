@@ -13,7 +13,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:"Mr":"Herr" }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Hello Herr Smith');
     });
 
@@ -25,7 +25,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:[Mr,Mrs]:Person }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Person and Person Smith');
     });
 
@@ -37,7 +37,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:[Mr,Mrs]:[Herr,Frau] }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Herr and Frau Smith');
     });
 
@@ -49,7 +49,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:"mr":"herr" | ucfirst }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Hello herr smith');
     });
 
@@ -61,7 +61,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:[Mr,Mrs,Smith]:[Herr,Frau,Schmidt] }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Herr and Frau Schmidt');
     });
 
@@ -73,7 +73,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:"Mr":"" }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Hello  Smith');
     });
 
@@ -85,7 +85,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:"Mr":"Herr" }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Hello mr and Herr Smith');
     });
 
@@ -97,7 +97,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:"mr":"Herr":true }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Hello Herr and Herr Smith');
     });
 
@@ -114,7 +114,7 @@ describe('Replace Filter Integration', function(): void {
             'results.*' => '{{ items.*.text | replace:[Mr,Mrs]:[Herr,Frau] }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['results'])->toBe([
             'Hello Herr Smith',
             'Hello Frau Jones',
@@ -129,7 +129,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:"$":"€" }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Price: €100');
     });
 
@@ -141,8 +141,7 @@ describe('Replace Filter Integration', function(): void {
             'result' => '{{ text | replace:"1.0":"2.0" }}',
         ];
 
-        $result = DataMapper::map($source, $target, $mapping);
+        $result = DataMapper::source($source)->target($target)->template($mapping)->map()->getTarget();
         expect($result['result'])->toBe('Version 2.0');
     });
 });
-

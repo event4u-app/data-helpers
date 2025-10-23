@@ -125,4 +125,3 @@ describe('TemplateParser', function(): void {
         });
     });
 });
-

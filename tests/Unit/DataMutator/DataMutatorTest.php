@@ -818,7 +818,7 @@ describe('DataMutator', function(): void {
 
             DataMutator::set($dto, 'dynamicProperty', 'value');
 
-            // @phpstan-ignore-next-line intentional dynamic property created by mutator in test
+            /** @phpstan-ignore-next-line unknown */
             expect($dto->dynamicProperty)->toBe('value');
         });
 
@@ -1289,7 +1289,7 @@ describe('DataMutator', function(): void {
             $data = [];
 
             expect(fn(): array|object => DataMutator::set($data, 'a..b', 'value'))
-                ->toThrow(InvalidArgumentException::class, "Invalid dot-path syntax: double dot in 'a..b'");
+                ->toThrow(InvalidArgumentException::class, 'Invalid dot-path syntax: double dot in "a..b"');
         });
 
         test('can set values in mixed object-array structures', function(): void {
@@ -1360,10 +1360,10 @@ describe('DataMutator', function(): void {
             /** @var object $o2 */
             $o2 = $result['items'][2];
 
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($o0->name)->toBe('updated');
             expect($a1['name'])->toBe('updated');
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($o2->name)->toBe('updated');
         });
 
@@ -1438,7 +1438,6 @@ describe('DataMutator', function(): void {
 
             $result = DataMutator::set($data, [
                 'value' => 'second',
-                // @phpstan-ignore-next-line duplicate key intentional for overwrite behavior
                 'nested.value' => 'nested_second', // This should overwrite too
             ]);
 
@@ -1579,41 +1578,30 @@ describe('DataMutator', function(): void {
         test('numeric merge with string keys that look like numbers', function(): void {
             $data = [
                 'mixed' => [
-                    // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
+                    /** @phpstan-ignore-next-line unknown */
                     '0' => 'string_zero',
-                    // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
                     0 => 'int_zero',
-                    // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
+                    /** @phpstan-ignore-next-line unknown */
                     '1' => 'string_one',
-                    // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
 
-                    // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
                     1 => 'int_one',
-                    // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
                 ],
-                // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
             ];
 
             $result = DataMutator::set($data, 'mixed', [
-                // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
+                /** @phpstan-ignore-next-line unknown */
                 '0' => 'new_string_zero',
-                // @phpstan-ignore-next-line duplicate numeric/string keys intentional for test
                 0 => 'new_int_zero',
             ], true);
-            // @phpstan-ignore-next-line duplicate numeric keys intentional for expected array literal
 
             expect($result)->toBe([
                 'mixed' => [
-                    // @phpstan-ignore-next-line duplicate numeric keys intentional for expected array literal
+                    /** @phpstan-ignore-next-line unknown */
                     '0' => 'new_string_zero',
 
-                    // @phpstan-ignore-next-line duplicate numeric keys intentional for expected array literal
-
                     0 => 'new_int_zero',
-                    // @phpstan-ignore-next-line duplicate numeric keys intentional for expected array literal
+                    /** @phpstan-ignore-next-line unknown */
                     '1' => 'string_one',
-
-                    // @phpstan-ignore-next-line duplicate numeric keys intentional for expected array literal
 
                     1 => 'int_one',
                 ],
@@ -1833,7 +1821,7 @@ describe('DataMutator', function(): void {
             $dto = new class {
                 public string $name = 'Alice';
 
-                /** @phpstan-ignore property.unusedType */
+                /** @phpstan-ignore-next-line unknown */
                 private ?string $secret = 'hidden';
 
                 public function getSecret(): ?string
@@ -2145,13 +2133,13 @@ describe('DataMutator', function(): void {
             /** @var array{users: array<int, object>} $result */
             assert(is_array($result));
 
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($result['users'][0]->name)->toBe('Alice');
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($result['users'][0]->email)->toBeNull();
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($result['users'][1]->name)->toBe('Bob');
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($result['users'][1]->email)->toBeNull();
         });
 
@@ -2287,9 +2275,9 @@ describe('DataMutator', function(): void {
 
             DataMutator::unset($dto, 'profile.city');
 
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($dto->profile->name)->toBe('Alice');
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($dto->profile->city)->toBeNull();
         });
 
@@ -2784,13 +2772,13 @@ describe('DataMutator', function(): void {
             /** @var array{organizations: array<int, object>} $result */
             assert(is_array($result));
 
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($result['organizations'][0]->divisions[0]['locations'][0]['country'])->toBe('USA');
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($result['organizations'][0]->divisions[0]['locations'][1]['country'])->toBe('USA');
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($result['organizations'][0]->divisions[1]['locations'][0]['country'])->toBe('USA');
-            // @phpstan-ignore-next-line property exists on anonymous class in test context
+            /** @phpstan-ignore-next-line unknown */
             expect($result['organizations'][1]->divisions[0]['locations'][0]['country'])->toBe('USA');
         });
 
@@ -3227,21 +3215,21 @@ describe('DataMutator', function(): void {
 
     describe('Error handling', function(): void {
         test('throws TypeError for unsupported target types', function(): void {
-            // @phpstan-ignore-next-line intentional invalid target for error handling test
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): array|object => DataMutator::set('string', 'path', 'value'))
                 ->toThrow(TypeError::class);
 
-            // @phpstan-ignore-next-line intentional invalid target for error handling test
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): array|object => DataMutator::set(42, 'path', 'value'))
                 ->toThrow(TypeError::class);
 
-            // @phpstan-ignore-next-line intentional invalid target for error handling test
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): array|object => DataMutator::set(true, 'path', 'value'))
                 ->toThrow(TypeError::class);
         });
 
         test('unset throws TypeError for unsupported target types', function(): void {
-            // @phpstan-ignore-next-line intentional invalid target for error handling test
+            /** @phpstan-ignore-next-line unknown */
             expect(fn(): array|object => DataMutator::unset('string', 'path'))
                 ->toThrow(TypeError::class);
         });

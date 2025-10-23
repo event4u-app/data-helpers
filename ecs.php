@@ -36,6 +36,7 @@ use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use PhpCsFixer\Fixer\Strict\StrictComparisonFixer;
 use PhpCsFixer\Fixer\Whitespace\LineEndingFixer;
 use PhpCsFixer\Fixer\Whitespace\NoExtraBlankLinesFixer;
+use PhpCsFixer\Fixer\Whitespace\SingleBlankLineAtEofFixer;
 use Symplify\CodingStandard\Fixer\Annotation\RemovePropertyVariableNameDescriptionFixer;
 use Symplify\CodingStandard\Fixer\Commenting\RemoveUselessDefaultCommentFixer;
 use Symplify\CodingStandard\Fixer\LineLength\LineLengthFixer;
@@ -55,6 +56,7 @@ return ECSConfig::configure()
     ->withRules([
         TrailingCommaInMultilineFixer::class,
         LineEndingFixer::class,
+        SingleBlankLineAtEofFixer::class,
     ])
     ->withConfiguredRule(CastSpacesFixer::class, [
         'space' => 'none',
@@ -154,4 +156,3 @@ return ECSConfig::configure()
         __DIR__ . '/tests-e2e/*/vendor',
         __DIR__ . '/tests-e2e/*/composer.lock',
     ]);
-
