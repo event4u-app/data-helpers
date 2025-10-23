@@ -5,6 +5,8 @@ import starlightThemeRapide from 'starlight-theme-rapide';
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://event4u-app.github.io',
+	base: '/data-helpers',
 	integrations: [
 		starlight({
 			title: 'event4u Data Helpers',
