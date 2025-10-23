@@ -5,7 +5,7 @@ description: Examples for integrating with external APIs
 
 Examples for integrating with external APIs.
 
-## Overview
+## Introduction
 
 Common patterns for API integration:
 

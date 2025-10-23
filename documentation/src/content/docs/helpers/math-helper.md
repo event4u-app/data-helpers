@@ -28,7 +28,7 @@ $time = MathHelper::convertMinutesToHourMinutes(125); // '02:05'
 $minutes = MathHelper::convertHoursMinutesToMinutes('02:05'); // 125
 ```
 
-## Overview
+## Introduction
 
 MathHelper provides high-precision arithmetic operations using BCMath.
 

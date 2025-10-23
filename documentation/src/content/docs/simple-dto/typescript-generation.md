@@ -5,7 +5,7 @@ description: Automatically generate TypeScript types from your DTOs
 
 Learn how to automatically generate TypeScript types from your DTOs.
 
-## Overview
+## Introduction
 
 SimpleDTO can automatically generate TypeScript interfaces and types from your PHP DTOs:
 

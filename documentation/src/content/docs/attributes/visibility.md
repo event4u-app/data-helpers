@@ -5,7 +5,7 @@ description: Reference for visibility control attributes
 
 Reference for visibility control attributes.
 
-## Overview
+## Introduction
 
 SimpleDTO provides visibility attributes:
 

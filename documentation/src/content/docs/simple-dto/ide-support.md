@@ -5,7 +5,7 @@ description: Configure your IDE for the best SimpleDTO development experience
 
 Learn how to configure your IDE for the best SimpleDTO development experience.
 
-## Overview
+## Introduction
 
 SimpleDTO provides excellent IDE support with:
 

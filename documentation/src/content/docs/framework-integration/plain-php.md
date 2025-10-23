@@ -5,7 +5,7 @@ description: Complete guide for using Data Helpers in plain PHP projects
 
 Complete guide for using Data Helpers in plain PHP projects.
 
-## Overview
+## Introduction
 
 Data Helpers works perfectly in **plain PHP projects** without any framework:
 

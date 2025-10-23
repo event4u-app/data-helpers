@@ -31,7 +31,7 @@ $data = DataMutator::unset($data, 'users.*.password');
 // Result: ['users' => [['name' => 'Alice'], ['name' => 'Bob']]]
 ```
 
-## Overview
+## Introduction
 
 DataMutator provides three main operations:
 

@@ -5,7 +5,7 @@ description: Complete guide for using Data Helpers with Doctrine ORM
 
 Complete guide for using Data Helpers with Doctrine ORM.
 
-## Overview
+## Introduction
 
 Data Helpers provides seamless Doctrine integration:
 

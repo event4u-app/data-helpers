@@ -5,7 +5,7 @@ description: Powerful template expression engine for declarative data transforma
 
 Powerful template expression engine for declarative data transformations - inspired by Twig, but designed specifically for data mapping.
 
-## Overview
+## Introduction
 
 The Template Expression Engine provides a powerful expression syntax that works across **all mapping methods**:
 

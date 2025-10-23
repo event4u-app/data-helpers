@@ -5,7 +5,7 @@ description: Create custom type casts for SimpleDTO
 
 Create custom type casts for SimpleDTO.
 
-## Overview
+## Introduction
 
 Custom casts allow you to transform data during DTO creation:
 

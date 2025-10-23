@@ -42,7 +42,7 @@ $count = DataFilter::query($products)
     ->count();
 ```
 
-## Overview
+## Introduction
 
 DataFilter provides SQL-like filtering for in-memory data collections.
 

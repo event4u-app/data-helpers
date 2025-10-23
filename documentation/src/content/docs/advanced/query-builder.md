@@ -5,7 +5,7 @@ description: Laravel-inspired fluent interface for building complex data mapping
 
 The **DataMapperQuery** provides a Laravel-inspired fluent interface for building complex data mapping queries.
 
-## Overview
+## Introduction
 
 The Query Builder combines the power of the DataMapper with an intuitive, chainable API.
 

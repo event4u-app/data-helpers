@@ -5,7 +5,7 @@ description: Process data through multiple stages with pipelines
 
 Process data through multiple stages with pipelines.
 
-## Overview
+## Introduction
 
 Pipelines allow you to chain multiple processing stages:
 

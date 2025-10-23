@@ -5,7 +5,7 @@ description: Learn how to use dot-path notation and wildcards to access nested d
 
 Learn how to use dot-path notation and wildcards to access nested data.
 
-## Overview
+## Introduction
 
 All helpers (DataAccessor, DataMutator, DataMapper) use the same dot-path syntax and wildcard semantics.
 

@@ -26,7 +26,7 @@ $timeout = EnvHelper::float('TIMEOUT', 30.0);
 $allowedHosts = EnvHelper::array('ALLOWED_HOSTS', ['localhost']);
 ```
 
-## Overview
+## Introduction
 
 EnvHelper provides a unified interface for accessing environment variables across different frameworks.
 

@@ -5,7 +5,7 @@ description: Complete guide for using Data Helpers with Symfony
 
 Complete guide for using Data Helpers with Symfony.
 
-## Overview
+## Introduction
 
 Data Helpers provides seamless Symfony integration:
 

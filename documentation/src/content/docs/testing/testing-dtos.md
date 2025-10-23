@@ -5,7 +5,7 @@ description: Complete guide to testing SimpleDTO classes
 
 Complete guide to testing SimpleDTO classes.
 
-## Overview
+## Introduction
 
 Testing DTOs ensures data integrity and validation:
 

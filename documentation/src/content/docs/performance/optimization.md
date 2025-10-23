@@ -5,7 +5,7 @@ description: Complete guide for optimizing Data Helpers performance
 
 Complete guide for optimizing Data Helpers performance.
 
-## Overview
+## Introduction
 
 Data Helpers provides multiple optimization techniques:
 

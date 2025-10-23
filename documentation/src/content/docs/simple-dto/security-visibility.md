@@ -5,7 +5,7 @@ description: Learn how to control property visibility and secure sensitive data 
 
 Learn how to control property visibility and secure sensitive data in DTOs.
 
-## Overview
+## Introduction
 
 SimpleDTO provides powerful security features to control what data is exposed:
 

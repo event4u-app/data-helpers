@@ -5,7 +5,7 @@ description: Extend SimpleDTO with custom functionality
 
 Extend SimpleDTO with custom functionality.
 
-## Overview
+## Introduction
 
 Extend DTOs to add custom behavior:
 

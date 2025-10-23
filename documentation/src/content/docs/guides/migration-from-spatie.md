@@ -5,28 +5,27 @@ description: Complete guide to migrating from Spatie Laravel Data to SimpleDTO
 
 Complete guide to migrating from Spatie Laravel Data to SimpleDTO.
 
-## Overview
+## Why Migrate?
 
 SimpleDTO provides a smooth migration path from Spatie Laravel Data:
 
 - **Similar API** - Familiar methods and patterns
-- **More Features** - 18 conditional attributes vs 2
-- **Better Performance** - 3x faster instance creation
+- **More Features** - 18 conditional attributes for fine-grained control
 - **Framework Independent** - Works with Laravel, Symfony, and plain PHP
 - **Backward Compatible** - Easy to migrate incrementally
+- **Validation Caching** - Built-in caching for better performance
 
 ## Feature Comparison
 
-| Feature | Spatie Data | SimpleDTO | Winner |
-|---------|-------------|-----------|--------|
-| Instance Creation | 300k/sec | 914k/sec | ✅ SimpleDTO (3x) |
-| Validation Caching | ❌ No | ✅ Yes (198x faster) | ✅ SimpleDTO |
-| Conditional Attributes | 2 | 18 | ✅ SimpleDTO (9x) |
-| Framework Support | Laravel only | Laravel, Symfony, PHP | ✅ SimpleDTO |
-| TypeScript Generation | ✅ Yes | ✅ Yes | ✅ Both |
-| Lazy Properties | ✅ Yes | ✅ Yes | ✅ Both |
-| Computed Properties | ✅ Yes | ✅ Yes | ✅ Both |
-| Collections | ✅ Yes | ✅ Yes | ✅ Both |
+| Feature | Spatie Data | SimpleDTO |
+|---------|-------------|-----------|
+| Framework Support | Laravel only | Laravel, Symfony, PHP |
+| TypeScript Generation | ✅ Yes | ✅ Yes |
+| Lazy Properties | ✅ Yes | ✅ Yes |
+| Computed Properties | ✅ Yes | ✅ Yes |
+| Collections | ✅ Yes | ✅ Yes |
+| Validation Caching | ❌ No | ✅ Yes |
+| Conditional Attributes | 2 attributes | 18 attributes |
 
 ## Automated Migration
 
@@ -106,7 +105,7 @@ class UserData extends Data
     public function __construct(
         #[Required]
         public string $name,
-        
+
         #[Required, Email]
         public string $email,
     ) {}
@@ -123,7 +122,7 @@ class UserDTO extends SimpleDTO
     public function __construct(
         #[Required]
         public readonly string $name,
-        
+
         #[Required, Email]
         public readonly string $email,
     ) {}
@@ -214,7 +213,7 @@ class CreateUserData extends Data
     public function __construct(
         #[Required]
         public string $name,
-        
+
         #[Required, Email]
         public string $email,
     ) {}
@@ -232,7 +231,7 @@ class CreateUserDTO extends SimpleDTO
     public function __construct(
         #[Required]
         public readonly string $name,
-        
+
         #[Required, Email]
         public readonly string $email,
     ) {}
@@ -259,29 +258,29 @@ $users = DataCollection::make($usersArray, UserDTO::class);
 
 ### More Conditional Attributes
 
-SimpleDTO has 18 conditional attributes vs Spatie's 2:
+SimpleDTO has 18 conditional attributes for fine-grained control:
 
 ```php
 class UserDTO extends SimpleDTO
 {
     public function __construct(
         public readonly string $name,
-        
+
         // Authentication-based
         #[WhenAuth]
         public readonly ?string $email = null,
-        
+
         #[WhenGuest]
         public readonly ?string $publicProfile = null,
-        
+
         // Permission-based
         #[WhenCan('view-sensitive-data')]
         public readonly ?string $ssn = null,
-        
+
         // Role-based
         #[WhenRole('admin')]
         public readonly ?array $adminPanel = null,
-        
+
         // Value-based
         #[WhenValue('status', 'active')]
         public readonly ?string $activeFeatures = null,
@@ -292,7 +291,7 @@ class UserDTO extends SimpleDTO
 ### Validation Caching
 
 ```bash
-# 198x faster validation
+# Cache validation rules for better performance
 php artisan dto:cache
 ```
 

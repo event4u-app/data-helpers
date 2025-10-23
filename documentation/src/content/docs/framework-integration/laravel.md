@@ -5,7 +5,7 @@ description: Complete guide for using Data Helpers with Laravel
 
 Complete guide for using Data Helpers with Laravel.
 
-## Overview
+## Introduction
 
 Data Helpers provides seamless Laravel integration:
 

@@ -5,7 +5,7 @@ description: Complete reference of all 30+ validation attributes
 
 Complete reference of all 30+ validation attributes available in SimpleDTO.
 
-## Overview
+## Introduction
 
 SimpleDTO provides 30+ validation attributes organized into categories:
 

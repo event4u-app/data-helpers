@@ -5,7 +5,7 @@ description: Group items by fields and apply aggregation functions
 
 The GROUP BY operator groups items by one or more fields and applies aggregation functions to calculate statistics for each group.
 
-## Overview
+## Introduction
 
 The GROUP BY operator enables you to:
 

@@ -5,7 +5,7 @@ description: Complete reference of all 18 conditional attributes for dynamic vis
 
 Complete reference of all 18 conditional attributes for dynamic visibility.
 
-## Overview
+## Introduction
 
 SimpleDTO provides 18 conditional attributes organized into categories:
 

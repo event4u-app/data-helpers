@@ -5,7 +5,7 @@ description: Complete reference of all 50+ attributes available in SimpleDTO
 
 Complete reference of all 50+ attributes available in SimpleDTO.
 
-## Overview
+## Introduction
 
 SimpleDTO provides 50+ attributes organized into categories:
 

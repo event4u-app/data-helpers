@@ -5,7 +5,7 @@ description: How to run performance benchmarks
 
 How to run performance benchmarks.
 
-## Overview
+## Introduction
 
 Data Helpers uses PHPBench for performance benchmarking.
 

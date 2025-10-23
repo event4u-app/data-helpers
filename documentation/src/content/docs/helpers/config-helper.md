@@ -23,7 +23,7 @@ $ratio = $config->getFloat('logging.sampling.errors', 1.5);
 $items = $config->getArray('cache', []);
 ```
 
-## Overview
+## Introduction
 
 ConfigHelper provides a unified interface for accessing configuration across different frameworks.
 

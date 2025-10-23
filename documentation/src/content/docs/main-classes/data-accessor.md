@@ -37,7 +37,7 @@ $country = $accessor->get('users.0.country', 'Unknown');
 // Returns: 'Unknown' (path doesn't exist)
 ```
 
-## Overview
+## Introduction
 
 DataAccessor works with multiple data types:
 

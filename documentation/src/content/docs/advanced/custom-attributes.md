@@ -5,7 +5,7 @@ description: Create custom PHP attributes for DTOs
 
 Create custom PHP attributes for DTOs.
 
-## Overview
+## Introduction
 
 Custom attributes extend DTO functionality:
 

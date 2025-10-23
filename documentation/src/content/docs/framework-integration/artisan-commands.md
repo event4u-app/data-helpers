@@ -5,7 +5,7 @@ description: Complete reference of all Laravel Artisan commands for SimpleDTO
 
 Complete reference of all Laravel Artisan commands for SimpleDTO.
 
-## Overview
+## Introduction
 
 SimpleDTO provides several Artisan commands for Laravel:
 
