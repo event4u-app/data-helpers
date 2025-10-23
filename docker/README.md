@@ -17,10 +17,10 @@ docker-compose up -d
 
 ## Documentation
 
-The full documentation is available in the `docs/` directory:
+The full documentation is available online:
 
-- **[docs/docker-setup.md](../docs/docker-setup.md)** - Complete Docker setup documentation
-- **[docs/taskfile-guide.md](../docs/taskfile-guide.md)** - Task runner guide
+- **[Development Setup Guide](https://event4u-app.github.io/data-helpers/guides/development-setup/)** - Complete Docker setup documentation
+- **[Taskfile Reference](https://event4u-app.github.io/data-helpers/guides/taskfile-reference/)** - Task runner guide
 
 ## Files in this directory
 

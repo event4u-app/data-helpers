@@ -5,7 +5,7 @@ version: '3'
 
 vars:
   OUTPUT_HELPER: ./scripts/task-output.sh
-  DOCS_DIR: documentation
+  DOCS_DIR: starlight
   NODE_IMAGE: node:18-alpine
   DOCS_CONTAINER: data-helpers-docs
 

@@ -1,0 +1,61 @@
+/* Custom styles for Data Helpers documentation */
+
+:root {
+  --sl-color-accent: #c74624;
+  --sl-color-accent-high: #a33a1d;
+  --sl-color-accent-low: #e85a32;
+}
+
+/* Dark mode - lighter orange for better visibility */
+:root[data-theme='dark'] {
+  --sl-color-accent: #ff7a50;
+  --sl-color-accent-high: #ff9470;
+  --sl-color-accent-low: #e85a32;
+}
+
+/* Override green buttons on splash page with orange border and dark background */
+.hero .actions a[href='/getting-started/introduction/'],
+.hero .actions a[data-variant='primary'],
+.hero .actions a.primary,
+.sl-flex.actions a {
+  background: #3e1e1b !important;
+  background-color: #3e1e1b !important;
+  border: 2px solid var(--sl-color-accent) !important;
+  border-color: var(--sl-color-accent) !important;
+  color: white !important;
+}
+
+.hero .actions a[href='/getting-started/introduction/']:hover,
+.hero .actions a[data-variant='primary']:hover,
+.hero .actions a.primary:hover,
+.sl-flex.actions a:hover {
+  background: var(--sl-color-accent) !important;
+  background-color: var(--sl-color-accent) !important;
+  border-color: var(--sl-color-accent) !important;
+}
+
+/* Code blocks */
+pre {
+  border-radius: 0.5rem;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background-color: var(--sl-color-gray-6);
+  font-weight: 600;
+}
+
+/* Callouts */
+.callout {
+  padding: 1rem;
+  border-left: 4px solid var(--sl-color-accent);
+  background-color: var(--sl-color-gray-6);
+  border-radius: 0.25rem;
+  margin: 1rem 0;
+}
+
