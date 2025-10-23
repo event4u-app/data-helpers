@@ -259,6 +259,31 @@ public readonly ?string $email;
 public readonly string $email;
 ```
 
+
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Serializers**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/serialization/serializers.php) - Serialization examples
+- [**Transformers**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/serialization/transformers.php) - Data transformation
+- [**Normalizers**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/serialization/normalizers.php) - Data normalization
+- [**Serializer Options**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/serialization/serializer-options.php) - Customizing serialization
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [SerializationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/SerializationTest.php) - Serialization tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=Serialization
+```
+
 ## See Also
 
 - [Conditional Properties](/simple-dto/conditional-properties/) - Dynamic visibility

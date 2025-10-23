@@ -766,6 +766,46 @@ $result = DataMapper::from(['users' => $activeUsers])
     ->getTarget();
 ```
 
+## Code Examples
+
+The following working examples demonstrate DataFilter in action:
+
+- [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-filter/basic-usage.php) - WHERE, ORDER BY, LIMIT operations
+- [**Wildcard WHERE**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-filter/wildcard-where.php) - Filtering with wildcards
+- [**Custom Wildcard Operators**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-filter/custom-wildcard-operators.php) - Creating custom operators
+- [**DISTINCT & LIKE**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-filter/distinct-like-operators.php) - DISTINCT and LIKE operations
+- [**GROUP BY & Aggregations**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-filter/group-by-aggregations.php) - Grouping and aggregating data
+- [**Query Builder**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-filter/query-builder.php) - Fluent query builder API
+- [**Callback Filters**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-filter/callback-filters.php) - Custom filter callbacks
+- [**Custom Operators**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-filter/custom-operators.php) - Extending with custom operators
+- [**Complex Queries**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-filter/complex-queries.php) - Advanced query scenarios
+
+All examples are fully tested and can be run directly:
+
+```bash
+php examples/main-classes/data-filter/basic-usage.php
+php examples/main-classes/data-filter/query-builder.php
+```
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [DataFilterTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataFilterTest.php) - Core functionality tests
+- [QueryBuilderTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataFilter/QueryBuilderTest.php) - Query builder tests
+- [OperatorTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataFilter/OperatorTest.php) - Operator tests
+- [AggregationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataFilter/AggregationTest.php) - Aggregation tests
+- [DataFilterIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Integration/DataFilterIntegrationTest.php) - End-to-end scenarios
+
+Run the tests:
+
+```bash
+# Run all DataFilter tests
+task test:unit -- --filter=DataFilter
+
+# Run specific test file
+vendor/bin/pest tests/Unit/DataFilterTest.php
+```
 ## See Also
 
 - [DataAccessor](/main-classes/data-accessor/) - Read nested data

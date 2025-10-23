@@ -271,6 +271,28 @@ public readonly array $posts;
 public readonly array $posts;
 ```
 
+## Code Examples
+
+The following working examples demonstrate Doctrine integration:
+
+- [**Doctrine Integration**](https://github.com/event4u-app/data-helpers/blob/main/examples/framework-integration/doctrine/doctrine-integration.php) - Working with Doctrine entities
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [DataAccessorDoctrineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorDoctrineTest.php) - Doctrine accessor tests
+- [DataMutatorDoctrineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMutator/DataMutatorDoctrineTest.php) - Doctrine mutator tests
+- [DoctrineIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/DoctrineIntegrationTest.php) - DTO Doctrine integration tests
+
+Run the tests:
+
+```bash
+# Run Doctrine tests
+task test:unit -- --filter=Doctrine
+```
 ## See Also
 
 - [Symfony Integration](/framework-integration/symfony/) - Symfony guide

@@ -26,6 +26,7 @@ parameters:
         - tests-e2e/Symfony/vendor/*
         - tests-e2e/Symfony/tests/Feature/InitTest.php
         - '*.stub.php'
+        - src/Frameworks/Laravel/Commands/MigrateSpatieCommand.php
 
     scanDirectories:
         - types

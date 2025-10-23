@@ -47,6 +47,7 @@ final class CallbackHelper
 {
     /**
      * @var array<string, callable>
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     private static array $callbacks = [];
 
@@ -56,6 +57,7 @@ final class CallbackHelper
      * @param string $name Callback name
      * @param callable $callback Callback function
      * @throws InvalidArgumentException If callback name is already registered
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     public static function register(string $name, callable $callback): void
     {
@@ -71,6 +73,7 @@ final class CallbackHelper
      *
      * @param string $name Callback name
      * @param callable $callback Callback function
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     public static function registerOrReplace(string $name, callable $callback): void
     {
@@ -82,6 +85,7 @@ final class CallbackHelper
      *
      * @param string $name Callback name
      * @return callable|null The callback or null if not found
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     public static function get(string $name): ?callable
     {

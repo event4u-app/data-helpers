@@ -294,6 +294,32 @@ public readonly string $password;
 - [ ] Credit card numbers are encrypted
 - [ ] SSN/Tax IDs are encrypted
 
+
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Visibility Hidden**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/security-visibility/visibility-hidden.php) - Hiding properties
+- [**Visibility Context**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/security-visibility/visibility-context.php) - Context-based visibility
+- [**Visibility Explained**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/security-visibility/visibility-explained.php) - Detailed explanation
+- [**Real World Example**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/security-visibility/visibility-real-world.php) - Practical use case
+- [**Static Provider**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/security-visibility/visibility-static-provider.php) - Static visibility provider
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [VisibilityTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/VisibilityTest.php) - Visibility tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=Visibility
+```
+
 ## See Also
 
 - [Conditional Properties](/simple-dto/conditional-properties/) - Dynamic visibility

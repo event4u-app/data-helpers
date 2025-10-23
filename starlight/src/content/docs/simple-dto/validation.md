@@ -306,6 +306,36 @@ $dto = UserDTO::fromArray($data);
 $dto->validate();
 ```
 
+
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Basic Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/basic-validation.php) - Simple validation rules
+- [**Advanced Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/advanced-validation.php) - Complex validation scenarios
+- [**Request Validation Core**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/request-validation-core.php) - Core request validation
+- [**Laravel Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/request-validation-laravel.php) - Laravel integration
+- [**Symfony Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/request-validation-symfony.php) - Symfony integration
+- [**Validation Modes**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/validation-modes.php) - Different validation modes
+- [**Nested Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/nested-validation.php) - Validating nested DTOs
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [ValidationModesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/ValidationModesTest.php) - Validation mode tests
+- [ValidationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/ValidationTest.php) - Core validation tests
+- [NestedValidationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/NestedValidationTest.php) - Nested validation tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=Validation
+```
+
 ## See Also
 
 - [Type Casting](/simple-dto/type-casting/) - Automatic type conversion

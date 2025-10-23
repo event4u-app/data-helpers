@@ -153,15 +153,15 @@ class DTOException extends RuntimeException
         // String to int/float
         if ('string' === $actualType && in_array($expectedType, ['int', 'float'], true)) {
             if (is_numeric($actualValue)) {
-                $suggestions[] = 'Cast the string to ' . $expectedType . ': (int) "' . (string) $actualValue . '" or use a cast in casts() method';
+                $suggestions[] = 'Cast the string to ' . $expectedType . ': (int) "' . $actualValue . '" or use a cast in casts() method';
             } else {
-                $suggestions[] = 'The string "' . (string) $actualValue . '" is not numeric. Provide a valid number.';
+                $suggestions[] = 'The string "' . $actualValue . '" is not numeric. Provide a valid number.';
             }
         }
 
         // Int to string
         if ('int' === $actualType && 'string' === $expectedType) {
-            $suggestions[] = 'Cast the integer to string: (string) ' . (string) $actualValue . ' or use "string" cast in casts() method';
+            $suggestions[] = 'Cast the integer to string: (string) ' . $actualValue . ' or use "string" cast in casts() method';
         }
 
         // Array to object

@@ -374,6 +374,35 @@ class UserDTO extends SimpleDTO
 }
 ```
 
+
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Basic Conditional**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/basic-conditional.php) - Simple conditional properties
+- [**WhenCallback with Parameters**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/whencallback-with-parameters.php) - Callbacks with parameters
+- [**With Method**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/with-method.php) - Using with() method
+- [**Context-Based Conditions**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/context-based-conditions.php) - Context-aware conditions
+- [**Custom Conditions**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/custom-conditions.php) - Creating custom conditions
+- [**Laravel Attributes**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/laravel-conditional-attributes.php) - Laravel-specific attributes
+- [**Symfony Attributes**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/symfony-conditional-attributes.php) - Symfony-specific attributes
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [ConditionalPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/ConditionalPropertiesTest.php) - Conditional property tests
+- [ContextTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/ContextTest.php) - Context tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=Conditional
+```
+
 ## See Also
 
 - [Lazy Properties](/simple-dto/lazy-properties/) - Defer expensive operations

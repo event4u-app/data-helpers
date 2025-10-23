@@ -551,6 +551,46 @@ DataMapper is optimized for performance:
 
 See [Performance Benchmarks](/performance/benchmarks) for detailed comparison.
 
+## Code Examples
+
+The following working examples demonstrate DataMapper in action:
+
+- [**Simple Mapping**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/simple-mapping.php) - Basic template-based mapping
+- [**With Hooks**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/with-hooks.php) - Using hooks for custom logic
+- [**Pipeline**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/pipeline.php) - Filter pipelines and transformations
+- [**Mapped Data Model**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/mapped-data-model.php) - Using MappedDataModel class
+- [**Template Expressions**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/template-expressions.php) - Advanced template syntax
+- [**Reverse Mapping**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/reverse-mapping.php) - Bidirectional mapping
+- [**DTO Integration**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/dto-integration.php) - Integration with SimpleDTO
+
+All examples are fully tested and can be run directly:
+
+```bash
+php examples/main-classes/data-mapper/simple-mapping.php
+php examples/main-classes/data-mapper/with-hooks.php
+```
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [DataMapperTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/DataMapperTest.php) - Core functionality tests
+- [DataMapperHooksTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/DataMapperHooksTest.php) - Hook system tests
+- [DataMapperPipelineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/Pipeline/DataMapperPipelineTest.php) - Pipeline tests
+- [MapperQueryTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/MapperQueryTest.php) - Query integration tests
+- [MultiSourceFluentTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/MultiSourceFluentTest.php) - Multi-source mapping tests
+- [MultiTargetMappingTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/MultiTargetMappingTest.php) - Multi-target mapping tests
+- [DataMapperIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Integration/DataMapperIntegrationTest.php) - End-to-end scenarios
+
+Run the tests:
+
+```bash
+# Run all DataMapper tests
+task test:unit -- --filter=DataMapper
+
+# Run specific test file
+vendor/bin/pest tests/Unit/DataMapper/DataMapperTest.php
+```
 ## See Also
 
 - [DataAccessor](/main-classes/data-accessor/) - Read nested data

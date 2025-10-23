@@ -578,6 +578,41 @@ $value1 = $accessor->get('user.profile.name');
 $value2 = $accessor->get('user.profile.name');
 ```
 
+## Code Examples
+
+The following working examples demonstrate DataAccessor in action:
+
+- [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/basic-usage.php) - Complete example showing dot-notation, wildcards, and default values
+
+All examples are fully tested and can be run directly:
+
+```bash
+php examples/main-classes/data-accessor/basic-usage.php
+```
+
+## Related Tests
+
+The DataAccessor functionality is thoroughly tested. Key test files:
+
+**Unit Tests:**
+- [DataAccessorTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorTest.php) - Core functionality tests
+- [DataAccessorLazyWildcardTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessorLazyWildcardTest.php) - Wildcard behavior tests
+- [DataAccessorDoctrineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorDoctrineTest.php) - Doctrine integration tests
+- [DataAccessorLaravelTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorLaravelTest.php) - Laravel integration tests
+
+**Integration Tests:**
+- [DataAccessorIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Integration/DataAccessorIntegrationTest.php) - End-to-end scenarios
+
+Run the tests:
+
+```bash
+# Run all DataAccessor tests
+task test:unit -- --filter=DataAccessor
+
+# Run specific test file
+vendor/bin/pest tests/Unit/DataAccessor/DataAccessorTest.php
+```
+
 ## See Also
 
 - [DataMutator](/main-classes/data-mutator/) - Modify nested data

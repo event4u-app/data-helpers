@@ -288,6 +288,29 @@ class UserController extends AbstractController
 }
 ```
 
+## Code Examples
+
+The following working examples demonstrate Symfony integration:
+
+- [**Symfony Doctrine**](https://github.com/event4u-app/data-helpers/blob/main/examples/framework-integration/symfony/symfony-doctrine.php) - Symfony with Doctrine
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [SymfonyIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/Frameworks/Symfony/SymfonyIntegrationTest.php) - Symfony integration tests
+
+Run the tests:
+
+```bash
+# Run Symfony tests
+task test:unit -- --filter=Symfony
+
+# Run E2E tests
+cd tests-e2e/Symfony && composer install && vendor/bin/phpunit
+```
 ## See Also
 
 - [Doctrine Integration](/framework-integration/doctrine/) - Doctrine entity mapping

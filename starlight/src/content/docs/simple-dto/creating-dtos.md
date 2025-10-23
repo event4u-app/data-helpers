@@ -473,6 +473,39 @@ try {
 }
 ```
 
+## Code Examples
+
+The following working examples demonstrate DTO creation:
+
+- [**Basic DTO**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/basic-dto.php) - Simple DTO with required properties
+- [**DTO Factory**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/dto-factory.php) - Factory pattern for DTOs
+- [**Wrapping**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/wrapping.php) - Wrapping existing data
+- [**Optional Properties**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/optional-properties.php) - Handling optional properties
+
+All examples are fully tested and can be run directly:
+
+```bash
+php examples/simple-dto/creating-dtos/basic-dto.php
+php examples/simple-dto/creating-dtos/dto-factory.php
+```
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [SimpleDTOTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/SimpleDTOTest.php) - Core DTO functionality
+- [DTOFactoryTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/DTOFactoryTest.php) - Factory pattern tests
+- [OptionalPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/OptionalPropertiesTest.php) - Optional properties tests
+
+Run the tests:
+
+```bash
+# Run all SimpleDTO tests
+task test:unit -- --filter=SimpleDTO
+
+# Run specific test file
+vendor/bin/pest tests/Unit/SimpleDTO/SimpleDTOTest.php
+```
 ## See Also
 
 - [Type Casting](/simple-dto/type-casting/) - Automatic type conversion

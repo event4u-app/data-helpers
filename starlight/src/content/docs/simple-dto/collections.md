@@ -151,6 +151,29 @@ foreach ($users as $user) {
 }
 ```
 
+
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Data Collection**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/collections/data-collection.php) - Working with collections
+- [**DTO Sorting**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/collections/dto-sorting.php) - Sorting DTOs in collections
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [CollectionTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/CollectionTest.php) - Collection tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=Collection
+```
+
 ## See Also
 
 - [Nested DTOs](/simple-dto/nested-dtos/) - Complex nested structures

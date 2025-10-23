@@ -223,6 +223,28 @@ class UserDTO extends SimpleDTO
 public readonly string $cleanPropertyName;
 ```
 
+
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Basic Mapping**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/property-mapping/basic-mapping.php) - Property name mapping
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [PropertyMappingTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/PropertyMappingTest.php) - Property mapping tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=PropertyMapping
+```
+
 ## See Also
 
 - [Type Casting](/simple-dto/type-casting/) - Automatic type conversion

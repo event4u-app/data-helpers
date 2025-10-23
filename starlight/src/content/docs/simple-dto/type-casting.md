@@ -413,6 +413,37 @@ public readonly ?Carbon $deletedAt;
 public readonly ?Carbon $deletedAt;
 ```
 
+
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Basic Casts**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/basic-casts.php) - Common type casts
+- [**All Casts**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/all-casts.php) - Complete cast overview
+- [**Enum Cast**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/enum-cast.php) - Enum casting
+- [**Collection Cast**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/collection-cast.php) - Collection casting
+- [**Timestamp Cast**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/timestamp-cast.php) - Date/time casting
+- [**Hashed Cast**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/hashed-cast.php) - Password hashing
+- [**Encrypted Cast**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/encrypted-cast.php) - Data encryption
+- [**Lazy Cast**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/lazy-cast.php) - Lazy loading casts
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [CastTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/Casts/CastTest.php) - Cast functionality tests
+- [EnumCastTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/Casts/EnumCastTest.php) - Enum cast tests
+- [CollectionCastTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/Casts/CollectionCastTest.php) - Collection cast tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=Cast
+```
+
 ## See Also
 
 - [Validation](/simple-dto/validation/) - Validate your data

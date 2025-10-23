@@ -252,10 +252,11 @@ class HookInvoker
      * Invoke a callback with automatic context conversion (array vs object).
      * Uses CallbackHelper for unified callback execution.
      *
-     * @param callable $callback
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     private static function invokeCallback(callable $callback, HookContext $context): mixed
     {
+        /** @phpstan-ignore-next-line - CallbackHelper accepts various callable formats */
         return CallbackHelper::execute($callback, $context);
     }
 
@@ -263,10 +264,11 @@ class HookInvoker
      * Invoke a value-transforming callback with automatic context conversion.
      * Uses CallbackHelper for unified callback execution.
      *
-     * @param callable $callback
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     private static function invokeValueCallback(callable $callback, mixed $value, HookContext $context): mixed
     {
+        /** @phpstan-ignore-next-line - CallbackHelper accepts various callable formats */
         return CallbackHelper::execute($callback, $value, $context);
     }
 
@@ -274,7 +276,7 @@ class HookInvoker
      * Invoke a target-mutating callback with automatic context conversion.
      * Uses CallbackHelper for unified callback execution.
      *
-     * @param callable $callback
+     * @phpstan-ignore-next-line - Callable signature varies by usage
      */
     private static function invokeTargetCallback(
         callable $callback,
@@ -282,6 +284,7 @@ class HookInvoker
         HookContext $context,
         mixed $writtenValue
     ): mixed {
+        /** @phpstan-ignore-next-line - CallbackHelper accepts various callable formats */
         return CallbackHelper::execute($callback, $target, $context, $writtenValue);
     }
 }

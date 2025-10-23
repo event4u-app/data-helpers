@@ -705,6 +705,36 @@ This ensures:
 - **Testability** - Easy to test and debug
 - **Functional style** - Supports functional programming patterns
 
+## Code Examples
+
+The following working examples demonstrate DataMutator in action:
+
+- [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mutator/basic-usage.php) - Complete example showing set, merge, and unset operations with wildcards
+
+All examples are fully tested and can be run directly:
+
+```bash
+php examples/main-classes/data-mutator/basic-usage.php
+```
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [DataMutatorTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMutator/DataMutatorTest.php) - Core functionality tests
+- [DataMutatorDoctrineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMutator/DataMutatorDoctrineTest.php) - Doctrine integration tests
+- [DataMutatorLaravelTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMutator/DataMutatorLaravelTest.php) - Laravel integration tests
+- [DataMutatorIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Integration/DataMutatorIntegrationTest.php) - End-to-end scenarios
+
+Run the tests:
+
+```bash
+# Run all DataMutator tests
+task test:unit -- --filter=DataMutator
+
+# Run specific test file
+vendor/bin/pest tests/Unit/DataMutator/DataMutatorTest.php
+```
 ## See Also
 
 - [DataAccessor](/main-classes/data-accessor/) - Read nested data

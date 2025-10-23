@@ -18,6 +18,8 @@ use Symfony\Component\Finder\Finder;
  *   php artisan dto:migrate-spatie --path=app/Data/Api
  *   php artisan dto:migrate-spatie --dry-run
  *   php artisan dto:migrate-spatie --backup
+ *
+ * @phpstan-ignore-next-line - Laravel is an optional dependency
  */
 class MigrateSpatieCommand extends Command
 {
@@ -61,6 +63,7 @@ class MigrateSpatieCommand extends Command
         if (!$files->isDirectory($scanPath)) {
             /** @phpstan-ignore-next-line */
             $this->error('Directory not found: ' . $scanPath);
+            /** @phpstan-ignore-next-line - Laravel Command constant */
             return self::FAILURE;
         }
 
@@ -73,6 +76,7 @@ class MigrateSpatieCommand extends Command
         if ([] === $spatieClasses) {
             /** @phpstan-ignore-next-line */
             $this->warn('No Spatie Data classes found in ' . $scanPath);
+            /** @phpstan-ignore-next-line - Laravel Command constant */
             return self::FAILURE;
         }
 
@@ -102,6 +106,7 @@ class MigrateSpatieCommand extends Command
         if (!$force && !$dryRun && !$this->confirm('Do you want to proceed with the migration?')) {
             /** @phpstan-ignore-next-line */
             $this->info('Migration cancelled.');
+            /** @phpstan-ignore-next-line - Laravel Command constant */
             return self::SUCCESS;
         }
 
@@ -149,6 +154,7 @@ class MigrateSpatieCommand extends Command
             $this->info('  3. Remove Spatie Data package: composer remove spatie/laravel-data');
         }
 
+        /** @phpstan-ignore-next-line - Laravel Command constants */
         return 0 < $failed ? self::FAILURE : self::SUCCESS;
     }
 

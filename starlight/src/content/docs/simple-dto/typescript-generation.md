@@ -356,6 +356,29 @@ public readonly string $role;
 php artisan dto:typescript
 ```
 
+
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Basic Generation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/typescript-generation/basic-generation.php) - Generate TypeScript types
+- [**Generator Options**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/typescript-generation/generator-options.php) - Customizing generation
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [TypeScriptGeneratorTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/TypeScriptGeneratorTest.php) - TypeScript generation tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=TypeScript
+```
+
 ## See Also
 
 - [Artisan Commands](/framework-integration/artisan-commands/) - Laravel commands

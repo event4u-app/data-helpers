@@ -180,6 +180,30 @@ class UserDTO extends SimpleDTO
 }
 ```
 
+
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Basic Lazy**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/lazy-properties/basic-lazy.php) - Simple lazy properties
+- [**Lazy Union Types**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/lazy-properties/lazy-union-types.php) - Lazy with union types
+- [**Optional Lazy Combinations**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/lazy-properties/optional-lazy-combinations.php) - Combining optional and lazy
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [LazyPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/LazyPropertiesTest.php) - Lazy property tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=Lazy
+```
+
 ## See Also
 
 - [Computed Properties](/simple-dto/computed-properties/) - Calculate values on-the-fly

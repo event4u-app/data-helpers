@@ -255,6 +255,26 @@ class UserDTO extends SimpleDTO
 }
 ```
 
+## Code Examples
+
+The following working examples demonstrate this feature:
+
+- [**Basic Computed**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/computed-properties/basic-computed.php) - Simple computed properties
+
+All examples are fully tested and can be run directly.
+
+## Related Tests
+
+The functionality is thoroughly tested. Key test files:
+
+- [ComputedPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/ComputedPropertiesTest.php) - Computed property tests
+
+Run the tests:
+
+```bash
+# Run tests
+task test:unit -- --filter=Computed
+```
 ## See Also
 
 - [Lazy Properties](/simple-dto/lazy-properties/) - Defer expensive operations
