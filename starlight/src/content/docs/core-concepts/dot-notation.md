@@ -175,9 +175,9 @@ For building new structures from multiple sources, use `DataMapper`:
 ```php
 $mapper = new DataMapper();
 $result = $mapper->map($source, [
-    'user_name' => 'profile.name',
-    'user_email' => 'profile.contact.email',
-    'total_orders' => 'orders.*.amount | sum',
+    'user_name' => '{{ profile.name }}',
+    'user_email' => '{{ profile.contact.email }}',
+    'total_orders' => '{{ orders.*.amount | sum }}',
 ]);
 ```
 
