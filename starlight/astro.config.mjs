@@ -13,6 +13,9 @@ export default defineConfig({
 			title: 'event4u Data Helpers',
 			description: 'Framework-agnostic PHP library for data manipulation, transformation, and validation',
 			favicon: '/favicon.png',
+			logo: {
+				src: './public/favicon.png',
+			},
 			social: [
 				{
 					icon: 'heart',
