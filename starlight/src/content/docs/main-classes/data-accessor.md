@@ -583,11 +583,13 @@ $value2 = $accessor->get('user.profile.name');
 The following working examples demonstrate DataAccessor in action:
 
 - [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/basic-usage.php) - Complete example showing dot-notation, wildcards, and default values
+- [**Structure Introspection**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/structure-introspection.php) - Examples of analyzing data structure with type information
 
 All examples are fully tested and can be run directly:
 
 ```bash
 php examples/main-classes/data-accessor/basic-usage.php
+php examples/main-classes/data-accessor/structure-introspection.php
 ```
 
 ## Related Tests
@@ -611,6 +613,188 @@ task test:unit -- --filter=DataAccessor
 
 # Run specific test file
 vendor/bin/pest tests/Unit/DataAccessor/DataAccessorTest.php
+```
+
+## Structure Introspection
+
+DataAccessor provides methods to analyze the structure of your data with type information.
+
+### Get Structure (Flat)
+
+The `getStructure()` method returns a flat array with dot-notation paths and type information:
+
+```php
+use Event4u\DataHelpers\DataAccessor;
+
+$data = [
+    'name' => 'John Doe',
+    'age' => 30,
+    'emails' => [
+        ['email' => 'john@work.com', 'type' => 'work', 'verified' => true],
+        ['email' => 'john@home.com', 'type' => 'home', 'verified' => false],
+    ],
+];
+
+$accessor = new DataAccessor($data);
+$structure = $accessor->getStructure();
+
+// Returns:
+// [
+//   'name' => 'string',
+//   'age' => 'int',
+//   'emails' => 'array',
+//   'emails.*' => 'array',
+//   'emails.*.email' => 'string',
+//   'emails.*.type' => 'string',
+//   'emails.*.verified' => 'bool',
+// ]
+```
+
+### Get Structure (Multidimensional)
+
+The `getStructureMultidimensional()` method returns a nested array structure:
+
+```php
+$accessor = new DataAccessor($data);
+$structure = $accessor->getStructureMultidimensional();
+
+// Returns:
+// [
+//   'name' => 'string',
+//   'age' => 'int',
+//   'emails' => [
+//     '*' => [
+//       'email' => 'string',
+//       'type' => 'string',
+//       'verified' => 'bool',
+//     ],
+//   ],
+// ]
+```
+
+### Wildcards in Structure
+
+Arrays use wildcards (`*`) to represent the structure of all elements:
+
+```php
+$data = [
+    'departments' => [
+        [
+            'name' => 'Engineering',
+            'employees' => [
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+            ],
+        ],
+        [
+            'name' => 'Sales',
+            'employees' => [
+                ['name' => 'Charlie', 'age' => 35],
+            ],
+        ],
+    ],
+];
+
+$accessor = new DataAccessor($data);
+$structure = $accessor->getStructure();
+
+// Returns:
+// [
+//   'departments' => 'array',
+//   'departments.*' => 'array',
+//   'departments.*.name' => 'string',
+//   'departments.*.employees' => 'array',
+//   'departments.*.employees.*' => 'array',
+//   'departments.*.employees.*.name' => 'string',
+//   'departments.*.employees.*.age' => 'int',
+// ]
+```
+
+### Union Types
+
+When array elements have different types, union types are returned:
+
+```php
+$data = [
+    'values' => [
+        'string value',
+        42,
+        null,
+        true,
+    ],
+];
+
+$accessor = new DataAccessor($data);
+$structure = $accessor->getStructure();
+
+// Returns:
+// [
+//   'values' => 'array',
+//   'values.*' => 'bool|int|null|string',
+// ]
+```
+
+### Object Types
+
+Objects are returned with their full namespace:
+
+```php
+use Event4u\DataHelpers\SimpleDTO;
+
+class EmailDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $email,
+        public readonly bool $verified,
+    ) {}
+}
+
+$data = [
+    'contact' => new EmailDTO('john@example.com', true),
+];
+
+$accessor = new DataAccessor($data);
+$structure = $accessor->getStructure();
+
+// Returns:
+// [
+//   'contact' => '\EmailDTO',
+//   'contact.email' => 'string',
+//   'contact.verified' => 'bool',
+// ]
+```
+
+### Use Cases
+
+Structure introspection is useful for:
+
+- **API Documentation** - Generate API schemas automatically
+- **Validation** - Verify data structure matches expectations
+- **Type Checking** - Ensure data types are correct
+- **Debugging** - Understand complex data structures
+- **Code Generation** - Generate TypeScript interfaces or PHP classes
+- **Testing** - Verify data structure in tests
+
+```php
+// Example: Validate API response structure
+$accessor = new DataAccessor($apiResponse);
+$structure = $accessor->getStructure();
+
+$expectedStructure = [
+    'status' => 'string',
+    'data' => 'array',
+    'data.users' => 'array',
+    'data.users.*' => 'array',
+    'data.users.*.id' => 'int',
+    'data.users.*.name' => 'string',
+    'data.users.*.email' => 'string',
+];
+
+foreach ($expectedStructure as $path => $expectedType) {
+    if (!isset($structure[$path]) || $structure[$path] !== $expectedType) {
+        throw new Exception("Invalid structure at path: $path");
+    }
+}
 ```
 
 ## See Also
