@@ -29,6 +29,16 @@ class DataMapper
     }
 
     /**
+     * Alias for source() - Create a FluentDataMapper with source data.
+     *
+     * @param mixed $source Source data (array, object, model, DTO, JSON, XML, or file path)
+     */
+    public static function from(mixed $source): FluentDataMapper
+    {
+        return self::source($source);
+    }
+
+    /**
      * Create a FluentDataMapper from a file.
      *
      * @param string $filePath File path (JSON, XML, CSV, etc.)

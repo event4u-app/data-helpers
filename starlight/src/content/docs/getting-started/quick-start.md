@@ -78,15 +78,17 @@ $result = DataMapper::from($data)
 //     'order_total' => 300,
 // ]
 
-// With queries and filters
+// With WHERE/ORDER BY in template (recommended for database-stored templates)
 $result = DataMapper::from($data)
-    ->query('user.orders.*')
-        ->where('total', '>', 100)
-        ->orderBy('total', 'DESC')
-        ->limit(5)
-        ->end()
     ->template([
         'items' => [
+            'WHERE' => [
+                '{{ user.orders.*.total }}' => ['>', 100],
+            ],
+            'ORDER BY' => [
+                '{{ user.orders.*.total }}' => 'DESC',
+            ],
+            'LIMIT' => 5,
             '*' => [
                 'id' => '{{ user.orders.*.id }}',
                 'total' => '{{ user.orders.*.total }}',

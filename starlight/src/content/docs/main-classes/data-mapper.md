@@ -22,7 +22,7 @@ $source = [
     ],
 ];
 
-// Fluent API with template and query
+// Approach 1: Fluent API with query builder
 $result = DataMapper::from($source)
     ->query('orders.*')
         ->where('status', '=', 'shipped')
@@ -41,7 +41,30 @@ $result = DataMapper::from($source)
     ->map()
     ->getTarget();
 
-// Result:
+// Approach 2: Template-based with WHERE/ORDER BY operators (recommended)
+$template = [
+    'customer_name' => '{{ user.name }}',
+    'customer_email' => '{{ user.email }}',
+    'shipped_orders' => [
+        'WHERE' => [
+            '{{ orders.*.status }}' => 'shipped',
+        ],
+        'ORDER BY' => [
+            '{{ orders.*.total }}' => 'DESC',
+        ],
+        '*' => [
+            'id' => '{{ orders.*.id }}',
+            'total' => '{{ orders.*.total }}',
+        ],
+    ],
+];
+
+$result = DataMapper::from($source)
+    ->template($template)
+    ->map()
+    ->getTarget();
+
+// Both approaches produce the same result:
 // [
 //     'customer_name' => 'John Doe',
 //     'customer_email' => 'john@example.com',
@@ -51,6 +74,42 @@ $result = DataMapper::from($source)
 //     ],
 // ]
 ```
+
+### Why Use Template-Based Approach?
+
+The template-based approach (Approach 2) has a significant advantage: **templates can be stored in a database and created with a drag-and-drop editor**, enabling **no-code data mapping**:
+
+```php
+// Store templates in database
+$source = [
+    'user' => [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+    ],
+    'orders' => [
+        ['id' => 1, 'total' => 100, 'status' => 'shipped'],
+        ['id' => 2, 'total' => 200, 'status' => 'pending'],
+        ['id' => 3, 'total' => 150, 'status' => 'shipped'],
+    ],
+];
+
+// Load template from database (created with drag-and-drop editor)
+$template = Mappings::find(3)->template;
+
+$result = DataMapper::from($source)
+    ->template($template)
+    ->map()
+    ->getTarget();
+```
+
+**This makes it possible to map import files, API responses, etc. without any programming.**
+
+Use cases:
+- **Import Wizards** - Let users map CSV/Excel columns to your data structure
+- **API Integration** - Store API response mappings in database
+- **Multi-Tenant Systems** - Each tenant can have custom mappings
+- **Dynamic ETL** - Build data transformation pipelines without code
+- **Form Builders** - Map form submissions to different data structures
 
 ## Fluent API Overview
 
@@ -144,9 +203,14 @@ $result = DataMapper::from($source)
 
 The query builder provides SQL-like operators for filtering and transforming data during mapping.
 
+:::tip[Template-Based Alternative]
+Instead of using the fluent query API, you can use **WHERE/ORDER BY operators directly in templates**. This approach is recommended when templates need to be stored in a database or created with a visual editor. See the [Quick Example](#quick-example) above for details.
+:::
+
 ### Basic Queries
 
 ```php
+// Fluent API approach
 $result = DataMapper::from($source)
     ->query('orders.*')
         ->where('total', '>', 100)
@@ -155,6 +219,26 @@ $result = DataMapper::from($source)
         ->end()
     ->template([
         'items' => [
+            '*' => [
+                'id' => '{{ orders.*.id }}',
+                'total' => '{{ orders.*.total }}',
+            ],
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Template-based approach (same result)
+$result = DataMapper::from($source)
+    ->template([
+        'items' => [
+            'WHERE' => [
+                '{{ orders.*.total }}' => ['>', 100],
+            ],
+            'ORDER BY' => [
+                '{{ orders.*.total }}' => 'DESC',
+            ],
+            'LIMIT' => 5,
             '*' => [
                 'id' => '{{ orders.*.id }}',
                 'total' => '{{ orders.*.total }}',
@@ -556,6 +640,7 @@ See [Performance Benchmarks](/performance/benchmarks) for detailed comparison.
 The following working examples demonstrate DataMapper in action:
 
 - [**Simple Mapping**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/simple-mapping.php) - Basic template-based mapping
+- [**Template-Based Queries**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/template-based-queries.php) - WHERE/ORDER BY in templates (recommended for database-stored templates)
 - [**With Hooks**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/with-hooks.php) - Using hooks for custom logic
 - [**Pipeline**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/pipeline.php) - Filter pipelines and transformations
 - [**Mapped Data Model**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/mapped-data-model.php) - Using MappedDataModel class
@@ -567,6 +652,7 @@ All examples are fully tested and can be run directly:
 
 ```bash
 php examples/main-classes/data-mapper/simple-mapping.php
+php examples/main-classes/data-mapper/template-based-queries.php
 php examples/main-classes/data-mapper/with-hooks.php
 ```
 
