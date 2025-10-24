@@ -5,7 +5,7 @@ description: Access and modify DTO properties using dot notation with get() and 
 
 SimpleDTO provides powerful `get()` and `set()` methods that allow you to access and modify nested DTO properties using dot notation. This makes working with complex, nested data structures much easier.
 
-## Overview
+## Features
 
 The `get()` and `set()` methods support:
 
