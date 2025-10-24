@@ -7,12 +7,18 @@ Data Helpers provides five main classes for working with data:
 
 ## DataAccessor
 
-Read nested data with dot notation and wildcards.
+Read nested data with dot notation and wildcards. Analyze data structure with type information.
 
 ```php
 $accessor = new DataAccessor($data);
+
+// Read values
 $email = $accessor->get('user.profile.email');
 $emails = $accessor->get('users.*.email');
+
+// Get structure with type information
+$structure = $accessor->getStructure();
+// ['name' => 'string', 'emails.*' => '\EmailDTO', ...]
 ```
 
 [Learn more →](/main-classes/data-accessor/)
@@ -68,10 +74,10 @@ Immutable Data Transfer Objects with validation and casting.
 class UserDTO extends SimpleDTO
 {
     public string $name;
-    
+
     #[Email]
     public string $email;
-    
+
     #[Min(18)]
     public int $age;
 }

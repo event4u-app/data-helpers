@@ -144,6 +144,62 @@ Get all values.
 $values = $accessor->values();
 ```
 
+## Structure Introspection Methods
+
+### `getStructure(): array`
+
+Get data structure with type information as flat array with dot-notation.
+
+Returns an array where keys are dot-notation paths (with wildcards for arrays) and values are type strings (with union types for mixed values).
+
+**Return Format:**
+- Primitive types: `'string'`, `'int'`, `'float'`, `'bool'`, `'null'`
+- Arrays: `'array'`
+- Objects: Full namespace with leading backslash (e.g., `'\EmailDTO'`)
+- Union types: Pipe-separated, alphabetically sorted (e.g., `'bool|int|null|string'`)
+- Array elements: Wildcard notation (e.g., `'emails.*'`)
+
+```php
+$structure = $accessor->getStructure();
+
+// Example output:
+// [
+//   'name' => 'string',
+//   'age' => 'int',
+//   'emails' => 'array',
+//   'emails.*' => '\EmailDTO',
+//   'emails.*.email' => 'string',
+//   'emails.*.verified' => 'bool',
+// ]
+```
+
+### `getStructureMultidimensional(): array`
+
+Get data structure with type information as multidimensional array.
+
+Returns a nested array structure where leaf values are type strings (with union types for mixed values). Arrays use wildcards.
+
+**Return Format:**
+- Same type format as `getStructure()`
+- Nested structure instead of flat dot-notation
+- Array elements use `'*'` key
+
+```php
+$structure = $accessor->getStructureMultidimensional();
+
+// Example output:
+// [
+//   'name' => 'string',
+//   'age' => 'int',
+//   'emails' => [
+//     '*' => [
+//       'email' => 'string',
+//       'verified' => 'bool',
+//     ],
+//   ],
+// ]
+```
+
 ## See Also
 
 - [DataAccessor Guide](/main-classes/data-accessor/) - Complete guide
