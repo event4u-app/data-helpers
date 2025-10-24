@@ -29,7 +29,7 @@ print_r($data);
 
 echo "\nStructure (flat):\n";
 foreach ($structure as $path => $type) {
-    echo "  '$path' => '$type'\n";
+    echo "  '{$path}' => '{$type}'\n";
 }
 
 echo "\n";
@@ -51,7 +51,7 @@ $structure = $accessor->getStructure();
 
 echo "Structure (flat with wildcards):\n";
 foreach ($structure as $path => $type) {
-    echo "  '$path' => '$type'\n";
+    echo "  '{$path}' => '{$type}'\n";
 }
 
 echo "\n";
@@ -90,7 +90,7 @@ print_r($data);
 
 echo "\nStructure (shows union types):\n";
 foreach ($structure as $path => $type) {
-    echo "  '$path' => '$type'\n";
+    echo "  '{$path}' => '{$type}'\n";
 }
 
 echo "\n";
@@ -125,7 +125,7 @@ $structure = $accessor->getStructure();
 
 echo "Structure (deeply nested with multiple wildcards):\n";
 foreach ($structure as $path => $type) {
-    echo "  '$path' => '$type'\n";
+    echo "  '{$path}' => '{$type}'\n";
 }
 
 echo "\n";
@@ -165,7 +165,7 @@ $structure = $accessor->getStructure();
 
 echo "Structure (with DTO class names):\n";
 foreach ($structure as $path => $type) {
-    echo "  '$path' => '$type'\n";
+    echo "  '{$path}' => '{$type}'\n";
 }
 
 echo "\n";
@@ -199,25 +199,25 @@ $actualStructure = $accessor->getStructure();
 
 echo "Expected structure:\n";
 foreach ($expectedStructure as $path => $type) {
-    echo "  '$path' => '$type'\n";
+    echo "  '{$path}' => '{$type}'\n";
 }
 
 echo "\nActual structure:\n";
 foreach ($actualStructure as $path => $type) {
-    echo "  '$path' => '$type'\n";
+    echo "  '{$path}' => '{$type}'\n";
 }
 
 echo "\nValidation:\n";
 $isValid = true;
 foreach ($expectedStructure as $path => $expectedType) {
     if (!isset($actualStructure[$path])) {
-        echo "  ❌  Missing path: $path\n";
+        echo sprintf('  ❌  Missing path: %s%s', $path, PHP_EOL);
         $isValid = false;
     } elseif ($actualStructure[$path] !== $expectedType) {
-        echo "  ❌  Type mismatch at '$path': expected '$expectedType', got '{$actualStructure[$path]}'\n";
+        echo "  ❌  Type mismatch at '{$path}': expected '{$expectedType}', got '{$actualStructure[$path]}'\n";
         $isValid = false;
     } else {
-        echo "  ✅  '$path' => '$expectedType'\n";
+        echo "  ✅  '{$path}' => '{$expectedType}'\n";
     }
 }
 
@@ -246,8 +246,7 @@ $structure = $accessor->getStructure();
 
 echo "Structure (with union types for nullable values):\n";
 foreach ($structure as $path => $type) {
-    echo "  '$path' => '$type'\n";
+    echo "  '{$path}' => '{$type}'\n";
 }
 
 echo "\n=== Examples Complete ===\n";
-

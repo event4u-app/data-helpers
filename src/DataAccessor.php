@@ -654,7 +654,10 @@ class DataAccessor
                     if (is_array($value) && [] !== $value) {
                         // Mark with class name if it was an object, otherwise 'array'
                         $keys[$path] = $objectClass ?? 'array';
-                        $keys = array_merge($keys, $this->extractKeysFlat($value, $path));
+                        // Recursively extract nested keys directly into $keys array
+                        foreach ($this->extractKeysFlat($value, $path) as $nestedKey => $nestedType) {
+                            $keys[$nestedKey] = $nestedType;
+                        }
                     } else {
                         // Leaf value - get type from reflection if possible
                         $keys[$path] = $this->getTypeString($value);
@@ -664,7 +667,9 @@ class DataAccessor
         } elseif (is_object($data)) {
             // Convert object to array and process
             $arrayData = $this->objectToArrayPreservingObjects($data);
-            $keys = array_merge($keys, $this->extractKeysFlat($arrayData, $prefix));
+            foreach ($this->extractKeysFlat($arrayData, $prefix) as $nestedKey => $nestedType) {
+                $keys[$nestedKey] = $nestedType;
+            }
         }
 
         return $keys;
@@ -801,32 +806,22 @@ class DataAccessor
         // At least one is an array - merge recursively
         $merged = [];
 
-        // Collect all unique keys
-        $allKeys = [];
+        // Collect all values for each key in a single pass
+        $keyValues = [];
         foreach ($structures as $structure) {
             if (is_array($structure)) {
-                $allKeys = array_merge($allKeys, array_keys($structure));
-            }
-        }
-        $allKeys = array_unique($allKeys);
-
-        // For each key, collect all values and merge
-        foreach ($allKeys as $key) {
-            $values = [];
-            foreach ($structures as $structure) {
-                if (is_array($structure) && isset($structure[$key])) {
-                    $value = $structure[$key];
-                    // Ensure value is array or string
+                foreach ($structure as $key => $value) {
                     if (is_array($value) || is_string($value)) {
-                        $values[] = $value;
+                        $keyValues[$key][] = $value;
                     }
                 }
             }
+        }
 
-            if ([] !== $values) {
-                /** @var array<int, array<int|string, mixed>|string> $values */
-                $merged[$key] = $this->mergeStructuresMultidimensional($values);
-            }
+        // Merge values for each key
+        foreach ($keyValues as $key => $values) {
+            /** @var array<int, array<int|string, mixed>|string> $values */
+            $merged[$key] = $this->mergeStructuresMultidimensional($values);
         }
 
         return $merged;
@@ -917,6 +912,7 @@ class DataAccessor
 
     /**
      * Merge multiple structures into one with union types.
+     * Optimized to use a single pass through all structures.
      *
      * @param array<int, array<string, string>> $structures
      * @return array<string, string>
@@ -927,29 +923,26 @@ class DataAccessor
             return [];
         }
 
-        $merged = [];
+        /** @var array<string, array<string, bool>> $typesByKey */
+        $typesByKey = [];
 
-        // Collect all unique keys
-        $allKeys = [];
+        // Collect all types for each key in a single pass
         foreach ($structures as $structure) {
-            $allKeys = array_merge($allKeys, array_keys($structure));
-        }
-        $allKeys = array_unique($allKeys);
-
-        // For each key, collect all types and create union
-        foreach ($allKeys as $key) {
-            $types = [];
-            foreach ($structures as $structure) {
-                if (isset($structure[$key])) {
-                    $types[] = $structure[$key];
+            foreach ($structure as $key => $type) {
+                if (!isset($typesByKey[$key])) {
+                    $typesByKey[$key] = [$type => true];
+                } else {
+                    $typesByKey[$key][$type] = true;
                 }
             }
+        }
 
-            // Remove duplicates and sort for consistent output
-            $types = array_unique($types);
-            sort($types);
-
-            $merged[$key] = implode('|', $types);
+        // Convert to union types
+        $merged = [];
+        foreach ($typesByKey as $key => $types) {
+            $typeList = array_keys($types);
+            sort($typeList);
+            $merged[$key] = implode('|', $typeList);
         }
 
         return $merged;
