@@ -556,6 +556,461 @@ class DataAccessor
     }
 
     /**
+     * Get the data structure with type information as a flat array using dot-notation.
+     *
+     * Returns an array where keys are dot-notation paths (with wildcards for arrays)
+     * and values are type strings (with union types for mixed values).
+     *
+     * Example:
+     *   [
+     *     'name' => 'string',
+     *     'age' => 'int',
+     *     'address' => 'array',
+     *     'address.city' => 'string',
+     *     'address.zip' => 'int',
+     *     'emails' => 'array',
+     *     'emails.*' => '\EmailDTO',
+     *     'emails.*.email' => 'string',
+     *     'emails.*.verified' => 'bool',
+     *   ]
+     *
+     * @return array<string, string>
+     */
+    public function getStructure(): array
+    {
+        return $this->extractKeysFlat($this->data);
+    }
+
+    /**
+     * Get the data structure with type information as a multidimensional array.
+     *
+     * Returns a nested array structure where leaf values are type strings
+     * (with union types for mixed values). Arrays use wildcards.
+     *
+     * Example:
+     *   [
+     *     'name' => 'string',
+     *     'age' => 'int',
+     *     'address' => [
+     *       'city' => 'string',
+     *       'zip' => 'int',
+     *     ],
+     *     'emails' => [
+     *       '*' => '\EmailDTO',
+     *     ],
+     *   ]
+     *
+     * @return array<int|string, mixed>
+     */
+    public function getStructureMultidimensional(): array
+    {
+        return $this->extractKeysMultidimensional($this->data);
+    }
+
+    /**
+     * Extract keys as flat array with dot-notation paths.
+     * Uses wildcards for array elements and union types for mixed values.
+     *
+     * @return array<string, string>
+     */
+    private function extractKeysFlat(mixed $data, string $prefix = ''): array
+    {
+        $keys = [];
+
+        if (is_array($data)) {
+            // Check if this is a numeric array (list)
+            $isNumericArray = array_is_list($data);
+
+            if ($isNumericArray && [] !== $data) {
+                // Analyze all elements to find common structure and union types
+                $mergedStructure = $this->analyzeArrayElements($data);
+
+                // Add wildcard path for the array elements
+                foreach ($mergedStructure as $subKey => $type) {
+                    if ('' === $subKey) {
+                        // Direct element type
+                        $path = '' === $prefix ? '*' : $prefix . '.*';
+                        $keys[$path] = $type;
+                    } else {
+                        // Nested property
+                        $path = '' === $prefix ? '*.' . $subKey : $prefix . '.*.' . $subKey;
+                        $keys[$path] = $type;
+                    }
+                }
+            } else {
+                // Associative array - process each key normally
+                foreach ($data as $key => $value) {
+                    $path = '' === $prefix ? (string)$key : $prefix . '.' . $key;
+
+                    // Check if value is an object before converting
+                    $isObject = is_object($value);
+                    $objectClass = $isObject ? '\\' . $value::class : null;
+
+                    // Convert objects to arrays for recursive processing, but preserve nested objects
+                    if ($isObject) {
+                        $value = $this->objectToArrayPreservingObjects($value);
+                    }
+
+                    if (is_array($value) && [] !== $value) {
+                        // Mark with class name if it was an object, otherwise 'array'
+                        $keys[$path] = $objectClass ?? 'array';
+                        $keys = array_merge($keys, $this->extractKeysFlat($value, $path));
+                    } else {
+                        // Leaf value - get type from reflection if possible
+                        $keys[$path] = $this->getTypeString($value);
+                    }
+                }
+            }
+        } elseif (is_object($data)) {
+            // Convert object to array and process
+            $arrayData = $this->objectToArrayPreservingObjects($data);
+            $keys = array_merge($keys, $this->extractKeysFlat($arrayData, $prefix));
+        }
+
+        return $keys;
+    }
+
+    /**
+     * Extract keys as multidimensional array.
+     * Uses wildcards for array elements and union types for mixed values.
+     *
+     * @return array<int|string, mixed>
+     */
+    private function extractKeysMultidimensional(mixed $data): array
+    {
+        $keys = [];
+
+        if (is_array($data)) {
+            // Check if this is a numeric array (list)
+            $isNumericArray = array_is_list($data);
+
+            if ($isNumericArray && [] !== $data) {
+                // Analyze all elements to find common structure
+                $mergedStructure = $this->analyzeArrayElementsMultidimensional($data);
+                $keys['*'] = $mergedStructure;
+            } else {
+                // Associative array - process each key normally
+                foreach ($data as $key => $value) {
+                    // Check if value is an object before converting
+                    $isObject = is_object($value);
+                    $objectClass = $isObject ? '\\' . $value::class : null;
+
+                    // Convert objects to arrays for recursive processing, but preserve nested objects
+                    if ($isObject) {
+                        $value = $this->objectToArrayPreservingObjects($value);
+                    }
+
+                    if (is_array($value) && [] !== $value) {
+                        // If it was an object, use class name, otherwise recurse
+                        if ($objectClass) {
+                            $keys[$key] = $objectClass;
+                        } else {
+                            $keys[$key] = $this->extractKeysMultidimensional($value);
+                        }
+                    } else {
+                        // Leaf value - get type
+                        $keys[$key] = $this->getTypeString($value);
+                    }
+                }
+            }
+        } elseif (is_object($data)) {
+            // Convert object to array and process
+            $arrayData = $this->objectToArrayPreservingObjects($data);
+            $keys = $this->extractKeysMultidimensional($arrayData);
+        }
+
+        return $keys;
+    }
+
+    /**
+     * Analyze all elements in a numeric array for multidimensional output.
+     *
+     * @param array<int, mixed> $elements
+     * @return array<int|string, mixed>|string
+     */
+    private function analyzeArrayElementsMultidimensional(array $elements): array|string
+    {
+        if ([] === $elements) {
+            return [];
+        }
+
+        $structures = [];
+
+        // Collect structure from each element
+        foreach ($elements as $element) {
+            $structure = $this->extractElementStructureMultidimensional($element);
+            $structures[] = $structure;
+        }
+
+        // Merge all structures
+        return $this->mergeStructuresMultidimensional($structures);
+    }
+
+    /**
+     * Extract structure from a single array element for multidimensional output.
+     *
+     * @return array<int|string, mixed>|string
+     */
+    private function extractElementStructureMultidimensional(mixed $element): array|string
+    {
+        // Check if element is an object
+        if (is_object($element)) {
+            // For objects, just return the class name
+            return '\\' . $element::class;
+        }
+
+        if (is_array($element) && [] !== $element) {
+            // Recursively extract nested structure
+            return $this->extractKeysMultidimensional($element);
+        }
+
+        // Leaf value
+        return $this->getTypeString($element);
+    }
+
+    /**
+     * Merge multiple structures for multidimensional output.
+     *
+     * @param array<int, array<int|string, mixed>|string> $structures
+     * @return array<int|string, mixed>|string
+     */
+    private function mergeStructuresMultidimensional(array $structures): array|string
+    {
+        if ([] === $structures) {
+            return [];
+        }
+
+        // Check if all structures are strings (simple types)
+        $allStrings = true;
+        foreach ($structures as $structure) {
+            if (!is_string($structure)) {
+                $allStrings = false;
+                break;
+            }
+        }
+
+        if ($allStrings) {
+            // All are simple types - create union
+            /** @var array<int, string> $stringStructures */
+            $stringStructures = $structures;
+            $types = array_unique($stringStructures);
+            sort($types);
+            return implode('|', $types);
+        }
+
+        // At least one is an array - merge recursively
+        $merged = [];
+
+        // Collect all unique keys
+        $allKeys = [];
+        foreach ($structures as $structure) {
+            if (is_array($structure)) {
+                $allKeys = array_merge($allKeys, array_keys($structure));
+            }
+        }
+        $allKeys = array_unique($allKeys);
+
+        // For each key, collect all values and merge
+        foreach ($allKeys as $key) {
+            $values = [];
+            foreach ($structures as $structure) {
+                if (is_array($structure) && isset($structure[$key])) {
+                    $value = $structure[$key];
+                    // Ensure value is array or string
+                    if (is_array($value) || is_string($value)) {
+                        $values[] = $value;
+                    }
+                }
+            }
+
+            if ([] !== $values) {
+                /** @var array<int, array<int|string, mixed>|string> $values */
+                $merged[$key] = $this->mergeStructuresMultidimensional($values);
+            }
+        }
+
+        return $merged;
+    }
+
+    /**
+     * Analyze all elements in a numeric array to find common structure and union types.
+     * Returns a merged structure with union types where values differ.
+     *
+     * @param array<int, mixed> $elements
+     * @return array<string, string>
+     */
+    private function analyzeArrayElements(array $elements): array
+    {
+        if ([] === $elements) {
+            return [];
+        }
+
+        $structures = [];
+
+        // Collect structure from each element
+        foreach ($elements as $element) {
+            $structure = $this->extractElementStructure($element);
+            $structures[] = $structure;
+        }
+
+        // Merge all structures with union types
+        return $this->mergeStructures($structures);
+    }
+
+    /**
+     * Extract structure from a single array element.
+     *
+     * @return array<string, string>
+     */
+    private function extractElementStructure(mixed $element): array
+    {
+        $structure = [];
+
+        // Check if element is an object
+        $isObject = is_object($element);
+
+        if ($isObject) {
+            // Store the object type at root level
+            $structure[''] = '\\' . $element::class;
+
+            // Extract properties from object using reflection for better type info
+            $element = $this->objectToArrayPreservingObjects($element);
+        }
+
+        if (is_array($element) && [] !== $element) {
+            if (!$isObject) {
+                $structure[''] = 'array';
+            }
+
+            // Check if this is a numeric array
+            $isNumericArray = array_is_list($element);
+
+            if ($isNumericArray) {
+                // Analyze all elements with wildcard
+                $mergedStructure = $this->analyzeArrayElements($element);
+
+                foreach ($mergedStructure as $subKey => $type) {
+                    if ('' === $subKey) {
+                        $structure['*'] = $type;
+                    } else {
+                        $structure['*.' . $subKey] = $type;
+                    }
+                }
+            } else {
+                // Associative array - process each key
+                foreach ($element as $key => $value) {
+                    $nestedStructure = $this->extractElementStructure($value);
+
+                    foreach ($nestedStructure as $subKey => $type) {
+                        $fullKey = '' === $subKey ? (string)$key : $key . '.' . $subKey;
+                        $structure[$fullKey] = $type;
+                    }
+                }
+            }
+        } elseif (!$isObject) {
+            // Leaf value
+            $structure[''] = $this->getTypeString($element);
+        }
+
+        return $structure;
+    }
+
+    /**
+     * Merge multiple structures into one with union types.
+     *
+     * @param array<int, array<string, string>> $structures
+     * @return array<string, string>
+     */
+    private function mergeStructures(array $structures): array
+    {
+        if ([] === $structures) {
+            return [];
+        }
+
+        $merged = [];
+
+        // Collect all unique keys
+        $allKeys = [];
+        foreach ($structures as $structure) {
+            $allKeys = array_merge($allKeys, array_keys($structure));
+        }
+        $allKeys = array_unique($allKeys);
+
+        // For each key, collect all types and create union
+        foreach ($allKeys as $key) {
+            $types = [];
+            foreach ($structures as $structure) {
+                if (isset($structure[$key])) {
+                    $types[] = $structure[$key];
+                }
+            }
+
+            // Remove duplicates and sort for consistent output
+            $types = array_unique($types);
+            sort($types);
+
+            $merged[$key] = implode('|', $types);
+        }
+
+        return $merged;
+    }
+
+    /**
+     * Convert object to array while preserving nested objects.
+     * This is used for key extraction to maintain object type information.
+     *
+     * @return array<int|string, mixed>
+     */
+    private function objectToArrayPreservingObjects(object $obj): array
+    {
+        // For stdClass and other objects, use get_object_vars to preserve nested objects
+        $vars = get_object_vars($obj);
+        if ([] !== $vars) {
+            return $vars;
+        }
+
+        if (method_exists($obj, '__toString')) {
+            return [(string)$obj];
+        }
+
+        return [];
+    }
+
+    /** Get type string for a value. */
+    private function getTypeString(mixed $value): string
+    {
+        if (null === $value) {
+            return 'null';
+        }
+
+        if (is_bool($value)) {
+            return 'bool';
+        }
+
+        if (is_int($value)) {
+            return 'int';
+        }
+
+        if (is_float($value)) {
+            return 'float';
+        }
+
+        if (is_string($value)) {
+            return 'string';
+        }
+
+        if (is_array($value)) {
+            return 'array';
+        }
+
+        if (is_object($value)) {
+            return '\\' . $value::class;
+        }
+
+        return 'unknown';
+    }
+
+    /**
      * Return the normalized internal array.
      *
      * @return array<int|string, mixed>
