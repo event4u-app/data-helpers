@@ -115,7 +115,20 @@ trait SimpleDTODiffTrait
     private function xmlToArray(string $xml): array
     {
         try {
-            $element = new SimpleXMLElement($xml);
+            // Suppress XML parsing warnings and convert them to exceptions
+            set_error_handler(
+                static function(int $errno, string $errstr): bool {
+                    throw new Exception($errstr, $errno);
+                }
+            );
+
+            try {
+                $element = new SimpleXMLElement($xml);
+            } finally {
+                // Always restore error handler
+                restore_error_handler();
+            }
+
             $result = $this->simpleXmlToArray($element);
             /** @var array<string, mixed> $result */
             return $result;
