@@ -534,87 +534,6 @@ $collection = collect($prices);
 $filtered = $collection->filter(fn($p) => $p > 100)->values();
 ```
 
-## Performance Notes
-
-### Wildcard Performance
-
-- Wildcards traverse all matching elements
-- Performance scales with the number of matches
-- For large datasets, consider filtering data first
-
-```php
-// ❌ Slow on large datasets
-$accessor = new DataAccessor($hugeDataset);
-$allEmails = $accessor->get('users.*.email');
-
-// ✅ Filter first
-$activeUsers = array_filter($hugeDataset['users'], fn($u) => $u['active']);
-$accessor = new DataAccessor(['users' => $activeUsers]);
-$emails = $accessor->get('users.*.email');
-```
-
-### Deep Wildcards
-
-Multiple wildcards can be expensive on large nested structures:
-
-```php
-// Can be slow on large datasets
-$accessor->get('departments.*.teams.*.users.*.email');
-
-// Consider limiting depth or filtering
-```
-
-### Caching
-
-DataAccessor uses internal caching for path resolution, so repeated calls with the same path are fast:
-
-```php
-$accessor = new DataAccessor($data);
-
-// First call parses path
-$value1 = $accessor->get('user.profile.name');
-
-// Subsequent calls use cached path (fast)
-$value2 = $accessor->get('user.profile.name');
-```
-
-## Code Examples
-
-The following working examples demonstrate DataAccessor in action:
-
-- [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/basic-usage.php) - Complete example showing dot-notation, wildcards, and default values
-- [**Structure Introspection**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/structure-introspection.php) - Examples of analyzing data structure with type information
-
-All examples are fully tested and can be run directly:
-
-```bash
-php examples/main-classes/data-accessor/basic-usage.php
-php examples/main-classes/data-accessor/structure-introspection.php
-```
-
-## Related Tests
-
-The DataAccessor functionality is thoroughly tested. Key test files:
-
-**Unit Tests:**
-- [DataAccessorTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorTest.php) - Core functionality tests
-- [DataAccessorLazyWildcardTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessorLazyWildcardTest.php) - Wildcard behavior tests
-- [DataAccessorDoctrineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorDoctrineTest.php) - Doctrine integration tests
-- [DataAccessorLaravelTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorLaravelTest.php) - Laravel integration tests
-
-**Integration Tests:**
-- [DataAccessorIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Integration/DataAccessorIntegrationTest.php) - End-to-end scenarios
-
-Run the tests:
-
-```bash
-# Run all DataAccessor tests
-task test:unit -- --filter=DataAccessor
-
-# Run specific test file
-vendor/bin/pest tests/Unit/DataAccessor/DataAccessorTest.php
-```
-
 ## Structure Introspection
 
 DataAccessor provides methods to analyze the structure of your data with type information.
@@ -795,6 +714,87 @@ foreach ($expectedStructure as $path => $expectedType) {
         throw new Exception("Invalid structure at path: $path");
     }
 }
+```
+
+## Performance Notes
+
+### Wildcard Performance
+
+- Wildcards traverse all matching elements
+- Performance scales with the number of matches
+- For large datasets, consider filtering data first
+
+```php
+// ❌ Slow on large datasets
+$accessor = new DataAccessor($hugeDataset);
+$allEmails = $accessor->get('users.*.email');
+
+// ✅ Filter first
+$activeUsers = array_filter($hugeDataset['users'], fn($u) => $u['active']);
+$accessor = new DataAccessor(['users' => $activeUsers]);
+$emails = $accessor->get('users.*.email');
+```
+
+### Deep Wildcards
+
+Multiple wildcards can be expensive on large nested structures:
+
+```php
+// Can be slow on large datasets
+$accessor->get('departments.*.teams.*.users.*.email');
+
+// Consider limiting depth or filtering
+```
+
+### Caching
+
+DataAccessor uses internal caching for path resolution, so repeated calls with the same path are fast:
+
+```php
+$accessor = new DataAccessor($data);
+
+// First call parses path
+$value1 = $accessor->get('user.profile.name');
+
+// Subsequent calls use cached path (fast)
+$value2 = $accessor->get('user.profile.name');
+```
+
+## Code Examples
+
+The following working examples demonstrate DataAccessor in action:
+
+- [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/basic-usage.php) - Complete example showing dot-notation, wildcards, and default values
+- [**Structure Introspection**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/structure-introspection.php) - Examples of analyzing data structure with type information
+
+All examples are fully tested and can be run directly:
+
+```bash
+php examples/main-classes/data-accessor/basic-usage.php
+php examples/main-classes/data-accessor/structure-introspection.php
+```
+
+## Related Tests
+
+The DataAccessor functionality is thoroughly tested. Key test files:
+
+**Unit Tests:**
+- [DataAccessorTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorTest.php) - Core functionality tests
+- [DataAccessorLazyWildcardTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessorLazyWildcardTest.php) - Wildcard behavior tests
+- [DataAccessorDoctrineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorDoctrineTest.php) - Doctrine integration tests
+- [DataAccessorLaravelTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorLaravelTest.php) - Laravel integration tests
+
+**Integration Tests:**
+- [DataAccessorIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Integration/DataAccessorIntegrationTest.php) - End-to-end scenarios
+
+Run the tests:
+
+```bash
+# Run all DataAccessor tests
+task test:unit -- --filter=DataAccessor
+
+# Run specific test file
+vendor/bin/pest tests/Unit/DataAccessor/DataAccessorTest.php
 ```
 
 ## See Also
