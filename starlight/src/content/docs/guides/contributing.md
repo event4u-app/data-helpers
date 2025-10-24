@@ -150,7 +150,10 @@ test('maps nested data correctly', function (): void {
     $source = ['user' => ['name' => 'Alice']];
     $mapping = ['name' => '{{ user.name }}'];
 
-    $result = DataMapper::map($source, [], $mapping);
+    $result = DataMapper::from($source)
+        ->template($mapping)
+        ->map()
+        ->getTarget();
 
     expect($result)->toBe(['name' => 'Alice']);
 });
@@ -225,16 +228,15 @@ Example:
  * Maps source data to target structure using template expressions.
  *
  * @param array<string, mixed> $source Source data
- * @param array<string, mixed> $target Target data (optional)
+ * @param array<string, mixed> $source Source data
  * @param array<string, string> $mapping Mapping configuration
  * @return array<string, mixed> Mapped result
  *
  * @example
- * $result = DataMapper::map(
- *     ['user' => ['name' => 'Alice']],
- *     [],
- *     ['name' => '{{ user.name }}']
- * );
+ * $result = DataMapper::from(['user' => ['name' => 'Alice']])
+ *     ->template(['name' => '{{ user.name }}'])
+ *     ->map()
+ *     ->getTarget();
  */
 public static function map(array $source, array $target, array $mapping): array
 {

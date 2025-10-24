@@ -18,7 +18,7 @@ DataMapper acts as a facade and delegates work to specialized components that ea
 
 ## High-Level Flow
 
-The `DataMapper::map()` method follows this flow:
+The `DataMapper::from()->template()->map()` method follows this flow:
 
 1. Normalize hooks (enums → strings, arrays of callables allowed)
 2. For simple mappings: iterate associative pairs (src → tgt)
@@ -113,7 +113,7 @@ Manages hook execution and filtering.
 
 **Hook Order per Pair:**
 ```
-beforePair → beforeTransform → (wildcard? iterate items) → 
+beforePair → beforeTransform → (wildcard? iterate items) →
 afterTransform → beforeWrite → write → afterWrite → afterPair
 ```
 
@@ -291,15 +291,16 @@ final class PhoneNormalizer
 }
 ```
 
-Use with transforms:
+Use with property filters:
 
 ```php
-$result = DataMapper::map(
-    ['user' => ['phone' => ' (030) 123 45 ']],
-    [],
-    ['user.phone' => 'dto.phone'],
-    transforms: ['user.phone' => [App\Support\PhoneNormalizer::class, 'e164']]
-);
+$result = DataMapper::from(['user' => ['phone' => ' (030) 123 45 ']])
+    ->template(['dto.phone' => '{{ user.phone }}'])
+    ->property('dto.phone')
+        ->setFilter([App\Support\PhoneNormalizer::class, 'e164'])
+        ->end()
+    ->map()
+    ->getTarget();
 ```
 
 ## Performance Considerations
@@ -365,14 +366,13 @@ it('skips odd indices via hook', function () {
         ],
     ];
 
-    $out = DataMapper::map(
-        $src,
-        [],
-        ['users.*.email' => 'emails.*'],
-        skipNull: true,
-        reindexWildcard: true,
-        hooks: $hooks
-    );
+    $out = DataMapper::from($src)
+        ->template(['emails.*' => '{{ users.*.email }}'])
+        ->skipNull(true)
+        ->reindexWildcard(true)
+        ->hooks($hooks)
+        ->map()
+        ->getTarget();
 
     expect($out)->toEqual(['emails' => ['a@x', 'c@x']]);
 });

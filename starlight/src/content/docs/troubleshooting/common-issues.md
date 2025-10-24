@@ -117,7 +117,7 @@ class CustomRule implements ValidationRule
     {
         return 'custom_rule';
     }
-    
+
     public function message(): ?string
     {
         return 'The :attribute is invalid.';
@@ -176,7 +176,7 @@ class MyCast implements Cast
     {
         return /* cast logic */;
     }
-    
+
     public function uncast(mixed $value): mixed
     {
         return /* uncast logic */;
@@ -273,10 +273,14 @@ $dto = UserDTO::fromModel($user);
 $dto = UserDTO::fromArray($user->toArray());
 
 // Or use DataMapper for complex mappings
-$dto = DataMapper::map($user->toArray(), [], [
-    'name' => 'name',
-    'email' => 'email',
-], UserDTO::class);
+$dto = DataMapper::from($user->toArray())
+    ->target(UserDTO::class)
+    ->template([
+        'name' => 'name',
+        'email' => 'email',
+    ])
+    ->map()
+    ->getTarget();
 ```
 
 ### Symfony: Doctrine Integration Not Working
@@ -290,10 +294,14 @@ $dto = UserDTO::fromEntity($user);
 **Solution:**
 ```php
 // Use DataMapper for entity mapping
-$dto = DataMapper::map($user, [], [
-    'name' => 'name',
-    'email' => 'email',
-], UserDTO::class);
+$dto = DataMapper::from($user)
+    ->target(UserDTO::class)
+    ->template([
+        'name' => 'name',
+        'email' => 'email',
+    ])
+    ->map()
+    ->getTarget();
 
 // Or convert entity to array first
 $dto = UserDTO::fromArray([
