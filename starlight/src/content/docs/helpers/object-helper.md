@@ -20,7 +20,7 @@ ObjectHelper provides utilities for copying objects with deep cloning support fo
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\Helpers\ObjectHelper;
+use event4u\DataHelpers\Helpers\ObjectHelper;
 
 class User
 {

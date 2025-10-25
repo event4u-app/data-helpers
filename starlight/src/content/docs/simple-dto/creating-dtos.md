@@ -244,8 +244,8 @@ $dto = UserDTO::fromCsv($csv);
 ### Validate and Create
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 
 class UserDTO extends SimpleDTO
 {
@@ -411,7 +411,7 @@ $dtos = array_map(
 ### Using DataCollection
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDTO\DataCollection;
 
 $data = [
     ['name' => 'John', 'email' => 'john@example.com'],

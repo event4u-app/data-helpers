@@ -8,7 +8,7 @@ DataMutator provides methods to modify nested data structures including arrays, 
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\DataMutator;
 
 // Set values in nested structure
 $target = [];
@@ -64,7 +64,7 @@ Set a value at a dot-notation path.
 ### Basic Usage
 
 ```php
-use Event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\DataMutator;
 
 // Start with empty array
 $target = [];
@@ -121,7 +121,7 @@ $data = DataMutator::set($data, 'users.*.active', true);
 When the source value comes from DataAccessor (with full path keys), wildcards expand automatically:
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 $source = ['users' => [
     ['email' => 'alice@example.com'],
@@ -505,7 +505,7 @@ $target = DataMutator::set($target, 'user.settings.language', 'en');
 ### Bulk Update with Accessor Results
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 // Read from source
 $source = ['users' => [
@@ -597,7 +597,7 @@ $data = DataMutator::set($data, 'users.*.active', true);
 Use DataAccessor to read and DataMutator to write:
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 // Read from source
 $accessor = new DataAccessor($source);

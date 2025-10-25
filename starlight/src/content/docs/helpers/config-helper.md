@@ -8,7 +8,7 @@ ConfigHelper is a universal configuration helper that automatically detects your
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\Config\ConfigHelper;
+use event4u\DataHelpers\Config\ConfigHelper;
 
 $config = ConfigHelper::getInstance();
 
@@ -47,7 +47,7 @@ ConfigHelper provides a unified interface for accessing configuration across dif
 ### Getting Configuration Values
 
 ```php
-use Event4u\DataHelpers\Config\ConfigHelper;
+use event4u\DataHelpers\Config\ConfigHelper;
 
 $config = ConfigHelper::getInstance();
 
@@ -234,7 +234,7 @@ return [
 The `DataHelpersConfig` class uses `ConfigHelper` internally:
 
 ```php
-use Event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\DataHelpersConfig;
 
 // These methods use ConfigHelper automatically
 $mode = DataHelpersConfig::getPerformanceMode();
@@ -252,7 +252,7 @@ $value = DataHelpersConfig::get('cache.max_entries', 1000);
 For testing, you can reset the singleton instance:
 
 ```php
-use Event4u\DataHelpers\Config\ConfigHelper;
+use event4u\DataHelpers\Config\ConfigHelper;
 
 // Reset singleton
 ConfigHelper::resetInstance();
@@ -266,7 +266,7 @@ DataHelpersConfig::reset();
 You can manually initialize configuration for testing:
 
 ```php
-use Event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\DataHelpersConfig;
 
 // Manually initialize (bypasses ConfigHelper)
 DataHelpersConfig::initialize([
@@ -282,7 +282,7 @@ DataHelpersConfig::initialize([
 ### Example 1: Get Cache Configuration
 
 ```php
-use Event4u\DataHelpers\Config\ConfigHelper;
+use event4u\DataHelpers\Config\ConfigHelper;
 
 $config = ConfigHelper::getInstance();
 
@@ -296,7 +296,7 @@ echo "Cache config: " . json_encode($cacheConfig) . "\n";
 ### Example 2: Conditional Logic Based on Config
 
 ```php
-use Event4u\DataHelpers\Config\ConfigHelper;
+use event4u\DataHelpers\Config\ConfigHelper;
 
 $config = ConfigHelper::getInstance();
 
@@ -320,7 +320,7 @@ if ($config->getBoolean('cache.enabled', false)) {
 ### Example 3: Framework-Specific Configuration
 
 ```php
-use Event4u\DataHelpers\Config\ConfigHelper;
+use event4u\DataHelpers\Config\ConfigHelper;
 
 $config = ConfigHelper::getInstance();
 $source = $config->getSource();

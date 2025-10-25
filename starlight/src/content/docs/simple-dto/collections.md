@@ -42,7 +42,7 @@ $dtos = UserDTO::collection($users);
 ### Using DataCollection::make()
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDTO\DataCollection;
 
 $collection = DataCollection::make($data, UserDTO::class);
 ```

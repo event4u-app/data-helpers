@@ -18,7 +18,7 @@ SimpleDTO provides visibility attributes:
 Properties marked as hidden are **never** included in serialization:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
 
 #[Hidden]
 public readonly string $password;
@@ -32,7 +32,7 @@ public readonly string $apiToken;
 Conditionally visible based on callback:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Visible;
+use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
 
 #[Visible(callback: 'canViewEmail')]
 public readonly string $email;

@@ -8,7 +8,7 @@ EnvHelper provides a framework-agnostic way to access environment variables with
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\Helpers\EnvHelper;
+use event4u\DataHelpers\Helpers\EnvHelper;
 
 // Get string value
 $appName = EnvHelper::string('APP_NAME', 'My App');
@@ -51,7 +51,7 @@ EnvHelper automatically detects your framework:
 ### Get Raw Value
 
 ```php
-use Event4u\DataHelpers\Helpers\EnvHelper;
+use event4u\DataHelpers\Helpers\EnvHelper;
 
 // Get raw value
 $value = EnvHelper::get('DATABASE_URL');

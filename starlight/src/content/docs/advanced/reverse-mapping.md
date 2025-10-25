@@ -25,7 +25,7 @@ This is particularly useful when:
 The Fluent API provides `->reverseMap()` method that reverses the template direction:
 
 ```php
-use Event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper;
 
 $template = [
     'profile' => [
@@ -243,8 +243,8 @@ $items = DataMapper::from($products)
 ### With Pipeline Filters
 
 ```php
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
 $template = [
     'user' => [
@@ -288,7 +288,7 @@ $template = [
 Pipeline filters are NOT automatically reversed:
 
 ```php
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
 $template = [
     'name' => '{{ user.name }}',

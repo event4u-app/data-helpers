@@ -8,7 +8,7 @@ DataAccessor provides a uniform way to read values from nested data structures i
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 $data = [
     'users' => [
@@ -56,7 +56,7 @@ DataAccessor works with multiple data types:
 ### Creating an Accessor
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 // From array
 $accessor = new DataAccessor($array);
@@ -543,7 +543,7 @@ DataAccessor provides methods to analyze the structure of your data with type in
 The `getStructure()` method returns a flat array with dot-notation paths and type information:
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 $data = [
     'name' => 'John Doe',
@@ -658,7 +658,7 @@ $structure = $accessor->getStructure();
 Objects are returned with their full namespace:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO;
 
 class EmailDTO extends SimpleDTO
 {

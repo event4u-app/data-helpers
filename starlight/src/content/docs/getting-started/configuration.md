@@ -45,7 +45,7 @@ data_helpers:
 For plain PHP projects, you can configure Data Helpers programmatically:
 
 ```php
-use Event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\DataHelpersConfig;
 
 DataHelpersConfig::setPerformanceMode(true);
 DataHelpersConfig::setCacheEnabled(true);

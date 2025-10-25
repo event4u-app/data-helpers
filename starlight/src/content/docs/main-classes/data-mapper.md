@@ -8,7 +8,7 @@ DataMapper provides a modern, fluent API for transforming data between different
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper;
 
 $source = [
     'user' => [
@@ -325,8 +325,8 @@ Apply filters to all mapped values globally.
 ### Global Filters
 
 ```php
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
 $result = DataMapper::from($source)
     ->pipeline([

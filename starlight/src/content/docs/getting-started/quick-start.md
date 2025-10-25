@@ -16,7 +16,7 @@ composer require event4u/data-helpers
 ### DataAccessor - Read Nested Data
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 $data = [
     'user' => [
@@ -41,7 +41,7 @@ $totals = $accessor->get('user.orders.*.total'); // [100, 200]
 ### DataMutator - Modify Nested Data
 
 ```php
-use Event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\DataMutator;
 
 $mutator = new DataMutator($data);
 
@@ -57,7 +57,7 @@ $result = $mutator->toArray();
 ### DataMapper - Transform Data (Fluent API)
 
 ```php
-use Event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper;
 
 // Fluent API with template-based mapping
 $result = DataMapper::from($data)
@@ -102,7 +102,7 @@ $result = DataMapper::from($data)
 ### DataFilter - Query Data
 
 ```php
-use Event4u\DataHelpers\DataFilter;
+use event4u\DataHelpers\DataFilter;
 
 $filter = new DataFilter($data['user']['orders']);
 
@@ -115,9 +115,9 @@ $expensive = $filter
 ### SimpleDTO - Data Transfer Objects
 
 ```php
-use Event4u\DataHelpers\SimpleDTO;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Validation\Required;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Validation\Email;
+use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Email;
 
 class UserDTO extends SimpleDTO
 {

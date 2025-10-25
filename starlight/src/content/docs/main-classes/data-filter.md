@@ -8,7 +8,7 @@ DataFilter provides a fluent API for filtering and transforming existing data co
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\DataFilter;
+use event4u\DataHelpers\DataFilter;
 
 $products = [
     ['id' => 1, 'name' => 'Laptop', 'price' => 1299, 'category' => 'Electronics', 'stock' => 5],
@@ -74,7 +74,7 @@ DataFilter provides SQL-like filtering for in-memory data collections.
 ### Creating a Query
 
 ```php
-use Event4u\DataHelpers\DataFilter;
+use event4u\DataHelpers\DataFilter;
 
 // Start with data
 $data = [

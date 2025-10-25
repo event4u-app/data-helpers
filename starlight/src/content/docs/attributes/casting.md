@@ -12,8 +12,8 @@ Reference for type casting attributes and 20+ built-in cast classes.
 Cast property to a specific type:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use Event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
+use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 
 #[Cast(DateTimeCast::class)]
 public readonly Carbon $createdAt;
@@ -95,7 +95,7 @@ public readonly string $name;
 ## Custom Casts
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Contracts\Cast;
+use event4u\DataHelpers\SimpleDTO\Contracts\Cast;
 
 class UpperCaseCast implements Cast
 {

@@ -49,8 +49,8 @@ $dto = UserDTO::fromArray([
 ### DateTimeCast
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use Event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
+use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 
 class EventDTO extends SimpleDTO
 {
@@ -77,7 +77,7 @@ echo $dto->startDate->format('F j, Y'); // January 15, 2024
 ### DateCast
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Casts\DateCast;
+use event4u\DataHelpers\SimpleDTO\Casts\DateCast;
 
 class UserDTO extends SimpleDTO
 {
@@ -100,8 +100,8 @@ $dto = UserDTO::fromArray([
 ### EnumCast
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use Event4u\DataHelpers\SimpleDTO\Casts\EnumCast;
+use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
+use event4u\DataHelpers\SimpleDTO\Casts\EnumCast;
 
 enum Status: string
 {
@@ -159,7 +159,7 @@ $dto = TaskDTO::fromArray([
 ### ArrayCast
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Casts\ArrayCast;
+use event4u\DataHelpers\SimpleDTO\Casts\ArrayCast;
 
 class UserDTO extends SimpleDTO
 {
@@ -185,7 +185,7 @@ $dto = UserDTO::fromArray([
 ### CollectionCast
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Casts\CollectionCast;
+use event4u\DataHelpers\SimpleDTO\Casts\CollectionCast;
 
 class OrderDTO extends SimpleDTO
 {
@@ -211,7 +211,7 @@ $dto = OrderDTO::fromArray([
 ### ObjectCast
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Casts\ObjectCast;
+use event4u\DataHelpers\SimpleDTO\Casts\ObjectCast;
 
 class AddressDTO extends SimpleDTO
 {
@@ -245,7 +245,7 @@ $dto = UserDTO::fromArray([
 ### EncryptedCast
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Casts\EncryptedCast;
+use event4u\DataHelpers\SimpleDTO\Casts\EncryptedCast;
 
 class UserDTO extends SimpleDTO
 {
@@ -271,7 +271,7 @@ echo $dto->ssn; // 123-45-6789
 ### Creating a Custom Cast
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Contracts\Cast;
+use event4u\DataHelpers\SimpleDTO\Contracts\Cast;
 
 class UpperCaseCast implements Cast
 {
