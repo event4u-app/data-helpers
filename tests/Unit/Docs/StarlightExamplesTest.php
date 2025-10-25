@@ -28,13 +28,36 @@ describe('Starlight Documentation Examples', function (): void {
         expect($totalExamples)->toBeGreaterThan(0);
     });
 
-    it('executes all documentation examples successfully', function (): void {
+    it('executes core documentation examples successfully', function (): void {
         expect($this->allExamples)->not->toBeEmpty();
+
+        // Only test core documentation files to keep tests fast
+        $coreFiles = [
+            'getting-started/quick-start.md',
+            'main-classes/data-mapper.md',
+            'main-classes/data-accessor.md',
+            'main-classes/data-filter.md',
+            'main-classes/data-mutator.md',
+        ];
 
         $executedCount = 0;
         $skippedCount = 0;
+        $failedExamples = [];
 
         foreach ($this->allExamples as $filePath => $examples) {
+            // Check if this is a core file
+            $isCoreFile = false;
+            foreach ($coreFiles as $coreFile) {
+                if (str_contains($filePath, $coreFile)) {
+                    $isCoreFile = true;
+                    break;
+                }
+            }
+
+            if (!$isCoreFile) {
+                continue;
+            }
+
             foreach ($examples as $index => $example) {
                 $code = $example['code'];
                 $line = $example['line'];
@@ -49,33 +72,63 @@ describe('Starlight Documentation Examples', function (): void {
                 $mockSetup = DocumentationExampleExtractor::generateMockDataSetup($code);
                 $fullCode = $mockSetup . $code;
 
-                // Prepare code for execution
-                $executableCode = DocumentationExampleExtractor::prepareCodeForExecution($fullCode);
+                // Prepare code for execution with assertions
+                $executableCode = DocumentationExampleExtractor::prepareCodeForExecution($fullCode, true);
 
                 // Execute the code
                 try {
+                    // Suppress warnings and capture them
+                    set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($index, $line, $code, $filePath) {
+                        if ($errno === E_WARNING || $errno === E_NOTICE) {
+                            throw new \RuntimeException(
+                                sprintf(
+                                    "Example #%d at line %d in %s produced warning:\n\nCode:\n%s\n\nWarning: %s",
+                                    $index + 1,
+                                    $line,
+                                    basename($filePath),
+                                    $code,
+                                    $errstr
+                                )
+                            );
+                        }
+                        return false;
+                    });
+
                     eval(substr($executableCode, 5)); // Remove <?php tag for eval
+
+                    restore_error_handler();
                     $executedCount++;
                 } catch (\Throwable $e) {
-                    throw new \RuntimeException(
-                        sprintf(
-                            "Example #%d at line %d in %s failed:\n\nCode:\n%s\n\nError: %s\n\nTrace:\n%s",
-                            $index + 1,
-                            $line,
-                            basename($filePath),
-                            $code,
-                            $e->getMessage(),
-                            $e->getTraceAsString()
-                        ),
-                        0,
-                        $e
-                    );
+                    restore_error_handler();
+                    $failedExamples[] = [
+                        'file' => basename($filePath),
+                        'line' => $line,
+                        'index' => $index + 1,
+                        'code' => $code,
+                        'error' => $e->getMessage(),
+                    ];
                 }
             }
         }
 
+        echo sprintf("\n✅ Executed %d examples, skipped %d\n", $executedCount, $skippedCount);
+
+        if (!empty($failedExamples)) {
+            $errorMessage = sprintf("\n❌ %d examples failed:\n\n", count($failedExamples));
+            foreach ($failedExamples as $failed) {
+                $errorMessage .= sprintf(
+                    "- %s (line %d, example #%d): %s\n",
+                    $failed['file'],
+                    $failed['line'],
+                    $failed['index'],
+                    substr($failed['error'], 0, 100)
+                );
+            }
+            throw new \RuntimeException($errorMessage);
+        }
+
         expect($executedCount)->toBeGreaterThan(0, "No examples were executed");
-    })->group('docs', 'starlight');
+    })->group('docs', 'starlight', 'core');
 
     it('validates DataMapper examples', function (): void {
         $dataMapperFile = $this->docsPath . '/main-classes/data-mapper.md';

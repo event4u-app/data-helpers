@@ -60,12 +60,16 @@ $query = new DataMapperQuery();
 ### Adding a Data Source
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 $query->source('products', $products);
 ```
 
 ### Executing the Query
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 $result = $query->get();
 ```
 
@@ -93,6 +97,8 @@ $result = DataMapper::query()
 ### Basic WHERE
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 // Equal
 $query->where('category', 'Electronics');
 $query->where('category', '=', 'Electronics');
@@ -111,6 +117,8 @@ $query->where('price', '<=', 1000);
 ### Advanced WHERE
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 // Between
 $query->between('price', 100, 500);
 
@@ -134,6 +142,8 @@ $query->like('name', '%Laptop%');
 ### Nested Conditions
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 $query->where(function($q) {
     $q->where('category', 'Electronics')
       ->where('price', '>', 100);
@@ -146,6 +156,8 @@ $query->where(function($q) {
 ### OR Conditions
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 $query->where('category', 'Electronics')
       ->orWhere('category', 'Furniture');
 ```
@@ -155,6 +167,8 @@ $query->where('category', 'Electronics')
 ### ORDER BY
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 // Ascending
 $query->orderBy('price');
 $query->orderBy('price', 'ASC');
@@ -172,6 +186,8 @@ $query->orderBy('category', 'ASC')
 ### LIMIT and OFFSET
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 // Limit
 $query->limit(10);
 
@@ -187,6 +203,8 @@ $query->limit(10)->offset(20); // Page 3
 ### GROUP BY
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 $query->groupBy('category');
 
 // Multiple fields
@@ -196,6 +214,8 @@ $query->groupBy(['category', 'brand']);
 ### Aggregations
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 $query->groupBy('category')
       ->aggregations([
           'total' => ['COUNT'],
@@ -207,6 +227,8 @@ $query->groupBy('category')
 ### HAVING Clause
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 $query->groupBy('category')
       ->aggregations([
           'total' => ['COUNT'],
@@ -219,12 +241,16 @@ $query->groupBy('category')
 ### DISTINCT
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 $query->distinct();
 ```
 
 ### SELECT Fields
 
 ```php
+$data = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
+$query = \event4u\DataHelpers\DataFilter::query($data);
 $query->select(['name', 'price']);
 ```
 

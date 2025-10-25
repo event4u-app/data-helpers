@@ -32,6 +32,10 @@ $mutator = DataMutator::make($data);
 Set value at path.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $mutator->set('user.name', 'John Doe');
 ```
 
@@ -40,6 +44,10 @@ $mutator->set('user.name', 'John Doe');
 Set multiple values.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $mutator->setMultiple([
     'user.name' => 'John',
     'user.email' => 'john@example.com',
@@ -53,6 +61,10 @@ $mutator->setMultiple([
 Remove value at path.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $mutator->unset('user.password');
 ```
 
@@ -61,6 +73,10 @@ $mutator->unset('user.password');
 Remove multiple paths.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $mutator->unsetMultiple(['user.password', 'user.token']);
 ```
 
@@ -71,6 +87,10 @@ $mutator->unsetMultiple(['user.password', 'user.token']);
 Merge array at path.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $mutator->merge('user.settings', ['theme' => 'dark']);
 ```
 
@@ -79,6 +99,10 @@ $mutator->merge('user.settings', ['theme' => 'dark']);
 Recursively merge array.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $mutator->mergeRecursive('config', $newConfig);
 ```
 
@@ -89,6 +113,10 @@ $mutator->mergeRecursive('config', $newConfig);
 Push value to array.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $mutator->push('user.tags', 'admin');
 ```
 
@@ -97,6 +125,10 @@ $mutator->push('user.tags', 'admin');
 Remove and return value.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $value = $mutator->pull('user.temp_data');
 ```
 
@@ -107,6 +139,10 @@ $value = $mutator->pull('user.temp_data');
 Transform value at path.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $mutator->transform('user.name', fn($v) => strtoupper($v));
 ```
 
@@ -125,6 +161,10 @@ $data = $mutator->toArray();
 Get reference to array.
 
 ```php
+use event4u\DataHelpers\DataMutator;
+
+$data = ['user' => ['name' => 'John', 'age' => 25]];
+$mutator = new DataMutator($data);
 $ref = &$mutator->getReference();
 ```
 

@@ -69,6 +69,7 @@ $allConfig = $config->all();
 ### Type-Safe Getters
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 // Get as boolean
 $enabled = $config->getBoolean('feature.enabled', false);
 // Converts: 'true', '1', 'yes', 'on' → true
@@ -89,6 +90,7 @@ $cacheConfig = $config->getArray('cache', []);
 ### Check Configuration Source
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $source = $config->getSource();
 // Returns: 'laravel', 'symfony', 'plain', or 'default'
 
@@ -116,6 +118,7 @@ switch ($source) {
 Get configuration value using dot notation.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $value = $config->get('cache.max_entries');
 $value = $config->get('non.existent.key', 'default');
 ```
@@ -125,6 +128,7 @@ $value = $config->get('non.existent.key', 'default');
 Get configuration value as boolean. Converts string values like 'true', '1', 'yes', 'on' to `true`.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $enabled = $config->getBoolean('feature.enabled', false);
 ```
 
@@ -133,6 +137,7 @@ $enabled = $config->getBoolean('feature.enabled', false);
 Get configuration value as integer.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $maxEntries = $config->getInteger('cache.max_entries', 1000);
 ```
 
@@ -141,6 +146,7 @@ $maxEntries = $config->getInteger('cache.max_entries', 1000);
 Get configuration value as float.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $ratio = $config->getFloat('logging.sampling.errors', 1.5);
 ```
 
@@ -149,6 +155,7 @@ $ratio = $config->getFloat('logging.sampling.errors', 1.5);
 Get configuration value as string.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $mode = $config->getString('performance_mode', 'fast');
 ```
 
@@ -157,6 +164,7 @@ $mode = $config->getString('performance_mode', 'fast');
 Get configuration value as array.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $cacheConfig = $config->getArray('cache', []);
 ```
 
@@ -165,6 +173,7 @@ $cacheConfig = $config->getArray('cache', []);
 Check if configuration key exists.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 if ($config->has('performance_mode')) {
     // Key exists
 }
@@ -175,6 +184,7 @@ if ($config->has('performance_mode')) {
 Get all configuration.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $allConfig = $config->all();
 ```
 
@@ -183,6 +193,7 @@ $allConfig = $config->all();
 Get the configuration source (laravel, symfony, plain, or default).
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $source = $config->getSource();
 // Returns: 'laravel', 'symfony', 'plain', or 'default'
 ```
@@ -344,6 +355,7 @@ if ($source === 'laravel') {
 Prefer type-specific methods over generic `get()` for better type safety.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 // ✅ Correct - Type-safe
 $maxEntries = $config->getInteger('cache.max_entries', 1000);
 $enabled = $config->getBoolean('feature.enabled', false);
@@ -358,6 +370,7 @@ $enabled = $config->get('feature.enabled', false);
 Always provide sensible default values.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 // ✅ Correct - Has default
 $maxEntries = $config->getInteger('cache.max_entries', 1000);
 
@@ -370,6 +383,7 @@ $maxEntries = $config->getInteger('cache.max_entries');
 Use `has()` to check if a key exists before accessing it.
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 // ✅ Correct - Check first
 if ($config->has('performance_mode')) {
     $mode = $config->getString('performance_mode');
@@ -418,6 +432,7 @@ If your configuration is not loading:
 4. Use `getSource()` to see which source is being used
 
 ```php
+$config = new \event4u\DataHelpers\Config\ConfigHelper(['app' => ['name' => 'MyApp', 'debug' => true], 'database' => ['host' => 'localhost', 'port' => 3306]]);
 $source = $config->getSource();
 echo "Using source: {$source}\n";
 ```

@@ -43,15 +43,22 @@ $totals = $accessor->get('user.orders.*.total'); // [100, 200]
 ```php
 use event4u\DataHelpers\DataMutator;
 
-$mutator = new DataMutator($data);
+$data = [
+    'user' => [
+        'name' => 'John Doe',
+        'orders' => [
+            ['id' => 1, 'total' => 100],
+            ['id' => 2, 'total' => 200],
+        ],
+    ],
+];
 
 // Set nested value
-$mutator->set('user.phone', '+1234567890');
+$data = DataMutator::set($data, 'user.phone', '+1234567890');
 
 // Set multiple values with wildcards
-$mutator->set('user.orders.*.status', 'shipped');
-
-$result = $mutator->toArray();
+$data = DataMutator::set($data, 'user.orders.*.status', 'shipped');
+// $data = ['user' => ['name' => 'John Doe', 'orders' => [['id' => 1, 'total' => 100, 'status' => 'shipped'], ['id' => 2, 'total' => 200, 'status' => 'shipped']], 'phone' => '+1234567890']]
 ```
 
 ### DataMapper - Transform Data (Fluent API)
@@ -59,26 +66,45 @@ $result = $mutator->toArray();
 ```php
 use event4u\DataHelpers\DataMapper;
 
+$data = [
+    'user' => [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'orders' => [
+            ['id' => 1, 'total' => 100],
+            ['id' => 2, 'total' => 200],
+        ],
+    ],
+];
+
 // Fluent API with template-based mapping
 $result = DataMapper::from($data)
     ->template([
         'customer_name' => '{{ user.name }}',
         'customer_email' => '{{ user.email }}',
         'total_orders' => '{{ user.orders | count }}',
-        'order_total' => '{{ user.orders.*.total | sum }}',
+        'order_ids' => '{{ user.orders.*.id }}',
     ])
     ->map()
     ->getTarget();
+// $result = ['customer_name' => 'John Doe', 'customer_email' => 'john@example.com', 'total_orders' => 2, 'order_ids' => [1, 2]]
+```
 
-// Result:
-// [
-//     'customer_name' => 'John Doe',
-//     'customer_email' => 'john@example.com',
-//     'total_orders' => 2,
-//     'order_total' => 300,
-// ]
+With WHERE/ORDER BY in template (recommended for database-stored templates):
 
-// With WHERE/ORDER BY in template (recommended for database-stored templates)
+```php
+use event4u\DataHelpers\DataMapper;
+
+$data = [
+    'user' => [
+        'orders' => [
+            ['id' => 1, 'total' => 100],
+            ['id' => 2, 'total' => 200],
+            ['id' => 3, 'total' => 150],
+        ],
+    ],
+];
+
 $result = DataMapper::from($data)
     ->template([
         'items' => [
@@ -97,6 +123,7 @@ $result = DataMapper::from($data)
     ])
     ->map()
     ->getTarget();
+// $result = ['items' => [['id' => 2, 'total' => 200], ['id' => 3, 'total' => 150]]]
 ```
 
 ### DataFilter - Query Data
@@ -104,12 +131,17 @@ $result = DataMapper::from($data)
 ```php
 use event4u\DataHelpers\DataFilter;
 
-$filter = new DataFilter($data['user']['orders']);
+$orders = [
+    ['id' => 1, 'total' => 100],
+    ['id' => 2, 'total' => 200],
+    ['id' => 3, 'total' => 150],
+];
 
-$expensive = $filter
+$expensive = DataFilter::query($orders)
     ->where('total', '>', 150)
     ->orderBy('total', 'DESC')
-    ->toArray();
+    ->get();
+// $expensive = [['id' => 2, 'total' => 200]]
 ```
 
 ### SimpleDTO - Data Transfer Objects

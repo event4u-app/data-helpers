@@ -32,6 +32,10 @@ $accessor = DataAccessor::make($data);
 Get value at path.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $value = $accessor->get('user.name');
 $value = $accessor->get('user.age', 0);
 ```
@@ -41,6 +45,10 @@ $value = $accessor->get('user.age', 0);
 Get string value.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $name = $accessor->getString('user.name');
 ```
 
@@ -49,6 +57,10 @@ $name = $accessor->getString('user.name');
 Get integer value.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $age = $accessor->getInt('user.age');
 ```
 
@@ -57,6 +69,10 @@ $age = $accessor->getInt('user.age');
 Get float value.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $price = $accessor->getFloat('product.price');
 ```
 
@@ -65,6 +81,10 @@ $price = $accessor->getFloat('product.price');
 Get boolean value.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $active = $accessor->getBool('user.active');
 ```
 
@@ -73,6 +93,10 @@ $active = $accessor->getBool('user.active');
 Get array value.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $tags = $accessor->getArray('post.tags');
 ```
 
@@ -83,6 +107,10 @@ $tags = $accessor->getArray('post.tags');
 Check if path exists.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 if ($accessor->has('user.email')) {
     // ...
 }
@@ -93,6 +121,10 @@ if ($accessor->has('user.email')) {
 Check if any path exists.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 if ($accessor->hasAny(['user.email', 'user.phone'])) {
     // ...
 }
@@ -103,6 +135,10 @@ if ($accessor->hasAny(['user.email', 'user.phone'])) {
 Check if all paths exist.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 if ($accessor->hasAll(['user.name', 'user.email'])) {
     // ...
 }
@@ -115,6 +151,10 @@ if ($accessor->hasAll(['user.name', 'user.email'])) {
 Get values matching wildcard pattern.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $names = $accessor->getWildcard('users.*.name');
 ```
 
@@ -133,6 +173,10 @@ $data = $accessor->toArray();
 Get all keys.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $keys = $accessor->keys();
 ```
 
@@ -141,6 +185,10 @@ $keys = $accessor->keys();
 Get all values.
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $values = $accessor->values();
 ```
 
@@ -160,6 +208,10 @@ Returns an array where keys are dot-notation paths (with wildcards for arrays) a
 - Array elements: Wildcard notation (e.g., `'emails.*'`)
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $structure = $accessor->getStructure();
 
 // Example output:
@@ -185,6 +237,10 @@ Returns a nested array structure where leaf values are type strings (with union 
 - Array elements use `'*'` key
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$accessor = new DataAccessor($data);
 $structure = $accessor->getStructureMultidimensional();
 
 // Example output:

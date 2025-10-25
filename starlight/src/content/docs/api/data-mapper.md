@@ -12,6 +12,10 @@ Complete API reference for DataMapper.
 Set source data.
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
+$data = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$mapper = new DataMapper($data);
 $mapper = DataMapper::source($sourceData);
 ```
 
@@ -20,6 +24,10 @@ $mapper = DataMapper::source($sourceData);
 Set target data.
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
+$data = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$mapper = new DataMapper($data);
 $mapper = DataMapper::source($src)->target($tgt);
 ```
 
@@ -30,6 +38,10 @@ $mapper = DataMapper::source($src)->target($tgt);
 Set mapping template.
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
+$data = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$mapper = new DataMapper($data);
 $mapper->template([
     'name' => '{{ user.full_name }}',
     'email' => '{{ user.email }}',
@@ -41,6 +53,10 @@ $mapper->template([
 Execute mapping.
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
+$data = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$mapper = new DataMapper($data);
 $mapper->map();
 ```
 
@@ -49,6 +65,10 @@ $mapper->map();
 Get mapped target.
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
+$data = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$mapper = new DataMapper($data);
 $result = $mapper->getTarget();
 ```
 
@@ -59,6 +79,10 @@ $result = $mapper->getTarget();
 Skip null values.
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
+$data = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$mapper = new DataMapper($data);
 $mapper->skipNull(true);
 ```
 
@@ -67,6 +91,10 @@ $mapper->skipNull(true);
 Reindex wildcard results.
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
+$data = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$mapper = new DataMapper($data);
 $mapper->reindexWildcard(false);
 ```
 
@@ -75,6 +103,10 @@ $mapper->reindexWildcard(false);
 Set hooks.
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
+$data = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$mapper = new DataMapper($data);
 $mapper->hooks($hooksArray);
 ```
 

@@ -52,32 +52,105 @@ $collection = DataCollection::make($data, UserDTO::class);
 ### Filter
 
 ```php
+use event4u\DataHelpers\SimpleDTO;
+
+class UserDTO extends SimpleDTO
+{
+    public string $name;
+    public int $age;
+}
+
+$data = [
+    ['name' => 'John', 'age' => 25],
+    ['name' => 'Jane', 'age' => 17],
+    ['name' => 'Bob', 'age' => 30],
+];
+
+$users = UserDTO::collection($data);
 $adults = $users->filter(fn($user) => $user->age >= 18);
+// $adults = DataCollection with 2 items (John and Bob)
 ```
 
 ### Map
 
 ```php
+use event4u\DataHelpers\SimpleDTO;
+
+class UserDTO extends SimpleDTO
+{
+    public string $name;
+    public int $age;
+}
+
+$data = [
+    ['name' => 'John', 'age' => 25],
+    ['name' => 'Jane', 'age' => 17],
+];
+
+$users = UserDTO::collection($data);
 $names = $users->map(fn($user) => $user->name);
+// $names = ['John', 'Jane']
 ```
 
 ### First / Last
 
 ```php
+use event4u\DataHelpers\SimpleDTO;
+
+class UserDTO extends SimpleDTO
+{
+    public string $name;
+}
+
+$data = [
+    ['name' => 'John'],
+    ['name' => 'Jane'],
+];
+
+$users = UserDTO::collection($data);
 $first = $users->first();
 $last = $users->last();
+// $first->name = 'John', $last->name = 'Jane'
 ```
 
 ### Count
 
 ```php
+use event4u\DataHelpers\SimpleDTO;
+
+class UserDTO extends SimpleDTO
+{
+    public string $name;
+}
+
+$data = [
+    ['name' => 'John'],
+    ['name' => 'Jane'],
+];
+
+$users = UserDTO::collection($data);
 $count = $users->count();
+// $count = 2
 ```
 
 ### ToArray
 
 ```php
+use event4u\DataHelpers\SimpleDTO;
+
+class UserDTO extends SimpleDTO
+{
+    public string $name;
+}
+
+$data = [
+    ['name' => 'John'],
+    ['name' => 'Jane'],
+];
+
+$users = UserDTO::collection($data);
 $array = $users->toArray();
+// $array = [['name' => 'John'], ['name' => 'Jane']]
 ```
 
 ## Pagination
