@@ -381,14 +381,14 @@ trait SimpleDTOTrait
     public function set(string $path, mixed $value): static
     {
         $data = $this->toArrayRecursive();
-        $updatedData = DataMutator::set($data, $path, $value);
+        DataMutator::make($data)->set($path, $value);
 
         // Ensure we have an array with string keys
-        if (!is_array($updatedData)) {
+        if (!is_array($data)) {
             return static::fromArray([]);
         }
 
-        /** @var array<string, mixed> $updatedData */
-        return static::fromArray($updatedData);
+        /** @var array<string, mixed> $data */
+        return static::fromArray($data);
     }
 }

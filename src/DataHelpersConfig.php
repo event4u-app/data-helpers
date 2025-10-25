@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
-use event4u\DataHelpers\Config\ConfigHelper;
+use event4u\DataHelpers\Helpers\ConfigHelper;
 
 /**
  * Central configuration for Data Helpers package.

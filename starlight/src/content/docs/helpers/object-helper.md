@@ -54,6 +54,10 @@ echo $copy->address->city;     // 'Los Angeles'
 ### Shallow Copy
 
 ```php
+class User {
+    public function __construct(public string $name, public int $age, public ?object $address = null) {}
+}
+
 $original = new User('Alice', 30);
 
 // Shallow copy (recursive = false)
@@ -63,12 +67,19 @@ $copy = ObjectHelper::copy($original, recursive: false);
 $copy !== $original; // true
 
 // But nested objects are shared
-$copy->address === $original->address; // true
+// $copy->address === $original->address; // true (if address was set)
 ```
 
 ### Deep Copy
 
 ```php
+class User {
+    public function __construct(public string $name, public object $address) {}
+}
+class Address {
+    public function __construct(public string $city) {}
+}
+
 $original = new User('Alice', new Address('New York'));
 
 // Deep copy (recursive = true, default)
@@ -86,6 +97,12 @@ $copy->address !== $original->address; // true
 ### Control Recursion Depth
 
 ```php
+class User {
+    public function __construct(public string $name, public int $age) {}
+}
+
+$original = new User('Alice', 30);
+
 // Limit recursion to 5 levels
 $copy = ObjectHelper::copy($original, recursive: true, maxLevel: 5);
 
@@ -96,6 +113,12 @@ $copy = ObjectHelper::copy($original, recursive: true, maxLevel: 10);
 ### Copy Arrays with Objects
 
 ```php
+class User {
+    public function __construct(public string $name, public object $address) {}
+}
+class Address {
+    public function __construct(public string $city) {}
+}
 class Team
 {
     public function __construct(
@@ -122,6 +145,9 @@ $copy->members[0]->address !== $team->members[0]->address; // true
 ### Clone User Profile
 
 ```php
+class Address {
+    public function __construct(public string $city, public string $zip) {}
+}
 class UserProfile
 {
     public function __construct(
@@ -150,6 +176,9 @@ $testProfile->address->city = 'Test City';
 ### Clone Order with Items
 
 ```php
+class Address {
+    public function __construct(public string $city, public string $zip) {}
+}
 class Order
 {
     public function __construct(

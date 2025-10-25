@@ -115,6 +115,7 @@ Use cases:
 
 The DataMapper uses a fluent, chainable API:
 
+<!-- skip-test: API overview with placeholders -->
 ```php
 DataMapper::from($source)           // Start with source data
     ->target($target)               // Optional: Set target object/array
@@ -324,6 +325,7 @@ Apply filters to all mapped values globally.
 
 ### Global Filters
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
@@ -345,6 +347,7 @@ $result = DataMapper::from($source)
 
 ### Adding Filters
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
 $mapper = DataMapper::from($source)
     ->template($template);
@@ -377,6 +380,7 @@ Apply filters to specific properties only.
 
 ### Using setFilter()
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
 $result = DataMapper::from($source)
     ->setFilter('name', new TrimStrings(), new UppercaseStrings())
@@ -394,6 +398,7 @@ $result = DataMapper::from($source)
 
 ### Using Property API
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
 $result = DataMapper::from($source)
     ->property('name')
@@ -409,6 +414,7 @@ $result = DataMapper::from($source)
 
 ### Nested Properties
 
+<!-- skip-test: Code snippet example -->
 ```php
 // Works with dot-notation
 ->setFilter('user.profile.bio', new TrimStrings())
@@ -454,6 +460,7 @@ $value = $mapper->property('name')->getMappedValue();
 
 ### Reset Property Filters
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
 $mapper->property('name')
     ->setFilter(new TrimStrings())

@@ -99,7 +99,7 @@ class DataMutator
     public function push(string $path, mixed $value): self
     {
         $segments = DotPathHelper::segments($path);
-        $current = DataAccessor::get($this->target, $path, []);
+        $current = DataAccessor::make($this->target)->get($path, []);
 
         if (!is_array($current)) {
             $current = [];
@@ -116,7 +116,7 @@ class DataMutator
      */
     public function pull(string $path, mixed $default = null): mixed
     {
-        $value = DataAccessor::get($this->target, $path, $default);
+        $value = DataAccessor::make($this->target)->get($path, $default);
         $this->unset($path);
 
         return $value;
@@ -127,7 +127,7 @@ class DataMutator
      */
     public function transform(string $path, callable $callback): self
     {
-        $value = DataAccessor::get($this->target, $path);
+        $value = DataAccessor::make($this->target)->get($path);
         $newValue = $callback($value);
         $segments = DotPathHelper::segments($path);
         $this->target = self::applySet($this->target, $segments, $newValue, false);

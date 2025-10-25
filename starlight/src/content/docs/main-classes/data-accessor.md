@@ -18,7 +18,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 
 // Simple path
 $name = $accessor->get('users.0.name');
@@ -59,22 +59,18 @@ DataAccessor works with multiple data types:
 use event4u\DataHelpers\DataAccessor;
 
 // From array
-$accessor = new DataAccessor($array);
+$array = ['user' => ['name' => 'Alice']];
+$accessor = DataAccessor::make($array);
 
 // From object
-$accessor = new DataAccessor($object);
-
-// From Collection
-$accessor = new DataAccessor($collection);
-
-// From Eloquent Model
-$accessor = new DataAccessor($model);
+$object = (object)['user' => (object)['name' => 'Bob']];
+$accessor = DataAccessor::make($object);
 
 // From JSON string
-$accessor = new DataAccessor('{"user":{"name":"Alice"}}');
+$accessor = DataAccessor::make('{"user":{"name":"Charlie"}}');
 
 // From XML string
-$accessor = new DataAccessor('<user><name>Alice</name></user>');
+$accessor = DataAccessor::make('<user><name>Alice</name></user>');
 ```
 
 ### Reading Values
@@ -89,7 +85,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 
 // Dot-notation path
 $name = $accessor->get('user.profile.name');
@@ -126,7 +122,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $emails = $accessor->get('users.*.email');
 
 // Returns associative array with full paths as keys:
@@ -157,7 +153,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $emails = $accessor->get('users.*.email');
 
 // Returns:
@@ -201,7 +197,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $cities = $accessor->get('users.*.addresses.*.city');
 
 // Returns:
@@ -231,7 +227,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $titles = $accessor->get('departments.*.users.*.posts.*.title');
 
 // Returns:
@@ -259,7 +255,7 @@ $data = [
     ]),
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $emails = $accessor->get('users.*.email');
 
 // Returns:
@@ -288,7 +284,7 @@ $data = [
     ]),
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $skus = $accessor->get('orders.*.items.*.sku');
 
 // Returns:
@@ -309,7 +305,7 @@ $data = [
     ]),
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 
 // Access specific index
 $firstUser = $accessor->get('users.0.name');
@@ -326,9 +322,10 @@ DataAccessor works with Eloquent Models and their relationships.
 
 ### Basic Model Access
 
+<!-- skip-test: Requires Eloquent Model -->
 ```php
 $user = User::find(1);
-$accessor = new DataAccessor($user);
+$accessor = DataAccessor::make($user);
 
 $name = $accessor->get('name');
 $email = $accessor->get('email');
@@ -336,9 +333,10 @@ $email = $accessor->get('email');
 
 ### Accessing Relationships
 
+<!-- skip-test: Requires Eloquent Model with relationships -->
 ```php
 $user = User::with('posts.comments')->first();
-$accessor = new DataAccessor($user);
+$accessor = DataAccessor::make($user);
 
 // Access relationship
 $postTitles = $accessor->get('posts.*.title');
@@ -349,9 +347,10 @@ $commentTexts = $accessor->get('posts.*.comments.*.text');
 
 ### Model Collections
 
+<!-- skip-test: Requires Eloquent Model collection -->
 ```php
 $users = User::with('posts')->get();
-$accessor = new DataAccessor(['users' => $users]);
+$accessor = DataAccessor::make(['users' => $users]);
 
 // Extract all post titles from all users
 $allPostTitles = $accessor->get('users.*.posts.*.title');
@@ -366,7 +365,7 @@ DataAccessor automatically parses JSON and XML strings.
 
 ```php
 $json = '{"users":[{"name":"Alice","age":30},{"name":"Bob","age":25}]}';
-$accessor = new DataAccessor($json);
+$accessor = DataAccessor::make($json);
 
 $names = $accessor->get('users.*.name');
 // Returns: ['users.0.name' => 'Alice', 'users.1.name' => 'Bob']
@@ -379,7 +378,7 @@ $firstAge = $accessor->get('users.0.age');
 
 ```php
 $xml = '<users><user><name>Alice</name></user><user><name>Bob</name></user></users>';
-$accessor = new DataAccessor($xml);
+$accessor = DataAccessor::make($xml);
 
 $names = $accessor->get('users.user.*.name');
 // Returns parsed XML as array structure
@@ -397,7 +396,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $emails = $accessor->get('departments.*.users.*.email');
 
 // Returns:
@@ -411,7 +410,8 @@ $emails = $accessor->get('departments.*.users.*.email');
 ### Safe Access with Default
 
 ```php
-$accessor = new DataAccessor($config);
+$config = ['app' => ['settings' => ['theme' => 'dark', 'timeout' => 60]]];
+$accessor = DataAccessor::make($config);
 
 // Always provide sensible defaults
 $theme = $accessor->get('app.settings.theme', 'default');
@@ -422,7 +422,12 @@ $debug = $accessor->get('app.settings.debug', false);
 ### Combining with Array Functions
 
 ```php
-$accessor = new DataAccessor($data);
+$data = ['products' => [
+    ['name' => 'Product A', 'price' => 10.50],
+    ['name' => 'Product B', 'price' => 25.00],
+    ['name' => 'Product C', 'price' => 15.75],
+]];
+$accessor = DataAccessor::make($data);
 $prices = $accessor->get('products.*.price');
 
 // Calculate total
@@ -444,7 +449,7 @@ $data = [
     ['name' => 'Bob', 'age' => 25],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 
 // Access specific index
 $firstUser = $accessor->get('0.name');
@@ -464,7 +469,7 @@ $data = ['users' => [
     ['email' => 'bob@x.com'],
 ]];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $emails = $accessor->get('users.*.email');
 
 // Filter out nulls
@@ -490,7 +495,7 @@ foreach ($data['users'] as $user) {
 }
 
 // ✅ Efficient
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $emails = $accessor->get('users.*.email');
 ```
 
@@ -499,11 +504,15 @@ $emails = $accessor->get('users.*.email');
 Use DataAccessor to read values and DataMutator to write them into a new structure:
 
 ```php
-$accessor = new DataAccessor($sourceData);
+$sourceData = ['users' => [
+    ['name' => 'Alice', 'email' => 'alice@example.com'],
+    ['name' => 'Bob', 'email' => 'bob@example.com'],
+]];
+$accessor = DataAccessor::make($sourceData);
 $emails = $accessor->get('users.*.email');
 
-$mutator = new DataMutator([]);
-$mutator->set('contacts.*.email', $emails);
+$target = [];
+DataMutator::make($target)->set('contacts', array_map(fn($email) => ['email' => $email], $emails));
 ```
 
 ### Always Provide Defaults
@@ -526,7 +535,7 @@ $theme = $accessor->get('settings.theme', 'default');
 DataAccessor works seamlessly with Laravel Collections:
 
 ```php
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $prices = $accessor->get('products.*.price');
 
 // Convert to Collection for chaining
@@ -554,7 +563,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $structure = $accessor->getStructure();
 
 // Returns:
@@ -574,7 +583,7 @@ $structure = $accessor->getStructure();
 The `getStructureMultidimensional()` method returns a nested array structure:
 
 ```php
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $structure = $accessor->getStructureMultidimensional();
 
 // Returns:
@@ -614,7 +623,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $structure = $accessor->getStructure();
 
 // Returns:
@@ -643,7 +652,7 @@ $data = [
     ],
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $structure = $accessor->getStructure();
 
 // Returns:
@@ -672,7 +681,7 @@ $data = [
     'contact' => new EmailDTO('john@example.com', true),
 ];
 
-$accessor = new DataAccessor($data);
+$accessor = DataAccessor::make($data);
 $structure = $accessor->getStructure();
 
 // Returns:
@@ -696,7 +705,7 @@ Structure introspection is useful for:
 
 ```php
 // Example: Validate API response structure
-$accessor = new DataAccessor($apiResponse);
+$accessor = DataAccessor::make($apiResponse);
 $structure = $accessor->getStructure();
 
 $expectedStructure = [
@@ -726,12 +735,12 @@ foreach ($expectedStructure as $path => $expectedType) {
 
 ```php
 // ❌ Slow on large datasets
-$accessor = new DataAccessor($hugeDataset);
+$accessor = DataAccessor::make($hugeDataset);
 $allEmails = $accessor->get('users.*.email');
 
 // ✅ Filter first
 $activeUsers = array_filter($hugeDataset['users'], fn($u) => $u['active']);
-$accessor = new DataAccessor(['users' => $activeUsers]);
+$accessor = DataAccessor::make(['users' => $activeUsers]);
 $emails = $accessor->get('users.*.email');
 ```
 
@@ -739,6 +748,7 @@ $emails = $accessor->get('users.*.email');
 
 Multiple wildcards can be expensive on large nested structures:
 
+<!-- skip-test: Example only, no executable code -->
 ```php
 // Can be slow on large datasets
 $accessor->get('departments.*.teams.*.users.*.email');
@@ -751,12 +761,13 @@ $accessor->get('departments.*.teams.*.users.*.email');
 DataAccessor uses internal caching for path resolution, so repeated calls with the same path are fast:
 
 ```php
-$accessor = new DataAccessor($data);
+$data = ['user' => ['profile' => ['name' => 'Alice']]];
+$accessor = DataAccessor::make($data);
 
-// First call parses path
+// First call parses the path
 $value1 = $accessor->get('user.profile.name');
 
-// Subsequent calls use cached path (fast)
+// Subsequent calls with cached path (fast)
 $value2 = $accessor->get('user.profile.name');
 ```
 

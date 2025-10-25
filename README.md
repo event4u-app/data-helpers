@@ -115,8 +115,10 @@ Safely modify nested structures:
 
 ```php
 $data = ['user' => ['profile' => []]];
-$data = DataMutator::set($data, 'user.profile.name', 'Alice');
-$data = DataMutator::merge($data, 'user.profile', ['age' => 30]);
+DataMutator::make($data)
+    ->set('user.profile.name', 'Alice')
+    ->merge('user.profile', ['age' => 30]);
+// $data is now modified: ['user' => ['profile' => ['name' => 'Alice', 'age' => 30]]]
 ```
 
 📖 **[DataMutator Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-mutator/)**

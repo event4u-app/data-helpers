@@ -17,11 +17,14 @@ $accessor = new DataAccessor($data);
 
 ## Static Methods
 
-### `make(array $data): self`
+### `make(mixed $input): self`
 
 Create a new instance (fluent).
 
 ```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['user' => ['name' => 'John']];
 $accessor = DataAccessor::make($data);
 ```
 

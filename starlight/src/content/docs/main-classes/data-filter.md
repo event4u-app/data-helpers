@@ -22,7 +22,7 @@ $products = [
 // Filter electronics with price between $100-$500, in stock, sorted by price
 $result = DataFilter::query($products)
     ->where('category', '=', 'Electronics')
-    ->between('price', [100, 500])
+    ->between('price', 100, 500)
     ->where('stock', '>', 0)
     ->orderBy('price', 'DESC')
     ->get();
@@ -334,7 +334,7 @@ $products = [
 
 // Price between 100 and 300 (inclusive)
 $result = DataFilter::query($products)
-    ->between('price', [100, 300])
+    ->between('price', 100, 300)
     ->get();
 
 // Result: [['id' => 2, 'price' => 150], ['id' => 3, 'price' => 250]]
@@ -362,7 +362,7 @@ $orders = [
 
 // Orders in January 2024
 $result = DataFilter::query($orders)
-    ->between('date', ['2024-01-01', '2024-01-31'])
+    ->between('date', '2024-01-01', '2024-01-31')
     ->get();
 ```
 
@@ -588,7 +588,7 @@ $products = [
 // Filter electronics with price between $100-$500, in stock, sorted by rating
 $result = DataFilter::query($products)
     ->where('category', '=', 'Electronics')
-    ->between('price', [100, 500])
+    ->between('price', 100, 500)
     ->where('stock', '>', 0)
     ->orderBy('rating', 'DESC')
     ->get();
@@ -694,7 +694,7 @@ $totalRevenue = array_sum(array_column($shippedOrders, 'total'));
 
 // Find orders in date range
 $januaryOrders = DataFilter::query($orders)
-    ->between('date', ['2024-01-10', '2024-01-12'])
+    ->between('date', '2024-01-10', '2024-01-12')
     ->get();
 
 // Result: [Alice, Bob, Charlie]
@@ -709,7 +709,7 @@ $januaryOrders = DataFilter::query($orders)
 $result = DataFilter::query($products)
     ->where('category', '=', 'Electronics')
     ->where('stock', '>', 0)
-    ->between('price', [100, 500])
+    ->between('price', 100, 500)
     ->orderBy('rating', 'DESC')
     ->limit(10)
     ->get();

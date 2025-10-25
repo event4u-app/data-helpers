@@ -31,7 +31,7 @@ class StrongPassword extends ValidationAttribute
             'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
         ];
     }
-    
+
     public function message(): string
     {
         return 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
@@ -55,6 +55,7 @@ class UserDTO extends SimpleDTO
 
 ### Attribute with Parameters
 
+<!-- skip-test: Class definition example -->
 ```php
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class MinWords extends ValidationAttribute
@@ -62,13 +63,13 @@ class MinWords extends ValidationAttribute
     public function __construct(
         private int $min,
     ) {}
-    
+
     public function rules(): array
     {
         return [
             function ($attribute, $value, $fail) {
                 $wordCount = str_word_count($value);
-                
+
                 if ($wordCount < $this->min) {
                     $fail("The {$attribute} must contain at least {$this->min} words.");
                 }
@@ -84,6 +85,7 @@ public readonly string $description;
 
 ### Multiple Rules
 
+<!-- skip-test: Class definition example -->
 ```php
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Username extends ValidationAttribute
@@ -99,7 +101,7 @@ class Username extends ValidationAttribute
             'unique:users,username',
         ];
     }
-    
+
     public function messages(): array
     {
         return [
@@ -112,6 +114,7 @@ class Username extends ValidationAttribute
 
 ### Conditional Validation
 
+<!-- skip-test: Class definition example -->
 ```php
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class RequiredIf extends ValidationAttribute
@@ -120,7 +123,7 @@ class RequiredIf extends ValidationAttribute
         private string $field,
         private mixed $value,
     ) {}
-    
+
     public function rules(): array
     {
         return [
@@ -134,7 +137,7 @@ class OrderDTO extends SimpleDTO
 {
     public function __construct(
         public readonly string $paymentMethod,
-        
+
         #[RequiredIf('paymentMethod', 'credit_card')]
         public readonly ?string $cardNumber = null,
     ) {}
@@ -145,6 +148,7 @@ class OrderDTO extends SimpleDTO
 
 ### Implementing ValidationRuleInterface
 
+<!-- skip-test: Class definition example -->
 ```php
 use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 
@@ -154,7 +158,7 @@ class UniqueEmailRule implements ValidationRule
     {
         return !User::where('email', $value)->exists();
     }
-    
+
     public function message(): string
     {
         return 'This email is already registered';
@@ -164,6 +168,7 @@ class UniqueEmailRule implements ValidationRule
 
 ### Using Custom Rules
 
+<!-- skip-test: Class definition example -->
 ```php
 class UserDTO extends SimpleDTO
 {
@@ -178,6 +183,7 @@ class UserDTO extends SimpleDTO
 
 ### Using Closures
 
+<!-- skip-test: Class definition example -->
 ```php
 class ProductDTO extends SimpleDTO
 {
@@ -196,6 +202,7 @@ class ProductDTO extends SimpleDTO
 
 ### Credit Card Validation
 
+<!-- skip-test: Class definition example -->
 ```php
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class CreditCard extends ValidationAttribute
@@ -208,21 +215,21 @@ class CreditCard extends ValidationAttribute
                 $value = preg_replace('/\D/', '', $value);
                 $sum = 0;
                 $alt = false;
-                
+
                 for ($i = strlen($value) - 1; $i >= 0; $i--) {
                     $n = (int) $value[$i];
-                    
+
                     if ($alt) {
                         $n *= 2;
                         if ($n > 9) {
                             $n -= 9;
                         }
                     }
-                    
+
                     $sum += $n;
                     $alt = !$alt;
                 }
-                
+
                 if ($sum % 10 !== 0) {
                     $fail('Invalid credit card number');
                 }
@@ -234,6 +241,7 @@ class CreditCard extends ValidationAttribute
 
 ### IBAN Validation
 
+<!-- skip-test: Class definition example -->
 ```php
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class IBAN extends ValidationAttribute
@@ -247,14 +255,14 @@ class IBAN extends ValidationAttribute
                 $iban = str_replace(' ', '', strtoupper($value));
                 $checksum = substr($iban, 0, 4);
                 $account = substr($iban, 4);
-                
+
                 $numeric = $account . $checksum;
                 $numeric = str_replace(
                     range('A', 'Z'),
                     range(10, 35),
                     $numeric
                 );
-                
+
                 if (bcmod($numeric, '97') !== '1') {
                     $fail('Invalid IBAN');
                 }
@@ -266,6 +274,7 @@ class IBAN extends ValidationAttribute
 
 ### Date Range Validation
 
+<!-- skip-test: Class definition example -->
 ```php
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class DateRange extends ValidationAttribute
@@ -274,19 +283,19 @@ class DateRange extends ValidationAttribute
         private ?string $after = null,
         private ?string $before = null,
     ) {}
-    
+
     public function rules(): array
     {
         $rules = ['date'];
-        
+
         if ($this->after) {
             $rules[] = "after:{$this->after}";
         }
-        
+
         if ($this->before) {
             $rules[] = "before:{$this->before}";
         }
-        
+
         return $rules;
     }
 }
@@ -300,6 +309,7 @@ public readonly Carbon $eventDate;
 
 ### Laravel Validation
 
+<!-- skip-test: Class definition example -->
 ```php
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class LaravelRule extends ValidationAttribute
@@ -307,7 +317,7 @@ class LaravelRule extends ValidationAttribute
     public function __construct(
         private string $rule,
     ) {}
-    
+
     public function rules(): array
     {
         return [$this->rule];
@@ -330,7 +340,7 @@ class SymfonyConstraint extends ValidationAttribute
     public function __construct(
         private Assert\Constraint $constraint,
     ) {}
-    
+
     public function getConstraint(): Assert\Constraint
     {
         return $this->constraint;

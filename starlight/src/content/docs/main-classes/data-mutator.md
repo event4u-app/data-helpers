@@ -406,8 +406,8 @@ DataMutator works with Eloquent Models and their relationships.
 
 ### Basic Model Mutation
 
+<!-- skip-test: Requires Laravel Eloquent -->
 ```php
-// skip-test (requires Laravel Eloquent)
 $user = User::first();
 
 // Update model attributes
@@ -420,8 +420,8 @@ $user->save();
 
 ### Updating Relationships
 
+<!-- skip-test: Requires Laravel Eloquent -->
 ```php
-// skip-test (requires Laravel Eloquent)
 $user = User::with('posts')->first();
 
 // Update first post's title
@@ -436,8 +436,8 @@ $user->push(); // Saves model and relationships
 
 ### Nested Relationships
 
+<!-- skip-test: Requires Laravel Eloquent -->
 ```php
-// skip-test (requires Laravel Eloquent)
 $user = User::with('posts.comments')->first();
 
 // Update nested relationship

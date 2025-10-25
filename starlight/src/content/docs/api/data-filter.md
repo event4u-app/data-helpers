@@ -7,11 +7,14 @@ Complete API reference for DataFilter.
 
 ## Static Methods
 
-### `make(array $data): self`
+### `make(mixed $data): self`
 
 Create a new instance.
 
 ```php
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John']];
 $filter = DataFilter::make($data);
 ```
 
@@ -26,7 +29,7 @@ use event4u\DataHelpers\DataFilter;
 
 $data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
 $filter = DataFilter::query($data);
-$filter->only(['name', 'email']);
+$result = $filter->only(['name', 'age'])->get();
 ```
 
 ### `except(array $keys): self`
@@ -38,7 +41,7 @@ use event4u\DataHelpers\DataFilter;
 
 $data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
 $filter = DataFilter::query($data);
-$filter->except(['password', 'token']);
+$result = $filter->except(['id'])->get();
 ```
 
 ### `where(string $key, mixed $value): self`
@@ -88,7 +91,7 @@ use event4u\DataHelpers\DataFilter;
 
 $data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
 $filter = DataFilter::query($data);
-$filter->map(fn($item) => strtoupper($item));
+$result = $filter->map(fn($item) => ['name' => strtoupper($item['name']), 'age' => $item['age']])->get();
 ```
 
 ### `filter(callable $callback): self`
@@ -98,9 +101,9 @@ Filter items by callback.
 ```php
 use event4u\DataHelpers\DataFilter;
 
-$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$data = [['id' => 1, 'name' => 'John', 'age' => 25, 'active' => true], ['id' => 2, 'name' => 'Jane', 'age' => 30, 'active' => false]];
 $filter = DataFilter::query($data);
-$filter->filter(fn($item) => $item['active']);
+$result = $filter->filter(fn($item) => $item['active'])->get();
 ```
 
 ## Result Methods

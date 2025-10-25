@@ -47,8 +47,8 @@ For plain PHP projects, you can configure Data Helpers programmatically:
 ```php
 use event4u\DataHelpers\DataHelpersConfig;
 
-DataHelpersConfig::setPerformanceMode(true);
-DataHelpersConfig::setCacheEnabled(true);
+DataHelpersConfig::set('performance_mode', 'fast');
+DataHelpersConfig::set('cache.max_entries', 1000);
 ```
 
 ## Configuration Options
@@ -58,17 +58,23 @@ DataHelpersConfig::setCacheEnabled(true);
 Enable performance mode for production environments:
 
 ```php
-DataHelpersConfig::setPerformanceMode(true);
+use event4u\DataHelpers\DataHelpersConfig;
+
+DataHelpersConfig::set('performance_mode', 'fast');
+// Options: 'fast' or 'safe'
 ```
 
 This disables debug features and enables optimizations.
 
 ### Cache
 
-Enable or disable caching:
+Configure caching:
 
 ```php
-DataHelpersConfig::setCacheEnabled(true);
+use event4u\DataHelpers\DataHelpersConfig;
+
+DataHelpersConfig::set('cache.max_entries', 1000);
+DataHelpersConfig::set('cache.default_ttl', 3600);
 ```
 
 Caching improves performance for repeated operations.

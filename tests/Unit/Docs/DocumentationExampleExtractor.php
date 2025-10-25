@@ -31,12 +31,23 @@ class DocumentationExampleExtractor
         $currentCode = [];
         $startLine = 0;
         $language = '';
+        $skipTest = false;
+        $previousLine = '';
 
         foreach ($lines as $lineNumber => $line) {
+            // Check for skip-test HTML comment before code block
+            if (preg_match('/<!--\s*skip-test/', $previousLine)) {
+                $skipTest = true;
+            }
+
             // Check for code block start
-            if (preg_match('/^```(php|PHP)/', $line, $matches)) {
+            if (preg_match('/^```(php|PHP)(\s+skip-test)?/', $line, $matches)) {
                 $inCodeBlock = true;
                 $language = strtolower($matches[1]);
+                // Also check for inline skip-test marker (for backwards compatibility)
+                if (isset($matches[2]) && trim($matches[2]) === 'skip-test') {
+                    $skipTest = true;
+                }
                 $startLine = $lineNumber + 1;
                 $currentCode = [];
                 continue;
@@ -45,7 +56,7 @@ class DocumentationExampleExtractor
             // Check for code block end
             if ($inCodeBlock && preg_match('/^```/', $line)) {
                 $inCodeBlock = false;
-                if ($language === 'php' && !empty($currentCode)) {
+                if ($language === 'php' && !empty($currentCode) && !$skipTest) {
                     $code = implode("\n", $currentCode);
                     // Only include if it's actual executable code (not just comments or declarations)
                     if (self::isExecutableCode($code)) {
@@ -56,6 +67,8 @@ class DocumentationExampleExtractor
                         ];
                     }
                 }
+                // Reset skip flag after code block ends
+                $skipTest = false;
                 continue;
             }
 
@@ -63,6 +76,9 @@ class DocumentationExampleExtractor
             if ($inCodeBlock) {
                 $currentCode[] = $line;
             }
+
+            // Remember previous line for skip-test detection
+            $previousLine = $line;
         }
 
         return $examples;
