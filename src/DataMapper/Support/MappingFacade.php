@@ -694,7 +694,9 @@ class MappingFacade
                         }
                     }
 
-                    $target = DataMutator::set(MappingEngine::asTarget($target), (string)$targetPath, $writeValue);
+                    $targetData = MappingEngine::asTarget($target);
+                    DataMutator::make($targetData)->set((string)$targetPath, $writeValue);
+                    $target = $targetData;
 
                     /** @var array<int|string, mixed>|object $target */
                     $target = HookInvoker::invokeTargetHook(

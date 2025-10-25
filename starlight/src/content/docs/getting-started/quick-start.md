@@ -54,10 +54,10 @@ $data = [
 ];
 
 // Set nested value
-$data = DataMutator::set($data, 'user.phone', '+1234567890');
+DataMutator::make($data)->set('user.phone', '+1234567890');
 
 // Set multiple values with wildcards
-$data = DataMutator::set($data, 'user.orders.*.status', 'shipped');
+DataMutator::make($data)->set('user.orders.*.status', 'shipped');
 // $data = ['user' => ['name' => 'John Doe', 'orders' => [['id' => 1, 'total' => 100, 'status' => 'shipped'], ['id' => 2, 'total' => 200, 'status' => 'shipped']], 'phone' => '+1234567890']]
 ```
 
