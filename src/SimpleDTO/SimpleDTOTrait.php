@@ -472,4 +472,101 @@ trait SimpleDTOTrait
         /** @var array<string, mixed> $data */
         return static::fromArray($data);
     }
+
+    /**
+     * Convert DTO to JSON string.
+     *
+     * @param int $flags JSON encoding flags (default: 0)
+     * @return string JSON representation of the DTO
+     */
+    public function toJson(int $flags = 0): string
+    {
+        return json_encode($this->toArray(), $flags);
+    }
+
+    /**
+     * Convert DTO to XML string.
+     *
+     * @param string $rootElement Root element name (default: class name without namespace)
+     * @return string XML representation of the DTO
+     */
+    public function toXml(string $rootElement = ''): string
+    {
+        if ('' === $rootElement) {
+            $className = (new \ReflectionClass($this))->getShortName();
+            $rootElement = strtolower(preg_replace('/DTO$/', '', $className));
+        }
+
+        $xml = new \SimpleXMLElement("<?xml version=\"1.0\"?><{$rootElement}></{$rootElement}>");
+        $this->arrayToXml($this->toArray(), $xml);
+
+        return $xml->asXML();
+    }
+
+    /**
+     * Convert array to XML recursively.
+     *
+     * @param array<string, mixed> $data Data to convert
+     * @param \SimpleXMLElement $xml XML element to append to
+     */
+    private function arrayToXml(array $data, \SimpleXMLElement $xml): void
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $subnode = $xml->addChild((string) $key);
+                $this->arrayToXml($value, $subnode);
+            } else {
+                $xml->addChild((string) $key, htmlspecialchars((string) $value));
+            }
+        }
+    }
+
+    /**
+     * Convert DTO to YAML string.
+     *
+     * Supports both ext-yaml (PECL) and symfony/yaml.
+     * Prefers ext-yaml if available (faster).
+     *
+     * @return string YAML representation of the DTO
+     * @throws \RuntimeException If no YAML support is available
+     */
+    public function toYaml(): string
+    {
+        $data = $this->toArray();
+
+        // Prefer ext-yaml if available (faster)
+        if (function_exists('yaml_emit')) {
+            return yaml_emit($data);
+        }
+
+        // Fallback to symfony/yaml if available
+        if (class_exists(\Symfony\Component\Yaml\Yaml::class)) {
+            return \Symfony\Component\Yaml\Yaml::dump($data);
+        }
+
+        throw new \RuntimeException(
+            'YAML support is not available. Install either ext-yaml (pecl install yaml) or symfony/yaml (composer require symfony/yaml)'
+        );
+    }
+
+    /**
+     * Convert DTO to CSV string.
+     *
+     * @return string CSV representation of the DTO (with headers)
+     */
+    public function toCsv(): string
+    {
+        $data = $this->toArray();
+        $headers = array_keys($data);
+        $values = array_values($data);
+
+        $output = fopen('php://temp', 'r+');
+        fputcsv($output, $headers);
+        fputcsv($output, $values);
+        rewind($output);
+        $csv = stream_get_contents($output);
+        fclose($output);
+
+        return rtrim($csv, "\n");
+    }
 }

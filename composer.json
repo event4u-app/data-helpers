@@ -50,7 +50,6 @@
     "symfony/dependency-injection": "^6.0|^7.0",
     "symfony/http-foundation": "^6.0|^7.0",
     "symfony/http-kernel": "^6.0|^7.0",
-    "symfony/yaml": "^6.0|^7.0",
     "symplify/coding-standard": "^12.4",
     "symplify/easy-coding-standard": "^12.6",
     "timeweb/phpstan-enum": "^4.0",
@@ -63,6 +62,8 @@
   },
   "repositories": [],
   "suggest": {
+    "ext-yaml": "For YAML serialization support (faster, requires PECL installation)",
+    "symfony/yaml": "For YAML serialization support (pure PHP, easier to install)",
     "nesbot/carbon": "Required for EnvHelper::carbon() method to parse date/time environment variables"
   },
   "minimum-stability": "stable",

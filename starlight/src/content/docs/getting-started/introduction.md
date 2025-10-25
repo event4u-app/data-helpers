@@ -65,6 +65,7 @@ $emails = $accessor->get('departments.*.users.*.email');
 
 Map between different data formats, APIs, or database schemas without writing repetitive transformation code:
 
+<!-- skip-test: sum filter requires registration -->
 ```php
 use event4u\DataHelpers\DataMapper;
 

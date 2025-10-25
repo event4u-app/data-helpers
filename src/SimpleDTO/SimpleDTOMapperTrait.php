@@ -343,8 +343,16 @@ trait SimpleDTOMapperTrait
             // Try to detect format and parse accordingly
             $trimmed = trim($source);
 
-            // Try JSON first (most common)
-            if (str_starts_with($trimmed, '{') || str_starts_with($trimmed, '[')) {
+            // Try XML first (starts with < or <?xml)
+            if (str_starts_with($trimmed, '<')) {
+                $parsed = @simplexml_load_string($source);
+                if (false !== $parsed) {
+                    $source = json_decode(json_encode($parsed), true);
+                }
+            }
+
+            // Try JSON (starts with { or [)
+            elseif (str_starts_with($trimmed, '{') || str_starts_with($trimmed, '[')) {
                 $decoded = json_decode($source, true);
                 if (null !== $decoded) {
                     $source = $decoded;
@@ -352,10 +360,22 @@ trait SimpleDTOMapperTrait
             }
             // Try YAML if it looks like YAML (contains : or -)
             elseif (str_contains($source, ':') || str_starts_with($trimmed, '-')) {
+                // Prefer ext-yaml if available (faster)
                 if (function_exists('yaml_parse')) {
                     $parsed = yaml_parse($source);
                     if (false !== $parsed) {
                         $source = $parsed;
+                    }
+                }
+                // Fallback to symfony/yaml if available
+                elseif (class_exists(\Symfony\Component\Yaml\Yaml::class)) {
+                    try {
+                        $parsed = \Symfony\Component\Yaml\Yaml::parse($source);
+                        if (null !== $parsed) {
+                            $source = $parsed;
+                        }
+                    } catch (\Exception) {
+                        // If YAML parsing fails, continue with other formats
                     }
                 }
             }

@@ -42,6 +42,7 @@ PhpStorm has built-in support for PHP 8 attributes and readonly properties.
 
 #### Autocompletion
 
+<!-- skip-test: IDE feature demonstration -->
 ```php
 $dto = UserDTO::fromArray([
     'name' => 'John',
@@ -57,6 +58,7 @@ $dto->toJson() // ✅ Autocompletes
 
 #### Type Inference
 
+<!-- skip-test: IDE feature demonstration -->
 ```php
 // PhpStorm knows the return type
 $dto = UserDTO::fromArray($data); // UserDTO

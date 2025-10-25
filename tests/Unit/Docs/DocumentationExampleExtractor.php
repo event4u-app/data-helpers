@@ -323,8 +323,8 @@ class DocumentationExampleExtractor
             'use event4u\DataHelpers\Helpers\EnvHelper;',
             'use event4u\DataHelpers\Helpers\DotPathHelper;',
             'use event4u\DataHelpers\Helpers\ObjectHelper;',
+            'use event4u\DataHelpers\Helpers\ConfigHelper;',
             'use event4u\DataHelpers\Support\CallbackHelper;',
-            'use event4u\DataHelpers\Config\ConfigHelper;',
             'use event4u\DataHelpers\DataMapper\Hooks;',
             'use event4u\DataHelpers\Enums\DataMapperHook;',
             'use Tests\Utils\Docu\TrimStrings;',
@@ -336,7 +336,25 @@ class DocumentationExampleExtractor
             'use Tests\Utils\DTOs\ProfileDTO;',
         ], $useStatements);
 
-        $useStatementsStr = implode("\n", array_unique($allUseStatements));
+        // Remove duplicates based on the class name (not just the full string)
+        // This prevents "Cannot use X as X because the name is already in use" errors
+        $uniqueUseStatements = [];
+        $usedClasses = [];
+        foreach ($allUseStatements as $useStatement) {
+            // Extract the class name from "use Namespace\ClassName;"
+            if (preg_match('/use\s+(.+?)(?:\s+as\s+(\w+))?\s*;/', $useStatement, $matches)) {
+                $fullClassName = $matches[1];
+                $alias = $matches[2] ?? basename(str_replace('\\', '/', $fullClassName));
+
+                // Only add if this alias hasn't been used yet
+                if (!isset($usedClasses[$alias])) {
+                    $uniqueUseStatements[] = $useStatement;
+                    $usedClasses[$alias] = $fullClassName;
+                }
+            }
+        }
+
+        $useStatementsStr = implode("\n", $uniqueUseStatements);
 
         // Build assertions for expected results
         $assertionsCode = '';
