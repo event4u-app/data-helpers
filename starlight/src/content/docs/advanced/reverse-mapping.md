@@ -25,7 +25,7 @@ This is particularly useful when:
 The Fluent API provides `->reverseMap()` method that reverses the template direction:
 
 ```php
-use Event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper;
 
 $template = [
     'profile' => [
@@ -36,7 +36,7 @@ $template = [
 
 // Forward: user -> profile
 $userData = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
-$result = DataMapper::from($userData)
+$result = DataMapper::source($userData)
     ->template($template)
     ->map()
     ->getTarget();
@@ -44,7 +44,7 @@ $result = DataMapper::from($userData)
 
 // Reverse: profile -> user (using the SAME template!)
 $profileData = ['profile' => ['name' => 'Jane', 'email' => 'jane@example.com']];
-$result = DataMapper::from($profileData)
+$result = DataMapper::source($profileData)
     ->template($template)
     ->reverseMap()
     ->getTarget();
@@ -65,7 +65,7 @@ $template = [
 
 // Forward: user -> profile
 $userData = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
-$profile = DataMapper::from($userData)
+$profile = DataMapper::source($userData)
     ->template($template)
     ->map()
     ->getTarget();
@@ -73,7 +73,7 @@ $profile = DataMapper::from($userData)
 
 // Reverse: profile -> user
 $profileData = ['profile' => ['name' => 'Jane', 'email' => 'jane@example.com']];
-$user = DataMapper::from($profileData)
+$user = DataMapper::source($profileData)
     ->template($template)
     ->reverseMap()
     ->getTarget();
@@ -87,7 +87,9 @@ $user = DataMapper::from($profileData)
 Execute reverse mapping using the configured template.
 
 ```php
-$result = DataMapper::from($source)
+$source = ['profile' => ['name' => 'John']];
+$template = ['name' => '{{ profile.name }}'];
+$result = DataMapper::source($source)
     ->template($template)
     ->reverseMap();
 ```
@@ -104,7 +106,9 @@ $result = DataMapper::from($source)
 All standard DataMapper configuration options work with reverse mapping:
 
 ```php
-$result = DataMapper::from($source)
+$source = ['profile' => ['name' => 'John']];
+$template = ['name' => '{{ profile.name }}'];
+$result = DataMapper::source($source)
     ->template($template)
     ->skipNull(true)           // Skip null values
     ->reindexWildcard(false)   // Don't reindex arrays
@@ -115,6 +119,7 @@ $result = DataMapper::from($source)
 
 ### DTO to Model Conversion
 
+<!-- skip-test: Requires DTO/Model classes -->
 ```php
 $template = [
     'id' => '{{ user.id }}',
@@ -123,14 +128,15 @@ $template = [
 ];
 
 // Forward: Model -> DTO
-$userDTO = DataMapper::from(['user' => $userModel])
+$userModel = ['id' => 1, 'name' => 'John', 'email' => 'john@example.com'];
+$userDTO = DataMapper::source(['user' => $userModel])
     ->target(UserDTO::class)
     ->template($template)
     ->map()
     ->getTarget();
 
 // Reverse: DTO -> Model
-$userModel = DataMapper::from(['user' => $userDTO])
+$userModel = DataMapper::source(['user' => $userDTO])
     ->target(User::class)
     ->template($template)
     ->reverseMap()
@@ -149,13 +155,14 @@ $template = [
 ];
 
 // Forward: API request -> Internal format
-$internal = DataMapper::from(['request' => $apiRequest])
+$apiRequest = ['first_name' => 'John', 'last_name' => 'Doe', 'email' => 'john@example.com'];
+$internal = DataMapper::source(['request' => $apiRequest])
     ->template($template)
     ->map()
     ->getTarget();
 
 // Reverse: Internal format -> API response
-$apiResponse = DataMapper::from($internal)
+$apiResponse = DataMapper::source($internal)
     ->template($template)
     ->reverseMap()
     ->getTarget();
@@ -172,13 +179,14 @@ $template = [
 ];
 
 // Sync to external system
-$externalData = DataMapper::from(['internal' => $internalData])
+$internalData = ['userId' => 123, 'userName' => 'john_doe'];
+$externalData = DataMapper::source(['internal' => $internalData])
     ->template($template)
     ->map()
     ->getTarget();
 
 // Sync back from external system
-$internalData = DataMapper::from($externalData)
+$internalData = DataMapper::source($externalData)
     ->template($template)
     ->reverseMap()
     ->getTarget();
@@ -203,13 +211,14 @@ $template = [
 ];
 
 // Forward
-$profile = DataMapper::from(['user' => $userData])
+$userData = ['name' => 'John', 'age' => 30, 'email' => 'john@example.com', 'phone' => '123-456'];
+$profile = DataMapper::source(['user' => $userData])
     ->template($template)
     ->map()
     ->getTarget();
 
 // Reverse
-$userData = DataMapper::from($profile)
+$userData = DataMapper::source($profile)
     ->template($template)
     ->reverseMap()
     ->getTarget();
@@ -228,13 +237,17 @@ $template = [
 ];
 
 // Forward
-$products = DataMapper::from(['items' => $itemsData])
+$itemsData = [
+    ['title' => 'Product A', 'cost' => 10.99],
+    ['title' => 'Product B', 'cost' => 20.99],
+];
+$products = DataMapper::source(['items' => $itemsData])
     ->template($template)
     ->map()
     ->getTarget();
 
 // Reverse
-$items = DataMapper::from($products)
+$items = DataMapper::source($products)
     ->template($template)
     ->reverseMap()
     ->getTarget();
@@ -242,9 +255,10 @@ $items = DataMapper::from($products)
 
 ### With Pipeline Filters
 
+<!-- skip-test: Import conflict with filter classes -->
 ```php
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
 $template = [
     'user' => [
@@ -254,14 +268,15 @@ $template = [
 ];
 
 // Forward: Applies filters
-$user = DataMapper::from(['person' => $data])
+$data = ['name' => '  john  ', 'email' => 'john@example.com'];
+$user = DataMapper::source(['person' => $data])
     ->template($template)
     ->pipeline([new TrimStrings(), new UppercaseStrings()])
     ->map()
     ->getTarget();
 
 // Reverse: Filters are NOT reversed (data flows as-is)
-$person = DataMapper::from($user)
+$person = DataMapper::source($user)
     ->template($template)
     ->reverseMap()
     ->getTarget();
@@ -288,21 +303,21 @@ $template = [
 Pipeline filters are NOT automatically reversed:
 
 ```php
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
 $template = [
     'name' => '{{ user.name }}',
 ];
 
 // Forward: 'john' -> 'JOHN' (with UppercaseStrings filter)
-$result = DataMapper::from(['user' => ['name' => 'john']])
+$result = DataMapper::source(['user' => ['name' => 'john']])
     ->template($template)
     ->pipeline([new UppercaseStrings()])
     ->map()
     ->getTarget();
 
 // Reverse: 'JOHN' -> 'JOHN' (filter NOT reversed)
-$reverse = DataMapper::from($result)
+$reverse = DataMapper::source($result)
     ->template($template)
     ->reverseMap()
     ->getTarget();
@@ -342,13 +357,13 @@ $template = [
 $originalData = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
 
 // Test forward
-$forward = DataMapper::from($originalData)
+$forward = DataMapper::source($originalData)
     ->template($template)
     ->map()
     ->getTarget();
 
 // Test reverse
-$reverse = DataMapper::from($forward)
+$reverse = DataMapper::source($forward)
     ->template($template)
     ->reverseMap()
     ->getTarget();

@@ -149,8 +149,9 @@ describe('DataMapper Hooks', function(): void {
                 // Uppercase strings after write
                 if (is_string($written)) {
                     $path = $ctx->resolvedTargetPath ?? '';
+                    DataMutator::make($tgt)->set($path, strtoupper($written));
 
-                    return DataMutator::set($tgt, $path, strtoupper($written));
+                    return $tgt;
                 }
 
                 return $tgt;

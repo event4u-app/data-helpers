@@ -52,7 +52,10 @@ $template = [
     ],
 ];
 
-$result = DataMapper::mapFromTemplate($template, $sources);
+$result = DataMapper::source($sources)
+    ->template($template)
+    ->map()
+    ->getTarget();
 
 // Result:
 // [
@@ -191,12 +194,13 @@ $template = [
 
 ### Register Custom Filter
 
+<!-- skip-test: Requires custom FilterInterface implementation -->
 ```php
-use event4u\DataHelpers\DataMapper\Support\TemplateExpression\FilterRegistry;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
 
-FilterRegistry::register('slugify', function($value) {
-    return strtolower(preg_replace('/[^a-z0-9]+/i', '-', $value));
-});
+// Custom filters must implement FilterInterface
+// See documentation for creating custom filters
+FilterRegistry::register(SlugifyFilter::class);
 
 $template = [
     'slug' => '{{ title | slugify }}',
@@ -205,10 +209,10 @@ $template = [
 
 ### Filter with Parameters
 
+<!-- skip-test: Requires custom FilterInterface implementation -->
 ```php
-FilterRegistry::register('truncate', function($value, $length = 50) {
-    return substr($value, 0, $length);
-});
+// Custom filters must implement FilterInterface
+FilterRegistry::register(TruncateFilter::class);
 
 $template = [
     'excerpt' => '{{ content | truncate:100 }}',

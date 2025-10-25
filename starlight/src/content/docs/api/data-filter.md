@@ -7,11 +7,14 @@ Complete API reference for DataFilter.
 
 ## Static Methods
 
-### `make(array $data): self`
+### `make(mixed $data): self`
 
 Create a new instance.
 
 ```php
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John']];
 $filter = DataFilter::make($data);
 ```
 
@@ -22,7 +25,11 @@ $filter = DataFilter::make($data);
 Keep only specified keys.
 
 ```php
-$filter->only(['name', 'email']);
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$filter = DataFilter::query($data);
+$result = $filter->only(['name', 'age'])->get();
 ```
 
 ### `except(array $keys): self`
@@ -30,7 +37,11 @@ $filter->only(['name', 'email']);
 Remove specified keys.
 
 ```php
-$filter->except(['password', 'token']);
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$filter = DataFilter::query($data);
+$result = $filter->except(['id'])->get();
 ```
 
 ### `where(string $key, mixed $value): self`
@@ -38,6 +49,10 @@ $filter->except(['password', 'token']);
 Filter by key-value.
 
 ```php
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$filter = DataFilter::query($data);
 $filter->where('status', 'active');
 ```
 
@@ -46,6 +61,10 @@ $filter->where('status', 'active');
 Filter by key in values.
 
 ```php
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$filter = DataFilter::query($data);
 $filter->whereIn('role', ['admin', 'moderator']);
 ```
 
@@ -54,6 +73,10 @@ $filter->whereIn('role', ['admin', 'moderator']);
 Filter where key is not null.
 
 ```php
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$filter = DataFilter::query($data);
 $filter->whereNotNull('email');
 ```
 
@@ -64,7 +87,11 @@ $filter->whereNotNull('email');
 Transform each item.
 
 ```php
-$filter->map(fn($item) => strtoupper($item));
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$filter = DataFilter::query($data);
+$result = $filter->map(fn($item) => ['name' => strtoupper($item['name']), 'age' => $item['age']])->get();
 ```
 
 ### `filter(callable $callback): self`
@@ -72,7 +99,11 @@ $filter->map(fn($item) => strtoupper($item));
 Filter items by callback.
 
 ```php
-$filter->filter(fn($item) => $item['active']);
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25, 'active' => true], ['id' => 2, 'name' => 'Jane', 'age' => 30, 'active' => false]];
+$filter = DataFilter::query($data);
+$result = $filter->filter(fn($item) => $item['active'])->get();
 ```
 
 ## Result Methods
@@ -82,6 +113,10 @@ $filter->filter(fn($item) => $item['active']);
 Get filtered array.
 
 ```php
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$filter = DataFilter::query($data);
 $result = $filter->toArray();
 ```
 
@@ -90,6 +125,10 @@ $result = $filter->toArray();
 Get first item.
 
 ```php
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$filter = DataFilter::query($data);
 $first = $filter->first();
 ```
 
@@ -98,6 +137,10 @@ $first = $filter->first();
 Count items.
 
 ```php
+use event4u\DataHelpers\DataFilter;
+
+$data = [['id' => 1, 'name' => 'John', 'age' => 25], ['id' => 2, 'name' => 'Jane', 'age' => 30]];
+$filter = DataFilter::query($data);
 $count = $filter->count();
 ```
 

@@ -89,13 +89,12 @@ $data = new Collection([
     ],
 ]);
 
-$mutator = new DataMutator();
-$updated = $mutator->set($data, 'products.*.discount', 0.1);
+DataMutator::make($data)->set('products.*.discount', 0.1);
 
 echo 'Updated collection:' . PHP_EOL;
 
-/** @var Collection<int, mixed> $updated */
-echo json_encode($updated->all(), JSON_PRETTY_PRINT) . PHP_EOL;
+/** @var Collection<int, mixed> $data */
+echo json_encode($data->all(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo PHP_EOL;
 

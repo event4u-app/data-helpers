@@ -17,7 +17,7 @@ SimpleDTO provides 2 mapping attributes:
 Map input data from a different key:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 
 #[MapFrom('full_name')]
 public readonly string $name;
@@ -48,7 +48,7 @@ public readonly string $email;
 Map output data to a different key:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
 
 #[MapTo('full_name')]
 public readonly string $name;

@@ -23,7 +23,7 @@ SimpleDTO provides powerful security features to control what data is exposed:
 Properties marked as hidden are **never** included in serialization:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
 
 class UserDTO extends SimpleDTO
 {
@@ -112,7 +112,7 @@ class DashboardDTO extends SimpleDTO
 ### Automatic Encryption
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Casts\EncryptedCast;
+use event4u\DataHelpers\SimpleDTO\Casts\EncryptedCast;
 
 class UserDTO extends SimpleDTO
 {
@@ -145,7 +145,7 @@ echo $dto->ssn; // 123-45-6789
 ### One-Way Hashing
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Casts\HashCast;
+use event4u\DataHelpers\SimpleDTO\Casts\HashCast;
 
 class UserDTO extends SimpleDTO
 {

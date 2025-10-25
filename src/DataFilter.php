@@ -50,6 +50,16 @@ final class DataFilter
     }
 
     /**
+     * Create a new DataFilter instance (alias for query()).
+     *
+     * @param mixed $data Data to filter (array, Collection, DTO[], Model[], JSON string, XML string)
+     */
+    public static function make(mixed $data): self
+    {
+        return self::query($data);
+    }
+
+    /**
      * Set the data to filter.
      *
      * @param mixed $data Data to filter
@@ -497,5 +507,79 @@ final class DataFilter
                 $xml->addChild($key, htmlspecialchars((string)$value));
             }
         }
+    }
+
+    /**
+     * Select only specific fields from the results.
+     *
+     * @param array<int, string> $fields Fields to include
+     * @return self
+     */
+    public function only(array $fields): self
+    {
+        $this->operators[] = [
+            'operator' => 'SELECT',
+            'config' => $fields,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Exclude specific fields from the results.
+     *
+     * @param array<int, string> $fields Fields to exclude
+     * @return self
+     */
+    public function except(array $fields): self
+    {
+        $this->operators[] = [
+            'operator' => 'EXCEPT',
+            'config' => $fields,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Apply a callback to each item.
+     *
+     * @param callable $callback Callback function
+     * @return self
+     */
+    public function map(callable $callback): self
+    {
+        $this->operators[] = [
+            'operator' => 'MAP',
+            'config' => $callback,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Filter items using a callback.
+     *
+     * @param callable $callback Callback function
+     * @return self
+     */
+    public function filter(callable $callback): self
+    {
+        $this->operators[] = [
+            'operator' => 'FILTER',
+            'config' => $callback,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Get results as array (alias for get()).
+     *
+     * @return array<int|string, mixed>
+     */
+    public function toArray(): array
+    {
+        return $this->get();
     }
 }

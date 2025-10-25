@@ -141,13 +141,13 @@ class UserDTO extends SimpleDTO
     public function __construct(
         public readonly int $id,
         public readonly string $name,
-        
+
         /** @var string[] */
         public readonly array $tags,
-        
+
         /** @var OrderDTO[] */
         public readonly array $orders,
-        
+
         /** @var array<string, mixed> */
         public readonly array $metadata,
     ) {}
@@ -159,8 +159,6 @@ class UserDTO extends SimpleDTO
 ```php
 class UserDTO extends SimpleDTO
 {
-    // ...
-    
     /**
      * Get user's full name
      * @return string
@@ -179,10 +177,10 @@ class OrderDTO extends SimpleDTO
 {
     public function __construct(
         public readonly int $id,
-        
+
         /** @var array<int, ProductDTO> */
         public readonly array $products,
-        
+
         /** @var array{total: float, tax: float, shipping: float} */
         public readonly array $pricing,
     ) {}
@@ -207,7 +205,7 @@ parameters:
     paths:
         - app
         - src
-    
+
     # Enable strict rules
     checkMissingIterableValueType: true
     checkGenericClassInNonGenericObjectType: true
@@ -229,6 +227,7 @@ PHPStan will validate:
 
 ### 1. Always Use Type Hints
 
+<!-- skip-test: Code snippet example -->
 ```php
 // ✅ Good
 public readonly string $name;
@@ -239,6 +238,7 @@ public readonly $name;
 
 ### 2. Document Array Types
 
+<!-- skip-test: Code snippet example -->
 ```php
 // ✅ Good
 /** @var string[] */
@@ -250,6 +250,7 @@ public readonly array $tags;
 
 ### 3. Use Readonly Properties
 
+<!-- skip-test: Code snippet example -->
 ```php
 // ✅ Good
 public readonly string $name;
@@ -260,6 +261,7 @@ public string $name;
 
 ### 4. Use PHP 8.2+ Features
 
+<!-- skip-test: Code snippet example -->
 ```php
 // ✅ Good - PHP 8.2+
 public readonly string $name;
@@ -274,6 +276,7 @@ private $name;
 ### IDE Not Recognizing Properties
 
 **Problem:**
+<!-- skip-test: Code snippet example -->
 ```php
 $dto->name // IDE shows "Property not found"
 ```

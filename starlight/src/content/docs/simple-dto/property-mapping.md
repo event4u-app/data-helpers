@@ -35,7 +35,7 @@ echo $dto->email; // 'john@example.com'
 ### Simple Mapping
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 
 class ProductDTO extends SimpleDTO
 {

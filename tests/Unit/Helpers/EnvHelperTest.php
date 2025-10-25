@@ -36,6 +36,34 @@ describe('EnvHelper::get()', function(): void {
     });
 });
 
+describe('EnvHelper::has()', function(): void {
+    afterEach(function(): void {
+        unset($_ENV['TEST_VAR']);
+    });
+
+    it('returns true when variable exists', function(): void {
+        $_ENV['TEST_VAR'] = 'value';
+
+        expect(EnvHelper::has('TEST_VAR'))->toBeTrue();
+    });
+
+    it('returns true when variable exists with empty string', function(): void {
+        $_ENV['TEST_VAR'] = '';
+
+        expect(EnvHelper::has('TEST_VAR'))->toBeTrue();
+    });
+
+    it('returns true when variable exists with zero', function(): void {
+        $_ENV['TEST_VAR'] = '0';
+
+        expect(EnvHelper::has('TEST_VAR'))->toBeTrue();
+    });
+
+    it('returns false when variable does not exist', function(): void {
+        expect(EnvHelper::has('NON_EXISTENT'))->toBeFalse();
+    });
+});
+
 describe('EnvHelper::string()', function(): void {
     afterEach(function(): void {
         unset($_ENV['TEST_STRING']);
@@ -173,5 +201,51 @@ describe('EnvHelper::boolean()', function(): void {
 
     it('uses default value when key does not exist', function(): void {
         expect(EnvHelper::boolean('NON_EXISTENT', true))->toBeTrue();
+    });
+});
+
+describe('EnvHelper::array()', function(): void {
+    afterEach(function(): void {
+        unset($_ENV['TEST_ARRAY']);
+    });
+
+    it('parses comma-separated string to array', function(): void {
+        $_ENV['TEST_ARRAY'] = 'value1,value2,value3';
+
+        expect(EnvHelper::array('TEST_ARRAY'))->toBe(['value1', 'value2', 'value3']);
+    });
+
+    it('trims whitespace from values', function(): void {
+        $_ENV['TEST_ARRAY'] = 'value1 , value2 , value3';
+
+        expect(EnvHelper::array('TEST_ARRAY'))->toBe(['value1', 'value2', 'value3']);
+    });
+
+    it('uses default value when key does not exist', function(): void {
+        expect(EnvHelper::array('NON_EXISTENT', ['default']))->toBe(['default']);
+    });
+
+    it('returns default for empty string', function(): void {
+        $_ENV['TEST_ARRAY'] = '';
+
+        expect(EnvHelper::array('TEST_ARRAY', ['default']))->toBe(['default']);
+    });
+
+    it('returns default for whitespace-only string', function(): void {
+        $_ENV['TEST_ARRAY'] = '   ';
+
+        expect(EnvHelper::array('TEST_ARRAY', ['default']))->toBe(['default']);
+    });
+
+    it('handles single value', function(): void {
+        $_ENV['TEST_ARRAY'] = 'single';
+
+        expect(EnvHelper::array('TEST_ARRAY'))->toBe(['single']);
+    });
+
+    it('supports custom separator', function(): void {
+        $_ENV['TEST_ARRAY'] = 'value1|value2|value3';
+
+        expect(EnvHelper::array('TEST_ARRAY', [], '|'))->toBe(['value1', 'value2', 'value3']);
     });
 });

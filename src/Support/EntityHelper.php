@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Support;
 
+use event4u\DataHelpers\DataMutator;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -689,7 +690,7 @@ class EntityHelper
 
                 // Set the nested value in the array
                 $remainingPath = implode('.', array_slice($segments, 1));
-                $currentValue = \event4u\DataHelpers\DataMutator::set($currentValue, $remainingPath, $value);
+                $currentValue = DataMutator::make($currentValue)->set($remainingPath, $value)->toArray();
 
                 // Set the updated array back
                 $property->setValue($entity, $currentValue);

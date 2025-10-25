@@ -130,6 +130,10 @@ final class OperatorRegistry
             new WhereNotInOperator(),
             new WhereNullOperator(),
             new WhereNotNullOperator(),
+            new SelectOperator(),
+            new ExceptOperator(),
+            new MapOperator(),
+            new FilterOperator(),
         ]);
 
         self::$builtInRegistered = true;

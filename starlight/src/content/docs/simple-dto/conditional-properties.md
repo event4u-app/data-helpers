@@ -33,7 +33,7 @@ class UserDTO extends SimpleDTO
 Execute custom logic to determine inclusion:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenCallback;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenCallback;
 
 class UserDTO extends SimpleDTO
 {
@@ -54,7 +54,7 @@ class UserDTO extends SimpleDTO
 Include when property has a specific value:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
 
 class ProductDTO extends SimpleDTO
 {
@@ -73,8 +73,8 @@ class ProductDTO extends SimpleDTO
 Include based on null check:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenNull;
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenNull;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
 
 class UserDTO extends SimpleDTO
 {
@@ -95,8 +95,8 @@ class UserDTO extends SimpleDTO
 Include based on boolean value:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenTrue;
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenFalse;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenTrue;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenFalse;
 
 class UserDTO extends SimpleDTO
 {
@@ -118,8 +118,8 @@ class UserDTO extends SimpleDTO
 Include when property equals/not equals a value:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenEquals;
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenNotEquals;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenEquals;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotEquals;
 
 class OrderDTO extends SimpleDTO
 {
@@ -140,8 +140,8 @@ class OrderDTO extends SimpleDTO
 Include when property is in/not in a list:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenNotIn;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotIn;
 
 class UserDTO extends SimpleDTO
 {
@@ -165,8 +165,8 @@ class UserDTO extends SimpleDTO
 Include based on authentication status:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenGuest;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenGuest;
 
 class UserDTO extends SimpleDTO
 {
@@ -187,7 +187,7 @@ class UserDTO extends SimpleDTO
 Include based on user permissions:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenCan;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenCan;
 
 class PostDTO extends SimpleDTO
 {
@@ -208,7 +208,7 @@ class PostDTO extends SimpleDTO
 Include based on user role:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
 
 class DashboardDTO extends SimpleDTO
 {
@@ -231,7 +231,7 @@ class DashboardDTO extends SimpleDTO
 Include based on Symfony security:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenGranted;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenGranted;
 
 class UserDTO extends SimpleDTO
 {
@@ -249,7 +249,7 @@ class UserDTO extends SimpleDTO
 Include based on Symfony role:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenSymfonyRole;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenSymfonyRole;
 
 class DashboardDTO extends SimpleDTO
 {
@@ -269,7 +269,7 @@ class DashboardDTO extends SimpleDTO
 Include based on context value:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
 
 class ApiResponseDTO extends SimpleDTO
 {
@@ -291,7 +291,7 @@ $dto = ApiResponseDTO::fromArray($data)->withContext(['debug' => true]);
 Include when context equals a value:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenContextEquals;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextEquals;
 
 class UserDTO extends SimpleDTO
 {
@@ -309,7 +309,7 @@ class UserDTO extends SimpleDTO
 Include when context is in a list:
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\WhenContextIn;
+use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextIn;
 
 class ApiResponseDTO extends SimpleDTO
 {

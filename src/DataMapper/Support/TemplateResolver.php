@@ -320,7 +320,7 @@ final class TemplateResolver
                 }
             } elseif (is_array($target) || is_object($target)) {
                 // Simple write
-                $target = DataMutator::set($target, $path ?? '', $dataNode);
+                DataMutator::make($target)->set($path ?? '', $dataNode);
             }
 
             $targets[$alias] = $target;
@@ -361,7 +361,8 @@ final class TemplateResolver
     ): mixed {
         if (!is_array($value)) {
             if (is_array($target) || is_object($target)) {
-                return DataMutator::set($target, $path, $value);
+                DataMutator::make($target)->set($path, $value);
+                return $target;
             }
 
             return $target;
@@ -381,7 +382,7 @@ final class TemplateResolver
             function(int|string $index, mixed $itemValue) use (&$target, $path): true {
                 $itemPath = str_replace('*', (string)$index, $path);
                 if (is_array($target) || is_object($target)) {
-                    $target = DataMutator::set($target, $itemPath, $itemValue);
+                    DataMutator::make($target)->set($itemPath, $itemValue);
                 }
 
                 return true;

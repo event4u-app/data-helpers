@@ -92,6 +92,16 @@ final class FluentDataMapper
     }
 
     /**
+     * Create a new FluentDataMapper instance (fluent factory method).
+     *
+     * @param mixed $source Optional source data (array, object, model, DTO, JSON, XML, file path)
+     */
+    public static function make(mixed $source = null): self
+    {
+        return new self($source);
+    }
+
+    /**
      * Set the source data with automatic file detection.
      *
      * If the source is a string and points to an existing file, it will be loaded automatically.

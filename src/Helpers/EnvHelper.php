@@ -29,6 +29,23 @@ final class EnvHelper
         return $_ENV[$key] ?? $default;
     }
 
+    /**
+     * Check if an environment variable exists.
+     *
+     * @param string $key Environment variable key
+     * @return bool True if the variable exists, false otherwise
+     */
+    public static function has(string $key): bool
+    {
+        // Check if Laravel's env() function exists
+        if (function_exists('env')) {
+            return env($key) !== null;
+        }
+
+        // Fallback to $_ENV for Symfony and Plain PHP
+        return array_key_exists($key, $_ENV);
+    }
+
     public static function string(
         string $key,
         mixed $default = null,
@@ -133,6 +150,43 @@ final class EnvHelper
         }
 
         return (bool)$value;
+    }
+
+    /**
+     * Get an environment variable as an array.
+     *
+     * Supports comma-separated values: "value1,value2,value3"
+     * Trims whitespace from each value.
+     *
+     * @param string $key Environment variable key
+     * @param array<mixed> $default Default value if not set
+     * @param string $separator Separator for splitting (default: ',')
+     * @return array<mixed>
+     */
+    public static function array(
+        string $key,
+        array $default = [],
+        string $separator = ',',
+    ): array {
+        $value = self::get($key, null);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            if ('' === trim($value)) {
+                return $default;
+            }
+
+            return array_map('trim', explode($separator, $value));
+        }
+
+        return $default;
     }
 
     private static function checkTypeAndThrowException(

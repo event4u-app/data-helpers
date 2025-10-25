@@ -8,7 +8,7 @@ MathHelper provides high-precision mathematical operations using BCMath with a c
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\Helpers\MathHelper;
+use event4u\DataHelpers\Helpers\MathHelper;
 
 // Basic arithmetic
 $result = MathHelper::add(10.5, 5.3); // 15.8
@@ -58,7 +58,7 @@ $result = MathHelper::divide(10, 3, 4); // 3.3333
 ### Addition
 
 ```php
-use Event4u\DataHelpers\Helpers\MathHelper;
+use event4u\DataHelpers\Helpers\MathHelper;
 
 $result = MathHelper::add(10.5, 5.3); // 15.8
 $result = MathHelper::add('10.5', '5.3'); // 15.8 (accepts strings)

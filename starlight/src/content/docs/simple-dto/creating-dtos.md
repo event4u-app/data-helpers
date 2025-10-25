@@ -27,16 +27,21 @@ SimpleDTO provides multiple ways to create instances:
 ### Basic Usage
 
 ```php
+use Tests\Docu\DTOs\UserDTO;
+
 $dto = UserDTO::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
 ]);
+// Result: UserDTO instance
 ```
 
 ### With Nested Arrays
 
 ```php
+use Tests\Docu\DTOs\UserDTO;
+
 $dto = UserDTO::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
@@ -46,11 +51,14 @@ $dto = UserDTO::fromArray([
         'country' => 'USA',
     ],
 ]);
+// Result: UserDTO instance with nested address array
 ```
 
 ### With Extra Keys (Ignored)
 
 ```php
+use Tests\Docu\DTOs\UserDTO;
+
 // Extra keys are automatically ignored
 $dto = UserDTO::fromArray([
     'name' => 'John Doe',
@@ -59,6 +67,7 @@ $dto = UserDTO::fromArray([
     'extra_field' => 'ignored',  // Ignored
     'another_field' => 'ignored', // Ignored
 ]);
+// Result: UserDTO instance (extra fields ignored)
 ```
 
 ## From JSON
@@ -66,12 +75,16 @@ $dto = UserDTO::fromArray([
 ### Basic Usage
 
 ```php
+use Tests\Docu\DTOs\UserDTO;
+
 $json = '{"name":"John Doe","email":"john@example.com","age":30}';
 $dto = UserDTO::fromJson($json);
+// Result: UserDTO instance
 ```
 
 ### From JSON File
 
+<!-- skip-test: File doesn't exist -->
 ```php
 $json = file_get_contents('user.json');
 $dto = UserDTO::fromJson($json);
@@ -80,6 +93,8 @@ $dto = UserDTO::fromJson($json);
 ### With Nested JSON
 
 ```php
+use Tests\Docu\DTOs\UserDTO;
+
 $json = '{
     "name": "John Doe",
     "email": "john@example.com",
@@ -89,12 +104,14 @@ $json = '{
     }
 }';
 $dto = UserDTO::fromJson($json);
+// Result: UserDTO instance with nested address
 ```
 
 ## From HTTP Request
 
 ### Laravel Request
 
+<!-- skip-test: Method not available or requires external dependencies -->
 ```php
 use Illuminate\Http\Request;
 
@@ -112,6 +129,7 @@ class UserController extends Controller
 
 ### Symfony Request
 
+<!-- skip-test: Class definition example -->
 ```php
 use Symfony\Component\HttpFoundation\Request;
 
@@ -126,6 +144,7 @@ class UserController
 
 ### Plain PHP
 
+<!-- skip-test: Method not available or requires external dependencies -->
 ```php
 // From $_POST
 $dto = UserDTO::fromArray($_POST);
@@ -142,6 +161,7 @@ $dto = UserDTO::fromJson($json);
 
 ### Laravel Eloquent
 
+<!-- skip-test: Method not available or requires external dependencies -->
 ```php
 use App\Models\User;
 
@@ -159,6 +179,7 @@ $dtos = DataCollection::make($users, UserDTO::class);
 
 ### Symfony Doctrine
 
+<!-- skip-test: Method not available or requires external dependencies -->
 ```php
 use App\Entity\User;
 
@@ -195,6 +216,7 @@ $dto = UserDTO::fromXml($xml);
 
 ### From XML File
 
+<!-- skip-test: Method not available or requires external dependencies -->
 ```php
 $xml = file_get_contents('user.xml');
 $dto = UserDTO::fromXml($xml);
@@ -216,6 +238,7 @@ $dto = UserDTO::fromYaml($yaml);
 
 ### From YAML File
 
+<!-- skip-test: Method not available or requires external dependencies -->
 ```php
 $yaml = file_get_contents('user.yaml');
 $dto = UserDTO::fromYaml($yaml);
@@ -226,14 +249,18 @@ $dto = UserDTO::fromYaml($yaml);
 ### Basic Usage
 
 ```php
+use Tests\Docu\DTOs\UserDTO;
+
 $csv = '"name","email","age"
 "John Doe","john@example.com",30';
 
 $dto = UserDTO::fromCsv($csv);
+// Result: UserDTO instance with auto-casted types
 ```
 
 ### From CSV File
 
+<!-- skip-test: Method not available or requires external dependencies -->
 ```php
 $csv = file_get_contents('user.csv');
 $dto = UserDTO::fromCsv($csv);
@@ -243,9 +270,10 @@ $dto = UserDTO::fromCsv($csv);
 
 ### Validate and Create
 
+<!-- skip-test: Class definition example -->
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 
 class UserDTO extends SimpleDTO
 {
@@ -322,6 +350,7 @@ $dto2 = new UserDTO(
 
 ### Convert Between DTOs
 
+<!-- skip-test: Class definition example -->
 ```php
 class UserDTO extends SimpleDTO
 {
@@ -358,6 +387,7 @@ $resourceDto = UserResourceDTO::fromUserDTO($userDto);
 
 ### Custom Factory Methods
 
+<!-- skip-test: Class definition example -->
 ```php
 class UserDTO extends SimpleDTO
 {
@@ -411,7 +441,8 @@ $dtos = array_map(
 ### Using DataCollection
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDTO\DataCollection;
+use Tests\Docu\DTOs\UserDTO;
 
 $data = [
     ['name' => 'John', 'email' => 'john@example.com'],
@@ -421,9 +452,9 @@ $data = [
 
 $collection = DataCollection::make($data, UserDTO::class);
 
-// Now you can use collection methods
 $filtered = $collection->filter(fn($dto) => str_contains($dto->email, 'john'));
 $mapped = $collection->map(fn($dto) => $dto->name);
+// Result: DataCollection with filtered/mapped DTOs
 ```
 
 ## Best Practices

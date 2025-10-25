@@ -8,16 +8,16 @@ EnvHelper provides a framework-agnostic way to access environment variables with
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\Helpers\EnvHelper;
+use event4u\DataHelpers\Helpers\EnvHelper;
 
 // Get string value
 $appName = EnvHelper::string('APP_NAME', 'My App');
 
 // Get integer value
-$port = EnvHelper::int('APP_PORT', 8080);
+$port = EnvHelper::integer('APP_PORT', 8080);
 
 // Get boolean value
-$debug = EnvHelper::bool('APP_DEBUG', false);
+$debug = EnvHelper::boolean('APP_DEBUG', false);
 
 // Get float value
 $timeout = EnvHelper::float('TIMEOUT', 30.0);
@@ -51,7 +51,7 @@ EnvHelper automatically detects your framework:
 ### Get Raw Value
 
 ```php
-use Event4u\DataHelpers\Helpers\EnvHelper;
+use event4u\DataHelpers\Helpers\EnvHelper;
 
 // Get raw value
 $value = EnvHelper::get('DATABASE_URL');
@@ -67,13 +67,13 @@ $value = EnvHelper::get('DATABASE_URL', 'mysql://localhost');
 $appName = EnvHelper::string('APP_NAME', 'Default App');
 
 // Integer
-$port = EnvHelper::int('PORT', 3000);
+$port = EnvHelper::integer('PORT', 3000);
 
 // Float
 $timeout = EnvHelper::float('TIMEOUT', 30.5);
 
 // Boolean
-$debug = EnvHelper::bool('DEBUG', false);
+$debug = EnvHelper::boolean('DEBUG', false);
 
 // Array (comma-separated)
 $hosts = EnvHelper::array('ALLOWED_HOSTS', []);
@@ -105,8 +105,8 @@ $env = EnvHelper::string('APP_ENV', 'production');
 Get value as integer.
 
 ```php
-$port = EnvHelper::int('PORT', 3000);
-$maxConnections = EnvHelper::int('MAX_CONNECTIONS', 100);
+$port = EnvHelper::integer('PORT', 3000);
+$maxConnections = EnvHelper::integer('MAX_CONNECTIONS', 100);
 ```
 
 ### float(string $key, ?float $default = null): ?float
@@ -123,8 +123,8 @@ $ratio = EnvHelper::float('SAMPLING_RATIO', 0.1);
 Get value as boolean. Recognizes: `true`, `false`, `1`, `0`, `yes`, `no`, `on`, `off`.
 
 ```php
-$debug = EnvHelper::bool('DEBUG', false);
-$enabled = EnvHelper::bool('FEATURE_ENABLED', true);
+$debug = EnvHelper::boolean('DEBUG', false);
+$enabled = EnvHelper::boolean('FEATURE_ENABLED', true);
 ```
 
 ### array(string $key, ?array $default = null): ?array
@@ -153,28 +153,28 @@ $deploymentDate = EnvHelper::carbon('DEPLOYMENT_DATE');
 
 ```php
 // .env: DEBUG=true
-EnvHelper::bool('DEBUG'); // true
+EnvHelper::boolean('DEBUG'); // true
 
 // .env: DEBUG=1
-EnvHelper::bool('DEBUG'); // true
+EnvHelper::boolean('DEBUG'); // true
 
 // .env: DEBUG=yes
-EnvHelper::bool('DEBUG'); // true
+EnvHelper::boolean('DEBUG'); // true
 
 // .env: DEBUG=on
-EnvHelper::bool('DEBUG'); // true
+EnvHelper::boolean('DEBUG'); // true
 
 // .env: DEBUG=false
-EnvHelper::bool('DEBUG'); // false
+EnvHelper::boolean('DEBUG'); // false
 
 // .env: DEBUG=0
-EnvHelper::bool('DEBUG'); // false
+EnvHelper::boolean('DEBUG'); // false
 
 // .env: DEBUG=no
-EnvHelper::bool('DEBUG'); // false
+EnvHelper::boolean('DEBUG'); // false
 
 // .env: DEBUG=off
-EnvHelper::bool('DEBUG'); // false
+EnvHelper::boolean('DEBUG'); // false
 ```
 
 ### Array Values
@@ -193,13 +193,13 @@ $emails = EnvHelper::array('ADMIN_EMAILS');
 
 ```php
 // .env: MAX_CONNECTIONS=100
-$max = EnvHelper::int('MAX_CONNECTIONS'); // 100
+$max = EnvHelper::integer('MAX_CONNECTIONS'); // 100
 
 // .env: TIMEOUT=30.5
 $timeout = EnvHelper::float('TIMEOUT'); // 30.5
 
 // .env: PORT=8080
-$port = EnvHelper::int('PORT'); // 8080
+$port = EnvHelper::integer('PORT'); // 8080
 ```
 
 ## Error Handling
@@ -214,8 +214,8 @@ $value = EnvHelper::string('MISSING_VAR'); // null
 $value = EnvHelper::string('MISSING_VAR', 'default'); // 'default'
 
 // With default values
-$port = EnvHelper::int('PORT', 3000); // 3000 if PORT not set
-$debug = EnvHelper::bool('DEBUG', false); // false if DEBUG not set
+$port = EnvHelper::integer('PORT', 3000); // 3000 if PORT not set
+$debug = EnvHelper::boolean('DEBUG', false); // false if DEBUG not set
 ```
 
 ### Invalid Type Conversions
@@ -225,7 +225,7 @@ Invalid type conversions throw `InvalidArgumentException`:
 ```php
 // .env: PORT=not_a_number
 try {
-    EnvHelper::int('PORT');
+    EnvHelper::integer('PORT');
 } catch (InvalidArgumentException $e) {
     echo $e->getMessage(); // "Invalid integer value for PORT"
 }
@@ -245,7 +245,7 @@ try {
 ```php
 $dbConfig = [
     'host' => EnvHelper::string('DB_HOST', 'localhost'),
-    'port' => EnvHelper::int('DB_PORT', 3306),
+    'port' => EnvHelper::integer('DB_PORT', 3306),
     'database' => EnvHelper::string('DB_DATABASE', 'myapp'),
     'username' => EnvHelper::string('DB_USERNAME', 'root'),
     'password' => EnvHelper::string('DB_PASSWORD', ''),
@@ -258,7 +258,7 @@ $dbConfig = [
 $appConfig = [
     'name' => EnvHelper::string('APP_NAME', 'My Application'),
     'env' => EnvHelper::string('APP_ENV', 'production'),
-    'debug' => EnvHelper::bool('APP_DEBUG', false),
+    'debug' => EnvHelper::boolean('APP_DEBUG', false),
     'url' => EnvHelper::string('APP_URL', 'http://localhost'),
     'timezone' => EnvHelper::string('APP_TIMEZONE', 'UTC'),
 ];
@@ -270,9 +270,9 @@ $appConfig = [
 $securityConfig = [
     'allowed_hosts' => EnvHelper::array('ALLOWED_HOSTS', ['localhost']),
     'allowed_ips' => EnvHelper::array('ALLOWED_IPS', []),
-    'rate_limit' => EnvHelper::int('RATE_LIMIT', 60),
-    'session_lifetime' => EnvHelper::int('SESSION_LIFETIME', 120),
-    'csrf_enabled' => EnvHelper::bool('CSRF_ENABLED', true),
+    'rate_limit' => EnvHelper::integer('RATE_LIMIT', 60),
+    'session_lifetime' => EnvHelper::integer('SESSION_LIFETIME', 120),
+    'csrf_enabled' => EnvHelper::boolean('CSRF_ENABLED', true),
 ];
 ```
 
@@ -282,8 +282,8 @@ $securityConfig = [
 $apiConfig = [
     'base_url' => EnvHelper::string('API_BASE_URL', 'https://api.example.com'),
     'timeout' => EnvHelper::float('API_TIMEOUT', 30.0),
-    'retry_attempts' => EnvHelper::int('API_RETRY_ATTEMPTS', 3),
-    'verify_ssl' => EnvHelper::bool('API_VERIFY_SSL', true),
+    'retry_attempts' => EnvHelper::integer('API_RETRY_ATTEMPTS', 3),
+    'verify_ssl' => EnvHelper::boolean('API_VERIFY_SSL', true),
 ];
 ```
 
@@ -296,7 +296,7 @@ $apiConfig = [
 $port = (int)EnvHelper::get('PORT', 3000);
 
 // ✅ Use type-specific methods
-$port = EnvHelper::int('PORT', 3000);
+$port = EnvHelper::integer('PORT', 3000);
 ```
 
 ### Provide Sensible Defaults
@@ -304,8 +304,8 @@ $port = EnvHelper::int('PORT', 3000);
 ```php
 // ✅ Always provide defaults for optional settings
 $timeout = EnvHelper::float('TIMEOUT', 30.0);
-$debug = EnvHelper::bool('DEBUG', false);
-$maxConnections = EnvHelper::int('MAX_CONNECTIONS', 100);
+$debug = EnvHelper::boolean('DEBUG', false);
+$maxConnections = EnvHelper::integer('MAX_CONNECTIONS', 100);
 ```
 
 ### Use Carbon for Dates
@@ -326,7 +326,7 @@ class DatabaseConfig
     {
         return [
             'host' => EnvHelper::string('DB_HOST', 'localhost'),
-            'port' => EnvHelper::int('DB_PORT', 3306),
+            'port' => EnvHelper::integer('DB_PORT', 3306),
             'database' => EnvHelper::string('DB_DATABASE'),
             'username' => EnvHelper::string('DB_USERNAME'),
             'password' => EnvHelper::string('DB_PASSWORD'),

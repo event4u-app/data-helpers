@@ -72,21 +72,33 @@ $json = json_encode($dto);
 ### Pretty Print
 
 ```php
+use event4u\DataHelpers\SimpleDTO;
+
+class UserDTO extends SimpleDTO
+{
+    public string $name;
+    public string $email;
+}
+
+$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 $json = json_encode($dto, JSON_PRETTY_PRINT);
-// {
-//     "name": "John Doe",
-//     "email": "john@example.com"
-// }
+// $json contains pretty-printed JSON
 ```
 
 ### Using toJson()
 
 ```php
-$json = $dto->toJson();
-// {"name":"John Doe","email":"john@example.com"}
+use event4u\DataHelpers\SimpleDTO;
 
-$json = $dto->toJson(JSON_PRETTY_PRINT);
-// Pretty printed JSON
+class UserDTO extends SimpleDTO
+{
+    public string $name;
+    public string $email;
+}
+
+$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
+$json = $dto->toJson();
+// $json = '{"name":"John Doe","email":"john@example.com"}'
 ```
 
 ## To XML
@@ -107,12 +119,17 @@ $xml = $dto->toXml();
 ### Custom Root Element
 
 ```php
+use event4u\DataHelpers\SimpleDTO;
+
+class UserDTO extends SimpleDTO
+{
+    public string $name;
+    public string $email;
+}
+
+$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 $xml = $dto->toXml(rootElement: 'customer');
-// <?xml version="1.0"?>
-// <customer>
-//     <name>John Doe</name>
-//     <email>john@example.com</email>
-// </customer>
+// $xml contains XML with <customer> root element
 ```
 
 ## To YAML

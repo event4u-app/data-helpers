@@ -36,7 +36,7 @@ $array = $dto->toArray();
 ### Using #[Computed] Attribute
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Computed;
+use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
 
 class ProductDTO extends SimpleDTO
 {

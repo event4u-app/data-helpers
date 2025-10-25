@@ -20,10 +20,10 @@ Validation ensures that data meets specific requirements before being processed.
 ### Basic Validation
 
 ```php
-use Event4u\DataHelpers\SimpleDTO;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Between;
+use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDTO\Attributes\Between;
 
 class UserDTO extends SimpleDTO
 {
@@ -50,7 +50,7 @@ $dto = UserDTO::validateAndCreate([
 ### Handling Validation Errors
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
 
 try {
     $dto = UserDTO::validateAndCreate([
@@ -69,7 +69,7 @@ try {
 ### Required Validation
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
 
 class UserDTO extends SimpleDTO
 {
@@ -89,10 +89,10 @@ class UserDTO extends SimpleDTO
 ### String Validation
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\StringType;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Between;
+use event4u\DataHelpers\SimpleDTO\Attributes\StringType;
+use event4u\DataHelpers\SimpleDTO\Attributes\Min;
+use event4u\DataHelpers\SimpleDTO\Attributes\Max;
+use event4u\DataHelpers\SimpleDTO\Attributes\Between;
 
 class PostDTO extends SimpleDTO
 {
@@ -112,10 +112,10 @@ class PostDTO extends SimpleDTO
 ### Numeric Validation
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\IntegerType;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Numeric;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Max;
+use event4u\DataHelpers\SimpleDTO\Attributes\IntegerType;
+use event4u\DataHelpers\SimpleDTO\Attributes\Numeric;
+use event4u\DataHelpers\SimpleDTO\Attributes\Min;
+use event4u\DataHelpers\SimpleDTO\Attributes\Max;
 
 class ProductDTO extends SimpleDTO
 {
@@ -135,7 +135,7 @@ class ProductDTO extends SimpleDTO
 ### Email Validation
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 
 class ContactDTO extends SimpleDTO
 {
@@ -152,7 +152,7 @@ class ContactDTO extends SimpleDTO
 ### URL Validation
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Url;
+use event4u\DataHelpers\SimpleDTO\Attributes\Url;
 
 class WebsiteDTO extends SimpleDTO
 {
@@ -207,7 +207,7 @@ class WebsiteDTO extends SimpleDTO
 ### Creating Custom Validator
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
 
 class EvenNumber implements ValidationRule
 {
