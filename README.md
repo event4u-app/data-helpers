@@ -104,7 +104,7 @@ $data = [
 
 $accessor = new DataAccessor($data);
 $emails = $accessor->get('users.*.email');
-// ['alice@example.com', 'bob@example.com']
+// $emails = ['alice@example.com', 'bob@example.com']
 ```
 
 📖 **[DataAccessor Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-accessor/)**
@@ -277,7 +277,7 @@ $result = DataMapper::from($source)
     ->map()
     ->getTarget();
 
-// Result: ['name' => 'John', 'email' => 'john@example.com']
+// $result = ['name' => 'John', 'email' => 'john@example.com']
 ```
 
 📖 **[Pipeline Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-mapper/pipelines/)**
