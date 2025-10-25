@@ -66,12 +66,22 @@ $emails = $accessor->get('departments.*.users.*.email');
 Map between different data formats, APIs, or database schemas without writing repetitive transformation code:
 
 ```php
-$mapper = new DataMapper();
-$result = $mapper->map($source, [
-    'user_name' => '{{ profile.name }}',
-    'user_email' => '{{ profile.contact.email }}',
-    'total_orders' => '{{ orders.*.amount | sum }}',
-]);
+use event4u\DataHelpers\DataMapper;
+
+$source = [
+    'profile' => ['name' => 'Alice', 'contact' => ['email' => 'alice@example.com']],
+    'orders' => [['amount' => 100], ['amount' => 200], ['amount' => 150]],
+];
+
+$result = DataMapper::from($source)
+    ->template([
+        'user_name' => '{{ profile.name }}',
+        'user_email' => '{{ profile.contact.email }}',
+        'order_count' => '{{ orders | count }}',
+        'order_amount_total' => '{{ orders.*.amount | sum }}',
+    ])
+    ->map()
+    ->getTarget();
 ```
 
 ### Type-Safe and Well-Tested

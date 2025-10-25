@@ -153,14 +153,6 @@ class DocumentationExampleExtractor
             return false;
         }
 
-        // Skip examples that reference undefined DTOs (any usage)
-        if (preg_match('/(UserDTO::|new UserDTO)/', $code) && !str_contains($code, 'class UserDTO')) {
-            return false;
-        }
-
-        // Note: We don't skip code with undefined variables anymore
-        // The documentation should be fixed instead
-
         // Skip code with class definitions that include use statements (causes syntax errors in eval)
         if (preg_match('/class\s+\w+.*\{/s', $code) && preg_match('/use\s+event4u\\\\DataHelpers/', $code)) {
             return false;
@@ -338,6 +330,10 @@ class DocumentationExampleExtractor
             'use Tests\Utils\Docu\TrimStrings;',
             'use Tests\Utils\Docu\LowercaseEmails;',
             'use Tests\Utils\Docu\SkipEmptyValues;',
+            // Import DTOs from Tests\Docu\DTOs (used in documentation examples)
+            'use Tests\Docu\DTOs\UserDTO;',
+            // Import other DTOs
+            'use Tests\Utils\DTOs\ProfileDTO;',
         ], $useStatements);
 
         $useStatementsStr = implode("\n", array_unique($allUseStatements));
