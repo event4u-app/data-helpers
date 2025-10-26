@@ -86,6 +86,7 @@ class UserController extends AbstractController
 
 ### Manual Creation
 
+<!-- skip-test: controller method -->
 ```php
 #[Route('/register', methods: ['POST'])]
 public function register(Request $request): JsonResponse
@@ -104,6 +105,7 @@ public function register(Request $request): JsonResponse
 
 ### From Doctrine Entity
 
+<!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $user = $this->entityManager->find(User::class, 1);
 $dto = UserDTO::fromEntity($user);
@@ -111,6 +113,7 @@ $dto = UserDTO::fromEntity($user);
 
 ### To Doctrine Entity
 
+<!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $dto = UserDTO::fromArray($data);
 $user = new User();
@@ -122,6 +125,7 @@ $this->entityManager->flush();
 
 ### Update Existing Entity
 
+<!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $user = $this->entityManager->find(User::class, 1);
 $dto = UserDTO::fromRequest($request);
@@ -154,6 +158,7 @@ class UserProfileDTO extends SimpleDTO
 
 Show property when user has role:
 
+<!-- skip-test: property declaration only -->
 ```php
 use event4u\DataHelpers\SimpleDTO\Attributes\WhenSymfonyRole;
 

@@ -11,6 +11,7 @@ Reference for type casting attributes and 20+ built-in cast classes.
 
 Cast property to a specific type:
 
+<!-- skip-test: property declaration only -->
 ```php
 use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
 use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
@@ -23,6 +24,7 @@ public readonly Carbon $createdAt;
 
 ### Primitive Types
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Cast(StringCast::class)]   // Cast to string
 #[Cast(IntCast::class)]      // Cast to integer
@@ -33,6 +35,7 @@ public readonly Carbon $createdAt;
 
 ### Date & Time
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Cast(DateTimeCast::class)]  // Cast to Carbon
 #[Cast(DateCast::class)]      // Cast to Carbon (date only)
@@ -41,6 +44,7 @@ public readonly Carbon $createdAt;
 
 ### Enums
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Cast(EnumCast::class)]       // Cast to enum
 #[Cast(BackedEnumCast::class)] // Cast to backed enum
@@ -48,6 +52,7 @@ public readonly Carbon $createdAt;
 
 ### Collections
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Cast(CollectionCast::class)]     // Cast to Collection
 #[Cast(DataCollectionCast::class)] // Cast to DataCollection
@@ -55,6 +60,7 @@ public readonly Carbon $createdAt;
 
 ### Objects & JSON
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Cast(ObjectCast::class)]  // Cast to object
 #[Cast(JsonCast::class)]    // Cast JSON to array
@@ -62,6 +68,7 @@ public readonly Carbon $createdAt;
 
 ### Security
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Cast(EncryptedCast::class)]  // Encrypt/decrypt
 #[Cast(HashCast::class)]       // One-way hash
@@ -69,6 +76,7 @@ public readonly Carbon $createdAt;
 
 ### Other
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Cast(DecimalCast::class)]    // Cast to decimal
 #[Cast(UuidCast::class)]       // Cast to UUID

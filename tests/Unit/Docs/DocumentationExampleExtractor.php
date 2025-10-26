@@ -300,7 +300,7 @@ class DocumentationExampleExtractor
         // Remove result comments from code
         $trimmed = preg_replace('/\/\/\s*\[.*?\].*$/m', '', $trimmed);
         $trimmed = preg_replace('/\/\/\s*Result:.*$/m', '', $trimmed);
-        $trimmed = preg_replace('/\/\/\s*\$\w+\s*=\s*\[.*$/m', '', $trimmed);
+        $trimmed = preg_replace('/\/\/\s*\$\w+\s*=.*$/m', '', $trimmed);
 
         // Extract use statements from the code
         $useStatements = [];
@@ -312,29 +312,11 @@ class DocumentationExampleExtractor
             $trimmed = trim($trimmed);
         }
 
-        // Combine all use statements
-        $allUseStatements = array_merge([
-            'use event4u\DataHelpers\DataAccessor;',
-            'use event4u\DataHelpers\DataMutator;',
-            'use event4u\DataHelpers\DataMapper;',
-            'use event4u\DataHelpers\DataFilter;',
-            'use event4u\DataHelpers\SimpleDTO;',
-            'use event4u\DataHelpers\Helpers\MathHelper;',
-            'use event4u\DataHelpers\Helpers\EnvHelper;',
-            'use event4u\DataHelpers\Helpers\DotPathHelper;',
-            'use event4u\DataHelpers\Helpers\ObjectHelper;',
-            'use event4u\DataHelpers\Helpers\ConfigHelper;',
-            'use event4u\DataHelpers\Support\CallbackHelper;',
-            'use event4u\DataHelpers\DataMapper\Hooks;',
-            'use event4u\DataHelpers\Enums\DataMapperHook;',
-            'use Tests\Utils\Docu\TrimStrings;',
-            'use Tests\Utils\Docu\LowercaseEmails;',
-            'use Tests\Utils\Docu\SkipEmptyValues;',
-            // Import DTOs from Tests\Docu\DTOs (used in documentation examples)
-            'use Tests\Docu\DTOs\UserDTO;',
-            // Import other DTOs
-            'use Tests\Utils\DTOs\ProfileDTO;',
-        ], $useStatements);
+        // Auto-discover and add missing use statements based on class usage in code
+        $autoDiscoveredUseStatements = self::autoDiscoverUseStatements($trimmed);
+
+        // Combine extracted use statements with auto-discovered ones
+        $allUseStatements = array_merge($useStatements, $autoDiscoveredUseStatements);
 
         // Remove duplicates based on the class name (not just the full string)
         // This prevents "Cannot use X as X because the name is already in use" errors
@@ -364,7 +346,7 @@ class DocumentationExampleExtractor
                 $parsedValue = self::parseExpectedValue($expectedValue);
                 if ($parsedValue !== null) {
                     $assertionsCode .= "\n// Validate expected result for \${$varName}\n";
-                    $assertionsCode .= "if (!isset(\${$varName})) {\n";
+                    $assertionsCode .= "if (!array_key_exists('{$varName}', get_defined_vars())) {\n";
                     $assertionsCode .= "    throw new \\RuntimeException('Variable \${$varName} is not defined');\n";
                     $assertionsCode .= "}\n";
                     $assertionsCode .= "\$expected_{$varName} = {$parsedValue};\n";
@@ -580,6 +562,102 @@ PHP;
         }
 
         return empty($setup) ? '' : implode("\n\n", $setup) . "\n\n";
+    }
+
+    /**
+     * Auto-discover use statements based on class usage in code.
+     *
+     * @return array<int, string>
+     */
+    private static function autoDiscoverUseStatements(string $code): array
+    {
+        $useStatements = [];
+
+        // Map of class names to their full namespaces
+        $classMap = [
+            // Main classes
+            'DataAccessor' => 'event4u\DataHelpers\DataAccessor',
+            'DataMutator' => 'event4u\DataHelpers\DataMutator',
+            'DataMapper' => 'event4u\DataHelpers\DataMapper',
+            'DataFilter' => 'event4u\DataHelpers\DataFilter',
+            'SimpleDTO' => 'event4u\DataHelpers\SimpleDTO',
+
+            // Helpers
+            'MathHelper' => 'event4u\DataHelpers\Helpers\MathHelper',
+            'EnvHelper' => 'event4u\DataHelpers\Helpers\EnvHelper',
+            'DotPathHelper' => 'event4u\DataHelpers\Helpers\DotPathHelper',
+            'ObjectHelper' => 'event4u\DataHelpers\Helpers\ObjectHelper',
+            'ConfigHelper' => 'event4u\DataHelpers\Helpers\ConfigHelper',
+            'CallbackHelper' => 'event4u\DataHelpers\Support\CallbackHelper',
+
+            // DataMapper
+            'Hooks' => 'event4u\DataHelpers\DataMapper\Hooks',
+            'DataMapperHook' => 'event4u\DataHelpers\Enums\DataMapperHook',
+
+            // SimpleDTO Pipeline
+            'DTOPipeline' => 'event4u\DataHelpers\SimpleDTO\Pipeline\DTOPipeline',
+            'PipelineStageInterface' => 'event4u\DataHelpers\SimpleDTO\Pipeline\PipelineStageInterface',
+            'TransformerStage' => 'event4u\DataHelpers\SimpleDTO\Pipeline\TransformerStage',
+            'NormalizerStage' => 'event4u\DataHelpers\SimpleDTO\Pipeline\NormalizerStage',
+            'ValidationStage' => 'event4u\DataHelpers\SimpleDTO\Pipeline\ValidationStage',
+            'CallbackStage' => 'event4u\DataHelpers\SimpleDTO\Pipeline\CallbackStage',
+
+            // SimpleDTO Transformers (both namespaces for backwards compatibility)
+            'TrimStringsTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\TrimStringsTransformer',
+            'RemoveNullValuesTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\RemoveNullValuesTransformer',
+            'LowercaseKeysTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\LowercaseKeysTransformer',
+            'LowerCaseTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\LowerCaseTransformer',
+            'UpperCaseTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\UpperCaseTransformer',
+
+            // SimpleDTO Normalizers
+            'TypeNormalizer' => 'event4u\DataHelpers\SimpleDTO\Normalizers\TypeNormalizer',
+            'CamelCaseNormalizer' => 'event4u\DataHelpers\SimpleDTO\Normalizers\CamelCaseNormalizer',
+            'SnakeCaseNormalizer' => 'event4u\DataHelpers\SimpleDTO\Normalizers\SnakeCaseNormalizer',
+            'DefaultValuesNormalizer' => 'event4u\DataHelpers\SimpleDTO\Normalizers\DefaultValuesNormalizer',
+
+            // Test utilities
+            'TrimStrings' => 'Tests\Utils\Docu\TrimStrings',
+            'LowercaseEmails' => 'Tests\Utils\Docu\LowercaseEmails',
+            'SkipEmptyValues' => 'Tests\Utils\Docu\SkipEmptyValues',
+
+            // Test DTOs
+            'UserDTO' => 'Tests\Docu\DTOs\UserDTO',
+            'UserWithEmailsDTO' => 'Tests\Docu\DTOs\UserWithEmailsDTO',
+            'UserWithRolesDTO' => 'Tests\Docu\DTOs\UserWithRolesDTO',
+            'AddressDTO' => 'Tests\Docu\DTOs\AddressDTO',
+            'EmailDTO' => 'Tests\Docu\DTOs\EmailDTO',
+            'EmployeeDTO' => 'Tests\Docu\DTOs\EmployeeDTO',
+            'DepartmentDTO' => 'Tests\Docu\DTOs\DepartmentDTO',
+            'OrderDTO' => 'Tests\Docu\DTOs\OrderDTO',
+            'ProfileDTO' => 'Tests\Utils\DTOs\ProfileDTO',
+        ];
+
+        // Find all class usages in the code
+        foreach ($classMap as $className => $fullNamespace) {
+            // Check for class usage patterns:
+            // - ClassName::method()
+            // - new ClassName()
+            // - ClassName extends
+            // - implements ClassName
+            // - : ClassName (type hints)
+            $patterns = [
+                '/\b' . preg_quote($className, '/') . '::/m',
+                '/\bnew\s+' . preg_quote($className, '/') . '\b/m',
+                '/\bextends\s+' . preg_quote($className, '/') . '\b/m',
+                '/\bimplements\s+' . preg_quote($className, '/') . '\b/m',
+                '/:\s*' . preg_quote($className, '/') . '\b/m',
+                '/\b' . preg_quote($className, '/') . '\s*\(/m', // Function calls
+            ];
+
+            foreach ($patterns as $pattern) {
+                if (preg_match($pattern, $code)) {
+                    $useStatements[] = "use {$fullNamespace};";
+                    break; // Only add once per class
+                }
+            }
+        }
+
+        return array_unique($useStatements);
     }
 }
 

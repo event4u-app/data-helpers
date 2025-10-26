@@ -75,7 +75,7 @@ $result = DataMapper::source($source)
     ->map()
     ->getTarget();
 
-// $result = ['profile' => ['email' => 'john@example.com']]
+// Result: ['profile' => ['email' => 'john@example.com']]
 ```
 
 ### Context-Aware Transformations

@@ -58,7 +58,7 @@ DataMutator::make($data)->set('user.phone', '+1234567890');
 
 // Set multiple values with wildcards
 DataMutator::make($data)->set('user.orders.*.status', 'shipped');
-// $data = ['user' => ['name' => 'John Doe', 'orders' => [['id' => 1, 'total' => 100, 'status' => 'shipped'], ['id' => 2, 'total' => 200, 'status' => 'shipped']], 'phone' => '+1234567890']]
+// Result: ['user' => ['name' => 'John Doe', 'orders' => [['id' => 1, 'total' => 100, 'status' => 'shipped'], ['id' => 2, 'total' => 200, 'status' => 'shipped']], 'phone' => '+1234567890']]
 ```
 
 ### DataMapper - Transform Data (Fluent API)
@@ -78,7 +78,7 @@ $data = [
 ];
 
 // Fluent API with template-based mapping
-$result = DataMapper::from($data)
+$result = DataMapper::source($data)
     ->template([
         'customer_name' => '{{ user.name }}',
         'customer_email' => '{{ user.email }}',
@@ -87,7 +87,7 @@ $result = DataMapper::from($data)
     ])
     ->map()
     ->getTarget();
-// $result = ['customer_name' => 'John Doe', 'customer_email' => 'john@example.com', 'total_orders' => 2, 'order_ids' => [1, 2]]
+// Result: ['customer_name' => 'John Doe', 'customer_email' => 'john@example.com', 'total_orders' => 2, 'order_ids' => [1, 2]]
 ```
 
 With WHERE/ORDER BY in template (recommended for database-stored templates):
@@ -105,7 +105,7 @@ $data = [
     ],
 ];
 
-$result = DataMapper::from($data)
+$result = DataMapper::source($data)
     ->template([
         'items' => [
             'WHERE' => [
@@ -123,7 +123,7 @@ $result = DataMapper::from($data)
     ])
     ->map()
     ->getTarget();
-// $result = ['items' => [['id' => 2, 'total' => 200], ['id' => 3, 'total' => 150]]]
+// Result: ['items' => [['id' => 2, 'total' => 200], ['id' => 3, 'total' => 150]]]
 ```
 
 ### DataFilter - Query Data
@@ -141,7 +141,7 @@ $expensive = DataFilter::query($orders)
     ->where('total', '>', 150)
     ->orderBy('total', 'DESC')
     ->get();
-// $expensive = [['id' => 2, 'total' => 200]]
+// Result: [['id' => 2, 'total' => 200]]
 ```
 
 ### SimpleDTO - Data Transfer Objects

@@ -93,7 +93,7 @@ $target = ['user' => ['name' => 'Alice']];
 
 // Overwrite existing value
 DataMutator::make($target)->set('user.name', 'Bob');
-// Result: ['user' => ['name' => 'Bob']]
+// $target = ['user' => ['name' => 'Bob']]
 ```
 
 ### Numeric Indices
@@ -104,7 +104,7 @@ $target = [];
 // Set values at specific indices
 DataMutator::make($target)->set('users.0.name', 'Alice');
 DataMutator::make($target)->set('users.1.name', 'Bob');
-// Result: ['users' => [['name' => 'Alice'], ['name' => 'Bob']]]
+// $target = ['users' => [['name' => 'Alice'], ['name' => 'Bob']]]
 ```
 
 ### Wildcards in set()
@@ -115,7 +115,7 @@ Use wildcards to set multiple values at once.
 // Set same value for all items
 $data = ['users' => [['active' => false], ['active' => false], ['active' => false]]];
 DataMutator::make($data)->set('users.*.active', true);
-// Result: ['users' => [['active' => true], ['active' => true], ['active' => true]]]
+// $data = ['users' => [['active' => true], ['active' => true], ['active' => true]]]
 ```
 
 ### Wildcard with Accessor Results
@@ -132,7 +132,7 @@ $source = ['users' => [
 
 $accessor = new DataAccessor($source);
 $emails = $accessor->get('users.*.email');
-// Returns: ['users.0.email' => 'alice@example.com', 'users.1.email' => 'bob@example.com']
+// $emails = ['users.0.email' => 'alice@example.com', 'users.1.email' => 'bob@example.com']
 
 // Write to new structure with wildcard
 $target = [];
@@ -156,7 +156,7 @@ $data = [
 ];
 
 DataMutator::make($data)->set('departments.*.users.*.active', true);
-// Result: All 'active' fields set to true across all departments and users
+// $data = All 'active' fields set to true across all departments and users
 ```
 
 
@@ -171,7 +171,7 @@ $target = ['config' => ['limits' => ['cpu' => 1]]];
 
 // Merge additional data
 DataMutator::make($target)->merge('config.limits', ['memory' => 512, 'disk' => 1024]);
-// Result: ['config' => ['limits' => ['cpu' => 1, 'memory' => 512, 'disk' => 1024]]]
+// $target = ['config' => ['limits' => ['cpu' => 1, 'memory' => 512, 'disk' => 1024]]]
 ```
 
 ### Merge Strategy
@@ -195,7 +195,7 @@ DataMutator::make($target)->merge('config', [
     'queue' => ['driver' => 'sync'],
 ]);
 
-// Result: [
+// $target = [
 //   'config' => [
 //     'database' => ['host' => 'localhost', 'port' => 3306, 'charset' => 'utf8mb4'],
 //     'cache' => ['driver' => 'redis'],
@@ -212,7 +212,7 @@ Numeric-indexed arrays use index-based replacement (not append) for deterministi
 $target = ['list' => [10 => 'x', 11 => 'y']];
 
 DataMutator::make($target)->merge('list', [11 => 'Y', 12 => 'Z']);
-// Result: ['list' => [10 => 'x', 11 => 'Y', 12 => 'Z']]
+// $target = ['list' => [10 => 'x', 11 => 'Y', 12 => 'Z']]
 ```
 
 ### Merge Configuration
@@ -227,7 +227,7 @@ DataMutator::make($config)->merge('database', [
     'collation' => 'utf8mb4_unicode_ci',
 ]);
 
-// Result: [
+// $config = [
 //   'database' => [
 //     'host' => 'localhost',
 //     'port' => 3306,
@@ -250,7 +250,7 @@ $data = [
 // Merge additional data for all users
 DataMutator::make($data)->merge('users.*', ['active' => true, 'verified' => true]);
 
-// Result: [
+// $data = [
 //   'users' => [
 //     ['name' => 'Alice', 'role' => 'user', 'active' => true, 'verified' => true],
 //     ['name' => 'Bob', 'role' => 'user', 'active' => true, 'verified' => true]
@@ -275,7 +275,7 @@ $target = [
 
 // Remove password
 DataMutator::make($target)->unset('user.password');
-// Result: ['user' => ['name' => 'Alice', 'email' => 'alice@example.com']]
+// $target = ['user' => ['name' => 'Alice', 'email' => 'alice@example.com']]
 ```
 
 ### Remove with Wildcards
@@ -291,7 +291,7 @@ $data = [
 
 // Remove all passwords
 DataMutator::make($data)->unset('users.*.password');
-// Result: ['users' => [
+// $data = ['users' => [
 //   ['name' => 'Alice'],
 //   ['name' => 'Bob'],
 //   ['name' => 'Charlie']
@@ -335,7 +335,7 @@ $response = [
 // Remove sensitive fields
 DataMutator::make($response)->unset('users.*.password');
 DataMutator::make($response)->unset('users.*.api_key');
-// Result: Only id and name remain for each user
+// $response = Only id and name remain for each user
 ```
 
 
@@ -386,15 +386,7 @@ DataMutator::make($user)->set('profile.website', 'https://example.com');
 ### Working with DTOs
 
 ```php
-class UserDTO {
-    public function __construct(
-        public string $name = '',
-        public string $email = '',
-        public array $roles = [],
-    ) {}
-}
-
-$dto = new UserDTO();
+$dto = new UserWithRolesDTO();
 DataMutator::make($dto)->set('name', 'Alice');
 DataMutator::make($dto)->set('email', 'alice@example.com');
 DataMutator::make($dto)->merge('roles', ['admin', 'editor']);
@@ -499,7 +491,7 @@ DataMutator::make($target)->set('user.profile.age', 30);
 DataMutator::make($target)->set('user.settings.theme', 'dark');
 DataMutator::make($target)->set('user.settings.language', 'en');
 
-// Result: [
+// $target = [
 //   'user' => [
 //     'profile' => ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30],
 //     'settings' => ['theme' => 'dark', 'language' => 'en']
@@ -565,7 +557,7 @@ DataMutator::make($data)->unset('users.*.password');
 DataMutator::make($data)->unset('users.*.api_key');
 DataMutator::make($data)->unset('users.*.internal_notes');
 
-// Result: Only id and name remain
+// $data = Only id and name remain
 ```
 
 
@@ -608,6 +600,7 @@ Use DataAccessor to read and DataMutator to write:
 use event4u\DataHelpers\DataAccessor;
 
 // Read from source
+$source = ['users' => [['email' => 'alice@example.com'], ['email' => 'bob@example.com']]];
 $accessor = new DataAccessor($source);
 $emails = $accessor->get('users.*.email');
 
@@ -628,7 +621,7 @@ DataMutator::make($target)->set('email', $source['user']['email']);
 DataMutator::make($target)->set('age', $source['user']['profile']['age']);
 
 // ✅ Use DataMapper
-$target = DataMapper::from($source)
+$target = DataMapper::source($source)
     ->template([
         'name' => '{{ user.name }}',
         'email' => '{{ user.email }}',

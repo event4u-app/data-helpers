@@ -95,7 +95,7 @@ $result = DataFilter::query($data)
     ->where('age', '>', 25)
     ->get();
 
-// Result: [Alice (30), Charlie (35)]
+// $result = [Alice (30), Charlie (35)]
 ```
 
 ### Multiple Conditions
@@ -107,7 +107,7 @@ $result = DataFilter::query($data)
     ->where('age', '<', 35)
     ->get();
 
-// Result: [Alice (30)]
+// $result = [Alice (30)]
 ```
 
 ### Getting Results
@@ -227,7 +227,7 @@ $result = DataFilter::query($users)
     ->whereNotIn('role', ['user'])
     ->get();
 
-// Result: [Alice, Charlie]
+// $result = [Alice, Charlie]
 ```
 
 ## WHERE NULL / NOT NULL
@@ -259,7 +259,7 @@ $result = DataFilter::query($users)
     ->whereNotNull('email')
     ->get();
 
-// Result: [Alice, Charlie]
+// $result = [Alice, Charlie]
 ```
 
 ## LIKE Pattern Matching
@@ -348,7 +348,7 @@ $result = DataFilter::query($products)
     ->notBetween('price', [100, 300])
     ->get();
 
-// Result: [['id' => 1, 'price' => 50], ['id' => 4, 'price' => 350]]
+// $result = [['id' => 1, 'price' => 50], ['id' => 4, 'price' => 350]]
 ```
 
 ### Date Ranges
@@ -461,7 +461,7 @@ $result = DataFilter::query($products)
     ->offset(2)
     ->get();
 
-// Result: [Product 3, Product 4, Product 5]
+// $result = [Product 3, Product 4, Product 5]
 ```
 
 ### Pagination
@@ -544,8 +544,7 @@ Execute queries and retrieve results.
 $results = DataFilter::query($data)
     ->where('status', '=', 'active')
     ->get();
-
-// Returns: array of matching items
+// $results = array of matching items
 ```
 
 ### first() - Get First Result
@@ -556,8 +555,7 @@ $first = DataFilter::query($data)
     ->where('status', '=', 'active')
     ->orderBy('created_at', 'DESC')
     ->first();
-
-// Returns: single item or null if no match
+// $first = single item or null if no match
 ```
 
 ### count() - Count Results
@@ -567,8 +565,7 @@ $first = DataFilter::query($data)
 $count = DataFilter::query($data)
     ->where('status', '=', 'active')
     ->count();
-
-// Returns: integer count
+// $count = integer count
 ```
 
 ## Real-World Examples
@@ -753,7 +750,7 @@ $activeUsers = DataFilter::query($users)
     ->where('status', '=', 'active')
     ->get();
 
-$result = DataMapper::from(['users' => $activeUsers])
+$result = DataMapper::source(['users' => $activeUsers])
     ->template([
         'users' => [
             '*' => [

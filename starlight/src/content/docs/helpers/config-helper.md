@@ -93,7 +93,7 @@ $cacheConfig = $config->getArray('cache', []);
 ```php
 $config = ConfigHelper::getInstance();
 $source = $config->getSource();
-// Returns: 'laravel', 'symfony', 'plain', or 'default'
+// Result: 'laravel' | 'symfony' | 'plain' | 'default'
 
 switch ($source) {
     case 'laravel':
@@ -196,7 +196,7 @@ Get the configuration source (laravel, symfony, plain, or default).
 ```php
 $config = ConfigHelper::getInstance();
 $source = $config->getSource();
-// Returns: 'laravel', 'symfony', 'plain', or 'default'
+// Result: 'laravel' | 'symfony' | 'plain' | 'default'
 ```
 
 ## Configuration Files

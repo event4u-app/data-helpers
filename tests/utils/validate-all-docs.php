@@ -84,21 +84,17 @@ foreach ($allExamples as $filePath => $examples) {
         try {
             $executableCode = DocumentationExampleExtractor::prepareCodeForExecution($code, true);
 
-            // Execute the code in a function to avoid namespace conflicts
-            $testFunction = function () use ($executableCode) {
-                set_error_handler(function ($errno, $errstr) {
-                    if ($errno === E_WARNING || $errno === E_NOTICE) {
-                        throw new \RuntimeException("Warning: $errstr");
-                    }
-                    return false;
-                });
+            // Execute the code directly (not in a function) so use statements work
+            set_error_handler(function ($errno, $errstr) {
+                if ($errno === E_WARNING || $errno === E_NOTICE) {
+                    throw new \RuntimeException("Warning: $errstr");
+                }
+                return false;
+            });
 
-                eval(substr($executableCode, 5));
+            eval(substr($executableCode, 5));
 
-                restore_error_handler();
-            };
-
-            $testFunction();
+            restore_error_handler();
 
             $fileExecuted++;
             $totalExecuted++;
@@ -112,6 +108,7 @@ foreach ($allExamples as $filePath => $examples) {
                 'index' => $index + 1,
                 'error' => substr($e->getMessage(), 0, 200),
                 'code' => substr($code, 0, 150),
+                'fullCode' => $code, // Add full code for debugging
             ];
         }
     }
@@ -150,6 +147,12 @@ if (!empty($failedExamples)) {
             $failed['error'],
             str_replace("\n", ' ', $failed['code'])
         );
+
+        // Debug: Show full code if requested
+        if (isset($argv[1]) && $argv[1] === '--debug') {
+            echo "   Full Code:\n";
+            echo "   " . str_replace("\n", "\n   ", $failed['fullCode']) . "\n\n";
+        }
     }
 
     if (count($failedExamples) > 20) {

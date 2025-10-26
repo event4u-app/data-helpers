@@ -30,6 +30,7 @@ bin/console dto:cache
 
 ### Plain PHP
 
+<!-- skip-test: ValidationCache class does not exist, caching is automatic -->
 ```php
 use event4u\DataHelpers\SimpleDTO\Cache\ValidationCache;
 

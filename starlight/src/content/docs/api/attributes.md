@@ -140,6 +140,7 @@ public readonly ?array $posts = null;
 
 ### Computed
 
+<!-- skip-test: Method declaration example -->
 ```php
 #[Computed]
 public function fullName(): string

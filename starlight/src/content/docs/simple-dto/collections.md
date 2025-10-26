@@ -46,10 +46,14 @@ $dtos = UserDTO::collection($users);
 
 ### Using DataCollection::make()
 
-<!-- skip-test: DataCollection::make() method doesn't exist -->
 ```php
 use event4u\DataHelpers\SimpleDTO\DataCollection;
+use Tests\Docu\DTOs\UserDTO;
 
+$data = [
+    ['name' => 'John', 'email' => 'john@example.com', 'age' => 30],
+    ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25],
+];
 $collection = DataCollection::make($data, UserDTO::class);
 ```
 

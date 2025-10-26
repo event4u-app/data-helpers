@@ -22,19 +22,15 @@ $accessor = DataAccessor::make($data);
 
 // Simple path
 $name = $accessor->get('users.0.name');
-// Returns: 'Alice'
+// $name = 'Alice'
 
 // Wildcard - extract all emails
 $emails = $accessor->get('users.*.email');
-// Returns: [
-//   'users.0.email' => 'alice@example.com',
-//   'users.1.email' => 'bob@example.com',
-//   'users.2.email' => 'charlie@example.com',
-// ]
+// $emails = ['users.0.email' => 'alice@example.com', 'users.1.email' => 'bob@example.com', 'users.2.email' => 'charlie@example.com']
 
 // Default value
 $country = $accessor->get('users.0.country', 'Unknown');
-// Returns: 'Unknown' (path doesn't exist)
+// $country = 'Unknown'
 ```
 
 ## Introduction
@@ -89,22 +85,33 @@ $accessor = DataAccessor::make($data);
 
 // Dot-notation path
 $name = $accessor->get('user.profile.name');
-// Returns: 'John Doe'
+// $name = 'John Doe'
 
 // Non-existent path returns null
 $phone = $accessor->get('user.profile.phone');
-// Returns: null
+// $phone = null
 ```
 
 ### Default Values
 
 ```php
+$data = [
+    'user' => [
+        'profile' => [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+        ],
+    ],
+];
+
+$accessor = DataAccessor::make($data);
+
 // Provide default value as second parameter
 $phone = $accessor->get('user.profile.phone', 'N/A');
-// Returns: 'N/A' (path doesn't exist)
+// $phone = 'N/A'
 
 $name = $accessor->get('user.profile.name', 'Anonymous');
-// Returns: 'John Doe' (path exists, default ignored)
+// $name = 'John Doe'
 ```
 
 ## Wildcards
@@ -124,13 +131,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $emails = $accessor->get('users.*.email');
-
-// Returns associative array with full paths as keys:
-// [
-//   'users.0.email' => 'alice@example.com',
-//   'users.1.email' => 'bob@example.com',
-//   'users.2.email' => 'charlie@example.com',
-// ]
+// $emails = ['users.0.email' => 'alice@example.com', 'users.1.email' => 'bob@example.com', 'users.2.email' => 'charlie@example.com']
 ```
 
 ### Why Full Path Keys?
@@ -155,20 +156,11 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $emails = $accessor->get('users.*.email');
-
-// Returns:
-// [
-//   'users.0.email' => 'alice@example.com',
-//   'users.1.email' => null,
-//   'users.2.email' => 'bob@example.com',
-// ]
+// $emails = ['users.0.email' => 'alice@example.com', 'users.1.email' => null, 'users.2.email' => 'bob@example.com']
 
 // Filter out nulls if needed
 $validEmails = array_filter($emails, fn($v) => $v !== null);
-// [
-//   'users.0.email' => 'alice@example.com',
-//   'users.2.email' => 'bob@example.com',
-// ]
+// $validEmails = ['users.0.email' => 'alice@example.com', 'users.2.email' => 'bob@example.com']
 ```
 
 
@@ -199,9 +191,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $cities = $accessor->get('users.*.addresses.*.city');
-
-// Returns:
-// [
+// $cities = // [
 //   'users.0.addresses.home.city' => 'Berlin',
 //   'users.0.addresses.work.city' => 'Hamburg',
 //   'users.1.addresses.home.city' => 'Munich',
@@ -229,9 +219,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $titles = $accessor->get('departments.*.users.*.posts.*.title');
-
-// Returns:
-// [
+// $titles = // [
 //   'departments.0.users.0.posts.0.title' => 'Post 1',
 //   'departments.0.users.0.posts.1.title' => 'Post 2',
 //   'departments.0.users.1.posts.0.title' => 'Post 3',
@@ -257,9 +245,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $emails = $accessor->get('users.*.email');
-
-// Returns:
-// [
+// $emails = // [
 //   'users.0.email' => 'alice@example.com',
 //   'users.1.email' => 'bob@example.com',
 // ]
@@ -286,9 +272,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $skus = $accessor->get('orders.*.items.*.sku');
-
-// Returns:
-// [
+// $skus = // [
 //   'orders.0.items.0.sku' => 'A',
 //   'orders.0.items.1.sku' => 'B',
 //   'orders.1.items.0.sku' => 'C',
@@ -309,11 +293,11 @@ $accessor = DataAccessor::make($data);
 
 // Access specific index
 $firstUser = $accessor->get('users.0.name');
-// Returns: 'Alice'
+// $firstUser = 'Alice'
 
 // Wildcard still works
 $allNames = $accessor->get('users.*.name');
-// Returns: ['users.0.name' => 'Alice', 'users.1.name' => 'Bob']
+// $allNames = ['users.0.name' => 'Alice', 'users.1.name' => 'Bob']
 ```
 
 ## Working with Eloquent Models
@@ -368,10 +352,10 @@ $json = '{"users":[{"name":"Alice","age":30},{"name":"Bob","age":25}]}';
 $accessor = DataAccessor::make($json);
 
 $names = $accessor->get('users.*.name');
-// Returns: ['users.0.name' => 'Alice', 'users.1.name' => 'Bob']
+// $names = ['users.0.name' => 'Alice', 'users.1.name' => 'Bob']
 
 $firstAge = $accessor->get('users.0.age');
-// Returns: 30
+// $firstAge = 30
 ```
 
 ### XML Strings
@@ -398,9 +382,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $emails = $accessor->get('departments.*.users.*.email');
-
-// Returns:
-// [
+// $emails = // [
 //   'departments.0.users.0.email' => 'a@x.com',
 //   'departments.0.users.1.email' => 'b@x.com',
 //   'departments.1.users.0.email' => 'c@x.com',
@@ -453,11 +435,11 @@ $accessor = DataAccessor::make($data);
 
 // Access specific index
 $firstUser = $accessor->get('0.name');
-// Returns: 'Alice'
+// $firstUser = 'Alice'
 
 // Use wildcard at root level
 $allNames = $accessor->get('*.name');
-// Returns: ['0.name' => 'Alice', '1.name' => 'Bob']
+// $allNames = ['0.name' => 'Alice', '1.name' => 'Bob']
 ```
 
 ### Filter Null Values
@@ -474,11 +456,11 @@ $emails = $accessor->get('users.*.email');
 
 // Filter out nulls
 $validEmails = array_filter($emails, fn($v) => $v !== null);
-// Returns: ['users.0.email' => 'alice@x.com', 'users.2.email' => 'bob@x.com']
+// $validEmails = ['users.0.email' => 'alice@x.com', 'users.2.email' => 'bob@x.com']
 
 // Get only values (remove keys)
 $emailList = array_values($validEmails);
-// Returns: ['alice@x.com', 'bob@x.com']
+// $emailList = ['alice@x.com', 'bob@x.com']
 ```
 
 ## Best Practices
@@ -565,9 +547,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $structure = $accessor->getStructure();
-
-// Returns:
-// [
+// $structure = // [
 //   'name' => 'string',
 //   'age' => 'int',
 //   'emails' => 'array',
@@ -583,11 +563,10 @@ $structure = $accessor->getStructure();
 The `getStructureMultidimensional()` method returns a nested array structure:
 
 ```php
+$data = ['name' => 'John', 'age' => 30, 'emails' => [['email' => 'john@example.com']]];
 $accessor = DataAccessor::make($data);
 $structure = $accessor->getStructureMultidimensional();
-
-// Returns:
-// [
+// $structure = // [
 //   'name' => 'string',
 //   'age' => 'int',
 //   'emails' => [
@@ -625,9 +604,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $structure = $accessor->getStructure();
-
-// Returns:
-// [
+// $structure = // [
 //   'departments' => 'array',
 //   'departments.*' => 'array',
 //   'departments.*.name' => 'string',
@@ -654,9 +631,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $structure = $accessor->getStructure();
-
-// Returns:
-// [
+// $structure = // [
 //   'values' => 'array',
 //   'values.*' => 'bool|int|null|string',
 // ]
@@ -683,9 +658,7 @@ $data = [
 
 $accessor = DataAccessor::make($data);
 $structure = $accessor->getStructure();
-
-// Returns:
-// [
+// $structure = // [
 //   'contact' => '\EmailDTO',
 //   'contact.email' => 'string',
 //   'contact.verified' => 'bool',

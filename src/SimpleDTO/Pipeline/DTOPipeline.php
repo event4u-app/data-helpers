@@ -38,6 +38,18 @@ class DTOPipeline
     }
 
     /**
+     * Set whether to stop on error.
+     *
+     * @param bool $stopOnError If true, pipeline stops on first error. If false, continues processing.
+     */
+    public function stopOnError(bool $stopOnError): self
+    {
+        $this->stopOnError = $stopOnError;
+
+        return $this;
+    }
+
+    /**
      * Process data through all stages.
      *
      * @param array<string, mixed> $data

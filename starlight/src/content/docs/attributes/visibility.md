@@ -17,6 +17,7 @@ SimpleDTO provides visibility attributes:
 
 Properties marked as hidden are **never** included in serialization:
 
+<!-- skip-test: property declaration only -->
 ```php
 use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
 
@@ -31,6 +32,7 @@ public readonly string $apiToken;
 
 Conditionally visible based on callback:
 
+<!-- skip-test: property declaration only -->
 ```php
 use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
 
@@ -45,6 +47,7 @@ private function canViewEmail(mixed $context): bool
 
 ### Static Callback
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Visible(callback: [PermissionChecker::class, 'canViewEmail'])]
 public readonly string $email;
@@ -52,6 +55,7 @@ public readonly string $email;
 
 ### Laravel Gate
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Visible(gate: 'view-email')]
 public readonly string $email;
@@ -59,6 +63,7 @@ public readonly string $email;
 
 ### Symfony Voter
 
+<!-- skip-test: property declaration only -->
 ```php
 #[Visible(voter: 'view', attribute: 'email')]
 public readonly string $email;
@@ -68,6 +73,7 @@ public readonly string $email;
 
 See [Conditional Attributes](/attributes/conditional/) for 18 conditional attributes:
 
+<!-- skip-test: property declarations only -->
 ```php
 #[WhenAuth]                    // Show when authenticated
 #[WhenRole('admin')]           // Show when user has role

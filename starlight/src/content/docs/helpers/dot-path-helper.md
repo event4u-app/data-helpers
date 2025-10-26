@@ -113,12 +113,11 @@ $data = [
 $accessor = new DataAccessor($data);
 $result = $accessor->get('users.*.email');
 
-// Returns:
-[
-  'users.0.email' => 'a@example.com',
-  'users.1.email' => null,
-  'users.2.email' => 'b@example.com',
-]
+// Result: [
+//   'users.0.email' => 'a@example.com',
+//   'users.1.email' => null,
+//   'users.2.email' => 'b@example.com',
+// ]
 ```
 
 ## DataMapper Wildcard Expansion
@@ -128,36 +127,37 @@ $result = $accessor->get('users.*.email');
 When mapping from `users.*.email` to `emails.*`:
 
 ```php
-$mapper = new DataMapper($data);
-$mapper->map('users.*.email', 'emails.*');
+$data = [
+    'users' => [
+        ['email' => 'a@example.com'],
+        ['email' => 'b@example.com'],
+    ],
+];
 
-// Each matched value is placed into emails.{i}
+$result = DataMapper::source($data)
+    ->template(['emails.*' => 'users.*.email'])
+    ->map();
+
+// Result: ['emails' => ['a@example.com', 'b@example.com']]
 ```
 
 ### Skip Null Values
 
 ```php
-$mapper->map('users.*.email', 'emails.*', skipNull: true);
+$data = [
+    'users' => [
+        ['email' => 'a@example.com'],
+        ['email' => null],
+        ['email' => 'b@example.com'],
+    ],
+];
 
-// Nulls are skipped
-```
+$result = DataMapper::source($data)
+    ->template(['emails.*' => 'users.*.email'])
+    ->skipNull()
+    ->map();
 
-### Index Handling
-
-#### Default (preserve gaps)
-
-```php
-$mapper->map('users.*.email', 'emails.*', reindexWildcard: false);
-
-// Preserves numeric gaps (e.g., keep 0 and 2)
-```
-
-#### Reindex (compact)
-
-```php
-$mapper->map('users.*.email', 'emails.*', reindexWildcard: true);
-
-// Compacts indices to sequential array [0..n-1]
+// Result: ['emails' => ['a@example.com', 'b@example.com']]
 ```
 
 ## Root Level Numeric Indices
@@ -181,33 +181,44 @@ $name = $accessor->get('0.name'); // 'Alice'
 Returns `null` if a path does not exist:
 
 ```php
+$accessor = new DataAccessor(['user' => ['name' => 'John']]);
 $accessor->get('user.nonexistent.key'); // null
 ```
 
 ### DataMapper
 
-With `skipNull=true`, values that resolve to `null` are skipped:
+With `skipNull()`, values that resolve to `null` are skipped:
 
 ```php
-$mapper->map('user.email', 'contact.email', skipNull: true);
+$data = ['user' => ['email' => null]];
+
+$result = DataMapper::source($data)
+    ->template(['contact.email' => 'user.email'])
+    ->skipNull()
+    ->map();
+
+// Result: ['contact' => []] (email is skipped because it's null)
 ```
 
 ## Examples
 
 ### Simple Path
 
+<!-- skip-test: syntax example only -->
 ```php
 'user.profile.name' // Accesses $data['user']['profile']['name']
 ```
 
 ### Numeric Index
 
+<!-- skip-test: syntax example only -->
 ```php
 'users.0.email' // Accesses $data['users'][0]['email']
 ```
 
 ### Single Wildcard
 
+<!-- skip-test: syntax example only -->
 ```php
 'users.*.email' // Matches all emails in users array
 // Returns: ['users.0.email' => 'a@x', 'users.1.email' => 'b@x']
@@ -215,6 +226,7 @@ $mapper->map('user.email', 'contact.email', skipNull: true);
 
 ### Deep Wildcards
 
+<!-- skip-test: syntax example only -->
 ```php
 'orders.*.items.*.sku' // Matches all SKUs in all items across all orders
 // Returns: ['orders.0.items.0.sku' => 'A', 'orders.0.items.1.sku' => 'B']
@@ -222,6 +234,7 @@ $mapper->map('user.email', 'contact.email', skipNull: true);
 
 ### Root-Level Index
 
+<!-- skip-test: syntax example only -->
 ```php
 '0.name' // Accesses $data[0]['name'] when $data is a numeric array
 ```
@@ -241,6 +254,7 @@ $result = $accessor->get(''); // ['a' => 1]
 
 These paths throw `InvalidArgumentException`:
 
+<!-- skip-test: syntax example only -->
 ```php
 '.user.name'    // Leading dot
 'user.name.'    // Trailing dot

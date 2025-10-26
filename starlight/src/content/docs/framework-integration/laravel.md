@@ -78,6 +78,7 @@ public function register(Request $request): JsonResponse
 
 ### From Eloquent Model
 
+<!-- skip-test: requires Eloquent User model -->
 ```php
 $user = User::find(1);
 $dto = UserDTO::fromModel($user);
@@ -85,6 +86,7 @@ $dto = UserDTO::fromModel($user);
 
 ### To Eloquent Model
 
+<!-- skip-test: requires Eloquent User model -->
 ```php
 $dto = UserDTO::fromArray($data);
 $user = new User();
@@ -94,6 +96,7 @@ $user->save();
 
 ### Update Existing Model
 
+<!-- skip-test: requires Eloquent User model and Request -->
 ```php
 $user = User::find(1);
 $dto = UserDTO::fromRequest($request);
@@ -149,6 +152,7 @@ class UserProfileDTO extends SimpleDTO
 
 Show property only when user is guest:
 
+<!-- skip-test: property declaration only -->
 ```php
 #[WhenGuest]
 public readonly ?string $registerPrompt = null;
@@ -158,6 +162,7 @@ public readonly ?string $registerPrompt = null;
 
 Show property when user has permission:
 
+<!-- skip-test: property declaration only -->
 ```php
 #[WhenCan('edit-posts')]
 public readonly ?string $editUrl = null;
@@ -167,6 +172,7 @@ public readonly ?string $editUrl = null;
 
 Show property when user has role:
 
+<!-- skip-test: property declaration only -->
 ```php
 #[WhenRole('admin')]
 public readonly ?array $adminPanel = null;

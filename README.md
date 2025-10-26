@@ -139,6 +139,7 @@ $result = DataFilter::query($products)
     ->where('price', '>', 100)
     ->orderBy('price', 'DESC')
     ->get();
+// Result: [Laptop ($1200), Monitor ($400)]
 ```
 
 📖 **[DataFilter Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-filter/)**

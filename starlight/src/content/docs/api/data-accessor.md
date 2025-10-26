@@ -12,6 +12,7 @@ Complete API reference for DataAccessor.
 Create a new DataAccessor instance.
 
 ```php
+$data = ['user' => ['name' => 'John']];
 $accessor = new DataAccessor($data);
 ```
 
@@ -168,6 +169,7 @@ $names = $accessor->getWildcard('users.*.name');
 Get underlying array.
 
 ```php
+$accessor = new DataAccessor(['user' => ['name' => 'John']]);
 $data = $accessor->toArray();
 ```
 

@@ -37,7 +37,7 @@ $apiResponse = [
 // ...to this clean result in one line
 $accessor = new DataAccessor($apiResponse);
 $emails = $accessor->get('data.departments.*.users.*.email');
-// Result: ['alice@example.com', 'bob@example.com', 'charlie@example.com']
+// $emails = ['alice@example.com', 'bob@example.com', 'charlie@example.com']
 ```
 
 ## Why Use Data Helpers?
@@ -65,7 +65,6 @@ $emails = $accessor->get('departments.*.users.*.email');
 
 Map between different data formats, APIs, or database schemas without writing repetitive transformation code:
 
-<!-- skip-test: sum filter requires registration -->
 ```php
 use event4u\DataHelpers\DataMapper;
 
@@ -74,7 +73,7 @@ $source = [
     'orders' => [['amount' => 100], ['amount' => 200], ['amount' => 150]],
 ];
 
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->template([
         'user_name' => '{{ profile.name }}',
         'user_email' => '{{ profile.contact.email }}',
@@ -83,6 +82,7 @@ $result = DataMapper::from($source)
     ])
     ->map()
     ->getTarget();
+// $result = ['user_name' => 'Alice', 'user_email' => 'alice@example.com', 'order_count' => 3, 'order_amount_total' => 450]
 ```
 
 ### Type-Safe and Well-Tested

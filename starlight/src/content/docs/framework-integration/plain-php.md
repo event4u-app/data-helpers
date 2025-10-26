@@ -84,28 +84,23 @@ $dto = UserDTO::fromArray($_POST);
 ### Manual Validation
 
 ```php
-$dto = UserDTO::fromArray($_POST);
+$data = ['name' => 'John', 'email' => 'john@example.com', 'age' => 30];
 
 try {
-    $dto->validate();
+    $dto = UserDTO::validateAndCreate($data);
     // Validation passed
-} catch (\event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException $e) {
+} catch (\event4u\DataHelpers\Exceptions\ValidationException $e) {
     // Validation failed
-    $errors = $e->getErrors();
-    print_r($errors);
+    print_r($e->errors());
 }
 ```
 
 ### Validate and Create
 
 ```php
-try {
-    $dto = UserDTO::validateAndCreate($_POST);
-    // DTO is valid
-} catch (\event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException $e) {
-    // Validation failed
-    $errors = $e->getErrors();
-}
+$data = ['name' => 'John', 'email' => 'john@example.com', 'age' => 30];
+$dto = UserDTO::validateAndCreate($data);
+// DTO is valid (throws exception if invalid)
 ```
 
 ## Type Casting
@@ -139,6 +134,7 @@ $dto = OrderDTO::fromArray([
 ### To Array
 
 ```php
+$data = ['name' => 'John', 'email' => 'john@example.com'];
 $dto = UserDTO::fromArray($data);
 $array = $dto->toArray();
 ```
@@ -146,12 +142,15 @@ $array = $dto->toArray();
 ### To JSON
 
 ```php
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = UserDTO::fromArray($data);
 $json = $dto->toJson();
 ```
 
 ### To XML
 
 ```php
+$dto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
 $xml = $dto->toXml();
 ```
 
