@@ -319,44 +319,19 @@ $result = DataMapper::query()
 
 ## 📚 Documentation
 
-### Core Documentation
+**Comprehensive documentation with guides, examples, and API reference is available at:**
 
-- **[Getting Started](https://event4u-app.github.io/data-helpers/getting-started/introduction/)** - Introduction and quick start
-- **[Installation](https://event4u-app.github.io/data-helpers/getting-started/installation/)** - Setup for Laravel, Symfony, or plain PHP
-- **[Configuration](https://event4u-app.github.io/data-helpers/getting-started/configuration/)** - Performance modes and caching
+🔗 **[event4u-app.github.io/data-helpers](https://event4u-app.github.io/data-helpers/)**
 
-### Main Classes
-
-- **[DataAccessor](https://event4u-app.github.io/data-helpers/main-classes/data-accessor/)** - Read nested data with wildcards
-- **[DataMutator](https://event4u-app.github.io/data-helpers/main-classes/data-mutator/)** - Modify nested structures
-- **[DataMapper](https://event4u-app.github.io/data-helpers/main-classes/data-mapper/)** - Transform data with templates
-- **[DataFilter](https://event4u-app.github.io/data-helpers/main-classes/data-filter/)** - Query and filter data
-
-### SimpleDTO
-
-- **[Introduction](https://event4u-app.github.io/data-helpers/simple-dto/introduction/)** - Immutable DTOs with validation
-- **[Type Casting](https://event4u-app.github.io/data-helpers/simple-dto/type-casting/)** - 20+ built-in casts
-- **[Validation](https://event4u-app.github.io/data-helpers/simple-dto/validation/)** - 22+ validation attributes
-- **[Collections](https://event4u-app.github.io/data-helpers/simple-dto/collections/)** - Working with arrays of DTOs
-
-### Advanced Features
-
-- **[Template Expressions](https://event4u-app.github.io/data-helpers/main-classes/data-mapper/template-expressions/)** - Twig-like expressions with 18+ filters
-- **[Query Builder](https://event4u-app.github.io/data-helpers/main-classes/data-mapper/query-builder/)** - Laravel-style fluent interface
-- **[Pipelines](https://event4u-app.github.io/data-helpers/main-classes/data-mapper/pipelines/)** - Composable data transformation
-- **[Reverse Mapping](https://event4u-app.github.io/data-helpers/advanced/reverse-mapping/)** - Bidirectional transformations
-
-### Framework Integration
-
-- **[Laravel](https://event4u-app.github.io/data-helpers/framework-integration/laravel/)** - Collections, Eloquent Models
-- **[Symfony](https://event4u-app.github.io/data-helpers/framework-integration/symfony/)** - Bundles, Services
-- **[Doctrine](https://event4u-app.github.io/data-helpers/framework-integration/doctrine/)** - Collections, Entities
-
-### Examples & Guides
-
-- **[Examples](https://event4u-app.github.io/data-helpers/examples/)** - 90+ runnable code examples
-- **[API Reference](https://event4u-app.github.io/data-helpers/api/)** - Complete API documentation
-- **[Performance](https://event4u-app.github.io/data-helpers/performance/benchmarks/)** - Benchmarks and optimization
+The documentation includes:
+- 📖 **Getting Started Guides** - Installation, configuration, and quick start tutorials
+- 🔧 **Main Classes** - Detailed guides for DataAccessor, DataMutator, DataMapper, and DataFilter
+- 🎯 **SimpleDTO** - Type-safe DTOs with validation, casting, and collections
+- 🚀 **Advanced Features** - Template expressions, query builder, pipelines, and reverse mapping
+- 🔌 **Framework Integration** - Laravel, Symfony, and Doctrine integration guides
+- 💡 **90+ Code Examples** - Runnable examples for every feature
+- 📊 **Performance Benchmarks** - Optimization tips and benchmark results
+- 🔍 **Complete API Reference** - Full API documentation for all classes and methods
 
 ---
 
