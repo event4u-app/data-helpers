@@ -10,7 +10,7 @@ Learn how to serialize DTOs to arrays, JSON, XML, and other formats.
 Serialization converts DTOs to different formats for storage or transmission:
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 
@@ -29,7 +29,7 @@ $xml = $dto->toXml();
 ### Basic Usage
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = UserDTO::fromArray([
     'name' => 'John Doe',
@@ -44,7 +44,7 @@ $array = $dto->toArray();
 ### Nested DTOs
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = UserDTO::fromArray([
     'name' => 'John Doe',
@@ -69,7 +69,7 @@ $array = $dto->toArray();
 ### Basic Usage
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 
@@ -80,7 +80,7 @@ $json = json_encode($dto);
 ### Pretty Print
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 $json = json_encode($dto, JSON_PRETTY_PRINT);
@@ -90,7 +90,7 @@ $json = json_encode($dto, JSON_PRETTY_PRINT);
 ### Using toJson()
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 $json = $dto->toJson();
@@ -102,7 +102,7 @@ $json = $dto->toJson();
 ### Basic Usage
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 
@@ -114,7 +114,7 @@ $xml = $dto->toXml();
 
 ```php
 use event4u\DataHelpers\SimpleDTO\Config\SerializerOptions;
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 $options = SerializerOptions::xml(rootElement: 'customer');
@@ -128,7 +128,7 @@ $xml = $dto->toXml($options);
 
 <!-- skip-test: YAML extension not available -->
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 
@@ -142,7 +142,7 @@ $yaml = $dto->toYaml();
 ### Basic Usage
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
 
@@ -155,7 +155,7 @@ $csv = $dto->toCsv();
 
 <!-- skip-test: DataCollection::toCsv() not implemented yet -->
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $users = UserDTO::collection($userArray);
 $csv = $users->toCsv();

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\utils\Entities;
+namespace Tests\Utils\Entities;
 
 use Doctrine\ORM\Mapping as ORM;
 

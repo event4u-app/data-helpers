@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
-use Tests\utils\DTOs\DepartmentDto;
-use Tests\utils\SimpleDTOs\DepartmentSimpleDto;
+use Tests\Utils\DTOs\DepartmentDto;
+use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
 
 /**
  * Detailed benchmark for specific operations

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\utils\XMLs\Models;
+namespace Tests\Utils\XMLs\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Tests\utils\XMLs\Enums\PositionType;
+use Tests\Utils\XMLs\Enums\PositionType;
 
 /**
  * Unified Position Model for XML data

@@ -13,11 +13,11 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
-use Tests\utils\DTOs\CompanyDto;
-use Tests\utils\DTOs\DepartmentDto;
-use Tests\utils\SimpleDTOs\CompanySimpleDto;
-use Tests\utils\SimpleDTOs\DepartmentSimpleDto;
-use Tests\utils\SimpleDTOs\ProjectSimpleDto;
+use Tests\Utils\DTOs\CompanyDto;
+use Tests\Utils\DTOs\DepartmentDto;
+use Tests\Utils\SimpleDTOs\CompanySimpleDto;
+use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
+use Tests\Utils\SimpleDTOs\ProjectSimpleDto;
 
 $rootDir = dirname(__DIR__);
 $readmePath = $rootDir . '/docs/simple-dto.md';

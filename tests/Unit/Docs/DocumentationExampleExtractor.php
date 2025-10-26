@@ -627,6 +627,7 @@ PHP;
             new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS)
         );
 
+        /** @var SplFileInfo $file */
         foreach ($iterator as $file) {
             if (!$file->isFile() || 'php' !== $file->getExtension()) {
                 continue;

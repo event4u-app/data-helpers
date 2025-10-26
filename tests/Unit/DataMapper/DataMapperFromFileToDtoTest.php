@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use Tests\utils\DTOs\CompanyDto;
-use Tests\utils\DTOs\DepartmentDto;
-use Tests\utils\DTOs\ProjectDto;
+use Tests\Utils\DTOs\CompanyDto;
+use Tests\Utils\DTOs\DepartmentDto;
+use Tests\Utils\DTOs\ProjectDto;
 
 describe('DataMapper to DTO', function(): void {
     describe('Automatic nested DTO mapping', function(): void {

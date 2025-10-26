@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\utils\XMLs\Models;
+namespace Tests\Utils\XMLs\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Tests\utils\XMLs\Enums\ProjectStatus;
+use Tests\Utils\XMLs\Enums\ProjectStatus;
 
 /**
  * Unified Project Model for XML data

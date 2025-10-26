@@ -5,8 +5,8 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Keys;
-use Tests\utils\Filters\AlternatingCase;
-use Tests\utils\Filters\ReverseString;
+use Tests\Utils\Filters\AlternatingCase;
+use Tests\Utils\Filters\ReverseString;
 
 beforeEach(function(): void {
     FilterRegistry::clear();

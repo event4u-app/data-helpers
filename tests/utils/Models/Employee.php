@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\utils\Models;
+namespace Tests\Utils\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,16 +32,18 @@ class Employee extends Model
      */
     public function department(): BelongsTo
     {
+        // @phpstan-ignore-next-line
         return $this->belongsTo(Department::class);
     }
 
     /**
      * Get the projects that the employee works on.
      *
-     * @return BelongsToMany<Project>
+     * @return BelongsToMany<Project, $this>
      */
     public function projects(): BelongsToMany
     {
+        // @phpstan-ignore-next-line
         return $this->belongsToMany(Project::class);
     }
 }

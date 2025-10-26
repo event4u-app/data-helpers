@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\utils\Models;
+namespace Tests\Utils\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -32,20 +32,22 @@ final class Company extends Model
     /**
      * Get the departments for the company.
      *
-     * @return HasMany<Department>
+     * @return HasMany<Department, $this>
      */
     public function departments(): HasMany
     {
+        // @phpstan-ignore-next-line
         return $this->hasMany(Department::class);
     }
 
     /**
      * Get the projects for the company.
      *
-     * @return HasMany<Project>
+     * @return HasMany<Project, $this>
      */
     public function projects(): HasMany
     {
+        // @phpstan-ignore-next-line
         return $this->hasMany(Project::class);
     }
 }

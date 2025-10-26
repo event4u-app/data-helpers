@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\utils\SimpleDTOs;
+namespace Tests\Utils\SimpleDTOs;
 
 use event4u\DataHelpers\SimpleDTO;
 
