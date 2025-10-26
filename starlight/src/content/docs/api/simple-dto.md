@@ -12,6 +12,7 @@ Complete API reference for SimpleDTO.
 Create from array.
 
 ```php
+$data = ['name' => 'John', 'email' => 'john@example.com'];
 $dto = UserDTO::fromArray($data);
 ```
 
@@ -20,6 +21,7 @@ $dto = UserDTO::fromArray($data);
 Create from JSON.
 
 ```php
+$json = '{"name":"John","email":"john@example.com"}';
 $dto = UserDTO::fromJson($json);
 ```
 
@@ -27,7 +29,12 @@ $dto = UserDTO::fromJson($json);
 
 Create from Eloquent model.
 
+<!-- skip-test: requires Eloquent model -->
 ```php
+use event4u\DataHelpers\UserDTO;
+
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = new UserDTO($data);
 $dto = UserDTO::fromModel($user);
 ```
 
@@ -35,7 +42,12 @@ $dto = UserDTO::fromModel($user);
 
 Create from HTTP request.
 
+<!-- skip-test: requires HTTP request -->
 ```php
+use event4u\DataHelpers\UserDTO;
+
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = new UserDTO($data);
 $dto = UserDTO::fromRequest($request);
 ```
 
@@ -43,7 +55,12 @@ $dto = UserDTO::fromRequest($request);
 
 Validate and create.
 
+<!-- skip-test: requires validation rules -->
 ```php
+use event4u\DataHelpers\UserDTO;
+
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = new UserDTO($data);
 $dto = UserDTO::validateAndCreate($_POST);
 ```
 
@@ -53,7 +70,12 @@ $dto = UserDTO::validateAndCreate($_POST);
 
 Validate DTO.
 
+<!-- skip-test: requires validation rules -->
 ```php
+use event4u\DataHelpers\UserDTO;
+
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = new UserDTO($data);
 $dto->validate();
 ```
 
@@ -61,7 +83,12 @@ $dto->validate();
 
 Check if valid.
 
+<!-- skip-test: requires validation rules -->
 ```php
+use event4u\DataHelpers\UserDTO;
+
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = new UserDTO($data);
 if ($dto->isValid()) {
     // ...
 }
@@ -71,7 +98,12 @@ if ($dto->isValid()) {
 
 Get validation errors.
 
+<!-- skip-test: requires validation rules -->
 ```php
+use event4u\DataHelpers\UserDTO;
+
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = new UserDTO($data);
 $errors = $dto->getErrors();
 ```
 
@@ -82,6 +114,7 @@ $errors = $dto->getErrors();
 Convert to array.
 
 ```php
+$dto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']);
 $array = $dto->toArray();
 ```
 
@@ -90,6 +123,7 @@ $array = $dto->toArray();
 Convert to JSON.
 
 ```php
+$dto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']);
 $json = $dto->toJson();
 ```
 
@@ -98,6 +132,7 @@ $json = $dto->toJson();
 Convert to XML.
 
 ```php
+$dto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']);
 $xml = $dto->toXml();
 ```
 
@@ -105,7 +140,12 @@ $xml = $dto->toXml();
 
 Convert to Eloquent model.
 
+<!-- skip-test: requires Eloquent model -->
 ```php
+use event4u\DataHelpers\UserDTO;
+
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = new UserDTO($data);
 $user = $dto->toModel(User::class);
 ```
 
@@ -116,6 +156,7 @@ $user = $dto->toModel(User::class);
 Set context.
 
 ```php
+$dto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']);
 $dto = $dto->with('admin');
 ```
 
@@ -123,7 +164,12 @@ $dto = $dto->with('admin');
 
 Include lazy properties.
 
+<!-- skip-test: requires lazy properties -->
 ```php
+use event4u\DataHelpers\UserDTO;
+
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = new UserDTO($data);
 $dto = $dto->include(['posts', 'comments']);
 ```
 
@@ -132,6 +178,7 @@ $dto = $dto->include(['posts', 'comments']);
 Include only specified properties.
 
 ```php
+$dto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']);
 $dto = $dto->only(['name', 'email']);
 ```
 
@@ -140,6 +187,7 @@ $dto = $dto->only(['name', 'email']);
 Exclude specified properties.
 
 ```php
+$dto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']);
 $dto = $dto->except(['password', 'token']);
 ```
 

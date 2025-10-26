@@ -296,10 +296,9 @@ describe('Property Mapping Edge Cases', function(): void {
                 ) {}
             };
 
-            // Should fail with strict types
-            expect(function() use ($dto): void {
-                $dto::fromArray(['age_string' => '30']);
-            })->toThrow(TypeError::class);
+            // With automatic type coercion, string '30' is converted to int 30
+            $result = $dto::fromArray(['age_string' => '30']);
+            expect($result->age)->toBe(30);
         });
 
         it('handles boolean coercion with mapping', function(): void {

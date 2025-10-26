@@ -98,6 +98,9 @@ parameters:
               - tests/*
               - tests-e2e/Laravel/tests/*
               - tests-e2e/Symfony/tests/*
+        - message: '#Call to static method .* on an unknown class Symfony\\Component\\Yaml\\Yaml#'
+          paths:
+              - tests-e2e/Symfony/tests/*
         - message: '#Class .* not found#'
           paths:
               - examples/*
@@ -267,4 +270,8 @@ parameters:
         privateInFinalClass:
             enabled: true
         noNamedArgument:
+            enabled: false
+        noParameterPassedByReference:
+            enabled: false
+        noAssignByReference:
             enabled: false

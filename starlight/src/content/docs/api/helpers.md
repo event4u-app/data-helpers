@@ -21,16 +21,8 @@ Check if variable exists.
 
 ```php
 if (EnvHelper::has('API_KEY')) {
-    // ...
+    $apiKey = EnvHelper::get('API_KEY');
 }
-```
-
-### `set(string $key, mixed $value): void`
-
-Set environment variable.
-
-```php
-EnvHelper::set('APP_ENV', 'production');
 ```
 
 ## MathHelper
@@ -82,7 +74,10 @@ $cmp = MathHelper::compare('1.0', '2.0'); // -1
 Get configuration value.
 
 ```php
-$value = ConfigHelper::get('app.name', 'default');
+use event4u\DataHelpers\Helpers\ConfigHelper;
+
+$config = ConfigHelper::getInstance();
+$value = $config->get('app.name', 'default');
 ```
 
 ### `has(string $key): bool`
@@ -90,7 +85,10 @@ $value = ConfigHelper::get('app.name', 'default');
 Check if config exists.
 
 ```php
-if (ConfigHelper::has('database.host')) {
+use event4u\DataHelpers\Helpers\ConfigHelper;
+
+$config = ConfigHelper::getInstance();
+if ($config->has('database.host')) {
     // ...
 }
 ```
@@ -100,85 +98,23 @@ if (ConfigHelper::has('database.host')) {
 Set configuration value.
 
 ```php
-ConfigHelper::set('app.debug', true);
-```
+use event4u\DataHelpers\Helpers\ConfigHelper;
 
-## DotPathHelper
-
-### `get(array $data, string $path, mixed $default = null): mixed`
-
-Get value at path.
-
-```php
-$value = DotPathHelper::get($data, 'user.name');
-```
-
-### `set(array &$data, string $path, mixed $value): void`
-
-Set value at path.
-
-```php
-DotPathHelper::set($data, 'user.name', 'John');
-```
-
-### `has(array $data, string $path): bool`
-
-Check if path exists.
-
-```php
-if (DotPathHelper::has($data, 'user.email')) {
-    // ...
-}
-```
-
-### `unset(array &$data, string $path): void`
-
-Remove value at path.
-
-```php
-DotPathHelper::unset($data, 'user.password');
+$config = ConfigHelper::getInstance();
+$config->set('app.debug', true);
 ```
 
 ## ObjectHelper
 
-### `deepClone(object $object): object`
+### `copy(object $object): object`
 
-Deep clone object.
-
-```php
-$clone = ObjectHelper::deepClone($object);
-```
-
-### `toArray(object $object): array`
-
-Convert object to array.
+Copy an object.
 
 ```php
-$array = ObjectHelper::toArray($object);
-```
+use event4u\DataHelpers\Helpers\ObjectHelper;
 
-### `fromArray(array $data, string $class): object`
-
-Create object from array.
-
-```php
-$object = ObjectHelper::fromArray($data, User::class);
-```
-
-### `getProperty(object $object, string $property): mixed`
-
-Get property value.
-
-```php
-$value = ObjectHelper::getProperty($object, 'name');
-```
-
-### `setProperty(object $object, string $property, mixed $value): void`
-
-Set property value.
-
-```php
-ObjectHelper::setProperty($object, 'name', 'John');
+$object = (object)['name' => 'John', 'age' => 30];
+$clone = ObjectHelper::copy($object);
 ```
 
 ## See Also

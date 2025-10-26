@@ -135,7 +135,7 @@ $order = OrderDTO::fromArray([
 ### Using DataCollection
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDTO\DataCollection;
 
 class OrderDTO extends SimpleDTO
 {

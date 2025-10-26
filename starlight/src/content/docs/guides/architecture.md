@@ -18,7 +18,7 @@ DataMapper acts as a facade and delegates work to specialized components that ea
 
 ## High-Level Flow
 
-The `DataMapper::from()->template()->map()` method follows this flow:
+The `DataMapper::source()->template()->map()` method follows this flow:
 
 1. Normalize hooks (enums → strings, arrays of callables allowed)
 2. For simple mappings: iterate associative pairs (src → tgt)
@@ -236,7 +236,9 @@ $hooks = [
 Extend HookInvoker for new filter patterns:
 
 ```php
-class CustomHookInvoker extends \event4u\DataHelpers\DataMapper\HookInvoker
+use event4u\DataHelpers\DataMapper\HookInvoker;
+
+class CustomHookInvoker extends HookInvoker
 {
     protected static function matchPrefixPattern(string $value, string $pattern): bool
     {
@@ -253,10 +255,12 @@ class CustomHookInvoker extends \event4u\DataHelpers\DataMapper\HookInvoker
 Wrap WildcardHandler for custom behavior:
 
 ```php
+use event4u\DataHelpers\DataMapper\WildcardHandler;
+
 function iterateEmails(array $items, callable $onItem): void
 {
-    $items = \event4u\DataHelpers\DataMapper\WildcardHandler::normalizeWildcardArray($items);
-    \event4u\DataHelpers\DataMapper\WildcardHandler::iterateWildcardItems(
+    $items = WildcardHandler::normalizeWildcardArray($items);
+    WildcardHandler::iterateWildcardItems(
         $items,
         skipNull: true,
         reindexWildcard: true,
@@ -294,7 +298,7 @@ final class PhoneNormalizer
 Use with property filters:
 
 ```php
-$result = DataMapper::from(['user' => ['phone' => ' (030) 123 45 ']])
+$result = DataMapper::source(['user' => ['phone' => ' (030) 123 45 ']])
     ->template(['dto.phone' => '{{ user.phone }}'])
     ->property('dto.phone')
         ->setFilter([App\Support\PhoneNormalizer::class, 'e164'])
@@ -366,7 +370,7 @@ it('skips odd indices via hook', function () {
         ],
     ];
 
-    $out = DataMapper::from($src)
+    $out = DataMapper::source($src)
         ->template(['emails.*' => '{{ users.*.email }}'])
         ->skipNull(true)
         ->reindexWildcard(true)

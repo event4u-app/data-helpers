@@ -15,48 +15,170 @@ use ReflectionProperty;
 
 class DataMutator
 {
+    /** @var array<int|string, mixed>|object */
+    private array|object $target;
+
     /**
-     * Set one or multiple values into a target (array, DTO, Laravel model, Collection) using dot-notation.
-     *
-     * Example:
-     *   DataMutator::set($data, 'user.name', 'Alice');
-     *   DataMutator::set($data, ['users.0.name' => 'Alice', 'users.1.name' => 'Bob']);
+     * Create a new DataMutator instance.
      *
      * @param array<int|string, mixed>|object $target
-     * @param array<int|string, mixed>|string $pathOrValues
-     * @param bool $merge Whether to deep-merge arrays instead of overwriting
-     * @return array<int|string, mixed>|object
      */
-    public static function set(
-        array|object $target,
-        array|string $pathOrValues,
-        mixed $value = null,
-        bool $merge = false,
-    ): array|object {
-        if (is_array($pathOrValues)) {
-            foreach ($pathOrValues as $path => $val) {
-                $segments = DotPathHelper::segments((string)$path);
-                $target = self::applySet($target, $segments, $val, $merge);
-            }
-
-            return $target;
-        }
-
-        $segments = DotPathHelper::segments($pathOrValues);
-
-        return self::applySet($target, $segments, $value, $merge);
+    public function __construct(array|object &$target)
+    {
+        $this->target = &$target;
     }
 
     /**
-     * Shortcut for deep merge.
+     * Create a new DataMutator instance (fluent factory).
      *
      * @param array<int|string, mixed>|object $target
+     */
+    public static function make(array|object &$target): self
+    {
+        return new self($target);
+    }
+
+    /**
+     * Set value at path or multiple values (fluent instance method).
+     *
+     * @param array<string, mixed>|string $pathOrValues
+     */
+    public function set(array|string $pathOrValues, mixed $value = null, bool $merge = false): self
+    {
+        if (is_array($pathOrValues)) {
+            foreach ($pathOrValues as $path => $val) {
+                $segments = DotPathHelper::segments((string)$path);
+                $this->target = $this->applySet($this->target, $segments, $val, $merge);
+            }
+
+            return $this;
+        }
+
+        $segments = DotPathHelper::segments($pathOrValues);
+        $this->target = $this->applySet($this->target, $segments, $value, $merge);
+
+        return $this;
+    }
+
+    /**
+     * Merge array at path or multiple values (fluent instance method).
+     *
      * @param array<int|string, mixed>|string $pathOrValues
+     * @param array<int|string, mixed>|null $value
+     */
+    public function merge(array|string $pathOrValues, ?array $value = null): self
+    {
+        if (is_array($pathOrValues)) {
+            foreach ($pathOrValues as $path => $val) {
+                $segments = DotPathHelper::segments((string)$path);
+                $this->target = $this->applySet($this->target, $segments, $val, true);
+            }
+
+            return $this;
+        }
+
+        $segments = DotPathHelper::segments($pathOrValues);
+        $this->target = $this->applySet($this->target, $segments, $value, true);
+
+        return $this;
+    }
+
+    /**
+     * Recursively merge array (alias for merge).
+     *
+     * @param array<int|string, mixed> $value
+     */
+    public function mergeRecursive(string $path, array $value): self
+    {
+        return $this->merge($path, $value);
+    }
+
+    /** Push value to array at path. */
+    public function push(string $path, mixed $value): self
+    {
+        $segments = DotPathHelper::segments($path);
+        $current = DataAccessor::make($this->target)->get($path, []);
+
+        if (!is_array($current)) {
+            $current = [];
+        }
+
+        $current[] = $value;
+        $this->target = $this->applySet($this->target, $segments, $current, false);
+
+        return $this;
+    }
+
+    /** Remove and return value at path. */
+    public function pull(string $path, mixed $default = null): mixed
+    {
+        $value = DataAccessor::make($this->target)->get($path, $default);
+        $this->unset($path);
+
+        return $value;
+    }
+
+    /**
+     * Transform value at path using callback.
+     *
+     * @param callable(mixed): mixed $callback Callback function
+     */
+    public function transform(string $path, callable $callback): self
+    {
+        $value = DataAccessor::make($this->target)->get($path);
+        $newValue = $callback($value);
+        $segments = DotPathHelper::segments($path);
+        $this->target = $this->applySet($this->target, $segments, $newValue, false);
+
+        return $this;
+    }
+
+    /**
+     * Unset value at path or multiple paths (fluent instance method).
+     *
+     * @param array<int, string>|string $paths
+     */
+    public function unset(array|string $paths): self
+    {
+        $paths = is_array($paths) ? $paths : [$paths];
+
+        foreach ($paths as $path) {
+            $segments = DotPathHelper::segments($path);
+            $this->target = $this->applyUnset($this->target, $segments);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Unset multiple paths (fluent instance method).
+     *
+     * @param array<int, string> $paths
+     */
+    public function unsetMultiple(array $paths): self
+    {
+        return $this->unset($paths);
+    }
+
+    /**
+     * Get modified array/object.
+     *
      * @return array<int|string, mixed>|object
      */
-    public static function merge(array|object $target, array|string $pathOrValues, mixed $value = null): array|object
+    public function toArray(): array|object
     {
-        return self::set($target, $pathOrValues, $value, true);
+        return $this->target;
+    }
+
+    /**
+     * Get reference to target.
+     *
+     * @return array<int|string, mixed>|object
+     * @phpstan-ignore-next-line ergebnis.noReturnByReference
+     */
+    public function &getReference(): array|object
+    {
+        return $this->target;
     }
 
     /**
@@ -66,7 +188,7 @@ class DataMutator
      * @param array<int, string> $segments
      * @return array<int|string, mixed>|object
      */
-    private static function applySet(array|object $target, array $segments, mixed $value, bool $merge): array|object
+    private function applySet(array|object $target, array $segments, mixed $value, bool $merge): array|object
     {
         if (is_array($target)) {
             self::setIntoArray($target, $segments, $value, $merge);
@@ -287,71 +409,59 @@ class DataMutator
     }
 
     /**
-     * Unset one or multiple values using dot-notation.
+     * Apply unset operation to target.
      *
      * @param array<int|string, mixed>|object $target
-     * @param array<int, string>|string $paths
+     * @param array<int, string> $segments
      * @return array<int|string, mixed>|object
      */
-    public static function unset(array|object $target, array|string $paths): array|object
+    private function applyUnset(array|object $target, array $segments): array|object
     {
-        $paths = is_array($paths) ? $paths : [$paths];
+        if (is_array($target)) {
+            self::unsetFromArray($target, $segments);
 
-        foreach ($paths as $path) {
-            $segments = DotPathHelper::segments($path);
-
-            if (is_array($target)) {
-                self::unsetFromArray($target, $segments);
-
-                continue;
-            }
-
-            // Support for any collection type (Laravel, Doctrine)
-            if (CollectionHelper::isCollection($target)) {
-                $arr = CollectionHelper::toArray($target);
-                self::unsetFromArray($arr, $segments);
-                $result = CollectionHelper::fromArrayWithType($arr, $target);
-
-                /** @var array<int|string, mixed>|object $result */
-                $target = $result;
-
-                continue;
-            }
-
-            // Support for any entity/model type (Eloquent, Doctrine)
-            if (EntityHelper::isEntity($target)) {
-                EntityHelper::unsetFromEntity($target, $segments);
-
-                continue;
-            }
-
-            // Fallback for Arrayable interface
-            if (ArrayableHelper::isArrayable($target)) {
-                $arr = ArrayableHelper::toArray($target);
-                self::unsetFromArray($arr, $segments);
-                $target = $arr;
-
-                continue;
-            }
-
-            if ($target instanceof JsonSerializable) {
-                $arr = (array)$target->jsonSerialize();
-                self::unsetFromArray($arr, $segments);
-                $target = $arr;
-
-                continue;
-            }
-
-            if (is_object($target)) {
-                self::unsetFromObject($target, $segments);
-
-                continue;
-            }
-
-            throw new InvalidArgumentException('Unsupported target type: ' . gettype($target));
+            return $target;
         }
 
-        return $target;
+        // Support for any collection type (Laravel, Doctrine)
+        if (CollectionHelper::isCollection($target)) {
+            $arr = CollectionHelper::toArray($target);
+            self::unsetFromArray($arr, $segments);
+            $result = CollectionHelper::fromArrayWithType($arr, $target);
+
+            /** @var array<int|string, mixed>|object $result */
+            return $result;
+        }
+
+        // Support for any entity/model type (Eloquent, Doctrine)
+        if (EntityHelper::isEntity($target)) {
+            EntityHelper::unsetFromEntity($target, $segments);
+
+            return $target;
+        }
+
+        // Fallback for Arrayable interface
+        if (ArrayableHelper::isArrayable($target)) {
+            $arr = ArrayableHelper::toArray($target);
+            self::unsetFromArray($arr, $segments);
+
+            return $arr;
+        }
+
+        if ($target instanceof JsonSerializable) {
+            $arr = (array)$target->jsonSerialize();
+            self::unsetFromArray($arr, $segments);
+
+            return $arr;
+        }
+
+        if (is_object($target)) {
+            self::unsetFromObject($target, $segments);
+
+            return $target;
+        }
+
+        throw new InvalidArgumentException('Unsupported target type: ' . gettype($target));
     }
 
     /**

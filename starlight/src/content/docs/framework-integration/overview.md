@@ -92,6 +92,7 @@ public function store(UserDTO $dto) {
 
 ### Symfony
 
+<!-- skip-test: controller method -->
 ```php
 #[Route('/users', methods: ['POST'])]
 public function create(UserDTO $dto): JsonResponse {
@@ -102,8 +103,8 @@ public function create(UserDTO $dto): JsonResponse {
 ### Plain PHP
 
 ```php
-$dto = UserDTO::fromArray($_POST);
-$dto->validate();
+$data = ['name' => 'John', 'email' => 'john@example.com', 'age' => 30];
+$dto = UserDTO::validateAndCreate($data);
 ```
 
 ## Next Steps

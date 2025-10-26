@@ -11,6 +11,7 @@ RUN apk add --no-cache \
     icu-dev \
     libxml2-dev \
     oniguruma-dev \
+    yaml-dev \
     $PHPIZE_DEPS
 
 # Install PHP extensions
@@ -22,6 +23,9 @@ RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
     bcmath
+
+# Install YAML extension via PECL
+RUN pecl install yaml && docker-php-ext-enable yaml
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

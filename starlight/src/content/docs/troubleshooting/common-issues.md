@@ -62,12 +62,14 @@ php -v
 ### Validation Not Working
 
 **Problem:**
+<!-- skip-test: requires $data variable -->
 ```php
 $dto = UserDTO::fromArray($data);
 // No validation happens
 ```
 
 **Solution:**
+<!-- skip-test: incomplete code snippet -->
 ```php
 // Use validateAndCreate() instead
 $dto = UserDTO::validateAndCreate($data);
@@ -99,6 +101,7 @@ php artisan config:show simple-dto.validation.cache_rules
 ### Custom Validation Not Working
 
 **Problem:**
+<!-- skip-test: incomplete code snippet -->
 ```php
 #[CustomRule]
 public readonly string $field;
@@ -106,6 +109,7 @@ public readonly string $field;
 ```
 
 **Solution:**
+<!-- skip-test: incomplete code snippet -->
 ```php
 // Make sure attribute implements ValidationRule
 use event4u\DataHelpers\SimpleDTO\Attributes\ValidationRule;
@@ -135,6 +139,7 @@ Validator::extend('custom_rule', function($attribute, $value) {
 ### Cast Not Applied
 
 **Problem:**
+<!-- skip-test: incomplete code snippet -->
 ```php
 #[Cast(DateTimeCast::class)]
 public readonly Carbon $date;
@@ -142,6 +147,7 @@ public readonly Carbon $date;
 ```
 
 **Solution:**
+<!-- skip-test: incomplete code snippet -->
 ```php
 // Make sure Carbon is imported
 use Carbon\Carbon;
@@ -159,6 +165,7 @@ if (!class_exists(DateTimeCast::class)) {
 ### Custom Cast Not Working
 
 **Problem:**
+<!-- skip-test: incomplete code snippet -->
 ```php
 #[Cast(MyCast::class)]
 public readonly string $field;
@@ -239,6 +246,7 @@ Cache::flush();
 ### Laravel: Auto-Validation Not Working
 
 **Problem:**
+<!-- skip-test: incomplete code snippet -->
 ```php
 public function store(CreateUserDTO $dto)
 {
@@ -247,6 +255,7 @@ public function store(CreateUserDTO $dto)
 ```
 
 **Solution:**
+<!-- skip-test: incomplete code snippet -->
 ```php
 // Add ValidateRequest attribute
 #[ValidateRequest]
@@ -262,18 +271,20 @@ public function store(Request $request)
 ### Laravel: Eloquent Integration Not Working
 
 **Problem:**
+<!-- skip-test: method does not exist -->
 ```php
 $dto = UserDTO::fromModel($user);
 // Error: Method not found
 ```
 
 **Solution:**
+<!-- skip-test: requires $user variable -->
 ```php
 // Make sure you're using fromArray with model's toArray()
 $dto = UserDTO::fromArray($user->toArray());
 
 // Or use DataMapper for complex mappings
-$dto = DataMapper::from($user->toArray())
+$dto = DataMapper::source($user->toArray())
     ->target(UserDTO::class)
     ->template([
         'name' => 'name',
@@ -286,15 +297,17 @@ $dto = DataMapper::from($user->toArray())
 ### Symfony: Doctrine Integration Not Working
 
 **Problem:**
+<!-- skip-test: method does not exist -->
 ```php
 $dto = UserDTO::fromEntity($user);
 // Error: Method not found
 ```
 
 **Solution:**
+<!-- skip-test: requires $user variable -->
 ```php
 // Use DataMapper for entity mapping
-$dto = DataMapper::from($user)
+$dto = DataMapper::source($user)
     ->target(UserDTO::class)
     ->template([
         'name' => 'name',
@@ -313,6 +326,7 @@ $dto = UserDTO::fromArray([
 ### Symfony: Security Integration Not Working
 
 **Problem:**
+<!-- skip-test: incomplete code snippet -->
 ```php
 #[WhenGranted('ROLE_ADMIN')]
 public readonly ?array $adminData = null;

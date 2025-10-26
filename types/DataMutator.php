@@ -7,31 +7,38 @@ use function PHPStan\Testing\assertType;
 
 // Test set with array
 $data = [];
-$result = DataMutator::set($data, 'user.name', 'Alice');
-assertType('array<int|string, mixed>|object', $result);
+$mutator = DataMutator::make($data);
+assertType('event4u\DataHelpers\DataMutator', $mutator);
+$mutator->set('user.name', 'Alice');
+assertType('array<int|string, mixed>|object', $data);
 
 // Test set with multiple values
 $data = [];
-$result = DataMutator::set($data, ['user.name' => 'Alice', 'user.age' => 30]);
-assertType('array<int|string, mixed>|object', $result);
+$mutator = DataMutator::make($data);
+$mutator->set(['user.name' => 'Alice', 'user.age' => 30]);
+assertType('array<int|string, mixed>|object', $data);
 
 // Test merge
 $data = ['user' => ['name' => 'Alice']];
-$result = DataMutator::merge($data, 'user', ['age' => 30]);
-assertType('array<int|string, mixed>|object', $result);
+$mutator = DataMutator::make($data);
+$mutator->merge('user', ['age' => 30]);
+assertType('array<int|string, mixed>|object', $data);
 
 // Test unset
 $data = ['user' => ['name' => 'Alice', 'age' => 30]];
-$result = DataMutator::unset($data, 'user.age');
-assertType('array<int|string, mixed>|object', $result);
+$mutator = DataMutator::make($data);
+$mutator->unset('user.age');
+assertType('array<int|string, mixed>|object', $data);
 
 // Test unset with multiple paths
 $data = ['user' => ['name' => 'Alice', 'age' => 30, 'email' => 'alice@example.com']];
-$result = DataMutator::unset($data, ['user.age', 'user.email']);
-assertType('array<int|string, mixed>|object', $result);
+$mutator = DataMutator::make($data);
+$mutator->unset(['user.age', 'user.email']);
+assertType('array<int|string, mixed>|object', $data);
 
 // Test with object
 $object = new stdClass();
 $object->user = new stdClass();
-$result = DataMutator::set($object, 'user.name', 'Alice');
-assertType('array<int|string, mixed>|object', $result);
+$mutator = DataMutator::make($object);
+$mutator->set('user.name', 'Alice');
+assertType('array<int|string, mixed>|object', $object);

@@ -32,7 +32,7 @@ $posts = $dto->posts;
 ### Using #[Lazy] Attribute
 
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 
 class UserDTO extends SimpleDTO
 {

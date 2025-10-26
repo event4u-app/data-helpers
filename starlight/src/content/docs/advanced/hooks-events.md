@@ -20,15 +20,18 @@ Hooks allow you to intercept and modify data during mapping:
 ### Creating Hooks
 
 ```php
+use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Hooks;
 use event4u\DataHelpers\Enums\DataMapperHook;
+
+$src = ['user' => ['name' => '  Alice  ']];
+$template = ['name' => '{{ user.name }}'];
 
 $hooks = Hooks::make()
     ->on(DataMapperHook::BeforeTransform, fn($value) => trim($value))
     ->toArray();
 
 $result = DataMapper::source($src)
-    ->target($tgt)
     ->template($template)
     ->hooks($hooks)
     ->map()
@@ -72,7 +75,7 @@ $hooks = Hooks::make()
     ->on(DataMapperHook::AfterTransform, function($value, $context) {
         // Log transformed value
         Log::debug('Transformed', ['value' => $value]);
-        
+
         return $value;
     })
     ->toArray();
@@ -89,7 +92,7 @@ $hooks = Hooks::make()
         if ($value === null) {
             return '__skip__';
         }
-        
+
         return $value;
     })
     ->toArray();
@@ -119,14 +122,14 @@ $hooks = Hooks::make()
         if (is_string($value)) {
             // Trim whitespace
             $value = trim($value);
-            
+
             // Remove HTML tags
             $value = strip_tags($value);
-            
+
             // Sanitize
             $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
         }
-        
+
         return $value;
     })
     ->toArray();
@@ -147,7 +150,7 @@ $hooks = Hooks::make()
             'timestamp' => now(),
         ];
         $context->set('changes', $changes);
-        
+
         return $value;
     })
     ->on(DataMapperHook::AfterAll, function($context) {
@@ -165,17 +168,17 @@ $hooks = Hooks::make()
 $hooks = Hooks::make()
     ->on(DataMapperHook::BeforeTransform, function($value, $context) {
         $path = $context->getPath();
-        
+
         // Validate email
         if ($path === 'email' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
             throw new ValidationException('Invalid email');
         }
-        
+
         // Validate age
         if ($path === 'age' && ($value < 0 || $value > 150)) {
             throw new ValidationException('Invalid age');
         }
-        
+
         return $value;
     })
     ->toArray();
@@ -187,7 +190,7 @@ $hooks = Hooks::make()
 $hooks = Hooks::make()
     ->on(DataMapperHook::BeforeWrite, function($value, $context) {
         $path = $context->getPath();
-        
+
         // Set default values
         if ($value === null) {
             return match($path) {
@@ -197,7 +200,7 @@ $hooks = Hooks::make()
                 default => $value,
             };
         }
-        
+
         return $value;
     })
     ->toArray();
@@ -209,7 +212,7 @@ $hooks = Hooks::make()
 $hooks = Hooks::make()
     ->on(DataMapperHook::AfterTransform, function($value, $context) {
         $path = $context->getPath();
-        
+
         // Transform specific fields
         return match($path) {
             'email' => strtolower($value),
@@ -282,7 +285,7 @@ $hooks = Hooks::make()
         $path = $context->getPath();
         $source = $context->getSource();
         $target = $context->getTarget();
-        
+
         return $value;
     })
     ->toArray();
@@ -299,7 +302,7 @@ $hooks = Hooks::make()
     ->on(DataMapperHook::AfterTransform, function($value, $context) {
         $userId = $context->get('user_id');
         // Use user_id
-        
+
         return $value;
     })
     ->toArray();
@@ -333,12 +336,12 @@ $hooks = Hooks::make()
 $hooks = Hooks::make()
     ->on(DataMapperHook::BeforeWrite, function($value, $context) {
         $path = $context->getPath();
-        
+
         // Skip specific fields
         if (in_array($path, ['password', 'secret'])) {
             return '__skip__';
         }
-        
+
         return $value;
     })
     ->toArray();
@@ -369,7 +372,7 @@ $hooks = Hooks::make()
         if (!validate($value)) {
             throw new ValidationException("Invalid value at {$context->getPath()}");
         }
-        
+
         return $value;
     })
     ->toArray();

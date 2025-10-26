@@ -20,6 +20,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Replace;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Reverse;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Sort;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Sum;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Ucfirst;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Ucwords;
@@ -132,6 +133,7 @@ final class FilterRegistry
 
             // Array transformers
             Count::class,
+            Sum::class,
             First::class,
             Last::class,
             Keys::class,

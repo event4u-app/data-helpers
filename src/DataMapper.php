@@ -25,7 +25,7 @@ class DataMapper
      */
     public static function source(mixed $source): FluentDataMapper
     {
-        return self::createFluentMapper()->source($source);
+        return self::make()->source($source);
     }
 
     /**
@@ -45,7 +45,7 @@ class DataMapper
      */
     public static function sourceFile(string $filePath): FluentDataMapper
     {
-        return self::createFluentMapper()->sourceFile($filePath);
+        return self::make()->sourceFile($filePath);
     }
 
     /**
@@ -55,7 +55,7 @@ class DataMapper
      */
     public static function template(array $template): FluentDataMapper
     {
-        return self::createFluentMapper()->template($template);
+        return self::make()->template($template);
     }
 
     /**
@@ -65,7 +65,7 @@ class DataMapper
      */
     public static function target(mixed $target): FluentDataMapper
     {
-        return self::createFluentMapper()->target($target);
+        return self::make()->target($target);
     }
 
     /**
@@ -75,7 +75,7 @@ class DataMapper
      */
     public static function pipeline(array $filters): FluentDataMapper
     {
-        return self::createFluentMapper()->pipeline($filters);
+        return self::make()->pipeline($filters);
     }
 
     /** Create a DataMapperQuery. */
@@ -95,9 +95,9 @@ class DataMapper
     }
 
     /** Create a new FluentDataMapper instance. */
-    private static function createFluentMapper(): FluentDataMapper
+    private static function make(): FluentDataMapper
     {
-        return new FluentDataMapper();
+        return FluentDataMapper::make();
     }
 
     /** Create a new DataMapperQuery instance. */

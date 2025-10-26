@@ -25,6 +25,16 @@ class DataAccessor
      */
     private static array $pathCache = [];
 
+    /**
+     * Create a new DataAccessor instance (factory method).
+     *
+     * @param mixed $input Initial input (array, DTO, Model, Collection, JSON, XML, scalar)
+     */
+    public static function make(mixed $input): self
+    {
+        return new self($input);
+    }
+
     /** @param mixed $input Initial input (array, DTO, Model, Collection, JSON, XML, scalar) */
     public function __construct(mixed $input)
     {
@@ -186,98 +196,6 @@ class DataAccessor
             'segments' => $segments,
             'hasWildcard' => $hasWildcard,
         ];
-    }
-
-    /**
-     * Static accessor: Get value from data using dot-notation path.
-     *
-     * This is a convenience method that creates a temporary DataAccessor instance.
-     * The path is cached statically for performance.
-     *
-     * Example:
-     *   DataAccessor::getValue($data, 'user.name')
-     *   DataAccessor::getValue($data, 'users.*.email')
-     *
-     * @param mixed $data Source data (array, object, Collection, etc.)
-     * @param string $path Dot-notation path
-     * @param mixed $default Default if path not found
-     */
-    public static function getValue(mixed $data, string $path, mixed $default = null): mixed
-    {
-        $accessor = new self($data);
-
-        return $accessor->get($path, $default);
-    }
-
-    /**
-     * Static accessor: Get value as string.
-     *
-     * @param mixed $data Source data
-     * @param string $path Dot-notation path
-     * @param null|string $default Default if path not found
-     */
-    public static function getStringValue(mixed $data, string $path, ?string $default = null): ?string
-    {
-        $accessor = new self($data);
-
-        return $accessor->getString($path, $default);
-    }
-
-    /**
-     * Static accessor: Get value as integer.
-     *
-     * @param mixed $data Source data
-     * @param string $path Dot-notation path
-     * @param null|int $default Default if path not found
-     */
-    public static function getIntValue(mixed $data, string $path, ?int $default = null): ?int
-    {
-        $accessor = new self($data);
-
-        return $accessor->getInt($path, $default);
-    }
-
-    /**
-     * Static accessor: Get value as float.
-     *
-     * @param mixed $data Source data
-     * @param string $path Dot-notation path
-     * @param null|float $default Default if path not found
-     */
-    public static function getFloatValue(mixed $data, string $path, ?float $default = null): ?float
-    {
-        $accessor = new self($data);
-
-        return $accessor->getFloat($path, $default);
-    }
-
-    /**
-     * Static accessor: Get value as boolean.
-     *
-     * @param mixed $data Source data
-     * @param string $path Dot-notation path
-     * @param null|bool $default Default if path not found
-     */
-    public static function getBoolValue(mixed $data, string $path, ?bool $default = null): ?bool
-    {
-        $accessor = new self($data);
-
-        return $accessor->getBool($path, $default);
-    }
-
-    /**
-     * Static accessor: Get value as array.
-     *
-     * @param mixed $data Source data
-     * @param string $path Dot-notation path
-     * @param null|array<int|string, mixed> $default Default if path not found
-     * @return null|array<int|string, mixed>
-     */
-    public static function getArrayValue(mixed $data, string $path, ?array $default = null): ?array
-    {
-        $accessor = new self($data);
-
-        return $accessor->getArray($path, $default);
     }
 
     /**
@@ -1001,6 +919,83 @@ class DataAccessor
         }
 
         return 'unknown';
+    }
+
+    /**
+     * Check if a path exists (alias for exists()).
+     *
+     * @param string $path Dot-notation path
+     * @return bool True if path exists, false otherwise
+     */
+    public function has(string $path): bool
+    {
+        return $this->exists($path);
+    }
+
+    /**
+     * Check if any of the given paths exist.
+     *
+     * @param array<int, string> $paths Array of dot-notation paths
+     * @return bool True if at least one path exists, false otherwise
+     */
+    public function hasAny(array $paths): bool
+    {
+        foreach ($paths as $path) {
+            if ($this->exists($path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if all of the given paths exist.
+     *
+     * @param array<int, string> $paths Array of dot-notation paths
+     * @return bool True if all paths exist, false otherwise
+     */
+    public function hasAll(array $paths): bool
+    {
+        foreach ($paths as $path) {
+            if (!$this->exists($path)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get values matching a wildcard pattern.
+     *
+     * @param string $pattern Wildcard pattern (e.g., 'users.*.name')
+     * @return array<int|string, mixed> Array of matching values
+     */
+    public function getWildcard(string $pattern): array
+    {
+        $result = $this->get($pattern, []);
+        return is_array($result) ? $result : [];
+    }
+
+    /**
+     * Get all keys from the root level.
+     *
+     * @return array<int, int|string> Array of keys
+     */
+    public function keys(): array
+    {
+        return array_keys($this->data);
+    }
+
+    /**
+     * Get all values from the root level.
+     *
+     * @return array<int, mixed> Array of values
+     */
+    public function values(): array
+    {
+        return array_values($this->data);
     }
 
     /**

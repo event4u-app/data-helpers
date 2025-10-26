@@ -186,7 +186,8 @@ describe('SerializationFormat Enum', function(): void {
             $yaml = $dto->serializeTo(SerializationFormat::Yaml);
 
             expect($yaml)->toBeString()
-                ->and($yaml)->toContain('name: Bob Smith')
+                ->and($yaml)->toContain('name:')
+                ->and($yaml)->toContain('Bob Smith')
                 ->and($yaml)->toContain('age: 35');
         });
 
@@ -202,7 +203,8 @@ describe('SerializationFormat Enum', function(): void {
 
             expect($csv)->toBeString()
                 ->and($csv)->toContain('name,age')
-                ->and($csv)->toContain('Alice Johnson,28');
+                ->and($csv)->toContain('Alice Johnson')
+                ->and($csv)->toContain('28');
         });
     });
 

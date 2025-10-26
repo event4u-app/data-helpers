@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\Config\ConfigHelper;
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Helpers\ConfigHelper;
 
 beforeEach(function(): void {
     DataHelpersConfig::reset();

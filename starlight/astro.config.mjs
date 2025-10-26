@@ -73,7 +73,7 @@ export default defineConfig({
                 },
 				{
 					label: 'DataMapper',
-					collapsed: false,
+					collapsed: true,
 					items: [
 						{ label: 'Introduction', slug: 'main-classes/data-mapper' },
 						{ label: 'Template Expressions', slug: 'advanced/template-expressions' },
@@ -86,7 +86,7 @@ export default defineConfig({
 				},
 				{
 					label: 'SimpleDTO',
-                    collapsed: false,
+                    collapsed: true,
 					items: [
 						{ label: 'Introduction', slug: 'simple-dto/introduction' },
 						{ label: 'Creating DTOs', slug: 'simple-dto/creating-dtos' },

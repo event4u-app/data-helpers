@@ -8,7 +8,7 @@ DataFilter provides a fluent API for filtering and transforming existing data co
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\DataFilter;
+use event4u\DataHelpers\DataFilter;
 
 $products = [
     ['id' => 1, 'name' => 'Laptop', 'price' => 1299, 'category' => 'Electronics', 'stock' => 5],
@@ -22,7 +22,7 @@ $products = [
 // Filter electronics with price between $100-$500, in stock, sorted by price
 $result = DataFilter::query($products)
     ->where('category', '=', 'Electronics')
-    ->between('price', [100, 500])
+    ->between('price', 100, 500)
     ->where('stock', '>', 0)
     ->orderBy('price', 'DESC')
     ->get();
@@ -74,7 +74,7 @@ DataFilter provides SQL-like filtering for in-memory data collections.
 ### Creating a Query
 
 ```php
-use Event4u\DataHelpers\DataFilter;
+use event4u\DataHelpers\DataFilter;
 
 // Start with data
 $data = [
@@ -95,7 +95,7 @@ $result = DataFilter::query($data)
     ->where('age', '>', 25)
     ->get();
 
-// Result: [Alice (30), Charlie (35)]
+// $result = [Alice (30), Charlie (35)]
 ```
 
 ### Multiple Conditions
@@ -107,7 +107,7 @@ $result = DataFilter::query($data)
     ->where('age', '<', 35)
     ->get();
 
-// Result: [Alice (30)]
+// $result = [Alice (30)]
 ```
 
 ### Getting Results
@@ -227,7 +227,7 @@ $result = DataFilter::query($users)
     ->whereNotIn('role', ['user'])
     ->get();
 
-// Result: [Alice, Charlie]
+// $result = [Alice, Charlie]
 ```
 
 ## WHERE NULL / NOT NULL
@@ -259,7 +259,7 @@ $result = DataFilter::query($users)
     ->whereNotNull('email')
     ->get();
 
-// Result: [Alice, Charlie]
+// $result = [Alice, Charlie]
 ```
 
 ## LIKE Pattern Matching
@@ -334,7 +334,7 @@ $products = [
 
 // Price between 100 and 300 (inclusive)
 $result = DataFilter::query($products)
-    ->between('price', [100, 300])
+    ->between('price', 100, 300)
     ->get();
 
 // Result: [['id' => 2, 'price' => 150], ['id' => 3, 'price' => 250]]
@@ -348,7 +348,7 @@ $result = DataFilter::query($products)
     ->notBetween('price', [100, 300])
     ->get();
 
-// Result: [['id' => 1, 'price' => 50], ['id' => 4, 'price' => 350]]
+// $result = [['id' => 1, 'price' => 50], ['id' => 4, 'price' => 350]]
 ```
 
 ### Date Ranges
@@ -362,7 +362,7 @@ $orders = [
 
 // Orders in January 2024
 $result = DataFilter::query($orders)
-    ->between('date', ['2024-01-01', '2024-01-31'])
+    ->between('date', '2024-01-01', '2024-01-31')
     ->get();
 ```
 
@@ -461,7 +461,7 @@ $result = DataFilter::query($products)
     ->offset(2)
     ->get();
 
-// Result: [Product 3, Product 4, Product 5]
+// $result = [Product 3, Product 4, Product 5]
 ```
 
 ### Pagination
@@ -544,8 +544,7 @@ Execute queries and retrieve results.
 $results = DataFilter::query($data)
     ->where('status', '=', 'active')
     ->get();
-
-// Returns: array of matching items
+// $results = array of matching items
 ```
 
 ### first() - Get First Result
@@ -556,8 +555,7 @@ $first = DataFilter::query($data)
     ->where('status', '=', 'active')
     ->orderBy('created_at', 'DESC')
     ->first();
-
-// Returns: single item or null if no match
+// $first = single item or null if no match
 ```
 
 ### count() - Count Results
@@ -567,8 +565,7 @@ $first = DataFilter::query($data)
 $count = DataFilter::query($data)
     ->where('status', '=', 'active')
     ->count();
-
-// Returns: integer count
+// $count = integer count
 ```
 
 ## Real-World Examples
@@ -588,7 +585,7 @@ $products = [
 // Filter electronics with price between $100-$500, in stock, sorted by rating
 $result = DataFilter::query($products)
     ->where('category', '=', 'Electronics')
-    ->between('price', [100, 500])
+    ->between('price', 100, 500)
     ->where('stock', '>', 0)
     ->orderBy('rating', 'DESC')
     ->get();
@@ -694,7 +691,7 @@ $totalRevenue = array_sum(array_column($shippedOrders, 'total'));
 
 // Find orders in date range
 $januaryOrders = DataFilter::query($orders)
-    ->between('date', ['2024-01-10', '2024-01-12'])
+    ->between('date', '2024-01-10', '2024-01-12')
     ->get();
 
 // Result: [Alice, Bob, Charlie]
@@ -709,7 +706,7 @@ $januaryOrders = DataFilter::query($orders)
 $result = DataFilter::query($products)
     ->where('category', '=', 'Electronics')
     ->where('stock', '>', 0)
-    ->between('price', [100, 500])
+    ->between('price', 100, 500)
     ->orderBy('rating', 'DESC')
     ->limit(10)
     ->get();
@@ -753,7 +750,7 @@ $activeUsers = DataFilter::query($users)
     ->where('status', '=', 'active')
     ->get();
 
-$result = DataMapper::from(['users' => $activeUsers])
+$result = DataMapper::source(['users' => $activeUsers])
     ->template([
         'users' => [
             '*' => [

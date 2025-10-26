@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMutator;
+use RuntimeException;
 
 /**
  * Trait providing default implementations for DTOs.
@@ -279,6 +280,87 @@ trait SimpleDTOTrait
     }
 
     /**
+     * Create a DTO instance from a JSON string.
+     *
+     * This is an alias for fromSource() that accepts JSON strings.
+     * The JSON will be decoded and processed through the full mapping pipeline.
+     *
+     * @param string $json JSON string
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     */
+    public static function fromJson(
+        string $json,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        return static::fromSource($json, $template, $filters, $pipeline);
+    }
+
+    /**
+     * Create a DTO instance from an XML string.
+     *
+     * This is an alias for fromSource() that accepts XML strings.
+     * The XML will be parsed and processed through the full mapping pipeline.
+     *
+     * @param string $xml XML string
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     */
+    public static function fromXml(
+        string $xml,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        return static::fromSource($xml, $template, $filters, $pipeline);
+    }
+
+    /**
+     * Create a DTO instance from a YAML string.
+     *
+     * This is an alias for fromSource() that accepts YAML strings.
+     * The YAML will be parsed and processed through the full mapping pipeline.
+     *
+     * @param string $yaml YAML string
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     */
+    public static function fromYaml(
+        string $yaml,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        return static::fromSource($yaml, $template, $filters, $pipeline);
+    }
+
+    /**
+     * Create a DTO instance from a CSV string.
+     *
+     * This is an alias for fromSource() that accepts CSV strings.
+     * The CSV will be parsed and processed through the full mapping pipeline.
+     * Note: CSV parsing expects the first row to contain headers.
+     *
+     * @param string $csv CSV string
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     */
+    public static function fromCsv(
+        string $csv,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        return static::fromSource($csv, $template, $filters, $pipeline);
+    }
+
+    /**
      * Create a type-safe collection of DTOs.
      *
      * @param array<int|string, mixed> $items
@@ -381,14 +463,32 @@ trait SimpleDTOTrait
     public function set(string $path, mixed $value): static
     {
         $data = $this->toArrayRecursive();
-        $updatedData = DataMutator::set($data, $path, $value);
+        DataMutator::make($data)->set($path, $value);
 
         // Ensure we have an array with string keys
-        if (!is_array($updatedData)) {
+        if (!is_array($data)) {
             return static::fromArray([]);
         }
 
-        /** @var array<string, mixed> $updatedData */
-        return static::fromArray($updatedData);
+        /** @var array<string, mixed> $data */
+        return static::fromArray($data);
     }
+
+    /**
+     * Convert DTO to JSON string.
+     *
+     * @param int $flags JSON encoding flags (default: 0)
+     * @return string JSON representation of the DTO
+     */
+    public function toJson(int $flags = 0): string
+    {
+        $json = json_encode($this->toArray(), $flags);
+        if (false === $json) {
+            throw new RuntimeException('Failed to encode DTO to JSON: ' . json_last_error_msg());
+        }
+
+        return $json;
+    }
+
+    // toXml(), toYaml(), and toCsv() methods are provided by SimpleDTOSerializerTrait
 }

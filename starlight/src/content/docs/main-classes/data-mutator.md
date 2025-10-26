@@ -3,41 +3,44 @@ title: DataMutator
 description: Write, merge, and unset values in nested data structures using dot-notation paths with wildcard support
 ---
 
-DataMutator provides methods to modify nested data structures including arrays, objects, DTOs, Laravel Collections, and Eloquent Models. All operations are pure and return a new/updated structure without side effects.
+DataMutator provides methods to modify nested data structures including arrays, objects, DTOs, Laravel Collections, and Eloquent Models. All operations work with references and modify the target in-place using a fluent API.
 
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\DataMutator;
 
-// Set values in nested structure
+// Set values in nested structure (fluent chaining)
 $target = [];
-$target = DataMutator::set($target, 'user.profile.name', 'Alice');
-$target = DataMutator::set($target, 'user.profile.email', 'alice@example.com');
-// Result: ['user' => ['profile' => ['name' => 'Alice', 'email' => 'alice@example.com']]]
+DataMutator::make($target)
+    ->set('user.profile.name', 'Alice')
+    ->set('user.profile.email', 'alice@example.com');
+// $target is now: ['user' => ['profile' => ['name' => 'Alice', 'email' => 'alice@example.com']]]
 
 // Merge data
-$target = DataMutator::merge($target, 'user.profile', ['age' => 30, 'city' => 'Berlin']);
-// Result: ['user' => ['profile' => ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30, 'city' => 'Berlin']]]
+DataMutator::make($target)->merge('user.profile', ['age' => 30, 'city' => 'Berlin']);
+// $target is now: ['user' => ['profile' => ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30, 'city' => 'Berlin']]]
 
 // Update multiple items with wildcard
 $data = ['users' => [['active' => false], ['active' => false]]];
-$data = DataMutator::set($data, 'users.*.active', true);
-// Result: ['users' => [['active' => true], ['active' => true]]]
+DataMutator::make($data)->set('users.*.active', true);
+// $data is now: ['users' => [['active' => true], ['active' => true]]]
 
 // Remove values
 $data = ['users' => [['name' => 'Alice', 'password' => 'secret'], ['name' => 'Bob', 'password' => 'secret2']]];
-$data = DataMutator::unset($data, 'users.*.password');
-// Result: ['users' => [['name' => 'Alice'], ['name' => 'Bob']]]
+DataMutator::make($data)->unset('users.*.password');
+// $data is now: ['users' => [['name' => 'Alice'], ['name' => 'Bob']]]
 ```
 
 ## Introduction
 
 DataMutator provides three main operations:
 
-- **`set($target, $path, $value)`** - Set a value at a dot-path
-- **`merge($target, $path, $data)`** - Merge data into an existing branch
-- **`unset($target, $path)`** - Remove a value at a path
+- **`set($path, $value)`** - Set a value at a dot-path
+- **`merge($path, $data)`** - Merge data into an existing branch
+- **`unset($path)`** - Remove a value at a path
+
+All operations are chainable and modify the target in-place.
 
 ### Supported Data Types
 
@@ -51,11 +54,11 @@ DataMutator works with:
 
 ### Key Features
 
-- **Pure operations** - All methods return new/updated structures
+- **Fluent API** - Chainable methods for clean code
+- **Reference mutations** - Modifies target in-place for performance
 - **Wildcard support** - Modify multiple items at once
 - **Deep wildcards** - Multiple wildcards in one path
 - **Type preservation** - Maintains data types during operations
-- **Immutable** - Original data is never modified
 
 ## set() - Setting Values
 
@@ -64,19 +67,18 @@ Set a value at a dot-notation path.
 ### Basic Usage
 
 ```php
-use Event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\DataMutator;
 
 // Start with empty array
 $target = [];
 
-// Set nested value
-$target = DataMutator::set($target, 'user.profile.name', 'Alice');
-// Result: ['user' => ['profile' => ['name' => 'Alice']]]
+// Set nested value (fluent chaining)
+DataMutator::make($target)
+    ->set('user.profile.name', 'Alice')
+    ->set('user.profile.email', 'alice@example.com')
+    ->set('user.settings.theme', 'dark');
 
-// Add more values
-$target = DataMutator::set($target, 'user.profile.email', 'alice@example.com');
-$target = DataMutator::set($target, 'user.settings.theme', 'dark');
-// Result: [
+// $target is now: [
 //   'user' => [
 //     'profile' => ['name' => 'Alice', 'email' => 'alice@example.com'],
 //     'settings' => ['theme' => 'dark']
@@ -90,8 +92,8 @@ $target = DataMutator::set($target, 'user.settings.theme', 'dark');
 $target = ['user' => ['name' => 'Alice']];
 
 // Overwrite existing value
-$target = DataMutator::set($target, 'user.name', 'Bob');
-// Result: ['user' => ['name' => 'Bob']]
+DataMutator::make($target)->set('user.name', 'Bob');
+// $target = ['user' => ['name' => 'Bob']]
 ```
 
 ### Numeric Indices
@@ -100,9 +102,9 @@ $target = DataMutator::set($target, 'user.name', 'Bob');
 $target = [];
 
 // Set values at specific indices
-$target = DataMutator::set($target, 'users.0.name', 'Alice');
-$target = DataMutator::set($target, 'users.1.name', 'Bob');
-// Result: ['users' => [['name' => 'Alice'], ['name' => 'Bob']]]
+DataMutator::make($target)->set('users.0.name', 'Alice');
+DataMutator::make($target)->set('users.1.name', 'Bob');
+// $target = ['users' => [['name' => 'Alice'], ['name' => 'Bob']]]
 ```
 
 ### Wildcards in set()
@@ -112,8 +114,8 @@ Use wildcards to set multiple values at once.
 ```php
 // Set same value for all items
 $data = ['users' => [['active' => false], ['active' => false], ['active' => false]]];
-$data = DataMutator::set($data, 'users.*.active', true);
-// Result: ['users' => [['active' => true], ['active' => true], ['active' => true]]]
+DataMutator::make($data)->set('users.*.active', true);
+// $data = ['users' => [['active' => true], ['active' => true], ['active' => true]]]
 ```
 
 ### Wildcard with Accessor Results
@@ -121,7 +123,7 @@ $data = DataMutator::set($data, 'users.*.active', true);
 When the source value comes from DataAccessor (with full path keys), wildcards expand automatically:
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 $source = ['users' => [
     ['email' => 'alice@example.com'],
@@ -130,11 +132,11 @@ $source = ['users' => [
 
 $accessor = new DataAccessor($source);
 $emails = $accessor->get('users.*.email');
-// Returns: ['users.0.email' => 'alice@example.com', 'users.1.email' => 'bob@example.com']
+// $emails = ['users.0.email' => 'alice@example.com', 'users.1.email' => 'bob@example.com']
 
 // Write to new structure with wildcard
 $target = [];
-$target = DataMutator::set($target, 'contacts.*.email', $emails);
+DataMutator::make($target)->set('contacts.*.email', $emails);
 // Result: ['contacts' => [
 //   0 => ['email' => 'alice@example.com'],
 //   1 => ['email' => 'bob@example.com']
@@ -153,8 +155,8 @@ $data = [
     ],
 ];
 
-$data = DataMutator::set($data, 'departments.*.users.*.active', true);
-// Result: All 'active' fields set to true across all departments and users
+DataMutator::make($data)->set('departments.*.users.*.active', true);
+// $data = All 'active' fields set to true across all departments and users
 ```
 
 
@@ -168,8 +170,8 @@ Merge data into an existing branch at a path.
 $target = ['config' => ['limits' => ['cpu' => 1]]];
 
 // Merge additional data
-$target = DataMutator::merge($target, 'config.limits', ['memory' => 512, 'disk' => 1024]);
-// Result: ['config' => ['limits' => ['cpu' => 1, 'memory' => 512, 'disk' => 1024]]]
+DataMutator::make($target)->merge('config.limits', ['memory' => 512, 'disk' => 1024]);
+// $target = ['config' => ['limits' => ['cpu' => 1, 'memory' => 512, 'disk' => 1024]]]
 ```
 
 ### Merge Strategy
@@ -188,12 +190,12 @@ $target = [
     ],
 ];
 
-$target = DataMutator::merge($target, 'config', [
+DataMutator::make($target)->merge('config', [
     'database' => ['charset' => 'utf8mb4'],
     'queue' => ['driver' => 'sync'],
 ]);
 
-// Result: [
+// $target = [
 //   'config' => [
 //     'database' => ['host' => 'localhost', 'port' => 3306, 'charset' => 'utf8mb4'],
 //     'cache' => ['driver' => 'redis'],
@@ -209,8 +211,8 @@ Numeric-indexed arrays use index-based replacement (not append) for deterministi
 ```php
 $target = ['list' => [10 => 'x', 11 => 'y']];
 
-$target = DataMutator::merge($target, 'list', [11 => 'Y', 12 => 'Z']);
-// Result: ['list' => [10 => 'x', 11 => 'Y', 12 => 'Z']]
+DataMutator::make($target)->merge('list', [11 => 'Y', 12 => 'Z']);
+// $target = ['list' => [10 => 'x', 11 => 'Y', 12 => 'Z']]
 ```
 
 ### Merge Configuration
@@ -219,13 +221,13 @@ $target = DataMutator::merge($target, 'list', [11 => 'Y', 12 => 'Z']);
 $config = ['database' => ['host' => 'localhost']];
 
 // Merge additional settings
-$config = DataMutator::merge($config, 'database', [
+DataMutator::make($config)->merge('database', [
     'port' => 3306,
     'charset' => 'utf8mb4',
     'collation' => 'utf8mb4_unicode_ci',
 ]);
 
-// Result: [
+// $config = [
 //   'database' => [
 //     'host' => 'localhost',
 //     'port' => 3306,
@@ -246,9 +248,9 @@ $data = [
 ];
 
 // Merge additional data for all users
-$data = DataMutator::merge($data, 'users.*', ['active' => true, 'verified' => true]);
+DataMutator::make($data)->merge('users.*', ['active' => true, 'verified' => true]);
 
-// Result: [
+// $data = [
 //   'users' => [
 //     ['name' => 'Alice', 'role' => 'user', 'active' => true, 'verified' => true],
 //     ['name' => 'Bob', 'role' => 'user', 'active' => true, 'verified' => true]
@@ -272,8 +274,8 @@ $target = [
 ];
 
 // Remove password
-$target = DataMutator::unset($target, 'user.password');
-// Result: ['user' => ['name' => 'Alice', 'email' => 'alice@example.com']]
+DataMutator::make($target)->unset('user.password');
+// $target = ['user' => ['name' => 'Alice', 'email' => 'alice@example.com']]
 ```
 
 ### Remove with Wildcards
@@ -288,8 +290,8 @@ $data = [
 ];
 
 // Remove all passwords
-$data = DataMutator::unset($data, 'users.*.password');
-// Result: ['users' => [
+DataMutator::make($data)->unset('users.*.password');
+// $data = ['users' => [
 //   ['name' => 'Alice'],
 //   ['name' => 'Bob'],
 //   ['name' => 'Charlie']
@@ -316,7 +318,7 @@ $data = [
 ];
 
 // Remove all temp_id fields
-$data = DataMutator::unset($data, 'orders.*.items.*.temp_id');
+DataMutator::make($data)->unset('orders.*.items.*.temp_id');
 // Result: All temp_id fields removed from nested items
 ```
 
@@ -331,9 +333,9 @@ $response = [
 ];
 
 // Remove sensitive fields
-$response = DataMutator::unset($response, 'users.*.password');
-$response = DataMutator::unset($response, 'users.*.api_key');
-// Result: Only id and name remain for each user
+DataMutator::make($response)->unset('users.*.password');
+DataMutator::make($response)->unset('users.*.api_key');
+// $response = Only id and name remain for each user
 ```
 
 
@@ -350,10 +352,10 @@ $dto = new #[\AllowDynamicProperties] class {
 };
 
 // Set property
-$dto = DataMutator::set($dto, 'name', 'Alice');
+DataMutator::make($dto)->set('name', 'Alice');
 
 // Merge array property
-$dto = DataMutator::merge($dto, 'tags', ['php', 'laravel']);
+DataMutator::make($dto)->merge('tags', ['php', 'laravel']);
 
 // Result: Object with name='Alice' and tags=['php', 'laravel']
 ```
@@ -376,26 +378,18 @@ class User {
 }
 
 $user = new User();
-$user = DataMutator::set($user, 'name', 'Alice');
-$user = DataMutator::set($user, 'profile.bio', 'Software Engineer');
-$user = DataMutator::set($user, 'profile.website', 'https://example.com');
+DataMutator::make($user)->set('name', 'Alice');
+DataMutator::make($user)->set('profile.bio', 'Software Engineer');
+DataMutator::make($user)->set('profile.website', 'https://example.com');
 ```
 
 ### Working with DTOs
 
 ```php
-class UserDTO {
-    public function __construct(
-        public string $name = '',
-        public string $email = '',
-        public array $roles = [],
-    ) {}
-}
-
-$dto = new UserDTO();
-$dto = DataMutator::set($dto, 'name', 'Alice');
-$dto = DataMutator::set($dto, 'email', 'alice@example.com');
-$dto = DataMutator::merge($dto, 'roles', ['admin', 'editor']);
+$dto = new UserWithRolesDTO();
+DataMutator::make($dto)->set('name', 'Alice');
+DataMutator::make($dto)->set('email', 'alice@example.com');
+DataMutator::make($dto)->merge('roles', ['admin', 'editor']);
 ```
 
 ## Working with Eloquent Models
@@ -404,12 +398,13 @@ DataMutator works with Eloquent Models and their relationships.
 
 ### Basic Model Mutation
 
+<!-- skip-test: Requires Laravel Eloquent -->
 ```php
 $user = User::first();
 
 // Update model attributes
-$user = DataMutator::set($user, 'name', 'Alice Updated');
-$user = DataMutator::set($user, 'email', 'alice.updated@example.com');
+DataMutator::make($user)->set('name', 'Alice Updated');
+DataMutator::make($user)->set('email', 'alice.updated@example.com');
 
 // Note: Changes are not automatically saved to database
 $user->save();
@@ -417,14 +412,15 @@ $user->save();
 
 ### Updating Relationships
 
+<!-- skip-test: Requires Laravel Eloquent -->
 ```php
 $user = User::with('posts')->first();
 
 // Update first post's title
-$user = DataMutator::set($user, 'posts.0.title', 'Updated Title');
+DataMutator::make($user)->set('posts.0.title', 'Updated Title');
 
 // Update all posts' status
-$user = DataMutator::set($user, 'posts.*.published', true);
+DataMutator::make($user)->set('posts.*.published', true);
 
 // Save changes
 $user->push(); // Saves model and relationships
@@ -432,14 +428,15 @@ $user->push(); // Saves model and relationships
 
 ### Nested Relationships
 
+<!-- skip-test: Requires Laravel Eloquent -->
 ```php
 $user = User::with('posts.comments')->first();
 
 // Update nested relationship
-$user = DataMutator::set($user, 'posts.0.comments.0.text', 'Updated comment');
+DataMutator::make($user)->set('posts.0.comments.0.text', 'Updated comment');
 
 // Remove sensitive data from all comments
-$user = DataMutator::unset($user, 'posts.*.comments.*.author_ip');
+DataMutator::make($user)->unset('posts.*.comments.*.author_ip');
 ```
 
 ## Working with Collections
@@ -459,7 +456,7 @@ $data = [
 ];
 
 // Update all users
-$data = DataMutator::set($data, 'users.*.active', true);
+DataMutator::make($data)->set('users.*.active', true);
 ```
 
 ### Nested Collections
@@ -477,7 +474,7 @@ $data = [
 ];
 
 // Update nested collection items
-$data = DataMutator::set($data, 'orders.0.items.*.qty', 5);
+DataMutator::make($data)->set('orders.0.items.*.qty', 5);
 ```
 
 ## Common Patterns
@@ -488,13 +485,13 @@ $data = DataMutator::set($data, 'orders.0.items.*.qty', 5);
 $target = [];
 
 // Build structure step by step
-$target = DataMutator::set($target, 'user.profile.name', 'Alice');
-$target = DataMutator::set($target, 'user.profile.email', 'alice@example.com');
-$target = DataMutator::set($target, 'user.profile.age', 30);
-$target = DataMutator::set($target, 'user.settings.theme', 'dark');
-$target = DataMutator::set($target, 'user.settings.language', 'en');
+DataMutator::make($target)->set('user.profile.name', 'Alice');
+DataMutator::make($target)->set('user.profile.email', 'alice@example.com');
+DataMutator::make($target)->set('user.profile.age', 30);
+DataMutator::make($target)->set('user.settings.theme', 'dark');
+DataMutator::make($target)->set('user.settings.language', 'en');
 
-// Result: [
+// $target = [
 //   'user' => [
 //     'profile' => ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30],
 //     'settings' => ['theme' => 'dark', 'language' => 'en']
@@ -505,7 +502,7 @@ $target = DataMutator::set($target, 'user.settings.language', 'en');
 ### Bulk Update with Accessor Results
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 // Read from source
 $source = ['users' => [
@@ -518,8 +515,8 @@ $emails = $accessor->get('users.*.email');
 
 // Write to target
 $target = [];
-$target = DataMutator::set($target, 'contacts.*.email', $emails);
-$target = DataMutator::set($target, 'contacts.*.verified', true);
+DataMutator::make($target)->set('contacts.*.email', $emails);
+DataMutator::make($target)->set('contacts.*.verified', true);
 ```
 
 ### Configuration Management
@@ -532,14 +529,14 @@ $config = [
 ];
 
 // Merge environment-specific config
-$config = DataMutator::merge($config, 'database', [
+DataMutator::make($config)->merge('database', [
     'port' => 3306,
     'charset' => 'utf8mb4',
     'prefix' => 'app_',
 ]);
 
 // Add cache config
-$config = DataMutator::merge($config, 'cache', [
+DataMutator::make($config)->merge('cache', [
     'driver' => 'redis',
     'prefix' => 'myapp',
 ]);
@@ -556,26 +553,29 @@ $data = [
 ];
 
 // Remove all sensitive fields
-$data = DataMutator::unset($data, 'users.*.password');
-$data = DataMutator::unset($data, 'users.*.api_key');
-$data = DataMutator::unset($data, 'users.*.internal_notes');
+DataMutator::make($data)->unset('users.*.password');
+DataMutator::make($data)->unset('users.*.api_key');
+DataMutator::make($data)->unset('users.*.internal_notes');
 
-// Result: Only id and name remain
+// $data = Only id and name remain
 ```
 
 
 ## Best Practices
 
-### Always Assign Return Value
+### Use Fluent API
 
-DataMutator operations are pure and return a new/updated structure. Always assign the return value:
+DataMutator uses a fluent API with `make()` factory method:
 
 ```php
-// ✅ Correct
-$target = DataMutator::set($target, 'user.name', 'Alice');
+// ✅ Correct - fluent API
+$data = [];
+DataMutator::make($data)->set('user.name', 'Alice');
 
-// ❌ Wrong - changes are lost
-DataMutator::set($target, 'user.name', 'Alice');
+// ✅ Also correct - chaining
+DataMutator::make($data)
+    ->set('user.name', 'Alice')
+    ->set('user.email', 'alice@example.com');
 ```
 
 ### Use Wildcards for Bulk Operations
@@ -589,7 +589,7 @@ foreach ($data['users'] as $key => $user) {
 }
 
 // ✅ Efficient
-$data = DataMutator::set($data, 'users.*.active', true);
+DataMutator::make($data)->set('users.*.active', true);
 ```
 
 ### Combine with DataAccessor
@@ -597,15 +597,16 @@ $data = DataMutator::set($data, 'users.*.active', true);
 Use DataAccessor to read and DataMutator to write:
 
 ```php
-use Event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataAccessor;
 
 // Read from source
+$source = ['users' => [['email' => 'alice@example.com'], ['email' => 'bob@example.com']]];
 $accessor = new DataAccessor($source);
 $emails = $accessor->get('users.*.email');
 
 // Write to target
 $target = [];
-$target = DataMutator::set($target, 'contacts.*.email', $emails);
+DataMutator::make($target)->set('contacts.*.email', $emails);
 ```
 
 ### Use DataMapper for Complex Transformations
@@ -615,12 +616,12 @@ For complex data transformations, use DataMapper instead of multiple DataMutator
 ```php
 // ❌ Multiple mutations
 $target = [];
-$target = DataMutator::set($target, 'name', $source['user']['name']);
-$target = DataMutator::set($target, 'email', $source['user']['email']);
-$target = DataMutator::set($target, 'age', $source['user']['profile']['age']);
+DataMutator::make($target)->set('name', $source['user']['name']);
+DataMutator::make($target)->set('email', $source['user']['email']);
+DataMutator::make($target)->set('age', $source['user']['profile']['age']);
 
 // ✅ Use DataMapper
-$target = DataMapper::from($source)
+$target = DataMapper::source($source)
     ->template([
         'name' => '{{ user.name }}',
         'email' => '{{ user.email }}',
@@ -636,10 +637,10 @@ Chain multiple operations for cleaner code:
 
 ```php
 $config = [];
-$config = DataMutator::set($config, 'app.name', 'MyApp');
-$config = DataMutator::set($config, 'app.env', 'production');
-$config = DataMutator::merge($config, 'database', ['host' => 'localhost', 'port' => 3306]);
-$config = DataMutator::merge($config, 'cache', ['driver' => 'redis']);
+DataMutator::make($config)->set('app.name', 'MyApp');
+DataMutator::make($config)->set('app.env', 'production');
+DataMutator::make($config)->merge('database', ['host' => 'localhost', 'port' => 3306]);
+DataMutator::make($config)->merge('cache', ['driver' => 'redis']);
 ```
 
 ## Performance Notes
@@ -652,12 +653,12 @@ $config = DataMutator::merge($config, 'cache', ['driver' => 'redis']);
 
 ```php
 // ❌ Slow on large datasets
-$data = DataMutator::set($hugeDataset, 'users.*.active', true);
+DataMutator::make($hugeDataset)->set('users.*.active', true);
 
 // ✅ Filter first
 $activeUsers = array_filter($hugeDataset['users'], fn($u) => $u['status'] === 'pending');
 $data = ['users' => $activeUsers];
-$data = DataMutator::set($data, 'users.*.active', true);
+DataMutator::make($data)->set('users.*.active', true);
 ```
 
 ### Deep Wildcards
@@ -666,7 +667,7 @@ Multiple wildcards can be expensive on large nested structures:
 
 ```php
 // Can be slow on large datasets
-$data = DataMutator::set($data, 'departments.*.teams.*.users.*.active', true);
+DataMutator::make($data)->set('departments.*.teams.*.users.*.active', true);
 
 // Consider limiting depth or using DataMapper
 ```
@@ -679,24 +680,28 @@ For very large datasets, consider batching operations:
 // Process in chunks
 $chunks = array_chunk($data['users'], 1000);
 foreach ($chunks as $chunk) {
-    $chunk = DataMutator::set(['users' => $chunk], 'users.*.active', true);
+    $chunkData = ['users' => $chunk];
+    DataMutator::make($chunkData)->set('users.*.active', true);
     // Process chunk
 }
 ```
 
-## Immutability
+## Reference Mutations
 
-All DataMutator operations are pure and return new/updated structures:
+DataMutator works with references and modifies the target in-place:
 
 ```php
-$original = ['user' => ['name' => 'Alice']];
-$updated = DataMutator::set($original, 'user.name', 'Bob');
+$data = ['user' => ['name' => 'Alice']];
+DataMutator::make($data)->set('user.name', 'Bob');
 
-// $original is unchanged
-// ['user' => ['name' => 'Alice']]
-
-// $updated has the new value
+// $data is now modified
 // ['user' => ['name' => 'Bob']]
+
+// To preserve the original, clone it first
+$original = ['user' => ['name' => 'Alice']];
+$copy = $original;
+DataMutator::make($copy)->set('user.name', 'Bob');
+// $original is unchanged, $copy is modified
 ```
 
 This ensures:

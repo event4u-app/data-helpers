@@ -715,6 +715,49 @@ describe('DataFilter - Edge Cases', function(): void {
         expect($values[0]['name'])->toBe('Monitor'); // 400
         expect($values[1]['name'])->toBe('Keyboard'); // 80
     });
+
+    it('handles null values in SELECT', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John', 'email' => null],
+        ];
+
+        $result = DataFilter::query($data)
+            ->only(['name', 'email'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['name' => 'John', 'email' => null]);
+    });
+
+    it('handles numeric keys', function(): void {
+        $data = [
+            [0 => 'value0', 1 => 'value1', 2 => 'value2'],
+        ];
+
+        $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line argument.type */
+            ->only([0, 1])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe([0 => 'value0', 1 => 'value1']);
+    });
+
+    it('handles deeply nested transformations', function(): void {
+        $data = [
+            ['user' => ['profile' => ['name' => 'john']]],
+        ];
+
+        $result = DataFilter::query($data)
+            ->map(fn($item): array => ['userName' => strtoupper($item['user']['profile']['name'])])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['userName' => 'JOHN']);
+    });
 });
 
 describe('DataFilter - Input/Output Formats', function(): void {
@@ -867,5 +910,441 @@ describe('DataFilter - Input/Output Formats', function(): void {
 
         expect($result)->toBeArray();
         expect($result)->toHaveCount(0);
+    });
+});
+
+describe('DataFilter - SELECT Operator', function(): void {
+    it('selects only specified fields', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John', 'age' => 25, 'email' => 'john@example.com'],
+            ['id' => 2, 'name' => 'Jane', 'age' => 30, 'email' => 'jane@example.com'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->only(['name', 'age'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(2);
+        expect($result[0])->toBe(['name' => 'John', 'age' => 25]);
+        expect($result[1])->toBe(['name' => 'Jane', 'age' => 30]);
+    });
+
+    it('handles empty field list', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->only([])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe([]);
+    });
+
+    it('handles non-existent fields', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->only(['name', 'email', 'phone'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['name' => 'John']);
+    });
+
+    it('handles non-array items', function(): void {
+        $data = ['string1', 'string2'];
+
+        $result = DataFilter::query($data)
+            ->only(['field'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(2);
+        expect($result[0])->toBe('string1');
+        expect($result[1])->toBe('string2');
+    });
+
+    it('preserves array keys', function(): void {
+        $data = [
+            'first' => ['id' => 1, 'name' => 'John', 'age' => 25],
+            'second' => ['id' => 2, 'name' => 'Jane', 'age' => 30],
+        ];
+
+        $result = DataFilter::query($data)
+            ->only(['name'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveKey('first');
+        expect($result)->toHaveKey('second');
+        expect($result['first'])->toBe(['name' => 'John']);
+    });
+
+    it('works with chained operators', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John', 'age' => 25, 'active' => true],
+            ['id' => 2, 'name' => 'Jane', 'age' => 30, 'active' => false],
+            ['id' => 3, 'name' => 'Bob', 'age' => 35, 'active' => true],
+        ];
+
+        $result = DataFilter::query($data)
+            ->where('active', true)
+            ->only(['name', 'age'])
+            ->get();
+
+        expect($result)->toBeArray();
+        $values = array_values($result);
+        expect($values)->toHaveCount(2);
+        expect($values[0])->toBe(['name' => 'John', 'age' => 25]);
+        expect($values[1])->toBe(['name' => 'Bob', 'age' => 35]);
+    });
+});
+
+describe('DataFilter - EXCEPT Operator', function(): void {
+    it('excludes specified fields', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John', 'age' => 25, 'password' => 'secret'],
+            ['id' => 2, 'name' => 'Jane', 'age' => 30, 'password' => 'secret2'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->except(['password'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(2);
+        expect($result[0])->toBe(['id' => 1, 'name' => 'John', 'age' => 25]);
+        expect($result[1])->toBe(['id' => 2, 'name' => 'Jane', 'age' => 30]);
+    });
+
+    it('excludes multiple fields', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John', 'age' => 25, 'password' => 'secret', 'token' => 'abc'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->except(['password', 'token'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['id' => 1, 'name' => 'John', 'age' => 25]);
+    });
+
+    it('handles empty exclude list', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->except([])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['id' => 1, 'name' => 'John']);
+    });
+
+    it('handles non-existent fields', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->except(['password', 'token'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['id' => 1, 'name' => 'John']);
+    });
+
+    it('handles non-array items', function(): void {
+        $data = ['string1', 'string2'];
+
+        $result = DataFilter::query($data)
+            ->except(['field'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(2);
+        expect($result[0])->toBe('string1');
+        expect($result[1])->toBe('string2');
+    });
+});
+
+describe('DataFilter - MAP Operator', function(): void {
+    it('transforms items with callback', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'john'],
+            ['id' => 2, 'name' => 'jane'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->map(fn($item): array => ['id' => $item['id'], 'name' => strtoupper($item['name'])])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(2);
+        expect($result[0])->toBe(['id' => 1, 'name' => 'JOHN']);
+        expect($result[1])->toBe(['id' => 2, 'name' => 'JANE']);
+    });
+
+    it('can add new fields', function(): void {
+        $data = [
+            ['name' => 'John', 'age' => 25],
+        ];
+
+        $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line arrayUnpacking.nonIterable */
+            ->map(fn($item): array => [...$item, 'adult' => 18 <= $item['age']])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['name' => 'John', 'age' => 25, 'adult' => true]);
+    });
+
+    it('can completely transform structure', function(): void {
+        $data = [
+            ['firstName' => 'John', 'lastName' => 'Doe'],
+        ];
+
+        $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
+            ->map(fn($item): array => ['fullName' => $item['firstName'] . ' ' . $item['lastName']])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['fullName' => 'John Doe']);
+    });
+
+    it('preserves array keys', function(): void {
+        $data = [
+            'first' => ['name' => 'John'],
+            'second' => ['name' => 'Jane'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->map(fn($item): array => ['name' => strtoupper($item['name'])])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveKey('first');
+        expect($result)->toHaveKey('second');
+        expect($result['first'])->toBe(['name' => 'JOHN']);
+    });
+
+    it('works with chained operators', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'john', 'age' => 25],
+            ['id' => 2, 'name' => 'jane', 'age' => 30],
+        ];
+
+        $result = DataFilter::query($data)
+            ->where('age', '>', 20)
+            ->map(fn($item): array => ['name' => strtoupper($item['name'])])
+            ->get();
+
+        expect($result)->toBeArray();
+        $values = array_values($result);
+        expect($values)->toHaveCount(2);
+        expect($values[0])->toBe(['name' => 'JOHN']);
+    });
+
+    it('handles empty data', function(): void {
+        $data = [];
+
+        $result = DataFilter::query($data)
+            ->map(fn($item): array => ['transformed' => true])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(0);
+    });
+});
+
+describe('DataFilter - FILTER Operator', function(): void {
+    it('filters items with callback', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John', 'active' => true],
+            ['id' => 2, 'name' => 'Jane', 'active' => false],
+            ['id' => 3, 'name' => 'Bob', 'active' => true],
+        ];
+
+        $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
+            ->filter(fn($item): mixed => $item['active'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(2);
+        expect($result[0]['name'])->toBe('John');
+        expect($result[1]['name'])->toBe('Bob');
+    });
+
+    it('reindexes array after filtering', function(): void {
+        $data = [
+            ['id' => 1, 'active' => false],
+            ['id' => 2, 'active' => true],
+            ['id' => 3, 'active' => false],
+        ];
+
+        $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
+            ->filter(fn($item): mixed => $item['active'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect(array_keys($result))->toBe([0]);
+        expect($result[0]['id'])->toBe(2);
+    });
+
+    it('filters with complex conditions', function(): void {
+        $data = [
+            ['id' => 1, 'age' => 15, 'score' => 80],
+            ['id' => 2, 'age' => 25, 'score' => 90],
+            ['id' => 3, 'age' => 30, 'score' => 70],
+        ];
+
+        $result = DataFilter::query($data)
+            ->filter(fn($item): bool => 18 <= $item['age'] && 80 <= $item['score'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0]['id'])->toBe(2);
+    });
+
+    it('handles empty data', function(): void {
+        $data = [];
+
+        $result = DataFilter::query($data)
+            ->filter(fn($item): true => true)
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(0);
+    });
+
+    it('works with chained operators', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'john', 'age' => 25, 'active' => true],
+            ['id' => 2, 'name' => 'jane', 'age' => 30, 'active' => false],
+            ['id' => 3, 'name' => 'bob', 'age' => 35, 'active' => true],
+        ];
+
+        $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
+            ->filter(fn($item): mixed => $item['active'])
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
+            ->map(fn($item): array => ['name' => strtoupper($item['name']), 'age' => $item['age']])
+            ->only(['name'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(2);
+        expect($result[0])->toBe(['name' => 'JOHN']);
+        expect($result[1])->toBe(['name' => 'BOB']);
+    });
+});
+
+describe('DataFilter - make() Factory Method', function(): void {
+    it('creates instance with make()', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John'],
+        ];
+
+        $result = DataFilter::make($data)
+            ->where('id', 1)
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+    });
+
+    it('is equivalent to query()', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John'],
+            ['id' => 2, 'name' => 'Jane'],
+        ];
+
+        $result1 = DataFilter::make($data)->where('id', 1)->get();
+        $result2 = DataFilter::query($data)->where('id', 1)->get();
+
+        expect($result1)->toBe($result2);
+    });
+});
+
+describe('DataFilter - Combined Operators', function(): void {
+    it('combines SELECT and EXCEPT', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'John', 'age' => 25, 'password' => 'secret', 'email' => 'john@example.com'],
+        ];
+
+        $result = DataFilter::query($data)
+            ->only(['name', 'age', 'email', 'password'])
+            ->except(['password'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['name' => 'John', 'age' => 25, 'email' => 'john@example.com']);
+    });
+
+    it('combines WHERE, MAP, and FILTER', function(): void {
+        $data = [
+            ['id' => 1, 'name' => 'john', 'age' => 15],
+            ['id' => 2, 'name' => 'jane', 'age' => 25],
+            ['id' => 3, 'name' => 'bob', 'age' => 30],
+        ];
+
+        $result = DataFilter::query($data)
+            ->where('age', '>=', 18)
+            /** @phpstan-ignore-next-line arrayUnpacking.nonIterable */
+            ->map(fn($item): array => [...$item, 'name' => strtoupper($item['name']), 'adult' => true])
+            /** @phpstan-ignore-next-line argument.type */
+            ->filter(fn($item): bool => 30 > $item['age'])
+            ->only(['name', 'age'])
+            ->get();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveCount(1);
+        expect($result[0])->toBe(['name' => 'JANE', 'age' => 25]);
+    });
+
+    it('handles complex pipeline', function(): void {
+        $data = [
+            ['id' => 1, 'firstName' => 'john', 'lastName' => 'doe', 'age' => 25, 'active' => true],
+            ['id' => 2, 'firstName' => 'jane', 'lastName' => 'smith', 'age' => 30, 'active' => false],
+            ['id' => 3, 'firstName' => 'bob', 'lastName' => 'jones', 'age' => 35, 'active' => true],
+        ];
+
+        $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line argument.type */
+            ->filter(fn($item): mixed => $item['active'])
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
+            ->map(fn($item): array => [
+                'id' => $item['id'],
+                'fullName' => ucfirst($item['firstName']) . ' ' . ucfirst($item['lastName']),
+                'age' => $item['age'],
+            ])
+            ->where('age', '>', 25)
+            ->only(['fullName', 'age'])
+            ->get();
+
+        expect($result)->toBeArray();
+        $values = array_values($result);
+        expect($values)->toHaveCount(1);
+        expect($values[0])->toBe(['fullName' => 'Bob Jones', 'age' => 35]);
     });
 });

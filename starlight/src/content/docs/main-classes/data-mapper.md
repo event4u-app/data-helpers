@@ -8,7 +8,7 @@ DataMapper provides a modern, fluent API for transforming data between different
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper;
 
 $source = [
     'user' => [
@@ -23,7 +23,7 @@ $source = [
 ];
 
 // Approach 1: Fluent API with query builder
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->query('orders.*')
         ->where('status', '=', 'shipped')
         ->orderBy('total', 'DESC')
@@ -59,7 +59,7 @@ $template = [
     ],
 ];
 
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->template($template)
     ->map()
     ->getTarget();
@@ -96,7 +96,7 @@ $source = [
 // Load template from database (created with drag-and-drop editor)
 $template = Mappings::find(3)->template;
 
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->template($template)
     ->map()
     ->getTarget();
@@ -115,8 +115,9 @@ Use cases:
 
 The DataMapper uses a fluent, chainable API:
 
+<!-- skip-test: API overview with placeholders -->
 ```php
-DataMapper::from($source)           // Start with source data
+DataMapper::source($source)           // Start with source data
     ->target($target)               // Optional: Set target object/array
     ->template($template)           // Define mapping template
     ->query($path)                  // Start query builder
@@ -138,7 +139,8 @@ DataMapper::from($source)           // Start with source data
 ### Simple Template Mapping
 
 ```php
-$result = DataMapper::from($source)
+$source = ['user' => ['name' => 'John', 'email' => 'john@example.com', 'profile' => ['age' => 30]]];
+$result = DataMapper::source($source)
     ->template([
         'name' => '{{ user.name }}',
         'email' => '{{ user.email }}',
@@ -159,6 +161,7 @@ Templates use `{{ }}` for dynamic values:
 
 ### Mapping to Objects
 
+<!-- skip-test: declares UserDTO class -->
 ```php
 class UserDTO
 {
@@ -166,7 +169,7 @@ class UserDTO
     public string $email;
 }
 
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->target(UserDTO::class)
     ->template([
         'name' => '{{ user.name }}',
@@ -179,7 +182,11 @@ $result = DataMapper::from($source)
 ### Nested Structures
 
 ```php
-$result = DataMapper::from($source)
+$source = [
+    'user' => ['name' => 'John', 'email' => 'john@example.com', 'phone' => '555-1234'],
+    'orders' => [['id' => 1, 'total' => 100], ['id' => 2, 'total' => 200]],
+];
+$result = DataMapper::source($source)
     ->template([
         'customer' => [
             'name' => '{{ user.name }}',
@@ -211,7 +218,7 @@ Instead of using the fluent query API, you can use **WHERE/ORDER BY operators di
 
 ```php
 // Fluent API approach
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->query('orders.*')
         ->where('total', '>', 100)
         ->orderBy('total', 'DESC')
@@ -229,7 +236,7 @@ $result = DataMapper::from($source)
     ->getTarget();
 
 // Template-based approach (same result)
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->template([
         'items' => [
             'WHERE' => [
@@ -324,11 +331,12 @@ Apply filters to all mapped values globally.
 
 ### Global Filters
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
-use Event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->pipeline([
         new TrimStrings(),
         new UppercaseStrings(),
@@ -345,8 +353,9 @@ $result = DataMapper::from($source)
 
 ### Adding Filters
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
-$mapper = DataMapper::from($source)
+$mapper = DataMapper::source($source)
     ->template($template);
 
 // Add single filter
@@ -377,8 +386,9 @@ Apply filters to specific properties only.
 
 ### Using setFilter()
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->setFilter('name', new TrimStrings(), new UppercaseStrings())
     ->setFilter('email', new TrimStrings(), new LowercaseStrings())
     ->template([
@@ -394,8 +404,9 @@ $result = DataMapper::from($source)
 
 ### Using Property API
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->property('name')
         ->setFilter(new TrimStrings(), new UppercaseStrings())
         ->end()
@@ -409,6 +420,7 @@ $result = DataMapper::from($source)
 
 ### Nested Properties
 
+<!-- skip-test: Code snippet example -->
 ```php
 // Works with dot-notation
 ->setFilter('user.profile.bio', new TrimStrings())
@@ -424,7 +436,8 @@ The Property API provides focused access to individual properties.
 ### Get Property Target
 
 ```php
-$mapper = DataMapper::from($source)
+$source = ['user' => ['name' => 'John', 'email' => 'john@example.com']];
+$mapper = DataMapper::source($source)
     ->template([
         'name' => '{{ user.name }}',
         'email' => '{{ user.email }}',
@@ -432,7 +445,7 @@ $mapper = DataMapper::from($source)
 
 // Get mapping target for property
 $target = $mapper->property('name')->getTarget();
-// Returns: '{{ user.name }}'
+// $target = '{{ user.name }}'
 ```
 
 ### Get Property Filters
@@ -441,7 +454,7 @@ $target = $mapper->property('name')->getTarget();
 $mapper->setFilter('name', new TrimStrings());
 
 $filters = $mapper->property('name')->getFilter();
-// Returns: [TrimStrings]
+// $filters = [TrimStrings]
 ```
 
 ### Get Mapped Value
@@ -449,11 +462,12 @@ $filters = $mapper->property('name')->getFilter();
 ```php
 // Execute mapping and get value for specific property
 $value = $mapper->property('name')->getMappedValue();
-// Returns: 'John Doe' (after applying filters)
+// $value = 'John Doe' (after applying filters)
 ```
 
 ### Reset Property Filters
 
+<!-- skip-test: Import conflict with other examples -->
 ```php
 $mapper->property('name')
     ->setFilter(new TrimStrings())
@@ -492,7 +506,7 @@ $source = [
     'breed' => 'Golden Retriever',
 ];
 
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->target(Animal::class)
     ->discriminator('type', [
         'dog' => Dog::class,
@@ -523,7 +537,7 @@ $result = DataMapper::from($source)
 
 ```php
 // If discriminator value not found, falls back to original target
-$result = DataMapper::from(['type' => 'unknown'])
+$result = DataMapper::source(['type' => 'unknown'])
     ->target(Animal::class)
     ->discriminator('type', [
         'dog' => Dog::class,
@@ -543,7 +557,7 @@ Create independent copies of mapper configurations.
 ### Copy Configuration
 
 ```php
-$baseMapper = DataMapper::from($source)
+$baseMapper = DataMapper::source($source)
     ->target(User::class)
     ->template([
         'name' => '{{ name }}',
@@ -563,7 +577,8 @@ $extendedMapper = $baseMapper->copy()
 ### Extend Template
 
 ```php
-$mapper = DataMapper::from($source)
+$source = ['user' => ['name' => 'John', 'email' => 'john@example.com', 'phone' => '555-1234']];
+$mapper = DataMapper::source($source)
     ->template([
         'name' => '{{ user.name }}',
     ]);
@@ -584,7 +599,8 @@ Manage template operators dynamically.
 ### Reset to Original
 
 ```php
-$mapper = DataMapper::from($source)
+$source = ['products' => [['id' => 1, 'status' => 'active', 'price' => 100], ['id' => 2, 'status' => 'inactive', 'price' => 50]]];
+$mapper = DataMapper::source($source)
     ->template([
         'items' => [
             'WHERE' => ['{{ products.*.status }}' => 'active'],

@@ -95,9 +95,16 @@ composer require event4u/data-helpers
 Access deeply nested data with dot notation and wildcards:
 
 ```php
+$data = [
+    'users' => [
+        ['email' => 'alice@example.com'],
+        ['email' => 'bob@example.com'],
+    ],
+];
+
 $accessor = new DataAccessor($data);
 $emails = $accessor->get('users.*.email');
-// ['alice@example.com', 'bob@example.com']
+// $emails = ['alice@example.com', 'bob@example.com']
 ```
 
 📖 **[DataAccessor Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-accessor/)**
@@ -107,8 +114,11 @@ $emails = $accessor->get('users.*.email');
 Safely modify nested structures:
 
 ```php
-$data = DataMutator::set($data, 'user.profile.name', 'Alice');
-$data = DataMutator::merge($data, 'user.profile', ['age' => 30]);
+$data = ['user' => ['profile' => []]];
+DataMutator::make($data)
+    ->set('user.profile.name', 'Alice')
+    ->merge('user.profile', ['age' => 30]);
+// $data is now modified: ['user' => ['profile' => ['name' => 'Alice', 'age' => 30]]]
 ```
 
 📖 **[DataMutator Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-mutator/)**
@@ -118,11 +128,18 @@ $data = DataMutator::merge($data, 'user.profile', ['age' => 30]);
 Filter and query data with SQL-like API:
 
 ```php
+$products = [
+    ['id' => 1, 'name' => 'Laptop', 'category' => 'Electronics', 'price' => 1200],
+    ['id' => 2, 'name' => 'Mouse', 'category' => 'Electronics', 'price' => 25],
+    ['id' => 3, 'name' => 'Monitor', 'category' => 'Electronics', 'price' => 400],
+];
+
 $result = DataFilter::query($products)
     ->where('category', '=', 'Electronics')
     ->where('price', '>', 100)
     ->orderBy('price', 'DESC')
     ->get();
+// Result: [Laptop ($1200), Monitor ($400)]
 ```
 
 📖 **[DataFilter Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-filter/)**
@@ -151,6 +168,15 @@ $user = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com', 'ag
 Map between different data structures with templates:
 
 ```php
+$source = [
+    'user' => ['name' => 'John Doe', 'email' => 'john@example.com'],
+    'orders' => [
+        ['id' => 1, 'status' => 'shipped', 'total' => 100],
+        ['id' => 2, 'status' => 'pending', 'total' => 50],
+        ['id' => 3, 'status' => 'shipped', 'total' => 200],
+    ],
+];
+
 $result = DataMapper::from($source)
     ->template([
         'customer_name' => '{{ user.name }}',
@@ -237,6 +263,13 @@ $result = DataMapper::from($jsonData)
 Transform data with composable filters:
 
 ```php
+use Tests\Utils\Docu\TrimStrings;
+use Tests\Utils\Docu\LowercaseEmails;
+use Tests\Utils\Docu\SkipEmptyValues;
+
+$source = ['name' => '  John  ', 'email' => 'JOHN@EXAMPLE.COM'];
+$mapping = ['name' => '{{ name }}', 'email' => '{{ email }}'];
+
 $result = DataMapper::from($source)
     ->template($mapping)
     ->pipeline([
@@ -246,6 +279,8 @@ $result = DataMapper::from($source)
     ])
     ->map()
     ->getTarget();
+
+// $result = ['name' => 'John', 'email' => 'john@example.com']
 ```
 
 📖 **[Pipeline Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-mapper/pipelines/)**
