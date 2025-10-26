@@ -48,26 +48,33 @@ $result = DataMapper::query()
 ### Creating a Query
 
 ```php
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\DataMapperQuery;
+
 // Static factory method
-$query = \event4u\DataHelpers\DataMapper::query();
+$query = DataMapper::query();
 
 // Or use constructor
-$query = new \event4u\DataHelpers\DataMapper\DataMapperQuery();
+$query = new DataMapperQuery();
 ```
 
 ### Adding a Data Source
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
 $products = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
-$query = \event4u\DataHelpers\DataMapper::query();
+$query = DataMapper::query();
 $query->source('products', $products);
 ```
 
 ### Executing the Query
 
 ```php
+use event4u\DataHelpers\DataMapper;
+
 $products = [['id' => 1, 'name' => 'Product 1', 'category' => 'Electronics', 'price' => 150], ['id' => 2, 'name' => 'Product 2', 'category' => 'Furniture', 'price' => 80]];
-$query = \event4u\DataHelpers\DataMapper::query();
+$query = DataMapper::query();
 $query->source('products', $products);
 $result = $query->get();
 ```

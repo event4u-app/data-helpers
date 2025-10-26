@@ -236,7 +236,9 @@ $hooks = [
 Extend HookInvoker for new filter patterns:
 
 ```php
-class CustomHookInvoker extends \event4u\DataHelpers\DataMapper\HookInvoker
+use event4u\DataHelpers\DataMapper\HookInvoker;
+
+class CustomHookInvoker extends HookInvoker
 {
     protected static function matchPrefixPattern(string $value, string $pattern): bool
     {
@@ -253,10 +255,12 @@ class CustomHookInvoker extends \event4u\DataHelpers\DataMapper\HookInvoker
 Wrap WildcardHandler for custom behavior:
 
 ```php
+use event4u\DataHelpers\DataMapper\WildcardHandler;
+
 function iterateEmails(array $items, callable $onItem): void
 {
-    $items = \event4u\DataHelpers\DataMapper\WildcardHandler::normalizeWildcardArray($items);
-    \event4u\DataHelpers\DataMapper\WildcardHandler::iterateWildcardItems(
+    $items = WildcardHandler::normalizeWildcardArray($items);
+    WildcardHandler::iterateWildcardItems(
         $items,
         skipNull: true,
         reindexWildcard: true,
