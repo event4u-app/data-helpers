@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
+use event4u\DataHelpers\Converters\CsvConverter;
+use event4u\DataHelpers\Converters\XmlConverter;
+use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\DataFilter;
 use event4u\DataHelpers\Exceptions\ConversionException;
 use Illuminate\Support\Collection;
@@ -113,6 +116,49 @@ final readonly class DataMapperResult
         }
 
         throw new ConversionException('Cannot convert result to array. Type: ' . get_debug_type($this->result));
+    }
+
+    /**
+     * Convert result to XML string.
+     *
+     * @param string $rootElement Root element name (default: 'root')
+     * @throws ConversionException If conversion fails
+     */
+    public function toXml(string $rootElement = 'root'): string
+    {
+        $converter = new XmlConverter($rootElement);
+        $array = $this->toArray();
+        /** @var array<string, mixed> $array */
+        return $converter->fromArray($array);
+    }
+
+    /**
+     * Convert result to YAML string.
+     *
+     * @param int $indent Indentation level (default: 2)
+     * @throws ConversionException If conversion fails
+     */
+    public function toYaml(int $indent = 2): string
+    {
+        $converter = new YamlConverter($indent);
+        $array = $this->toArray();
+        /** @var array<string, mixed> $array */
+        return $converter->fromArray($array);
+    }
+
+    /**
+     * Convert result to CSV string.
+     *
+     * @param bool $includeHeaders Whether to include headers (default: true)
+     * @param string $delimiter Field delimiter (default: ',')
+     * @throws ConversionException If conversion fails
+     */
+    public function toCsv(bool $includeHeaders = true, string $delimiter = ','): string
+    {
+        $converter = new CsvConverter($includeHeaders, $delimiter);
+        $array = $this->toArray();
+        /** @var array<string, mixed> $array */
+        return $converter->fromArray($array);
     }
 
     /**
