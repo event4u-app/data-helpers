@@ -19,7 +19,7 @@ use Tests\Utils\Models\Department;
 describe('DataMapper pipeQuery() with file loading', function(): void {
     describe('Pipeline with file loading - Array targets', function(): void {
         it('loads JSON file and applies transformers to array target', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $target = [];
             $mapping = [
@@ -41,7 +41,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
         });
 
         it('loads XML file and applies transformers to array target', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             $target = [];
             $mapping = [
@@ -64,7 +64,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
         });
 
         it('applies multiple transformers in sequence', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $target = [];
             $mapping = [
@@ -84,7 +84,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
 
     describe('Pipeline with file loading - Model targets', function(): void {
         it('loads JSON file and maps to Eloquent Model with transformers', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $company = new Company();
 
@@ -123,7 +123,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
         })->group('laravel');
 
         it('loads XML file and maps to Eloquent Model with transformers', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             $company = new Company();
 
@@ -156,7 +156,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
 
     describe('Pipeline with file loading - Entity targets', function(): void {
         it('loads JSON file and maps to Doctrine Entity with transformers', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $company = new EntityCompany();
 
@@ -196,7 +196,7 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
         })->group('doctrine');
 
         it('loads XML file and maps to Doctrine Entity with transformers', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             $company = new EntityCompany();
 

@@ -70,7 +70,7 @@ test('MappingOptions → it chains multiple with methods', function(): void {
 });
 
 test('MappingOptions → it works with mapFromFile()', function(): void {
-    $filePath = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+    $filePath = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
     $target = [];
     $mapping = ['companyName' => '{{ company.name }}'];
 

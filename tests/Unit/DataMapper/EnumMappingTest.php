@@ -124,7 +124,7 @@ describe('DataMapper Enum Support', function(): void {
     });
 
     it('maps enum from XML file', function(): void {
-        $xmlFile = __DIR__ . '/../../utils/XMLs/version1.xml';
+        $xmlFile = __DIR__ . '/../../Utils/XMLs/version1.xml';
 
         $mapping = [
             'salutation' => '{{ contact_persons.contact_person.salutation }}',

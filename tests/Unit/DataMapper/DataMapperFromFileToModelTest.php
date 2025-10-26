@@ -11,7 +11,7 @@ use Tests\Utils\XMLs\Models\Project;
 describe('DataMapper to Model', function(): void {
     describe('Automatic relation mapping', function(): void {
         it('maps JSON file to Company model with automatic relation mapping', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Map everything in one go - DataMapper automatically detects and maps the relation!
             $company = new Company();
@@ -125,7 +125,7 @@ describe('DataMapper to Model', function(): void {
         });
 
         it('maps XML file to Company model with automatic relation mapping', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map everything in one go - DataMapper automatically detects and maps the relation!
             $company = new Company();
@@ -241,8 +241,8 @@ describe('DataMapper to Model', function(): void {
 
     describe('Model casting and comparison', function(): void {
         it('compares JSON and XML models with identical casted values', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map JSON to Company model
             $jsonCompany = new Company();
@@ -308,8 +308,8 @@ describe('DataMapper to Model', function(): void {
         });
 
         it('maps departments to Department models with casts', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map JSON departments to Department models
             $jsonDept = new Department();
@@ -362,7 +362,7 @@ describe('DataMapper to Model', function(): void {
 
     describe('Legacy XML tests', function(): void {
         it('loads and maps from XML file', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/XMLs/version1.xml';
+            $xmlFile = __DIR__ . '/../../Utils/XMLs/version1.xml';
 
             $project = new Project();
 
@@ -386,7 +386,7 @@ describe('DataMapper to Model', function(): void {
         });
 
         it('maps nested XML structure to model', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/XMLs/version2.xml';
+            $xmlFile = __DIR__ . '/../../Utils/XMLs/version2.xml';
 
             $project = new Project();
 

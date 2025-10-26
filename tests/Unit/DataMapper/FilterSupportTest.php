@@ -46,7 +46,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
         });
 
         it('applies single filter to simple field', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $mapping = [
                 'email' => '{{ company.email | lower }}',
@@ -58,7 +58,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
         });
 
         it('applies filter chain to simple field', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $mapping = [
                 'name' => '{{ company.name | lower | ucfirst }}',
@@ -70,7 +70,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
         });
 
         it('applies filter to wildcard field', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $mapping = [
                 'dept_names' => '{{ company.departments.*.name | upper }}',
@@ -85,7 +85,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
         });
 
         it('applies filter chain to wildcard field', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $mapping = [
                 'dept_codes' => '{{ company.departments.*.code | lower | ucfirst }}',
@@ -100,7 +100,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
         });
 
         it('applies filter with default value', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $mapping = [
                 'missing' => '{{ company.missing_field | default:"N/A" | upper }}',
@@ -133,7 +133,7 @@ describe('Filter Support Across All Mapping Methods', function(): void {
         });
 
         it('combines filters with pipeline transformers', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $mapping = [
                 'email' => '{{ company.email | lower }}',

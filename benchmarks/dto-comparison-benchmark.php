@@ -119,7 +119,7 @@ echo "╚═══════════════════════�
 echo "\n";
 
 // Prepare test data
-$jsonFile = __DIR__ . '/../tests/utils/json/data_mapper_from_file_test.json';
+$jsonFile = __DIR__ . '/../tests/Utils/json/data_mapper_from_file_test.json';
 $mapping = [
     'name' => '{{ company.name }}',
     'registration_number' => '{{ company.registration_number }}',

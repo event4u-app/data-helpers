@@ -10,7 +10,7 @@ use Tests\Utils\DTOs\ProjectDto;
 describe('DataMapper to DTO', function(): void {
     describe('Automatic nested DTO mapping', function(): void {
         it('maps JSON file to Company DTO with nested DTOs', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Map everything in one go - DataMapper automatically creates nested DTOs!
             $company = new CompanyDto();
@@ -117,7 +117,7 @@ describe('DataMapper to DTO', function(): void {
         });
 
         it('maps XML file to Company DTO with nested DTOs', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             $company = new CompanyDto();
             $mapping = [
@@ -192,8 +192,8 @@ describe('DataMapper to DTO', function(): void {
 
     describe('DTO comparison', function(): void {
         it('maps JSON vs XML to DTOs with identical results', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // JSON mapping
             $jsonCompany = new CompanyDto();
@@ -255,7 +255,7 @@ describe('DataMapper to DTO', function(): void {
         });
 
         it('maps departments to Department DTOs', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $departments = [];
             $mapping = [

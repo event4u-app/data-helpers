@@ -11,7 +11,7 @@ use Tests\Utils\Entities\Project;
 describe('DataMapper to Doctrine Entity', function(): void {
     describe('Automatic relation mapping', function(): void {
         it('maps JSON file to Company entity with automatic relation mapping', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Map everything in one go - DataMapper automatically detects and maps the relation!
             $company = new Company();
@@ -125,7 +125,7 @@ describe('DataMapper to Doctrine Entity', function(): void {
         });
 
         it('maps XML file to Company entity with automatic relation mapping', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map everything in one go - DataMapper automatically detects and maps the relation!
             $company = new Company();
@@ -241,8 +241,8 @@ describe('DataMapper to Doctrine Entity', function(): void {
 
     describe('Entity comparison', function(): void {
         it('compares JSON and XML entities with identical values', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map JSON to Company entity
             $jsonCompany = new Company();
@@ -306,8 +306,8 @@ describe('DataMapper to Doctrine Entity', function(): void {
         });
 
         it('maps departments to Department entities', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map JSON departments to Department entity
             $jsonDept = new Department();

@@ -75,7 +75,7 @@ function formatTime(float $seconds): string
 }
 
 // Prepare test data
-$jsonFile = $rootDir . '/tests/utils/json/data_mapper_from_file_test.json';
+$jsonFile = $rootDir . '/tests/Utils/json/data_mapper_from_file_test.json';
 $mapping = [
     'name' => '{{ company.name }}',
     'registration_number' => '{{ company.registration_number }}',

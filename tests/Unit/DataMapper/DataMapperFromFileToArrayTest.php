@@ -7,8 +7,8 @@ use event4u\DataHelpers\DataMapper;
 describe('DataMapper to Array', function(): void {
     describe('Basic array mapping', function(): void {
         it('loads identical data from JSON and XML files', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map from JSON
             $jsonTarget = [];
@@ -74,7 +74,7 @@ describe('DataMapper to Array', function(): void {
 
     describe('Nested array mapping', function(): void {
         it('maps complete Company with Departments in single DataMapper call from JSON', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Map everything in one go - Company fields + Department arrays
             $target = [];
@@ -129,7 +129,7 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('maps complete Company with Departments in single DataMapper call from XML', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map everything in one go - Company fields + Department arrays
             $target = [];
@@ -184,7 +184,7 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('maps nested departments from JSON to array', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $target = [];
 
@@ -217,7 +217,7 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('maps nested departments from XML to array', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             $target = [];
 
@@ -252,7 +252,7 @@ describe('DataMapper to Array', function(): void {
 
     describe('Wildcard mapping', function(): void {
         it('maps wildcard paths to arrays from JSON', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $target = [];
 
@@ -285,7 +285,7 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('maps wildcard paths to arrays from XML', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             $target = [];
 
@@ -318,7 +318,7 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('maps individual indexed paths from JSON', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $target = [];
 
@@ -344,7 +344,7 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('maps individual indexed paths from XML', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             $target = [];
 
@@ -370,8 +370,8 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('compares wildcard results from JSON and XML', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map from JSON
             $jsonTarget = [];
@@ -405,7 +405,7 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('maps wildcard paths with reindexWildcard from JSON', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $target = [];
 
@@ -429,7 +429,7 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('maps wildcard paths without reindexWildcard from JSON', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $target = [];
 
@@ -453,8 +453,8 @@ describe('DataMapper to Array', function(): void {
         });
 
         it('compares complete nested structure from JSON and XML', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map complete structure from JSON
             $jsonTarget = [];
