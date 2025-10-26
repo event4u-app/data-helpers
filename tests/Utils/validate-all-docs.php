@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../vendor/autoload.php';
 
-use Tests\Unit\Docs\DocumentationExampleExtractor;
+use Tests\Utils\Helpers\DocumentationExampleExtractor;
 
 $docsPath = __DIR__ . '/../../starlight/src/content/docs';
 $files = DocumentationExampleExtractor::findMarkdownFiles($docsPath);
