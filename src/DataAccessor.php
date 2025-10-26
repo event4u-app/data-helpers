@@ -974,7 +974,8 @@ class DataAccessor
      */
     public function getWildcard(string $pattern): array
     {
-        return $this->get($pattern, []);
+        $result = $this->get($pattern, []);
+        return is_array($result) ? $result : [];
     }
 
     /**

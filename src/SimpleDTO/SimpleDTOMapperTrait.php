@@ -351,7 +351,10 @@ trait SimpleDTOMapperTrait
             if (str_starts_with($trimmed, '<')) {
                 $parsed = @simplexml_load_string($source);
                 if (false !== $parsed) {
-                    $source = json_decode(json_encode($parsed), true);
+                    $json = json_encode($parsed);
+                    if (false !== $json) {
+                        $source = json_decode($json, true);
+                    }
                 }
             }
 
@@ -387,16 +390,29 @@ trait SimpleDTOMapperTrait
             elseif (str_contains($source, ',') || str_contains($source, "\n")) {
                 $lines = str_getcsv($source, "\n");
                 if (count($lines) > 1) {
-                    $headers = str_getcsv(array_shift($lines));
-                    $data = [];
-                    foreach ($lines as $line) {
-                        $values = str_getcsv($line);
-                        if (count($values) === count($headers)) {
-                            $data[] = array_combine($headers, $values);
+                    $firstLine = array_shift($lines);
+                    if (null !== $firstLine) {
+                        $headers = str_getcsv($firstLine);
+                        // Filter out null values from headers
+                        $headers = array_filter($headers, fn($h): bool => null !== $h);
+                        $data = [];
+                        foreach ($lines as $line) {
+                            if (null !== $line) {
+                                $values = str_getcsv($line);
+                                if (count($values) === count($headers)) {
+                                    /** @phpstan-ignore-next-line argument.type */
+                                    $combined = array_combine($headers, $values);
+                                    /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+                                    if (is_array($combined)) {
+                                        $data[] = $combined;
+                                    }
+                                }
+                            }
                         }
-                    }
-                    if ([] !== $data) {
-                        $source = $data[0] ?? []; // Take first row for single DTO
+                        if ([] !== $data) {
+                            /** @phpstan-ignore-next-line nullCoalesce.offset */
+                            $source = $data[0] ?? []; // Take first row for single DTO
+                        }
                     }
                 }
             }
@@ -436,9 +452,6 @@ trait SimpleDTOMapperTrait
         }
 
         // Step 8: Auto-cast string values to proper types (useful for CSV)
-        if (!is_array($data)) {
-            throw new InvalidArgumentException('Data must be an array before auto-casting');
-        }
         /** @var array<string, mixed> $data */
         $data = static::autoCastValues($data);
 
@@ -478,7 +491,7 @@ trait SimpleDTOMapperTrait
      * @param array<string, mixed> $data
      * @return array<string, mixed>
      */
-    private static function autoCastValues(array $data): array
+    protected static function autoCastValues(array $data): array
     {
         try {
             $reflection = new ReflectionClass(static::class);
@@ -529,7 +542,7 @@ trait SimpleDTOMapperTrait
      * Only casts if the value is numeric or boolean.
      * Strings that are not numeric are NOT casted.
      */
-    private static function castToInt(mixed $value): mixed
+    protected static function castToInt(mixed $value): mixed
     {
         // Already an int
         if (is_int($value)) {
@@ -555,7 +568,7 @@ trait SimpleDTOMapperTrait
      *
      * Only casts if the value is numeric or boolean.
      */
-    private static function castToFloat(mixed $value): mixed
+    protected static function castToFloat(mixed $value): mixed
     {
         // Already a float
         if (is_float($value)) {
@@ -581,7 +594,7 @@ trait SimpleDTOMapperTrait
      *
      * Recognizes common boolean representations in strings.
      */
-    private static function castToBool(mixed $value): mixed
+    protected static function castToBool(mixed $value): mixed
     {
         // Already a bool
         if (is_bool($value)) {
@@ -615,7 +628,7 @@ trait SimpleDTOMapperTrait
      *
      * Only casts scalar values (int, float, bool, string).
      */
-    private static function castToString(mixed $value): mixed
+    protected static function castToString(mixed $value): mixed
     {
         // Already a string
         if (is_string($value)) {
@@ -636,7 +649,7 @@ trait SimpleDTOMapperTrait
      *
      * Attempts to decode JSON strings, otherwise returns as-is.
      */
-    private static function castToArray(mixed $value): mixed
+    protected static function castToArray(mixed $value): mixed
     {
         // Already an array
         if (is_array($value)) {

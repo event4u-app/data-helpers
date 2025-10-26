@@ -118,7 +118,11 @@ class DataMutator
         return $value;
     }
 
-    /** Transform value at path using callback. */
+    /**
+     * Transform value at path using callback.
+     *
+     * @param callable(mixed): mixed $callback Callback function
+     */
     public function transform(string $path, callable $callback): self
     {
         $value = DataAccessor::make($this->target)->get($path);
@@ -170,6 +174,7 @@ class DataMutator
      * Get reference to target.
      *
      * @return array<int|string, mixed>|object
+     * @phpstan-ignore-next-line ergebnis.noReturnByReference
      */
     public function &getReference(): array|object
     {

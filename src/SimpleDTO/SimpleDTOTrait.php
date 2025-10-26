@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDTO;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMutator;
+use RuntimeException;
 
 /**
  * Trait providing default implementations for DTOs.
@@ -481,7 +482,12 @@ trait SimpleDTOTrait
      */
     public function toJson(int $flags = 0): string
     {
-        return json_encode($this->toArray(), $flags);
+        $json = json_encode($this->toArray(), $flags);
+        if (false === $json) {
+            throw new RuntimeException('Failed to encode DTO to JSON: ' . json_last_error_msg());
+        }
+
+        return $json;
     }
 
     // toXml(), toYaml(), and toCsv() methods are provided by SimpleDTOSerializerTrait

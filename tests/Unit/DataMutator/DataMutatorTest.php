@@ -761,6 +761,7 @@ describe('DataMutator', function(): void {
 
             DataMutator::make($dto)->set('name', 'Charlie');
 
+            /** @var object{name: string, age: int} $dto */
             expect($dto->name)->toBe('Charlie');
             expect($dto->age)->toBe(0); // unchanged
         });
@@ -782,6 +783,7 @@ describe('DataMutator', function(): void {
                 'config.language' => 'en',
             ]);
 
+            /** @var object{name: string, age: int, email: string, config: array<string, mixed>} $dto */
             expect($dto->name)->toBe('Alice');
             expect($dto->age)->toBe(30);
             expect($dto->email)->toBe('alice@example.com');
@@ -803,6 +805,7 @@ describe('DataMutator', function(): void {
 
             DataMutator::make($dto)->set('name', 'Charlie');
 
+            /** @phpstan-ignore-next-line method.nonObject */
             expect($dto->getName())->toBe('Charlie');
         });
 
@@ -824,6 +827,7 @@ describe('DataMutator', function(): void {
 
             DataMutator::make($dto)->set('config.database.host', 'localhost');
 
+            /** @var object{config: array<string, mixed>} $dto */
             expect($dto->config)->toBe([
                 'database' => [
                     'host' => 'localhost',
@@ -850,6 +854,7 @@ describe('DataMutator', function(): void {
                 ],
             ], true);
 
+            /** @var object{config: array<string, mixed>} $dto */
             expect($dto->config)->toBe([
                 'database' => [
                     'host' => 'localhost',
@@ -870,6 +875,7 @@ describe('DataMutator', function(): void {
 
             DataMutator::make($model)->set('name', 'Alice');
 
+            /** @var Model $model */
             expect($model->getAttribute('name'))->toBe('Alice');
         });
 
@@ -881,6 +887,7 @@ describe('DataMutator', function(): void {
             $result1 = DataMutator::make($model)->set('name', 'Alice')->toArray();
             $result2 = DataMutator::make($result1)->set('email', 'alice@example.com')->toArray();
 
+            /** @var Model $model */
             expect($model->getAttribute('name'))->toBe('Alice');
             expect($model->getAttribute('email'))->toBe('alice@example.com');
         });
@@ -896,6 +903,7 @@ describe('DataMutator', function(): void {
                 'active' => true,
             ]);
 
+            /** @var Model $model */
             expect($model->getAttribute('name'))->toBe('Bob');
             expect($model->getAttribute('email'))->toBe('bob@example.com');
             expect($model->getAttribute('age'))->toBe(25);
@@ -1297,6 +1305,7 @@ describe('DataMutator', function(): void {
 
             DataMutator::make($dto)->set('items.0.price', 100);
 
+            /** @var object{items: array<int, array<string, mixed>>} $dto */
             expect($dto->items[0])->toBe([
                 'name' => 'item1',
                 'price' => 100,
@@ -1314,6 +1323,7 @@ describe('DataMutator', function(): void {
 
             DataMutator::make($dto)->set('config.database.host', 'localhost');
 
+            /** @var object{config: array<string, mixed>|null} $dto */
             expect($dto->config)->toBe([
                 'database' => [
                     'host' => 'localhost',
@@ -1720,6 +1730,7 @@ describe('DataMutator', function(): void {
                 'cache' => 'redis',
             ]);
 
+            /** @var object{config: array<string, mixed>} $dto */
             expect($dto->config)->toBe([
                 'debug' => true,
                 'cache' => 'redis',
@@ -1795,6 +1806,7 @@ describe('DataMutator', function(): void {
 
             DataMutator::make($dto)->unset('city');
 
+            /** @var object{name: string, city: string|null} $dto */
             expect($dto->name)->toBe('Alice');
             expect($dto->city)->toBeNull();
         });
@@ -1814,7 +1826,9 @@ describe('DataMutator', function(): void {
 
             DataMutator::make($dto)->unset('secret');
 
+            /** @phpstan-ignore-next-line property.nonObject */
             expect($dto->name)->toBe('Alice');
+            /** @phpstan-ignore-next-line method.nonObject */
             expect($dto->getSecret())->toBeNull();
         });
 
@@ -1840,6 +1854,7 @@ describe('DataMutator', function(): void {
 
             DataMutator::make($dto)->unset('nonexistent');
 
+            /** @var object{name: string} $dto */
             expect($dto->name)->toBe('Alice');
         });
 
@@ -3202,25 +3217,25 @@ describe('DataMutator', function(): void {
 
     describe('Error handling', function(): void {
         test('throws TypeError for unsupported target types', function(): void {
-            /** @phpstan-ignore-next-line unknown */
             $string = 'string';
+            /** @phpstan-ignore-next-line argument.type */
             expect(fn(): DataMutator => DataMutator::make($string)->set('path', 'value'))
                 ->toThrow(TypeError::class);
 
-            /** @phpstan-ignore-next-line unknown */
             $int = 42;
+            /** @phpstan-ignore-next-line argument.type */
             expect(fn(): DataMutator => DataMutator::make($int)->set('path', 'value'))
                 ->toThrow(TypeError::class);
 
-            /** @phpstan-ignore-next-line unknown */
             $bool = true;
+            /** @phpstan-ignore-next-line argument.type */
             expect(fn(): DataMutator => DataMutator::make($bool)->set('path', 'value'))
                 ->toThrow(TypeError::class);
         });
 
         test('unset throws TypeError for unsupported target types', function(): void {
-            /** @phpstan-ignore-next-line unknown */
             $string = 'string';
+            /** @phpstan-ignore-next-line argument.type */
             expect(fn(): DataMutator => DataMutator::make($string)->unset('path'))
                 ->toThrow(TypeError::class);
         });

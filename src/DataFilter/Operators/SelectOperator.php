@@ -45,7 +45,7 @@ final class SelectOperator extends AbstractOperator
 
             $result = [];
             foreach ($fields as $field) {
-                if (array_key_exists($field, $item)) {
+                if ((is_string($field) || is_int($field)) && array_key_exists($field, $item)) {
                     $result[$field] = $item[$field];
                 }
             }

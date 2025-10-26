@@ -183,6 +183,10 @@ final class EnvHelper
                 return $default;
             }
 
+            if ('' === $separator) {
+                return [$value];
+            }
+
             return array_map('trim', explode($separator, $value));
         }
 

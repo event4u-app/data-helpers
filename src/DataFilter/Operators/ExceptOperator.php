@@ -45,7 +45,9 @@ final class ExceptOperator extends AbstractOperator
 
             $result = $item;
             foreach ($excludeFields as $field) {
-                unset($result[$field]);
+                if (is_string($field) || is_int($field)) {
+                    unset($result[$field]);
+                }
             }
 
             return $result;

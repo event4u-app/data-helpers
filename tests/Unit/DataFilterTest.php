@@ -736,6 +736,7 @@ describe('DataFilter - Edge Cases', function(): void {
         ];
 
         $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line argument.type */
             ->only([0, 1])
             ->get();
 
@@ -1102,6 +1103,7 @@ describe('DataFilter - MAP Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line arrayUnpacking.nonIterable */
             ->map(fn($item): array => [...$item, 'adult' => 18 <= $item['age']])
             ->get();
 
@@ -1116,6 +1118,7 @@ describe('DataFilter - MAP Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
             ->map(fn($item): array => ['fullName' => $item['firstName'] . ' ' . $item['lastName']])
             ->get();
 
@@ -1178,7 +1181,8 @@ describe('DataFilter - FILTER Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->filter(fn($item) => $item['active'])
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
+            ->filter(fn($item): mixed => $item['active'])
             ->get();
 
         expect($result)->toBeArray();
@@ -1195,7 +1199,8 @@ describe('DataFilter - FILTER Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->filter(fn($item) => $item['active'])
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
+            ->filter(fn($item): mixed => $item['active'])
             ->get();
 
         expect($result)->toBeArray();
@@ -1239,7 +1244,9 @@ describe('DataFilter - FILTER Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->filter(fn($item) => $item['active'])
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
+            ->filter(fn($item): mixed => $item['active'])
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
             ->map(fn($item): array => ['name' => strtoupper($item['name']), 'age' => $item['age']])
             ->only(['name'])
             ->get();
@@ -1303,7 +1310,9 @@ describe('DataFilter - Combined Operators', function(): void {
 
         $result = DataFilter::query($data)
             ->where('age', '>=', 18)
+            /** @phpstan-ignore-next-line arrayUnpacking.nonIterable */
             ->map(fn($item): array => [...$item, 'name' => strtoupper($item['name']), 'adult' => true])
+            /** @phpstan-ignore-next-line argument.type */
             ->filter(fn($item): bool => 30 > $item['age'])
             ->only(['name', 'age'])
             ->get();
@@ -1321,7 +1330,9 @@ describe('DataFilter - Combined Operators', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->filter(fn($item) => $item['active'])
+            /** @phpstan-ignore-next-line argument.type */
+            ->filter(fn($item): mixed => $item['active'])
+            /** @phpstan-ignore-next-line offsetAccess.notFound */
             ->map(fn($item): array => [
                 'id' => $item['id'],
                 'fullName' => ucfirst($item['firstName']) . ' ' . ucfirst($item['lastName']),

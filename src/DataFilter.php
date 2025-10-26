@@ -542,7 +542,7 @@ final class DataFilter
     /**
      * Apply a callback to each item.
      *
-     * @param callable $callback Callback function
+     * @param callable(mixed): mixed $callback Callback function
      */
     public function map(callable $callback): self
     {
@@ -557,7 +557,7 @@ final class DataFilter
     /**
      * Filter items using a callback.
      *
-     * @param callable $callback Callback function
+     * @param callable(mixed): bool $callback Callback function
      */
     public function filter(callable $callback): self
     {
@@ -576,6 +576,7 @@ final class DataFilter
      */
     public function toArray(): array
     {
-        return $this->get();
+        $result = $this->get();
+        return is_array($result) ? $result : [];
     }
 }

@@ -38,28 +38,32 @@ class DataMutatorBench
     #[Iterations(5)]
     public function benchSimpleSet(): void
     {
-        DataMutator::set($this->simpleData, 'name', 'Bob');
+        /** @phpstan-ignore-next-line assign.propertyType */
+        DataMutator::make($this->simpleData)->set('name', 'Bob');
     }
 
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchNestedSet(): void
     {
-        DataMutator::set($this->nestedData, 'user.profile.name', 'Bob');
+        /** @phpstan-ignore-next-line assign.propertyType */
+        DataMutator::make($this->nestedData)->set('user.profile.name', 'Bob');
     }
 
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchDeepSet(): void
     {
-        DataMutator::set($this->nestedData, 'user.profile.address.city', 'Berlin');
+        /** @phpstan-ignore-next-line assign.propertyType */
+        DataMutator::make($this->nestedData)->set('user.profile.address.city', 'Berlin');
     }
 
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchMultipleSet(): void
     {
-        DataMutator::set($this->nestedData, [
+        /** @phpstan-ignore-next-line assign.propertyType */
+        DataMutator::make($this->nestedData)->set([
             'user.profile.name' => 'Bob',
             'user.profile.age' => 35,
         ]);
@@ -69,20 +73,23 @@ class DataMutatorBench
     #[Iterations(5)]
     public function benchMerge(): void
     {
-        DataMutator::merge($this->nestedData, 'user.profile');
+        /** @phpstan-ignore-next-line assign.propertyType */
+        DataMutator::make($this->nestedData)->merge('user.profile', ['city' => 'Berlin']);
     }
 
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchUnset(): void
     {
-        DataMutator::unset($this->nestedData);
+        /** @phpstan-ignore-next-line assign.propertyType */
+        DataMutator::make($this->nestedData)->unset('user.profile.name');
     }
 
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchMultipleUnset(): void
     {
-        DataMutator::unset($this->nestedData);
+        /** @phpstan-ignore-next-line assign.propertyType */
+        DataMutator::make($this->nestedData)->unset(['user.profile.name', 'user.profile.age']);
     }
 }
