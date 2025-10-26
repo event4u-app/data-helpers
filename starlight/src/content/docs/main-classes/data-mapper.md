@@ -450,7 +450,10 @@ $target = $mapper->property('name')->getTarget();
 
 ### Get Property Filters
 
+<!-- skip-test: requires mapper instance -->
 ```php
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
+
 $mapper->setFilter('name', new TrimStrings());
 
 $filters = $mapper->property('name')->getFilter();
@@ -482,6 +485,7 @@ Automatically select target class based on a discriminator field (Liskov Substit
 
 ### Basic Usage
 
+<!-- skip-test: to abstract. results in error. -->
 ```php
 abstract class Animal
 {

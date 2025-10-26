@@ -388,17 +388,17 @@ trait SimpleDTOMapperTrait
             }
             // Try CSV if it contains commas or newlines
             elseif (str_contains($source, ',') || str_contains($source, "\n")) {
-                $lines = str_getcsv($source, "\n");
+                $lines = str_getcsv($source, "\n", '"', '\\');
                 if (count($lines) > 1) {
                     $firstLine = array_shift($lines);
                     if (null !== $firstLine) {
-                        $headers = str_getcsv($firstLine);
+                        $headers = str_getcsv($firstLine, ',', '"', '\\');
                         // Filter out null values from headers
                         $headers = array_filter($headers, fn($h): bool => null !== $h);
                         $data = [];
                         foreach ($lines as $line) {
                             if (null !== $line) {
-                                $values = str_getcsv($line);
+                                $values = str_getcsv($line, ',', '"', '\\');
                                 if (count($values) === count($headers)) {
                                     /** @phpstan-ignore-next-line argument.type */
                                     $combined = array_combine($headers, $values);

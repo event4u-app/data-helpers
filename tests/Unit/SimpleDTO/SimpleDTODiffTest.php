@@ -4,51 +4,39 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDTO;
 
-beforeEach(function(): void {
-    // Simple DTO for testing
-    $this->userDTO = new class ('John Doe', 'john@example.com', 30) extends SimpleDTO {
-        public function __construct(
-            public readonly string $name,
-            public readonly string $email,
-            public readonly int $age,
-        ) {
-        }
-    };
+class TestDiffUserDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly int $age,
+    ) {
+    }
+}
 
-    // Nested DTO for testing
-    $this->addressDTO = new class ('Main St', 'New York', '10001') extends SimpleDTO {
-        public function __construct(
-            public readonly string $street,
-            public readonly string $city,
-            public readonly string $zip,
-        ) {
-        }
-    };
+class TestDiffAddressDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $street,
+        public readonly string $city,
+        public readonly string $zip,
+    ) {
+    }
+}
 
-    $this->userWithAddressDTO = new class (
-        'John Doe',
-        'john@example.com',
-        new class ('Main St', 'New York', '10001') extends SimpleDTO {
-            public function __construct(
-                public readonly string $street,
-                public readonly string $city,
-                public readonly string $zip,
-            ) {
-            }
-        }
-    ) extends SimpleDTO {
-        public function __construct(
-            public readonly string $name,
-            public readonly string $email,
-            public readonly object $address,
-        ) {
-        }
-    };
-});
+class TestDiffUserWithAddressDTO extends SimpleDTO
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly TestDiffAddressDTO $address,
+    ) {
+    }
+}
 
 describe('Basic Comparison', function(): void {
     it('returns empty array when comparing identical data', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -64,7 +52,7 @@ describe('Basic Comparison', function(): void {
     });
 
     it('detects single property difference', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -85,7 +73,7 @@ describe('Basic Comparison', function(): void {
     });
 
     it('detects multiple property differences', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -114,7 +102,7 @@ describe('Basic Comparison', function(): void {
     });
 
     it('detects missing keys in compare data', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -134,7 +122,7 @@ describe('Basic Comparison', function(): void {
     });
 
     it('detects new keys in compare data', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -158,7 +146,7 @@ describe('Basic Comparison', function(): void {
 
 describe('ignoreNonExistingKeys Option', function(): void {
     it('ignores missing keys when option is true', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -173,7 +161,7 @@ describe('ignoreNonExistingKeys Option', function(): void {
     });
 
     it('ignores new keys when option is true', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -190,7 +178,7 @@ describe('ignoreNonExistingKeys Option', function(): void {
     });
 
     it('still detects value changes when ignoring non-existing keys', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -211,7 +199,7 @@ describe('ignoreNonExistingKeys Option', function(): void {
 
 describe('Different Input Formats', function(): void {
     it('compares with JSON string', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -234,13 +222,13 @@ describe('Different Input Formats', function(): void {
     });
 
     it('compares with another DTO', function(): void {
-        $user1 = ($this->userDTO)::fromArray([
+        $user1 = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
         ]);
 
-        $user2 = ($this->userDTO)::fromArray([
+        $user2 = TestDiffUserDTO::fromArray([
             'name' => 'Jane Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -257,7 +245,7 @@ describe('Different Input Formats', function(): void {
     });
 
     it('compares with XML string', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -281,7 +269,7 @@ describe('Different Input Formats', function(): void {
     });
 
     it('compares with object having toArray method', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,
@@ -310,7 +298,7 @@ describe('Different Input Formats', function(): void {
     });
 
     it('compares with object using getters', function(): void {
-        $user = ($this->userDTO)::fromArray([
+        $user = TestDiffUserDTO::fromArray([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'age' => 30,

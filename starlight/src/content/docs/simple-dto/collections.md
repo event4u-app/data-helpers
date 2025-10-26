@@ -25,7 +25,7 @@ $users->count();
 ### From Array
 
 ```php
-use Tests\Docu\DTOs\UserDTO;
+use Tests\utils\Docu\DTOs\UserDTO;
 
 $data = [
     ['name' => 'John', 'age' => 25],
@@ -48,7 +48,7 @@ $dtos = UserDTO::collection($users);
 
 ```php
 use event4u\DataHelpers\SimpleDTO\DataCollection;
-use Tests\Docu\DTOs\UserDTO;
+use Tests\utils\Docu\DTOs\UserDTO;
 
 $data = [
     ['name' => 'John', 'email' => 'john@example.com', 'age' => 30],
@@ -62,7 +62,7 @@ $collection = DataCollection::make($data, UserDTO::class);
 ### Filter
 
 ```php
-use Tests\Docu\DTOs\UserDTO;
+use Tests\utils\Docu\DTOs\UserDTO;
 
 $data = [
     ['name' => 'John', 'age' => 25],
@@ -78,7 +78,7 @@ $adults = $users->filter(fn($user) => $user->age >= 18);
 ### Map
 
 ```php
-use Tests\Docu\DTOs\UserDTO;
+use Tests\utils\Docu\DTOs\UserDTO;
 
 $data = [
     ['name' => 'John', 'age' => 25],
@@ -93,7 +93,7 @@ $names = $users->map(fn($user) => $user->name);
 ### First / Last
 
 ```php
-use Tests\Docu\DTOs\UserDTO;
+use Tests\utils\Docu\DTOs\UserDTO;
 
 $data = [
     ['name' => 'John', 'age' => 25],
@@ -109,7 +109,7 @@ $last = $users->last();
 ### Count
 
 ```php
-use Tests\Docu\DTOs\UserDTO;
+use Tests\utils\Docu\DTOs\UserDTO;
 
 $data = [
     ['name' => 'John', 'age' => 25],
@@ -124,7 +124,7 @@ $count = $users->count();
 ### ToArray
 
 ```php
-use Tests\Docu\DTOs\UserDTO;
+use Tests\utils\Docu\DTOs\UserDTO;
 
 $data = [
     ['name' => 'John', 'age' => 25],
