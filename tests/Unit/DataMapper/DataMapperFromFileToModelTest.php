@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use Illuminate\Support\Collection;
-use Tests\utils\Models\Company;
-use Tests\utils\Models\Department;
-use Tests\utils\XMLs\Models\Project;
+use Tests\Utils\Models\Company;
+use Tests\Utils\Models\Department;
+use Tests\Utils\XMLs\Models\Project;
 
 describe('DataMapper to Model', function(): void {
     describe('Automatic relation mapping', function(): void {
         it('maps JSON file to Company model with automatic relation mapping', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Map everything in one go - DataMapper automatically detects and maps the relation!
             $company = new Company();
@@ -98,8 +98,8 @@ describe('DataMapper to Model', function(): void {
             expect($company->getRelation('projects'))->toHaveCount(2);
 
             $proj0 = $company->getRelation('projects')[0] ?? null;
-            expect($proj0)->toBeInstanceOf(\Tests\utils\Models\Project::class);
-            /** @var \Tests\utils\Models\Project $proj0Model */
+            expect($proj0)->toBeInstanceOf(\Tests\Utils\Models\Project::class);
+            /** @var \Tests\Utils\Models\Project $proj0Model */
             $proj0Model = $proj0;
             expect($proj0Model->name)->toBe('Cloud Migration');
             expect($proj0Model->code)->toBe('PROJ-001');
@@ -109,8 +109,8 @@ describe('DataMapper to Model', function(): void {
             expect($proj0Model->status)->toBe('active');
 
             $proj1 = $company->getRelation('projects')[1] ?? null;
-            expect($proj1)->toBeInstanceOf(\Tests\utils\Models\Project::class);
-            /** @var \Tests\utils\Models\Project $proj1Model */
+            expect($proj1)->toBeInstanceOf(\Tests\Utils\Models\Project::class);
+            /** @var \Tests\Utils\Models\Project $proj1Model */
             $proj1Model = $proj1;
             expect($proj1Model->name)->toBe('Mobile App Development');
             expect($proj1Model->budget)->toBe(1800000.00);
@@ -125,7 +125,7 @@ describe('DataMapper to Model', function(): void {
         });
 
         it('maps XML file to Company model with automatic relation mapping', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map everything in one go - DataMapper automatically detects and maps the relation!
             $company = new Company();
@@ -212,8 +212,8 @@ describe('DataMapper to Model', function(): void {
             expect($company->getRelation('projects'))->toHaveCount(2);
 
             $proj0 = $company->getRelation('projects')[0] ?? null;
-            expect($proj0)->toBeInstanceOf(\Tests\utils\Models\Project::class);
-            /** @var \Tests\utils\Models\Project $proj0Model */
+            expect($proj0)->toBeInstanceOf(\Tests\Utils\Models\Project::class);
+            /** @var \Tests\Utils\Models\Project $proj0Model */
             $proj0Model = $proj0;
             expect($proj0Model->name)->toBe('Cloud Migration');
             expect($proj0Model->code)->toBe('PROJ-001');
@@ -223,8 +223,8 @@ describe('DataMapper to Model', function(): void {
             expect($proj0Model->status)->toBe('active');
 
             $proj1 = $company->getRelation('projects')[1] ?? null;
-            expect($proj1)->toBeInstanceOf(\Tests\utils\Models\Project::class);
-            /** @var \Tests\utils\Models\Project $proj1Model */
+            expect($proj1)->toBeInstanceOf(\Tests\Utils\Models\Project::class);
+            /** @var \Tests\Utils\Models\Project $proj1Model */
             $proj1Model = $proj1;
             expect($proj1Model->name)->toBe('Mobile App Development');
             expect($proj1Model->budget)->toBe(1800000.00);
@@ -241,8 +241,8 @@ describe('DataMapper to Model', function(): void {
 
     describe('Model casting and comparison', function(): void {
         it('compares JSON and XML models with identical casted values', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map JSON to Company model
             $jsonCompany = new Company();
@@ -308,8 +308,8 @@ describe('DataMapper to Model', function(): void {
         });
 
         it('maps departments to Department models with casts', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Map JSON departments to Department models
             $jsonDept = new Department();
@@ -362,7 +362,7 @@ describe('DataMapper to Model', function(): void {
 
     describe('Legacy XML tests', function(): void {
         it('loads and maps from XML file', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/XMLs/version1.xml';
+            $xmlFile = __DIR__ . '/../../Utils/XMLs/version1.xml';
 
             $project = new Project();
 
@@ -386,7 +386,7 @@ describe('DataMapper to Model', function(): void {
         });
 
         it('maps nested XML structure to model', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/XMLs/version2.xml';
+            $xmlFile = __DIR__ . '/../../Utils/XMLs/version2.xml';
 
             $project = new Project();
 

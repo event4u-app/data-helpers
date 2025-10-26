@@ -549,64 +549,8 @@ PHP;
             $definedClasses = $matches[1];
         }
 
-        // Map of class names to their full namespaces
-        $classMap = [
-            // Main classes
-            'DataAccessor' => 'event4u\DataHelpers\DataAccessor',
-            'DataMutator' => 'event4u\DataHelpers\DataMutator',
-            'DataMapper' => 'event4u\DataHelpers\DataMapper',
-            'DataFilter' => 'event4u\DataHelpers\DataFilter',
-            'SimpleDTO' => 'event4u\DataHelpers\SimpleDTO',
-
-            // Helpers
-            'MathHelper' => 'event4u\DataHelpers\Helpers\MathHelper',
-            'EnvHelper' => 'event4u\DataHelpers\Helpers\EnvHelper',
-            'DotPathHelper' => 'event4u\DataHelpers\Helpers\DotPathHelper',
-            'ObjectHelper' => 'event4u\DataHelpers\Helpers\ObjectHelper',
-            'ConfigHelper' => 'event4u\DataHelpers\Helpers\ConfigHelper',
-            'CallbackHelper' => 'event4u\DataHelpers\Support\CallbackHelper',
-
-            // DataMapper
-            'Hooks' => 'event4u\DataHelpers\DataMapper\Hooks',
-            'DataMapperHook' => 'event4u\DataHelpers\Enums\DataMapperHook',
-
-            // SimpleDTO Pipeline
-            'DTOPipeline' => 'event4u\DataHelpers\SimpleDTO\Pipeline\DTOPipeline',
-            'PipelineStageInterface' => 'event4u\DataHelpers\SimpleDTO\Pipeline\PipelineStageInterface',
-            'TransformerStage' => 'event4u\DataHelpers\SimpleDTO\Pipeline\TransformerStage',
-            'NormalizerStage' => 'event4u\DataHelpers\SimpleDTO\Pipeline\NormalizerStage',
-            'ValidationStage' => 'event4u\DataHelpers\SimpleDTO\Pipeline\ValidationStage',
-            'CallbackStage' => 'event4u\DataHelpers\SimpleDTO\Pipeline\CallbackStage',
-
-            // SimpleDTO Transformers (both namespaces for backwards compatibility)
-            'TrimStringsTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\TrimStringsTransformer',
-            'RemoveNullValuesTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\RemoveNullValuesTransformer',
-            'LowercaseKeysTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\LowercaseKeysTransformer',
-            'LowerCaseTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\LowerCaseTransformer',
-            'UpperCaseTransformer' => 'event4u\DataHelpers\SimpleDTO\Transformers\UpperCaseTransformer',
-
-            // SimpleDTO Normalizers
-            'TypeNormalizer' => 'event4u\DataHelpers\SimpleDTO\Normalizers\TypeNormalizer',
-            'CamelCaseNormalizer' => 'event4u\DataHelpers\SimpleDTO\Normalizers\CamelCaseNormalizer',
-            'SnakeCaseNormalizer' => 'event4u\DataHelpers\SimpleDTO\Normalizers\SnakeCaseNormalizer',
-            'DefaultValuesNormalizer' => 'event4u\DataHelpers\SimpleDTO\Normalizers\DefaultValuesNormalizer',
-
-            // Test utilities
-            'TrimStrings' => 'Tests\utils\Docu\TrimStrings',
-            'LowercaseEmails' => 'Tests\utils\Docu\LowercaseEmails',
-            'SkipEmptyValues' => 'Tests\utils\Docu\SkipEmptyValues',
-
-            // Test DTOs
-            'UserDTO' => 'Tests\utils\Docu\DTOs\UserDTO',
-            'UserWithEmailsDTO' => 'Tests\utils\Docu\DTOs\UserWithEmailsDTO',
-            'UserWithRolesDTO' => 'Tests\utils\Docu\DTOs\UserWithRolesDTO',
-            'AddressDTO' => 'Tests\utils\Docu\DTOs\AddressDTO',
-            'EmailDTO' => 'Tests\utils\Docu\DTOs\EmailDTO',
-            'EmployeeDTO' => 'Tests\utils\Docu\DTOs\EmployeeDTO',
-            'DepartmentDTO' => 'Tests\utils\Docu\DTOs\DepartmentDTO',
-            'OrderDTO' => 'Tests\utils\Docu\DTOs\OrderDTO',
-            'ProfileDTO' => 'Tests\utils\DTOs\ProfileDTO',
-        ];
+        // Build class map dynamically
+        $classMap = self::buildClassMap();
 
         // Find all class usages in the code
         foreach ($classMap as $className => $fullNamespace) {
@@ -639,5 +583,82 @@ PHP;
         }
 
         return array_unique($useStatements);
+    }
+
+    /**
+     * Build class map dynamically by scanning src/ and tests/Utils/ directories.
+     *
+     * @return array<string, string>
+     */
+    private static function buildClassMap(): array
+    {
+        static $classMap = null;
+
+        if (null !== $classMap) {
+            return $classMap;
+        }
+
+        $classMap = [];
+
+        // Scan src/ directory for all classes
+        $srcDir = __DIR__ . '/../../../src';
+        if (is_dir($srcDir)) {
+            $classMap = array_merge($classMap, self::scanDirectoryForClasses($srcDir, 'event4u\\DataHelpers'));
+        }
+
+        // Scan tests/Utils/ directory for test utilities
+        $testsUtilsDir = __DIR__ . '/../../Utils';
+        if (is_dir($testsUtilsDir)) {
+            $classMap = array_merge($classMap, self::scanDirectoryForClasses($testsUtilsDir, 'Tests\\Utils'));
+        }
+
+        return $classMap;
+    }
+
+    /**
+     * Recursively scan directory for PHP classes and extract their names and namespaces.
+     *
+     * @return array<string, string>
+     */
+    private static function scanDirectoryForClasses(string $directory, string $baseNamespace): array
+    {
+        $classMap = [];
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        /** @var SplFileInfo $file */
+        foreach ($iterator as $file) {
+            if (!$file->isFile() || 'php' !== $file->getExtension()) {
+                continue;
+            }
+
+            $content = file_get_contents($file->getPathname());
+            if (false === $content) {
+                continue;
+            }
+
+            // Extract namespace
+            $namespace = null;
+            if (preg_match('/namespace\s+([^;]+);/m', $content, $namespaceMatch)) {
+                $namespace = $namespaceMatch[1];
+            }
+
+            // Extract class/interface/trait/enum names
+            if (preg_match_all(
+                '/^(?:abstract\s+)?(?:final\s+)?(class|interface|trait|enum)\s+(\w+)/m',
+                $content,
+                $matches,
+                PREG_SET_ORDER
+            )) {
+                foreach ($matches as $match) {
+                    $className = $match[2];
+                    $fullClassName = $namespace ? $namespace . '\\' . $className : $className;
+                    $classMap[$className] = $fullClassName;
+                }
+            }
+        }
+
+        return $classMap;
     }
 }

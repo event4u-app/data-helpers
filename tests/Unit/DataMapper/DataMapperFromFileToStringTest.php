@@ -7,7 +7,7 @@ use event4u\DataHelpers\DataMapper;
 describe('DataMapper to JSON/XML String', function(): void {
     describe('JSON string as target', function(): void {
         it('maps from JSON file to JSON string', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Use JSON string as target
             $target = '{}';
@@ -37,7 +37,7 @@ describe('DataMapper to JSON/XML String', function(): void {
         });
 
         it('maps from XML file to JSON string', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Use JSON string as target
             $target = '{}';
@@ -68,7 +68,7 @@ describe('DataMapper to JSON/XML String', function(): void {
         });
 
         it('maps nested departments from JSON to JSON string', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Use JSON string as target
             $target = '{}';
@@ -99,7 +99,7 @@ describe('DataMapper to JSON/XML String', function(): void {
         });
 
         it('maps wildcard paths from JSON to JSON string', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $target = '{}';
             $mapping = [
@@ -125,7 +125,7 @@ describe('DataMapper to JSON/XML String', function(): void {
 
     describe('XML string as target', function(): void {
         it('maps from JSON file to XML string', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Use XML string as target
             $target = '<?xml version="1.0"?><root></root>';
@@ -152,7 +152,7 @@ describe('DataMapper to JSON/XML String', function(): void {
         });
 
         it('maps from XML file to XML string', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Use XML string as target
             $target = '<?xml version="1.0"?><root></root>';
@@ -180,7 +180,7 @@ describe('DataMapper to JSON/XML String', function(): void {
         });
 
         it('maps nested departments from XML to XML string', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             // Use XML string as target
             $target = '<?xml version="1.0"?><root></root>';
@@ -206,7 +206,7 @@ describe('DataMapper to JSON/XML String', function(): void {
         });
 
         it('maps wildcard paths from XML to XML string', function(): void {
-            $xmlFile = __DIR__ . '/../../utils/xml/data_mapper_from_file_test.xml';
+            $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             $target = '<?xml version="1.0"?><root></root>';
             $mapping = [
@@ -229,7 +229,7 @@ describe('DataMapper to JSON/XML String', function(): void {
 
     describe('Comparison between JSON and XML targets', function(): void {
         it('produces results in correct format for JSON and XML string targets', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $mapping = [
                 'company_name' => '{{ company.name }}',
@@ -262,7 +262,7 @@ describe('DataMapper to JSON/XML String', function(): void {
         });
 
         it('handles complex nested structures with both target types', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $mapping = [
                 'company' => [

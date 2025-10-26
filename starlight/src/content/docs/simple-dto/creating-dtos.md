@@ -27,7 +27,7 @@ SimpleDTO provides multiple ways to create instances:
 ### Basic Usage
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = UserDTO::fromArray([
     'name' => 'John Doe',
@@ -40,7 +40,7 @@ $dto = UserDTO::fromArray([
 ### With Nested Arrays
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $dto = UserDTO::fromArray([
     'name' => 'John Doe',
@@ -57,7 +57,7 @@ $dto = UserDTO::fromArray([
 ### With Extra Keys (Ignored)
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 // Extra keys are automatically ignored
 $dto = UserDTO::fromArray([
@@ -75,7 +75,7 @@ $dto = UserDTO::fromArray([
 ### Basic Usage
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $json = '{"name":"John Doe","email":"john@example.com","age":30}';
 $dto = UserDTO::fromJson($json);
@@ -93,7 +93,7 @@ $dto = UserDTO::fromJson($json);
 ### With Nested JSON
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $json = '{
     "name": "John Doe",
@@ -249,7 +249,7 @@ $dto = UserDTO::fromYaml($yaml);
 ### Basic Usage
 
 ```php
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $csv = '"name","email","age"
 "John Doe","john@example.com",30';
@@ -442,7 +442,7 @@ $dtos = array_map(
 
 ```php
 use event4u\DataHelpers\SimpleDTO\DataCollection;
-use Tests\utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\UserDTO;
 
 $data = [
     ['name' => 'John', 'email' => 'john@example.com'],

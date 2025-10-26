@@ -3,17 +3,17 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use Tests\utils\DTOs\CompanyDto;
-use Tests\utils\DTOs\DepartmentDto;
-use Tests\utils\DTOs\ProjectDto;
-use Tests\utils\SimpleDTOs\CompanySimpleDto;
-use Tests\utils\SimpleDTOs\DepartmentSimpleDto;
-use Tests\utils\SimpleDTOs\ProjectSimpleDto;
+use Tests\Utils\DTOs\CompanyDto;
+use Tests\Utils\DTOs\DepartmentDto;
+use Tests\Utils\DTOs\ProjectDto;
+use Tests\Utils\SimpleDTOs\CompanySimpleDto;
+use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
+use Tests\Utils\SimpleDTOs\ProjectSimpleDto;
 
 describe('DataMapper SimpleDTO Comparison', function(): void {
     describe('Traditional mutable DTOs vs SimpleDTO', function(): void {
         it('compares traditional mutable DTO approach', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Traditional approach: Mutable DTO with public properties
             $company = new CompanyDto();
@@ -88,7 +88,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
         });
 
         it('compares SimpleDTO immutable approach', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // SimpleDTO approach: Map to array first, then create immutable DTO
             $mapping = [
@@ -210,7 +210,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
         });
 
         it('demonstrates SimpleDTO benefits: immutability and JSON serialization', function(): void {
-            $jsonFile = __DIR__ . '/../../utils/json/data_mapper_from_file_test.json';
+            $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Map departments only
             $mapping = [

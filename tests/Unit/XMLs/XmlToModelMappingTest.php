@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
-use Tests\utils\XMLs\Enums\PositionType;
-use Tests\utils\XMLs\Enums\ProjectStatus;
+use Tests\Utils\XMLs\Enums\PositionType;
+use Tests\Utils\XMLs\Enums\ProjectStatus;
 
 // Helper function for test setup
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks
@@ -75,7 +75,7 @@ describe('XML to Model Mapping', function(): void {
 
         it('maps complete project with all relations from version1 XML', function() use ($snapshotDir): void {
             // Load XML file
-            $xmlFile = __DIR__ . '/../../utils/XMLs/version1.xml';
+            $xmlFile = __DIR__ . '/../../Utils/XMLs/version1.xml';
 
             // Complete mapping in one call
             $mapping = [
@@ -173,7 +173,7 @@ describe('XML to Model Mapping', function(): void {
 
         it('maps complete project with all relations from version2 XML', function() use ($snapshotDir): void {
             // Load XML file
-            $xmlFile = __DIR__ . '/../../utils/XMLs/version2.xml';
+            $xmlFile = __DIR__ . '/../../Utils/XMLs/version2.xml';
 
             // Complete mapping in one call
             $mapping = [
@@ -281,7 +281,7 @@ describe('XML to Model Mapping', function(): void {
 
         it('maps complete project with all relations from version3 XML', function() use ($snapshotDir): void {
             // Load XML file
-            $xmlFile = __DIR__ . '/../../utils/XMLs/version3.xml';
+            $xmlFile = __DIR__ . '/../../Utils/XMLs/version3.xml';
 
             // Complete mapping in one call
             $mapping = [

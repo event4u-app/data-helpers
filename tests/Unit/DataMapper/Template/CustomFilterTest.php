@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
-use Tests\utils\Filters\AlternatingCase;
+use Tests\Utils\Filters\AlternatingCase;
 
 describe('Custom Filter Filters in Template Expressions', function(): void {
     beforeEach(function(): void {

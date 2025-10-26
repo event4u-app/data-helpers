@@ -15,7 +15,7 @@ use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMutator;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
-use Tests\utils\Models\User;
+use Tests\Utils\Models\User;
 
 echo '=== Laravel Support Examples ===' . PHP_EOL . PHP_EOL;
 
@@ -57,7 +57,7 @@ echo '2. Eloquent Models' . PHP_EOL;
 echo '------------------' . PHP_EOL;
 
 // Using test model
-require_once __DIR__ . '/../../../tests/utils/Models/User.php';
+require_once __DIR__ . '/../../../tests/Utils/Models/User.php';
 
 $user = new User([
     'name' => 'Alice',

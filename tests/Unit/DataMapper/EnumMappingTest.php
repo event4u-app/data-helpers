@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use Tests\utils\Doctrine\Entities\User;
-use Tests\utils\Doctrine\Enums\Status;
-use Tests\utils\XMLs\Enums\Salutation;
-use Tests\utils\XMLs\Models\ContactPerson;
+use Tests\Utils\Doctrine\Entities\User;
+use Tests\Utils\Doctrine\Enums\Status;
+use Tests\Utils\XMLs\Enums\Salutation;
+use Tests\Utils\XMLs\Models\ContactPerson;
 
 describe('DataMapper Enum Support', function(): void {
     it('maps string to BackedEnum in Eloquent model', function(): void {
@@ -124,7 +124,7 @@ describe('DataMapper Enum Support', function(): void {
     });
 
     it('maps enum from XML file', function(): void {
-        $xmlFile = __DIR__ . '/../../utils/XMLs/version1.xml';
+        $xmlFile = __DIR__ . '/../../Utils/XMLs/version1.xml';
 
         $mapping = [
             'salutation' => '{{ contact_persons.contact_person.salutation }}',

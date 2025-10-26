@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Tests\utils\DTOs\DepartmentDto;
+use Tests\Utils\DTOs\DepartmentDto;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
-use Tests\utils\DTOs\CompanyDto;
-use Tests\utils\SimpleDTOs\CompanySimpleDto;
-use Tests\utils\SimpleDTOs\DepartmentSimpleDto;
-use Tests\utils\SimpleDTOs\ProjectSimpleDto;
+use Tests\Utils\DTOs\CompanyDto;
+use Tests\Utils\SimpleDTOs\CompanySimpleDto;
+use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
+use Tests\Utils\SimpleDTOs\ProjectSimpleDto;
 
 /**
  * Benchmark helper class
@@ -119,7 +119,7 @@ echo "╚═══════════════════════�
 echo "\n";
 
 // Prepare test data
-$jsonFile = __DIR__ . '/../tests/utils/json/data_mapper_from_file_test.json';
+$jsonFile = __DIR__ . '/../tests/Utils/json/data_mapper_from_file_test.json';
 $mapping = [
     'name' => '{{ company.name }}',
     'registration_number' => '{{ company.registration_number }}',
