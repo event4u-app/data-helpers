@@ -72,6 +72,7 @@ trait SimpleDTOTrait
     use SimpleDTOVisibilityTrait;
     use SimpleDTOWrappingTrait;
     use SimpleDTOSerializerTrait;
+    use SimpleDTOImporterTrait;
     use SimpleDTOTransformerTrait;
     use SimpleDTONormalizerTrait;
     use SimpleDTOPipelineTrait;

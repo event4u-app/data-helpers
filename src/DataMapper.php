@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
+use event4u\DataHelpers\Converters\CsvConverter;
+use event4u\DataHelpers\Converters\JsonConverter;
+use event4u\DataHelpers\Converters\XmlConverter;
+use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\DataMapper\DataMapperQuery;
 use event4u\DataHelpers\DataMapper\FluentDataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
@@ -46,6 +50,64 @@ class DataMapper
     public static function sourceFile(string $filePath): FluentDataMapper
     {
         return self::make()->sourceFile($filePath);
+    }
+
+    /**
+     * Create a FluentDataMapper from JSON string.
+     *
+     * @param string $json JSON string
+     */
+    public static function fromJson(string $json): FluentDataMapper
+    {
+        $converter = new JsonConverter();
+        $array = $converter->toArray($json);
+
+        return self::source($array);
+    }
+
+    /**
+     * Create a FluentDataMapper from XML string.
+     *
+     * @param string $xml XML string
+     * @param string $rootElement Root element name (default: 'root')
+     */
+    public static function fromXml(string $xml, string $rootElement = 'root'): FluentDataMapper
+    {
+        $converter = new XmlConverter($rootElement);
+        $array = $converter->toArray($xml);
+
+        return self::source($array);
+    }
+
+    /**
+     * Create a FluentDataMapper from YAML string.
+     *
+     * @param string $yaml YAML string
+     */
+    public static function fromYaml(string $yaml): FluentDataMapper
+    {
+        $converter = new YamlConverter();
+        $array = $converter->toArray($yaml);
+
+        return self::source($array);
+    }
+
+    /**
+     * Create a FluentDataMapper from CSV string.
+     *
+     * @param string $csv CSV string
+     * @param bool $includeHeaders Whether the CSV has headers (default: true)
+     * @param string $delimiter Field delimiter (default: ',')
+     */
+    public static function fromCsv(
+        string $csv,
+        bool $includeHeaders = true,
+        string $delimiter = ','
+    ): FluentDataMapper {
+        $converter = new CsvConverter($includeHeaders, $delimiter);
+        $array = $converter->toArray($csv);
+
+        return self::source($array);
     }
 
     /**
