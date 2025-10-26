@@ -29,7 +29,6 @@ class TestAutoCastingTypedDTO extends SimpleDTO
 }
 
 describe('SimpleDTOAutoCastingTest', function(): void {
-
     describe('fromJson() with auto-casting', function(): void {
         it('casts string numbers to int', function(): void {
             $json = '{"name":"John","email":"john@example.com","age":"30"}';
@@ -126,13 +125,13 @@ describe('SimpleDTOAutoCastingTest', function(): void {
 
         it('does NOT cast non-numeric strings', function(): void {
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
-            expect(fn() => TestAutoCastingTypedDTO::fromArray(['intProp' => 'hello']))
+            expect(fn(): \TestAutoCastingTypedDTO => TestAutoCastingTypedDTO::fromArray(['intProp' => 'hello']))
                 ->toThrow(TypeError::class);
         });
 
         it('does NOT cast empty string', function(): void {
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
-            expect(fn() => TestAutoCastingTypedDTO::fromArray(['intProp' => '']))
+            expect(fn(): \TestAutoCastingTypedDTO => TestAutoCastingTypedDTO::fromArray(['intProp' => '']))
                 ->toThrow(TypeError::class);
         });
 
@@ -177,7 +176,7 @@ describe('SimpleDTOAutoCastingTest', function(): void {
 
         it('does NOT cast non-numeric strings', function(): void {
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
-            expect(fn() => TestAutoCastingTypedDTO::fromArray(['floatProp' => 'hello']))
+            expect(fn(): \TestAutoCastingTypedDTO => TestAutoCastingTypedDTO::fromArray(['floatProp' => 'hello']))
                 ->toThrow(TypeError::class);
         });
 
@@ -263,7 +262,7 @@ describe('SimpleDTOAutoCastingTest', function(): void {
 
         it('does NOT cast other strings', function(): void {
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
-            expect(fn() => TestAutoCastingTypedDTO::fromArray(['boolProp' => 'hello']))
+            expect(fn(): \TestAutoCastingTypedDTO => TestAutoCastingTypedDTO::fromArray(['boolProp' => 'hello']))
                 ->toThrow(TypeError::class);
         });
     });
@@ -301,13 +300,15 @@ describe('SimpleDTOAutoCastingTest', function(): void {
 
         it('does NOT cast arrays', function(): void {
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
-            expect(fn() => TestAutoCastingTypedDTO::fromArray(['stringProp' => ['hello']]))
+            expect(fn(): \TestAutoCastingTypedDTO => TestAutoCastingTypedDTO::fromArray(['stringProp' => ['hello']]))
                 ->toThrow(TypeError::class);
         });
 
         it('does NOT cast objects', function(): void {
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
-            expect(fn() => TestAutoCastingTypedDTO::fromArray(['stringProp' => new stdClass()]))
+            expect(
+                fn(): \TestAutoCastingTypedDTO => TestAutoCastingTypedDTO::fromArray(['stringProp' => new stdClass()])
+            )
                 ->toThrow(TypeError::class);
         });
     });
@@ -337,13 +338,13 @@ describe('SimpleDTOAutoCastingTest', function(): void {
 
         it('does NOT cast invalid JSON strings', function(): void {
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
-            expect(fn() => TestAutoCastingTypedDTO::fromArray(['arrayProp' => 'not json']))
+            expect(fn(): \TestAutoCastingTypedDTO => TestAutoCastingTypedDTO::fromArray(['arrayProp' => 'not json']))
                 ->toThrow(TypeError::class);
         });
 
         it('does NOT cast non-array types', function(): void {
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
-            expect(fn() => TestAutoCastingTypedDTO::fromArray(['arrayProp' => 42]))
+            expect(fn(): \TestAutoCastingTypedDTO => TestAutoCastingTypedDTO::fromArray(['arrayProp' => 42]))
                 ->toThrow(TypeError::class);
         });
     });
