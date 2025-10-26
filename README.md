@@ -28,7 +28,7 @@ $apiResponse = [
     ],
 ];
 
-// ...to this clean result in one line
+// ...to this clean result in a few lines
 $accessor = new DataAccessor($apiResponse);
 $emails = $accessor->get('data.departments.*.users.*.email');
 // ['alice@example.com', 'bob@example.com', 'charlie@example.com']
