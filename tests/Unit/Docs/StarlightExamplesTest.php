@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Tests\Unit\Docs\DocumentationExampleExtractor;
+use Tests\Utils\Helpers\DocumentationExampleExtractor;
 
 describe('Starlight Documentation Examples', function(): void {
     beforeEach(function(): void {
