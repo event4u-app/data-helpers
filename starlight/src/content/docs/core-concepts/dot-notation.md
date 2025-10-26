@@ -19,8 +19,10 @@ $accessor = new DataAccessor([
     ],
 ]);
 
-$name = $accessor->get('user.profile.name');  // 'John Doe'
-$email = $accessor->get('user.profile.email'); // 'john@example.com'
+$name = $accessor->get('user.profile.name');
+// $name = 'John Doe'
+$email = $accessor->get('user.profile.email');
+// $email = 'john@example.com'
 ```
 
 ## Numeric Indices
@@ -37,8 +39,10 @@ $data = [
 ];
 
 $accessor = new DataAccessor($data);
-$firstUser = $accessor->get('users.0.name');  // 'Alice'
-$secondEmail = $accessor->get('users.1.email'); // 'bob@example.com'
+$firstUser = $accessor->get('users.0.name');
+// $firstUser = 'Alice'
+$secondEmail = $accessor->get('users.1.email');
+// $secondEmail = 'bob@example.com'
 ```
 
 ## Root-Level Indices
@@ -52,7 +56,8 @@ $data = [
 ];
 
 $accessor = new DataAccessor($data);
-$product = $accessor->get('0.name'); // 'Product A'
+$product = $accessor->get('0.name');
+// $product = 'Product A'
 ```
 
 ## Wildcards
@@ -81,7 +86,8 @@ An empty path `""` returns the entire data structure:
 
 ```php
 $accessor = new DataAccessor(['a' => 1, 'b' => 2]);
-$all = $accessor->get(''); // ['a' => 1, 'b' => 2]
+$all = $accessor->get('');
+// $all = ['a' => 1, 'b' => 2]
 ```
 
 ## Missing Keys
@@ -90,8 +96,9 @@ When a path doesn't exist, `null` is returned:
 
 ```php
 $accessor = new DataAccessor(['user' => ['name' => 'John']]);
-$missing = $accessor->get('user.age'); // null
-$nested = $accessor->get('user.profile.bio'); // null
+$missing = $accessor->get('user.age');
+$nested = $accessor->get('user.profile.bio');
+// Result: $missing = null, $nested = null
 ```
 
 ## Path Validation
@@ -122,7 +129,8 @@ $data = [
     ],
 ];
 $accessor = new DataAccessor($data);
-$email = $accessor->get('user.email.address'); // 'john@example.com'
+$email = $accessor->get('user.email.address');
+// $email = 'john@example.com'
 ```
 
 ## Best Practices
@@ -157,11 +165,13 @@ $mutator->set('orders.*.status', 'shipped');
 Always validate paths from user input to avoid exceptions:
 
 ```php
-use event4u\DataHelpers\Support\DotPath;
+use event4u\DataHelpers\Helpers\DotPathHelper;
 
 try {
+    $_GET['path'] = 'user.name'; // Simulate user input
     $path = $_GET['path'];
-    DotPath::validate($path); // Throws on invalid syntax
+    DotPathHelper::segments($path); // Throws on invalid syntax
+    $accessor = new DataAccessor(['user' => ['name' => 'John']]);
     $value = $accessor->get($path);
 } catch (InvalidArgumentException $e) {
     // Handle invalid path
@@ -173,12 +183,17 @@ try {
 For building new structures from multiple sources, use `DataMapper`:
 
 ```php
-$mapper = new DataMapper();
-$result = $mapper->map($source, [
+$source = [
+    'profile' => ['name' => 'John', 'contact' => ['email' => 'john@example.com']],
+    'orders' => [['amount' => 100], ['amount' => 200]]
+];
+$result = DataMapper::source($source)->template([
     'user_name' => '{{ profile.name }}',
     'user_email' => '{{ profile.contact.email }}',
-    'total_orders' => '{{ orders.*.amount | sum }}',
-]);
+    'order_amounts' => '{{ orders.*.amount }}',
+    'total_orders_amount' => '{{ orders.*.amount | sum }}',
+])->map()->getTarget();
+// $result = ['user_name' => 'John', 'user_email' => 'john@example.com', 'order_amounts' => [100, 200], 'total_orders_amount' => 300]
 ```
 
 ## See Also

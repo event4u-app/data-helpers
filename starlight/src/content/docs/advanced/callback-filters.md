@@ -61,7 +61,7 @@ $mapping = [
     'profile.email' => '{{ user.email }}',
 ];
 
-$result = DataMapper::from($source)
+$result = DataMapper::source($source)
     ->template($mapping)
     ->pipeline([
         new CallbackFilter(function(CallbackParameters $params) {
@@ -82,8 +82,11 @@ $result = DataMapper::from($source)
 
 Access the full context to make intelligent decisions:
 
+<!-- skip-test: Requires CallbackFilter class -->
 ```php
-$result = DataMapper::from($source)
+$source = ['order' => ['discount' => 10]];
+$mapping = ['price' => '{{ order.price }}'];
+$result = DataMapper::source($source)
     ->template($mapping)
     ->pipeline([
         new CallbackFilter(function(CallbackParameters $params) {
@@ -103,8 +106,11 @@ $result = DataMapper::from($source)
 
 Return `'__skip__'` to skip values:
 
+<!-- skip-test: Requires CallbackFilter class -->
 ```php
-$result = DataMapper::from($source)
+$source = ['name' => '', 'email' => 'test@example.com'];
+$mapping = ['name' => '{{ name }}', 'email' => '{{ email }}'];
+$result = DataMapper::source($source)
     ->template($mapping)
     ->pipeline([
         new CallbackFilter(function(CallbackParameters $params) {
@@ -153,7 +159,10 @@ $sources = [
     ],
 ];
 
-$result = DataMapper::mapFromTemplate($template, $sources);
+$result = DataMapper::source($sources)
+    ->template($template)
+    ->map()
+    ->getTarget();
 // Result: ['post' => ['slug' => 'hello-world']]
 ```
 
@@ -278,6 +287,7 @@ $template = [
 
 ### Generate Slug
 
+<!-- skip-test: Slugify already registered above -->
 ```php
 CallbackHelper::register('slugify', function($p) {
     if (!is_string($p->value)) {

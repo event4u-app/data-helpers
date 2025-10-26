@@ -8,7 +8,7 @@ MathHelper provides high-precision mathematical operations using BCMath with a c
 ## Quick Example
 
 ```php
-use Event4u\DataHelpers\Helpers\MathHelper;
+use event4u\DataHelpers\Helpers\MathHelper;
 
 // Basic arithmetic
 $result = MathHelper::add(10.5, 5.3); // 15.8
@@ -58,7 +58,7 @@ $result = MathHelper::divide(10, 3, 4); // 3.3333
 ### Addition
 
 ```php
-use Event4u\DataHelpers\Helpers\MathHelper;
+use event4u\DataHelpers\Helpers\MathHelper;
 
 $result = MathHelper::add(10.5, 5.3); // 15.8
 $result = MathHelper::add('10.5', '5.3'); // 15.8 (accepts strings)
@@ -87,19 +87,18 @@ $result = MathHelper::multiply(3.14159, 2, 4); // 6.2832
 ### Division
 
 ```php
-$result = MathHelper::divide(10, 5); // 2.0
-$result = MathHelper::divide(5, 2); // 2.5
-$result = MathHelper::divide(10, 3, 4); // 3.3333
+$result = MathHelper::divide(10, 5);
+// Result: 2.0
 
-// Division by zero throws exception by default
-try {
-    MathHelper::divide(10, 0);
-} catch (MathException $e) {
-    // Handle error
-}
+$result = MathHelper::divide(5, 2);
+// Result: 2.5
 
-// Or return 0 instead
-$result = MathHelper::divide(10, 0, MathHelper::DEFAULT_SCALE, false); // 0.0
+$result = MathHelper::divide(10, 3, 4);
+// Result: 3.3333
+
+// Or return 0 instead of throwing exception
+$result = MathHelper::divide(10, 0, MathHelper::DEFAULT_SCALE, false);
+// Result: 0.0
 ```
 
 ### Modulo
@@ -122,16 +121,14 @@ $result = MathHelper::powerOf(0, 0); // 1.0
 ### Square Root
 
 ```php
-$result = MathHelper::squareRoot(16); // 4.0
-$result = MathHelper::squareRoot(2.25); // 1.5
-$result = MathHelper::squareRoot(100); // 10.0
+$result = MathHelper::squareRoot(16);
+// Result: 4.0
 
-// Negative numbers throw exception
-try {
-    MathHelper::squareRoot(-1);
-} catch (MathException $e) {
-    // Handle error
-}
+$result = MathHelper::squareRoot(2.25);
+// Result: 1.5
+
+$result = MathHelper::squareRoot(100);
+// Result: 10.0
 ```
 
 ### Comparison
@@ -256,6 +253,7 @@ $seconds = MathHelper::convertDecimalHoursToSecondsRounded(1.5, 0); // 5400.0
 
 By default, malformed input throws `MathException`:
 
+<!-- skip-test: exception example -->
 ```php
 try {
     MathHelper::add('not_a_number', 5);
@@ -268,12 +266,14 @@ You can configure it to convert malformed input to zero instead:
 
 ```php
 MathHelper::setConvertMalformedInputToZero(true);
-$result = MathHelper::add('not_a_number', 5); // 5.0
+$result = MathHelper::add('not_a_number', 5);
+// $result = 5.0
 MathHelper::setConvertMalformedInputToZero(false); // Reset to default
 ```
 
 ### Division by Zero
 
+<!-- skip-test: exception example -->
 ```php
 // Throws exception by default
 try {
@@ -290,6 +290,7 @@ $result = MathHelper::divide(10, 0, MathHelper::DEFAULT_SCALE, false); // 0.0
 
 `MathException` contains detailed error information:
 
+<!-- skip-test: exception example -->
 ```php
 try {
     MathHelper::divide(10, 0);

@@ -44,6 +44,7 @@ composer benchmark:compare
 
 ## Creating Custom Benchmarks
 
+<!-- skip-test: Full file example -->
 ```php
 <?php
 

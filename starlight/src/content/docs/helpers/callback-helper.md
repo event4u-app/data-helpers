@@ -22,12 +22,12 @@ Register a named callback that can be used in template expressions.
 ```php
 use event4u\DataHelpers\Support\CallbackHelper;
 
-CallbackHelper::register('slugify', function($params) {
+CallbackHelper::register('slugify_example', function($params) {
     return strtolower(str_replace(' ', '-', $params->value));
 });
 
 // Use in template
-$template = ['slug' => '{{ article.title | callback:slugify }}'];
+$template = ['slug' => '{{ article.title | callback:slugify_example }}'];
 ```
 
 ### registerOrReplace()
@@ -104,17 +104,16 @@ Execute a callback with unified logic. Supports multiple callback formats.
 ```php
 use event4u\DataHelpers\Support\CallbackHelper;
 
+// Register a callback first
+CallbackHelper::register('double', fn($x) => $x * 2);
+
 // Execute registered callback
-$result = CallbackHelper::execute('slugify', $params);
-
-// Execute static method
-$result = CallbackHelper::execute('MyClass::method', $arg1, $arg2);
-
-// Execute instance method
-$result = CallbackHelper::execute('methodName', $instance, $arg1);
+$result = CallbackHelper::execute('double', 5);
+// Result: 10
 
 // Execute closure
 $result = CallbackHelper::execute(fn($x) => $x * 2, 5);
+// Result: 10
 ```
 
 ## Execution Priority
@@ -196,10 +195,19 @@ class UserDTO extends SimpleDTO
 ### Array Callables with Instance
 
 ```php
+class PermissionChecker
+{
+    public function canView(string $user): bool
+    {
+        return $user === 'admin';
+    }
+}
+
 $checker = new PermissionChecker();
 
 // Array syntax with instance
-$result = CallbackHelper::execute([$checker, 'canView'], $user, $context);
+$result = CallbackHelper::execute([$checker, 'canView'], 'admin');
+// Result: true
 ```
 
 ### Global Functions
@@ -255,7 +263,7 @@ $template = [
     'excerpt' => '{{ article.content | callback:excerpt }}',
 ];
 
-$result = DataMapper::from($article)
+$result = DataMapper::source($article)
     ->template($template)
     ->map()
     ->getTarget();
@@ -272,15 +280,15 @@ class UserDTO extends SimpleDTO
 {
     public function __construct(
         public readonly string $name,
-        
+
         // Instance method callback
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
-        
+
         // Static method callback
         #[Visible(callback: 'static::canViewPhone')]
         public readonly string $phone,
-        
+
         // Conditional property
         #[WhenCallback('static::isAdult')]
         public readonly ?string $adultContent = null,
@@ -309,6 +317,7 @@ class UserDTO extends SimpleDTO
 
 ```php
 try {
+    $arg = ['value' => 'test'];
     $result = CallbackHelper::execute('nonExistentFunction', $arg);
 } catch (InvalidArgumentException $e) {
     // Handle error

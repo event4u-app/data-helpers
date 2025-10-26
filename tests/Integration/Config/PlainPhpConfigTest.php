@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Config;
 
-use event4u\DataHelpers\Config\ConfigHelper;
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Helpers\ConfigHelper;
 
 describe('Plain PHP Config Integration', function(): void {
     beforeEach(function(): void {

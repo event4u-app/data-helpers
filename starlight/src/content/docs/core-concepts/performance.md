@@ -34,13 +34,14 @@ $value2 = $accessor->get('user.profile.name'); // Faster!
 DataMapper templates are compiled and cached:
 
 ```php
-$mapper = new DataMapper();
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$template = ['user_name' => '{{ name }}', 'user_email' => '{{ email }}'];
 
 // First call: Compile and cache template
-$result1 = $mapper->map($data, $template);
+$result1 = DataMapper::source($data)->template($template)->map();
 
 // Subsequent calls: Use cached template
-$result2 = $mapper->map($data, $template); // Faster!
+$result2 = DataMapper::source($data)->template($template)->map(); // Faster!
 ```
 
 ## Optimization Tips
@@ -80,7 +81,7 @@ class UserDTO extends SimpleDTO
 {
     #[Lazy]
     public string $fullName;
-    
+
     protected function computeFullName(): string
     {
         return $this->firstName . ' ' . $this->lastName;

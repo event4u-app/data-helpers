@@ -84,28 +84,25 @@ $dto = UserDTO::fromArray($_POST);
 ### Manual Validation
 
 ```php
-$dto = UserDTO::fromArray($_POST);
+use event4u\DataHelpers\Exceptions\ValidationException;
+
+$data = ['name' => 'John', 'email' => 'john@example.com', 'age' => 30];
 
 try {
-    $dto->validate();
+    $dto = UserDTO::validateAndCreate($data);
     // Validation passed
-} catch (\event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException $e) {
+} catch (ValidationException $e) {
     // Validation failed
-    $errors = $e->getErrors();
-    print_r($errors);
+    print_r($e->errors());
 }
 ```
 
 ### Validate and Create
 
 ```php
-try {
-    $dto = UserDTO::validateAndCreate($_POST);
-    // DTO is valid
-} catch (\event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException $e) {
-    // Validation failed
-    $errors = $e->getErrors();
-}
+$data = ['name' => 'John', 'email' => 'john@example.com', 'age' => 30];
+$dto = UserDTO::validateAndCreate($data);
+// DTO is valid (throws exception if invalid)
 ```
 
 ## Type Casting
@@ -139,6 +136,7 @@ $dto = OrderDTO::fromArray([
 ### To Array
 
 ```php
+$data = ['name' => 'John', 'email' => 'john@example.com'];
 $dto = UserDTO::fromArray($data);
 $array = $dto->toArray();
 ```
@@ -146,12 +144,15 @@ $array = $dto->toArray();
 ### To JSON
 
 ```php
+$data = ['name' => 'John', 'email' => 'john@example.com'];
+$dto = UserDTO::fromArray($data);
 $json = $dto->toJson();
 ```
 
 ### To XML
 
 ```php
+$dto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
 $xml = $dto->toXml();
 ```
 
@@ -166,6 +167,7 @@ require 'vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\*;
+use event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
 
 class CreateUserDTO extends SimpleDTO
 {
@@ -199,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json');
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
 
-    } catch (\event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException $e) {
+    } catch (ValidationException $e) {
         // Return validation errors
         header('Content-Type: application/json', true, 422);
         echo json_encode(['errors' => $e->getErrors()]);
@@ -216,6 +218,7 @@ require 'vendor/autoload.php';
 
 use event4u\DataHelpers\SimpleDTO\SimpleDTO;
 use event4u\DataHelpers\SimpleDTO\Attributes\*;
+use event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
 
 class ContactFormDTO extends SimpleDTO
 {
@@ -244,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         echo 'Message sent successfully!';
 
-    } catch (\event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException $e) {
+    } catch (ValidationException $e) {
         echo 'Validation errors:';
         print_r($e->getErrors());
     }

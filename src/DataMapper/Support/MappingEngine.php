@@ -417,11 +417,9 @@ class MappingEngine
                 }
 
                 // Normal write to target
-                $target = DataMutator::set(
-                    self::asTarget($target),
-                    $targetPath,
-                    $writeValue
-                );
+                $targetData = self::asTarget($target);
+                DataMutator::make($targetData)->set($targetPath, $writeValue);
+                $target = $targetData;
 
                 if (!HookInvoker::isEmpty($hooks)) {
                     $target = HookInvoker::invokeTargetHook(
@@ -505,11 +503,9 @@ class MappingEngine
                 if ('__skip__' === $writeValue) {
                     return false;
                 }
-                $target = DataMutator::set(
-                    self::asTarget($target),
-                    (string)$resolvedTargetPath,
-                    $writeValue
-                );
+                $targetData = self::asTarget($target);
+                DataMutator::make($targetData)->set((string)$resolvedTargetPath, $writeValue);
+                $target = $targetData;
 
                 if (!HookInvoker::isEmpty($hooks)) {
                     $target = HookInvoker::invokeTargetHook(
@@ -569,7 +565,9 @@ class MappingEngine
         }
 
         if ('__skip__' !== $writeValue) {
-            $target = DataMutator::set(self::asTarget($target), $targetPath, $writeValue);
+            $targetData = self::asTarget($target);
+            DataMutator::make($targetData)->set($targetPath, $writeValue);
+            $target = $targetData;
 
             if (!HookInvoker::isEmpty($hooks)) {
                 $target = HookInvoker::invokeTargetHook(
@@ -692,11 +690,9 @@ class MappingEngine
         }
 
         // Write value to target
-        $target = DataMutator::set(
-            self::asTarget($target),
-            $resolvedTargetPath ?? '',
-            $writeValue
-        );
+        $targetData = self::asTarget($target);
+        DataMutator::make($targetData)->set($resolvedTargetPath ?? '', $writeValue);
+        $target = $targetData;
 
         // Invoke afterWrite hook
         $target = HookInvoker::invokeTargetHook(
@@ -789,11 +785,9 @@ class MappingEngine
         // Skip if hook returned magic skip value
         if ('__skip__' !== $writeValue) {
             // Write value to target
-            $target = DataMutator::set(
-                self::asTarget($target),
-                $targetPath,
-                $writeValue
-            );
+            $targetData = self::asTarget($target);
+            DataMutator::make($targetData)->set($targetPath, $writeValue);
+            $target = $targetData;
 
             // Invoke afterWrite hook
             $target = HookInvoker::invokeTargetHook(

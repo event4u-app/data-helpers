@@ -70,6 +70,20 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
     }
 
     /**
+     * Create a new collection instance (alias for forDto).
+     *
+     * This method provides a more intuitive API for creating collections.
+     *
+     * @param array<int|string, mixed> $items
+     * @param class-string<TDto> $dtoClass
+     * @return static<TDto>
+     */
+    public static function make(array $items, string $dtoClass): static
+    {
+        return new self($dtoClass, $items);
+    }
+
+    /**
      * Get the DTO class for this collection.
      *
      * @return class-string<TDto>

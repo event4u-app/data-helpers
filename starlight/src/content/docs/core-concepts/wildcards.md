@@ -19,6 +19,7 @@ $data = [
 
 $accessor = new DataAccessor($data);
 $emails = $accessor->get('users.*.email');
+// $emails = ['users.0.email' => 'alice@example.com', 'users.1.email' => 'bob@example.com']
 ```
 
 ## Deep Wildcards
@@ -26,7 +27,10 @@ $emails = $accessor->get('users.*.email');
 Multiple `*` can appear in one path:
 
 ```php
+$data = ['orders' => [['items' => [['sku' => 'ABC'], ['sku' => 'DEF']]]]];
+$accessor = new DataAccessor($data);
 $skus = $accessor->get('orders.*.items.*.sku');
+// $skus = ['orders.0.items.0.sku' => 'ABC', 'orders.0.items.1.sku' => 'DEF']
 ```
 
 ## Wildcard Operators

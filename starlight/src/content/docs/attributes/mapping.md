@@ -16,8 +16,9 @@ SimpleDTO provides 2 mapping attributes:
 
 Map input data from a different key:
 
+<!-- skip-test: property declaration only -->
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
 
 #[MapFrom('full_name')]
 public readonly string $name;
@@ -28,6 +29,7 @@ public readonly string $email;
 
 ### Nested Path Mapping
 
+<!-- skip-test: property declaration only -->
 ```php
 #[MapFrom('contact.email')]
 public readonly string $email;
@@ -38,6 +40,7 @@ public readonly string $city;
 
 ### Multiple Sources (Fallback)
 
+<!-- skip-test: property declaration only -->
 ```php
 #[MapFrom(['user.email', 'user.mail', 'email'])]
 public readonly string $email;
@@ -47,8 +50,9 @@ public readonly string $email;
 
 Map output data to a different key:
 
+<!-- skip-test: property declaration only -->
 ```php
-use Event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
+use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
 
 #[MapTo('full_name')]
 public readonly string $name;
@@ -59,6 +63,7 @@ public readonly string $email;
 
 ### Nested Output
 
+<!-- skip-test: property declaration only -->
 ```php
 #[MapTo('user.profile.email')]
 public readonly string $email;
@@ -67,6 +72,7 @@ public readonly string $email;
 
 ## Bidirectional Mapping
 
+<!-- skip-test: property declaration only -->
 ```php
 #[MapFrom('user_name'), MapTo('user_name')]
 public readonly string $userName;

@@ -11,7 +11,7 @@ describe('DataMutator', function(): void {
     describe('Array mutations - Single values', function(): void {
         test('can set simple values in empty array', function(): void {
             $data = [];
-            $result = DataMutator::set($data, 'name', 'Alice');
+            $result = DataMutator::make($data)->set('name', 'Alice')->toArray();
 
             expect($result)->toBe([
                 'name' => 'Alice',
@@ -20,7 +20,7 @@ describe('DataMutator', function(): void {
 
         test('can set nested values in empty array', function(): void {
             $data = [];
-            $result = DataMutator::set($data, 'user.profile.name', 'Alice');
+            $result = DataMutator::make($data)->set('user.profile.name', 'Alice')->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -35,7 +35,7 @@ describe('DataMutator', function(): void {
             $data = [
                 'existing' => 'value',
             ];
-            $result = DataMutator::set($data, 'name', 'Alice');
+            $result = DataMutator::make($data)->set('name', 'Alice')->toArray();
 
             expect($result)->toBe([
                 'existing' => 'value',
@@ -47,7 +47,7 @@ describe('DataMutator', function(): void {
             $data = [
                 'name' => 'Bob',
             ];
-            $result = DataMutator::set($data, 'name', 'Alice');
+            $result = DataMutator::make($data)->set('name', 'Alice')->toArray();
 
             expect($result)->toBe([
                 'name' => 'Alice',
@@ -56,7 +56,7 @@ describe('DataMutator', function(): void {
 
         test('can set deeply nested values', function(): void {
             $data = [];
-            $result = DataMutator::set($data, 'level1.level2.level3.level4.value', 'deep');
+            $result = DataMutator::make($data)->set('level1.level2.level3.level4.value', 'deep')->toArray();
 
             expect($result)->toBe([
                 'level1' => [
@@ -75,7 +75,7 @@ describe('DataMutator', function(): void {
             $data = [
                 'user' => 'scalar_value',
             ];
-            $result = DataMutator::set($data, 'user.profile.name', 'Alice');
+            $result = DataMutator::make($data)->set('user.profile.name', 'Alice')->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -90,11 +90,10 @@ describe('DataMutator', function(): void {
     describe('Array mutations - Multiple values', function(): void {
         test('can set multiple values with array of paths', function(): void {
             $data = [];
-            $result = DataMutator::set($data, [
-                'users.0.name' => 'Alice',
-                'users.1.name' => 'Bob',
+            $result = DataMutator::make($data)->set([
+                'users.0.name' => 'Alice', 'users.1.name' => 'Bob',
                 'users.1.age' => 25,
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -111,12 +110,11 @@ describe('DataMutator', function(): void {
 
         test('can set multiple nested values', function(): void {
             $data = [];
-            $result = DataMutator::set($data, [
-                'config.database.host' => 'localhost',
-                'config.database.port' => 3306,
+            $result = DataMutator::make($data)->set([
+                'config.database.host' => 'localhost', 'config.database.port' => 3306,
                 'config.cache.driver' => 'redis',
                 'config.cache.ttl' => 3600,
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'config' => [
@@ -144,11 +142,10 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, [
-                'users.0.name' => 'NewAlice',
-                'users.0.email' => 'alice@example.com',
+            $result = DataMutator::make($data)->set([
+                'users.0.name' => 'NewAlice', 'users.0.email' => 'alice@example.com',
                 'users.1.age' => 30,
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -167,13 +164,12 @@ describe('DataMutator', function(): void {
 
         test('can mix simple and nested paths in multiple assignment', function(): void {
             $data = [];
-            $result = DataMutator::set($data, [
-                'name' => 'Alice',
-                'profile.age' => 30,
+            $result = DataMutator::make($data)->set([
+                'name' => 'Alice', 'profile.age' => 30,
                 'profile.address.city' => 'Berlin',
                 'profile.address.country' => 'Germany',
                 'settings.theme' => 'dark',
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'name' => 'Alice',
@@ -192,21 +188,20 @@ describe('DataMutator', function(): void {
 
         test('can set empty array with multiple paths', function(): void {
             $data = [];
-            $result = DataMutator::set($data, []);
+            $result = DataMutator::make($data)->set([])->toArray();
 
             expect($result)->toBe([]);
         });
 
         test('can set multiple values with special types', function(): void {
             $data = [];
-            $result = DataMutator::set($data, [
-                'string' => 'text',
-                'number' => 42,
+            $result = DataMutator::make($data)->set([
+                'string' => 'text', 'number' => 42,
                 'float' => 19.99,
                 'boolean' => true,
                 'null' => null,
                 'array' => ['a', 'b', 'c'],
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'string' => 'text',
@@ -226,9 +221,9 @@ describe('DataMutator', function(): void {
                     'name' => 'Alice',
                 ],
             ];
-            $result = DataMutator::set($data, 'user', [
+            $result = DataMutator::make($data)->set('user', [
                 'age' => 30,
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -243,9 +238,9 @@ describe('DataMutator', function(): void {
                     'name' => 'Alice',
                 ],
             ];
-            $result = DataMutator::set($data, 'user', [
+            $result = DataMutator::make($data)->set('user', [
                 'age' => 30,
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -264,12 +259,12 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'user', [
+            $result = DataMutator::make($data)->set('user', [
                 'age' => 30,
                 'profile' => [
                     'zip' => '10115',
                 ],
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -296,7 +291,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'config', [
+            $result = DataMutator::make($data)->set('config', [
                 'database' => [
                     'name' => 'myapp',
                     'connections' => [
@@ -311,7 +306,7 @@ describe('DataMutator', function(): void {
                 'cache' => [
                     'driver' => 'redis',
                 ],
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'config' => [
@@ -342,9 +337,9 @@ describe('DataMutator', function(): void {
                     'age' => 25,
                 ],
             ];
-            $result = DataMutator::set($data, 'user', [
+            $result = DataMutator::make($data)->set('user', [
                 'age' => 30,
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -358,9 +353,9 @@ describe('DataMutator', function(): void {
             $data = [
                 'user' => 'Alice',
             ];
-            $result = DataMutator::set($data, 'user', [
+            $result = DataMutator::make($data)->set('user', [
                 'age' => 30,
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -375,7 +370,7 @@ describe('DataMutator', function(): void {
                     'name' => 'Alice',
                 ],
             ];
-            $result = DataMutator::set($data, 'user', 'Bob', true);
+            $result = DataMutator::make($data)->set('user', 'Bob', true)->toArray();
 
             expect($result)->toBe([
                 'user' => 'Bob',
@@ -386,9 +381,9 @@ describe('DataMutator', function(): void {
             $data = [
                 'user' => [],
             ];
-            $result = DataMutator::set($data, 'user', [
+            $result = DataMutator::make($data)->set('user', [
                 'name' => 'Alice',
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -399,9 +394,9 @@ describe('DataMutator', function(): void {
 
         test('can merge into empty target', function(): void {
             $data = [];
-            $result = DataMutator::set($data, 'user', [
+            $result = DataMutator::make($data)->set('user', [
                 'name' => 'Alice',
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -414,7 +409,7 @@ describe('DataMutator', function(): void {
             $data = [
                 'tags' => ['old', 'keep'],
             ];
-            $result = DataMutator::set($data, 'tags', ['new'], true);
+            $result = DataMutator::make($data)->set('tags', ['new'], true)->toArray();
 
             expect($result)->toBe([
                 'tags' => ['new', 'keep'],
@@ -425,7 +420,7 @@ describe('DataMutator', function(): void {
             $data = [
                 'items' => ['a', 'b', 'c', 'd'],
             ];
-            $result = DataMutator::set($data, 'items', ['x', 'y'], true);
+            $result = DataMutator::make($data)->set('items', ['x', 'y'], true)->toArray();
 
             expect($result)->toBe([
                 'items' => ['x', 'y', 'c', 'd'],
@@ -441,10 +436,10 @@ describe('DataMutator', function(): void {
                     5 => 'five',
                 ],
             ];
-            $result = DataMutator::set($data, 'list', [
+            $result = DataMutator::make($data)->set('list', [
                 0 => 'NEW_ZERO',
                 2 => 'NEW_TWO',
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'list' => [
@@ -464,10 +459,10 @@ describe('DataMutator', function(): void {
                     'version' => '1.0',
                 ],
             ];
-            $result = DataMutator::set($data, 'config', [
+            $result = DataMutator::make($data)->set('config', [
                 'tags' => ['new1'],
                 'description' => 'My App',
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'config' => [
@@ -488,12 +483,12 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'users', [
+            $result = DataMutator::make($data)->set('users', [
                 'alice' => [
                     'permissions' => ['admin'],
                     'email' => 'alice@example.com',
                 ],
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -510,7 +505,7 @@ describe('DataMutator', function(): void {
             $data = [
                 'items' => [],
             ];
-            $result = DataMutator::set($data, 'items', ['first'], true);
+            $result = DataMutator::make($data)->set('items', ['first'], true)->toArray();
 
             expect($result)->toBe([
                 'items' => ['first'],
@@ -525,10 +520,10 @@ describe('DataMutator', function(): void {
                     7 => 'seven',
                 ],
             ];
-            $result = DataMutator::set($data, 'sparse', [
+            $result = DataMutator::make($data)->set('sparse', [
                 1 => 'one',
                 3 => 'NEW_THREE',
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'sparse' => [
@@ -553,7 +548,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'users.*.name', 'Bob');
+            $result = DataMutator::make($data)->set('users.*.name', 'Bob')->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -569,7 +564,7 @@ describe('DataMutator', function(): void {
 
         test('can set values with wildcard at root level', function(): void {
             $data = ['', '', ''];
-            $result = DataMutator::set($data, '*', 'value');
+            $result = DataMutator::make($data)->set('*', 'value')->toArray();
 
             expect($result)->toBe(['value', 'value', 'value']);
         });
@@ -596,7 +591,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'orders.*.items.*.price', 100);
+            $result = DataMutator::make($data)->set('orders.*.items.*.price', 100)->toArray();
 
             expect($result)->toBe([
                 'orders' => [
@@ -625,7 +620,7 @@ describe('DataMutator', function(): void {
             $data = [
                 'users' => [],
             ];
-            $result = DataMutator::set($data, 'users.*.name', 'Bob');
+            $result = DataMutator::make($data)->set('users.*.name', 'Bob')->toArray();
 
             expect($result)->toBe([
                 'users' => [],
@@ -641,7 +636,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'items.*.name', 'test');
+            $result = DataMutator::make($data)->set('items.*.name', 'test')->toArray();
 
             expect($result)->toBe([
                 'items' => [
@@ -670,11 +665,11 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'users.*', [
+            $result = DataMutator::make($data)->set('users.*', [
                 'profile' => [
                     'country' => 'Germany',
                 ],
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -705,9 +700,9 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'items.*', [
+            $result = DataMutator::make($data)->set('items.*', [
                 'new' => 'value',
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'items' => [
@@ -735,10 +730,10 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'groups.*', [
+            $result = DataMutator::make($data)->set('groups.*', [
                 'tags' => ['new1'],
                 'active' => true,
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'groups' => [
@@ -764,7 +759,7 @@ describe('DataMutator', function(): void {
                 public int $age = 0;
             };
 
-            DataMutator::set($dto, 'name', 'Charlie');
+            DataMutator::make($dto)->set('name', 'Charlie');
 
             expect($dto->name)->toBe('Charlie');
             expect($dto->age)->toBe(0); // unchanged
@@ -779,9 +774,8 @@ describe('DataMutator', function(): void {
                 /** @var array<string, mixed> */
                 public array $config = [];
             };
-            DataMutator::set($dto, [
-                'name' => 'Alice',
-                'age' => 30,
+            DataMutator::make($dto)->set([
+                'name' => 'Alice', 'age' => 30,
                 'email' => 'alice@example.com',
 
                 'config.theme' => 'dark',
@@ -807,7 +801,7 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            DataMutator::set($dto, 'name', 'Charlie');
+            DataMutator::make($dto)->set('name', 'Charlie');
 
             expect($dto->getName())->toBe('Charlie');
         });
@@ -816,7 +810,7 @@ describe('DataMutator', function(): void {
             $dto = new #[AllowDynamicProperties] class {
             };
 
-            DataMutator::set($dto, 'dynamicProperty', 'value');
+            DataMutator::make($dto)->set('dynamicProperty', 'value');
 
             /** @phpstan-ignore-next-line unknown */
             expect($dto->dynamicProperty)->toBe('value');
@@ -828,7 +822,7 @@ describe('DataMutator', function(): void {
                 public array $config = [];
             };
 
-            DataMutator::set($dto, 'config.database.host', 'localhost');
+            DataMutator::make($dto)->set('config.database.host', 'localhost');
 
             expect($dto->config)->toBe([
                 'database' => [
@@ -847,7 +841,7 @@ describe('DataMutator', function(): void {
                 ];
             };
 
-            DataMutator::set($dto, 'config', [
+            DataMutator::make($dto)->set('config', [
                 'database' => [
                     'port' => 3306,
                 ],
@@ -874,7 +868,7 @@ describe('DataMutator', function(): void {
                 protected $fillable = ['name', 'email'];
             };
 
-            DataMutator::set($model, 'name', 'Alice');
+            DataMutator::make($model)->set('name', 'Alice');
 
             expect($model->getAttribute('name'))->toBe('Alice');
         });
@@ -884,8 +878,8 @@ describe('DataMutator', function(): void {
                 protected $fillable = ['name', 'email'];
             };
 
-            $result1 = DataMutator::set($model, 'name', 'Alice');
-            $result2 = DataMutator::set($result1, 'email', 'alice@example.com');
+            $result1 = DataMutator::make($model)->set('name', 'Alice')->toArray();
+            $result2 = DataMutator::make($result1)->set('email', 'alice@example.com')->toArray();
 
             expect($model->getAttribute('name'))->toBe('Alice');
             expect($model->getAttribute('email'))->toBe('alice@example.com');
@@ -896,9 +890,8 @@ describe('DataMutator', function(): void {
                 protected $fillable = ['name', 'email', 'age', 'active'];
             };
 
-            DataMutator::set($model, [
-                'name' => 'Bob',
-                'email' => 'bob@example.com',
+            DataMutator::make($model)->set([
+                'name' => 'Bob', 'email' => 'bob@example.com',
                 'age' => 25,
                 'active' => true,
             ]);
@@ -922,7 +915,7 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            $result = DataMutator::set($arrayable, 'name', 'Alice');
+            $result = DataMutator::make($arrayable)->set('name', 'Alice')->toArray();
 
             expect($result)->toBeArray();
             expect($result)->toBe([
@@ -945,7 +938,7 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            $result = DataMutator::set($arrayable, 'user.profile.age', 30);
+            $result = DataMutator::make($arrayable)->set('user.profile.age', 30)->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -968,12 +961,11 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            $result = DataMutator::set($arrayable, [
-                'name' => 'Alice',
-                'age' => 30,
+            $result = DataMutator::make($arrayable)->set([
+                'name' => 'Alice', 'age' => 30,
                 'email' => 'alice@example.com',
                 'profile.city' => 'Berlin',
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'name' => 'Alice',
@@ -998,9 +990,9 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            $result = DataMutator::set($arrayable, 'profile', [
+            $result = DataMutator::make($arrayable)->set('profile', [
                 'country' => 'Germany',
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'name' => 'Bob',
@@ -1026,7 +1018,7 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            $result = DataMutator::set($jsonSerializable, 'name', 'Alice');
+            $result = DataMutator::make($jsonSerializable)->set('name', 'Alice')->toArray();
 
             /** @return array<string, mixed> */
             expect($result)->toBeArray();
@@ -1048,13 +1040,12 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            $result = DataMutator::set($jsonSerializable, [
-                'name' => 'Charlie',
-                'age' => 35,
+            $result = DataMutator::make($jsonSerializable)->set([
+                'name' => 'Charlie', 'age' => 35,
                 'location.city' => 'Munich',
                 'location.country' => 'Germany',
                 /** @return array<string, mixed> */
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'name' => 'Charlie',
@@ -1080,9 +1071,9 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            $result = DataMutator::set($jsonSerializable, 'settings', [
+            $result = DataMutator::make($jsonSerializable)->set('settings', [
                 'language' => 'en',
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'name' => 'David',
@@ -1104,7 +1095,7 @@ describe('DataMutator', function(): void {
                     'name' => 'Bob',
                 ],
             ]);
-            $result = DataMutator::set($collection, '0.age', 30);
+            $result = DataMutator::make($collection)->set('0.age', 30)->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -1131,7 +1122,7 @@ describe('DataMutator', function(): void {
                     'name' => 'Bob',
                 ],
             ]);
-            $result = DataMutator::set($collection, '*.age', 25);
+            $result = DataMutator::make($collection)->set('*.age', 25)->toArray();
             expect($result)->toBeInstanceOf(Collection::class);
 
             /** @var Collection<(int | string), mixed> $result */
@@ -1158,9 +1149,9 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ]);
-            $result = DataMutator::merge($collection, '0.config', [
+            $result = DataMutator::make($collection)->merge('0.config', [
                 'cache' => 'redis',
-            ]);
+            ])->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -1179,11 +1170,10 @@ describe('DataMutator', function(): void {
 
         test('can set multiple values in Collections', function(): void {
             $collection = collect([[], []]);
-            $result = DataMutator::set($collection, [
-                '0.name' => 'Alice',
-                '1.name' => 'Bob',
+            $result = DataMutator::make($collection)->set([
+                '0.name' => 'Alice', '1.name' => 'Bob',
                 '1.age' => 25,
-            ]);
+            ])->toArray();
 
             /** @var Collection<(int | string), mixed> $result */
             assert($result instanceof Collection);
@@ -1207,7 +1197,7 @@ describe('DataMutator', function(): void {
                     'tags' => ['old1', 'old2'],
                 ],
             ]);
-            $result = DataMutator::merge($collection, '0.tags', ['new1']);
+            $result = DataMutator::make($collection)->merge('0.tags', ['new1'])->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -1225,7 +1215,7 @@ describe('DataMutator', function(): void {
     describe('Special value types', function(): void {
         test('can set null values', function(): void {
             $data = [];
-            $result = DataMutator::set($data, 'value', null);
+            $result = DataMutator::make($data)->set('value', null)->toArray();
 
             expect($result)->toBe([
                 'value' => null,
@@ -1234,8 +1224,8 @@ describe('DataMutator', function(): void {
 
         test('can set boolean values', function(): void {
             $data = [];
-            $result1 = DataMutator::set($data, 'enabled', true);
-            $result2 = DataMutator::set($result1, 'disabled', false);
+            $result1 = DataMutator::make($data)->set('enabled', true)->toArray();
+            $result2 = DataMutator::make($result1)->set('disabled', false)->toArray();
 
             expect($result2)->toBe([
                 'enabled' => true,
@@ -1245,8 +1235,8 @@ describe('DataMutator', function(): void {
 
         test('can set numeric values', function(): void {
             $data = [];
-            $result1 = DataMutator::set($data, 'count', 42);
-            $result2 = DataMutator::set($result1, 'price', 19.99);
+            $result1 = DataMutator::make($data)->set('count', 42)->toArray();
+            $result2 = DataMutator::make($result1)->set('price', 19.99)->toArray();
 
             expect($result2)->toBe([
                 'count' => 42,
@@ -1256,7 +1246,7 @@ describe('DataMutator', function(): void {
 
         test('can set array values', function(): void {
             $data = [];
-            $result = DataMutator::set($data, 'items', ['a', 'b', 'c']);
+            $result = DataMutator::make($data)->set('items', ['a', 'b', 'c'])->toArray();
 
             expect($result)->toBe([
                 'items' => ['a', 'b', 'c'],
@@ -1268,7 +1258,7 @@ describe('DataMutator', function(): void {
             $obj = new stdClass();
             $obj->prop = 'value';
 
-            $result = DataMutator::set($data, 'object', $obj);
+            $result = DataMutator::make($data)->set('object', $obj)->toArray();
 
             /** @var array<string, mixed> $result */
             assert(is_array($result));
@@ -1279,7 +1269,7 @@ describe('DataMutator', function(): void {
     describe('Edge cases', function(): void {
         test('handles empty path segments gracefully', function(): void {
             $data = [];
-            $result = DataMutator::set($data, '', 'value');
+            $result = DataMutator::make($data)->set('', 'value')->toArray();
 
             // Empty path is ignored by DotPathHelper (segments('') => []); result remains unchanged
             expect($result)->toBe([]);
@@ -1288,7 +1278,7 @@ describe('DataMutator', function(): void {
         test('handles paths with consecutive dots', function(): void {
             $data = [];
 
-            expect(fn(): array|object => DataMutator::set($data, 'a..b', 'value'))
+            expect(fn() => DataMutator::make($data)->set('a..b', 'value'))
                 ->toThrow(InvalidArgumentException::class, 'Invalid dot-path syntax: double dot in "a..b"');
         });
 
@@ -1305,7 +1295,7 @@ describe('DataMutator', function(): void {
                 ];
             };
 
-            DataMutator::set($dto, 'items.0.price', 100);
+            DataMutator::make($dto)->set('items.0.price', 100);
 
             expect($dto->items[0])->toBe([
                 'name' => 'item1',
@@ -1322,7 +1312,7 @@ describe('DataMutator', function(): void {
                 public ?array $config = null;
             };
 
-            DataMutator::set($dto, 'config.database.host', 'localhost');
+            DataMutator::make($dto)->set('config.database.host', 'localhost');
 
             expect($dto->config)->toBe([
                 'database' => [
@@ -1346,7 +1336,7 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::set($data, 'items.*.name', 'updated');
+            $result = DataMutator::make($data)->set('items.*.name', 'updated')->toArray();
 
             /** @var array{items: array<int, mixed>} $result */
             assert(is_array($result));
@@ -1382,12 +1372,11 @@ describe('DataMutator', function(): void {
                 'config' => [],
             ];
 
-            $result = DataMutator::set($data, [
-                'users.*.name' => 'DefaultUser',
-                'users.*.active' => true,
+            $result = DataMutator::make($data)->set([
+                'users.*.name' => 'DefaultUser', 'users.*.active' => true,
                 'config.theme' => 'dark',
                 'config.language' => 'en',
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -1410,12 +1399,11 @@ describe('DataMutator', function(): void {
         test('multiple values with overlapping paths', function(): void {
             $data = [];
 
-            $result = DataMutator::set($data, [
-                'user.profile.name' => 'Alice',
-                'user.profile.age' => 30,
+            $result = DataMutator::make($data)->set([
+                'user.profile.name' => 'Alice', 'user.profile.age' => 30,
                 'user.settings.theme' => 'dark',
                 'user.permissions.admin' => true,
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -1436,10 +1424,9 @@ describe('DataMutator', function(): void {
         test('multiple values can overwrite each other', function(): void {
             $data = [];
 
-            $result = DataMutator::set($data, [
-                'value' => 'second',
-                'nested.value' => 'nested_second', // This should overwrite too
-            ]);
+            $result = DataMutator::make($data)->set([
+                'value' => 'second', 'nested.value' => 'nested_second', // This should overwrite too
+            ])->toArray();
 
             expect($result)->toBe([
                 'value' => 'second',
@@ -1459,14 +1446,13 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::set($data, [
+            $result = DataMutator::make($data)->set([
                 'user' => [
-                    'age' => 30,
-                ],
+                    'age' => 30, ],
                 'config' => [
                     'language' => 'en',
                 ],
-            ], null, true);
+            ], null, true)->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -1492,16 +1478,15 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::set($data, [
+            $result = DataMutator::make($data)->set([
                 'app' => [
                     'database' => [
-                        'port' => 3306,
-                    ],
+                        'port' => 3306, ],
                     'mail' => [
                         'driver' => 'smtp',
                     ],
                 ],
-            ], null, true);
+            ], null, true)->toArray();
 
             expect($result)->toBe([
                 'app' => [
@@ -1527,12 +1512,11 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::set($data, [
+            $result = DataMutator::make($data)->set([
                 'lists' => [
-                    'tags' => ['new1'],
-                    'categories' => ['newcat1', 'newcat2'],
+                    'tags' => ['new1'], 'categories' => ['newcat1', 'newcat2'],
                 ],
-            ], null, true);
+            ], null, true)->toArray();
 
             expect($result)->toBe([
                 'lists' => [
@@ -1553,15 +1537,14 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::set($data, [
+            $result = DataMutator::make($data)->set([
                 'system' => [
-                    'modules' => ['logging'],
-                    'config' => [
+                    'modules' => ['logging'], 'config' => [
                         'features' => ['newfeature'],
                         'version' => '2.0',
                     ],
                 ],
-            ], null, true);
+            ], null, true)->toArray();
 
             expect($result)->toBe([
                 'system' => [
@@ -1588,11 +1571,11 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::set($data, 'mixed', [
+            $result = DataMutator::make($data)->set('mixed', [
                 /** @phpstan-ignore-next-line unknown */
                 '0' => 'new_string_zero',
                 0 => 'new_int_zero',
-            ], true);
+            ], true)->toArray();
 
             expect($result)->toBe([
                 'mixed' => [
@@ -1624,7 +1607,7 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::set($data, 'nested', [
+            $result = DataMutator::make($data)->set('nested', [
                 'items' => [
                     [
                         'tags' => ['x'],
@@ -1633,7 +1616,7 @@ describe('DataMutator', function(): void {
                         'tags' => ['y', 'z'],
                     ],
                 ],
-            ], true);
+            ], true)->toArray();
 
             // Numeric indices are replaced completely, not merged
             expect($result)->toBe([
@@ -1658,9 +1641,9 @@ describe('DataMutator', function(): void {
                     'name' => 'Alice',
                 ],
             ];
-            $result = DataMutator::merge($data, 'user', [
+            $result = DataMutator::make($data)->merge('user', [
                 'age' => 30,
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -1672,14 +1655,14 @@ describe('DataMutator', function(): void {
 
         test('merge() with single path and value', function(): void {
             $data = [];
-            $result = DataMutator::merge($data, 'user', [
+            $result = DataMutator::make($data)->merge('user', [
                 'name' => 'Alice',
-            ]);
-            $result = DataMutator::merge($result, 'user', [
+            ])->toArray();
+            $result = DataMutator::make($result)->merge('user', [
                 'profile' => [
                     'city' => 'Berlin',
                 ],
-            ]);
+            ])->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -1699,10 +1682,9 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::merge($data, [
-                'user.profile.zip' => '10115',
-                'user.name' => 'Alice',
-            ]);
+            $result = DataMutator::make($data)->merge([
+                'user.profile.zip' => '10115', 'user.name' => 'Alice',
+            ])->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -1719,7 +1701,7 @@ describe('DataMutator', function(): void {
             $data = [
                 'tags' => ['old1', 'old2'],
             ];
-            $result = DataMutator::merge($data, 'tags', ['new1']);
+            $result = DataMutator::make($data)->merge('tags', ['new1'])->toArray();
 
             expect($result)->toBe([
                 'tags' => ['new1', 'old2'],
@@ -1734,7 +1716,7 @@ describe('DataMutator', function(): void {
                 ];
             };
 
-            DataMutator::merge($dto, 'config', [
+            DataMutator::make($dto)->merge('config', [
                 'cache' => 'redis',
             ]);
 
@@ -1753,7 +1735,7 @@ describe('DataMutator', function(): void {
                     'age' => 30,
                 ],
             ];
-            $result = DataMutator::unset($data, 'user.age');
+            $result = DataMutator::make($data)->unset('user.age')->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -1771,7 +1753,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::unset($data, 'user.profile.city');
+            $result = DataMutator::make($data)->unset('user.profile.city')->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -1793,7 +1775,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::unset($data, ['users.0.name', 'users.1.age']);
+            $result = DataMutator::make($data)->unset(['users.0.name', 'users.1.age'])->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -1811,7 +1793,7 @@ describe('DataMutator', function(): void {
                 public ?string $city = 'Berlin';
             };
 
-            DataMutator::unset($dto, 'city');
+            DataMutator::make($dto)->unset('city');
 
             expect($dto->name)->toBe('Alice');
             expect($dto->city)->toBeNull();
@@ -1830,7 +1812,7 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            DataMutator::unset($dto, 'secret');
+            DataMutator::make($dto)->unset('secret');
 
             expect($dto->name)->toBe('Alice');
             expect($dto->getSecret())->toBeNull();
@@ -1842,7 +1824,7 @@ describe('DataMutator', function(): void {
                     'name' => 'Alice',
                 ],
             ];
-            $result = DataMutator::unset($data, 'user.nonexistent');
+            $result = DataMutator::make($data)->unset('user.nonexistent')->toArray();
 
             expect($result)->toBe([
                 'user' => [
@@ -1856,7 +1838,7 @@ describe('DataMutator', function(): void {
                 public string $name = 'Alice';
             };
 
-            DataMutator::unset($dto, 'nonexistent');
+            DataMutator::make($dto)->unset('nonexistent');
 
             expect($dto->name)->toBe('Alice');
         });
@@ -1874,7 +1856,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::unset($data, 'users.*.age');
+            $result = DataMutator::make($data)->unset('users.*.age')->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -1899,7 +1881,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::unset($data, 'users.*');
+            $result = DataMutator::make($data)->unset('users.*')->toArray();
 
             expect($result)->toBe([
                 'users' => [],
@@ -1910,7 +1892,7 @@ describe('DataMutator', function(): void {
             $data = [
                 'items' => ['a', 'b', 'c', 'd'],
             ];
-            $result = DataMutator::unset($data, 'items.*');
+            $result = DataMutator::make($data)->unset('items.*')->toArray();
 
             expect($result)->toBe([
                 'items' => [],
@@ -1924,7 +1906,7 @@ describe('DataMutator', function(): void {
                     'design' => ['ui', 'ux'],
                 ],
             ];
-            $result = DataMutator::unset($data, 'categories.*');
+            $result = DataMutator::make($data)->unset('categories.*')->toArray();
 
             expect($result)->toBe([
                 'categories' => [],
@@ -1946,7 +1928,7 @@ describe('DataMutator', function(): void {
                     'name' => 'MyApp',
                 ],
             ];
-            $result = DataMutator::unset($data, 'config.*');
+            $result = DataMutator::make($data)->unset('config.*')->toArray();
 
             expect($result)->toBe([
                 'config' => [],
@@ -1970,7 +1952,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::unset($data, 'items.*.price');
+            $result = DataMutator::make($data)->unset('items.*.price')->toArray();
 
             expect($result)->toBe([
                 'items' => [
@@ -1999,7 +1981,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::unset($data, 'items.*');
+            $result = DataMutator::make($data)->unset('items.*')->toArray();
 
             expect($result)->toBe([
                 'items' => [],
@@ -2011,7 +1993,7 @@ describe('DataMutator', function(): void {
                 'empty' => [],
                 'filled' => ['a', 'b'],
             ];
-            $result = DataMutator::unset($data, 'empty.*');
+            $result = DataMutator::make($data)->unset('empty.*')->toArray();
 
             expect($result)->toBe([
                 'empty' => [],
@@ -2025,7 +2007,7 @@ describe('DataMutator', function(): void {
                 'b' => 2,
                 'c' => 3,
             ];
-            $result = DataMutator::unset($data, '*');
+            $result = DataMutator::make($data)->unset('*')->toArray();
 
             expect($result)->toBe([]);
         });
@@ -2051,7 +2033,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::unset($data, 'groups.*.users.*.email');
+            $result = DataMutator::make($data)->unset('groups.*.users.*.email')->toArray();
 
             expect($result)->toBe([
                 'groups' => [
@@ -2085,7 +2067,7 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            $result = DataMutator::unset($arrayable, 'age');
+            $result = DataMutator::make($arrayable)->unset('age')->toArray();
 
             expect($result)->toBe([
                 'name' => 'Alice',
@@ -2106,7 +2088,7 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            $result = DataMutator::unset($jsonSerializable, 'age');
+            $result = DataMutator::make($jsonSerializable)->unset('age')->toArray();
 
             expect($result)->toBe([
                 'name' => 'Alice',
@@ -2128,7 +2110,7 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::unset($data, 'users.*.email');
+            $result = DataMutator::make($data)->unset('users.*.email')->toArray();
 
             /** @var array{users: array<int, object>} $result */
             assert(is_array($result));
@@ -2155,7 +2137,7 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::unset($data, 'users.*');
+            $result = DataMutator::make($data)->unset('users.*')->toArray();
 
             expect($result)->toBe([
                 'users' => [],
@@ -2192,7 +2174,7 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::unset($data, 'departments.*.teams.*.lead');
+            $result = DataMutator::make($data)->unset('departments.*.teams.*.lead')->toArray();
 
             expect($result)->toBe([
                 'departments' => [
@@ -2246,7 +2228,7 @@ describe('DataMutator', function(): void {
                 ],
             ];
 
-            $result = DataMutator::unset($data, 'departments.*.teams.*');
+            $result = DataMutator::make($data)->unset('departments.*.teams.*')->toArray();
 
             expect($result)->toBe([
                 'departments' => [
@@ -2273,7 +2255,7 @@ describe('DataMutator', function(): void {
                 }
             };
 
-            DataMutator::unset($dto, 'profile.city');
+            DataMutator::make($dto)->unset('profile.city');
 
             /** @phpstan-ignore-next-line unknown */
             expect($dto->profile->name)->toBe('Alice');
@@ -2292,7 +2274,7 @@ describe('DataMutator', function(): void {
                     'age' => 25,
                 ],
             ]);
-            $result = DataMutator::unset($collection, '0.age');
+            $result = DataMutator::make($collection)->unset('0.age')->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -2321,7 +2303,7 @@ describe('DataMutator', function(): void {
                     'age' => 25,
                 ],
             ]);
-            $result = DataMutator::unset($collection, '*.name');
+            $result = DataMutator::make($collection)->unset('*.name')->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -2347,7 +2329,7 @@ describe('DataMutator', function(): void {
                     'name' => 'Bob',
                 ],
             ]);
-            $result = DataMutator::unset($collection, '*');
+            $result = DataMutator::make($collection)->unset('*')->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -2371,7 +2353,7 @@ describe('DataMutator', function(): void {
                     'city' => 'Munich',
                 ],
             ]);
-            $result = DataMutator::unset($collection, ['0.age', '1.city']);
+            $result = DataMutator::make($collection)->unset(['0.age', '1.city'])->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -2409,7 +2391,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ]);
-            $result = DataMutator::unset($collection, '*.user.profile.city');
+            $result = DataMutator::make($collection)->unset('*.user.profile.city')->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -2436,7 +2418,7 @@ describe('DataMutator', function(): void {
 
         test('can unset from empty Collections', function(): void {
             $collection = collect([]);
-            $result = DataMutator::unset($collection, '*');
+            $result = DataMutator::make($collection)->unset('*')->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -2458,7 +2440,7 @@ describe('DataMutator', function(): void {
                     'type' => 'admin',
                 ],
             ]);
-            $result = DataMutator::unset($collection, '*.type');
+            $result = DataMutator::make($collection)->unset('*.type')->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -2503,7 +2485,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'users.*.profile.*.country', 'Germany');
+            $result = DataMutator::make($data)->set('users.*.profile.*.country', 'Germany')->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -2564,7 +2546,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::unset($data, 'users.*.profile.*.city');
+            $result = DataMutator::make($data)->unset('users.*.profile.*.city')->toArray();
 
             expect($result)->toBe([
                 'users' => [
@@ -2617,7 +2599,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::merge($data, 'departments.*.teams.*.members', ['NewMember']);
+            $result = DataMutator::make($data)->merge('departments.*.teams.*.members', ['NewMember'])->toArray();
 
             expect($result)->toBe([
                 'departments' => [
@@ -2680,7 +2662,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'companies.departments.*.teams.*.projects.*.status', 'active');
+            $result = DataMutator::make($data)->set('companies.departments.*.teams.*.projects.*.status', 'active')->toArray();
 
             expect($result)->toBe([
                 'companies' => [
@@ -2767,7 +2749,7 @@ describe('DataMutator', function(): void {
                     },
                 ],
             ];
-            $result = DataMutator::set($data, 'organizations.*.divisions.*.locations.*.country', 'USA');
+            $result = DataMutator::make($data)->set('organizations.*.divisions.*.locations.*.country', 'USA')->toArray();
 
             /** @var array{organizations: array<int, object>} $result */
             assert(is_array($result));
@@ -2807,7 +2789,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::unset($data, 'regions.*.countries.*.cities.*');
+            $result = DataMutator::make($data)->unset('regions.*.countries.*.cities.*')->toArray();
 
             expect($result)->toBe([
                 'regions' => [
@@ -2886,7 +2868,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ]);
-            $result = DataMutator::set($collection, '*.groups.*.items.*.category', 'processed');
+            $result = DataMutator::make($collection)->set('*.groups.*.items.*.category', 'processed')->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -2975,7 +2957,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'levels.*.sublevel.*.items.*.status', 'active');
+            $result = DataMutator::make($data)->set('levels.*.sublevel.*.items.*.status', 'active')->toArray();
 
             expect($result)->toBe([
                 'levels' => [
@@ -3030,7 +3012,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, 'mixed.*.nested.*.category', 'tagged');
+            $result = DataMutator::make($data)->set('mixed.*.nested.*.category', 'tagged')->toArray();
 
             expect($result)->toBe([
                 'mixed' => [
@@ -3104,7 +3086,7 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ]);
-            $result = DataMutator::unset($collection, '*.users.*.profile.*.city');
+            $result = DataMutator::make($collection)->unset('*.users.*.profile.*.city')->toArray();
 
             expect($result)->toBeInstanceOf(Collection::class);
 
@@ -3165,10 +3147,9 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::set($data, [
-                'stores.*.products.*.info.price' => 99.99,
-                'stores.*.products.*.info.currency' => 'EUR',
-            ]);
+            $result = DataMutator::make($data)->set([
+                'stores.*.products.*.info.price' => 99.99, 'stores.*.products.*.info.currency' => 'EUR',
+            ])->toArray();
 
             expect($result)->toBe([
                 'stores' => [
@@ -3216,21 +3197,25 @@ describe('DataMutator', function(): void {
     describe('Error handling', function(): void {
         test('throws TypeError for unsupported target types', function(): void {
             /** @phpstan-ignore-next-line unknown */
-            expect(fn(): array|object => DataMutator::set('string', 'path', 'value'))
+            $string = 'string';
+            expect(fn() => DataMutator::make($string)->set('path', 'value'))
                 ->toThrow(TypeError::class);
 
             /** @phpstan-ignore-next-line unknown */
-            expect(fn(): array|object => DataMutator::set(42, 'path', 'value'))
+            $int = 42;
+            expect(fn() => DataMutator::make($int)->set('path', 'value'))
                 ->toThrow(TypeError::class);
 
             /** @phpstan-ignore-next-line unknown */
-            expect(fn(): array|object => DataMutator::set(true, 'path', 'value'))
+            $bool = true;
+            expect(fn() => DataMutator::make($bool)->set('path', 'value'))
                 ->toThrow(TypeError::class);
         });
 
         test('unset throws TypeError for unsupported target types', function(): void {
             /** @phpstan-ignore-next-line unknown */
-            expect(fn(): array|object => DataMutator::unset('string', 'path'))
+            $string = 'string';
+            expect(fn() => DataMutator::make($string)->unset('path'))
                 ->toThrow(TypeError::class);
         });
     });

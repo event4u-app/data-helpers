@@ -21,7 +21,7 @@ Pipelines allow you to chain multiple processing stages:
 ```php
 use event4u\DataHelpers\SimpleDTO\Pipeline\DTOPipeline;
 use event4u\DataHelpers\SimpleDTO\Pipeline\Stages\TransformerStage;
-use event4u\DataHelpers\SimpleDTO\Pipeline\Transformers\TrimStringsTransformer;
+use event4u\DataHelpers\SimpleDTO\Transformers\TrimStringsTransformer;
 
 $pipeline = new DTOPipeline();
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
@@ -45,7 +45,7 @@ $dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
 ### TrimStringsTransformer
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Pipeline\Transformers\TrimStringsTransformer;
+use event4u\DataHelpers\SimpleDTO\Transformers\TrimStringsTransformer;
 
 $pipeline = new DTOPipeline();
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
@@ -58,7 +58,7 @@ $dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
 ### LowerCaseTransformer
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Pipeline\Transformers\LowerCaseTransformer;
+use event4u\DataHelpers\SimpleDTO\Transformers\LowerCaseTransformer;
 
 $pipeline = new DTOPipeline();
 $pipeline->addStage(new TransformerStage(new LowerCaseTransformer(['email'])));
@@ -71,7 +71,7 @@ $dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
 ### UpperCaseTransformer
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Pipeline\Transformers\UpperCaseTransformer;
+use event4u\DataHelpers\SimpleDTO\Transformers\UpperCaseTransformer;
 
 $pipeline = new DTOPipeline();
 $pipeline->addStage(new TransformerStage(new UpperCaseTransformer(['code'])));
@@ -93,7 +93,7 @@ class SlugifyTransformer implements Transformer
     public function __construct(
         private array $fields = [],
     ) {}
-    
+
     public function transform(array $data): array
     {
         foreach ($this->fields as $field) {
@@ -101,16 +101,16 @@ class SlugifyTransformer implements Transformer
                 $data[$field] = $this->slugify($data[$field]);
             }
         }
-        
+
         return $data;
     }
-    
+
     private function slugify(string $value): string
     {
         $slug = strtolower($value);
         $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
         $slug = trim($slug, '-');
-        
+
         return $slug;
     }
 }
@@ -136,10 +136,10 @@ class SanitizeStage implements PipelineStage
                 $data[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
             }
         }
-        
+
         return $data;
     }
-    
+
     public function getName(): string
     {
         return 'sanitize';
@@ -239,17 +239,17 @@ class AuditStage implements PipelineStage
     {
         $userId = $this->getContext('user_id');
         $ipAddress = $this->getContext('ip_address');
-        
+
         // Log audit trail
         AuditLog::create([
             'user_id' => $userId,
             'ip_address' => $ipAddress,
             'data' => $data,
         ]);
-        
+
         return $data;
     }
-    
+
     public function getName(): string
     {
         return 'audit';
@@ -315,7 +315,7 @@ class UserPipeline
         $pipeline = new DTOPipeline();
         $pipeline->addStage(new TrimStage());
         $pipeline->addStage(new ValidationStage());
-        
+
         return $pipeline;
     }
 }

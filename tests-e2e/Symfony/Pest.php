@@ -8,11 +8,8 @@ declare(strict_types=1);
 |--------------------------------------------------------------------------
 */
 
-use event4u\DataHelpers\Config\ConfigHelper;
-use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Dotenv\Dotenv;
 
 // Symfony loads .env file automatically in tests/bootstrap.php
 

@@ -28,10 +28,12 @@ $structure = $accessor->getStructure();
 Modify nested data structures safely.
 
 ```php
-$mutator = new DataMutator($data);
-$mutator->set('user.name', 'John');
-$mutator->merge('user.settings', ['theme' => 'dark']);
-$mutator->unset('user.password');
+$data = ['user' => ['name' => 'Jane']];
+DataMutator::make($data)
+    ->set('user.name', 'John')
+    ->merge('user.settings', ['theme' => 'dark'])
+    ->unset('user.password');
+// $data is now modified in-place
 ```
 
 [Learn more →](/main-classes/data-mutator/)
@@ -41,11 +43,14 @@ $mutator->unset('user.password');
 Transform data structures with templates and pipelines.
 
 ```php
-$mapper = new DataMapper();
-$result = $mapper->map($source, [
-    'user_name' => '{{ profile.name }}',
-    'user_email' => '{{ profile.email }}',
-]);
+$source = ['profile' => ['name' => 'John', 'email' => 'john@example.com']];
+
+$result = DataMapper::source($source)
+    ->template([
+        'user_name' => 'profile.name',
+        'user_email' => 'profile.email',
+    ])
+    ->map();
 ```
 
 [Learn more →](/main-classes/data-mapper/)
@@ -55,8 +60,13 @@ $result = $mapper->map($source, [
 Query and filter data with SQL-like API.
 
 ```php
-$filter = new DataFilter($data);
-$result = $filter
+$data = [
+    ['category' => 'Electronics', 'price' => 150],
+    ['category' => 'Electronics', 'price' => 50],
+    ['category' => 'Books', 'price' => 200],
+];
+
+$result = DataFilter::query($data)
     ->where('category', 'Electronics')
     ->where('price', '>', 100)
     ->orderBy('price', 'DESC')

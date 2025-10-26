@@ -309,9 +309,9 @@ composer require event4u/data-helpers
 ### Create Your First DTO
 
 ```php
-use Event4u\DataHelpers\SimpleDTO;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use Event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDTO\Attributes\Email;
 
 class UserDTO extends SimpleDTO
 {

@@ -150,7 +150,7 @@ test('maps nested data correctly', function (): void {
     $source = ['user' => ['name' => 'Alice']];
     $mapping = ['name' => '{{ user.name }}'];
 
-    $result = DataMapper::from($source)
+    $result = DataMapper::source($source)
         ->template($mapping)
         ->map()
         ->getTarget();
@@ -233,7 +233,7 @@ Example:
  * @return array<string, mixed> Mapped result
  *
  * @example
- * $result = DataMapper::from(['user' => ['name' => 'Alice']])
+ * $result = DataMapper::source(['user' => ['name' => 'Alice']])
  *     ->template(['name' => '{{ user.name }}'])
  *     ->map()
  *     ->getTarget();

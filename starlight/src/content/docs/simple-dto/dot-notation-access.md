@@ -254,7 +254,7 @@ echo $updatedUser->get('address.city'); // 'Los Angeles' (new)
 Update all items in an array using wildcards:
 
 ```php
-$user = new UserDTO(
+$user = new UserWithEmailsDTO(
     name: 'John Doe',
     emails: [
         new EmailDTO(email: 'john@work.com', type: 'work', verified: false),
@@ -266,7 +266,7 @@ $user = new UserDTO(
 $updatedUser = $user->set('emails.*.verified', true);
 
 $verified = $updatedUser->get('emails.*.verified');
-// [true, true] - all emails are now verified
+// Result: [true, true]
 ```
 
 ### Multi-Level Wildcards
@@ -344,10 +344,11 @@ $result = $user->get('nonexistent', 'default'); // 'default'
 ### Empty Arrays
 
 ```php
-$user = new UserDTO(name: 'John', emails: []);
+$user = new UserWithEmailsDTO(name: 'John', emails: []);
 
 // Wildcard on empty array returns empty array
-$emails = $user->get('emails.*.email'); // []
+$emails = $user->get('emails.*.email');
+// Result: []
 
 // Set on empty array returns unchanged DTO
 $updated = $user->set('emails.*.verified', true);
@@ -359,7 +360,7 @@ $updated = $user->set('emails.*.verified', true);
 You can access array elements by numeric index:
 
 ```php
-$user = new UserDTO(
+$user = new UserWithEmailsDTO(
     name: 'John',
     emails: [
         new EmailDTO(email: 'first@example.com', type: 'work', verified: false),

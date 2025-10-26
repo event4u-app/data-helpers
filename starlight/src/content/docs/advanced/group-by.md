@@ -44,6 +44,7 @@ $template = [
 
 ### Configuration Structure
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'GROUP BY' => [
     // Required: Field(s) to group by
@@ -81,6 +82,7 @@ $template = [
 
 Counts the number of items in each group.
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'aggregations' => [
     'total_count' => ['COUNT'],
@@ -91,6 +93,7 @@ Counts the number of items in each group.
 
 Sums numeric values.
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'aggregations' => [
     'total_amount' => ['SUM', '{{ orders.*.amount }}'],
@@ -101,6 +104,7 @@ Sums numeric values.
 
 Calculates average of numeric values.
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'aggregations' => [
     'avg_price' => ['AVG', '{{ products.*.price }}'],
@@ -111,6 +115,7 @@ Calculates average of numeric values.
 
 Finds minimum value.
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'aggregations' => [
     'min_price' => ['MIN', '{{ products.*.price }}'],
@@ -121,6 +126,7 @@ Finds minimum value.
 
 Finds maximum value.
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'aggregations' => [
     'max_price' => ['MAX', '{{ products.*.price }}'],
@@ -131,6 +137,7 @@ Finds maximum value.
 
 Gets first value in group.
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'aggregations' => [
     'first_order' => ['FIRST', '{{ orders.*.date }}'],
@@ -141,6 +148,7 @@ Gets first value in group.
 
 Gets last value in group.
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'aggregations' => [
     'last_order' => ['LAST', '{{ orders.*.date }}'],
@@ -151,6 +159,7 @@ Gets last value in group.
 
 Collects all values into an array.
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'aggregations' => [
     'all_names' => ['COLLECT', '{{ items.*.name }}'],
@@ -161,6 +170,7 @@ Collects all values into an array.
 
 Concatenates values with separator.
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'aggregations' => [
     'names_list' => ['CONCAT', '{{ items.*.name }}', ', '],
@@ -171,6 +181,7 @@ Concatenates values with separator.
 
 Filter groups after aggregation:
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'GROUP BY' => [
     'field' => '{{ orders.*.customerId }}',
@@ -198,6 +209,7 @@ Filter groups after aggregation:
 
 Group by multiple fields:
 
+<!-- skip-test: Configuration snippet only -->
 ```php
 'GROUP BY' => [
     'fields' => [
@@ -242,7 +254,7 @@ $template = [
     ],
 ];
 
-$result = DataMapper::mapFromTemplate($template, $sources);
+$result = DataMapper::template($template)->sources($sources)->map();
 
 // Result:
 // [

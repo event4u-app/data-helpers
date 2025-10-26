@@ -43,6 +43,7 @@ $accessor = new DataAccessor($collection);
 
 Laravel Eloquent Models with relationships:
 
+<!-- skip-test: Requires Laravel Eloquent -->
 ```php
 $user = User::with('profile')->first();
 $accessor = new DataAccessor($user);
@@ -53,6 +54,7 @@ $email = $accessor->get('profile.email');
 
 Doctrine Collections and Entities:
 
+<!-- skip-test: Requires Doctrine repository -->
 ```php
 $users = $repository->findAll();
 $accessor = new DataAccessor($users);

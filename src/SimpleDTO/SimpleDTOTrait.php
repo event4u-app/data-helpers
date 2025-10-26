@@ -279,6 +279,87 @@ trait SimpleDTOTrait
     }
 
     /**
+     * Create a DTO instance from a JSON string.
+     *
+     * This is an alias for fromSource() that accepts JSON strings.
+     * The JSON will be decoded and processed through the full mapping pipeline.
+     *
+     * @param string $json JSON string
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     */
+    public static function fromJson(
+        string $json,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        return static::fromSource($json, $template, $filters, $pipeline);
+    }
+
+    /**
+     * Create a DTO instance from an XML string.
+     *
+     * This is an alias for fromSource() that accepts XML strings.
+     * The XML will be parsed and processed through the full mapping pipeline.
+     *
+     * @param string $xml XML string
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     */
+    public static function fromXml(
+        string $xml,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        return static::fromSource($xml, $template, $filters, $pipeline);
+    }
+
+    /**
+     * Create a DTO instance from a YAML string.
+     *
+     * This is an alias for fromSource() that accepts YAML strings.
+     * The YAML will be parsed and processed through the full mapping pipeline.
+     *
+     * @param string $yaml YAML string
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     */
+    public static function fromYaml(
+        string $yaml,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        return static::fromSource($yaml, $template, $filters, $pipeline);
+    }
+
+    /**
+     * Create a DTO instance from a CSV string.
+     *
+     * This is an alias for fromSource() that accepts CSV strings.
+     * The CSV will be parsed and processed through the full mapping pipeline.
+     * Note: CSV parsing expects the first row to contain headers.
+     *
+     * @param string $csv CSV string
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     */
+    public static function fromCsv(
+        string $csv,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        return static::fromSource($csv, $template, $filters, $pipeline);
+    }
+
+    /**
      * Create a type-safe collection of DTOs.
      *
      * @param array<int|string, mixed> $items
@@ -381,14 +462,111 @@ trait SimpleDTOTrait
     public function set(string $path, mixed $value): static
     {
         $data = $this->toArrayRecursive();
-        $updatedData = DataMutator::set($data, $path, $value);
+        DataMutator::make($data)->set($path, $value);
 
         // Ensure we have an array with string keys
-        if (!is_array($updatedData)) {
+        if (!is_array($data)) {
             return static::fromArray([]);
         }
 
-        /** @var array<string, mixed> $updatedData */
-        return static::fromArray($updatedData);
+        /** @var array<string, mixed> $data */
+        return static::fromArray($data);
+    }
+
+    /**
+     * Convert DTO to JSON string.
+     *
+     * @param int $flags JSON encoding flags (default: 0)
+     * @return string JSON representation of the DTO
+     */
+    public function toJson(int $flags = 0): string
+    {
+        return json_encode($this->toArray(), $flags);
+    }
+
+    /**
+     * Convert DTO to XML string.
+     *
+     * @param string $rootElement Root element name (default: class name without namespace)
+     * @return string XML representation of the DTO
+     */
+    public function toXml(string $rootElement = ''): string
+    {
+        if ('' === $rootElement) {
+            $className = (new \ReflectionClass($this))->getShortName();
+            $rootElement = strtolower(preg_replace('/DTO$/', '', $className));
+        }
+
+        $xml = new \SimpleXMLElement("<?xml version=\"1.0\"?><{$rootElement}></{$rootElement}>");
+        $this->arrayToXml($this->toArray(), $xml);
+
+        return $xml->asXML();
+    }
+
+    /**
+     * Convert array to XML recursively.
+     *
+     * @param array<string, mixed> $data Data to convert
+     * @param \SimpleXMLElement $xml XML element to append to
+     */
+    private function arrayToXml(array $data, \SimpleXMLElement $xml): void
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $subnode = $xml->addChild((string) $key);
+                $this->arrayToXml($value, $subnode);
+            } else {
+                $xml->addChild((string) $key, htmlspecialchars((string) $value));
+            }
+        }
+    }
+
+    /**
+     * Convert DTO to YAML string.
+     *
+     * Supports both ext-yaml (PECL) and symfony/yaml.
+     * Prefers ext-yaml if available (faster).
+     *
+     * @return string YAML representation of the DTO
+     * @throws \RuntimeException If no YAML support is available
+     */
+    public function toYaml(): string
+    {
+        $data = $this->toArray();
+
+        // Prefer ext-yaml if available (faster)
+        if (function_exists('yaml_emit')) {
+            return yaml_emit($data);
+        }
+
+        // Fallback to symfony/yaml if available
+        if (class_exists(\Symfony\Component\Yaml\Yaml::class)) {
+            return \Symfony\Component\Yaml\Yaml::dump($data);
+        }
+
+        throw new \RuntimeException(
+            'YAML support is not available. Install either ext-yaml (pecl install yaml) or symfony/yaml (composer require symfony/yaml)'
+        );
+    }
+
+    /**
+     * Convert DTO to CSV string.
+     *
+     * @return string CSV representation of the DTO (with headers)
+     */
+    public function toCsv(): string
+    {
+        $data = $this->toArray();
+        $headers = array_keys($data);
+        $values = array_values($data);
+
+        $output = fopen('php://temp', 'r+');
+        fputcsv($output, $headers);
+        fputcsv($output, $values);
+        rewind($output);
+        $csv = stream_get_contents($output);
+        fclose($output);
+
+        return rtrim($csv, "\n");
     }
 }

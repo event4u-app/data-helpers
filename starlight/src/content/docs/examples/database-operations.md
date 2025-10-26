@@ -23,10 +23,10 @@ class CreateUserDTO extends SimpleDTO
     public function __construct(
         #[Required, Min(3)]
         public readonly string $name,
-        
+
         #[Required, Email]
         public readonly string $email,
-        
+
         #[Required, Min(8)]
         public readonly string $password,
     ) {}
@@ -191,6 +191,7 @@ $users = User::query()
 
 ### Bulk Insert
 
+<!-- skip-test: Requires Laravel Eloquent and CreateUserDTO -->
 ```php
 $dtos = [
     CreateUserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']),
@@ -204,21 +205,23 @@ User::insert($data);
 
 ### Bulk Update
 
+<!-- skip-test: Requires Laravel Eloquent -->
 ```php
 User::whereIn('id', [1, 2, 3])->update(['status' => 'active']);
 ```
 
 ## Transactions
 
+<!-- skip-test: Requires Laravel Eloquent -->
 ```php
 DB::transaction(function() use ($dto) {
     $user = User::create($dto->toArray());
-    
+
     $profile = Profile::create([
         'user_id' => $user->id,
         'bio' => $dto->bio,
     ]);
-    
+
     $user->roles()->attach($dto->roleIds);
 });
 ```

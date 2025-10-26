@@ -15,10 +15,7 @@ describe('DataMutator with Doctrine', function(): void {
                     'age' => 30,
                 ],
             ],
-        ]);
-
-        $mutator = new DataMutator();
-        $result = $mutator->set($collection, 'users.0.email', 'john@example.com');
+        ]);        $result = DataMutator::make($collection)->set('users.0.email', 'john@example.com')->toArray();
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
@@ -40,10 +37,7 @@ describe('DataMutator with Doctrine', function(): void {
                     'age' => 25,
                 ],
             ],
-        ]);
-
-        $mutator = new DataMutator();
-        $result = $mutator->set($collection, 'users.*.active', true);
+        ]);        $result = DataMutator::make($collection)->set('users.*.active', true)->toArray();
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
@@ -60,12 +54,9 @@ describe('DataMutator with Doctrine', function(): void {
             'user' => [
                 'name' => 'John',
             ],
-        ]);
-
-        $mutator = new DataMutator();
-        $result = $mutator->set($collection, 'user', [
+        ]);        $result = DataMutator::make($collection)->set('user', [
             'age' => 30,
-        ], true);
+        ], true)->toArray();
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
@@ -91,10 +82,7 @@ describe('DataMutator with Doctrine', function(): void {
                     'email' => 'jane@example.com',
                 ],
             ],
-        ]);
-
-        $mutator = new DataMutator();
-        $result = $mutator->unset($collection, 'users.*.email');
+        ]);        $result = DataMutator::make($collection)->unset('users.*.email')->toArray();
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
@@ -110,10 +98,7 @@ describe('DataMutator with Doctrine', function(): void {
     });
 
     it('can set attributes on Doctrine Entity', function(): void {
-        $entity = new Product('Laptop', '999.99');
-
-        $mutator = new DataMutator();
-        $result = $mutator->set($entity, 'description', 'A powerful laptop');
+        $entity = new Product('Laptop', '999.99');        $result = DataMutator::make($entity)->set('description', 'A powerful laptop')->toArray();
 
         expect($result)->toBeInstanceOf(Product::class);
 
@@ -123,10 +108,7 @@ describe('DataMutator with Doctrine', function(): void {
 
     it('can unset attributes from Doctrine Entity', function(): void {
         $entity = new Product('Laptop', '999.99');
-        $entity->setDescription('A powerful laptop');
-
-        $mutator = new DataMutator();
-        $result = $mutator->unset($entity, 'description');
+        $entity->setDescription('A powerful laptop');        $result = DataMutator::make($entity)->unset('description')->toArray();
 
         expect($result)->toBeInstanceOf(Product::class);
 
@@ -137,10 +119,7 @@ describe('DataMutator with Doctrine', function(): void {
     it('preserves Doctrine Collection type after mutation', function(): void {
         $collection = new ArrayCollection([
             'name' => 'John',
-        ]);
-
-        $mutator = new DataMutator();
-        $result = $mutator->set($collection, 'age', 30);
+        ]);        $result = DataMutator::make($collection)->set('age', 30)->toArray();
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
         expect($result)->not->toBeArray();
@@ -159,10 +138,7 @@ describe('DataMutator with Doctrine', function(): void {
                     ],
                 ],
             ],
-        ]);
-
-        $mutator = new DataMutator();
-        $result = $mutator->set($collection, 'categories.0.products.0.stock', 10);
+        ]);        $result = DataMutator::make($collection)->set('categories.0.products.0.stock', 10)->toArray();
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
@@ -196,10 +172,7 @@ describe('DataMutator with Doctrine', function(): void {
                     ],
                 ],
             ],
-        ]);
-
-        $mutator = new DataMutator();
-        $result = $mutator->set($collection, 'categories.*.products.*.inStock', true);
+        ]);        $result = DataMutator::make($collection)->set('categories.*.products.*.inStock', true)->toArray();
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 
@@ -229,10 +202,7 @@ describe('DataMutator with Doctrine', function(): void {
                     ],
                 ],
             ],
-        ]);
-
-        $mutator = new DataMutator();
-        $result = $mutator->unset($collection, 'users.*.profile.phone');
+        ]);        $result = DataMutator::make($collection)->unset('users.*.profile.phone')->toArray();
 
         expect($result)->toBeInstanceOf(ArrayCollection::class);
 

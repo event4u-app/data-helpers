@@ -39,6 +39,7 @@ $dto = UserDTO::fromEntity($user);
 
 Convert DTO to Doctrine entity:
 
+<!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $dto = UserDTO::fromArray($data);
 $user = new User();
@@ -50,6 +51,7 @@ $entityManager->flush();
 
 ### Update Existing Entity
 
+<!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $user = $entityManager->find(User::class, 1);
 $dto = UserDTO::fromArray($data);

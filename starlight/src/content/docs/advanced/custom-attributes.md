@@ -18,6 +18,7 @@ Custom attributes extend DTO functionality:
 
 ### Basic Attribute
 
+<!-- skip-test: Class declaration example -->
 ```php
 use Attribute;
 
@@ -38,7 +39,7 @@ class UserDTO extends SimpleDTO
     public function __construct(
         #[Description('User full name')]
         public readonly string $name,
-        
+
         #[Description('User email address')]
         public readonly string $email,
     ) {}
@@ -88,7 +89,7 @@ class UserDTO extends SimpleDTO
     public function __construct(
         #[Transform('trim')]
         public readonly string $name,
-        
+
         #[Transform('strtolower')]
         public readonly string $email,
     ) {}
@@ -111,7 +112,7 @@ class UserDTO extends SimpleDTO
 {
     public function __construct(
         public readonly string $name,
-        
+
         #[ShowIf('isAdmin')]
         public readonly ?string $adminNotes = null,
     ) {}
@@ -139,7 +140,7 @@ class UserDTO extends SimpleDTO
     public function __construct(
         #[Column('user_name', type: 'varchar', nullable: false)]
         public readonly string $name,
-        
+
         #[Column('user_email', type: 'varchar', nullable: false)]
         public readonly string $email,
     ) {}
@@ -166,10 +167,10 @@ class ProductDTO extends SimpleDTO
     public function __construct(
         #[ApiProperty('Product name', example: 'iPhone 15')]
         public readonly string $name,
-        
+
         #[ApiProperty('Product price in cents', example: 99900, format: 'int32')]
         public readonly int $price,
-        
+
         #[ApiProperty('Product status', enum: ['active', 'inactive', 'draft'])]
         public readonly string $status,
     ) {}
@@ -194,10 +195,10 @@ class UserDTO extends SimpleDTO
     public function __construct(
         #[Auditable(label: 'User Name')]
         public readonly string $name,
-        
+
         #[Auditable(label: 'Email Address')]
         public readonly string $email,
-        
+
         #[Auditable(logChanges: false)]
         public readonly ?string $avatar = null,
     ) {}
@@ -222,10 +223,10 @@ class ProductDTO extends SimpleDTO
     public function __construct(
         #[Searchable(weight: 10, exact: false)]
         public readonly string $name,
-        
+
         #[Searchable(weight: 5)]
         public readonly string $description,
-        
+
         #[Searchable(weight: 3, exact: true)]
         public readonly string $sku,
     ) {}
@@ -248,10 +249,10 @@ class UserDTO extends SimpleDTO
 {
     public function __construct(
         public readonly string $name,
-        
+
         #[Encrypted]
         public readonly string $ssn,
-        
+
         #[Encrypted(algorithm: 'AES-128-CBC')]
         public readonly string $creditCard,
     ) {}
@@ -262,6 +263,7 @@ class UserDTO extends SimpleDTO
 
 ### Using Reflection
 
+<!-- skip-test: Reflection example -->
 ```php
 use ReflectionClass;
 use ReflectionProperty;
@@ -270,7 +272,7 @@ $reflection = new ReflectionClass(UserDTO::class);
 
 foreach ($reflection->getProperties() as $property) {
     $attributes = $property->getAttributes(Description::class);
-    
+
     foreach ($attributes as $attribute) {
         $instance = $attribute->newInstance();
         echo "{$property->getName()}: {$instance->text}\n";
@@ -291,7 +293,7 @@ class AttributeReader
         $reflection = new ReflectionClass($class);
         $prop = $reflection->getProperty($property);
         $attributes = $prop->getAttributes($attributeClass);
-        
+
         return array_map(
             fn($attr) => $attr->newInstance(),
             $attributes
