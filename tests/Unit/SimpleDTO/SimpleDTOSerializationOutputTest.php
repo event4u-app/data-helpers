@@ -27,14 +27,9 @@ class TestNestedSerializationDTO extends SimpleDTO
 }
 
 describe('SimpleDTOSerializationOutputTest', function(): void {
-    beforeEach(function(): void {
-        $this->dtoClass = TestSerializationDTO::class;
-        $this->nestedDtoClass = TestNestedSerializationDTO::class;
-    });
-
     describe('toJson()', function(): void {
         it('converts DTO to JSON string', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -49,7 +44,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('handles empty DTO', function(): void {
-            $dto = $this->dtoClass::fromArray([]);
+            $dto = TestSerializationDTO::fromArray([]);
 
             $json = $dto->toJson();
 
@@ -59,7 +54,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('supports JSON_PRETTY_PRINT flag', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -72,7 +67,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('handles nested arrays', function(): void {
-            $dto = $this->nestedDtoClass::fromArray([
+            $dto = TestNestedSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'address' => [
                     'street' => '123 Main St',
@@ -88,7 +83,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('handles special characters', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John "The Boss" Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -100,7 +95,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('supports JSON_UNESCAPED_UNICODE flag', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'Müller',
                 'email' => 'mueller@example.com',
                 'age' => 30,
@@ -114,7 +109,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
 
     describe('toXml()', function(): void {
         it('converts DTO to XML string', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -130,7 +125,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('uses class name as default root element', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -143,7 +138,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('supports custom root element', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -157,7 +152,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('handles nested arrays', function(): void {
-            $dto = $this->nestedDtoClass::fromArray([
+            $dto = TestNestedSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'address' => [
                     'street' => '123 Main St',
@@ -174,7 +169,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('escapes special XML characters', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John & Jane <Doe>',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -188,7 +183,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('handles empty values', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => '',
                 'email' => '',
                 'age' => 0,
@@ -209,7 +204,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
                 $this->markTestSkipped('YAML support not available (neither ext-yaml nor symfony/yaml)');
             }
 
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -230,7 +225,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
                 $this->markTestSkipped('YAML support is available');
             }
 
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -245,7 +240,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
                 $this->markTestSkipped('YAML support not available');
             }
 
-            $dto = $this->nestedDtoClass::fromArray([
+            $dto = TestNestedSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'address' => [
                     'street' => '123 Main St',
@@ -263,7 +258,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
 
     describe('toCsv()', function(): void {
         it('converts DTO to CSV string with headers', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -283,7 +278,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('handles empty values', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => '',
                 'email' => '',
                 'age' => 0,
@@ -296,7 +291,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('quotes values with commas', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'Doe, John',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -308,7 +303,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('quotes values with quotes', function(): void {
-            $dto = $this->dtoClass::fromArray([
+            $dto = TestSerializationDTO::fromArray([
                 'name' => 'John "The Boss" Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
