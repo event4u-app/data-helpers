@@ -8,6 +8,7 @@ use event4u\DataHelpers\SimpleDTO;
 
 class UserWithEmailsDTO extends SimpleDTO
 {
+    /** @param array<string> $emails */
     public function __construct(
         public string $name = '',
         public array $emails = [],

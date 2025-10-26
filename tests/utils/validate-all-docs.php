@@ -92,6 +92,7 @@ foreach ($allExamples as $filePath => $examples) {
                 return false;
             });
 
+            /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
             eval(substr($executableCode, 5));
 
             restore_error_handler();

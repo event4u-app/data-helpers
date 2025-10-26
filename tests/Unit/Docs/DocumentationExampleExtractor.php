@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Docs;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 
 /**
  * Extracts PHP code examples from Markdown documentation files.
@@ -217,28 +218,11 @@ class DocumentationExampleExtractor
         return false;
     }
 
-    /** Check if code uses undefined variables. */
-    private static function usesUndefinedVariables(string $code): bool
-    {
-        // Common patterns of undefined variables
-        $undefinedPatterns = [
-            '/\$source\)/' => '\$source', // DataMapper::from($source) without $source definition
-            '/\$mapping\)/' => '\$mapping', // ->template($mapping) without $mapping definition
-        ];
-
-        foreach ($undefinedPatterns as $pattern => $varName) {
-            // Check if variable is defined before use
-            if (preg_match($pattern, $code) && !preg_match('/' . preg_quote($varName, '/') . '\s*=\s*[^=]/', $code)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * Extract expected results from comments in the code.
      * Returns array of ['variable' => 'expectedValue'] pairs.
+     *
+     * @return array<string, string>
      */
     public static function extractExpectedResults(string $code): array
     {
@@ -276,10 +260,10 @@ class DocumentationExampleExtractor
         $trimmed = trim($code);
 
         // If code already has <?php tag, remove it
-        $trimmed = preg_replace('/^<\?php\s*/', '', $trimmed);
+        $trimmed = (string)preg_replace('/^<\?php\s*/', '', $trimmed);
 
         // Fix namespace case (event4u -> event4u)
-        $trimmed = preg_replace('/use\s+event4u\\\\/', 'use event4u\\', $trimmed);
+        $trimmed = (string)preg_replace('/use\s+event4u\\\\/', 'use event4u\\', $trimmed);
 
         // Extract expected results before removing comments
         $expectations = [];
@@ -288,9 +272,9 @@ class DocumentationExampleExtractor
         }
 
         // Remove result comments from code
-        $trimmed = preg_replace('/\/\/\s*\[.*?\].*$/m', '', $trimmed);
-        $trimmed = preg_replace('/\/\/\s*Result:.*$/m', '', $trimmed);
-        $trimmed = preg_replace('/\/\/\s*\$\w+\s*=.*$/m', '', $trimmed);
+        $trimmed = (string)preg_replace('/\/\/\s*\[.*?\].*$/m', '', $trimmed);
+        $trimmed = (string)preg_replace('/\/\/\s*Result:.*$/m', '', $trimmed);
+        $trimmed = (string)preg_replace('/\/\/\s*\$\w+\s*=.*$/m', '', $trimmed);
 
         // Extract use statements from the code
         $useStatements = [];
@@ -298,7 +282,7 @@ class DocumentationExampleExtractor
         if (!empty($matches[0])) {
             $useStatements = $matches[0];
             // Remove use statements from the code (they'll be added at the top)
-            $trimmed = preg_replace('/use\s+[^;]+;\s*/', '', $trimmed);
+            $trimmed = (string)preg_replace('/use\s+[^;]+;\s*/', '', $trimmed);
             $trimmed = trim($trimmed);
         }
 
@@ -469,6 +453,7 @@ PHP;
         );
 
         foreach ($iterator as $file) {
+            /** @var SplFileInfo $file */
             if ($file->isFile() && strtolower($file->getExtension()) === 'md') {
                 $files[] = $file->getPathname();
             }
@@ -510,8 +495,9 @@ PHP;
     {
         $setup = [];
 
-        // Add common mock classes
-        if (str_contains($code, 'UserDTO::class') || str_contains($code, 'new User()')) {
+        // Add common mock classes - but only if they're not already defined in the code
+        if ((str_contains($code, 'UserDTO::class') || str_contains($code, 'new User()')) &&
+            !preg_match('/class\s+User(DTO)?\s+/m', $code)) {
             $setup[] = <<<'PHP'
 // Mock User class
 class User {
@@ -556,6 +542,12 @@ PHP;
     private static function autoDiscoverUseStatements(string $code): array
     {
         $useStatements = [];
+
+        // Find all classes defined in the code itself
+        $definedClasses = [];
+        if (preg_match_all('/class\s+(\w+)\s+/m', $code, $matches)) {
+            $definedClasses = $matches[1];
+        }
 
         // Map of class names to their full namespaces
         $classMap = [
@@ -618,6 +610,11 @@ PHP;
 
         // Find all class usages in the code
         foreach ($classMap as $className => $fullNamespace) {
+            // Skip if this class is defined in the code itself
+            if (in_array($className, $definedClasses, true)) {
+                continue;
+            }
+
             // Check for class usage patterns:
             // - ClassName::method()
             // - new ClassName()

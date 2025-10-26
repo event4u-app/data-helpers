@@ -118,6 +118,7 @@ describe('DataMapper Documentation Examples', function(): void {
         $company = new class {
             public string $name = '';
 
+            /** @var array<mixed> */
             public array $departments = [];
         };
 
@@ -146,9 +147,13 @@ describe('DataMapper Documentation Examples', function(): void {
             ->getTarget();
 
         expect($result)->toBeObject();
+        /** @phpstan-ignore-next-line property.nonObject */
         expect($result->name)->toBe('Acme Corp');
+        /** @phpstan-ignore-next-line property.nonObject */
         expect($result->departments)->toBeArray();
+        /** @phpstan-ignore-next-line property.nonObject */
         expect($result->departments)->toHaveCount(2);
+        /** @phpstan-ignore-next-line property.nonObject */
         expect($result->departments[0]['name'])->toBe('Engineering');
     })->group('docs', 'data-mapper', 'nested');
 

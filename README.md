@@ -149,7 +149,7 @@ $result = DataFilter::query($products)
 Create type-safe, immutable Data Transfer Objects:
 
 ```php
-class UserDTO extends SimpleDTO
+class ReadmeUserDTO extends SimpleDTO
 {
     public function __construct(
         public readonly string $name,
@@ -158,7 +158,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
+$user = ReadmeUserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
 ```
 
 📖 **[SimpleDTO Documentation](https://event4u-app.github.io/data-helpers/simple-dto/introduction/)**
