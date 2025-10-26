@@ -61,3 +61,6 @@ auth.json
 
 # documentation build output
 /dist/
+
+# documentation testing
+/starlight-debug-code.php

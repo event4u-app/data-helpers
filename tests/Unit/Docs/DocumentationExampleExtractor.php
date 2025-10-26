@@ -597,14 +597,14 @@ PHP;
             'SkipEmptyValues' => 'Tests\Utils\Docu\SkipEmptyValues',
 
             // Test DTOs
-            'UserDTO' => 'Tests\utils\Docu\DTOs\UserDTO',
-            'UserWithEmailsDTO' => 'Tests\utils\Docu\DTOs\UserWithEmailsDTO',
-            'UserWithRolesDTO' => 'Tests\utils\Docu\DTOs\UserWithRolesDTO',
-            'AddressDTO' => 'Tests\utils\Docu\DTOs\AddressDTO',
-            'EmailDTO' => 'Tests\utils\Docu\DTOs\EmailDTO',
-            'EmployeeDTO' => 'Tests\utils\Docu\DTOs\EmployeeDTO',
-            'DepartmentDTO' => 'Tests\utils\Docu\DTOs\DepartmentDTO',
-            'OrderDTO' => 'Tests\utils\Docu\DTOs\OrderDTO',
+            'UserDTO' => 'Tests\Utils\Docu\DTOs\UserDTO',
+            'UserWithEmailsDTO' => 'Tests\Utils\Docu\DTOs\UserWithEmailsDTO',
+            'UserWithRolesDTO' => 'Tests\Utils\Docu\DTOs\UserWithRolesDTO',
+            'AddressDTO' => 'Tests\Utils\Docu\DTOs\AddressDTO',
+            'EmailDTO' => 'Tests\Utils\Docu\DTOs\EmailDTO',
+            'EmployeeDTO' => 'Tests\Utils\Docu\DTOs\EmployeeDTO',
+            'DepartmentDTO' => 'Tests\Utils\Docu\DTOs\DepartmentDTO',
+            'OrderDTO' => 'Tests\Utils\Docu\DTOs\OrderDTO',
             'ProfileDTO' => 'Tests\Utils\DTOs\ProfileDTO',
         ];
 

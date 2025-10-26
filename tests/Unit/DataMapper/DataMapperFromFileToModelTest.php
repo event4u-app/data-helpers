@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use Illuminate\Support\Collection;
-use Tests\utils\Models\Company;
-use Tests\utils\Models\Department;
-use Tests\utils\XMLs\Models\Project;
+use Tests\Utils\Models\Company;
+use Tests\Utils\Models\Department;
+use Tests\Utils\XMLs\Models\Project;
 
 describe('DataMapper to Model', function(): void {
     describe('Automatic relation mapping', function(): void {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Doctrine\Common\Collections\ArrayCollection;
 use event4u\DataHelpers\DataMutator;
-use Tests\utils\Entities\Product;
+use Tests\Utils\Entities\Product;
 
 describe('DataMutator with Doctrine', function(): void {
     it('can set values in Doctrine ArrayCollection', function(): void {

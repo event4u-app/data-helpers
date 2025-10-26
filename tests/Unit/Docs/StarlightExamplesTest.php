@@ -1,0 +1,251 @@
+<?php
+
+declare(strict_types=1);
+
+use Tests\Unit\Docs\DocumentationExampleExtractor;
+
+describe('Starlight Documentation Examples', function(): void {
+    beforeEach(function(): void {
+        $this->docsPath = __DIR__ . '/../../../starlight/src/content/docs';
+        $this->markdownFiles = DocumentationExampleExtractor::findMarkdownFiles($this->docsPath);
+        $this->allExamples = DocumentationExampleExtractor::extractFromFiles($this->markdownFiles);
+    });
+
+    it('finds markdown files in documentation', function(): void {
+        expect($this->markdownFiles)->toBeArray();
+        expect($this->markdownFiles)->not->toBeEmpty();
+    });
+
+    it('extracts examples from all documentation files', function(): void {
+        expect($this->allExamples)->toBeArray();
+        expect($this->allExamples)->not->toBeEmpty();
+
+        $totalExamples = 0;
+        foreach ($this->allExamples as $examples) {
+            $totalExamples += count($examples);
+        }
+
+        expect($totalExamples)->toBeGreaterThan(0);
+    });
+
+    it('executes core documentation examples successfully', function(): void {
+        expect($this->allExamples)->not->toBeEmpty();
+
+        // Only test core documentation files to keep tests fast
+        $coreFiles = [
+            'getting-started/quick-start.md',
+            'main-classes/data-mapper.md',
+            'main-classes/data-accessor.md',
+            'main-classes/data-filter.md',
+            'main-classes/data-mutator.md',
+        ];
+
+        $executedCount = 0;
+        $skippedCount = 0;
+        $failedExamples = [];
+
+        foreach ($this->allExamples as $filePath => $examples) {
+            // Check if this is a core file
+            $isCoreFile = false;
+            foreach ($coreFiles as $coreFile) {
+                if (str_contains($filePath, $coreFile)) {
+                    $isCoreFile = true;
+                    break;
+                }
+            }
+
+            if (!$isCoreFile) {
+                continue;
+            }
+
+            foreach ($examples as $index => $example) {
+                $code = $example['code'];
+                $line = $example['line'];
+
+                // Skip examples that are just class declarations or incomplete code
+                if (shouldSkipDocExample($code, $filePath)) {
+                    $skippedCount++;
+                    continue;
+                }
+
+                // Add mock data if needed
+                $mockSetup = DocumentationExampleExtractor::generateMockDataSetup($code);
+                $fullCode = $mockSetup . $code;
+
+                // Prepare code for execution with assertions
+                $executableCode = DocumentationExampleExtractor::prepareCodeForExecution($fullCode, true);
+
+                // Execute the code
+                try {
+                    // Write code to file for debugging
+                    $debugFile = __DIR__ . '/../../../starlight-debug-code.php';
+                    file_put_contents($debugFile, $executableCode);
+
+                    // Suppress warnings and capture them
+                    set_error_handler(function($errno, $errstr, $errfile, $errline) use (
+                        $index,
+                        $line,
+                        $code,
+                        $filePath
+                    ): false {
+                        if (E_WARNING === $errno || E_NOTICE === $errno) {
+                            throw new RuntimeException(
+                                sprintf(
+                                    "Example #%d at line %d in %s produced warning:\n\nCode:\n%s\n\nWarning: %s",
+                                    $index + 1,
+                                    $line,
+                                    basename($filePath),
+                                    $code,
+                                    $errstr
+                                )
+                            );
+                        }
+                        return false;
+                    });
+
+                    // @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval
+                    eval(substr($executableCode, 5)); // Remove <?php tag for eval
+
+                    restore_error_handler();
+                    $executedCount++;
+
+                    // Delete debug file on success
+                    if (file_exists($debugFile)) {
+                        unlink($debugFile);
+                    }
+                } catch (Throwable $e) {
+                    restore_error_handler();
+                    $failedExamples[] = [
+                        'file' => basename($filePath),
+                        'line' => $line,
+                        'index' => $index + 1,
+                        'code' => $code,
+                        'error' => $e->getMessage(),
+                    ];
+                }
+            }
+        }
+
+//        echo sprintf("\n✅ Executed %d examples, skipped %d\n", $executedCount, $skippedCount);
+
+        if ([] !== $failedExamples) {
+            $errorMessage = sprintf("\n❌ %d examples failed:\n\n", count($failedExamples));
+            foreach ($failedExamples as $failed) {
+                $errorMessage .= sprintf(
+                    "- %s (line %d, example #%d): %s\n",
+                    $failed['file'],
+                    $failed['line'],
+                    $failed['index'],
+                    substr($failed['error'], 0, 100)
+                );
+            }
+            throw new RuntimeException($errorMessage);
+        }
+
+        expect($executedCount)->toBeGreaterThan(0, "No examples were executed");
+    })->group('docs', 'starlight', 'core');
+
+    it('validates DataMapper examples', function(): void {
+        $dataMapperFile = $this->docsPath . '/main-classes/data-mapper.md';
+
+        if (!file_exists($dataMapperFile)) {
+            $this->markTestSkipped('DataMapper documentation not found');
+        }
+
+        $examples = DocumentationExampleExtractor::extractExamples($dataMapperFile);
+        expect($examples)->not->toBeEmpty();
+
+        // Test at least one example
+        $foundExecutableExample = false;
+        foreach ($examples as $example) {
+            if (!shouldSkipDocExample($example['code'], $dataMapperFile)) {
+                $foundExecutableExample = true;
+                break;
+            }
+        }
+
+        expect($foundExecutableExample)->toBeTrue('No executable examples found in DataMapper documentation');
+    })->group('docs', 'starlight', 'data-mapper');
+
+    it('validates DataAccessor examples', function(): void {
+        $dataAccessorFile = $this->docsPath . '/main-classes/data-accessor.md';
+
+        if (!file_exists($dataAccessorFile)) {
+            $this->markTestSkipped('DataAccessor documentation not found');
+        }
+
+        $examples = DocumentationExampleExtractor::extractExamples($dataAccessorFile);
+        expect($examples)->not->toBeEmpty();
+    })->group('docs', 'starlight', 'data-accessor');
+
+    it('validates Quick Start examples', function(): void {
+        $quickStartFile = $this->docsPath . '/getting-started/quick-start.md';
+
+        if (!file_exists($quickStartFile)) {
+            $this->markTestSkipped('Quick Start documentation not found');
+        }
+
+        $examples = DocumentationExampleExtractor::extractExamples($quickStartFile);
+        expect($examples)->not->toBeEmpty();
+    })->group('docs', 'starlight', 'quick-start');
+});
+
+/**
+ * Check if documentation example should be skipped.
+ */
+function shouldSkipDocExample(string $code, string $filePath): bool
+{
+    $trimmed = trim($code);
+
+    // Skip class declarations without instantiation
+    if (preg_match('/^class\s+\w+/', $trimmed) && !str_contains($code, 'new ') && !str_contains($code, '::')) {
+        return true;
+    }
+
+    // Skip interface/trait/enum declarations
+    if (preg_match('/^(interface|trait|enum)\s+\w+/', $trimmed)) {
+        return true;
+    }
+
+    // Skip examples that are just method signatures
+    if (preg_match('/^(public|private|protected)\s+function/', $trimmed) && !str_contains($code, '{')) {
+        return true;
+    }
+
+    // Skip examples with placeholders
+    if (str_contains($code, '...') || str_contains($code, '// ...')) {
+        return true;
+    }
+
+    // Skip examples that reference undefined classes without mocking
+    if (str_contains($code, 'UserDTO::fromArray') && !str_contains($code, 'class UserDTO')) {
+        return true;
+    }
+
+    // Skip examples with incomplete syntax
+    if (str_contains($code, '<?php') && strlen($trimmed) < 20) {
+        return true;
+    }
+
+    // Skip architecture examples (they often contain pseudo-code)
+    if (str_contains($filePath, 'architecture.md')) {
+        return true;
+    }
+
+    // Skip contributing examples (they often contain test examples)
+    if (str_contains($filePath, 'contributing.md')) {
+        return true;
+    }
+
+    // Skip examples that use Laravel/Symfony specific features without framework
+    if (!function_exists('collect') && str_contains($code, 'collect(')) {
+        return true;
+    }
+
+    // Skip examples that reference Eloquent models
+    if (str_contains($code, 'extends Model') || str_contains($code, 'Eloquent')) {
+        return true;
+    }
+    // Skip examples that reference Doctrine entities
+    return str_contains($code, '@Entity') || str_contains($code, 'EntityManager');
+}

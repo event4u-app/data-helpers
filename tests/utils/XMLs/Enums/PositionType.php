@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\utils\XMLs\Enums;
+namespace Tests\Utils\XMLs\Enums;
 
 /**
  * Position Type Enum

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\utils\DTOs;
+namespace Tests\Utils\DTOs;
 
 final class UserDTO
 {

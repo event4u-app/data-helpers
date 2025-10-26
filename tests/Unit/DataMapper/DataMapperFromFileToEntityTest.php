@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Doctrine\Common\Collections\Collection;
 use event4u\DataHelpers\DataMapper;
-use Tests\utils\Entities\Company;
-use Tests\utils\Entities\Department;
-use Tests\utils\Entities\Project;
+use Tests\Utils\Entities\Company;
+use Tests\Utils\Entities\Department;
+use Tests\Utils\Entities\Project;
 
 describe('DataMapper to Doctrine Entity', function(): void {
     describe('Automatic relation mapping', function(): void {

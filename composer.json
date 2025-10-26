@@ -78,6 +78,7 @@
     "psr-4": {
       "TestsE2E\\": "tests-e2e/",
       "Tests\\": "tests/",
+      "Tests\\Utils\\": "tests/utils/",
       "Examples\\": "examples/"
     },
     "files": [
