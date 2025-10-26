@@ -221,10 +221,6 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
         });
 
         it('throws exception when YAML support not available', function(): void {
-            if (function_exists('yaml_emit') || class_exists(Yaml::class)) {
-                $this->markTestSkipped('YAML support is available');
-            }
-
             $dto = TestSerializationDTO::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -233,7 +229,7 @@ describe('SimpleDTOSerializationOutputTest', function(): void {
 
             expect($dto->toYaml(...))
                 ->toThrow(RuntimeException::class, 'YAML support is not available');
-        });
+        })->skip();
 
         it('handles nested arrays', function(): void {
             if (!function_exists('yaml_emit') && !class_exists(Yaml::class)) {

@@ -16,10 +16,6 @@ class TestDataCollectionUserDTO extends SimpleDTO
 }
 
 describe('DataCollectionMakeTest', function(): void {
-    beforeEach(function(): void {
-        $this->userDtoClass = new TestDataCollectionUserDTO();
-    });
-
     describe('make() factory method', function(): void {
         it('creates a collection from array data', function(): void {
             $data = [
@@ -27,7 +23,7 @@ describe('DataCollectionMakeTest', function(): void {
                 ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25],
             ];
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
 
             expect($collection)->toBeInstanceOf(DataCollection::class);
             expect($collection->count())->toBe(2);
@@ -39,10 +35,10 @@ describe('DataCollectionMakeTest', function(): void {
                 ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25],
             ];
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
 
             $first = $collection->first();
-            expect($first)->toBeInstanceOf($this->userDtoClass::class);
+            expect($first)->toBeInstanceOf(TestDataCollectionUserDTO::class);
             expect($first)->not->toBeNull();
             if (null !== $first) {
                 /** @phpstan-ignore-next-line property.notFound */
@@ -53,7 +49,7 @@ describe('DataCollectionMakeTest', function(): void {
         });
 
         it('creates empty collection from empty array', function(): void {
-            $collection = DataCollection::make([], $this->userDtoClass::class);
+            $collection = DataCollection::make([], TestDataCollectionUserDTO::class);
 
             expect($collection)->toBeInstanceOf(DataCollection::class);
             expect($collection->count())->toBe(0);
@@ -65,8 +61,8 @@ describe('DataCollectionMakeTest', function(): void {
                 ['name' => 'John', 'email' => 'john@example.com', 'age' => 30],
             ];
 
-            $collection1 = DataCollection::make($data, $this->userDtoClass::class);
-            $collection2 = DataCollection::forDto($this->userDtoClass::class, $data);
+            $collection1 = DataCollection::make($data, TestDataCollectionUserDTO::class);
+            $collection2 = DataCollection::forDto(TestDataCollectionUserDTO::class, $data);
 
             expect($collection1->count())->toBe($collection2->count());
             $first1 = $collection1->first();
@@ -85,7 +81,7 @@ describe('DataCollectionMakeTest', function(): void {
                 ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => '25'], // age as string
             ];
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
 
             $first = $collection->first();
             expect($first)->not->toBeNull();
@@ -104,7 +100,7 @@ describe('DataCollectionMakeTest', function(): void {
                 ['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 35],
             ];
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
             /** @phpstan-ignore-next-line property.notFound */
             $filtered = $collection->filter(fn($dto): bool => 30 <= $dto->age);
 
@@ -123,7 +119,7 @@ describe('DataCollectionMakeTest', function(): void {
                 ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25],
             ];
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
             /** @var array<string> $names */
             /** @phpstan-ignore-next-line property.notFound */
             $names = $collection->map(fn($dto): string => $dto->name);
@@ -137,7 +133,7 @@ describe('DataCollectionMakeTest', function(): void {
                 ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25],
             ];
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
             /** @var array<string> $names */
             $names = [];
 
@@ -155,7 +151,7 @@ describe('DataCollectionMakeTest', function(): void {
                 ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25],
             ];
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
             $array = $collection->toArray();
 
             expect($array)->toBeArray();
@@ -168,7 +164,7 @@ describe('DataCollectionMakeTest', function(): void {
                 ['name' => 'John', 'email' => 'john@example.com', 'age' => 30],
             ];
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
             $json = $collection->toJson();
 
             expect($json)->toBeString();
@@ -183,7 +179,7 @@ describe('DataCollectionMakeTest', function(): void {
                 'user2' => ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25],
             ];
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
 
             expect($collection->count())->toBe(2);
             $first = $collection->first();
@@ -200,25 +196,25 @@ describe('DataCollectionMakeTest', function(): void {
                 'invalid', // Not an array or DTO
             ];
 
-            expect(fn(): DataCollection => DataCollection::make($data, $this->userDtoClass::class))
+            expect(fn(): DataCollection => DataCollection::make($data, TestDataCollectionUserDTO::class))
                 ->toThrow(InvalidArgumentException::class);
         });
 
         it('accepts already instantiated DTOs', function(): void {
-            $dto1 = new ($this->userDtoClass)('John', 'john@example.com', 30);
-            $dto2 = new ($this->userDtoClass)('Jane', 'jane@example.com', 25);
+            $dto1 = new TestDataCollectionUserDTO('John', 'john@example.com', 30);
+            $dto2 = new TestDataCollectionUserDTO('Jane', 'jane@example.com', 25);
 
-            $collection = DataCollection::make([$dto1, $dto2], $this->userDtoClass::class);
+            $collection = DataCollection::make([$dto1, $dto2], TestDataCollectionUserDTO::class);
 
             expect($collection->count())->toBe(2);
             expect($collection->first())->toBe($dto1);
         });
 
         it('mixes array data and DTO instances', function(): void {
-            $dto1 = new ($this->userDtoClass)('John', 'john@example.com', 30);
+            $dto1 = new TestDataCollectionUserDTO('John', 'john@example.com', 30);
             $data2 = ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25];
 
-            $collection = DataCollection::make([$dto1, $data2], $this->userDtoClass::class);
+            $collection = DataCollection::make([$dto1, $data2], TestDataCollectionUserDTO::class);
 
             expect($collection->count())->toBe(2);
             expect($collection->first())->toBe($dto1);
@@ -239,7 +235,7 @@ describe('DataCollectionMakeTest', function(): void {
             ];
 
             // make($items, $dtoClass)
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
 
             expect($collection->count())->toBe(1);
         });
@@ -250,10 +246,10 @@ describe('DataCollectionMakeTest', function(): void {
             ];
 
             // forDto($dtoClass, $items)
-            $collection1 = DataCollection::forDto($this->userDtoClass::class, $data);
+            $collection1 = DataCollection::forDto(TestDataCollectionUserDTO::class, $data);
 
             // make($items, $dtoClass)
-            $collection2 = DataCollection::make($data, $this->userDtoClass::class);
+            $collection2 = DataCollection::make($data, TestDataCollectionUserDTO::class);
 
             expect($collection1->count())->toBe($collection2->count());
         });
@@ -266,7 +262,7 @@ describe('DataCollectionMakeTest', function(): void {
                 $data[] = ['name' => 'User' . $i, 'email' => sprintf('user%d@example.com', $i), 'age' => $i % 100];
             }
 
-            $collection = DataCollection::make($data, $this->userDtoClass::class);
+            $collection = DataCollection::make($data, TestDataCollectionUserDTO::class);
 
             expect($collection->count())->toBe(1000);
         });
