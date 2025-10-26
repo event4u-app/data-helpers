@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Utils\Models;
+namespace Tests\utils\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;

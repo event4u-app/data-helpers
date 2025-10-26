@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Utils\Filters;
+namespace Tests\utils\Filters;
 
 use event4u\DataHelpers\DataMapper\Context\HookContext;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;

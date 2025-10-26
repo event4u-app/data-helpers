@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Tests\Utils\DTOs\DepartmentDto;
+use Tests\utils\DTOs\DepartmentDto;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
-use Tests\Utils\DTOs\CompanyDto;
-use Tests\Utils\SimpleDTOs\CompanySimpleDto;
-use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
-use Tests\Utils\SimpleDTOs\ProjectSimpleDto;
+use Tests\utils\DTOs\CompanyDto;
+use Tests\utils\SimpleDTOs\CompanySimpleDto;
+use Tests\utils\SimpleDTOs\DepartmentSimpleDto;
+use Tests\utils\SimpleDTOs\ProjectSimpleDto;
 
 /**
  * Benchmark helper class

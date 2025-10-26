@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Utils\Entities;
+namespace Tests\utils\Entities;
 
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;

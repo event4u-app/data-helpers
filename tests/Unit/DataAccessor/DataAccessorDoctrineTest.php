@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Doctrine\Common\Collections\ArrayCollection;
 use event4u\DataHelpers\DataAccessor;
-use Tests\Utils\Entities\Product;
+use Tests\utils\Entities\Product;
 
 describe('DataAccessor with Doctrine', function(): void {
     it('can read from Doctrine ArrayCollection', function(): void {

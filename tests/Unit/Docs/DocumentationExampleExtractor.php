@@ -592,20 +592,20 @@ PHP;
             'DefaultValuesNormalizer' => 'event4u\DataHelpers\SimpleDTO\Normalizers\DefaultValuesNormalizer',
 
             // Test utilities
-            'TrimStrings' => 'Tests\Utils\Docu\TrimStrings',
-            'LowercaseEmails' => 'Tests\Utils\Docu\LowercaseEmails',
-            'SkipEmptyValues' => 'Tests\Utils\Docu\SkipEmptyValues',
+            'TrimStrings' => 'Tests\utils\Docu\TrimStrings',
+            'LowercaseEmails' => 'Tests\utils\Docu\LowercaseEmails',
+            'SkipEmptyValues' => 'Tests\utils\Docu\SkipEmptyValues',
 
             // Test DTOs
-            'UserDTO' => 'Tests\Utils\Docu\DTOs\UserDTO',
-            'UserWithEmailsDTO' => 'Tests\Utils\Docu\DTOs\UserWithEmailsDTO',
-            'UserWithRolesDTO' => 'Tests\Utils\Docu\DTOs\UserWithRolesDTO',
-            'AddressDTO' => 'Tests\Utils\Docu\DTOs\AddressDTO',
-            'EmailDTO' => 'Tests\Utils\Docu\DTOs\EmailDTO',
-            'EmployeeDTO' => 'Tests\Utils\Docu\DTOs\EmployeeDTO',
-            'DepartmentDTO' => 'Tests\Utils\Docu\DTOs\DepartmentDTO',
-            'OrderDTO' => 'Tests\Utils\Docu\DTOs\OrderDTO',
-            'ProfileDTO' => 'Tests\Utils\DTOs\ProfileDTO',
+            'UserDTO' => 'Tests\utils\Docu\DTOs\UserDTO',
+            'UserWithEmailsDTO' => 'Tests\utils\Docu\DTOs\UserWithEmailsDTO',
+            'UserWithRolesDTO' => 'Tests\utils\Docu\DTOs\UserWithRolesDTO',
+            'AddressDTO' => 'Tests\utils\Docu\DTOs\AddressDTO',
+            'EmailDTO' => 'Tests\utils\Docu\DTOs\EmailDTO',
+            'EmployeeDTO' => 'Tests\utils\Docu\DTOs\EmployeeDTO',
+            'DepartmentDTO' => 'Tests\utils\Docu\DTOs\DepartmentDTO',
+            'OrderDTO' => 'Tests\utils\Docu\DTOs\OrderDTO',
+            'ProfileDTO' => 'Tests\utils\DTOs\ProfileDTO',
         ];
 
         // Find all class usages in the code

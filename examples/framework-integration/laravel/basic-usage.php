@@ -15,7 +15,7 @@ use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMutator;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
-use Tests\Utils\Models\User;
+use Tests\utils\Models\User;
 
 echo '=== Laravel Support Examples ===' . PHP_EOL . PHP_EOL;
 

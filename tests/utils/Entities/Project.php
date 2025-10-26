@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Utils\Entities;
+namespace Tests\utils\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

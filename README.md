@@ -263,9 +263,9 @@ $result = DataMapper::from($jsonData)
 Transform data with composable filters:
 
 ```php
-use Tests\Utils\Docu\TrimStrings;
-use Tests\Utils\Docu\LowercaseEmails;
-use Tests\Utils\Docu\SkipEmptyValues;
+use Tests\utils\Docu\TrimStrings;
+use Tests\utils\Docu\LowercaseEmails;
+use Tests\utils\Docu\SkipEmptyValues;
 
 $source = ['name' => '  John  ', 'email' => 'JOHN@EXAMPLE.COM'];
 $mapping = ['name' => '{{ name }}', 'email' => '{{ email }}'];

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Utils\XMLs\Enums;
+namespace Tests\utils\XMLs\Enums;
 
 /**
  * Salutation enum for contact persons.

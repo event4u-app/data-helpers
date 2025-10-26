@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
-use Tests\Utils\XMLs\Enums\PositionType;
-use Tests\Utils\XMLs\Enums\ProjectStatus;
+use Tests\utils\XMLs\Enums\PositionType;
+use Tests\utils\XMLs\Enums\ProjectStatus;
 
 // Helper function for test setup
 // Needed because Pest 2.x doesn't inherit beforeEach from outer describe blocks

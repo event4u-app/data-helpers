@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Utils\Doctrine\Enums;
+namespace Tests\utils\Doctrine\Enums;
 
 enum Status: string
 {

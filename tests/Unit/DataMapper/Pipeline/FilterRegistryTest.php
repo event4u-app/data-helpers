@@ -6,7 +6,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
-use Tests\Utils\Filters\AlternatingCase;
+use Tests\utils\Filters\AlternatingCase;
 
 describe('FilterRegistry', function(): void {
     afterEach(function(): void {

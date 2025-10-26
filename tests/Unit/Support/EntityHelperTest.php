@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\Support\EntityHelper;
-use Tests\Utils\Entities\Product;
-use Tests\Utils\Models\User;
+use Tests\utils\Entities\Product;
+use Tests\utils\Models\User;
 
 describe('EntityHelper', function(): void {
     it('detects Eloquent Models', function(): void {

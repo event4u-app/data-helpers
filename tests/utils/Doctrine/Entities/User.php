@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Utils\Doctrine\Entities;
+namespace Tests\utils\Doctrine\Entities;
 
-use Tests\Utils\Doctrine\Enums\Status;
+use Tests\utils\Doctrine\Enums\Status;
 
 class User
 {
