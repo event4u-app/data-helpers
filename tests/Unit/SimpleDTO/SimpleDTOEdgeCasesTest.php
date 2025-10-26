@@ -114,14 +114,14 @@ describe('SimpleDTO Edge Cases', function(): void {
     });
 
     describe('Type Coercion Edge Cases', function(): void {
-        it('handles strict type checking for int', function(): void {
-            // PHP strict types should enforce int type
-            expect(function(): void {
-                EdgeCaseUserDTO::fromArray([
-                    'name' => 'John',
-                    'age' => '30', // String instead of int
-                ]);
-            })->toThrow(TypeError::class);
+        it('handles automatic type coercion for int', function(): void {
+            // With automatic type coercion, string '30' is converted to int 30
+            $dto = EdgeCaseUserDTO::fromArray([
+                'name' => 'John',
+                'age' => '30', // String is automatically converted to int
+            ]);
+
+            expect($dto->age)->toBe(30);
         });
 
         it('handles union types', function(): void {

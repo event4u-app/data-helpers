@@ -1278,7 +1278,7 @@ describe('DataMutator', function(): void {
         test('handles paths with consecutive dots', function(): void {
             $data = [];
 
-            expect(fn() => DataMutator::make($data)->set('a..b', 'value'))
+            expect(fn(): DataMutator => DataMutator::make($data)->set('a..b', 'value'))
                 ->toThrow(InvalidArgumentException::class, 'Invalid dot-path syntax: double dot in "a..b"');
         });
 
@@ -2662,7 +2662,10 @@ describe('DataMutator', function(): void {
                     ],
                 ],
             ];
-            $result = DataMutator::make($data)->set('companies.departments.*.teams.*.projects.*.status', 'active')->toArray();
+            $result = DataMutator::make($data)->set(
+                'companies.departments.*.teams.*.projects.*.status',
+                'active'
+            )->toArray();
 
             expect($result)->toBe([
                 'companies' => [
@@ -2749,7 +2752,10 @@ describe('DataMutator', function(): void {
                     },
                 ],
             ];
-            $result = DataMutator::make($data)->set('organizations.*.divisions.*.locations.*.country', 'USA')->toArray();
+            $result = DataMutator::make($data)->set(
+                'organizations.*.divisions.*.locations.*.country',
+                'USA'
+            )->toArray();
 
             /** @var array{organizations: array<int, object>} $result */
             assert(is_array($result));
@@ -3198,24 +3204,24 @@ describe('DataMutator', function(): void {
         test('throws TypeError for unsupported target types', function(): void {
             /** @phpstan-ignore-next-line unknown */
             $string = 'string';
-            expect(fn() => DataMutator::make($string)->set('path', 'value'))
+            expect(fn(): DataMutator => DataMutator::make($string)->set('path', 'value'))
                 ->toThrow(TypeError::class);
 
             /** @phpstan-ignore-next-line unknown */
             $int = 42;
-            expect(fn() => DataMutator::make($int)->set('path', 'value'))
+            expect(fn(): DataMutator => DataMutator::make($int)->set('path', 'value'))
                 ->toThrow(TypeError::class);
 
             /** @phpstan-ignore-next-line unknown */
             $bool = true;
-            expect(fn() => DataMutator::make($bool)->set('path', 'value'))
+            expect(fn(): DataMutator => DataMutator::make($bool)->set('path', 'value'))
                 ->toThrow(TypeError::class);
         });
 
         test('unset throws TypeError for unsupported target types', function(): void {
             /** @phpstan-ignore-next-line unknown */
             $string = 'string';
-            expect(fn() => DataMutator::make($string)->unset('path'))
+            expect(fn(): DataMutator => DataMutator::make($string)->unset('path'))
                 ->toThrow(TypeError::class);
         });
     });

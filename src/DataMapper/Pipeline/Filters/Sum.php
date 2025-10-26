@@ -49,4 +49,3 @@ final class Sum implements FilterInterface
         return ['sum', 'total'];
     }
 }
-

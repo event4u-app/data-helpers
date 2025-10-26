@@ -6,8 +6,12 @@ namespace event4u\DataHelpers\SimpleDTO;
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use Exception;
 use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionException;
+use ReflectionNamedType;
+use Symfony\Component\Yaml\Yaml;
 use Throwable;
 
 /**
@@ -368,13 +372,13 @@ trait SimpleDTOMapperTrait
                     }
                 }
                 // Fallback to symfony/yaml if available
-                elseif (class_exists(\Symfony\Component\Yaml\Yaml::class)) {
+                elseif (class_exists(Yaml::class)) {
                     try {
-                        $parsed = \Symfony\Component\Yaml\Yaml::parse($source);
+                        $parsed = Yaml::parse($source);
                         if (null !== $parsed) {
                             $source = $parsed;
                         }
-                    } catch (\Exception) {
+                    } catch (Exception) {
                         // If YAML parsing fails, continue with other formats
                     }
                 }
@@ -391,7 +395,7 @@ trait SimpleDTOMapperTrait
                             $data[] = array_combine($headers, $values);
                         }
                     }
-                    if (!empty($data)) {
+                    if ([] !== $data) {
                         $source = $data[0] ?? []; // Take first row for single DTO
                     }
                 }
@@ -477,15 +481,15 @@ trait SimpleDTOMapperTrait
     private static function autoCastValues(array $data): array
     {
         try {
-            $reflection = new \ReflectionClass(static::class);
+            $reflection = new ReflectionClass(static::class);
             $constructor = $reflection->getConstructor();
 
             if (!$constructor) {
                 return $data;
             }
 
-            foreach ($constructor->getParameters() as $param) {
-                $name = $param->getName();
+            foreach ($constructor->getParameters() as $reflectionParameter) {
+                $name = $reflectionParameter->getName();
 
                 if (!array_key_exists($name, $data)) {
                     continue;
@@ -494,9 +498,9 @@ trait SimpleDTOMapperTrait
                 $value = $data[$name];
 
                 // Get parameter type
-                $type = $param->getType();
+                $type = $reflectionParameter->getType();
 
-                if (!$type instanceof \ReflectionNamedType) {
+                if (!$type instanceof ReflectionNamedType) {
                     continue;
                 }
 
@@ -512,7 +516,7 @@ trait SimpleDTOMapperTrait
                     default => $value,
                 };
             }
-        } catch (\ReflectionException) {
+        } catch (ReflectionException) {
             // If reflection fails, return data as-is
         }
 
@@ -586,7 +590,7 @@ trait SimpleDTOMapperTrait
 
         // Int: 0=false, anything else=true
         if (is_int($value)) {
-            return $value !== 0;
+            return 0 !== $value;
         }
 
         // String: recognize common boolean representations

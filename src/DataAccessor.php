@@ -29,7 +29,6 @@ class DataAccessor
      * Create a new DataAccessor instance (factory method).
      *
      * @param mixed $input Initial input (array, DTO, Model, Collection, JSON, XML, scalar)
-     * @return self
      */
     public static function make(mixed $input): self
     {
@@ -198,8 +197,6 @@ class DataAccessor
             'hasWildcard' => $hasWildcard,
         ];
     }
-
-
 
     /**
      * Get value as string.

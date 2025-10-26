@@ -750,7 +750,7 @@ describe('DataFilter - Edge Cases', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->map(fn($item) => ['userName' => strtoupper($item['user']['profile']['name'])])
+            ->map(fn($item): array => ['userName' => strtoupper($item['user']['profile']['name'])])
             ->get();
 
         expect($result)->toBeArray();
@@ -1087,7 +1087,7 @@ describe('DataFilter - MAP Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->map(fn($item) => ['id' => $item['id'], 'name' => strtoupper($item['name'])])
+            ->map(fn($item): array => ['id' => $item['id'], 'name' => strtoupper($item['name'])])
             ->get();
 
         expect($result)->toBeArray();
@@ -1102,7 +1102,7 @@ describe('DataFilter - MAP Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->map(fn($item) => [...$item, 'adult' => $item['age'] >= 18])
+            ->map(fn($item): array => [...$item, 'adult' => 18 <= $item['age']])
             ->get();
 
         expect($result)->toBeArray();
@@ -1116,7 +1116,7 @@ describe('DataFilter - MAP Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->map(fn($item) => ['fullName' => $item['firstName'] . ' ' . $item['lastName']])
+            ->map(fn($item): array => ['fullName' => $item['firstName'] . ' ' . $item['lastName']])
             ->get();
 
         expect($result)->toBeArray();
@@ -1131,7 +1131,7 @@ describe('DataFilter - MAP Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->map(fn($item) => ['name' => strtoupper($item['name'])])
+            ->map(fn($item): array => ['name' => strtoupper($item['name'])])
             ->get();
 
         expect($result)->toBeArray();
@@ -1148,7 +1148,7 @@ describe('DataFilter - MAP Operator', function(): void {
 
         $result = DataFilter::query($data)
             ->where('age', '>', 20)
-            ->map(fn($item) => ['name' => strtoupper($item['name'])])
+            ->map(fn($item): array => ['name' => strtoupper($item['name'])])
             ->get();
 
         expect($result)->toBeArray();
@@ -1161,7 +1161,7 @@ describe('DataFilter - MAP Operator', function(): void {
         $data = [];
 
         $result = DataFilter::query($data)
-            ->map(fn($item) => ['transformed' => true])
+            ->map(fn($item): array => ['transformed' => true])
             ->get();
 
         expect($result)->toBeArray();
@@ -1212,7 +1212,7 @@ describe('DataFilter - FILTER Operator', function(): void {
         ];
 
         $result = DataFilter::query($data)
-            ->filter(fn($item) => $item['age'] >= 18 && $item['score'] >= 80)
+            ->filter(fn($item): bool => 18 <= $item['age'] && 80 <= $item['score'])
             ->get();
 
         expect($result)->toBeArray();
@@ -1224,7 +1224,7 @@ describe('DataFilter - FILTER Operator', function(): void {
         $data = [];
 
         $result = DataFilter::query($data)
-            ->filter(fn($item) => true)
+            ->filter(fn($item): true => true)
             ->get();
 
         expect($result)->toBeArray();
@@ -1240,7 +1240,7 @@ describe('DataFilter - FILTER Operator', function(): void {
 
         $result = DataFilter::query($data)
             ->filter(fn($item) => $item['active'])
-            ->map(fn($item) => ['name' => strtoupper($item['name']), 'age' => $item['age']])
+            ->map(fn($item): array => ['name' => strtoupper($item['name']), 'age' => $item['age']])
             ->only(['name'])
             ->get();
 
@@ -1303,8 +1303,8 @@ describe('DataFilter - Combined Operators', function(): void {
 
         $result = DataFilter::query($data)
             ->where('age', '>=', 18)
-            ->map(fn($item) => [...$item, 'name' => strtoupper($item['name']), 'adult' => true])
-            ->filter(fn($item) => $item['age'] < 30)
+            ->map(fn($item): array => [...$item, 'name' => strtoupper($item['name']), 'adult' => true])
+            ->filter(fn($item): bool => 30 > $item['age'])
             ->only(['name', 'age'])
             ->get();
 
@@ -1322,7 +1322,7 @@ describe('DataFilter - Combined Operators', function(): void {
 
         $result = DataFilter::query($data)
             ->filter(fn($item) => $item['active'])
-            ->map(fn($item) => [
+            ->map(fn($item): array => [
                 'id' => $item['id'],
                 'fullName' => ucfirst($item['firstName']) . ' ' . ucfirst($item['lastName']),
                 'age' => $item['age'],

@@ -39,4 +39,3 @@ final class FilterOperator extends AbstractOperator
         return array_values(array_filter($items, $config));
     }
 }
-

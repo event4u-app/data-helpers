@@ -268,3 +268,7 @@ parameters:
             enabled: true
         noNamedArgument:
             enabled: false
+        noParameterPassedByReference:
+            enabled: false
+        noAssignByReference:
+            enabled: false

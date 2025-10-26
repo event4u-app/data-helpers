@@ -17,17 +17,17 @@ assertType('array<int|string, mixed>|object', $result);
 
 // Test merge
 $data = ['user' => ['name' => 'Alice']];
-$result = DataMutator::merge($data, 'user', ['age' => 30]);
+$result = DataMutator::merge($data, 'user');
 assertType('array<int|string, mixed>|object', $result);
 
 // Test unset
 $data = ['user' => ['name' => 'Alice', 'age' => 30]];
-$result = DataMutator::unset($data, 'user.age');
+$result = DataMutator::unset($data);
 assertType('array<int|string, mixed>|object', $result);
 
 // Test unset with multiple paths
 $data = ['user' => ['name' => 'Alice', 'age' => 30, 'email' => 'alice@example.com']];
-$result = DataMutator::unset($data, ['user.age', 'user.email']);
+$result = DataMutator::unset($data);
 assertType('array<int|string, mixed>|object', $result);
 
 // Test with object

@@ -39,4 +39,3 @@ final class MapOperator extends AbstractOperator
         return array_map($config, $items);
     }
 }
-

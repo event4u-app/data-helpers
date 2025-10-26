@@ -513,7 +513,6 @@ final class DataFilter
      * Select only specific fields from the results.
      *
      * @param array<int, string> $fields Fields to include
-     * @return self
      */
     public function only(array $fields): self
     {
@@ -529,7 +528,6 @@ final class DataFilter
      * Exclude specific fields from the results.
      *
      * @param array<int, string> $fields Fields to exclude
-     * @return self
      */
     public function except(array $fields): self
     {
@@ -545,7 +543,6 @@ final class DataFilter
      * Apply a callback to each item.
      *
      * @param callable $callback Callback function
-     * @return self
      */
     public function map(callable $callback): self
     {
@@ -561,7 +558,6 @@ final class DataFilter
      * Filter items using a callback.
      *
      * @param callable $callback Callback function
-     * @return self
      */
     public function filter(callable $callback): self
     {

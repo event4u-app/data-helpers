@@ -11,11 +11,9 @@ namespace event4u\DataHelpers\SimpleDTO\Transformers;
  */
 class UpperCaseTransformer implements TransformerInterface
 {
-    /**
-     * @param array<int, string> $fields Fields to convert to uppercase (empty = all fields)
-     */
+    /** @param array<int, string> $fields Fields to convert to uppercase (empty = all fields) */
     public function __construct(
-        private array $fields = []
+        private readonly array $fields = []
     ) {
     }
 
@@ -38,7 +36,7 @@ class UpperCaseTransformer implements TransformerInterface
     {
         foreach ($data as $key => $value) {
             // Only transform if no specific fields are set, or if this field is in the list
-            $shouldTransform = empty($this->fields) || in_array($key, $this->fields, true);
+            $shouldTransform = [] === $this->fields || in_array($key, $this->fields, true);
 
             if ($shouldTransform && is_string($value)) {
                 $data[$key] = strtoupper($value);
@@ -51,4 +49,3 @@ class UpperCaseTransformer implements TransformerInterface
         return $data;
     }
 }
-

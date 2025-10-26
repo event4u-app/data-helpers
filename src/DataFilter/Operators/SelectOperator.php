@@ -38,7 +38,7 @@ final class SelectOperator extends AbstractOperator
 
         $fields = $config;
 
-        return array_map(function ($item) use ($fields) {
+        return array_map(function($item) use ($fields) {
             if (!is_array($item)) {
                 return $item;
             }
@@ -54,4 +54,3 @@ final class SelectOperator extends AbstractOperator
         }, $items);
     }
 }
-

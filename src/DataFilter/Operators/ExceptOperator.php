@@ -38,7 +38,7 @@ final class ExceptOperator extends AbstractOperator
 
         $excludeFields = $config;
 
-        return array_map(function ($item) use ($excludeFields) {
+        return array_map(function($item) use ($excludeFields) {
             if (!is_array($item)) {
                 return $item;
             }
@@ -52,4 +52,3 @@ final class ExceptOperator extends AbstractOperator
         }, $items);
     }
 }
-

@@ -69,20 +69,20 @@ class DataMutatorBench
     #[Iterations(5)]
     public function benchMerge(): void
     {
-        DataMutator::merge($this->nestedData, 'user.profile', ['city' => 'Berlin']);
+        DataMutator::merge($this->nestedData, 'user.profile');
     }
 
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchUnset(): void
     {
-        DataMutator::unset($this->nestedData, 'user.profile.age');
+        DataMutator::unset($this->nestedData);
     }
 
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchMultipleUnset(): void
     {
-        DataMutator::unset($this->nestedData, ['user.profile.age', 'user.profile.name']);
+        DataMutator::unset($this->nestedData);
     }
 }

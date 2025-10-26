@@ -98,7 +98,10 @@ describe('DataMutator with Doctrine', function(): void {
     });
 
     it('can set attributes on Doctrine Entity', function(): void {
-        $entity = new Product('Laptop', '999.99');        $result = DataMutator::make($entity)->set('description', 'A powerful laptop')->toArray();
+        $entity = new Product('Laptop', '999.99');        $result = DataMutator::make($entity)->set(
+            'description',
+            'A powerful laptop'
+        )->toArray();
 
         expect($result)->toBeInstanceOf(Product::class);
 
@@ -108,7 +111,11 @@ describe('DataMutator with Doctrine', function(): void {
 
     it('can unset attributes from Doctrine Entity', function(): void {
         $entity = new Product('Laptop', '999.99');
-        $entity->setDescription('A powerful laptop');        $result = DataMutator::make($entity)->unset('description')->toArray();
+        $entity->setDescription('A powerful laptop');
+
+                $result = DataMutator::make($entity)->unset(
+            'description'
+        )->toArray();
 
         expect($result)->toBeInstanceOf(Product::class);
 

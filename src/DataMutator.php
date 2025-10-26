@@ -48,14 +48,14 @@ class DataMutator
         if (is_array($pathOrValues)) {
             foreach ($pathOrValues as $path => $val) {
                 $segments = DotPathHelper::segments((string)$path);
-                $this->target = self::applySet($this->target, $segments, $val, $merge);
+                $this->target = $this->applySet($this->target, $segments, $val, $merge);
             }
 
             return $this;
         }
 
         $segments = DotPathHelper::segments($pathOrValues);
-        $this->target = self::applySet($this->target, $segments, $value, $merge);
+        $this->target = $this->applySet($this->target, $segments, $value, $merge);
 
         return $this;
     }
@@ -71,14 +71,14 @@ class DataMutator
         if (is_array($pathOrValues)) {
             foreach ($pathOrValues as $path => $val) {
                 $segments = DotPathHelper::segments((string)$path);
-                $this->target = self::applySet($this->target, $segments, $val, true);
+                $this->target = $this->applySet($this->target, $segments, $val, true);
             }
 
             return $this;
         }
 
         $segments = DotPathHelper::segments($pathOrValues);
-        $this->target = self::applySet($this->target, $segments, $value, true);
+        $this->target = $this->applySet($this->target, $segments, $value, true);
 
         return $this;
     }
@@ -93,9 +93,7 @@ class DataMutator
         return $this->merge($path, $value);
     }
 
-    /**
-     * Push value to array at path.
-     */
+    /** Push value to array at path. */
     public function push(string $path, mixed $value): self
     {
         $segments = DotPathHelper::segments($path);
@@ -106,14 +104,12 @@ class DataMutator
         }
 
         $current[] = $value;
-        $this->target = self::applySet($this->target, $segments, $current, false);
+        $this->target = $this->applySet($this->target, $segments, $current, false);
 
         return $this;
     }
 
-    /**
-     * Remove and return value at path.
-     */
+    /** Remove and return value at path. */
     public function pull(string $path, mixed $default = null): mixed
     {
         $value = DataAccessor::make($this->target)->get($path, $default);
@@ -122,15 +118,13 @@ class DataMutator
         return $value;
     }
 
-    /**
-     * Transform value at path using callback.
-     */
+    /** Transform value at path using callback. */
     public function transform(string $path, callable $callback): self
     {
         $value = DataAccessor::make($this->target)->get($path);
         $newValue = $callback($value);
         $segments = DotPathHelper::segments($path);
-        $this->target = self::applySet($this->target, $segments, $newValue, false);
+        $this->target = $this->applySet($this->target, $segments, $newValue, false);
 
         return $this;
     }
@@ -146,7 +140,7 @@ class DataMutator
 
         foreach ($paths as $path) {
             $segments = DotPathHelper::segments($path);
-            $this->target = self::applyUnset($this->target, $segments);
+            $this->target = $this->applyUnset($this->target, $segments);
         }
 
         return $this;
@@ -182,8 +176,6 @@ class DataMutator
         return $this->target;
     }
 
-
-
     /**
      * Apply setting into array, collection, model, or object.
      *
@@ -191,7 +183,7 @@ class DataMutator
      * @param array<int, string> $segments
      * @return array<int|string, mixed>|object
      */
-    private static function applySet(array|object $target, array $segments, mixed $value, bool $merge): array|object
+    private function applySet(array|object $target, array $segments, mixed $value, bool $merge): array|object
     {
         if (is_array($target)) {
             self::setIntoArray($target, $segments, $value, $merge);
@@ -411,8 +403,6 @@ class DataMutator
         return $a;
     }
 
-
-
     /**
      * Apply unset operation to target.
      *
@@ -420,7 +410,7 @@ class DataMutator
      * @param array<int, string> $segments
      * @return array<int|string, mixed>|object
      */
-    private static function applyUnset(array|object $target, array $segments): array|object
+    private function applyUnset(array|object $target, array $segments): array|object
     {
         if (is_array($target)) {
             self::unsetFromArray($target, $segments);

@@ -26,6 +26,10 @@ describe('OperatorRegistry', function(): void {
         expect(OperatorRegistry::has('WHERE NOT IN'))->toBeTrue();
         expect(OperatorRegistry::has('WHERE NULL'))->toBeTrue();
         expect(OperatorRegistry::has('WHERE NOT NULL'))->toBeTrue();
+        expect(OperatorRegistry::has('SELECT'))->toBeTrue();
+        expect(OperatorRegistry::has('EXCEPT'))->toBeTrue();
+        expect(OperatorRegistry::has('MAP'))->toBeTrue();
+        expect(OperatorRegistry::has('FILTER'))->toBeTrue();
     });
 
     it('registers operator aliases', function(): void {
@@ -231,7 +235,7 @@ describe('OperatorRegistry', function(): void {
         expect($reflection->isFinal())->toBeTrue();
     });
 
-    it('registers all 12 built-in operators', function(): void {
+    it('registers all 16 built-in operators', function(): void {
         $all = OperatorRegistry::all();
         $uniqueOperators = [];
 
@@ -239,7 +243,7 @@ describe('OperatorRegistry', function(): void {
             $uniqueOperators[$operator->getName()] = $operator;
         }
 
-        expect($uniqueOperators)->toHaveCount(12);
+        expect($uniqueOperators)->toHaveCount(16);
         expect($uniqueOperators)->toHaveKey('WHERE');
         expect($uniqueOperators)->toHaveKey('ORDER BY');
         expect($uniqueOperators)->toHaveKey('LIMIT');
@@ -252,5 +256,9 @@ describe('OperatorRegistry', function(): void {
         expect($uniqueOperators)->toHaveKey('WHERE NOT IN');
         expect($uniqueOperators)->toHaveKey('WHERE NULL');
         expect($uniqueOperators)->toHaveKey('WHERE NOT NULL');
+        expect($uniqueOperators)->toHaveKey('SELECT');
+        expect($uniqueOperators)->toHaveKey('EXCEPT');
+        expect($uniqueOperators)->toHaveKey('MAP');
+        expect($uniqueOperators)->toHaveKey('FILTER');
     });
 });
