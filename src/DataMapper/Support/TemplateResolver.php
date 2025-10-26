@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Support;
 
-use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\Converters\JsonConverter;
+use event4u\DataHelpers\Converters\XmlConverter;
 use event4u\DataHelpers\DataMapper\Template\ExpressionEvaluator;
 use event4u\DataHelpers\DataMapper\Template\ExpressionParser;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Resolves template-based mapping operations.
@@ -38,20 +40,7 @@ final class TemplateResolver
         bool $reindexWildcard = false,
     ): array {
         if (is_string($template)) {
-            // Try JSON first
-            if (StringFormatDetector::isJson($template)) {
-                $decoded = json_decode($template, true);
-                if (!is_array($decoded)) {
-                    throw new InvalidArgumentException('Invalid JSON template');
-                }
-                $template = $decoded;
-            } elseif (StringFormatDetector::isXml($template)) {
-                // Try XML
-                $accessor = new DataAccessor($template);
-                $template = $accessor->toArray();
-            } else {
-                throw new InvalidArgumentException('Template must be a valid JSON or XML string, or an array');
-            }
+            $template = self::convertStringToArray($template, 'template');
         }
 
         // Resolve template with multi-pass alias resolution
@@ -271,20 +260,43 @@ final class TemplateResolver
         bool $reindexWildcard = false,
     ): array {
         if (is_string($data)) {
-            $data = json_decode($data, true);
-            if (!is_array($data)) {
-                throw new InvalidArgumentException('Invalid JSON data');
-            }
+            $data = self::convertStringToArray($data, 'data');
         }
 
         if (is_string($template)) {
-            $template = json_decode($template, true);
-            if (!is_array($template)) {
-                throw new InvalidArgumentException('Invalid JSON template');
-            }
+            $template = self::convertStringToArray($template, 'template');
         }
 
         return self::applyTemplateNodeToTargets($data, $template, $targets, $skipNull, $reindexWildcard);
+    }
+
+    /**
+     * Convert a string to an array using the appropriate converter based on format detection.
+     *
+     * @param string $string The string to convert
+     * @param string $context Context for error messages (e.g., 'data', 'template')
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException If the string format is not supported or invalid
+     */
+    private static function convertStringToArray(string $string, string $context = 'string'): array
+    {
+        $format = StringFormatDetector::detectFormat($string);
+
+        try {
+            return match ($format) {
+                'json' => (new JsonConverter())->toArray($string),
+                'xml' => (new XmlConverter())->toArray($string),
+                default => throw new InvalidArgumentException(
+                    sprintf('Unsupported format for %s. Expected JSON or XML.', $context)
+                ),
+            };
+        } catch (Throwable $throwable) {
+            throw new InvalidArgumentException(sprintf(
+                'Invalid %s %s: ',
+                $format,
+                $context
+            ) . $throwable->getMessage(), 0, $throwable);
+        }
     }
 
     /**
