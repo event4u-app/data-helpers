@@ -210,6 +210,6 @@ $result = DataMapper::source(['name' => '  John  '])
 
 ## See Also
 
-- [DataMapper Guide](/main-classes/data-mapper/) - Complete guide
-- [Hooks & Events](/advanced/hooks-events/) - Hooks guide
+- [DataMapper Guide](/data-helpers/main-classes/data-mapper/) - Complete guide
+- [Hooks & Events](/data-helpers/advanced/hooks-events/) - Hooks guide
 

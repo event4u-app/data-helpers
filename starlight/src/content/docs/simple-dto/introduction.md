@@ -348,24 +348,24 @@ $json = json_encode($dto);
 
 ### For Beginners
 
-1. [Creating Dtos](/simple-dto/creating-dtos/) - Learn how to create Dtos
-2. [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
-3. [Validation](/simple-dto/validation/) - Validate your data
+1. [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Learn how to create Dtos
+2. [Type Casting](/data-helpers/simple-dto/type-casting/) - Automatic type conversion
+3. [Validation](/data-helpers/simple-dto/validation/) - Validate your data
 
 ### For Experienced Developers
 
-1. [Conditional Properties](/simple-dto/conditional-properties/) - Advanced visibility control
-2. [Lazy Properties](/simple-dto/lazy-properties/) - Defer expensive operations
-3. [Computed Properties](/simple-dto/computed-properties/) - Calculate values on-the-fly
+1. [Conditional Properties](/data-helpers/simple-dto/conditional-properties/) - Advanced visibility control
+2. [Lazy Properties](/data-helpers/simple-dto/lazy-properties/) - Defer expensive operations
+3. [Computed Properties](/data-helpers/simple-dto/computed-properties/) - Calculate values on-the-fly
 
 ### Advanced Topics
 
-1. [Collections](/simple-dto/collections/) - Work with collections of Dtos
-2. [Nested Dtos](/simple-dto/nested-dtos/) - Complex nested structures
-3. [Security & Visibility](/simple-dto/security-visibility/) - Control data exposure
+1. [Collections](/data-helpers/simple-dto/collections/) - Work with collections of Dtos
+2. [Nested Dtos](/data-helpers/simple-dto/nested-dtos/) - Complex nested structures
+3. [Security & Visibility](/data-helpers/simple-dto/security-visibility/) - Control data exposure
 
 ## See Also
 
-- [DataMapper](/main-classes/data-mapper/) - Transform data with Fluent API
-- [DataAccessor](/main-classes/data-accessor/) - Read nested data
-- [DataFilter](/main-classes/data-filter/) - Query and filter data
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - Transform data with Fluent API
+- [DataAccessor](/data-helpers/main-classes/data-accessor/) - Read nested data
+- [DataFilter](/data-helpers/main-classes/data-filter/) - Query and filter data

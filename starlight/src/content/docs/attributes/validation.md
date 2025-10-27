@@ -197,6 +197,6 @@ public readonly string $name;
 
 ## See Also
 
-- [Validation](/simple-dto/validation/) - Validation guide
-- [Conditional Attributes](/attributes/conditional/) - Conditional visibility
-- [Custom Validation](/simple-dto/validation/#custom-validation) - Create custom validators
+- [Validation](/data-helpers/simple-dto/validation/) - Validation guide
+- [Conditional Attributes](/data-helpers/attributes/conditional/) - Conditional visibility
+- [Custom Validation](/data-helpers/simple-dto/validation/#custom-validation) - Create custom validators

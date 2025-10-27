@@ -289,6 +289,6 @@ $accessor->get($path);
 
 ## See Also
 
-- [DataAccessor](/main-classes/data-accessor/) - Read nested data
-- [DataMutator](/main-classes/data-mutator/) - Modify nested data
-- [DataMapper](/main-classes/data-mapper/) - Transform data
+- [DataAccessor](/data-helpers/main-classes/data-accessor/) - Read nested data
+- [DataMutator](/data-helpers/main-classes/data-mutator/) - Modify nested data
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - Transform data

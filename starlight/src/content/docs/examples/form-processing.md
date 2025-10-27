@@ -343,7 +343,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ## See Also
 
-- [Validation](/simple-dto/validation/) - Validation rules
-- [File Upload](/examples/file-upload/) - File upload examples
-- [Database Operations](/examples/database-operations/) - Database examples
+- [Validation](/data-helpers/simple-dto/validation/) - Validation rules
+- [File Upload](/data-helpers/examples/file-upload/) - File upload examples
+- [Database Operations](/data-helpers/examples/database-operations/) - Database examples
 

@@ -405,6 +405,6 @@ task test:unit -- --filter=Conditional
 
 ## See Also
 
-- [Lazy Properties](/simple-dto/lazy-properties/) - Defer expensive operations
-- [Computed Properties](/simple-dto/computed-properties/) - Calculate values
-- [Security & Visibility](/simple-dto/security-visibility/) - Control data exposure
+- [Lazy Properties](/data-helpers/simple-dto/lazy-properties/) - Defer expensive operations
+- [Computed Properties](/data-helpers/simple-dto/computed-properties/) - Calculate values
+- [Security & Visibility](/data-helpers/simple-dto/security-visibility/) - Control data exposure

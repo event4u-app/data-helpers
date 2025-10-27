@@ -98,7 +98,7 @@ You should see the package information including version and dependencies.
 
 ## Next Steps
 
-- [Requirements](/getting-started/requirements) - Detailed requirements and compatibility
-- [Quick Start](/getting-started/quick-start) - Get started in 5 minutes
-- [Configuration](/getting-started/configuration) - Configure Data Helpers for your project
+- [Requirements](/data-helpers/getting-started/requirements) - Detailed requirements and compatibility
+- [Quick Start](/data-helpers/getting-started/quick-start) - Get started in 5 minutes
+- [Configuration](/data-helpers/getting-started/configuration) - Configure Data Helpers for your project
 

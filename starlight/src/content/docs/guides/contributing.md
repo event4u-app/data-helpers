@@ -6,7 +6,7 @@ description: Guidelines and instructions for contributing to Data Helpers
 Thank you for considering contributing to Data Helpers! This guide will help you get started.
 
 :::tip[New to Forking?]
-If you're new to the fork and pull request workflow, check out our detailed [Fork & Pull Request Guide](/guides/fork-and-pull-request/) for step-by-step instructions on how to fork, work locally, and create pull requests.
+If you're new to the fork and pull request workflow, check out our detailed [Fork & Pull Request Guide](/data-helpers/guides/fork-and-pull-request/) for step-by-step instructions on how to fork, work locally, and create pull requests.
 :::
 
 ## Getting Started
@@ -45,7 +45,7 @@ If you're new to the fork and pull request workflow, check out our detailed [For
    task test:run
    ```
 
-See [Development Setup](/guides/development-setup/) for detailed instructions.
+See [Development Setup](/data-helpers/guides/development-setup/) for detailed instructions.
 
 ## Development Workflow
 
@@ -323,9 +323,9 @@ Include:
 
 ## Next Steps
 
-- [Development Setup](/guides/development-setup/) - Setup your environment
-- [Testing Guide](/testing/testing-dtos/) - Learn about testing
-- [Architecture](/guides/architecture/) - Understand the codebase structure
+- [Development Setup](/data-helpers/guides/development-setup/) - Setup your environment
+- [Testing Guide](/data-helpers/testing/testing-dtos/) - Learn about testing
+- [Architecture](/data-helpers/guides/architecture/) - Understand the codebase structure
 
 Thank you for contributing! 🎉
 

@@ -192,6 +192,6 @@ public readonly ?array $adminData = null;
 
 ## See Also
 
-- [Conditional Properties](/simple-dto/conditional-properties/) - Detailed guide
-- [Security & Visibility](/simple-dto/security-visibility/) - Security practices
-- [Validation Attributes](/attributes/validation/) - Validation reference
+- [Conditional Properties](/data-helpers/simple-dto/conditional-properties/) - Detailed guide
+- [Security & Visibility](/data-helpers/simple-dto/security-visibility/) - Security practices
+- [Validation Attributes](/data-helpers/attributes/validation/) - Validation reference

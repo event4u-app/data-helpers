@@ -330,7 +330,7 @@ Route::delete('/api/users/{id}', function(int $id) {
 
 ## See Also
 
-- [API Integration](/examples/api-integration/) - API examples
-- [Form Processing](/examples/form-processing/) - Form examples
-- [Database Operations](/examples/database-operations/) - Database examples
+- [API Integration](/data-helpers/examples/api-integration/) - API examples
+- [Form Processing](/data-helpers/examples/form-processing/) - Form examples
+- [Database Operations](/data-helpers/examples/database-operations/) - Database examples
 

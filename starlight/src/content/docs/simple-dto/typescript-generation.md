@@ -381,7 +381,7 @@ task test:unit -- --filter=TypeScript
 
 ## See Also
 
-- [Artisan Commands](/framework-integration/artisan-commands/) - Laravel commands
-- [Console Commands](/framework-integration/console-commands/) - Symfony commands
-- [Creating Dtos](/simple-dto/creating-dtos/) - Dto creation guide
+- [Artisan Commands](/data-helpers/framework-integration/artisan-commands/) - Laravel commands
+- [Console Commands](/data-helpers/framework-integration/console-commands/) - Symfony commands
+- [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Dto creation guide
 

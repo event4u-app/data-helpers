@@ -109,7 +109,7 @@ $dto = UserDto::validateAndCreate($data);
 
 ## Next Steps
 
-- [Laravel Integration](/framework-integration/laravel/) - Detailed Laravel guide
-- [Symfony Integration](/framework-integration/symfony/) - Detailed Symfony guide
-- [Doctrine Integration](/framework-integration/doctrine/) - Doctrine entity mapping
-- [Plain PHP Usage](/framework-integration/plain-php/) - Standalone usage
+- [Laravel Integration](/data-helpers/framework-integration/laravel/) - Detailed Laravel guide
+- [Symfony Integration](/data-helpers/framework-integration/symfony/) - Detailed Symfony guide
+- [Doctrine Integration](/data-helpers/framework-integration/doctrine/) - Doctrine entity mapping
+- [Plain PHP Usage](/data-helpers/framework-integration/plain-php/) - Standalone usage

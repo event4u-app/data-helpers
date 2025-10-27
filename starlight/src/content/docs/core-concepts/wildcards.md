@@ -43,9 +43,9 @@ Use SQL-like operators with wildcards:
 - **GROUP BY** - Aggregations
 - **DISTINCT** - Remove duplicates
 
-See [DataMapper](/main-classes/data-mapper/) for detailed examples.
+See [DataMapper](/data-helpers/main-classes/data-mapper/) for detailed examples.
 
 ## See Also
 
-- [Dot-Notation Paths](/core-concepts/dot-notation/)
-- [DataMapper](/main-classes/data-mapper/)
+- [Dot-Notation Paths](/data-helpers/core-concepts/dot-notation/)
+- [DataMapper](/data-helpers/main-classes/data-mapper/)

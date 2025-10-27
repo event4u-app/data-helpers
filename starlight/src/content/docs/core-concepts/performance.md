@@ -13,7 +13,7 @@ DataMapper is significantly faster than traditional serializers:
 - **2.3x faster** lazy cast speedup
 - **914,000 instances/sec** Dto creation rate
 
-See [Performance Benchmarks](/performance/benchmarks/) for detailed comparisons.
+See [Performance Benchmarks](/data-helpers/performance/benchmarks/) for detailed comparisons.
 
 ## Caching
 
@@ -113,6 +113,6 @@ Data Helpers is memory-efficient:
 
 ## See Also
 
-- [Performance Benchmarks](/performance/benchmarks/)
-- [Running Benchmarks](/performance/running-benchmarks/)
-- [Optimization Guide](/performance/optimization/)
+- [Performance Benchmarks](/data-helpers/performance/benchmarks/)
+- [Running Benchmarks](/data-helpers/performance/running-benchmarks/)
+- [Optimization Guide](/data-helpers/performance/optimization/)

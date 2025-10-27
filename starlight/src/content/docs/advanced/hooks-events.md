@@ -417,7 +417,7 @@ $hooks = Hooks::make()
 
 ## See Also
 
-- [DataMapper](/main-classes/data-mapper/) - DataMapper guide
-- [Pipelines](/advanced/pipelines/) - Pipeline processing
-- [Custom Casts](/advanced/custom-casts/) - Custom type casts
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - DataMapper guide
+- [Pipelines](/data-helpers/advanced/pipelines/) - Pipeline processing
+- [Custom Casts](/data-helpers/advanced/custom-casts/) - Custom type casts
 

@@ -378,7 +378,7 @@ Data Helpers includes 40+ built-in filters:
 - **Array Filters:** FlattenArray, UniqueValues, etc.
 - **Validation Filters:** ValidateEmail, ValidateUrl, etc.
 
-See [Filters Documentation](/advanced-features/filters) for complete list.
+See [Filters Documentation](/data-helpers/advanced-features/filters) for complete list.
 
 ## Property-Specific Filters
 
@@ -653,7 +653,7 @@ DataMapper is optimized for performance:
 - **Efficient caching** for path resolution and reflection
 - **Minimal overhead** (7.1%) for Fluent API wrapper
 
-See [Performance Benchmarks](/performance/benchmarks) for detailed comparison.
+See [Performance Benchmarks](/data-helpers/performance/benchmarks) for detailed comparison.
 
 ## Code Examples
 
@@ -699,8 +699,8 @@ vendor/bin/pest tests/Unit/DataMapper/DataMapperTest.php
 ```
 ## See Also
 
-- [DataAccessor](/main-classes/data-accessor/) - Read nested data
-- [DataMutator](/main-classes/data-mutator/) - Modify nested data
-- [DataFilter](/main-classes/data-filter/) - Query and filter data
-- [Core Concepts: Wildcards](/core-concepts/wildcards/) - Wildcard operators
-- [Examples](/examples/) - 90+ code examples
+- [DataAccessor](/data-helpers/main-classes/data-accessor/) - Read nested data
+- [DataMutator](/data-helpers/main-classes/data-mutator/) - Modify nested data
+- [DataFilter](/data-helpers/main-classes/data-filter/) - Query and filter data
+- [Core Concepts: Wildcards](/data-helpers/core-concepts/wildcards/) - Wildcard operators
+- [Examples](/data-helpers/examples/) - 90+ code examples

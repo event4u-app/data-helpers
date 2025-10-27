@@ -177,8 +177,8 @@ $json = $user->toJson();
 
 ## Next Steps
 
-- [Core Concepts](/core-concepts/dot-notation) - Learn about dot notation and wildcards
-- [Main Classes](/main-classes/overview) - Explore all main classes
-- [Examples](/examples) - Browse 90+ code examples
-- [API Reference](/api) - Complete API documentation
+- [Core Concepts](/data-helpers/core-concepts/dot-notation) - Learn about dot notation and wildcards
+- [Main Classes](/data-helpers/main-classes/overview) - Explore all main classes
+- [Examples](/data-helpers/examples) - Browse 90+ code examples
+- [API Reference](/data-helpers/api) - Complete API documentation
 

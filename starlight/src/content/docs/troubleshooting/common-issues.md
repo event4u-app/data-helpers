@@ -368,8 +368,8 @@ php artisan dto:typescript --verbose
 
 ## See Also
 
-- [Quick Start](/getting-started/quick-start/) - Get started guide
-- [Validation](/simple-dto/validation/) - Validation details
-- [Type Casting](/simple-dto/type-casting/) - Type casting guide
-- [Performance](/performance/optimization/) - Performance optimization
+- [Quick Start](/data-helpers/getting-started/quick-start/) - Get started guide
+- [Validation](/data-helpers/simple-dto/validation/) - Validation details
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Type casting guide
+- [Performance](/data-helpers/performance/optimization/) - Performance optimization
 

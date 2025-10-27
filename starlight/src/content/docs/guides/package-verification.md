@@ -287,7 +287,7 @@ Package verification provides:
 
 ## Next Steps
 
-- [Test Matrix](/guides/test-matrix/) - Learn about the test matrix
-- [Development Setup](/guides/development-setup/) - Setup your environment
-- [Testing Guide](/testing/testing-dtos/) - Learn about testing Dtos
+- [Test Matrix](/data-helpers/guides/test-matrix/) - Learn about the test matrix
+- [Development Setup](/data-helpers/guides/development-setup/) - Setup your environment
+- [Testing Guide](/data-helpers/testing/testing-dtos/) - Learn about testing Dtos
 

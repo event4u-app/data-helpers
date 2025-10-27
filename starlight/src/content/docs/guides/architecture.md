@@ -384,8 +384,8 @@ it('skips odd indices via hook', function () {
 
 ## Next Steps
 
-- [Development Setup](/guides/development-setup/) - Setup your environment
-- [Contributing Guide](/guides/contributing/) - Learn how to contribute
-- [DataMapper Documentation](/main-classes/data-mapper/) - Learn about DataMapper
-- [Advanced Features](/advanced/hooks-events/) - Explore advanced features
+- [Development Setup](/data-helpers/guides/development-setup/) - Setup your environment
+- [Contributing Guide](/data-helpers/guides/contributing/) - Learn how to contribute
+- [DataMapper Documentation](/data-helpers/main-classes/data-mapper/) - Learn about DataMapper
+- [Advanced Features](/data-helpers/advanced/hooks-events/) - Explore advanced features
 

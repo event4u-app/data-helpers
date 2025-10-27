@@ -461,5 +461,5 @@ $config = ConfigHelper::getInstance();
 ## See Also
 
 - [EnvHelper](/helpers/env-helper/) - Environment variable helper
-- [DataHelpersConfig](/core-concepts/configuration/) - Package configuration
-- [Framework Integration](/framework-integration/laravel/) - Framework-specific features
+- [DataHelpersConfig](/data-helpers/core-concepts/configuration/) - Package configuration
+- [Framework Integration](/data-helpers/framework-integration/laravel/) - Framework-specific features

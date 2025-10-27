@@ -263,7 +263,7 @@ $structure = $accessor->getStructureMultidimensional();
 
 ## See Also
 
-- [DataAccessor Guide](/main-classes/data-accessor/) - Complete guide
-- [Dot-Notation](/core-concepts/dot-notation/) - Path syntax
-- [Wildcards](/core-concepts/wildcards/) - Wildcard patterns
+- [DataAccessor Guide](/data-helpers/main-classes/data-accessor/) - Complete guide
+- [Dot-Notation](/data-helpers/core-concepts/dot-notation/) - Path syntax
+- [Wildcards](/data-helpers/core-concepts/wildcards/) - Wildcard patterns
 

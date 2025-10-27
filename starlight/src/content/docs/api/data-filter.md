@@ -146,5 +146,5 @@ $count = $filter->count();
 
 ## See Also
 
-- [DataFilter Guide](/main-classes/data-filter/) - Complete guide
+- [DataFilter Guide](/data-helpers/main-classes/data-filter/) - Complete guide
 

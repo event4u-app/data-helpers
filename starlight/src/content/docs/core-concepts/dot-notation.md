@@ -78,7 +78,7 @@ $emails = $accessor->get('users.*.email');
 // ['users.0.email' => 'alice@example.com', 'users.1.email' => 'bob@example.com', 'users.2.email' => 'charlie@example.com']
 ```
 
-See [Wildcards](/core-concepts/wildcards/) for detailed wildcard documentation.
+See [Wildcards](/data-helpers/core-concepts/wildcards/) for detailed wildcard documentation.
 
 ## Empty Path
 
@@ -198,7 +198,7 @@ $result = DataMapper::source($source)->template([
 
 ## See Also
 
-- [Wildcards](/core-concepts/wildcards/) - Detailed wildcard documentation
-- [DataAccessor](/main-classes/data-accessor/) - Reading data
-- [DataMutator](/main-classes/data-mutator/) - Modifying data
-- [DataMapper](/main-classes/data-mapper/) - Transforming data
+- [Wildcards](/data-helpers/core-concepts/wildcards/) - Detailed wildcard documentation
+- [DataAccessor](/data-helpers/main-classes/data-accessor/) - Reading data
+- [DataMutator](/data-helpers/main-classes/data-mutator/) - Modifying data
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - Transforming data

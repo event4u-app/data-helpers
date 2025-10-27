@@ -203,7 +203,7 @@ public readonly string $name;
 
 ## See Also
 
-- [Type Casting Guide](/simple-dto/type-casting/) - Complete guide
-- [Custom Casts](/advanced/custom-casts/) - Create custom casts
-- [Casting Attributes](/attributes/casting/) - Cast attribute reference
+- [Type Casting Guide](/data-helpers/simple-dto/type-casting/) - Complete guide
+- [Custom Casts](/data-helpers/advanced/custom-casts/) - Create custom casts
+- [Casting Attributes](/data-helpers/attributes/casting/) - Cast attribute reference
 

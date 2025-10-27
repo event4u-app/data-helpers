@@ -21,7 +21,7 @@ SimpleDto provides 50+ attributes organized into categories:
 
 ### Validation Attributes
 
-See [Validation Attributes](/attributes/validation/) for complete list of 30+ validation attributes.
+See [Validation Attributes](/data-helpers/attributes/validation/) for complete list of 30+ validation attributes.
 
 **Most Common:**
 - `#[Required]` - Property must be present
@@ -35,7 +35,7 @@ See [Validation Attributes](/attributes/validation/) for complete list of 30+ va
 
 ### Conditional Attributes
 
-See [Conditional Attributes](/attributes/conditional/) for complete list of 18 conditional attributes.
+See [Conditional Attributes](/data-helpers/attributes/conditional/) for complete list of 18 conditional attributes.
 
 **Most Common:**
 - `#[WhenAuth]` - Show when authenticated (Laravel)
@@ -46,13 +46,13 @@ See [Conditional Attributes](/attributes/conditional/) for complete list of 18 c
 
 ### Casting Attributes
 
-See [Casting Attributes](/attributes/casting/) for complete list.
+See [Casting Attributes](/data-helpers/attributes/casting/) for complete list.
 
 - `#[Cast(string $castClass)]` - Cast property to specific type
 
 ### Mapping Attributes
 
-See [Mapping Attributes](/attributes/mapping/) for complete list.
+See [Mapping Attributes](/data-helpers/attributes/mapping/) for complete list.
 
 - `#[MapFrom(string $source)]` - Map from different input key
 - `#[MapTo(string $target)]` - Map to different output key
@@ -97,17 +97,17 @@ class UserDto extends SimpleDto
 
 **Data Validation:**
 - 30+ validation attributes
-- See [Validation Attributes](/attributes/validation/)
+- See [Validation Attributes](/data-helpers/attributes/validation/)
 
 **Visibility Control:**
 - 18 conditional attributes
 - 1 hidden attribute
-- See [Conditional Attributes](/attributes/conditional/)
+- See [Conditional Attributes](/data-helpers/attributes/conditional/)
 
 **Data Transformation:**
 - 1 cast attribute (20+ cast classes)
 - 2 mapping attributes
-- See [Casting](/attributes/casting/) and [Mapping](/attributes/mapping/)
+- See [Casting](/data-helpers/attributes/casting/) and [Mapping](/data-helpers/attributes/mapping/)
 
 **Computed Values:**
 - 1 computed attribute
@@ -166,7 +166,7 @@ public readonly $date;
 
 ## See Also
 
-- [Validation Attributes](/attributes/validation/) - Complete validation reference
-- [Conditional Attributes](/attributes/conditional/) - Complete conditional reference
-- [Casting Attributes](/attributes/casting/) - Type casting reference
-- [Mapping Attributes](/attributes/mapping/) - Property mapping reference
+- [Validation Attributes](/data-helpers/attributes/validation/) - Complete validation reference
+- [Conditional Attributes](/data-helpers/attributes/conditional/) - Complete conditional reference
+- [Casting Attributes](/data-helpers/attributes/casting/) - Type casting reference
+- [Mapping Attributes](/data-helpers/attributes/mapping/) - Property mapping reference

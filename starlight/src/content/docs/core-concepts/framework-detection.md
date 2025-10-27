@@ -72,7 +72,7 @@ No configuration files or environment variables needed. Framework support is ena
 
 ## See Also
 
-- [Framework Integration](/framework-integration/overview/)
-- [Laravel Integration](/framework-integration/laravel/)
-- [Symfony Integration](/framework-integration/symfony/)
-- [Doctrine Integration](/framework-integration/doctrine/)
+- [Framework Integration](/data-helpers/framework-integration/overview/)
+- [Laravel Integration](/data-helpers/framework-integration/laravel/)
+- [Symfony Integration](/data-helpers/framework-integration/symfony/)
+- [Doctrine Integration](/data-helpers/framework-integration/doctrine/)

@@ -460,4 +460,4 @@ echo "After {$years} years: $" . $amount . "\n";
 
 - [ConfigHelper](/helpers/config-helper/) - Configuration helper
 - [EnvHelper](/helpers/env-helper/) - Environment variable helper
-- [Core Concepts: Type System](/core-concepts/type-system/) - Type casting and conversion
+- [Core Concepts: Type System](/data-helpers/core-concepts/type-system/) - Type casting and conversion

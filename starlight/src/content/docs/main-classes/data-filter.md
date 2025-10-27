@@ -805,8 +805,8 @@ vendor/bin/pest tests/Unit/DataFilterTest.php
 ```
 ## See Also
 
-- [DataAccessor](/main-classes/data-accessor/) - Read nested data
-- [DataMutator](/main-classes/data-mutator/) - Modify nested data
-- [DataMapper](/main-classes/data-mapper/) - Transform data structures
-- [Core Concepts: Dot-Notation](/core-concepts/dot-notation/) - Path syntax
-- [Examples](/examples/) - 90+ code examples
+- [DataAccessor](/data-helpers/main-classes/data-accessor/) - Read nested data
+- [DataMutator](/data-helpers/main-classes/data-mutator/) - Modify nested data
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - Transform data structures
+- [Core Concepts: Dot-Notation](/data-helpers/core-concepts/dot-notation/) - Path syntax
+- [Examples](/data-helpers/examples/) - 90+ code examples

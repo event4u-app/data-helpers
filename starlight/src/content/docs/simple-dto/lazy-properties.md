@@ -206,6 +206,6 @@ task test:unit -- --filter=Lazy
 
 ## See Also
 
-- [Computed Properties](/simple-dto/computed-properties/) - Calculate values on-the-fly
-- [Conditional Properties](/simple-dto/conditional-properties/) - Dynamic visibility
-- [Collections](/simple-dto/collections/) - Work with collections
+- [Computed Properties](/data-helpers/simple-dto/computed-properties/) - Calculate values on-the-fly
+- [Conditional Properties](/data-helpers/simple-dto/conditional-properties/) - Dynamic visibility
+- [Collections](/data-helpers/simple-dto/collections/) - Work with collections

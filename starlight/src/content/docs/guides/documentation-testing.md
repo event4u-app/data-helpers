@@ -270,7 +270,7 @@ Success rate:    99.6%
 
 ## Related
 
-- [Contributing Guide](/guides/contributing/) - General contribution guidelines
-- [Development Setup](/guides/development-setup/) - Setting up your development environment
-- [Test Matrix](/guides/test-matrix/) - Understanding the test matrix
+- [Contributing Guide](/data-helpers/guides/contributing/) - General contribution guidelines
+- [Development Setup](/data-helpers/guides/development-setup/) - Setting up your development environment
+- [Test Matrix](/data-helpers/guides/test-matrix/) - Understanding the test matrix
 

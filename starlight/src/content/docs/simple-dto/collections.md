@@ -237,6 +237,6 @@ task test:unit -- --filter=Collection
 
 ## See Also
 
-- [Nested Dtos](/simple-dto/nested-dtos/) - Complex nested structures
-- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods
-- [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
+- [Nested Dtos](/data-helpers/simple-dto/nested-dtos/) - Complex nested structures
+- [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Creation methods
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Automatic type conversion

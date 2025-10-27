@@ -141,5 +141,5 @@ public readonly string $usrNm;
 
 ## See Also
 
-- [Property Mapping](/simple-dto/property-mapping/) - Detailed guide
-- [Validation Attributes](/attributes/validation/) - Validation reference
+- [Property Mapping](/data-helpers/simple-dto/property-mapping/) - Detailed guide
+- [Validation Attributes](/data-helpers/attributes/validation/) - Validation reference

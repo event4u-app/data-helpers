@@ -103,5 +103,5 @@ No configuration needed!
 
 ## See Also
 
-- [Framework Detection](/core-concepts/framework-detection/)
-- [Framework Integration](/framework-integration/overview/)
+- [Framework Detection](/data-helpers/core-concepts/framework-detection/)
+- [Framework Integration](/data-helpers/framework-integration/overview/)

@@ -368,8 +368,8 @@ $users = DataCollection::make($data, UserDto::class);
 
 ## Next Steps
 
-- [Artisan Commands](/framework-integration/artisan-commands/) - Learn about all available commands
-- [Validation](/simple-dto/validation/) - Explore validation features
-- [Conditional Properties](/simple-dto/conditional-properties/) - Use advanced conditional logic
-- [Performance](/performance/optimization/) - Optimize your Dtos
+- [Artisan Commands](/data-helpers/framework-integration/artisan-commands/) - Learn about all available commands
+- [Validation](/data-helpers/simple-dto/validation/) - Explore validation features
+- [Conditional Properties](/data-helpers/simple-dto/conditional-properties/) - Use advanced conditional logic
+- [Performance](/data-helpers/performance/optimization/) - Optimize your Dtos
 

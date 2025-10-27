@@ -352,7 +352,7 @@ class ProcessStage implements PipelineStage
 
 ## See Also
 
-- [Custom Casts](/advanced/custom-casts/) - Custom type casts
-- [Custom Validation](/advanced/custom-validation/) - Custom validation rules
-- [Hooks & Events](/advanced/hooks-events/) - Hooks and events
+- [Custom Casts](/data-helpers/advanced/custom-casts/) - Custom type casts
+- [Custom Validation](/data-helpers/advanced/custom-validation/) - Custom validation rules
+- [Hooks & Events](/data-helpers/advanced/hooks-events/) - Hooks and events
 

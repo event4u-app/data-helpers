@@ -90,7 +90,7 @@ DATA_HELPERS_CACHE_ENABLED=true
 
 ## Next Steps
 
-- [Core Concepts](/core-concepts/dot-notation) - Learn the fundamentals
-- [Quick Start](/getting-started/quick-start) - Get started in 5 minutes
-- [Performance](/performance/benchmarks) - Optimize for production
+- [Core Concepts](/data-helpers/core-concepts/dot-notation) - Learn the fundamentals
+- [Quick Start](/data-helpers/getting-started/quick-start) - Get started in 5 minutes
+- [Performance](/data-helpers/performance/benchmarks) - Optimize for production
 

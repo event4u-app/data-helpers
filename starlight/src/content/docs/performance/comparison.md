@@ -106,5 +106,5 @@ Result: 3-5x faster with large datasets
 
 ## See Also
 
-- [Performance Benchmarks](/performance/benchmarks/) - Detailed benchmarks
-- [Optimization](/performance/optimization/) - Optimization guide
+- [Performance Benchmarks](/data-helpers/performance/benchmarks/) - Detailed benchmarks
+- [Optimization](/data-helpers/performance/optimization/) - Optimization guide

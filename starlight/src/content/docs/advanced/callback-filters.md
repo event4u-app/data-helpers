@@ -310,7 +310,7 @@ CallbackHelper::register('calculateAge', function($p) {
 
 ## See Also
 
-- [Pipelines](/advanced/pipelines/) - Pipeline processing
-- [Template Expressions](/advanced/template-expressions/) - Template syntax
-- [DataMapper](/main-classes/data-mapper/) - DataMapper guide
+- [Pipelines](/data-helpers/advanced/pipelines/) - Pipeline processing
+- [Template Expressions](/data-helpers/advanced/template-expressions/) - Template syntax
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - DataMapper guide
 

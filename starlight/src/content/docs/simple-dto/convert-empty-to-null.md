@@ -402,7 +402,7 @@ This makes the template syntax self-documenting and easy to understand!
 
 ## See Also
 
-- [Template Expressions](/advanced/template-expressions/) - DataMapper filter documentation
-- [DataMapper](/main-classes/data-mapper/) - DataMapper guide
-- [Type Casting](/simple-dto/type-casting/) - Other casting options
+- [Template Expressions](/data-helpers/advanced/template-expressions/) - DataMapper filter documentation
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - DataMapper guide
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Other casting options
 
