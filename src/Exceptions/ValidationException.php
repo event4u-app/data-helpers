@@ -15,7 +15,7 @@ use RuntimeException;
  * Example:
  * ```php
  * try {
- *     $dto = UserDTO::validateAndCreate($data);
+ *     $dto = UserDto::validateAndCreate($data);
  * } catch (ValidationException $e) {
  *     echo $e->getMessage(); // "Validation failed"
  *     print_r($e->errors()); // ['email' => ['Email is invalid']]

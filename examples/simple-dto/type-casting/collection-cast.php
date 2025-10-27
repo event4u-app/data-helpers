@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
-use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
+use event4u\DataHelpers\SimpleDto\DataCollection;
 
 echo "================================================================================\n";
-echo "SimpleDTO - Collection Cast Examples (Framework-Independent)\n";
+echo "SimpleDto - Collection Cast Examples (Framework-Independent)\n";
 echo "================================================================================\n\n";
 
 echo "Note: CollectionCast now creates DataCollection instances (framework-independent).\n";
-echo "You must specify a DTO class: 'collection:UserDTO'\n\n";
+echo "You must specify a Dto class: 'collection:UserDto'\n\n";
 
-// Example 1: DataCollection<SimpleDTO> of DTOs
-echo "Example 1: DataCollection<SimpleDTO> of DTOs\n";
+// Example 1: DataCollection<SimpleDto> of Dtos
+echo "Example 1: DataCollection<SimpleDto> of Dtos\n";
 echo "----------------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -28,7 +28,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-class TeamDTO extends SimpleDTO
+class TeamDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -38,11 +38,11 @@ class TeamDTO extends SimpleDTO
 
     protected function casts(): array
     {
-        return ['members' => 'collection:' . UserDTO::class];
+        return ['members' => 'collection:' . UserDto::class];
     }
 }
 
-$teamDTO = TeamDTO::fromArray([
+$teamDto = TeamDto::fromArray([
     'name' => 'Development Team',
     'members' => [
         ['name' => 'John Doe', 'age' => 30, 'email' => 'john@example.com'],
@@ -51,20 +51,20 @@ $teamDTO = TeamDTO::fromArray([
     ],
 ]);
 
-echo sprintf('Team: %s%s', $teamDTO->name, PHP_EOL);
-echo sprintf('Members: %d%s', $teamDTO->members->count(), PHP_EOL);
+echo sprintf('Team: %s%s', $teamDto->name, PHP_EOL);
+echo sprintf('Members: %d%s', $teamDto->members->count(), PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-echo "First member: {$teamDTO->members->first()->name} ({$teamDTO->members->first()->age} years)\n";
+echo "First member: {$teamDto->members->first()->name} ({$teamDto->members->first()->age} years)\n";
 /** @phpstan-ignore-next-line unknown */
-echo sprintf('Last member: %s%s', $teamDTO->members->last()->name, PHP_EOL);
-echo "toArray(): " . json_encode($teamDTO->toArray(), JSON_PRETTY_PRINT) . "\n\n";
+echo sprintf('Last member: %s%s', $teamDto->members->last()->name, PHP_EOL);
+echo "toArray(): " . json_encode($teamDto->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
-// Example 2: DataCollection<SimpleDTO>Of Attribute
-echo "Example 2: DataCollection<SimpleDTO>Of Attribute\n";
+// Example 2: DataCollection<SimpleDto>Of Attribute
+echo "Example 2: DataCollection<SimpleDto>Of Attribute\n";
 echo "-------------------------------------\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -73,18 +73,18 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $orderNumber,
-        #[DataCollectionOf(ProductDTO::class)]
+        #[DataCollectionOf(ProductDto::class)]
         public readonly DataCollection $items,
         public readonly float $total,
     ) {}
 }
 
-$orderDTO = OrderDTO::fromArray([
+$orderDto = OrderDto::fromArray([
     'orderNumber' => 'ORD-2024-001',
     'items' => [
         ['name' => 'Laptop', 'price' => 999.99, 'stock' => 5],
@@ -94,20 +94,20 @@ $orderDTO = OrderDTO::fromArray([
     'total' => 1109.97,
 ]);
 
-echo sprintf('Order: %s%s', $orderDTO->orderNumber, PHP_EOL);
+echo sprintf('Order: %s%s', $orderDto->orderNumber, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
-echo sprintf('Items: %s%s', $orderDTO->items->count(), PHP_EOL);
+echo sprintf('Items: %s%s', $orderDto->items->count(), PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-echo "First item: {$orderDTO->items->first()->name} (\${$orderDTO->items->first()->price})\n";
-echo sprintf('Total: $%s%s', $orderDTO->total, PHP_EOL);
-echo "toArray(): " . json_encode($orderDTO->toArray(), JSON_PRETTY_PRINT) . "\n\n";
+echo "First item: {$orderDto->items->first()->name} (\${$orderDto->items->first()->price})\n";
+echo sprintf('Total: $%s%s', $orderDto->total, PHP_EOL);
+echo "toArray(): " . json_encode($orderDto->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // Example 3: Nested Collections
 echo "Example 3: Nested Collections\n";
 echo "-----------------------------\n";
 
-class CommentDTO extends SimpleDTO
+class CommentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $author,
@@ -115,28 +115,28 @@ class CommentDTO extends SimpleDTO
     ) {}
 }
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         public readonly string $content,
-        #[DataCollectionOf(CommentDTO::class)]
+        #[DataCollectionOf(CommentDto::class)]
         public readonly DataCollection $comments,
     ) {}
 }
 
-class BlogDTO extends SimpleDTO
+class BlogDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
-        #[DataCollectionOf(PostDTO::class)]
+        #[DataCollectionOf(PostDto::class)]
         public readonly DataCollection $posts,
     ) {}
 }
 
-$blogDTO = BlogDTO::fromArray([
+$blogDto = BlogDto::fromArray([
     'name' => 'Tech Blog',
     'posts' => [
         [
@@ -157,19 +157,19 @@ $blogDTO = BlogDTO::fromArray([
     ],
 ]);
 
-echo sprintf('Blog: %s%s', $blogDTO->name, PHP_EOL);
-echo sprintf('Posts: %d%s', $blogDTO->posts->count(), PHP_EOL);
+echo sprintf('Blog: %s%s', $blogDto->name, PHP_EOL);
+echo sprintf('Posts: %d%s', $blogDto->posts->count(), PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
-echo sprintf('First post: %s%s', $blogDTO->posts->first()->title, PHP_EOL);
+echo sprintf('First post: %s%s', $blogDto->posts->first()->title, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
-echo sprintf('First post comments: %s%s', $blogDTO->posts->first()->comments->count(), PHP_EOL);
-echo "toArray(): " . json_encode($blogDTO->toArray(), JSON_PRETTY_PRINT) . "\n\n";
+echo sprintf('First post comments: %s%s', $blogDto->posts->first()->comments->count(), PHP_EOL);
+echo "toArray(): " . json_encode($blogDto->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // Example 4: Empty Collections
 echo "Example 4: Empty Collections\n";
 echo "----------------------------\n";
 
-$emptyTeam = TeamDTO::fromArray([
+$emptyTeam = TeamDto::fromArray([
     'name' => 'Empty Team',
     'members' => [],
 ]);

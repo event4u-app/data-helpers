@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\SimpleDtoDoctrineTrait;
 
 echo "=== Doctrine Integration Example ===\n\n";
 
@@ -58,10 +58,10 @@ class User
     }
 }
 
-// DTO with Doctrine integration
-class UserDTO extends SimpleDTO
+// Dto with Doctrine integration
+class UserDto extends SimpleDto
 {
-    use SimpleDTODoctrineTrait;
+    use SimpleDtoDoctrineTrait;
 
     public function __construct(
         public readonly string $name,
@@ -71,8 +71,8 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-// Example 1: Create DTO from Entity
-echo "1. Create DTO from Entity (fromEntity)\n";
+// Example 1: Create Dto from Entity
+echo "1. Create Dto from Entity (fromEntity)\n";
 echo "----------------------------------------\n";
 
 $user = new User();
@@ -82,7 +82,7 @@ $user->setEmail('john@example.com');
 $user->setAge(30);
 
 /** @phpstan-ignore-next-line unknown */
-$dto = UserDTO::fromEntity($user);
+$dto = UserDto::fromEntity($user);
 
 echo "Entity data:\n";
 echo sprintf('  ID: %s%s', $user->getId(), PHP_EOL);
@@ -91,18 +91,18 @@ echo sprintf('  Email: %s%s', $user->getEmail(), PHP_EOL);
 echo sprintf('  Age: %s%s', $user->getAge(), PHP_EOL);
 echo "\n";
 
-echo "DTO data:\n";
+echo "Dto data:\n";
 echo sprintf('  ID: %s%s', $dto->id, PHP_EOL);
 echo sprintf('  Name: %s%s', $dto->name, PHP_EOL);
 echo sprintf('  Email: %s%s', $dto->email, PHP_EOL);
 echo sprintf('  Age: %s%s', $dto->age, PHP_EOL);
 echo "\n\n";
 
-// Example 2: Create Entity from DTO
-echo "2. Create Entity from DTO (toEntity)\n";
+// Example 2: Create Entity from Dto
+echo "2. Create Entity from Dto (toEntity)\n";
 echo "----------------------------------------\n";
 
-$dto2 = UserDTO::fromArray([
+$dto2 = UserDto::fromArray([
     'name' => 'Jane Smith',
     'email' => 'jane@example.com',
     'age' => 25,
@@ -112,7 +112,7 @@ $dto2 = UserDTO::fromArray([
 /** @var User $entity */
 $entity = $dto2->toEntity(User::class);
 
-echo "DTO data:\n";
+echo "Dto data:\n";
 echo sprintf('  Name: %s%s', $dto2->name, PHP_EOL);
 echo sprintf('  Email: %s%s', $dto2->email, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -125,8 +125,8 @@ echo sprintf('  Email: %s%s', $entity->getEmail(), PHP_EOL);
 echo sprintf('  Age: %s%s', $entity->getAge(), PHP_EOL);
 echo "\n\n";
 
-// Example 3: Update Entity from DTO
-echo "3. Update Entity from DTO\n";
+// Example 3: Update Entity from Dto
+echo "3. Update Entity from Dto\n";
 echo "----------------------------------------\n";
 
 $existingEntity = new User();
@@ -142,7 +142,7 @@ echo sprintf('  Email: %s%s', $existingEntity->getEmail(), PHP_EOL);
 echo sprintf('  Age: %s%s', $existingEntity->getAge(), PHP_EOL);
 echo "\n";
 
-$updateDto = UserDTO::fromArray([
+$updateDto = UserDto::fromArray([
     'name' => 'Updated Name',
     'email' => 'updated@example.com',
     'age' => 45,
@@ -161,8 +161,8 @@ echo sprintf('  Email: %s%s', $existingEntity->getEmail(), PHP_EOL);
 echo sprintf('  Age: %s%s', $existingEntity->getAge(), PHP_EOL);
 echo "\n\n";
 
-// Example 4: Round-trip (Entity → DTO → Entity)
-echo "4. Round-trip (Entity → DTO → Entity)\n";
+// Example 4: Round-trip (Entity → Dto → Entity)
+echo "4. Round-trip (Entity → Dto → Entity)\n";
 echo "----------------------------------------\n";
 
 $originalEntity = new User();
@@ -179,7 +179,7 @@ echo sprintf('  Age: %s%s', $originalEntity->getAge(), PHP_EOL);
 echo "\n";
 
 /** @phpstan-ignore-next-line unknown */
-$roundTripDto = UserDTO::fromEntity($originalEntity);
+$roundTripDto = UserDto::fromEntity($originalEntity);
 /** @var User $roundTripEntity */
 $roundTripEntity = $roundTripDto->toEntity(User::class);
 
@@ -203,20 +203,20 @@ echo "----------------------------------------\n";
 echo "In a real Doctrine entity, you would use:\n\n";
 echo "```php\n";
 echo "use Doctrine\\ORM\\Mapping as ORM;\n";
-echo "use event4u\\DataHelpers\\SimpleDTO\\SimpleDTODoctrineType;\n\n";
+echo "use event4u\\DataHelpers\\SimpleDto\\SimpleDtoDoctrineType;\n\n";
 echo "#[ORM\\Entity]\n";
 echo "class Product\n";
 echo "{\n";
 echo "    #[ORM\\Column(type: 'json')]\n";
-echo "    private ?AddressDTO \$address = null;\n\n";
+echo "    private ?AddressDto \$address = null;\n\n";
 echo "    // Or register custom type:\n";
-echo "    // Type::addType('address_dto', SimpleDTODoctrineType::class);\n";
+echo "    // Type::addType('address_dto', SimpleDtoDoctrineType::class);\n";
 echo "    // #[ORM\\Column(type: 'address_dto')]\n";
-echo "    // private ?AddressDTO \$address = null;\n";
+echo "    // private ?AddressDto \$address = null;\n";
 echo "}\n";
 echo "```\n\n";
 
-echo "The DTO will be automatically serialized to JSON when saving\n";
-echo "and deserialized back to DTO when loading from database.\n\n";
+echo "The Dto will be automatically serialized to JSON when saving\n";
+echo "and deserialized back to Dto when loading from database.\n\n";
 
 echo "=== Example Complete ===\n";

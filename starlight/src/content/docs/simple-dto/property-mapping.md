@@ -7,10 +7,10 @@ Learn how to map source keys to different property names using MapFrom attribute
 
 ## What is Property Mapping?
 
-Property mapping allows you to map source data keys to different property names in your DTO:
+Property mapping allows you to map source data keys to different property names in your Dto:
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('full_name')]
@@ -21,7 +21,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'full_name' => 'John Doe',
     'email_address' => 'john@example.com',
 ]);
@@ -35,9 +35,9 @@ echo $dto->email; // 'john@example.com'
 ### Simple Mapping
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('product_name')]
@@ -55,7 +55,7 @@ class ProductDTO extends SimpleDTO
 ### Nested Path Mapping
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -68,7 +68,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'contact' => [
         'email' => 'john@example.com',
@@ -82,7 +82,7 @@ $dto = UserDTO::fromArray([
 ### API Response Mapping
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('user_id')]
@@ -100,7 +100,7 @@ class UserDTO extends SimpleDTO
 }
 
 // Map from API response
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'user_id' => 1,
     'user_name' => 'John Doe',
     'user_email' => 'john@example.com',
@@ -111,7 +111,7 @@ $dto = UserDTO::fromArray([
 ### Database Column Mapping
 
 ```php
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('order_id')]
@@ -132,7 +132,7 @@ class OrderDTO extends SimpleDTO
 ### Legacy System Integration
 
 ```php
-class LegacyUserDTO extends SimpleDTO
+class LegacyUserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('usr_id')]
@@ -155,7 +155,7 @@ class LegacyUserDTO extends SimpleDTO
 ### MapFrom + Cast
 
 ```php
-class EventDTO extends SimpleDTO
+class EventDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('event_name')]
@@ -170,7 +170,7 @@ class EventDTO extends SimpleDTO
 ### MapFrom + Validation
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('full_name'), Required, Min(3)]
@@ -203,7 +203,7 @@ public readonly string $usrNm;
  * @property int $id Mapped from 'user_id'
  * @property string $name Mapped from 'full_name'
  */
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('user_id')]
@@ -236,7 +236,7 @@ All examples are fully tested and can be run directly.
 
 The functionality is thoroughly tested. Key test files:
 
-- [PropertyMappingTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/PropertyMappingTest.php) - Property mapping tests
+- [PropertyMappingTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/PropertyMappingTest.php) - Property mapping tests
 
 Run the tests:
 
@@ -249,4 +249,4 @@ task test:unit -- --filter=PropertyMapping
 
 - [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
 - [Validation](/simple-dto/validation/) - Validate your data
-- [Creating DTOs](/simple-dto/creating-dtos/) - Creation methods
+- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods

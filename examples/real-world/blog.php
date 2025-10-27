@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Real-World Example: Blog Platform
  *
- * This example demonstrates a complete blog system using SimpleDTO:
+ * This example demonstrates a complete blog system using SimpleDto:
  * - Blog posts with authors
  * - Comments with replies
  * - Categories and tags
@@ -16,13 +16,13 @@ declare(strict_types=1);
 require __DIR__ . '/../bootstrap.php';
 
 use Carbon\Carbon;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
-use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenCan;
-use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenAuth;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenCan;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 
 // Skip if Carbon is not available
 if (!class_exists('Carbon\Carbon')) {
@@ -31,10 +31,10 @@ if (!class_exists('Carbon\Carbon')) {
 }
 
 // ============================================================================
-// DTOs
+// Dtos
 // ============================================================================
 
-class AuthorDTO extends SimpleDTO
+class AuthorDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -49,7 +49,7 @@ class AuthorDTO extends SimpleDTO
     ) {}
 }
 
-class CategoryDTO extends SimpleDTO
+class CategoryDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -60,7 +60,7 @@ class CategoryDTO extends SimpleDTO
     ) {}
 }
 
-class CommentDTO extends SimpleDTO
+class CommentDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $replies
@@ -69,7 +69,7 @@ class CommentDTO extends SimpleDTO
     public function __construct(
         public readonly int $id,
         public readonly string $content,
-        public readonly AuthorDTO $author,
+        public readonly AuthorDto $author,
         public readonly ?int $parentId,
 
         /** @phpstan-ignore-next-line unknown */
@@ -89,7 +89,7 @@ class CommentDTO extends SimpleDTO
     ) {}
 }
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $comments
@@ -104,8 +104,8 @@ class PostDTO extends SimpleDTO
         public readonly string $slug,
         public readonly string $excerpt,
         public readonly string $content,
-        public readonly AuthorDTO $author,
-        public readonly CategoryDTO $category,
+        public readonly AuthorDto $author,
+        public readonly CategoryDto $category,
         /** @var string[] */
         public readonly array $tags,
         public readonly string $status,
@@ -152,7 +152,7 @@ class PostDTO extends SimpleDTO
     }
 }
 
-class PostListItemDTO extends SimpleDTO
+class PostListItemDto extends SimpleDto
 {
     /** @param array<mixed> $tags */
     public function __construct(
@@ -160,8 +160,8 @@ class PostListItemDTO extends SimpleDTO
         public readonly string $title,
         public readonly string $slug,
         public readonly string $excerpt,
-        public readonly AuthorDTO $author,
-        public readonly CategoryDTO $category,
+        public readonly AuthorDto $author,
+        public readonly CategoryDto $category,
         /** @var string[] */
         public readonly array $tags,
         public readonly int $views,
@@ -189,7 +189,7 @@ echo "=== Blog Platform Example ===\n\n";
 echo "1. Author Profile:\n";
 echo str_repeat('-', 80) . "\n";
 
-$author = new AuthorDTO(
+$author = new AuthorDto(
     name: 'Jane Smith',
     email: 'jane@example.com',
     /** @phpstan-ignore-next-line unknown */
@@ -212,7 +212,7 @@ echo "Bio: {$author->bio}\n\n";
 echo "2. Category:\n";
 echo str_repeat('-', 80) . "\n";
 
-$category = new CategoryDTO(
+$category = new CategoryDto(
     id: 1,
     name: 'Technology',
     slug: 'technology',
@@ -229,7 +229,7 @@ echo "Posts: {$category->postCount}\n\n";
 echo "3. Blog Post:\n";
 echo str_repeat('-', 80) . "\n";
 
-$post = new PostDTO(
+$post = new PostDto(
     title: 'Getting Started with PHP 8.2',
     content: str_repeat('Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 100),
     /** @phpstan-ignore-next-line unknown */
@@ -286,10 +286,10 @@ echo "Recent: " . ($post->isRecent() ? 'Yes' : 'No') . "\n\n";
 echo "4. Comments:\n";
 echo str_repeat('-', 80) . "\n";
 
-$comment1 = new CommentDTO(
+$comment1 = new CommentDto(
     id: 1,
     content: 'Great article! Very helpful.',
-    author: new AuthorDTO(
+    author: new AuthorDto(
         name: 'John Doe',
         email: 'john@example.com',
         /** @phpstan-ignore-next-line unknown */
@@ -308,7 +308,7 @@ $comment1 = new CommentDTO(
     canDelete: false,
 );
 
-$comment2 = new CommentDTO(
+$comment2 = new CommentDto(
     id: 2,
     content: 'Thanks for the feedback!',
     author: $author,
@@ -334,7 +334,7 @@ echo "5. Post List (Homepage):\n";
 echo str_repeat('-', 80) . "\n";
 
 $posts = [
-    new PostListItemDTO(
+    new PostListItemDto(
         id: 1,
         title: 'Getting Started with PHP 8.2',
         slug: 'getting-started-with-php-82',
@@ -346,7 +346,7 @@ $posts = [
         commentCount: 15,
         publishedAt: Carbon::now()->subDays(3),
     ),
-    new PostListItemDTO(
+    new PostListItemDto(
         id: 2,
         title: 'Building REST APIs with Laravel',
         slug: 'building-rest-apis-with-laravel',

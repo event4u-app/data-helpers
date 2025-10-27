@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 use event4u\DataHelpers\Validation\HtmlErrorFormatter;
 use event4u\DataHelpers\Validation\ValidationException;
 
@@ -17,9 +17,9 @@ echo "=================================================================\n";
 echo "HTML ERROR RESPONSES FOR FORMS\n";
 echo "=================================================================\n\n";
 
-// Example DTO with validation
+// Example Dto with validation
 #[ValidateRequest(throw: true)]
-class ContactFormDTO extends SimpleDTO
+class ContactFormDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -45,7 +45,7 @@ $invalidData = [
 ];
 
 try {
-    $dto = ContactFormDTO::validateAndCreate($invalidData);
+    $dto = ContactFormDto::validateAndCreate($invalidData);
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
     echo "1. BOOTSTRAP 5 ALERT:\n";

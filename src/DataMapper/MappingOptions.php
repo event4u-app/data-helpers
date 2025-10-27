@@ -9,7 +9,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 /**
  * Configuration options for DataMapper operations.
  *
- * This immutable DTO encapsulates all mapping configuration options,
+ * This immutable Dto encapsulates all mapping configuration options,
  * providing a cleaner API and easier extensibility.
  *
  * Example usage:

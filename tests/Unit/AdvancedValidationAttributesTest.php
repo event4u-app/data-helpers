@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Different;
-use event4u\DataHelpers\SimpleDTO\Attributes\EndsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\Exists;
-use event4u\DataHelpers\SimpleDTO\Attributes\File;
-use event4u\DataHelpers\SimpleDTO\Attributes\Image;
-use event4u\DataHelpers\SimpleDTO\Attributes\Ip;
-use event4u\DataHelpers\SimpleDTO\Attributes\Json;
-use event4u\DataHelpers\SimpleDTO\Attributes\Mimes;
-use event4u\DataHelpers\SimpleDTO\Attributes\MimeTypes;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Same;
-use event4u\DataHelpers\SimpleDTO\Attributes\Size;
-use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\Unique;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Different;
+use event4u\DataHelpers\SimpleDto\Attributes\EndsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Exists;
+use event4u\DataHelpers\SimpleDto\Attributes\File;
+use event4u\DataHelpers\SimpleDto\Attributes\Image;
+use event4u\DataHelpers\SimpleDto\Attributes\Ip;
+use event4u\DataHelpers\SimpleDto\Attributes\Json;
+use event4u\DataHelpers\SimpleDto\Attributes\Mimes;
+use event4u\DataHelpers\SimpleDto\Attributes\MimeTypes;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Same;
+use event4u\DataHelpers\SimpleDto\Attributes\Size;
+use event4u\DataHelpers\SimpleDto\Attributes\StartsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Unique;
 
-// Test DTOs
-class SizeTestDTO extends SimpleDTO
+// Test Dtos
+class SizeTestDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -31,7 +31,7 @@ class SizeTestDTO extends SimpleDTO
     ) {}
 }
 
-class SameTestDTO extends SimpleDTO
+class SameTestDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -43,7 +43,7 @@ class SameTestDTO extends SimpleDTO
     ) {}
 }
 
-class DifferentTestDTO extends SimpleDTO
+class DifferentTestDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -55,7 +55,7 @@ class DifferentTestDTO extends SimpleDTO
     ) {}
 }
 
-class StartsWithTestDTO extends SimpleDTO
+class StartsWithTestDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -64,7 +64,7 @@ class StartsWithTestDTO extends SimpleDTO
     ) {}
 }
 
-class EndsWithTestDTO extends SimpleDTO
+class EndsWithTestDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -73,7 +73,7 @@ class EndsWithTestDTO extends SimpleDTO
     ) {}
 }
 
-class IpTestDTO extends SimpleDTO
+class IpTestDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -82,7 +82,7 @@ class IpTestDTO extends SimpleDTO
     ) {}
 }
 
-class JsonTestDTO extends SimpleDTO
+class JsonTestDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -94,22 +94,22 @@ class JsonTestDTO extends SimpleDTO
 describe('Advanced Validation Attributes', function(): void {
     describe('Size Attribute', function(): void {
         it('validates exact string length', function(): void {
-            $dto = SizeTestDTO::validateAndCreate(['phoneNumber' => '1234567890']);
+            $dto = SizeTestDto::validateAndCreate(['phoneNumber' => '1234567890']);
             expect($dto->phoneNumber)->toBe('1234567890');
         });
 
         it('fails when string length is too short', function(): void {
-            SizeTestDTO::validateAndCreate(['phoneNumber' => '123']);
+            SizeTestDto::validateAndCreate(['phoneNumber' => '123']);
         })->throws(ValidationException::class);
 
         it('fails when string length is too long', function(): void {
-            SizeTestDTO::validateAndCreate(['phoneNumber' => '12345678901']);
+            SizeTestDto::validateAndCreate(['phoneNumber' => '12345678901']);
         })->throws(ValidationException::class);
     });
 
     describe('Same Attribute', function(): void {
         it('validates matching fields', function(): void {
-            $dto = SameTestDTO::validateAndCreate([
+            $dto = SameTestDto::validateAndCreate([
                 'password' => 'secret123',
                 'passwordConfirmation' => 'secret123',
             ]);
@@ -117,7 +117,7 @@ describe('Advanced Validation Attributes', function(): void {
         });
 
         it('fails when fields do not match', function(): void {
-            SameTestDTO::validateAndCreate([
+            SameTestDto::validateAndCreate([
                 'password' => 'secret123',
                 'passwordConfirmation' => 'different',
             ]);
@@ -126,7 +126,7 @@ describe('Advanced Validation Attributes', function(): void {
 
     describe('Different Attribute', function(): void {
         it('validates different fields', function(): void {
-            $dto = DifferentTestDTO::validateAndCreate([
+            $dto = DifferentTestDto::validateAndCreate([
                 'email' => 'john@example.com',
                 'alternativeEmail' => 'jane@example.com',
             ]);
@@ -135,7 +135,7 @@ describe('Advanced Validation Attributes', function(): void {
         });
 
         it('fails when fields are the same', function(): void {
-            DifferentTestDTO::validateAndCreate([
+            DifferentTestDto::validateAndCreate([
                 'email' => 'john@example.com',
                 'alternativeEmail' => 'john@example.com',
             ]);
@@ -144,75 +144,75 @@ describe('Advanced Validation Attributes', function(): void {
 
     describe('StartsWith Attribute', function(): void {
         it('validates string starting with http://', function(): void {
-            $dto = StartsWithTestDTO::validateAndCreate(['url' => 'http://example.com']);
+            $dto = StartsWithTestDto::validateAndCreate(['url' => 'http://example.com']);
             expect($dto->url)->toBe('http://example.com');
         });
 
         it('validates string starting with https://', function(): void {
-            $dto = StartsWithTestDTO::validateAndCreate(['url' => 'https://example.com']);
+            $dto = StartsWithTestDto::validateAndCreate(['url' => 'https://example.com']);
             expect($dto->url)->toBe('https://example.com');
         });
 
         it('fails when string does not start with allowed prefix', function(): void {
-            StartsWithTestDTO::validateAndCreate(['url' => 'ftp://example.com']);
+            StartsWithTestDto::validateAndCreate(['url' => 'ftp://example.com']);
         })->throws(ValidationException::class);
     });
 
     describe('EndsWith Attribute', function(): void {
         it('validates string ending with .com', function(): void {
-            $dto = EndsWithTestDTO::validateAndCreate(['domain' => 'example.com']);
+            $dto = EndsWithTestDto::validateAndCreate(['domain' => 'example.com']);
             expect($dto->domain)->toBe('example.com');
         });
 
         it('validates string ending with .org', function(): void {
-            $dto = EndsWithTestDTO::validateAndCreate(['domain' => 'example.org']);
+            $dto = EndsWithTestDto::validateAndCreate(['domain' => 'example.org']);
             expect($dto->domain)->toBe('example.org');
         });
 
         it('validates string ending with .net', function(): void {
-            $dto = EndsWithTestDTO::validateAndCreate(['domain' => 'example.net']);
+            $dto = EndsWithTestDto::validateAndCreate(['domain' => 'example.net']);
             expect($dto->domain)->toBe('example.net');
         });
 
         it('fails when string does not end with allowed suffix', function(): void {
-            EndsWithTestDTO::validateAndCreate(['domain' => 'example.de']);
+            EndsWithTestDto::validateAndCreate(['domain' => 'example.de']);
         })->throws(ValidationException::class);
     });
 
     describe('Ip Attribute', function(): void {
         it('validates IPv4 address', function(): void {
-            $dto = IpTestDTO::validateAndCreate(['ipAddress' => '192.168.1.1']);
+            $dto = IpTestDto::validateAndCreate(['ipAddress' => '192.168.1.1']);
             expect($dto->ipAddress)->toBe('192.168.1.1');
         });
 
         it('validates IPv6 address', function(): void {
-            $dto = IpTestDTO::validateAndCreate(['ipAddress' => '2001:0db8:85a3:0000:0000:8a2e:0370:7334']);
+            $dto = IpTestDto::validateAndCreate(['ipAddress' => '2001:0db8:85a3:0000:0000:8a2e:0370:7334']);
             expect($dto->ipAddress)->toBe('2001:0db8:85a3:0000:0000:8a2e:0370:7334');
         });
 
         it('fails when IP address is invalid', function(): void {
-            IpTestDTO::validateAndCreate(['ipAddress' => '999.999.999.999']);
+            IpTestDto::validateAndCreate(['ipAddress' => '999.999.999.999']);
         })->throws(ValidationException::class);
     });
 
     describe('Json Attribute', function(): void {
         it('validates valid JSON string', function(): void {
-            $dto = JsonTestDTO::validateAndCreate(['settings' => '{"key": "value"}']);
+            $dto = JsonTestDto::validateAndCreate(['settings' => '{"key": "value"}']);
             expect($dto->settings)->toBe('{"key": "value"}');
         });
 
         it('validates empty JSON object', function(): void {
-            $dto = JsonTestDTO::validateAndCreate(['settings' => '{}']);
+            $dto = JsonTestDto::validateAndCreate(['settings' => '{}']);
             expect($dto->settings)->toBe('{}');
         });
 
         it('validates JSON array', function(): void {
-            $dto = JsonTestDTO::validateAndCreate(['settings' => '[1, 2, 3]']);
+            $dto = JsonTestDto::validateAndCreate(['settings' => '[1, 2, 3]']);
             expect($dto->settings)->toBe('[1, 2, 3]');
         });
 
         it('fails when JSON is invalid', function(): void {
-            JsonTestDTO::validateAndCreate(['settings' => 'not-json']);
+            JsonTestDto::validateAndCreate(['settings' => 'not-json']);
         })->throws(ValidationException::class);
     });
 

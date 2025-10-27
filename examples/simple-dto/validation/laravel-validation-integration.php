@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\Confirmed;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\EndsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\Exists;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Ip;
-use event4u\DataHelpers\SimpleDTO\Attributes\Json;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Size;
-use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\Unique;
-use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\Confirmed;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\EndsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Exists;
+use event4u\DataHelpers\SimpleDto\Attributes\In;
+use event4u\DataHelpers\SimpleDto\Attributes\Ip;
+use event4u\DataHelpers\SimpleDto\Attributes\Json;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Size;
+use event4u\DataHelpers\SimpleDto\Attributes\StartsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Unique;
+use event4u\DataHelpers\SimpleDto\Attributes\Uuid;
 use event4u\DataHelpers\Validation\ValidationException;
 
 echo str_repeat('=', 80) . "\n";
@@ -30,7 +30,7 @@ echo str_repeat('=', 80) . "\n\n";
 echo "1. BASIC LARAVEL-COMPATIBLE RULES:\n";
 echo str_repeat('-', 80) . "\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -51,7 +51,7 @@ class UserDTO extends SimpleDTO
 }
 
 // Show generated Laravel rules
-$rules = UserDTO::getAllRules();
+$rules = UserDto::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -59,7 +59,7 @@ foreach ($rules as $field => $fieldRules) {
 
 // Validate valid data
 try {
-    $user = UserDTO::validateAndCreate([
+    $user = UserDto::validateAndCreate([
         'email' => 'john@example.com',
         'name' => 'John Doe',
         'age' => 30,
@@ -73,7 +73,7 @@ try {
 
 // Validate invalid data
 try {
-    UserDTO::validateAndCreate([
+    UserDto::validateAndCreate([
         'email' => 'invalid-email',
         'name' => 'Jo',
         'age' => 15,
@@ -93,7 +93,7 @@ try {
 echo "\n\n2. DATABASE VALIDATION RULES:\n";
 echo str_repeat('-', 80) . "\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -110,7 +110,7 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-$rules = ProductDTO::getAllRules();
+$rules = ProductDto::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -123,7 +123,7 @@ echo "      The framework-independent validator will skip 'exists' and 'unique' 
 echo "\n\n3. ADVANCED STRING VALIDATION:\n";
 echo str_repeat('-', 80) . "\n";
 
-class WebsiteDTO extends SimpleDTO
+class WebsiteDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -141,14 +141,14 @@ class WebsiteDTO extends SimpleDTO
     ) {}
 }
 
-$rules = WebsiteDTO::getAllRules();
+$rules = WebsiteDto::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 try {
-    $website = WebsiteDTO::validateAndCreate([
+    $website = WebsiteDto::validateAndCreate([
         'url' => 'https://example.com',
         'phoneNumber' => '1234567890',
         'ipAddress' => '192.168.1.1',
@@ -163,7 +163,7 @@ try {
 echo "\n\n4. PASSWORD CONFIRMATION:\n";
 echo str_repeat('-', 80) . "\n";
 
-class PasswordDTO extends SimpleDTO
+class PasswordDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -173,14 +173,14 @@ class PasswordDTO extends SimpleDTO
     ) {}
 }
 
-$rules = PasswordDTO::getAllRules();
+$rules = PasswordDto::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 try {
-    $password = PasswordDTO::validateAndCreate([
+    $password = PasswordDto::validateAndCreate([
         'password' => 'secret123',
         'password_confirmation' => 'secret123',
     ]);
@@ -191,7 +191,7 @@ try {
 }
 
 try {
-    PasswordDTO::validateAndCreate([
+    PasswordDto::validateAndCreate([
         'password' => 'secret123',
         'password_confirmation' => 'different',
     ]);
@@ -205,7 +205,7 @@ try {
 echo "\n\n5. JSON SETTINGS VALIDATION:\n";
 echo str_repeat('-', 80) . "\n";
 
-class SettingsDTO extends SimpleDTO
+class SettingsDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -218,14 +218,14 @@ class SettingsDTO extends SimpleDTO
     ) {}
 }
 
-$rules = SettingsDTO::getAllRules();
+$rules = SettingsDto::getAllRules();
 echo "Generated Laravel Rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
 
 try {
-    $settings = SettingsDTO::validateAndCreate([
+    $settings = SettingsDto::validateAndCreate([
         'preferences' => '{"theme": "dark", "language": "en"}',
         'userId' => '550e8400-e29b-41d4-a716-446655440000',
     ]);
@@ -239,7 +239,7 @@ try {
 echo "\n\n6. CUSTOM RULES WITH ATTRIBUTES:\n";
 echo str_repeat('-', 80) . "\n";
 
-class CustomUserDTO extends SimpleDTO
+class CustomUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -268,7 +268,7 @@ class CustomUserDTO extends SimpleDTO
     }
 }
 
-$rules = CustomUserDTO::getAllRules();
+$rules = CustomUserDto::getAllRules();
 echo "Generated Laravel Rules (merged with custom rules):\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  - %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -289,7 +289,7 @@ echo <<<'USAGE'
 public function store(Request $request)
 {
     // Option 1: Automatic validation with type-hinted parameter
-    public function store(UserDTO $user)
+    public function store(UserDto $user)
     {
         // $user is already validated and created
         return response()->json($user);
@@ -297,7 +297,7 @@ public function store(Request $request)
 
     // Option 2: Manual validation
     try {
-        $user = UserDTO::validateAndCreate($request->all());
+        $user = UserDto::validateAndCreate($request->all());
         return response()->json($user);
     } catch (ValidationException $e) {
         return response()->json(['errors' => $e->errors()], 422);
@@ -305,12 +305,12 @@ public function store(Request $request)
 }
 
 // In a Laravel FormRequest:
-class StoreUserRequest extends DTOFormRequest
+class StoreUserRequest extends DtoFormRequest
 {
-    protected string $dtoClass = UserDTO::class;
+    protected string $dtoClass = UserDto::class;
 }
 
-// The DTOs automatically integrate with Laravel's validator when available.
+// The Dtos automatically integrate with Laravel's validator when available.
 // All validation attributes generate Laravel-compatible rules.
 USAGE;
 echo "\n" . str_repeat('=', 80) . "\n";

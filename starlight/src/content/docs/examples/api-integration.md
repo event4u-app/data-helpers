@@ -11,7 +11,7 @@ Common patterns for API integration:
 
 - ✅ **REST APIs** - GET, POST, PUT, DELETE
 - ✅ **Webhooks** - Handle incoming webhooks
-- ✅ **Response Mapping** - Map API responses to DTOs
+- ✅ **Response Mapping** - Map API responses to Dtos
 - ✅ **Error Handling** - Handle API errors
 
 ## REST API Client
@@ -19,10 +19,10 @@ Common patterns for API integration:
 ### GET Request
 
 ```php
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('data.id')]
@@ -38,13 +38,13 @@ class UserDTO extends SimpleDTO
 
 // Fetch from API
 $response = Http::get('https://api.example.com/users/1');
-$dto = UserDTO::fromArray($response->json());
+$dto = UserDto::fromArray($response->json());
 ```
 
 ### POST Request
 
 ```php
-class CreateUserDTO extends SimpleDTO
+class CreateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required, Min(3)]
@@ -55,7 +55,7 @@ class CreateUserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = CreateUserDTO::fromArray($_POST);
+$dto = CreateUserDto::fromArray($_POST);
 $dto->validate();
 
 $response = Http::post('https://api.example.com/users', $dto->toArray());
@@ -64,7 +64,7 @@ $response = Http::post('https://api.example.com/users', $dto->toArray());
 ### PUT Request
 
 ```php
-class UpdateUserDTO extends SimpleDTO
+class UpdateUserDto extends SimpleDto
 {
     public function __construct(
         public readonly ?string $name = null,
@@ -72,7 +72,7 @@ class UpdateUserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UpdateUserDTO::fromArray($_POST);
+$dto = UpdateUserDto::fromArray($_POST);
 
 $response = Http::put("https://api.example.com/users/{$id}", 
     array_filter($dto->toArray())
@@ -82,7 +82,7 @@ $response = Http::put("https://api.example.com/users/{$id}",
 ## Weather API Integration
 
 ```php
-class WeatherDTO extends SimpleDTO
+class WeatherDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('location.name')]
@@ -104,7 +104,7 @@ $response = Http::get('https://api.weatherapi.com/v1/current.json', [
     'q' => 'London',
 ]);
 
-$weather = WeatherDTO::fromArray($response->json());
+$weather = WeatherDto::fromArray($response->json());
 
 echo "Temperature in {$weather->city}: {$weather->temperature}°C\n";
 echo "Condition: {$weather->condition}\n";
@@ -113,7 +113,7 @@ echo "Condition: {$weather->condition}\n";
 ## GitHub API Integration
 
 ```php
-class GitHubRepoDTO extends SimpleDTO
+class GitHubRepoDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -136,7 +136,7 @@ class GitHubRepoDTO extends SimpleDTO
 }
 
 $response = Http::get('https://api.github.com/repos/event4u-app/data-helpers');
-$repo = GitHubRepoDTO::fromArray($response->json());
+$repo = GitHubRepoDto::fromArray($response->json());
 
 echo "{$repo->fullName}\n";
 echo "Stars: {$repo->stars}, Forks: {$repo->forks}\n";
@@ -145,7 +145,7 @@ echo "Stars: {$repo->stars}, Forks: {$repo->forks}\n";
 ## Stripe API Integration
 
 ```php
-class StripeCustomerDTO extends SimpleDTO
+class StripeCustomerDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
@@ -160,7 +160,7 @@ class StripeCustomerDTO extends SimpleDTO
 $response = Http::withToken(env('STRIPE_SECRET'))
     ->get('https://api.stripe.com/v1/customers/cus_123');
 
-$customer = StripeCustomerDTO::fromArray($response->json());
+$customer = StripeCustomerDto::fromArray($response->json());
 ```
 
 ## Webhook Handling
@@ -168,7 +168,7 @@ $customer = StripeCustomerDTO::fromArray($response->json());
 ### GitHub Webhook
 
 ```php
-class GitHubWebhookDTO extends SimpleDTO
+class GitHubWebhookDto extends SimpleDto
 {
     public function __construct(
         public readonly string $action,
@@ -183,7 +183,7 @@ class GitHubWebhookDTO extends SimpleDTO
 
 // Handle webhook
 $payload = json_decode(file_get_contents('php://input'), true);
-$webhook = GitHubWebhookDTO::fromArray($payload);
+$webhook = GitHubWebhookDto::fromArray($payload);
 
 match($webhook->action) {
     'opened' => handlePullRequestOpened($webhook),
@@ -195,7 +195,7 @@ match($webhook->action) {
 ### Stripe Webhook
 
 ```php
-class StripeWebhookDTO extends SimpleDTO
+class StripeWebhookDto extends SimpleDto
 {
     public function __construct(
         public readonly string $type,
@@ -206,7 +206,7 @@ class StripeWebhookDTO extends SimpleDTO
 }
 
 $payload = json_decode(file_get_contents('php://input'), true);
-$webhook = StripeWebhookDTO::fromArray($payload);
+$webhook = StripeWebhookDto::fromArray($payload);
 
 match($webhook->type) {
     'payment_intent.succeeded' => handlePaymentSuccess($webhook),
@@ -218,7 +218,7 @@ match($webhook->type) {
 ## Pagination
 
 ```php
-class PaginatedResponseDTO extends SimpleDTO
+class PaginatedResponseDto extends SimpleDto
 {
     public function __construct(
         public readonly array $data,
@@ -239,7 +239,7 @@ $response = Http::get('https://api.example.com/users', [
     'per_page' => 20,
 ]);
 
-$paginated = PaginatedResponseDTO::fromArray($response->json());
+$paginated = PaginatedResponseDto::fromArray($response->json());
 
 echo "Page {$paginated->currentPage} of {$paginated->lastPage}\n";
 echo "Total: {$paginated->total}\n";
@@ -248,7 +248,7 @@ echo "Total: {$paginated->total}\n";
 ## Error Handling
 
 ```php
-class ApiErrorDTO extends SimpleDTO
+class ApiErrorDto extends SimpleDto
 {
     public function __construct(
         public readonly string $message,
@@ -261,11 +261,11 @@ try {
     $response = Http::post('https://api.example.com/users', $data);
     
     if ($response->failed()) {
-        $error = ApiErrorDTO::fromArray($response->json());
+        $error = ApiErrorDto::fromArray($response->json());
         throw new ApiException($error->message, $error->code);
     }
     
-    $user = UserDTO::fromArray($response->json());
+    $user = UserDto::fromArray($response->json());
 } catch (ApiException $e) {
     Log::error('API error', ['message' => $e->getMessage()]);
 }
@@ -274,7 +274,7 @@ try {
 ## Rate Limiting
 
 ```php
-class RateLimitDTO extends SimpleDTO
+class RateLimitDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('X-RateLimit-Limit')]
@@ -289,7 +289,7 @@ class RateLimitDTO extends SimpleDTO
 }
 
 $response = Http::get('https://api.github.com/user');
-$rateLimit = RateLimitDTO::fromArray($response->headers());
+$rateLimit = RateLimitDto::fromArray($response->headers());
 
 if ($rateLimit->remaining < 10) {
     Log::warning('API rate limit low', [

@@ -9,18 +9,18 @@ Detailed performance benchmarks for Data Helpers.
 
 Data Helpers is optimized for high performance:
 
-- **914,285 instances/sec** - DTO creation rate
+- **914,285 instances/sec** - Dto creation rate
 - **198x faster validation** - With caching enabled
 - **Low memory footprint** - ~1.2 KB per instance
 - **Microsecond operations** - Most operations under 1μs
 
-## DTO Creation
+## Dto Creation
 
 ```
-SimpleDTO:     914,285 instances/sec
+SimpleDto:     914,285 instances/sec
 Plain Array:   1,200,000 instances/sec
 
-SimpleDTO adds type safety with minimal overhead
+SimpleDto adds type safety with minimal overhead
 ```
 
 ## Validation
@@ -85,20 +85,20 @@ Template Map:    ~5.5μs
 ## Memory Usage
 
 ```
-DTO Instance:    ~1.2 KB
+Dto Instance:    ~1.2 KB
 With Validation: ~1.5 KB
 With Caching:    ~0.8 KB
 ```
 
 ## Comparison with Similar Packages
 
-Data Helpers performs well compared to similar DTO and serialization packages:
+Data Helpers performs well compared to similar Dto and serialization packages:
 
 ### Instance Creation
 
 ```
-SimpleDTO: 914,285 instances/sec
-Typical DTO packages: 200,000-400,000 instances/sec
+SimpleDto: 914,285 instances/sec
+Typical Dto packages: 200,000-400,000 instances/sec
 
 Result: 2-4x faster than typical alternatives
 ```
@@ -116,7 +116,7 @@ Result: Caching provides 198x improvement
 ### Memory Efficiency
 
 ```
-SimpleDTO: ~1.2 KB per instance
+SimpleDto: ~1.2 KB per instance
 Typical packages: 2-4 KB per instance
 
 Result: 40-70% less memory usage
@@ -125,7 +125,7 @@ Result: 40-70% less memory usage
 ### Framework Support
 
 ```
-SimpleDTO: Laravel, Symfony, Doctrine, Plain PHP
+SimpleDto: Laravel, Symfony, Doctrine, Plain PHP
 Typical packages: Often framework-specific
 
 Result: True framework-agnostic design

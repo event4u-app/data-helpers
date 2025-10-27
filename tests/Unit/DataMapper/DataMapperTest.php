@@ -183,7 +183,7 @@ describe('DataMapper', function(): void {
     });
 
     describe('Structured mapping (source/target entries)', function(): void {
-        test('maps model and array into shared DTO using source/target mappings', function(): void {
+        test('maps model and array into shared Dto using source/target mappings', function(): void {
             $userModel = new class extends Model {
             };
             $userModel->setRawAttributes([
@@ -194,13 +194,13 @@ describe('DataMapper', function(): void {
                 'street' => 'Main Street 1',
                 'zip' => '10115',
             ];
-            $resultDTO = [];
+            $resultDto = [];
 
             $structured = [
                 [
                     'source' => $userModel,
                     'sourceMapping' => ['name', 'email'],
-                    'target' => $resultDTO,
+                    'target' => $resultDto,
                     'targetMapping' => ['profile.fullname', 'profile.contact.email'],
                 ],
                 [
@@ -238,7 +238,7 @@ describe('DataMapper', function(): void {
                 'name' => 'Alice',
                 'email' => 'alice@example.com',
             ]);
-            $resultDTO = [];
+            $resultDto = [];
 
             $template = [
                 'profile.fullname' => '{{ name }}',
@@ -246,9 +246,9 @@ describe('DataMapper', function(): void {
             ];
 
             $results = DataMapper::template($template)
-                ->target($resultDTO)
+                ->target($resultDto)
                 ->mapMany([
-                    ['source' => $userModel, 'target' => $resultDTO],
+                    ['source' => $userModel, 'target' => $resultDto],
                 ]);
 
             expect($results)->toHaveCount(1);
@@ -891,7 +891,7 @@ test('JSON template with wildcard can reindex sequentially', function(): void {
 });
 
 describe('Inverse template mapping (apply values to targets)', function(): void {
-    test('writes values into DTO and array targets using template aliases', function(): void {
+    test('writes values into Dto and array targets using template aliases', function(): void {
         $userDto = new class {
             /** @var null|string */
             public $name = null;

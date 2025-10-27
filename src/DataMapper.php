@@ -25,7 +25,7 @@ class DataMapper
      *
      * If the source is a string and points to an existing file, it will be loaded automatically.
      *
-     * @param mixed $source Source data (array, object, model, DTO, JSON, XML, or file path)
+     * @param mixed $source Source data (array, object, model, Dto, JSON, XML, or file path)
      */
     public static function source(mixed $source): FluentDataMapper
     {
@@ -35,7 +35,7 @@ class DataMapper
     /**
      * Alias for source() - Create a FluentDataMapper with source data.
      *
-     * @param mixed $source Source data (array, object, model, DTO, JSON, XML, or file path)
+     * @param mixed $source Source data (array, object, model, Dto, JSON, XML, or file path)
      */
     public static function from(mixed $source): FluentDataMapper
     {

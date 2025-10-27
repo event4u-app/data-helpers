@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-echo "🔤  SimpleDTO Sorting Examples\n";
+echo "🔤  SimpleDto Sorting Examples\n";
 echo str_repeat('=', 80) . "\n\n";
 
 // ============================================================================
@@ -16,7 +16,7 @@ echo str_repeat('=', 80) . "\n\n";
 echo "📋  Example 1: Basic Sorting\n";
 echo str_repeat('-', 80) . "\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $zebra = 'z',
@@ -26,7 +26,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'zebra' => 'z',
     'name' => 'John',
     'email' => 'john@example.com',
@@ -51,7 +51,7 @@ echo "\n";
 echo "📋  Example 2: Nested Sorting\n";
 echo str_repeat('-', 80) . "\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     /**
      * @param array<mixed> $attributes
@@ -64,7 +64,7 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-$product = ProductDTO::fromArray([
+$product = ProductDto::fromArray([
     'name' => 'Laptop',
     'attributes' => [
         'weight' => '2kg',
@@ -93,7 +93,7 @@ echo "\n";
 echo "📋  Example 3: Custom Sort Callback\n";
 echo str_repeat('-', 80) . "\n";
 
-class DataDTO extends SimpleDTO
+class DataDto extends SimpleDto
 {
     public function __construct(
         public readonly string $a = '1',
@@ -103,7 +103,7 @@ class DataDTO extends SimpleDTO
     ) {}
 }
 
-$data = DataDTO::fromArray([
+$data = DataDto::fromArray([
     'a' => '1',
     'abc' => '3',
     'ab' => '2',
@@ -130,7 +130,7 @@ echo "\n";
 echo "📋  Example 4: JSON Serialization\n";
 echo str_repeat('-', 80) . "\n";
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'zebra' => 'z',
     'name' => 'John',
     'email' => 'john@example.com',
@@ -152,7 +152,7 @@ echo "\n";
 echo "📋  Example 5: Deeply Nested Sorting\n";
 echo str_repeat('-', 80) . "\n";
 
-class ConfigDTO extends SimpleDTO
+class ConfigDto extends SimpleDto
 {
     /** @param array<mixed> $config */
     public function __construct(
@@ -160,7 +160,7 @@ class ConfigDTO extends SimpleDTO
     ) {}
 }
 
-$config = ConfigDTO::fromArray([
+$config = ConfigDto::fromArray([
     'config' => [
         'zebra' => [
             'nested_z' => 'value_z',
@@ -189,7 +189,7 @@ echo "\n";
 echo "📋  Example 6: Immutability\n";
 echo str_repeat('-', 80) . "\n";
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'zebra' => 'z',
     'name' => 'John',
     'email' => 'john@example.com',
@@ -198,10 +198,10 @@ $user = UserDTO::fromArray([
 
 $sorted = $user->sorted();
 
-echo "Original DTO (unchanged):\n";
+echo "Original Dto (unchanged):\n";
 echo json_encode(array_keys($user->toArray()), JSON_PRETTY_PRINT) . PHP_EOL;
 
-echo "\nSorted DTO:\n";
+echo "\nSorted Dto:\n";
 echo json_encode(array_keys($sorted->toArray()), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n";
@@ -213,7 +213,7 @@ echo "\n";
 echo "📋  Example 7: Chaining with Other Methods\n";
 echo str_repeat('-', 80) . "\n";
 
-class ApiResponseDTO extends SimpleDTO
+class ApiResponseDto extends SimpleDto
 {
     public function __construct(
         public readonly string $zebra = 'z',
@@ -224,7 +224,7 @@ class ApiResponseDTO extends SimpleDTO
     ) {}
 }
 
-$response = ApiResponseDTO::fromArray([
+$response = ApiResponseDto::fromArray([
     'zebra' => 'z',
     'name' => 'John',
     'email' => 'john@example.com',

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
 echo "================================================================================\n";
-echo "SimpleDTO - DataCollection Examples\n";
+echo "SimpleDto - DataCollection Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: Basic Collection
 echo "Example 1: Basic Collection\n";
 echo "----------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -23,7 +23,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$users = UserDTO::collection([
+$users = UserDto::collection([
     ['name' => 'John Doe', 'age' => 30, 'email' => 'john@example.com'],
     ['name' => 'Jane Smith', 'age' => 25, 'email' => 'jane@example.com'],
     ['name' => 'Bob Johnson', 'age' => 35, 'email' => 'bob@example.com'],
@@ -40,11 +40,11 @@ echo "\n";
 echo "Example 2: Filtering\n";
 echo "----------------------------\n";
 
-/** @var DataCollection<SimpleDTO> $adults */
+/** @var DataCollection<SimpleDto> $adults */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$adults = $users->filter(fn(UserDTO $user): bool => 30 <= $user->age);
+$adults = $users->filter(fn(UserDto $user): bool => 30 <= $user->age);
 
 echo "Adults (age >= 30):\n";
 /** @phpstan-ignore-next-line unknown */
@@ -57,14 +57,14 @@ echo "\n";
 echo "Example 3: Mapping\n";
 echo "----------------------------\n";
 
-/** @var DataCollection<SimpleDTO> $names */
+/** @var DataCollection<SimpleDto> $names */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$names = $users->map(fn(UserDTO $user): string => $user->name);
-/** @var DataCollection<SimpleDTO> $emails */
+$names = $users->map(fn(UserDto $user): string => $user->name);
+/** @var DataCollection<SimpleDto> $emails */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$emails = $users->map(fn(UserDTO $user): string => $user->email);
+$emails = $users->map(fn(UserDto $user): string => $user->email);
 
 /** @phpstan-ignore-next-line unknown */
 echo "Names: " . implode(', ', $names) . "\n";
@@ -78,7 +78,7 @@ echo "----------------------------\n";
 
 $totalAge = $users->reduce(
     /** @phpstan-ignore-next-line unknown */
-    fn(int $carry, UserDTO $user): int => $carry + $user->age,
+    fn(int $carry, UserDto $user): int => $carry + $user->age,
     0
 );
 
@@ -127,7 +127,7 @@ echo "\n";
 echo "Example 8: Adding Items\n";
 echo "----------------------------\n";
 
-$newUsers = UserDTO::collection([
+$newUsers = UserDto::collection([
     ['name' => 'Alice Brown', 'age' => 28, 'email' => 'alice@example.com'],
 ]);
 
@@ -144,7 +144,7 @@ echo "\n";
 echo "Example 9: Complex Filtering\n";
 echo "----------------------------\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -154,7 +154,7 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-$products = ProductDTO::collection([
+$products = ProductDto::collection([
     ['name' => 'Laptop', 'price' => 999.99, 'category' => 'Electronics', 'inStock' => true],
     ['name' => 'Mouse', 'price' => 29.99, 'category' => 'Electronics', 'inStock' => true],
     ['name' => 'Desk', 'price' => 299.99, 'category' => 'Furniture', 'inStock' => false],
@@ -162,12 +162,12 @@ $products = ProductDTO::collection([
     ['name' => 'Monitor', 'price' => 399.99, 'category' => 'Electronics', 'inStock' => true],
 ]);
 
-/** @var DataCollection<SimpleDTO> $availableElectronics */
+/** @var DataCollection<SimpleDto> $availableElectronics */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 $availableElectronics = $products->filter(
     /** @phpstan-ignore-next-line unknown */
-    fn(ProductDTO $p): bool => 'Electronics' === $p->category && $p->inStock
+    fn(ProductDto $p): bool => 'Electronics' === $p->category && $p->inStock
 );
 
 echo "Available Electronics:\n";
@@ -182,8 +182,8 @@ echo "Example 10: Chaining Operations\n";
 echo "----------------------------\n";
 
 $expensiveProductNames = $products
-    ->filter(fn(ProductDTO $p): bool => 200 < $p->price)
-    ->map(fn(ProductDTO $p): string => $p->name);
+    ->filter(fn(ProductDto $p): bool => 200 < $p->price)
+    ->map(fn(ProductDto $p): string => $p->name);
 
 echo "Expensive products (> \$200):\n";
 foreach ($expensiveProductNames as $name) {
@@ -195,7 +195,7 @@ echo "\n";
 echo "Example 11: Empty Collection\n";
 echo "----------------------------\n";
 
-$emptyCollection = UserDTO::collection();
+$emptyCollection = UserDto::collection();
 
 echo "Is empty: " . ($emptyCollection->isEmpty() ? 'Yes' : 'No') . "\n";
 echo "Is not empty: " . ($emptyCollection->isNotEmpty() ? 'Yes' : 'No') . "\n";
@@ -207,9 +207,9 @@ echo "Example 12: Finding Items\n";
 echo "----------------------------\n";
 
 /** @phpstan-ignore-next-line unknown */
-$youngUser = $users->first(fn(UserDTO $u): bool => 30 > $u->age);
+$youngUser = $users->first(fn(UserDto $u): bool => 30 > $u->age);
 /** @phpstan-ignore-next-line unknown */
-$oldUser = $users->last(fn(UserDTO $u): bool => 30 <= $u->age);
+$oldUser = $users->last(fn(UserDto $u): bool => 30 <= $u->age);
 
 echo "Youngest user (< 30): " . ($youngUser ? $youngUser->name : 'None') . "\n";
 echo "Oldest user (>= 30): " . ($oldUser ? $oldUser->name : 'None') . "\n";

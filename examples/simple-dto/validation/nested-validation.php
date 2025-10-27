@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Regex;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Regex;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 use event4u\DataHelpers\Validation\ValidationException;
 
 echo "=================================================================\n";
-echo "NESTED DTO VALIDATION EXAMPLES\n";
+echo "NESTED Dto VALIDATION EXAMPLES\n";
 echo "=================================================================\n\n";
 
 // ============================================================================
-// Example 1: Simple Nested DTO Validation
+// Example 1: Simple Nested Dto Validation
 // ============================================================================
 
-echo "1. SIMPLE NESTED DTO VALIDATION:\n";
+echo "1. SIMPLE NESTED Dto VALIDATION:\n";
 echo str_repeat('-', 60) . "\n";
 
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -40,7 +40,7 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -52,11 +52,11 @@ class UserDTO extends SimpleDTO
         public readonly string $name,
 
         #[Required]
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 
-// Valid data - nested arrays are automatically converted to DTOs
+// Valid data - nested arrays are automatically converted to Dtos
 $validData = [
     'email' => 'john@example.com',
     'name' => 'John Doe',
@@ -68,8 +68,8 @@ $validData = [
 ];
 
 try {
-    $user = UserDTO::fromArray($validData);
-    echo "✅  Valid nested DTO created:\n";
+    $user = UserDto::fromArray($validData);
+    echo "✅  Valid nested Dto created:\n";
     echo sprintf('    Email: %s%s', $user->email, PHP_EOL);
     echo sprintf('    Name: %s%s', $user->name, PHP_EOL);
     echo sprintf(
@@ -100,8 +100,8 @@ $invalidData = [
 ];
 
 try {
-    $user = UserDTO::validateAndCreate($invalidData);
-    echo "✅  Valid nested DTO created (unexpected)\n";
+    $user = UserDto::validateAndCreate($invalidData);
+    echo "✅  Valid nested Dto created (unexpected)\n";
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
     echo "❌  Nested validation failed (expected):\n";
@@ -113,13 +113,13 @@ try {
 echo "\n";
 
 // ============================================================================
-// Example 2: Multiple Nested DTOs
+// Example 2: Multiple Nested Dtos
 // ============================================================================
 
-echo "2. MULTIPLE NESTED DTOs:\n";
+echo "2. MULTIPLE NESTED Dtos:\n";
 echo str_repeat('-', 60) . "\n";
 
-class CompanyDTO extends SimpleDTO
+class CompanyDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -127,9 +127,9 @@ class CompanyDTO extends SimpleDTO
         public readonly string $name,
 
         #[Required]
-        public readonly AddressDTO $mainAddress,
+        public readonly AddressDto $mainAddress,
 
-        public readonly ?AddressDTO $billingAddress = null,
+        public readonly ?AddressDto $billingAddress = null,
     ) {}
 }
 
@@ -148,7 +148,7 @@ $validCompanyData = [
 ];
 
 try {
-    $company = CompanyDTO::fromArray($validCompanyData);
+    $company = CompanyDto::fromArray($validCompanyData);
     echo "✅  Company with multiple addresses created:\n";
     echo sprintf('    Name: %s%s', $company->name, PHP_EOL);
     /** @phpstan-ignore-next-line unknown */
@@ -162,14 +162,14 @@ try {
 echo "\n";
 
 // ============================================================================
-// Example 3: Auto-Validation with Nested DTOs
+// Example 3: Auto-Validation with Nested Dtos
 // ============================================================================
 
-echo "3. AUTO-VALIDATION WITH NESTED DTOs:\n";
+echo "3. AUTO-VALIDATION WITH NESTED Dtos:\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(auto: true, throw: true)]
-class AutoValidatedUserDTO extends SimpleDTO
+class AutoValidatedUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -177,12 +177,12 @@ class AutoValidatedUserDTO extends SimpleDTO
         public readonly string $email,
 
         #[Required]
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 
 try {
-    $user = AutoValidatedUserDTO::fromArray([
+    $user = AutoValidatedUserDto::fromArray([
         'email' => 'invalid-email',  // Invalid email
         'address' => [
             'street' => 'AB',  // Too short
@@ -208,7 +208,7 @@ echo "\n";
 echo "4. VALIDATION RULES INSPECTION:\n";
 echo str_repeat('-', 60) . "\n";
 
-$rules = UserDTO::getAllRules();
+$rules = UserDto::getAllRules();
 echo "All validation rules (including nested):\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -216,13 +216,13 @@ foreach ($rules as $field => $fieldRules) {
 echo "\n";
 
 // ============================================================================
-// Example 5: Deeply Nested DTOs
+// Example 5: Deeply Nested Dtos
 // ============================================================================
 
-echo "5. DEEPLY NESTED DTOs:\n";
+echo "5. DEEPLY NESTED Dtos:\n";
 echo str_repeat('-', 60) . "\n";
 
-class ContactDTO extends SimpleDTO
+class ContactDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -230,11 +230,11 @@ class ContactDTO extends SimpleDTO
         public readonly string $email,
 
         #[Required]
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 
-class CustomerDTO extends SimpleDTO
+class CustomerDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -242,7 +242,7 @@ class CustomerDTO extends SimpleDTO
         public readonly string $name,
 
         #[Required]
-        public readonly ContactDTO $contact,
+        public readonly ContactDto $contact,
     ) {}
 }
 
@@ -259,8 +259,8 @@ $deeplyNestedData = [
 ];
 
 try {
-    $customer = CustomerDTO::fromArray($deeplyNestedData);
-    echo "✅  Deeply nested DTO created:\n";
+    $customer = CustomerDto::fromArray($deeplyNestedData);
+    echo "✅  Deeply nested Dto created:\n";
     echo sprintf('    Name: %s%s', $customer->name, PHP_EOL);
     /** @phpstan-ignore-next-line unknown */
     echo sprintf('    Email: %s%s', $customer->contact->email, PHP_EOL);
@@ -286,7 +286,7 @@ $invalidDeeplyNestedData = [
 ];
 
 try {
-    $customer = CustomerDTO::validateAndCreate($invalidDeeplyNestedData);
+    $customer = CustomerDto::validateAndCreate($invalidDeeplyNestedData);
     echo "✅  Customer created (unexpected)\n";
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {

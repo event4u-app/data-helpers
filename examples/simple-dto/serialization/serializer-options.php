@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Config\SerializerOptions;
-use event4u\DataHelpers\SimpleDTO\Enums\SerializationFormat;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Config\SerializerOptions;
+use event4u\DataHelpers\SimpleDto\Enums\SerializationFormat;
 
 echo "================================================================================\n";
 echo "SerializerOptions - Type-Safe Serialization Configuration\n";
 echo "================================================================================\n\n";
 
-// Example DTO
-class ProductDTO extends SimpleDTO
+// Example Dto
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -24,7 +24,7 @@ class ProductDTO extends SimpleDTO
     }
 }
 
-$product = new ProductDTO(
+$product = new ProductDto(
     name: 'Laptop',
     price: 999.99,
     inStock: true,
@@ -212,7 +212,7 @@ echo "Example 14: Real-World Usage\n";
 echo "----------------------------\n";
 echo "💡 Different formats for different use cases\n\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $orderId,
@@ -224,7 +224,7 @@ class OrderDTO extends SimpleDTO
     }
 }
 
-$order = new OrderDTO(
+$order = new OrderDto(
     orderId: 12345,
     productName: 'Laptop',
     productPrice: 999.99,

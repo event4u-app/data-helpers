@@ -13,8 +13,8 @@ examples/
 │   ├── data-mutator/      # DataMutator examples
 │   ├── data-mapper/       # DataMapper examples
 │   └── data-filter/       # DataFilter examples
-├── simple-dto/            # SimpleDTO examples
-│   ├── creating-dtos/     # DTO creation
+├── simple-dto/            # SimpleDto examples
+│   ├── creating-dtos/     # Dto creation
 │   ├── type-casting/      # Type casting
 │   ├── validation/        # Validation
 │   ├── property-mapping/  # Property mapping
@@ -56,7 +56,7 @@ All examples can be run directly from the command line:
 # Run a specific example
 php examples/main-classes/data-accessor/basic-usage.php
 
-# Run SimpleDTO examples
+# Run SimpleDto examples
 php examples/simple-dto/creating-dtos/basic-dto.php
 php examples/simple-dto/type-casting/basic-casts.php
 
@@ -84,7 +84,7 @@ php examples/real-world/ecommerce.php
 - `mapped-data-model.php` - Using MappedDataModel class
 - `template-expressions.php` - Advanced template syntax
 - `reverse-mapping.php` - Bidirectional mapping
-- `dto-integration.php` - Integration with SimpleDTO
+- `dto-integration.php` - Integration with SimpleDto
 
 **DataFilter** - Query and filter data with SQL-like API
 - `basic-usage.php` - WHERE, ORDER BY, LIMIT operations
@@ -97,11 +97,11 @@ php examples/real-world/ecommerce.php
 - `custom-operators.php` - Extending with custom operators
 - `complex-queries.php` - Advanced query scenarios
 
-### SimpleDTO
+### SimpleDto
 
-**Creating DTOs**
-- `basic-dto.php` - Simple DTO with required properties
-- `dto-factory.php` - Factory pattern for DTOs
+**Creating Dtos**
+- `basic-dto.php` - Simple Dto with required properties
+- `dto-factory.php` - Factory pattern for Dtos
 - `wrapping.php` - Wrapping existing data
 - `optional-properties.php` - Handling optional properties
 
@@ -122,7 +122,7 @@ php examples/real-world/ecommerce.php
 - `request-validation-laravel.php` - Laravel integration
 - `request-validation-symfony.php` - Symfony integration
 - `validation-modes.php` - Different validation modes
-- `nested-validation.php` - Validating nested DTOs
+- `nested-validation.php` - Validating nested Dtos
 - `html-error-responses.php` - HTML error responses
 - `advanced-validation-attributes.php` - Advanced validation attributes
 - `laravel-validation-integration.php` - Laravel validation integration
@@ -148,7 +148,7 @@ php examples/real-world/ecommerce.php
 
 **Collections**
 - `data-collection.php` - Working with collections
-- `dto-sorting.php` - Sorting DTOs in collections
+- `dto-sorting.php` - Sorting Dtos in collections
 
 **Security & Visibility**
 - `visibility-hidden.php` - Hiding properties

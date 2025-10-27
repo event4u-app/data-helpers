@@ -203,7 +203,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
             expect($acc->get('email'))->toBe('alice@example.com');
         })->group('laravel');
 
-        it('maps snake_case JSON to DTO with camelCase props', function(): void {
+        it('maps snake_case JSON to Dto with camelCase props', function(): void {
             $source = [
                 'payment_status' => 'PAID',
                 'order_id' => 42,
@@ -221,7 +221,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
             expect($acc->get('orderId'))->toBe(42);
         });
 
-        it('maps DTO (public props) to Eloquent Model', function(): void {
+        it('maps Dto (public props) to Eloquent Model', function(): void {
             $dto = new class {
                 public string $name = 'Alice';
                 public string $email = 'alice@example.com';
@@ -290,7 +290,7 @@ describe('DataMapper autoMap() and autoMapReverse()', function(): void {
             expect($users[2]['name'])->toBe('C');
         });
 
-        it('maps snake_case to DTO with camelCase (top-level only)', function(): void {
+        it('maps snake_case to Dto with camelCase (top-level only)', function(): void {
             $source = [
                 'shipping_address' => [
                     'street_name' => 'Main',

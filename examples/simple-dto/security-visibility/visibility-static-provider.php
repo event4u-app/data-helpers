@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Visible;
 
 echo "=== Static Callbacks & Context Providers ===\n\n";
 
@@ -99,26 +99,26 @@ class ApiContextProvider
 echo "1. STATIC CALLBACKS:\n";
 echo str_repeat('=', 70) . "\n\n";
 
-class EmployeeDTO extends SimpleDTO
+class EmployeeDto extends SimpleDto
 {
     public function __construct(
         public readonly string $userId,
         public readonly string $name,
         public readonly string $department,
-        
+
         // Static callback - keine Instanz-Methode nötig!
         #[Visible(callback: [PermissionChecker::class, 'canViewEmail'])]
         public readonly string $email,
-        
+
         #[Visible(callback: [PermissionChecker::class, 'canViewSalary'])]
         public readonly float $salary,
-        
+
         #[Visible(callback: [PermissionChecker::class, 'canViewInternalNotes'])]
         public readonly string $internalNotes,
     ) {}
 }
 
-$employee = EmployeeDTO::fromArray([
+$employee = EmployeeDto::fromArray([
     'userId' => 'emp-123',
     'name' => 'John Doe',
     'department' => 'Engineering',
@@ -162,20 +162,20 @@ echo "→ Alles sichtbar (Admin hat vollen Zugriff)\n\n";
 echo "\n2. CONTEXT PROVIDER (AUTO-CONTEXT):\n";
 echo str_repeat('=', 70) . "\n\n";
 
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $userId,
         public readonly string $username,
         public readonly string $displayName,
-        
+
         // Context wird automatisch von AuthContextProvider geholt!
         #[Visible(
             contextProvider: AuthContextProvider::class,
             callback: [PermissionChecker::class, 'canViewEmail']
         )]
         public readonly string $email,
-        
+
         #[Visible(
             contextProvider: AuthContextProvider::class,
             callback: [PermissionChecker::class, 'canViewInternalNotes']
@@ -184,7 +184,7 @@ class UserProfileDTO extends SimpleDTO
     ) {}
 }
 
-$profile = UserProfileDTO::fromArray([
+$profile = UserProfileDto::fromArray([
     'userId' => 'user-456',
     'username' => 'janedoe',
     'displayName' => 'Jane Doe',
@@ -224,20 +224,20 @@ echo "→ Notes sichtbar (Admin ist interner Staff)\n\n";
 echo "\n3. KOMBINATION: STATIC CALLBACK + CONTEXT PROVIDER:\n";
 echo str_repeat('=', 70) . "\n\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly string $orderId,
         public readonly string $customerId,
         public readonly float $total,
-        
+
         // Kombiniert: Context Provider + Static Callback
         #[Visible(
             contextProvider: AuthContextProvider::class,
             callback: [PermissionChecker::class, 'canViewEmail']
         )]
         public readonly string $customerEmail,
-        
+
         #[Visible(
             contextProvider: AuthContextProvider::class,
             callback: [PermissionChecker::class, 'canViewInternalNotes']
@@ -246,7 +246,7 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-$order = OrderDTO::fromArray([
+$order = OrderDto::fromArray([
     'orderId' => 'ORD-789',
     'customerId' => 'cust-123',
     'total' => 299.99,
@@ -293,12 +293,12 @@ echo "→ Support sieht Processing Notes\n\n";
 echo "\n5. API CONTEXT PROVIDER:\n";
 echo str_repeat('=', 70) . "\n\n";
 
-class ApiResponseDTO extends SimpleDTO
+class ApiResponseDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
         public readonly string $title,
-        
+
         // Verwendet API Context Provider
         #[Visible(
             contextProvider: ApiContextProvider::class,
@@ -308,7 +308,7 @@ class ApiResponseDTO extends SimpleDTO
     ) {}
 }
 
-$apiResponse = ApiResponseDTO::fromArray([
+$apiResponse = ApiResponseDto::fromArray([
     'id' => 'api-001',
     'title' => 'API Response',
     'debugInfo' => 'Query took 0.5s, 3 DB queries',
@@ -337,9 +337,9 @@ echo str_repeat('=', 70) . "\n\n";
 
 echo "✅  STATIC CALLBACKS:\n";
 echo "  - Callback: [PermissionChecker::class, 'canViewEmail']\n";
-echo "  - Keine Instanz-Methoden im DTO nötig\n";
-echo "  - Wiederverwendbar über mehrere DTOs\n";
-echo "  - Bekommt DTO und Context als Parameter\n\n";
+echo "  - Keine Instanz-Methoden im Dto nötig\n";
+echo "  - Wiederverwendbar über mehrere Dtos\n";
+echo "  - Bekommt Dto und Context als Parameter\n\n";
 
 echo "✅  CONTEXT PROVIDERS:\n";
 echo "  - contextProvider: AuthContextProvider::class\n";

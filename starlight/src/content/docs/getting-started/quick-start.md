@@ -144,14 +144,14 @@ $expensive = DataFilter::query($orders)
 // Result: [['id' => 2, 'total' => 200]]
 ```
 
-### SimpleDTO - Data Transfer Objects
+### SimpleDto - Data Transfer Objects
 
 ```php
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Email;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Email;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     #[Required]
     public string $name;
@@ -163,7 +163,7 @@ class UserDTO extends SimpleDTO
 }
 
 // Create from array
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
 ]);

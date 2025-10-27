@@ -103,7 +103,7 @@ public readonly Collection $items;
 ### DataCollectionCast
 
 ```php
-#[Cast(DataCollectionCast::class, itemClass: UserDTO::class)]
+#[Cast(DataCollectionCast::class, itemClass: UserDto::class)]
 public readonly DataCollection $users;
 ```
 
@@ -116,11 +116,11 @@ public readonly DataCollection $users;
 public readonly Address $address;
 ```
 
-### DTOCast
+### DtoCast
 
 ```php
-#[Cast(DTOCast::class, class: UserDTO::class)]
-public readonly UserDTO $user;
+#[Cast(DtoCast::class, class: UserDto::class)]
+public readonly UserDto $user;
 ```
 
 ## Security Casts
@@ -181,7 +181,7 @@ public readonly string $website;
 ### Creating a Custom Cast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Contracts\Cast;
+use event4u\DataHelpers\SimpleDto\Contracts\Cast;
 
 class UpperCaseCast implements Cast
 {
@@ -189,7 +189,7 @@ class UpperCaseCast implements Cast
     {
         return strtoupper((string) $value);
     }
-    
+
     public function uncast(mixed $value): string
     {
         return strtolower((string) $value);

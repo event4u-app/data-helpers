@@ -5,35 +5,35 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\Confirmed;
-use event4u\DataHelpers\SimpleDTO\Attributes\Different;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\EndsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\Exists;
-use event4u\DataHelpers\SimpleDTO\Attributes\File;
-use event4u\DataHelpers\SimpleDTO\Attributes\Image;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Ip;
-use event4u\DataHelpers\SimpleDTO\Attributes\Json;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Mimes;
-use event4u\DataHelpers\SimpleDTO\Attributes\MimeTypes;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\NotIn;
-use event4u\DataHelpers\SimpleDTO\Attributes\Regex;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Same;
-use event4u\DataHelpers\SimpleDTO\Attributes\Size;
-use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\Unique;
-use event4u\DataHelpers\SimpleDTO\Attributes\Url;
-use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\Confirmed;
+use event4u\DataHelpers\SimpleDto\Attributes\Different;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\EndsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Exists;
+use event4u\DataHelpers\SimpleDto\Attributes\File;
+use event4u\DataHelpers\SimpleDto\Attributes\Image;
+use event4u\DataHelpers\SimpleDto\Attributes\In;
+use event4u\DataHelpers\SimpleDto\Attributes\Ip;
+use event4u\DataHelpers\SimpleDto\Attributes\Json;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Mimes;
+use event4u\DataHelpers\SimpleDto\Attributes\MimeTypes;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\NotIn;
+use event4u\DataHelpers\SimpleDto\Attributes\Regex;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Same;
+use event4u\DataHelpers\SimpleDto\Attributes\Size;
+use event4u\DataHelpers\SimpleDto\Attributes\StartsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Unique;
+use event4u\DataHelpers\SimpleDto\Attributes\Url;
+use event4u\DataHelpers\SimpleDto\Attributes\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
-// Test DTOs
-class SymfonyValidationTestDTO1 extends SimpleDTO
+// Test Dtos
+class SymfonyValidationTestDto1 extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -44,7 +44,7 @@ class SymfonyValidationTestDTO1 extends SimpleDTO
     ) {}
 }
 
-class SymfonyValidationTestDTO2 extends SimpleDTO
+class SymfonyValidationTestDto2 extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -293,8 +293,8 @@ describe('Symfony Validation Integration', function(): void {
     })->group('symfony');
 
     describe('Automatic Validation Integration', function(): void {
-        it('validates DTO using Symfony validator automatically', function(): void {
-            $dto = new SymfonyValidationTestDTO1('test@example.com', 25);
+        it('validates Dto using Symfony validator automatically', function(): void {
+            $dto = new SymfonyValidationTestDto1('test@example.com', 25);
 
             expect($dto->email)->toBe('test@example.com');
             expect($dto->age)->toBe(25);
@@ -302,13 +302,13 @@ describe('Symfony Validation Integration', function(): void {
 
         it('throws ValidationException when Symfony validation fails', function(): void {
             expect(
-                fn(): object => SymfonyValidationTestDTO1::validateAndCreate(['email' => 'not-an-email', 'age' => 25])
+                fn(): object => SymfonyValidationTestDto1::validateAndCreate(['email' => 'not-an-email', 'age' => 25])
             )
                 ->toThrow(ValidationException::class);
         })->group('symfony');
 
-        it('validates complex DTO with multiple constraints', function(): void {
-            $dto = new SymfonyValidationTestDTO2(
+        it('validates complex Dto with multiple constraints', function(): void {
+            $dto = new SymfonyValidationTestDto2(
                 'test@example.com',
                 25,
                 'https://example.com',

@@ -157,5 +157,5 @@ function shouldSkipExample(string $code): bool
         return true;
     }
     // Skip examples that reference undefined classes without mocking
-    return str_contains($code, 'UserDTO::fromArray') && !str_contains($code, 'class UserDTO');
+    return str_contains($code, 'UserDto::fromArray') && !str_contains($code, 'class UserDto');
 }

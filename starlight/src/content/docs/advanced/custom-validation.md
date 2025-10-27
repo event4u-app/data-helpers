@@ -19,7 +19,7 @@ Custom validation allows you to create reusable validation logic:
 ### Basic Custom Attribute
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidationAttribute;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
@@ -42,7 +42,7 @@ class StrongPassword extends ValidationAttribute
 ### Using the Attribute
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required, StrongPassword]
@@ -133,7 +133,7 @@ class RequiredIf extends ValidationAttribute
 }
 
 // Usage
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly string $paymentMethod,
@@ -150,7 +150,7 @@ class OrderDTO extends SimpleDTO
 
 <!-- skip-test: Class definition example -->
 ```php
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 
 class UniqueEmailRule implements ValidationRule
 {
@@ -170,7 +170,7 @@ class UniqueEmailRule implements ValidationRule
 
 <!-- skip-test: Class definition example -->
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[CustomRule(UniqueEmailRule::class)]
@@ -185,7 +185,7 @@ class UserDTO extends SimpleDTO
 
 <!-- skip-test: Class definition example -->
 ```php
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[CustomRule(function ($attribute, $value, $fail) {

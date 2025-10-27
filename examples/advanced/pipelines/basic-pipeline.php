@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
-use event4u\DataHelpers\SimpleDTO\Normalizers\DefaultValuesNormalizer;
-use event4u\DataHelpers\SimpleDTO\Normalizers\TypeNormalizer;
-use event4u\DataHelpers\SimpleDTO\Pipeline\CallbackStage;
-use event4u\DataHelpers\SimpleDTO\Pipeline\DTOPipeline;
-use event4u\DataHelpers\SimpleDTO\Pipeline\NormalizerStage;
-use event4u\DataHelpers\SimpleDTO\Pipeline\PipelineStageInterface;
-use event4u\DataHelpers\SimpleDTO\Pipeline\TransformerStage;
-use event4u\DataHelpers\SimpleDTO\Pipeline\ValidationStage;
-use event4u\DataHelpers\SimpleDTO\Transformers\TrimStringsTransformer;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDto\Normalizers\DefaultValuesNormalizer;
+use event4u\DataHelpers\SimpleDto\Normalizers\TypeNormalizer;
+use event4u\DataHelpers\SimpleDto\Pipeline\CallbackStage;
+use event4u\DataHelpers\SimpleDto\Pipeline\DtoPipeline;
+use event4u\DataHelpers\SimpleDto\Pipeline\NormalizerStage;
+use event4u\DataHelpers\SimpleDto\Pipeline\PipelineStageInterface;
+use event4u\DataHelpers\SimpleDto\Pipeline\TransformerStage;
+use event4u\DataHelpers\SimpleDto\Pipeline\ValidationStage;
+use event4u\DataHelpers\SimpleDto\Transformers\TrimStringsTransformer;
 
 echo "================================================================================\n";
-echo "SimpleDTO - Pipeline Examples\n";
+echo "SimpleDto - Pipeline Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: Basic Pipeline
 echo "Example 1: Basic Pipeline\n";
 echo "-------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -33,12 +33,12 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new NormalizerStage(new TypeNormalizer(['age' => 'int', 'active' => 'bool'])));
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
 
 $data = ['name' => '  John Doe  ', 'age' => '30', 'active' => '1'];
-$user = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$user = UserDto::fromArrayWithPipeline($data, $pipeline);
 
 echo "Original: name='{$data['name']}', age='{$data['age']}', active='{$data['active']}'\n";
 echo sprintf(
@@ -53,7 +53,7 @@ echo sprintf(
 echo "Example 2: Pipeline with Validation\n";
 echo "------------------------------------\n";
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new NormalizerStage(new DefaultValuesNormalizer(['active' => true])));
 $pipeline->addStage(new NormalizerStage(new TypeNormalizer(['age' => 'int', 'active' => 'bool'])));
 $pipeline->addStage(new ValidationStage([
@@ -63,7 +63,7 @@ $pipeline->addStage(new ValidationStage([
 
 try {
     $data = ['name' => 'Jane Smith', 'age' => 25];
-    $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
+    $user = UserDto::fromArrayWithPipeline($data, $pipeline);
     /** @phpstan-ignore-next-line unknown */
     echo sprintf('✅  Validation passed: %s, age %s%s', $user->name, $user->age, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -74,7 +74,7 @@ try {
 
 try {
     $data = ['name' => 'Too Young', 'age' => 15, 'active' => true];
-    $user = UserDTO::fromArrayWithPipeline($data, $pipeline);
+    $user = UserDto::fromArrayWithPipeline($data, $pipeline);
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
     /** @phpstan-ignore-next-line unknown */
@@ -87,12 +87,12 @@ echo "\n";
 echo "Example 3: Pipeline with Default Values\n";
 echo "----------------------------------------\n";
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new NormalizerStage(new DefaultValuesNormalizer(['age' => 0, 'active' => true])));
 $pipeline->addStage(new NormalizerStage(new TypeNormalizer(['age' => 'int', 'active' => 'bool'])));
 
 $data = ['name' => 'Bob'];
-$user = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$user = UserDto::fromArrayWithPipeline($data, $pipeline);
 
 echo "Input: " . json_encode($data) . "\n";
 echo sprintf(
@@ -107,7 +107,7 @@ echo sprintf(
 echo "Example 4: CallbackStage\n";
 echo "------------------------\n";
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new CallbackStage(function(array $data): array {
     if (isset($data['name'])) {
         $data['name'] = strtoupper((string)$data['name']);
@@ -117,7 +117,7 @@ $pipeline->addStage(new CallbackStage(function(array $data): array {
 }, 'uppercase_name'));
 
 $data = ['name' => 'alice', 'age' => 28, 'active' => true];
-$user = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$user = UserDto::fromArrayWithPipeline($data, $pipeline);
 
 echo sprintf('Original: %s%s', $data['name'], PHP_EOL);
 echo "After callback: {$user->name}\n\n";
@@ -126,14 +126,14 @@ echo "After callback: {$user->name}\n\n";
 echo "Example 5: Complex Pipeline\n";
 echo "---------------------------\n";
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new NormalizerStage(new DefaultValuesNormalizer(['active' => true]), 'defaults'));
 $pipeline->addStage(new NormalizerStage(new TypeNormalizer(['age' => 'int', 'active' => 'bool']), 'types'));
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer(), 'trim'));
 $pipeline->addStage(new ValidationStage(['name' => ['required'], 'age' => ['min:0']], 'validation'));
 
 $data = ['name' => '  Charlie  ', 'age' => '35'];
-$user = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$user = UserDto::fromArrayWithPipeline($data, $pipeline);
 
 echo sprintf(
     'Processed: name=%s, age=%s, active=',
@@ -176,7 +176,7 @@ class EmailNormalizerStage implements PipelineStageInterface
     }
 }
 
-class EmailUserDTO extends SimpleDTO
+class EmailUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -184,12 +184,12 @@ class EmailUserDTO extends SimpleDTO
     ) {}
 }
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new EmailNormalizerStage());
 $pipeline->addStage(new ValidationStage(['email' => ['required', 'email']]));
 
 $data = ['name' => 'David', 'email' => '  DAVID@EXAMPLE.COM  '];
-$user = EmailUserDTO::fromArrayWithPipeline($data, $pipeline);
+$user = EmailUserDto::fromArrayWithPipeline($data, $pipeline);
 
 echo "Original email: '{$data['email']}'\n";
 echo "Normalized email: '{$user->email}'\n\n";
@@ -198,7 +198,7 @@ echo "Normalized email: '{$user->email}'\n\n";
 echo "Example 7: Error Handling - Stop on Error\n";
 echo "------------------------------------------\n";
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->setStopOnError(true);
 $pipeline->addStage(new ValidationStage(['name' => ['required']], 'validation'));
 $pipeline->addStage(new CallbackStage(fn($data): array => $data, 'never_reached'));
@@ -220,7 +220,7 @@ echo "\n";
 echo "Example 8: Error Handling - Continue on Error\n";
 echo "----------------------------------------------\n";
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->setStopOnError(false);
 $pipeline->addStage(new ValidationStage(['name' => ['required']], 'validation'));
 $pipeline->addStage(new CallbackStage(function($data): array {
@@ -244,9 +244,9 @@ echo "Callback status: {$context['callback']['status']}\n\n";
 echo "Example 9: processWith Method\n";
 echo "------------------------------\n";
 
-$user = UserDTO::fromArray(['name' => '  eve  ', 'age' => 40, 'active' => true]);
+$user = UserDto::fromArray(['name' => '  eve  ', 'age' => 40, 'active' => true]);
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
 $pipeline->addStage(new CallbackStage(function($data): array {
     if (isset($data['name'])) {
@@ -267,7 +267,7 @@ echo "Original unchanged: name='{$user->name}'\n\n";
 echo "Example 10: Reusable Pipeline\n";
 echo "------------------------------\n";
 
-$userPipeline = new DTOPipeline();
+$userPipeline = new DtoPipeline();
 $userPipeline->addStage(new NormalizerStage(new DefaultValuesNormalizer(['active' => true])));
 $userPipeline->addStage(new NormalizerStage(new TypeNormalizer(['age' => 'int', 'active' => 'bool'])));
 $userPipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
@@ -282,7 +282,7 @@ $users = [
 echo "Processing multiple users with same pipeline:\n";
 foreach ($users as $userData) {
     $userPipeline->clearContext();
-    $user = UserDTO::fromArrayWithPipeline($userData, $userPipeline);
+    $user = UserDto::fromArrayWithPipeline($userData, $userPipeline);
     /** @phpstan-ignore-next-line unknown */
     echo sprintf('  - %s, age %s%s', $user->name, $user->age, PHP_EOL);
 }

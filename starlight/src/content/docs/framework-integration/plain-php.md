@@ -24,18 +24,18 @@ composer require event4u/data-helpers
 
 ## Basic Usage
 
-### Create DTO
+### Create Dto
 
 ```php
 <?php
 
 require 'vendor/autoload.php';
 
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -50,7 +50,7 @@ class UserDTO extends SimpleDTO
 ### From Array
 
 ```php
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
 ]);
@@ -63,20 +63,20 @@ echo $dto->email; // 'john@example.com'
 
 ```php
 $json = '{"name":"John Doe","email":"john@example.com"}';
-$dto = UserDTO::fromJson($json);
+$dto = UserDto::fromJson($json);
 ```
 
 ### From XML
 
 ```php
 $xml = '<user><name>John Doe</name><email>john@example.com</email></user>';
-$dto = UserDTO::fromXml($xml);
+$dto = UserDto::fromXml($xml);
 ```
 
 ### From POST Data
 
 ```php
-$dto = UserDTO::fromArray($_POST);
+$dto = UserDto::fromArray($_POST);
 ```
 
 ## Validation
@@ -89,7 +89,7 @@ use event4u\DataHelpers\Exceptions\ValidationException;
 $data = ['name' => 'John', 'email' => 'john@example.com', 'age' => 30];
 
 try {
-    $dto = UserDTO::validateAndCreate($data);
+    $dto = UserDto::validateAndCreate($data);
     // Validation passed
 } catch (ValidationException $e) {
     // Validation failed
@@ -101,8 +101,8 @@ try {
 
 ```php
 $data = ['name' => 'John', 'email' => 'john@example.com', 'age' => 30];
-$dto = UserDTO::validateAndCreate($data);
-// DTO is valid (throws exception if invalid)
+$dto = UserDto::validateAndCreate($data);
+// Dto is valid (throws exception if invalid)
 ```
 
 ## Type Casting
@@ -110,11 +110,11 @@ $dto = UserDTO::validateAndCreate($data);
 ### Automatic Type Casting
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Casts\IntCast;
-use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Casts\IntCast;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         #[Cast(IntCast::class)]
@@ -125,7 +125,7 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-$dto = OrderDTO::fromArray([
+$dto = OrderDto::fromArray([
     'orderId' => '123',        // String to int
     'orderDate' => '2024-01-01', // String to Carbon
 ]);
@@ -137,7 +137,7 @@ $dto = OrderDTO::fromArray([
 
 ```php
 $data = ['name' => 'John', 'email' => 'john@example.com'];
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 $array = $dto->toArray();
 ```
 
@@ -145,14 +145,14 @@ $array = $dto->toArray();
 
 ```php
 $data = ['name' => 'John', 'email' => 'john@example.com'];
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 $json = $dto->toJson();
 ```
 
 ### To XML
 
 ```php
-$dto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
+$dto = UserDto::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
 $xml = $dto->toXml();
 ```
 
@@ -165,11 +165,11 @@ $xml = $dto->toXml();
 
 require 'vendor/autoload.php';
 
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\*;
-use event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\*;
+use event4u\DataHelpers\SimpleDto\Exceptions\ValidationException;
 
-class CreateUserDTO extends SimpleDTO
+class CreateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required, Min(3)]
@@ -186,7 +186,7 @@ class CreateUserDTO extends SimpleDTO
 // Handle POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $dto = CreateUserDTO::validateAndCreate($_POST);
+        $dto = CreateUserDto::validateAndCreate($_POST);
 
         // Save to database
         $pdo = new PDO('mysql:host=localhost;dbname=mydb', 'user', 'pass');
@@ -216,11 +216,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 require 'vendor/autoload.php';
 
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\*;
-use event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\*;
+use event4u\DataHelpers\SimpleDto\Exceptions\ValidationException;
 
-class ContactFormDTO extends SimpleDTO
+class ContactFormDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -236,7 +236,7 @@ class ContactFormDTO extends SimpleDTO
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $dto = ContactFormDTO::validateAndCreate($_POST);
+        $dto = ContactFormDto::validateAndCreate($_POST);
 
         // Send email
         mail(
@@ -280,10 +280,10 @@ public readonly $age;
 
 ```php
 // ✅ Good - validate
-$dto = UserDTO::validateAndCreate($_POST);
+$dto = UserDto::validateAndCreate($_POST);
 
 // ❌ Bad - no validation
-$dto = UserDTO::fromArray($_POST);
+$dto = UserDto::fromArray($_POST);
 ```
 
 ### Use Validation Attributes
@@ -299,6 +299,6 @@ public readonly string $email;
 
 ## See Also
 
-- [SimpleDTO Introduction](/simple-dto/introduction/) - DTO basics
+- [SimpleDto Introduction](/simple-dto/introduction/) - Dto basics
 - [Validation](/simple-dto/validation/) - Validation guide
 - [Type Casting](/simple-dto/type-casting/) - Type casting guide

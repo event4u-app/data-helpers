@@ -12,7 +12,7 @@ This guide covers common issues and their solutions:
 - **Installation Issues** - Composer and PHP version problems
 - **Validation Errors** - Validation not working or slow
 - **Type Casting Problems** - Casts not applied correctly
-- **Performance Issues** - Slow DTO creation or high memory usage
+- **Performance Issues** - Slow Dto creation or high memory usage
 - **Framework Integration** - Laravel and Symfony integration issues
 - **TypeScript Generation** - TypeScript types not generated
 
@@ -64,7 +64,7 @@ php -v
 **Problem:**
 <!-- skip-test: requires $data variable -->
 ```php
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 // No validation happens
 ```
 
@@ -72,11 +72,11 @@ $dto = UserDTO::fromArray($data);
 <!-- skip-test: incomplete code snippet -->
 ```php
 // Use validateAndCreate() instead
-$dto = UserDTO::validateAndCreate($data);
+$dto = UserDto::validateAndCreate($data);
 
 // Or enable auto-validation
 #[ValidateRequest]
-class UserDTO extends SimpleDTO { /* ... */ }
+class UserDto extends SimpleDto { /* ... */ }
 ```
 
 ### Validation Rules Not Cached
@@ -112,7 +112,7 @@ public readonly string $field;
 <!-- skip-test: incomplete code snippet -->
 ```php
 // Make sure attribute implements ValidationRule
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidationRule;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidationRule;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class CustomRule implements ValidationRule
@@ -153,7 +153,7 @@ public readonly Carbon $date;
 use Carbon\Carbon;
 
 // Make sure cast is registered
-use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 
 // Check if cast class exists
 if (!class_exists(DateTimeCast::class)) {
@@ -175,7 +175,7 @@ public readonly string $field;
 **Solution:**
 ```php
 // Make sure cast implements Cast interface
-use event4u\DataHelpers\SimpleDTO\Casts\Cast;
+use event4u\DataHelpers\SimpleDto\Casts\Cast;
 
 class MyCast implements Cast
 {
@@ -193,12 +193,12 @@ class MyCast implements Cast
 
 ## Performance Issues
 
-### Slow DTO Creation
+### Slow Dto Creation
 
 **Problem:**
 ```php
-// Takes 0.5 seconds to create DTO
-$dto = UserDTO::fromArray($data);
+// Takes 0.5 seconds to create Dto
+$dto = UserDto::fromArray($data);
 ```
 
 **Solution:**
@@ -215,21 +215,21 @@ public readonly ?array $posts = null;
 // Good: $dto->a->b
 
 // 4. Use batch operations
-$dtos = DataCollection::make($users, UserDTO::class);
+$dtos = DataCollection::make($users, UserDto::class);
 ```
 
 ### High Memory Usage
 
 **Problem:**
 ```php
-// Memory usage spikes when creating many DTOs
+// Memory usage spikes when creating many Dtos
 ```
 
 **Solution:**
 ```php
 // 1. Use chunking
 User::chunk(1000, function($users) {
-    $dtos = DataCollection::make($users, UserDTO::class);
+    $dtos = DataCollection::make($users, UserDto::class);
     // Process dtos
 });
 
@@ -248,9 +248,9 @@ Cache::flush();
 **Problem:**
 <!-- skip-test: incomplete code snippet -->
 ```php
-public function store(CreateUserDTO $dto)
+public function store(CreateUserDto $dto)
 {
-    // DTO not validated
+    // Dto not validated
 }
 ```
 
@@ -259,12 +259,12 @@ public function store(CreateUserDTO $dto)
 ```php
 // Add ValidateRequest attribute
 #[ValidateRequest]
-class CreateUserDTO extends SimpleDTO { /* ... */ }
+class CreateUserDto extends SimpleDto { /* ... */ }
 
 // Or use validateAndCreate()
 public function store(Request $request)
 {
-    $dto = CreateUserDTO::validateAndCreate($request->all());
+    $dto = CreateUserDto::validateAndCreate($request->all());
 }
 ```
 
@@ -273,7 +273,7 @@ public function store(Request $request)
 **Problem:**
 <!-- skip-test: method does not exist -->
 ```php
-$dto = UserDTO::fromModel($user);
+$dto = UserDto::fromModel($user);
 // Error: Method not found
 ```
 
@@ -281,11 +281,11 @@ $dto = UserDTO::fromModel($user);
 <!-- skip-test: requires $user variable -->
 ```php
 // Make sure you're using fromArray with model's toArray()
-$dto = UserDTO::fromArray($user->toArray());
+$dto = UserDto::fromArray($user->toArray());
 
 // Or use DataMapper for complex mappings
 $dto = DataMapper::source($user->toArray())
-    ->target(UserDTO::class)
+    ->target(UserDto::class)
     ->template([
         'name' => 'name',
         'email' => 'email',
@@ -299,7 +299,7 @@ $dto = DataMapper::source($user->toArray())
 **Problem:**
 <!-- skip-test: method does not exist -->
 ```php
-$dto = UserDTO::fromEntity($user);
+$dto = UserDto::fromEntity($user);
 // Error: Method not found
 ```
 
@@ -308,7 +308,7 @@ $dto = UserDTO::fromEntity($user);
 ```php
 // Use DataMapper for entity mapping
 $dto = DataMapper::source($user)
-    ->target(UserDTO::class)
+    ->target(UserDto::class)
     ->template([
         'name' => 'name',
         'email' => 'email',
@@ -317,7 +317,7 @@ $dto = DataMapper::source($user)
     ->getTarget();
 
 // Or convert entity to array first
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => $user->getName(),
     'email' => $user->getEmail(),
 ]);

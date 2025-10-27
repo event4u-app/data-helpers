@@ -1,16 +1,16 @@
 ---
 title: Custom Attributes
-description: Create custom PHP attributes for DTOs
+description: Create custom PHP attributes for Dtos
 ---
 
-Create custom PHP attributes for DTOs.
+Create custom PHP attributes for Dtos.
 
 ## Introduction
 
-Custom attributes extend DTO functionality:
+Custom attributes extend Dto functionality:
 
 - ✅ **Metadata** - Add metadata to properties
-- ✅ **Behavior** - Modify DTO behavior
+- ✅ **Behavior** - Modify Dto behavior
 - ✅ **Validation** - Custom validation logic
 - ✅ **Transformation** - Transform data
 
@@ -34,7 +34,7 @@ class Description
 ### Using the Attribute
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Description('User full name')]
@@ -63,7 +63,7 @@ class ApiField
 }
 
 // Usage
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[ApiField('user_name', 'Full name of the user', required: true, example: 'John Doe')]
@@ -84,7 +84,7 @@ class Transform
 }
 
 // Usage
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Transform('trim')]
@@ -108,7 +108,7 @@ class ShowIf
 }
 
 // Usage
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -135,7 +135,7 @@ class Column
 }
 
 // Usage
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Column('user_name', type: 'varchar', nullable: false)]
@@ -162,7 +162,7 @@ class ApiProperty
 }
 
 // Usage
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[ApiProperty('Product name', example: 'iPhone 15')]
@@ -190,7 +190,7 @@ class Auditable
 }
 
 // Usage
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Auditable(label: 'User Name')]
@@ -218,7 +218,7 @@ class Searchable
 }
 
 // Usage
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[Searchable(weight: 10, exact: false)]
@@ -245,7 +245,7 @@ class Encrypted
 }
 
 // Usage
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -268,7 +268,7 @@ class UserDTO extends SimpleDTO
 use ReflectionClass;
 use ReflectionProperty;
 
-$reflection = new ReflectionClass(UserDTO::class);
+$reflection = new ReflectionClass(UserDto::class);
 
 foreach ($reflection->getProperties() as $property) {
     $attributes = $property->getAttributes(Description::class);
@@ -303,7 +303,7 @@ class AttributeReader
 
 // Usage
 $descriptions = AttributeReader::getPropertyAttributes(
-    UserDTO::class,
+    UserDto::class,
     'name',
     Description::class
 );
@@ -314,7 +314,7 @@ $descriptions = AttributeReader::getPropertyAttributes(
 ### Multiple Attributes
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -343,7 +343,7 @@ class UserField
 }
 
 // Usage
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[UserField('User full name', required: true, searchable: true, searchWeight: 10)]

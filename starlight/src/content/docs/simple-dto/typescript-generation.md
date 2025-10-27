@@ -1,17 +1,17 @@
 ---
 title: TypeScript Generation
-description: Automatically generate TypeScript types from your DTOs
+description: Automatically generate TypeScript types from your Dtos
 ---
 
-Learn how to automatically generate TypeScript types from your DTOs.
+Learn how to automatically generate TypeScript types from your Dtos.
 
 ## Introduction
 
-SimpleDTO can automatically generate TypeScript interfaces and types from your PHP DTOs:
+SimpleDto can automatically generate TypeScript interfaces and types from your PHP Dtos:
 
 - **Automatic Generation** - Generate TypeScript from PHP
 - **Type Mapping** - PHP types → TypeScript types
-- **Nested DTOs** - Automatic nested type generation
+- **Nested Dtos** - Automatic nested type generation
 - **Enums** - PHP enums → TypeScript enums
 - **Arrays & Collections** - Proper array typing
 - **Optional Properties** - Nullable → optional
@@ -34,21 +34,21 @@ bin/console dto:typescript
 ### Plain PHP
 
 ```php
-use event4u\DataHelpers\SimpleDTO\TypeScript\Generator;
+use event4u\DataHelpers\SimpleDto\TypeScript\Generator;
 
 $generator = new Generator();
 $generator->generate(
-    dtoPath: __DIR__ . '/src/DTO',
+    dtoPath: __DIR__ . '/src/Dto',
     outputPath: __DIR__ . '/frontend/types'
 );
 ```
 
 ## Basic Example
 
-### PHP DTO
+### PHP Dto
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -62,7 +62,7 @@ class UserDTO extends SimpleDTO
 ### Generated TypeScript
 
 ```typescript
-export interface UserDTO {
+export interface UserDto {
   id: number;
   name: string;
   email: string;
@@ -123,12 +123,12 @@ public readonly string|int $id;
 id: string | number;
 ```
 
-## Nested DTOs
+## Nested Dtos
 
-### PHP DTOs
+### PHP Dtos
 
 ```php
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -137,12 +137,12 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
         public readonly string $name,
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 ```
@@ -150,35 +150,35 @@ class UserDTO extends SimpleDTO
 ### Generated TypeScript
 
 ```typescript
-export interface AddressDTO {
+export interface AddressDto {
   street: string;
   city: string;
   country: string;
 }
 
-export interface UserDTO {
+export interface UserDto {
   id: number;
   name: string;
-  address: AddressDTO;
+  address: AddressDto;
 }
 ```
 
 ## Collections
 
-### PHP DTO
+### PHP Dto
 
 ```php
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
         public readonly string $title,
-        /** @var CommentDTO[] */
+        /** @var CommentDto[] */
         public readonly array $comments,
     ) {}
 }
 
-class CommentDTO extends SimpleDTO
+class CommentDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -190,15 +190,15 @@ class CommentDTO extends SimpleDTO
 ### Generated TypeScript
 
 ```typescript
-export interface CommentDTO {
+export interface CommentDto {
   id: number;
   content: string;
 }
 
-export interface PostDTO {
+export interface PostDto {
   id: number;
   title: string;
-  comments: CommentDTO[];
+  comments: CommentDto[];
 }
 ```
 
@@ -214,7 +214,7 @@ enum UserRole: string
     case GUEST = 'guest';
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -233,7 +233,7 @@ export enum UserRole {
   GUEST = 'guest',
 }
 
-export interface UserDTO {
+export interface UserDto {
   id: number;
   name: string;
   role: UserRole;
@@ -282,7 +282,7 @@ php artisan dto:typescript --watch
 bin/console dto:typescript --watch
 ```
 
-Automatically regenerates TypeScript when DTOs change.
+Automatically regenerates TypeScript when Dtos change.
 
 ## CI/CD Integration
 
@@ -370,7 +370,7 @@ All examples are fully tested and can be run directly.
 
 The functionality is thoroughly tested. Key test files:
 
-- [TypeScriptGeneratorTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/TypeScriptGeneratorTest.php) - TypeScript generation tests
+- [TypeScriptGeneratorTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/TypeScriptGeneratorTest.php) - TypeScript generation tests
 
 Run the tests:
 
@@ -383,5 +383,5 @@ task test:unit -- --filter=TypeScript
 
 - [Artisan Commands](/framework-integration/artisan-commands/) - Laravel commands
 - [Console Commands](/framework-integration/console-commands/) - Symfony commands
-- [Creating DTOs](/simple-dto/creating-dtos/) - DTO creation guide
+- [Creating Dtos](/simple-dto/creating-dtos/) - Dto creation guide
 

@@ -1,13 +1,13 @@
 ---
 title: Attributes Overview
-description: Complete reference of all 50+ attributes available in SimpleDTO
+description: Complete reference of all 50+ attributes available in SimpleDto
 ---
 
-Complete reference of all 50+ attributes available in SimpleDTO.
+Complete reference of all 50+ attributes available in SimpleDto.
 
 ## Introduction
 
-SimpleDTO provides 50+ attributes organized into categories:
+SimpleDto provides 50+ attributes organized into categories:
 
 - ✅ **Validation Attributes** (30+) - Data validation
 - ✅ **Conditional Attributes** (18) - Visibility control
@@ -69,7 +69,7 @@ See [Mapping Attributes](/attributes/mapping/) for complete list.
 You can combine multiple attributes on a single property:
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         // Validation + Mapping

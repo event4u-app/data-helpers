@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Optional as OptionalAttribute;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Optional as OptionalAttribute;
 use event4u\DataHelpers\Support\Optional;
 
 echo "=== Optional Properties Example ===\n\n";
@@ -14,7 +14,7 @@ echo "=== Optional Properties Example ===\n\n";
 echo "1. Basic Optional Properties (Attribute Syntax)\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserDTO1 extends SimpleDTO
+class UserDto1 extends SimpleDto
 {
     /**
      * @param Optional<string>|string $email
@@ -31,7 +31,7 @@ class UserDTO1 extends SimpleDTO
     }
 }
 
-$user1 = UserDTO1::fromArray(['name' => 'John Doe']);
+$user1 = UserDto1::fromArray(['name' => 'John Doe']);
 echo "Missing email and age:\n";
 echo sprintf('  name: %s%s', $user1->name, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -40,7 +40,7 @@ echo "  email present: " . ($user1->email->isPresent() ? 'yes' : 'no') . "\n";
 echo "  age present: " . ($user1->age->isPresent() ? 'yes' : 'no') . "\n";
 echo "\n";
 
-$user2 = UserDTO1::fromArray(['name' => 'Jane Doe', 'email' => 'jane@example.com', 'age' => 30]);
+$user2 = UserDto1::fromArray(['name' => 'Jane Doe', 'email' => 'jane@example.com', 'age' => 30]);
 echo "All fields present:\n";
 echo sprintf('  name: %s%s', $user2->name, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -53,7 +53,7 @@ echo "\n";
 echo "2. Optional vs Nullable\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserDTO2 extends SimpleDTO
+class UserDto2 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -68,14 +68,14 @@ class UserDTO2 extends SimpleDTO
 }
 
 echo "Missing email, explicit null phone:\n";
-$user3 = UserDTO2::fromArray(['name' => 'John', 'phone' => null]);
+$user3 = UserDto2::fromArray(['name' => 'John', 'phone' => null]);
 /** @phpstan-ignore-next-line unknown */
 echo "  email present: " . ($user3->email->isPresent() ? 'yes' : 'no') . "\n";
 echo "  phone: " . ($user3->phone ?? 'null') . "\n";
 echo "\n";
 
 echo "Explicit null bio:\n";
-$user4 = UserDTO2::fromArray(['name' => 'Jane', 'phone' => '123-456', 'bio' => null]);
+$user4 = UserDto2::fromArray(['name' => 'Jane', 'phone' => '123-456', 'bio' => null]);
 /** @phpstan-ignore-next-line unknown */
 echo "  bio present: " . ($user4->bio->isPresent() ? 'yes' : 'no') . "\n";
 /** @phpstan-ignore-next-line unknown */
@@ -87,7 +87,7 @@ echo "\n";
 echo "3. Partial Updates (PATCH requests)\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserDTO3 extends SimpleDTO
+class UserDto3 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -103,14 +103,14 @@ class UserDTO3 extends SimpleDTO
 }
 
 echo "PATCH /users/1 with { \"email\": \"new@example.com\" }\n";
-$updates = UserDTO3::fromArray(['email' => 'new@example.com']);
+$updates = UserDto3::fromArray(['email' => 'new@example.com']);
 $partial = $updates->partial();
 echo "Partial data: " . json_encode($partial) . "\n";
 echo "Only email will be updated!\n";
 echo "\n";
 
 echo "PATCH /users/1 with { \"name\": \"John\", \"age\": 30 }\n";
-$updates2 = UserDTO3::fromArray(['name' => 'John', 'age' => 30]);
+$updates2 = UserDto3::fromArray(['name' => 'John', 'age' => 30]);
 $partial2 = $updates2->partial();
 echo "Partial data: " . json_encode($partial2) . "\n";
 echo "Only name and age will be updated!\n";
@@ -120,7 +120,7 @@ echo "\n";
 echo "4. Union Type Syntax (Modern)\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserDTO4 extends SimpleDTO
+class UserDto4 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -131,7 +131,7 @@ class UserDTO4 extends SimpleDTO
     ) {}
 }
 
-$user5 = UserDTO4::fromArray(['name' => 'Alice']);
+$user5 = UserDto4::fromArray(['name' => 'Alice']);
 echo "Missing email and age:\n";
 echo sprintf('  name: %s%s', $user5->name, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -171,21 +171,21 @@ echo "6. Map and Filter\n";
 echo str_repeat('-', 50) . "\n";
 
 $number = Optional::of(5);
-/** @var DataCollection<SimpleDTO> $doubled */
+/** @var DataCollection<SimpleDto> $doubled */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 $doubled = $number->map(fn($x): int => $x * 2);
 /** @phpstan-ignore-next-line unknown */
 echo "Map 5 * 2: " . $doubled->get() . "\n";
 
-/** @var DataCollection<SimpleDTO> $filtered1 */
+/** @var DataCollection<SimpleDto> $filtered1 */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 $filtered1 = $number->filter(fn($x): bool => 3 < $x);
 /** @phpstan-ignore-next-line unknown */
 echo "Filter 5 > 3: " . ($filtered1->isPresent() ? 'present' : 'empty') . "\n";
 
-/** @var DataCollection<SimpleDTO> $filtered2 */
+/** @var DataCollection<SimpleDto> $filtered2 */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 $filtered2 = $number->filter(fn($x): bool => 10 < $x);
@@ -197,12 +197,12 @@ echo "\n";
 echo "7. toArray and JSON Serialization\n";
 echo str_repeat('-', 50) . "\n";
 
-$user6 = UserDTO4::fromArray(['name' => 'Bob', 'email' => 'bob@example.com']);
+$user6 = UserDto4::fromArray(['name' => 'Bob', 'email' => 'bob@example.com']);
 echo "toArray: " . json_encode($user6->toArray()) . "\n";
 echo "JSON: " . json_encode($user6) . "\n";
 echo "\n";
 
-$user7 = UserDTO4::fromArray(['name' => 'Charlie']);
+$user7 = UserDto4::fromArray(['name' => 'Charlie']);
 echo "toArray (missing email): " . json_encode($user7->toArray()) . "\n";
 echo "JSON (missing email): " . json_encode($user7) . "\n";
 echo "\n";
@@ -211,7 +211,7 @@ echo "\n";
 echo "8. Default Values\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserDTO5 extends SimpleDTO
+class UserDto5 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -221,7 +221,7 @@ class UserDTO5 extends SimpleDTO
     ) {}
 }
 
-$user8 = UserDTO5::fromArray(['name' => 'David']);
+$user8 = UserDto5::fromArray(['name' => 'David']);
 echo "Missing email with default:\n";
 /** @phpstan-ignore-next-line unknown */
 echo "  email present: " . ($user8->email->isPresent() ? 'yes' : 'no') . "\n";

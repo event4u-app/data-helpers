@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\Support\Lazy;
 use event4u\DataHelpers\Support\Optional;
 
@@ -14,7 +14,7 @@ echo "=== Partial Updates Example ===\n\n";
 echo "1. Basic Partial Updates\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserUpdateDTO extends SimpleDTO
+class UserUpdateDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -29,21 +29,21 @@ class UserUpdateDTO extends SimpleDTO
 }
 
 echo "Update only name:\n";
-$update1 = UserUpdateDTO::fromArray(['name' => 'John Doe']);
+$update1 = UserUpdateDto::fromArray(['name' => 'John Doe']);
 $partial1 = $update1->partial();
 echo "  partial: " . json_encode($partial1) . "\n";
 echo "  keys: " . implode(', ', array_keys($partial1)) . "\n";
 echo "\n";
 
 echo "Update name and email:\n";
-$update2 = UserUpdateDTO::fromArray(['name' => 'Jane Doe', 'email' => 'jane@example.com']);
+$update2 = UserUpdateDto::fromArray(['name' => 'Jane Doe', 'email' => 'jane@example.com']);
 $partial2 = $update2->partial();
 echo "  partial: " . json_encode($partial2) . "\n";
 echo "  keys: " . implode(', ', array_keys($partial2)) . "\n";
 echo "\n";
 
 echo "Update bio to null (explicit):\n";
-$update3 = UserUpdateDTO::fromArray(['bio' => null]);
+$update3 = UserUpdateDto::fromArray(['bio' => null]);
 $partial3 = $update3->partial();
 echo "  partial: " . json_encode($partial3) . "\n";
 echo "  keys: " . implode(', ', array_keys($partial3)) . "\n";
@@ -54,7 +54,7 @@ echo "\n";
 echo "2. Partial Updates with Lazy Properties\n";
 echo str_repeat('-', 50) . "\n";
 
-class DocumentUpdateDTO extends SimpleDTO
+class DocumentUpdateDto extends SimpleDto
 {
     /**
      * @param array<mixed> $metadata
@@ -72,13 +72,13 @@ class DocumentUpdateDTO extends SimpleDTO
 }
 
 echo "Update only title:\n";
-$docUpdate1 = DocumentUpdateDTO::fromArray(['title' => 'New Title']);
+$docUpdate1 = DocumentUpdateDto::fromArray(['title' => 'New Title']);
 $docPartial1 = $docUpdate1->partial();
 echo "  partial: " . json_encode($docPartial1) . "\n";
 echo "\n";
 
 echo "Update title and content (lazy):\n";
-$docUpdate2 = DocumentUpdateDTO::fromArray(['title' => 'Another Title', 'content' => 'New content...']);
+$docUpdate2 = DocumentUpdateDto::fromArray(['title' => 'Another Title', 'content' => 'New content...']);
 $docPartial2 = $docUpdate2->partial();
 echo "  partial: " . json_encode($docPartial2) . "\n";
 echo "  content unwrapped: yes (Lazy wrapper removed)\n";
@@ -88,7 +88,7 @@ echo "\n";
 echo "3. PATCH Request Simulation\n";
 echo str_repeat('-', 50) . "\n";
 
-class ProfileDTO extends SimpleDTO
+class ProfileDto extends SimpleDto
 {
     /** @param array<mixed> $settings */
     public function __construct(
@@ -100,7 +100,7 @@ class ProfileDTO extends SimpleDTO
     ) {}
 }
 
-class ProfileUpdateDTO extends SimpleDTO
+class ProfileUpdateDto extends SimpleDto
 {
     /**
      * @param array<mixed> $settings
@@ -118,7 +118,7 @@ class ProfileUpdateDTO extends SimpleDTO
 }
 
 // Original profile
-$profile = new ProfileDTO(
+$profile = new ProfileDto(
     id: '123',
     username: 'john_doe',
     email: 'john@example.com',
@@ -131,7 +131,7 @@ echo json_encode($profile->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // PATCH request: Update only username and bio
 $patchData = ['username' => 'john_doe_updated', 'bio' => null];
-$update = ProfileUpdateDTO::fromArray($patchData);
+$update = ProfileUpdateDto::fromArray($patchData);
 $changes = $update->partial();
 
 echo "PATCH request data:\n";
@@ -141,7 +141,7 @@ echo "Extracted changes (partial):\n";
 echo json_encode($changes, JSON_PRETTY_PRINT) . "\n\n";
 
 // Apply changes to original profile
-$updatedProfile = new ProfileDTO(
+$updatedProfile = new ProfileDto(
     id: $profile->id,
     /** @phpstan-ignore-next-line unknown */
     username: $changes['username'] ?? $profile->username,
@@ -160,7 +160,7 @@ echo json_encode($updatedProfile->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 echo "4. Nested Partial Updates\n";
 echo str_repeat('-', 50) . "\n";
 
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -169,18 +169,18 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class UserWithAddressUpdateDTO extends SimpleDTO
+class UserWithAddressUpdateDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly Optional|string $name,
-        public readonly Optional|AddressDTO $address,
+        public readonly Optional|AddressDto $address,
     ) {}
 }
 
-echo "Update with nested DTO:\n";
-$nestedUpdate = UserWithAddressUpdateDTO::fromArray([
+echo "Update with nested Dto:\n";
+$nestedUpdate = UserWithAddressUpdateDto::fromArray([
     'name' => 'Alice',
     'address' => [
         'street' => '123 Main St',
@@ -202,7 +202,7 @@ echo "\n";
 echo "5. Partial with Validation\n";
 echo str_repeat('-', 50) . "\n";
 
-class ValidatedUpdateDTO extends SimpleDTO
+class ValidatedUpdateDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -230,14 +230,14 @@ class ValidatedUpdateDTO extends SimpleDTO
 }
 
 echo "Valid update:\n";
-$validUpdate = ValidatedUpdateDTO::fromArray(['email' => 'valid@example.com', 'age' => 25]);
+$validUpdate = ValidatedUpdateDto::fromArray(['email' => 'valid@example.com', 'age' => 25]);
 $validErrors = $validUpdate->validatePartial();
 echo "  errors: " . ([] === $validErrors ? 'none' : json_encode($validErrors)) . "\n";
 echo "  partial: " . json_encode($validUpdate->partial()) . "\n";
 echo "\n";
 
 echo "Invalid update:\n";
-$invalidUpdate = ValidatedUpdateDTO::fromArray(['email' => 'invalid-email', 'age' => 200]);
+$invalidUpdate = ValidatedUpdateDto::fromArray(['email' => 'invalid-email', 'age' => 200]);
 $invalidErrors = $invalidUpdate->validatePartial();
 echo "  errors: " . json_encode($invalidErrors) . "\n";
 echo "  partial: " . json_encode($invalidUpdate->partial()) . "\n";
@@ -248,7 +248,7 @@ echo "6. Partial with Empty Updates\n";
 echo str_repeat('-', 50) . "\n";
 
 echo "Empty update (no fields):\n";
-$emptyUpdate = UserUpdateDTO::fromArray([]);
+$emptyUpdate = UserUpdateDto::fromArray([]);
 $emptyPartial = $emptyUpdate->partial();
 echo "  partial: " . json_encode($emptyPartial) . "\n";
 echo "  is empty: " . ([] === $emptyPartial ? 'yes' : 'no') . "\n";
@@ -259,7 +259,7 @@ echo "7. Partial with All Fields\n";
 echo str_repeat('-', 50) . "\n";
 
 echo "Update all fields:\n";
-$fullUpdate = UserUpdateDTO::fromArray([
+$fullUpdate = UserUpdateDto::fromArray([
     'name' => 'Full Name',
     'email' => 'full@example.com',
     'age' => 30,

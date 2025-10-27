@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
 
 echo "================================================================================\n";
 echo "COMPUTED PROPERTIES - EXAMPLES\n";
@@ -18,7 +18,7 @@ echo "==========================================================================
 echo "1. BASIC COMPUTED PROPERTY:\n";
 echo "======================================================================\n\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly float $price,
@@ -32,7 +32,7 @@ class OrderDTO extends SimpleDTO
     }
 }
 
-$order = OrderDTO::fromArray([
+$order = OrderDto::fromArray([
     'price' => 100.0,
     'quantity' => 2,
 ]);
@@ -52,7 +52,7 @@ echo "total() = " . $order->total() . "\n\n";
 echo "2. MULTIPLE COMPUTED PROPERTIES:\n";
 echo "======================================================================\n\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly float $price,
@@ -92,7 +92,7 @@ class ProductDTO extends SimpleDTO
     }
 }
 
-$product = ProductDTO::fromArray([
+$product = ProductDto::fromArray([
     'price' => 100.0,
     'taxRate' => 0.19,
     'quantity' => 3,
@@ -110,7 +110,7 @@ echo "\n";
 echo "3. COMPUTED PROPERTY WITH CUSTOM NAME:\n";
 echo "======================================================================\n\n";
 
-class InvoiceDTO extends SimpleDTO
+class InvoiceDto extends SimpleDto
 {
     public function __construct(
         public readonly float $amount,
@@ -130,7 +130,7 @@ class InvoiceDTO extends SimpleDTO
     }
 }
 
-$invoice = InvoiceDTO::fromArray([
+$invoice = InvoiceDto::fromArray([
     'amount' => 1000.0,
     'taxRate' => 0.19,
 ]);
@@ -146,7 +146,7 @@ echo "\n";
 echo "4. LAZY COMPUTED PROPERTIES:\n";
 echo "======================================================================\n\n";
 
-class ReportDTO extends SimpleDTO
+class ReportDto extends SimpleDto
 {
     /** @param array<mixed> $data */
     public function __construct(
@@ -227,7 +227,7 @@ class ReportDTO extends SimpleDTO
     }
 }
 
-$report = ReportDTO::fromArray([
+$report = ReportDto::fromArray([
     'name' => 'Sales Report',
     'data' => [100, 200, 150, 300, 250, 180, 220],
 ]);
@@ -254,7 +254,7 @@ echo "\n";
 echo "5. COMPUTED PROPERTIES WITH CACHING:\n";
 echo "======================================================================\n\n";
 
-class CachedComputationDTO extends SimpleDTO
+class CachedComputationDto extends SimpleDto
 {
     public function __construct(
         public readonly int $value,
@@ -270,7 +270,7 @@ class CachedComputationDTO extends SimpleDTO
     }
 }
 
-$cached = CachedComputationDTO::fromArray(['value' => 42]);
+$cached = CachedComputationDto::fromArray(['value' => 42]);
 
 echo "First toArray() call (computes and caches):\n";
 $array1 = $cached->toArray();
@@ -303,7 +303,7 @@ echo "\n";
 echo "6. JSON SERIALIZATION WITH COMPUTED PROPERTIES:\n";
 echo "======================================================================\n\n";
 
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
@@ -330,7 +330,7 @@ class UserProfileDTO extends SimpleDTO
     }
 }
 
-$profile = UserProfileDTO::fromArray([
+$profile = UserProfileDto::fromArray([
     'firstName' => 'John',
     'lastName' => 'Doe',
     'age' => 30,

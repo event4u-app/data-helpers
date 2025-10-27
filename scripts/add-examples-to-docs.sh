@@ -48,7 +48,7 @@ add_sections() {
         }
         { print }
         ' "$file" > "$file.tmp"
-        
+
         mv "$file.tmp" "$file"
         echo "✅  Updated $file"
     else
@@ -56,7 +56,7 @@ add_sections() {
     fi
 }
 
-# SimpleDTO - Type Casting
+# SimpleDto - Type Casting
 add_sections \
     "starlight/src/content/docs/simple-dto/type-casting.md" \
     "- [**Basic Casts**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/basic-casts.php) - Common type casts
@@ -67,12 +67,12 @@ add_sections \
 - [**Hashed Cast**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/hashed-cast.php) - Password hashing
 - [**Encrypted Cast**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/encrypted-cast.php) - Data encryption
 - [**Lazy Cast**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/type-casting/lazy-cast.php) - Lazy loading casts" \
-    "- \`tests/Unit/SimpleDTO/Casts/CastTest.php\` - Cast functionality tests
-- \`tests/Unit/SimpleDTO/Casts/EnumCastTest.php\` - Enum cast tests
-- \`tests/Unit/SimpleDTO/Casts/CollectionCastTest.php\` - Collection cast tests" \
+    "- \`tests/Unit/SimpleDto/Casts/CastTest.php\` - Cast functionality tests
+- \`tests/Unit/SimpleDto/Casts/EnumCastTest.php\` - Enum cast tests
+- \`tests/Unit/SimpleDto/Casts/CollectionCastTest.php\` - Collection cast tests" \
     "Cast"
 
-# SimpleDTO - Validation
+# SimpleDto - Validation
 add_sections \
     "starlight/src/content/docs/simple-dto/validation.md" \
     "- [**Basic Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/basic-validation.php) - Simple validation rules
@@ -81,13 +81,13 @@ add_sections \
 - [**Laravel Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/request-validation-laravel.php) - Laravel integration
 - [**Symfony Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/request-validation-symfony.php) - Symfony integration
 - [**Validation Modes**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/validation-modes.php) - Different validation modes
-- [**Nested Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/nested-validation.php) - Validating nested DTOs" \
+- [**Nested Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/nested-validation.php) - Validating nested Dtos" \
     "- \`tests/Unit/ValidationModesTest.php\` - Validation mode tests
-- \`tests/Unit/SimpleDTO/ValidationTest.php\` - Core validation tests
-- \`tests/Unit/SimpleDTO/NestedValidationTest.php\` - Nested validation tests" \
+- \`tests/Unit/SimpleDto/ValidationTest.php\` - Core validation tests
+- \`tests/Unit/SimpleDto/NestedValidationTest.php\` - Nested validation tests" \
     "Validation"
 
-# SimpleDTO - Conditional Properties
+# SimpleDto - Conditional Properties
 add_sections \
     "starlight/src/content/docs/simple-dto/conditional-properties.md" \
     "- [**Basic Conditional**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/basic-conditional.php) - Simple conditional properties
@@ -97,35 +97,35 @@ add_sections \
 - [**Custom Conditions**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/custom-conditions.php) - Creating custom conditions
 - [**Laravel Attributes**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/laravel-conditional-attributes.php) - Laravel-specific attributes
 - [**Symfony Attributes**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/conditional-properties/symfony-conditional-attributes.php) - Symfony-specific attributes" \
-    "- \`tests/Unit/SimpleDTO/ConditionalPropertiesTest.php\` - Conditional property tests
-- \`tests/Unit/SimpleDTO/ContextTest.php\` - Context tests" \
+    "- \`tests/Unit/SimpleDto/ConditionalPropertiesTest.php\` - Conditional property tests
+- \`tests/Unit/SimpleDto/ContextTest.php\` - Context tests" \
     "Conditional"
 
-# SimpleDTO - Lazy Properties
+# SimpleDto - Lazy Properties
 add_sections \
     "starlight/src/content/docs/simple-dto/lazy-properties.md" \
     "- [**Basic Lazy**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/lazy-properties/basic-lazy.php) - Simple lazy properties
 - [**Lazy Union Types**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/lazy-properties/lazy-union-types.php) - Lazy with union types
 - [**Optional Lazy Combinations**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/lazy-properties/optional-lazy-combinations.php) - Combining optional and lazy" \
-    "- \`tests/Unit/SimpleDTO/LazyPropertiesTest.php\` - Lazy property tests" \
+    "- \`tests/Unit/SimpleDto/LazyPropertiesTest.php\` - Lazy property tests" \
     "Lazy"
 
-# SimpleDTO - Computed Properties
+# SimpleDto - Computed Properties
 add_sections \
     "starlight/src/content/docs/simple-dto/computed-properties.md" \
     "- [**Basic Computed**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/computed-properties/basic-computed.php) - Simple computed properties" \
-    "- \`tests/Unit/SimpleDTO/ComputedPropertiesTest.php\` - Computed property tests" \
+    "- \`tests/Unit/SimpleDto/ComputedPropertiesTest.php\` - Computed property tests" \
     "Computed"
 
-# SimpleDTO - Collections
+# SimpleDto - Collections
 add_sections \
     "starlight/src/content/docs/simple-dto/collections.md" \
     "- [**Data Collection**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/collections/data-collection.php) - Working with collections
-- [**DTO Sorting**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/collections/dto-sorting.php) - Sorting DTOs in collections" \
-    "- \`tests/Unit/SimpleDTO/CollectionTest.php\` - Collection tests" \
+- [**Dto Sorting**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/collections/dto-sorting.php) - Sorting Dtos in collections" \
+    "- \`tests/Unit/SimpleDto/CollectionTest.php\` - Collection tests" \
     "Collection"
 
-# SimpleDTO - Security & Visibility
+# SimpleDto - Security & Visibility
 add_sections \
     "starlight/src/content/docs/simple-dto/security-visibility.md" \
     "- [**Visibility Hidden**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/security-visibility/visibility-hidden.php) - Hiding properties
@@ -133,25 +133,25 @@ add_sections \
 - [**Visibility Explained**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/security-visibility/visibility-explained.php) - Detailed explanation
 - [**Real World Example**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/security-visibility/visibility-real-world.php) - Practical use case
 - [**Static Provider**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/security-visibility/visibility-static-provider.php) - Static visibility provider" \
-    "- \`tests/Unit/SimpleDTO/VisibilityTest.php\` - Visibility tests" \
+    "- \`tests/Unit/SimpleDto/VisibilityTest.php\` - Visibility tests" \
     "Visibility"
 
-# SimpleDTO - TypeScript Generation
+# SimpleDto - TypeScript Generation
 add_sections \
     "starlight/src/content/docs/simple-dto/typescript-generation.md" \
     "- [**Basic Generation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/typescript-generation/basic-generation.php) - Generate TypeScript types
 - [**Generator Options**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/typescript-generation/generator-options.php) - Customizing generation" \
-    "- \`tests/Unit/SimpleDTO/TypeScriptGeneratorTest.php\` - TypeScript generation tests" \
+    "- \`tests/Unit/SimpleDto/TypeScriptGeneratorTest.php\` - TypeScript generation tests" \
     "TypeScript"
 
-# SimpleDTO - Serialization
+# SimpleDto - Serialization
 add_sections \
     "starlight/src/content/docs/simple-dto/serialization.md" \
     "- [**Serializers**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/serialization/serializers.php) - Serialization examples
 - [**Transformers**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/serialization/transformers.php) - Data transformation
 - [**Normalizers**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/serialization/normalizers.php) - Data normalization
 - [**Serializer Options**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/serialization/serializer-options.php) - Customizing serialization" \
-    "- \`tests/Unit/SimpleDTO/SerializationTest.php\` - Serialization tests" \
+    "- \`tests/Unit/SimpleDto/SerializationTest.php\` - Serialization tests" \
     "Serialization"
 
 # Framework Integration - Laravel

@@ -76,7 +76,7 @@ That's it! Data Helpers automatically detects your framework.
 ### Laravel
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required, Email]
@@ -85,7 +85,7 @@ class UserDTO extends SimpleDTO
 }
 
 // In controller
-public function store(UserDTO $dto) {
+public function store(UserDto $dto) {
     // Automatic validation & injection
 }
 ```
@@ -95,7 +95,7 @@ public function store(UserDTO $dto) {
 <!-- skip-test: controller method -->
 ```php
 #[Route('/users', methods: ['POST'])]
-public function create(UserDTO $dto): JsonResponse {
+public function create(UserDto $dto): JsonResponse {
     // Automatic validation & injection
 }
 ```
@@ -104,7 +104,7 @@ public function create(UserDTO $dto): JsonResponse {
 
 ```php
 $data = ['name' => 'John', 'email' => 'john@example.com', 'age' => 30];
-$dto = UserDTO::validateAndCreate($data);
+$dto = UserDto::validateAndCreate($data);
 ```
 
 ## Next Steps

@@ -11,7 +11,7 @@ use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Artisan command to migrate Spatie Laravel Data classes to SimpleDTO.
+ * Artisan command to migrate Spatie Laravel Data classes to SimpleDto.
  *
  * Usage:
  *   php artisan dto:migrate-spatie
@@ -42,7 +42,7 @@ class MigrateSpatieCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Migrate Spatie Laravel Data classes to SimpleDTO';
+    protected $description = 'Migrate Spatie Laravel Data classes to SimpleDto';
 
     /** Execute the console command. */
     public function handle(Filesystem $files): int
@@ -195,42 +195,42 @@ class MigrateSpatieCommand extends Command
         // 1. Replace base class import
         $content = str_replace(
             'use Spatie\\LaravelData\\Data;',
-            'use event4u\\DataHelpers\\SimpleDTO\\SimpleDTO;',
+            'use event4u\\DataHelpers\\SimpleDto\\SimpleDto;',
             $content
         );
 
         // 2. Replace extends Data
         $content = preg_replace(
             '/extends\s+Data\b/',
-            'extends SimpleDTO',
+            'extends SimpleDto',
             $content
         ) ?? $content;
 
         // 3. Replace attribute namespaces
         $content = str_replace(
             'use Spatie\\LaravelData\\Attributes\\Validation\\',
-            'use event4u\\DataHelpers\\SimpleDTO\\Attributes\\',
+            'use event4u\\DataHelpers\\SimpleDto\\Attributes\\',
             $content
         );
 
         $content = str_replace(
             'use Spatie\\LaravelData\\Attributes\\',
-            'use event4u\\DataHelpers\\SimpleDTO\\Attributes\\',
+            'use event4u\\DataHelpers\\SimpleDto\\Attributes\\',
             $content
         );
 
         // 4. Replace DataCollection
         $content = str_replace(
             'use Spatie\\LaravelData\\DataCollection;',
-            'use event4u\\DataHelpers\\SimpleDTO\\DataCollection;',
+            'use event4u\\DataHelpers\\SimpleDto\\DataCollection;',
             $content
         );
 
         // 5. Replace WithCast attribute with Cast
         $content = str_replace('#[WithCast(', '#[Cast(', $content);
         $content = str_replace(
-            'use event4u\\DataHelpers\\SimpleDTO\\Attributes\\WithCast;',
-            'use event4u\\DataHelpers\\SimpleDTO\\Attributes\\Cast;',
+            'use event4u\\DataHelpers\\SimpleDto\\Attributes\\WithCast;',
+            'use event4u\\DataHelpers\\SimpleDto\\Attributes\\Cast;',
             $content
         );
 

@@ -1,42 +1,42 @@
 ---
 title: Laravel Artisan Commands
-description: Complete reference of all Laravel Artisan commands for SimpleDTO
+description: Complete reference of all Laravel Artisan commands for SimpleDto
 ---
 
-Complete reference of all Laravel Artisan commands for SimpleDTO.
+Complete reference of all Laravel Artisan commands for SimpleDto.
 
 ## Introduction
 
-SimpleDTO provides several Artisan commands for Laravel:
+SimpleDto provides several Artisan commands for Laravel:
 
-- **make:dto** - Create new DTOs
+- **make:dto** - Create new Dtos
 - **dto:typescript** - Generate TypeScript types
-- **dto:migrate-spatie** - Migrate Spatie Laravel Data to SimpleDTO
-- **dto:list** - List all DTOs
-- **dto:validate** - Validate DTO structure
+- **dto:migrate-spatie** - Migrate Spatie Laravel Data to SimpleDto
+- **dto:list** - List all Dtos
+- **dto:validate** - Validate Dto structure
 - **dto:cache** - Cache validation rules
 - **dto:clear** - Clear validation cache
 
 ## make:dto
 
-Create a new DTO class.
+Create a new Dto class.
 
 ### Basic Usage
 
 ```bash
-php artisan make:dto UserDTO
+php artisan make:dto UserDto
 ```
 
-Creates `app/DTO/UserDTO.php`:
+Creates `app/Dto/UserDto.php`:
 
 ```php
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -49,10 +49,10 @@ class UserDTO extends SimpleDTO
 
 #### --validation
 
-Create a DTO with validation attributes:
+Create a Dto with validation attributes:
 
 ```bash
-php artisan make:dto CreateUserDTO --validation
+php artisan make:dto CreateUserDto --validation
 ```
 
 Creates:
@@ -60,13 +60,13 @@ Creates:
 ```php
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
 
-class CreateUserDTO extends SimpleDTO
+class CreateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -80,23 +80,23 @@ class CreateUserDTO extends SimpleDTO
 
 #### --resource
 
-Create a resource DTO for API responses:
+Create a resource Dto for API responses:
 
 ```bash
-php artisan make:dto UserResourceDTO --resource
+php artisan make:dto UserResourceDto --resource
 ```
 
 #### --force
 
-Overwrite existing DTO:
+Overwrite existing Dto:
 
 ```bash
-php artisan make:dto UserDTO --force
+php artisan make:dto UserDto --force
 ```
 
 ## dto:typescript
 
-Generate TypeScript types from DTOs.
+Generate TypeScript types from Dtos.
 
 ### Basic Usage
 
@@ -136,7 +136,7 @@ php artisan dto:typescript --export=        # no export
 
 ## dto:migrate-spatie
 
-Migrate Spatie Laravel Data classes to SimpleDTO.
+Migrate Spatie Laravel Data classes to SimpleDto.
 
 ### Basic Usage
 
@@ -187,7 +187,7 @@ php artisan dto:migrate-spatie --force
 The command automatically:
 
 1. Finds all Spatie Data classes
-2. Replaces `Data` with `SimpleDTO` base class
+2. Replaces `Data` with `SimpleDto` base class
 3. Updates namespace imports
 4. Adds `readonly` to properties
 5. Updates attribute namespaces
@@ -212,10 +212,10 @@ class UserData extends Data
 
 **After migration:**
 ```php
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
 
-class UserData extends SimpleDTO
+class UserData extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -229,7 +229,7 @@ class UserData extends SimpleDTO
 
 ## dto:list
 
-List all DTOs in the project.
+List all Dtos in the project.
 
 ### Basic Usage
 
@@ -240,11 +240,11 @@ php artisan dto:list
 Output:
 ```
 +------------------+------------------+------------+
-| DTO              | Namespace        | Properties |
+| Dto              | Namespace        | Properties |
 +------------------+------------------+------------+
-| UserDTO          | App\DTO          | 5          |
-| CreateUserDTO    | App\DTO\Requests | 3          |
-| UserResourceDTO  | App\DTO\Resources| 7          |
+| UserDto          | App\Dto          | 5          |
+| CreateUserDto    | App\Dto\Requests | 3          |
+| UserResourceDto  | App\Dto\Resources| 7          |
 +------------------+------------------+------------+
 ```
 
@@ -255,22 +255,22 @@ Output:
 Filter by namespace:
 
 ```bash
-php artisan dto:list --namespace=App\\DTO\\Api
+php artisan dto:list --namespace=App\\Dto\\Api
 ```
 
 ## dto:validate
 
-Validate DTO structure and configuration.
+Validate Dto structure and configuration.
 
 ### Basic Usage
 
 ```bash
-php artisan dto:validate UserDTO
+php artisan dto:validate UserDto
 ```
 
 Checks:
 - Class exists
-- Extends SimpleDTO
+- Extends SimpleDto
 - Properties are readonly
 - Validation attributes are valid
 - Type casts are valid
@@ -280,7 +280,7 @@ Checks:
 
 #### --all
 
-Validate all DTOs:
+Validate all Dtos:
 
 ```bash
 php artisan dto:validate --all
@@ -291,7 +291,7 @@ php artisan dto:validate --all
 Attempt to fix common issues:
 
 ```bash
-php artisan dto:validate UserDTO --fix
+php artisan dto:validate UserDto --fix
 ```
 
 ## dto:cache
@@ -304,7 +304,7 @@ Cache validation rules for better performance.
 php artisan dto:cache
 ```
 
-Caches validation rules for all DTOs, improving validation performance by up to 198x.
+Caches validation rules for all Dtos, improving validation performance by up to 198x.
 
 ### Options
 
@@ -330,14 +330,14 @@ Clears all cached validation rules.
 
 ## Real-World Examples
 
-### Create API DTOs
+### Create API Dtos
 
 ```bash
-# Create request DTO
-php artisan make:dto CreateUserDTO --validation
+# Create request Dto
+php artisan make:dto CreateUserDto --validation
 
-# Create response DTO
-php artisan make:dto UserResourceDTO --resource
+# Create response Dto
+php artisan make:dto UserResourceDto --resource
 
 # Generate TypeScript
 php artisan dto:typescript
@@ -346,11 +346,11 @@ php artisan dto:typescript
 ### Development Workflow
 
 ```bash
-# Create DTO
-php artisan make:dto OrderDTO
+# Create Dto
+php artisan make:dto OrderDto
 
 # Validate structure
-php artisan dto:validate OrderDTO
+php artisan dto:validate OrderDto
 
 # Generate TypeScript with watch
 php artisan dto:typescript --watch
@@ -359,7 +359,7 @@ php artisan dto:typescript --watch
 ### CI/CD Pipeline
 
 ```bash
-# Validate all DTOs
+# Validate all Dtos
 php artisan dto:validate --all
 
 # Check TypeScript is up to date
@@ -387,7 +387,7 @@ php artisan dto:typescript
 ### Create and Validate
 
 ```bash
-php artisan make:dto UserDTO && php artisan dto:validate UserDTO
+php artisan make:dto UserDto && php artisan dto:validate UserDto
 ```
 
 ### Generate TypeScript and Watch
@@ -401,9 +401,9 @@ php artisan dto:typescript --watch &
 ### 1. Use Validation in Development
 
 ```bash
-# Always validate after creating DTOs
-php artisan make:dto UserDTO
-php artisan dto:validate UserDTO
+# Always validate after creating Dtos
+php artisan make:dto UserDto
+php artisan dto:validate UserDto
 ```
 
 ### 2. Cache in Production

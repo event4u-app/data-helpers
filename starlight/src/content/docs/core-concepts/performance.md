@@ -9,9 +9,9 @@ Data Helpers is optimized for performance with built-in caching and efficient al
 
 DataMapper is significantly faster than traditional serializers:
 
-- **3.7x faster** than Symfony Serializer for DTO mapping
+- **3.7x faster** than Symfony Serializer for Dto mapping
 - **2.3x faster** lazy cast speedup
-- **914,000 instances/sec** DTO creation rate
+- **914,000 instances/sec** Dto creation rate
 
 See [Performance Benchmarks](/performance/benchmarks/) for detailed comparisons.
 
@@ -77,7 +77,7 @@ $template = [
 Lazy properties are only computed when accessed:
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     #[Lazy]
     public string $fullName;

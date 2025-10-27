@@ -171,13 +171,13 @@ describe('ReverseDataMapper', function(): void {
             'contact_email' => '{{ email }}',
         ];
 
-        // Forward: User -> DTO
+        // Forward: User -> Dto
         $dto = DataMapper::source($originalUser)->target([])->template($mapping)->map()->getTarget();
 
         expect($dto['full_name'])->toBe('John');
         expect($dto['contact_email'])->toBe('john@example.com');
 
-        // Reverse: DTO -> User
+        // Reverse: Dto -> User
         $reconstructedUser = DataMapper::source($dto)->target([])->template($mapping)->reverse()->map()->getTarget();
 
         expect($reconstructedUser['firstName'])->toBe('John');
@@ -452,7 +452,7 @@ describe('ReverseDataMapper', function(): void {
         expect($reverseResult['items'][1])->toBe('david');
     });
 
-    it('works with objects and DTOs', function(): void {
+    it('works with objects and Dtos', function(): void {
         $source = (object)['user' => (object)['name' => 'Alice']];
         $mapping = ['profile.name' => '{{ user.name }}'];
 

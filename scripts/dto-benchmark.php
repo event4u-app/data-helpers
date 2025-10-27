@@ -4,20 +4,20 @@
 declare(strict_types=1);
 
 /**
- * DTO Benchmark Script
+ * Dto Benchmark Script
  *
- * Runs benchmarks comparing Traditional Mutable DTOs vs SimpleDTO Immutable DTOs
+ * Runs benchmarks comparing Traditional Mutable Dtos vs SimpleDto Immutable Dtos
  * and displays results in a formatted table.
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
-use Tests\Utils\DTOs\CompanyDto;
-use Tests\Utils\DTOs\DepartmentDto;
-use Tests\Utils\SimpleDTOs\CompanySimpleDto;
-use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
-use Tests\Utils\SimpleDTOs\ProjectSimpleDto;
+use Tests\Utils\Dtos\CompanyDto;
+use Tests\Utils\Dtos\DepartmentDto;
+use Tests\Utils\SimpleDtos\CompanySimpleDto;
+use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
+use Tests\Utils\SimpleDtos\ProjectSimpleDto;
 
 class DtoBenchmarkRunner
 {
@@ -119,7 +119,7 @@ class DtoBenchmarkRunner
 
 echo "\n";
 echo "╔════════════════════════════════════════════════════════════════╗\n";
-echo "║  DTO Benchmark: Traditional Mutable vs SimpleDTO Immutable    ║\n";
+echo "║  Dto Benchmark: Traditional Mutable vs SimpleDto Immutable    ║\n";
 echo "╚════════════════════════════════════════════════════════════════╝\n";
 
 // Prepare test data
@@ -166,20 +166,20 @@ $testData = [
 ];
 
 // ============================================================================
-// Benchmark 1: DTO Creation with DataMapper
+// Benchmark 1: Dto Creation with DataMapper
 // ============================================================================
-echo "\n🔥 Benchmark 1: DTO Creation with DataMapper (1,000 iterations)\n";
+echo "\n🔥 Benchmark 1: Dto Creation with DataMapper (1,000 iterations)\n";
 echo str_repeat('─', 64) . "\n";
 
 $benchmarks = [];
 
-$benchmarks[] = DtoBenchmarkRunner::run('Traditional Mutable DTO', function() use ($jsonFile, $mapping): void {
+$benchmarks[] = DtoBenchmarkRunner::run('Traditional Mutable Dto', function() use ($jsonFile, $mapping): void {
     $company = new CompanyDto();
     /** @phpstan-ignore-next-line unknown */
     DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 }, 1000);
 
-$benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO Immutable', function() use ($jsonFile, $mapping): void {
+$benchmarks[] = DtoBenchmarkRunner::run('SimpleDto Immutable', function() use ($jsonFile, $mapping): void {
     $mappedArray = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->toArray();
 
     /** @var array<int, array<string, mixed>> $departmentsData */
@@ -208,9 +208,9 @@ $benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO Immutable', function() use ($
 DtoBenchmarkRunner::printTable($benchmarks);
 
 // ============================================================================
-// Benchmark 2: Simple DTO Creation (no DataMapper)
+// Benchmark 2: Simple Dto Creation (no DataMapper)
 // ============================================================================
-echo "🔥 Benchmark 2: Simple DTO Creation (100,000 iterations)\n";
+echo "🔥 Benchmark 2: Simple Dto Creation (100,000 iterations)\n";
 echo str_repeat('─', 64) . "\n";
 
 $benchmarks = [];
@@ -224,7 +224,7 @@ $benchmarks[] = DtoBenchmarkRunner::run('Traditional: new + assign', function() 
     $dto->manager_name = $testData['manager_name'];
 }, 100000);
 
-$benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO: fromArray()', function() use ($testData): void {
+$benchmarks[] = DtoBenchmarkRunner::run('SimpleDto: fromArray()', function() use ($testData): void {
     DepartmentSimpleDto::fromArray($testData);
 }, 100000);
 
@@ -251,7 +251,7 @@ $benchmarks[] = DtoBenchmarkRunner::run('Traditional: toArray()', function() use
     $dtoMutable->toArray();
 }, 100000);
 
-$benchmarks[] = DtoBenchmarkRunner::run('SimpleDTO: toArray()', function() use ($dtoImmutable): void {
+$benchmarks[] = DtoBenchmarkRunner::run('SimpleDto: toArray()', function() use ($dtoImmutable): void {
     $dtoImmutable->toArray();
 }, 100000);
 
@@ -264,10 +264,10 @@ echo "╔═══════════════════════�
 echo "║  Summary                                                       ║\n";
 echo "╚════════════════════════════════════════════════════════════════╝\n";
 echo "\n";
-echo "  ✅ SimpleDTO is FASTER for DataMapper integration\n";
-echo "  ⚠️  Traditional DTO is FASTER for simple creation without DataMapper\n";
-echo "  💡 Use SimpleDTO for APIs, immutability, and type safety\n";
-echo "  💡 Use Traditional DTO for performance-critical hot paths\n";
+echo "  ✅ SimpleDto is FASTER for DataMapper integration\n";
+echo "  ⚠️  Traditional Dto is FASTER for simple creation without DataMapper\n";
+echo "  💡 Use SimpleDto for APIs, immutability, and type safety\n";
+echo "  💡 Use Traditional Dto for performance-critical hot paths\n";
 echo "\n";
 echo "  Run 'composer bench:dto:readme' to update docs/simple-dto.md\n";
 echo "\n";

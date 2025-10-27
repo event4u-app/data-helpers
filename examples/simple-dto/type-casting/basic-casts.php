@@ -5,10 +5,10 @@ declare(strict_types=1);
 require __DIR__ . '/../../bootstrap.php';
 
 use DateTimeImmutable;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Casts\ArrayCast;
-use event4u\DataHelpers\SimpleDTO\Casts\BooleanCast;
-use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Casts\ArrayCast;
+use event4u\DataHelpers\SimpleDto\Casts\BooleanCast;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 
 // ============================================================================
 // Example 1: Built-in Casts
@@ -17,7 +17,7 @@ use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
 echo "Example 1: Built-in Casts\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class UserDto extends SimpleDTO
+class UserDto extends SimpleDto
 {
     /** @param array<mixed> $roles */
     public function __construct(
@@ -69,7 +69,7 @@ echo "\n";
 echo "Example 2: Custom Cast Classes\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class ProductDto extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     /** @param array<mixed> $tags */
     public function __construct(
@@ -118,7 +118,7 @@ echo "\n";
 echo "Example 3: Cast with Parameters\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class EventDto extends SimpleDTO
+class EventDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -154,13 +154,13 @@ echo "Registration Deadline: " . $event->registration_deadline->format('d.m.Y') 
 echo "\n";
 
 // ============================================================================
-// Example 4: Nested DTOs with Casts
+// Example 4: Nested Dtos with Casts
 // ============================================================================
 
-echo "Example 4: Nested DTOs with Casts\n";
+echo "Example 4: Nested Dtos with Casts\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class AddressDto extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -169,7 +169,7 @@ class AddressDto extends SimpleDTO
     ) {}
 }
 
-class CompanyDto extends SimpleDTO
+class CompanyDto extends SimpleDto
 {
     /** @param array<mixed> $departments */
     public function __construct(
@@ -215,7 +215,7 @@ echo "Active: " . ($company->is_active ? 'Yes' : 'No') . "\n";
 echo "Departments: " . implode(', ', $company->departments) . "\n";
 /** @phpstan-ignore-next-line unknown */
 echo "Founded: " . $company->founded_at->format('Y') . "\n";
-if ($company->address instanceof \AddressDTO) {
+if ($company->address instanceof \AddressDto) {
     echo sprintf(
         'Address: %s, %s, %s%s',
         $company->address->street,

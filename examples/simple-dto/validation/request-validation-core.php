@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 use event4u\DataHelpers\Validation\ValidationException;
 
 echo "=== Phase 15.1: Framework-Independent Request Validation ===\n\n";
@@ -19,7 +19,7 @@ echo "1. Basic Validation with ValidateRequest Attribute\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: true)]
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -36,7 +36,7 @@ class UserDTO extends SimpleDTO
 }
 
 try {
-    $user = UserDTO::validateAndCreate([
+    $user = UserDto::validateAndCreate([
         'email' => 'john@example.com',
         'name' => 'John Doe',
         'age' => 30,
@@ -62,7 +62,7 @@ echo "2. Validation Failure\n";
 echo str_repeat('-', 60) . "\n";
 
 try {
-    $user = UserDTO::validateAndCreate([
+    $user = UserDto::validateAndCreate([
         'email' => 'invalid-email',
         'name' => 'Jo',  // Too short
         'age' => 15,     // Too young
@@ -88,7 +88,7 @@ echo "\n";
 echo "3. ValidationResult (without throwing)\n";
 echo str_repeat('-', 60) . "\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -101,7 +101,7 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-$result = ProductDTO::validateData([
+$result = ProductDto::validateData([
     'name' => 'Product',
     'price' => 99.99,
 ]);
@@ -113,8 +113,8 @@ if ($result->isValid()) {
         echo sprintf('      %s: %s%s', $key, $value, PHP_EOL);
     }
 
-    $product = ProductDTO::fromArray($result->validated());
-    echo sprintf('    Created DTO: %s - $%s%s', $product->name, $product->price, PHP_EOL);
+    $product = ProductDto::fromArray($result->validated());
+    echo sprintf('    Created Dto: %s - $%s%s', $product->name, $product->price, PHP_EOL);
 } else {
     echo "❌  Validation failed!\n";
     foreach ($result->errors() as $field => $messages) {
@@ -128,7 +128,7 @@ echo "\n";
 echo "4. ValidationResult with Errors\n";
 echo str_repeat('-', 60) . "\n";
 
-$result = ProductDTO::validateData([
+$result = ProductDto::validateData([
     'name' => 'P',  // Too short
     'price' => -10, // Negative
 ]);
@@ -155,7 +155,7 @@ echo "5. Partial Validation (only/except)\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: true, only: ['email', 'name'])]
-class PartialUserDTO extends SimpleDTO
+class PartialUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -172,7 +172,7 @@ class PartialUserDTO extends SimpleDTO
 
 try {
     // Only email and name are validated, bio is skipped
-    $user = PartialUserDTO::validateAndCreate([
+    $user = PartialUserDto::validateAndCreate([
         'email' => 'john@example.com',
         'name' => 'John Doe',
         'bio' => 'x',  // Would fail if there were min rules
@@ -198,7 +198,7 @@ echo "\n";
 echo "6. Custom Error Messages\n";
 echo str_repeat('-', 60) . "\n";
 
-class CustomMessageDTO extends SimpleDTO
+class CustomMessageDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -222,7 +222,7 @@ class CustomMessageDTO extends SimpleDTO
 }
 
 try {
-    $user = CustomMessageDTO::validateAndCreate([
+    $user = CustomMessageDto::validateAndCreate([
         'email' => 'invalid',
         'username' => 'ab',
     ]);
@@ -244,7 +244,7 @@ echo "\n";
 echo "7. Custom Attribute Names\n";
 echo str_repeat('-', 60) . "\n";
 
-class CustomAttributeDTO extends SimpleDTO
+class CustomAttributeDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -266,7 +266,7 @@ class CustomAttributeDTO extends SimpleDTO
 }
 
 try {
-    $user = CustomAttributeDTO::validateAndCreate([
+    $user = CustomAttributeDto::validateAndCreate([
         'email' => 'invalid',
         'password' => 'short',
     ]);
@@ -288,12 +288,12 @@ echo "\n";
 echo "8. Auto-Validate Check\n";
 echo str_repeat('-', 60) . "\n";
 
-echo "UserDTO should auto-validate: " . (UserDTO::shouldAutoValidate() ? 'Yes' : 'No') . "\n";
-echo "ProductDTO should auto-validate: " . (ProductDTO::shouldAutoValidate() ? 'Yes' : 'No') . "\n";
+echo "UserDto should auto-validate: " . (UserDto::shouldAutoValidate() ? 'Yes' : 'No') . "\n";
+echo "ProductDto should auto-validate: " . (ProductDto::shouldAutoValidate() ? 'Yes' : 'No') . "\n";
 
-$attr = UserDTO::getValidateRequestAttribute();
+$attr = UserDto::getValidateRequestAttribute();
 if ($attr instanceof ValidateRequest) {
-    echo "UserDTO ValidateRequest settings:\n";
+    echo "UserDto ValidateRequest settings:\n";
     echo "  - throw: " . ($attr->throw ? 'true' : 'false') . "\n";
     echo "  - stopOnFirstFailure: " . ($attr->stopOnFirstFailure ? 'true' : 'false') . "\n";
     echo "  - only: " . ([] !== $attr->only ? implode(', ', $attr->only) : 'none') . "\n";

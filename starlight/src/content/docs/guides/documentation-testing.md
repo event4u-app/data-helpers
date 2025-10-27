@@ -184,9 +184,9 @@ use App\Models\User;
 $user = User::find(1);
 
 // ✅ Good - Use package classes only
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,

@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\Exceptions\ValidationException;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 use event4u\DataHelpers\Validation\ValidationResult;
 
-// Test DTOs
-class ValidationTestDTO1 extends SimpleDTO
+// Test Dtos
+class ValidationTestDto1 extends SimpleDto
 {
     #[ValidateRequest(throw: true, auto: false)]
     public function __construct(
@@ -24,7 +24,7 @@ class ValidationTestDTO1 extends SimpleDTO
     ) {}
 }
 
-class ValidationTestDTO2 extends SimpleDTO
+class ValidationTestDto2 extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -36,7 +36,7 @@ class ValidationTestDTO2 extends SimpleDTO
     ) {}
 }
 
-class ValidationTestDTO3 extends SimpleDTO
+class ValidationTestDto3 extends SimpleDto
 {
     #[ValidateRequest(throw: true)]
     public function __construct(
@@ -49,7 +49,7 @@ class ValidationTestDTO3 extends SimpleDTO
     ) {}
 }
 
-class ValidationTestDTO4 extends SimpleDTO
+class ValidationTestDto4 extends SimpleDto
 {
     #[ValidateRequest(throw: false)]
     public function __construct(
@@ -67,7 +67,7 @@ describe('Validation Modes', function(): void {
         // Note: Attributes on anonymous classes don't work in PHP
         // So we test the auto-validation logic directly
 
-        // Create a regular DTO class for testing
+        // Create a regular Dto class for testing
         $validData = [
             'email' => 'test@example.com',
             'name' => 'John Doe',
@@ -85,7 +85,7 @@ describe('Validation Modes', function(): void {
 
     it('does not auto-validate when auto: false', function(): void {
         // Invalid data should NOT throw (no auto-validation)
-        $result = ValidationTestDTO1::fromArray([
+        $result = ValidationTestDto1::fromArray([
             'email' => 'invalid',
             'name' => 'Jo',
         ]);
@@ -96,7 +96,7 @@ describe('Validation Modes', function(): void {
 
     it('validates manually with validate()', function(): void {
         // Valid data
-        $validated = ValidationTestDTO2::validate([
+        $validated = ValidationTestDto2::validate([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -105,7 +105,7 @@ describe('Validation Modes', function(): void {
         expect($validated)->toHaveKey('name', 'John Doe');
 
         // Invalid data should throw
-        expect(fn(): array => ValidationTestDTO2::validate([
+        expect(fn(): array => ValidationTestDto2::validate([
             'email' => 'invalid',
             'name' => 'Jo',
         ]))->toThrow(ValidationException::class);
@@ -113,7 +113,7 @@ describe('Validation Modes', function(): void {
 
     it('validates with validateOrFail()', function(): void {
         // Valid data
-        $validated = ValidationTestDTO2::validateOrFail([
+        $validated = ValidationTestDto2::validateOrFail([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -122,7 +122,7 @@ describe('Validation Modes', function(): void {
         expect($validated)->toHaveKey('name', 'John Doe');
 
         // Invalid data should throw
-        expect(fn(): array => ValidationTestDTO2::validateOrFail([
+        expect(fn(): array => ValidationTestDto2::validateOrFail([
             'email' => 'invalid',
             'name' => 'Jo',
         ]))->toThrow(ValidationException::class);
@@ -130,7 +130,7 @@ describe('Validation Modes', function(): void {
 
     it('validates without throwing using validateData()', function(): void {
         // Valid data
-        $result = ValidationTestDTO2::validateData([
+        $result = ValidationTestDto2::validateData([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -141,7 +141,7 @@ describe('Validation Modes', function(): void {
         expect($result->validated())->toHaveKey('name', 'John Doe');
 
         // Invalid data
-        $result = ValidationTestDTO2::validateData([
+        $result = ValidationTestDto2::validateData([
             'email' => 'invalid',
             'name' => 'Jo',
         ]);
@@ -154,7 +154,7 @@ describe('Validation Modes', function(): void {
 
     it('validates with throw: true', function(): void {
         // Valid data
-        $result = ValidationTestDTO3::validateAndCreate([
+        $result = ValidationTestDto3::validateAndCreate([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -163,7 +163,7 @@ describe('Validation Modes', function(): void {
         expect($result->name)->toBe('John Doe');
 
         // Invalid data should throw
-        expect(fn(): \ValidationTestDTO3 => ValidationTestDTO3::validateAndCreate([
+        expect(fn(): \ValidationTestDto3 => ValidationTestDto3::validateAndCreate([
             'email' => 'invalid',
             'name' => 'Jo',
         ]))->toThrow(ValidationException::class);
@@ -171,7 +171,7 @@ describe('Validation Modes', function(): void {
 
     it('validates with throw: false', function(): void {
         // Valid data
-        $result = ValidationTestDTO4::validateData([
+        $result = ValidationTestDto4::validateData([
             'email' => 'test@example.com',
             'name' => 'John Doe',
         ]);
@@ -179,7 +179,7 @@ describe('Validation Modes', function(): void {
         expect($result->isValid())->toBeTrue();
 
         // Invalid data should not throw
-        $result = ValidationTestDTO4::validateData([
+        $result = ValidationTestDto4::validateData([
             'email' => 'invalid',
             'name' => 'Jo',
         ]);
@@ -199,7 +199,7 @@ describe('Validation Modes', function(): void {
         expect(true)->toBeTrue();
     });
 
-    it('checks if DTO should auto-validate', function(): void {
+    it('checks if Dto should auto-validate', function(): void {
         // Note: Attributes on anonymous classes don't work reliably in PHP
         // This is tested in the example file examples/66-validation-modes.php
         expect(true)->toBeTrue();

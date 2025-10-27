@@ -1,18 +1,18 @@
 ---
 title: Collections
-description: Learn how to work with collections of DTOs using DataCollection
+description: Learn how to work with collections of Dtos using DataCollection
 ---
 
-Learn how to work with collections of DTOs using DataCollection.
+Learn how to work with collections of Dtos using DataCollection.
 
 ## What are Collections?
 
-Collections allow you to work with multiple DTO instances as a group:
+Collections allow you to work with multiple Dto instances as a group:
 
 <!-- skip-test: Code snippet example -->
 ```php
-$users = UserDTO::collection($userArray);
-// DataCollection of UserDTO instances
+$users = UserDto::collection($userArray);
+// DataCollection of UserDto instances
 
 $users->filter(fn($user) => $user->age > 18);
 $users->map(fn($user) => $user->name);
@@ -25,15 +25,15 @@ $users->count();
 ### From Array
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
     ['name' => 'John', 'age' => 25],
     ['name' => 'Jane', 'age' => 30],
 ];
 
-$users = UserDTO::collection($data);
-// Result: DataCollection of UserDTO instances
+$users = UserDto::collection($data);
+// Result: DataCollection of UserDto instances
 ```
 
 ### From Eloquent Collection
@@ -41,20 +41,20 @@ $users = UserDTO::collection($data);
 <!-- skip-test: Requires Laravel -->
 ```php
 $users = User::all();
-$dtos = UserDTO::collection($users);
+$dtos = UserDto::collection($users);
 ```
 
 ### Using DataCollection::make()
 
 ```php
-use event4u\DataHelpers\SimpleDTO\DataCollection;
-use Tests\Utils\Docu\DTOs\UserDTO;
+use event4u\DataHelpers\SimpleDto\DataCollection;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
     ['name' => 'John', 'email' => 'john@example.com', 'age' => 30],
     ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25],
 ];
-$collection = DataCollection::make($data, UserDTO::class);
+$collection = DataCollection::make($data, UserDto::class);
 ```
 
 ## Collection Methods
@@ -62,7 +62,7 @@ $collection = DataCollection::make($data, UserDTO::class);
 ### Filter
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
     ['name' => 'John', 'age' => 25],
@@ -70,7 +70,7 @@ $data = [
     ['name' => 'Bob', 'age' => 30],
 ];
 
-$users = UserDTO::collection($data);
+$users = UserDto::collection($data);
 $adults = $users->filter(fn($user) => $user->age >= 18);
 // Result: DataCollection with 2 items (John and Bob)
 ```
@@ -78,14 +78,14 @@ $adults = $users->filter(fn($user) => $user->age >= 18);
 ### Map
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
     ['name' => 'John', 'age' => 25],
     ['name' => 'Jane', 'age' => 17],
 ];
 
-$users = UserDTO::collection($data);
+$users = UserDto::collection($data);
 $names = $users->map(fn($user) => $user->name);
 // Result: ['John', 'Jane']
 ```
@@ -93,14 +93,14 @@ $names = $users->map(fn($user) => $user->name);
 ### First / Last
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
     ['name' => 'John', 'age' => 25],
     ['name' => 'Jane', 'age' => 30],
 ];
 
-$users = UserDTO::collection($data);
+$users = UserDto::collection($data);
 $first = $users->first();
 $last = $users->last();
 // Result: $first->name = 'John', $last->name = 'Jane'
@@ -109,14 +109,14 @@ $last = $users->last();
 ### Count
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
     ['name' => 'John', 'age' => 25],
     ['name' => 'Jane', 'age' => 30],
 ];
 
-$users = UserDTO::collection($data);
+$users = UserDto::collection($data);
 $count = $users->count();
 // Result: 2
 ```
@@ -124,14 +124,14 @@ $count = $users->count();
 ### ToArray
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
     ['name' => 'John', 'age' => 25],
     ['name' => 'Jane', 'age' => 30],
 ];
 
-$users = UserDTO::collection($data);
+$users = UserDto::collection($data);
 $array = $users->toArray();
 // Result: [['name' => 'John', 'age' => 25], ['name' => 'Jane', 'age' => 30]]
 ```
@@ -142,7 +142,7 @@ $array = $users->toArray();
 
 <!-- skip-test: Requires external data -->
 ```php
-$paginated = UserDTO::paginatedCollection($users, page: 1, perPage: 10);
+$paginated = UserDto::paginatedCollection($users, page: 1, perPage: 10);
 // [
 //     'data' => [...],
 //     'meta' => [
@@ -159,22 +159,22 @@ $paginated = UserDTO::paginatedCollection($users, page: 1, perPage: 10);
 <!-- skip-test: Requires Laravel -->
 ```php
 $users = User::paginate(10);
-$dtos = UserDTO::collection($users);
+$dtos = UserDto::collection($users);
 ```
 
 ## Nested Collections
 
 <!-- skip-test: Class definition example -->
 ```php
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $orderId,
-        public readonly DataCollection $items,  // Collection of OrderItemDTO
+        public readonly DataCollection $items,  // Collection of OrderItemDto
     ) {}
 }
 
-$order = OrderDTO::fromArray([
+$order = OrderDto::fromArray([
     'orderId' => 123,
     'items' => [
         ['product' => 'Widget', 'quantity' => 2],
@@ -218,7 +218,7 @@ foreach ($users as $user) {
 The following working examples demonstrate this feature:
 
 - [**Data Collection**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/collections/data-collection.php) - Working with collections
-- [**DTO Sorting**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/collections/dto-sorting.php) - Sorting DTOs in collections
+- [**Dto Sorting**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/collections/dto-sorting.php) - Sorting Dtos in collections
 
 All examples are fully tested and can be run directly.
 
@@ -226,7 +226,7 @@ All examples are fully tested and can be run directly.
 
 The functionality is thoroughly tested. Key test files:
 
-- [CollectionTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/CollectionTest.php) - Collection tests
+- [CollectionTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/CollectionTest.php) - Collection tests
 
 Run the tests:
 
@@ -237,6 +237,6 @@ task test:unit -- --filter=Collection
 
 ## See Also
 
-- [Nested DTOs](/simple-dto/nested-dtos/) - Complex nested structures
-- [Creating DTOs](/simple-dto/creating-dtos/) - Creation methods
+- [Nested Dtos](/simple-dto/nested-dtos/) - Complex nested structures
+- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods
 - [Type Casting](/simple-dto/type-casting/) - Automatic type conversion

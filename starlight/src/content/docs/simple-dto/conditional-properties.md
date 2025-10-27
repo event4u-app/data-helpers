@@ -1,16 +1,16 @@
 ---
 title: Conditional Properties
-description: Learn how to use SimpleDTO's 18 conditional attributes to dynamically include or exclude properties
+description: Learn how to use SimpleDto's 18 conditional attributes to dynamically include or exclude properties
 ---
 
-Learn how to use SimpleDTO's 18 conditional attributes to dynamically include or exclude properties.
+Learn how to use SimpleDto's 18 conditional attributes to dynamically include or exclude properties.
 
 ## What are Conditional Properties?
 
 Conditional properties are properties that are only included in serialization when certain conditions are met:
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -24,7 +24,7 @@ class UserDTO extends SimpleDTO
 }
 ```
 
-**SimpleDTO provides 18 conditional attributes** - 9x more than Spatie Data!
+**SimpleDto provides 18 conditional attributes** - 9x more than Spatie Data!
 
 ## Core Conditional Attributes
 
@@ -33,9 +33,9 @@ class UserDTO extends SimpleDTO
 Execute custom logic to determine inclusion:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenCallback;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenCallback;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -54,9 +54,9 @@ class UserDTO extends SimpleDTO
 Include when property has a specific value:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenValue;
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -73,10 +73,10 @@ class ProductDTO extends SimpleDTO
 Include based on null check:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenNull;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenNull;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenNotNull;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -95,10 +95,10 @@ class UserDTO extends SimpleDTO
 Include based on boolean value:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenTrue;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenFalse;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenTrue;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenFalse;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -118,10 +118,10 @@ class UserDTO extends SimpleDTO
 Include when property equals/not equals a value:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenEquals;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotEquals;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenEquals;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenNotEquals;
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly string $status,
@@ -140,10 +140,10 @@ class OrderDTO extends SimpleDTO
 Include when property is in/not in a list:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotIn;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenIn;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenNotIn;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $role,
@@ -165,10 +165,10 @@ class UserDTO extends SimpleDTO
 Include based on authentication status:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenGuest;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenAuth;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenGuest;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -187,9 +187,9 @@ class UserDTO extends SimpleDTO
 Include based on user permissions:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenCan;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenCan;
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -208,9 +208,9 @@ class PostDTO extends SimpleDTO
 Include based on user role:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenRole;
 
-class DashboardDTO extends SimpleDTO
+class DashboardDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -231,9 +231,9 @@ class DashboardDTO extends SimpleDTO
 Include based on Symfony security:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenGranted;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenGranted;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -249,9 +249,9 @@ class UserDTO extends SimpleDTO
 Include based on Symfony role:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenSymfonyRole;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenSymfonyRole;
 
-class DashboardDTO extends SimpleDTO
+class DashboardDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -269,9 +269,9 @@ class DashboardDTO extends SimpleDTO
 Include based on context value:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContext;
 
-class ApiResponseDTO extends SimpleDTO
+class ApiResponseDto extends SimpleDto
 {
     public function __construct(
         public readonly string $status,
@@ -283,7 +283,7 @@ class ApiResponseDTO extends SimpleDTO
 }
 
 // Use with context
-$dto = ApiResponseDTO::fromArray($data)->withContext(['debug' => true]);
+$dto = ApiResponseDto::fromArray($data)->withContext(['debug' => true]);
 ```
 
 ### WhenContextEquals
@@ -291,9 +291,9 @@ $dto = ApiResponseDTO::fromArray($data)->withContext(['debug' => true]);
 Include when context equals a value:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextEquals;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContextEquals;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -309,9 +309,9 @@ class UserDTO extends SimpleDTO
 Include when context is in a list:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextIn;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContextIn;
 
-class ApiResponseDTO extends SimpleDTO
+class ApiResponseDto extends SimpleDto
 {
     public function __construct(
         public readonly string $status,
@@ -363,7 +363,7 @@ public readonly ?string $email;
 ### Combine with Other Features
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -393,8 +393,8 @@ All examples are fully tested and can be run directly.
 
 The functionality is thoroughly tested. Key test files:
 
-- [ConditionalPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/ConditionalPropertiesTest.php) - Conditional property tests
-- [ContextTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/ContextTest.php) - Context tests
+- [ConditionalPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/ConditionalPropertiesTest.php) - Conditional property tests
+- [ContextTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/ContextTest.php) - Context tests
 
 Run the tests:
 

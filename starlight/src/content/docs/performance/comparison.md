@@ -1,26 +1,26 @@
 ---
 title: Performance Comparison
-description: Comparison with similar DTO and serialization packages
+description: Comparison with similar Dto and serialization packages
 ---
 
-Comparison with similar DTO and serialization packages.
+Comparison with similar Dto and serialization packages.
 
 ## Introduction
 
 Data Helpers delivers excellent performance:
 
-- **2-4x faster** than typical DTO packages
+- **2-4x faster** than typical Dto packages
 - **198x faster** validation with caching
 - **40-70% less memory** usage
 - **Framework-agnostic** design
 
-## vs Typical DTO Packages
+## vs Typical Dto Packages
 
 ### Instance Creation
 
 ```
-SimpleDTO:              914,285 instances/sec
-Typical DTO packages:   200,000-400,000 instances/sec
+SimpleDto:              914,285 instances/sec
+Typical Dto packages:   200,000-400,000 instances/sec
 
 Result: 2-4x faster
 ```
@@ -28,8 +28,8 @@ Result: 2-4x faster
 ### Validation
 
 ```
-SimpleDTO (cached):     990,000 validations/sec
-SimpleDTO (no cache):   5,000 validations/sec
+SimpleDto (cached):     990,000 validations/sec
+SimpleDto (no cache):   5,000 validations/sec
 Typical packages:       30,000-80,000 validations/sec
 
 Result: Caching provides 198x improvement
@@ -37,7 +37,7 @@ Result: Caching provides 198x improvement
 
 ### Features
 
-| Feature | SimpleDTO | Typical Packages |
+| Feature | SimpleDto | Typical Packages |
 |---------|-----------|------------------|
 | **Framework Support** | Laravel, Symfony, Plain PHP | Often framework-specific |
 | **Conditional Attributes** | 18 | 0-5 |
@@ -51,7 +51,7 @@ Result: Caching provides 198x improvement
 ### Performance
 
 ```
-SimpleDTO:                  ~5.0μs per operation
+SimpleDto:                  ~5.0μs per operation
 Typical serializers:        ~15-25μs per operation
 
 Result: 3-5x faster
@@ -60,7 +60,7 @@ Result: 3-5x faster
 ### Memory
 
 ```
-SimpleDTO:                  ~1.2 KB per instance
+SimpleDto:                  ~1.2 KB per instance
 Typical serializers:        ~2-4 KB per instance
 
 Result: 40-70% less memory
@@ -71,8 +71,8 @@ Result: 40-70% less memory
 ### API Response (100 users)
 
 ```
-SimpleDTO:              45ms
-Typical DTO packages:   120-180ms
+SimpleDto:              45ms
+Typical Dto packages:   120-180ms
 
 Result: 2.5-4x faster in real-world scenarios
 ```
@@ -80,7 +80,7 @@ Result: 2.5-4x faster in real-world scenarios
 ### Large Dataset (1000 records)
 
 ```
-SimpleDTO:              420ms
+SimpleDto:              420ms
 Typical packages:       1200-2000ms
 
 Result: 3-5x faster with large datasets

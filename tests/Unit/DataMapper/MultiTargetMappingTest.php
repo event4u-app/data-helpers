@@ -158,7 +158,7 @@ describe('DataMapper Multi-Target Mapping', function(): void {
             expect($targets['addr'])->toBe(['street' => 'Main Street 1']);
         });
 
-        it('structured target mapping works with models and DTOs', function(): void {
+        it('structured target mapping works with models and Dtos', function(): void {
             $profileModel = new class {
                 public ?string $fullName = null;
 

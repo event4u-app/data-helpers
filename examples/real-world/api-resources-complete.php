@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Complete API Resources Example
  *
- * This example demonstrates building a complete REST API using SimpleDTO:
+ * This example demonstrates building a complete REST API using SimpleDto:
  * - User resources with conditional fields
  * - Collection resources
  * - Paginated responses
@@ -16,14 +16,14 @@ declare(strict_types=1);
 require __DIR__ . '/../bootstrap.php';
 
 use Carbon\Carbon;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
-use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
-use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenAuth;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContext;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenRole;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto\DataCollection;
 
 // Skip if Carbon is not available
 if (!class_exists('Carbon\Carbon')) {
@@ -32,10 +32,10 @@ if (!class_exists('Carbon\Carbon')) {
 }
 
 // ============================================================================
-// Resource DTOs
+// Resource Dtos
 // ============================================================================
 
-class UserResourceDTO extends SimpleDTO
+class UserResourceDto extends SimpleDto
 {
     /**
      * @param array<string, mixed>|null $stats
@@ -88,7 +88,7 @@ class UserResourceDTO extends SimpleDTO
     }
 }
 
-class PostResourceDTO extends SimpleDTO
+class PostResourceDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $comments
@@ -99,7 +99,7 @@ class PostResourceDTO extends SimpleDTO
         public readonly string $title,
         public readonly string $slug,
         public readonly string $excerpt,
-        public readonly UserResourceDTO $author,
+        public readonly UserResourceDto $author,
 
         /** @phpstan-ignore-next-line unknown */
         #[Cast(DateTimeCast::class)]
@@ -119,7 +119,7 @@ class PostResourceDTO extends SimpleDTO
     }
 }
 
-class PaginationMetaDTO extends SimpleDTO
+class PaginationMetaDto extends SimpleDto
 {
     public function __construct(
         public readonly int $currentPage,
@@ -131,7 +131,7 @@ class PaginationMetaDTO extends SimpleDTO
     ) {}
 }
 
-class PaginationLinksDTO extends SimpleDTO
+class PaginationLinksDto extends SimpleDto
 {
     public function __construct(
         public readonly string $first,
@@ -141,16 +141,16 @@ class PaginationLinksDTO extends SimpleDTO
     ) {}
 }
 
-class ApiResponseDTO extends SimpleDTO
+class ApiResponseDto extends SimpleDto
 {
     public function __construct(
         public readonly mixed $data,
-        public readonly ?PaginationMetaDTO $meta = null,
-        public readonly ?PaginationLinksDTO $links = null,
+        public readonly ?PaginationMetaDto $meta = null,
+        public readonly ?PaginationLinksDto $links = null,
     ) {}
 }
 
-class ErrorResponseDTO extends SimpleDTO
+class ErrorResponseDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $errors
@@ -173,7 +173,7 @@ echo "=== Complete API Resources Example ===\n\n";
 echo "1. Single User Resource (Guest):\n";
 echo str_repeat('-', 80) . "\n";
 
-$user = new UserResourceDTO(
+$user = new UserResourceDto(
     id: 1,
     name: 'John Doe',
     username: 'johndoe',
@@ -197,7 +197,7 @@ $user = new UserResourceDTO(
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$response = new ApiResponseDTO(data: $user);
+$response = new ApiResponseDto(data: $user);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // 2. Single Resource with Context
@@ -208,7 +208,7 @@ $userWithContext = $user->withContext(['include_stats' => true]);
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$response = new ApiResponseDTO(data: $userWithContext);
+$response = new ApiResponseDto(data: $userWithContext);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // 3. Collection Resource
@@ -216,21 +216,21 @@ echo "3. User Collection:\n";
 echo str_repeat('-', 80) . "\n";
 
 $users = [
-    new UserResourceDTO(
+    new UserResourceDto(
         id: 1,
         name: 'John Doe',
         username: 'johndoe',
         avatar: 'https://example.com/avatars/john.jpg',
         createdAt: Carbon::now()->subYear(),
     ),
-    new UserResourceDTO(
+    new UserResourceDto(
         id: 2,
         name: 'Jane Smith',
         username: 'janesmith',
         avatar: 'https://example.com/avatars/jane.jpg',
         createdAt: Carbon::now()->subMonths(6),
     ),
-    new UserResourceDTO(
+    new UserResourceDto(
         id: 3,
         name: 'Bob Johnson',
         username: 'bobjohnson',
@@ -239,12 +239,12 @@ $users = [
     ),
 ];
 
-/** @var DataCollection<SimpleDTO> $collection */
+/** @var DataCollection<SimpleDto> $collection */
 /** @phpstan-ignore-next-line unknown */
-$collection = DataCollection::forDto(UserResourceDTO::class, $users);
+$collection = DataCollection::forDto(UserResourceDto::class, $users);
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$response = new ApiResponseDTO(data: $collection->toArray());
+$response = new ApiResponseDto(data: $collection->toArray());
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // 4. Paginated Resource
@@ -252,11 +252,11 @@ echo "4. Paginated User Collection:\n";
 echo str_repeat('-', 80) . "\n";
 
 $paginatedUsers = array_slice($users, 0, 2);
-/** @var DataCollection<SimpleDTO> $collection */
+/** @var DataCollection<SimpleDto> $collection */
 /** @phpstan-ignore-next-line unknown */
-$collection = DataCollection::forDto(UserResourceDTO::class, $paginatedUsers);
+$collection = DataCollection::forDto(UserResourceDto::class, $paginatedUsers);
 
-$meta = new PaginationMetaDTO(
+$meta = new PaginationMetaDto(
     currentPage: 1,
     lastPage: 2,
     perPage: 2,
@@ -265,7 +265,7 @@ $meta = new PaginationMetaDTO(
     to: 2,
 );
 
-$links = new PaginationLinksDTO(
+$links = new PaginationLinksDto(
     first: 'https://api.example.com/users?page=1',
     last: 'https://api.example.com/users?page=2',
     prev: null,
@@ -274,7 +274,7 @@ $links = new PaginationLinksDTO(
 
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$response = new ApiResponseDTO(
+$response = new ApiResponseDto(
     data: $collection->toArray(),
     /** @phpstan-ignore-next-line unknown */
     meta: $meta,
@@ -288,12 +288,12 @@ echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 echo "5. Post with Author (Nested Resource):\n";
 echo str_repeat('-', 80) . "\n";
 
-$post = new PostResourceDTO(
+$post = new PostResourceDto(
     id: 1,
     title: 'Getting Started with PHP 8.2',
     slug: 'getting-started-with-php-82',
     excerpt: 'Learn about the new features in PHP 8.2',
-    author: new UserResourceDTO(
+    author: new UserResourceDto(
         id: 1,
         name: 'John Doe',
         username: 'johndoe',
@@ -311,7 +311,7 @@ $post = new PostResourceDTO(
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$response = new ApiResponseDTO(data: $post);
+$response = new ApiResponseDto(data: $post);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // 6. Post with Context (include content)
@@ -322,14 +322,14 @@ $postWithContent = $post->withContext(['include_content' => true]);
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$response = new ApiResponseDTO(data: $postWithContent);
+$response = new ApiResponseDto(data: $postWithContent);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 // 7. Error Response
 echo "7. Error Response:\n";
 echo str_repeat('-', 80) . "\n";
 
-$error = new ErrorResponseDTO(
+$error = new ErrorResponseDto(
     message: 'Validation failed',
     code: 422,
     errors: [
@@ -344,7 +344,7 @@ echo json_encode($error->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 echo "8. Success Response (Created):\n";
 echo str_repeat('-', 80) . "\n";
 
-$newUser = new UserResourceDTO(
+$newUser = new UserResourceDto(
     id: 4,
     name: 'Alice Williams',
     username: 'alicew',
@@ -355,7 +355,7 @@ $newUser = new UserResourceDTO(
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$response = new ApiResponseDTO(data: $newUser);
+$response = new ApiResponseDto(data: $newUser);
 echo json_encode($response->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 
 echo "✅  Complete API resources example completed!\n";

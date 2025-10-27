@@ -1,9 +1,9 @@
 ---
 title: Type Casting
-description: Learn how SimpleDTO automatically converts data types using built-in and custom casts
+description: Learn how SimpleDto automatically converts data types using built-in and custom casts
 ---
 
-Learn how SimpleDTO automatically converts data types using built-in and custom casts.
+Learn how SimpleDto automatically converts data types using built-in and custom casts.
 
 ## What is Type Casting?
 
@@ -19,12 +19,12 @@ Type casting automatically converts input data to the correct PHP type. For exam
 
 ## Built-in Casts
 
-SimpleDTO provides 20+ built-in casts for common data types.
+SimpleDto provides 20+ built-in casts for common data types.
 
 ### Primitive Types
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,      // String cast
@@ -35,7 +35,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 123,              // → "123"
     'age' => "30",              // → 30
     'price' => "19.99",         // → 19.99
@@ -49,10 +49,10 @@ $dto = UserDTO::fromArray([
 ### DateTimeCast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 
-class EventDTO extends SimpleDTO
+class EventDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -65,7 +65,7 @@ class EventDTO extends SimpleDTO
     ) {}
 }
 
-$dto = EventDTO::fromArray([
+$dto = EventDto::fromArray([
     'title' => 'Conference',
     'startDate' => '2024-01-15 10:00:00',
     'endDate' => '2024-01-15',
@@ -77,9 +77,9 @@ echo $dto->startDate->format('F j, Y'); // January 15, 2024
 ### DateCast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Casts\DateCast;
+use event4u\DataHelpers\SimpleDto\Casts\DateCast;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -89,7 +89,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'birthDate' => '1990-05-15',
 ]);
@@ -100,8 +100,8 @@ $dto = UserDTO::fromArray([
 ### EnumCast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Casts\EnumCast;
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Casts\EnumCast;
 
 enum Status: string
 {
@@ -110,7 +110,7 @@ enum Status: string
     case PENDING = 'pending';
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -120,7 +120,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'status' => 'active',  // String → Status::ACTIVE
 ]);
@@ -138,7 +138,7 @@ enum Priority: int
     case HIGH = 3;
 }
 
-class TaskDTO extends SimpleDTO
+class TaskDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -148,7 +148,7 @@ class TaskDTO extends SimpleDTO
     ) {}
 }
 
-$dto = TaskDTO::fromArray([
+$dto = TaskDto::fromArray([
     'title' => 'Important Task',
     'priority' => 3,  // Int → Priority::HIGH
 ]);
@@ -159,9 +159,9 @@ $dto = TaskDTO::fromArray([
 ### ArrayCast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Casts\ArrayCast;
+use event4u\DataHelpers\SimpleDto\Casts\ArrayCast;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -174,7 +174,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'tags' => 'tag1,tag2,tag3',  // String → Array
     'scores' => ['10', '20', '30'],  // String[] → Int[]
@@ -185,19 +185,19 @@ $dto = UserDTO::fromArray([
 ### CollectionCast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Casts\CollectionCast;
+use event4u\DataHelpers\SimpleDto\Casts\CollectionCast;
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $orderId,
 
-        #[Cast(CollectionCast::class, itemType: OrderItemDTO::class)]
+        #[Cast(CollectionCast::class, itemType: OrderItemDto::class)]
         public readonly array $items,
     ) {}
 }
 
-$dto = OrderDTO::fromArray([
+$dto = OrderDto::fromArray([
     'orderId' => 123,
     'items' => [
         ['product' => 'Widget', 'quantity' => 2],
@@ -211,9 +211,9 @@ $dto = OrderDTO::fromArray([
 ### ObjectCast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Casts\ObjectCast;
+use event4u\DataHelpers\SimpleDto\Casts\ObjectCast;
 
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -221,17 +221,17 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
 
-        #[Cast(ObjectCast::class, type: AddressDTO::class)]
-        public readonly AddressDTO $address,
+        #[Cast(ObjectCast::class, type: AddressDto::class)]
+        public readonly AddressDto $address,
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'address' => [
         'street' => '123 Main St',
@@ -245,9 +245,9 @@ $dto = UserDTO::fromArray([
 ### EncryptedCast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Casts\EncryptedCast;
+use event4u\DataHelpers\SimpleDto\Casts\EncryptedCast;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -257,7 +257,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'ssn' => '123-45-6789',  // Encrypted when stored
 ]);
@@ -271,7 +271,7 @@ echo $dto->ssn; // 123-45-6789
 ### Creating a Custom Cast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Contracts\Cast;
+use event4u\DataHelpers\SimpleDto\Contracts\Cast;
 
 class UpperCaseCast implements Cast
 {
@@ -286,7 +286,7 @@ class UpperCaseCast implements Cast
     }
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Cast(UpperCaseCast::class)]
@@ -294,7 +294,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'john doe',  // → "JOHN DOE"
 ]);
 ```
@@ -319,7 +319,7 @@ class TruncateCast implements Cast
     }
 }
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         #[Cast(TruncateCast::class, length: 50)]
@@ -340,7 +340,7 @@ class PostDTO extends SimpleDTO
 | `DateTimeCast` | Convert to Carbon | `"2024-01-15"` → `Carbon` |
 | `DateCast` | Convert to Carbon (date only) | `"2024-01-15"` → `Carbon` |
 | `EnumCast` | Convert to enum | `"active"` → `Status::ACTIVE` |
-| `ObjectCast` | Convert to object | `[...]` → `AddressDTO` |
+| `ObjectCast` | Convert to object | `[...]` → `AddressDto` |
 | `CollectionCast` | Convert to collection | `[...]` → `Collection` |
 | `JsonCast` | Parse JSON | `"{...}"` → `array` |
 | `EncryptedCast` | Encrypt/decrypt | `"secret"` → encrypted |
@@ -433,9 +433,9 @@ All examples are fully tested and can be run directly.
 
 The functionality is thoroughly tested. Key test files:
 
-- [CastTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/Casts/CastTest.php) - Cast functionality tests
-- [EnumCastTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/Casts/EnumCastTest.php) - Enum cast tests
-- [CollectionCastTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/Casts/CollectionCastTest.php) - Collection cast tests
+- [CastTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/Casts/CastTest.php) - Cast functionality tests
+- [EnumCastTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/Casts/EnumCastTest.php) - Enum cast tests
+- [CollectionCastTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/Casts/CollectionCastTest.php) - Collection cast tests
 
 Run the tests:
 
@@ -448,5 +448,5 @@ task test:unit -- --filter=Cast
 
 - [Validation](/simple-dto/validation/) - Validate your data
 - [Property Mapping](/simple-dto/property-mapping/) - Map property names
-- [Nested DTOs](/simple-dto/nested-dtos/) - Complex structures
-- [Creating DTOs](/simple-dto/creating-dtos/) - Creation methods
+- [Nested Dtos](/simple-dto/nested-dtos/) - Complex structures
+- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
 echo "=== Performance & Stress Testing ===\n\n";
 
@@ -12,7 +12,7 @@ echo "=== Performance & Stress Testing ===\n\n";
 echo "1. Performance Testing\n";
 echo "---------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -24,7 +24,7 @@ class UserDTO extends SimpleDTO
 // Test instantiation performance
 $start = microtime(true);
 for ($i = 0; 10000 > $i; $i++) {
-    UserDTO::fromArray(['name' => 'User ' . $i, 'age' => 20 + ($i % 50), 'email' => sprintf('user%d@example.com', $i)]);
+    UserDto::fromArray(['name' => 'User ' . $i, 'age' => 20 + ($i % 50), 'email' => sprintf('user%d@example.com', $i)]);
 }
 $duration = microtime(true) - $start;
 
@@ -34,7 +34,7 @@ echo "  Throughput: " . number_format(10000 / $duration) . " instances/sec\n";
 echo "  Avg per instance: " . number_format(($duration / 10000) * 1000000, 2) . " μs\n\n";
 
 // Test toArray performance
-$user = UserDTO::fromArray(['name' => 'John', 'age' => 30, 'email' => 'john@example.com']);
+$user = UserDto::fromArray(['name' => 'John', 'age' => 30, 'email' => 'john@example.com']);
 
 $start = microtime(true);
 for ($i = 0; 100000 > $i; $i++) {
@@ -67,7 +67,7 @@ $memoryBefore = memory_get_usage();
 
 $instances = [];
 for ($i = 0; 10000 > $i; $i++) {
-    $instances[] = UserDTO::fromArray([
+    $instances[] = UserDto::fromArray([
         'name' => 'User ' . $i,
         'age' => 20 + ($i % 50),
         'email' => sprintf('user%d@example.com', $i),
@@ -94,7 +94,7 @@ echo "---------------------\n";
 $memoryBefore = memory_get_usage();
 
 for ($i = 0; 10000 > $i; $i++) {
-    UserDTO::fromArray(['name' => 'User ' . $i, 'age' => 20 + ($i % 50), 'email' => sprintf('user%d@example.com', $i)]);
+    UserDto::fromArray(['name' => 'User ' . $i, 'age' => 20 + ($i % 50), 'email' => sprintf('user%d@example.com', $i)]);
 }
 
 gc_collect_cycles();
@@ -116,7 +116,7 @@ echo "----------------\n";
 $start = microtime(true);
 $results = [];
 for ($i = 0; 50000 > $i; $i++) {
-    $instance = UserDTO::fromArray([
+    $instance = UserDto::fromArray([
         'name' => 'User ' . $i,
         'age' => 20 + ($i % 50),
         'email' => sprintf('user%d@example.com', $i),
@@ -132,11 +132,11 @@ echo "  Throughput: " . number_format(50000 / $duration) . " instances/sec\n\n";
 unset($results);
 gc_collect_cycles();
 
-// Example 5: Complex DTO Performance
-echo "5. Complex DTO Performance\n";
+// Example 5: Complex Dto Performance
+echo "5. Complex Dto Performance\n";
 echo "-------------------------\n";
 
-class ComplexDTO extends SimpleDTO
+class ComplexDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $metadata
@@ -160,17 +160,17 @@ $complexData = [
     'age' => 30,
     'email' => 'john@example.com',
     'tags' => ['php', 'laravel', 'symfony', 'doctrine'],
-    'description' => 'A complex DTO with multiple fields',
+    'description' => 'A complex Dto with multiple fields',
     'metadata' => ['key1' => 'value1', 'key2' => 'value2'],
 ];
 
 $start = microtime(true);
 for ($i = 0; 10000 > $i; $i++) {
-    ComplexDTO::fromArray($complexData);
+    ComplexDto::fromArray($complexData);
 }
 $duration = microtime(true) - $start;
 
-echo "Complex DTO Instantiation:\n";
+echo "Complex Dto Instantiation:\n";
 echo "  10,000 instances: " . number_format($duration * 1000, 2) . " ms\n";
 echo "  Throughput: " . number_format(10000 / $duration) . " instances/sec\n\n";
 
@@ -183,7 +183,7 @@ $start = microtime(true);
 $operations = [];
 for ($i = 0; 5000 > $i; $i++) {
     $operations[] = function() use ($i) {
-        $instance = UserDTO::fromArray([
+        $instance = UserDto::fromArray([
             'name' => 'User ' . $i,
             'age' => 20 + ($i % 50),
             'email' => sprintf('user%d@example.com', $i),
@@ -218,7 +218,7 @@ for ($i = 0; 1000 > $i; $i++) {
 $start = microtime(true);
 
 $processedUsers = array_map(
-    UserDTO::fromArray(...),
+    UserDto::fromArray(...),
     $apiResponses
 );
 

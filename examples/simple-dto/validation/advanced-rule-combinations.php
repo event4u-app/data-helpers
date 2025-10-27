@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Nullable;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\RequiredIf;
-use event4u\DataHelpers\SimpleDTO\Attributes\RequiredUnless;
-use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWithout;
-use event4u\DataHelpers\SimpleDTO\Attributes\Sometimes;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\In;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Nullable;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\RequiredIf;
+use event4u\DataHelpers\SimpleDto\Attributes\RequiredUnless;
+use event4u\DataHelpers\SimpleDto\Attributes\RequiredWith;
+use event4u\DataHelpers\SimpleDto\Attributes\RequiredWithout;
+use event4u\DataHelpers\SimpleDto\Attributes\Sometimes;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                    ADVANCED RULE COMBINATIONS                              ║\n";
@@ -26,7 +26,7 @@ echo "╚═══════════════════════�
 echo "1. REQUIRED IF - CONDITIONAL REQUIRED FIELDS:\n";
 echo "------------------------------------------------------------\n";
 
-class ShippingDTO extends SimpleDTO
+class ShippingDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -43,8 +43,8 @@ class ShippingDTO extends SimpleDTO
     ) {}
 }
 
-echo "ShippingDTO Validation Rules:\n";
-$rules = ShippingDTO::getAllRules();
+echo "ShippingDto Validation Rules:\n";
+$rules = ShippingDto::getAllRules();
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
@@ -58,7 +58,7 @@ echo "\n";
 echo "2. REQUIRED UNLESS - REQUIRED UNLESS CONDITION:\n";
 echo "------------------------------------------------------------\n";
 
-class PaymentDTO extends SimpleDTO
+class PaymentDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -71,8 +71,8 @@ class PaymentDTO extends SimpleDTO
     ) {}
 }
 
-echo "PaymentDTO Validation Rules:\n";
-$rules = PaymentDTO::getAllRules();
+echo "PaymentDto Validation Rules:\n";
+$rules = PaymentDto::getAllRules();
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
@@ -85,7 +85,7 @@ echo "\n";
 echo "3. REQUIRED WITH - REQUIRED WITH OTHER FIELDS:\n";
 echo "------------------------------------------------------------\n";
 
-class ContactDTO extends SimpleDTO
+class ContactDto extends SimpleDto
 {
     public function __construct(
         #[Nullable]
@@ -101,8 +101,8 @@ class ContactDTO extends SimpleDTO
     ) {}
 }
 
-echo "ContactDTO Validation Rules:\n";
-$rules = ContactDTO::getAllRules();
+echo "ContactDto Validation Rules:\n";
+$rules = ContactDto::getAllRules();
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
@@ -115,7 +115,7 @@ echo "\n";
 echo "4. REQUIRED WITHOUT - REQUIRED WITHOUT OTHER FIELDS:\n";
 echo "------------------------------------------------------------\n";
 
-class AlternativeContactDTO extends SimpleDTO
+class AlternativeContactDto extends SimpleDto
 {
     public function __construct(
         #[Nullable]
@@ -127,8 +127,8 @@ class AlternativeContactDTO extends SimpleDTO
     ) {}
 }
 
-echo "AlternativeContactDTO Validation Rules:\n";
-$rules = AlternativeContactDTO::getAllRules();
+echo "AlternativeContactDto Validation Rules:\n";
+$rules = AlternativeContactDto::getAllRules();
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
@@ -142,7 +142,7 @@ echo "\n";
 echo "5. SOMETIMES - OPTIONAL VALIDATION:\n";
 echo "------------------------------------------------------------\n";
 
-class UpdateUserDTO extends SimpleDTO
+class UpdateUserDto extends SimpleDto
 {
     public function __construct(
         #[Sometimes]
@@ -162,8 +162,8 @@ class UpdateUserDTO extends SimpleDTO
     ) {}
 }
 
-echo "UpdateUserDTO Validation Rules:\n";
-$rules = UpdateUserDTO::getAllRules();
+echo "UpdateUserDto Validation Rules:\n";
+$rules = UpdateUserDto::getAllRules();
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
@@ -177,7 +177,7 @@ echo "\n";
 echo "6. NULLABLE - EXPLICITLY ALLOW NULL:\n";
 echo "------------------------------------------------------------\n";
 
-class ProfileDTO extends SimpleDTO
+class ProfileDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -193,8 +193,8 @@ class ProfileDTO extends SimpleDTO
     ) {}
 }
 
-echo "ProfileDTO Validation Rules:\n";
-$rules = ProfileDTO::getAllRules();
+echo "ProfileDto Validation Rules:\n";
+$rules = ProfileDto::getAllRules();
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }
@@ -207,7 +207,7 @@ echo "\n";
 echo "7. COMPLEX CONDITIONAL SCENARIO:\n";
 echo "------------------------------------------------------------\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -235,8 +235,8 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-echo "OrderDTO Validation Rules:\n";
-$rules = OrderDTO::getAllRules();
+echo "OrderDto Validation Rules:\n";
+$rules = OrderDto::getAllRules();
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
 }

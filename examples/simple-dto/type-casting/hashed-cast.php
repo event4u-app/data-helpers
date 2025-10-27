@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Casts\HashedCast;
-use event4u\DataHelpers\SimpleDTO\Enums\HashAlgorithm;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Casts\HashedCast;
+use event4u\DataHelpers\SimpleDto\Enums\HashAlgorithm;
 
 echo "================================================================================\n";
-echo "SimpleDTO - Hashed Cast Examples\n";
+echo "SimpleDto - Hashed Cast Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: User Registration with Password Hashing
 echo "Example 1: User Registration with Password Hashing\n";
 echo "---------------------------------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $username,
@@ -30,7 +30,7 @@ class UserDTO extends SimpleDTO
     }
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'username' => 'john_doe',
     'email' => 'john@example.com',
     'password' => 'MySecretPassword123!',
@@ -65,7 +65,7 @@ echo "----------------------------------------\n";
 echo "💡 Tip: Use HashAlgorithm enum for type-safe algorithm selection!\n";
 echo "    Available: Bcrypt, Argon2i, Argon2id\n\n";
 
-class SecureUserDTO extends SimpleDTO
+class SecureUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $username,
@@ -80,7 +80,7 @@ class SecureUserDTO extends SimpleDTO
 }
 
 if (defined('PASSWORD_ARGON2ID')) {
-    $secureUser = SecureUserDTO::fromArray([
+    $secureUser = SecureUserDto::fromArray([
         'username' => 'jane_doe',
         'password' => 'SuperSecure456!',
     ]);
@@ -105,7 +105,7 @@ echo "----------------------------------------------------\n";
 
 $hashedPassword = password_hash('ExistingPassword', PASSWORD_BCRYPT);
 
-$existingUser = UserDTO::fromArray([
+$existingUser = UserDto::fromArray([
     'username' => 'existing_user',
     'email' => 'existing@example.com',
     'password' => $hashedPassword, // Already hashed
@@ -125,7 +125,7 @@ echo "Verification: " . (HashedCast::verify(
 echo "Example 5: API Response (Password Not Exposed)\n";
 echo "-----------------------------------------------\n";
 
-$apiUser = UserDTO::fromArray([
+$apiUser = UserDto::fromArray([
     'username' => 'api_user',
     'email' => 'api@example.com',
     'password' => 'ApiPassword789',
@@ -140,13 +140,13 @@ echo "\nNote: Password is hashed, not plain text ✅\n\n";
 echo "Example 6: Multiple Users with Same Password\n";
 echo "---------------------------------------------\n";
 
-$user1 = UserDTO::fromArray([
+$user1 = UserDto::fromArray([
     'username' => 'user1',
     'email' => 'user1@example.com',
     'password' => 'SamePassword',
 ]);
 
-$user2 = UserDTO::fromArray([
+$user2 = UserDto::fromArray([
     'username' => 'user2',
     'email' => 'user2@example.com',
     'password' => 'SamePassword',

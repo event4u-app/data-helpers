@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted;
-use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Symfony\WhenGranted;
+use event4u\DataHelpers\SimpleDto\Attributes\Symfony\WhenRole;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                   SYMFONY CONDITIONAL ATTRIBUTES                           ║\n";
@@ -20,7 +20,7 @@ echo "In a real Symfony app, these attributes can also use Security component au
 echo "1. WHEN GRANTED - PERMISSION-BASED ACCESS:\n";
 echo "------------------------------------------------------------\n";
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -38,7 +38,7 @@ class PostDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$post = new PostDTO('My Post', 'Post content...');
+$post = new PostDto('My Post', 'Post content...');
 
 // User with grants array
 $editor = (object)['grants' => ['EDIT', 'PUBLISH']];
@@ -62,7 +62,7 @@ echo "\n";
 echo "2. WHEN ROLE - SYMFONY ROLE-BASED ACCESS:\n";
 echo "------------------------------------------------------------\n";
 
-class DashboardDTO extends SimpleDTO
+class DashboardDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -79,7 +79,7 @@ class DashboardDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$dashboard = new DashboardDTO('Dashboard');
+$dashboard = new DashboardDto('Dashboard');
 
 $admin = (object)['roles' => ['ROLE_ADMIN', 'ROLE_USER']];
 $moderator = (object)['roles' => ['ROLE_MODERATOR', 'ROLE_USER']];
@@ -106,7 +106,7 @@ echo "\n";
 echo "3. WHEN GRANTED WITH isGranted METHOD:\n";
 echo "------------------------------------------------------------\n";
 
-class DocumentDTO extends SimpleDTO
+class DocumentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -120,7 +120,7 @@ class DocumentDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$document = new DocumentDTO('Important Document');
+$document = new DocumentDto('Important Document');
 
 // User with isGranted method (like Symfony User)
 $userWithMethod = new class {
@@ -153,7 +153,7 @@ echo "\n";
 echo "4. SECURITY CONTEXT OBJECT:\n";
 echo "------------------------------------------------------------\n";
 
-class ApiResourceDTO extends SimpleDTO
+class ApiResourceDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
@@ -167,7 +167,7 @@ class ApiResourceDTO extends SimpleDTO
     ) {}
 }
 
-$resource = new ApiResourceDTO('RES-001', 'My Resource');
+$resource = new ApiResourceDto('RES-001', 'My Resource');
 
 // Security object (like Symfony AuthorizationCheckerInterface)
 $security = new class {
@@ -192,7 +192,7 @@ echo "\n";
 echo "5. COMBINED ATTRIBUTES - MULTIPLE CONDITIONS:\n";
 echo "------------------------------------------------------------\n";
 
-class SecretDocumentDTO extends SimpleDTO
+class SecretDocumentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -203,7 +203,7 @@ class SecretDocumentDTO extends SimpleDTO
     ) {}
 }
 
-$document = new SecretDocumentDTO('Classified Document');
+$document = new SecretDocumentDto('Classified Document');
 
 $adminWithPermission = (object)[
     'roles' => ['ROLE_ADMIN', 'ROLE_USER'],
@@ -237,7 +237,7 @@ echo "\n";
 echo "6. WHEN GRANTED WITH SUBJECT:\n";
 echo "------------------------------------------------------------\n";
 
-class ArticleDTO extends SimpleDTO
+class ArticleDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -247,7 +247,7 @@ class ArticleDTO extends SimpleDTO
     ) {}
 }
 
-$article = new ArticleDTO('My Article');
+$article = new ArticleDto('My Article');
 $articleObject = (object)['id' => 1, 'title' => 'My Article', 'author_id' => 1];
 
 // User with isGranted method that checks subject
@@ -274,7 +274,7 @@ echo "\n";
 echo "7. API RESPONSE WITH SYMFONY SECURITY:\n";
 echo "------------------------------------------------------------\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     /** @param array<mixed> $paymentDetails */
     public function __construct(
@@ -294,7 +294,7 @@ class OrderDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$order = new OrderDTO('ORD-12345', 'completed', 299.99);
+$order = new OrderDto('ORD-12345', 'completed', 299.99);
 
 echo "Public API (no user):\n";
 echo json_encode($order->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;

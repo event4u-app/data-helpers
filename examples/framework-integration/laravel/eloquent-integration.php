@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\SimpleDtoEloquentTrait;
 use Illuminate\Database\Eloquent\Model;
 
 // Skip if Eloquent is not available
@@ -19,7 +19,7 @@ echo "ELOQUENT INTEGRATION - EXAMPLES\n";
 echo "================================================================================\n\n";
 
 echo "NOTE: This example uses Laravel's Eloquent Model.\n";
-echo "To use Eloquent integration, add 'use SimpleDTOEloquentTrait;' to your DTO.\n\n";
+echo "To use Eloquent integration, add 'use SimpleDtoEloquentTrait;' to your Dto.\n\n";
 
 // ============================================================================
 // Example 1: Eloquent Model (using Laravel's Model)
@@ -43,15 +43,15 @@ class User extends Model
 echo "User Model created (extends Illuminate\\Database\\Eloquent\\Model)\n\n";
 
 // ============================================================================
-// Example 2: Create DTO from Model (fromModel)
+// Example 2: Create Dto from Model (fromModel)
 // ============================================================================
 
-echo "2. CREATE DTO FROM MODEL (fromModel):\n";
+echo "2. CREATE Dto FROM MODEL (fromModel):\n";
 echo "======================================================================\n\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
-    use SimpleDTOEloquentTrait;
+    use SimpleDtoEloquentTrait;
 
     public function __construct(
         public readonly string $name,
@@ -73,48 +73,48 @@ echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 /** @phpstan-ignore-next-line unknown */
-$userDto = UserDTO::fromModel($user);
+$userDto = UserDto::fromModel($user);
 
-echo "DTO created from Model:\n";
+echo "Dto created from Model:\n";
 echo json_encode($userDto->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
-echo "Access DTO properties:\n";
+echo "Access Dto properties:\n";
 echo sprintf('Name: %s%s', $userDto->name, PHP_EOL);
 echo sprintf('Email: %s%s', $userDto->email, PHP_EOL);
 echo "Age: {$userDto->age}\n\n";
 
 // ============================================================================
-// Example 3: Create Model from DTO (toModel)
+// Example 3: Create Model from Dto (toModel)
 // ============================================================================
 
-echo "3. CREATE MODEL FROM DTO (toModel):\n";
+echo "3. CREATE MODEL FROM Dto (toModel):\n";
 echo "======================================================================\n\n";
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'Jane Smith',
     'email' => 'jane@example.com',
     'age' => 25,
 ]);
 
-echo "Original DTO:\n";
+echo "Original Dto:\n";
 echo json_encode($dto->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 /** @phpstan-ignore-next-line unknown */
 $model = $dto->toModel(User::class);
 
-echo "Model created from DTO:\n";
+echo "Model created from Dto:\n";
 echo json_encode($model->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 echo "Model exists flag: " . ($model->exists ? 'true' : 'false') . "\n\n";
 
 // ============================================================================
-// Example 4: Update Model from DTO
+// Example 4: Update Model from Dto
 // ============================================================================
 
-echo "4. UPDATE MODEL FROM DTO:\n";
+echo "4. UPDATE MODEL FROM Dto:\n";
 echo "======================================================================\n\n";
 
 /** @phpstan-ignore-next-line unknown */
@@ -129,17 +129,17 @@ echo "Existing Model (before update):\n";
 echo json_encode($existingModel->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
-$updateDto = UserDTO::fromArray([
+$updateDto = UserDto::fromArray([
     'name' => 'Updated Name',
     'email' => 'updated@example.com',
     'age' => 35,
 ]);
 
-echo "Update DTO:\n";
+echo "Update Dto:\n";
 echo json_encode($updateDto->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
-// Update model with DTO data
+// Update model with Dto data
 /** @phpstan-ignore-next-line unknown */
 $existingModel->fill($updateDto->toArray());
 
@@ -149,10 +149,10 @@ echo json_encode($existingModel->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
 // ============================================================================
-// Example 5: Round-trip (Model → DTO → Model)
+// Example 5: Round-trip (Model → Dto → Model)
 // ============================================================================
 
-echo "5. ROUND-TRIP (Model → DTO → Model):\n";
+echo "5. ROUND-TRIP (Model → Dto → Model):\n";
 echo "======================================================================\n\n";
 
 /** @phpstan-ignore-next-line unknown */
@@ -167,18 +167,18 @@ echo "Original Model:\n";
 echo json_encode($originalModel->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
-// Model → DTO
+// Model → Dto
 /** @phpstan-ignore-next-line unknown */
-$dto = UserDTO::fromModel($originalModel);
+$dto = UserDto::fromModel($originalModel);
 
-echo "DTO (from Model):\n";
+echo "Dto (from Model):\n";
 echo json_encode($dto->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
-// DTO → Model
+// Dto → Model
 $newModel = $dto->toModel(User::class);
 
-echo "New Model (from DTO):\n";
+echo "New Model (from Dto):\n";
 echo json_encode($newModel->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\n";
 
@@ -192,30 +192,30 @@ echo "Data preserved: " . ($originalModel->toArray() === $newModel->toArray() ? 
 echo "6. ELOQUENT CAST USAGE (Conceptual):\n";
 echo "======================================================================\n\n";
 
-echo "In a real Laravel application, you would use SimpleDTOEloquentCast like this:\n\n";
+echo "In a real Laravel application, you would use SimpleDtoEloquentCast like this:\n\n";
 
 echo "```php\n";
-echo "use event4u\\DataHelpers\\SimpleDTO\\SimpleDTOEloquentCast;\n\n";
+echo "use event4u\\DataHelpers\\SimpleDto\\SimpleDtoEloquentCast;\n\n";
 
 echo "class User extends Model\n";
 echo "{\n";
 echo "    protected \$casts = [\n";
-echo "        'address' => AddressDTO::class,\n";
-echo "        'settings' => UserSettingsDTO::class,\n";
+echo "        'address' => AddressDto::class,\n";
+echo "        'settings' => UserSettingsDto::class,\n";
 echo "    ];\n";
 echo "}\n\n";
 
 echo "// Usage\n";
 echo "\$user = User::find(1);\n";
-echo "\$user->address->street; // Access DTO properties\n";
-echo "\$user->address = AddressDTO::fromArray(['street' => 'Main St', ...]);\n";
+echo "\$user->address->street; // Access Dto properties\n";
+echo "\$user->address = AddressDto::fromArray(['street' => 'Main St', ...]);\n";
 echo "\$user->save(); // Automatically serialized to JSON\n";
 echo "```\n\n";
 
-echo "The SimpleDTOEloquentCast handles:\n";
+echo "The SimpleDtoEloquentCast handles:\n";
 echo "  ✅  Automatic serialization to JSON when saving\n";
-echo "  ✅  Automatic deserialization to DTO when retrieving\n";
-echo "  ✅  Support for nested DTOs\n";
+echo "  ✅  Automatic deserialization to Dto when retrieving\n";
+echo "  ✅  Support for nested Dtos\n";
 echo "  ✅  Type safety with IDE autocomplete\n\n";
 
 echo "================================================================================\n";

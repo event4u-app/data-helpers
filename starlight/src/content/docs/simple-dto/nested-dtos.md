@@ -1,16 +1,16 @@
 ---
-title: Nested DTOs
-description: Learn how to work with complex nested DTO structures
+title: Nested Dtos
+description: Learn how to work with complex nested Dto structures
 ---
 
-Learn how to work with complex nested DTO structures.
+Learn how to work with complex nested Dto structures.
 
-## What are Nested DTOs?
+## What are Nested Dtos?
 
-Nested DTOs allow you to compose complex data structures from simpler DTOs:
+Nested Dtos allow you to compose complex data structures from simpler Dtos:
 
 ```php
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -19,15 +19,15 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'John Doe',
     'address' => [
         'street' => '123 Main St',
@@ -39,10 +39,10 @@ $user = UserDTO::fromArray([
 
 ## Basic Nesting
 
-### Single Nested DTO
+### Single Nested Dto
 
 ```php
-class ProfileDTO extends SimpleDTO
+class ProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $bio,
@@ -50,23 +50,23 @@ class ProfileDTO extends SimpleDTO
     ) {}
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly ProfileDTO $profile,
+        public readonly ProfileDto $profile,
     ) {}
 }
 ```
 
-### Optional Nested DTO
+### Optional Nested Dto
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly ?AddressDTO $address = null,
+        public readonly ?AddressDto $address = null,
     ) {}
 }
 ```
@@ -76,7 +76,7 @@ class UserDTO extends SimpleDTO
 ### Three-Level Nesting
 
 ```php
-class CityDTO extends SimpleDTO
+class CityDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -84,29 +84,29 @@ class CityDTO extends SimpleDTO
     ) {}
 }
 
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
-        public readonly CityDTO $city,
+        public readonly CityDto $city,
     ) {}
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 ```
 
-## Collections of Nested DTOs
+## Collections of Nested Dtos
 
-### Array of DTOs
+### Array of Dtos
 
 ```php
-class OrderItemDTO extends SimpleDTO
+class OrderItemDto extends SimpleDto
 {
     public function __construct(
         public readonly string $product,
@@ -115,15 +115,15 @@ class OrderItemDTO extends SimpleDTO
     ) {}
 }
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $orderId,
-        public readonly array $items,  // Array of OrderItemDTO
+        public readonly array $items,  // Array of OrderItemDto
     ) {}
 }
 
-$order = OrderDTO::fromArray([
+$order = OrderDto::fromArray([
     'orderId' => 123,
     'items' => [
         ['product' => 'Widget', 'quantity' => 2, 'price' => 10.00],
@@ -135,9 +135,9 @@ $order = OrderDTO::fromArray([
 ### Using DataCollection
 
 ```php
-use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDto\DataCollection;
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $orderId,
@@ -151,7 +151,7 @@ class OrderDTO extends SimpleDTO
 ### E-Commerce Order
 
 ```php
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -160,10 +160,10 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-class OrderItemDTO extends SimpleDTO
+class OrderItemDto extends SimpleDto
 {
     public function __construct(
-        public readonly ProductDTO $product,
+        public readonly ProductDto $product,
         public readonly int $quantity,
     ) {}
 
@@ -174,7 +174,7 @@ class OrderItemDTO extends SimpleDTO
     }
 }
 
-class ShippingAddressDTO extends SimpleDTO
+class ShippingAddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -184,12 +184,12 @@ class ShippingAddressDTO extends SimpleDTO
     ) {}
 }
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $orderId,
         public readonly DataCollection $items,
-        public readonly ShippingAddressDTO $shippingAddress,
+        public readonly ShippingAddressDto $shippingAddress,
         public readonly Carbon $orderDate,
     ) {}
 
@@ -207,7 +207,7 @@ class OrderDTO extends SimpleDTO
 
 ```php
 // ✅ Good - with type hint
-public readonly AddressDTO $address;
+public readonly AddressDto $address;
 
 // ❌ Bad - no type hint
 public readonly $address;
@@ -217,10 +217,10 @@ public readonly $address;
 
 ```php
 // ✅ Good - 2-3 levels
-UserDTO -> AddressDTO -> CityDTO
+UserDto -> AddressDto -> CityDto
 
 // ❌ Bad - too deep
-UserDTO -> ProfileDTO -> SettingsDTO -> PreferencesDTO -> ThemeDTO
+UserDto -> ProfileDto -> SettingsDto -> PreferencesDto -> ThemeDto
 ```
 
 ### Use Collections for Arrays
@@ -237,4 +237,4 @@ public readonly array $items;
 
 - [Collections](/simple-dto/collections/) - Work with collections
 - [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
-- [Creating DTOs](/simple-dto/creating-dtos/) - Creation methods
+- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods

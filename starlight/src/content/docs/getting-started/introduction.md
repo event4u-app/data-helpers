@@ -19,7 +19,7 @@ Data Helpers is a comprehensive toolkit for working with data in PHP application
 - **DataMutator** - Modify nested data structures safely
 - **DataMapper** - Transform data structures with templates and pipelines
 - **DataFilter** - Query and filter data with SQL-like API
-- **SimpleDTO** - Immutable Data Transfer Objects with validation and casting
+- **SimpleDto** - Immutable Data Transfer Objects with validation and casting
 
 ## Quick Example
 
@@ -102,7 +102,7 @@ Use it anywhere - Laravel, Symfony, Doctrine, or plain PHP. Framework support is
 
 ### Blazing Fast Performance
 
-DataMapper is significantly faster than traditional serializers for DTO mapping:
+DataMapper is significantly faster than traditional serializers for Dto mapping:
 
 - Up to 3.7x faster than Symfony Serializer
 - Optimized for nested data structures
@@ -138,8 +138,8 @@ DataMapper is significantly faster than traditional serializers for DTO mapping:
 - Custom operators
 - Chainable methods
 
-### SimpleDTO
-- Immutable DTOs
+### SimpleDto
+- Immutable Dtos
 - 20+ built-in casts
 - Validation system (22+ attributes)
 - Property mapping

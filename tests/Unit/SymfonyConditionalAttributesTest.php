@@ -4,55 +4,55 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted;
-use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Symfony\WhenGranted;
+use event4u\DataHelpers\SimpleDto\Attributes\Symfony\WhenRole;
 
-// Test DTOs
-class SymfonyCondDTO1 extends SimpleDTO { public function __construct(public readonly string $title, #[WhenGranted(
+// Test Dtos
+class SymfonyCondDto1 extends SimpleDto { public function __construct(public readonly string $title, #[WhenGranted(
     'EDIT'
 )] public readonly string $editLink) {} }
-class SymfonyCondDTO2 extends SimpleDTO { public function __construct(public readonly string $title, #[WhenGranted(
+class SymfonyCondDto2 extends SimpleDto { public function __construct(public readonly string $title, #[WhenGranted(
     'EDIT',
     'post'
 )] public readonly string $editLink) {} }
-class SymfonyCondDTO3 extends SimpleDTO { public function __construct(public readonly string $title, #[WhenGranted(
+class SymfonyCondDto3 extends SimpleDto { public function __construct(public readonly string $title, #[WhenGranted(
     'EDIT',
     'post'
 )] #[WhenGranted(
     'DELETE',
     'post'
 )] public readonly string $adminLink) {} }
-class SymfonyCondDTO4 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenRole(
+class SymfonyCondDto4 extends SimpleDto { public function __construct(public readonly string $name, #[WhenRole(
     'ROLE_ADMIN'
 )] public readonly string $adminPanel) {} }
-class SymfonyCondDTO5 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenRole(
+class SymfonyCondDto5 extends SimpleDto { public function __construct(public readonly string $name, #[WhenRole(
     'ROLE_ADMIN'
 )] public readonly string $adminPanel, #[WhenRole(
     'ROLE_MODERATOR'
 )] public readonly string $modPanel) {} }
-class SymfonyCondDTO6 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenRole([
+class SymfonyCondDto6 extends SimpleDto { public function __construct(public readonly string $name, #[WhenRole([
     'ROLE_ADMIN',
     'ROLE_MODERATOR',
 ])] public readonly string $staffPanel) {} }
-class SymfonyCondDTO7 extends SimpleDTO { public function __construct(public readonly string $title, #[WhenGranted(
+class SymfonyCondDto7 extends SimpleDto { public function __construct(public readonly string $title, #[WhenGranted(
     'EDIT'
 )] #[WhenRole(
     'ROLE_ADMIN'
 )] public readonly string $adminEditLink) {} }
-class SymfonyCondDTO8 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenRole([
+class SymfonyCondDto8 extends SimpleDto { public function __construct(public readonly string $name, #[WhenRole([
     'ROLE_ADMIN',
     'ROLE_MODERATOR',
 ])] public readonly string $moderationPanel) {} }
-class SymfonyCondDTO9 extends SimpleDTO { public function __construct(public readonly string $title, #[WhenGranted(
+class SymfonyCondDto9 extends SimpleDto { public function __construct(public readonly string $title, #[WhenGranted(
     'VIEW'
 )] public readonly string $content) {} }
-class SymfonyCondDTO10 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenRole(
+class SymfonyCondDto10 extends SimpleDto { public function __construct(public readonly string $name, #[WhenRole(
     'ROLE_ADMIN'
 )] #[WhenGranted(
     'EDIT'
 )] public readonly string $adminEditPanel) {} }
-class SymfonyCondDTO11 extends SimpleDTO { public function __construct(public readonly string $title, #[WhenGranted(
+class SymfonyCondDto11 extends SimpleDto { public function __construct(public readonly string $title, #[WhenGranted(
     'EDIT'
 )] public readonly string $editLink, #[WhenGranted(
     'DELETE'
@@ -61,24 +61,24 @@ class SymfonyCondDTO11 extends SimpleDTO { public function __construct(public re
 )] public readonly string $publishLink, #[WhenRole(
     'ROLE_ADMIN'
 )] public readonly string $adminPanel) {} }
-class SymfonyCondDTO12 extends SimpleDTO { public function __construct(public readonly string $title, #[WhenRole(
+class SymfonyCondDto12 extends SimpleDto { public function __construct(public readonly string $title, #[WhenRole(
     'ROLE_USER'
 )] public readonly string $userPanel, #[WhenRole(
     'ROLE_MODERATOR'
 )] public readonly string $moderatorPanel, #[WhenRole(
     'ROLE_ADMIN'
 )] public readonly string $adminPanel) {} }
-class SymfonyCondDTO13 extends SimpleDTO { public function __construct(public readonly string $title, #[WhenRole(
+class SymfonyCondDto13 extends SimpleDto { public function __construct(public readonly string $title, #[WhenRole(
     'ROLE_ADMIN'
 )] #[WhenGranted(
     'VIEW_SECRETS'
 )] public readonly string $secretData) {} }
-class SymfonyCondDTO14 extends SimpleDTO { public function __construct(public readonly string $name, #[WhenRole(
+class SymfonyCondDto14 extends SimpleDto { public function __construct(public readonly string $name, #[WhenRole(
     'ROLE_ADMIN'
 )] public readonly string $adminPanel, #[WhenGranted(
     'EDIT'
 )] public readonly string $editLink = '/edit') {} }
-class SymfonyCondDTO15 extends SimpleDTO { public function __construct(public readonly string $content, #[WhenGranted(
+class SymfonyCondDto15 extends SimpleDto { public function __construct(public readonly string $content, #[WhenGranted(
     'EDIT'
 )] public readonly string $editLink, #[WhenGranted(
     'DELETE'
@@ -87,7 +87,7 @@ class SymfonyCondDTO15 extends SimpleDTO { public function __construct(public re
 )] public readonly string $publishLink, #[WhenRole(
     'ROLE_ADMIN'
 )] public readonly string $adminPanel) {} }
-class SymfonyCondDTO16 extends SimpleDTO { public function __construct(public readonly string $content, #[WhenRole(
+class SymfonyCondDto16 extends SimpleDto { public function __construct(public readonly string $content, #[WhenRole(
     'ROLE_USER'
 )] public readonly string $userFeature, #[WhenRole([
     'ROLE_MODERATOR',
@@ -95,7 +95,7 @@ class SymfonyCondDTO16 extends SimpleDTO { public function __construct(public re
 ])] public readonly string $moderatorFeature, #[WhenRole(
     'ROLE_ADMIN'
 )] public readonly string $adminFeature) {} }
-class SymfonyCondDTO17 extends SimpleDTO { public function __construct(public readonly string $content, #[WhenGranted(
+class SymfonyCondDto17 extends SimpleDto { public function __construct(public readonly string $content, #[WhenGranted(
     'EDIT'
 )] public readonly string $editLink, #[WhenGranted(
     'DELETE'
@@ -108,7 +108,7 @@ class SymfonyCondDTO17 extends SimpleDTO { public function __construct(public re
 describe('Symfony Conditional Attributes', function(): void {
     describe('WhenGranted Attribute', function(): void {
         it('includes property when user is granted attribute (context)', function(): void {
-            $dto = new SymfonyCondDTO1('My Post', '/edit');
+            $dto = new SymfonyCondDto1('My Post', '/edit');
 
             $user = (object)['grants' => ['EDIT', 'VIEW']];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -118,7 +118,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('excludes property when user is not granted attribute', function(): void {
-            $dto = new SymfonyCondDTO1('My Post', '/edit');
+            $dto = new SymfonyCondDto1('My Post', '/edit');
 
             $user = (object)['grants' => ['VIEW']];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -127,7 +127,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('includes property when user has isGranted method', function(): void {
-            $dto = new SymfonyCondDTO1('My Post', '/edit');
+            $dto = new SymfonyCondDto1('My Post', '/edit');
 
             $user = new class {
                 public function isGranted(string $attribute, mixed $subject = null): bool
@@ -142,7 +142,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('excludes property when user is guest', function(): void {
-            $dto = new SymfonyCondDTO1('My Post', '/edit');
+            $dto = new SymfonyCondDto1('My Post', '/edit');
 
             $array = $dto->withContext(['user' => null])->toArray();
 
@@ -150,7 +150,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('works with permissions array', function(): void {
-            $dto = new SymfonyCondDTO1('My Post', '/edit');
+            $dto = new SymfonyCondDto1('My Post', '/edit');
 
             $user = (object)['permissions' => ['EDIT', 'DELETE']];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -159,7 +159,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('works with security context', function(): void {
-            $dto = new SymfonyCondDTO1('My Post', '/edit');
+            $dto = new SymfonyCondDto1('My Post', '/edit');
 
             $security = new class {
                 public function isGranted(string $attribute, mixed $subject = null): bool
@@ -174,7 +174,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('supports subject from context', function(): void {
-            $dto = new SymfonyCondDTO2('My Post', '/edit');
+            $dto = new SymfonyCondDto2('My Post', '/edit');
 
             $post = (object)['id' => 1, 'title' => 'My Post'];
             $user = new class {
@@ -192,7 +192,7 @@ describe('Symfony Conditional Attributes', function(): void {
 
     describe('WhenRole Attribute', function(): void {
         it('includes property when user has role (single role)', function(): void {
-            $dto = new SymfonyCondDTO4('John', '/admin');
+            $dto = new SymfonyCondDto4('John', '/admin');
 
             $user = (object)['roles' => ['ROLE_ADMIN', 'ROLE_USER']];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -202,7 +202,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('excludes property when user does not have role', function(): void {
-            $dto = new SymfonyCondDTO4('John', '/admin');
+            $dto = new SymfonyCondDto4('John', '/admin');
 
             $user = (object)['roles' => ['ROLE_USER']];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -211,7 +211,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('includes property when user has one of multiple roles', function(): void {
-            $dto = new SymfonyCondDTO8('John', '/moderation');
+            $dto = new SymfonyCondDto8('John', '/moderation');
 
             $userAdmin = (object)['roles' => ['ROLE_ADMIN', 'ROLE_USER']];
             $userModerator = (object)['roles' => ['ROLE_MODERATOR', 'ROLE_USER']];
@@ -227,7 +227,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('works with getRoles method (Symfony UserInterface)', function(): void {
-            $dto = new SymfonyCondDTO4('John', '/admin');
+            $dto = new SymfonyCondDto4('John', '/admin');
 
             $user = new class {
                 /** @return array<string> */
@@ -243,7 +243,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('works with role property (string)', function(): void {
-            $dto = new SymfonyCondDTO4('John', '/admin');
+            $dto = new SymfonyCondDto4('John', '/admin');
 
             $user = (object)['role' => 'ROLE_ADMIN'];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -252,7 +252,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('works with security context', function(): void {
-            $dto = new SymfonyCondDTO4('John', '/admin');
+            $dto = new SymfonyCondDto4('John', '/admin');
 
             $security = new class {
                 public function isGranted(string $role): bool
@@ -269,7 +269,7 @@ describe('Symfony Conditional Attributes', function(): void {
 
     describe('Combined Attributes', function(): void {
         it('supports multiple Symfony attributes (AND logic)', function(): void {
-            $dto = new SymfonyCondDTO13('Secret Content', 'Top secret data');
+            $dto = new SymfonyCondDto13('Secret Content', 'Top secret data');
 
             $adminWithPermission = new class {
                 /** @var array<string> */
@@ -304,7 +304,7 @@ describe('Symfony Conditional Attributes', function(): void {
 
     describe('Edge Cases', function(): void {
         it('handles empty roles array', function(): void {
-            $dto = new SymfonyCondDTO4('John', '/admin');
+            $dto = new SymfonyCondDto4('John', '/admin');
 
             $user = (object)['roles' => []];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -313,7 +313,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('handles missing roles property', function(): void {
-            $dto = new SymfonyCondDTO4('John', '/admin');
+            $dto = new SymfonyCondDto4('John', '/admin');
 
             $user = (object)['name' => 'John'];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -322,7 +322,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('handles empty grants array', function(): void {
-            $dto = new SymfonyCondDTO1('My Post', '/edit');
+            $dto = new SymfonyCondDto1('My Post', '/edit');
 
             $user = (object)['grants' => []];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -331,7 +331,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('handles missing grants property', function(): void {
-            $dto = new SymfonyCondDTO1('My Post', '/edit');
+            $dto = new SymfonyCondDto1('My Post', '/edit');
 
             $user = (object)['name' => 'John'];
             $array = $dto->withContext(['user' => $user])->toArray();
@@ -340,7 +340,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('handles null user in context', function(): void {
-            $dto = new SymfonyCondDTO14('John', '/admin');
+            $dto = new SymfonyCondDto14('John', '/admin');
 
             $array = $dto->withContext(['user' => null])->toArray();
 
@@ -350,7 +350,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('handles empty context', function(): void {
-            $dto = new SymfonyCondDTO4('John', '/admin');
+            $dto = new SymfonyCondDto4('John', '/admin');
 
             $array = $dto->withContext([])->toArray();
 
@@ -361,7 +361,7 @@ describe('Symfony Conditional Attributes', function(): void {
 
     describe('JSON Serialization', function(): void {
         it('works with json_encode and WhenRole', function(): void {
-            $dto = new SymfonyCondDTO4('John', '/admin');
+            $dto = new SymfonyCondDto4('John', '/admin');
 
             $user = (object)['roles' => ['ROLE_ADMIN']];
             $json = json_encode($dto->withContext(['user' => $user]));
@@ -373,7 +373,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('works with json_encode and WhenGranted', function(): void {
-            $dto = new SymfonyCondDTO1('My Post', '/edit');
+            $dto = new SymfonyCondDto1('My Post', '/edit');
 
             $user = (object)['grants' => ['EDIT']];
             $json = json_encode($dto->withContext(['user' => $user]));
@@ -387,7 +387,7 @@ describe('Symfony Conditional Attributes', function(): void {
 
     describe('Complex Scenarios', function(): void {
         it('handles multiple properties with different conditions', function(): void {
-            $dto = new SymfonyCondDTO17('Content', '/edit', '/delete', '/publish', '/admin');
+            $dto = new SymfonyCondDto17('Content', '/edit', '/delete', '/publish', '/admin');
 
             $user = (object)[
                 'roles' => ['ROLE_ADMIN'],
@@ -403,7 +403,7 @@ describe('Symfony Conditional Attributes', function(): void {
         });
 
         it('handles hierarchical roles', function(): void {
-            $dto = new SymfonyCondDTO16('Content', '/user', '/moderator', '/admin');
+            $dto = new SymfonyCondDto16('Content', '/user', '/moderator', '/admin');
 
             $regularUser = (object)['roles' => ['ROLE_USER']];
             $moderator = (object)['roles' => ['ROLE_USER', 'ROLE_MODERATOR']];

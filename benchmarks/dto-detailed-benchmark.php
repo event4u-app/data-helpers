@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
-use Tests\Utils\DTOs\DepartmentDto;
-use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
+use Tests\Utils\Dtos\DepartmentDto;
+use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
 
 /**
  * Detailed benchmark for specific operations
@@ -108,13 +108,13 @@ class DetailedBenchmark
 
 echo "\n";
 echo "╔════════════════════════════════════════════════════════════════╗\n";
-echo "║  Detailed DTO Benchmark                                        ║\n";
+echo "║  Detailed Dto Benchmark                                        ║\n";
 echo "╚════════════════════════════════════════════════════════════════╝\n";
 
 // ============================================================================
-// Benchmark 1: Simple DTO Creation (no DataMapper)
+// Benchmark 1: Simple Dto Creation (no DataMapper)
 // ============================================================================
-echo "\n🔥 Benchmark 1: Simple DTO Creation (no DataMapper)\n";
+echo "\n🔥 Benchmark 1: Simple Dto Creation (no DataMapper)\n";
 echo str_repeat('─', 64) . "\n";
 
 $testData = [
@@ -138,7 +138,7 @@ $results[] = DetailedBenchmark::run('Traditional: new + assign', function() use 
     $dto->manager_name = $testData['manager_name'];
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: fromArray()', function() use ($testData): void {
+$results[] = DetailedBenchmark::run('SimpleDto: fromArray()', function() use ($testData): void {
     DepartmentSimpleDto::fromArray($testData);
 }, $iterations);
 
@@ -168,7 +168,7 @@ $results[] = DetailedBenchmark::run('Traditional: read property', function() use
     $budget = $dtoMutable->budget;
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: read property', function() use ($dtoImmutable): void {
+$results[] = DetailedBenchmark::run('SimpleDto: read property', function() use ($dtoImmutable): void {
     $name = $dtoImmutable->name;
     $code = $dtoImmutable->code;
     $budget = $dtoImmutable->budget;
@@ -197,7 +197,7 @@ $results[] = DetailedBenchmark::run('Traditional: manual array', function() use 
     ];
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: toArray()', function() use ($dtoImmutable): void {
+$results[] = DetailedBenchmark::run('SimpleDto: toArray()', function() use ($dtoImmutable): void {
     $dtoImmutable->toArray();
 }, $iterations);
 
@@ -207,7 +207,7 @@ DetailedBenchmark::compareTwo($results[0], $results[1]);
 // ============================================================================
 // Benchmark 4: JSON Serialization (simple)
 // ============================================================================
-echo "\n\n🔥 Benchmark 4: JSON Serialization (simple DTO)\n";
+echo "\n\n🔥 Benchmark 4: JSON Serialization (simple Dto)\n";
 echo str_repeat('─', 64) . "\n";
 
 $iterations = 100000;
@@ -224,7 +224,7 @@ $results[] = DetailedBenchmark::run('Traditional: manual json', function() use (
     ]);
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: json_encode()', function() use ($dtoImmutable): void {
+$results[] = DetailedBenchmark::run('SimpleDto: json_encode()', function() use ($dtoImmutable): void {
     json_encode($dtoImmutable);
 }, $iterations);
 
@@ -232,9 +232,9 @@ DetailedBenchmark::printResults($results);
 DetailedBenchmark::compareTwo($results[0], $results[1]);
 
 // ============================================================================
-// Benchmark 5: Batch Creation (100 DTOs)
+// Benchmark 5: Batch Creation (100 Dtos)
 // ============================================================================
-echo "\n\n🔥 Benchmark 5: Batch Creation (100 DTOs)\n";
+echo "\n\n🔥 Benchmark 5: Batch Creation (100 Dtos)\n";
 echo str_repeat('─', 64) . "\n";
 
 $batchData = array_map(fn($i): array => [
@@ -249,7 +249,7 @@ $iterations = 1000;
 
 $results = [];
 
-$results[] = DetailedBenchmark::run('Traditional: 100 DTOs', function() use ($batchData): void {
+$results[] = DetailedBenchmark::run('Traditional: 100 Dtos', function() use ($batchData): void {
     $dtos = [];
     foreach ($batchData as $data) {
         $dto = new DepartmentDto();
@@ -262,7 +262,7 @@ $results[] = DetailedBenchmark::run('Traditional: 100 DTOs', function() use ($ba
     }
 }, $iterations);
 
-$results[] = DetailedBenchmark::run('SimpleDTO: 100 DTOs', function() use ($batchData): void {
+$results[] = DetailedBenchmark::run('SimpleDto: 100 Dtos', function() use ($batchData): void {
     $dtos = array_map(
         DepartmentSimpleDto::fromArray(...),
         $batchData
@@ -280,23 +280,23 @@ echo "╔═══════════════════════�
 echo "║  Summary                                                       ║\n";
 echo "╚════════════════════════════════════════════════════════════════╝\n";
 echo "\n";
-echo "  ✅ SimpleDTO Advantages:\n";
-echo "     • Faster DTO creation (fromArray vs manual assignment)\n";
+echo "  ✅ SimpleDto Advantages:\n";
+echo "     • Faster Dto creation (fromArray vs manual assignment)\n";
 echo "     • Built-in toArray() with minimal overhead\n";
 echo "     • Immutability guarantees\n";
 echo "     • Type safety with readonly properties\n";
 echo "\n";
-echo "  ⚠️  SimpleDTO Considerations:\n";
+echo "  ⚠️  SimpleDto Considerations:\n";
 echo "     • JSON serialization has overhead (JsonSerializable interface)\n";
 echo "     • Slightly slower for very simple manual JSON encoding\n";
 echo "\n";
 echo "  💡 Recommendation:\n";
-echo "     Use SimpleDTO for:\n";
+echo "     Use SimpleDto for:\n";
 echo "     • APIs with frequent array/JSON conversions\n";
 echo "     • Data that should be immutable\n";
 echo "     • Complex nested structures\n";
 echo "\n";
-echo "     Use Traditional DTO for:\n";
+echo "     Use Traditional Dto for:\n";
 echo "     • Performance-critical hot paths\n";
 echo "     • Simple data structures with minimal conversions\n";
 echo "     • When mutability is required\n";

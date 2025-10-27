@@ -7,7 +7,7 @@ Reference for visibility control attributes.
 
 ## Introduction
 
-SimpleDTO provides visibility attributes:
+SimpleDto provides visibility attributes:
 
 - **#[Hidden]** - Always hide property
 - **#[Visible(callback)]** - Conditionally visible
@@ -19,7 +19,7 @@ Properties marked as hidden are **never** included in serialization:
 
 <!-- skip-test: property declaration only -->
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 
 #[Hidden]
 public readonly string $password;
@@ -34,7 +34,7 @@ Conditionally visible based on callback:
 
 <!-- skip-test: property declaration only -->
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
+use event4u\DataHelpers\SimpleDto\Attributes\Visible;
 
 #[Visible(callback: 'canViewEmail')]
 public readonly string $email;
@@ -84,7 +84,7 @@ See [Conditional Attributes](/attributes/conditional/) for 18 conditional attrib
 ## Real-World Example
 
 ```php
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,

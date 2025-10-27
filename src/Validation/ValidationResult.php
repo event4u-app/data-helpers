@@ -11,10 +11,10 @@ namespace event4u\DataHelpers\Validation;
  *
  * Example:
  * ```php
- * $result = UserDTO::validateData($data);
+ * $result = UserDto::validateData($data);
  *
  * if ($result->isValid()) {
- *     $dto = UserDTO::fromArray($result->validated());
+ *     $dto = UserDto::fromArray($result->validated());
  * } else {
  *     foreach ($result->errors() as $field => $messages) {
  *         echo "$field: " . implode(', ', $messages);

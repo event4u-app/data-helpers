@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Tests\Utils\DTOs\DepartmentDto;
+use Tests\Utils\Dtos\DepartmentDto;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
-use Tests\Utils\DTOs\CompanyDto;
-use Tests\Utils\SimpleDTOs\CompanySimpleDto;
-use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
-use Tests\Utils\SimpleDTOs\ProjectSimpleDto;
+use Tests\Utils\Dtos\CompanyDto;
+use Tests\Utils\SimpleDtos\CompanySimpleDto;
+use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
+use Tests\Utils\SimpleDtos\ProjectSimpleDto;
 
 /**
  * Benchmark helper class
@@ -114,7 +114,7 @@ class Benchmark
 
 echo "\n";
 echo "╔════════════════════════════════════════════════════════════════╗\n";
-echo "║  DTO Benchmark: Traditional Mutable vs SimpleDTO Immutable    ║\n";
+echo "║  Dto Benchmark: Traditional Mutable vs SimpleDto Immutable    ║\n";
 echo "╚════════════════════════════════════════════════════════════════╝\n";
 echo "\n";
 
@@ -154,20 +154,20 @@ $mapping = [
 ];
 
 // ============================================================================
-// Benchmark 1: DTO Creation + DataMapper
+// Benchmark 1: Dto Creation + DataMapper
 // ============================================================================
-echo "🔥 Benchmark 1: DTO Creation with DataMapper\n";
+echo "🔥 Benchmark 1: Dto Creation with DataMapper\n";
 echo str_repeat('─', 64) . "\n";
 
 $iterations = 1000;
 
-$result1 = Benchmark::run('Traditional Mutable DTO', function() use ($jsonFile, $mapping): void {
+$result1 = Benchmark::run('Traditional Mutable Dto', function() use ($jsonFile, $mapping): void {
     $company = new CompanyDto();
     $result = DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map();
     $target = $result->getTarget();
 }, $iterations);
 
-$result2 = Benchmark::run('SimpleDTO Immutable', function() use ($jsonFile, $mapping): void {
+$result2 = Benchmark::run('SimpleDto Immutable', function() use ($jsonFile, $mapping): void {
     $mappedArray = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->toArray();
 
     /** @var array<int, array<string, mixed>> $departmentsData */
@@ -205,7 +205,7 @@ echo "\n\n";
 echo "🔥 Benchmark 2: JSON Serialization\n";
 echo str_repeat('─', 64) . "\n";
 
-// Prepare DTOs
+// Prepare Dtos
 $company1 = new CompanyDto();
 $companyMutable = DataMapper::sourceFile($jsonFile)->target($company1)->template($mapping)->map()->getTarget();
 
@@ -232,8 +232,8 @@ $companyImmutable = CompanySimpleDto::fromArray($companyData);
 
 $iterations = 10000;
 
-$result3 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMutable): void {
-    // Traditional DTOs need manual serialization
+$result3 = Benchmark::run('Traditional Dto (manual)', function() use ($companyMutable): void {
+    // Traditional Dtos need manual serialization
     /** @var CompanyDto $company */
     $company = $companyMutable;
     json_encode([
@@ -247,8 +247,8 @@ $result3 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMu
     ]);
 }, $iterations);
 
-$result4 = Benchmark::run('SimpleDTO (automatic)', function() use ($companyImmutable): void {
-    // SimpleDTO has automatic JSON serialization
+$result4 = Benchmark::run('SimpleDto (automatic)', function() use ($companyImmutable): void {
+    // SimpleDto has automatic JSON serialization
     json_encode($companyImmutable);
 }, $iterations);
 
@@ -266,8 +266,8 @@ echo str_repeat('─', 64) . "\n";
 
 $iterations = 10000;
 
-$result5 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMutable): void {
-    // Traditional DTOs need manual array conversion
+$result5 = Benchmark::run('Traditional Dto (manual)', function() use ($companyMutable): void {
+    // Traditional Dtos need manual array conversion
     /** @var CompanyDto $company */
     $company = $companyMutable;
     $result = [
@@ -281,8 +281,8 @@ $result5 = Benchmark::run('Traditional DTO (manual)', function() use ($companyMu
     ];
 }, $iterations);
 
-$result6 = Benchmark::run('SimpleDTO (automatic)', function() use ($companyImmutable): void {
-    // SimpleDTO has automatic toArray()
+$result6 = Benchmark::run('SimpleDto (automatic)', function() use ($companyImmutable): void {
+    // SimpleDto has automatic toArray()
     $companyImmutable->toArray();
 }, $iterations);
 

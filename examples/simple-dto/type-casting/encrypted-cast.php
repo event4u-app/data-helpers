@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
 echo "================================================================================\n";
-echo "SimpleDTO - Encrypted Cast Examples\n";
+echo "SimpleDto - Encrypted Cast Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: Encrypting Sensitive Data
 echo "Example 1: Encrypting Sensitive Data\n";
 echo "-------------------------------------\n";
 
-class PaymentDTO extends SimpleDTO
+class PaymentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $orderId,
@@ -32,7 +32,7 @@ class PaymentDTO extends SimpleDTO
     }
 }
 
-$payment = PaymentDTO::fromArray([
+$payment = PaymentDto::fromArray([
     'orderId' => 'ORD-12345',
     'amount' => 99.99,
     'creditCard' => '4111111111111111',
@@ -62,7 +62,7 @@ echo "\nNote: Values are encrypted in storage ✅\n\n";
 echo "Example 3: User Personal Information\n";
 echo "-------------------------------------\n";
 
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly int $userId,
@@ -80,7 +80,7 @@ class UserProfileDTO extends SimpleDTO
     }
 }
 
-$profile = UserProfileDTO::fromArray([
+$profile = UserProfileDto::fromArray([
     'userId' => 1,
     'username' => 'john_doe',
     'ssn' => '123-45-6789',
@@ -100,7 +100,7 @@ echo "Phone: {$profile->phoneNumber}\n\n";
 echo "Example 4: Null Values\n";
 echo "----------------------\n";
 
-$profileWithoutSensitiveData = UserProfileDTO::fromArray([
+$profileWithoutSensitiveData = UserProfileDto::fromArray([
     'userId' => 2,
     'username' => 'jane_doe',
     'ssn' => null,
@@ -118,7 +118,7 @@ echo "Phone: " . ($profileWithoutSensitiveData->phoneNumber ?? 'Not provided') .
 echo "Example 5: API Tokens\n";
 echo "---------------------\n";
 
-class ApiCredentialsDTO extends SimpleDTO
+class ApiCredentialsDto extends SimpleDto
 {
     public function __construct(
         public readonly string $serviceName,
@@ -135,7 +135,7 @@ class ApiCredentialsDTO extends SimpleDTO
     }
 }
 
-$credentials = ApiCredentialsDTO::fromArray([
+$credentials = ApiCredentialsDto::fromArray([
     'serviceName' => 'Payment Gateway',
     'apiKey' => 'pk_live_1234567890abcdef',
     'apiSecret' => 'sk_live_abcdef1234567890',
@@ -152,7 +152,7 @@ echo json_encode($storedCredentials, JSON_PRETTY_PRINT) . "\n\n";
 echo "Example 6: Medical Records\n";
 echo "--------------------------\n";
 
-class MedicalRecordDTO extends SimpleDTO
+class MedicalRecordDto extends SimpleDto
 {
     public function __construct(
         public readonly int $patientId,
@@ -170,7 +170,7 @@ class MedicalRecordDTO extends SimpleDTO
     }
 }
 
-$record = MedicalRecordDTO::fromArray([
+$record = MedicalRecordDto::fromArray([
     'patientId' => 12345,
     'patientName' => 'John Smith',
     'diagnosis' => 'Hypertension',

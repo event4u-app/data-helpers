@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Visible;
 
 echo "=== Context-Based Visibility - Schritt für Schritt erklärt ===\n\n";
 
@@ -15,12 +15,12 @@ echo "=== Context-Based Visibility - Schritt für Schritt erklärt ===\n\n";
 echo "1. EINFACHES ROLE-BASED ACCESS:\n";
 echo str_repeat('=', 70) . "\n\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
         public readonly string $username,
-        
+
         // Diese Property ist nur sichtbar, wenn canViewEmail() true zurückgibt
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
@@ -43,13 +43,13 @@ class UserDTO extends SimpleDTO
     }
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'John Doe',
     'username' => 'johndoe',
     'email' => 'john@example.com',
 ]);
 
-echo "Schritt 1: DTO erstellt\n";
+echo "Schritt 1: Dto erstellt\n";
 echo sprintf('  Name: %s%s', $user->name, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 echo sprintf('  Username: %s%s', $user->username, PHP_EOL);
@@ -85,15 +85,15 @@ echo "\n";
 echo "\n2. ZUGRIFF AUF EIGENE DATEN:\n";
 echo str_repeat('=', 70) . "\n\n";
 
-class ProfileDTO extends SimpleDTO
+class ProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $userId,
         public readonly string $name,
-        
+
         #[Visible(callback: 'canViewEmail')]
         public readonly string $email,
-        
+
         #[Visible(callback: 'canViewPhone')]
         public readonly string $phone,
     ) {}
@@ -122,7 +122,7 @@ class ProfileDTO extends SimpleDTO
     }
 }
 
-$profile = ProfileDTO::fromArray([
+$profile = ProfileDto::fromArray([
     'userId' => 'user-123',
     'name' => 'Jane Smith',
     'email' => 'jane@example.com',
@@ -165,7 +165,7 @@ echo "→ Email sichtbar (Admin), Phone sichtbar (Admin)\n\n";
 echo "\n3. KOMPLEXE BUSINESS-LOGIK:\n";
 echo str_repeat('=', 70) . "\n\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     /** @param array<mixed> $paymentDetails */
     public function __construct(
@@ -173,10 +173,10 @@ class OrderDTO extends SimpleDTO
         public readonly string $customerId,
         public readonly float $total,
         public readonly string $status,
-        
+
         #[Visible(callback: 'canViewPaymentDetails')]
         public readonly array $paymentDetails,
-        
+
         #[Visible(callback: 'canViewInternalNotes')]
         public readonly string $internalNotes,
     ) {}
@@ -211,7 +211,7 @@ class OrderDTO extends SimpleDTO
     }
 }
 
-$order = OrderDTO::fromArray([
+$order = OrderDto::fromArray([
     'orderId' => 'ORD-12345',
     'customerId' => 'CUST-001',
     'total' => 299.99,
@@ -275,11 +275,11 @@ echo "→ Alles außer phone, email sichtbar weil Admin-Context\n\n";
 echo "\n5. CONTEXT-OBJEKT KANN BELIEBIG SEIN:\n";
 echo str_repeat('=', 70) . "\n\n";
 
-class DocumentDTO extends SimpleDTO
+class DocumentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
-        
+
         #[Visible(callback: 'canViewContent')]
         public readonly string $content,
     ) {}
@@ -305,7 +305,7 @@ class DocumentDTO extends SimpleDTO
     }
 }
 
-$doc = DocumentDTO::fromArray([
+$doc = DocumentDto::fromArray([
     'title' => 'Secret Document',
     'content' => 'Top secret content...',
 ]);
@@ -338,7 +338,7 @@ echo "2. Die Callback-Methode muss bool zurückgeben (true = sichtbar, false = v
 echo "3. withVisibilityContext(\$context) setzt den Context für die Visibility-Checks\n";
 echo "4. Der Context wird an alle Callback-Methoden übergeben\n";
 echo "5. Der Context kann beliebig sein (Object, Array, String, etc.)\n";
-echo "6. Callback-Methoden können auf DTO-Properties zugreifen (\$this->userId)\n";
+echo "6. Callback-Methoden können auf Dto-Properties zugreifen (\$this->userId)\n";
 echo "7. Callback-Methoden können private/protected sein\n";
 echo "8. withVisibilityContext() ist chainable mit only() und except()\n";
 echo "9. Ohne Context werden #[Visible] Properties standardmäßig versteckt\n\n";

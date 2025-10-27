@@ -7,7 +7,7 @@ Complete reference of all 18 conditional attributes for dynamic visibility.
 
 ## Introduction
 
-SimpleDTO provides 18 conditional attributes organized into categories:
+SimpleDto provides 18 conditional attributes organized into categories:
 
 - **Core Conditional** (9) - Framework-agnostic conditions
 - **Laravel-Specific** (4) - Authentication & authorization
@@ -137,7 +137,7 @@ public readonly ?array $debugInfo = null;
 ### User Profile
 
 ```php
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -154,7 +154,7 @@ class UserProfileDTO extends SimpleDTO
 ### Admin Dashboard
 
 ```php
-class DashboardDTO extends SimpleDTO
+class DashboardDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,

@@ -1,18 +1,18 @@
 ---
 title: Serialization
-description: Learn how to serialize DTOs to arrays, JSON, XML, and other formats
+description: Learn how to serialize Dtos to arrays, JSON, XML, and other formats
 ---
 
-Learn how to serialize DTOs to arrays, JSON, XML, and other formats.
+Learn how to serialize Dtos to arrays, JSON, XML, and other formats.
 
 ## What is Serialization?
 
-Serialization converts DTOs to different formats for storage or transmission:
+Serialization converts Dtos to different formats for storage or transmission:
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
+$dto = new UserDto(name: 'John Doe', email: 'john@example.com');
 
 // To array
 $array = $dto->toArray();
@@ -29,9 +29,9 @@ $xml = $dto->toXml();
 ### Basic Usage
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
@@ -41,12 +41,12 @@ $array = $dto->toArray();
 // ['name' => 'John Doe', 'email' => 'john@example.com', 'age' => 30]
 ```
 
-### Nested DTOs
+### Nested Dtos
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'address' => [
         'street' => '123 Main St',
@@ -69,9 +69,9 @@ $array = $dto->toArray();
 ### Basic Usage
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
+$dto = new UserDto(name: 'John Doe', email: 'john@example.com');
 
 $json = json_encode($dto);
 // {"name":"John Doe","email":"john@example.com"}
@@ -80,9 +80,9 @@ $json = json_encode($dto);
 ### Pretty Print
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
+$dto = new UserDto(name: 'John Doe', email: 'john@example.com');
 $json = json_encode($dto, JSON_PRETTY_PRINT);
 // $json contains pretty-printed JSON
 ```
@@ -90,9 +90,9 @@ $json = json_encode($dto, JSON_PRETTY_PRINT);
 ### Using toJson()
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
+$dto = new UserDto(name: 'John Doe', email: 'john@example.com');
 $json = $dto->toJson();
 // Result: {"name":"John Doe","email":"john@example.com","age":0,"address":null}
 ```
@@ -102,9 +102,9 @@ $json = $dto->toJson();
 ### Basic Usage
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
+$dto = new UserDto(name: 'John Doe', email: 'john@example.com');
 
 $xml = $dto->toXml();
 // Returns XML string with user data
@@ -113,10 +113,10 @@ $xml = $dto->toXml();
 ### Custom Root Element
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Config\SerializerOptions;
-use Tests\Utils\Docu\DTOs\UserDTO;
+use event4u\DataHelpers\SimpleDto\Config\SerializerOptions;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
+$dto = new UserDto(name: 'John Doe', email: 'john@example.com');
 $options = SerializerOptions::xml(rootElement: 'customer');
 $xml = $dto->toXml($options);
 // $xml contains XML with <customer> root element
@@ -128,9 +128,9 @@ $xml = $dto->toXml($options);
 
 <!-- skip-test: YAML extension not available -->
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
+$dto = new UserDto(name: 'John Doe', email: 'john@example.com');
 
 $yaml = $dto->toYaml();
 // name: John Doe
@@ -142,9 +142,9 @@ $yaml = $dto->toYaml();
 ### Basic Usage
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = new UserDTO(name: 'John Doe', email: 'john@example.com');
+$dto = new UserDto(name: 'John Doe', email: 'john@example.com');
 
 $csv = $dto->toCsv();
 // Result: name,email,age,address
@@ -155,9 +155,9 @@ $csv = $dto->toCsv();
 
 <!-- skip-test: DataCollection::toCsv() not implemented yet -->
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$users = UserDTO::collection($userArray);
+$users = UserDto::collection($userArray);
 $csv = $users->toCsv();
 ```
 
@@ -167,9 +167,9 @@ $csv = $users->toCsv();
 
 <!-- skip-test: Conditional attributes example -->
 ```php
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -190,9 +190,9 @@ $array = $dto->toArray();
 
 <!-- skip-test: Hidden attribute example -->
 ```php
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -213,9 +213,9 @@ $array = $dto->toArray();
 
 <!-- skip-test: Custom toArray() example -->
 ```php
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
@@ -235,9 +235,9 @@ class UserDTO extends SimpleDTO
 
 <!-- skip-test: Custom serializer example -->
 ```php
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function toCustomFormat(): array
     {
@@ -305,7 +305,7 @@ All examples are fully tested and can be run directly.
 
 The functionality is thoroughly tested. Key test files:
 
-- [SerializationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/SerializationTest.php) - Serialization tests
+- [SerializationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/SerializationTest.php) - Serialization tests
 
 Run the tests:
 

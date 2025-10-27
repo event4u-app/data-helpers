@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenCan;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenGuest;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenRole;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenAuth;
+use event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenCan;
+use event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenGuest;
+use event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenRole;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                   LARAVEL CONDITIONAL ATTRIBUTES                           ║\n";
@@ -22,7 +22,7 @@ echo "In a real Laravel app, these attributes can also use Auth::user() automati
 echo "1. WHEN AUTH - AUTHENTICATED USERS ONLY:\n";
 echo "------------------------------------------------------------\n";
 
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -36,7 +36,7 @@ class UserProfileDTO extends SimpleDTO
     ) {}
 }
 
-$profile = new UserProfileDTO('John Doe', 'johndoe');
+$profile = new UserProfileDto('John Doe', 'johndoe');
 
 echo "As guest:\n";
 echo json_encode($profile->withContext(['user' => null])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -53,7 +53,7 @@ echo "\n";
 echo "2. WHEN GUEST - GUEST USERS ONLY:\n";
 echo "------------------------------------------------------------\n";
 
-class PageDTO extends SimpleDTO
+class PageDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -67,7 +67,7 @@ class PageDTO extends SimpleDTO
     ) {}
 }
 
-$page = new PageDTO('Welcome', 'Welcome to our site!');
+$page = new PageDto('Welcome', 'Welcome to our site!');
 
 echo "As guest:\n";
 echo json_encode($page->withContext(['user' => null])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -83,7 +83,7 @@ echo "\n";
 echo "3. WHEN ROLE - ROLE-BASED ACCESS:\n";
 echo "------------------------------------------------------------\n";
 
-class DashboardDTO extends SimpleDTO
+class DashboardDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -100,7 +100,7 @@ class DashboardDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$dashboard = new DashboardDTO('Dashboard');
+$dashboard = new DashboardDto('Dashboard');
 
 $admin = (object)['id' => 1, 'role' => 'admin'];
 $moderator = (object)['id' => 2, 'role' => 'moderator'];
@@ -127,7 +127,7 @@ echo "\n";
 echo "4. WHEN CAN - PERMISSION-BASED ACCESS:\n";
 echo "------------------------------------------------------------\n";
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -145,7 +145,7 @@ class PostDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$post = new PostDTO('My Post', 'Post content...');
+$post = new PostDto('My Post', 'Post content...');
 
 // User with can() method (like Laravel User model)
 $editorUser = new class {
@@ -186,7 +186,7 @@ echo "\n";
 echo "5. COMBINED ATTRIBUTES - MULTIPLE CONDITIONS:\n";
 echo "------------------------------------------------------------\n";
 
-class SecretDocumentDTO extends SimpleDTO
+class SecretDocumentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -198,7 +198,7 @@ class SecretDocumentDTO extends SimpleDTO
     ) {}
 }
 
-$document = new SecretDocumentDTO('Classified Document');
+$document = new SecretDocumentDto('Classified Document');
 
 $adminWithPermission = new class {
     public string $role = 'admin';
@@ -244,7 +244,7 @@ echo "\n";
 echo "6. API RESPONSE WITH USER CONTEXT:\n";
 echo "------------------------------------------------------------\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     /** @param array<mixed> $paymentDetails */
     public function __construct(
@@ -267,7 +267,7 @@ class OrderDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$order = new OrderDTO('ORD-12345', 'completed', 299.99);
+$order = new OrderDto('ORD-12345', 'completed', 299.99);
 
 echo "Public API (guest):\n";
 echo json_encode($order->withContext(['user' => null])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\Support\Lazy;
 use event4u\DataHelpers\Support\Optional;
 
@@ -14,7 +14,7 @@ echo "=== API Integration Example ===\n\n";
 echo "1. GET Request - Full Resource\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     /**
      * @param array<mixed> $posts
@@ -33,7 +33,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = new UserDTO(
+$user = new UserDto(
     name: 'John Doe',
     email: 'john@example.com',
     /** @phpstan-ignore-next-line unknown */
@@ -64,7 +64,7 @@ echo json_encode($user->includeAll(), JSON_PRETTY_PRINT) . "\n\n";
 echo "2. POST Request - Create Resource\n";
 echo str_repeat('-', 50) . "\n";
 
-class CreateUserDTO extends SimpleDTO
+class CreateUserDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -79,9 +79,9 @@ echo "POST /api/users\n";
 echo "Request body:\n{$requestBody}\n\n";
 
 $createData = json_decode($requestBody, true);
-$createUser = CreateUserDTO::fromArray($createData);
+$createUser = CreateUserDto::fromArray($createData);
 
-echo "Parsed DTO:\n";
+echo "Parsed Dto:\n";
 echo sprintf('  name: %s%s', $createUser->name, PHP_EOL);
 echo sprintf('  email: %s%s', $createUser->email, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -91,7 +91,7 @@ echo "  bio value: " . ($createUser->bio->get() ?? 'null') . "\n";
 echo "\n";
 
 // Simulate creating user
-$newUser = new UserDTO(
+$newUser = new UserDto(
     name: $createUser->name,
     email: $createUser->email,
     /** @phpstan-ignore-next-line unknown */
@@ -114,7 +114,7 @@ echo json_encode($newUser, JSON_PRETTY_PRINT) . "\n\n";
 echo "3. PATCH Request - Partial Update\n";
 echo str_repeat('-', 50) . "\n";
 
-class UpdateUserDTO extends SimpleDTO
+class UpdateUserDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -131,9 +131,9 @@ echo "PATCH /api/users/1\n";
 echo "Request body:\n{$patchBody}\n\n";
 
 $patchData = json_decode($patchBody, true);
-$updateUser = UpdateUserDTO::fromArray($patchData);
+$updateUser = UpdateUserDto::fromArray($patchData);
 
-echo "Parsed DTO:\n";
+echo "Parsed Dto:\n";
 /** @phpstan-ignore-next-line unknown */
 echo "  name present: " . ($updateUser->name->isPresent() ? 'yes' : 'no') . "\n";
 /** @phpstan-ignore-next-line unknown */
@@ -147,7 +147,7 @@ echo "Extracted changes:\n";
 echo json_encode($changes, JSON_PRETTY_PRINT) . "\n\n";
 
 // Apply changes to existing user
-$updatedUser = new UserDTO(
+$updatedUser = new UserDto(
     /** @phpstan-ignore-next-line unknown */
     name: $changes['name'] ?? $user->name,
     /** @phpstan-ignore-next-line unknown */
@@ -181,9 +181,9 @@ echo "PUT /api/users/1\n";
 echo "Request body:\n{$putBody}\n\n";
 
 $putData = json_decode($putBody, true);
-$fullUpdateUser = CreateUserDTO::fromArray($putData);
+$fullUpdateUser = CreateUserDto::fromArray($putData);
 
-$replacedUser = new UserDTO(
+$replacedUser = new UserDto(
     name: $fullUpdateUser->name,
     email: $fullUpdateUser->email,
     /** @phpstan-ignore-next-line unknown */
@@ -208,7 +208,7 @@ echo json_encode($replacedUser, JSON_PRETTY_PRINT) . "\n\n";
 echo "5. JSON:API Format\n";
 echo str_repeat('-', 50) . "\n";
 
-class JsonApiUserDTO extends SimpleDTO
+class JsonApiUserDto extends SimpleDto
 {
     /**
      * @param array<mixed> $attributes
@@ -223,7 +223,7 @@ class JsonApiUserDTO extends SimpleDTO
     ) {}
 }
 
-$jsonApiUser = new JsonApiUserDTO(
+$jsonApiUser = new JsonApiUserDto(
     id: 1,
     type: 'users',
     attributes: [
@@ -249,7 +249,7 @@ echo json_encode(['data' => $jsonApiUser->toArray()], JSON_PRETTY_PRINT) . "\n\n
 echo "6. Error Handling\n";
 echo str_repeat('-', 50) . "\n";
 
-class ErrorDTO extends SimpleDTO
+class ErrorDto extends SimpleDto
 {
     /**
      * @param array<mixed> $errors
@@ -264,7 +264,7 @@ class ErrorDTO extends SimpleDTO
     ) {}
 }
 
-$validationError = new ErrorDTO(
+$validationError = new ErrorDto(
     status: 422,
     message: 'Validation failed',
     errors: Optional::of([
@@ -277,7 +277,7 @@ $validationError = new ErrorDTO(
 echo "Response (422 Unprocessable Entity):\n";
 echo json_encode($validationError, JSON_PRETTY_PRINT) . "\n\n";
 
-$serverError = new ErrorDTO(
+$serverError = new ErrorDto(
     status: 500,
     message: 'Internal server error',
     errors: Optional::empty(),
@@ -291,7 +291,7 @@ echo json_encode($serverError, JSON_PRETTY_PRINT) . "\n\n";
 echo "7. Pagination\n";
 echo str_repeat('-', 50) . "\n";
 
-class PaginatedResponseDTO extends SimpleDTO
+class PaginatedResponseDto extends SimpleDto
 {
     /**
      * @param array<mixed> $data
@@ -311,7 +311,7 @@ $users = [
     ['id' => 2, 'name' => 'Jane Doe', 'email' => 'jane@example.com'],
 ];
 
-$paginatedResponse = new PaginatedResponseDTO(
+$paginatedResponse = new PaginatedResponseDto(
     data: $users,
     meta: [
         'current_page' => 1,

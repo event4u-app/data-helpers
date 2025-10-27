@@ -15,11 +15,11 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 use event4u\DataHelpers\Validation\ValidationException;
 
 echo "=== Phase 15.4: Validation Modes ===\n\n";
@@ -29,7 +29,7 @@ echo "1. Auto-validate on fromArray()\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: true, auto: true)]
-class AutoValidateUserDTO extends SimpleDTO
+class AutoValidateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -43,7 +43,7 @@ class AutoValidateUserDTO extends SimpleDTO
 }
 
 try {
-    $dto = AutoValidateUserDTO::fromArray([
+    $dto = AutoValidateUserDto::fromArray([
         'email' => 'john@example.com',
         'name' => 'John Doe',
     ]);
@@ -55,7 +55,7 @@ try {
 }
 
 try {
-    $dto = AutoValidateUserDTO::fromArray([
+    $dto = AutoValidateUserDto::fromArray([
         'email' => 'invalid-email',
         'name' => 'Jo',
     ]);
@@ -74,7 +74,7 @@ echo "\n";
 echo "2. Manual validation with validate()\n";
 echo str_repeat('-', 60) . "\n";
 
-class ManualValidateUserDTO extends SimpleDTO
+class ManualValidateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -93,12 +93,12 @@ $data = [
 ];
 
 try {
-    $validated = ManualValidateUserDTO::validate($data);
+    $validated = ManualValidateUserDto::validate($data);
     echo "✅  Validation passed\n";
     echo "    Validated data: " . json_encode($validated) . "\n";
 
-    $dto = ManualValidateUserDTO::fromArray($validated);
-    echo sprintf('    DTO created: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+    $dto = ManualValidateUserDto::fromArray($validated);
+    echo sprintf('    Dto created: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
     /** @phpstan-ignore-next-line unknown */
@@ -121,7 +121,7 @@ $invalidData = [
 ];
 
 try {
-    $validated = ManualValidateUserDTO::validateOrFail($validData);
+    $validated = ManualValidateUserDto::validateOrFail($validData);
     echo "✅  Valid data passed: " . json_encode($validated) . "\n";
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -130,7 +130,7 @@ try {
 }
 
 try {
-    $validated = ManualValidateUserDTO::validateOrFail($invalidData);
+    $validated = ManualValidateUserDto::validateOrFail($invalidData);
     echo "✅  Valid data passed: " . json_encode($validated) . "\n";
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -146,17 +146,17 @@ echo "\n";
 echo "4. Non-throwing validation with validateData()\n";
 echo str_repeat('-', 60) . "\n";
 
-$result1 = ManualValidateUserDTO::validateData($validData);
+$result1 = ManualValidateUserDto::validateData($validData);
 if ($result1->isValid()) {
     echo "✅  Valid data:\n";
     echo "    Validated: " . json_encode($result1->validated()) . "\n";
-    $dto = ManualValidateUserDTO::fromArray($result1->validated());
-    echo sprintf('    DTO: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
+    $dto = ManualValidateUserDto::fromArray($result1->validated());
+    echo sprintf('    Dto: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
 } else {
     echo "❌  Validation failed\n";
 }
 
-$result2 = ManualValidateUserDTO::validateData($invalidData);
+$result2 = ManualValidateUserDto::validateData($invalidData);
 if ($result2->isValid()) {
     echo "✅  Valid data\n";
 } else {
@@ -172,7 +172,7 @@ echo "5. ValidateRequest with throw: true\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: true)]
-class ThrowingUserDTO extends SimpleDTO
+class ThrowingUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -186,7 +186,7 @@ class ThrowingUserDTO extends SimpleDTO
 }
 
 try {
-    $dto = ThrowingUserDTO::validateAndCreate($validData);
+    $dto = ThrowingUserDto::validateAndCreate($validData);
     echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -195,7 +195,7 @@ try {
 }
 
 try {
-    $dto = ThrowingUserDTO::validateAndCreate($invalidData);
+    $dto = ThrowingUserDto::validateAndCreate($invalidData);
     echo sprintf('✅  Valid data: %s, %s%s', $dto->email, $dto->name, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -212,7 +212,7 @@ echo "6. ValidateRequest with throw: false\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: false)]
-class NonThrowingUserDTO extends SimpleDTO
+class NonThrowingUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -225,7 +225,7 @@ class NonThrowingUserDTO extends SimpleDTO
     ) {}
 }
 
-$result3 = NonThrowingUserDTO::validateData($validData);
+$result3 = NonThrowingUserDto::validateData($validData);
 if ($result3->isValid()) {
     echo "✅  Valid data:\n";
     echo "    Validated: " . json_encode($result3->validated()) . "\n";
@@ -233,7 +233,7 @@ if ($result3->isValid()) {
     echo "❌  Validation failed\n";
 }
 
-$result4 = NonThrowingUserDTO::validateData($invalidData);
+$result4 = NonThrowingUserDto::validateData($invalidData);
 if ($result4->isValid()) {
     echo "✅  Valid data\n";
 } else {
@@ -249,7 +249,7 @@ echo "7. Partial validation (only/except)\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: true, only: ['email'])]
-class PartialOnlyUserDTO extends SimpleDTO
+class PartialOnlyUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -264,11 +264,11 @@ class PartialOnlyUserDTO extends SimpleDTO
 
 try {
     // Only email is validated, name is ignored
-    $validated = PartialOnlyUserDTO::validateOrFail([
+    $validated = PartialOnlyUserDto::validateOrFail([
         'email' => 'test@example.com',
         'name' => 'X', // Too short, but not validated
     ]);
-    $dto = PartialOnlyUserDTO::fromArray([
+    $dto = PartialOnlyUserDto::fromArray([
         'email' => 'test@example.com',
         'name' => 'X',
     ]);
@@ -280,7 +280,7 @@ try {
 }
 
 #[ValidateRequest(throw: true, except: ['name'])]
-class PartialExceptUserDTO extends SimpleDTO
+class PartialExceptUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -295,11 +295,11 @@ class PartialExceptUserDTO extends SimpleDTO
 
 try {
     // Name is excluded from validation
-    $validated = PartialExceptUserDTO::validateOrFail([
+    $validated = PartialExceptUserDto::validateOrFail([
         'email' => 'test@example.com',
         'name' => 'X', // Too short, but not validated
     ]);
-    $dto = PartialExceptUserDTO::fromArray([
+    $dto = PartialExceptUserDto::fromArray([
         'email' => 'test@example.com',
         'name' => 'X',
     ]);

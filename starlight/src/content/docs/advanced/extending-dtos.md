@@ -1,13 +1,13 @@
 ---
-title: Extending DTOs
-description: Extend SimpleDTO with custom functionality
+title: Extending Dtos
+description: Extend SimpleDto with custom functionality
 ---
 
-Extend SimpleDTO with custom functionality.
+Extend SimpleDto with custom functionality.
 
 ## Introduction
 
-Extend DTOs to add custom behavior:
+Extend Dtos to add custom behavior:
 
 - ✅ **Custom Methods** - Add business logic
 - ✅ **Traits** - Reuse functionality
@@ -19,24 +19,24 @@ Extend DTOs to add custom behavior:
 ### Adding Business Logic
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
         public readonly string $lastName,
         public readonly string $email,
     ) {}
-    
+
     public function getFullName(): string
     {
         return "{$this->firstName} {$this->lastName}";
     }
-    
+
     public function getInitials(): string
     {
         return strtoupper($this->firstName[0] . $this->lastName[0]);
     }
-    
+
     public function isEmailVerified(): bool
     {
         return User::where('email', $this->email)
@@ -49,24 +49,24 @@ class UserDTO extends SimpleDTO
 ### Validation Methods
 
 ```php
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
         public readonly float $price,
         public readonly int $stock,
     ) {}
-    
+
     public function isInStock(): bool
     {
         return $this->stock > 0;
     }
-    
+
     public function isLowStock(): bool
     {
         return $this->stock > 0 && $this->stock < 10;
     }
-    
+
     public function canPurchase(int $quantity): bool
     {
         return $this->stock >= $quantity;
@@ -83,12 +83,12 @@ trait Timestampable
 {
     public readonly Carbon $createdAt;
     public readonly Carbon $updatedAt;
-    
+
     public function isNew(): bool
     {
         return $this->createdAt->diffInDays(now()) < 7;
     }
-    
+
     public function wasRecentlyUpdated(): bool
     {
         return $this->updatedAt->diffInHours(now()) < 24;
@@ -99,10 +99,10 @@ trait Timestampable
 ### Using the Trait
 
 ```php
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     use Timestampable;
-    
+
     public function __construct(
         public readonly string $title,
         public readonly string $content,
@@ -111,7 +111,7 @@ class PostDTO extends SimpleDTO
     ) {}
 }
 
-$post = PostDTO::fromArray($data);
+$post = PostDto::fromArray($data);
 if ($post->isNew()) {
     echo 'New post!';
 }
@@ -119,20 +119,20 @@ if ($post->isNew()) {
 
 ## Inheritance
 
-### Base DTO
+### Base Dto
 
 ```php
-abstract class BaseDTO extends SimpleDTO
+abstract class BaseDto extends SimpleDto
 {
     public readonly int $id;
     public readonly Carbon $createdAt;
     public readonly Carbon $updatedAt;
-    
+
     public function getId(): int
     {
         return $this->id;
     }
-    
+
     public function getCreatedAt(): Carbon
     {
         return $this->createdAt;
@@ -140,10 +140,10 @@ abstract class BaseDTO extends SimpleDTO
 }
 ```
 
-### Extending Base DTO
+### Extending Base Dto
 
 ```php
-class UserDTO extends BaseDTO
+class UserDto extends BaseDto
 {
     public function __construct(
         public readonly int $id,
@@ -154,7 +154,7 @@ class UserDTO extends BaseDTO
     ) {}
 }
 
-class PostDTO extends BaseDTO
+class PostDto extends BaseDto
 {
     public function __construct(
         public readonly int $id,
@@ -181,14 +181,14 @@ interface Searchable
 ### Implementing the Interface
 
 ```php
-class ProductDTO extends SimpleDTO implements Searchable
+class ProductDto extends SimpleDto implements Searchable
 {
     public function __construct(
         public readonly string $name,
         public readonly string $description,
         public readonly string $sku,
     ) {}
-    
+
     public function getSearchableFields(): array
     {
         return [
@@ -197,7 +197,7 @@ class ProductDTO extends SimpleDTO implements Searchable
             'sku' => $this->sku,
         ];
     }
-    
+
     public function getSearchWeight(): int
     {
         return 10;
@@ -207,10 +207,10 @@ class ProductDTO extends SimpleDTO implements Searchable
 
 ## Real-World Examples
 
-### User DTO with Permissions
+### User Dto with Permissions
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -219,17 +219,17 @@ class UserDTO extends SimpleDTO
         public readonly string $role,
         public readonly array $permissions,
     ) {}
-    
+
     public function can(string $permission): bool
     {
         return in_array($permission, $this->permissions);
     }
-    
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
-    
+
     public function isModerator(): bool
     {
         return in_array($this->role, ['admin', 'moderator']);
@@ -237,10 +237,10 @@ class UserDTO extends SimpleDTO
 }
 ```
 
-### Order DTO with Calculations
+### Order Dto with Calculations
 
 ```php
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -248,7 +248,7 @@ class OrderDTO extends SimpleDTO
         public readonly float $taxRate,
         public readonly float $shippingCost,
     ) {}
-    
+
     public function getSubtotal(): float
     {
         return array_sum(array_map(
@@ -256,17 +256,17 @@ class OrderDTO extends SimpleDTO
             $this->items
         ));
     }
-    
+
     public function getTax(): float
     {
         return $this->getSubtotal() * $this->taxRate;
     }
-    
+
     public function getTotal(): float
     {
         return $this->getSubtotal() + $this->getTax() + $this->shippingCost;
     }
-    
+
     public function getItemCount(): int
     {
         return array_sum(array_column($this->items, 'quantity'));
@@ -274,21 +274,21 @@ class OrderDTO extends SimpleDTO
 }
 ```
 
-### Product DTO with Formatting
+### Product Dto with Formatting
 
 ```php
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
         public readonly int $priceInCents,
         public readonly string $currency,
     ) {}
-    
+
     public function getFormattedPrice(): string
     {
         $price = $this->priceInCents / 100;
-        
+
         return match($this->currency) {
             'USD' => '$' . number_format($price, 2),
             'EUR' => '€' . number_format($price, 2),
@@ -296,7 +296,7 @@ class ProductDTO extends SimpleDTO
             default => $this->currency . ' ' . number_format($price, 2),
         };
     }
-    
+
     public function getPriceInDollars(): float
     {
         return $this->priceInCents / 100;
@@ -309,60 +309,60 @@ class ProductDTO extends SimpleDTO
 ### Factory Methods
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
         public readonly string $email,
         public readonly string $role,
     ) {}
-    
+
     public static function createAdmin(string $name, string $email): self
     {
         return new self($name, $email, 'admin');
     }
-    
+
     public static function createUser(string $name, string $email): self
     {
         return new self($name, $email, 'user');
     }
 }
 
-$admin = UserDTO::createAdmin('John Doe', 'john@example.com');
+$admin = UserDto::createAdmin('John Doe', 'john@example.com');
 ```
 
 ### Builder Pattern
 
 ```php
-class UserDTOBuilder
+class UserDtoBuilder
 {
     private array $data = [];
-    
+
     public function setName(string $name): self
     {
         $this->data['name'] = $name;
         return $this;
     }
-    
+
     public function setEmail(string $email): self
     {
         $this->data['email'] = $email;
         return $this;
     }
-    
+
     public function setRole(string $role): self
     {
         $this->data['role'] = $role;
         return $this;
     }
-    
-    public function build(): UserDTO
+
+    public function build(): UserDto
     {
-        return UserDTO::fromArray($this->data);
+        return UserDto::fromArray($this->data);
     }
 }
 
-$user = (new UserDTOBuilder())
+$user = (new UserDtoBuilder())
     ->setName('John Doe')
     ->setEmail('john@example.com')
     ->setRole('admin')
@@ -372,25 +372,25 @@ $user = (new UserDTOBuilder())
 ### Immutable Updates
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
         public readonly string $email,
     ) {}
-    
+
     public function withName(string $name): self
     {
         return new self($name, $this->email);
     }
-    
+
     public function withEmail(string $email): self
     {
         return new self($this->name, $email);
     }
 }
 
-$user = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']);
+$user = UserDto::fromArray(['name' => 'John', 'email' => 'john@example.com']);
 $updated = $user->withName('Jane');
 ```
 
@@ -400,7 +400,7 @@ $updated = $user->withName('Jane');
 
 ```php
 // ✅ Good - single responsibility
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function getFullName(): string
     {
@@ -409,7 +409,7 @@ class UserDTO extends SimpleDTO
 }
 
 // ❌ Bad - multiple responsibilities
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function getFullName(): string { }
     public function sendEmail(): void { }
@@ -451,7 +451,7 @@ public function getFullName()
 
 ## See Also
 
-- [SimpleDTO Introduction](/simple-dto/introduction/) - DTO basics
+- [SimpleDto Introduction](/simple-dto/introduction/) - Dto basics
 - [Custom Casts](/advanced/custom-casts/) - Custom type casts
 - [Custom Validation](/advanced/custom-validation/) - Custom validation rules
 

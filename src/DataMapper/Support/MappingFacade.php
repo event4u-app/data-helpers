@@ -257,7 +257,7 @@ class MappingFacade
     /**
      * Auto-map by matching top-level field names between source and target.
      *
-     * Intended for quick scenarios like JSON → Model or DTO → Model where fields share names.
+     * Intended for quick scenarios like JSON → Model or Dto → Model where fields share names.
      *
      * Rules:
      * - Only top-level fields are considered (no deep recursion)
@@ -307,7 +307,7 @@ class MappingFacade
      *   );
      *
      * @param string $filePath Path to the XML or JSON file
-     * @param mixed $target The target data (array, object, model, DTO, etc.)
+     * @param mixed $target The target data (array, object, model, Dto, etc.)
      * @param array<int|string, mixed> $mapping Mapping definition
      * @param bool|MappingOptions $skipNull Skip null values (or MappingOptions object)
      * @param bool $reindexWildcard Reindex wildcard results

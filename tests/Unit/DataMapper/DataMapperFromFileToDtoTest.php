@@ -3,16 +3,16 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use Tests\Utils\DTOs\CompanyDto;
-use Tests\Utils\DTOs\DepartmentDto;
-use Tests\Utils\DTOs\ProjectDto;
+use Tests\Utils\Dtos\CompanyDto;
+use Tests\Utils\Dtos\DepartmentDto;
+use Tests\Utils\Dtos\ProjectDto;
 
-describe('DataMapper to DTO', function(): void {
-    describe('Automatic nested DTO mapping', function(): void {
-        it('maps JSON file to Company DTO with nested DTOs', function(): void {
+describe('DataMapper to Dto', function(): void {
+    describe('Automatic nested Dto mapping', function(): void {
+        it('maps JSON file to Company Dto with nested Dtos', function(): void {
             $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
-            // Map everything in one go - DataMapper automatically creates nested DTOs!
+            // Map everything in one go - DataMapper automatically creates nested Dtos!
             $company = new CompanyDto();
             $mapping = [
                 'name' => '{{ company.name }}',
@@ -49,7 +49,7 @@ describe('DataMapper to DTO', function(): void {
 
             $result = DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 
-            // Verify Company DTO data
+            // Verify Company Dto data
             expect($result)->toBeInstanceOf(CompanyDto::class);
             /** @var CompanyDto $companyDto */
             $companyDto = $result;
@@ -62,7 +62,7 @@ describe('DataMapper to DTO', function(): void {
             expect($companyDto->annual_revenue)->toBe(15750000.50);
             expect($companyDto->is_active)->toBe(true);
 
-            // Verify departments array (DTOs with typed properties automatically create nested DTOs!)
+            // Verify departments array (Dtos with typed properties automatically create nested Dtos!)
             expect($companyDto->departments)->toBeArray();
             expect($companyDto->departments)->toHaveCount(3);
 
@@ -116,7 +116,7 @@ describe('DataMapper to DTO', function(): void {
             expect($proj1Dto->budget)->toBe(1800000.00);
         });
 
-        it('maps XML file to Company DTO with nested DTOs', function(): void {
+        it('maps XML file to Company Dto with nested Dtos', function(): void {
             $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
             $company = new CompanyDto();
@@ -152,7 +152,7 @@ describe('DataMapper to DTO', function(): void {
 
             $result = DataMapper::sourceFile($xmlFile)->target($company)->template($mapping)->map()->getTarget();
 
-            // Verify Company DTO data
+            // Verify Company Dto data
             expect($result)->toBeInstanceOf(CompanyDto::class);
             /** @var CompanyDto $companyDto */
             $companyDto = $result;
@@ -190,8 +190,8 @@ describe('DataMapper to DTO', function(): void {
         });
     });
 
-    describe('DTO comparison', function(): void {
-        it('maps JSON vs XML to DTOs with identical results', function(): void {
+    describe('Dto comparison', function(): void {
+        it('maps JSON vs XML to Dtos with identical results', function(): void {
             $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
             $xmlFile = __DIR__ . '/../../Utils/xml/data_mapper_from_file_test.xml';
 
@@ -254,7 +254,7 @@ describe('DataMapper to DTO', function(): void {
             expect($jsonDept0Dto->code)->toBe($xmlDept0Dto->code);
         });
 
-        it('maps departments to Department DTOs', function(): void {
+        it('maps departments to Department Dtos', function(): void {
             $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             $departments = [];

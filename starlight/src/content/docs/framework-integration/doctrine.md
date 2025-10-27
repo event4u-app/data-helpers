@@ -26,22 +26,22 @@ composer require doctrine/orm
 
 ### From Entity
 
-Convert Doctrine entity to DTO:
+Convert Doctrine entity to Dto:
 
 ```php
 use App\Entity\User;
 
 $user = $entityManager->find(User::class, 1);
-$dto = UserDTO::fromEntity($user);
+$dto = UserDto::fromEntity($user);
 ```
 
 ### To Entity
 
-Convert DTO to Doctrine entity:
+Convert Dto to Doctrine entity:
 
 <!-- skip-test: requires Doctrine EntityManager -->
 ```php
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 $user = new User();
 $dto->toEntity($user);
 
@@ -54,7 +54,7 @@ $entityManager->flush();
 <!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $user = $entityManager->find(User::class, 1);
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 $dto->toEntity($user);
 
 $entityManager->flush();
@@ -67,7 +67,7 @@ $entityManager->flush();
 ```php
 use Doctrine\Common\Collections\Collection;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -87,7 +87,7 @@ class UserDTO extends SimpleDTO
 ### Convert to Array
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -99,7 +99,7 @@ class UserDTO extends SimpleDTO
         return new self(
             name: $user->getName(),
             posts: array_map(
-                fn($post) => PostDTO::fromEntity($post),
+                fn($post) => PostDto::fromEntity($post),
                 $user->getPosts()->toArray()
             ),
         );
@@ -112,7 +112,7 @@ class UserDTO extends SimpleDTO
 ### OneToMany
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -123,7 +123,7 @@ class UserDTO extends SimpleDTO
     {
         return new self(
             name: $user->getName(),
-            posts: PostDTO::collection($user->getPosts()),
+            posts: PostDto::collection($user->getPosts()),
         );
     }
 }
@@ -132,18 +132,18 @@ class UserDTO extends SimpleDTO
 ### ManyToOne
 
 ```php
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
-        public readonly UserDTO $author,
+        public readonly UserDto $author,
     ) {}
 
     public static function fromEntity(Post $post): self
     {
         return new self(
             title: $post->getTitle(),
-            author: UserDTO::fromEntity($post->getAuthor()),
+            author: UserDto::fromEntity($post->getAuthor()),
         );
     }
 }
@@ -152,7 +152,7 @@ class PostDTO extends SimpleDTO
 ### ManyToMany
 
 ```php
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -163,7 +163,7 @@ class PostDTO extends SimpleDTO
     {
         return new self(
             title: $post->getTitle(),
-            tags: TagDTO::collection($post->getTags()),
+            tags: TagDto::collection($post->getTags()),
         );
     }
 }
@@ -174,9 +174,9 @@ class PostDTO extends SimpleDTO
 ### Lazy Properties
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -189,13 +189,13 @@ class UserDTO extends SimpleDTO
     {
         return new self(
             name: $user->getName(),
-            posts: fn() => PostDTO::collection($user->getPosts()),
+            posts: fn() => PostDto::collection($user->getPosts()),
         );
     }
 }
 
 // Posts are only loaded when accessed
-$dto = UserDTO::fromEntity($user);
+$dto = UserDto::fromEntity($user);
 $posts = $dto->posts; // Loads posts now
 ```
 
@@ -212,7 +212,7 @@ class UserService
         private EntityManagerInterface $em,
     ) {}
 
-    public function createUser(CreateUserDTO $dto): UserDTO
+    public function createUser(CreateUserDto $dto): UserDto
     {
         $user = new User();
         $dto->toEntity($user);
@@ -220,37 +220,37 @@ class UserService
         $this->em->persist($user);
         $this->em->flush();
 
-        return UserDTO::fromEntity($user);
+        return UserDto::fromEntity($user);
     }
 
-    public function updateUser(int $id, UpdateUserDTO $dto): UserDTO
+    public function updateUser(int $id, UpdateUserDto $dto): UserDto
     {
         $user = $this->em->find(User::class, $id);
         $dto->toEntity($user);
 
         $this->em->flush();
 
-        return UserDTO::fromEntity($user);
+        return UserDto::fromEntity($user);
     }
 
-    public function getUser(int $id): UserDTO
+    public function getUser(int $id): UserDto
     {
         $user = $this->em->find(User::class, $id);
-        return UserDTO::fromEntity($user);
+        return UserDto::fromEntity($user);
     }
 }
 ```
 
 ## Best Practices
 
-### Use DTOs for API Responses
+### Use Dtos for API Responses
 
 ```php
-// ✅ Good - DTO for API response
+// ✅ Good - Dto for API response
 public function show(int $id): JsonResponse
 {
     $user = $this->em->find(User::class, $id);
-    $dto = UserDTO::fromEntity($user);
+    $dto = UserDto::fromEntity($user);
     return $this->json($dto);
 }
 
@@ -287,7 +287,7 @@ The functionality is thoroughly tested. Key test files:
 
 - [DataAccessorDoctrineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataAccessor/DataAccessorDoctrineTest.php) - Doctrine accessor tests
 - [DataMutatorDoctrineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMutator/DataMutatorDoctrineTest.php) - Doctrine mutator tests
-- [DoctrineIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/DoctrineIntegrationTest.php) - DTO Doctrine integration tests
+- [DoctrineIntegrationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/DoctrineIntegrationTest.php) - Dto Doctrine integration tests
 
 Run the tests:
 

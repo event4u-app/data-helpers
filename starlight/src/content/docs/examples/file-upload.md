@@ -17,7 +17,7 @@ Common file upload patterns:
 ## Avatar Upload
 
 ```php
-class UploadAvatarDTO extends SimpleDTO
+class UploadAvatarDto extends SimpleDto
 {
     public function __construct(
         #[Required, File, Image, MaxFileSize(2048), Dimensions(['min_width' => 100, 'min_height' => 100])]
@@ -27,7 +27,7 @@ class UploadAvatarDTO extends SimpleDTO
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $dto = UploadAvatarDTO::validateAndCreate($_FILES);
+        $dto = UploadAvatarDto::validateAndCreate($_FILES);
         
         $path = $dto->avatar->store('avatars', 'public');
         
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ## Document Upload
 
 ```php
-class UploadDocumentDTO extends SimpleDTO
+class UploadDocumentDto extends SimpleDto
 {
     public function __construct(
         #[Required, File, Mimes(['pdf', 'doc', 'docx']), MaxFileSize(10240)]
@@ -56,7 +56,7 @@ class UploadDocumentDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UploadDocumentDTO::validateAndCreate(array_merge($_POST, $_FILES));
+$dto = UploadDocumentDto::validateAndCreate(array_merge($_POST, $_FILES));
 
 $path = $dto->document->store('documents', 'private');
 
@@ -71,7 +71,7 @@ Document::create([
 ## Multiple Files
 
 ```php
-class UploadImagesDTO extends SimpleDTO
+class UploadImagesDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -96,7 +96,7 @@ class UploadImagesDTO extends SimpleDTO
     }
 }
 
-$dto = UploadImagesDTO::fromArray($_FILES);
+$dto = UploadImagesDto::fromArray($_FILES);
 $dto->validate();
 
 $paths = [];
@@ -113,7 +113,7 @@ Post::create([
 ## Image with Thumbnail
 
 ```php
-class UploadImageDTO extends SimpleDTO
+class UploadImageDto extends SimpleDto
 {
     public function __construct(
         #[Required, File, Image, MaxFileSize(5120)]
@@ -121,7 +121,7 @@ class UploadImageDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UploadImageDTO::validateAndCreate($_FILES);
+$dto = UploadImageDto::validateAndCreate($_FILES);
 
 // Store original
 $path = $dto->image->store('images', 'public');
@@ -143,7 +143,7 @@ Product::create([
 ## CSV Import
 
 ```php
-class ImportCsvDTO extends SimpleDTO
+class ImportCsvDto extends SimpleDto
 {
     public function __construct(
         #[Required, File, Mimes(['csv', 'txt']), MaxFileSize(10240)]
@@ -151,7 +151,7 @@ class ImportCsvDTO extends SimpleDTO
     ) {}
 }
 
-$dto = ImportCsvDTO::validateAndCreate($_FILES);
+$dto = ImportCsvDto::validateAndCreate($_FILES);
 
 $handle = fopen($dto->file->getRealPath(), 'r');
 $header = fgetcsv($handle);
@@ -171,7 +171,7 @@ fclose($handle);
 ## File Download
 
 ```php
-class DownloadFileDTO extends SimpleDTO
+class DownloadFileDto extends SimpleDto
 {
     public function __construct(
         #[Required, Exists('documents', 'id')]
@@ -179,7 +179,7 @@ class DownloadFileDTO extends SimpleDTO
     ) {}
 }
 
-$dto = DownloadFileDTO::validateAndCreate($_GET);
+$dto = DownloadFileDto::validateAndCreate($_GET);
 
 $document = Document::find($dto->documentId);
 

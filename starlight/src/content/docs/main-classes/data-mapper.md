@@ -161,22 +161,22 @@ Templates use `{{ }}` for dynamic values:
 
 ### Mapping to Objects
 
-<!-- skip-test: declares UserDTO class -->
+<!-- skip-test: declares UserDto class -->
 ```php
-class UserDTO
+class UserDto
 {
     public string $name;
     public string $email;
 }
 
 $result = DataMapper::source($source)
-    ->target(UserDTO::class)
+    ->target(UserDto::class)
     ->template([
         'name' => '{{ user.name }}',
         'email' => '{{ user.email }}',
     ])
     ->map()
-    ->getTarget(); // Returns UserDTO instance
+    ->getTarget(); // Returns UserDto instance
 ```
 
 ### Nested Structures
@@ -648,7 +648,7 @@ $mapper->delete()->limit()->offset();
 
 DataMapper is optimized for performance:
 
-- **3.7x faster** than Symfony Serializer for DTO mapping
+- **3.7x faster** than Symfony Serializer for Dto mapping
 - **Zero reflection overhead** for template-based mapping
 - **Efficient caching** for path resolution and reflection
 - **Minimal overhead** (7.1%) for Fluent API wrapper
@@ -666,7 +666,7 @@ The following working examples demonstrate DataMapper in action:
 - [**Mapped Data Model**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/mapped-data-model.php) - Using MappedDataModel class
 - [**Template Expressions**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/template-expressions.php) - Advanced template syntax
 - [**Reverse Mapping**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/reverse-mapping.php) - Bidirectional mapping
-- [**DTO Integration**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/dto-integration.php) - Integration with SimpleDTO
+- [**Dto Integration**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/dto-integration.php) - Integration with SimpleDto
 
 All examples are fully tested and can be run directly:
 

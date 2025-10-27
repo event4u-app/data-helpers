@@ -30,21 +30,21 @@ tasks:
           docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-benchmark-results.php
 
   dto:
-    desc: Run DTO benchmarks (Traditional vs SimpleDTO)
+    desc: Run Dto benchmarks (Traditional vs SimpleDto)
     aliases: [bench:dto]
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
-        task_run "Running DTO Benchmarks" \
+        task_run "Running Dto Benchmarks" \
           docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/dto-benchmark.php
 
   dto:readme:
-    desc: Update DTO benchmark results in docs/simple-dto.md
+    desc: Update Dto benchmark results in docs/simple-dto.md
     aliases: [bench:dto:readme]
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
-        task_run "Updating DTO Benchmark Results" \
+        task_run "Updating Dto Benchmark Results" \
           docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-dto-benchmark-results.php
 
   all:

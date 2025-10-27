@@ -4,50 +4,50 @@ declare(strict_types=1);
 
 namespace PHPSTORM_META {
 
-    use event4u\DataHelpers\SimpleDTO;
-    use event4u\DataHelpers\SimpleDTO\DataCollection;
+    use event4u\DataHelpers\SimpleDto;
+    use event4u\DataHelpers\SimpleDto\DataCollection;
 
-    // SimpleDTO::fromArray() returns the specific DTO type
-    override(SimpleDTO::fromArray(0), map([
+    // SimpleDto::fromArray() returns the specific Dto type
+    override(SimpleDto::fromArray(0), map([
         '' => '@',
     ]));
 
-    // SimpleDTO::validateAndCreate() returns the specific DTO type
-    override(SimpleDTO::validateAndCreate(0), map([
+    // SimpleDto::validateAndCreate() returns the specific Dto type
+    override(SimpleDto::validateAndCreate(0), map([
         '' => '@',
     ]));
 
-    // SimpleDTO::validate() returns array
-    override(SimpleDTO::validate(0), type(0));
+    // SimpleDto::validate() returns array
+    override(SimpleDto::validate(0), type(0));
 
-    // SimpleDTO::collection() returns DataCollection of the specific DTO type
-    override(SimpleDTO::collection(0), map([
+    // SimpleDto::collection() returns DataCollection of the specific Dto type
+    override(SimpleDto::collection(0), map([
         '' => '@|DataCollection',
     ]));
 
-    // DataCollection::forDto() returns DataCollection of the specific DTO type
+    // DataCollection::forDto() returns DataCollection of the specific Dto type
     override(DataCollection::forDto(0), map([
         '' => '@|DataCollection',
     ]));
 
-    // DataCollection::wrapDto() returns DataCollection of the specific DTO type
+    // DataCollection::wrapDto() returns DataCollection of the specific Dto type
     override(DataCollection::wrapDto(0), map([
         '' => '@|DataCollection',
     ]));
 
     // Eloquent integration (if available)
-    override(\event4u\DataHelpers\SimpleDTO\SimpleDTOEloquentTrait::fromModel(0), map([
+    override(\event4u\DataHelpers\SimpleDto\SimpleDtoEloquentTrait::fromModel(0), map([
         '' => '@',
     ]));
 
     // Doctrine integration (if available)
-    override(\event4u\DataHelpers\SimpleDTO\SimpleDTODoctrineTrait::fromEntity(0), map([
+    override(\event4u\DataHelpers\SimpleDto\SimpleDtoDoctrineTrait::fromEntity(0), map([
         '' => '@',
     ]));
 
     // Cast attributes - provide autocomplete for cast types
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\SimpleDTOCastsTrait::casts(),
+        \event4u\DataHelpers\SimpleDto\SimpleDtoCastsTrait::casts(),
         0,
         argumentsSet('simpleDtoCastTypes')
     );
@@ -75,37 +75,37 @@ namespace PHPSTORM_META {
 
     // Validation attributes - provide autocomplete for validation rules
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\Between::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\Between::__construct(),
         0,
         argumentsSet('validationRuleValues')
     );
 
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\Min::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\Min::__construct(),
         0,
         argumentsSet('validationRuleValues')
     );
 
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\Max::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\Max::__construct(),
         0,
         argumentsSet('validationRuleValues')
     );
 
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\In::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\In::__construct(),
         0,
         argumentsSet('validationRuleValues')
     );
 
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\NotIn::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\NotIn::__construct(),
         0,
         argumentsSet('validationRuleValues')
     );
 
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\Regex::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\Regex::__construct(),
         0,
         argumentsSet('validationRuleValues')
     );
@@ -124,7 +124,7 @@ namespace PHPSTORM_META {
 
     // MapFrom attribute - provide autocomplete for common property names
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\MapFrom::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\MapFrom::__construct(),
         0,
         argumentsSet('commonPropertyNames')
     );
@@ -145,20 +145,20 @@ namespace PHPSTORM_META {
 
     // MapTo attribute - provide autocomplete for common property names
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\MapTo::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\MapTo::__construct(),
         0,
         argumentsSet('commonPropertyNames')
     );
 
     // MapInputName attribute - provide autocomplete for naming conventions
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\MapInputName::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\MapInputName::__construct(),
         0,
         argumentsSet('namingConventions')
     );
 
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\MapOutputName::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\MapOutputName::__construct(),
         0,
         argumentsSet('namingConventions')
     );
@@ -173,7 +173,7 @@ namespace PHPSTORM_META {
 
     // Computed attribute - provide autocomplete for options
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\Computed::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\Computed::__construct(),
         0,
         argumentsSet('computedOptions')
     );
@@ -187,7 +187,7 @@ namespace PHPSTORM_META {
 
     // Lazy attribute - provide autocomplete for options
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\Lazy::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\Lazy::__construct(),
         0,
         argumentsSet('lazyOptions')
     );
@@ -199,19 +199,19 @@ namespace PHPSTORM_META {
 
     // DataCollectionOf attribute - provide type hints
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf::__construct(),
+        \event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf::__construct(),
         0,
         argumentsSet('dtoClasses')
     );
 
     registerArgumentsSet(
         'dtoClasses',
-        \event4u\DataHelpers\SimpleDTO::class,
+        \event4u\DataHelpers\SimpleDto::class,
     );
 
     // TypeScript Generator - provide autocomplete for export types
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\TypeScriptGenerator::generate(),
+        \event4u\DataHelpers\SimpleDto\TypeScriptGenerator::generate(),
         1,
         argumentsSet('typescriptExportTypes')
     );
@@ -225,7 +225,7 @@ namespace PHPSTORM_META {
 
     // TypeScript Generator options
     expectedArguments(
-        \event4u\DataHelpers\SimpleDTO\TypeScriptGenerator::generate(),
+        \event4u\DataHelpers\SimpleDto\TypeScriptGenerator::generate(),
         2,
         argumentsSet('typescriptOptions')
     );

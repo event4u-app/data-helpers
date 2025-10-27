@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Frameworks\Symfony\Command;
 
-use event4u\DataHelpers\SimpleDTO\Config\TypeScriptGeneratorOptions;
-use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
-use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
+use event4u\DataHelpers\SimpleDto\Config\TypeScriptGeneratorOptions;
+use event4u\DataHelpers\SimpleDto\Enums\TypeScriptExportType;
+use event4u\DataHelpers\SimpleDto\TypeScriptGenerator;
 use ReflectionClass;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,17 +19,17 @@ use Symfony\Component\Finder\Finder;
 use Throwable;
 
 /**
- * Console command to generate TypeScript interfaces from SimpleDTOs.
+ * Console command to generate TypeScript interfaces from SimpleDtos.
  *
  * Usage:
  *   bin/console dto:typescript
  *   bin/console dto:typescript --output=assets/types/dtos.ts
- *   bin/console dto:typescript --path=src/DTO
+ *   bin/console dto:typescript --path=src/Dto
  *   bin/console dto:typescript --watch
  */
 #[AsCommand(
     name: 'dto:typescript',
-    description: 'Generate TypeScript interfaces from SimpleDTOs',
+    description: 'Generate TypeScript interfaces from SimpleDtos',
 )]
 class DtoTypeScriptCommand extends Command
 {
@@ -45,7 +45,7 @@ class DtoTypeScriptCommand extends Command
     {
         $this
             ->addOption('output', null, InputOption::VALUE_REQUIRED, 'Output file path', 'assets/types/dtos.ts')
-            ->addOption('path', null, InputOption::VALUE_REQUIRED, 'Path to scan for DTOs', 'src/DTO')
+            ->addOption('path', null, InputOption::VALUE_REQUIRED, 'Path to scan for Dtos', 'src/Dto')
             ->addOption(
                 'export',
                 null,
@@ -89,18 +89,18 @@ class DtoTypeScriptCommand extends Command
         bool $includeComments,
         bool $sort
     ): int {
-        $io->info('Scanning for DTOs...');
+        $io->info('Scanning for Dtos...');
 
-        // Find all DTO classes
+        // Find all Dto classes
         $dtoClasses = $this->findDtoClasses($scanPath);
 
         if ([] === $dtoClasses) {
-            $io->warning('No DTO classes found in ' . $scanPath);
+            $io->warning('No Dto classes found in ' . $scanPath);
 
             return Command::FAILURE;
         }
 
-        $io->info('Found ' . count($dtoClasses) . ' DTO classes');
+        $io->info('Found ' . count($dtoClasses) . ' Dto classes');
 
         // Generate TypeScript
         $generator = new TypeScriptGenerator();
@@ -151,7 +151,7 @@ class DtoTypeScriptCommand extends Command
 
         /** @phpstan-ignore-next-line */
         while (true) {
-            // Get current hash of all DTO files
+            // Get current hash of all Dto files
             $currentHash = $this->getDirectoryHash($scanPath);
 
             if ($currentHash !== $lastHash) {
@@ -174,7 +174,7 @@ class DtoTypeScriptCommand extends Command
     }
 
     /**
-     * Find all DTO classes in a directory.
+     * Find all Dto classes in a directory.
      *
      * @return list<string>
      */
@@ -196,7 +196,7 @@ class DtoTypeScriptCommand extends Command
                 continue;
             }
 
-            // Check if class uses SimpleDTOTrait
+            // Check if class uses SimpleDtoTrait
             if ($this->isSimpleDto($className)) {
                 $dtoClasses[] = $className;
             }
@@ -236,7 +236,7 @@ class DtoTypeScriptCommand extends Command
         return $fullClassName;
     }
 
-    /** Check if class is a SimpleDTO. */
+    /** Check if class is a SimpleDto. */
     protected function isSimpleDto(string $className): bool
     {
         if (!class_exists($className)) {
@@ -247,7 +247,7 @@ class DtoTypeScriptCommand extends Command
             $reflection = new ReflectionClass($className);
             $traits = $this->getAllTraits($reflection);
 
-            return in_array('event4u\DataHelpers\SimpleDTO\SimpleDTOTrait', $traits, true);
+            return in_array('event4u\DataHelpers\SimpleDto\SimpleDtoTrait', $traits, true);
         } catch (Throwable) {
             return false;
         }

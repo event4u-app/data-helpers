@@ -165,7 +165,7 @@ Automatic mapping between source and target structures.
 **Example:**
 ```php
 $source = ['user' => ['name' => 'Alice', 'email' => 'alice@example.com']];
-$target = new UserDTO();
+$target = new UserDto();
 
 // Shallow mode
 $result = AutoMapper::autoMap($source, $target, deep: false);

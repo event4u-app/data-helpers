@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
-use Tests\Utils\DTOs\AddressDTO;
-use Tests\Utils\DTOs\ProfileDTO;
-use Tests\Utils\DTOs\UserDTO;
+use Tests\Utils\Dtos\AddressDto;
+use Tests\Utils\Dtos\ProfileDto;
+use Tests\Utils\Dtos\UserDto;
 use Tests\Utils\Models\Address;
 use Tests\Utils\Models\Comment;
 use Tests\Utils\Models\Company;
@@ -140,10 +140,10 @@ describe('DataMapper deep fixtures', function(): void {
         expect($res)->toHaveKey('company');
     });
 
-    test('mapToTargetsFromTemplate writes into DTOs and Models (wildcards + nesting)', function(): void {
-        $userDto = new UserDTO();
-        $userDto->profile = new ProfileDTO();
-        $userDto->profile->address = new AddressDTO();
+    test('mapToTargetsFromTemplate writes into Dtos and Models (wildcards + nesting)', function(): void {
+        $userDto = new UserDto();
+        $userDto->profile = new ProfileDto();
+        $userDto->profile->address = new AddressDto();
 
         $company = new Company([
             'name' => 'Acme Inc.',
@@ -186,12 +186,12 @@ describe('DataMapper deep fixtures', function(): void {
             true
         )->map()->getTarget();
 
-        /** @var UserDTO $u */
+        /** @var UserDto $u */
         $u = $updated['user'];
         expect($u->name)->toBe('Alice A.');
         expect($u->email)->toBe('alice.a@example.com');
-        assert($u->profile instanceof ProfileDTO);
-        assert($u->profile->address instanceof AddressDTO);
+        assert($u->profile instanceof ProfileDto);
+        assert($u->profile->address instanceof AddressDto);
 
         expect($u->profile->address->city)->toBe('Leipzig');
 

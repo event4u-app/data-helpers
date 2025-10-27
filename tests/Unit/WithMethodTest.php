@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-// Test DTOs
-class WithMethodDTO1 extends SimpleDTO { public function __construct(public readonly string $name, public readonly string $email) {} }
-class WithMethodDTO2 extends SimpleDTO { public function __construct(public readonly string $name) {} }
-class WithMethodDTO3 extends SimpleDTO { public function __construct(public readonly string $name, public readonly int $age) {} }
-class WithMethodDTO4 extends SimpleDTO { public function __construct(public readonly string $firstName, public readonly string $lastName) {} }
-class WithMethodDTO5 extends SimpleDTO { public function __construct(public readonly int $a, public readonly int $b) {} }
-class WithMethodDTO6 extends SimpleDTO { public function __construct(public readonly string $street, public readonly string $city) {} }
-class WithMethodDTO7 extends SimpleDTO { public function __construct(public readonly string $name, public readonly object $address) {} }
-class WithMethodDTO8 extends SimpleDTO { public function __construct(public readonly string $name) {} }
-class WithMethodDTO9 extends SimpleDTO { public function __construct(public readonly string $name, public readonly int $age) {} }
+// Test Dtos
+class WithMethodDto1 extends SimpleDto { public function __construct(public readonly string $name, public readonly string $email) {} }
+class WithMethodDto2 extends SimpleDto { public function __construct(public readonly string $name) {} }
+class WithMethodDto3 extends SimpleDto { public function __construct(public readonly string $name, public readonly int $age) {} }
+class WithMethodDto4 extends SimpleDto { public function __construct(public readonly string $firstName, public readonly string $lastName) {} }
+class WithMethodDto5 extends SimpleDto { public function __construct(public readonly int $a, public readonly int $b) {} }
+class WithMethodDto6 extends SimpleDto { public function __construct(public readonly string $street, public readonly string $city) {} }
+class WithMethodDto7 extends SimpleDto { public function __construct(public readonly string $name, public readonly object $address) {} }
+class WithMethodDto8 extends SimpleDto { public function __construct(public readonly string $name) {} }
+class WithMethodDto9 extends SimpleDto { public function __construct(public readonly string $name, public readonly int $age) {} }
 
 describe('With Method', function(): void {
     describe('Basic with() Method', function(): void {
         it('adds single property with key-value syntax', function(): void {
-            $dto = new WithMethodDTO1('John', 'john@example.com');
+            $dto = new WithMethodDto1('John', 'john@example.com');
 
             $result = $dto->with('role', 'admin')->toArray();
 
@@ -31,7 +31,7 @@ describe('With Method', function(): void {
         });
 
         it('adds multiple properties with array syntax', function(): void {
-            $dto = new WithMethodDTO2('John');
+            $dto = new WithMethodDto2('John');
 
             $result = $dto->with([
                 'role' => 'admin',
@@ -49,7 +49,7 @@ describe('With Method', function(): void {
         });
 
         it('chains multiple with() calls', function(): void {
-            $dto = new WithMethodDTO2('John');
+            $dto = new WithMethodDto2('John');
 
             $result = $dto
                 ->with('role', 'admin')
@@ -65,8 +65,8 @@ describe('With Method', function(): void {
                 ->and($result['level'])->toBe(5);
         });
 
-        it('does not modify original DTO', function(): void {
-            $dto = new WithMethodDTO2('John');
+        it('does not modify original Dto', function(): void {
+            $dto = new WithMethodDto2('John');
 
             $original = $dto->toArray();
             $modified = $dto->with('role', 'admin')->toArray();
@@ -78,7 +78,7 @@ describe('With Method', function(): void {
 
     describe('Lazy Evaluation', function(): void {
         it('evaluates callbacks lazily', function(): void {
-            $dto = new WithMethodDTO3('John', 30);
+            $dto = new WithMethodDto3('John', 30);
 
             $result = $dto->with('isAdult', fn($dto): bool => 18 <= $dto->age)->toArray();
 
@@ -86,8 +86,8 @@ describe('With Method', function(): void {
                 ->and($result['isAdult'])->toBeTrue();
         });
 
-        it('passes DTO instance to callback', function(): void {
-            $dto = new WithMethodDTO4('John', 'Doe');
+        it('passes Dto instance to callback', function(): void {
+            $dto = new WithMethodDto4('John', 'Doe');
 
             $result = $dto->with('fullName', fn($dto): string => $dto->firstName . ' ' . $dto->lastName)->toArray();
 
@@ -96,7 +96,7 @@ describe('With Method', function(): void {
         });
 
         it('evaluates multiple callbacks', function(): void {
-            $dto = new WithMethodDTO5(10, 20);
+            $dto = new WithMethodDto5(10, 20);
 
             $result = $dto->with([
                 'sum' => fn($dto): float|int|array => $dto->a + $dto->b,
@@ -110,13 +110,13 @@ describe('With Method', function(): void {
         });
     });
 
-    describe('Nested DTOs', function(): void {
-        it('converts nested DTOs to arrays', function(): void {
-            $addressDTO = new WithMethodDTO6('123 Main St', 'New York');
+    describe('Nested Dtos', function(): void {
+        it('converts nested Dtos to arrays', function(): void {
+            $addressDto = new WithMethodDto6('123 Main St', 'New York');
 
-            $userDTO = new WithMethodDTO2('John');
+            $userDto = new WithMethodDto2('John');
 
-            $result = $userDTO->with('address', $addressDTO)->toArray();
+            $result = $userDto->with('address', $addressDto)->toArray();
 
             expect($result)->toHaveKey('address')
                 ->and($result['address'])->toBeArray()
@@ -126,12 +126,12 @@ describe('With Method', function(): void {
                 ->and($result['address']['city'])->toBe('New York');
         });
 
-        it('handles nested DTOs in callbacks', function(): void {
-            $addressDTO = new WithMethodDTO6('123 Main St', 'New York');
+        it('handles nested Dtos in callbacks', function(): void {
+            $addressDto = new WithMethodDto6('123 Main St', 'New York');
 
-            $userDTO = new WithMethodDTO7('John', $addressDTO);
+            $userDto = new WithMethodDto7('John', $addressDto);
 
-            $result = $userDTO->with('location', fn($dto) => $dto->address)->toArray();
+            $result = $userDto->with('location', fn($dto) => $dto->address)->toArray();
 
             expect($result)->toHaveKey('location')
                 ->and($result['location'])->toBeArray()
@@ -141,7 +141,7 @@ describe('With Method', function(): void {
 
     describe('JSON Serialization', function(): void {
         it('includes additional data in JSON serialization', function(): void {
-            $dto = new WithMethodDTO8('John');
+            $dto = new WithMethodDto8('John');
 
             $json = json_encode($dto->with('role', 'admin'));
             assert(is_string($json));
@@ -153,7 +153,7 @@ describe('With Method', function(): void {
         });
 
         it('evaluates callbacks in JSON serialization', function(): void {
-            $dto = new WithMethodDTO9('John', 30);
+            $dto = new WithMethodDto9('John', 30);
 
             $json = json_encode($dto->with('isAdult', fn($dto): bool => 18 <= $dto->age));
             assert(is_string($json));
@@ -166,7 +166,7 @@ describe('With Method', function(): void {
 
     describe('Edge Cases', function(): void {
         it('handles null values', function(): void {
-            $dto = new WithMethodDTO2('John');
+            $dto = new WithMethodDto2('John');
 
             $result = $dto->with('phone', null)->toArray();
 
@@ -175,7 +175,7 @@ describe('With Method', function(): void {
         });
 
         it('handles empty arrays', function(): void {
-            $dto = new WithMethodDTO2('John');
+            $dto = new WithMethodDto2('John');
 
             $result = $dto->with('tags', [])->toArray();
 
@@ -184,7 +184,7 @@ describe('With Method', function(): void {
         });
 
         it('overwrites existing properties', function(): void {
-            $dto = new WithMethodDTO2('John');
+            $dto = new WithMethodDto2('John');
 
             $result = $dto->with('name', 'Jane')->toArray();
 
@@ -192,7 +192,7 @@ describe('With Method', function(): void {
         });
 
         it('handles complex nested structures', function(): void {
-            $dto = new WithMethodDTO2('John');
+            $dto = new WithMethodDto2('John');
 
             $result = $dto->with('metadata', [
                 'created' => '2024-01-01',

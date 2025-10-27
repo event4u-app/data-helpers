@@ -477,7 +477,7 @@ PHP;
             '/\$data\s*=/',
             '/new\s+User\(\)/',
             '/new\s+Company\(\)/',
-            '/UserDTO::class/',
+            '/UserDto::class/',
             '/Mappings::find/',
         ];
 
@@ -496,8 +496,8 @@ PHP;
         $setup = [];
 
         // Add common mock classes - but only if they're not already defined in the code
-        if ((str_contains($code, 'UserDTO::class') || str_contains($code, 'new User()')) &&
-            !preg_match('/class\s+User(DTO)?\s+/m', $code)) {
+        if ((str_contains($code, 'UserDto::class') || str_contains($code, 'new User()')) &&
+            !preg_match('/class\s+User(Dto)?\s+/m', $code)) {
             $setup[] = <<<'PHP'
 // Mock User class
 class User {

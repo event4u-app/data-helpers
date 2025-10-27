@@ -1,48 +1,48 @@
 ---
-title: Creating DTOs
-description: Learn all the different ways to create DTO instances in SimpleDTO
+title: Creating Dtos
+description: Learn all the different ways to create Dto instances in SimpleDto
 ---
 
-Learn all the different ways to create DTO instances in SimpleDTO.
+Learn all the different ways to create Dto instances in SimpleDto.
 
 ## Creation Methods Overview
 
-SimpleDTO provides multiple ways to create instances:
+SimpleDto provides multiple ways to create instances:
 
 | Method | Use Case | Example |
 |--------|----------|---------|
-| `fromArray()` | From associative array | `UserDTO::fromArray($data)` |
-| `fromJson()` | From JSON string | `UserDTO::fromJson($json)` |
-| `fromRequest()` | From HTTP request (Laravel) | `UserDTO::fromRequest($request)` |
-| `fromModel()` | From Eloquent model (Laravel) | `UserDTO::fromModel($user)` |
-| `fromEntity()` | From Doctrine entity (Symfony) | `UserDTO::fromEntity($user)` |
-| `fromXml()` | From XML string | `UserDTO::fromXml($xml)` |
-| `fromYaml()` | From YAML string | `UserDTO::fromYaml($yaml)` |
-| `fromCsv()` | From CSV string | `UserDTO::fromCsv($csv)` |
-| `validateAndCreate()` | With validation | `UserDTO::validateAndCreate($data)` |
-| `new` | Direct instantiation | `new UserDTO(...)` |
+| `fromArray()` | From associative array | `UserDto::fromArray($data)` |
+| `fromJson()` | From JSON string | `UserDto::fromJson($json)` |
+| `fromRequest()` | From HTTP request (Laravel) | `UserDto::fromRequest($request)` |
+| `fromModel()` | From Eloquent model (Laravel) | `UserDto::fromModel($user)` |
+| `fromEntity()` | From Doctrine entity (Symfony) | `UserDto::fromEntity($user)` |
+| `fromXml()` | From XML string | `UserDto::fromXml($xml)` |
+| `fromYaml()` | From YAML string | `UserDto::fromYaml($yaml)` |
+| `fromCsv()` | From CSV string | `UserDto::fromCsv($csv)` |
+| `validateAndCreate()` | With validation | `UserDto::validateAndCreate($data)` |
+| `new` | Direct instantiation | `new UserDto(...)` |
 
 ## From Array
 
 ### Basic Usage
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
 ]);
-// Result: UserDTO instance
+// Result: UserDto instance
 ```
 
 ### With Nested Arrays
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'address' => [
@@ -51,23 +51,23 @@ $dto = UserDTO::fromArray([
         'country' => 'USA',
     ],
 ]);
-// Result: UserDTO instance with nested address array
+// Result: UserDto instance with nested address array
 ```
 
 ### With Extra Keys (Ignored)
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 // Extra keys are automatically ignored
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
     'extra_field' => 'ignored',  // Ignored
     'another_field' => 'ignored', // Ignored
 ]);
-// Result: UserDTO instance (extra fields ignored)
+// Result: UserDto instance (extra fields ignored)
 ```
 
 ## From JSON
@@ -75,11 +75,11 @@ $dto = UserDTO::fromArray([
 ### Basic Usage
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $json = '{"name":"John Doe","email":"john@example.com","age":30}';
-$dto = UserDTO::fromJson($json);
-// Result: UserDTO instance
+$dto = UserDto::fromJson($json);
+// Result: UserDto instance
 ```
 
 ### From JSON File
@@ -87,13 +87,13 @@ $dto = UserDTO::fromJson($json);
 <!-- skip-test: File doesn't exist -->
 ```php
 $json = file_get_contents('user.json');
-$dto = UserDTO::fromJson($json);
+$dto = UserDto::fromJson($json);
 ```
 
 ### With Nested JSON
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $json = '{
     "name": "John Doe",
@@ -103,8 +103,8 @@ $json = '{
         "city": "New York"
     }
 }';
-$dto = UserDTO::fromJson($json);
-// Result: UserDTO instance with nested address
+$dto = UserDto::fromJson($json);
+// Result: UserDto instance with nested address
 ```
 
 ## From HTTP Request
@@ -119,10 +119,10 @@ class UserController extends Controller
 {
     public function store(Request $request)
     {
-        $dto = UserDTO::fromRequest($request);
+        $dto = UserDto::fromRequest($request);
 
         // Or with validation
-        $dto = UserDTO::validateAndCreate($request->all());
+        $dto = UserDto::validateAndCreate($request->all());
     }
 }
 ```
@@ -137,7 +137,7 @@ class UserController
 {
     public function store(Request $request)
     {
-        $dto = UserDTO::fromArray($request->request->all());
+        $dto = UserDto::fromArray($request->request->all());
     }
 }
 ```
@@ -147,14 +147,14 @@ class UserController
 <!-- skip-test: Method not available or requires external dependencies -->
 ```php
 // From $_POST
-$dto = UserDTO::fromArray($_POST);
+$dto = UserDto::fromArray($_POST);
 
 // From $_GET
-$dto = UserDTO::fromArray($_GET);
+$dto = UserDto::fromArray($_GET);
 
 // From php://input
 $json = file_get_contents('php://input');
-$dto = UserDTO::fromJson($json);
+$dto = UserDto::fromJson($json);
 ```
 
 ## From Database Models
@@ -167,14 +167,14 @@ use App\Models\User;
 
 // From single model
 $user = User::find(1);
-$dto = UserDTO::fromModel($user);
+$dto = UserDto::fromModel($user);
 
 // From collection
 $users = User::all();
-$dtos = $users->map(fn($user) => UserDTO::fromModel($user));
+$dtos = $users->map(fn($user) => UserDto::fromModel($user));
 
 // Or use DataCollection
-$dtos = DataCollection::make($users, UserDTO::class);
+$dtos = DataCollection::make($users, UserDto::class);
 ```
 
 ### Symfony Doctrine
@@ -185,17 +185,17 @@ use App\Entity\User;
 
 // From single entity
 $user = $entityManager->find(User::class, 1);
-$dto = UserDTO::fromEntity($user);
+$dto = UserDto::fromEntity($user);
 
 // From multiple entities
 $users = $repository->findAll();
 $dtos = array_map(
-    fn($user) => UserDTO::fromEntity($user),
+    fn($user) => UserDto::fromEntity($user),
     $users
 );
 
 // Or use DataCollection
-$dtos = DataCollection::make($users, UserDTO::class);
+$dtos = DataCollection::make($users, UserDto::class);
 ```
 
 
@@ -204,7 +204,7 @@ $dtos = DataCollection::make($users, UserDTO::class);
 ### Basic Usage
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $xml = '<?xml version="1.0"?>
 <user>
@@ -213,7 +213,7 @@ $xml = '<?xml version="1.0"?>
     <age>30</age>
 </user>';
 
-$dto = UserDTO::fromXml($xml);
+$dto = UserDto::fromXml($xml);
 ```
 
 ### From XML File
@@ -221,7 +221,7 @@ $dto = UserDTO::fromXml($xml);
 <!-- skip-test: Method not available or requires external dependencies -->
 ```php
 $xml = file_get_contents('user.xml');
-$dto = UserDTO::fromXml($xml);
+$dto = UserDto::fromXml($xml);
 ```
 
 ## From YAML
@@ -235,7 +235,7 @@ email: john@example.com
 age: 30
 ';
 
-$dto = UserDTO::fromYaml($yaml);
+$dto = UserDto::fromYaml($yaml);
 ```
 
 ### From YAML File
@@ -243,7 +243,7 @@ $dto = UserDTO::fromYaml($yaml);
 <!-- skip-test: Method not available or requires external dependencies -->
 ```php
 $yaml = file_get_contents('user.yaml');
-$dto = UserDTO::fromYaml($yaml);
+$dto = UserDto::fromYaml($yaml);
 ```
 
 ## From CSV
@@ -251,13 +251,13 @@ $dto = UserDTO::fromYaml($yaml);
 ### Basic Usage
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $csv = '"name","email","age"
 "John Doe","john@example.com",30';
 
-$dto = UserDTO::fromCsv($csv);
-// Result: UserDTO instance with auto-casted types
+$dto = UserDto::fromCsv($csv);
+// Result: UserDto instance with auto-casted types
 ```
 
 ### From CSV File
@@ -265,7 +265,7 @@ $dto = UserDTO::fromCsv($csv);
 <!-- skip-test: Method not available or requires external dependencies -->
 ```php
 $csv = file_get_contents('user.csv');
-$dto = UserDTO::fromCsv($csv);
+$dto = UserDto::fromCsv($csv);
 ```
 
 ## With Validation
@@ -274,10 +274,10 @@ $dto = UserDTO::fromCsv($csv);
 
 <!-- skip-test: Class definition example -->
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -289,14 +289,14 @@ class UserDTO extends SimpleDTO
 }
 
 // Validates automatically
-$dto = UserDTO::validateAndCreate([
+$dto = UserDto::validateAndCreate([
     'name' => 'John Doe',
     'email' => 'john@example.com',
 ]);
 
 // Throws ValidationException if invalid
 try {
-    $dto = UserDTO::validateAndCreate([
+    $dto = UserDto::validateAndCreate([
         'name' => '',  // ❌ Required
         'email' => 'invalid',  // ❌ Invalid email
     ]);
@@ -310,9 +310,9 @@ try {
 ### Using Constructor
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto = new UserDTO(
+$dto = new UserDto(
     name: 'John Doe',
     email: 'john@example.com',
     age: 30
@@ -322,45 +322,45 @@ $dto = new UserDTO(
 ### With Named Arguments
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 // ✅ Good - clear and explicit
-$dto = new UserDTO(
+$dto = new UserDto(
     name: 'John Doe',
     email: 'john@example.com',
     age: 30
 );
 
 // ❌ Bad - unclear order
-$dto = new UserDTO('John Doe', 'john@example.com', 30);
+$dto = new UserDto('John Doe', 'john@example.com', 30);
 ```
 
-## From Other DTOs
+## From Other Dtos
 
 ### Clone and Modify
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$dto1 = UserDTO::fromArray([
+$dto1 = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
 ]);
 
-// Create new DTO with modified values
-$dto2 = new UserDTO(
+// Create new Dto with modified values
+$dto2 = new UserDto(
     name: 'Jane Doe',  // Changed
     email: $dto1->email,
     age: $dto1->age
 );
 ```
 
-### Convert Between DTOs
+### Convert Between Dtos
 
 <!-- skip-test: Class definition example -->
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -368,7 +368,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-class UserResourceDTO extends SimpleDTO
+class UserResourceDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -376,7 +376,7 @@ class UserResourceDTO extends SimpleDTO
         public readonly string $createdAt,
     ) {}
 
-    public static function fromUserDTO(UserDTO $user): self
+    public static function fromUserDto(UserDto $user): self
     {
         return new self(
             name: $user->name,
@@ -386,8 +386,8 @@ class UserResourceDTO extends SimpleDTO
     }
 }
 
-$userDto = UserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']);
-$resourceDto = UserResourceDTO::fromUserDTO($userDto);
+$userDto = UserDto::fromArray(['name' => 'John', 'email' => 'john@example.com']);
+$resourceDto = UserResourceDto::fromUserDto($userDto);
 ```
 
 
@@ -397,7 +397,7 @@ $resourceDto = UserResourceDTO::fromUserDTO($userDto);
 
 <!-- skip-test: Class definition example -->
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -425,8 +425,8 @@ class UserDTO extends SimpleDTO
 }
 
 // Use factory methods
-$admin = UserDTO::admin('John Doe', 'john@example.com');
-$guest = UserDTO::guest('Jane Doe', 'jane@example.com');
+$admin = UserDto::admin('John Doe', 'john@example.com');
+$guest = UserDto::guest('Jane Doe', 'jane@example.com');
 ```
 
 ## Bulk Creation
@@ -441,7 +441,7 @@ $data = [
 ];
 
 $dtos = array_map(
-    fn($item) => UserDTO::fromArray($item),
+    fn($item) => UserDto::fromArray($item),
     $data
 );
 ```
@@ -449,8 +449,8 @@ $dtos = array_map(
 ### Using DataCollection
 
 ```php
-use event4u\DataHelpers\SimpleDTO\DataCollection;
-use Tests\Utils\Docu\DTOs\UserDTO;
+use event4u\DataHelpers\SimpleDto\DataCollection;
+use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
     ['name' => 'John', 'email' => 'john@example.com'],
@@ -458,11 +458,11 @@ $data = [
     ['name' => 'Bob', 'email' => 'bob@example.com'],
 ];
 
-$collection = DataCollection::make($data, UserDTO::class);
+$collection = DataCollection::make($data, UserDto::class);
 
 $filtered = $collection->filter(fn($dto) => str_contains($dto->email, 'john'));
 $mapped = $collection->map(fn($dto) => $dto->name);
-// Result: DataCollection with filtered/mapped DTOs
+// Result: DataCollection with filtered/mapped Dtos
 ```
 
 ## Best Practices
@@ -471,20 +471,20 @@ $mapped = $collection->map(fn($dto) => $dto->name);
 
 ```php
 // ✅ Good - clear intent
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 
 // ❌ Bad - unclear
-$dto = new UserDTO(...$data);
+$dto = new UserDto(...$data);
 ```
 
 ### Validate Early
 
 ```php
 // ✅ Good - validate at creation
-$dto = UserDTO::validateAndCreate($request->all());
+$dto = UserDto::validateAndCreate($request->all());
 
 // ❌ Bad - validate later
-$dto = UserDTO::fromArray($request->all());
+$dto = UserDto::fromArray($request->all());
 $dto->validate();
 ```
 
@@ -492,18 +492,18 @@ $dto->validate();
 
 ```php
 // ✅ Good - use specific method
-$dto = UserDTO::fromJson($json);
+$dto = UserDto::fromJson($json);
 
 // ❌ Bad - manual parsing
 $data = json_decode($json, true);
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 ```
 
 ### Handle Errors Gracefully
 
 ```php
 try {
-    $dto = UserDTO::validateAndCreate($data);
+    $dto = UserDto::validateAndCreate($data);
 } catch (ValidationException $e) {
     // Handle validation errors
     return response()->json([
@@ -514,10 +514,10 @@ try {
 
 ## Code Examples
 
-The following working examples demonstrate DTO creation:
+The following working examples demonstrate Dto creation:
 
-- [**Basic DTO**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/basic-dto.php) - Simple DTO with required properties
-- [**DTO Factory**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/dto-factory.php) - Factory pattern for DTOs
+- [**Basic Dto**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/basic-dto.php) - Simple Dto with required properties
+- [**Dto Factory**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/dto-factory.php) - Factory pattern for Dtos
 - [**Wrapping**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/wrapping.php) - Wrapping existing data
 - [**Optional Properties**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/creating-dtos/optional-properties.php) - Handling optional properties
 
@@ -532,18 +532,18 @@ php examples/simple-dto/creating-dtos/dto-factory.php
 
 The functionality is thoroughly tested. Key test files:
 
-- [SimpleDTOTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/SimpleDTOTest.php) - Core DTO functionality
-- [DTOFactoryTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/DTOFactoryTest.php) - Factory pattern tests
-- [OptionalPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/OptionalPropertiesTest.php) - Optional properties tests
+- [SimpleDtoTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/SimpleDtoTest.php) - Core Dto functionality
+- [DtoFactoryTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/DtoFactoryTest.php) - Factory pattern tests
+- [OptionalPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/OptionalPropertiesTest.php) - Optional properties tests
 
 Run the tests:
 
 ```bash
-# Run all SimpleDTO tests
-task test:unit -- --filter=SimpleDTO
+# Run all SimpleDto tests
+task test:unit -- --filter=SimpleDto
 
 # Run specific test file
-vendor/bin/pest tests/Unit/SimpleDTO/SimpleDTOTest.php
+vendor/bin/pest tests/Unit/SimpleDto/SimpleDtoTest.php
 ```
 ## See Also
 

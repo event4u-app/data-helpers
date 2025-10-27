@@ -19,8 +19,8 @@ describe('Console Commands', function(): void {
     afterEach(function(): void {
         // Clean up generated files
         $files = [
-            $this->projectDir . '/src/DTO/TestUserDTO.php',
-            $this->projectDir . '/src/DTO/TestProductDTO.php',
+            $this->projectDir . '/src/Dto/TestUserDto.php',
+            $this->projectDir . '/src/Dto/TestProductDto.php',
             $this->projectDir . '/storage/test-types.ts',
         ];
 
@@ -30,8 +30,8 @@ describe('Console Commands', function(): void {
             }
         }
 
-        // Clean up DTO directory if empty
-        $dtoDir = $this->projectDir . '/src/DTO';
+        // Clean up Dto directory if empty
+        $dtoDir = $this->projectDir . '/src/Dto';
         if ($this->filesystem->exists($dtoDir) && 0 === count(scandir($dtoDir)) - 2) {
             $this->filesystem->remove($dtoDir);
         }
@@ -39,7 +39,7 @@ describe('Console Commands', function(): void {
         $this->kernel->shutdown();
     });
 
-    it('can generate basic DTO with make:dto', function(): void {
+    it('can generate basic Dto with make:dto', function(): void {
         $command = $this->application->find('make:dto');
         $commandTester = new CommandTester($command);
 
@@ -50,12 +50,12 @@ describe('Console Commands', function(): void {
         expect($exitCode)->toBe(0);
         expect($commandTester->getStatusCode())->toBe(0);
 
-        $path = $this->projectDir . '/src/DTO/TestUserDTO.php';
+        $path = $this->projectDir . '/src/Dto/TestUserDto.php';
         expect($this->filesystem->exists($path))->toBeTrue();
 
         $content = file_get_contents($path);
-        expect($content)->toContain('namespace App\DTO;');
-        expect($content)->toContain('class TestUserDTO extends SimpleDTO');
+        expect($content)->toContain('namespace App\Dto;');
+        expect($content)->toContain('class TestUserDto extends SimpleDto');
         expect($content)->toContain('public readonly string $name');
         expect($content)->toContain('public readonly string $email');
         expect($content)->not->toContain('#[Required]');
@@ -63,10 +63,10 @@ describe('Console Commands', function(): void {
 
         // Verify output
         $output = $commandTester->getDisplay();
-        expect($output)->toContain('DTO [TestUserDTO] created successfully');
+        expect($output)->toContain('Dto [TestUserDto] created successfully');
     });
 
-    it('can generate DTO with validation attributes', function(): void {
+    it('can generate Dto with validation attributes', function(): void {
         $command = $this->application->find('make:dto');
         $commandTester = new CommandTester($command);
 
@@ -78,21 +78,21 @@ describe('Console Commands', function(): void {
         expect($exitCode)->toBe(0);
         expect($commandTester->getStatusCode())->toBe(0);
 
-        $path = $this->projectDir . '/src/DTO/TestUserDTO.php';
+        $path = $this->projectDir . '/src/Dto/TestUserDto.php';
         expect($this->filesystem->exists($path))->toBeTrue();
 
         $content = file_get_contents($path);
         expect($content)->toContain('#[Required]');
         expect($content)->toContain('#[Email]');
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\Attributes\Email;');
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\Attributes\Required;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\Attributes\Email;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\Attributes\Required;');
 
         // Verify output
         $output = $commandTester->getDisplay();
-        expect($output)->toContain('DTO [TestUserDTO] created successfully');
+        expect($output)->toContain('Dto [TestUserDto] created successfully');
     });
 
-    it('can generate DTO with collection support', function(): void {
+    it('can generate Dto with collection support', function(): void {
         $command = $this->application->find('make:dto');
         $commandTester = new CommandTester($command);
 
@@ -104,21 +104,21 @@ describe('Console Commands', function(): void {
         expect($exitCode)->toBe(0);
         expect($commandTester->getStatusCode())->toBe(0);
 
-        $path = $this->projectDir . '/src/DTO/TestUserDTO.php';
+        $path = $this->projectDir . '/src/Dto/TestUserDto.php';
         expect($this->filesystem->exists($path))->toBeTrue();
 
         $content = file_get_contents($path);
         expect($content)->toContain('DataCollection');
-        expect($content)->toContain('#[DataCollectionOf(ItemDTO::class)]');
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;');
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\DataCollection;');
+        expect($content)->toContain('#[DataCollectionOf(ItemDto::class)]');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\DataCollection;');
 
         // Verify output
         $output = $commandTester->getDisplay();
-        expect($output)->toContain('DTO [TestUserDTO] created successfully');
+        expect($output)->toContain('Dto [TestUserDto] created successfully');
     });
 
-    it('can generate resource DTO', function(): void {
+    it('can generate resource Dto', function(): void {
         $command = $this->application->find('make:dto');
         $commandTester = new CommandTester($command);
 
@@ -130,7 +130,7 @@ describe('Console Commands', function(): void {
         expect($exitCode)->toBe(0);
         expect($commandTester->getStatusCode())->toBe(0);
 
-        $path = $this->projectDir . '/src/DTO/TestUserDTO.php';
+        $path = $this->projectDir . '/src/Dto/TestUserDto.php';
         expect($this->filesystem->exists($path))->toBeTrue();
 
         $content = file_get_contents($path);
@@ -144,10 +144,10 @@ describe('Console Commands', function(): void {
 
         // Verify output
         $output = $commandTester->getDisplay();
-        expect($output)->toContain('DTO [TestUserDTO] created successfully');
+        expect($output)->toContain('Dto [TestUserDto] created successfully');
     });
 
-    it('can generate resource DTO with all options', function(): void {
+    it('can generate resource Dto with all options', function(): void {
         $command = $this->application->find('make:dto');
         $commandTester = new CommandTester($command);
 
@@ -161,7 +161,7 @@ describe('Console Commands', function(): void {
         expect($exitCode)->toBe(0);
         expect($commandTester->getStatusCode())->toBe(0);
 
-        $path = $this->projectDir . '/src/DTO/TestUserDTO.php';
+        $path = $this->projectDir . '/src/Dto/TestUserDto.php';
         expect($this->filesystem->exists($path))->toBeTrue();
 
         $content = file_get_contents($path);
@@ -170,16 +170,16 @@ describe('Console Commands', function(): void {
         expect($content)->toContain('#[Min(3)]');
         expect($content)->toContain('#[Max(255)]');
         expect($content)->toContain('DataCollection');
-        expect($content)->toContain('#[DataCollectionOf(ItemDTO::class)]');
+        expect($content)->toContain('#[DataCollectionOf(ItemDto::class)]');
         expect($content)->toContain('public readonly int $id');
         expect($content)->toContain('protected function casts(): array');
 
         // Verify output
         $output = $commandTester->getDisplay();
-        expect($output)->toContain('DTO [TestUserDTO] created successfully');
+        expect($output)->toContain('Dto [TestUserDto] created successfully');
     });
 
-    it('automatically adds DTO suffix', function(): void {
+    it('automatically adds Dto suffix', function(): void {
         $command = $this->application->find('make:dto');
         $commandTester = new CommandTester($command);
 
@@ -190,15 +190,15 @@ describe('Console Commands', function(): void {
         expect($exitCode)->toBe(0);
         expect($commandTester->getStatusCode())->toBe(0);
 
-        $path = $this->projectDir . '/src/DTO/TestUserDTO.php';
+        $path = $this->projectDir . '/src/Dto/TestUserDto.php';
         expect($this->filesystem->exists($path))->toBeTrue();
 
         $content = file_get_contents($path);
-        expect($content)->toContain('class TestUserDTO extends SimpleDTO');
+        expect($content)->toContain('class TestUserDto extends SimpleDto');
 
         // Verify output
         $output = $commandTester->getDisplay();
-        expect($output)->toContain('DTO [TestUserDTO] created successfully');
+        expect($output)->toContain('Dto [TestUserDto] created successfully');
     });
 
     it('fails if file exists without force', function(): void {
@@ -216,7 +216,7 @@ describe('Console Commands', function(): void {
 
         // Verify error message
         $output = $commandTester->getDisplay();
-        expect($output)->toContain('DTO [TestUserDTO] already exists!');
+        expect($output)->toContain('Dto [TestUserDto] already exists!');
         expect($output)->toContain('Use --force to overwrite');
     });
 
@@ -238,16 +238,16 @@ describe('Console Commands', function(): void {
         expect($commandTester->getStatusCode())->toBe(0);
 
         // Verify file still exists
-        $path = $this->projectDir . '/src/DTO/TestUserDTO.php';
+        $path = $this->projectDir . '/src/Dto/TestUserDto.php';
         expect($this->filesystem->exists($path))->toBeTrue();
 
         // Verify output
         $output = $commandTester->getDisplay();
-        expect($output)->toContain('DTO [TestUserDTO] created successfully');
+        expect($output)->toContain('Dto [TestUserDto] created successfully');
     });
 
     it('can generate TypeScript interfaces with dto:typescript', function(): void {
-        // Create a DTO first
+        // Create a Dto first
         $makeCommand = $this->application->find('make:dto');
         $makeTester = new CommandTester($makeCommand);
         $makeExitCode = $makeTester->execute([
@@ -264,7 +264,7 @@ describe('Console Commands', function(): void {
         $tsCommand = $this->application->find('dto:typescript');
         $tsTester = new CommandTester($tsCommand);
         $tsExitCode = $tsTester->execute([
-            '--path' => 'src/DTO',
+            '--path' => 'src/Dto',
             '--output' => 'storage/test-types.ts',
         ]);
 
@@ -275,7 +275,7 @@ describe('Console Commands', function(): void {
         expect($this->filesystem->exists($path))->toBeTrue();
 
         $content = file_get_contents($path);
-        expect($content)->toContain('export interface TestProductDTO');
+        expect($content)->toContain('export interface TestProductDto');
         expect($content)->toContain('id: number');
         expect($content)->toContain('name: string');
         expect($content)->toContain('email: string');
@@ -286,7 +286,7 @@ describe('Console Commands', function(): void {
         // Verify output
         $output = $tsTester->getDisplay();
         expect($output)->toContain('TypeScript interfaces generated successfully');
-        expect($output)->toContain('Found 1 DTO classes');
+        expect($output)->toContain('Found 1 Dto classes');
     });
 })->group('symfony');
 

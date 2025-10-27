@@ -10,7 +10,7 @@ Learn how to calculate values on-the-fly using computed properties.
 Computed properties are methods that calculate values based on other properties and are automatically included in serialization:
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
@@ -24,7 +24,7 @@ class UserDTO extends SimpleDTO
     }
 }
 
-$dto = new UserDTO(firstName: 'John', lastName: 'Doe');
+$dto = new UserDto(firstName: 'John', lastName: 'Doe');
 echo $dto->fullName();  // John Doe
 
 $array = $dto->toArray();
@@ -36,9 +36,9 @@ $array = $dto->toArray();
 ### Using #[Computed] Attribute
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly float $price,
@@ -58,7 +58,7 @@ class ProductDTO extends SimpleDTO
     }
 }
 
-$dto = new ProductDTO(price: 100, taxRate: 0.19);
+$dto = new ProductDto(price: 100, taxRate: 0.19);
 echo $dto->priceWithTax();  // 119.0
 echo $dto->taxAmount();     // 19.0
 ```
@@ -68,7 +68,7 @@ echo $dto->taxAmount();     // 19.0
 ### User Profile
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
@@ -100,7 +100,7 @@ class UserDTO extends SimpleDTO
 ### Order Calculations
 
 ```php
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly float $subtotal,
@@ -134,7 +134,7 @@ class OrderDTO extends SimpleDTO
 ### Computed + Conditional
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
@@ -153,7 +153,7 @@ class UserDTO extends SimpleDTO
 ### Computed + Lazy
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $userId,
@@ -174,7 +174,7 @@ class UserDTO extends SimpleDTO
 ### Computed + Hidden
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
@@ -235,7 +235,7 @@ public function total()
 ### Cache Expensive Computations
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     private ?array $cachedStats = null;
 
@@ -267,7 +267,7 @@ All examples are fully tested and can be run directly.
 
 The functionality is thoroughly tested. Key test files:
 
-- [ComputedPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/ComputedPropertiesTest.php) - Computed property tests
+- [ComputedPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/ComputedPropertiesTest.php) - Computed property tests
 
 Run the tests:
 

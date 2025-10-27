@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Regex;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Url;
-use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\In;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Regex;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Url;
+use event4u\DataHelpers\SimpleDto\Attributes\Uuid;
 
 // Example 1: Auto Rule Inferring
 echo "Example 1: Auto Rule Inferring\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,        // Auto: required, string
@@ -29,7 +29,7 @@ class UserDTO extends SimpleDTO
     }
 }
 
-$rules = UserDTO::getAllRules();
+$rules = UserDto::getAllRules();
 echo "Auto-inferred rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -40,7 +40,7 @@ echo "\n";
 echo "Example 2: Validation Attributes\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -62,7 +62,7 @@ class ProductDTO extends SimpleDTO
     }
 }
 
-$rules = ProductDTO::getAllRules();
+$rules = ProductDto::getAllRules();
 echo "Validation rules with attributes:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -73,7 +73,7 @@ echo "\n";
 echo "Example 3: Email and URL Validation\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class ContactDTO extends SimpleDTO
+class ContactDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -91,7 +91,7 @@ class ContactDTO extends SimpleDTO
     }
 }
 
-$rules = ContactDTO::getAllRules();
+$rules = ContactDto::getAllRules();
 echo "Contact validation rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -102,7 +102,7 @@ echo "\n";
 echo "Example 4: UUID Validation\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class EntityDTO extends SimpleDTO
+class EntityDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -116,7 +116,7 @@ class EntityDTO extends SimpleDTO
     }
 }
 
-$rules = EntityDTO::getAllRules();
+$rules = EntityDto::getAllRules();
 echo "Entity validation rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -127,7 +127,7 @@ echo "\n";
 echo "Example 5: Custom Rules\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class RegistrationDTO extends SimpleDTO
+class RegistrationDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -166,7 +166,7 @@ class RegistrationDTO extends SimpleDTO
     }
 }
 
-$rules = RegistrationDTO::getAllRules();
+$rules = RegistrationDto::getAllRules();
 echo "Registration validation rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -177,7 +177,7 @@ echo "\n";
 echo "Example 6: Complex Validation\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -206,7 +206,7 @@ class OrderDTO extends SimpleDTO
     }
 }
 
-$rules = OrderDTO::getAllRules();
+$rules = OrderDto::getAllRules();
 echo "Order validation rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf('  %s: ', $field) . implode(', ', $fieldRules) . "\n";
@@ -219,16 +219,16 @@ echo str_repeat('=', 80) . "\n\n";
 
 $start = microtime(true);
 for ($i = 0; 1000 > $i; $i++) {
-    OrderDTO::getAllRules();
+    OrderDto::getAllRules();
 }
 $cached = microtime(true) - $start;
 
-OrderDTO::clearRulesCache();
+OrderDto::clearRulesCache();
 
 $start = microtime(true);
 for ($i = 0; 1000 > $i; $i++) {
-    OrderDTO::getAllRules();
-    OrderDTO::clearRulesCache();
+    OrderDto::getAllRules();
+    OrderDto::clearRulesCache();
 }
 $uncached = microtime(true) - $start;
 
@@ -242,5 +242,5 @@ echo "✅ All examples completed successfully!\n";
 echo "\n";
 echo "Note: To use validateAndCreate(), you need Laravel's validator configured.\n";
 echo "Example usage:\n";
-echo "  \$user = UserDTO::validateAndCreate(\$request->all());\n";
+echo "  \$user = UserDto::validateAndCreate(\$request->all());\n";
 echo "\n";

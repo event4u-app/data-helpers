@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenCallback;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenCallback;
 
 // Global helper functions
 /**
@@ -47,8 +47,8 @@ function hasRole(object $dto, mixed $value, array $context, string $role, bool $
     return in_array($role, $context['roles'] ?? []);
 }
 
-// DTO with WhenCallback using various syntaxes
-class UserDTO extends SimpleDTO
+// Dto with WhenCallback using various syntaxes
+class UserDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $premiumFeatures
@@ -115,7 +115,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 // Example 1: Young user (age 16)
 echo "1️⃣  Young User (age 16)\n";
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-$youngUser = new UserDTO(
+$youngUser = new UserDto(
     name: 'Alice',
     age: 16,
     role: 'user',
@@ -137,7 +137,7 @@ echo "\n✅  Age-restricted content excluded (age < 18)\n\n";
 // Example 2: Adult user (age 25)
 echo "2️⃣  Adult User (age 25)\n";
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-$adultUser = new UserDTO(
+$adultUser = new UserDto(
     name: 'Bob',
     age: 25,
     role: 'user',
@@ -160,7 +160,7 @@ echo "✅  Alcohol content included (age >= 21)\n\n";
 // Example 3: Premium user with context
 echo "3️⃣  Premium User with Context\n";
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-$premiumUser = new UserDTO(
+$premiumUser = new UserDto(
     name: 'Charlie',
     age: 30,
     role: 'premium',
@@ -190,7 +190,7 @@ echo "✅  Editor tools included (has editor role)\n\n";
 // Example 4: Admin user with strict access level
 echo "4️⃣  Admin User with Strict Access Level\n";
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-$adminUser = new UserDTO(
+$adminUser = new UserDto(
     name: 'Diana',
     age: 35,
     role: 'admin',
@@ -220,7 +220,7 @@ echo "✅  All age-restricted content included\n\n";
 // Example 5: Regular user without special permissions
 echo "5️⃣  Regular User (no special permissions)\n";
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-$regularUser = new UserDTO(
+$regularUser = new UserDto(
     name: 'Eve',
     age: 28,
     role: 'user',

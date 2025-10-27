@@ -324,5 +324,5 @@ The test matrix provides:
 
 - [Development Setup](/guides/development-setup/) - Setup your environment
 - [Package Verification](/guides/package-verification/) - Learn about package verification
-- [Testing Guide](/testing/testing-dtos/) - Learn about testing DTOs
+- [Testing Guide](/testing/testing-dtos/) - Learn about testing Dtos
 

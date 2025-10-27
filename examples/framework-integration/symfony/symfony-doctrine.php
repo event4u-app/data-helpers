@@ -128,7 +128,7 @@ $mapping = [
     'products.*.product_price' => '{{ items.*.price }}',
 ];
 
-/** @var DataCollection<SimpleDTO> $result */
+/** @var DataCollection<SimpleDto> $result */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */

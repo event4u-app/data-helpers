@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Transformers\LowercaseKeysTransformer;
-use event4u\DataHelpers\SimpleDTO\Transformers\RemoveNullValuesTransformer;
-use event4u\DataHelpers\SimpleDTO\Transformers\TransformerInterface;
-use event4u\DataHelpers\SimpleDTO\Transformers\TransformerPipeline;
-use event4u\DataHelpers\SimpleDTO\Transformers\TrimStringsTransformer;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Transformers\LowercaseKeysTransformer;
+use event4u\DataHelpers\SimpleDto\Transformers\RemoveNullValuesTransformer;
+use event4u\DataHelpers\SimpleDto\Transformers\TransformerInterface;
+use event4u\DataHelpers\SimpleDto\Transformers\TransformerPipeline;
+use event4u\DataHelpers\SimpleDto\Transformers\TrimStringsTransformer;
 
 echo "================================================================================\n";
-echo "SimpleDTO - Transformers Examples\n";
+echo "SimpleDto - Transformers Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: TrimStringsTransformer
 echo "Example 1: TrimStringsTransformer\n";
 echo "----------------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -34,7 +34,7 @@ $data = [
     'age' => 30,
 ];
 
-$user = UserDTO::fromArrayWithTransformer($data, new TrimStringsTransformer());
+$user = UserDto::fromArrayWithTransformer($data, new TrimStringsTransformer());
 
 echo "Original data: name='{$data['name']}', email='{$data['email']}'\n";
 echo "Transformed: name='{$user->name}', email='{$user->email}'\n\n";
@@ -49,7 +49,7 @@ $data = [
     'Age' => 25,
 ];
 
-$user = UserDTO::fromArrayWithTransformer($data, new LowercaseKeysTransformer());
+$user = UserDto::fromArrayWithTransformer($data, new LowercaseKeysTransformer());
 
 echo "Original keys: " . implode(', ', array_keys($data)) . "\n";
 /** @phpstan-ignore-next-line unknown */
@@ -85,7 +85,7 @@ $data = [
     'Age' => 28,
 ];
 
-$user = UserDTO::fromArrayWithTransformer($data, $pipeline);
+$user = UserDto::fromArrayWithTransformer($data, $pipeline);
 
 echo "Original: Name='{$data['Name']}', EMAIL='{$data['EMAIL']}'\n";
 echo "After pipeline: name='{$user->name}', email='{$user->email}'\n\n";
@@ -94,7 +94,7 @@ echo "After pipeline: name='{$user->name}', email='{$user->email}'\n\n";
 echo "Example 5: transformWith Method\n";
 echo "--------------------------------\n";
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => '  Charlie Brown  ',
     'email' => 'charlie@example.com',
     'age' => 40,
@@ -127,7 +127,7 @@ class UppercaseNameTransformer implements TransformerInterface
     }
 }
 
-$user = UserDTO::fromArray(['name' => 'david', 'email' => 'david@example.com', 'age' => 32]);
+$user = UserDto::fromArray(['name' => 'david', 'email' => 'david@example.com', 'age' => 32]);
 $transformed = $user->transformWith(new UppercaseNameTransformer());
 
 echo sprintf('Original: %s%s', $user->name, PHP_EOL);
@@ -161,7 +161,7 @@ $pipeline->pipeline(new TrimStringsTransformer());
 $pipeline->pipeline(new UppercaseNameTransformer());
 $pipeline->pipeline(new AddPrefixTransformer('Mr.'));
 
-$user = UserDTO::fromArray(['name' => '  edward  ', 'email' => 'edward@example.com', 'age' => 45]);
+$user = UserDto::fromArray(['name' => '  edward  ', 'email' => 'edward@example.com', 'age' => 45]);
 $transformed = $user->transformWith($pipeline);
 
 echo "Original: '{$user->name}'\n";
@@ -193,7 +193,7 @@ $data = [
     'age' => 50,
 ];
 
-$user = UserDTO::fromArrayWithTransformer($data, new EmailNormalizerTransformer());
+$user = UserDto::fromArrayWithTransformer($data, new EmailNormalizerTransformer());
 
 echo "Original email: '{$data['email']}'\n";
 echo "Normalized email: '{$user->email}'\n\n";
@@ -215,7 +215,7 @@ $data = [
     'Phone' => null,
 ];
 
-$user = UserDTO::fromArrayWithTransformer($data, $pipeline);
+$user = UserDto::fromArrayWithTransformer($data, $pipeline);
 
 echo sprintf("Original: Name='%s', EMAIL='%s', Phone=", $data['Name'], $data['EMAIL']) . json_encode(
     $data['Phone']
@@ -246,12 +246,12 @@ class ConditionalAgeTransformer implements TransformerInterface
     }
 }
 
-$user1 = UserDTO::fromArrayWithTransformer(
+$user1 = UserDto::fromArrayWithTransformer(
     ['name' => 'Young', 'email' => 'young@example.com', 'age' => -5],
     new ConditionalAgeTransformer()
 );
 
-$user2 = UserDTO::fromArrayWithTransformer(
+$user2 = UserDto::fromArrayWithTransformer(
     ['name' => 'Old', 'email' => 'old@example.com', 'age' => 150],
     new ConditionalAgeTransformer()
 );
