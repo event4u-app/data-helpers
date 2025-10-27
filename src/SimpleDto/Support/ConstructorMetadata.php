@@ -24,6 +24,8 @@ final class ConstructorMetadata
     /**
      * Cache for constructor metadata per class.
      *
+     * Phase 6 Optimization #3: LRU Cache with size limit to prevent memory leaks
+     *
      * @var array<string, array{
      *     parameters: array<string, array{
      *         name: string,
@@ -36,6 +38,9 @@ final class ConstructorMetadata
      * }>
      */
     private static array $cache = [];
+
+    /** Maximum cache size before cleanup (Phase 6 Optimization #3) */
+    private const MAX_CACHE_SIZE = 500;
 
     /**
      * Get metadata for a class.
@@ -56,6 +61,13 @@ final class ConstructorMetadata
     {
         if (isset(self::$cache[$class])) {
             return self::$cache[$class];
+        }
+
+        // Phase 6 Optimization #3: LRU Cache cleanup when size limit reached
+        if (count(self::$cache) >= self::MAX_CACHE_SIZE) {
+            // Remove oldest 20% of entries (simple LRU approximation)
+            $removeCount = (int) (self::MAX_CACHE_SIZE * 0.2);
+            self::$cache = array_slice(self::$cache, $removeCount, null, true);
         }
 
         try {

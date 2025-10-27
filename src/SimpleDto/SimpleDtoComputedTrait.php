@@ -44,6 +44,11 @@ trait SimpleDtoComputedTrait
      */
     public function includeComputed(array $properties): static
     {
+        // Phase 6 Optimization: Lazy cloning - avoid clone if no properties to add
+        if (empty($properties)) {
+            return $this; // No properties to add, return self
+        }
+
         $clone = clone $this;
         // Note: array_merge is correct here for numeric arrays (appends items)
         // + operator would not work correctly for numeric keys

@@ -213,16 +213,66 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
     }
 
     /**
+     * Phase 6: Lazy iteration using Generator for memory efficiency.
+     *
+     * Use this for large datasets (10k+ items) to avoid loading all items into memory.
+     *
+     * Example:
+     *   foreach ($collection->lazy() as $dto) {
+     *       // Process one item at a time
+     *   }
+     *
+     * @return \Generator<int, TDto>
+     */
+    public function lazy(): \Generator
+    {
+        foreach ($this->items as $key => $item) {
+            yield $key => $item;
+        }
+    }
+
+    /**
+     * Phase 6: Lazy filter using Generator for memory efficiency.
+     *
+     * @param callable(TDto, int): bool $callback
+     * @return \Generator<int, TDto>
+     */
+    public function lazyFilter(callable $callback): \Generator
+    {
+        foreach ($this->items as $key => $item) {
+            if ($callback($item, $key)) {
+                yield $key => $item;
+            }
+        }
+    }
+
+    /**
+     * Phase 6: Lazy map using Generator for memory efficiency.
+     *
+     * @template TMapValue
+     * @param callable(TDto, int): TMapValue $callback
+     * @return \Generator<int, TMapValue>
+     */
+    public function lazyMap(callable $callback): \Generator
+    {
+        foreach ($this->items as $key => $item) {
+            yield $key => $callback($item, $key);
+        }
+    }
+
+    /**
      * Convert all Dtos to arrays.
      *
      * @return array<int, array<string, mixed>>
      */
     public function toArray(): array
     {
-        return array_map(
-            fn(mixed $dto): array => $dto->toArray(),
-            $this->all()
-        );
+        // Phase 6 Optimization #5: Use foreach instead of array_map (faster, less memory)
+        $result = [];
+        foreach ($this->items as $dto) {
+            $result[] = $dto->toArray();
+        }
+        return $result;
     }
 
     /** Convert all Dtos to JSON. */

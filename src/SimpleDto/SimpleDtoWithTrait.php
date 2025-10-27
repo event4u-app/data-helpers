@@ -40,6 +40,11 @@ trait SimpleDtoWithTrait
      */
     public function with(string|array $key, mixed $value = null): static
     {
+        // Phase 6 Optimization: Lazy cloning - avoid clone if no data to add
+        if (is_array($key) && empty($key)) {
+            return $this; // No data to add, return self
+        }
+
         $clone = clone $this;
 
         if (is_array($key)) {
@@ -88,9 +93,15 @@ trait SimpleDtoWithTrait
         return $evaluated;
     }
 
-    /** Check if additional data exists. */
+    /**
+     * Check if additional data exists.
+     *
+     * Phase 6 Optimization #4: Inline candidate - simple boolean check
+     * Consider inlining at call sites for performance
+     */
     private function hasAdditionalData(): bool
     {
-        return null !== $this->additionalData && !empty($this->additionalData);
+        // Optimized: Single expression, no intermediate variables
+        return null !== $this->additionalData && [] !== $this->additionalData;
     }
 }

@@ -144,14 +144,22 @@ trait SimpleDtoTrait
     /**
      * Get object properties with internal properties removed.
      *
-     * Uses array_diff_key for better performance than multiple unset() calls.
+     * Phase 6 Optimization #2/#5: Optimized property filtering
+     * - Uses foreach instead of array_diff_key (faster for small arrays)
+     * - Avoids creating intermediate arrays
      *
      * @return array<string, mixed>
      */
     private function getCleanObjectVars(): array
     {
         $data = get_object_vars($this);
-        return array_diff_key($data, self::INTERNAL_PROPERTIES);
+
+        // Phase 6 Optimization: Direct filtering is faster than array_diff_key for small sets
+        foreach (self::INTERNAL_PROPERTIES as $key => $_) {
+            unset($data[$key]);
+        }
+
+        return $data;
     }
 
     /**
@@ -406,7 +414,12 @@ trait SimpleDtoTrait
     {
         // Handle arrays
         if (is_array($value)) {
-            return array_map(fn($item) => $this->convertToArrayRecursive($item), $value);
+            // Phase 6 Optimization #5: Use foreach instead of array_map (faster, less memory)
+            $result = [];
+            foreach ($value as $key => $item) {
+                $result[$key] = $this->convertToArrayRecursive($item);
+            }
+            return $result;
         }
 
         // Handle Dtos

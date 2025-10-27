@@ -259,7 +259,15 @@ trait SimpleDtoVisibilityTrait
 
         // Apply only() filter
         if (null !== $this->onlyProperties) {
-            $data = array_intersect_key($data, array_flip($this->onlyProperties));
+            // Phase 6 Optimization #5: Avoid array_flip + array_intersect_key
+            // Build new array directly (faster for small property sets)
+            $filtered = [];
+            foreach ($this->onlyProperties as $property) {
+                if (isset($data[$property])) {
+                    $filtered[$property] = $data[$property];
+                }
+            }
+            $data = $filtered;
         }
 
         // Apply except() filter
@@ -281,6 +289,11 @@ trait SimpleDtoVisibilityTrait
      */
     public function withVisibilityContext(mixed $context): static
     {
+        // Phase 6 Optimization: Lazy cloning - avoid clone if context is null
+        if (null === $context) {
+            return $this;
+        }
+
         $clone = clone $this;
         $clone->visibilityContext = $context;
 
@@ -294,6 +307,7 @@ trait SimpleDtoVisibilityTrait
      */
     public function only(array $properties): static
     {
+        // Note: Cannot optimize empty array case - only([]) has semantic meaning (show nothing)
         $clone = clone $this;
         $clone->onlyProperties = $properties;
         // Preserve visibility context
@@ -309,6 +323,11 @@ trait SimpleDtoVisibilityTrait
      */
     public function except(array $properties): static
     {
+        // Phase 6 Optimization: Lazy cloning - avoid clone if empty array
+        if (empty($properties)) {
+            return $this; // No properties to exclude, return self
+        }
+
         $clone = clone $this;
         $clone->exceptProperties = $properties;
         // Preserve visibility context

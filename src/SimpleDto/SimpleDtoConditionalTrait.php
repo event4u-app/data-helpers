@@ -31,6 +31,11 @@ trait SimpleDtoConditionalTrait
      */
     public function withContext(array $context): static
     {
+        // Phase 6 Optimization: Lazy cloning - avoid clone if no context to add
+        if (empty($context)) {
+            return $this; // No context to add, return self
+        }
+
         $clone = clone $this;
         // Performance: Use + operator instead of array_merge (10-20% faster)
         // Note: $context + ($this->conditionalContext ?? []) means new context has priority

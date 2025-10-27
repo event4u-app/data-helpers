@@ -34,6 +34,11 @@ trait SimpleDtoLazyTrait
     /** Include all lazy properties in serialization. */
     public function includeAll(): static
     {
+        // Phase 6 Optimization: Lazy cloning - avoid clone if already including all
+        if ($this->includeAllLazy) {
+            return $this; // Already including all, return self
+        }
+
         $clone = clone $this;
         $clone->includeAllLazy = true;
 
