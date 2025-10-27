@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Utils\SimpleDTOs;
+namespace Tests\Utils\SimpleDtos;
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class CompanySimpleDto extends SimpleDTO
+class CompanySimpleDto extends SimpleDto
 {
     /**
      * @param array<int, DepartmentSimpleDto> $departments

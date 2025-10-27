@@ -28,14 +28,14 @@ class DataAccessor
     /**
      * Create a new DataAccessor instance (factory method).
      *
-     * @param mixed $input Initial input (array, DTO, Model, Collection, JSON, XML, scalar)
+     * @param mixed $input Initial input (array, Dto, Model, Collection, JSON, XML, scalar)
      */
     public static function make(mixed $input): self
     {
         return new self($input);
     }
 
-    /** @param mixed $input Initial input (array, DTO, Model, Collection, JSON, XML, scalar) */
+    /** @param mixed $input Initial input (array, Dto, Model, Collection, JSON, XML, scalar) */
     public function __construct(mixed $input)
     {
         if (is_string($input)) {
@@ -487,7 +487,7 @@ class DataAccessor
      *     'address.city' => 'string',
      *     'address.zip' => 'int',
      *     'emails' => 'array',
-     *     'emails.*' => '\EmailDTO',
+     *     'emails.*' => '\EmailDto',
      *     'emails.*.email' => 'string',
      *     'emails.*.verified' => 'bool',
      *   ]
@@ -514,7 +514,7 @@ class DataAccessor
      *       'zip' => 'int',
      *     ],
      *     'emails' => [
-     *       '*' => '\EmailDTO',
+     *       '*' => '\EmailDto',
      *     ],
      *   ]
      *

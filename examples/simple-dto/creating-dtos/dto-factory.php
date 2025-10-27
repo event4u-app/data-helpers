@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\DTOFactory;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\DtoFactory;
 
 echo "================================================================================\n";
-echo "SimpleDTO - DTO Factory Examples\n";
+echo "SimpleDto - Dto Factory Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: Basic Factory
 echo "Example 1: Basic Factory\n";
 echo "------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -24,9 +24,9 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-class UserDTOFactory extends DTOFactory
+class UserDtoFactory extends DtoFactory
 {
-    protected string $dtoClass = UserDTO::class;
+    protected string $dtoClass = UserDto::class;
 
     protected function definition(): array
     {
@@ -38,17 +38,17 @@ class UserDTOFactory extends DTOFactory
     }
 }
 
-/** @var UserDTO $user */
-$user = UserDTOFactory::new()->create();
+/** @var UserDto $user */
+$user = UserDtoFactory::new()->create();
 /** @phpstan-ignore-next-line unknown */
 echo "Created user: {$user->name} ({$user->email}), Age: {$user->age}\n\n";
 
-// Example 2: Create Multiple DTOs
-echo "Example 2: Create Multiple DTOs\n";
+// Example 2: Create Multiple Dtos
+echo "Example 2: Create Multiple Dtos\n";
 echo "--------------------------------\n";
 
-/** @var array<UserDTO> $users */
-$users = UserDTOFactory::new()->count(5)->create();
+/** @var array<UserDto> $users */
+$users = UserDtoFactory::new()->count(5)->create();
 echo "Created " . count($users) . " users:\n";
 foreach ($users as $user) {
     echo "  - {$user->name} ({$user->email})\n";
@@ -59,8 +59,8 @@ echo "\n";
 echo "Example 3: Custom Attributes\n";
 echo "----------------------------\n";
 
-/** @var UserDTO $admin */
-$admin = UserDTOFactory::new()->create([
+/** @var UserDto $admin */
+$admin = UserDtoFactory::new()->create([
     'name' => 'Admin User',
     'email' => 'admin@example.com',
     'age' => 35,
@@ -68,12 +68,12 @@ $admin = UserDTOFactory::new()->create([
 /** @phpstan-ignore-next-line unknown */
 echo "Created admin: {$admin->name} ({$admin->email}), Age: {$admin->age}\n\n";
 
-// Example 4: Make Array Without Creating DTO
-echo "Example 4: Make Array Without Creating DTO\n";
+// Example 4: Make Array Without Creating Dto
+echo "Example 4: Make Array Without Creating Dto\n";
 echo "------------------------------------------\n";
 
 /** @var array{name: string, email: string, age: int} $userData */
-$userData = UserDTOFactory::new()->make();
+$userData = UserDtoFactory::new()->make();
 echo "User data array:\n";
 echo sprintf('  Name: %s%s', $userData['name'], PHP_EOL);
 echo sprintf('  Email: %s%s', $userData['email'], PHP_EOL);
@@ -84,15 +84,15 @@ echo "\n";
 echo "Example 5: Factory States\n";
 echo "-------------------------\n";
 
-/** @var UserDTO $adminUser */
-$adminUser = UserDTOFactory::new()
+/** @var UserDto $adminUser */
+$adminUser = UserDtoFactory::new()
     ->state('admin', ['age' => 99])
     ->create();
 /** @phpstan-ignore-next-line unknown */
 echo sprintf('Admin user: %s, Age: %s%s', $adminUser->name, $adminUser->age, PHP_EOL);
 
-/** @var UserDTO $verifiedUser */
-$verifiedUser = UserDTOFactory::new()
+/** @var UserDto $verifiedUser */
+$verifiedUser = UserDtoFactory::new()
     ->state('verified', ['name' => 'Verified User'])
     ->create();
 echo "Verified user: {$verifiedUser->name}\n\n";
@@ -102,7 +102,7 @@ echo "Example 6: Factory with Multiple Attributes\n";
 echo "--------------------------------------------\n";
 
 /** @var array<array{name: string, email: string, age: int}> $users */
-$users = UserDTOFactory::new()->count(3)->make();
+$users = UserDtoFactory::new()->count(3)->make();
 echo "Created " . count($users) . " user data arrays:\n";
 foreach ($users as $userData) {
     echo sprintf('  - %s (%s), Age: %d%s', $userData['name'], $userData['email'], $userData['age'], PHP_EOL);
@@ -113,11 +113,11 @@ echo "\n";
 echo "Example 7: Factory with Validation\n";
 echo "-----------------------------------\n";
 
-use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Validation\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Min;
 
-class ValidatedUserDTO extends SimpleDTO
+class ValidatedUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -132,9 +132,9 @@ class ValidatedUserDTO extends SimpleDTO
     ) {}
 }
 
-class ValidatedUserDTOFactory extends DTOFactory
+class ValidatedUserDtoFactory extends DtoFactory
 {
-    protected string $dtoClass = ValidatedUserDTO::class;
+    protected string $dtoClass = ValidatedUserDto::class;
 
     protected function definition(): array
     {
@@ -146,16 +146,16 @@ class ValidatedUserDTOFactory extends DTOFactory
     }
 }
 
-/** @var ValidatedUserDTO $validatedUser */
-$validatedUser = ValidatedUserDTOFactory::new()->create();
+/** @var ValidatedUserDto $validatedUser */
+$validatedUser = ValidatedUserDtoFactory::new()->create();
 echo "Validated user: {$validatedUser->name} ({$validatedUser->email}), Age: {$validatedUser->age}\n\n";
 
 // Example 8: Multiple States
 echo "Example 8: Multiple States\n";
 echo "--------------------------\n";
 
-/** @var UserDTO $superAdmin */
-$superAdmin = UserDTOFactory::new()
+/** @var UserDto $superAdmin */
+$superAdmin = UserDtoFactory::new()
     ->state('admin', ['age' => 99])
     ->state('super', ['name' => 'Super Admin'])
     ->create();
@@ -166,14 +166,14 @@ echo "Super admin: {$superAdmin->name}, Age: {$superAdmin->age}\n\n";
 echo "Example 9: Factory Reset\n";
 echo "------------------------\n";
 
-$factory = UserDTOFactory::new();
+$factory = UserDtoFactory::new();
 
-/** @var array<UserDTO> $users1 */
+/** @var array<UserDto> $users1 */
 $users1 = $factory->count(3)->create();
 echo "Created " . count($users1) . " users\n";
 
 $factory->reset();
-/** @var UserDTO $user2 */
+/** @var UserDto $user2 */
 $user2 = $factory->create();
 echo "After reset, created single user: {$user2->name}\n\n";
 

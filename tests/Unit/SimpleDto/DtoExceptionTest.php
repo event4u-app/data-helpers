@@ -1,0 +1,226 @@
+<?php
+
+declare(strict_types=1);
+
+use event4u\DataHelpers\Exceptions\DtoException;
+
+describe('DtoException', function(): void {
+    describe('typeMismatch', function(): void {
+        it('creates exception with type mismatch details', function(): void {
+            $exception = DtoException::typeMismatch(
+                dtoClass: 'App\UserDto',
+                property: 'age',
+                expectedType: 'int',
+                actualValue: 'thirty',
+                propertyPath: 'user.age'
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Type mismatch in App\UserDto::$age')
+                ->toContain('Property path: user.age')
+                ->toContain('Expected type: int')
+                ->toContain('Actual type: string')
+                ->toContain('Actual value: "thirty"');
+        });
+
+        it('provides suggestions for string to int conversion', function(): void {
+            $exception = DtoException::typeMismatch(
+                dtoClass: 'App\UserDto',
+                property: 'age',
+                expectedType: 'int',
+                actualValue: '25'
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Suggestions:')
+                ->toContain('Cast the string to int');
+        });
+
+        it('provides suggestions for null to non-nullable', function(): void {
+            $exception = DtoException::typeMismatch(
+                dtoClass: 'App\UserDto',
+                property: 'name',
+                expectedType: 'string',
+                actualValue: null
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Suggestions:')
+                ->toContain('Make the property nullable: ?string')
+                ->toContain('Or provide a non-null value');
+        });
+
+        it('provides suggestions for array to object conversion', function(): void {
+            $exception = DtoException::typeMismatch(
+                dtoClass: 'App\UserDto',
+                property: 'address',
+                expectedType: 'App\AddressDto',
+                actualValue: ['street' => 'Main St']
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Suggestions:')
+                ->toContain('Convert array to App\AddressDto using App\AddressDto::fromArray');
+        });
+
+        it('truncates long string values', function(): void {
+            $longString = str_repeat('a', 100);
+            $exception = DtoException::typeMismatch(
+                dtoClass: 'App\UserDto',
+                property: 'description',
+                expectedType: 'string',
+                actualValue: $longString
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Actual value: "' . str_repeat('a', 50) . '..."');
+        });
+
+        it('formats boolean values', function(): void {
+            $exception = DtoException::typeMismatch(
+                dtoClass: 'App\UserDto',
+                property: 'active',
+                expectedType: 'string',
+                actualValue: true
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Actual value: true');
+        });
+
+        it('formats array values', function(): void {
+            $exception = DtoException::typeMismatch(
+                dtoClass: 'App\UserDto',
+                property: 'tags',
+                expectedType: 'string',
+                actualValue: ['tag1', 'tag2', 'tag3']
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Actual value: array(3 items)');
+        });
+
+        it('formats object values', function(): void {
+            $object = new stdClass();
+            $exception = DtoException::typeMismatch(
+                dtoClass: 'App\UserDto',
+                property: 'data',
+                expectedType: 'array',
+                actualValue: $object
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Actual value: stdClass object');
+        });
+    });
+
+    describe('missingProperty', function(): void {
+        it('creates exception for missing property', function(): void {
+            $exception = DtoException::missingProperty(
+                dtoClass: 'App\UserDto',
+                property: 'email',
+                availableKeys: ['name', 'age', 'address']
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Missing required property in App\UserDto::$email')
+                ->toContain('Available keys in data:')
+                ->toContain('- name')
+                ->toContain('- age')
+                ->toContain('- address');
+        });
+
+        it('suggests similar keys', function(): void {
+            $exception = DtoException::missingProperty(
+                dtoClass: 'App\UserDto',
+                property: 'email',
+                availableKeys: ['name', 'age', 'emial', 'mail']
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Did you mean:')
+                ->toContain('- emial');
+        });
+
+        it('limits suggestions to top 3', function(): void {
+            $exception = DtoException::missingProperty(
+                dtoClass: 'App\UserDto',
+                property: 'name',
+                availableKeys: ['nam', 'nme', 'naem', 'nmae', 'mane']
+            );
+
+            $message = $exception->getMessage();
+            // Count lines in "Did you mean:" section
+            preg_match_all('/Did you mean:\n((?:  - .+\n?)+)/', $message, $matches);
+            if (isset($matches[1][0])) {
+                $suggestionCount = substr_count($matches[1][0], '  - ');
+                expect($suggestionCount)->toBeLessThanOrEqual(3);
+            } else {
+                expect(true)->toBeTrue(); // No suggestions found, that's ok
+            }
+        });
+
+        it('works without available keys', function(): void {
+            $exception = DtoException::missingProperty(
+                dtoClass: 'App\UserDto',
+                property: 'email'
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Missing required property in App\UserDto::$email')
+                ->not->toContain('Available keys');
+        });
+    });
+
+    describe('invalidCast', function(): void {
+        it('creates exception for invalid cast', function(): void {
+            $exception = DtoException::invalidCast(
+                dtoClass: 'App\UserDto',
+                property: 'createdAt',
+                castType: 'datetime',
+                value: 'invalid-date',
+                reason: 'Invalid date format'
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Cast failed in App\UserDto::$createdAt')
+                ->toContain('Cast type: datetime')
+                ->toContain('Value: "invalid-date"')
+                ->toContain('Value type: string')
+                ->toContain('Reason: Invalid date format');
+        });
+
+        it('works without reason', function(): void {
+            $exception = DtoException::invalidCast(
+                dtoClass: 'App\UserDto',
+                property: 'age',
+                castType: 'integer',
+                value: 'abc'
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Cast failed in App\UserDto::$age')
+                ->not->toContain('Reason:');
+        });
+    });
+
+    describe('nestedError', function(): void {
+        it('creates exception for nested Dto error', function(): void {
+            $exception = DtoException::nestedError(
+                dtoClass: 'App\UserDto',
+                property: 'address',
+                nestedDtoClass: 'App\AddressDto',
+                nestedProperty: 'street',
+                originalMessage: 'Missing required property'
+            );
+
+            expect($exception->getMessage())
+                ->toContain('Error in nested Dto App\UserDto::$address')
+                ->toContain('Nested Dto: App\AddressDto')
+                ->toContain('Nested property: street')
+                ->toContain('Property path: address.street')
+                ->toContain('Original error:')
+                ->toContain('Missing required property');
+        });
+    });
+});

@@ -3,17 +3,17 @@
 declare(strict_types=1);
 
 namespace Tests\Unit;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenCan;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenGuest;
-use event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenRole;
-use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenAuth;
+use event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenCan;
+use event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenGuest;
+use event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenRole;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 use stdClass;
 use Throwable;
 
-// Test DTOs
-class LaravelAutoloadTestDTO1 extends SimpleDTO
+// Test Dtos
+class LaravelAutoloadTestDto1 extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -22,7 +22,7 @@ class LaravelAutoloadTestDTO1 extends SimpleDTO
     ) {}
 }
 
-class LaravelAutoloadTestDTO2 extends SimpleDTO
+class LaravelAutoloadTestDto2 extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -31,7 +31,7 @@ class LaravelAutoloadTestDTO2 extends SimpleDTO
     ) {}
 }
 
-class LaravelAutoloadTestDTO3 extends SimpleDTO
+class LaravelAutoloadTestDto3 extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -44,7 +44,7 @@ class LaravelAutoloadTestDTO3 extends SimpleDTO
     ) {}
 }
 
-class LaravelAutoloadTestDTO4 extends SimpleDTO
+class LaravelAutoloadTestDto4 extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -53,7 +53,7 @@ class LaravelAutoloadTestDTO4 extends SimpleDTO
     ) {}
 }
 
-class LaravelAutoloadTestDTO5 extends SimpleDTO
+class LaravelAutoloadTestDto5 extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -73,14 +73,14 @@ describe('Laravel Attributes Autoload Safety', function(): void {
         // This test ensures that Laravel attributes can be loaded
         // even when Laravel is not installed (they just won't use facades)
 
-        expect(class_exists('event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenAuth'))->toBeTrue()
-            ->and(class_exists('event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenGuest'))->toBeTrue()
-            ->and(class_exists('event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenCan'))->toBeTrue()
-            ->and(class_exists('event4u\DataHelpers\SimpleDTO\Attributes\Laravel\WhenRole'))->toBeTrue();
+        expect(class_exists('event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenAuth'))->toBeTrue()
+            ->and(class_exists('event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenGuest'))->toBeTrue()
+            ->and(class_exists('event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenCan'))->toBeTrue()
+            ->and(class_exists('event4u\DataHelpers\SimpleDto\Attributes\Laravel\WhenRole'))->toBeTrue();
     });
 
     it('Laravel attributes work with context even without Laravel', function(): void {
-        $dto = new LaravelAutoloadTestDTO1('John', 'john@example.com');
+        $dto = new LaravelAutoloadTestDto1('John', 'john@example.com');
 
         // Should work with context
         $user = (object)['id' => 1];
@@ -90,7 +90,7 @@ describe('Laravel Attributes Autoload Safety', function(): void {
     });
 
     it('does not throw errors when Laravel facades are not available', function(): void {
-        $dto = new LaravelAutoloadTestDTO2('John', 'john@example.com');
+        $dto = new LaravelAutoloadTestDto2('John', 'john@example.com');
 
         // Should not throw error even without Laravel
         expect($dto->toArray(...))->not->toThrow(Throwable::class);
@@ -139,7 +139,7 @@ describe('Laravel Attributes Autoload Safety', function(): void {
     });
 
     it('all Laravel attributes work in plain PHP without Laravel', function(): void {
-        $dto = new LaravelAutoloadTestDTO3('Test', 'email@test.com', '/admin', '/edit');
+        $dto = new LaravelAutoloadTestDto3('Test', 'email@test.com', '/admin', '/edit');
 
         // Without context - should work without errors
         $arrayNoContext = $dto->toArray();
@@ -165,7 +165,7 @@ describe('Laravel Attributes Autoload Safety', function(): void {
     });
 
     it('WhenGuest defaults to true without Laravel', function(): void {
-        $dto = new LaravelAutoloadTestDTO4('Page', 'Login here');
+        $dto = new LaravelAutoloadTestDto4('Page', 'Login here');
 
         // Without context and without Laravel, should assume guest
         $array = $dto->toArray();
@@ -176,8 +176,8 @@ describe('Laravel Attributes Autoload Safety', function(): void {
         // This test ensures that using Laravel attributes doesn't
         // trigger autoload errors for Laravel classes
 
-        // Create a DTO with all Laravel attributes
-        $class = new LaravelAutoloadTestDTO5('Test');
+        // Create a Dto with all Laravel attributes
+        $class = new LaravelAutoloadTestDto5('Test');
 
         // Should not throw any errors
         expect($class->toArray(...))->not->toThrow(Throwable::class);

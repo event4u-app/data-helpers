@@ -214,7 +214,7 @@ class DataMutator
             return $target;
         }
 
-        // Support for DTOs with public properties (only if the first segment exists as a property)
+        // Support for Dtos with public properties (only if the first segment exists as a property)
         if ([] !== $segments && EntityHelper::hasProperty($target, $segments[0])) {
             // If merge is true and value is an array, merge with existing value
             if ($merge && is_array($value)) {

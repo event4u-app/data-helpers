@@ -3,7 +3,7 @@ title: DataFilter
 description: Fluent API for filtering and transforming data collections with SQL-like operators
 ---
 
-DataFilter provides a fluent API for filtering and transforming existing data collections. It works with Arrays, DTOs, Eloquent Models, Collections, and any iterable data using SQL-like operators.
+DataFilter provides a fluent API for filtering and transforming existing data collections. It works with Arrays, Dtos, Eloquent Models, Collections, and any iterable data using SQL-like operators.
 
 ## Quick Example
 
@@ -64,7 +64,7 @@ DataFilter provides SQL-like filtering for in-memory data collections.
 | Feature | DataFilter | DataMapper Query Builder |
 |---------|-----------|--------------------------|
 | **Purpose** | Filter existing data | Build templates with wildcard operators |
-| **Input** | Arrays, DTOs, Models, Collections | Template structure |
+| **Input** | Arrays, Dtos, Models, Collections | Template structure |
 | **Field Paths** | Simple strings (`'price'`, `'user.name'`) | Template expressions (`'{{ products.*.price }}'`) |
 | **Use Case** | Post-mapping filtering | Pre-mapping query building |
 | **Example** | `DataFilter::query($products)->where('price', '>', 100)->get()` | `DataMapper::query('products.*')->where('price', '>', 100)->end()` |

@@ -1,41 +1,41 @@
 ---
 title: Symfony Console Commands
-description: Complete reference of all Symfony Console commands for SimpleDTO
+description: Complete reference of all Symfony Console commands for SimpleDto
 ---
 
-Complete reference of all Symfony Console commands for SimpleDTO.
+Complete reference of all Symfony Console commands for SimpleDto.
 
 ## Introduction
 
-SimpleDTO provides several console commands for Symfony:
+SimpleDto provides several console commands for Symfony:
 
-- **make:dto** - Create new DTOs
+- **make:dto** - Create new Dtos
 - **dto:typescript** - Generate TypeScript types
-- **dto:list** - List all DTOs
-- **dto:validate** - Validate DTO structure
+- **dto:list** - List all Dtos
+- **dto:validate** - Validate Dto structure
 - **dto:cache** - Cache validation rules
 - **dto:clear** - Clear validation cache
 
 ## make:dto
 
-Create a new DTO class.
+Create a new Dto class.
 
 ### Basic Usage
 
 ```bash
-bin/console make:dto UserDTO
+bin/console make:dto UserDto
 ```
 
-Creates `src/DTO/UserDTO.php`:
+Creates `src/Dto/UserDto.php`:
 
 ```php
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -48,10 +48,10 @@ class UserDTO extends SimpleDTO
 
 #### --validation
 
-Create a DTO with validation attributes:
+Create a Dto with validation attributes:
 
 ```bash
-bin/console make:dto CreateUserDTO --validation
+bin/console make:dto CreateUserDto --validation
 ```
 
 Creates:
@@ -59,13 +59,13 @@ Creates:
 ```php
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
 
-class CreateUserDTO extends SimpleDTO
+class CreateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -79,31 +79,31 @@ class CreateUserDTO extends SimpleDTO
 
 #### --resource
 
-Create a resource DTO for API responses:
+Create a resource Dto for API responses:
 
 ```bash
-bin/console make:dto UserResourceDTO --resource
+bin/console make:dto UserResourceDto --resource
 ```
 
 #### --entity
 
-Create DTO from existing Doctrine entity:
+Create Dto from existing Doctrine entity:
 
 ```bash
-bin/console make:dto UserDTO --entity=User
+bin/console make:dto UserDto --entity=User
 ```
 
 #### --force
 
-Overwrite existing DTO:
+Overwrite existing Dto:
 
 ```bash
-bin/console make:dto UserDTO --force
+bin/console make:dto UserDto --force
 ```
 
 ## dto:typescript
 
-Generate TypeScript types from DTOs.
+Generate TypeScript types from Dtos.
 
 ### Basic Usage
 
@@ -143,7 +143,7 @@ bin/console dto:typescript --export=        # no export
 
 ## dto:list
 
-List all DTOs in the project.
+List all Dtos in the project.
 
 ### Basic Usage
 
@@ -154,11 +154,11 @@ bin/console dto:list
 Output:
 ```
 +------------------+------------------+------------+
-| DTO              | Namespace        | Properties |
+| Dto              | Namespace        | Properties |
 +------------------+------------------+------------+
-| UserDTO          | App\DTO          | 5          |
-| CreateUserDTO    | App\DTO\Requests | 3          |
-| UserResourceDTO  | App\DTO\Resources| 7          |
+| UserDto          | App\Dto          | 5          |
+| CreateUserDto    | App\Dto\Requests | 3          |
+| UserResourceDto  | App\Dto\Resources| 7          |
 +------------------+------------------+------------+
 ```
 
@@ -169,22 +169,22 @@ Output:
 Filter by namespace:
 
 ```bash
-bin/console dto:list --namespace=App\\DTO\\Api
+bin/console dto:list --namespace=App\\Dto\\Api
 ```
 
 ## dto:validate
 
-Validate DTO structure and configuration.
+Validate Dto structure and configuration.
 
 ### Basic Usage
 
 ```bash
-bin/console dto:validate UserDTO
+bin/console dto:validate UserDto
 ```
 
 Checks:
 - Class exists
-- Extends SimpleDTO
+- Extends SimpleDto
 - Properties are readonly
 - Validation attributes are valid
 - Type casts are valid
@@ -194,7 +194,7 @@ Checks:
 
 #### --all
 
-Validate all DTOs:
+Validate all Dtos:
 
 ```bash
 bin/console dto:validate --all
@@ -205,7 +205,7 @@ bin/console dto:validate --all
 Attempt to fix common issues:
 
 ```bash
-bin/console dto:validate UserDTO --fix
+bin/console dto:validate UserDto --fix
 ```
 
 ## dto:cache
@@ -218,7 +218,7 @@ Cache validation rules for better performance.
 bin/console dto:cache
 ```
 
-Caches validation rules for all DTOs, improving validation performance by up to 198x.
+Caches validation rules for all Dtos, improving validation performance by up to 198x.
 
 ### Options
 
@@ -244,14 +244,14 @@ Clears all cached validation rules.
 
 ## Real-World Examples
 
-### Create API DTOs
+### Create API Dtos
 
 ```bash
-# Create request DTO
-bin/console make:dto CreateUserDTO --validation
+# Create request Dto
+bin/console make:dto CreateUserDto --validation
 
-# Create response DTO
-bin/console make:dto UserResourceDTO --resource
+# Create response Dto
+bin/console make:dto UserResourceDto --resource
 
 # Generate TypeScript
 bin/console dto:typescript
@@ -260,11 +260,11 @@ bin/console dto:typescript
 ### Development Workflow
 
 ```bash
-# Create DTO from entity
-bin/console make:dto OrderDTO --entity=Order
+# Create Dto from entity
+bin/console make:dto OrderDto --entity=Order
 
 # Validate structure
-bin/console dto:validate OrderDTO
+bin/console dto:validate OrderDto
 
 # Generate TypeScript with watch
 bin/console dto:typescript --watch
@@ -273,7 +273,7 @@ bin/console dto:typescript --watch
 ### CI/CD Pipeline
 
 ```bash
-# Validate all DTOs
+# Validate all Dtos
 bin/console dto:validate --all
 
 # Check TypeScript is up to date
@@ -301,7 +301,7 @@ bin/console dto:typescript
 ### Create and Validate
 
 ```bash
-bin/console make:dto UserDTO && bin/console dto:validate UserDTO
+bin/console make:dto UserDto && bin/console dto:validate UserDto
 ```
 
 ### Generate TypeScript and Watch
@@ -315,9 +315,9 @@ bin/console dto:typescript --watch &
 ### 1. Use Validation in Development
 
 ```bash
-# Always validate after creating DTOs
-bin/console make:dto UserDTO
-bin/console dto:validate UserDTO
+# Always validate after creating Dtos
+bin/console make:dto UserDto
+bin/console dto:validate UserDto
 ```
 
 ### 2. Cache in Production

@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapOutputName;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
-use event4u\DataHelpers\SimpleDTO\Enums\NamingConvention;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDto\Attributes\MapInputName;
+use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
+use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
+use event4u\DataHelpers\SimpleDto\Enums\NamingConvention;
 
 echo "\n";
 echo "================================================================================\n";
-echo "SimpleDTO - Property Mapping Examples\n";
+echo "SimpleDto - Property Mapping Examples\n";
 echo "================================================================================\n";
 echo "\n";
 
@@ -21,7 +21,7 @@ echo "\n";
 echo "Example 1: Simple Property Mapping (snake_case → camelCase)\n";
 echo "--------------------------------------------------------------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('user_name')]
@@ -40,10 +40,10 @@ $apiData = [
     'phone_number' => '+49123456789',
 ];
 
-$user = UserDTO::fromArray($apiData);
+$user = UserDto::fromArray($apiData);
 echo "Input (snake_case):\n";
 echo json_encode($apiData, JSON_PRETTY_PRINT) . PHP_EOL;
-echo "\nDTO Properties (camelCase):\n";
+echo "\nDto Properties (camelCase):\n";
 /** @phpstan-ignore-next-line unknown */
 echo sprintf('  userName: %s%s', $user->userName, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -56,7 +56,7 @@ echo "\n";
 echo "Example 2: Dot Notation for Nested Data\n";
 echo "--------------------------------------------------------------------------------\n";
 
-class ProfileDTO extends SimpleDTO
+class ProfileDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('user.profile.email')]
@@ -81,10 +81,10 @@ $nestedData = [
     ],
 ];
 
-$profile = ProfileDTO::fromArray($nestedData);
+$profile = ProfileDto::fromArray($nestedData);
 echo "Input (nested structure):\n";
 echo json_encode($nestedData, JSON_PRETTY_PRINT) . PHP_EOL;
-echo "\nDTO Properties (flattened):\n";
+echo "\nDto Properties (flattened):\n";
 echo sprintf('  email: %s%s', $profile->email, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 echo sprintf('  age: %s%s', $profile->age, PHP_EOL);
@@ -96,7 +96,7 @@ echo "\n";
 echo "Example 3: Multiple Sources with Fallback (Different API Formats)\n";
 echo "--------------------------------------------------------------------------------\n";
 
-class FlexibleUserDTO extends SimpleDTO
+class FlexibleUserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom(['user.email', 'email', 'emailAddress'])]
@@ -115,7 +115,7 @@ $api1Data = [
     ],
 ];
 
-$user1 = FlexibleUserDTO::fromArray($api1Data);
+$user1 = FlexibleUserDto::fromArray($api1Data);
 echo "API Format 1 (nested):\n";
 echo json_encode($api1Data, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "Result: {$user1->name} ({$user1->email})\n\n";
@@ -126,7 +126,7 @@ $api2Data = [
     'name' => 'Jane from API 2',
 ];
 
-$user2 = FlexibleUserDTO::fromArray($api2Data);
+$user2 = FlexibleUserDto::fromArray($api2Data);
 echo "API Format 2 (flat):\n";
 echo json_encode($api2Data, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "Result: {$user2->name} ({$user2->email})\n\n";
@@ -137,7 +137,7 @@ $api3Data = [
     'userName' => 'Bob from API 3',
 ];
 
-$user3 = FlexibleUserDTO::fromArray($api3Data);
+$user3 = FlexibleUserDto::fromArray($api3Data);
 echo "API Format 3 (camelCase):\n";
 echo json_encode($api3Data, JSON_PRETTY_PRINT) . PHP_EOL;
 echo "Result: {$user3->name} ({$user3->email})\n";
@@ -147,7 +147,7 @@ echo "\n";
 echo "Example 4: Integration with Casts (Mapping + Type Conversion)\n";
 echo "--------------------------------------------------------------------------------\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('order_id')]
@@ -179,10 +179,10 @@ $orderData = [
     'total_amount' => 99.99,         // Float → decimal string
 ];
 
-$order = OrderDTO::fromArray($orderData);
+$order = OrderDto::fromArray($orderData);
 echo "Input (mixed types):\n";
 echo json_encode($orderData, JSON_PRETTY_PRINT) . PHP_EOL;
-echo "\nDTO Properties (typed & formatted):\n";
+echo "\nDto Properties (typed & formatted):\n";
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 echo sprintf('  orderId: %s (', $order->orderId) . gettype($order->orderId) . ")\n";
@@ -198,7 +198,7 @@ echo "\n";
 echo "Example 5: Real-World Use Case - Multiple REST APIs\n";
 echo "--------------------------------------------------------------------------------\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom(['product.id', 'id', 'productId'])]
@@ -232,7 +232,7 @@ $shopifyData = [
     ],
 ];
 
-$product1 = ProductDTO::fromArray($shopifyData);
+$product1 = ProductDto::fromArray($shopifyData);
 echo "Shopify API Response:\n";
 echo "  Product: {$product1->name} (ID: {$product1->id})\n";
 echo "  Price: €{$product1->price}, Stock: {$product1->stock}\n\n";
@@ -245,7 +245,7 @@ $wooCommerceData = [
     'available' => 25,
 ];
 
-$product2 = ProductDTO::fromArray($wooCommerceData);
+$product2 = ProductDto::fromArray($wooCommerceData);
 echo "WooCommerce API Response:\n";
 echo "  Product: {$product2->name} (ID: {$product2->id})\n";
 echo "  Price: €{$product2->price}, Stock: {$product2->stock}\n\n";
@@ -258,7 +258,7 @@ $customData = [
     'quantity' => 100,
 ];
 
-$product3 = ProductDTO::fromArray($customData);
+$product3 = ProductDto::fromArray($customData);
 echo "Custom API Response:\n";
 echo "  Product: {$product3->name} (ID: {$product3->id})\n";
 echo sprintf('  Price: €%s, Stock: %d%s', $product3->price, $product3->stock, PHP_EOL);
@@ -268,7 +268,7 @@ echo "\n";
 echo "Example 6: MapTo Attribute - Output Mapping\n";
 echo "--------------------------------------------------------------------------------\n";
 
-class ApiResponseDTO extends SimpleDTO
+class ApiResponseDto extends SimpleDto
 {
     public function __construct(
         #[MapTo('user_id')]
@@ -283,7 +283,7 @@ class ApiResponseDTO extends SimpleDTO
 
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$dto = new ApiResponseDTO(
+$dto = new ApiResponseDto(
     /** @phpstan-ignore-next-line unknown */
     userId: 123,
     /** @phpstan-ignore-next-line unknown */
@@ -292,7 +292,7 @@ $dto = new ApiResponseDTO(
     emailAddress: 'john@example.com'
 );
 
-echo "DTO Properties (camelCase):\n";
+echo "Dto Properties (camelCase):\n";
 /** @phpstan-ignore-next-line unknown */
 echo sprintf('  userId: %s%s', $dto->userId, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -309,7 +309,7 @@ echo "\n";
 echo "Example 7: Nested Output with Dot Notation\n";
 echo "--------------------------------------------------------------------------------\n";
 
-class NestedOutputDTO extends SimpleDTO
+class NestedOutputDto extends SimpleDto
 {
     public function __construct(
         #[MapTo('user.profile.email')]
@@ -322,13 +322,13 @@ class NestedOutputDTO extends SimpleDTO
     }
 }
 
-$nestedDto = new NestedOutputDTO(
+$nestedDto = new NestedOutputDto(
     email: 'john@example.com',
     age: 30,
     createdAt: '2024-01-15'
 );
 
-echo "DTO Properties (flat):\n";
+echo "Dto Properties (flat):\n";
 echo sprintf('  email: %s%s', $nestedDto->email, PHP_EOL);
 echo sprintf('  age: %d%s', $nestedDto->age, PHP_EOL);
 echo "  createdAt: {$nestedDto->createdAt}\n\n";
@@ -342,7 +342,7 @@ echo "\n";
 echo "Example 8: Bidirectional Mapping (MapFrom + MapTo)\n";
 echo "--------------------------------------------------------------------------------\n";
 
-class BidirectionalDTO extends SimpleDTO
+class BidirectionalDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom(['user.email', 'email'])]
@@ -364,8 +364,8 @@ $inputData = [
 echo "Input (flat structure):\n";
 echo json_encode($inputData, JSON_PRETTY_PRINT) . PHP_EOL;
 
-$bidirectionalDto = BidirectionalDTO::fromArray($inputData);
-echo "\nDTO Properties:\n";
+$bidirectionalDto = BidirectionalDto::fromArray($inputData);
+echo "\nDto Properties:\n";
 echo sprintf('  email: %s%s', $bidirectionalDto->email, PHP_EOL);
 echo sprintf('  name: %s%s', $bidirectionalDto->name, PHP_EOL);
 
@@ -379,7 +379,7 @@ echo "\n";
 echo "Example 9: JSON Serialization with MapTo\n";
 echo "--------------------------------------------------------------------------------\n";
 
-class JsonDTO extends SimpleDTO
+class JsonDto extends SimpleDto
 {
     public function __construct(
         #[MapTo('user_id')]
@@ -392,7 +392,7 @@ class JsonDTO extends SimpleDTO
     }
 }
 
-$jsonDto = new JsonDTO(
+$jsonDto = new JsonDto(
     userId: 456,
     userName: 'Jane Doe',
     isActive: true
@@ -407,16 +407,16 @@ echo "\n\n";
 echo "Example 10: Mapping Configuration Inspection\n";
 echo "--------------------------------------------------------------------------------\n";
 
-$inputMappingConfig = ProductDTO::getMappingConfig();
-echo "ProductDTO Input Mapping Configuration:\n";
+$inputMappingConfig = ProductDto::getMappingConfig();
+echo "ProductDto Input Mapping Configuration:\n";
 foreach ($inputMappingConfig as $property => $sources) {
     $sourcesStr = is_array($sources) ? implode(', ', $sources) : $sources;
     echo "  {$property} ← [{$sourcesStr}]\n";
 }
 echo "\n";
 
-$outputMappingConfig = BidirectionalDTO::getOutputMappingConfig();
-echo "BidirectionalDTO Output Mapping Configuration:\n";
+$outputMappingConfig = BidirectionalDto::getOutputMappingConfig();
+echo "BidirectionalDto Output Mapping Configuration:\n";
 foreach ($outputMappingConfig as $property => $target) {
     echo sprintf('  %s → %s%s', $property, $target, PHP_EOL);
 }
@@ -429,7 +429,7 @@ echo "💡 Tip: Use NamingConvention enum for type-safe naming conventions!\n";
 echo "    Available: SnakeCase, CamelCase, KebabCase, PascalCase\n\n";
 
 #[MapInputName(NamingConvention::SnakeCase)]  // ✨ Using enum instead of string!
-class UserInputDTO extends SimpleDTO
+class UserInputDto extends SimpleDto
 {
     public function __construct(
         public readonly string $userName,
@@ -450,8 +450,8 @@ $snakeCaseInput = [
 echo "Input (snake_case):\n";
 echo json_encode($snakeCaseInput, JSON_PRETTY_PRINT) . PHP_EOL;
 
-$userDto = UserInputDTO::fromArray($snakeCaseInput);
-echo "\nDTO Properties (camelCase):\n";
+$userDto = UserInputDto::fromArray($snakeCaseInput);
+echo "\nDto Properties (camelCase):\n";
 echo sprintf('  userName: %s%s', $userDto->userName, PHP_EOL);
 echo sprintf('  emailAddress: %s%s', $userDto->emailAddress, PHP_EOL);
 echo sprintf('  userId: %d%s', $userDto->userId, PHP_EOL);
@@ -464,7 +464,7 @@ echo "--------------------------------------------------------------------------
 echo "💡 Tip: Enum provides IDE autocomplete and prevents typos!\n\n";
 
 #[MapOutputName(NamingConvention::SnakeCase)]  // ✨ Using enum!
-class UserOutputDTO extends SimpleDTO
+class UserOutputDto extends SimpleDto
 {
     public function __construct(
         public readonly string $userName,
@@ -475,14 +475,14 @@ class UserOutputDTO extends SimpleDTO
     }
 }
 
-$userOutputDto = new UserOutputDTO(
+$userOutputDto = new UserOutputDto(
     userName: 'Jane Doe',
     emailAddress: 'jane@example.com',
     userId: 456,
     isActive: false
 );
 
-echo "DTO Properties (camelCase):\n";
+echo "Dto Properties (camelCase):\n";
 echo sprintf('  userName: %s%s', $userOutputDto->userName, PHP_EOL);
 echo sprintf('  emailAddress: %s%s', $userOutputDto->emailAddress, PHP_EOL);
 echo sprintf('  userId: %d%s', $userOutputDto->userId, PHP_EOL);
@@ -500,7 +500,7 @@ echo "💡 Tip: Mix different conventions for input and output!\n\n";
 
 #[MapInputName(NamingConvention::SnakeCase)]   // ✨ Input: snake_case
 #[MapOutputName(NamingConvention::KebabCase)]  // ✨ Output: kebab-case
-class TransformDTO extends SimpleDTO
+class TransformDto extends SimpleDto
 {
     public function __construct(
         public readonly string $userName,
@@ -516,8 +516,8 @@ $transformInput = [
 ];
 echo json_encode($transformInput, JSON_PRETTY_PRINT) . PHP_EOL;
 
-$transformDto = TransformDTO::fromArray($transformInput);
-echo "\nDTO Properties (camelCase):\n";
+$transformDto = TransformDto::fromArray($transformInput);
+echo "\nDto Properties (camelCase):\n";
 echo sprintf('  userName: %s%s', $transformDto->userName, PHP_EOL);
 echo sprintf('  emailAddress: %s%s', $transformDto->emailAddress, PHP_EOL);
 
@@ -532,7 +532,7 @@ echo "--------------------------------------------------------------------------
 
 #[MapInputName('snake_case')]
 #[MapOutputName('snake_case')]
-class OverrideDTO extends SimpleDTO
+class OverrideDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('custom_email_input')]
@@ -550,8 +550,8 @@ $overrideInput = [
 ];
 echo json_encode($overrideInput, JSON_PRETTY_PRINT) . PHP_EOL;
 
-$overrideDto = OverrideDTO::fromArray($overrideInput);
-echo "\nDTO Properties:\n";
+$overrideDto = OverrideDto::fromArray($overrideInput);
+echo "\nDto Properties:\n";
 echo sprintf('  email: %s%s', $overrideDto->email, PHP_EOL);
 echo sprintf('  userName: %s%s', $overrideDto->userName, PHP_EOL);
 

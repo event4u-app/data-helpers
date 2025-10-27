@@ -18,7 +18,7 @@ Common database patterns:
 ## Create (Insert)
 
 ```php
-class CreateUserDTO extends SimpleDTO
+class CreateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required, Min(3)]
@@ -32,7 +32,7 @@ class CreateUserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = CreateUserDTO::validateAndCreate($_POST);
+$dto = CreateUserDto::validateAndCreate($_POST);
 
 $user = User::create([
     'name' => $dto->name,
@@ -48,7 +48,7 @@ $user->save();
 ## Read (Fetch)
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -60,20 +60,20 @@ class UserDTO extends SimpleDTO
 
 // Single record
 $user = User::find(1);
-$dto = UserDTO::fromModel($user);
+$dto = UserDto::fromModel($user);
 
 // Multiple records
 $users = User::all();
-$dtos = $users->map(fn($user) => UserDTO::fromModel($user));
+$dtos = $users->map(fn($user) => UserDto::fromModel($user));
 
 // With DataCollection
-$dtos = DataCollection::make($users, UserDTO::class);
+$dtos = DataCollection::make($users, UserDto::class);
 ```
 
 ## Update
 
 ```php
-class UpdateUserDTO extends SimpleDTO
+class UpdateUserDto extends SimpleDto
 {
     public function __construct(
         public readonly ?string $name = null,
@@ -81,7 +81,7 @@ class UpdateUserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UpdateUserDTO::validateAndCreate($_POST);
+$dto = UpdateUserDto::validateAndCreate($_POST);
 
 $user = User::find($id);
 
@@ -110,25 +110,25 @@ if (auth()->user()->can('delete', $user)) {
 ### One-to-Many
 
 ```php
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
         public readonly string $title,
         public readonly string $content,
-        public readonly UserDTO $author,
+        public readonly UserDto $author,
         public readonly array $comments,
     ) {}
 }
 
 $post = Post::with(['author', 'comments'])->find(1);
-$dto = PostDTO::fromModel($post);
+$dto = PostDto::fromModel($post);
 ```
 
 ### Many-to-Many
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -138,13 +138,13 @@ class UserDTO extends SimpleDTO
 }
 
 $user = User::with('roles')->find(1);
-$dto = UserDTO::fromModel($user);
+$dto = UserDto::fromModel($user);
 ```
 
 ## Pagination
 
 ```php
-class PaginatedUsersDTO extends SimpleDTO
+class PaginatedUsersDto extends SimpleDto
 {
     public function __construct(
         public readonly array $data,
@@ -156,8 +156,8 @@ class PaginatedUsersDTO extends SimpleDTO
 
 $users = User::paginate(20);
 
-$dto = PaginatedUsersDTO::fromArray([
-    'data' => $users->map(fn($u) => UserDTO::fromModel($u))->toArray(),
+$dto = PaginatedUsersDto::fromArray([
+    'data' => $users->map(fn($u) => UserDto::fromModel($u))->toArray(),
     'currentPage' => $users->currentPage(),
     'lastPage' => $users->lastPage(),
     'total' => $users->total(),
@@ -167,7 +167,7 @@ $dto = PaginatedUsersDTO::fromArray([
 ## Filtering
 
 ```php
-class UserFilterDTO extends SimpleDTO
+class UserFilterDto extends SimpleDto
 {
     public function __construct(
         public readonly ?string $name = null,
@@ -177,7 +177,7 @@ class UserFilterDTO extends SimpleDTO
     ) {}
 }
 
-$filter = UserFilterDTO::fromArray($_GET);
+$filter = UserFilterDto::fromArray($_GET);
 
 $users = User::query()
     ->when($filter->name, fn($q) => $q->where('name', 'like', "%{$filter->name}%"))
@@ -191,11 +191,11 @@ $users = User::query()
 
 ### Bulk Insert
 
-<!-- skip-test: Requires Laravel Eloquent and CreateUserDTO -->
+<!-- skip-test: Requires Laravel Eloquent and CreateUserDto -->
 ```php
 $dtos = [
-    CreateUserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com']),
-    CreateUserDTO::fromArray(['name' => 'Jane', 'email' => 'jane@example.com']),
+    CreateUserDto::fromArray(['name' => 'John', 'email' => 'john@example.com']),
+    CreateUserDto::fromArray(['name' => 'Jane', 'email' => 'jane@example.com']),
 ];
 
 $data = array_map(fn($dto) => $dto->toArray(), $dtos);
@@ -244,24 +244,24 @@ $user->forceDelete();
 ## Eager Loading
 
 ```php
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
         public readonly string $title,
-        public readonly UserDTO $author,
+        public readonly UserDto $author,
         public readonly array $comments,
         public readonly array $tags,
     ) {}
 }
 
 $posts = Post::with(['author', 'comments', 'tags'])->get();
-$dtos = $posts->map(fn($post) => PostDTO::fromModel($post));
+$dtos = $posts->map(fn($post) => PostDto::fromModel($post));
 ```
 
 ## See Also
 
-- [Creating DTOs](/simple-dto/creating-dtos/) - DTO creation methods
-- [Nested DTOs](/simple-dto/nested-dtos/) - Nested DTOs
+- [Creating Dtos](/simple-dto/creating-dtos/) - Dto creation methods
+- [Nested Dtos](/simple-dto/nested-dtos/) - Nested Dtos
 - [Collections](/simple-dto/collections/) - DataCollection
 

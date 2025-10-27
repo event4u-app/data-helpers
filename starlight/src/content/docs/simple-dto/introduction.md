@@ -1,20 +1,20 @@
 ---
-title: Introduction to SimpleDTO
+title: Introduction to SimpleDto
 description: Powerful, framework-agnostic Data Transfer Objects for PHP 8.2+
 ---
 
-SimpleDTO is a powerful, framework-agnostic Data Transfer Object (DTO) library for PHP 8.2+ that makes working with structured data simple, type-safe, and performant.
+SimpleDto is a powerful, framework-agnostic Data Transfer Object (Dto) library for PHP 8.2+ that makes working with structured data simple, type-safe, and performant.
 
-## What is a DTO?
+## What is a Dto?
 
-A **Data Transfer Object (DTO)** is a design pattern used to transfer data between different parts of an application. DTOs are simple objects that:
+A **Data Transfer Object (Dto)** is a design pattern used to transfer data between different parts of an application. Dtos are simple objects that:
 
 - Contain only data (no business logic)
 - Are immutable (readonly properties)
 - Are type-safe (PHP 8.2+ types)
 - Can be easily serialized/deserialized
 
-### Example: Without DTO
+### Example: Without Dto
 
 ```php
 // Controller - messy array handling
@@ -44,11 +44,11 @@ public function store(Request $request)
 }
 ```
 
-### Example: With SimpleDTO
+### Example: With SimpleDto
 
 ```php
-// DTO - clean and type-safe
-class UserDTO extends SimpleDTO
+// Dto - clean and type-safe
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required, StringType, Min(3)]
@@ -63,14 +63,14 @@ class UserDTO extends SimpleDTO
 }
 
 // Controller - simple and clean
-public function store(UserDTO $dto)
+public function store(UserDto $dto)
 {
     $user = User::create($dto->toArray());
     return response()->json($dto);
 }
 ```
 
-## Why SimpleDTO?
+## Why SimpleDto?
 
 ### Framework Agnostic
 
@@ -78,13 +78,13 @@ Works with Laravel, Symfony, and plain PHP. No framework lock-in.
 
 ```php
 // Laravel
-$dto = UserDTO::fromRequest($request);
+$dto = UserDto::fromRequest($request);
 
 // Symfony
-$dto = UserDTO::fromArray($request->request->all());
+$dto = UserDto::fromArray($request->request->all());
 
 // Plain PHP
-$dto = UserDTO::fromArray($_POST);
+$dto = UserDto::fromArray($_POST);
 ```
 
 ### Type Safety
@@ -92,7 +92,7 @@ $dto = UserDTO::fromArray($_POST);
 Full PHP 8.2+ type support with automatic casting.
 
 ```php
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -108,7 +108,7 @@ class ProductDTO extends SimpleDTO
 30+ built-in validation attributes.
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required, StringType, Min(3), Max(50)]
@@ -126,7 +126,7 @@ class UserDTO extends SimpleDTO
 }
 
 // Automatic validation
-$dto = UserDTO::validateAndCreate($data);
+$dto = UserDto::validateAndCreate($data);
 ```
 
 ### Conditional Properties
@@ -134,7 +134,7 @@ $dto = UserDTO::validateAndCreate($data);
 18 conditional attributes for dynamic visibility.
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -156,7 +156,7 @@ class UserDTO extends SimpleDTO
 Map source keys to different property names.
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('full_name')]
@@ -167,7 +167,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'full_name' => 'John Doe',
     'email_address' => 'john@example.com',
 ]);
@@ -179,7 +179,7 @@ $dto = UserDTO::fromArray([
 20+ built-in casts for automatic type conversion.
 
 ```php
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         #[Cast(DateTimeCast::class, format: 'Y-m-d')]
@@ -188,7 +188,7 @@ class OrderDTO extends SimpleDTO
         #[Cast(EnumCast::class, enum: Status::class)]
         public readonly Status $status,
 
-        #[Cast(CollectionCast::class, of: OrderItemDTO::class)]
+        #[Cast(CollectionCast::class, of: OrderItemDto::class)]
         public readonly DataCollection $items,
     ) {}
 }
@@ -199,7 +199,7 @@ class OrderDTO extends SimpleDTO
 Defer expensive operations until needed.
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -209,7 +209,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromModel($user);
+$dto = UserDto::fromModel($user);
 // Posts are NOT loaded yet
 
 $posts = $dto->posts;
@@ -221,7 +221,7 @@ $posts = $dto->posts;
 Calculate values on-the-fly.
 
 ```php
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly float $price,
@@ -235,7 +235,7 @@ class ProductDTO extends SimpleDTO
     }
 }
 
-$dto = new ProductDTO(price: 100, taxRate: 0.19);
+$dto = new ProductDto(price: 100, taxRate: 0.19);
 echo $dto->priceWithTax();  // 119.0
 
 $array = $dto->toArray();
@@ -247,10 +247,10 @@ $array = $dto->toArray();
 Built-in collection support with pagination.
 
 ```php
-$users = UserDTO::collection($userArray);
-// DataCollection of UserDTO instances
+$users = UserDto::collection($userArray);
+// DataCollection of UserDto instances
 
-$paginated = UserDTO::paginatedCollection($users, page: 1, perPage: 10);
+$paginated = UserDto::paginatedCollection($users, page: 1, perPage: 10);
 // [
 //     'data' => [...],
 //     'meta' => ['current_page' => 1, 'per_page' => 10, ...],
@@ -265,7 +265,7 @@ $paginated = UserDTO::paginatedCollection($users, page: 1, perPage: 10);
 - **Type-safe** - Full PHP type hinting support
 - **JSON serializable** - Implements `JsonSerializable`
 - **Array conversion** - `toArray()` and `fromArray()`
-- **Nested DTOs** - Support for complex structures
+- **Nested Dtos** - Support for complex structures
 - **Collections** - Built-in collection support
 
 ### Validation
@@ -306,14 +306,14 @@ $paginated = UserDTO::paginatedCollection($users, page: 1, perPage: 10);
 composer require event4u/data-helpers
 ```
 
-### Create Your First DTO
+### Create Your First Dto
 
 ```php
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -327,7 +327,7 @@ class UserDTO extends SimpleDTO
 }
 
 // Create from array
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
@@ -348,7 +348,7 @@ $json = json_encode($dto);
 
 ### For Beginners
 
-1. [Creating DTOs](/simple-dto/creating-dtos/) - Learn how to create DTOs
+1. [Creating Dtos](/simple-dto/creating-dtos/) - Learn how to create Dtos
 2. [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
 3. [Validation](/simple-dto/validation/) - Validate your data
 
@@ -360,8 +360,8 @@ $json = json_encode($dto);
 
 ### Advanced Topics
 
-1. [Collections](/simple-dto/collections/) - Work with collections of DTOs
-2. [Nested DTOs](/simple-dto/nested-dtos/) - Complex nested structures
+1. [Collections](/simple-dto/collections/) - Work with collections of Dtos
+2. [Nested Dtos](/simple-dto/nested-dtos/) - Complex nested structures
 3. [Security & Visibility](/simple-dto/security-visibility/) - Control data exposure
 
 ## See Also

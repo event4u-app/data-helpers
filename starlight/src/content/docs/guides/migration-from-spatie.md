@@ -1,13 +1,13 @@
 ---
 title: Migration from Spatie Laravel Data
-description: Complete guide to migrating from Spatie Laravel Data to SimpleDTO
+description: Complete guide to migrating from Spatie Laravel Data to SimpleDto
 ---
 
-Complete guide to migrating from Spatie Laravel Data to SimpleDTO.
+Complete guide to migrating from Spatie Laravel Data to SimpleDto.
 
 ## Why Migrate?
 
-SimpleDTO provides a smooth migration path from Spatie Laravel Data:
+SimpleDto provides a smooth migration path from Spatie Laravel Data:
 
 - **Similar API** - Familiar methods and patterns
 - **More Features** - 18 conditional attributes for fine-grained control
@@ -17,7 +17,7 @@ SimpleDTO provides a smooth migration path from Spatie Laravel Data:
 
 ## Feature Comparison
 
-| Feature | Spatie Data | SimpleDTO |
+| Feature | Spatie Data | SimpleDto |
 |---------|-------------|-----------|
 | Framework Support | Laravel only | Laravel, Symfony, PHP |
 | TypeScript Generation | ✅ Yes | ✅ Yes |
@@ -49,7 +49,7 @@ php artisan dto:migrate-spatie --backup
 
 The command will:
 1. Find all Spatie Data classes
-2. Replace base class (`Data` → `SimpleDTO`)
+2. Replace base class (`Data` → `SimpleDto`)
 3. Update namespace imports
 4. Add `readonly` to properties
 5. Update attribute namespaces
@@ -59,7 +59,7 @@ The command will:
 
 If you prefer manual migration:
 
-#### Step 1: Install SimpleDTO
+#### Step 1: Install SimpleDto
 
 ```bash
 composer require event4u/data-helpers
@@ -80,11 +80,11 @@ class UserData extends Data
 }
 ```
 
-**After (SimpleDTO):**
+**After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -112,12 +112,12 @@ class UserData extends Data
 }
 ```
 
-**After (SimpleDTO):**
+**After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -133,15 +133,15 @@ class UserDTO extends SimpleDTO
 
 ### Creation Methods
 
-| Spatie Data | SimpleDTO | Notes |
+| Spatie Data | SimpleDto | Notes |
 |-------------|-----------|-------|
-| `Data::from()` | `SimpleDTO::fromArray()` | Same functionality |
+| `Data::from()` | `SimpleDto::fromArray()` | Same functionality |
 | `Data::collect()` | `DataCollection::make()` | Same functionality |
-| `Data::validateAndCreate()` | `SimpleDTO::validateAndCreate()` | Same functionality |
+| `Data::validateAndCreate()` | `SimpleDto::validateAndCreate()` | Same functionality |
 
 ### Serialization Methods
 
-| Spatie Data | SimpleDTO | Notes |
+| Spatie Data | SimpleDto | Notes |
 |-------------|-----------|-------|
 | `toArray()` | `toArray()` | Same |
 | `toJson()` | `toJson()` | Same |
@@ -149,7 +149,7 @@ class UserDTO extends SimpleDTO
 
 ### Conditional Properties
 
-| Spatie Data | SimpleDTO | Notes |
+| Spatie Data | SimpleDto | Notes |
 |-------------|-----------|-------|
 | `#[Hidden]` | `#[Hidden]` | Same |
 | `#[Computed]` | `#[Computed]` | Same |
@@ -158,7 +158,7 @@ class UserDTO extends SimpleDTO
 
 ## Migration Examples
 
-### Example 1: Basic DTO
+### Example 1: Basic Dto
 
 **Before (Spatie):**
 ```php
@@ -180,11 +180,11 @@ $user = UserData::from([
 ]);
 ```
 
-**After (SimpleDTO):**
+**After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -193,7 +193,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'id' => 1,
     'name' => 'John Doe',
     'email' => 'john@example.com',
@@ -220,13 +220,13 @@ class CreateUserData extends Data
 }
 ```
 
-**After (SimpleDTO):**
+**After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
 
-class CreateUserDTO extends SimpleDTO
+class CreateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -247,21 +247,21 @@ use Spatie\LaravelData\DataCollection;
 $users = UserData::collect($usersArray);
 ```
 
-**After (SimpleDTO):**
+**After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDto\DataCollection;
 
-$users = DataCollection::make($usersArray, UserDTO::class);
+$users = DataCollection::make($usersArray, UserDto::class);
 ```
 
-## New Features in SimpleDTO
+## New Features in SimpleDto
 
 ### More Conditional Attributes
 
-SimpleDTO has 18 conditional attributes for fine-grained control:
+SimpleDto has 18 conditional attributes for fine-grained control:
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -299,13 +299,13 @@ php artisan dto:cache
 
 ```php
 // Works in Laravel
-$dto = UserDTO::fromModel($user);
+$dto = UserDto::fromModel($user);
 
 // Works in Symfony
-$dto = UserDTO::fromEntity($user);
+$dto = UserDto::fromEntity($user);
 
 // Works in plain PHP
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 ```
 
 ## Migration Checklist
@@ -317,7 +317,7 @@ $dto = UserDTO::fromArray($data);
 - [ ] Backup codebase
 
 ### During Migration
-- [ ] Install SimpleDTO
+- [ ] Install SimpleDto
 - [ ] Run `dto:migrate-spatie` command or migrate manually
 - [ ] Update method calls if needed
 - [ ] Test thoroughly
@@ -348,10 +348,10 @@ public readonly string $name;
 
 ```php
 // This validates
-$dto = UserDTO::validateAndCreate($data);
+$dto = UserDto::validateAndCreate($data);
 
 // This doesn't validate
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 ```
 
 ### Issue: Collections not working
@@ -362,8 +362,8 @@ $dto = UserDTO::fromArray($data);
 // Before (Spatie)
 $users = UserData::collect($data);
 
-// After (SimpleDTO)
-$users = DataCollection::make($data, UserDTO::class);
+// After (SimpleDto)
+$users = DataCollection::make($data, UserDto::class);
 ```
 
 ## Next Steps
@@ -371,5 +371,5 @@ $users = DataCollection::make($data, UserDTO::class);
 - [Artisan Commands](/framework-integration/artisan-commands/) - Learn about all available commands
 - [Validation](/simple-dto/validation/) - Explore validation features
 - [Conditional Properties](/simple-dto/conditional-properties/) - Use advanced conditional logic
-- [Performance](/performance/optimization/) - Optimize your DTOs
+- [Performance](/performance/optimization/) - Optimize your Dtos
 

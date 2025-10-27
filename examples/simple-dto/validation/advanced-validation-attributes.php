@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\Different;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\EndsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Ip;
-use event4u\DataHelpers\SimpleDTO\Attributes\Json;
-use event4u\DataHelpers\SimpleDTO\Attributes\Regex;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Same;
-use event4u\DataHelpers\SimpleDTO\Attributes\Size;
-use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\Different;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\EndsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\In;
+use event4u\DataHelpers\SimpleDto\Attributes\Ip;
+use event4u\DataHelpers\SimpleDto\Attributes\Json;
+use event4u\DataHelpers\SimpleDto\Attributes\Regex;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Same;
+use event4u\DataHelpers\SimpleDto\Attributes\Size;
+use event4u\DataHelpers\SimpleDto\Attributes\StartsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Uuid;
 use event4u\DataHelpers\Validation\ValidationException;
 
 echo "=================================================================\n";
@@ -28,7 +28,7 @@ echo "=================================================================\n\n";
 echo "1. SIZE VALIDATION:\n";
 echo "------------------------------------------------------------\n";
 
-class PhoneDTO extends SimpleDTO
+class PhoneDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -38,7 +38,7 @@ class PhoneDTO extends SimpleDTO
 }
 
 try {
-    $phone = PhoneDTO::validateAndCreate(['phoneNumber' => '1234567890']);
+    $phone = PhoneDto::validateAndCreate(['phoneNumber' => '1234567890']);
     echo sprintf('✅  Valid phone: %s%s', $phone->phoneNumber, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -46,7 +46,7 @@ try {
 }
 
 try {
-    $phone = PhoneDTO::validateAndCreate(['phoneNumber' => '123']);
+    $phone = PhoneDto::validateAndCreate(['phoneNumber' => '123']);
     echo "✅  Valid phone (unexpected)\n";
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -59,13 +59,13 @@ echo "\n";
 echo "2. STARTS WITH / ENDS WITH VALIDATION:\n";
 echo "------------------------------------------------------------\n";
 
-class WebsiteDTO extends SimpleDTO
+class WebsiteDto extends SimpleDto
 {
     public function __construct(
         #[Required]
         #[StartsWith(['http://', 'https://'])]
         public readonly string $url,
-        
+
         #[Required]
         #[EndsWith(['.com', '.org', '.net'])]
         public readonly string $domain,
@@ -73,7 +73,7 @@ class WebsiteDTO extends SimpleDTO
 }
 
 try {
-    $website = WebsiteDTO::validateAndCreate([
+    $website = WebsiteDto::validateAndCreate([
         'url' => 'https://example.com',
         'domain' => 'example.com',
     ]);
@@ -84,7 +84,7 @@ try {
 }
 
 try {
-    $website = WebsiteDTO::validateAndCreate([
+    $website = WebsiteDto::validateAndCreate([
         'url' => 'ftp://example.com',
         'domain' => 'example.de',
     ]);
@@ -103,7 +103,7 @@ echo "\n";
 echo "3. IP ADDRESS VALIDATION:\n";
 echo "------------------------------------------------------------\n";
 
-class ServerDTO extends SimpleDTO
+class ServerDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -113,7 +113,7 @@ class ServerDTO extends SimpleDTO
 }
 
 try {
-    $server = ServerDTO::validateAndCreate(['ipAddress' => '192.168.1.1']);
+    $server = ServerDto::validateAndCreate(['ipAddress' => '192.168.1.1']);
     echo sprintf('✅  Valid IP: %s%s', $server->ipAddress, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -121,7 +121,7 @@ try {
 }
 
 try {
-    $server = ServerDTO::validateAndCreate(['ipAddress' => '999.999.999.999']);
+    $server = ServerDto::validateAndCreate(['ipAddress' => '999.999.999.999']);
     echo "✅  Valid IP (unexpected)\n";
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -134,7 +134,7 @@ echo "\n";
 echo "4. JSON VALIDATION:\n";
 echo "------------------------------------------------------------\n";
 
-class ConfigDTO extends SimpleDTO
+class ConfigDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -144,7 +144,7 @@ class ConfigDTO extends SimpleDTO
 }
 
 try {
-    $config = ConfigDTO::validateAndCreate(['settings' => '{"key": "value"}']);
+    $config = ConfigDto::validateAndCreate(['settings' => '{"key": "value"}']);
     /** @phpstan-ignore-next-line unknown */
     echo sprintf('✅  Valid JSON: %s%s', $config->settings, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
@@ -153,7 +153,7 @@ try {
 }
 
 try {
-    $config = ConfigDTO::validateAndCreate(['settings' => 'not-json']);
+    $config = ConfigDto::validateAndCreate(['settings' => 'not-json']);
     echo "✅  Valid JSON (unexpected)\n";
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -166,7 +166,7 @@ echo "\n";
 echo "5. UUID VALIDATION:\n";
 echo "------------------------------------------------------------\n";
 
-class EntityDTO extends SimpleDTO
+class EntityDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -176,7 +176,7 @@ class EntityDTO extends SimpleDTO
 }
 
 try {
-    $entity = EntityDTO::validateAndCreate(['id' => '550e8400-e29b-41d4-a716-446655440000']);
+    $entity = EntityDto::validateAndCreate(['id' => '550e8400-e29b-41d4-a716-446655440000']);
     echo sprintf('✅  Valid UUID: %s%s', $entity->id, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -184,7 +184,7 @@ try {
 }
 
 try {
-    $entity = EntityDTO::validateAndCreate(['id' => 'not-a-uuid']);
+    $entity = EntityDto::validateAndCreate(['id' => 'not-a-uuid']);
     echo "✅  Valid UUID (unexpected)\n";
 /** @phpstan-ignore-next-line unknown */
 } catch (ValidationException $validationException) {
@@ -197,12 +197,12 @@ echo "\n";
 echo "6. SAME / DIFFERENT VALIDATION:\n";
 echo "------------------------------------------------------------\n";
 
-class PasswordDTO extends SimpleDTO
+class PasswordDto extends SimpleDto
 {
     public function __construct(
         #[Required]
         public readonly string $password,
-        
+
         #[Required]
         #[Same('password')]
         public readonly string $passwordConfirmation,
@@ -210,7 +210,7 @@ class PasswordDTO extends SimpleDTO
 }
 
 try {
-    $pwd = PasswordDTO::validateAndCreate([
+    $pwd = PasswordDto::validateAndCreate([
         'password' => 'secret123',
         'passwordConfirmation' => 'secret123',
     ]);
@@ -221,7 +221,7 @@ try {
 }
 
 try {
-    $pwd = PasswordDTO::validateAndCreate([
+    $pwd = PasswordDto::validateAndCreate([
         'password' => 'secret123',
         'passwordConfirmation' => 'different',
     ]);
@@ -233,13 +233,13 @@ try {
 }
 echo "\n";
 
-class EmailDTO extends SimpleDTO
+class EmailDto extends SimpleDto
 {
     public function __construct(
         #[Required]
         #[Email]
         public readonly string $email,
-        
+
         #[Required]
         #[Email]
         #[Different('email')]
@@ -248,7 +248,7 @@ class EmailDTO extends SimpleDTO
 }
 
 try {
-    $emails = EmailDTO::validateAndCreate([
+    $emails = EmailDto::validateAndCreate([
         'email' => 'john@example.com',
         'alternativeEmail' => 'jane@example.com',
     ]);
@@ -259,7 +259,7 @@ try {
 }
 
 try {
-    $emails = EmailDTO::validateAndCreate([
+    $emails = EmailDto::validateAndCreate([
         'email' => 'john@example.com',
         'alternativeEmail' => 'john@example.com',
     ]);
@@ -275,29 +275,29 @@ echo "\n";
 echo "7. COMPLEX VALIDATION RULES:\n";
 echo "------------------------------------------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
         #[Between(3, 50)]
         public readonly string $name,
-        
+
         #[Required]
         #[Email]
         public readonly string $email,
-        
+
         #[Required]
         #[Between(18, 120)]
         public readonly int $age,
-        
+
         #[Required]
         #[In(['admin', 'user', 'guest'])]
         public readonly string $role,
-        
+
         #[Required]
         #[Uuid]
         public readonly string $id,
-        
+
         #[Required]
         #[Regex('/^[A-Z]{2}\d{6}$/')]  // e.g., AB123456
         public readonly string $code,
@@ -305,7 +305,7 @@ class UserDTO extends SimpleDTO
 }
 
 try {
-    $user = UserDTO::validateAndCreate([
+    $user = UserDto::validateAndCreate([
         'name' => 'John Doe',
         'email' => 'john@example.com',
         'age' => 30,

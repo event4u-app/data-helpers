@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Visible;
 
 echo "=== Real-World Beispiel: Blog-System ===\n\n";
 
 // ============================================================================
-// BLOG POST DTO
+// BLOG POST Dto
 // ============================================================================
 
-class BlogPostDTO extends SimpleDTO
+class BlogPostDto extends SimpleDto
 {
     /**
      * @param array<mixed> $analytics
@@ -25,15 +25,15 @@ class BlogPostDTO extends SimpleDTO
         public readonly string $content,
         public readonly string $authorId,
         public readonly string $status, // 'draft', 'published', 'archived'
-        
+
         // Nur für den Autor oder Admins sichtbar
         #[Visible(callback: 'canViewDraftContent')]
         public readonly ?string $draftContent,
-        
+
         // Nur für Admins sichtbar
         #[Visible(callback: 'canViewAnalytics')]
         public readonly array $analytics,
-        
+
         // Nur für den Autor oder Admins sichtbar
         #[Visible(callback: 'canViewEditHistory')]
         public readonly array $editHistory,
@@ -96,7 +96,7 @@ class BlogPostDTO extends SimpleDTO
 // BEISPIEL-DATEN
 // ============================================================================
 
-$blogPost = BlogPostDTO::fromArray([
+$blogPost = BlogPostDto::fromArray([
     'id' => 'post-123',
     'title' => 'Mein erster Blog-Post',
     'content' => 'Dies ist der veröffentlichte Inhalt...',
@@ -231,8 +231,8 @@ echo "{\n";
 echo "    // Blog Post aus DB laden\n";
 echo "    \$post = BlogPost::findOrFail(\$postId);\n\n";
 
-echo "    // DTO erstellen\n";
-echo "    \$dto = BlogPostDTO::fromArray(\$post->toArray());\n\n";
+echo "    // Dto erstellen\n";
+echo "    \$dto = BlogPostDto::fromArray(\$post->toArray());\n\n";
 
 echo "    // Context aus aktuellem User erstellen\n";
 echo "    \$context = (object)[\n";
@@ -240,7 +240,7 @@ echo "        'userId' => auth()->id(),\n";
 echo "        'role' => auth()->user()->role,\n";
 echo "    ];\n\n";
 
-echo "    // DTO mit Context zurückgeben\n";
+echo "    // Dto mit Context zurückgeben\n";
 echo "    return response()->json(\n";
 echo "        \$dto->withVisibilityContext(\$context)->toArray()\n";
 echo "    );\n";
@@ -260,14 +260,14 @@ echo str_repeat('=', 70) . "\n\n";
 
 echo "✅  Context-Based Visibility ermöglicht:\n\n";
 echo "  1. Unterschiedliche Ansichten für unterschiedliche User\n";
-echo "  2. Sichere API-Endpoints ohne separate DTOs\n";
+echo "  2. Sichere API-Endpoints ohne separate Dtos\n";
 echo "  3. Flexible Permissions-Logik\n";
 echo "  4. Zugriff auf eigene Daten vs. fremde Daten\n";
 echo "  5. Role-Based Access Control (RBAC)\n";
 echo "  6. Kombinierbar mit only() und except()\n\n";
 
 echo "✅  Vorteile:\n\n";
-echo "  - Ein DTO für alle Use-Cases\n";
+echo "  - Ein Dto für alle Use-Cases\n";
 echo "  - Keine Duplikation von Code\n";
 echo "  - Klare Permissions-Logik in einer Methode\n";
 echo "  - Testbar und wartbar\n";

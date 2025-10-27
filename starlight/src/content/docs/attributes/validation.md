@@ -3,11 +3,11 @@ title: Validation Attributes
 description: Complete reference of all 30+ validation attributes
 ---
 
-Complete reference of all 30+ validation attributes available in SimpleDTO.
+Complete reference of all 30+ validation attributes available in SimpleDto.
 
 ## Introduction
 
-SimpleDTO provides 30+ validation attributes organized into categories:
+SimpleDto provides 30+ validation attributes organized into categories:
 
 - **Type Validation** - String, Integer, Boolean, Array, Numeric
 - **Size Validation** - Min, Max, Between, Size
@@ -120,7 +120,7 @@ See full list below for all 30+ attributes.
 ### User Registration
 
 ```php
-class UserRegistrationDTO extends SimpleDTO
+class UserRegistrationDto extends SimpleDto
 {
     public function __construct(
         #[Required, Min(3), Max(50)]
@@ -144,7 +144,7 @@ class UserRegistrationDTO extends SimpleDTO
 ### Product Creation
 
 ```php
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[Required, Min(3)]

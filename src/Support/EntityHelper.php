@@ -527,7 +527,7 @@ class EntityHelper
             }
         }
 
-        // Support for DTOs with public properties
+        // Support for Dtos with public properties
         if (is_object($entity) && self::hasProperty($entity, $key)) {
             $reflection = self::getReflection($entity);
             $property = $reflection->getProperty($key);
@@ -594,7 +594,7 @@ class EntityHelper
             return;
         }
 
-        // Handle DTOs with typed array properties (e.g., /** @var array<int, DepartmentDto> */)
+        // Handle Dtos with typed array properties (e.g., /** @var array<int, DepartmentDto> */)
         // Check if key contains dot notation (e.g., "departments.0")
         if (str_contains($key, '.')) {
             $segments = explode('.', $key);
@@ -614,7 +614,7 @@ class EntityHelper
                     // Get the array index (e.g., "0" from "departments.0")
                     $index = (int) $segments[1];
 
-                    // Create or get the DTO instance at this index
+                    // Create or get the Dto instance at this index
                     $existingItem = $array[$index] ?? null;
                     if (!is_object($existingItem)) {
                         $array[$index] = new $arrayItemClass();
@@ -637,7 +637,7 @@ class EntityHelper
             }
         }
 
-        // Handle DTOs with typed array properties when setting the entire array at once
+        // Handle Dtos with typed array properties when setting the entire array at once
         if (is_array($value) && self::hasProperty($entity, $key)) {
             $arrayItemClass = self::getArrayItemClass($entity, $key);
             if (null !== $arrayItemClass && class_exists($arrayItemClass)) {
@@ -650,7 +650,7 @@ class EntityHelper
 
                     $typedItem = new $arrayItemClass();
                     foreach ($itemData as $field => $fieldValue) {
-                        // Recursively set attributes (handles nested DTOs)
+                        // Recursively set attributes (handles nested Dtos)
                         self::setAttribute($typedItem, $field, $fieldValue);
                     }
                     $typedArray[] = $typedItem;
@@ -665,7 +665,7 @@ class EntityHelper
             }
         }
 
-        // Fallback: handle nested property access for DTOs (e.g., "config.theme" or "profile.name")
+        // Fallback: handle nested property access for Dtos (e.g., "config.theme" or "profile.name")
         if (str_contains($key, '.')) {
             $segments = explode('.', $key);
             $firstSegment = $segments[0];
@@ -1063,7 +1063,7 @@ class EntityHelper
      * - @var array<ClassName>
      * - @var ClassName[]
      *
-     * @param object $entity The entity/DTO instance
+     * @param object $entity The entity/Dto instance
      * @param string $propertyName The property name
      * @return string|null The fully qualified class name or null if not found
      */

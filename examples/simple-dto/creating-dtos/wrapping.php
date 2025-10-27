@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
 echo "================================================================================\n";
-echo "SimpleDTO - Wrapping Examples\n";
+echo "SimpleDto - Wrapping Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: Basic Wrapping
 echo "Example 1: Basic Wrapping\n";
 echo "-------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -23,7 +23,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
@@ -74,18 +74,18 @@ $wrappedData = [
 echo "Wrapped data:\n";
 echo json_encode($wrappedData, JSON_PRETTY_PRINT) . "\n\n";
 
-$unwrapped = UserDTO::unwrap($wrappedData, 'data');
+$unwrapped = UserDto::unwrap($wrappedData, 'data');
 echo "Unwrapped data:\n";
 echo json_encode($unwrapped, JSON_PRETTY_PRINT) . "\n\n";
 
-$user2 = UserDTO::fromArray($unwrapped);
-echo "Created DTO from unwrapped data: {$user2->name} ({$user2->email})\n\n";
+$user2 = UserDto::fromArray($unwrapped);
+echo "Created Dto from unwrapped data: {$user2->name} ({$user2->email})\n\n";
 
 // Example 5: Wrap Key Methods
 echo "Example 5: Wrap Key Methods\n";
 echo "---------------------------\n";
 
-$normalUser = UserDTO::fromArray(['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 35]);
+$normalUser = UserDto::fromArray(['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 35]);
 $wrappedUser = $normalUser->wrap('data');
 
 echo "Normal user is wrapped: " . ($normalUser->isWrapped() ? 'Yes' : 'No') . "\n";
@@ -97,7 +97,7 @@ echo "Wrapped user wrap key: " . ($wrappedUser->getWrapKey() ?? 'null') . "\n\n"
 echo "Example 6: Immutability\n";
 echo "-----------------------\n";
 
-$original = UserDTO::fromArray(['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 28]);
+$original = UserDto::fromArray(['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 28]);
 $wrapped1 = $original->wrap('data');
 $wrapped2 = $original->wrap('user');
 
@@ -114,7 +114,7 @@ class ApiResponse
     /** @phpstan-ignore-next-line unknown */
     public static function success(mixed $data, string $message = 'Success'): array
     {
-        if ($data instanceof SimpleDTO) {
+        if ($data instanceof SimpleDto) {
             $data = $data->wrap('data')->toArray();
         }
 
@@ -137,7 +137,7 @@ class ApiResponse
     }
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'Charlie',
     'email' => 'charlie@example.com',
     'age' => 40,
@@ -155,19 +155,19 @@ echo json_encode($errorResponse, JSON_PRETTY_PRINT) . "\n\n";
 echo "Example 8: Wrapping Collections\n";
 echo "--------------------------------\n";
 
-use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDto\DataCollection;
 
-/** @var DataCollection<SimpleDTO> $users */
+/** @var DataCollection<SimpleDto> $users */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$users = DataCollection::forDto(UserDTO::class, [
+$users = DataCollection::forDto(UserDto::class, [
     ['name' => 'User 1', 'email' => 'user1@example.com', 'age' => 25],
     ['name' => 'User 2', 'email' => 'user2@example.com', 'age' => 30],
     ['name' => 'User 3', 'email' => 'user3@example.com', 'age' => 35],
 ]);
 
 // Wrap each user in the collection
-/** @var DataCollection<SimpleDTO> $wrappedUsers */
+/** @var DataCollection<SimpleDto> $wrappedUsers */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 $wrappedUsers = $users->map(fn($user): array => $user->wrap('user')->toArray());
@@ -178,7 +178,7 @@ echo json_encode($wrappedUsers, JSON_PRETTY_PRINT) . "\n\n";
 echo "Example 9: Chaining Wrap with Other Methods\n";
 echo "--------------------------------------------\n";
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'David',
     'email' => 'david@example.com',
     'age' => 40,

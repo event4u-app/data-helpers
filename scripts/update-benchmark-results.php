@@ -183,13 +183,13 @@ foreach ($results['DataMapper'] as $result) {
     $markdown .= '| ' . $name . ' | ' . $time . ' | ' . $desc . " |\n";
 }
 
-$markdown .= "\n### DTO Serialization Comparison\n\n";
-$markdown .= "Comparison of DataMapper vs Symfony Serializer for mapping nested JSON to DTOs:\n\n";
+$markdown .= "\n### Dto Serialization Comparison\n\n";
+$markdown .= "Comparison of DataMapper vs Symfony Serializer for mapping nested JSON to Dtos:\n\n";
 $markdown .= "| Method | Time | vs Symfony | Description |\n";
 $markdown .= "|--------|------|------------|-------------|\n";
 
 $descriptions = [
-    'benchManualMapping' => 'Direct DTO constructor (baseline)',
+    'benchManualMapping' => 'Direct Dto constructor (baseline)',
     'benchDataMapperTemplate' => 'DataMapper with template syntax ({{ ... }})',
     'benchDataMapperSimplePaths' => 'DataMapper with simple path mapping',
     'benchSymfonySerializerArray' => 'Symfony Serializer from array',
@@ -287,7 +287,7 @@ if (false !== $perfStartPos && false !== $perfEndPos) {
     }
 
     $performanceSection = "### 🚀 **Blazing fast performance**\n\n";
-    $performanceSection .= "DataMapper is significantly faster than traditional serializers for DTO mapping:\n\n";
+    $performanceSection .= "DataMapper is significantly faster than traditional serializers for Dto mapping:\n\n";
     if (0 < $speedupFactor) {
         $performanceSection .= sprintf("- Up to **%.1fx faster** than Symfony Serializer\n", $speedupFactor);
     }

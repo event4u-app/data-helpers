@@ -19,25 +19,25 @@ Pipelines allow you to chain multiple processing stages:
 ### Creating a Pipeline
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Pipeline\DTOPipeline;
-use event4u\DataHelpers\SimpleDTO\Pipeline\Stages\TransformerStage;
-use event4u\DataHelpers\SimpleDTO\Transformers\TrimStringsTransformer;
+use event4u\DataHelpers\SimpleDto\Pipeline\DtoPipeline;
+use event4u\DataHelpers\SimpleDto\Pipeline\Stages\TransformerStage;
+use event4u\DataHelpers\SimpleDto\Transformers\TrimStringsTransformer;
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
 
-$dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$dto = UserDto::fromArrayWithPipeline($data, $pipeline);
 ```
 
 ### Multiple Stages
 
 ```php
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new NormalizerStage(new TypeNormalizer(['age' => 'int'])));
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
 $pipeline->addStage(new ValidationStage());
 
-$dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$dto = UserDto::fromArrayWithPipeline($data, $pipeline);
 ```
 
 ## Built-in Transformers
@@ -45,39 +45,39 @@ $dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
 ### TrimStringsTransformer
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Transformers\TrimStringsTransformer;
+use event4u\DataHelpers\SimpleDto\Transformers\TrimStringsTransformer;
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
 
 $data = ['name' => '  John Doe  '];
-$dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$dto = UserDto::fromArrayWithPipeline($data, $pipeline);
 // name: 'John Doe'
 ```
 
 ### LowerCaseTransformer
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Transformers\LowerCaseTransformer;
+use event4u\DataHelpers\SimpleDto\Transformers\LowerCaseTransformer;
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new TransformerStage(new LowerCaseTransformer(['email'])));
 
 $data = ['email' => 'JOHN@EXAMPLE.COM'];
-$dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$dto = UserDto::fromArrayWithPipeline($data, $pipeline);
 // email: 'john@example.com'
 ```
 
 ### UpperCaseTransformer
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Transformers\UpperCaseTransformer;
+use event4u\DataHelpers\SimpleDto\Transformers\UpperCaseTransformer;
 
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new TransformerStage(new UpperCaseTransformer(['code'])));
 
 $data = ['code' => 'abc123'];
-$dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$dto = UserDto::fromArrayWithPipeline($data, $pipeline);
 // code: 'ABC123'
 ```
 
@@ -86,7 +86,7 @@ $dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
 ### Creating a Custom Transformer
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Contracts\Transformer;
+use event4u\DataHelpers\SimpleDto\Contracts\Transformer;
 
 class SlugifyTransformer implements Transformer
 {
@@ -116,7 +116,7 @@ class SlugifyTransformer implements Transformer
 }
 
 // Usage
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new TransformerStage(new SlugifyTransformer(['title'])));
 ```
 
@@ -125,7 +125,7 @@ $pipeline->addStage(new TransformerStage(new SlugifyTransformer(['title'])));
 ### Creating a Custom Stage
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Contracts\PipelineStage;
+use event4u\DataHelpers\SimpleDto\Contracts\PipelineStage;
 
 class SanitizeStage implements PipelineStage
 {
@@ -147,7 +147,7 @@ class SanitizeStage implements PipelineStage
 }
 
 // Usage
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new SanitizeStage());
 ```
 
@@ -156,7 +156,7 @@ $pipeline->addStage(new SanitizeStage());
 ### User Registration Pipeline
 
 ```php
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 
 // 1. Trim all strings
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
@@ -173,13 +173,13 @@ $pipeline->addStage(new NormalizerStage(new TypeNormalizer([
 // 4. Validate
 $pipeline->addStage(new ValidationStage());
 
-$dto = UserDTO::fromArrayWithPipeline($_POST, $pipeline);
+$dto = UserDto::fromArrayWithPipeline($_POST, $pipeline);
 ```
 
 ### API Data Processing
 
 ```php
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 
 // 1. Remove null values
 $pipeline->addStage(new FilterStage(fn($v) => $v !== null));
@@ -193,13 +193,13 @@ $pipeline->addStage(new TransformerStage(new DateTransformer([
     'updated_at',
 ])));
 
-$dto = ProductDTO::fromArrayWithPipeline($apiResponse, $pipeline);
+$dto = ProductDto::fromArrayWithPipeline($apiResponse, $pipeline);
 ```
 
 ### Form Data Processing
 
 ```php
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 
 // 1. Sanitize HTML
 $pipeline->addStage(new SanitizeStage());
@@ -213,7 +213,7 @@ $pipeline->addStage(new TransformerStage(new SlugifyTransformer(['slug'])));
 // 4. Validate
 $pipeline->addStage(new ValidationStage());
 
-$dto = PostDTO::fromArrayWithPipeline($_POST, $pipeline);
+$dto = PostDto::fromArrayWithPipeline($_POST, $pipeline);
 ```
 
 ## Pipeline Context
@@ -221,13 +221,13 @@ $dto = PostDTO::fromArrayWithPipeline($_POST, $pipeline);
 ### Passing Context
 
 ```php
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->setContext('user_id', auth()->id());
 $pipeline->setContext('ip_address', request()->ip());
 
 $pipeline->addStage(new AuditStage());
 
-$dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$dto = UserDto::fromArrayWithPipeline($data, $pipeline);
 ```
 
 ### Reading Context
@@ -262,13 +262,13 @@ class AuditStage implements PipelineStage
 ### Stop on Error
 
 ```php
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->stopOnError(true); // Default
 
 $pipeline->addStage(new ValidationStage());
 
 try {
-    $dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
+    $dto = UserDto::fromArrayWithPipeline($data, $pipeline);
 } catch (Exception $e) {
     // Handle error
 }
@@ -277,13 +277,13 @@ try {
 ### Continue on Error
 
 ```php
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->stopOnError(false);
 
 $pipeline->addStage(new ValidationStage());
 $pipeline->addStage(new TransformerStage(new TrimStringsTransformer()));
 
-$dto = UserDTO::fromArrayWithPipeline($data, $pipeline);
+$dto = UserDto::fromArrayWithPipeline($data, $pipeline);
 
 // Check for errors
 $errors = $pipeline->getErrors();
@@ -310,9 +310,9 @@ $pipeline->addStage(new TrimStage());
 // ✅ Good - reusable
 class UserPipeline
 {
-    public static function create(): DTOPipeline
+    public static function create(): DtoPipeline
     {
-        $pipeline = new DTOPipeline();
+        $pipeline = new DtoPipeline();
         $pipeline->addStage(new TrimStage());
         $pipeline->addStage(new ValidationStage());
 
@@ -320,10 +320,10 @@ class UserPipeline
     }
 }
 
-$dto = UserDTO::fromArrayWithPipeline($data, UserPipeline::create());
+$dto = UserDto::fromArrayWithPipeline($data, UserPipeline::create());
 
 // ❌ Bad - not reusable
-$pipeline = new DTOPipeline();
+$pipeline = new DtoPipeline();
 $pipeline->addStage(new TrimStage());
 // ... repeat everywhere
 ```

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Optional as OptionalAttribute;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Optional as OptionalAttribute;
 use event4u\DataHelpers\Support\Optional;
 
-// Test DTOs defined outside to avoid anonymous class issues
-class TestUserDTO1 extends SimpleDTO
+// Test Dtos defined outside to avoid anonymous class issues
+class TestUserDto1 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -17,7 +17,7 @@ class TestUserDTO1 extends SimpleDTO
     ) {}
 }
 
-class TestUserDTO2 extends SimpleDTO
+class TestUserDto2 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -26,7 +26,7 @@ class TestUserDTO2 extends SimpleDTO
     ) {}
 }
 
-class TestUserDTO3 extends SimpleDTO
+class TestUserDto3 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -36,7 +36,7 @@ class TestUserDTO3 extends SimpleDTO
     ) {}
 }
 
-class TestUserDTO4 extends SimpleDTO
+class TestUserDto4 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -48,7 +48,7 @@ class TestUserDTO4 extends SimpleDTO
     ) {}
 }
 
-class TestUserDTO5 extends SimpleDTO
+class TestUserDto5 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -60,7 +60,7 @@ class TestUserDTO5 extends SimpleDTO
 
 describe('Optional Properties', function(): void {
     it('wraps optional properties with attribute syntax', function(): void {
-        $dto = TestUserDTO1::fromArray(['name' => 'John']);
+        $dto = TestUserDto1::fromArray(['name' => 'John']);
 
         expect($dto->name)->toBe('John');
         expect($dto->email)->toBeInstanceOf(Optional::class);
@@ -69,7 +69,7 @@ describe('Optional Properties', function(): void {
     });
 
     it('wraps optional properties with union type syntax', function(): void {
-        $dto = TestUserDTO2::fromArray(['name' => 'John']);
+        $dto = TestUserDto2::fromArray(['name' => 'John']);
 
         expect($dto->name)->toBe('John');
         expect($dto->email)->toBeInstanceOf(Optional::class);
@@ -79,14 +79,14 @@ describe('Optional Properties', function(): void {
 
     it('distinguishes between null and missing values', function(): void {
         // Missing values
-        $dto1 = TestUserDTO3::fromArray([]);
+        $dto1 = TestUserDto3::fromArray([]);
         /** @phpstan-ignore-next-line unknown */
         expect($dto1->name->isEmpty())->toBeTrue();
         /** @phpstan-ignore-next-line unknown */
         expect($dto1->email->isEmpty())->toBeTrue();
 
         // Null value (explicitly set)
-        $dto2 = TestUserDTO3::fromArray(['email' => null]);
+        $dto2 = TestUserDto3::fromArray(['email' => null]);
         /** @phpstan-ignore-next-line unknown */
         expect($dto2->name->isEmpty())->toBeTrue();
         /** @phpstan-ignore-next-line unknown */
@@ -95,7 +95,7 @@ describe('Optional Properties', function(): void {
         expect($dto2->email->get())->toBeNull();
 
         // Present value
-        $dto3 = TestUserDTO3::fromArray(['name' => 'John', 'email' => 'john@example.com']);
+        $dto3 = TestUserDto3::fromArray(['name' => 'John', 'email' => 'john@example.com']);
         /** @phpstan-ignore-next-line unknown */
         expect($dto3->name->isPresent())->toBeTrue();
         /** @phpstan-ignore-next-line unknown */
@@ -108,7 +108,7 @@ describe('Optional Properties', function(): void {
 
     it('supports partial updates', function(): void {
         // Only update email
-        $dto = TestUserDTO4::fromArray(['email' => 'new@example.com']);
+        $dto = TestUserDto4::fromArray(['email' => 'new@example.com']);
         $partial = $dto->partial();
 
         expect($partial)->toBe(['email' => 'new@example.com'])
@@ -117,7 +117,7 @@ describe('Optional Properties', function(): void {
     });
 
     it('includes all values in toArray by default', function(): void {
-        $dto = TestUserDTO2::fromArray(['name' => 'John', 'email' => 'john@example.com']);
+        $dto = TestUserDto2::fromArray(['name' => 'John', 'email' => 'john@example.com']);
         $array = $dto->toArray();
 
         expect($array)->toBe([
@@ -127,7 +127,7 @@ describe('Optional Properties', function(): void {
     });
 
     it('includes present null values in toArray', function(): void {
-        $dto = TestUserDTO3::fromArray(['name' => 'John', 'email' => null]);
+        $dto = TestUserDto3::fromArray(['name' => 'John', 'email' => null]);
         $array = $dto->toArray();
 
         expect($array)->toBe([
@@ -137,7 +137,7 @@ describe('Optional Properties', function(): void {
     });
 
     it('includes empty optional values in toArray', function(): void {
-        $dto = TestUserDTO2::fromArray(['name' => 'John']);
+        $dto = TestUserDto2::fromArray(['name' => 'John']);
         $array = $dto->toArray();
 
         expect($array)->toBe([
@@ -147,7 +147,7 @@ describe('Optional Properties', function(): void {
     });
 
     it('supports default values', function(): void {
-        $dto = TestUserDTO5::fromArray(['name' => 'John']);
+        $dto = TestUserDto5::fromArray(['name' => 'John']);
 
         /** @phpstan-ignore-next-line unknown */
         expect($dto->email->isPresent())->toBeTrue();
@@ -156,14 +156,14 @@ describe('Optional Properties', function(): void {
     });
 
     it('works with JSON serialization', function(): void {
-        $dto = TestUserDTO2::fromArray(['name' => 'John', 'email' => 'john@example.com']);
+        $dto = TestUserDto2::fromArray(['name' => 'John', 'email' => 'john@example.com']);
         $json = json_encode($dto);
 
         expect($json)->toBe('{"name":"John","email":"john@example.com"}');
     });
 
     it('handles missing values in JSON serialization', function(): void {
-        $dto = TestUserDTO2::fromArray(['name' => 'John']);
+        $dto = TestUserDto2::fromArray(['name' => 'John']);
         $json = json_encode($dto);
 
         expect($json)->toBe('{"name":"John","email":null}');

@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 namespace Tests\Unit;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted;
-use event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole;
-use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Symfony\WhenGranted;
+use event4u\DataHelpers\SimpleDto\Attributes\Symfony\WhenRole;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 use stdClass;
 use Throwable;
 
-// Test DTOs
-class SymfonyTestDTO1 extends SimpleDTO
+// Test Dtos
+class SymfonyTestDto1 extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -20,7 +20,7 @@ class SymfonyTestDTO1 extends SimpleDTO
     ) {}
 }
 
-class SymfonyTestDTO2 extends SimpleDTO
+class SymfonyTestDto2 extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -31,7 +31,7 @@ class SymfonyTestDTO2 extends SimpleDTO
     ) {}
 }
 
-class SymfonyTestDTO3 extends SimpleDTO
+class SymfonyTestDto3 extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -42,7 +42,7 @@ class SymfonyTestDTO3 extends SimpleDTO
     ) {}
 }
 
-class SymfonyTestDTO4 extends SimpleDTO
+class SymfonyTestDto4 extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -51,7 +51,7 @@ class SymfonyTestDTO4 extends SimpleDTO
     ) {}
 }
 
-class SymfonyTestDTO5 extends SimpleDTO
+class SymfonyTestDto5 extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -81,12 +81,12 @@ describe('Symfony Attributes Autoload Safety', function(): void {
         // This test ensures that Symfony attributes can be loaded
         // even when Symfony is not installed (they just won't use Security component)
 
-        expect(class_exists('event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenGranted'))->toBeTrue()
-            ->and(class_exists('event4u\DataHelpers\SimpleDTO\Attributes\Symfony\WhenRole'))->toBeTrue();
+        expect(class_exists('event4u\DataHelpers\SimpleDto\Attributes\Symfony\WhenGranted'))->toBeTrue()
+            ->and(class_exists('event4u\DataHelpers\SimpleDto\Attributes\Symfony\WhenRole'))->toBeTrue();
     });
 
     it('Symfony attributes work with context even without Symfony', function(): void {
-        $dto = new SymfonyTestDTO1('My Post', '/edit');
+        $dto = new SymfonyTestDto1('My Post', '/edit');
 
         // Should work with context
         $user = (object)['grants' => ['EDIT']];
@@ -96,7 +96,7 @@ describe('Symfony Attributes Autoload Safety', function(): void {
     });
 
     it('does not throw errors when Symfony Security is not available', function(): void {
-        $dto = new SymfonyTestDTO1('My Post', '/edit');
+        $dto = new SymfonyTestDto1('My Post', '/edit');
 
         // Should not throw error even without Symfony
         expect($dto->toArray(...))->not->toThrow(Throwable::class);
@@ -136,7 +136,7 @@ describe('Symfony Attributes Autoload Safety', function(): void {
     });
 
     it('all Symfony attributes work in plain PHP without Symfony', function(): void {
-        $dto = new SymfonyTestDTO2('Test', '/admin', '/edit');
+        $dto = new SymfonyTestDto2('Test', '/admin', '/edit');
 
         // Without context - should work without errors
         $arrayNoContext = $dto->toArray();
@@ -160,8 +160,8 @@ describe('Symfony Attributes Autoload Safety', function(): void {
         // This test ensures that using Symfony attributes doesn't
         // trigger autoload errors for Symfony classes
 
-        // Create a DTO with all Symfony attributes
-        $class = new SymfonyTestDTO3('Test');
+        // Create a Dto with all Symfony attributes
+        $class = new SymfonyTestDto3('Test');
 
         // Should not throw any errors
         expect($class->toArray(...))->not->toThrow(Throwable::class);
@@ -170,7 +170,7 @@ describe('Symfony Attributes Autoload Safety', function(): void {
     });
 
     it('works with security context object', function(): void {
-        $dto = new SymfonyTestDTO4('Test', '/admin');
+        $dto = new SymfonyTestDto4('Test', '/admin');
         $security = new SymfonyTestSecurity();
 
         $array = $dto->withContext(['security' => $security])->toArray();
@@ -178,7 +178,7 @@ describe('Symfony Attributes Autoload Safety', function(): void {
     });
 
     it('WhenGranted works with subject parameter', function(): void {
-        $dto = new SymfonyTestDTO5('Post', '/edit');
+        $dto = new SymfonyTestDto5('Post', '/edit');
         $post = (object)['id' => 1];
         $user = new SymfonyTestUser();
 

@@ -14,17 +14,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Console command to generate SimpleDTO classes.
+ * Console command to generate SimpleDto classes.
  *
  * Usage:
- *   bin/console make:dto UserDTO
- *   bin/console make:dto UserDTO --validation
- *   bin/console make:dto UserDTO --collection
- *   bin/console make:dto UserDTO --resource
+ *   bin/console make:dto UserDto
+ *   bin/console make:dto UserDto --validation
+ *   bin/console make:dto UserDto --collection
+ *   bin/console make:dto UserDto --resource
  */
 #[AsCommand(
     name: 'make:dto',
-    description: 'Create a new SimpleDTO class',
+    description: 'Create a new SimpleDto class',
 )]
 class MakeDtoCommand extends Command
 {
@@ -39,10 +39,10 @@ class MakeDtoCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('name', InputArgument::REQUIRED, 'The name of the DTO class')
+            ->addArgument('name', InputArgument::REQUIRED, 'The name of the Dto class')
             ->addOption('validation', null, InputOption::VALUE_NONE, 'Add validation attributes')
             ->addOption('collection', null, InputOption::VALUE_NONE, 'Add DataCollection support')
-            ->addOption('resource', null, InputOption::VALUE_NONE, 'Generate a resource DTO with common fields')
+            ->addOption('resource', null, InputOption::VALUE_NONE, 'Generate a resource Dto with common fields')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Overwrite existing file');
     }
 
@@ -56,9 +56,9 @@ class MakeDtoCommand extends Command
         $resource = (bool)$input->getOption('resource');
         $force = (bool)$input->getOption('force');
 
-        // Ensure name ends with DTO
-        if (!str_ends_with($name, 'DTO')) {
-            $name .= 'DTO';
+        // Ensure name ends with Dto
+        if (!str_ends_with($name, 'Dto')) {
+            $name .= 'Dto';
         }
 
         // Get path
@@ -66,7 +66,7 @@ class MakeDtoCommand extends Command
 
         // Check if file exists
         if ($this->filesystem->exists($path) && !$force) {
-            $io->error(sprintf('DTO [%s] already exists!', $name));
+            $io->error(sprintf('Dto [%s] already exists!', $name));
             $io->info('Use --force to overwrite.');
 
             return Command::FAILURE;
@@ -84,38 +84,38 @@ class MakeDtoCommand extends Command
         // Write file
         $this->filesystem->dumpFile($path, $content);
 
-        $io->success(sprintf('DTO [%s] created successfully.', $name));
+        $io->success(sprintf('Dto [%s] created successfully.', $name));
         $io->info('Location: ' . $path);
 
         return Command::SUCCESS;
     }
 
-    /** Get the destination path for the DTO. */
+    /** Get the destination path for the Dto. */
     protected function getPath(string $name): string
     {
-        return $this->projectDir . '/src/DTO/' . $name . '.php';
+        return $this->projectDir . '/src/Dto/' . $name . '.php';
     }
 
-    /** Generate the DTO content. */
+    /** Generate the Dto content. */
     protected function generateContent(string $name, bool $validation, bool $collection, bool $resource): string
     {
-        $namespace = 'App\\DTO';
+        $namespace = 'App\\Dto';
         $className = $name;
 
         $uses = [
-            'use event4u\DataHelpers\SimpleDTO;',
+            'use event4u\DataHelpers\SimpleDto;',
         ];
 
         if ($validation) {
-            $uses[] = 'use event4u\DataHelpers\SimpleDTO\Attributes\Email;';
-            $uses[] = 'use event4u\DataHelpers\SimpleDTO\Attributes\Required;';
-            $uses[] = 'use event4u\DataHelpers\SimpleDTO\Attributes\Min;';
-            $uses[] = 'use event4u\DataHelpers\SimpleDTO\Attributes\Max;';
+            $uses[] = 'use event4u\DataHelpers\SimpleDto\Attributes\Email;';
+            $uses[] = 'use event4u\DataHelpers\SimpleDto\Attributes\Required;';
+            $uses[] = 'use event4u\DataHelpers\SimpleDto\Attributes\Min;';
+            $uses[] = 'use event4u\DataHelpers\SimpleDto\Attributes\Max;';
         }
 
         if ($collection) {
-            $uses[] = 'use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;';
-            $uses[] = 'use event4u\DataHelpers\SimpleDTO\DataCollection;';
+            $uses[] = 'use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;';
+            $uses[] = 'use event4u\DataHelpers\SimpleDto\DataCollection;';
         }
 
         $usesStr = implode(PHP_EOL, $uses);
@@ -127,7 +127,7 @@ class MakeDtoCommand extends Command
         return $this->generateBasicDto($namespace, $className, $usesStr, $validation, $collection);
     }
 
-    /** Generate a basic DTO. */
+    /** Generate a basic Dto. */
     protected function generateBasicDto(
         string $namespace,
         string $className,
@@ -161,7 +161,7 @@ PHP;
         if ($collection) {
             $properties[] = <<<'PHP'
 
-        #[DataCollectionOf(ItemDTO::class)]
+        #[DataCollectionOf(ItemDto::class)]
         public readonly DataCollection $items,
 PHP;
         }
@@ -177,7 +177,7 @@ namespace {$namespace};
 
 {$uses}
 
-class {$className} extends SimpleDTO
+class {$className} extends SimpleDto
 {
     public function __construct(
 {$propertiesStr}
@@ -187,7 +187,7 @@ class {$className} extends SimpleDTO
 PHP;
     }
 
-    /** Generate a resource DTO with common fields. */
+    /** Generate a resource Dto with common fields. */
     protected function generateResourceDto(
         string $namespace,
         string $className,
@@ -247,7 +247,7 @@ PHP;
         if ($collection) {
             $properties[] = <<<'PHP'
 
-        #[DataCollectionOf(ItemDTO::class)]
+        #[DataCollectionOf(ItemDto::class)]
         public readonly ?DataCollection $items = null,
 PHP;
         }
@@ -275,7 +275,7 @@ namespace {$namespace};
 use DateTimeImmutable;
 {$uses}
 
-class {$className} extends SimpleDTO
+class {$className} extends SimpleDto
 {
     public function __construct(
 {$propertiesStr}

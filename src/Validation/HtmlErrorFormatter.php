@@ -18,7 +18,7 @@ use event4u\DataHelpers\Exceptions\ValidationException;
  * Example:
  * ```php
  * try {
- *     $dto = UserDTO::validateAndCreate($data);
+ *     $dto = UserDto::validateAndCreate($data);
  * } catch (ValidationException $e) {
  *     echo HtmlErrorFormatter::bootstrap($e);
  * }

@@ -324,4 +324,4 @@ $copy = ObjectHelper::copy($data, recursive: true, maxLevel: 20);
 
 - [DataAccessor](/main-classes/data-accessor/) - Read nested data
 - [DataMutator](/main-classes/data-mutator/) - Modify nested data
-- [SimpleDTO](/simple-dto/introduction/) - Immutable DTOs
+- [SimpleDto](/simple-dto/introduction/) - Immutable Dtos

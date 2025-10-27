@@ -20,7 +20,7 @@ Browse practical examples covering common use cases:
 ### API Integration
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('user.name')]
@@ -32,13 +32,13 @@ class UserDTO extends SimpleDTO
 }
 
 $response = Http::get('https://api.example.com/users/1');
-$dto = UserDTO::fromArray($response->json());
+$dto = UserDto::fromArray($response->json());
 ```
 
 ### Form Processing
 
 ```php
-class ContactFormDTO extends SimpleDTO
+class ContactFormDto extends SimpleDto
 {
     public function __construct(
         #[Required, Min(3)]
@@ -52,13 +52,13 @@ class ContactFormDTO extends SimpleDTO
     ) {}
 }
 
-$dto = ContactFormDTO::validateAndCreate($_POST);
+$dto = ContactFormDto::validateAndCreate($_POST);
 ```
 
 ### Database Operations
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -67,7 +67,7 @@ class UserDTO extends SimpleDTO
 }
 
 // From model
-$dto = UserDTO::fromModel($user);
+$dto = UserDto::fromModel($user);
 
 // To model
 $user = $dto->toModel(User::class);
@@ -101,5 +101,5 @@ php examples/78-real-world-ecommerce.php
 ## See Also
 
 - [Getting Started](/getting-started/quick-start/) - Quick start guide
-- [SimpleDTO Introduction](/simple-dto/introduction/) - DTO basics
+- [SimpleDto Introduction](/simple-dto/introduction/) - Dto basics
 - [Framework Integration](/framework-integration/overview/) - Framework guides

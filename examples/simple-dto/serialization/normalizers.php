@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Normalizers\CamelCaseNormalizer;
-use event4u\DataHelpers\SimpleDTO\Normalizers\DefaultValuesNormalizer;
-use event4u\DataHelpers\SimpleDTO\Normalizers\NormalizerInterface;
-use event4u\DataHelpers\SimpleDTO\Normalizers\SnakeCaseNormalizer;
-use event4u\DataHelpers\SimpleDTO\Normalizers\TypeNormalizer;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Normalizers\CamelCaseNormalizer;
+use event4u\DataHelpers\SimpleDto\Normalizers\DefaultValuesNormalizer;
+use event4u\DataHelpers\SimpleDto\Normalizers\NormalizerInterface;
+use event4u\DataHelpers\SimpleDto\Normalizers\SnakeCaseNormalizer;
+use event4u\DataHelpers\SimpleDto\Normalizers\TypeNormalizer;
 
 echo "================================================================================\n";
-echo "SimpleDTO - Normalizers Examples\n";
+echo "SimpleDto - Normalizers Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: TypeNormalizer - String to Int
 echo "Example 1: TypeNormalizer - String to Int\n";
 echo "------------------------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -34,7 +34,7 @@ $data = [
     'active' => '1',  // String
 ];
 
-$user = UserDTO::fromArrayWithNormalizer($data, new TypeNormalizer([
+$user = UserDto::fromArrayWithNormalizer($data, new TypeNormalizer([
     'age' => 'int',
     'active' => 'bool',
 ]));
@@ -65,7 +65,7 @@ echo "-----------------------------------\n";
 
 $data = ['name' => 'Jane Smith'];
 
-$user = UserDTO::fromArrayWithNormalizer($data, new DefaultValuesNormalizer([
+$user = UserDto::fromArrayWithNormalizer($data, new DefaultValuesNormalizer([
     'age' => 25,
     'active' => true,
 ]));
@@ -119,7 +119,7 @@ echo "--------------------------------\n";
 
 $data = ['name' => 'Charlie'];
 
-$user = UserDTO::fromArrayWithNormalizers($data, [
+$user = UserDto::fromArrayWithNormalizers($data, [
     new DefaultValuesNormalizer(['age' => 35, 'active' => true]),
     new TypeNormalizer(['age' => 'int', 'active' => 'bool']),
 ]);
@@ -155,7 +155,7 @@ class UppercaseNameNormalizer implements NormalizerInterface
 
 $data = ['name' => 'david brown', 'age' => 40, 'active' => true];
 
-$user = UserDTO::fromArrayWithNormalizer($data, new UppercaseNameNormalizer());
+$user = UserDto::fromArrayWithNormalizer($data, new UppercaseNameNormalizer());
 
 echo sprintf('Original: %s%s', $data['name'], PHP_EOL);
 echo "Normalized: {$user->name}\n\n";
@@ -164,7 +164,7 @@ echo "Normalized: {$user->name}\n\n";
 echo "Example 8: Email Normalizer\n";
 echo "----------------------------\n";
 
-class EmailDTO extends SimpleDTO
+class EmailDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -190,7 +190,7 @@ class EmailNormalizer implements NormalizerInterface
 
 $data = ['name' => 'Eve', 'email' => '  EVE@EXAMPLE.COM  '];
 
-$user = EmailDTO::fromArrayWithNormalizer($data, new EmailNormalizer());
+$user = EmailDto::fromArrayWithNormalizer($data, new EmailNormalizer());
 
 echo "Original email: '{$data['email']}'\n";
 echo "Normalized email: '{$user->email}'\n\n";
@@ -204,7 +204,7 @@ $data = [
     'age' => '45',
 ];
 
-$user = UserDTO::fromArrayWithNormalizers($data, [
+$user = UserDto::fromArrayWithNormalizers($data, [
     new UppercaseNameNormalizer(),
     new DefaultValuesNormalizer(['active' => true]),
     new TypeNormalizer(['age' => 'int', 'active' => 'bool']),
@@ -230,7 +230,7 @@ $apiResponse = [
     'is_active' => '1',
 ];
 
-class ApiUserDTO extends SimpleDTO
+class ApiUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $userName,
@@ -239,7 +239,7 @@ class ApiUserDTO extends SimpleDTO
     ) {}
 }
 
-$user = ApiUserDTO::fromArrayWithNormalizers($apiResponse, [
+$user = ApiUserDto::fromArrayWithNormalizers($apiResponse, [
     new CamelCaseNormalizer(),
     new TypeNormalizer([
         'userAge' => 'int',
@@ -249,7 +249,7 @@ $user = ApiUserDTO::fromArrayWithNormalizers($apiResponse, [
 
 echo "API Response: " . json_encode($apiResponse) . "\n";
 echo sprintf(
-    'Normalized DTO: userName=%s, userAge=%d, isActive=',
+    'Normalized Dto: userName=%s, userAge=%d, isActive=',
     $user->userName,
     $user->userAge
 ) . ($user->isActive ? 'true' : 'false') . "\n\n";
@@ -283,12 +283,12 @@ class AgeRangeNormalizer implements NormalizerInterface
 $data1 = ['name' => 'Young', 'age' => '-5', 'active' => true];
 $data2 = ['name' => 'Old', 'age' => '150', 'active' => true];
 
-$user1 = UserDTO::fromArrayWithNormalizers($data1, [
+$user1 = UserDto::fromArrayWithNormalizers($data1, [
     new TypeNormalizer(['age' => 'int']),
     new AgeRangeNormalizer(),
 ]);
 
-$user2 = UserDTO::fromArrayWithNormalizers($data2, [
+$user2 = UserDto::fromArrayWithNormalizers($data2, [
     new TypeNormalizer(['age' => 'int']),
     new AgeRangeNormalizer(),
 ]);
@@ -302,7 +302,7 @@ echo "Age 150 normalized to: {$user2->age}\n\n";
 echo "Example 12: normalizeWith Method\n";
 echo "---------------------------------\n";
 
-$user = UserDTO::fromArray(['name' => 'henry', 'age' => 50, 'active' => true]);
+$user = UserDto::fromArray(['name' => 'henry', 'age' => 50, 'active' => true]);
 
 echo sprintf('Before: name=%s%s', $user->name, PHP_EOL);
 

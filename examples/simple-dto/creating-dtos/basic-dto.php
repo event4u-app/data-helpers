@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-// Example 1: Basic DTO with required properties
-class UserDTO extends SimpleDTO
+// Example 1: Basic Dto with required properties
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -16,10 +16,10 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-echo "Example 1: Basic DTO\n";
+echo "Example 1: Basic Dto\n";
 echo str_repeat('=', 50) . "\n\n";
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
@@ -36,8 +36,8 @@ echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 echo "\nAs JSON:\n";
 echo json_encode($user, JSON_PRETTY_PRINT) . "\n\n";
 
-// Example 2: DTO with optional properties
-class ProductDTO extends SimpleDTO
+// Example 2: Dto with optional properties
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -47,10 +47,10 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-echo "\nExample 2: DTO with Optional Properties\n";
+echo "\nExample 2: Dto with Optional Properties\n";
 echo str_repeat('=', 50) . "\n\n";
 
-$product1 = ProductDTO::fromArray([
+$product1 = ProductDto::fromArray([
     'name' => 'Laptop',
     'price' => 999.99,
     'description' => 'High-performance laptop',
@@ -63,7 +63,7 @@ echo sprintf('  Description: %s%s', $product1->description, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 echo "  Category: " . ($product1->category ?? 'N/A') . "\n\n";
 
-$product2 = ProductDTO::fromArray([
+$product2 = ProductDto::fromArray([
     'name' => 'Mouse',
     'price' => 29.99,
 ]);
@@ -75,8 +75,8 @@ echo "  Description: " . ($product2->description ?? 'N/A') . "\n";
 /** @phpstan-ignore-next-line unknown */
 echo "  Category: " . ($product2->category ?? 'N/A') . "\n\n";
 
-// Example 3: Nested DTOs
-class AddressDTO extends SimpleDTO
+// Example 3: Nested Dtos
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -86,19 +86,19 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class CustomerDTO extends SimpleDTO
+class CustomerDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
         public readonly string $email,
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 
-echo "\nExample 3: Nested DTOs\n";
+echo "\nExample 3: Nested Dtos\n";
 echo str_repeat('=', 50) . "\n\n";
 
-$address = AddressDTO::fromArray([
+$address = AddressDto::fromArray([
     'street' => '123 Main St',
     'city' => 'New York',
     'zipCode' => '10001',
@@ -106,7 +106,7 @@ $address = AddressDTO::fromArray([
 ]);
 
 /** @phpstan-ignore-next-line unknown */
-$customer = new CustomerDTO(
+$customer = new CustomerDto(
     name: 'Jane Smith',
     email: 'jane@example.com',
     /** @phpstan-ignore-next-line unknown */
@@ -127,10 +127,10 @@ echo "  {$customer->address->country}\n\n";
 echo "As JSON:\n";
 echo json_encode($customer, JSON_PRETTY_PRINT) . "\n\n";
 
-// Example 4: Using DTOs with DataMapper
+// Example 4: Using Dtos with DataMapper
 use event4u\DataHelpers\DataMapper;
 
-echo "\nExample 4: Using DTOs with DataMapper\n";
+echo "\nExample 4: Using Dtos with DataMapper\n";
 echo str_repeat('=', 50) . "\n\n";
 
 $apiResponse = [
@@ -151,16 +151,16 @@ $mappedData = DataMapper::source($apiResponse)
     ->toArray();
 
 /** @phpstan-ignore-next-line unknown */
-$userDto = UserDTO::fromArray($mappedData);
+$userDto = UserDto::fromArray($mappedData);
 
-echo "Mapped User DTO:\n";
+echo "Mapped User Dto:\n";
 echo sprintf('  Name: %s%s', $userDto->name, PHP_EOL);
 echo sprintf('  Email: %s%s', $userDto->email, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 echo "  Age: {$userDto->age}\n\n";
 
-// Example 5: Array of DTOs
-echo "\nExample 5: Array of DTOs\n";
+// Example 5: Array of Dtos
+echo "\nExample 5: Array of Dtos\n";
 echo str_repeat('=', 50) . "\n\n";
 
 $productsData = [
@@ -170,7 +170,7 @@ $productsData = [
 ];
 
 $products = array_map(
-    ProductDTO::fromArray(...),
+    ProductDto::fromArray(...),
     $productsData
 );
 

@@ -1,13 +1,13 @@
 ---
 title: IDE Support
-description: Configure your IDE for the best SimpleDTO development experience
+description: Configure your IDE for the best SimpleDto development experience
 ---
 
-Learn how to configure your IDE for the best SimpleDTO development experience.
+Learn how to configure your IDE for the best SimpleDto development experience.
 
 ## Introduction
 
-SimpleDTO provides excellent IDE support with:
+SimpleDto provides excellent IDE support with:
 
 - **Full Autocompletion** - All properties and methods
 - **Type Inference** - Automatic type detection
@@ -44,7 +44,7 @@ PhpStorm has built-in support for PHP 8 attributes and readonly properties.
 
 <!-- skip-test: IDE feature demonstration -->
 ```php
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John',
     'email' => 'john@example.com',
 ]);
@@ -61,7 +61,7 @@ $dto->toJson() // ✅ Autocompletes
 <!-- skip-test: IDE feature demonstration -->
 ```php
 // PhpStorm knows the return type
-$dto = UserDTO::fromArray($data); // UserDTO
+$dto = UserDto::fromArray($data); // UserDto
 $array = $dto->toArray(); // array
 $json = $dto->toJson(); // string
 ```
@@ -138,7 +138,7 @@ Hover over any property or method to see type information.
 ### Document Array Types
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -147,7 +147,7 @@ class UserDTO extends SimpleDTO
         /** @var string[] */
         public readonly array $tags,
 
-        /** @var OrderDTO[] */
+        /** @var OrderDto[] */
         public readonly array $orders,
 
         /** @var array<string, mixed> */
@@ -159,7 +159,7 @@ class UserDTO extends SimpleDTO
 ### Document Return Types
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     /**
      * Get user's full name
@@ -175,12 +175,12 @@ class UserDTO extends SimpleDTO
 ### Document Complex Types
 
 ```php
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
 
-        /** @var array<int, ProductDTO> */
+        /** @var array<int, ProductDto> */
         public readonly array $products,
 
         /** @var array{total: float, tax: float, shipping: float} */
@@ -291,7 +291,7 @@ $dto->name // IDE shows "Property not found"
 ### Autocompletion Not Working
 
 **Problem:**
-Autocompletion doesn't show DTO properties.
+Autocompletion doesn't show Dto properties.
 
 **Solution:**
 1. Make sure all properties are `public readonly`
@@ -310,7 +310,7 @@ Hover doesn't show type information.
 
 ## See Also
 
-- [Creating DTOs](/simple-dto/creating-dtos/) - DTO creation guide
+- [Creating Dtos](/simple-dto/creating-dtos/) - Dto creation guide
 - [TypeScript Generation](/simple-dto/typescript-generation/) - Generate TypeScript types
 - [Validation](/simple-dto/validation/) - Validation guide
 

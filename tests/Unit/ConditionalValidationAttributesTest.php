@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Nullable;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\RequiredIf;
-use event4u\DataHelpers\SimpleDTO\Attributes\RequiredUnless;
-use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\RequiredWithout;
-use event4u\DataHelpers\SimpleDTO\Attributes\Sometimes;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\In;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Nullable;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\RequiredIf;
+use event4u\DataHelpers\SimpleDto\Attributes\RequiredUnless;
+use event4u\DataHelpers\SimpleDto\Attributes\RequiredWith;
+use event4u\DataHelpers\SimpleDto\Attributes\RequiredWithout;
+use event4u\DataHelpers\SimpleDto\Attributes\Sometimes;
 
-// Test DTOs
-class ConditionalValidationTestDTO1 extends SimpleDTO
+// Test Dtos
+class ConditionalValidationTestDto1 extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -28,7 +28,7 @@ class ConditionalValidationTestDTO1 extends SimpleDTO
     ) {}
 }
 
-class ConditionalValidationTestDTO2 extends SimpleDTO
+class ConditionalValidationTestDto2 extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -39,7 +39,7 @@ class ConditionalValidationTestDTO2 extends SimpleDTO
     ) {}
 }
 
-class ConditionalValidationTestDTO3 extends SimpleDTO
+class ConditionalValidationTestDto3 extends SimpleDto
 {
     public function __construct(
         public readonly ?string $phone = null,
@@ -49,7 +49,7 @@ class ConditionalValidationTestDTO3 extends SimpleDTO
     ) {}
 }
 
-class ConditionalValidationTestDTO4 extends SimpleDTO
+class ConditionalValidationTestDto4 extends SimpleDto
 {
     public function __construct(
         public readonly ?string $phone = null,
@@ -58,7 +58,7 @@ class ConditionalValidationTestDTO4 extends SimpleDTO
     ) {}
 }
 
-class ConditionalValidationTestDTO5 extends SimpleDTO
+class ConditionalValidationTestDto5 extends SimpleDto
 {
     public function __construct(
         #[Sometimes]
@@ -70,7 +70,7 @@ class ConditionalValidationTestDTO5 extends SimpleDTO
     ) {}
 }
 
-class ConditionalValidationTestDTO6 extends SimpleDTO
+class ConditionalValidationTestDto6 extends SimpleDto
 {
     public function __construct(
         #[Nullable]
@@ -81,7 +81,7 @@ class ConditionalValidationTestDTO6 extends SimpleDTO
     ) {}
 }
 
-class ConditionalValidationTestDTO7 extends SimpleDTO
+class ConditionalValidationTestDto7 extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -111,8 +111,8 @@ describe('Conditional Validation Attributes', function(): void {
             expect($rule)->toBe('required_if:isActive,true');
         });
 
-        it('validates DTO with RequiredIf', function(): void {
-            $dto = new ConditionalValidationTestDTO1('delivery', '123 Main St');
+        it('validates Dto with RequiredIf', function(): void {
+            $dto = new ConditionalValidationTestDto1('delivery', '123 Main St');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('address')
@@ -128,8 +128,8 @@ describe('Conditional Validation Attributes', function(): void {
             expect($rule)->toBe('required_unless:paymentMethod,free');
         });
 
-        it('validates DTO with RequiredUnless', function(): void {
-            $dto = new ConditionalValidationTestDTO2('card', 'VISA-1234');
+        it('validates Dto with RequiredUnless', function(): void {
+            $dto = new ConditionalValidationTestDto2('card', 'VISA-1234');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('paymentDetails')
@@ -145,8 +145,8 @@ describe('Conditional Validation Attributes', function(): void {
             expect($rule)->toBe('required_with:phone,email');
         });
 
-        it('validates DTO with RequiredWith', function(): void {
-            $dto = new ConditionalValidationTestDTO3('555-1234', 'mobile');
+        it('validates Dto with RequiredWith', function(): void {
+            $dto = new ConditionalValidationTestDto3('555-1234', 'mobile');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('contactPreference')
@@ -162,8 +162,8 @@ describe('Conditional Validation Attributes', function(): void {
             expect($rule)->toBe('required_without:phone');
         });
 
-        it('validates DTO with RequiredWithout', function(): void {
-            $dto = new ConditionalValidationTestDTO4(null, 'test@example.com');
+        it('validates Dto with RequiredWithout', function(): void {
+            $dto = new ConditionalValidationTestDto4(null, 'test@example.com');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('email')
@@ -179,8 +179,8 @@ describe('Conditional Validation Attributes', function(): void {
             expect($rule)->toBe('sometimes');
         });
 
-        it('validates DTO with Sometimes', function(): void {
-            $dto = new ConditionalValidationTestDTO5('test@example.com');
+        it('validates Dto with Sometimes', function(): void {
+            $dto = new ConditionalValidationTestDto5('test@example.com');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('email')
@@ -197,8 +197,8 @@ describe('Conditional Validation Attributes', function(): void {
             expect($rule)->toBe('nullable');
         });
 
-        it('validates DTO with Nullable', function(): void {
-            $dto = new ConditionalValidationTestDTO6(null, null);
+        it('validates Dto with Nullable', function(): void {
+            $dto = new ConditionalValidationTestDto6(null, null);
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('email')
@@ -209,7 +209,7 @@ describe('Conditional Validation Attributes', function(): void {
 
     describe('Complex Conditional Scenarios', function(): void {
         it('handles multiple conditional rules on same property', function(): void {
-            $dto = new ConditionalValidationTestDTO7('delivery', 'card', '123 Main St', 'VISA-1234');
+            $dto = new ConditionalValidationTestDto7('delivery', 'card', '123 Main St', 'VISA-1234');
 
             $rules = $dto::getAllRules();
             expect($rules)->toHaveKey('address')

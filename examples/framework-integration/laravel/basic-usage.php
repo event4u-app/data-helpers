@@ -120,7 +120,7 @@ $mapping = [
     'users.*.user_email' => '{{ people.*.email }}',
 ];
 
-/** @var DataCollection<SimpleDTO> $result */
+/** @var DataCollection<SimpleDto> $result */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */

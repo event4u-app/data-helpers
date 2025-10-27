@@ -5,17 +5,17 @@ declare(strict_types=1);
 require __DIR__ . '/../../bootstrap.php';
 
 use DateTimeImmutable;
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
 echo "================================================================================\n";
-echo "SimpleDTO - Timestamp Cast Examples\n";
+echo "SimpleDto - Timestamp Cast Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: Unix Timestamp to DateTime
 echo "Example 1: Unix Timestamp to DateTime\n";
 echo "--------------------------------------\n";
 
-class EventDTO extends SimpleDTO
+class EventDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -32,7 +32,7 @@ class EventDTO extends SimpleDTO
     }
 }
 
-$event = EventDTO::fromArray([
+$event = EventDto::fromArray([
     'name' => 'Conference 2024',
     'createdAt' => 1704067200, // 2024-01-01 00:00:00 UTC
     'updatedAt' => 1704153600, // 2024-01-02 00:00:00 UTC
@@ -47,7 +47,7 @@ echo "Timestamp: {$event->createdAt->getTimestamp()}\n\n";
 echo "Example 2: DateTime to Unix Timestamp (toArray)\n";
 echo "------------------------------------------------\n";
 
-$event2 = EventDTO::fromArray([
+$event2 = EventDto::fromArray([
     'name' => 'Workshop 2024',
     'createdAt' => new DateTimeImmutable('2024-03-15 10:00:00'),
     'updatedAt' => new DateTimeImmutable('2024-03-15 15:30:00'),
@@ -63,7 +63,7 @@ echo "JSON: " . json_encode($array) . "\n\n";
 echo "Example 3: API Response with Timestamps\n";
 echo "----------------------------------------\n";
 
-class UserActivityDTO extends SimpleDTO
+class UserActivityDto extends SimpleDto
 {
     public function __construct(
         public readonly int $userId,
@@ -85,7 +85,7 @@ $activities = [
 
 echo "User Activities:\n";
 foreach ($activities as $activityData) {
-    $activity = UserActivityDTO::fromArray($activityData);
+    $activity = UserActivityDto::fromArray($activityData);
     echo sprintf('- %s at %s%s', $activity->action, $activity->timestamp->format('H:i:s'), PHP_EOL);
 }
 echo "\n";
@@ -94,7 +94,7 @@ echo "\n";
 echo "Example 4: Database Records\n";
 echo "---------------------------\n";
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -113,10 +113,10 @@ class PostDTO extends SimpleDTO
     }
 }
 
-$post = PostDTO::fromArray([
+$post = PostDto::fromArray([
     'id' => 1,
-    'title' => 'Getting Started with DTOs',
-    'content' => 'DTOs are great for...',
+    'title' => 'Getting Started with Dtos',
+    'content' => 'Dtos are great for...',
     'publishedAt' => 1704067200,
     'deletedAt' => null,
 ]);
@@ -136,7 +136,7 @@ $now = time();
 $yesterday = $now - 86400;
 $tomorrow = $now + 86400;
 
-$event3 = EventDTO::fromArray([
+$event3 = EventDto::fromArray([
     'name' => 'Time Travel Event',
     'createdAt' => $yesterday,
     'updatedAt' => $tomorrow,

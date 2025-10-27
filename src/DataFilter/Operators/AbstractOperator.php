@@ -228,11 +228,11 @@ abstract class AbstractOperator implements OperatorInterface
      * Resolve value in direct mode (field names).
      *
      * @param string $fieldPath Field name like 'price' or 'user.name'
-     * @param mixed $item Current item (array, object, DTO, Model)
+     * @param mixed $item Current item (array, object, Dto, Model)
      */
     protected function resolveDirectValue(string $fieldPath, mixed $item): mixed
     {
-        // Use DataAccessor to handle arrays, objects, DTOs, Models
+        // Use DataAccessor to handle arrays, objects, Dtos, Models
         $accessor = new DataAccessor($item);
 
         return $accessor->get($fieldPath);

@@ -21,9 +21,9 @@ DOCS_CONFIG = {
             ("Lazy Cast", "examples/simple-dto/type-casting/lazy-cast.php", "Lazy loading casts"),
         ],
         "tests": [
-            "tests/Unit/SimpleDTO/Casts/CastTest.php - Cast functionality tests",
-            "tests/Unit/SimpleDTO/Casts/EnumCastTest.php - Enum cast tests",
-            "tests/Unit/SimpleDTO/Casts/CollectionCastTest.php - Collection cast tests",
+            "tests/Unit/SimpleDto/Casts/CastTest.php - Cast functionality tests",
+            "tests/Unit/SimpleDto/Casts/EnumCastTest.php - Enum cast tests",
+            "tests/Unit/SimpleDto/Casts/CollectionCastTest.php - Collection cast tests",
         ],
         "test_filter": "Cast"
     },
@@ -35,12 +35,12 @@ DOCS_CONFIG = {
             ("Laravel Validation", "examples/simple-dto/validation/request-validation-laravel.php", "Laravel integration"),
             ("Symfony Validation", "examples/simple-dto/validation/request-validation-symfony.php", "Symfony integration"),
             ("Validation Modes", "examples/simple-dto/validation/validation-modes.php", "Different validation modes"),
-            ("Nested Validation", "examples/simple-dto/validation/nested-validation.php", "Validating nested DTOs"),
+            ("Nested Validation", "examples/simple-dto/validation/nested-validation.php", "Validating nested Dtos"),
         ],
         "tests": [
             "tests/Unit/ValidationModesTest.php - Validation mode tests",
-            "tests/Unit/SimpleDTO/ValidationTest.php - Core validation tests",
-            "tests/Unit/SimpleDTO/NestedValidationTest.php - Nested validation tests",
+            "tests/Unit/SimpleDto/ValidationTest.php - Core validation tests",
+            "tests/Unit/SimpleDto/NestedValidationTest.php - Nested validation tests",
         ],
         "test_filter": "Validation"
     },
@@ -55,8 +55,8 @@ DOCS_CONFIG = {
             ("Symfony Attributes", "examples/simple-dto/conditional-properties/symfony-conditional-attributes.php", "Symfony-specific attributes"),
         ],
         "tests": [
-            "tests/Unit/SimpleDTO/ConditionalPropertiesTest.php - Conditional property tests",
-            "tests/Unit/SimpleDTO/ContextTest.php - Context tests",
+            "tests/Unit/SimpleDto/ConditionalPropertiesTest.php - Conditional property tests",
+            "tests/Unit/SimpleDto/ContextTest.php - Context tests",
         ],
         "test_filter": "Conditional"
     },
@@ -67,7 +67,7 @@ DOCS_CONFIG = {
             ("Optional Lazy Combinations", "examples/simple-dto/lazy-properties/optional-lazy-combinations.php", "Combining optional and lazy"),
         ],
         "tests": [
-            "tests/Unit/SimpleDTO/LazyPropertiesTest.php - Lazy property tests",
+            "tests/Unit/SimpleDto/LazyPropertiesTest.php - Lazy property tests",
         ],
         "test_filter": "Lazy"
     },
@@ -76,17 +76,17 @@ DOCS_CONFIG = {
             ("Basic Computed", "examples/simple-dto/computed-properties/basic-computed.php", "Simple computed properties"),
         ],
         "tests": [
-            "tests/Unit/SimpleDTO/ComputedPropertiesTest.php - Computed property tests",
+            "tests/Unit/SimpleDto/ComputedPropertiesTest.php - Computed property tests",
         ],
         "test_filter": "Computed"
     },
     "starlight/src/content/docs/simple-dto/collections.md": {
         "examples": [
             ("Data Collection", "examples/simple-dto/collections/data-collection.php", "Working with collections"),
-            ("DTO Sorting", "examples/simple-dto/collections/dto-sorting.php", "Sorting DTOs in collections"),
+            ("Dto Sorting", "examples/simple-dto/collections/dto-sorting.php", "Sorting Dtos in collections"),
         ],
         "tests": [
-            "tests/Unit/SimpleDTO/CollectionTest.php - Collection tests",
+            "tests/Unit/SimpleDto/CollectionTest.php - Collection tests",
         ],
         "test_filter": "Collection"
     },
@@ -99,7 +99,7 @@ DOCS_CONFIG = {
             ("Static Provider", "examples/simple-dto/security-visibility/visibility-static-provider.php", "Static visibility provider"),
         ],
         "tests": [
-            "tests/Unit/SimpleDTO/VisibilityTest.php - Visibility tests",
+            "tests/Unit/SimpleDto/VisibilityTest.php - Visibility tests",
         ],
         "test_filter": "Visibility"
     },
@@ -109,7 +109,7 @@ DOCS_CONFIG = {
             ("Generator Options", "examples/simple-dto/typescript-generation/generator-options.php", "Customizing generation"),
         ],
         "tests": [
-            "tests/Unit/SimpleDTO/TypeScriptGeneratorTest.php - TypeScript generation tests",
+            "tests/Unit/SimpleDto/TypeScriptGeneratorTest.php - TypeScript generation tests",
         ],
         "test_filter": "TypeScript"
     },
@@ -121,7 +121,7 @@ DOCS_CONFIG = {
             ("Serializer Options", "examples/simple-dto/serialization/serializer-options.php", "Customizing serialization"),
         ],
         "tests": [
-            "tests/Unit/SimpleDTO/SerializationTest.php - Serialization tests",
+            "tests/Unit/SimpleDto/SerializationTest.php - Serialization tests",
         ],
         "test_filter": "Serialization"
     },
@@ -130,7 +130,7 @@ DOCS_CONFIG = {
             ("Basic Mapping", "examples/simple-dto/property-mapping/basic-mapping.php", "Property name mapping"),
         ],
         "tests": [
-            "tests/Unit/SimpleDTO/PropertyMappingTest.php - Property mapping tests",
+            "tests/Unit/SimpleDto/PropertyMappingTest.php - Property mapping tests",
         ],
         "test_filter": "PropertyMapping"
     },

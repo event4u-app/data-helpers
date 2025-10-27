@@ -1,13 +1,13 @@
 ---
 title: Validation
-description: Learn how to validate DTOs using automatic rule inferring and validation attributes
+description: Learn how to validate Dtos using automatic rule inferring and validation attributes
 ---
 
-Learn how to validate DTOs using automatic rule inferring and validation attributes.
+Learn how to validate Dtos using automatic rule inferring and validation attributes.
 
 ## What is Validation?
 
-Validation ensures that data meets specific requirements before being processed. SimpleDTO provides:
+Validation ensures that data meets specific requirements before being processed. SimpleDto provides:
 
 - **Automatic rule inferring** from types and attributes
 - **30+ validation attributes**
@@ -20,12 +20,12 @@ Validation ensures that data meets specific requirements before being processed.
 ### Basic Validation
 
 ```php
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -40,7 +40,7 @@ class UserDTO extends SimpleDTO
 }
 
 // Validate and create
-$dto = UserDTO::validateAndCreate([
+$dto = UserDto::validateAndCreate([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
@@ -50,10 +50,10 @@ $dto = UserDTO::validateAndCreate([
 ### Handling Validation Errors
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDto\Exceptions\ValidationException;
 
 try {
-    $dto = UserDTO::validateAndCreate([
+    $dto = UserDto::validateAndCreate([
         'name' => '',  // ❌ Required
         'email' => 'invalid',  // ❌ Invalid email
         'age' => 15,  // ❌ Too young
@@ -69,9 +69,9 @@ try {
 ### Required Validation
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -89,12 +89,12 @@ class UserDTO extends SimpleDTO
 ### String Validation
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\StringType;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\StringType;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         #[Required, StringType, Min(3)]
@@ -112,12 +112,12 @@ class PostDTO extends SimpleDTO
 ### Numeric Validation
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\IntegerType;
-use event4u\DataHelpers\SimpleDTO\Attributes\Numeric;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\IntegerType;
+use event4u\DataHelpers\SimpleDto\Attributes\Numeric;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         #[Required, IntegerType, Min(1)]
@@ -135,9 +135,9 @@ class ProductDTO extends SimpleDTO
 ### Email Validation
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
 
-class ContactDTO extends SimpleDTO
+class ContactDto extends SimpleDto
 {
     public function __construct(
         #[Required, Email]
@@ -152,9 +152,9 @@ class ContactDTO extends SimpleDTO
 ### URL Validation
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Url;
+use event4u\DataHelpers\SimpleDto\Attributes\Url;
 
-class WebsiteDTO extends SimpleDTO
+class WebsiteDto extends SimpleDto
 {
     public function __construct(
         #[Required, Url]
@@ -207,7 +207,7 @@ class WebsiteDTO extends SimpleDTO
 ### Creating Custom Validator
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 
 class EvenNumber implements ValidationRule
 {
@@ -222,7 +222,7 @@ class EvenNumber implements ValidationRule
     }
 }
 
-class NumberDTO extends SimpleDTO
+class NumberDto extends SimpleDto
 {
     public function __construct(
         #[EvenNumber]
@@ -241,7 +241,7 @@ class UserController extends Controller
 {
     public function store(Request $request)
     {
-        $dto = UserDTO::validateAndCreate($request->all());
+        $dto = UserDto::validateAndCreate($request->all());
         // Automatically uses Laravel's validator
     }
 }
@@ -255,7 +255,7 @@ class UserController
 {
     public function store(Request $request)
     {
-        $dto = UserDTO::validateAndCreate($request->request->all());
+        $dto = UserDto::validateAndCreate($request->request->all());
         // Automatically uses Symfony's validator
     }
 }
@@ -263,14 +263,14 @@ class UserController
 
 ## Validation Caching
 
-SimpleDTO caches validation rules for 198x faster performance:
+SimpleDto caches validation rules for 198x faster performance:
 
 ```php
 // First call - builds and caches rules
-$dto1 = UserDTO::validateAndCreate($data1); // ~10ms
+$dto1 = UserDto::validateAndCreate($data1); // ~10ms
 
 // Subsequent calls - uses cached rules
-$dto2 = UserDTO::validateAndCreate($data2); // ~0.05ms (198x faster!)
+$dto2 = UserDto::validateAndCreate($data2); // ~0.05ms (198x faster!)
 ```
 
 ## Best Practices
@@ -299,10 +299,10 @@ public readonly $age;
 
 ```php
 // ✅ Good - validate at creation
-$dto = UserDTO::validateAndCreate($data);
+$dto = UserDto::validateAndCreate($data);
 
 // ❌ Bad - create then validate
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 $dto->validate();
 ```
 
@@ -317,7 +317,7 @@ The following working examples demonstrate this feature:
 - [**Laravel Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/request-validation-laravel.php) - Laravel integration
 - [**Symfony Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/request-validation-symfony.php) - Symfony integration
 - [**Validation Modes**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/validation-modes.php) - Different validation modes
-- [**Nested Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/nested-validation.php) - Validating nested DTOs
+- [**Nested Validation**](https://github.com/event4u-app/data-helpers/blob/main/examples/simple-dto/validation/nested-validation.php) - Validating nested Dtos
 
 All examples are fully tested and can be run directly.
 
@@ -326,8 +326,8 @@ All examples are fully tested and can be run directly.
 The functionality is thoroughly tested. Key test files:
 
 - [ValidationModesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/ValidationModesTest.php) - Validation mode tests
-- [ValidationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/ValidationTest.php) - Core validation tests
-- [NestedValidationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/NestedValidationTest.php) - Nested validation tests
+- [ValidationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/ValidationTest.php) - Core validation tests
+- [NestedValidationTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/NestedValidationTest.php) - Nested validation tests
 
 Run the tests:
 
@@ -339,5 +339,5 @@ task test:unit -- --filter=Validation
 ## See Also
 
 - [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
-- [Creating DTOs](/simple-dto/creating-dtos/) - Creation methods
+- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods
 - [Property Mapping](/simple-dto/property-mapping/) - Map property names

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-echo "=== SimpleDTO Lazy Cast Resolution ===\n\n";
+echo "=== SimpleDto Lazy Cast Resolution ===\n\n";
 
 // Example 1: Skip Missing Properties
 echo "1. Skip Missing Properties\n";
 echo "-------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly ?string $name = null,
@@ -33,7 +33,7 @@ class UserDTO extends SimpleDTO
 }
 
 // Only provide 'name' and 'age', skip 'email' and 'phone'
-$user = UserDTO::fromArray(['name' => 'John Doe', 'age' => '30']);
+$user = UserDto::fromArray(['name' => 'John Doe', 'age' => '30']);
 
 echo "Provided: name, age\n";
 echo sprintf('Name: %s%s', $user->name, PHP_EOL);
@@ -46,7 +46,7 @@ echo "Phone: " . ($user->phone ?? 'null') . "\n\n";
 echo "2. Skip Null Values\n";
 echo "------------------\n";
 
-$userWithNull = UserDTO::fromArray([
+$userWithNull = UserDto::fromArray([
     'name' => 'Jane Doe',
     'age' => null,
     'email' => 'jane@example.com',
@@ -61,7 +61,7 @@ echo "Email: {$userWithNull->email}\n\n";
 echo "3. Performance Comparison\n";
 echo "------------------------\n";
 
-class LargeDTO extends SimpleDTO
+class LargeDto extends SimpleDto
 {
     public function __construct(
         public readonly ?string $field1 = null,
@@ -109,7 +109,7 @@ $allFieldsData = [
 
 $start = microtime(true);
 for ($i = 0; 1000 > $i; $i++) {
-    LargeDTO::fromArray($allFieldsData);
+    LargeDto::fromArray($allFieldsData);
 }
 $allFieldsDuration = microtime(true) - $start;
 
@@ -121,7 +121,7 @@ $fewFieldsData = [
 
 $start = microtime(true);
 for ($i = 0; 1000 > $i; $i++) {
-    LargeDTO::fromArray($fewFieldsData);
+    LargeDto::fromArray($fewFieldsData);
 }
 $fewFieldsDuration = microtime(true) - $start;
 
@@ -133,7 +133,7 @@ echo "Speedup: " . number_format($allFieldsDuration / $fewFieldsDuration, 2) . "
 echo "4. Cast Statistics\n";
 echo "-----------------\n";
 
-$partialUser = UserDTO::fromArray(['name' => 'Bob', 'age' => '25']);
+$partialUser = UserDto::fromArray(['name' => 'Bob', 'age' => '25']);
 $stats = $partialUser->getCastStatistics();
 
 echo sprintf('Total properties: %d%s', $stats['total'], PHP_EOL);
@@ -144,7 +144,7 @@ echo "Uncasted properties: {$stats['uncasted']}\n\n";
 echo "5. Complex Casts with Lazy Resolution\n";
 echo "-------------------------------------\n";
 
-class ComplexDTO extends SimpleDTO
+class ComplexDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $data
@@ -169,7 +169,7 @@ class ComplexDTO extends SimpleDTO
 }
 
 // Only provide 'data' and 'active'
-$complex = ComplexDTO::fromArray([
+$complex = ComplexDto::fromArray([
     'data' => ['key' => 'value'],
     'active' => '1',
 ]);
@@ -192,7 +192,7 @@ $memoryBefore = memory_get_usage();
 $instances = [];
 for ($i = 0; 1000 > $i; $i++) {
     // Only provide 2 fields out of 10
-    $instances[] = LargeDTO::fromArray([
+    $instances[] = LargeDto::fromArray([
         'field1' => 'value' . $i,
         'field5' => 'value' . $i,
     ]);
@@ -208,7 +208,7 @@ echo "Memory per instance: " . number_format($memoryUsed / 1000) . " bytes\n\n";
 echo "7. Partial Updates\n";
 echo "-----------------\n";
 
-$originalUser = UserDTO::fromArray([
+$originalUser = UserDto::fromArray([
     'name' => 'Alice',
     'age' => '28',
     'email' => 'alice@example.com',
@@ -221,7 +221,7 @@ echo sprintf('  Age: %s%s', $originalUser->age, PHP_EOL);
 echo "  Email: {$originalUser->email}\n\n";
 
 // Update only name (lazy cast resolution only applies to 'name')
-$updatedUser = UserDTO::fromArray([
+$updatedUser = UserDto::fromArray([
     'name' => 'Alice Smith',
     'age' => '28',
     'email' => 'alice@example.com',

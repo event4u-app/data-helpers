@@ -32,13 +32,13 @@ mv examples/19-callback-filters.php examples/main-classes/data-filter/callback-f
 mv examples/21-custom-operators.php examples/main-classes/data-filter/custom-operators.php
 mv examples/22-complex-queries.php examples/main-classes/data-filter/complex-queries.php
 
-# SimpleDTO - Creating DTOs
+# SimpleDto - Creating Dtos
 mv examples/23-simple-dto.php examples/simple-dto/creating-dtos/basic-dto.php
 mv examples/47-dto-factory.php examples/simple-dto/creating-dtos/dto-factory.php
 mv examples/48-wrapping.php examples/simple-dto/creating-dtos/wrapping.php
 mv examples/58-optional-properties.php examples/simple-dto/creating-dtos/optional-properties.php
 
-# SimpleDTO - Type Casting
+# SimpleDto - Type Casting
 mv examples/24-simple-dto-casts.php examples/simple-dto/type-casting/basic-casts.php
 mv examples/25-simple-dto-all-casts.php examples/simple-dto/type-casting/all-casts.php
 mv examples/29-enum-cast.php examples/simple-dto/type-casting/enum-cast.php
@@ -48,7 +48,7 @@ mv examples/32-hashed-cast.php examples/simple-dto/type-casting/hashed-cast.php
 mv examples/33-encrypted-cast.php examples/simple-dto/type-casting/encrypted-cast.php
 mv examples/54-lazy-cast.php examples/simple-dto/type-casting/lazy-cast.php
 
-# SimpleDTO - Validation
+# SimpleDto - Validation
 mv examples/26-simple-dto-validation.php examples/simple-dto/validation/basic-validation.php
 mv examples/27-simple-dto-validation-advanced.php examples/simple-dto/validation/advanced-validation.php
 mv examples/63-request-validation-core.php examples/simple-dto/validation/request-validation-core.php
@@ -62,16 +62,16 @@ mv examples/70-laravel-validation-integration.php examples/simple-dto/validation
 mv examples/71-symfony-validation-integration.php examples/simple-dto/validation/symfony-validation-integration.php
 mv examples/72-advanced-rule-combinations.php examples/simple-dto/validation/advanced-rule-combinations.php
 
-# SimpleDTO - Property Mapping
+# SimpleDto - Property Mapping
 mv examples/28-simple-dto-mapping.php examples/simple-dto/property-mapping/basic-mapping.php
 
-# SimpleDTO - Serialization
+# SimpleDto - Serialization
 mv examples/49-serializers.php examples/simple-dto/serialization/serializers.php
 mv examples/50-transformers.php examples/simple-dto/serialization/transformers.php
 mv examples/51-normalizers.php examples/simple-dto/serialization/normalizers.php
 mv examples/88-serializer-options.php examples/simple-dto/serialization/serializer-options.php
 
-# SimpleDTO - Conditional Properties
+# SimpleDto - Conditional Properties
 mv examples/73-conditional-properties.php examples/simple-dto/conditional-properties/basic-conditional.php
 mv examples/74-whencallback-with-parameters.php examples/simple-dto/conditional-properties/whencallback-with-parameters.php
 mv examples/74-with-method.php examples/simple-dto/conditional-properties/with-method.php
@@ -80,30 +80,30 @@ mv examples/75-custom-conditions.php examples/simple-dto/conditional-properties/
 mv examples/76-laravel-conditional-attributes.php examples/simple-dto/conditional-properties/laravel-conditional-attributes.php
 mv examples/77-symfony-conditional-attributes.php examples/simple-dto/conditional-properties/symfony-conditional-attributes.php
 
-# SimpleDTO - Lazy Properties
+# SimpleDto - Lazy Properties
 mv examples/43-lazy-properties.php examples/simple-dto/lazy-properties/basic-lazy.php
 mv examples/59-lazy-union-types.php examples/simple-dto/lazy-properties/lazy-union-types.php
 mv examples/60-optional-lazy-combinations.php examples/simple-dto/lazy-properties/optional-lazy-combinations.php
 
-# SimpleDTO - Computed Properties
+# SimpleDto - Computed Properties
 mv examples/39-computed-properties.php examples/simple-dto/computed-properties/basic-computed.php
 
-# SimpleDTO - Collections
+# SimpleDto - Collections
 mv examples/42-data-collection.php examples/simple-dto/collections/data-collection.php
 mv examples/90-dto-sorting.php examples/simple-dto/collections/dto-sorting.php
 
-# SimpleDTO - Security & Visibility
+# SimpleDto - Security & Visibility
 mv examples/34-visibility-hidden.php examples/simple-dto/security-visibility/visibility-hidden.php
 mv examples/35-visibility-context.php examples/simple-dto/security-visibility/visibility-context.php
 mv examples/36-visibility-explained.php examples/simple-dto/security-visibility/visibility-explained.php
 mv examples/37-visibility-real-world.php examples/simple-dto/security-visibility/visibility-real-world.php
 mv examples/38-visibility-static-provider.php examples/simple-dto/security-visibility/visibility-static-provider.php
 
-# SimpleDTO - TypeScript Generation
+# SimpleDto - TypeScript Generation
 mv examples/44-typescript-generation.php examples/simple-dto/typescript-generation/basic-generation.php
 mv examples/87-typescript-generator-options.php examples/simple-dto/typescript-generation/generator-options.php
 
-# SimpleDTO - IDE Support
+# SimpleDto - IDE Support
 mv examples/45-better-error-messages.php examples/simple-dto/ide-support/better-error-messages.php
 mv examples/46-ide-support.php examples/simple-dto/ide-support/ide-support.php
 

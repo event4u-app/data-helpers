@@ -18,7 +18,7 @@ $emails = $accessor->get('users.*.email');
 
 // Get structure with type information
 $structure = $accessor->getStructure();
-// ['name' => 'string', 'emails.*' => '\EmailDTO', ...]
+// ['name' => 'string', 'emails.*' => '\EmailDto', ...]
 ```
 
 [Learn more →](/main-classes/data-accessor/)
@@ -76,12 +76,12 @@ $result = DataFilter::query($data)
 
 [Learn more →](/main-classes/data-filter/)
 
-## SimpleDTO
+## SimpleDto
 
 Immutable Data Transfer Objects with validation and casting.
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public string $name;
 
@@ -92,7 +92,7 @@ class UserDTO extends SimpleDTO
     public int $age;
 }
 
-$user = UserDTO::from(['name' => 'John', 'email' => 'john@example.com', 'age' => 25]);
+$user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' => 25]);
 ```
 
 [Learn more →](/main-classes/simple-dto/)

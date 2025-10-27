@@ -208,7 +208,7 @@ Returns an array where keys are dot-notation paths (with wildcards for arrays) a
 **Return Format:**
 - Primitive types: `'string'`, `'int'`, `'float'`, `'bool'`, `'null'`
 - Arrays: `'array'`
-- Objects: Full namespace with leading backslash (e.g., `'\EmailDTO'`)
+- Objects: Full namespace with leading backslash (e.g., `'\EmailDto'`)
 - Union types: Pipe-separated, alphabetically sorted (e.g., `'bool|int|null|string'`)
 - Array elements: Wildcard notation (e.g., `'emails.*'`)
 
@@ -224,7 +224,7 @@ $structure = $accessor->getStructure();
 //   'name' => 'string',
 //   'age' => 'int',
 //   'emails' => 'array',
-//   'emails.*' => '\EmailDTO',
+//   'emails.*' => '\EmailDto',
 //   'emails.*.email' => 'string',
 //   'emails.*.verified' => 'bool',
 // ]

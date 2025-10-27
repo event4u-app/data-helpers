@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Frameworks\Laravel\Commands;
 
-use event4u\DataHelpers\SimpleDTO\Config\TypeScriptGeneratorOptions;
-use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
-use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
+use event4u\DataHelpers\SimpleDto\Config\TypeScriptGeneratorOptions;
+use event4u\DataHelpers\SimpleDto\Enums\TypeScriptExportType;
+use event4u\DataHelpers\SimpleDto\TypeScriptGenerator;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
 use ReflectionClass;
@@ -36,12 +36,12 @@ if (!class_exists('Illuminate\Console\Command')) {
 }
 
 /**
- * Artisan command to generate TypeScript interfaces from SimpleDTOs.
+ * Artisan command to generate TypeScript interfaces from SimpleDtos.
  *
  * Usage:
  *   php artisan dto:typescript
  *   php artisan dto:typescript --output=resources/js/types/dtos.ts
- *   php artisan dto:typescript --path=app/DTOs
+ *   php artisan dto:typescript --path=app/Dtos
  *   php artisan dto:typescript --watch
  *
  */
@@ -56,7 +56,7 @@ class DtoTypeScriptCommand extends Command
      */
     protected $signature = 'dto:typescript
                             {--output= : Output file path (default: resources/js/types/dtos.ts)}
-                            {--path= : Path to scan for DTOs (default: app/DTOs)}
+                            {--path= : Path to scan for Dtos (default: app/Dtos)}
                             {--export=export : Export type (export, declare, or empty)}
                             {--no-comments : Disable comments in generated interfaces}
                             {--sort : Sort properties alphabetically}
@@ -67,7 +67,7 @@ class DtoTypeScriptCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Generate TypeScript interfaces from SimpleDTOs';
+    protected $description = 'Generate TypeScript interfaces from SimpleDtos';
 
     /** Execute the console command. */
     public function handle(Filesystem $files): int
@@ -75,7 +75,7 @@ class DtoTypeScriptCommand extends Command
         /** @phpstan-ignore-next-line */
         $output = $this->option('output') ?? 'resources/js/types/dtos.ts';
         /** @phpstan-ignore-next-line */
-        $path = $this->option('path') ?? 'app/DTOs';
+        $path = $this->option('path') ?? 'app/Dtos';
         /** @phpstan-ignore-next-line */
         $exportType = (string)($this->option('export') ?? 'export');
         /** @phpstan-ignore-next-line */
@@ -108,20 +108,20 @@ class DtoTypeScriptCommand extends Command
         bool $sort
     ): int {
         /** @phpstan-ignore-next-line */
-        $this->info('Scanning for DTOs...');
+        $this->info('Scanning for Dtos...');
 
-        // Find all DTO classes
+        // Find all Dto classes
         $dtoClasses = $this->findDtoClasses($scanPath);
 
         if ([] === $dtoClasses) {
             /** @phpstan-ignore-next-line */
-            $this->warn('No DTO classes found in ' . $scanPath);
+            $this->warn('No Dto classes found in ' . $scanPath);
 
             return self::FAILURE;
         }
 
         /** @phpstan-ignore-next-line */
-        $this->info('Found ' . count($dtoClasses) . ' DTO classes');
+        $this->info('Found ' . count($dtoClasses) . ' Dto classes');
 
         // Generate TypeScript
         $generator = new TypeScriptGenerator();
@@ -180,7 +180,7 @@ class DtoTypeScriptCommand extends Command
 
         /** @phpstan-ignore-next-line */
         while (true) {
-            // Get current hash of all DTO files
+            // Get current hash of all Dto files
             $currentHash = $this->getDirectoryHash($scanPath);
 
             if ($currentHash !== $lastHash) {
@@ -207,7 +207,7 @@ class DtoTypeScriptCommand extends Command
     }
 
     /**
-     * Find all DTO classes in a directory.
+     * Find all Dto classes in a directory.
      *
      * @return list<string>
      */
@@ -229,7 +229,7 @@ class DtoTypeScriptCommand extends Command
                 continue;
             }
 
-            // Check if class uses SimpleDTOTrait
+            // Check if class uses SimpleDtoTrait
             if ($this->isSimpleDto($className)) {
                 $dtoClasses[] = $className;
             }
@@ -269,7 +269,7 @@ class DtoTypeScriptCommand extends Command
         return $fullClassName;
     }
 
-    /** Check if class is a SimpleDTO. */
+    /** Check if class is a SimpleDto. */
     protected function isSimpleDto(string $className): bool
     {
         if (!class_exists($className)) {
@@ -280,7 +280,7 @@ class DtoTypeScriptCommand extends Command
             $reflection = new ReflectionClass($className);
             $traits = $this->getAllTraits($reflection);
 
-            return in_array('event4u\DataHelpers\SimpleDTO\SimpleDTOTrait', $traits, true);
+            return in_array('event4u\DataHelpers\SimpleDto\SimpleDtoTrait', $traits, true);
         } catch (Throwable) {
             return false;
         }

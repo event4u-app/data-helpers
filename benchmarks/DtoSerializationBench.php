@@ -18,9 +18,9 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 /**
- * Benchmark comparing DataMapper with Symfony Serializer for DTO mapping.
+ * Benchmark comparing DataMapper with Symfony Serializer for Dto mapping.
  *
- * Scenario: Map nested JSON data to a DTO structure
+ * Scenario: Map nested JSON data to a Dto structure
  */
 #[BeforeMethods('setUp')]
 class DtoSerializationBench
@@ -178,7 +178,7 @@ class DtoSerializationBench
         $address = $user['address'];
         assert(is_array($address));
 
-        // Create DTO (result is used implicitly by benchmark framework)
+        // Create Dto (result is used implicitly by benchmark framework)
         /** @phpstan-ignore new.resultUnused */
         new UserProfileDto(
             (string)$profile['firstName'],
@@ -195,7 +195,7 @@ class DtoSerializationBench
 }
 
 /**
- * Flat DTO for DataMapper and manual mapping
+ * Flat Dto for DataMapper and manual mapping
  */
 class UserProfileDto
 {
@@ -213,7 +213,7 @@ class UserProfileDto
 }
 
 /**
- * Nested DTO structure for Symfony Serializer
+ * Nested Dto structure for Symfony Serializer
  */
 class UserDataDto
 {

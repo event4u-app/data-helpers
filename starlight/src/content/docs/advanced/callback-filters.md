@@ -12,9 +12,9 @@ Callback filters come in two flavors:
 1. **CallbackFilter** - For use in pipelines with inline closures
 2. **CallbackHelper** - For named callbacks in template expressions
 
-Both receive a `CallbackParameters` DTO with complete context about the current transformation.
+Both receive a `CallbackParameters` Dto with complete context about the current transformation.
 
-## CallbackParameters DTO
+## CallbackParameters Dto
 
 Every callback receives a `CallbackParameters` object with the following properties:
 

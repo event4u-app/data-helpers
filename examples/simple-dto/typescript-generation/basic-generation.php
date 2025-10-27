@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
-use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;
-use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
-use event4u\DataHelpers\SimpleDTO\Config\TypeScriptGeneratorOptions;
-use event4u\DataHelpers\SimpleDTO\DataCollection;
-use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
+use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDto\Config\TypeScriptGeneratorOptions;
+use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\TypeScriptGenerator;
 
 echo "================================================================================\n";
-echo "SimpleDTO - TypeScript Generation Examples\n";
+echo "SimpleDto - TypeScript Generation Examples\n";
 echo "================================================================================\n\n";
 
-// Example 1: Basic DTO
-echo "Example 1: Basic DTO\n";
+// Example 1: Basic Dto
+echo "Example 1: Basic Dto\n";
 echo "-------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -32,13 +32,13 @@ class UserDTO extends SimpleDTO
 
 $generator = new TypeScriptGenerator();
 $options = TypeScriptGeneratorOptions::default();
-$typescript = $generator->generate([UserDTO::class], $options);
+$typescript = $generator->generate([UserDto::class], $options);
 
 echo $typescript;
 echo "\n";
 
-// Example 2: DTO with Casts
-echo "Example 2: DTO with Casts\n";
+// Example 2: Dto with Casts
+echo "Example 2: Dto with Casts\n";
 echo "-------------------------\n";
 
 enum Status: string
@@ -48,7 +48,7 @@ enum Status: string
     case PENDING = 'pending';
 }
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -68,15 +68,15 @@ class ProductDTO extends SimpleDTO
     }
 }
 
-$typescript = $generator->generate([ProductDTO::class], $options);
+$typescript = $generator->generate([ProductDto::class], $options);
 echo $typescript;
 echo "\n";
 
-// Example 3: Nested DTOs
-echo "Example 3: Nested DTOs\n";
+// Example 3: Nested Dtos
+echo "Example 3: Nested Dtos\n";
 echo "----------------------\n";
 
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -85,23 +85,23 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class CompanyDTO extends SimpleDTO
+class CompanyDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 
-$typescript = $generator->generate([CompanyDTO::class], $options);
+$typescript = $generator->generate([CompanyDto::class], $options);
 echo $typescript;
 echo "\n";
 
-// Example 4: DTO with Collections
-echo "Example 4: DTO with Collections\n";
+// Example 4: Dto with Collections
+echo "Example 4: Dto with Collections\n";
 echo "-------------------------------\n";
 
-class TagDTO extends SimpleDTO
+class TagDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -109,26 +109,26 @@ class TagDTO extends SimpleDTO
     ) {}
 }
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $title,
         public readonly string $content,
-        #[DataCollectionOf(TagDTO::class)]
+        #[DataCollectionOf(TagDto::class)]
         public readonly DataCollection $tags,
     ) {}
 }
 
-$typescript = $generator->generate([PostDTO::class], $options);
+$typescript = $generator->generate([PostDto::class], $options);
 echo $typescript;
 echo "\n";
 
-// Example 5: DTO with Computed Properties
-echo "Example 5: DTO with Computed Properties\n";
+// Example 5: Dto with Computed Properties
+echo "Example 5: Dto with Computed Properties\n";
 echo "---------------------------------------\n";
 
-class PersonDTO extends SimpleDTO
+class PersonDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
@@ -149,15 +149,15 @@ class PersonDTO extends SimpleDTO
     }
 }
 
-$typescript = $generator->generate([PersonDTO::class], $options);
+$typescript = $generator->generate([PersonDto::class], $options);
 echo $typescript;
 echo "\n";
 
-// Example 6: DTO with Lazy Properties
-echo "Example 6: DTO with Lazy Properties\n";
+// Example 6: Dto with Lazy Properties
+echo "Example 6: Dto with Lazy Properties\n";
 echo "-----------------------------------\n";
 
-class DocumentDTO extends SimpleDTO
+class DocumentDto extends SimpleDto
 {
     /** @param array<mixed> $metadata */
     public function __construct(
@@ -170,15 +170,15 @@ class DocumentDTO extends SimpleDTO
     ) {}
 }
 
-$typescript = $generator->generate([DocumentDTO::class], $options);
+$typescript = $generator->generate([DocumentDto::class], $options);
 echo $typescript;
 echo "\n";
 
-// Example 7: Multiple DTOs at Once
-echo "Example 7: Multiple DTOs at Once\n";
+// Example 7: Multiple Dtos at Once
+echo "Example 7: Multiple Dtos at Once\n";
 echo "--------------------------------\n";
 
-class AuthorDTO extends SimpleDTO
+class AuthorDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -186,26 +186,26 @@ class AuthorDTO extends SimpleDTO
     ) {}
 }
 
-class BookDTO extends SimpleDTO
+class BookDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
         public readonly string $isbn,
-        public readonly AuthorDTO $author,
+        public readonly AuthorDto $author,
     ) {}
 }
 
-class LibraryDTO extends SimpleDTO
+class LibraryDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
-        #[DataCollectionOf(BookDTO::class)]
+        #[DataCollectionOf(BookDto::class)]
         public readonly DataCollection $books,
     ) {}
 }
 
-$typescript = $generator->generate([LibraryDTO::class, AuthorDTO::class, BookDTO::class], $options);
+$typescript = $generator->generate([LibraryDto::class, AuthorDto::class, BookDto::class], $options);
 echo $typescript;
 echo "\n";
 
@@ -224,7 +224,7 @@ if (!is_dir($dir)) {
 // Use sorted() factory method for alphabetically sorted properties
 $sortedOptions = TypeScriptGeneratorOptions::sorted();
 $typescript = $generator->generate(
-    [UserDTO::class, ProductDTO::class, CompanyDTO::class, PostDTO::class],
+    [UserDto::class, ProductDto::class, CompanyDto::class, PostDto::class],
     $sortedOptions
 );
 
@@ -242,22 +242,22 @@ echo "💡 Use TypeScriptGeneratorOptions factory methods for type-safe configur
 
 // Export (default)
 $exportOptions = TypeScriptGeneratorOptions::export();
-$typescript = $generator->generate([UserDTO::class], $exportOptions);
+$typescript = $generator->generate([UserDto::class], $exportOptions);
 echo "Export:\n{$typescript}\n";
 
 // Declare
 $declareOptions = TypeScriptGeneratorOptions::declare();
-$typescript = $generator->generate([UserDTO::class], $declareOptions);
+$typescript = $generator->generate([UserDto::class], $declareOptions);
 echo "Declare:\n{$typescript}\n";
 
 // Plain (no export/declare)
 $plainOptions = TypeScriptGeneratorOptions::plain();
-$typescript = $generator->generate([UserDTO::class], $plainOptions);
+$typescript = $generator->generate([UserDto::class], $plainOptions);
 echo "Plain:\n{$typescript}\n";
 
 // Without comments
 $noCommentsOptions = TypeScriptGeneratorOptions::withoutComments();
-$typescript = $generator->generate([UserDTO::class], $noCommentsOptions);
+$typescript = $generator->generate([UserDto::class], $noCommentsOptions);
 echo "Without Comments:\n{$typescript}\n";
 
 echo "================================================================================\n";

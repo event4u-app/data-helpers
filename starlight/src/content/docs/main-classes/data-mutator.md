@@ -3,7 +3,7 @@ title: DataMutator
 description: Write, merge, and unset values in nested data structures using dot-notation paths with wildcard support
 ---
 
-DataMutator provides methods to modify nested data structures including arrays, objects, DTOs, Laravel Collections, and Eloquent Models. All operations work with references and modify the target in-place using a fluent API.
+DataMutator provides methods to modify nested data structures including arrays, objects, Dtos, Laravel Collections, and Eloquent Models. All operations work with references and modify the target in-place using a fluent API.
 
 ## Quick Example
 
@@ -48,7 +48,7 @@ DataMutator works with:
 
 - **Arrays** - Nested arrays with any depth
 - **Objects** - Plain PHP objects with public properties
-- **DTOs** - Data Transfer Objects
+- **Dtos** - Data Transfer Objects
 - **Laravel Collections** - `Illuminate\Support\Collection`
 - **Eloquent Models** - Including relationships
 
@@ -339,9 +339,9 @@ DataMutator::make($response)->unset('users.*.api_key');
 ```
 
 
-## Working with DTOs and Objects
+## Working with Dtos and Objects
 
-DataMutator works with plain PHP objects and DTOs.
+DataMutator works with plain PHP objects and Dtos.
 
 ### Basic Object Mutation
 
@@ -383,10 +383,10 @@ DataMutator::make($user)->set('profile.bio', 'Software Engineer');
 DataMutator::make($user)->set('profile.website', 'https://example.com');
 ```
 
-### Working with DTOs
+### Working with Dtos
 
 ```php
-$dto = new UserWithRolesDTO();
+$dto = new UserWithRolesDto();
 DataMutator::make($dto)->set('name', 'Alice');
 DataMutator::make($dto)->set('email', 'alice@example.com');
 DataMutator::make($dto)->merge('roles', ['admin', 'editor']);

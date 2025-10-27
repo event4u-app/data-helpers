@@ -144,12 +144,12 @@ $result = DataFilter::query($products)
 
 📖 **[DataFilter Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-filter/)**
 
-### 5️⃣ SimpleDTO - Immutable DTOs
+### 5️⃣ SimpleDto - Immutable Dtos
 
 Create type-safe, immutable Data Transfer Objects:
 
 ```php
-class ReadmeUserDTO extends SimpleDTO
+class ReadmeUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -158,10 +158,10 @@ class ReadmeUserDTO extends SimpleDTO
     ) {}
 }
 
-$user = ReadmeUserDTO::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
+$user = ReadmeUserDto::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
 ```
 
-📖 **[SimpleDTO Documentation](https://event4u-app.github.io/data-helpers/simple-dto/introduction/)**
+📖 **[SimpleDto Documentation](https://event4u-app.github.io/data-helpers/simple-dto/introduction/)**
 
 ### 3️⃣ DataMapper - Transform Data
 
@@ -326,7 +326,7 @@ $result = DataMapper::query()
 The documentation includes:
 - 📖 **Getting Started Guides** - Installation, configuration, and quick start tutorials
 - 🔧 **Main Classes** - Detailed guides for DataAccessor, DataMutator, DataMapper, and DataFilter
-- 🎯 **SimpleDTO** - Type-safe DTOs with validation, casting, and collections
+- 🎯 **SimpleDto** - Type-safe Dtos with validation, casting, and collections
 - 🚀 **Advanced Features** - Template expressions, query builder, pipelines, and reverse mapping
 - 🔌 **Framework Integration** - Laravel, Symfony, and Doctrine integration guides
 - 💡 **90+ Code Examples** - Runnable examples for every feature
@@ -353,7 +353,7 @@ All operations are highly optimized:
 - Simple access: ~0.3μs
 - Nested access: ~0.4μs
 - Wildcards: ~5μs
-- **Up to 3.7x faster** than Symfony Serializer for DTO mapping
+- **Up to 3.7x faster** than Symfony Serializer for Dto mapping
 
 📖 **[Performance Benchmarks](https://event4u-app.github.io/data-helpers/performance/benchmarks/)** • [Optimization Tips](https://event4u-app.github.io/data-helpers/performance/optimization/)
 

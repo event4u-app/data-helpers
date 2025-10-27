@@ -12,7 +12,7 @@ use SimpleXMLElement;
 /**
  * DataFilter - Filter and query data collections.
  *
- * Provides a fluent interface for filtering arrays, DTOs, Models, Collections, JSON, and XML.
+ * Provides a fluent interface for filtering arrays, Dtos, Models, Collections, JSON, and XML.
  * Works on already-loaded data (post-mapping filtering).
  *
  * Example:
@@ -39,7 +39,7 @@ final class DataFilter
     /**
      * Create a new DataFilter query.
      *
-     * @param mixed $data Data to filter (array, Collection, DTO[], Model[], JSON string, XML string)
+     * @param mixed $data Data to filter (array, Collection, Dto[], Model[], JSON string, XML string)
      */
     public static function query(mixed $data): self
     {
@@ -52,7 +52,7 @@ final class DataFilter
     /**
      * Create a new DataFilter instance (alias for query()).
      *
-     * @param mixed $data Data to filter (array, Collection, DTO[], Model[], JSON string, XML string)
+     * @param mixed $data Data to filter (array, Collection, Dto[], Model[], JSON string, XML string)
      */
     public static function make(mixed $data): self
     {
@@ -88,7 +88,7 @@ final class DataFilter
             return;
         }
 
-        // Handle array (including DTOs, Models)
+        // Handle array (including Dtos, Models)
         if (is_array($data)) {
             $this->items = $data;
             $this->originalFormat = 'array';

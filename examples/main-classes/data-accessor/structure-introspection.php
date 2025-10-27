@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use event4u\DataHelpers\DataAccessor;
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
 echo "=== DataAccessor Structure Introspection Examples ===\n\n";
 
@@ -130,11 +130,11 @@ foreach ($structure as $path => $type) {
 
 echo "\n";
 
-// Example 6: Working with DTOs
-echo "Example 6: Working with DTOs\n";
+// Example 6: Working with Dtos
+echo "Example 6: Working with Dtos\n";
 echo "-----------------------------\n";
 
-class EmailDTO extends SimpleDTO
+class EmailDto extends SimpleDto
 {
     public function __construct(
         public readonly string $email,
@@ -143,27 +143,27 @@ class EmailDTO extends SimpleDTO
     ) {}
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
-    /** @param array<int, EmailDTO> $emails */
+    /** @param array<int, EmailDto> $emails */
     public function __construct(
         public readonly string $name,
         public readonly array $emails,
     ) {}
 }
 
-$dto = new UserDTO(
+$dto = new UserDto(
     name: 'John Doe',
     emails: [
-        new EmailDTO(email: 'john@work.com', type: 'work', verified: true),
-        new EmailDTO(email: 'john@home.com', type: 'home', verified: false),
+        new EmailDto(email: 'john@work.com', type: 'work', verified: true),
+        new EmailDto(email: 'john@home.com', type: 'home', verified: false),
     ]
 );
 
 $accessor = new DataAccessor($dto);
 $structure = $accessor->getStructure();
 
-echo "Structure (with DTO class names):\n";
+echo "Structure (with Dto class names):\n";
 foreach ($structure as $path => $type) {
     echo "  '{$path}' => '{$type}'\n";
 }

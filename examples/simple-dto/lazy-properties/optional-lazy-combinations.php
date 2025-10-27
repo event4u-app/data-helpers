@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\Support\Lazy;
 use event4u\DataHelpers\Support\Optional;
 
@@ -14,7 +14,7 @@ echo "=== Optional & Lazy Combinations Example ===\n\n";
 echo "1. All Property Type Combinations\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -53,7 +53,7 @@ class UserDTO extends SimpleDTO
 }
 
 echo "Creating user with minimal data:\n";
-$user1 = UserDTO::fromArray([
+$user1 = UserDto::fromArray([
     'name' => 'John Doe',
     'age' => 30,
     'biography' => 'Long biography...',
@@ -95,7 +95,7 @@ echo json_encode($array2, JSON_PRETTY_PRINT) . "\n\n";
 echo "3. Optional + Lazy Combination\n";
 echo str_repeat('-', 50) . "\n";
 
-class DocumentDTO extends SimpleDTO
+class DocumentDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -106,14 +106,14 @@ class DocumentDTO extends SimpleDTO
 }
 
 echo "Missing content:\n";
-$doc1 = DocumentDTO::fromArray(['title' => 'Document 1']);
+$doc1 = DocumentDto::fromArray(['title' => 'Document 1']);
 /** @phpstan-ignore-next-line unknown */
 echo "  content present: " . ($doc1->content->isPresent() ? 'yes' : 'no') . "\n";
 echo "  toArray: " . json_encode($doc1->toArray()) . "\n";
 echo "\n";
 
 echo "Present content (wrapped in Lazy):\n";
-$doc2 = DocumentDTO::fromArray(['title' => 'Document 2', 'content' => 'Long content...']);
+$doc2 = DocumentDto::fromArray(['title' => 'Document 2', 'content' => 'Long content...']);
 /** @phpstan-ignore-next-line unknown */
 echo "  content present: " . ($doc2->content->isPresent() ? 'yes' : 'no') . "\n";
 echo "  content is Optional: " . ($doc2->content instanceof Optional ? 'yes' : 'no') . "\n";
@@ -127,7 +127,7 @@ echo "\n";
 echo "4. Partial Updates with Combinations\n";
 echo str_repeat('-', 50) . "\n";
 
-class UpdateDTO extends SimpleDTO
+class UpdateDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -143,14 +143,14 @@ class UpdateDTO extends SimpleDTO
 }
 
 echo "Update only email (set to null):\n";
-$update1 = UpdateDTO::fromArray(['email' => null]);
+$update1 = UpdateDto::fromArray(['email' => null]);
 $partial1 = $update1->partial();
 echo "  partial: " . json_encode($partial1) . "\n";
 echo "  email is present: yes (explicitly set to null)\n";
 echo "\n";
 
 echo "Update name and age:\n";
-$update2 = UpdateDTO::fromArray(['name' => 'Jane', 'age' => 25]);
+$update2 = UpdateDto::fromArray(['name' => 'Jane', 'age' => 25]);
 $partial2 = $update2->partial();
 echo "  partial: " . json_encode($partial2) . "\n";
 echo "\n";
@@ -159,7 +159,7 @@ echo "\n";
 echo "5. Nested Optional + Lazy\n";
 echo str_repeat('-', 50) . "\n";
 
-class ProfileDTO extends SimpleDTO
+class ProfileDto extends SimpleDto
 {
     /**
      * @param array<mixed> $settings
@@ -175,7 +175,7 @@ class ProfileDTO extends SimpleDTO
     ) {}
 }
 
-$profile1 = ProfileDTO::fromArray(['username' => 'john_doe']);
+$profile1 = ProfileDto::fromArray(['username' => 'john_doe']);
 echo "Missing settings and avatar:\n";
 /** @phpstan-ignore-next-line unknown */
 echo "  settings present: " . ($profile1->settings->isPresent() ? 'yes' : 'no') . "\n";
@@ -184,7 +184,7 @@ echo "  avatar present: " . ($profile1->avatar->isPresent() ? 'yes' : 'no') . "\
 echo "  toArray: " . json_encode($profile1->toArray()) . "\n";
 echo "\n";
 
-$profile2 = ProfileDTO::fromArray([
+$profile2 = ProfileDto::fromArray([
     'username' => 'jane_doe',
     'settings' => ['theme' => 'dark', 'notifications' => true],
     'avatar' => null,
@@ -206,7 +206,7 @@ echo "\n";
 echo "6. Type Checking\n";
 echo str_repeat('-', 50) . "\n";
 
-$user2 = UserDTO::fromArray([
+$user2 = UserDto::fromArray([
     'name' => 'Alice',
     'age' => 28,
     'email' => 'alice@example.com',
@@ -234,7 +234,7 @@ echo "\n";
 echo "7. JSON Serialization\n";
 echo str_repeat('-', 50) . "\n";
 
-$user3 = UserDTO::fromArray([
+$user3 = UserDto::fromArray([
     'name' => 'Bob',
     'age' => 35,
     'email' => 'bob@example.com',

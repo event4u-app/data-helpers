@@ -13,7 +13,7 @@ Reverse mapping provides bidirectional data transformation:
 - **Reverse mapping**: Transform data from target back to source using `->reverseMap()`
 
 This is particularly useful when:
-- Converting between DTOs and domain models
+- Converting between Dtos and domain models
 - Synchronizing data between different formats
 - Implementing undo/redo functionality
 - Building bidirectional API transformations
@@ -117,9 +117,9 @@ $result = DataMapper::source($source)
 
 ## Use Cases
 
-### DTO to Model Conversion
+### Dto to Model Conversion
 
-<!-- skip-test: Requires DTO/Model classes -->
+<!-- skip-test: Requires Dto/Model classes -->
 ```php
 $template = [
     'id' => '{{ user.id }}',
@@ -127,16 +127,16 @@ $template = [
     'email' => '{{ user.email }}',
 ];
 
-// Forward: Model -> DTO
+// Forward: Model -> Dto
 $userModel = ['id' => 1, 'name' => 'John', 'email' => 'john@example.com'];
-$userDTO = DataMapper::source(['user' => $userModel])
-    ->target(UserDTO::class)
+$userDto = DataMapper::source(['user' => $userModel])
+    ->target(UserDto::class)
     ->template($template)
     ->map()
     ->getTarget();
 
-// Reverse: DTO -> Model
-$userModel = DataMapper::source(['user' => $userDTO])
+// Reverse: Dto -> Model
+$userModel = DataMapper::source(['user' => $userDto])
     ->target(User::class)
     ->template($template)
     ->reverseMap()

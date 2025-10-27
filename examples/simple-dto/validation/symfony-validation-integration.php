@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Ip;
-use event4u\DataHelpers\SimpleDTO\Attributes\Json;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Size;
-use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
-use event4u\DataHelpers\SimpleDTO\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\In;
+use event4u\DataHelpers\SimpleDto\Attributes\Ip;
+use event4u\DataHelpers\SimpleDto\Attributes\Json;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Size;
+use event4u\DataHelpers\SimpleDto\Attributes\Uuid;
+use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 
 echo str_repeat('=', 80) . "\n";
 echo "SYMFONY VALIDATION INTEGRATION\n";
@@ -25,7 +25,7 @@ echo str_repeat('=', 80) . "\n\n";
 echo "1. VALIDATION ATTRIBUTES WITH SYMFONY CONSTRAINT SUPPORT:\n";
 echo str_repeat('-', 80) . "\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -45,7 +45,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-echo "UserDTO defined with validation attributes.\n";
+echo "UserDto defined with validation attributes.\n";
 echo "Each attribute implements both ValidationRule and SymfonyConstraint interfaces.\n\n";
 
 // Show that attributes implement SymfonyConstraint
@@ -85,7 +85,7 @@ if (class_exists('Symfony\Component\Validator\Constraints\NotBlank')) {
 echo "\n\n3. ADVANCED VALIDATION ATTRIBUTES:\n";
 echo str_repeat('-', 80) . "\n";
 
-class AdvancedDTO extends SimpleDTO
+class AdvancedDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -162,18 +162,18 @@ echo "USAGE IN SYMFONY:\n";
 echo str_repeat('-', 80) . "\n";
 echo <<<'USAGE'
 // In a Symfony Controller:
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 
 #[ValidateRequest]
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required, Email]
         public readonly string $email,
-        
+
         #[Required, Min(3)]
         public readonly string $name,
-        
+
         #[Between(18, 120)]
         public readonly int $age,
     ) {}
@@ -183,24 +183,24 @@ class UserDTO extends SimpleDTO
 class UserController extends AbstractController
 {
     #[Route('/users', methods: ['POST'])]
-    public function store(UserDTO $dto): Response
+    public function store(UserDto $dto): Response
     {
         // $dto is already validated using framework-independent validator
         // When Symfony Validator is available, it uses Symfony constraints
-        
+
         $user = new User();
         $user->setEmail($dto->email);
         $user->setName($dto->name);
         $user->setAge($dto->age);
-        
+
         $this->entityManager->persist($user);
         $this->entityManager->flush();
-        
+
         return $this->json($user, 201);
     }
 }
 
-// The DTOs automatically generate Symfony constraints when Symfony Validator is available.
+// The Dtos automatically generate Symfony constraints when Symfony Validator is available.
 // All validation attributes implement both ValidationRule and SymfonyConstraint interfaces.
 // This provides seamless integration with both Laravel and Symfony frameworks.
 USAGE;

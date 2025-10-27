@@ -5,14 +5,14 @@ declare(strict_types=1);
 /**
  * Advanced Features Showcase
  *
- * This example demonstrates all advanced features of SimpleDTO:
+ * This example demonstrates all advanced features of SimpleDto:
  * - All 18 conditional attributes
  * - with() method
  * - Context-based conditions
  * - Lazy properties
  * - Computed properties
  * - Collections
- * - Nested DTOs
+ * - Nested Dtos
  */
 
 require __DIR__ . '/../bootstrap.php';
@@ -24,19 +24,19 @@ if (!class_exists('Carbon\Carbon')) {
 }
 
 use Carbon\Carbon;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
-use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
-use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextEquals;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
-use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
-use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenAuth;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContext;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContextEquals;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenIn;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenRole;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenValue;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto\DataCollection;
 
 function isTrue(mixed $value): bool
 {
@@ -45,10 +45,10 @@ function isTrue(mixed $value): bool
 }
 
 // ============================================================================
-// Advanced DTO with All Features
+// Advanced Dto with All Features
 // ============================================================================
 
-class AdvancedUserDTO extends SimpleDTO
+class AdvancedUserDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $profile
@@ -162,11 +162,11 @@ class AdvancedUserDTO extends SimpleDTO
 
 echo "=== Advanced Features Showcase ===\n\n";
 
-// 1. Create DTO with all features
-echo "1. Create Advanced DTO:\n";
+// 1. Create Dto with all features
+echo "1. Create Advanced Dto:\n";
 echo str_repeat('-', 80) . "\n";
 
-$user = new AdvancedUserDTO(
+$user = new AdvancedUserDto(
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
@@ -238,7 +238,7 @@ echo "6. Collections:\n";
 echo str_repeat('-', 80) . "\n";
 
 $users = [
-    new AdvancedUserDTO(
+    new AdvancedUserDto(
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
@@ -250,7 +250,7 @@ $users = [
         createdAt: Carbon::now()->subYear(),
         password: 'hashed',
     ),
-    new AdvancedUserDTO(
+    new AdvancedUserDto(
         id: 2,
         name: 'Jane Smith',
         email: 'jane@example.com',
@@ -262,7 +262,7 @@ $users = [
         createdAt: Carbon::now()->subMonths(6),
         password: 'hashed',
     ),
-    new AdvancedUserDTO(
+    new AdvancedUserDto(
         id: 3,
         name: 'Bob Johnson',
         email: 'bob@example.com',
@@ -276,9 +276,9 @@ $users = [
     ),
 ];
 
-/** @var DataCollection<SimpleDTO> $collection */
+/** @var DataCollection<SimpleDto> $collection */
 /** @phpstan-ignore-next-line unknown */
-$collection = DataCollection::forDto(AdvancedUserDTO::class, $users);
+$collection = DataCollection::forDto(AdvancedUserDto::class, $users);
 
 /** @phpstan-ignore-next-line class.notFound */
 echo sprintf('Total users: %s%s', $collection->count(), PHP_EOL);
@@ -291,7 +291,7 @@ echo "Admins: " . $collection->filter(fn($u): bool => 'admin' === $u->role)->cou
 echo "7. Collection Methods:\n";
 echo str_repeat('-', 80) . "\n";
 
-/** @var DataCollection<SimpleDTO> $activeUsers */
+/** @var DataCollection<SimpleDto> $activeUsers */
 /** @phpstan-ignore-next-line unknown */
 $activeUsers = $collection->filter(fn($u) => $u->isActive);
 echo "Active users:\n";
@@ -318,22 +318,22 @@ echo "\n";
 $names = $collection->map(fn($u) => $u->name);
 echo "Names: " . implode(', ', $names) . "\n\n";
 
-// 8. Nested DTOs
-echo "8. Nested DTOs:\n";
+// 8. Nested Dtos
+echo "8. Nested Dtos:\n";
 echo str_repeat('-', 80) . "\n";
 
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
         public readonly string $title,
-        public readonly AdvancedUserDTO $author,
+        public readonly AdvancedUserDto $author,
     ) {}
 }
 
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$post = new PostDTO(
+$post = new PostDto(
     title: 'My First Post',
     /** @phpstan-ignore-next-line unknown */
     id: 1,
@@ -353,7 +353,7 @@ echo json_encode($post->toArray(), JSON_PRETTY_PRINT) . "\n\n";
 echo "9. Conditional Visibility (Different Statuses):\n";
 echo str_repeat('-', 80) . "\n";
 
-$activeUser = new AdvancedUserDTO(
+$activeUser = new AdvancedUserDto(
     id: 1,
     name: 'Active User',
     email: 'active@example.com',
@@ -368,7 +368,7 @@ $activeUser = new AdvancedUserDTO(
     statusData: 'Status data visible',
 );
 
-$inactiveUser = new AdvancedUserDTO(
+$inactiveUser = new AdvancedUserDto(
     id: 2,
     name: 'Inactive User',
     email: 'inactive@example.com',

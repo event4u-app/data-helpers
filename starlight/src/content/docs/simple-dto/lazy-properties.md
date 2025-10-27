@@ -7,10 +7,10 @@ Learn how to defer expensive operations until they're actually needed using lazy
 
 ## What are Lazy Properties?
 
-Lazy properties are properties that are only evaluated when accessed, not when the DTO is created:
+Lazy properties are properties that are only evaluated when accessed, not when the Dto is created:
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -20,7 +20,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromModel($user);
+$dto = UserDto::fromModel($user);
 // Posts are NOT loaded yet
 
 $posts = $dto->posts;
@@ -32,9 +32,9 @@ $posts = $dto->posts;
 ### Using #[Lazy] Attribute
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -48,7 +48,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'posts' => fn() => Post::where('user_id', 1)->get(),
@@ -61,7 +61,7 @@ $dto = UserDTO::fromArray([
 ### Lazy Loading from Database
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $userId,
@@ -72,7 +72,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'userId' => 1,
     'name' => 'John Doe',
     'posts' => fn() => Post::where('user_id', 1)->get()->toArray(),
@@ -88,7 +88,7 @@ $posts = $dto->posts; // Database query executed
 ### Lazy Expensive Calculations
 
 ```php
-class ReportDTO extends SimpleDTO
+class ReportDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -98,7 +98,7 @@ class ReportDTO extends SimpleDTO
     ) {}
 }
 
-$dto = ReportDTO::fromArray([
+$dto = ReportDto::fromArray([
     'title' => 'Monthly Report',
     'statistics' => fn() => [
         'total' => Order::sum('total'),
@@ -113,7 +113,7 @@ $dto = ReportDTO::fromArray([
 ### Lazy + Conditional
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -127,7 +127,7 @@ class UserDTO extends SimpleDTO
 ### Lazy + Computed
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly int $userId,
@@ -174,7 +174,7 @@ posts: $user->posts()->get()
  * @property-read array|null $posts Lazy-loaded user posts
  * @property-read array|null $followers Lazy-loaded followers
  */
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     // ...
 }
@@ -195,7 +195,7 @@ All examples are fully tested and can be run directly.
 
 The functionality is thoroughly tested. Key test files:
 
-- [LazyPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/LazyPropertiesTest.php) - Lazy property tests
+- [LazyPropertiesTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/LazyPropertiesTest.php) - Lazy property tests
 
 Run the tests:
 

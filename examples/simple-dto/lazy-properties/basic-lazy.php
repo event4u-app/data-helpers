@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
 
 // ============================================================================
 // Example 1: Basic Lazy Properties
@@ -14,7 +14,7 @@ use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
 echo "1. BASIC LAZY PROPERTIES:\n";
 echo "======================================================================\n\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -24,7 +24,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'biography' => 'A very long biography text that we do not want to load by default...',
@@ -49,7 +49,7 @@ echo "Biography: {$user->biography}\n\n";
 echo "2. MULTIPLE LAZY PROPERTIES:\n";
 echo "======================================================================\n\n";
 
-class DocumentDTO extends SimpleDTO
+class DocumentDto extends SimpleDto
 {
     /** @param array<mixed> $attachments */
     public function __construct(
@@ -64,7 +64,7 @@ class DocumentDTO extends SimpleDTO
     ) {}
 }
 
-$document = DocumentDTO::fromArray([
+$document = DocumentDto::fromArray([
     'title' => 'Important Document',
     'author' => 'Jane Smith',
     'content' => 'Very long document content...',
@@ -95,7 +95,7 @@ echo "\n";
 echo "3. LAZY PROPERTIES WITH JSON:\n";
 echo "======================================================================\n\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     /** @param array<mixed> $specifications */
     public function __construct(
@@ -108,7 +108,7 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-$product = ProductDTO::fromArray([
+$product = ProductDto::fromArray([
     'name' => 'Laptop',
     'price' => 999.99,
     'description' => 'High-performance laptop with...',
@@ -131,7 +131,7 @@ echo json_encode($product->includeAll(), JSON_PRETTY_PRINT) . "\n\n";
 echo "4. LAZY PROPERTIES FOR PERFORMANCE:\n";
 echo "======================================================================\n\n";
 
-class ImageDTO extends SimpleDTO
+class ImageDto extends SimpleDto
 {
     /** @param array<mixed> $exifData */
     public function __construct(
@@ -148,7 +148,7 @@ class ImageDTO extends SimpleDTO
 // Simulate large base64 image data
 $largeBase64 = base64_encode(str_repeat('x', 10000));
 
-$image = ImageDTO::fromArray([
+$image = ImageDto::fromArray([
     'filename' => 'photo.jpg',
     'width' => 1920,
     'height' => 1080,
@@ -173,7 +173,7 @@ echo "Base64 data size: " . strlen((string)$fullData['base64Data']) . " bytes (i
 echo "5. LAZY PROPERTIES WITH CHAINING:\n";
 echo "======================================================================\n\n";
 
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $username,
@@ -186,7 +186,7 @@ class UserProfileDTO extends SimpleDTO
     ) {}
 }
 
-$profile = UserProfileDTO::fromArray([
+$profile = UserProfileDto::fromArray([
     'username' => 'johndoe',
     'email' => 'john@example.com',
     'phone' => '+1234567890',
@@ -216,7 +216,7 @@ echo "\n";
 echo "6. CONDITIONAL LAZY LOADING:\n";
 echo "======================================================================\n\n";
 
-class ReportDTO extends SimpleDTO
+class ReportDto extends SimpleDto
 {
     /** @param array<mixed> $auditLog */
     public function __construct(
@@ -229,7 +229,7 @@ class ReportDTO extends SimpleDTO
     ) {}
 }
 
-$report = ReportDTO::fromArray([
+$report = ReportDto::fromArray([
     'title' => 'Q4 Report',
     'summary' => 'Summary of Q4 results',
     'internalNotes' => 'Internal notes for admins only',
@@ -250,9 +250,9 @@ echo "\n";
 
 echo "7. LAZY PROPERTIES WITH VISIBILITY:\n";
 echo "======================================================================\n\n";
-use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 
-class SecureUserDTO extends SimpleDTO
+class SecureUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $username,
@@ -263,7 +263,7 @@ class SecureUserDTO extends SimpleDTO
     ) {}
 }
 
-$secureUser = SecureUserDTO::fromArray([
+$secureUser = SecureUserDto::fromArray([
     'username' => 'johndoe',
     'email' => 'john@example.com',
     'password' => 'hashed_password',
@@ -288,7 +288,7 @@ echo "Password: " . $secureUser->password . "\n\n";
 echo "8. REAL-WORLD USE CASE - API RESPONSE:\n";
 echo "======================================================================\n\n";
 
-class BlogPostDTO extends SimpleDTO
+class BlogPostDto extends SimpleDto
 {
     /**
      * @param array<mixed> $comments
@@ -309,7 +309,7 @@ class BlogPostDTO extends SimpleDTO
     ) {}
 }
 
-$post = BlogPostDTO::fromArray([
+$post = BlogPostDto::fromArray([
     'id' => 1,
     'title' => 'Introduction to PHP 8.2',
     'excerpt' => 'Learn about the new features in PHP 8.2...',

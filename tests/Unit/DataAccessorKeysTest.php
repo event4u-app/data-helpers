@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataAccessor;
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-// Test DTOs
-class SimpleUserDTO extends SimpleDTO
+// Test Dtos
+class SimpleUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -15,7 +15,7 @@ class SimpleUserDTO extends SimpleDTO
     ) {}
 }
 
-class SimpleAddressDTO extends SimpleDTO
+class SimpleAddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -24,15 +24,15 @@ class SimpleAddressDTO extends SimpleDTO
     ) {}
 }
 
-class SimpleUserWithAddressDTO extends SimpleDTO
+class SimpleUserWithAddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly SimpleAddressDTO $address,
+        public readonly SimpleAddressDto $address,
     ) {}
 }
 
-class SimpleEmailDTO extends SimpleDTO
+class SimpleEmailDto extends SimpleDto
 {
     public function __construct(
         public readonly string $email,
@@ -41,27 +41,27 @@ class SimpleEmailDTO extends SimpleDTO
     ) {}
 }
 
-class SimpleUserWithEmailsDTO extends SimpleDTO
+class SimpleUserWithEmailsDto extends SimpleDto
 {
-    /** @param array<int, SimpleEmailDTO> $emails */
+    /** @param array<int, SimpleEmailDto> $emails */
     public function __construct(
         public readonly string $name,
         public readonly array $emails,
     ) {}
 }
 
-class SimpleDepartmentDTO extends SimpleDTO
+class SimpleDepartmentDto extends SimpleDto
 {
-    /** @param array<int, SimpleUserDTO> $employees */
+    /** @param array<int, SimpleUserDto> $employees */
     public function __construct(
         public readonly string $name,
         public readonly array $employees,
     ) {}
 }
 
-class SimpleCompanyDTO extends SimpleDTO
+class SimpleCompanyDto extends SimpleDto
 {
-    /** @param array<int, SimpleDepartmentDTO> $departments */
+    /** @param array<int, SimpleDepartmentDto> $departments */
     public function __construct(
         public readonly string $name,
         public readonly array $departments,
@@ -504,8 +504,8 @@ test('getStructure() handles JsonSerializable objects', function(): void {
     ]);
 });
 
-test('getStructure() handles SimpleDTO objects', function(): void {
-    $dto = new SimpleUserDTO(
+test('getStructure() handles SimpleDto objects', function(): void {
+    $dto = new SimpleUserDto(
         name: 'John Doe',
         email: 'john@example.com',
         age: 30
@@ -521,14 +521,14 @@ test('getStructure() handles SimpleDTO objects', function(): void {
     ]);
 });
 
-test('getStructure() handles nested SimpleDTO objects', function(): void {
-    $address = new SimpleAddressDTO(
+test('getStructure() handles nested SimpleDto objects', function(): void {
+    $address = new SimpleAddressDto(
         street: 'Main St',
         city: 'New York',
         zip: 10001
     );
 
-    $dto = new SimpleUserWithAddressDTO(
+    $dto = new SimpleUserWithAddressDto(
         name: 'John Doe',
         address: $address
     );
@@ -538,19 +538,19 @@ test('getStructure() handles nested SimpleDTO objects', function(): void {
 
     expect($keys)->toBe([
         'name' => 'string',
-        'address' => '\\SimpleAddressDTO',
+        'address' => '\\SimpleAddressDto',
         'address.street' => 'string',
         'address.city' => 'string',
         'address.zip' => 'int',
     ]);
 });
 
-test('getStructure() handles SimpleDTO with array of DTOs', function(): void {
-    $dto = new SimpleUserWithEmailsDTO(
+test('getStructure() handles SimpleDto with array of Dtos', function(): void {
+    $dto = new SimpleUserWithEmailsDto(
         name: 'John Doe',
         emails: [
-            new SimpleEmailDTO(email: 'john@work.com', type: 'work', verified: true),
-            new SimpleEmailDTO(email: 'john@home.com', type: 'home', verified: false),
+            new SimpleEmailDto(email: 'john@work.com', type: 'work', verified: true),
+            new SimpleEmailDto(email: 'john@home.com', type: 'home', verified: false),
         ]
     );
 
@@ -560,7 +560,7 @@ test('getStructure() handles SimpleDTO with array of DTOs', function(): void {
     expect($keys)->toBe([
         'name' => 'string',
         'emails' => 'array',
-        'emails.*' => '\\SimpleEmailDTO',
+        'emails.*' => '\\SimpleEmailDto',
         'emails.*.email' => 'string',
         'emails.*.type' => 'string',
         'emails.*.verified' => 'bool',
@@ -634,8 +634,8 @@ test('getStructureMultidimensional() handles stdClass objects', function(): void
     ]);
 });
 
-test('getStructureMultidimensional() handles SimpleDTO objects', function(): void {
-    $dto = new SimpleUserDTO(
+test('getStructureMultidimensional() handles SimpleDto objects', function(): void {
+    $dto = new SimpleUserDto(
         name: 'John Doe',
         email: 'john@example.com',
         age: 30
@@ -651,14 +651,14 @@ test('getStructureMultidimensional() handles SimpleDTO objects', function(): voi
     ]);
 });
 
-test('getStructureMultidimensional() handles nested SimpleDTO objects', function(): void {
-    $address = new SimpleAddressDTO(
+test('getStructureMultidimensional() handles nested SimpleDto objects', function(): void {
+    $address = new SimpleAddressDto(
         street: 'Main St',
         city: 'New York',
         zip: 10001
     );
 
-    $dto = new SimpleUserWithAddressDTO(
+    $dto = new SimpleUserWithAddressDto(
         name: 'John Doe',
         address: $address
     );
@@ -668,16 +668,16 @@ test('getStructureMultidimensional() handles nested SimpleDTO objects', function
 
     expect($keys)->toBe([
         'name' => 'string',
-        'address' => '\\SimpleAddressDTO',
+        'address' => '\\SimpleAddressDto',
     ]);
 });
 
-test('getStructureMultidimensional() handles SimpleDTO with array of DTOs', function(): void {
-    $dto = new SimpleUserWithEmailsDTO(
+test('getStructureMultidimensional() handles SimpleDto with array of Dtos', function(): void {
+    $dto = new SimpleUserWithEmailsDto(
         name: 'John Doe',
         emails: [
-            new SimpleEmailDTO(email: 'john@work.com', type: 'work', verified: true),
-            new SimpleEmailDTO(email: 'john@home.com', type: 'home', verified: false),
+            new SimpleEmailDto(email: 'john@work.com', type: 'work', verified: true),
+            new SimpleEmailDto(email: 'john@home.com', type: 'home', verified: false),
         ]
     );
 
@@ -687,26 +687,26 @@ test('getStructureMultidimensional() handles SimpleDTO with array of DTOs', func
     expect($keys)->toBe([
         'name' => 'string',
         'emails' => [
-            '*' => '\\SimpleEmailDTO',
+            '*' => '\\SimpleEmailDto',
         ],
     ]);
 });
 
-test('getStructure() handles deeply nested SimpleDTO structures', function(): void {
-    $company = new SimpleCompanyDTO(
+test('getStructure() handles deeply nested SimpleDto structures', function(): void {
+    $company = new SimpleCompanyDto(
         name: 'Tech Corp',
         departments: [
-            new SimpleDepartmentDTO(
+            new SimpleDepartmentDto(
                 name: 'Engineering',
                 employees: [
-                    new SimpleUserDTO(name: 'Alice', email: 'alice@tech.com', age: 30),
-                    new SimpleUserDTO(name: 'Bob', email: 'bob@tech.com', age: 25),
+                    new SimpleUserDto(name: 'Alice', email: 'alice@tech.com', age: 30),
+                    new SimpleUserDto(name: 'Bob', email: 'bob@tech.com', age: 25),
                 ]
             ),
-            new SimpleDepartmentDTO(
+            new SimpleDepartmentDto(
                 name: 'Sales',
                 employees: [
-                    new SimpleUserDTO(name: 'Charlie', email: 'charlie@tech.com', age: 35),
+                    new SimpleUserDto(name: 'Charlie', email: 'charlie@tech.com', age: 35),
                 ]
             ),
         ]
@@ -727,23 +727,23 @@ test('getStructure() handles deeply nested SimpleDTO structures', function(): vo
 
     expect($keys['name'])->toBe('string');
     expect($keys['departments'])->toBe('array');
-    expect($keys['departments.*'])->toBe('\\SimpleDepartmentDTO');
+    expect($keys['departments.*'])->toBe('\\SimpleDepartmentDto');
     expect($keys['departments.*.name'])->toBe('string');
     expect($keys['departments.*.employees'])->toBe('array');
-    expect($keys['departments.*.employees.*'])->toBe('\\SimpleUserDTO');
+    expect($keys['departments.*.employees.*'])->toBe('\\SimpleUserDto');
     expect($keys['departments.*.employees.*.name'])->toBe('string');
     expect($keys['departments.*.employees.*.email'])->toBe('string');
     expect($keys['departments.*.employees.*.age'])->toBe('int');
 });
 
-test('getStructureMultidimensional() handles deeply nested SimpleDTO structures', function(): void {
-    $company = new SimpleCompanyDTO(
+test('getStructureMultidimensional() handles deeply nested SimpleDto structures', function(): void {
+    $company = new SimpleCompanyDto(
         name: 'Tech Corp',
         departments: [
-            new SimpleDepartmentDTO(
+            new SimpleDepartmentDto(
                 name: 'Engineering',
                 employees: [
-                    new SimpleUserDTO(name: 'Alice', email: 'alice@tech.com', age: 30),
+                    new SimpleUserDto(name: 'Alice', email: 'alice@tech.com', age: 30),
                 ]
             ),
         ]
@@ -755,7 +755,7 @@ test('getStructureMultidimensional() handles deeply nested SimpleDTO structures'
     expect($keys)->toBe([
         'name' => 'string',
         'departments' => [
-            '*' => '\\SimpleDepartmentDTO',
+            '*' => '\\SimpleDepartmentDto',
         ],
     ]);
 });
@@ -807,8 +807,8 @@ XML;
     expect($keys['user'])->toBe('array');
 });
 
-test('getStructure() handles empty SimpleDTO', function(): void {
-    $dto = new class extends SimpleDTO
+test('getStructure() handles empty SimpleDto', function(): void {
+    $dto = new class extends SimpleDto
     {
     };
 
@@ -818,8 +818,8 @@ test('getStructure() handles empty SimpleDTO', function(): void {
     expect($keys)->toBe([]);
 });
 
-test('getStructureMultidimensional() handles empty SimpleDTO', function(): void {
-    $dto = new class extends SimpleDTO
+test('getStructureMultidimensional() handles empty SimpleDto', function(): void {
+    $dto = new class extends SimpleDto
     {
     };
 

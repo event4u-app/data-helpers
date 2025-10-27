@@ -67,7 +67,7 @@ describe('Starlight All Documentation Examples', function(): void {
                     str_contains($filePath, 'contributing.md') ||
                     str_contains($filePath, 'migration-from-spatie.md') ||
                     str_contains($code, 'extends Model') ||
-                    str_contains($code, 'extends SimpleDTO') ||
+                    str_contains($code, 'extends SimpleDto') ||
                     str_contains($code, 'implements FilterInterface') ||
                     str_contains($code, 'TrimStrings') ||
                     str_contains($code, 'LowercaseEmails') ||

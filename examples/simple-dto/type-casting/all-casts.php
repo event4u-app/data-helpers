@@ -5,7 +5,7 @@ declare(strict_types=1);
 require __DIR__ . '/../../bootstrap.php';
 
 use DateTimeImmutable;
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
 // ============================================================================
 // Example: All Built-in Casts
@@ -14,7 +14,7 @@ use event4u\DataHelpers\SimpleDTO;
 echo "Example: All Built-in Casts\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class ProductDto extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     /**
      * @param array<mixed> $tags
@@ -95,7 +95,7 @@ echo "\n";
 echo "Example: Type Conversions\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class ConversionDto extends SimpleDTO
+class ConversionDto extends SimpleDto
 {
     public function __construct(
         public readonly int $int_from_string,
@@ -154,7 +154,7 @@ echo "\n";
 echo "Example: Decimal Precision\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class MoneyDto extends SimpleDTO
+class MoneyDto extends SimpleDto
 {
     public function __construct(
         public readonly string $amount_2_decimals,
@@ -193,7 +193,7 @@ echo "\n";
 echo "Example: JSON Handling\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class ConfigDto extends SimpleDTO
+class ConfigDto extends SimpleDto
 {
     /**
      * @param array<mixed> $settings

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Lazy as LazyAttribute;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy as LazyAttribute;
 use event4u\DataHelpers\Support\Lazy;
 
 echo "=== Lazy Union Types Example ===\n\n";
@@ -14,7 +14,7 @@ echo "=== Lazy Union Types Example ===\n\n";
 echo "1. Basic Lazy Union Type\n";
 echo str_repeat('-', 50) . "\n";
 
-class DocumentDTO1 extends SimpleDTO
+class DocumentDto1 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -23,7 +23,7 @@ class DocumentDTO1 extends SimpleDTO
     ) {}
 }
 
-$doc1 = DocumentDTO1::fromArray([
+$doc1 = DocumentDto1::fromArray([
     'title' => 'My Document',
     'content' => 'Very long content...',
 ]);
@@ -47,7 +47,7 @@ echo "\n";
 echo "2. Lazy with Attribute (Backward Compatible)\n";
 echo str_repeat('-', 50) . "\n";
 
-class DocumentDTO2 extends SimpleDTO
+class DocumentDto2 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -57,7 +57,7 @@ class DocumentDTO2 extends SimpleDTO
     ) {}
 }
 
-$doc2 = DocumentDTO2::fromArray([
+$doc2 = DocumentDto2::fromArray([
     'title' => 'Another Document',
     'content' => 'More content...',
 ]);
@@ -93,7 +93,7 @@ echo "4. Map and Transform\n";
 echo str_repeat('-', 50) . "\n";
 
 $lazy3 = Lazy::of(fn(): string => 'hello');
-/** @var DataCollection<SimpleDTO> $mapped */
+/** @var DataCollection<SimpleDto> $mapped */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 $mapped = $lazy3->map(strtoupper(...));
@@ -110,7 +110,7 @@ echo "\n";
 echo "5. Conditional Loading\n";
 echo str_repeat('-', 50) . "\n";
 
-class DocumentDTO3 extends SimpleDTO
+class DocumentDto3 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -120,7 +120,7 @@ class DocumentDTO3 extends SimpleDTO
     ) {}
 }
 
-$doc3 = DocumentDTO3::fromArray([
+$doc3 = DocumentDto3::fromArray([
     'title' => 'Confidential Document',
     'internalNotes' => 'Internal notes...',
 ]);
@@ -137,7 +137,7 @@ echo "\n";
 echo "6. Multiple Lazy Properties\n";
 echo str_repeat('-', 50) . "\n";
 
-class BlogPostDTO extends SimpleDTO
+class BlogPostDto extends SimpleDto
 {
     /**
      * @param array<mixed> $comments
@@ -155,7 +155,7 @@ class BlogPostDTO extends SimpleDTO
     ) {}
 }
 
-$post = BlogPostDTO::fromArray([
+$post = BlogPostDto::fromArray([
     'title' => 'My Blog Post',
     'excerpt' => 'Short excerpt...',
     'content' => 'Full content...',

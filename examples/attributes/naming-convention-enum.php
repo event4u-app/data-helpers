@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 require __DIR__ . '/../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapInputName;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapOutputName;
-use event4u\DataHelpers\SimpleDTO\Enums\NamingConvention;
-use event4u\DataHelpers\SimpleDTO\Support\NameTransformer;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\MapInputName;
+use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
+use event4u\DataHelpers\SimpleDto\Enums\NamingConvention;
+use event4u\DataHelpers\SimpleDto\Support\NameTransformer;
 
 echo "=== NamingConvention Enum Example ===\n\n";
 
@@ -17,7 +17,7 @@ echo "1️⃣  MapInputName with Enum:\n";
 echo str_repeat('-', 50) . "\n";
 
 #[MapInputName(NamingConvention::SnakeCase)]
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $userName,
@@ -32,16 +32,16 @@ $userData = [
     'user_id' => 123,
 ];
 
-$user = UserDTO::fromArray($userData);
+$user = UserDto::fromArray($userData);
 echo "Input (snake_case): " . json_encode($userData) . "\n";
-echo "DTO properties (camelCase): userName={$user->userName}, emailAddress={$user->emailAddress}, userId={$user->userId}\n\n";
+echo "Dto properties (camelCase): userName={$user->userName}, emailAddress={$user->emailAddress}, userId={$user->userId}\n\n";
 
 // Example 2: Using NamingConvention enum in MapOutputName
 echo "2️⃣  MapOutputName with Enum:\n";
 echo str_repeat('-', 50) . "\n";
 
 #[MapOutputName(NamingConvention::KebabCase)]
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $productName,
@@ -50,9 +50,9 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-$product = new ProductDTO('Laptop', 999.99, 'Electronics');
+$product = new ProductDto('Laptop', 999.99, 'Electronics');
 $output = $product->toArray();
-echo "DTO properties (camelCase): productName, productPrice, categoryName\n";
+echo "Dto properties (camelCase): productName, productPrice, categoryName\n";
 echo "Output (kebab-case): " . json_encode($output) . "\n\n";
 
 // Example 3: Using NameTransformer with enum
@@ -76,7 +76,7 @@ echo "4️⃣  Backward Compatibility (String):\n";
 echo str_repeat('-', 50) . "\n";
 
 #[MapInputName('snake_case')]
-class LegacyDTO extends SimpleDTO
+class LegacyDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
@@ -89,10 +89,10 @@ $legacyData = [
     'last_name' => 'Smith',
 ];
 
-$legacy = LegacyDTO::fromArray($legacyData);
+$legacy = LegacyDto::fromArray($legacyData);
 echo "String-based MapInputName still works!\n";
 echo "Input: " . json_encode($legacyData) . "\n";
-echo "DTO: firstName={$legacy->firstName}, lastName={$legacy->lastName}\n\n";
+echo "Dto: firstName={$legacy->firstName}, lastName={$legacy->lastName}\n\n";
 
 // Example 5: All naming conventions
 echo "5️⃣  All Naming Conventions:\n";
@@ -130,7 +130,7 @@ echo str_repeat('-', 50) . "\n";
 
 #[MapInputName(NamingConvention::SnakeCase)]
 #[MapOutputName(NamingConvention::PascalCase)]
-class ComplexDTO extends SimpleDTO
+class ComplexDto extends SimpleDto
 {
     public function __construct(
         public readonly string $firstName,
@@ -145,11 +145,11 @@ $complexInput = [
     'email_address' => 'alice@example.com',
 ];
 
-$complex = ComplexDTO::fromArray($complexInput);
+$complex = ComplexDto::fromArray($complexInput);
 $complexOutput = $complex->toArray();
 
 echo "Input (snake_case): " . json_encode($complexInput) . "\n";
-echo "DTO (camelCase): firstName, lastName, emailAddress\n";
+echo "Dto (camelCase): firstName, lastName, emailAddress\n";
 echo "Output (PascalCase): " . json_encode($complexOutput) . "\n\n";
 
 echo "✅ All examples completed successfully!\n";

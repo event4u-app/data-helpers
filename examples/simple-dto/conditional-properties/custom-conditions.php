@@ -5,8 +5,8 @@ declare(strict_types=1);
 require __DIR__ . '/../../bootstrap.php';
 
 use Attribute;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Contracts\ConditionalProperty;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                    CUSTOM CONDITIONAL ATTRIBUTES                           ║\n";
@@ -42,7 +42,7 @@ class WhenPremium implements ConditionalProperty
     }
 }
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $premium_features
@@ -62,7 +62,7 @@ class ProductDTO extends SimpleDTO
 
 // Test with premium user
 /** @phpstan-ignore-next-line unknown */
-$product = new ProductDTO(
+$product = new ProductDto(
     'Premium Product',
     99.99,
     10.00,
@@ -103,7 +103,7 @@ class WhenEnvironment implements ConditionalProperty
     }
 }
 
-class ApiResponseDTO extends SimpleDTO
+class ApiResponseDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $debug_info
@@ -125,7 +125,7 @@ class ApiResponseDTO extends SimpleDTO
     ) {}
 }
 
-$response = new ApiResponseDTO(
+$response = new ApiResponseDto(
     'success',
     ['user' => 'John'],
     ['memory' => '2MB', 'time' => '150ms'],
@@ -163,7 +163,7 @@ class WhenFeatureFlag implements ConditionalProperty
     }
 }
 
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $profile_v2
@@ -185,7 +185,7 @@ class UserProfileDTO extends SimpleDTO
     ) {}
 }
 
-$profile = new UserProfileDTO(
+$profile = new UserProfileDto(
     'John Doe',
     'john@example.com',
     ['theme' => 'dark', 'layout' => 'modern'],
@@ -265,7 +265,7 @@ class WhenRole implements ConditionalProperty
     }
 }
 
-class DashboardDTO extends SimpleDTO
+class DashboardDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $admin_panel
@@ -293,7 +293,7 @@ $adminUser = (object)['name' => 'Admin', 'role' => 'admin'];
 $moderatorUser = (object)['name' => 'Moderator', 'role' => 'moderator'];
 $regularUser = (object)['name' => 'User', 'role' => 'user'];
 
-$dashboard = new DashboardDTO(
+$dashboard = new DashboardDto(
     'Dashboard',
     ['widget1', 'widget2'],
     ['users', 'settings'],
@@ -332,4 +332,4 @@ echo "  3. WhenFeatureFlag - Feature flag support\n";
 echo "  4. WhenRole - Generic role-based access\n\n";
 
 echo "All examples demonstrate the power and flexibility of the\n";
-echo "conditional properties system in SimpleDTO!\n";
+echo "conditional properties system in SimpleDto!\n";

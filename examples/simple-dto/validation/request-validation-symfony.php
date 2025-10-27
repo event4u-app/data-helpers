@@ -6,30 +6,30 @@ declare(strict_types=1);
  * Phase 15.3: Symfony Request Validation Integration
  *
  * This example demonstrates Symfony-specific features:
- * - DTOValueResolver for automatic controller injection
+ * - DtoValueResolver for automatic controller injection
  * - Integration with Symfony Validator
- * - Attribute-based routing with DTOs
+ * - Attribute-based routing with Dtos
  *
  * Note: This example shows the API, but requires a Symfony application to run.
  */
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 
 echo "=== Phase 15.3: Symfony Request Validation Integration ===\n\n";
 
-// Example 1: DTO with ValidateRequest Attribute
-echo "1. DTO with ValidateRequest Attribute\n";
+// Example 1: Dto with ValidateRequest Attribute
+echo "1. Dto with ValidateRequest Attribute\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: true)]
-class CreateUserDTO extends SimpleDTO
+class CreateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -45,13 +45,13 @@ class CreateUserDTO extends SimpleDTO
     ) {}
 }
 
-echo "✅  CreateUserDTO defined with ValidateRequest attribute\n";
+echo "✅  CreateUserDto defined with ValidateRequest attribute\n";
 echo "    - Automatic validation in controllers\n";
 echo "    - Throws ValidationException on failure\n";
 echo "\n";
 
-// Example 2: Controller Method with DTO Injection
-echo "2. Controller Method with DTO Injection\n";
+// Example 2: Controller Method with Dto Injection
+echo "2. Controller Method with Dto Injection\n";
 echo str_repeat('-', 60) . "\n";
 
 echo "```php\n";
@@ -62,7 +62,7 @@ echo "\n";
 echo "class UserController extends AbstractController\n";
 echo "{\n";
 echo "    #[Route('/users', methods: ['POST'])]\n";
-echo "    public function store(CreateUserDTO \$dto): Response\n";
+echo "    public function store(CreateUserDto \$dto): Response\n";
 echo "    {\n";
 echo "        // \$dto is automatically validated!\n";
 echo "        \$user = new User();\n";
@@ -78,18 +78,18 @@ echo "    }\n";
 echo "}\n";
 echo "```\n";
 echo "\n";
-echo "✅  DTO is automatically:\n";
+echo "✅  Dto is automatically:\n";
 echo "    - Created from request data (JSON or form)\n";
 echo "    - Validated using defined rules\n";
 echo "    - Injected into controller method\n";
 echo "\n";
 
-// Example 3: Update DTO with Partial Validation
-echo "3. Update DTO with Partial Validation\n";
+// Example 3: Update Dto with Partial Validation
+echo "3. Update Dto with Partial Validation\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: true, except: ['email'])]
-class UpdateUserDTO extends SimpleDTO
+class UpdateUserDto extends SimpleDto
 {
     public function __construct(
         #[Email]
@@ -103,7 +103,7 @@ class UpdateUserDTO extends SimpleDTO
     ) {}
 }
 
-echo "✅  UpdateUserDTO defined for PATCH requests\n";
+echo "✅  UpdateUserDto defined for PATCH requests\n";
 echo "    - All fields are optional\n";
 echo "    - Email validation is excluded\n";
 echo "    - Only provided fields are validated\n";
@@ -111,7 +111,7 @@ echo "\n";
 
 echo "```php\n";
 echo "#[Route('/users/{id}', methods: ['PATCH'])]\n";
-echo "public function update(int \$id, UpdateUserDTO \$dto): Response\n";
+echo "public function update(int \$id, UpdateUserDto \$dto): Response\n";
 echo "{\n";
 echo "    \$user = \$this->userRepository->find(\$id);\n";
 echo "    if (!\$user) {\n";
@@ -144,14 +144,14 @@ echo "    public function index(): Response\n";
 echo "    {\n";
 echo "        \$users = \$this->userRepository->findAll();\n";
 echo "        \$dtos = array_map(\n";
-echo "            fn(\$user) => UserDTO::from(\$user),\n";
+echo "            fn(\$user) => UserDto::from(\$user),\n";
 echo "            \$users\n";
 echo "        );\n";
 echo "        return \$this->json(\$dtos);\n";
 echo "    }\n";
 echo "\n";
 echo "    #[Route('/users', methods: ['POST'])]\n";
-echo "    public function store(CreateUserDTO \$dto): Response\n";
+echo "    public function store(CreateUserDto \$dto): Response\n";
 echo "    {\n";
 echo "        \$user = new User();\n";
 echo "        \$user->setEmail(\$dto->email);\n";
@@ -161,7 +161,7 @@ echo "\n";
 echo "        \$this->entityManager->persist(\$user);\n";
 echo "        \$this->entityManager->flush();\n";
 echo "\n";
-echo "        return \$this->json(UserDTO::from(\$user), 201);\n";
+echo "        return \$this->json(UserDto::from(\$user), 201);\n";
 echo "    }\n";
 echo "\n";
 echo "    #[Route('/users/{id}', methods: ['GET'])]\n";
@@ -171,11 +171,11 @@ echo "        \$user = \$this->userRepository->find(\$id);\n";
 echo "        if (!\$user) {\n";
 echo "            throw \$this->createNotFoundException();\n";
 echo "        }\n";
-echo "        return \$this->json(UserDTO::from(\$user));\n";
+echo "        return \$this->json(UserDto::from(\$user));\n";
 echo "    }\n";
 echo "\n";
 echo "    #[Route('/users/{id}', methods: ['PATCH'])]\n";
-echo "    public function update(int \$id, UpdateUserDTO \$dto): Response\n";
+echo "    public function update(int \$id, UpdateUserDto \$dto): Response\n";
 echo "    {\n";
 echo "        \$user = \$this->userRepository->find(\$id);\n";
 echo "        if (!\$user) {\n";
@@ -190,7 +190,7 @@ echo "            }\n";
 echo "        }\n";
 echo "\n";
 echo "        \$this->entityManager->flush();\n";
-echo "        return \$this->json(UserDTO::from(\$user));\n";
+echo "        return \$this->json(UserDto::from(\$user));\n";
 echo "    }\n";
 echo "\n";
 echo "    #[Route('/users/{id}', methods: ['DELETE'])]\n";
@@ -220,11 +220,11 @@ echo "Add to config/bundles.php:\n";
 echo "```php\n";
 echo "return [\n";
 echo "    // ...\n";
-echo "    event4u\\DataHelpers\\Symfony\\DTOBundle::class => ['all' => true],\n";
+echo "    event4u\\DataHelpers\\Symfony\\DtoBundle::class => ['all' => true],\n";
 echo "];\n";
 echo "```\n";
 echo "\n";
-echo "✅  Enables automatic DTO injection in controllers\n";
+echo "✅  Enables automatic Dto injection in controllers\n";
 echo "\n";
 
 // Example 6: Error Handling
@@ -272,19 +272,19 @@ echo "\n";
 echo "7. Console Command\n";
 echo str_repeat('-', 60) . "\n";
 
-echo "Generate DTOs with:\n";
+echo "Generate Dtos with:\n";
 echo "```bash\n";
-echo "php bin/console make:dto UserDTO\n";
-echo "php bin/console make:dto UserDTO --validate\n";
+echo "php bin/console make:dto UserDto\n";
+echo "php bin/console make:dto UserDto --validate\n";
 echo "```\n";
 echo "\n";
-echo "✅  Quick DTO generation with validation support\n";
+echo "✅  Quick Dto generation with validation support\n";
 echo "\n";
 
 echo "=== Symfony Integration Complete! ===\n";
 echo "\n";
 echo "Key Features:\n";
-echo "  ✅  Automatic controller injection (DTOValueResolver)\n";
+echo "  ✅  Automatic controller injection (DtoValueResolver)\n";
 echo "  ✅  Attribute-based routing support\n";
 echo "  ✅  Symfony Validator integration\n";
 echo "  ✅  Custom validation messages\n";

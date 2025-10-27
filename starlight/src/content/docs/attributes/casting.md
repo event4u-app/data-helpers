@@ -13,8 +13,8 @@ Cast property to a specific type:
 
 <!-- skip-test: property declaration only -->
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 
 #[Cast(DateTimeCast::class)]
 public readonly Carbon $createdAt;
@@ -103,7 +103,7 @@ public readonly string $name;
 ## Custom Casts
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Contracts\Cast;
+use event4u\DataHelpers\SimpleDto\Contracts\Cast;
 
 class UpperCaseCast implements Cast
 {
@@ -120,7 +120,7 @@ public readonly string $name;
 ## Real-World Example
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Cast(StringCast::class)]

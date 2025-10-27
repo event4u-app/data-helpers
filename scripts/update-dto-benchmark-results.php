@@ -4,20 +4,20 @@
 declare(strict_types=1);
 
 /**
- * Update DTO benchmark results in docs/simple-dto.md
+ * Update Dto benchmark results in docs/simple-dto.md
  *
- * This script runs DTO benchmarks and updates the benchmark results section
- * between the <!-- DTO_BENCHMARK_RESULTS_START --> and <!-- DTO_BENCHMARK_RESULTS_END --> markers.
+ * This script runs Dto benchmarks and updates the benchmark results section
+ * between the <!-- Dto_BENCHMARK_RESULTS_START --> and <!-- Dto_BENCHMARK_RESULTS_END --> markers.
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use event4u\DataHelpers\DataMapper;
-use Tests\Utils\DTOs\CompanyDto;
-use Tests\Utils\DTOs\DepartmentDto;
-use Tests\Utils\SimpleDTOs\CompanySimpleDto;
-use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
-use Tests\Utils\SimpleDTOs\ProjectSimpleDto;
+use Tests\Utils\Dtos\CompanyDto;
+use Tests\Utils\Dtos\DepartmentDto;
+use Tests\Utils\SimpleDtos\CompanySimpleDto;
+use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
+use Tests\Utils\SimpleDtos\ProjectSimpleDto;
 
 $rootDir = dirname(__DIR__);
 $readmePath = $rootDir . '/docs/simple-dto.md';
@@ -28,7 +28,7 @@ if (!file_exists($readmePath)) {
     exit(1);
 }
 
-echo "🚀  Running DTO benchmarks...\n\n";
+echo "🚀  Running Dto benchmarks...\n\n";
 
 /**
  * @param callable(): void $callback
@@ -120,8 +120,8 @@ $testData = [
 // Run benchmarks
 $results = [];
 
-echo "  Running Benchmark 1: DTO Creation with DataMapper...\n";
-$results['datamapper_traditional'] = runBenchmark('Traditional Mutable DTO', function() use (
+echo "  Running Benchmark 1: Dto Creation with DataMapper...\n";
+$results['datamapper_traditional'] = runBenchmark('Traditional Mutable Dto', function() use (
     $jsonFile,
     $mapping
 ): void {
@@ -130,7 +130,7 @@ $results['datamapper_traditional'] = runBenchmark('Traditional Mutable DTO', fun
     DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 }, 1000);
 
-$results['datamapper_simple'] = runBenchmark('SimpleDTO Immutable', function() use ($jsonFile, $mapping): void {
+$results['datamapper_simple'] = runBenchmark('SimpleDto Immutable', function() use ($jsonFile, $mapping): void {
     $mappedArray = DataMapper::sourceFile($jsonFile)->target([])->template($mapping)->map()->toArray();
 
     /** @var array<int, array<string, mixed>> $departmentsData */
@@ -156,7 +156,7 @@ $results['datamapper_simple'] = runBenchmark('SimpleDTO Immutable', function() u
     CompanySimpleDto::fromArray($companyData);
 }, 1000);
 
-echo "  Running Benchmark 2: Simple DTO Creation...\n";
+echo "  Running Benchmark 2: Simple Dto Creation...\n";
 $results['creation_traditional'] = runBenchmark('Traditional: new + assign', function() use ($testData): void {
     $dto = new DepartmentDto();
     $dto->name = $testData['name'];
@@ -166,7 +166,7 @@ $results['creation_traditional'] = runBenchmark('Traditional: new + assign', fun
     $dto->manager_name = $testData['manager_name'];
 }, 100000);
 
-$results['creation_simple'] = runBenchmark('SimpleDTO: fromArray()', function() use ($testData): void {
+$results['creation_simple'] = runBenchmark('SimpleDto: fromArray()', function() use ($testData): void {
     DepartmentSimpleDto::fromArray($testData);
 }, 100000);
 
@@ -184,7 +184,7 @@ $results['toarray_traditional'] = runBenchmark('Traditional: toArray()', functio
     $dtoMutable->toArray();
 }, 100000);
 
-$results['toarray_simple'] = runBenchmark('SimpleDTO: toArray()', function() use ($dtoImmutable): void {
+$results['toarray_simple'] = runBenchmark('SimpleDto: toArray()', function() use ($dtoImmutable): void {
     $dtoImmutable->toArray();
 }, 100000);
 
@@ -196,22 +196,22 @@ $creationDiff = (($results['creation_simple']['avg_time'] - $results['creation_t
 $toArrayDiff = (($results['toarray_simple']['avg_time'] - $results['toarray_traditional']['avg_time']) / $results['toarray_traditional']['avg_time']) * 100;
 
 // Generate markdown
-$markdown = "### Benchmark 1: DTO Creation with DataMapper\n\n";
+$markdown = "### Benchmark 1: Dto Creation with DataMapper\n\n";
 $markdown .= "| Approach | Avg Time | Ops/sec | Performance |\n";
 $markdown .= "|----------|----------|---------|-------------|\n";
 $markdown .= sprintf(
-    "| Traditional Mutable DTO | %s | %s | Baseline |\n",
+    "| Traditional Mutable Dto | %s | %s | Baseline |\n",
     formatTime($results['datamapper_traditional']['avg_time']),
     number_format($results['datamapper_traditional']['ops_per_sec'])
 );
 $markdown .= sprintf(
-    "| SimpleDTO Immutable | %s | %s | **%.1f%% faster** ✅ |\n",
+    "| SimpleDto Immutable | %s | %s | **%.1f%% faster** ✅ |\n",
     formatTime($results['datamapper_simple']['avg_time']),
     number_format($results['datamapper_simple']['ops_per_sec']),
     abs($dataMapperDiff)
 );
 
-$markdown .= "\n### Benchmark 2: Simple DTO Creation (no DataMapper)\n\n";
+$markdown .= "\n### Benchmark 2: Simple Dto Creation (no DataMapper)\n\n";
 $markdown .= "| Approach | Avg Time | Ops/sec | Performance |\n";
 $markdown .= "|----------|----------|---------|-------------|\n";
 $markdown .= sprintf(
@@ -220,7 +220,7 @@ $markdown .= sprintf(
     number_format($results['creation_traditional']['ops_per_sec'])
 );
 $markdown .= sprintf(
-    "| SimpleDTO: fromArray() | %s | %s | %.1f%% slower ⚠️ |\n",
+    "| SimpleDto: fromArray() | %s | %s | %.1f%% slower ⚠️ |\n",
     formatTime($results['creation_simple']['avg_time']),
     number_format($results['creation_simple']['ops_per_sec']),
     abs($creationDiff)
@@ -237,14 +237,14 @@ $markdown .= sprintf(
 
 if (0 > $toArrayDiff) {
     $markdown .= sprintf(
-        "| SimpleDTO: toArray() | %s | %s | **%.1f%% faster** ✅ |\n",
+        "| SimpleDto: toArray() | %s | %s | **%.1f%% faster** ✅ |\n",
         formatTime($results['toarray_simple']['avg_time']),
         number_format($results['toarray_simple']['ops_per_sec']),
         abs($toArrayDiff)
     );
 } else {
     $markdown .= sprintf(
-        "| SimpleDTO: toArray() | %s | %s | %.1f%% slower ⚠️ |\n",
+        "| SimpleDto: toArray() | %s | %s | %.1f%% slower ⚠️ |\n",
         formatTime($results['toarray_simple']['avg_time']),
         number_format($results['toarray_simple']['ops_per_sec']),
         abs($toArrayDiff)
@@ -254,28 +254,28 @@ if (0 > $toArrayDiff) {
 $markdown .= "\n### Summary\n\n";
 $markdown .= "**Real-World Performance (what matters):**\n\n";
 $markdown .= sprintf(
-    "- ✅ **SimpleDTO is %.1f%% faster** for DataMapper integration (most common use case)\n",
+    "- ✅ **SimpleDto is %.1f%% faster** for DataMapper integration (most common use case)\n",
     abs($dataMapperDiff)
 );
 
 if (0 > $toArrayDiff) {
-    $markdown .= sprintf("- ✅ **SimpleDTO is %.1f%% faster** for toArray() conversion\n", abs($toArrayDiff));
+    $markdown .= sprintf("- ✅ **SimpleDto is %.1f%% faster** for toArray() conversion\n", abs($toArrayDiff));
 } elseif (5 > abs($toArrayDiff)) {
     $markdown .= sprintf(
-        "- ✅ **SimpleDTO is practically equal** for toArray() (%.1f%% difference is negligible)\n",
+        "- ✅ **SimpleDto is practically equal** for toArray() (%.1f%% difference is negligible)\n",
         abs($toArrayDiff)
     );
 } else {
-    $markdown .= sprintf("- ⚠️  Traditional DTO is %.1f%% faster for toArray() conversion\n", abs($toArrayDiff));
+    $markdown .= sprintf("- ⚠️  Traditional Dto is %.1f%% faster for toArray() conversion\n", abs($toArrayDiff));
 }
 
 $markdown .= "\n**Synthetic Benchmark (unrealistic scenario):**\n\n";
 $markdown .= sprintf(
-    "- ⚠️  Traditional DTO is %.1f%% faster for manual property assignment (but nobody does this in real code)\n",
+    "- ⚠️  Traditional Dto is %.1f%% faster for manual property assignment (but nobody does this in real code)\n",
     abs($creationDiff)
 );
 
-$markdown .= "\n**🏆 Winner: SimpleDTO** - Faster where it matters, with immutability and type safety as bonus!\n";
+$markdown .= "\n**🏆 Winner: SimpleDto** - Faster where it matters, with immutability and type safety as bonus!\n";
 
 // Read README
 $readme = file_get_contents($readmePath);
@@ -286,17 +286,17 @@ if (false === $readme) {
 }
 
 // Update benchmark results section
-$startMarker = '<!-- DTO_BENCHMARK_RESULTS_START -->';
-$endMarker = '<!-- DTO_BENCHMARK_RESULTS_END -->';
+$startMarker = '<!-- Dto_BENCHMARK_RESULTS_START -->';
+$endMarker = '<!-- Dto_BENCHMARK_RESULTS_END -->';
 
 $startPos = strpos($readme, $startMarker);
 $endPos = strpos($readme, $endMarker);
 
 if (false === $startPos || false === $endPos) {
-    echo "❌  Could not find DTO benchmark markers in docs/simple-dto.md\n";
+    echo "❌  Could not find Dto benchmark markers in docs/simple-dto.md\n";
     echo "    Add the following markers to the file:\n";
-    echo "    <!-- DTO_BENCHMARK_RESULTS_START -->\n";
-    echo "    <!-- DTO_BENCHMARK_RESULTS_END -->\n";
+    echo "    <!-- Dto_BENCHMARK_RESULTS_START -->\n";
+    echo "    <!-- Dto_BENCHMARK_RESULTS_END -->\n";
     exit(1);
 }
 

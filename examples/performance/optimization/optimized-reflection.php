@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\Support\ReflectionCache;
 
 echo "=== Optimized Reflection Caching ===\n\n";
@@ -15,7 +15,7 @@ echo "=== Optimized Reflection Caching ===\n\n";
 echo "1. ReflectionClass Caching\n";
 echo "-------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('user_name')]
@@ -32,11 +32,11 @@ class UserDTO extends SimpleDTO
 }
 
 // First call - creates ReflectionClass
-$ref1 = ReflectionCache::getClass(UserDTO::class);
+$ref1 = ReflectionCache::getClass(UserDto::class);
 echo "First call: " . $ref1->getName() . "\n";
 
 // Second call - uses cached ReflectionClass
-$ref2 = ReflectionCache::getClass(UserDTO::class);
+$ref2 = ReflectionCache::getClass(UserDto::class);
 echo "Second call: " . $ref2->getName() . "\n";
 echo "Same instance: " . ($ref1 === $ref2 ? 'Yes' : 'No') . "\n\n";
 
@@ -44,7 +44,7 @@ echo "Same instance: " . ($ref1 === $ref2 ? 'Yes' : 'No') . "\n\n";
 echo "2. Property Caching\n";
 echo "------------------\n";
 
-$user = UserDTO::fromArray(['user_name' => 'John Doe', 'age' => 30, 'email' => 'john@example.com']);
+$user = UserDto::fromArray(['user_name' => 'John Doe', 'age' => 30, 'email' => 'john@example.com']);
 
 $properties = ReflectionCache::getProperties($user);
 echo "Properties found: " . count($properties) . "\n";
@@ -124,16 +124,16 @@ ReflectionCache::clear();
 // Without cache (first call)
 $start = microtime(true);
 for ($i = 0; 1000 > $i; $i++) {
-    $ref = ReflectionCache::getClass(UserDTO::class);
-    $props = ReflectionCache::getProperties(UserDTO::class);
+    $ref = ReflectionCache::getClass(UserDto::class);
+    $props = ReflectionCache::getProperties(UserDto::class);
 }
 $firstRun = microtime(true) - $start;
 
 // With cache (subsequent calls)
 $start = microtime(true);
 for ($i = 0; 1000 > $i; $i++) {
-    $ref = ReflectionCache::getClass(UserDTO::class);
-    $props = ReflectionCache::getProperties(UserDTO::class);
+    $ref = ReflectionCache::getClass(UserDto::class);
+    $props = ReflectionCache::getProperties(UserDto::class);
 }
 $cachedRun = microtime(true) - $start;
 
@@ -141,11 +141,11 @@ echo "1000 iterations (first run): " . number_format($firstRun * 1000, 2) . " ms
 echo "1000 iterations (cached): " . number_format($cachedRun * 1000, 2) . " ms\n";
 echo "Speedup: " . number_format($firstRun / $cachedRun, 2) . "x\n\n";
 
-// Example 7: Multiple DTOs
-echo "7. Multiple DTOs\n";
+// Example 7: Multiple Dtos
+echo "7. Multiple Dtos\n";
 echo "---------------\n";
 
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -154,7 +154,7 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -163,10 +163,10 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-// Cache all DTOs
-ReflectionCache::getClass(UserDTO::class);
-ReflectionCache::getClass(AddressDTO::class);
-ReflectionCache::getClass(OrderDTO::class);
+// Cache all Dtos
+ReflectionCache::getClass(UserDto::class);
+ReflectionCache::getClass(AddressDto::class);
+ReflectionCache::getClass(OrderDto::class);
 
 $stats = ReflectionCache::getStats();
 echo sprintf('Total classes cached: %d%s', $stats['classes'], PHP_EOL);
@@ -193,18 +193,18 @@ echo "9. Selective Cache Clearing\n";
 echo "--------------------------\n";
 
 // Rebuild cache
-ReflectionCache::getClass(UserDTO::class);
-ReflectionCache::getClass(AddressDTO::class);
-ReflectionCache::getClass(OrderDTO::class);
+ReflectionCache::getClass(UserDto::class);
+ReflectionCache::getClass(AddressDto::class);
+ReflectionCache::getClass(OrderDto::class);
 
 $statsBefore = ReflectionCache::getStats();
-echo "Before clearing UserDTO:\n";
+echo "Before clearing UserDto:\n";
 echo sprintf('  Classes: %d%s', $statsBefore['classes'], PHP_EOL);
 
-ReflectionCache::clearClass(UserDTO::class);
+ReflectionCache::clearClass(UserDto::class);
 
 $statsAfter = ReflectionCache::getStats();
-echo "After clearing UserDTO:\n";
+echo "After clearing UserDto:\n";
 echo "  Classes: {$statsAfter['classes']}\n\n";
 
 // Example 10: Real-World Usage
@@ -213,10 +213,10 @@ echo "-------------------\n";
 
 $start = microtime(true);
 
-// Create 1000 DTO instances
+// Create 1000 Dto instances
 $users = [];
 for ($i = 0; 1000 > $i; $i++) {
-    $users[] = UserDTO::fromArray([
+    $users[] = UserDto::fromArray([
         'user_name' => 'User ' . $i,
         'age' => 20 + ($i % 50),
         'email' => sprintf('user%d@example.com', $i),
@@ -225,7 +225,7 @@ for ($i = 0; 1000 > $i; $i++) {
 
 $duration = microtime(true) - $start;
 
-echo "Created 1000 DTO instances in: " . number_format($duration * 1000, 2) . " ms\n";
+echo "Created 1000 Dto instances in: " . number_format($duration * 1000, 2) . " ms\n";
 echo "Average per instance: " . number_format(($duration / 1000) * 1000, 2) . " ms\n";
 echo "Throughput: " . number_format(1000 / $duration) . " instances/second\n\n";
 

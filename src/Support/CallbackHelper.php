@@ -21,7 +21,7 @@ use ReflectionMethod;
  * - Closures
  *
  * Used by:
- * - SimpleDTO Attributes (Visible, WhenCallback, etc.)
+ * - SimpleDto Attributes (Visible, WhenCallback, etc.)
  * - DataMapper Filters (CallbackFilter, callback: filter)
  * - Template Expressions ({{ value | callback:name }})
  *

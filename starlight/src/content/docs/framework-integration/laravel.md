@@ -35,15 +35,15 @@ php artisan vendor:publish --tag=data-helpers-config
 
 ### Automatic Validation & Injection
 
-Type-hint your DTO in controller methods:
+Type-hint your Dto in controller methods:
 
 ```php
-use App\DTOs\UserRegistrationDTO;
+use App\Dtos\UserRegistrationDto;
 use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
-    public function register(UserRegistrationDTO $dto): JsonResponse
+    public function register(UserRegistrationDto $dto): JsonResponse
     {
         // $dto is automatically validated and filled with request data
         $user = User::create($dto->toArray());
@@ -55,18 +55,18 @@ class UserController extends Controller
 
 ### How It Works
 
-1. Laravel's service container detects the DTO type hint
+1. Laravel's service container detects the Dto type hint
 2. Service provider creates an instance
-3. Request data is automatically passed to the DTO
+3. Request data is automatically passed to the Dto
 4. Validation runs automatically
-5. Controller receives the validated DTO
+5. Controller receives the validated Dto
 
 ### Manual Creation
 
 ```php
 public function register(Request $request): JsonResponse
 {
-    $dto = UserRegistrationDTO::fromRequest($request);
+    $dto = UserRegistrationDto::fromRequest($request);
     $dto->validate(); // Throws ValidationException on failure
 
     $user = User::create($dto->toArray());
@@ -81,14 +81,14 @@ public function register(Request $request): JsonResponse
 <!-- skip-test: requires Eloquent User model -->
 ```php
 $user = User::find(1);
-$dto = UserDTO::fromModel($user);
+$dto = UserDto::fromModel($user);
 ```
 
 ### To Eloquent Model
 
 <!-- skip-test: requires Eloquent User model -->
 ```php
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 $user = new User();
 $dto->toModel($user);
 $user->save();
@@ -99,7 +99,7 @@ $user->save();
 <!-- skip-test: requires Eloquent User model and Request -->
 ```php
 $user = User::find(1);
-$dto = UserDTO::fromRequest($request);
+$dto = UserDto::fromRequest($request);
 $dto->toModel($user);
 $user->save();
 ```
@@ -110,7 +110,7 @@ $user->save();
 
 ```php
 try {
-    $dto = UserDTO::validateAndCreate($request->all());
+    $dto = UserDto::validateAndCreate($request->all());
     $user = User::create($dto->toArray());
 } catch (ValidationException $e) {
     return response()->json(['errors' => $e->errors()], 422);
@@ -120,7 +120,7 @@ try {
 ### Custom Validation Messages
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required(message: 'Email is required')]
@@ -137,7 +137,7 @@ class UserDTO extends SimpleDTO
 Show property only when user is authenticated:
 
 ```php
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -184,22 +184,22 @@ public readonly ?array $moderationPanel = null;
 
 ## Artisan Commands
 
-### Generate DTO
+### Generate Dto
 
 ```bash
-php artisan make:dto UserDTO
+php artisan make:dto UserDto
 ```
 
-Creates `app/DTOs/UserDTO.php`:
+Creates `app/Dtos/UserDto.php`:
 
 ```php
 <?php
 
-namespace App\DTOs;
+namespace App\Dtos;
 
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -214,6 +214,6 @@ class UserDTO extends SimpleDTO
 php artisan dto:typescript
 ```
 
-Generates TypeScript interfaces from your DTOs.
+Generates TypeScript interfaces from your Dtos.
 
 **See also:** [Artisan Commands](/framework-integration/artisan-commands/) - Complete guide to all available Artisan commands

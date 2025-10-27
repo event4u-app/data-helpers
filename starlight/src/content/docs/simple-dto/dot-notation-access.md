@@ -1,9 +1,9 @@
 ---
 title: Dot Notation Access
-description: Access and modify DTO properties using dot notation with get() and set() methods
+description: Access and modify Dto properties using dot notation with get() and set() methods
 ---
 
-SimpleDTO provides powerful `get()` and `set()` methods that allow you to access and modify nested DTO properties using dot notation. This makes working with complex, nested data structures much easier.
+SimpleDto provides powerful `get()` and `set()` methods that allow you to access and modify nested Dto properties using dot notation. This makes working with complex, nested data structures much easier.
 
 ## Features
 
@@ -13,18 +13,18 @@ The `get()` and `set()` methods support:
 - **Wildcards** for array operations (`emails.*.email`)
 - **Multi-level nesting** with wildcards (`employees.*.orders.*.total`)
 - **Default values** for missing properties
-- **Immutability** - `set()` returns a new DTO instance
+- **Immutability** - `set()` returns a new Dto instance
 
 ## The get() Method
 
-The `get()` method allows you to retrieve values from your DTO using dot notation.
+The `get()` method allows you to retrieve values from your Dto using dot notation.
 
 ### Basic Usage
 
 ```php
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -33,7 +33,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = new UserDTO(
+$user = new UserDto(
     name: 'John Doe',
     email: 'john@example.com',
     age: 30
@@ -56,10 +56,10 @@ $country = $user->get('address.country', 'Unknown'); // 'Unknown'
 
 ### Nested Properties
 
-Access nested DTO properties using dot notation:
+Access nested Dto properties using dot notation:
 
 ```php
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -68,17 +68,17 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 
-$user = new UserDTO(
+$user = new UserDto(
     name: 'John Doe',
-    address: new AddressDTO(
+    address: new AddressDto(
         street: 'Main St',
         city: 'New York',
         country: 'USA'
@@ -95,7 +95,7 @@ $country = $user->get('address.country'); // 'USA'
 Use wildcards (`*`) to access values from arrays:
 
 ```php
-class EmailDTO extends SimpleDTO
+class EmailDto extends SimpleDto
 {
     public function __construct(
         public readonly string $email,
@@ -104,10 +104,10 @@ class EmailDTO extends SimpleDTO
     ) {}
 }
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     /**
-     * @param array<int, EmailDTO> $emails
+     * @param array<int, EmailDto> $emails
      */
     public function __construct(
         public readonly string $name,
@@ -115,11 +115,11 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = new UserDTO(
+$user = new UserDto(
     name: 'John Doe',
     emails: [
-        new EmailDTO(email: 'john@work.com', type: 'work', verified: true),
-        new EmailDTO(email: 'john@home.com', type: 'home', verified: false),
+        new EmailDto(email: 'john@work.com', type: 'work', verified: true),
+        new EmailDto(email: 'john@home.com', type: 'home', verified: false),
     ]
 );
 
@@ -137,7 +137,7 @@ $verified = $user->get('emails.*.verified');
 Combine multiple wildcards for deeply nested structures:
 
 ```php
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -146,11 +146,11 @@ class OrderDTO extends SimpleDTO
     ) {}
 }
 
-class EmployeeDTO extends SimpleDTO
+class EmployeeDto extends SimpleDto
 {
     /**
-     * @param array<int, EmailDTO> $emails
-     * @param array<int, OrderDTO> $orders
+     * @param array<int, EmailDto> $emails
+     * @param array<int, OrderDto> $orders
      */
     public function __construct(
         public readonly string $name,
@@ -159,10 +159,10 @@ class EmployeeDTO extends SimpleDTO
     ) {}
 }
 
-class DepartmentDTO extends SimpleDTO
+class DepartmentDto extends SimpleDto
 {
     /**
-     * @param array<int, EmployeeDTO> $employees
+     * @param array<int, EmployeeDto> $employees
      */
     public function __construct(
         public readonly string $name,
@@ -170,26 +170,26 @@ class DepartmentDTO extends SimpleDTO
     ) {}
 }
 
-$department = new DepartmentDTO(
+$department = new DepartmentDto(
     name: 'Engineering',
     employees: [
-        new EmployeeDTO(
+        new EmployeeDto(
             name: 'Alice',
             emails: [
-                new EmailDTO(email: 'alice@work.com', type: 'work', verified: true),
+                new EmailDto(email: 'alice@work.com', type: 'work', verified: true),
             ],
             orders: [
-                new OrderDTO(id: 1, total: 100.50, status: 'pending'),
-                new OrderDTO(id: 2, total: 250.00, status: 'shipped'),
+                new OrderDto(id: 1, total: 100.50, status: 'pending'),
+                new OrderDto(id: 2, total: 250.00, status: 'shipped'),
             ]
         ),
-        new EmployeeDTO(
+        new EmployeeDto(
             name: 'Bob',
             emails: [
-                new EmailDTO(email: 'bob@work.com', type: 'work', verified: false),
+                new EmailDto(email: 'bob@work.com', type: 'work', verified: false),
             ],
             orders: [
-                new OrderDTO(id: 3, total: 75.25, status: 'pending'),
+                new OrderDto(id: 3, total: 75.25, status: 'pending'),
             ]
         ),
     ]
@@ -210,14 +210,14 @@ $allStatuses = $department->get('employees.*.orders.*.status');
 
 ## The set() Method
 
-The `set()` method allows you to update DTO properties using dot notation. Since DTOs are immutable, `set()` returns a **new instance** with the updated value.
+The `set()` method allows you to update Dto properties using dot notation. Since Dtos are immutable, `set()` returns a **new instance** with the updated value.
 
 ### Basic Usage
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$user = new UserDTO(
+$user = new UserDto(
     name: 'John Doe',
     email: 'john@example.com',
     age: 30
@@ -232,15 +232,15 @@ echo $updatedUser->name; // 'Jane Doe' (new instance)
 
 ### Nested Properties
 
-Update nested DTO properties:
+Update nested Dto properties:
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
-use Tests\Utils\Docu\DTOs\AddressDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
+use Tests\Utils\Docu\Dtos\AddressDto;
 
-$user = new UserDTO(
+$user = new UserDto(
     name: 'John Doe',
-    address: new AddressDTO(
+    address: new AddressDto(
         street: 'Main St',
         city: 'New York',
         country: 'USA'
@@ -259,11 +259,11 @@ echo $updatedUser->get('address.city'); // 'Los Angeles' (new)
 Update all items in an array using wildcards:
 
 ```php
-$user = new UserWithEmailsDTO(
+$user = new UserWithEmailsDto(
     name: 'John Doe',
     emails: [
-        new EmailDTO(email: 'john@work.com', type: 'work', verified: false),
-        new EmailDTO(email: 'john@home.com', type: 'home', verified: false),
+        new EmailDto(email: 'john@work.com', type: 'work', verified: false),
+        new EmailDto(email: 'john@home.com', type: 'home', verified: false),
     ]
 );
 
@@ -279,22 +279,54 @@ $verified = $updatedUser->get('emails.*.verified');
 Update deeply nested values:
 
 ```php
-$department = new DepartmentDTO(
+class OrderDto extends SimpleDto
+{
+    public function __construct(
+        public readonly int $id,
+        public readonly float $total,
+        public readonly string $status,
+    ) {}
+}
+
+class EmployeeDto extends SimpleDto
+{
+    /**
+     * @param array<int, OrderDto> $orders
+     */
+    public function __construct(
+        public readonly string $name,
+        public readonly array $emails,
+        public readonly array $orders,
+    ) {}
+}
+
+class DepartmentDto extends SimpleDto
+{
+    /**
+     * @param array<int, EmployeeDto> $employees
+     */
+    public function __construct(
+        public readonly string $name,
+        public readonly array $employees,
+    ) {}
+}
+
+$department = new DepartmentDto(
     name: 'Sales',
     employees: [
-        new EmployeeDTO(
+        new EmployeeDto(
             name: 'Charlie',
             emails: [],
             orders: [
-                new OrderDTO(id: 1, total: 100.50, status: 'pending'),
-                new OrderDTO(id: 2, total: 250.00, status: 'pending'),
+                new OrderDto(id: 1, total: 100.50, status: 'pending'),
+                new OrderDto(id: 2, total: 250.00, status: 'pending'),
             ]
         ),
-        new EmployeeDTO(
+        new EmployeeDto(
             name: 'Diana',
             emails: [],
             orders: [
-                new OrderDTO(id: 3, total: 75.25, status: 'pending'),
+                new OrderDto(id: 3, total: 75.25, status: 'pending'),
             ]
         ),
     ]
@@ -312,9 +344,9 @@ $statuses = $updated->get('employees.*.orders.*.status');
 Since `set()` returns a new instance, you can chain multiple calls:
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$user = new UserDTO(
+$user = new UserDto(
     name: 'John Doe',
     email: 'john@example.com',
     age: 30
@@ -339,9 +371,9 @@ echo $updatedUser->email; // 'jane@example.com'
 ### Non-Existent Paths
 
 ```php
-use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\Dtos\UserDto;
 
-$user = new UserDTO(name: 'John', email: 'john@example.com', age: 30);
+$user = new UserDto(name: 'John', email: 'john@example.com', age: 30);
 
 // Returns null for non-existent paths
 $result = $user->get('nonexistent'); // null
@@ -353,13 +385,13 @@ $result = $user->get('nonexistent', 'default'); // 'default'
 ### Empty Arrays
 
 ```php
-$user = new UserWithEmailsDTO(name: 'John', emails: []);
+$user = new UserWithEmailsDto(name: 'John', emails: []);
 
 // Wildcard on empty array returns empty array
 $emails = $user->get('emails.*.email');
 // Result: []
 
-// Set on empty array returns unchanged DTO
+// Set on empty array returns unchanged Dto
 $updated = $user->set('emails.*.verified', true);
 // $updated->emails is still []
 ```
@@ -369,11 +401,11 @@ $updated = $user->set('emails.*.verified', true);
 You can access array elements by numeric index:
 
 ```php
-$user = new UserWithEmailsDTO(
+$user = new UserWithEmailsDto(
     name: 'John',
     emails: [
-        new EmailDTO(email: 'first@example.com', type: 'work', verified: false),
-        new EmailDTO(email: 'second@example.com', type: 'home', verified: false),
+        new EmailDto(email: 'first@example.com', type: 'work', verified: false),
+        new EmailDto(email: 'second@example.com', type: 'home', verified: false),
     ]
 );
 
@@ -389,8 +421,8 @@ $updated = $user->set('emails.0.verified', true);
 ## Performance Considerations
 
 - `get()` and `set()` use the underlying `DataAccessor` and `DataMutator` classes
-- Both methods convert the DTO to an array recursively
-- `set()` creates a new DTO instance (immutability)
+- Both methods convert the Dto to an array recursively
+- `set()` creates a new Dto instance (immutability)
 - For bulk operations, consider using `DataMapper` or `DataMutator` directly
 
 ## See Also
@@ -399,5 +431,5 @@ $updated = $user->set('emails.0.verified', true);
 - [Wildcards](/data-helpers/core-concepts/wildcards/) - Wildcard patterns
 - [DataAccessor](/data-helpers/api/data-accessor/) - Low-level data access
 - [DataMutator](/data-helpers/api/data-mutator/) - Low-level data mutation
-- [Nested DTOs](/data-helpers/simple-dto/nested-dtos/) - Working with nested structures
+- [Nested Dtos](/data-helpers/simple-dto/nested-dtos/) - Working with nested structures
 

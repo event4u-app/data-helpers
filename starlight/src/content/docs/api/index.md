@@ -57,12 +57,12 @@ $filter = DataFilter::make(['name' => 'John', 'email' => 'john@example.com', 'ag
 $filtered = $filter->only(['name', 'email']);
 ```
 
-### [SimpleDTO](/api/simple-dto/)
+### [SimpleDto](/api/simple-dto/)
 
 Type-safe data transfer objects:
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -200,4 +200,4 @@ CollectionCast, DataCollectionCast
 
 - [Getting Started](/getting-started/quick-start/) - Quick start guide
 - [Main Classes](/main-classes/overview/) - Main classes overview
-- [SimpleDTO](/simple-dto/introduction/) - DTO introduction
+- [SimpleDto](/simple-dto/introduction/) - Dto introduction

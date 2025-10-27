@@ -9,7 +9,7 @@ The `CallbackHelper` provides a unified way to execute and register callbacks th
 
 `CallbackHelper` is the central callback management system used by:
 - **DataMapper** - Template expression callbacks
-- **SimpleDTO Attributes** - `#[Visible]`, `#[WhenCallback]`
+- **SimpleDto Attributes** - `#[Visible]`, `#[WhenCallback]`
 - **Hooks** - DataMapper hook callbacks
 - **Filters** - Custom filter callbacks
 
@@ -161,7 +161,7 @@ $result = CallbackHelper::execute([StringHelper::class, 'slugify'], 'Hello World
 ### Static Method with `static::`
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     #[Visible(callback: 'static::canViewEmail')]
     public readonly string $email;
@@ -178,7 +178,7 @@ class UserDTO extends SimpleDTO
 ### Instance Methods
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     #[Visible(callback: 'canViewEmail')]
     public readonly string $email;
@@ -272,11 +272,11 @@ $result = DataMapper::source($article)
 ### Attribute Callbacks
 
 ```php
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenCallback;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Visible;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenCallback;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,

@@ -37,9 +37,9 @@ namespace event4u\DataHelpers\Support;
  * $optional->get();        // null
  * ```
  *
- * @example With DTOs
+ * @example With Dtos
  * ```php
- * class UserDTO extends SimpleDTO
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
@@ -49,7 +49,7 @@ namespace event4u\DataHelpers\Support;
  * }
  *
  * // Missing email
- * $user = UserDTO::fromArray(['name' => 'John', 'phone' => null]);
+ * $user = UserDto::fromArray(['name' => 'John', 'phone' => null]);
  * $user->email->isEmpty();     // true
  * $user->email->isPresent();   // false
  * $user->phone;                // null (explicitly set)
@@ -57,7 +57,7 @@ namespace event4u\DataHelpers\Support;
  *
  * @example Partial updates
  * ```php
- * $updates = UserDTO::fromArray(['email' => 'new@example.com'])->partial();
+ * $updates = UserDto::fromArray(['email' => 'new@example.com'])->partial();
  * $model->update($updates); // Only updates email, leaves other fields unchanged
  * ```
  */

@@ -81,7 +81,7 @@ final class FluentDataMapper
     /**
      * Create a new FluentDataMapper instance.
      *
-     * @param mixed $source Optional source data (array, object, model, DTO, JSON, XML, file path)
+     * @param mixed $source Optional source data (array, object, model, Dto, JSON, XML, file path)
      */
     public function __construct(mixed $source = null)
     {
@@ -94,7 +94,7 @@ final class FluentDataMapper
     /**
      * Create a new FluentDataMapper instance (fluent factory method).
      *
-     * @param mixed $source Optional source data (array, object, model, DTO, JSON, XML, file path)
+     * @param mixed $source Optional source data (array, object, model, Dto, JSON, XML, file path)
      */
     public static function make(mixed $source = null): self
     {
@@ -106,7 +106,7 @@ final class FluentDataMapper
      *
      * If the source is a string and points to an existing file, it will be loaded automatically.
      *
-     * @param mixed $source Source data (array, object, model, DTO, JSON, XML, or file path)
+     * @param mixed $source Source data (array, object, model, Dto, JSON, XML, or file path)
      */
     public function source(mixed $source): self
     {

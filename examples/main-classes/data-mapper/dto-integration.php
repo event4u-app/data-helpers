@@ -6,31 +6,31 @@ require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseEmails;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 
 /**
- * Example 83: DTO Mapper Integration
+ * Example 83: Dto Mapper Integration
  *
  * This example demonstrates the integration of DataMapper functionality
- * directly into DTOs with the following mapping priority:
+ * directly into Dtos with the following mapping priority:
  * 1. Template (highest priority)
  * 2. Attributes (#[MapFrom], #[MapTo])
  * 3. Automapping (fallback)
  */
 
-echo "=== Example 83: DTO Mapper Integration ===\n\n";
+echo "=== Example 83: Dto Mapper Integration ===\n\n";
 
 // ============================================================================
-// Example 1: DTO with Template Definition
+// Example 1: Dto with Template Definition
 // ============================================================================
 
-echo "--- Example 1: DTO with Template Definition ---\n\n";
+echo "--- Example 1: Dto with Template Definition ---\n\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     /**
-     * Define template in DTO.
+     * Define template in Dto.
      * Template has HIGHEST priority!
      */
     protected function mapperTemplate(): array
@@ -43,7 +43,7 @@ class UserDTO extends SimpleDTO
         ];
     }
 
-    /** Define pipeline filters in DTO. */
+    /** Define pipeline filters in Dto. */
     protected function mapperPipeline(): array
     {
         return [
@@ -70,8 +70,8 @@ $apiResponse = [
     ],
 ];
 
-// Create DTO from source - uses template automatically
-$user = UserDTO::fromSource($apiResponse);
+// Create Dto from source - uses template automatically
+$user = UserDto::fromSource($apiResponse);
 
 echo "User from API:\n";
 /** @phpstan-ignore-next-line unknown */
@@ -87,7 +87,7 @@ echo "  Age: {$user->age}\n\n";
 
 echo "--- Example 2: Template Priority over Attributes ---\n\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     /** Template has HIGHEST priority! */
     protected function mapperTemplate(): array
@@ -121,7 +121,7 @@ $productData = [
     'product_name' => 'Wrong Name',
 ];
 
-$product = ProductDTO::fromSource($productData);
+$product = ProductDto::fromSource($productData);
 
 echo "Product:\n";
 echo sprintf('  ID: %d%s', $product->id, PHP_EOL);      // 123 (from template)
@@ -134,7 +134,7 @@ echo "  Price: {$product->price}\n\n";  // 999.99 (from template)
 
 echo "--- Example 3: Dynamic Template Override ---\n\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     /** Default template. */
     protected function mapperTemplate(): array
@@ -161,7 +161,7 @@ $orderData = [
 ];
 
 // Use default template
-$order1 = OrderDTO::fromSource($orderData);
+$order1 = OrderDto::fromSource($orderData);
 echo "Order 1 (default template):\n";
 echo sprintf('  ID: %d%s', $order1->id, PHP_EOL);
 echo sprintf('  Total: %s%s', $order1->total, PHP_EOL);
@@ -174,7 +174,7 @@ $customTemplate = [
     'status' => '{{ order_status }}',  // Add status!
 ];
 
-$order2 = OrderDTO::fromSource($orderData, $customTemplate);
+$order2 = OrderDto::fromSource($orderData, $customTemplate);
 echo "Order 2 (custom template):\n";
 echo sprintf('  ID: %d%s', $order2->id, PHP_EOL);
 echo sprintf('  Total: %s%s', $order2->total, PHP_EOL);
@@ -186,7 +186,7 @@ echo "  Status: {$order2->status}\n\n";
 
 echo "--- Example 4: Attributes as Fallback (No Template) ---\n\n";
 
-class CustomerDTO extends SimpleDTO
+class CustomerDto extends SimpleDto
 {
     // No template() method defined!
     // Attributes will be used instead.
@@ -209,7 +209,7 @@ $customerData = [
     'customer_email' => 'jane@example.com',
 ];
 
-$customer = CustomerDTO::fromArray($customerData);
+$customer = CustomerDto::fromArray($customerData);
 
 echo "Customer (using attributes):\n";
 echo sprintf('  ID: %d%s', $customer->id, PHP_EOL);
@@ -222,7 +222,7 @@ echo "  Email: {$customer->email}\n\n";
 
 echo "--- Example 5: Automapping as Fallback ---\n\n";
 
-class SimpleUserDTO extends SimpleDTO
+class SimpleUserDto extends SimpleDto
 {
     // No template() method
     // No #[MapFrom] attributes
@@ -241,7 +241,7 @@ $simpleData = [
     'email' => 'bob@example.com',
 ];
 
-$simpleUser = SimpleUserDTO::fromArray($simpleData);
+$simpleUser = SimpleUserDto::fromArray($simpleData);
 
 echo "Simple User (automapping):\n";
 echo sprintf('  ID: %d%s', $simpleUser->id, PHP_EOL);
@@ -254,7 +254,7 @@ echo "  Email: {$simpleUser->email}\n\n";
 
 echo "--- Example 6: Complex Template with Filters ---\n\n";
 
-class BlogPostDTO extends SimpleDTO
+class BlogPostDto extends SimpleDto
 {
     protected function mapperTemplate(): array
     {
@@ -295,7 +295,7 @@ $blogData = [
     ],
 ];
 
-$post = BlogPostDTO::fromSource($blogData);
+$post = BlogPostDto::fromSource($blogData);
 
 echo "Blog Post:\n";
 /** @phpstan-ignore-next-line unknown */
@@ -319,8 +319,8 @@ echo "2. Attributes (#[MapFrom], #[MapTo]) - fallback if no template\n";
 echo "3. Automapping - fallback if no template and no attributes\n\n";
 
 echo "Features:\n";
-echo "✅ Define templates in DTO class (template() method)\n";
-echo "✅ Define filters in DTO class (filters() method)\n";
+echo "✅ Define templates in Dto class (template() method)\n";
+echo "✅ Define filters in Dto class (filters() method)\n";
 echo "✅ Override templates dynamically (fromSource parameter)\n";
 echo "✅ Override filters dynamically (fromSource parameter)\n";
 echo "✅ Automatic integration with fromArray()\n";

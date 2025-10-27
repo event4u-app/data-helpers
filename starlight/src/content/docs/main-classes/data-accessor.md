@@ -39,7 +39,7 @@ DataAccessor works with multiple data types:
 
 - **Arrays** - Nested arrays with any depth
 - **Objects** - Plain PHP objects with public properties
-- **DTOs** - Data Transfer Objects
+- **Dtos** - Data Transfer Objects
 - **Laravel Collections** - `Illuminate\Support\Collection`
 - **Eloquent Models** - Including relationships
 - **Arrayable** - Any object implementing `Arrayable`
@@ -642,9 +642,9 @@ $structure = $accessor->getStructure();
 Objects are returned with their full namespace:
 
 ```php
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
-class EmailDTO extends SimpleDTO
+class EmailDto extends SimpleDto
 {
     public function __construct(
         public readonly string $email,
@@ -653,13 +653,13 @@ class EmailDTO extends SimpleDTO
 }
 
 $data = [
-    'contact' => new EmailDTO('john@example.com', true),
+    'contact' => new EmailDto('john@example.com', true),
 ];
 
 $accessor = DataAccessor::make($data);
 $structure = $accessor->getStructure();
 // $structure = // [
-//   'contact' => '\EmailDTO',
+//   'contact' => '\EmailDto',
 //   'contact.email' => 'string',
 //   'contact.verified' => 'bool',
 // ]

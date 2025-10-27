@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
-use event4u\DataHelpers\SimpleDTO\Enums\ComparisonOperator;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenValue;
+use event4u\DataHelpers\SimpleDto\Enums\ComparisonOperator;
 
 echo "=== ComparisonOperator Enum Example ===\n\n";
 
@@ -14,7 +14,7 @@ echo "=== ComparisonOperator Enum Example ===\n\n";
 echo "1️⃣  WhenValue with Enum:\n";
 echo str_repeat('-', 50) . "\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -33,9 +33,9 @@ class ProductDTO extends SimpleDTO
 }
 
 $products = [
-    new ProductDTO('Laptop', 1200.00, 10),
-    new ProductDTO('Mouse', 25.00, 3),
-    new ProductDTO('Ebook', 0.0, 100),
+    new ProductDto('Laptop', 1200.00, 10),
+    new ProductDto('Mouse', 25.00, 3),
+    new ProductDto('Ebook', 0.0, 100),
 ];
 
 foreach ($products as $product) {
@@ -102,7 +102,7 @@ echo "\n";
 echo "4️⃣  Backward Compatibility (String):\n";
 echo str_repeat('-', 50) . "\n";
 
-class LegacyProductDTO extends SimpleDTO
+class LegacyProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -113,7 +113,7 @@ class LegacyProductDTO extends SimpleDTO
     ) {}
 }
 
-$legacyProduct = new LegacyProductDTO('Keyboard', 75.00);
+$legacyProduct = new LegacyProductDto('Keyboard', 75.00);
 echo "String-based WhenValue still works!\n";
 echo sprintf('Product: %s, Price: $%s%s', $legacyProduct->name, $legacyProduct->price, PHP_EOL);
 $legacyData = $legacyProduct->toArray();
@@ -154,11 +154,11 @@ foreach ($operatorStrings as $str) {
 
 echo "\n";
 
-// Example 7: Complex conditional DTO
-echo "7️⃣  Complex Conditional DTO:\n";
+// Example 7: Complex conditional Dto
+echo "7️⃣  Complex Conditional Dto:\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     /** @param array<string>|null $adminPanel */
     public function __construct(
@@ -179,9 +179,9 @@ class UserDTO extends SimpleDTO
 }
 
 $users = [
-    new UserDTO('Alice', 25, 1500.00, 'admin'),
-    new UserDTO('Bob', 16, 50.00, 'user'),
-    new UserDTO('Charlie', 30, 500.00, 'user'),
+    new UserDto('Alice', 25, 1500.00, 'admin'),
+    new UserDto('Bob', 16, 50.00, 'user'),
+    new UserDto('Charlie', 30, 500.00, 'user'),
 ];
 
 foreach ($users as $user) {

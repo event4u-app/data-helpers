@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Exceptions\DTOException;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Exceptions\DtoException;
 
 // Example 1: Type Mismatch Error
 echo "Example 1: Type Mismatch Error\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -22,7 +22,7 @@ class UserDTO extends SimpleDTO
 
 try {
     // Wrong type for age (string instead of int)
-    UserDTO::fromArray([
+    UserDto::fromArray([
         'name' => 'John Doe',
         'age' => 'thirty', // Should be int
         'email' => 'john@example.com',
@@ -32,19 +32,19 @@ try {
     echo $typeError->getMessage() . "\n\n";
 }
 
-// With DTOException (enhanced error message)
+// With DtoException (enhanced error message)
 try {
     /** @phpstan-ignore-next-line unknown */
-    throw DTOException::typeMismatch(
-        dtoClass: UserDTO::class,
+    throw DtoException::typeMismatch(
+        dtoClass: UserDto::class,
         property: 'age',
         expectedType: 'int',
         actualValue: 'thirty',
         propertyPath: 'user.age'
     );
 /** @phpstan-ignore-next-line unknown */
-} catch (DTOException $dtoException) {
-    echo "✅  Enhanced DTOException:\n";
+} catch (DtoException $dtoException) {
+    echo "✅  Enhanced DtoException:\n";
     /** @phpstan-ignore-next-line unknown */
     echo $dtoException->getMessage() . "\n\n";
 }
@@ -55,13 +55,13 @@ echo str_repeat('=', 80) . "\n\n";
 
 try {
     /** @phpstan-ignore-next-line unknown */
-    throw DTOException::missingProperty(
-        dtoClass: UserDTO::class,
+    throw DtoException::missingProperty(
+        dtoClass: UserDto::class,
         property: 'email',
         availableKeys: ['name', 'age', 'emial', 'mail'] // Note: typo in 'emial'
     );
 /** @phpstan-ignore-next-line unknown */
-} catch (DTOException $dtoException) {
+} catch (DtoException $dtoException) {
     echo "✅  Enhanced error with suggestions:\n";
     /** @phpstan-ignore-next-line unknown */
     echo $dtoException->getMessage() . "\n\n";
@@ -71,7 +71,7 @@ try {
 echo "\nExample 3: Invalid Cast Error\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -88,25 +88,25 @@ class ProductDTO extends SimpleDTO
 
 try {
     /** @phpstan-ignore-next-line unknown */
-    throw DTOException::invalidCast(
-        dtoClass: ProductDTO::class,
+    throw DtoException::invalidCast(
+        dtoClass: ProductDto::class,
         property: 'createdAt',
         castType: 'datetime',
         value: 'invalid-date-format',
         reason: 'Failed to parse time string (invalid-date-format)'
     );
 /** @phpstan-ignore-next-line unknown */
-} catch (DTOException $dtoException) {
+} catch (DtoException $dtoException) {
     echo "✅  Enhanced cast error:\n";
     /** @phpstan-ignore-next-line unknown */
     echo $dtoException->getMessage() . "\n\n";
 }
 
-// Example 4: Nested DTO Error
-echo "\nExample 4: Nested DTO Error\n";
+// Example 4: Nested Dto Error
+echo "\nExample 4: Nested Dto Error\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -115,25 +115,25 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class CustomerDTO extends SimpleDTO
+class CustomerDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly AddressDTO $address,
+        public readonly AddressDto $address,
     ) {}
 }
 
 try {
     /** @phpstan-ignore-next-line unknown */
-    throw DTOException::nestedError(
-        dtoClass: CustomerDTO::class,
+    throw DtoException::nestedError(
+        dtoClass: CustomerDto::class,
         property: 'address',
-        nestedDtoClass: AddressDTO::class,
+        nestedDtoClass: AddressDto::class,
         nestedProperty: 'street',
-        originalMessage: 'Missing required property in App\AddressDTO::$street'
+        originalMessage: 'Missing required property in App\AddressDto::$street'
     );
 /** @phpstan-ignore-next-line unknown */
-} catch (DTOException $dtoException) {
+} catch (DtoException $dtoException) {
     echo "✅  Enhanced nested error with property path:\n";
     /** @phpstan-ignore-next-line unknown */
     echo $dtoException->getMessage() . "\n\n";
@@ -145,14 +145,14 @@ echo str_repeat('=', 80) . "\n\n";
 
 try {
     /** @phpstan-ignore-next-line unknown */
-    throw DTOException::typeMismatch(
-        dtoClass: UserDTO::class,
+    throw DtoException::typeMismatch(
+        dtoClass: UserDto::class,
         property: 'age',
         expectedType: 'int',
         actualValue: '25' // Numeric string
     );
 /** @phpstan-ignore-next-line unknown */
-} catch (DTOException $dtoException) {
+} catch (DtoException $dtoException) {
     echo "✅  Helpful suggestion for numeric string:\n";
     /** @phpstan-ignore-next-line unknown */
     echo $dtoException->getMessage() . "\n\n";
@@ -164,14 +164,14 @@ echo str_repeat('=', 80) . "\n\n";
 
 try {
     /** @phpstan-ignore-next-line unknown */
-    throw DTOException::typeMismatch(
-        dtoClass: UserDTO::class,
+    throw DtoException::typeMismatch(
+        dtoClass: UserDto::class,
         property: 'name',
         expectedType: 'string',
         actualValue: null
     );
 /** @phpstan-ignore-next-line unknown */
-} catch (DTOException $dtoException) {
+} catch (DtoException $dtoException) {
     echo "✅  Helpful suggestion for null value:\n";
     /** @phpstan-ignore-next-line unknown */
     echo $dtoException->getMessage() . "\n\n";
@@ -183,15 +183,15 @@ echo str_repeat('=', 80) . "\n\n";
 
 try {
     /** @phpstan-ignore-next-line unknown */
-    throw DTOException::typeMismatch(
-        dtoClass: CustomerDTO::class,
+    throw DtoException::typeMismatch(
+        dtoClass: CustomerDto::class,
         property: 'address',
-        expectedType: AddressDTO::class,
+        expectedType: AddressDto::class,
         actualValue: ['street' => 'Main St', 'city' => 'New York', 'zipCode' => '10001']
     );
 /** @phpstan-ignore-next-line unknown */
-} catch (DTOException $dtoException) {
-    echo "✅  Helpful suggestion for array to DTO:\n";
+} catch (DtoException $dtoException) {
+    echo "✅  Helpful suggestion for array to Dto:\n";
     /** @phpstan-ignore-next-line unknown */
     echo $dtoException->getMessage() . "\n\n";
 }
@@ -203,14 +203,14 @@ echo str_repeat('=', 80) . "\n\n";
 try {
     $longString = str_repeat('Lorem ipsum dolor sit amet, ', 10);
     /** @phpstan-ignore-next-line unknown */
-    throw DTOException::typeMismatch(
-        dtoClass: ProductDTO::class,
+    throw DtoException::typeMismatch(
+        dtoClass: ProductDto::class,
         property: 'name',
         expectedType: 'string',
         actualValue: $longString
     );
 /** @phpstan-ignore-next-line unknown */
-} catch (DTOException $dtoException) {
+} catch (DtoException $dtoException) {
     echo "✅  Long values are truncated:\n";
     /** @phpstan-ignore-next-line unknown */
     echo $dtoException->getMessage() . "\n\n";
@@ -220,7 +220,7 @@ try {
 echo "\nExample 9: Boolean Formatting\n";
 echo str_repeat('=', 80) . "\n\n";
 
-class SettingsDTO extends SimpleDTO
+class SettingsDto extends SimpleDto
 {
     public function __construct(
         public readonly string $theme,
@@ -230,14 +230,14 @@ class SettingsDTO extends SimpleDTO
 
 try {
     /** @phpstan-ignore-next-line unknown */
-    throw DTOException::typeMismatch(
-        dtoClass: SettingsDTO::class,
+    throw DtoException::typeMismatch(
+        dtoClass: SettingsDto::class,
         property: 'theme',
         expectedType: 'string',
         actualValue: true
     );
 /** @phpstan-ignore-next-line unknown */
-} catch (DTOException $dtoException) {
+} catch (DtoException $dtoException) {
     echo "✅  Boolean values are formatted:\n";
     /** @phpstan-ignore-next-line unknown */
     echo $dtoException->getMessage() . "\n\n";

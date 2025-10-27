@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContext;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextEquals;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextIn;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenContextNotNull;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContext;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContextEquals;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContextIn;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContextNotNull;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                   CONTEXT-BASED CONDITIONS                                 ║\n";
@@ -19,7 +19,7 @@ echo "╚═══════════════════════�
 echo "1. BASIC CONTEXT CHECK - KEY EXISTS:\n";
 echo "------------------------------------------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -30,7 +30,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = new UserDTO('John Doe', 'john@example.com', '555-1234');
+$user = new UserDto('John Doe', 'john@example.com', '555-1234');
 
 echo "Without context:\n";
 echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -46,7 +46,7 @@ echo "\n";
 echo "2. CONTEXT VALUE COMPARISON:\n";
 echo "------------------------------------------------------------\n";
 
-class AdminDTO extends SimpleDTO
+class AdminDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -59,7 +59,7 @@ class AdminDTO extends SimpleDTO
     ) {}
 }
 
-$admin = new AdminDTO('John Doe');
+$admin = new AdminDto('John Doe');
 
 echo "As admin:\n";
 echo json_encode($admin->withContext(['role' => 'admin'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -78,7 +78,7 @@ echo "\n";
 echo "3. CONTEXT WITH OPERATORS:\n";
 echo "------------------------------------------------------------\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -93,7 +93,7 @@ class ProductDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$product = new ProductDTO('Premium Widget', 99.99);
+$product = new ProductDto('Premium Widget', 99.99);
 
 echo "User level 5 (wholesale customer):\n";
 echo json_encode($product->withContext(['userLevel' => 5, 'stock' => 50])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -109,7 +109,7 @@ echo "\n";
 echo "4. WHEN CONTEXT IN - MULTIPLE VALUES:\n";
 echo "------------------------------------------------------------\n";
 
-class ContentDTO extends SimpleDTO
+class ContentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -123,7 +123,7 @@ class ContentDTO extends SimpleDTO
     ) {}
 }
 
-$content = new ContentDTO('Article Title', 'Article content...');
+$content = new ContentDto('Article Title', 'Article content...');
 
 echo "As admin:\n";
 echo json_encode(
@@ -145,7 +145,7 @@ echo "\n";
 echo "5. MULTIPLE CONDITIONS - AND LOGIC:\n";
 echo "------------------------------------------------------------\n";
 
-class PremiumContentDTO extends SimpleDTO
+class PremiumContentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -156,7 +156,7 @@ class PremiumContentDTO extends SimpleDTO
     ) {}
 }
 
-$premiumContent = new PremiumContentDTO('Premium Article');
+$premiumContent = new PremiumContentDto('Premium Article');
 
 echo "Premium + Verified:\n";
 echo json_encode(
@@ -184,7 +184,7 @@ echo "\n";
 echo "6. API RESPONSE WITH USER CONTEXT:\n";
 echo "------------------------------------------------------------\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     /** @param array<mixed> $items */
     public function __construct(
@@ -204,7 +204,7 @@ class OrderDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$order = new OrderDTO('ORD-12345', 'completed', 299.99);
+$order = new OrderDto('ORD-12345', 'completed', 299.99);
 
 echo "Public API (no context):\n";
 echo json_encode($order->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -228,7 +228,7 @@ echo "\n";
 echo "7. ENVIRONMENT-BASED FEATURES:\n";
 echo "------------------------------------------------------------\n";
 
-class AppConfigDTO extends SimpleDTO
+class AppConfigDto extends SimpleDto
 {
     /** @param array<mixed> $debugInfo */
     public function __construct(
@@ -246,7 +246,7 @@ class AppConfigDTO extends SimpleDTO
     ) {}
 }
 
-$config = new AppConfigDTO('MyApp', '1.0.0');
+$config = new AppConfigDto('MyApp', '1.0.0');
 
 echo "Development environment:\n";
 echo json_encode($config->withContext(['environment' => 'development'])->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -262,7 +262,7 @@ echo "\n";
 echo "8. CHAINING CONTEXT:\n";
 echo "------------------------------------------------------------\n";
 
-class DashboardDTO extends SimpleDTO
+class DashboardDto extends SimpleDto
 {
     /**
      * @param array<mixed> $statistics
@@ -280,7 +280,7 @@ class DashboardDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$dashboard = new DashboardDTO('Dashboard');
+$dashboard = new DashboardDto('Dashboard');
 
 $enriched = $dashboard
     ->withContext(['showStats' => true])

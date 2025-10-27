@@ -1,17 +1,17 @@
 ---
 title: Custom Casts
-description: Create custom type casts for SimpleDTO
+description: Create custom type casts for SimpleDto
 ---
 
-Create custom type casts for SimpleDTO.
+Create custom type casts for SimpleDto.
 
 ## Introduction
 
-Custom casts allow you to transform data during DTO creation:
+Custom casts allow you to transform data during Dto creation:
 
 - ✅ **Implement Cast Interface** - Simple interface
 - ✅ **Bidirectional** - Cast and uncast
-- ✅ **Reusable** - Use across multiple DTOs
+- ✅ **Reusable** - Use across multiple Dtos
 - ✅ **Type-Safe** - Full type hints
 
 ## Creating a Custom Cast
@@ -19,7 +19,7 @@ Custom casts allow you to transform data during DTO creation:
 ### Basic Cast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Contracts\Cast;
+use event4u\DataHelpers\SimpleDto\Contracts\Cast;
 
 class UpperCaseCast implements Cast
 {
@@ -38,9 +38,9 @@ class UpperCaseCast implements Cast
 ### Using the Cast
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Cast(UpperCaseCast::class)]
@@ -48,7 +48,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'john doe',
 ]);
 

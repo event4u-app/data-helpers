@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
 // ============================================================================
 // Example 1: Backed String Enum
@@ -19,7 +19,7 @@ enum OrderStatus: string
     case CANCELLED = 'cancelled';
 }
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly string $orderId,
@@ -38,7 +38,7 @@ class OrderDTO extends SimpleDTO
 echo "Example 1: Backed String Enum\n";
 echo "==============================\n\n";
 
-$order = OrderDTO::fromArray([
+$order = OrderDto::fromArray([
     'orderId' => 'ORD-12345',
     'status' => 'processing',  // String wird zu Enum
     'total' => 99.99,
@@ -70,7 +70,7 @@ enum Priority: int
     case URGENT = 4;
 }
 
-class TaskDTO extends SimpleDTO
+class TaskDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -90,7 +90,7 @@ class TaskDTO extends SimpleDTO
 echo "Example 2: Backed Integer Enum\n";
 echo "===============================\n\n";
 
-$task = TaskDTO::fromArray([
+$task = TaskDto::fromArray([
     'title' => 'Fix critical bug',
     'priority' => 4,  // Integer wird zu Enum
     'completed' => 0,
@@ -116,7 +116,7 @@ enum Color
     case YELLOW;
 }
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -135,7 +135,7 @@ class ProductDTO extends SimpleDTO
 echo "Example 3: Unit Enum (no backing value)\n";
 echo "========================================\n\n";
 
-$product = ProductDTO::fromArray([
+$product = ProductDto::fromArray([
     'name' => 'T-Shirt',
     'color' => 'BLUE',  // String (case name) wird zu Enum
     'price' => 29.99,
@@ -154,7 +154,7 @@ echo "toArray(): ".json_encode($array, JSON_PRETTY_PRINT)."\n\n";
 // Example 4: Null Handling
 // ============================================================================
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $username,
@@ -172,7 +172,7 @@ class UserDTO extends SimpleDTO
 echo "Example 4: Null Handling\n";
 echo "========================\n\n";
 
-$newUser = UserDTO::fromArray([
+$newUser = UserDto::fromArray([
     'username' => 'john_doe',
     'lastOrderStatus' => null,
 ]);
@@ -182,7 +182,7 @@ echo sprintf('Username: %s%s', $newUser->username, PHP_EOL);
 /** @phpstan-ignore-next-line unknown */
 echo "Last Order Status: ".($newUser->lastOrderStatus?->value ?? 'None')."\n\n";
 
-$existingUser = UserDTO::fromArray([
+$existingUser = UserDto::fromArray([
     'username' => 'jane_doe',
     'lastOrderStatus' => 'delivered',
 ]);
@@ -199,7 +199,7 @@ echo "Last Order Status: {$existingUser->lastOrderStatus->value}\n\n";
 echo "Example 5: Invalid Value Handling\n";
 echo "==================================\n\n";
 
-class ConfigDTO extends SimpleDTO
+class ConfigDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -215,7 +215,7 @@ class ConfigDTO extends SimpleDTO
 }
 
 // Invalid enum value wird zu null
-$config = ConfigDTO::fromArray([
+$config = ConfigDto::fromArray([
     'name' => 'Test Config',
     'priority' => 999,  // Invalid value
 ]);
@@ -225,7 +225,7 @@ echo sprintf('Config: %s%s', $config->name, PHP_EOL);
 echo "Priority: ".($config->priority?->name ?? 'Invalid (null)')."\n\n";
 
 // ============================================================================
-// Example 6: Multiple Enums in One DTO
+// Example 6: Multiple Enums in One Dto
 // ============================================================================
 
 enum PaymentMethod: string
@@ -236,7 +236,7 @@ enum PaymentMethod: string
     case CASH = 'cash';
 }
 
-class InvoiceDTO extends SimpleDTO
+class InvoiceDto extends SimpleDto
 {
     public function __construct(
         public readonly string $invoiceNumber,
@@ -256,10 +256,10 @@ class InvoiceDTO extends SimpleDTO
     }
 }
 
-echo "Example 6: Multiple Enums in One DTO\n";
+echo "Example 6: Multiple Enums in One Dto\n";
 echo "=====================================\n\n";
 
-$invoice = InvoiceDTO::fromArray([
+$invoice = InvoiceDto::fromArray([
     'invoiceNumber' => 'INV-2024-001',
     'status' => 'pending',
     'paymentMethod' => 'credit_card',

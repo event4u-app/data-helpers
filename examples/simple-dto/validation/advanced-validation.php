@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Confirmed;
-use event4u\DataHelpers\SimpleDTO\Attributes\ConfirmedBy;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\NotIn;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Confirmed;
+use event4u\DataHelpers\SimpleDto\Attributes\ConfirmedBy;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\In;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\NotIn;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
 
-echo "=== SimpleDTO Advanced Validation Examples ===\n\n";
+echo "=== SimpleDto Advanced Validation Examples ===\n\n";
 echo "Note: This example shows validation rules extraction.\n";
 echo "For actual validation, use validateAndCreate() in a Laravel environment.\n\n";
 
@@ -22,7 +22,7 @@ echo "For actual validation, use validateAndCreate() in a Laravel environment.\n
 echo "1. NotIn Attribute - Forbidden Values\n";
 echo str_repeat('-', 50) . "\n";
 
-class UserRegistrationDTO extends SimpleDTO
+class UserRegistrationDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -38,7 +38,7 @@ class UserRegistrationDTO extends SimpleDTO
     }
 }
 
-$rules = UserRegistrationDTO::getAllRules();
+$rules = UserRegistrationDto::getAllRules();
 echo "Validation Rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf("  %-15s: %s\n", $field, implode(', ', $fieldRules));
@@ -52,7 +52,7 @@ echo "\n";
 echo "2. Confirmed Attribute - Password Confirmation\n";
 echo str_repeat('-', 50) . "\n";
 
-class PasswordChangeDTO extends SimpleDTO
+class PasswordChangeDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -65,7 +65,7 @@ class PasswordChangeDTO extends SimpleDTO
     }
 }
 
-$rules = PasswordChangeDTO::getAllRules();
+$rules = PasswordChangeDto::getAllRules();
 echo "Validation Rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf("  %-25s: %s\n", $field, implode(', ', $fieldRules));
@@ -79,7 +79,7 @@ echo "\n";
 echo "3. ConfirmedBy Attribute - Custom Confirmation Field\n";
 echo str_repeat('-', 50) . "\n";
 
-class EmailChangeDTO extends SimpleDTO
+class EmailChangeDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -94,7 +94,7 @@ class EmailChangeDTO extends SimpleDTO
     }
 }
 
-$rules = EmailChangeDTO::getAllRules();
+$rules = EmailChangeDto::getAllRules();
 echo "Validation Rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf("  %-25s: %s\n", $field, implode(', ', $fieldRules));
@@ -108,7 +108,7 @@ echo "\n";
 echo "4. Complex Registration Form - Multiple Validations\n";
 echo str_repeat('-', 50) . "\n";
 
-class ComplexRegistrationDTO extends SimpleDTO
+class ComplexRegistrationDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -136,13 +136,13 @@ class ComplexRegistrationDTO extends SimpleDTO
     }
 }
 
-$rules = ComplexRegistrationDTO::getAllRules();
+$rules = ComplexRegistrationDto::getAllRules();
 echo "All Validation Rules:\n";
 foreach ($rules as $field => $fieldRules) {
     echo sprintf("  %-25s: %s\n", $field, implode(', ', $fieldRules));
 }
 
-echo "\n✅  This DTO combines multiple validation attributes\n";
+echo "\n✅  This Dto combines multiple validation attributes\n";
 echo "✅  NotIn prevents reserved usernames\n";
 echo "✅  Confirmed ensures password match\n";
 echo "✅  In restricts role to allowed values\n";

@@ -40,7 +40,7 @@ composer benchmark:compare
 - **DataAccessor** - Get operations
 - **DataMutator** - Set/merge operations
 - **DataMapper** - Mapping operations
-- **SimpleDTO** - DTO creation, validation, serialization
+- **SimpleDto** - Dto creation, validation, serialization
 
 ## Creating Custom Benchmarks
 

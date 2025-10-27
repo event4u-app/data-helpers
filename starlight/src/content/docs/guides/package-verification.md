@@ -289,5 +289,5 @@ Package verification provides:
 
 - [Test Matrix](/guides/test-matrix/) - Learn about the test matrix
 - [Development Setup](/guides/development-setup/) - Setup your environment
-- [Testing Guide](/testing/testing-dtos/) - Learn about testing DTOs
+- [Testing Guide](/testing/testing-dtos/) - Learn about testing Dtos
 

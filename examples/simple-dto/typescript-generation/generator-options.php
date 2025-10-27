@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Config\TypeScriptGeneratorOptions;
-use event4u\DataHelpers\SimpleDTO\Enums\TypeScriptExportType;
-use event4u\DataHelpers\SimpleDTO\TypeScriptGenerator;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Config\TypeScriptGeneratorOptions;
+use event4u\DataHelpers\SimpleDto\Enums\TypeScriptExportType;
+use event4u\DataHelpers\SimpleDto\TypeScriptGenerator;
 
 echo "================================================================================\n";
 echo "TypeScriptGeneratorOptions - Type-Safe Configuration\n";
 echo "================================================================================\n\n";
 
-// Example DTO for all examples
-class UserDTO extends SimpleDTO
+// Example Dto for all examples
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -32,7 +32,7 @@ echo "-------------------------\n";
 echo "💡 Use TypeScriptGeneratorOptions::default() for standard configuration\n\n";
 
 $options = TypeScriptGeneratorOptions::default();
-$typescript = $generator->generate([UserDTO::class], $options);
+$typescript = $generator->generate([UserDto::class], $options);
 
 echo "Configuration:\n";
 echo "  - exportType: Export\n";
@@ -48,9 +48,9 @@ echo "--------------------------------\n";
 echo "💡 Use TypeScriptGeneratorOptions::export() for exported interfaces\n\n";
 
 $options = TypeScriptGeneratorOptions::export();
-$typescript = $generator->generate([UserDTO::class], $options);
+$typescript = $generator->generate([UserDto::class], $options);
 
-echo "Generates: export interface UserDTO { ... }\n";
+echo "Generates: export interface UserDto { ... }\n";
 $pos = strpos($typescript, 'export interface');
 echo substr($typescript, false !== $pos ? $pos : 0, 100) . "...\n\n";
 
@@ -60,9 +60,9 @@ echo "---------------------------------\n";
 echo "💡 Use TypeScriptGeneratorOptions::declare() for declared interfaces\n\n";
 
 $options = TypeScriptGeneratorOptions::declare();
-$typescript = $generator->generate([UserDTO::class], $options);
+$typescript = $generator->generate([UserDto::class], $options);
 
-echo "Generates: declare interface UserDTO { ... }\n";
+echo "Generates: declare interface UserDto { ... }\n";
 $pos = strpos($typescript, 'declare interface');
 echo substr($typescript, false !== $pos ? $pos : 0, 100) . "...\n\n";
 
@@ -72,9 +72,9 @@ echo "-------------------------------\n";
 echo "💡 Use TypeScriptGeneratorOptions::plain() for plain interfaces (no export/declare)\n\n";
 
 $options = TypeScriptGeneratorOptions::plain();
-$typescript = $generator->generate([UserDTO::class], $options);
+$typescript = $generator->generate([UserDto::class], $options);
 
-echo "Generates: interface UserDTO { ... }\n";
+echo "Generates: interface UserDto { ... }\n";
 $pos = strpos($typescript, ' interface');
 echo substr($typescript, false !== $pos ? $pos : 0, 100) . "...\n\n";
 
@@ -84,7 +84,7 @@ echo "--------------------------\n";
 echo "💡 Use TypeScriptGeneratorOptions::withoutComments() for minimal output\n\n";
 
 $options = TypeScriptGeneratorOptions::withoutComments();
-$typescript = $generator->generate([UserDTO::class], $options);
+$typescript = $generator->generate([UserDto::class], $options);
 
 echo "Generated TypeScript (no JSDoc comments):\n";
 echo $typescript;
@@ -95,7 +95,7 @@ echo "Example 6: Sorted Properties\n";
 echo "---------------------------\n";
 echo "💡 Use TypeScriptGeneratorOptions::sorted() for alphabetically sorted properties\n\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -107,7 +107,7 @@ class ProductDTO extends SimpleDTO
 }
 
 $options = TypeScriptGeneratorOptions::sorted();
-$typescript = $generator->generate([ProductDTO::class], $options);
+$typescript = $generator->generate([ProductDto::class], $options);
 
 echo "Properties are sorted alphabetically:\n";
 echo $typescript;
@@ -124,7 +124,7 @@ $options = new TypeScriptGeneratorOptions(
     sortProperties: true,
 );
 
-$typescript = $generator->generate([ProductDTO::class], $options);
+$typescript = $generator->generate([ProductDto::class], $options);
 
 echo "Configuration:\n";
 echo "  - exportType: Declare\n";
@@ -141,14 +141,14 @@ echo "💡 Factory methods accept optional parameters\n\n";
 
 // Export without comments
 $options = TypeScriptGeneratorOptions::export(includeComments: false);
-$typescript = $generator->generate([UserDTO::class], $options);
+$typescript = $generator->generate([UserDto::class], $options);
 
 echo "Export without comments:\n";
 echo substr($typescript, 0, 200) . "...\n\n";
 
 // Declare with sorted properties
 $options = TypeScriptGeneratorOptions::declare(sortProperties: true);
-$typescript = $generator->generate([ProductDTO::class], $options);
+$typescript = $generator->generate([ProductDto::class], $options);
 
 echo "Declare with sorted properties:\n";
 $pos = strpos($typescript, 'declare interface');
@@ -172,7 +172,7 @@ echo "  - No autocomplete\n";
 echo "  - Typos not caught: 'exporttype' vs 'exportType'\n";
 echo "  - Invalid values only caught at runtime\n\n";
 
-echo "✅ New way (DTOs - REQUIRED):\n";
+echo "✅ New way (Dtos - REQUIRED):\n";
 echo "  \$options = new TypeScriptGeneratorOptions(\n";
 echo "      exportType: TypeScriptExportType::Export,\n";
 echo "      includeComments: true,\n";
@@ -184,14 +184,14 @@ echo "  - Invalid values caught at compile time\n\n";
 // Example 10: Real-World Usage
 echo "Example 10: Real-World Usage\n";
 echo "----------------------------\n";
-echo "💡 Generate TypeScript for multiple DTOs with custom options\n\n";
+echo "💡 Generate TypeScript for multiple Dtos with custom options\n\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
-        public readonly UserDTO $customer,
-        public readonly ProductDTO $product,
+        public readonly UserDto $customer,
+        public readonly ProductDto $product,
         public readonly float $total,
     ) {
     }
@@ -205,7 +205,7 @@ $productionOptions = new TypeScriptGeneratorOptions(
 );
 
 $typescript = $generator->generate(
-    [UserDTO::class, ProductDTO::class, OrderDTO::class],
+    [UserDto::class, ProductDto::class, OrderDto::class],
     $productionOptions
 );
 
@@ -219,7 +219,7 @@ $devOptions = TypeScriptGeneratorOptions::export(
 );
 
 $typescript = $generator->generate(
-    [UserDTO::class, ProductDTO::class, OrderDTO::class],
+    [UserDto::class, ProductDto::class, OrderDto::class],
     $devOptions
 );
 

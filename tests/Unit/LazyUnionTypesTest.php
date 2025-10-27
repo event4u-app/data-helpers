@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Lazy as LazyAttribute;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy as LazyAttribute;
 use event4u\DataHelpers\Support\Lazy;
 
-// Test DTOs
-class TestLazyDTO1 extends SimpleDTO
+// Test Dtos
+class TestLazyDto1 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -16,7 +16,7 @@ class TestLazyDTO1 extends SimpleDTO
     ) {}
 }
 
-class TestLazyDTO2 extends SimpleDTO
+class TestLazyDto2 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -26,7 +26,7 @@ class TestLazyDTO2 extends SimpleDTO
     ) {}
 }
 
-class TestLazyDTO3 extends SimpleDTO
+class TestLazyDto3 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
@@ -37,7 +37,7 @@ class TestLazyDTO3 extends SimpleDTO
 
 describe('Lazy Union Types', function(): void {
     it('wraps lazy properties with union type syntax', function(): void {
-        $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestLazyDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
 
         expect($dto->title)->toBe('Test');
         expect($dto->content)->toBeInstanceOf(Lazy::class);
@@ -48,7 +48,7 @@ describe('Lazy Union Types', function(): void {
     });
 
     it('wraps lazy properties with attribute syntax', function(): void {
-        $dto = TestLazyDTO2::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestLazyDto2::fromArray(['title' => 'Test', 'content' => 'Content...']);
 
         expect($dto->title)->toBe('Test');
         expect($dto->content)->toBeInstanceOf(Lazy::class);
@@ -59,7 +59,7 @@ describe('Lazy Union Types', function(): void {
     });
 
     it('excludes lazy properties from toArray by default', function(): void {
-        $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestLazyDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $array = $dto->toArray();
 
         expect($array)->toBe(['title' => 'Test'])
@@ -67,7 +67,7 @@ describe('Lazy Union Types', function(): void {
     });
 
     it('includes lazy properties when explicitly requested', function(): void {
-        $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestLazyDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $array = $dto->include(['content'])->toArray();
 
         expect($array)->toBe([
@@ -77,7 +77,7 @@ describe('Lazy Union Types', function(): void {
     });
 
     it('includes all lazy properties with includeAll', function(): void {
-        $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestLazyDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $array = $dto->includeAll()->toArray();
 
         expect($array)->toBe([
@@ -87,7 +87,7 @@ describe('Lazy Union Types', function(): void {
     });
 
     it('handles nullable lazy properties', function(): void {
-        $dto = TestLazyDTO3::fromArray(['title' => 'Test', 'content' => null]);
+        $dto = TestLazyDto3::fromArray(['title' => 'Test', 'content' => null]);
 
         expect($dto->content)->toBeInstanceOf(Lazy::class);
         /** @phpstan-ignore-next-line unknown */
@@ -95,14 +95,14 @@ describe('Lazy Union Types', function(): void {
     });
 
     it('excludes lazy properties from JSON by default', function(): void {
-        $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestLazyDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $json = json_encode($dto);
 
         expect($json)->toBe('{"title":"Test"}');
     });
 
     it('includes lazy properties in JSON when requested', function(): void {
-        $dto = TestLazyDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestLazyDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $json = json_encode($dto->includeAll());
 
         expect($json)->toBe('{"title":"Test","content":"Content..."}');

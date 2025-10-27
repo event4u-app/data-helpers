@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Enums\SerializationFormat;
-use event4u\DataHelpers\SimpleDTO\Serializers\SerializerInterface;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Enums\SerializationFormat;
+use event4u\DataHelpers\SimpleDto\Serializers\SerializerInterface;
 
 echo "================================================================================\n";
-echo "SimpleDTO - Custom Serializers Examples\n";
+echo "SimpleDto - Custom Serializers Examples\n";
 echo "================================================================================\n\n";
 
 // Example 1: XML Serialization
 echo "Example 1: XML Serialization\n";
 echo "----------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -25,7 +25,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
@@ -39,7 +39,7 @@ echo $xml . "\n\n";
 echo "Example 2: XML with Custom Root Element\n";
 echo "----------------------------------------\n";
 
-use event4u\DataHelpers\SimpleDTO\Config\SerializerOptions;
+use event4u\DataHelpers\SimpleDto\Config\SerializerOptions;
 
 $options = SerializerOptions::xml(rootElement: 'user');
 $xml = $user->toXml($options);
@@ -93,12 +93,12 @@ echo $csv . "\n\n";
 echo "Example 8: Serializing Collections\n";
 echo "-----------------------------------\n";
 
-use event4u\DataHelpers\SimpleDTO\DataCollection;
+use event4u\DataHelpers\SimpleDto\DataCollection;
 
-/** @var DataCollection<SimpleDTO> $users */
+/** @var DataCollection<SimpleDto> $users */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$users = DataCollection::forDto(UserDTO::class, [
+$users = DataCollection::forDto(UserDto::class, [
     ['name' => 'John Doe', 'email' => 'john@example.com', 'age' => 30],
     ['name' => 'Jane Smith', 'email' => 'jane@example.com', 'age' => 25],
     ['name' => 'Bob Johnson', 'email' => 'bob@example.com', 'age' => 35],
@@ -108,7 +108,7 @@ $users = DataCollection::forDto(UserDTO::class, [
 /** @phpstan-ignore-next-line unknown */
 $usersArray = $users->toArray();
 
-use event4u\DataHelpers\SimpleDTO\Serializers\CsvSerializer;
+use event4u\DataHelpers\SimpleDto\Serializers\CsvSerializer;
 
 $csvSerializer = new CsvSerializer();
 $csv = $csvSerializer->serialize($usersArray);
@@ -198,8 +198,8 @@ echo $yaml . "\n";
 echo "Example 12: Nested Data Serialization\n";
 echo "--------------------------------------\n";
 
-use event4u\DataHelpers\SimpleDTO\Serializers\XmlSerializer;
-use event4u\DataHelpers\SimpleDTO\Serializers\YamlSerializer;
+use event4u\DataHelpers\SimpleDto\Serializers\XmlSerializer;
+use event4u\DataHelpers\SimpleDto\Serializers\YamlSerializer;
 
 $nestedData = [
     'user' => [
@@ -229,7 +229,7 @@ echo "-------------------------------------------\n";
 echo "💡 Tip: Use SerializationFormat enum for type-safe serialization!\n";
 echo "    Available: Json, Xml, Yaml, Csv\n\n";
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'Jane Doe',
     'email' => 'jane@example.com',
     'age' => 25,

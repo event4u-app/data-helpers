@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Real-World Example: E-Commerce Platform
  *
- * This example demonstrates a complete e-commerce system using SimpleDTO:
+ * This example demonstrates a complete e-commerce system using SimpleDto:
  * - Product catalog with categories
  * - Shopping cart with items
  * - Order processing
@@ -16,13 +16,13 @@ declare(strict_types=1);
 require __DIR__ . '/../bootstrap.php';
 
 use Carbon\Carbon;
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Cast;
-use event4u\DataHelpers\SimpleDTO\Attributes\Computed;
-use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenAuth;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenRole;
-use event4u\DataHelpers\SimpleDTO\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenAuth;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenRole;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 
 // Skip if Carbon is not available
 if (!class_exists('Carbon\Carbon')) {
@@ -31,10 +31,10 @@ if (!class_exists('Carbon\Carbon')) {
 }
 
 // ============================================================================
-// DTOs
+// Dtos
 // ============================================================================
 
-class CategoryDTO extends SimpleDTO
+class CategoryDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -44,7 +44,7 @@ class CategoryDTO extends SimpleDTO
     ) {}
 }
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     /**
      * @param array<mixed> $images
@@ -57,7 +57,7 @@ class ProductDTO extends SimpleDTO
         public readonly float $price,
         public readonly ?float $salePrice,
         public readonly string $description,
-        public readonly CategoryDTO $category,
+        public readonly CategoryDto $category,
         /** @var string[] */
         public readonly array $images,
         /** @var string[] */
@@ -101,10 +101,10 @@ class ProductDTO extends SimpleDTO
     }
 }
 
-class CartItemDTO extends SimpleDTO
+class CartItemDto extends SimpleDto
 {
     public function __construct(
-        public readonly ProductDTO $product,
+        public readonly ProductDto $product,
         public readonly int $quantity,
     ) {}
 
@@ -115,12 +115,12 @@ class CartItemDTO extends SimpleDTO
     }
 }
 
-class CartDTO extends SimpleDTO
+class CartDto extends SimpleDto
 {
     /** @param array<mixed> $items */
     public function __construct(
         public readonly int $userId,
-        /** @var CartItemDTO[] */
+        /** @var CartItemDto[] */
         public readonly array $items,
         public readonly ?string $couponCode,
     ) {}
@@ -129,7 +129,7 @@ class CartDTO extends SimpleDTO
     public function subtotal(): float
     {
         return array_sum(array_map(
-            fn(CartItemDTO $item): float => $item->subtotal(),
+            fn(CartItemDto $item): float => $item->subtotal(),
             $this->items
         ));
     }
@@ -161,13 +161,13 @@ class CartDTO extends SimpleDTO
     public function itemCount(): int
     {
         return array_sum(array_map(
-            fn(CartItemDTO $item): int => $item->quantity,
+            fn(CartItemDto $item): int => $item->quantity,
             $this->items
         ));
     }
 }
 
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -178,7 +178,7 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class CustomerDTO extends SimpleDTO
+class CustomerDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -191,7 +191,7 @@ class CustomerDTO extends SimpleDTO
     ) {}
 }
 
-class PaymentDTO extends SimpleDTO
+class PaymentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $method,
@@ -211,7 +211,7 @@ class PaymentDTO extends SimpleDTO
     ) {}
 }
 
-class OrderItemDTO extends SimpleDTO
+class OrderItemDto extends SimpleDto
 {
     public function __construct(
         public readonly int $productId,
@@ -222,7 +222,7 @@ class OrderItemDTO extends SimpleDTO
     ) {}
 }
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $internalNotes
@@ -234,11 +234,11 @@ class OrderDTO extends SimpleDTO
     public function __construct(
         public readonly int $id,
         public readonly string $orderNumber,
-        public readonly CustomerDTO $customer,
-        /** @var OrderItemDTO[] */
+        public readonly CustomerDto $customer,
+        /** @var OrderItemDto[] */
         public readonly array $items,
-        public readonly AddressDTO $shippingAddress,
-        public readonly AddressDTO $billingAddress,
+        public readonly AddressDto $shippingAddress,
+        public readonly AddressDto $billingAddress,
         public readonly string $status,
         public readonly float $subtotal,
         public readonly float $discount,
@@ -256,7 +256,7 @@ class OrderDTO extends SimpleDTO
 
         /** @phpstan-ignore-next-line unknown */
         #[WhenAuth]
-        public readonly ?PaymentDTO $payment = null,
+        public readonly ?PaymentDto $payment = null,
 
         /** @phpstan-ignore-next-line unknown */
         #[WhenRole('admin')]
@@ -274,14 +274,14 @@ echo "=== E-Commerce Platform Example ===\n\n";
 echo "1. Product Catalog:\n";
 echo str_repeat('-', 80) . "\n";
 
-$category = new CategoryDTO(
+$category = new CategoryDto(
     id: 1,
     name: 'Electronics',
     slug: 'electronics',
     description: 'Electronic devices and accessories',
 );
 
-$product = new ProductDTO(
+$product = new ProductDto(
     id: 101,
     name: 'Wireless Headphones',
     slug: 'wireless-headphones',
@@ -314,10 +314,10 @@ echo "Category: {$product->category->name}\n\n";
 echo "2. Shopping Cart:\n";
 echo str_repeat('-', 80) . "\n";
 
-$cart = new CartDTO(
+$cart = new CartDto(
     userId: 1,
     items: [
-        new CartItemDTO(product: $product, quantity: 2),
+        new CartItemDto(product: $product, quantity: 2),
     ],
     couponCode: 'SAVE10',
 );
@@ -332,17 +332,17 @@ echo "Total: \${$cart->total()}\n\n";
 echo "3. Order Processing:\n";
 echo str_repeat('-', 80) . "\n";
 
-$order = new OrderDTO(
+$order = new OrderDto(
     id: 1001,
     orderNumber: 'ORD-2024-001',
-    customer: new CustomerDTO(
+    customer: new CustomerDto(
         id: 1,
         name: 'John Doe',
         email: 'john@example.com',
         phone: '+1234567890',
     ),
     items: [
-        new OrderItemDTO(
+        new OrderItemDto(
             productId: 101,
             productName: 'Wireless Headphones',
             quantity: 2,
@@ -350,14 +350,14 @@ $order = new OrderDTO(
             total: 159.98,
         ),
     ],
-    shippingAddress: new AddressDTO(
+    shippingAddress: new AddressDto(
         street: '123 Main St',
         city: 'New York',
         state: 'NY',
         zipCode: '10001',
         country: 'USA',
     ),
-    billingAddress: new AddressDTO(
+    billingAddress: new AddressDto(
         street: '123 Main St',
         city: 'New York',
         state: 'NY',
@@ -372,7 +372,7 @@ $order = new OrderDTO(
     total: 181.34,
     createdAt: Carbon::now(),
     shippedAt: null,
-    payment: new PaymentDTO(
+    payment: new PaymentDto(
         method: 'credit_card',
         status: 'completed',
         amount: 181.34,

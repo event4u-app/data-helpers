@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                         WITH() METHOD                                      ║\n";
@@ -15,7 +15,7 @@ echo "╚═══════════════════════�
 echo "1. BASIC WITH() USAGE - ADD SINGLE PROPERTY:\n";
 echo "------------------------------------------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -23,15 +23,15 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = new UserDTO('John Doe', 'john@example.com');
+$user = new UserDto('John Doe', 'john@example.com');
 
-echo "Original DTO:\n";
+echo "Original Dto:\n";
 echo json_encode($user->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\nWith additional 'role' property:\n";
 echo json_encode($user->with('role', 'admin')->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
-echo "\n✅  Original DTO is not modified\n";
+echo "\n✅  Original Dto is not modified\n";
 echo "✅  Additional property is added to output\n";
 
 echo "\n";
@@ -76,7 +76,7 @@ echo "\n";
 echo "4. LAZY EVALUATION - CALLBACKS:\n";
 echo "------------------------------------------------------------\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -86,7 +86,7 @@ class ProductDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$product = new ProductDTO('Laptop', 999.99, 0.19);
+$product = new ProductDto('Laptop', 999.99, 0.19);
 
 $productWithCalculations = $product->with([
     'priceWithTax' => fn($dto): float => round($dto->price * (1 + $dto->taxRate), 2),
@@ -98,16 +98,16 @@ echo "Product with calculated values:\n";
 echo json_encode($productWithCalculations->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Callbacks are evaluated lazily\n";
-echo "✅  Access to DTO properties in callbacks\n";
+echo "✅  Access to Dto properties in callbacks\n";
 echo "✅  Perfect for computed values\n";
 
 echo "\n";
 
-// Example 5: Nested DTOs
-echo "5. NESTED DTOs - AUTOMATIC CONVERSION:\n";
+// Example 5: Nested Dtos
+echo "5. NESTED Dtos - AUTOMATIC CONVERSION:\n";
 echo "------------------------------------------------------------\n";
 
-class AddressDTO extends SimpleDTO
+class AddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -116,7 +116,7 @@ class AddressDTO extends SimpleDTO
     ) {}
 }
 
-class CustomerDTO extends SimpleDTO
+class CustomerDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -125,16 +125,16 @@ class CustomerDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$address = new AddressDTO('123 Main St', 'New York', 'USA');
+$address = new AddressDto('123 Main St', 'New York', 'USA');
 /** @phpstan-ignore-next-line unknown */
-$customer = new CustomerDTO('Jane Doe', 'jane@example.com');
+$customer = new CustomerDto('Jane Doe', 'jane@example.com');
 
 $customerWithAddress = $customer->with('address', $address);
 
 echo "Customer with nested address:\n";
 echo json_encode($customerWithAddress->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
-echo "\n✅  Nested DTOs are automatically converted to arrays\n";
+echo "\n✅  Nested Dtos are automatically converted to arrays\n";
 echo "✅  Clean nested structure\n";
 
 echo "\n";
@@ -143,7 +143,7 @@ echo "\n";
 echo "6. API RESPONSE WITH METADATA:\n";
 echo "------------------------------------------------------------\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
@@ -153,7 +153,7 @@ class OrderDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$order = new OrderDTO('ORD-12345', 'completed', 299.99);
+$order = new OrderDto('ORD-12345', 'completed', 299.99);
 
 $apiResponse = $order->with([
     'meta' => [
@@ -181,7 +181,7 @@ echo "\n";
 echo "7. CONDITIONAL DATA - DYNAMIC PROPERTIES:\n";
 echo "------------------------------------------------------------\n";
 
-class ArticleDTO extends SimpleDTO
+class ArticleDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -191,7 +191,7 @@ class ArticleDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$article = new ArticleDTO('Premium Article', 'This is premium content...', true);
+$article = new ArticleDto('Premium Article', 'This is premium content...', true);
 
 $publicArticle = $article->with([
     'preview' => fn($dto) => $dto->isPremium ? substr((string)$dto->content, 0, 50) . '...' : $dto->content,
@@ -232,7 +232,7 @@ echo "\n";
 echo "9. COMBINING WITH OTHER FEATURES:\n";
 echo "------------------------------------------------------------\n";
 
-class ReportDTO extends SimpleDTO
+class ReportDto extends SimpleDto
 {
     /** @param array<mixed> $data */
     public function __construct(
@@ -241,7 +241,7 @@ class ReportDTO extends SimpleDTO
     ) {}
 }
 
-$report = new ReportDTO('Sales Report', ['jan' => 1000, 'feb' => 1200, 'mar' => 1500]);
+$report = new ReportDto('Sales Report', ['jan' => 1000, 'feb' => 1200, 'mar' => 1500]);
 
 $enrichedReport = $report
     ->with('total', fn($dto): float|int => array_sum($dto->data))
@@ -253,7 +253,7 @@ echo "Enriched and wrapped report:\n";
 echo json_encode($enrichedReport->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
 
 echo "\n✅  Combines with wrap() method\n";
-echo "✅  Combines with other DTO features\n";
+echo "✅  Combines with other Dto features\n";
 echo "✅  Flexible and powerful\n";
 
 echo "\n";
@@ -266,9 +266,9 @@ echo "✅  with(\$key, \$value) - Add single property\n";
 echo "✅  with([\$key => \$value]) - Add multiple properties\n";
 echo "✅  Chainable - Multiple with() calls\n";
 echo "✅  Lazy evaluation - Callbacks for computed values\n";
-echo "✅  Nested DTOs - Automatic conversion to arrays\n";
+echo "✅  Nested Dtos - Automatic conversion to arrays\n";
 echo "✅  JSON serialization - Works with json_encode()\n";
-echo "✅  Immutable - Original DTO is not modified\n";
+echo "✅  Immutable - Original Dto is not modified\n";
 echo "✅  Flexible - Perfect for API responses, metadata, computed values\n";
 
 echo "\n";

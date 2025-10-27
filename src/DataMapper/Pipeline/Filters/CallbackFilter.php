@@ -17,7 +17,7 @@ use Throwable;
 /**
  * Filter that applies a custom callback transformation.
  *
- * The callback receives a CallbackParameters DTO with complete context
+ * The callback receives a CallbackParameters Dto with complete context
  * and returns the transformed value or '__skip__' to skip the value.
  *
  * Example:

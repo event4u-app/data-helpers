@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenEquals;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenFalse;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenIn;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenNotNull;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenTrue;
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenValue;
-use event4u\DataHelpers\SimpleDTO\Enums\ComparisonOperator;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenEquals;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenFalse;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenIn;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenNotNull;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenTrue;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenValue;
+use event4u\DataHelpers\SimpleDto\Enums\ComparisonOperator;
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗\n";
 echo "║                    CONDITIONAL PROPERTIES                                  ║\n";
@@ -22,7 +22,7 @@ echo "╚═══════════════════════�
 echo "1. WHEN NOT NULL - ONLY INCLUDE WHEN VALUE IS PRESENT:\n";
 echo "------------------------------------------------------------\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -36,8 +36,8 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user1 = new UserDTO('John Doe', 'john@example.com', '555-1234', null);
-$user2 = new UserDTO('Jane Doe', 'jane@example.com', null, null);
+$user1 = new UserDto('John Doe', 'john@example.com', '555-1234', null);
+$user2 = new UserDto('Jane Doe', 'jane@example.com', null, null);
 
 echo "User 1 (with phone):\n";
 echo json_encode($user1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -54,7 +54,7 @@ echo "\n";
 echo "2. WHEN TRUE/FALSE - BOOLEAN CONDITIONS:\n";
 echo "------------------------------------------------------------\n";
 
-class FeatureDTO extends SimpleDTO
+class FeatureDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -67,8 +67,8 @@ class FeatureDTO extends SimpleDTO
     ) {}
 }
 
-$feature1 = new FeatureDTO('Feature A', true, false);
-$feature2 = new FeatureDTO('Feature B', false, true);
+$feature1 = new FeatureDto('Feature A', true, false);
+$feature2 = new FeatureDto('Feature B', false, true);
 
 echo "Feature 1 (premium, enabled):\n";
 echo json_encode($feature1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -85,7 +85,7 @@ echo "\n";
 echo "3. WHEN EQUALS - VALUE COMPARISON:\n";
 echo "------------------------------------------------------------\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
@@ -99,9 +99,9 @@ class OrderDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$order1 = new OrderDTO('ORD-001', 'completed', 'express');
+$order1 = new OrderDto('ORD-001', 'completed', 'express');
 /** @phpstan-ignore-next-line unknown */
-$order2 = new OrderDTO('ORD-002', 'pending', 'standard');
+$order2 = new OrderDto('ORD-002', 'pending', 'standard');
 
 echo "Order 1 (completed, express):\n";
 echo json_encode($order1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -118,7 +118,7 @@ echo "\n";
 echo "4. WHEN IN - VALUE IN LIST:\n";
 echo "------------------------------------------------------------\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -130,9 +130,9 @@ class ProductDTO extends SimpleDTO
 }
 
 /** @phpstan-ignore-next-line unknown */
-$product1 = new ProductDTO('Product A', 99.99, 'active');
+$product1 = new ProductDto('Product A', 99.99, 'active');
 /** @phpstan-ignore-next-line unknown */
-$product2 = new ProductDTO('Product B', 149.99, 'draft');
+$product2 = new ProductDto('Product B', 149.99, 'draft');
 
 echo "Product 1 (active):\n";
 echo json_encode($product1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -152,7 +152,7 @@ echo "💡 Tip: Use ComparisonOperator enum for type-safe comparisons!\n";
 echo "    Available: Equal, LooseEqual, StrictEqual, NotEqual, StrictNotEqual,\n";
 echo "               GreaterThan, LessThan, GreaterThanOrEqual, LessThanOrEqual\n\n";
 
-class PremiumProductDTO extends SimpleDTO
+class PremiumProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -163,8 +163,8 @@ class PremiumProductDTO extends SimpleDTO
     ) {}
 }
 
-$product1 = new PremiumProductDTO('Expensive Product', 150.0);
-$product2 = new PremiumProductDTO('Cheap Product', 50.0);
+$product1 = new PremiumProductDto('Expensive Product', 150.0);
+$product2 = new PremiumProductDto('Cheap Product', 50.0);
 
 echo "Product 1 (price > 100):\n";
 echo json_encode($product1->toArray(), JSON_PRETTY_PRINT) . PHP_EOL;
@@ -180,7 +180,7 @@ echo "\n";
 echo "6. COMPLEX SCENARIO - MULTIPLE CONDITIONS:\n";
 echo "------------------------------------------------------------\n";
 
-class ApiResponseDTO extends SimpleDTO
+class ApiResponseDto extends SimpleDto
 {
     /**
      * @param array<mixed>|null $data
@@ -204,7 +204,7 @@ class ApiResponseDTO extends SimpleDTO
     ) {}
 }
 
-$successResponse = new ApiResponseDTO(
+$successResponse = new ApiResponseDto(
     success: true,
     message: 'Data retrieved successfully',
     hasData: true,
@@ -213,7 +213,7 @@ $successResponse = new ApiResponseDTO(
     error: null
 );
 
-$errorResponse = new ApiResponseDTO(
+$errorResponse = new ApiResponseDto(
     success: false,
     message: 'An error occurred',
     hasData: false,

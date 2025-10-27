@@ -4,31 +4,31 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\Confirmed;
-use event4u\DataHelpers\SimpleDTO\Attributes\Different;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\EndsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\Exists;
-use event4u\DataHelpers\SimpleDTO\Attributes\File;
-use event4u\DataHelpers\SimpleDTO\Attributes\Image;
-use event4u\DataHelpers\SimpleDTO\Attributes\In;
-use event4u\DataHelpers\SimpleDTO\Attributes\Ip;
-use event4u\DataHelpers\SimpleDTO\Attributes\Json;
-use event4u\DataHelpers\SimpleDTO\Attributes\Max;
-use event4u\DataHelpers\SimpleDTO\Attributes\Mimes;
-use event4u\DataHelpers\SimpleDTO\Attributes\MimeTypes;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\NotIn;
-use event4u\DataHelpers\SimpleDTO\Attributes\Regex;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\Same;
-use event4u\DataHelpers\SimpleDTO\Attributes\Size;
-use event4u\DataHelpers\SimpleDTO\Attributes\StartsWith;
-use event4u\DataHelpers\SimpleDTO\Attributes\Unique;
-use event4u\DataHelpers\SimpleDTO\Attributes\Url;
-use event4u\DataHelpers\SimpleDTO\Attributes\Uuid;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\Confirmed;
+use event4u\DataHelpers\SimpleDto\Attributes\Different;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\EndsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Exists;
+use event4u\DataHelpers\SimpleDto\Attributes\File;
+use event4u\DataHelpers\SimpleDto\Attributes\Image;
+use event4u\DataHelpers\SimpleDto\Attributes\In;
+use event4u\DataHelpers\SimpleDto\Attributes\Ip;
+use event4u\DataHelpers\SimpleDto\Attributes\Json;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+use event4u\DataHelpers\SimpleDto\Attributes\Mimes;
+use event4u\DataHelpers\SimpleDto\Attributes\MimeTypes;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\NotIn;
+use event4u\DataHelpers\SimpleDto\Attributes\Regex;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Same;
+use event4u\DataHelpers\SimpleDto\Attributes\Size;
+use event4u\DataHelpers\SimpleDto\Attributes\StartsWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Unique;
+use event4u\DataHelpers\SimpleDto\Attributes\Url;
+use event4u\DataHelpers\SimpleDto\Attributes\Uuid;
 
 describe('Laravel Validation Integration', function(): void {
     describe('Rule Generation for Laravel', function(): void {
@@ -205,9 +205,9 @@ describe('Laravel Validation Integration', function(): void {
         });
     })->group('laravel');
 
-    describe('DTO Rule Collection', function(): void {
-        it('collects all rules from DTO attributes', function(): void {
-            $dtoClass = new class('test@example.com', 'John', 25) extends SimpleDTO {
+    describe('Dto Rule Collection', function(): void {
+        it('collects all rules from Dto attributes', function(): void {
+            $dtoClass = new class('test@example.com', 'John', 25) extends SimpleDto {
                 public function __construct(
                     #[Required]
                     #[Email]
@@ -239,7 +239,7 @@ describe('Laravel Validation Integration', function(): void {
         });
 
         it('merges attribute rules with custom rules', function(): void {
-            $dtoClass = new class('test@example.com') extends SimpleDTO {
+            $dtoClass = new class('test@example.com') extends SimpleDto {
                 public function __construct(
                     #[Required]
                     #[Email]
@@ -263,7 +263,7 @@ describe('Laravel Validation Integration', function(): void {
         });
 
         it('collects complex validation rules', function(): void {
-            $dtoClass = new class('https://example.com', '192.168.1.1', '{}') extends SimpleDTO {
+            $dtoClass = new class('https://example.com', '192.168.1.1', '{}') extends SimpleDto {
                 public function __construct(
                     #[Required]
                     #[StartsWith(['http://', 'https://'])]

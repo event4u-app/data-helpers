@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
-use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromArray;
-use event4u\DataHelpers\SimpleDTO\Attributes\HiddenFromJson;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
+use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromJson;
 
-echo "=== SimpleDTO Visibility & Security Examples ===\n\n";
+echo "=== SimpleDto Visibility & Security Examples ===\n\n";
 
 // Example 1: Hidden Attribute
 echo "1. Hidden Attribute - Hide from both toArray() and JSON:\n";
 echo str_repeat('-', 60) . "\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -27,7 +27,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'password' => 'super-secret-password',
@@ -53,7 +53,7 @@ echo json_encode($user, JSON_PRETTY_PRINT) . "\n\n";
 echo "2. HiddenFromArray - Hide from toArray() only:\n";
 echo str_repeat('-', 60) . "\n";
 
-class ProductDTO extends SimpleDTO
+class ProductDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -65,7 +65,7 @@ class ProductDTO extends SimpleDTO
     ) {}
 }
 
-$product = ProductDTO::fromArray([
+$product = ProductDto::fromArray([
     'name' => 'Laptop',
     'price' => 999.99,
     'internalSku' => 'INT-LAP-001',
@@ -83,7 +83,7 @@ echo json_encode($product, JSON_PRETTY_PRINT) . "\n\n";
 echo "3. HiddenFromJson - Hide from JSON only:\n";
 echo str_repeat('-', 60) . "\n";
 
-class OrderDTO extends SimpleDTO {
+class OrderDto extends SimpleDto {
     /** @param array<mixed> $processingSteps */
     public function __construct(
         public readonly string $orderId,
@@ -95,7 +95,7 @@ class OrderDTO extends SimpleDTO {
     ) {}
 }
 
-$order = OrderDTO::fromArray([
+$order = OrderDto::fromArray([
     'orderId' => 'ORD-12345',
     'total' => 149.99,
     'debugInfo' => 'Processed in 0.5s',
@@ -113,7 +113,7 @@ echo json_encode($order, JSON_PRETTY_PRINT) . "\n\n";
 echo "4. Partial Serialization - only():\n";
 echo str_repeat('-', 60) . "\n";
 
-class CustomerDTO extends SimpleDTO
+class CustomerDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
@@ -124,7 +124,7 @@ class CustomerDTO extends SimpleDTO
     ) {}
 }
 
-$customer = CustomerDTO::fromArray([
+$customer = CustomerDto::fromArray([
     'id' => 'CUST-001',
     'name' => 'Jane Smith',
     'email' => 'jane@example.com',
@@ -158,7 +158,7 @@ echo json_encode($customer->except(['email']), JSON_PRETTY_PRINT) . "\n\n";
 echo "6. Combined Visibility Rules:\n";
 echo str_repeat('-', 60) . "\n";
 
-class SecureUserDTO extends SimpleDTO
+class SecureUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
@@ -172,7 +172,7 @@ class SecureUserDTO extends SimpleDTO
     ) {}
 }
 
-$secureUser = SecureUserDTO::fromArray([
+$secureUser = SecureUserDto::fromArray([
     'id' => 'USR-001',
     'name' => 'Admin User',
     'email' => 'admin@example.com',
@@ -197,7 +197,7 @@ echo "\n";
 echo "7. Real-World API Response:\n";
 echo str_repeat('-', 60) . "\n";
 
-class ApiUserDTO extends SimpleDTO
+class ApiUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
@@ -211,7 +211,7 @@ class ApiUserDTO extends SimpleDTO
     ) {}
 }
 
-$apiUser = ApiUserDTO::fromArray([
+$apiUser = ApiUserDto::fromArray([
     'id' => 'USR-789',
     'username' => 'johndoe',
     'email' => 'john@example.com',

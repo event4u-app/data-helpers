@@ -3,19 +3,19 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
-use Tests\Utils\DTOs\CompanyDto;
-use Tests\Utils\DTOs\DepartmentDto;
-use Tests\Utils\DTOs\ProjectDto;
-use Tests\Utils\SimpleDTOs\CompanySimpleDto;
-use Tests\Utils\SimpleDTOs\DepartmentSimpleDto;
-use Tests\Utils\SimpleDTOs\ProjectSimpleDto;
+use Tests\Utils\Dtos\CompanyDto;
+use Tests\Utils\Dtos\DepartmentDto;
+use Tests\Utils\Dtos\ProjectDto;
+use Tests\Utils\SimpleDtos\CompanySimpleDto;
+use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
+use Tests\Utils\SimpleDtos\ProjectSimpleDto;
 
-describe('DataMapper SimpleDTO Comparison', function(): void {
-    describe('Traditional mutable DTOs vs SimpleDTO', function(): void {
-        it('compares traditional mutable DTO approach', function(): void {
+describe('DataMapper SimpleDto Comparison', function(): void {
+    describe('Traditional mutable Dtos vs SimpleDto', function(): void {
+        it('compares traditional mutable Dto approach', function(): void {
             $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
-            // Traditional approach: Mutable DTO with public properties
+            // Traditional approach: Mutable Dto with public properties
             $company = new CompanyDto();
             $mapping = [
                 'name' => '{{ company.name }}',
@@ -52,7 +52,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
 
             $result = DataMapper::sourceFile($jsonFile)->target($company)->template($mapping)->map()->getTarget();
 
-            // Verify traditional DTO
+            // Verify traditional Dto
             expect($result)->toBeInstanceOf(CompanyDto::class);
             /** @var CompanyDto $companyDto */
             $companyDto = $result;
@@ -87,10 +87,10 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
             expect($proj0Dto->budget)->toBe(2500000.00);
         });
 
-        it('compares SimpleDTO immutable approach', function(): void {
+        it('compares SimpleDto immutable approach', function(): void {
             $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
-            // SimpleDTO approach: Map to array first, then create immutable DTO
+            // SimpleDto approach: Map to array first, then create immutable Dto
             $mapping = [
                 'name' => '{{ company.name }}',
                 'registration_number' => '{{ company.registration_number }}',
@@ -131,7 +131,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
                 ->map()
                 ->toArray();
 
-            // Convert nested arrays to DTOs
+            // Convert nested arrays to Dtos
             /** @var array<int, array<string, mixed>> $departmentsData */
             $departmentsData = $mappedArray['departments'];
             $departments = array_map(
@@ -146,7 +146,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
                 $projectsData
             );
 
-            // Create immutable Company DTO
+            // Create immutable Company Dto
             /** @var array<string, mixed> $companyData */
             $companyData = [
                 ...$mappedArray,
@@ -155,7 +155,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
             ];
             $companyDto = CompanySimpleDto::fromArray($companyData);
 
-            // Verify SimpleDTO
+            // Verify SimpleDto
             expect($companyDto)->toBeInstanceOf(CompanySimpleDto::class);
             expect($companyDto->name)->toBe('TechCorp Solutions');
             expect($companyDto->registration_number)->toBe('REG-2024-001');
@@ -181,7 +181,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
             expect($dept0->employee_count)->toBe(120);
             expect($dept0->manager_name)->toBe('Alice Johnson');
 
-            // Verify immutability of nested DTO
+            // Verify immutability of nested Dto
             /** @phpstan-ignore-next-line unknown */
             expect(fn(): string => $dept0->name = 'New Name')->toThrow(Error::class);
 
@@ -209,7 +209,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
             expect($decoded['projects'])->toHaveCount(2);
         });
 
-        it('demonstrates SimpleDTO benefits: immutability and JSON serialization', function(): void {
+        it('demonstrates SimpleDto benefits: immutability and JSON serialization', function(): void {
             $jsonFile = __DIR__ . '/../../Utils/json/data_mapper_from_file_test.json';
 
             // Map departments only
@@ -229,7 +229,7 @@ describe('DataMapper SimpleDTO Comparison', function(): void {
                 ->map()
                 ->toArray();
 
-            // Create immutable DTOs
+            // Create immutable Dtos
             /** @var array<int, array<string, mixed>> $mappedArrayTyped */
             $mappedArrayTyped = $mappedArray;
             $departments = array_map(

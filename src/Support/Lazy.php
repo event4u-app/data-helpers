@@ -32,9 +32,9 @@ namespace event4u\DataHelpers\Support;
  * $lazy->get();       // 'already loaded'
  * ```
  *
- * @example With DTOs
+ * @example With Dtos
  * ```php
- * class UserDTO extends SimpleDTO
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
@@ -43,7 +43,7 @@ namespace event4u\DataHelpers\Support;
  * }
  *
  * // Biography not loaded by default
- * $user = UserDTO::fromArray(['name' => 'John', 'biography' => 'Long text...']);
+ * $user = UserDto::fromArray(['name' => 'John', 'biography' => 'Long text...']);
  * $user->toArray(); // ['name' => 'John'] - biography excluded
  *
  * // Include lazy property explicitly
@@ -53,7 +53,7 @@ namespace event4u\DataHelpers\Support;
  *
  * @example Combination with Optional
  * ```php
- * class UserDTO extends SimpleDTO
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,

@@ -7,7 +7,7 @@ Reference for property mapping attributes.
 
 ## Introduction
 
-SimpleDTO provides 2 mapping attributes:
+SimpleDto provides 2 mapping attributes:
 
 - **#[MapFrom(string $source)]** - Map from different input key
 - **#[MapTo(string $target)]** - Map to different output key
@@ -18,7 +18,7 @@ Map input data from a different key:
 
 <!-- skip-test: property declaration only -->
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 
 #[MapFrom('full_name')]
 public readonly string $name;
@@ -52,7 +52,7 @@ Map output data to a different key:
 
 <!-- skip-test: property declaration only -->
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\MapTo;
+use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 
 #[MapTo('full_name')]
 public readonly string $name;
@@ -83,7 +83,7 @@ public readonly string $userName;
 ### API Response Mapping
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('user_id')]
@@ -101,7 +101,7 @@ class UserDTO extends SimpleDTO
 ### Database Column Mapping
 
 ```php
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('order_id')]

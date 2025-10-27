@@ -85,11 +85,11 @@ export default defineConfig({
 					],
 				},
 				{
-					label: 'SimpleDTO',
+					label: 'SimpleDto',
                     collapsed: true,
 					items: [
 						{ label: 'Introduction', slug: 'simple-dto/introduction' },
-						{ label: 'Creating DTOs', slug: 'simple-dto/creating-dtos' },
+						{ label: 'Creating Dtos', slug: 'simple-dto/creating-dtos' },
 						{ label: 'Type Casting', slug: 'simple-dto/type-casting' },
 						{ label: 'Validation', slug: 'simple-dto/validation' },
                         { label: 'Dot Notation Access', slug: 'simple-dto/dot-notation-access' },
@@ -99,7 +99,7 @@ export default defineConfig({
 						{ label: 'Lazy Properties', slug: 'simple-dto/lazy-properties' },
 						{ label: 'Computed Properties', slug: 'simple-dto/computed-properties' },
 						{ label: 'Collections', slug: 'simple-dto/collections' },
-						{ label: 'Nested DTOs', slug: 'simple-dto/nested-dtos' },
+						{ label: 'Nested Dtos', slug: 'simple-dto/nested-dtos' },
 						{ label: 'Security & Visibility', slug: 'simple-dto/security-visibility' },
 						{ label: 'TypeScript Generation', slug: 'simple-dto/typescript-generation' },
 						{ label: 'IDE Support', slug: 'simple-dto/ide-support' },
@@ -113,7 +113,7 @@ export default defineConfig({
 						{ label: 'Custom Validation', slug: 'advanced/custom-validation' },
 						{ label: 'Custom Attributes', slug: 'advanced/custom-attributes' },
 						{ label: 'Hooks & Events', slug: 'advanced/hooks-events' },
-						{ label: 'Extending DTOs', slug: 'advanced/extending-dtos' },
+						{ label: 'Extending Dtos', slug: 'advanced/extending-dtos' },
 					],
 				},
 				{
@@ -182,7 +182,7 @@ export default defineConfig({
 						{ label: 'DataMutator', slug: 'api/data-mutator' },
 						{ label: 'DataMapper', slug: 'api/data-mapper' },
 						{ label: 'DataFilter', slug: 'api/data-filter' },
-						{ label: 'SimpleDTO', slug: 'api/simple-dto' },
+						{ label: 'SimpleDto', slug: 'api/simple-dto' },
 						{ label: 'Helpers', slug: 'api/helpers' },
 						{ label: 'Attributes', slug: 'api/attributes' },
 						{ label: 'Casts', slug: 'api/casts' },
@@ -207,7 +207,7 @@ export default defineConfig({
 				label: 'Testing',
 				collapsed: true,
 				items: [
-					{ label: 'Testing DTOs', slug: 'testing/testing-dtos' },
+					{ label: 'Testing Dtos', slug: 'testing/testing-dtos' },
 				],
 			},
 			{

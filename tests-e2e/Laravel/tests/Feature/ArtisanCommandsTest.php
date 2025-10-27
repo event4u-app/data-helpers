@@ -9,10 +9,10 @@ describe('Artisan Commands', function(): void {
     afterEach(function(): void {
         // Clean up generated files
         $files = [
-            app_path('DTOs/TestUserDTO.php'),
-            app_path('DTOs/TestProductDTO.php'),
-            app_path('DTOs/SpatieUserData.php'),
-            app_path('DTOs/SpatieUserData.php.backup'),
+            app_path('Dtos/TestUserDto.php'),
+            app_path('Dtos/TestProductDto.php'),
+            app_path('Dtos/SpatieUserData.php'),
+            app_path('Dtos/SpatieUserData.php.backup'),
             app_path('Data/SpatieTestData.php'),
             app_path('Data/SpatieTestData.php.backup'),
             storage_path('test-types.ts'),
@@ -26,7 +26,7 @@ describe('Artisan Commands', function(): void {
 
         // Clean up directories if empty
         $dirs = [
-            app_path('DTOs'),
+            app_path('Dtos'),
             app_path('Data'),
         ];
 
@@ -37,26 +37,26 @@ describe('Artisan Commands', function(): void {
         }
     });
 
-    it('can generate basic DTO with make:dto', function(): void {
+    it('can generate basic Dto with make:dto', function(): void {
         $exitCode = Artisan::call('make:dto', [
             'name' => 'TestUser',
         ]);
 
         expect($exitCode)->toBe(0);
 
-        $path = app_path('DTOs/TestUserDTO.php');
+        $path = app_path('Dtos/TestUserDto.php');
         expect(File::exists($path))->toBeTrue();
 
         $content = File::get($path);
-        expect($content)->toContain('namespace E2E\Laravel\DTOs;');
-        expect($content)->toContain('class TestUserDTO extends SimpleDTO');
+        expect($content)->toContain('namespace E2E\Laravel\Dtos;');
+        expect($content)->toContain('class TestUserDto extends SimpleDto');
         expect($content)->toContain('public readonly string $name');
         expect($content)->toContain('public readonly string $email');
         expect($content)->not->toContain('#[Required]');
         expect($content)->not->toContain('DataCollection');
     });
 
-    it('can generate DTO with validation attributes', function(): void {
+    it('can generate Dto with validation attributes', function(): void {
         $exitCode = Artisan::call('make:dto', [
             'name' => 'TestUser',
             '--validation' => true,
@@ -64,16 +64,16 @@ describe('Artisan Commands', function(): void {
 
         expect($exitCode)->toBe(0);
 
-        $path = app_path('DTOs/TestUserDTO.php');
+        $path = app_path('Dtos/TestUserDto.php');
         $content = File::get($path);
 
         expect($content)->toContain('#[Required]');
         expect($content)->toContain('#[Email]');
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\Attributes\Email;');
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\Attributes\Required;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\Attributes\Email;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\Attributes\Required;');
     });
 
-    it('can generate DTO with collection support', function(): void {
+    it('can generate Dto with collection support', function(): void {
         $exitCode = Artisan::call('make:dto', [
             'name' => 'TestUser',
             '--collection' => true,
@@ -81,16 +81,16 @@ describe('Artisan Commands', function(): void {
 
         expect($exitCode)->toBe(0);
 
-        $path = app_path('DTOs/TestUserDTO.php');
+        $path = app_path('Dtos/TestUserDto.php');
         $content = File::get($path);
 
         expect($content)->toContain('DataCollection');
-        expect($content)->toContain('#[DataCollectionOf(ItemDTO::class)]');
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\Attributes\DataCollectionOf;');
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\DataCollection;');
+        expect($content)->toContain('#[DataCollectionOf(ItemDto::class)]');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\DataCollection;');
     });
 
-    it('can generate resource DTO', function(): void {
+    it('can generate resource Dto', function(): void {
         $exitCode = Artisan::call('make:dto', [
             'name' => 'TestUser',
             '--resource' => true,
@@ -98,7 +98,7 @@ describe('Artisan Commands', function(): void {
 
         expect($exitCode)->toBe(0);
 
-        $path = app_path('DTOs/TestUserDTO.php');
+        $path = app_path('Dtos/TestUserDto.php');
         $content = File::get($path);
 
         expect($content)->toContain('public readonly int $id');
@@ -110,7 +110,7 @@ describe('Artisan Commands', function(): void {
         expect($content)->toContain("'updatedAt' => 'datetime'");
     });
 
-    it('can generate resource DTO with all options', function(): void {
+    it('can generate resource Dto with all options', function(): void {
         $exitCode = Artisan::call('make:dto', [
             'name' => 'TestUser',
             '--resource' => true,
@@ -120,7 +120,7 @@ describe('Artisan Commands', function(): void {
 
         expect($exitCode)->toBe(0);
 
-        $path = app_path('DTOs/TestUserDTO.php');
+        $path = app_path('Dtos/TestUserDto.php');
         $content = File::get($path);
 
         expect($content)->toContain('#[Required]');
@@ -128,23 +128,23 @@ describe('Artisan Commands', function(): void {
         expect($content)->toContain('#[Min(3)]');
         expect($content)->toContain('#[Max(255)]');
         expect($content)->toContain('DataCollection');
-        expect($content)->toContain('#[DataCollectionOf(ItemDTO::class)]');
+        expect($content)->toContain('#[DataCollectionOf(ItemDto::class)]');
         expect($content)->toContain('public readonly int $id');
         expect($content)->toContain('protected function casts(): array');
     });
 
-    it('automatically adds DTO suffix', function(): void {
+    it('automatically adds Dto suffix', function(): void {
         $exitCode = Artisan::call('make:dto', [
             'name' => 'TestUser',
         ]);
 
         expect($exitCode)->toBe(0);
 
-        $path = app_path('DTOs/TestUserDTO.php');
+        $path = app_path('Dtos/TestUserDto.php');
         expect(File::exists($path))->toBeTrue();
 
         $content = File::get($path);
-        expect($content)->toContain('class TestUserDTO extends SimpleDTO');
+        expect($content)->toContain('class TestUserDto extends SimpleDto');
     });
 
     it('fails if file exists without force', function(): void {
@@ -171,7 +171,7 @@ describe('Artisan Commands', function(): void {
     });
 
     it('can generate TypeScript interfaces with dto:typescript', function(): void {
-        // Create a DTO first
+        // Create a Dto first
         Artisan::call('make:dto', [
             'name' => 'TestProduct',
             '--resource' => true,
@@ -182,7 +182,7 @@ describe('Artisan Commands', function(): void {
 
         // Generate TypeScript
         $exitCode = Artisan::call('dto:typescript', [
-            '--path' => 'app/DTOs',
+            '--path' => 'app/Dtos',
             '--output' => 'storage/test-types.ts',
         ]);
 
@@ -192,7 +192,7 @@ describe('Artisan Commands', function(): void {
         expect(File::exists($path))->toBeTrue();
 
         $content = File::get($path);
-        expect($content)->toContain('export interface TestProductDTO');
+        expect($content)->toContain('export interface TestProductDto');
         expect($content)->toContain('id: number');
         expect($content)->toContain('name: string');
         expect($content)->toContain('email: string');
@@ -208,7 +208,7 @@ describe('Artisan Commands', function(): void {
 
 declare(strict_types=1);
 
-namespace E2E\Laravel\DTOs;
+namespace E2E\Laravel\Dtos;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\Validation\Required;
@@ -226,13 +226,13 @@ class SpatieUserData extends Data
 }
 PHP;
 
-        $path = app_path('DTOs/SpatieUserData.php');
+        $path = app_path('Dtos/SpatieUserData.php');
         File::ensureDirectoryExists(dirname($path));
         File::put($path, $spatieClass);
 
         // Run migration
         $exitCode = Artisan::call('dto:migrate-spatie', [
-            '--path' => 'app/DTOs',
+            '--path' => 'app/Dtos',
             '--force' => true,
         ]);
 
@@ -242,14 +242,14 @@ PHP;
         $content = File::get($path);
 
         // Check base class changed
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\SimpleDTO;');
-        expect($content)->toContain('class SpatieUserData extends SimpleDTO');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\SimpleDto;');
+        expect($content)->toContain('class SpatieUserData extends SimpleDto');
         expect($content)->not->toContain('use Spatie\LaravelData\Data;');
         expect($content)->not->toContain('extends Data');
 
         // Check attributes namespace changed
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\Attributes\Required;');
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\Attributes\Email;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\Attributes\Required;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\Attributes\Email;');
         expect($content)->not->toContain('use Spatie\LaravelData\Attributes\Validation\Required;');
         expect($content)->not->toContain('use Spatie\LaravelData\Attributes\Validation\Email;');
 
@@ -266,7 +266,7 @@ PHP;
 
 declare(strict_types=1);
 
-namespace E2E\Laravel\DTOs;
+namespace E2E\Laravel\Dtos;
 
 use Spatie\LaravelData\Data;
 
@@ -278,7 +278,7 @@ class SpatieUserData extends Data
 }
 PHP;
 
-        $path = app_path('DTOs/SpatieUserData.php');
+        $path = app_path('Dtos/SpatieUserData.php');
         File::ensureDirectoryExists(dirname($path));
         File::put($path, $spatieClass);
 
@@ -286,7 +286,7 @@ PHP;
 
         // Run migration with dry-run
         $exitCode = Artisan::call('dto:migrate-spatie', [
-            '--path' => 'app/DTOs',
+            '--path' => 'app/Dtos',
             '--dry-run' => true,
             '--force' => true,
         ]);
@@ -307,7 +307,7 @@ PHP;
 
 declare(strict_types=1);
 
-namespace E2E\Laravel\DTOs;
+namespace E2E\Laravel\Dtos;
 
 use Spatie\LaravelData\Data;
 
@@ -319,14 +319,14 @@ class SpatieUserData extends Data
 }
 PHP;
 
-        $path = app_path('DTOs/SpatieUserData.php');
+        $path = app_path('Dtos/SpatieUserData.php');
         $backupPath = $path . '.backup';
         File::ensureDirectoryExists(dirname($path));
         File::put($path, $spatieClass);
 
         // Run migration with backup
         $exitCode = Artisan::call('dto:migrate-spatie', [
-            '--path' => 'app/DTOs',
+            '--path' => 'app/Dtos',
             '--backup' => true,
             '--force' => true,
         ]);
@@ -343,8 +343,8 @@ PHP;
 
         // Check original file was migrated
         $content = File::get($path);
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDTO\SimpleDTO;');
-        expect($content)->toContain('extends SimpleDTO');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\SimpleDto;');
+        expect($content)->toContain('extends SimpleDto');
     });
 
     it('can migrate WithCast attribute to Cast', function(): void {
@@ -354,7 +354,7 @@ PHP;
 
 declare(strict_types=1);
 
-namespace E2E\Laravel\DTOs;
+namespace E2E\Laravel\Dtos;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\WithCast;
@@ -368,13 +368,13 @@ class SpatieUserData extends Data
 }
 PHP;
 
-        $path = app_path('DTOs/SpatieUserData.php');
+        $path = app_path('Dtos/SpatieUserData.php');
         File::ensureDirectoryExists(dirname($path));
         File::put($path, $spatieClass);
 
         // Run migration
         $exitCode = Artisan::call('dto:migrate-spatie', [
-            '--path' => 'app/DTOs',
+            '--path' => 'app/Dtos',
             '--force' => true,
         ]);
 
@@ -404,7 +404,7 @@ PHP;
         $spatieClass2 = <<<'PHP'
 <?php
 
-namespace E2E\Laravel\DTOs;
+namespace E2E\Laravel\Dtos;
 
 use Spatie\LaravelData\Data;
 
@@ -415,7 +415,7 @@ class SpatieUserData extends Data
 PHP;
 
         $path1 = app_path('Data/SpatieTestData.php');
-        $path2 = app_path('DTOs/SpatieUserData.php');
+        $path2 = app_path('Dtos/SpatieUserData.php');
 
         File::ensureDirectoryExists(dirname($path1));
         File::ensureDirectoryExists(dirname($path2));
@@ -432,13 +432,13 @@ PHP;
 
         // Check both files were migrated
         $content1 = File::get($path1);
-        expect($content1)->toContain('use event4u\DataHelpers\SimpleDTO\SimpleDTO;');
-        expect($content1)->toContain('extends SimpleDTO');
+        expect($content1)->toContain('use event4u\DataHelpers\SimpleDto\SimpleDto;');
+        expect($content1)->toContain('extends SimpleDto');
         expect($content1)->toContain('public readonly string $name');
 
         $content2 = File::get($path2);
-        expect($content2)->toContain('use event4u\DataHelpers\SimpleDTO\SimpleDTO;');
-        expect($content2)->toContain('extends SimpleDTO');
+        expect($content2)->toContain('use event4u\DataHelpers\SimpleDto\SimpleDto;');
+        expect($content2)->toContain('extends SimpleDto');
         expect($content2)->toContain('public readonly string $email');
     });
 })->group('laravel');

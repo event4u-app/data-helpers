@@ -53,17 +53,17 @@ data_helpers:
 
 ### Automatic Injection
 
-Type-hint your DTO in controller methods:
+Type-hint your Dto in controller methods:
 
 ```php
-use App\DTO\UserRegistrationDTO;
+use App\Dto\UserRegistrationDto;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
     #[Route('/register', methods: ['POST'])]
-    public function register(UserRegistrationDTO $dto): JsonResponse
+    public function register(UserRegistrationDto $dto): JsonResponse
     {
         // $dto is automatically validated and filled with request data
         $user = new User();
@@ -79,10 +79,10 @@ class UserController extends AbstractController
 
 ### How It Works
 
-1. Symfony's ValueResolver detects the DTO type hint
+1. Symfony's ValueResolver detects the Dto type hint
 2. Request data is extracted (JSON or form data)
-3. DTO is created and validated
-4. Controller receives the validated DTO
+3. Dto is created and validated
+4. Controller receives the validated Dto
 
 ### Manual Creation
 
@@ -91,7 +91,7 @@ class UserController extends AbstractController
 #[Route('/register', methods: ['POST'])]
 public function register(Request $request): JsonResponse
 {
-    $dto = UserRegistrationDTO::fromRequest($request);
+    $dto = UserRegistrationDto::fromRequest($request);
     $dto->validate(); // Throws ValidationException on failure
 
     $user = new User();
@@ -108,14 +108,14 @@ public function register(Request $request): JsonResponse
 <!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $user = $this->entityManager->find(User::class, 1);
-$dto = UserDTO::fromEntity($user);
+$dto = UserDto::fromEntity($user);
 ```
 
 ### To Doctrine Entity
 
 <!-- skip-test: requires Doctrine EntityManager -->
 ```php
-$dto = UserDTO::fromArray($data);
+$dto = UserDto::fromArray($data);
 $user = new User();
 $dto->toEntity($user);
 
@@ -128,7 +128,7 @@ $this->entityManager->flush();
 <!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $user = $this->entityManager->find(User::class, 1);
-$dto = UserDTO::fromRequest($request);
+$dto = UserDto::fromRequest($request);
 $dto->toEntity($user);
 
 $this->entityManager->flush();
@@ -141,9 +141,9 @@ $this->entityManager->flush();
 Show property when user has permission:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenGranted;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenGranted;
 
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -160,7 +160,7 @@ Show property when user has role:
 
 <!-- skip-test: property declaration only -->
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\WhenSymfonyRole;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenSymfonyRole;
 
 #[WhenSymfonyRole('ROLE_ADMIN')]
 public readonly ?array $adminPanel = null;
@@ -177,7 +177,7 @@ public readonly ?array $moderationPanel = null;
 ```php
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Assert\NotBlank]
@@ -191,12 +191,12 @@ class UserDTO extends SimpleDTO
 }
 ```
 
-### SimpleDTO Validation Attributes
+### SimpleDto Validation Attributes
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\*;
+use event4u\DataHelpers\SimpleDto\Attributes\*;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         #[Required, Email]
@@ -210,22 +210,22 @@ class UserDTO extends SimpleDTO
 
 ## Console Commands
 
-### Generate DTO
+### Generate Dto
 
 ```bash
-php bin/console make:dto UserDTO
+php bin/console make:dto UserDto
 ```
 
-Creates `src/DTO/UserDTO.php`:
+Creates `src/Dto/UserDto.php`:
 
 ```php
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
-use event4u\DataHelpers\SimpleDTO\SimpleDTO;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -240,14 +240,14 @@ class UserDTO extends SimpleDTO
 php bin/console dto:typescript
 ```
 
-Generates TypeScript interfaces from your DTOs.
+Generates TypeScript interfaces from your Dtos.
 
 **See also:** [Console Commands](/framework-integration/console-commands/) - Complete guide to all available console commands
 
 ## Real-World Example
 
 ```php
-use App\DTO\CreateUserDTO;
+use App\Dto\CreateUserDto;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -260,7 +260,7 @@ class UserController extends AbstractController
     ) {}
 
     #[Route('/users', methods: ['POST'])]
-    public function create(CreateUserDTO $dto): JsonResponse
+    public function create(CreateUserDto $dto): JsonResponse
     {
         $user = new User();
         $dto->toEntity($user);
@@ -275,13 +275,13 @@ class UserController extends AbstractController
     public function show(int $id): JsonResponse
     {
         $user = $this->em->find(User::class, $id);
-        $dto = UserDTO::fromEntity($user);
+        $dto = UserDto::fromEntity($user);
 
         return $this->json($dto);
     }
 
     #[Route('/users/{id}', methods: ['PUT'])]
-    public function update(int $id, UpdateUserDTO $dto): JsonResponse
+    public function update(int $id, UpdateUserDto $dto): JsonResponse
     {
         $user = $this->em->find(User::class, $id);
         $dto->toEntity($user);

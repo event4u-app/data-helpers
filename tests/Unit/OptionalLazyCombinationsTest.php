@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\SimpleDTO;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\Support\Lazy;
 use event4u\DataHelpers\Support\Optional;
 
-// Test DTOs
-class TestComboDTO1 extends SimpleDTO
+// Test Dtos
+class TestComboDto1 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -17,7 +17,7 @@ class TestComboDTO1 extends SimpleDTO
     ) {}
 }
 
-class TestComboDTO2 extends SimpleDTO
+class TestComboDto2 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -27,7 +27,7 @@ class TestComboDTO2 extends SimpleDTO
     ) {}
 }
 
-class TestComboDTO3 extends SimpleDTO
+class TestComboDto3 extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
     /** @phpstan-ignore-next-line unknown */
@@ -42,7 +42,7 @@ class TestComboDTO3 extends SimpleDTO
 
 describe('Optional + Lazy Combinations', function(): void {
     it('handles missing optional lazy property', function(): void {
-        $dto = TestComboDTO1::fromArray(['title' => 'Test']);
+        $dto = TestComboDto1::fromArray(['title' => 'Test']);
 
         expect($dto->title)->toBe('Test');
         expect($dto->content)->toBeInstanceOf(Optional::class);
@@ -51,7 +51,7 @@ describe('Optional + Lazy Combinations', function(): void {
     });
 
     it('handles present optional lazy property', function(): void {
-        $dto = TestComboDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestComboDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
 
         expect($dto->title)->toBe('Test');
         expect($dto->content)->toBeInstanceOf(Optional::class);
@@ -66,7 +66,7 @@ describe('Optional + Lazy Combinations', function(): void {
     });
 
     it('excludes optional lazy from toArray when missing', function(): void {
-        $dto = TestComboDTO1::fromArray(['title' => 'Test']);
+        $dto = TestComboDto1::fromArray(['title' => 'Test']);
         $array = $dto->toArray();
 
         // Optional properties that are missing are excluded (not included as null)
@@ -74,14 +74,14 @@ describe('Optional + Lazy Combinations', function(): void {
     });
 
     it('excludes optional lazy from toArray when present but lazy', function(): void {
-        $dto = TestComboDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestComboDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $array = $dto->toArray();
 
         expect($array)->toBe(['title' => 'Test']);
     });
 
     it('includes optional lazy in toArray when explicitly requested', function(): void {
-        $dto = TestComboDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestComboDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $array = $dto->include(['content'])->toArray();
 
         expect($array)->toBe([
@@ -91,7 +91,7 @@ describe('Optional + Lazy Combinations', function(): void {
     });
 
     it('handles nullable optional lazy property', function(): void {
-        $dto = TestComboDTO2::fromArray(['title' => 'Test', 'metadata' => null]);
+        $dto = TestComboDto2::fromArray(['title' => 'Test', 'metadata' => null]);
 
         expect($dto->metadata)->toBeInstanceOf(Optional::class);
         /** @phpstan-ignore-next-line unknown */
@@ -105,7 +105,7 @@ describe('Optional + Lazy Combinations', function(): void {
     });
 
     it('supports partial updates with optional lazy', function(): void {
-        $dto = TestComboDTO3::fromArray(['email' => 'test@example.com', 'bio' => 'Bio...']);
+        $dto = TestComboDto3::fromArray(['email' => 'test@example.com', 'bio' => 'Bio...']);
         $partial = $dto->partial();
 
         expect($partial)->toBe([
@@ -116,7 +116,7 @@ describe('Optional + Lazy Combinations', function(): void {
     });
 
     it('unwraps optional lazy in partial updates', function(): void {
-        $dto = TestComboDTO3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
+        $dto = TestComboDto3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
         $partial = $dto->partial();
 
         expect($partial['name'])->toBe('John');
@@ -128,7 +128,7 @@ describe('Optional + Lazy Combinations', function(): void {
 
 describe('Multiple Optional Properties', function(): void {
     it('handles multiple missing optional properties', function(): void {
-        $dto = TestComboDTO3::fromArray([]);
+        $dto = TestComboDto3::fromArray([]);
 
         /** @phpstan-ignore-next-line unknown */
         expect($dto->name->isEmpty())->toBeTrue();
@@ -139,7 +139,7 @@ describe('Multiple Optional Properties', function(): void {
     });
 
     it('handles mixed present and missing optional properties', function(): void {
-        $dto = TestComboDTO3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
+        $dto = TestComboDto3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
 
         /** @phpstan-ignore-next-line unknown */
         expect($dto->name->isPresent())->toBeTrue();
@@ -152,7 +152,7 @@ describe('Multiple Optional Properties', function(): void {
     });
 
     it('partial returns only present optional properties', function(): void {
-        $dto = TestComboDTO3::fromArray(['name' => 'John']);
+        $dto = TestComboDto3::fromArray(['name' => 'John']);
         $partial = $dto->partial();
 
         expect($partial)->toBe(['name' => 'John'])
@@ -163,7 +163,7 @@ describe('Multiple Optional Properties', function(): void {
 
 describe('JSON Serialization with Combinations', function(): void {
     it('serializes optional lazy correctly when missing', function(): void {
-        $dto = TestComboDTO1::fromArray(['title' => 'Test']);
+        $dto = TestComboDto1::fromArray(['title' => 'Test']);
         $json = json_encode($dto);
 
         // Optional properties that are missing are excluded from JSON
@@ -171,28 +171,28 @@ describe('JSON Serialization with Combinations', function(): void {
     });
 
     it('serializes optional lazy correctly when present but lazy excluded', function(): void {
-        $dto = TestComboDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestComboDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $json = json_encode($dto);
 
         expect($json)->toBe('{"title":"Test"}');
     });
 
     it('serializes optional lazy correctly when present and lazy included', function(): void {
-        $dto = TestComboDTO1::fromArray(['title' => 'Test', 'content' => 'Content...']);
+        $dto = TestComboDto1::fromArray(['title' => 'Test', 'content' => 'Content...']);
         $json = json_encode($dto->includeAll());
 
         expect($json)->toBe('{"title":"Test","content":"Content..."}');
     });
 
     it('serializes multiple optional properties correctly', function(): void {
-        $dto = TestComboDTO3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
+        $dto = TestComboDto3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
         $json = json_encode($dto);
 
         expect($json)->toBe('{"name":"John","email":null}');
     });
 
     it('serializes multiple optional properties with includeAll', function(): void {
-        $dto = TestComboDTO3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
+        $dto = TestComboDto3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
         $json = json_encode($dto->includeAll());
 
         expect($json)->toBe('{"name":"John","email":null,"bio":"Bio..."}');
@@ -201,7 +201,7 @@ describe('JSON Serialization with Combinations', function(): void {
 
 describe('Edge Cases', function(): void {
     it('handles empty array input', function(): void {
-        $dto = TestComboDTO3::fromArray([]);
+        $dto = TestComboDto3::fromArray([]);
 
         /** @phpstan-ignore-next-line unknown */
         expect($dto->name->isEmpty())->toBeTrue();
@@ -215,7 +215,7 @@ describe('Edge Cases', function(): void {
     });
 
     it('handles all properties present', function(): void {
-        $dto = TestComboDTO3::fromArray([
+        $dto = TestComboDto3::fromArray([
             'name' => 'John',
             'email' => 'john@example.com',
             'bio' => 'Bio...',
@@ -237,7 +237,7 @@ describe('Edge Cases', function(): void {
     });
 
     it('handles null values correctly', function(): void {
-        $dto = TestComboDTO2::fromArray(['title' => 'Test', 'metadata' => null]);
+        $dto = TestComboDto2::fromArray(['title' => 'Test', 'metadata' => null]);
 
         /** @phpstan-ignore-next-line unknown */
         expect($dto->metadata->isPresent())->toBeTrue();

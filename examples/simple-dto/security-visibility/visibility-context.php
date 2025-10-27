@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Visible;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Visible;
 
-echo "=== SimpleDTO Context-Based Visibility Examples ===\n\n";
+echo "=== SimpleDto Context-Based Visibility Examples ===\n\n";
 
 // Example 1: Role-Based Visibility
 echo "1. Role-Based Visibility:\n";
 echo str_repeat('-', 60) . "\n";
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
@@ -40,7 +40,7 @@ class UserDTO extends SimpleDTO
     }
 }
 
-$user = UserDTO::fromArray([
+$user = UserDto::fromArray([
     'id' => 'user-123',
     'name' => 'John Doe',
     'email' => 'john@example.com',
@@ -81,7 +81,7 @@ echo "\n";
 echo "2. Multi-Level Permissions:\n";
 echo str_repeat('-', 60) . "\n";
 
-class DocumentDTO extends SimpleDTO
+class DocumentDto extends SimpleDto
 {
     /**
      * @param array<mixed> $metadata
@@ -121,7 +121,7 @@ class DocumentDTO extends SimpleDTO
     }
 }
 
-$document = DocumentDTO::fromArray([
+$document = DocumentDto::fromArray([
     'id' => 'doc-001',
     'title' => 'Confidential Report',
     'author' => 'Jane Smith',
@@ -150,7 +150,7 @@ echo "\n";
 echo "3. Chaining Context with only() and except():\n";
 echo str_repeat('-', 60) . "\n";
 
-class ProfileDTO extends SimpleDTO
+class ProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $username,
@@ -176,7 +176,7 @@ class ProfileDTO extends SimpleDTO
     }
 }
 
-$profile = ProfileDTO::fromArray([
+$profile = ProfileDto::fromArray([
     'username' => 'johndoe',
     'displayName' => 'John Doe',
     'email' => 'john@example.com',
@@ -214,7 +214,7 @@ echo "\n";
 echo "4. JSON API Response with Context:\n";
 echo str_repeat('-', 60) . "\n";
 
-class ApiUserDTO extends SimpleDTO
+class ApiUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $id,
@@ -244,7 +244,7 @@ class ApiUserDTO extends SimpleDTO
     }
 }
 
-$apiUser = ApiUserDTO::fromArray([
+$apiUser = ApiUserDto::fromArray([
     'id' => 'user-789',
     'username' => 'johndoe',
     'email' => 'john@example.com',
@@ -270,7 +270,7 @@ echo json_encode($apiUser->withVisibilityContext($adminApiContext), JSON_PRETTY_
 echo "5. Complex Business Logic:\n";
 echo str_repeat('-', 60) . "\n";
 
-class OrderDTO extends SimpleDTO
+class OrderDto extends SimpleDto
 {
     /** @param array<mixed> $paymentDetails */
     public function __construct(
@@ -303,7 +303,7 @@ class OrderDTO extends SimpleDTO
     }
 }
 
-$order = OrderDTO::fromArray([
+$order = OrderDto::fromArray([
     'orderId' => 'ORD-12345',
     'customerId' => 'CUST-001',
     'total' => 299.99,

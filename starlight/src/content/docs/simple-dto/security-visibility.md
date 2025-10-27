@@ -1,13 +1,13 @@
 ---
 title: Security & Visibility
-description: Learn how to control property visibility and secure sensitive data in DTOs
+description: Learn how to control property visibility and secure sensitive data in Dtos
 ---
 
-Learn how to control property visibility and secure sensitive data in DTOs.
+Learn how to control property visibility and secure sensitive data in Dtos.
 
 ## Introduction
 
-SimpleDTO provides powerful security features to control what data is exposed:
+SimpleDto provides powerful security features to control what data is exposed:
 
 - **Hidden Properties** - Never serialize sensitive data
 - **Conditional Visibility** - Show/hide based on conditions
@@ -23,9 +23,9 @@ SimpleDTO provides powerful security features to control what data is exposed:
 Properties marked as hidden are **never** included in serialization:
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -39,7 +39,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'password' => 'secret123',
@@ -56,7 +56,7 @@ $array = $dto->toArray();
 ### Based on Authentication
 
 ```php
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -75,7 +75,7 @@ class UserDTO extends SimpleDTO
 ### Based on Permissions
 
 ```php
-class PostDTO extends SimpleDTO
+class PostDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -93,7 +93,7 @@ class PostDTO extends SimpleDTO
 ### Based on Roles
 
 ```php
-class DashboardDTO extends SimpleDTO
+class DashboardDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -112,9 +112,9 @@ class DashboardDTO extends SimpleDTO
 ### Automatic Encryption
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Casts\EncryptedCast;
+use event4u\DataHelpers\SimpleDto\Casts\EncryptedCast;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -127,7 +127,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'ssn' => '123-45-6789',
     'creditCard' => '4111-1111-1111-1111',
@@ -145,9 +145,9 @@ echo $dto->ssn; // 123-45-6789
 ### One-Way Hashing
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Casts\HashCast;
+use event4u\DataHelpers\SimpleDto\Casts\HashCast;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -157,7 +157,7 @@ class UserDTO extends SimpleDTO
     ) {}
 }
 
-$dto = UserDTO::fromArray([
+$dto = UserDto::fromArray([
     'name' => 'John Doe',
     'password' => 'secret123',
 ]);
@@ -173,7 +173,7 @@ $array = $dto->toArray();
 ### User Profile with Privacy
 
 ```php
-class UserProfileDTO extends SimpleDTO
+class UserProfileDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -196,7 +196,7 @@ class UserProfileDTO extends SimpleDTO
 ### Payment Information
 
 ```php
-class PaymentDTO extends SimpleDTO
+class PaymentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $customerName,
@@ -216,7 +216,7 @@ class PaymentDTO extends SimpleDTO
 ### Admin Dashboard
 
 ```php
-class DashboardDTO extends SimpleDTO
+class DashboardDto extends SimpleDto
 {
     public function __construct(
         public readonly string $title,
@@ -311,7 +311,7 @@ All examples are fully tested and can be run directly.
 
 The functionality is thoroughly tested. Key test files:
 
-- [VisibilityTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDTO/VisibilityTest.php) - Visibility tests
+- [VisibilityTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/SimpleDto/VisibilityTest.php) - Visibility tests
 
 Run the tests:
 

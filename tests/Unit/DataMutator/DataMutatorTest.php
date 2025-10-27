@@ -752,8 +752,8 @@ describe('DataMutator', function(): void {
         });
     });
 
-    describe('Object mutations - DTOs', function(): void {
-        test('can set public properties on DTO', function(): void {
+    describe('Object mutations - Dtos', function(): void {
+        test('can set public properties on Dto', function(): void {
             $dto = new class {
                 public string $name = '';
                 public int $age = 0;
@@ -766,7 +766,7 @@ describe('DataMutator', function(): void {
             expect($dto->age)->toBe(0); // unchanged
         });
 
-        test('can set multiple properties on DTO', function(): void {
+        test('can set multiple properties on Dto', function(): void {
             $dto = new class {
                 public string $name = '';
                 public int $age = 0;
@@ -793,7 +793,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can set private properties on DTO using reflection', function(): void {
+        test('can set private properties on Dto using reflection', function(): void {
             $dto = new class {
                 private string $name = '';
 
@@ -809,7 +809,7 @@ describe('DataMutator', function(): void {
             expect($dto->getName())->toBe('Charlie');
         });
 
-        test('can create dynamic properties on DTO', function(): void {
+        test('can create dynamic properties on Dto', function(): void {
             $dto = new #[AllowDynamicProperties] class {
             };
 
@@ -819,7 +819,7 @@ describe('DataMutator', function(): void {
             expect($dto->dynamicProperty)->toBe('value');
         });
 
-        test('can set nested values in DTO properties', function(): void {
+        test('can set nested values in Dto properties', function(): void {
             $dto = new class {
                 /** @var array<string, mixed> */
                 public array $config = [];
@@ -835,7 +835,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can merge arrays in DTO properties', function(): void {
+        test('can merge arrays in Dto properties', function(): void {
             $dto = new class {
                 /** @var array<string, mixed> */
                 public array $config = [
@@ -1798,7 +1798,7 @@ describe('DataMutator', function(): void {
             ]);
         });
 
-        test('can unset from DTO objects', function(): void {
+        test('can unset from Dto objects', function(): void {
             $dto = new class {
                 public string $name = 'Alice';
                 public ?string $city = 'Berlin';

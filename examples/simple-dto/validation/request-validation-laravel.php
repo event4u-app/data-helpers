@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Phase 15.2: Laravel Request Validation Integration
  *
  * This example demonstrates Laravel-specific features:
- * - DTOFormRequest (similar to Laravel's FormRequest)
+ * - DtoFormRequest (similar to Laravel's FormRequest)
  * - Controller injection with automatic validation
  * - Integration with Laravel's Validator
  *
@@ -14,21 +14,21 @@ declare(strict_types=1);
  */
 
 require __DIR__ . '/../../bootstrap.php';
-use event4u\DataHelpers\SimpleDTO;
-use event4u\DataHelpers\SimpleDTO\Attributes\Between;
-use event4u\DataHelpers\SimpleDTO\Attributes\Email;
-use event4u\DataHelpers\SimpleDTO\Attributes\Min;
-use event4u\DataHelpers\SimpleDTO\Attributes\Required;
-use event4u\DataHelpers\SimpleDTO\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Attributes\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 
 echo "=== Phase 15.2: Laravel Request Validation Integration ===\n\n";
 
-// Example 1: DTO with ValidateRequest Attribute
-echo "1. DTO with ValidateRequest Attribute\n";
+// Example 1: Dto with ValidateRequest Attribute
+echo "1. Dto with ValidateRequest Attribute\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: true)]
-class CreateUserDTO extends SimpleDTO
+class CreateUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -44,19 +44,19 @@ class CreateUserDTO extends SimpleDTO
     ) {}
 }
 
-echo "✅  CreateUserDTO defined with ValidateRequest attribute\n";
+echo "✅  CreateUserDto defined with ValidateRequest attribute\n";
 echo "    - Automatic validation in controllers\n";
 echo "    - Throws ValidationException on failure\n";
 echo "\n";
 
-// Example 2: Controller Method with DTO Injection
-echo "2. Controller Method with DTO Injection\n";
+// Example 2: Controller Method with Dto Injection
+echo "2. Controller Method with Dto Injection\n";
 echo str_repeat('-', 60) . "\n";
 
 echo "```php\n";
 echo "class UserController extends Controller\n";
 echo "{\n";
-echo "    public function store(CreateUserDTO \$dto)\n";
+echo "    public function store(CreateUserDto \$dto)\n";
 echo "    {\n";
 echo "        // \$dto is automatically validated!\n";
 echo "        \$user = User::create(\$dto->toArray());\n";
@@ -65,20 +65,20 @@ echo "    }\n";
 echo "}\n";
 echo "```\n";
 echo "\n";
-echo "✅  DTO is automatically:\n";
+echo "✅  Dto is automatically:\n";
 echo "    - Created from request data\n";
 echo "    - Validated using defined rules\n";
 echo "    - Injected into controller method\n";
 echo "\n";
 
-// Example 3: DTOFormRequest (Laravel FormRequest Style)
-echo "3. DTOFormRequest (Laravel FormRequest Style)\n";
+// Example 3: DtoFormRequest (Laravel FormRequest Style)
+echo "3. DtoFormRequest (Laravel FormRequest Style)\n";
 echo str_repeat('-', 60) . "\n";
 
 echo "```php\n";
-echo "class StoreUserRequest extends DTOFormRequest\n";
+echo "class StoreUserRequest extends DtoFormRequest\n";
 echo "{\n";
-echo "    protected string \$dtoClass = CreateUserDTO::class;\n";
+echo "    protected string \$dtoClass = CreateUserDto::class;\n";
 echo "\n";
 echo "    public function authorize(): bool\n";
 echo "    {\n";
@@ -89,24 +89,24 @@ echo "\n";
 echo "// In controller\n";
 echo "public function store(StoreUserRequest \$request)\n";
 echo "{\n";
-echo "    \$dto = \$request->toDTO();\n";
+echo "    \$dto = \$request->toDto();\n";
 echo "    \$user = User::create(\$dto->toArray());\n";
 echo "    return response()->json(\$user);\n";
 echo "}\n";
 echo "```\n";
 echo "\n";
-echo "✅  DTOFormRequest provides:\n";
+echo "✅  DtoFormRequest provides:\n";
 echo "    - Authorization logic (authorize method)\n";
-echo "    - Automatic validation from DTO rules\n";
-echo "    - toDTO() method for easy conversion\n";
+echo "    - Automatic validation from Dto rules\n";
+echo "    - toDto() method for easy conversion\n";
 echo "\n";
 
-// Example 4: Update DTO with Partial Validation
-echo "4. Update DTO with Partial Validation\n";
+// Example 4: Update Dto with Partial Validation
+echo "4. Update Dto with Partial Validation\n";
 echo str_repeat('-', 60) . "\n";
 
 #[ValidateRequest(throw: true, except: ['email'])]
-class UpdateUserDTO extends SimpleDTO
+class UpdateUserDto extends SimpleDto
 {
     public function __construct(
         #[Email]
@@ -120,14 +120,14 @@ class UpdateUserDTO extends SimpleDTO
     ) {}
 }
 
-echo "✅  UpdateUserDTO defined for PATCH requests\n";
+echo "✅  UpdateUserDto defined for PATCH requests\n";
 echo "    - All fields are optional\n";
 echo "    - Email validation is excluded\n";
 echo "    - Only provided fields are validated\n";
 echo "\n";
 
 echo "```php\n";
-echo "public function update(int \$id, UpdateUserDTO \$dto)\n";
+echo "public function update(int \$id, UpdateUserDto \$dto)\n";
 echo "{\n";
 echo "    \$user = User::findOrFail(\$id);\n";
 echo "    \$user->update(\$dto->partial());\n";
@@ -145,10 +145,10 @@ echo "class UserController extends Controller\n";
 echo "{\n";
 echo "    public function index()\n";
 echo "    {\n";
-echo "        return UserDTO::collection(User::all());\n";
+echo "        return UserDto::collection(User::all());\n";
 echo "    }\n";
 echo "\n";
-echo "    public function store(CreateUserDTO \$dto)\n";
+echo "    public function store(CreateUserDto \$dto)\n";
 echo "    {\n";
 echo "        \$user = User::create(\$dto->toArray());\n";
 echo "        return new UserResource(\$user);\n";
@@ -157,14 +157,14 @@ echo "\n";
 echo "    public function show(int \$id)\n";
 echo "    {\n";
 echo "        \$user = User::findOrFail(\$id);\n";
-echo "        return UserDTO::from(\$user);\n";
+echo "        return UserDto::from(\$user);\n";
 echo "    }\n";
 echo "\n";
-echo "    public function update(int \$id, UpdateUserDTO \$dto)\n";
+echo "    public function update(int \$id, UpdateUserDto \$dto)\n";
 echo "    {\n";
 echo "        \$user = User::findOrFail(\$id);\n";
 echo "        \$user->update(\$dto->partial());\n";
-echo "        return UserDTO::from(\$user);\n";
+echo "        return UserDto::from(\$user);\n";
 echo "    }\n";
 echo "\n";
 echo "    public function destroy(int \$id)\n";
@@ -182,7 +182,7 @@ echo "\n";
 echo "6. Custom Validation Messages\n";
 echo str_repeat('-', 60) . "\n";
 
-class RegisterUserDTO extends SimpleDTO
+class RegisterUserDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -216,7 +216,7 @@ class RegisterUserDTO extends SimpleDTO
     }
 }
 
-echo "✅  RegisterUserDTO with custom messages\n";
+echo "✅  RegisterUserDto with custom messages\n";
 echo "    - User-friendly error messages\n";
 echo "    - Custom attribute names\n";
 echo "    - Localization support\n";
@@ -230,11 +230,11 @@ echo "Add to config/app.php:\n";
 echo "```php\n";
 echo "'providers' => [\n";
 echo "    // ...\n";
-echo "    event4u\\DataHelpers\\Laravel\\DTOServiceProvider::class,\n";
+echo "    event4u\\DataHelpers\\Laravel\\DtoServiceProvider::class,\n";
 echo "],\n";
 echo "```\n";
 echo "\n";
-echo "✅  Enables automatic DTO injection in controllers\n";
+echo "✅  Enables automatic Dto injection in controllers\n";
 echo "\n";
 
 // Example 8: Error Handling
@@ -270,7 +270,7 @@ echo "=== Laravel Integration Complete! ===\n";
 echo "\n";
 echo "Key Features:\n";
 echo "  ✅  Automatic controller injection\n";
-echo "  ✅  DTOFormRequest (like Laravel FormRequest)\n";
+echo "  ✅  DtoFormRequest (like Laravel FormRequest)\n";
 echo "  ✅  Authorization support\n";
 echo "  ✅  Custom validation messages\n";
 echo "  ✅  Partial updates (PATCH)\n";

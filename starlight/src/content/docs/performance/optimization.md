@@ -32,7 +32,7 @@ bin/console dto:cache
 
 <!-- skip-test: ValidationCache class does not exist, caching is automatic -->
 ```php
-use event4u\DataHelpers\SimpleDTO\Cache\ValidationCache;
+use event4u\DataHelpers\SimpleDto\Cache\ValidationCache;
 
 ValidationCache::enable();
 ValidationCache::warmup();
@@ -50,9 +50,9 @@ Improvement: 198x faster
 ## Use Lazy Loading
 
 ```php
-use event4u\DataHelpers\SimpleDTO\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
 
-class UserDTO extends SimpleDTO
+class UserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -98,11 +98,11 @@ public readonly mixed $age;
 
 ```php
 // ✅ Good
-$dtos = DataCollection::make($users, UserDTO::class);
+$dtos = DataCollection::make($users, UserDto::class);
 
 // ❌ Bad
 foreach ($users as $user) {
-    $dtos[] = UserDTO::fromModel($user);
+    $dtos[] = UserDto::fromModel($user);
 }
 ```
 
@@ -111,7 +111,7 @@ foreach ($users as $user) {
 ```php
 // Use chunking
 User::chunk(1000, function($users) {
-    $dtos = DataCollection::make($users, UserDTO::class);
+    $dtos = DataCollection::make($users, UserDto::class);
 });
 ```
 
