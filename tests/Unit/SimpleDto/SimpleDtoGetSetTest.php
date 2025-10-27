@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit\SimpleDto;
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 
 // Test Dtos for flat structure
+#[AutoCast]
 class FlatUserDto extends SimpleDto
 {
     public function __construct(
@@ -17,7 +19,8 @@ class FlatUserDto extends SimpleDto
 }
 
 // Test Dtos for nested structure
-class AddressDto extends SimpleDto
+#[AutoCast]
+class GetSetAddressDto extends SimpleDto
 {
     public function __construct(
         public readonly string $street,
@@ -26,7 +29,8 @@ class AddressDto extends SimpleDto
     ) {}
 }
 
-class EmailDto extends SimpleDto
+#[AutoCast]
+class GetSetEmailDto extends SimpleDto
 {
     public function __construct(
         public readonly string $email,
@@ -35,18 +39,20 @@ class EmailDto extends SimpleDto
     ) {}
 }
 
-class NestedUserDto extends SimpleDto
+#[AutoCast]
+class GetSetNestedUserDto extends SimpleDto
 {
-    /** @param array<int, EmailDto> $emails */
+    /** @param array<int, GetSetEmailDto> $emails */
     public function __construct(
         public readonly string $name,
-        public readonly AddressDto $address,
+        public readonly GetSetAddressDto $address,
         public readonly array $emails,
     ) {}
 }
 
 // Test Dto for multi-level nesting
-class OrderDto extends SimpleDto
+#[AutoCast]
+class GetSetOrderDto extends SimpleDto
 {
     public function __construct(
         public readonly int $id,
@@ -55,20 +61,22 @@ class OrderDto extends SimpleDto
     ) {}
 }
 
-class DepartmentDto extends SimpleDto
+#[AutoCast]
+class GetSetDepartmentDto extends SimpleDto
 {
-    /** @param array<int, EmployeeDto> $employees */
+    /** @param array<int, GetSetEmployeeDto> $employees */
     public function __construct(
         public readonly string $name,
         public readonly array $employees,
     ) {}
 }
 
-class EmployeeDto extends SimpleDto
+#[AutoCast]
+class GetSetEmployeeDto extends SimpleDto
 {
     /**
-     * @param array<int, EmailDto> $emails
-     * @param array<int, OrderDto> $orders
+     * @param array<int, GetSetEmailDto> $emails
+     * @param array<int, GetSetOrderDto> $orders
      */
     public function __construct(
         public readonly string $name,
@@ -107,9 +115,9 @@ describe('SimpleDto get() method', function(): void {
 
     describe('Nested Dto', function(): void {
         test('can get nested property with dot notation', function(): void {
-            $dto = new NestedUserDto(
+            $dto = new GetSetNestedUserDto(
                 name: 'John Doe',
-                address: new AddressDto(
+                address: new GetSetAddressDto(
                     street: 'Main St 123',
                     city: 'Berlin',
                     country: 'Germany'
@@ -123,9 +131,9 @@ describe('SimpleDto get() method', function(): void {
         });
 
         test('returns default value for non-existent nested property', function(): void {
-            $dto = new NestedUserDto(
+            $dto = new GetSetNestedUserDto(
                 name: 'John Doe',
-                address: new AddressDto(
+                address: new GetSetAddressDto(
                     street: 'Main St 123',
                     city: 'Berlin',
                     country: 'Germany'
@@ -140,17 +148,17 @@ describe('SimpleDto get() method', function(): void {
 
     describe('Array properties with wildcards', function(): void {
         test('can get all values from array with wildcard', function(): void {
-            $dto = new NestedUserDto(
+            $dto = new GetSetNestedUserDto(
                 name: 'John Doe',
-                address: new AddressDto(
+                address: new GetSetAddressDto(
                     street: 'Main St 123',
                     city: 'Berlin',
                     country: 'Germany'
                 ),
                 emails: [
-                    new EmailDto(email: 'john@work.com', type: 'work', verified: true),
-                    new EmailDto(email: 'john@home.com', type: 'home', verified: false),
-                    new EmailDto(email: 'john@other.com', type: 'other', verified: true),
+                    new GetSetEmailDto(email: 'john@work.com', type: 'work', verified: true),
+                    new GetSetEmailDto(email: 'john@home.com', type: 'home', verified: false),
+                    new GetSetEmailDto(email: 'john@other.com', type: 'other', verified: true),
                 ]
             );
 
@@ -166,17 +174,17 @@ describe('SimpleDto get() method', function(): void {
         });
 
         test('can get all verified flags from array', function(): void {
-            $dto = new NestedUserDto(
+            $dto = new GetSetNestedUserDto(
                 name: 'John Doe',
-                address: new AddressDto(
+                address: new GetSetAddressDto(
                     street: 'Main St 123',
                     city: 'Berlin',
                     country: 'Germany'
                 ),
                 emails: [
-                    new EmailDto(email: 'john@work.com', type: 'work', verified: true),
-                    new EmailDto(email: 'john@home.com', type: 'home', verified: false),
-                    new EmailDto(email: 'john@other.com', type: 'other', verified: true),
+                    new GetSetEmailDto(email: 'john@work.com', type: 'work', verified: true),
+                    new GetSetEmailDto(email: 'john@home.com', type: 'home', verified: false),
+                    new GetSetEmailDto(email: 'john@other.com', type: 'other', verified: true),
                 ]
             );
 
@@ -190,21 +198,21 @@ describe('SimpleDto get() method', function(): void {
 
     describe('Multi-level nesting with wildcards', function(): void {
         test('can get nested array values with multiple wildcards', function(): void {
-            $dto = new DepartmentDto(
+            $dto = new GetSetDepartmentDto(
                 name: 'Engineering',
                 employees: [
-                    new EmployeeDto(
+                    new GetSetEmployeeDto(
                         name: 'Alice',
                         emails: [
-                            new EmailDto(email: 'alice@work.com', type: 'work'),
-                            new EmailDto(email: 'alice@home.com', type: 'home'),
+                            new GetSetEmailDto(email: 'alice@work.com', type: 'work'),
+                            new GetSetEmailDto(email: 'alice@home.com', type: 'home'),
                         ],
                         orders: []
                     ),
-                    new EmployeeDto(
+                    new GetSetEmployeeDto(
                         name: 'Bob',
                         emails: [
-                            new EmailDto(email: 'bob@work.com', type: 'work'),
+                            new GetSetEmailDto(email: 'bob@work.com', type: 'work'),
                         ],
                         orders: []
                     ),
@@ -223,22 +231,22 @@ describe('SimpleDto get() method', function(): void {
         });
 
         test('can get deeply nested values', function(): void {
-            $dto = new DepartmentDto(
+            $dto = new GetSetDepartmentDto(
                 name: 'Sales',
                 employees: [
-                    new EmployeeDto(
+                    new GetSetEmployeeDto(
                         name: 'Charlie',
                         emails: [],
                         orders: [
-                            new OrderDto(id: 1, total: 100.50, status: 'completed'),
-                            new OrderDto(id: 2, total: 250.00, status: 'pending'),
+                            new GetSetOrderDto(id: 1, total: 100.50, status: 'completed'),
+                            new GetSetOrderDto(id: 2, total: 250.00, status: 'pending'),
                         ]
                     ),
-                    new EmployeeDto(
+                    new GetSetEmployeeDto(
                         name: 'Diana',
                         emails: [],
                         orders: [
-                            new OrderDto(id: 3, total: 75.25, status: 'completed'),
+                            new GetSetOrderDto(id: 3, total: 75.25, status: 'completed'),
                         ]
                     ),
                 ]
@@ -291,9 +299,9 @@ describe('SimpleDto set() method', function(): void {
 
     describe('Nested Dto', function(): void {
         test('can set nested property with dot notation', function(): void {
-            $dto = new NestedUserDto(
+            $dto = new GetSetNestedUserDto(
                 name: 'John Doe',
-                address: new AddressDto(
+                address: new GetSetAddressDto(
                     street: 'Main St 123',
                     city: 'Berlin',
                     country: 'Germany'
@@ -315,17 +323,17 @@ describe('SimpleDto set() method', function(): void {
 
     describe('Array properties with wildcards', function(): void {
         test('can set all values in array with wildcard', function(): void {
-            $dto = new NestedUserDto(
+            $dto = new GetSetNestedUserDto(
                 name: 'John Doe',
-                address: new AddressDto(
+                address: new GetSetAddressDto(
                     street: 'Main St 123',
                     city: 'Berlin',
                     country: 'Germany'
                 ),
                 emails: [
-                    new EmailDto(email: 'john@work.com', type: 'work', verified: false),
-                    new EmailDto(email: 'john@home.com', type: 'home', verified: false),
-                    new EmailDto(email: 'john@other.com', type: 'other', verified: false),
+                    new GetSetEmailDto(email: 'john@work.com', type: 'work', verified: false),
+                    new GetSetEmailDto(email: 'john@home.com', type: 'home', verified: false),
+                    new GetSetEmailDto(email: 'john@other.com', type: 'other', verified: false),
                 ]
             );
 
@@ -342,21 +350,21 @@ describe('SimpleDto set() method', function(): void {
 
     describe('Multi-level nesting with wildcards', function(): void {
         test('can set nested array values with multiple wildcards', function(): void {
-            $dto = new DepartmentDto(
+            $dto = new GetSetDepartmentDto(
                 name: 'Engineering',
                 employees: [
-                    new EmployeeDto(
+                    new GetSetEmployeeDto(
                         name: 'Alice',
                         emails: [
-                            new EmailDto(email: 'alice@work.com', type: 'work', verified: false),
-                            new EmailDto(email: 'alice@home.com', type: 'home', verified: false),
+                            new GetSetEmailDto(email: 'alice@work.com', type: 'work', verified: false),
+                            new GetSetEmailDto(email: 'alice@home.com', type: 'home', verified: false),
                         ],
                         orders: []
                     ),
-                    new EmployeeDto(
+                    new GetSetEmployeeDto(
                         name: 'Bob',
                         emails: [
-                            new EmailDto(email: 'bob@work.com', type: 'work', verified: false),
+                            new GetSetEmailDto(email: 'bob@work.com', type: 'work', verified: false),
                         ],
                         orders: []
                     ),
@@ -371,22 +379,22 @@ describe('SimpleDto set() method', function(): void {
         });
 
         test('can set deeply nested values', function(): void {
-            $dto = new DepartmentDto(
+            $dto = new GetSetDepartmentDto(
                 name: 'Sales',
                 employees: [
-                    new EmployeeDto(
+                    new GetSetEmployeeDto(
                         name: 'Charlie',
                         emails: [],
                         orders: [
-                            new OrderDto(id: 1, total: 100.50, status: 'pending'),
-                            new OrderDto(id: 2, total: 250.00, status: 'pending'),
+                            new GetSetOrderDto(id: 1, total: 100.50, status: 'pending'),
+                            new GetSetOrderDto(id: 2, total: 250.00, status: 'pending'),
                         ]
                     ),
-                    new EmployeeDto(
+                    new GetSetEmployeeDto(
                         name: 'Diana',
                         emails: [],
                         orders: [
-                            new OrderDto(id: 3, total: 75.25, status: 'pending'),
+                            new GetSetOrderDto(id: 3, total: 75.25, status: 'pending'),
                         ]
                     ),
                 ]
@@ -441,7 +449,7 @@ describe('SimpleDto set() method', function(): void {
         });
 
         test('get() with wildcard on empty array returns empty array', function(): void {
-            $dto = new EmployeeDto(
+            $dto = new GetSetEmployeeDto(
                 name: 'John',
                 emails: [],
                 orders: []
@@ -479,7 +487,7 @@ describe('SimpleDto set() method', function(): void {
         });
 
         test('set() with wildcard on empty array returns unchanged Dto', function(): void {
-            $dto = new EmployeeDto(
+            $dto = new GetSetEmployeeDto(
                 name: 'John',
                 emails: [],
                 orders: []
@@ -502,16 +510,16 @@ describe('SimpleDto set() method', function(): void {
         });
 
         test('get() and set() work with numeric keys', function(): void {
-            $dto = new NestedUserDto(
+            $dto = new GetSetNestedUserDto(
                 name: 'John',
-                address: new AddressDto(
+                address: new GetSetAddressDto(
                     street: 'Main St',
                     city: 'NYC',
                     country: 'USA'
                 ),
                 emails: [
-                    new EmailDto(email: 'john@work.com', type: 'work', verified: false),
-                    new EmailDto(email: 'john@home.com', type: 'home', verified: false),
+                    new GetSetEmailDto(email: 'john@work.com', type: 'work', verified: false),
+                    new GetSetEmailDto(email: 'john@home.com', type: 'home', verified: false),
                 ]
             );
 
@@ -526,16 +534,16 @@ describe('SimpleDto set() method', function(): void {
         });
 
         test('get() handles very deep nesting', function(): void {
-            $dto = new DepartmentDto(
+            $dto = new GetSetDepartmentDto(
                 name: 'Engineering',
                 employees: [
-                    new EmployeeDto(
+                    new GetSetEmployeeDto(
                         name: 'Alice',
                         emails: [
-                            new EmailDto(email: 'alice@work.com', type: 'work', verified: false),
+                            new GetSetEmailDto(email: 'alice@work.com', type: 'work', verified: false),
                         ],
                         orders: [
-                            new OrderDto(id: 1, total: 100.50, status: 'pending'),
+                            new GetSetOrderDto(id: 1, total: 100.50, status: 'pending'),
                         ]
                     ),
                 ]
@@ -572,9 +580,9 @@ describe('SimpleDto set() method', function(): void {
         });
 
         test('set() can update nested Dto properties', function(): void {
-            $dto = new NestedUserDto(
+            $dto = new GetSetNestedUserDto(
                 name: 'John',
-                address: new AddressDto(
+                address: new GetSetAddressDto(
                     street: 'Main St',
                     city: 'NYC',
                     country: 'USA'

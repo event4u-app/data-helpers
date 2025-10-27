@@ -34,7 +34,7 @@ By default, SimpleDtos do **NOT** automatically convert types. This provides:
 
 Enable automatic type casting for **all properties**:
 
-```php skip-test
+```php
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 
@@ -59,7 +59,7 @@ $dto = UserDtoAutoCast::fromArray([
 
 Enable automatic type casting for **specific properties only**:
 
-```php skip-test
+```php
 class UserDtoParamCast extends SimpleDto
 {
     public function __construct(
@@ -80,7 +80,7 @@ $dto = UserDtoParamCast::fromArray([
 
 **Best for performance** - No automatic type casting, strict type checking:
 
-```php skip-test
+```php
 class UserDtoNoCast extends SimpleDto
 {
     public function __construct(
@@ -104,7 +104,7 @@ $dto = UserDto::fromArray([
 
 Explicit cast attributes **ALWAYS work**, regardless of `#[AutoCast]`:
 
-```php skip-test
+```php
 use event4u\DataHelpers\SimpleDto\Attributes\Cast;
 use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 

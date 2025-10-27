@@ -11,8 +11,7 @@ Reference for type casting attributes and 20+ built-in cast classes.
 
 Enable automatic native PHP type casting (opt-in).
 
-<!-- skip-test: property declaration only -->
-```php skip-test
+```php
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 
 // Class-level: Enable for ALL properties

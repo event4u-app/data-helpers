@@ -73,7 +73,7 @@ class MixedCastsDto extends SimpleDto
 }
 
 // Test DTO with nested DTO - should always work
-class AddressDto extends SimpleDto
+class AutoCastAddressDto extends SimpleDto
 {
     public function __construct(
         public string $street,
@@ -82,12 +82,12 @@ class AddressDto extends SimpleDto
 }
 
 #[AutoCast]
-class UserWithAddressDto extends SimpleDto
+class AutoCastUserWithAddressDto extends SimpleDto
 {
     public function __construct(
         public int $id,
         public string $name,
-        public AddressDto $address,
+        public AutoCastAddressDto $address,
     ) {}
 }
 
@@ -235,7 +235,7 @@ describe('AutoCast Attribute', function(): void {
 
     describe('Nested DTOs always work', function(): void {
         it('auto-detects and casts nested DTOs regardless of AutoCast', function(): void {
-            $dto = UserWithAddressDto::fromArray([
+            $dto = AutoCastUserWithAddressDto::fromArray([
                 'id' => '1',
                 'name' => 'John',
                 'address' => [
@@ -245,7 +245,7 @@ describe('AutoCast Attribute', function(): void {
             ]);
 
             expect($dto->id)->toBe(1)
-                ->and($dto->address)->toBeInstanceOf(AddressDto::class)
+                ->and($dto->address)->toBeInstanceOf(AutoCastAddressDto::class)
                 ->and($dto->address->street)->toBe('123 Main St')
                 ->and($dto->address->city)->toBe('New York');
         });
@@ -554,8 +554,8 @@ describe('AutoCast Attribute', function(): void {
         });
 
         it('handles multiple nested DTOs', function(): void {
-            // Use the existing AddressDto from the top of the file
-            $result = UserWithAddressDto::fromArray([
+            // Use the existing AutoCastAddressDto from the top of the file
+            $result = AutoCastUserWithAddressDto::fromArray([
                 'id' => '123',
                 'name' => 'John Doe',
                 'address' => [
@@ -566,7 +566,7 @@ describe('AutoCast Attribute', function(): void {
 
             expect($result->id)->toBe(123)
                 ->and($result->name)->toBe('John Doe')
-                ->and($result->address)->toBeInstanceOf(AddressDto::class)
+                ->and($result->address)->toBeInstanceOf(AutoCastAddressDto::class)
                 ->and($result->address->street)->toBe('123 Main St')
                 ->and($result->address->city)->toBe('New York');
         });

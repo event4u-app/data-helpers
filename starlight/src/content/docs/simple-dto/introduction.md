@@ -89,9 +89,12 @@ $dto = UserDto::fromArray($_POST);
 
 ### Type Safety
 
-Full PHP 8.2+ type support with automatic casting.
+Full PHP 8.2+ type support with optional automatic type casting.
 
 ```php
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
+
+#[AutoCast]  // Optional: Enable automatic type casting
 class ProductDto extends SimpleDto
 {
     public function __construct(
@@ -102,6 +105,8 @@ class ProductDto extends SimpleDto
     ) {}
 }
 ```
+
+**Note:** Automatic type casting is **opt-in** using `#[AutoCast]`. Without it, SimpleDtos use strict type checking for better performance.
 
 ### Validation
 

@@ -148,18 +148,22 @@ $expensive = DataFilter::query($orders)
 
 ```php
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\Email;
 
+#[AutoCast]  // Optional: Enable automatic type casting
 class UserDto extends SimpleDto
 {
-    #[Required]
-    public string $name;
+    public function __construct(
+        #[Required]
+        public readonly string $name,
 
-    #[Required, Email]
-    public string $email;
+        #[Required, Email]
+        public readonly string $email,
 
-    public ?string $phone = null;
+        public readonly ?string $phone = null,
+    ) {}
 }
 
 // Create from array

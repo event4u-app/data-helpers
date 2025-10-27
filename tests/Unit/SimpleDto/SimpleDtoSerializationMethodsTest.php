@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use Symfony\Component\Yaml\Yaml;
 
+#[AutoCast]
 class TestSerializationUserDto extends SimpleDto
 {
     public function __construct(
@@ -15,6 +17,7 @@ class TestSerializationUserDto extends SimpleDto
     }
 }
 
+#[AutoCast]
 class TestSerializationNestedDto extends SimpleDto
 {
     /** @param array<string, mixed> $address */

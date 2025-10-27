@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 
 // Test Dtos for Edge Cases
+#[AutoCast]
 class EdgeCaseUserDto extends SimpleDto
 {
     public function __construct(
@@ -14,6 +16,7 @@ class EdgeCaseUserDto extends SimpleDto
     ) {}
 }
 
+#[AutoCast]
 class EdgeCaseNestedDto extends SimpleDto
 {
     public function __construct(
@@ -22,6 +25,7 @@ class EdgeCaseNestedDto extends SimpleDto
     ) {}
 }
 
+#[AutoCast]
 class EdgeCaseMultiTypeDto extends SimpleDto
 {
     public function __construct(
