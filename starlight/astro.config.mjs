@@ -95,6 +95,7 @@ export default defineConfig({
                         { label: 'Dot Notation Access', slug: 'simple-dto/dot-notation-access' },
                         { label: 'Serialization', slug: 'simple-dto/serialization' },
                         { label: 'Property Mapping', slug: 'simple-dto/property-mapping' },
+                        { label: 'Convert Empty to Null', slug: 'simple-dto/convert-empty-to-null' },
                         { label: 'Conditional Properties', slug: 'simple-dto/conditional-properties' },
 						{ label: 'Lazy Properties', slug: 'simple-dto/lazy-properties' },
 						{ label: 'Computed Properties', slug: 'simple-dto/computed-properties' },
@@ -167,6 +168,7 @@ export default defineConfig({
 					label: 'Examples',
 					collapsed: true,
 					items: [
+						{ label: 'Overview', slug: 'examples/overview' },
 						{ label: 'API Integration', slug: 'examples/api-integration' },
 						{ label: 'Form Processing', slug: 'examples/form-processing' },
 						{ label: 'Database Operations', slug: 'examples/database-operations' },
@@ -178,6 +180,7 @@ export default defineConfig({
 					label: 'API Reference',
 					collapsed: true,
 					items: [
+						{ label: 'Overview', slug: 'api/overview' },
 						{ label: 'DataAccessor', slug: 'api/data-accessor' },
 						{ label: 'DataMutator', slug: 'api/data-mutator' },
 						{ label: 'DataMapper', slug: 'api/data-mapper' },
