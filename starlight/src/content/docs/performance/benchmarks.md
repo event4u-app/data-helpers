@@ -12,8 +12,8 @@ Data Helpers provides powerful features with acceptable performance overhead:
 <!-- BENCHMARK_INTRODUCTION_START -->
 
 - **Type safety and validation** - With reasonable performance cost
-- **3.9x faster** than Symfony Serializer for complex mappings
-- Other mapper libraries are **6.7x faster**, but DataMapper provides better features
+- **3.6x faster** than Symfony Serializer for complex mappings
+- Other mapper libraries are **6.6x faster**, but DataMapper provides better features
 - **Low memory footprint** - ~1.2 KB per instance
 <!-- BENCHMARK_INTRODUCTION_END -->
 
@@ -27,24 +27,24 @@ Data Helpers prioritizes **developer experience, type safety, and maintainabilit
 SimpleDto vs Plain PHP (without #[AutoCast]):
 - SimpleDto:  ~4μs per operation
 - Plain PHP:  ~0.3μs per operation
-- Trade-off:  ~12x slower, but with type safety, validation, and immutability
+- Trade-off:  ~13x slower, but with type safety, validation, and immutability
 
 SimpleDto vs Plain PHP (with #[AutoCast]):
-- SimpleDto:  ~14-14μs per operation (depending on casting needs)
+- SimpleDto:  ~11-13μs per operation (depending on casting needs)
 - Plain PHP:  ~0.3μs per operation
-- Trade-off:  ~42-43x slower, but with automatic type conversion
+- Trade-off:  ~37-44x slower, but with automatic type conversion
 - Note:       Only use #[AutoCast] when you need automatic type conversion
               (e.g., CSV, XML, HTTP requests with string values)
 
 DataMapper vs Plain PHP:
-- DataMapper: ~16-20μs per operation
+- DataMapper: ~14-18μs per operation
 - Plain PHP:  ~0.1-0.4μs per operation
-- Trade-off:  ~62x slower, but with template syntax and automatic mapping
+- Trade-off:  ~56x slower, but with template syntax and automatic mapping
 
 DataMapper vs Symfony Serializer:
-- DataMapper: ~26-32μs per operation
-- Symfony:    ~103-126μs per operation
-- Benefit:    3.9x faster with better developer experience
+- DataMapper: ~24-30μs per operation
+- Symfony:    ~87-107μs per operation
+- Benefit:    3.6x faster with better developer experience
 ```
 <!-- BENCHMARK_TRADEOFFS_END -->
 
@@ -56,19 +56,19 @@ The `#[AutoCast]` attribute provides automatic type conversion but comes with a 
 
 ```
 Scenario 1: Correct types (no casting needed)
-- SimpleDto (no AutoCast):   ~4μs   (12x slower than Plain PHP)
-- SimpleDto (with AutoCast): ~14μs   (43x slower than Plain PHP)
-- AutoCast overhead:         ~269%
+- SimpleDto (no AutoCast):   ~4μs   (13x slower than Plain PHP)
+- SimpleDto (with AutoCast): ~11μs   (37x slower than Plain PHP)
+- AutoCast overhead:         ~189%
 
 Scenario 2: String types (casting needed)
-- SimpleDto (with AutoCast): ~14μs   (42x slower than Plain PHP)
-- Casting overhead:          ~-2% (compared to correct types)
+- SimpleDto (with AutoCast): ~13μs   (44x slower than Plain PHP)
+- Casting overhead:          ~18% (compared to correct types)
 ```
 
 **Key Insights:**
-- **#[AutoCast] adds ~269% overhead** even when no casting is needed (due to reflection)
-- **Actual casting adds only ~-2% overhead** on top of the AutoCast overhead
-- **Without #[AutoCast], SimpleDto is ~3.7x faster** and closer to Plain PHP performance
+- **#[AutoCast] adds ~189% overhead** even when no casting is needed (due to reflection)
+- **Actual casting adds only ~18% overhead** on top of the AutoCast overhead
+- **Without #[AutoCast], SimpleDto is ~2.9x faster** and closer to Plain PHP performance
 
 **When to use #[AutoCast]:**
 - ✅ CSV imports (all values are strings)
@@ -101,13 +101,13 @@ Scenario 2: String types (casting needed)
 
 | Operation | Time | Description |
 |-----------|------|-------------|
-| Simple Get | 0.330μs | Get value from flat array |
-| Nested Get | 0.418μs | Get value from nested path |
-| Wildcard Get | 8.020μs | Get values using single wildcard |
-| Deep Wildcard Get | 73.428μs | Get values using multiple wildcards |
-| Typed Get String | 0.428μs | Get typed string value |
-| Typed Get Int | 0.330μs | Get typed int value |
-| Create Accessor | 0.083μs | Instantiate DataAccessor |
+| Simple Get | 0.256μs | Get value from flat array |
+| Nested Get | 0.353μs | Get value from nested path |
+| Wildcard Get | 6.467μs | Get values using single wildcard |
+| Deep Wildcard Get | 65.359μs | Get values using multiple wildcards |
+| Typed Get String | 0.356μs | Get typed string value |
+| Typed Get Int | 0.343μs | Get typed int value |
+| Create Accessor | 0.066μs | Instantiate DataAccessor |
 
 <!-- BENCHMARK_DATA_ACCESSOR_END -->
 
@@ -117,13 +117,13 @@ Scenario 2: String types (casting needed)
 
 | Operation | Time | Description |
 |-----------|------|-------------|
-| Simple Set | 0.836μs | Set value in flat array |
-| Nested Set | 1.264μs | Set value in nested path |
-| Deep Set | 1.515μs | Set value creating new nested structure |
-| Multiple Set | 1.869μs | Set multiple values at once |
-| Merge | 1.254μs | Deep merge arrays |
-| Unset | 1.209μs | Remove single value |
-| Multiple Unset | 1.916μs | Remove multiple values |
+| Simple Set | 0.739μs | Set value in flat array |
+| Nested Set | 1.059μs | Set value in nested path |
+| Deep Set | 1.176μs | Set value creating new nested structure |
+| Multiple Set | 1.771μs | Set multiple values at once |
+| Merge | 1.080μs | Deep merge arrays |
+| Unset | 1.078μs | Remove single value |
+| Multiple Unset | 1.574μs | Remove multiple values |
 
 <!-- BENCHMARK_DATA_MUTATOR_END -->
 
@@ -133,10 +133,10 @@ Scenario 2: String types (casting needed)
 
 | Operation | Time | Description |
 |-----------|------|-------------|
-| Simple Mapping | 14.892μs | Map flat structure |
-| Nested Mapping | 14.885μs | Map nested structure |
-| Auto Map | 11.926μs | Automatic field mapping |
-| Map From Template | 14.503μs | Map using template expressions |
+| Simple Mapping | 12.138μs | Map flat structure |
+| Nested Mapping | 13.133μs | Map nested structure |
+| Auto Map | 10.556μs | Automatic field mapping |
+| Map From Template | 13.185μs | Map using template expressions |
 
 <!-- BENCHMARK_DATA_MAPPER_END -->
 
@@ -156,9 +156,9 @@ Comparison of our SimpleDto implementation with other DTO libraries and plain PH
 
 | Method | SimpleDto | Plain PHP | Other DTOs | Description |
 |--------|-----------|-----------|------------|-------------|
-| From Array | 5.743μs<br>&nbsp; | 0.180μs<br>(**31.9x faster**) | 0.252μs<br>(**22.8x faster**) | Our SimpleDto implementation |
-| To Array | 11.764μs<br>&nbsp; | - | 0.307μs<br>(**38.3x faster**) | Our SimpleDto toArray() |
-| Complex Data | 6.620μs<br>&nbsp; | - | 0.353μs<br>(**18.8x faster**) | Our SimpleDto with complex data |
+| From Array | 5.689μs<br>&nbsp; | 0.167μs<br>(**34.1x faster**) | 0.221μs<br>(**25.7x faster**) | Our SimpleDto implementation |
+| To Array | 11.341μs<br>&nbsp; | - | 0.293μs<br>(**38.7x faster**) | Our SimpleDto toArray() |
+| Complex Data | 5.172μs<br>&nbsp; | - | 0.307μs<br>(**16.9x faster**) | Our SimpleDto with complex data |
 
 <!-- BENCHMARK_DTO_COMPARISON_END -->
 
@@ -166,8 +166,8 @@ Comparison of our SimpleDto implementation with other DTO libraries and plain PH
 
 **Key Insights:**
 - SimpleDto provides **type safety, validation, and immutability** with reasonable overhead
-- Plain PHP is **~48x faster** but lacks type safety and validation features
-- Other DTO libraries have **similar performance** (~26x faster than SimpleDto)
+- Plain PHP is **~49x faster** but lacks type safety and validation features
+- Other DTO libraries have **similar performance** (~27x faster than SimpleDto)
 - The overhead is acceptable for the added safety and developer experience
 <!-- BENCHMARK_DTO_INSIGHTS_END -->
 
@@ -179,17 +179,17 @@ Comparison of our DataMapper with other mapper libraries and plain PHP:
 
 | Method | DataMapper | Plain PHP | Other Mappers | Description |
 |--------|------------|-----------|---------------|-------------|
-| Simple Mapping | 14.596μs<br>&nbsp; | 0.086μs<br>(**170.1x faster**) | 4.031μs<br>(**3.6x faster**) | Our DataMapper implementation |
-| Nested Mapping | 23.152μs<br>&nbsp; | 0.209μs<br>(**110.9x faster**) | - | Our DataMapper with nested data |
-| Template Mapping | 16.985μs<br>&nbsp; | - | - | Our DataMapper with template syntax |
+| Simple Mapping | 12.104μs<br>&nbsp; | 0.093μs<br>(**130.4x faster**) | 3.611μs<br>(**3.4x faster**) | Our DataMapper implementation |
+| Nested Mapping | 21.384μs<br>&nbsp; | 0.193μs<br>(**110.6x faster**) | - | Our DataMapper with nested data |
+| Template Mapping | 14.544μs<br>&nbsp; | - | - | Our DataMapper with template syntax |
 
 <!-- BENCHMARK_MAPPER_COMPARISON_END -->
 
 <!-- BENCHMARK_MAPPER_INSIGHTS_START -->
 
 **Key Insights:**
-- Other mapper libraries are **6.7x faster** than DataMapper, but lack template syntax and advanced features
-- Plain PHP is **~124x faster** but requires manual mapping code for each use case
+- Other mapper libraries are **6.6x faster** than DataMapper, but lack template syntax and advanced features
+- Plain PHP is **~112x faster** but requires manual mapping code for each use case
 - DataMapper provides the best balance of features, readability, and maintainability
 - The overhead is acceptable for complex mapping scenarios with better developer experience
 <!-- BENCHMARK_MAPPER_INSIGHTS_END -->
@@ -202,15 +202,15 @@ Comparison with Symfony Serializer for nested JSON to DTO mapping:
 
 | Method | DataMapper | Plain PHP | Symfony Serializer | Description |
 |--------|------------|-----------|-------------------|-------------|
-| Template Syntax | 34.154μs<br>&nbsp; | 0.465μs<br>(**73.5x faster**) | 114.271μs<br>(**3.3x slower**) | DataMapper with template syntax |
-| Simple Paths | 24.544μs<br>&nbsp; | 0.465μs<br>(**52.8x faster**) | 114.271μs<br>(**4.7x slower**) | DataMapper with simple paths |
+| Template Syntax | 29.752μs<br>&nbsp; | 0.407μs<br>(**73.1x faster**) | 97.115μs<br>(**3.3x slower**) | DataMapper with template syntax |
+| Simple Paths | 24.062μs<br>&nbsp; | 0.407μs<br>(**59.1x faster**) | 97.115μs<br>(**4.0x slower**) | DataMapper with simple paths |
 
 <!-- BENCHMARK_SERIALIZATION_END -->
 
 <!-- BENCHMARK_SERIALIZATION_INSIGHTS_START -->
 
 **Key Insights:**
-- DataMapper is **3.9x faster** than Symfony Serializer
+- DataMapper is **3.6x faster** than Symfony Serializer
 - Zero reflection overhead for template-based mapping
 - Optimized for nested data structures
 <!-- BENCHMARK_SERIALIZATION_INSIGHTS_END -->
