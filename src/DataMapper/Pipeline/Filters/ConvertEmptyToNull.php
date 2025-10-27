@@ -19,8 +19,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Optional conversions (disabled by default):
  * - Integer zero (0) - enable with convertZero: true
  * - String zero ("0") - enable with convertStringZero: true
- *
- * Note: Boolean false is NEVER converted to null.
+ * - Boolean false - enable with convertFalse: true
  *
  * Useful for database operations where empty values should be stored as NULL.
  *
@@ -29,13 +28,15 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  *   Template: {{ value | empty_to_null }}
  *   Template: {{ value | empty_to_null:"zero" }}
  *   Template: {{ value | empty_to_null:"string_zero" }}
- *   Template: {{ value | empty_to_null:"zero,string_zero" }}
+ *   Template: {{ value | empty_to_null:"false" }}
+ *   Template: {{ value | empty_to_null:"zero,string_zero,false" }}
  */
-final class ConvertEmptyToNull implements FilterInterface
+final readonly class ConvertEmptyToNull implements FilterInterface
 {
     public function __construct(
-        private readonly bool $convertZero = false,
-        private readonly bool $convertStringZero = false,
+        private bool $convertZero = false,
+        private bool $convertStringZero = false,
+        private bool $convertFalse = false,
     ) {}
 
     public function transform(mixed $value, HookContext $context): mixed
@@ -44,44 +45,47 @@ final class ConvertEmptyToNull implements FilterInterface
         $args = $context->extra();
         $convertZero = $this->convertZero;
         $convertStringZero = $this->convertStringZero;
+        $convertFalse = $this->convertFalse;
 
         // Parse parameters from template filter syntax
         // Supports: {{ value | empty_to_null:"zero" }}
         //           {{ value | empty_to_null:"string_zero" }}
-        //           {{ value | empty_to_null:"zero,string_zero" }}
+        //           {{ value | empty_to_null:"false" }}
+        //           {{ value | empty_to_null:"zero,string_zero,false" }}
         if (count($args) >= 1 && is_string($args[0])) {
             $options = $this->parseOptions($args[0]);
             $convertZero = $options['zero'];
             $convertStringZero = $options['string_zero'];
-        }
-
-        // Don't convert boolean false to null
-        if (is_bool($value)) {
-            return $value;
+            $convertFalse = $options['false'];
         }
 
         // Handle null
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
         // Handle empty string
-        if ($value === '') {
+        if ('' === $value) {
             return null;
         }
 
         // Handle empty array
-        if (is_array($value) && count($value) === 0) {
+        if (is_array($value) && [] === $value) {
             return null;
         }
 
         // Handle integer zero (optional)
-        if ($convertZero && $value === 0) {
+        if ($convertZero && 0 === $value) {
             return null;
         }
 
         // Handle string zero (optional)
-        if ($convertStringZero && $value === '0') {
+        if ($convertStringZero && '0' === $value) {
+            return null;
+        }
+
+        // Handle boolean false (optional)
+        if ($convertFalse && false === $value) {
             return null;
         }
 
@@ -94,25 +98,29 @@ final class ConvertEmptyToNull implements FilterInterface
      * Accepts:
      * - "zero" → convertZero: true
      * - "string_zero" → convertStringZero: true
-     * - "zero,string_zero" → both true
+     * - "false" → convertFalse: true
+     * - "zero,string_zero,false" → all true
      *
-     * @return array{zero: bool, string_zero: bool}
+     * @return array{zero: bool, string_zero: bool, false: bool}
      */
     private function parseOptions(string $options): array
     {
         $result = [
             'zero' => false,
             'string_zero' => false,
+            'false' => false,
         ];
 
         // Split by comma and trim
         $parts = array_map('trim', explode(',', strtolower($options)));
 
         foreach ($parts as $part) {
-            if ($part === 'zero') {
+            if ('zero' === $part) {
                 $result['zero'] = true;
-            } elseif ($part === 'string_zero') {
+            } elseif ('string_zero' === $part) {
                 $result['string_zero'] = true;
+            } elseif ('false' === $part) {
+                $result['false'] = true;
             }
         }
 

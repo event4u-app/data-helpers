@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
+use event4u\DataHelpers\SimpleDto\Casts\ConvertEmptyToNullCast;
 
-describe('ConvertEmptyToNull Attribute', function () {
-    it('converts empty string to null on property level', function () {
+describe('ConvertEmptyToNull Attribute', function(): void {
+    it('converts empty string to null on property level', function(): void {
         $dtoClass = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -24,7 +25,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($dto->name)->toBe('test');
     });
 
-    it('converts empty array to null on property level', function () {
+    it('converts empty array to null on property level', function(): void {
         $dtoClass = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -42,7 +43,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($dto->categories)->toBe(['tag1']);
     });
 
-    it('does not convert boolean false to null', function () {
+    it('does not convert boolean false to null', function(): void {
         $dtoClass = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -57,7 +58,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($dto->active)->toBe(false);
     });
 
-    it('converts empty string to null when using fromArray', function () {
+    it('converts empty string to null when using fromArray', function(): void {
         $dto = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -76,7 +77,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->tags)->toBeNull();
     });
 
-    it('keeps non-empty values unchanged', function () {
+    it('keeps non-empty values unchanged', function(): void {
         $dto = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -95,7 +96,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->tags)->toBe(['php', 'laravel']);
     });
 
-    it('works on class level', function () {
+    it('works on class level', function(): void {
         $dtoClass = new #[ConvertEmptyToNull] class () extends SimpleDto {
             public function __construct(
                 public readonly ?string $bio = null,
@@ -115,7 +116,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->name)->toBe('John');
     });
 
-    it('does not convert zero string to null by default', function () {
+    it('does not convert zero string to null by default', function(): void {
         $dto = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -130,7 +131,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->value)->toBe('0');
     });
 
-    it('does not convert integer zero to null by default', function () {
+    it('does not convert integer zero to null by default', function(): void {
         $dto = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -145,7 +146,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->count)->toBe(0);
     });
 
-    it('converts zero string to null when enabled', function () {
+    it('converts zero string to null when enabled', function(): void {
         $dtoClass = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull(convertStringZero: true)]
@@ -160,7 +161,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->value)->toBeNull();
     });
 
-    it('converts integer zero to null when enabled', function () {
+    it('converts integer zero to null when enabled', function(): void {
         $dtoClass = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull(convertZero: true)]
@@ -175,7 +176,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->count)->toBeNull();
     });
 
-    it('does not convert non-zero and non-empty values', function () {
+    it('does not convert non-zero and non-empty values', function(): void {
         $dto = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -194,7 +195,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->value)->toBe('1');
     });
 
-    it('converts both zero types when both options enabled', function () {
+    it('converts both zero types when both options enabled', function(): void {
         $dtoClass = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull(convertZero: true, convertStringZero: true)]
@@ -213,7 +214,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->value)->toBeNull();
     });
 
-    it('handles null values correctly', function () {
+    it('handles null values correctly', function(): void {
         $dto = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -228,7 +229,7 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($instance->bio)->toBeNull();
     });
 
-    it('works with toArray output', function () {
+    it('works with toArray output', function(): void {
         $dto = new class () extends SimpleDto {
             public function __construct(
                 #[ConvertEmptyToNull]
@@ -248,5 +249,95 @@ describe('ConvertEmptyToNull Attribute', function () {
         expect($array['bio'])->toBeNull();
         expect($array['tags'])->toBeNull();
     });
-});
 
+    it('converts false to null when convertFalse is enabled', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull(convertFalse: true)]
+                public readonly ?bool $active = null,
+                #[ConvertEmptyToNull]
+                public readonly ?bool $enabled = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'active' => false,
+            'enabled' => false,
+        ]);
+
+        expect($dto->active)->toBeNull();
+        expect($dto->enabled)->toBe(false);
+    });
+
+    it('converts false to null on class level when convertFalse is enabled', function(): void {
+        $dtoClass = new #[ConvertEmptyToNull(convertFalse: true)] class () extends SimpleDto {
+            public function __construct(
+                public readonly ?bool $active = null,
+                public readonly ?bool $enabled = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'active' => false,
+            'enabled' => false,
+        ]);
+
+        expect($dto->active)->toBeNull();
+        expect($dto->enabled)->toBeNull();
+    });
+
+    it('converts false to null with cast when convertFalse is enabled', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            protected function casts(): array
+            {
+                return [
+                    'active' => ConvertEmptyToNullCast::class . ':convertFalse=1',
+                ];
+            }
+
+            public function __construct(
+                public readonly ?bool $active = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'active' => false,
+        ]);
+
+        expect($dto->active)->toBeNull();
+    });
+
+    it('keeps true unchanged when convertFalse is enabled', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull(convertFalse: true)]
+                public readonly ?bool $active = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'active' => true,
+        ]);
+
+        expect($dto->active)->toBe(true);
+    });
+
+    it('combines convertZero, convertStringZero and convertFalse', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull(convertZero: true, convertStringZero: true, convertFalse: true)]
+                public readonly mixed $value = null,
+            ) {}
+        };
+
+        $dto1 = $dtoClass::fromArray(['value' => 0]);
+        $dto2 = $dtoClass::fromArray(['value' => '0']);
+        $dto3 = $dtoClass::fromArray(['value' => false]);
+        $dto4 = $dtoClass::fromArray(['value' => '']);
+
+        expect($dto1->value)->toBeNull();
+        expect($dto2->value)->toBeNull();
+        expect($dto3->value)->toBeNull();
+        expect($dto4->value)->toBeNull();
+    });
+});

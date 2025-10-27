@@ -138,7 +138,7 @@ trait SimpleDtoCastsTrait
 
             // Check for class-level ConvertEmptyToNull attribute
             $classAttributes = $reflection->getAttributes(ConvertEmptyToNull::class);
-            $hasClassLevelConvertEmptyToNull = !empty($classAttributes);
+            $hasClassLevelConvertEmptyToNull = [] !== $classAttributes;
 
             foreach ($reflection->getProperties() as $reflectionProperty) {
                 // Check for DataCollectionOf attribute
@@ -168,13 +168,16 @@ trait SimpleDtoCastsTrait
 
                     // Build cast string with parameters
                     $castString = ConvertEmptyToNullCast::class;
-                    if ($instance->convertZero || $instance->convertStringZero) {
+                    if ($instance->convertZero || $instance->convertStringZero || $instance->convertFalse) {
                         $params = [];
                         if ($instance->convertZero) {
                             $params[] = 'convertZero=1';
                         }
                         if ($instance->convertStringZero) {
                             $params[] = 'convertStringZero=1';
+                        }
+                        if ($instance->convertFalse) {
+                            $params[] = 'convertFalse=1';
                         }
                         $castString .= ':' . implode(',', $params);
                     }
@@ -187,13 +190,16 @@ trait SimpleDtoCastsTrait
 
                     // Build cast string with parameters
                     $castString = ConvertEmptyToNullCast::class;
-                    if ($classInstance->convertZero || $classInstance->convertStringZero) {
+                    if ($classInstance->convertZero || $classInstance->convertStringZero || $classInstance->convertFalse) {
                         $params = [];
                         if ($classInstance->convertZero) {
                             $params[] = 'convertZero=1';
                         }
                         if ($classInstance->convertStringZero) {
                             $params[] = 'convertStringZero=1';
+                        }
+                        if ($classInstance->convertFalse) {
+                            $params[] = 'convertFalse=1';
                         }
                         $castString .= ':' . implode(',', $params);
                     }

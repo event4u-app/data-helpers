@@ -20,8 +20,7 @@ use Attribute;
  * Optional conversions (disabled by default):
  * - Integer zero (0) - enable with convertZero: true
  * - String zero ("0") - enable with convertStringZero: true
- *
- * Note: Boolean false is NEVER converted to null.
+ * - Boolean false - enable with convertFalse: true
  *
  * Can be applied to:
  * - Individual properties (property-level)
@@ -77,6 +76,6 @@ class ConvertEmptyToNull
     public function __construct(
         public readonly bool $convertZero = false,
         public readonly bool $convertStringZero = false,
+        public readonly bool $convertFalse = false,
     ) {}
 }
-

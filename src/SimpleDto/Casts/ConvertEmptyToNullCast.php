@@ -19,8 +19,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
  * Optional conversions (disabled by default):
  * - Integer zero (0) - enable with convertZero: true
  * - String zero ("0") - enable with convertStringZero: true
- *
- * Note: Boolean false is NEVER converted to null.
+ * - Boolean false - enable with convertFalse: true
  *
  * Example:
  * ```php
@@ -53,17 +52,18 @@ class ConvertEmptyToNullCast implements CastsAttributes
 {
     private readonly bool $convertZero;
     private readonly bool $convertStringZero;
+    private readonly bool $convertFalse;
 
     /**
      * @param string|bool ...$parameters Parameters can be:
-     *   - Named: convertZero: true, convertStringZero: true
-     *   - String format: "convertZero=1", "convertStringZero=1"
+     *   - Named: convertZero: true, convertStringZero: true, convertFalse: true
+     *   - String format: "convertZero=1", "convertStringZero=1", "convertFalse=1"
      */
     public function __construct(...$parameters)
     {
         // Handle named parameters
         if (isset($parameters['convertZero'])) {
-            $this->convertZero = (bool) $parameters['convertZero'];
+            $this->convertZero = (bool)$parameters['convertZero'];
         } elseif (isset($parameters[0]) && is_string($parameters[0]) && str_contains($parameters[0], 'convertZero=')) {
             // Parse string format: "convertZero=1"
             $this->convertZero = true;
@@ -72,15 +72,36 @@ class ConvertEmptyToNullCast implements CastsAttributes
         }
 
         if (isset($parameters['convertStringZero'])) {
-            $this->convertStringZero = (bool) $parameters['convertStringZero'];
-        } elseif (isset($parameters[1]) && is_string($parameters[1]) && str_contains($parameters[1], 'convertStringZero=')) {
+            $this->convertStringZero = (bool)$parameters['convertStringZero'];
+        } elseif (isset($parameters[1]) && is_string($parameters[1]) && str_contains(
+            $parameters[1],
+            'convertStringZero='
+        )) {
             // Parse string format: "convertStringZero=1"
             $this->convertStringZero = true;
-        } elseif (isset($parameters[0]) && is_string($parameters[0]) && str_contains($parameters[0], 'convertStringZero=')) {
+        } elseif (isset($parameters[0]) && is_string($parameters[0]) && str_contains(
+            $parameters[0],
+            'convertStringZero='
+        )) {
             // Parse string format: "convertStringZero=1" as first parameter
             $this->convertStringZero = true;
         } else {
             $this->convertStringZero = false;
+        }
+
+        if (isset($parameters['convertFalse'])) {
+            $this->convertFalse = (bool)$parameters['convertFalse'];
+        } elseif (isset($parameters[2]) && is_string($parameters[2]) && str_contains($parameters[2], 'convertFalse=')) {
+            // Parse string format: "convertFalse=1"
+            $this->convertFalse = true;
+        } elseif (isset($parameters[1]) && is_string($parameters[1]) && str_contains($parameters[1], 'convertFalse=')) {
+            // Parse string format: "convertFalse=1" as second parameter
+            $this->convertFalse = true;
+        } elseif (isset($parameters[0]) && is_string($parameters[0]) && str_contains($parameters[0], 'convertFalse=')) {
+            // Parse string format: "convertFalse=1" as first parameter
+            $this->convertFalse = true;
+        } else {
+            $this->convertFalse = false;
         }
     }
 
@@ -95,33 +116,33 @@ class ConvertEmptyToNullCast implements CastsAttributes
      */
     public function get(mixed $value, array $attributes): mixed
     {
-        // Don't convert boolean false to null
-        if (is_bool($value)) {
-            return $value;
-        }
-
         // Handle null
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
         // Handle empty string
-        if ($value === '') {
+        if ('' === $value) {
             return null;
         }
 
         // Handle empty array
-        if (is_array($value) && count($value) === 0) {
+        if (is_array($value) && [] === $value) {
             return null;
         }
 
         // Handle integer zero (optional)
-        if ($this->convertZero && $value === 0) {
+        if ($this->convertZero && 0 === $value) {
             return null;
         }
 
         // Handle string zero (optional)
-        if ($this->convertStringZero && $value === '0') {
+        if ($this->convertStringZero && '0' === $value) {
+            return null;
+        }
+
+        // Handle boolean false (optional)
+        if ($this->convertFalse && false === $value) {
             return null;
         }
 
@@ -143,4 +164,3 @@ class ConvertEmptyToNullCast implements CastsAttributes
         return $value;
     }
 }
-

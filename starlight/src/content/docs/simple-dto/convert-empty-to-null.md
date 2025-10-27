@@ -18,8 +18,7 @@ By default, the following values are converted to `null`:
 **Optional conversions** (disabled by default):
 - Integer zero: `0` - enable with `convertZero: true`
 - String zero: `"0"` - enable with `convertStringZero: true`
-
-**Important:** Boolean `false` is **NEVER** converted to `null`.
+- Boolean false: `false` - enable with `convertFalse: true`
 
 ## Basic Usage
 
@@ -200,7 +199,7 @@ if ($product->images !== null && count($product->images) > 0) {
 
 ## Boolean Handling
 
-The attribute **does not** convert boolean `false` to `null`:
+By default, the attribute **does not** convert boolean `false` to `null`. You need to explicitly enable this with `convertFalse: true`:
 
 ```php
 use event4u\DataHelpers\SimpleDto;
@@ -209,20 +208,22 @@ use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
 class SettingsDto extends SimpleDto
 {
     public function __construct(
+        // Default: false stays false
         #[ConvertEmptyToNull]
         public readonly ?bool $notifications = null,
 
-        #[ConvertEmptyToNull]
+        // Convert false to null
+        #[ConvertEmptyToNull(convertFalse: true)]
         public readonly ?bool $newsletter = null,
     ) {}
 }
 
 $settings = SettingsDto::fromArray([
-    'notifications' => false,  // Stays false
-    'newsletter' => '',        // Becomes null
+    'notifications' => false,  // Stays false (default behavior)
+    'newsletter' => false,     // Becomes null (convertFalse: true)
 ]);
 
-echo $settings->notifications; // false (not null!)
+echo $settings->notifications; // false
 echo $settings->newsletter;    // null
 ```
 
@@ -263,6 +264,31 @@ echo $stats->total; // 0
 ```
 
 This gives you fine-grained control over which zero values should be converted.
+
+## Combining All Options
+
+You can combine all three optional conversions:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
+
+class FlexibleDto extends SimpleDto
+{
+    public function __construct(
+        // Convert all: empty string, empty array, 0, "0", and false to null
+        #[ConvertEmptyToNull(convertZero: true, convertStringZero: true, convertFalse: true)]
+        public readonly mixed $value = null,
+    ) {}
+}
+
+$dto1 = FlexibleDto::fromArray(['value' => '']);     // null
+$dto2 = FlexibleDto::fromArray(['value' => []]);     // null
+$dto3 = FlexibleDto::fromArray(['value' => 0]);      // null
+$dto4 = FlexibleDto::fromArray(['value' => '0']);    // null
+$dto5 = FlexibleDto::fromArray(['value' => false]);  // null
+$dto6 = FlexibleDto::fromArray(['value' => true]);   // true (not converted)
+```
 
 ## Combining with Other Attributes
 
@@ -315,6 +341,10 @@ class ProfileDto extends SimpleDto
             // With zero conversion enabled
             'count' => new ConvertEmptyToNullCast(convertZero: true),
             'value' => new ConvertEmptyToNullCast(convertStringZero: true),
+            // With false conversion enabled
+            'active' => new ConvertEmptyToNullCast(convertFalse: true),
+            // With all conversions enabled
+            'flexible' => new ConvertEmptyToNullCast(convertZero: true, convertStringZero: true, convertFalse: true),
         ];
     }
 
@@ -323,6 +353,8 @@ class ProfileDto extends SimpleDto
         public readonly ?array $tags = null,
         public readonly ?int $count = null,
         public readonly ?string $value = null,
+        public readonly ?bool $active = null,
+        public readonly mixed $flexible = null,
     ) {}
 }
 ```

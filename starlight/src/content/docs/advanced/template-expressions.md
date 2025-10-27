@@ -202,8 +202,14 @@ $template = [
 // empty_to_null with string zero conversion
 '{{ value | empty_to_null:"string_zero" }}' // '0' -> null
 
-// empty_to_null with both zero conversions
+// empty_to_null with false conversion
+'{{ active | empty_to_null:"false" }}' // false -> null
+
+// empty_to_null with multiple conversions
 '{{ amount | empty_to_null:"zero,string_zero" }}' // 0 -> null, '0' -> null
+
+// empty_to_null with all conversions
+'{{ flexible | empty_to_null:"zero,string_zero,false" }}' // 0, '0', false -> null
 
 // default - Provide default value
 '{{ name | default:"Unknown" }}' // null -> 'Unknown'
@@ -213,9 +219,11 @@ $template = [
 - No options: Converts `""`, `[]`, and `null` to `null`
 - `"zero"`: Also converts integer `0` to `null`
 - `"string_zero"`: Also converts string `"0"` to `null`
+- `"false"`: Also converts boolean `false` to `null`
 - `"zero,string_zero"`: Converts both zero types to `null`
+- `"zero,string_zero,false"`: Converts all three types to `null`
 
-**Note:** Boolean `false` is **never** converted to `null`.
+**Note:** By default, boolean `false` is **not** converted to `null` unless you use the `"false"` option.
 
 **See also:** [ConvertEmptyToNull Attribute](/data-helpers/simple-dto/convert-empty-to-null/) for SimpleDto usage.
 

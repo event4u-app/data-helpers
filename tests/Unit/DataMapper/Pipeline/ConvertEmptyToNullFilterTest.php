@@ -5,9 +5,9 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\ConvertEmptyToNull;
 
-describe('ConvertEmptyToNull Filter', function (): void {
-    describe('Default Behavior (Empty Strings and Arrays)', function (): void {
-        it('converts empty string to null in template', function (): void {
+describe('ConvertEmptyToNull Filter', function(): void {
+    describe('Default Behavior (Empty Strings and Arrays)', function(): void {
+        it('converts empty string to null in template', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null }}'];
             $sources = ['data' => ['value' => '']];
 
@@ -16,7 +16,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBeNull();
         });
 
-        it('converts empty array to null in template', function (): void {
+        it('converts empty array to null in template', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null }}'];
             $sources = ['data' => ['value' => []]];
 
@@ -25,7 +25,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBeNull();
         });
 
-        it('does not convert zero by default', function (): void {
+        it('does not convert zero by default', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null }}'];
             $sources = ['data' => ['value' => 0]];
 
@@ -34,7 +34,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBe(0);
         });
 
-        it('does not convert string zero by default', function (): void {
+        it('does not convert string zero by default', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null }}'];
             $sources = ['data' => ['value' => '0']];
 
@@ -43,7 +43,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBe('0');
         });
 
-        it('does not convert boolean false', function (): void {
+        it('does not convert boolean false', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null }}'];
             $sources = ['data' => ['value' => false]];
 
@@ -52,7 +52,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBe(false);
         });
 
-        it('keeps non-empty values unchanged', function (): void {
+        it('keeps non-empty values unchanged', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null }}'];
             $sources = ['data' => ['value' => 'hello']];
 
@@ -62,8 +62,8 @@ describe('ConvertEmptyToNull Filter', function (): void {
         });
     });
 
-    describe('With convertZero Parameter', function (): void {
-        it('converts integer zero to null when enabled', function (): void {
+    describe('With convertZero Parameter', function(): void {
+        it('converts integer zero to null when enabled', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null:"zero" }}'];
             $sources = ['data' => ['value' => 0]];
 
@@ -72,7 +72,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBeNull();
         });
 
-        it('does not convert string zero when only convertZero enabled', function (): void {
+        it('does not convert string zero when only convertZero enabled', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null:"zero" }}'];
             $sources = ['data' => ['value' => '0']];
 
@@ -81,7 +81,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBe('0');
         });
 
-        it('still converts empty string when convertZero enabled', function (): void {
+        it('still converts empty string when convertZero enabled', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null:"zero" }}'];
             $sources = ['data' => ['value' => '']];
 
@@ -91,8 +91,8 @@ describe('ConvertEmptyToNull Filter', function (): void {
         });
     });
 
-    describe('With convertStringZero Parameter', function (): void {
-        it('converts string zero to null when enabled', function (): void {
+    describe('With convertStringZero Parameter', function(): void {
+        it('converts string zero to null when enabled', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null:"string_zero" }}'];
             $sources = ['data' => ['value' => '0']];
 
@@ -101,7 +101,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBeNull();
         });
 
-        it('does not convert integer zero when only convertStringZero enabled', function (): void {
+        it('does not convert integer zero when only convertStringZero enabled', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null:"string_zero" }}'];
             $sources = ['data' => ['value' => 0]];
 
@@ -110,7 +110,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBe(0);
         });
 
-        it('still converts empty string when convertStringZero enabled', function (): void {
+        it('still converts empty string when convertStringZero enabled', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null:"string_zero" }}'];
             $sources = ['data' => ['value' => '']];
 
@@ -120,8 +120,8 @@ describe('ConvertEmptyToNull Filter', function (): void {
         });
     });
 
-    describe('With Both Parameters Enabled', function (): void {
-        it('converts both zero types to null', function (): void {
+    describe('With Both Parameters Enabled', function(): void {
+        it('converts both zero types to null', function(): void {
             $template = [
                 'intZero' => '{{ data.intZero | empty_to_null:"zero,string_zero" }}',
                 'stringZero' => '{{ data.stringZero | empty_to_null:"zero,string_zero" }}',
@@ -137,7 +137,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['stringZero'])->toBeNull();
         });
 
-        it('still converts empty strings and arrays', function (): void {
+        it('still converts empty strings and arrays', function(): void {
             $template = [
                 'emptyString' => '{{ data.emptyString | empty_to_null:"zero,string_zero" }}',
                 'emptyArray' => '{{ data.emptyArray | empty_to_null:"zero,string_zero" }}',
@@ -153,7 +153,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['emptyArray'])->toBeNull();
         });
 
-        it('does not convert boolean false', function (): void {
+        it('does not convert boolean false', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null:"zero,string_zero" }}'];
             $sources = ['data' => ['value' => false]];
 
@@ -163,8 +163,8 @@ describe('ConvertEmptyToNull Filter', function (): void {
         });
     });
 
-    describe('Pipeline Mode', function (): void {
-        it('converts empty string in pipeline mode', function (): void {
+    describe('Pipeline Mode', function(): void {
+        it('converts empty string in pipeline mode', function(): void {
             $source = ['value' => ''];
             $mapping = ['result' => '{{ value }}'];
 
@@ -177,7 +177,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBeNull();
         });
 
-        it('converts empty array in pipeline mode', function (): void {
+        it('converts empty array in pipeline mode', function(): void {
             $source = ['value' => []];
             $mapping = ['result' => '{{ value }}'];
 
@@ -190,7 +190,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBeNull();
         });
 
-        it('converts zero in pipeline mode when enabled', function (): void {
+        it('converts zero in pipeline mode when enabled', function(): void {
             $source = ['value' => 0];
             $mapping = ['result' => '{{ value }}'];
 
@@ -203,7 +203,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBeNull();
         });
 
-        it('converts string zero in pipeline mode when enabled', function (): void {
+        it('converts string zero in pipeline mode when enabled', function(): void {
             $source = ['value' => '0'];
             $mapping = ['result' => '{{ value }}'];
 
@@ -216,7 +216,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBeNull();
         });
 
-        it('converts both zero types in pipeline mode when both enabled', function (): void {
+        it('converts both zero types in pipeline mode when both enabled', function(): void {
             $source = [
                 'intZero' => 0,
                 'stringZero' => '0',
@@ -237,8 +237,8 @@ describe('ConvertEmptyToNull Filter', function (): void {
         });
     });
 
-    describe('Chaining with Other Filters', function (): void {
-        it('chains with trim filter', function (): void {
+    describe('Chaining with Other Filters', function(): void {
+        it('chains with trim filter', function(): void {
             $template = ['result' => '{{ data.value | trim | empty_to_null }}'];
             $sources = ['data' => ['value' => '   ']];
 
@@ -247,7 +247,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['result'])->toBeNull();
         });
 
-        it('chains with upper filter', function (): void {
+        it('chains with upper filter', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null | upper }}'];
             $sources = ['data' => ['value' => 'hello']];
 
@@ -257,8 +257,8 @@ describe('ConvertEmptyToNull Filter', function (): void {
         });
     });
 
-    describe('Real-World Examples', function (): void {
-        it('cleans API response with empty optional fields', function (): void {
+    describe('Real-World Examples', function(): void {
+        it('cleans API response with empty optional fields', function(): void {
             $template = [
                 'name' => '{{ data.name }}',
                 'email' => '{{ data.email }}',
@@ -280,7 +280,7 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['address'])->toBeNull();
         });
 
-        it('handles form data with empty fields', function (): void {
+        it('handles form data with empty fields', function(): void {
             $template = [
                 'name' => '{{ form.name }}',
                 'bio' => '{{ form.bio | empty_to_null }}',
@@ -299,5 +299,84 @@ describe('ConvertEmptyToNull Filter', function (): void {
             expect($result['tags'])->toBeNull();
         });
     });
-});
 
+    describe('Convert False Option', function(): void {
+        it('converts false to null with "false" option', function(): void {
+            $template = ['result' => '{{ data.value | empty_to_null:"false" }}'];
+            $sources = ['data' => ['value' => false]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['result'])->toBeNull();
+        });
+
+        it('does not convert false without "false" option', function(): void {
+            $template = ['result' => '{{ data.value | empty_to_null }}'];
+            $sources = ['data' => ['value' => false]];
+
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+            expect($result['result'])->toBe(false);
+        });
+
+        it('does not convert true with "false" option', function(): void {
+            $template = ['result' => '{{ data.value | empty_to_null:"false" }}'];
+            $sources = ['data' => ['value' => true]];
+
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+            expect($result['result'])->toBe(true);
+        });
+
+        it('combines zero, string_zero and false options', function(): void {
+            $template = [
+                'zero' => '{{ data.zero | empty_to_null:"zero,string_zero,false" }}',
+                'string_zero' => '{{ data.string_zero | empty_to_null:"zero,string_zero,false" }}',
+                'false' => '{{ data.false | empty_to_null:"zero,string_zero,false" }}',
+                'empty' => '{{ data.empty | empty_to_null:"zero,string_zero,false" }}',
+            ];
+            $sources = ['data' => [
+                'zero' => 0,
+                'string_zero' => '0',
+                'false' => false,
+                'empty' => '',
+            ]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['zero'])->toBeNull();
+            expect($result['string_zero'])->toBeNull();
+            expect($result['false'])->toBeNull();
+            expect($result['empty'])->toBeNull();
+        });
+
+        it('converts false with constructor parameter', function(): void {
+            $filter = new ConvertEmptyToNull(convertFalse: true);
+            $template = ['result' => '{{ data.value }}'];
+            $sources = ['data' => ['value' => false]];
+
+            $result = DataMapper::source($sources)
+                ->template($template)
+                ->pipeline([$filter])
+                ->skipNull(false)
+                ->map()
+                ->getTarget();
+
+            expect($result['result'])->toBeNull();
+        });
+
+        it('keeps true unchanged with constructor parameter', function(): void {
+            $filter = new ConvertEmptyToNull(convertFalse: true);
+            $template = ['result' => '{{ data.value }}'];
+            $sources = ['data' => ['value' => true]];
+
+            $result = DataMapper::source($sources)
+                ->template($template)
+                ->pipeline([$filter])
+                ->map()
+                ->getTarget();
+
+            expect($result['result'])->toBe(true);
+        });
+    });
+});
