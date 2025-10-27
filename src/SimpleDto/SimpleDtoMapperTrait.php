@@ -312,6 +312,8 @@ trait SimpleDtoMapperTrait
             $finalPipeline = $dtoPipeline;
         }
         if (null !== $pipeline && [] !== $pipeline) {
+            // Note: array_merge is correct here for numeric arrays (appends items)
+            // + operator would not work correctly for numeric keys
             $finalPipeline = array_merge($finalPipeline, $pipeline);
         }
 

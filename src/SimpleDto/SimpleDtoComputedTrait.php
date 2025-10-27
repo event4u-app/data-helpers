@@ -45,6 +45,8 @@ trait SimpleDtoComputedTrait
     public function includeComputed(array $properties): static
     {
         $clone = clone $this;
+        // Note: array_merge is correct here for numeric arrays (appends items)
+        // + operator would not work correctly for numeric keys
         $clone->includedComputed = array_merge($clone->includedComputed ?? [], $properties);
         // Clone the cache array to avoid sharing between instances
         $clone->computedCache = $this->computedCache;
