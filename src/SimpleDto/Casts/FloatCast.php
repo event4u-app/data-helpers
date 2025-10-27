@@ -13,6 +13,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
  * - Strings (numeric)
  * - Integers
  * - Floats
+ * - Booleans (true=1.0, false=0.0)
  *
  * Example:
  *   protected function casts(): array {
@@ -31,6 +32,10 @@ class FloatCast implements CastsAttributes
             return $value;
         }
 
+        if (is_bool($value)) {
+            return $value ? 1.0 : 0.0;
+        }
+
         if (is_numeric($value)) {
             return (float)$value;
         }
@@ -42,6 +47,10 @@ class FloatCast implements CastsAttributes
     {
         if (null === $value) {
             return null;
+        }
+
+        if (is_bool($value)) {
+            return $value ? 1.0 : 0.0;
         }
 
         return is_numeric($value) ? (float)$value : null;

@@ -76,7 +76,7 @@ use Attribute;
  * public readonly string $email;
  * ```
  */
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final readonly class Visible
 {
     /**

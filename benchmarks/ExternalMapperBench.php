@@ -57,6 +57,7 @@ class ExternalMapperBench
         // Setup AutoMapper Plus
         $config = new AutoMapperConfig();
         $config->registerMapping('array', MapperTargetDto::class);
+
         $this->autoMapper = new AutoMapper($config);
 
         // Setup Laminas Hydrator
@@ -195,4 +196,3 @@ class MapperTargetDto
     public ?string $city = null;
     public ?string $country = null;
 }
-

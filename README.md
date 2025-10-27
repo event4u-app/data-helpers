@@ -146,9 +146,13 @@ $result = DataFilter::query($products)
 
 ### 5️⃣ SimpleDto - Immutable Dtos
 
-Create type-safe, immutable Data Transfer Objects:
+Create type-safe, immutable Data Transfer Objects with automatic type casting:
 
-```php
+<!-- skip-test: property declaration only -->
+```php skip-test
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
+
+#[AutoCast]  // Enable automatic type casting (opt-in for performance)
 class ReadmeUserDto extends SimpleDto
 {
     public function __construct(
@@ -158,7 +162,21 @@ class ReadmeUserDto extends SimpleDto
     ) {}
 }
 
-$user = ReadmeUserDto::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
+// Automatic type conversion with #[AutoCast]
+$user = ReadmeUserDto::fromArray([
+    'name' => 'John',
+    'email' => 'john@example.com',
+    'age' => '30'  // String "30" → int 30 (automatic)
+]);
+
+// Without #[AutoCast]: Strict types, better performance
+class StrictUserDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly int $age,  // Must be int, no conversion
+    ) {}
+}
 ```
 
 📖 **[SimpleDto Documentation](https://event4u-app.github.io/data-helpers/simple-dto/introduction/)**

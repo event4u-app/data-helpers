@@ -28,7 +28,7 @@ use Attribute;
  * json_encode($user); // {"name":"John"} - debugInfo hidden
  * ```
  */
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final readonly class HiddenFromJson
 {
 }

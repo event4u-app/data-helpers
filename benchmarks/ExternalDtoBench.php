@@ -196,4 +196,3 @@ class PlainDepartmentDtoWithConstructor
         public string $manager_name,
     ) {}
 }
-

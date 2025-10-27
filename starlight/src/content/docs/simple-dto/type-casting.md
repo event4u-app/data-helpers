@@ -17,32 +17,136 @@ Type casting automatically converts input data to the correct PHP type. For exam
 // Output: Carbon instance
 ```
 
-## Built-in Casts
+## Automatic Type Casting with #[AutoCast]
 
-SimpleDto provides 20+ built-in casts for common data types.
+**NEW in v2.0**: Automatic native PHP type casting is now **opt-in** using the `#[AutoCast]` attribute.
 
-### Primitive Types
+### Why #[AutoCast]?
 
-```php
-class UserDto extends SimpleDto
+By default, SimpleDtos do **NOT** automatically convert types. This provides:
+- ✅ **Better Performance** - Skip unnecessary type conversion overhead
+- ✅ **Strict Type Safety** - Catch type mismatches early
+- ✅ **Explicit Behavior** - Clear when type conversion happens
+
+**Important**: Explicit casts (like `#[Cast(DateTimeCast::class)]`) **ALWAYS work**, regardless of `#[AutoCast]`.
+
+### Option 1: Class-level #[AutoCast] (All Properties)
+
+Enable automatic type casting for **all properties**:
+
+```php skip-test
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
+
+#[AutoCast]  // ← Enable automatic type casting for ALL properties
+class UserDtoAutoCast extends SimpleDto
 {
     public function __construct(
-        public readonly string $name,      // String cast
-        public readonly int $age,          // Integer cast
-        public readonly float $price,      // Float cast
-        public readonly bool $active,      // Boolean cast
-        public readonly array $tags,       // Array cast
+        public readonly int $id,        // "123" → 123 ✅
+        public readonly string $name,   // 123 → "123" ✅
+        public readonly bool $active,   // "1" → true ✅
     ) {}
 }
 
-$dto = UserDto::fromArray([
-    'name' => 123,              // → "123"
-    'age' => "30",              // → 30
-    'price' => "19.99",         // → 19.99
-    'active' => "1",            // → true
-    'tags' => "tag1,tag2",      // → ["tag1,tag2"]
+$dto = UserDtoAutoCast::fromArray([
+    'id' => "123",      // String → Int (automatic)
+    'name' => 456,      // Int → String (automatic)
+    'active' => "1",    // String → Bool (automatic)
 ]);
 ```
+
+### Option 2: Property-level #[AutoCast] (Specific Properties)
+
+Enable automatic type casting for **specific properties only**:
+
+```php skip-test
+class UserDtoParamCast extends SimpleDto
+{
+    public function __construct(
+        #[AutoCast]  // ← Only this property gets automatic type casting
+        public readonly int $id,        // "123" → 123 ✅
+
+        public readonly string $name,   // 123 → Type Error ❌ (no AutoCast)
+    ) {}
+}
+
+$dto = UserDtoParamCast::fromArray([
+    'id' => "123",      // String → Int (automatic) ✅
+    'name' => "John",   // String → String (no conversion needed) ✅
+]);
+```
+
+### Option 3: No #[AutoCast] (Strict Types)
+
+**Best for performance** - No automatic type casting, strict type checking:
+
+```php skip-test
+class UserDtoNoCast extends SimpleDto
+{
+    public function __construct(
+        public readonly int $id,        // Must be int, no conversion
+        public readonly string $name,   // Must be string, no conversion
+    ) {}
+}
+
+$dto = UserDtoNoCast::fromArray([
+    'id' => 123,        // Int → Int ✅
+    'name' => "John",   // String → String ✅
+]);
+
+// This will throw a TypeError:
+$dto = UserDto::fromArray([
+    'id' => "123",      // String → Type Error ❌
+]);
+```
+
+### Option 4: Explicit Casts (Always Work)
+
+Explicit cast attributes **ALWAYS work**, regardless of `#[AutoCast]`:
+
+```php skip-test
+use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
+
+class UserDtoMixedCasts extends SimpleDto
+{
+    public function __construct(
+        // ✅ ALWAYS casted (explicit cast attribute)
+        #[Cast(DateTimeCast::class)]
+        public readonly Carbon $createdAt,
+
+        // ❌ NOT casted (no AutoCast, no explicit cast)
+        public readonly int $id,  // "123" → Type Error
+
+        // ✅ Casted (AutoCast enabled)
+        #[AutoCast]
+        public readonly string $name,  // 123 → "123"
+    ) {}
+}
+```
+
+### When to Use #[AutoCast]
+
+**Use #[AutoCast] when:**
+- ✅ Working with CSV, XML, or other string-based formats
+- ✅ Need automatic type conversion (string → int, int → string, etc.)
+- ✅ Importing data from external sources with inconsistent types
+
+**Don't use #[AutoCast] when:**
+- ✅ Working with strictly typed APIs (JSON with correct types)
+- ✅ Performance is critical
+- ✅ You want strict type checking
+
+### Casting Priority
+
+1. **Explicit cast attributes** (`#[Cast]`, `#[DataCollectionOf]`, etc.) → **ALWAYS applied**
+2. **casts() method** → **ALWAYS applied**
+3. **#[AutoCast] + native PHP types** → Only if `#[AutoCast]` present
+4. **No casting** → If none of the above
+
+## Built-in Casts
+
+SimpleDto provides 20+ built-in casts for common data types.
 
 ## Date and Time Casts
 

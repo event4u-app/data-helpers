@@ -28,7 +28,7 @@ use Attribute;
  * $user->toArray(); // ['name' => 'John'] - password hidden
  * ```
  */
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final readonly class Hidden
 {
 }

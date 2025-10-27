@@ -64,6 +64,7 @@ echo "toArray(): " . json_encode($teamDto->toArray(), JSON_PRETTY_PRINT) . "\n\n
 echo "Example 2: DataCollection<SimpleDto>Of Attribute\n";
 echo "-------------------------------------\n";
 
+#[AutoCast]
 class ProductDto extends SimpleDto
 {
     public function __construct(
@@ -73,6 +74,7 @@ class ProductDto extends SimpleDto
     ) {}
 }
 
+#[AutoCast]
 class OrderDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */

@@ -28,7 +28,7 @@ use Attribute;
  * json_encode($user); // {"name":"John","internalId":"123"} - internalId visible
  * ```
  */
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final readonly class HiddenFromArray
 {
 }

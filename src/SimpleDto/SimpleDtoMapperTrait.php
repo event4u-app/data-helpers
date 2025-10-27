@@ -9,8 +9,6 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use Exception;
 use InvalidArgumentException;
 use ReflectionClass;
-use ReflectionException;
-use ReflectionNamedType;
 use Symfony\Component\Yaml\Yaml;
 use Throwable;
 
@@ -283,7 +281,7 @@ trait SimpleDtoMapperTrait
      * 1. Convert source to array if needed
      * 2. Apply DataMapper template, filters, and pipeline (if defined)
      * 3. Apply property mapping (#[MapFrom] attributes)
-     * 4. Apply casts (casts() method)
+     * 4. Get and apply casts (includes #[AutoCast] automatic casts, nested DTOs, explicit casts)
      * 5. Auto-validate if enabled
      * 6. Wrap lazy and optional properties
      * 7. Construct Dto instance
@@ -444,6 +442,11 @@ trait SimpleDtoMapperTrait
         /** @var array<string, mixed> $data */
 
         // Step 6: Get casts without creating an instance
+        // This includes:
+        // - Automatic casts from #[AutoCast] attribute (lowest priority)
+        // - Auto-detected nested DTOs (medium priority)
+        // - Casts from attributes like #[DataCollectionOf] (high priority)
+        // - Casts from casts() method (highest priority)
         $casts = static::getCasts();
 
         // Step 7: Apply casts if defined
@@ -451,11 +454,7 @@ trait SimpleDtoMapperTrait
             $data = static::applyCasts($data, $casts);
         }
 
-        // Step 8: Auto-cast string values to proper types (useful for CSV)
-        /** @var array<string, mixed> $data */
-        $data = static::autoCastValues($data);
-
-        // Step 9: Auto-validate if enabled (before wrapping!)
+        // Step 8: Auto-validate if enabled (before wrapping!)
         if (static::shouldAutoValidate()) {
             $validateAttr = static::getValidateRequestAttribute();
             if ($validateAttr?->auto) {
@@ -463,208 +462,14 @@ trait SimpleDtoMapperTrait
             }
         }
 
-        // Step 10: Wrap lazy properties (first!)
+        // Step 9: Wrap lazy properties (first!)
         $data = static::wrapLazyProperties($data);
 
-        // Step 11: Wrap optional properties (second, can wrap Lazy)
+        // Step 10: Wrap optional properties (second, can wrap Lazy)
         $data = static::wrapOptionalProperties($data);
 
-        // Step 12: Construct Dto instance
+        // Step 11: Construct Dto instance
         /** @phpstan-ignore new.static */
         return new static(...$data);
-    }
-
-    /**
-     * Auto-cast values to proper types based on constructor parameter types.
-     *
-     * This ensures that Dtos always receive the correct types, regardless of the source
-     * (CSV, XML, HTTP requests, etc.). Type casting is safe and only happens when the
-     * value can be safely converted.
-     *
-     * Casting rules:
-     * - int: Casts numeric strings, booleans (true=1, false=0), and numeric values
-     * - float: Casts numeric strings and numeric values
-     * - bool: Casts boolean-like strings ("true", "1", "yes", "on" → true, etc.)
-     * - string: Casts scalar values to strings
-     * - array: Attempts to decode JSON strings
-     *
-     * @param array<string, mixed> $data
-     * @return array<string, mixed>
-     */
-    protected static function autoCastValues(array $data): array
-    {
-        try {
-            $reflection = new ReflectionClass(static::class);
-            $constructor = $reflection->getConstructor();
-
-            if (!$constructor) {
-                return $data;
-            }
-
-            foreach ($constructor->getParameters() as $reflectionParameter) {
-                $name = $reflectionParameter->getName();
-
-                if (!array_key_exists($name, $data)) {
-                    continue;
-                }
-
-                $value = $data[$name];
-
-                // Get parameter type
-                $type = $reflectionParameter->getType();
-
-                if (!$type instanceof ReflectionNamedType) {
-                    continue;
-                }
-
-                $typeName = $type->getName();
-
-                // Cast based on type
-                $data[$name] = match ($typeName) {
-                    'int' => static::castToInt($value),
-                    'float' => static::castToFloat($value),
-                    'bool' => static::castToBool($value),
-                    'string' => static::castToString($value),
-                    'array' => static::castToArray($value),
-                    default => $value,
-                };
-            }
-        } catch (ReflectionException) {
-            // If reflection fails, return data as-is
-        }
-
-        return $data;
-    }
-
-    /**
-     * Safely cast a value to int.
-     *
-     * Only casts if the value is numeric or boolean.
-     * Strings that are not numeric are NOT casted.
-     */
-    protected static function castToInt(mixed $value): mixed
-    {
-        // Already an int
-        if (is_int($value)) {
-            return $value;
-        }
-
-        // Boolean: true=1, false=0
-        if (is_bool($value)) {
-            return $value ? 1 : 0;
-        }
-
-        // Numeric string or float
-        if (is_numeric($value)) {
-            return (int)$value;
-        }
-
-        // Non-numeric string: don't cast
-        return $value;
-    }
-
-    /**
-     * Safely cast a value to float.
-     *
-     * Only casts if the value is numeric or boolean.
-     */
-    protected static function castToFloat(mixed $value): mixed
-    {
-        // Already a float
-        if (is_float($value)) {
-            return $value;
-        }
-
-        // Boolean: true=1.0, false=0.0
-        if (is_bool($value)) {
-            return $value ? 1.0 : 0.0;
-        }
-
-        // Numeric string or int
-        if (is_numeric($value)) {
-            return (float)$value;
-        }
-
-        // Non-numeric: don't cast
-        return $value;
-    }
-
-    /**
-     * Safely cast a value to bool.
-     *
-     * Recognizes common boolean representations in strings.
-     */
-    protected static function castToBool(mixed $value): mixed
-    {
-        // Already a bool
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        // Int: 0=false, anything else=true
-        if (is_int($value)) {
-            return 0 !== $value;
-        }
-
-        // String: recognize common boolean representations
-        if (is_string($value)) {
-            $lower = strtolower(trim($value));
-
-            if (in_array($lower, ['true', '1', 'yes', 'on'], true)) {
-                return true;
-            }
-
-            if (in_array($lower, ['false', '0', 'no', 'off', ''], true)) {
-                return false;
-            }
-        }
-
-        // Don't cast other types
-        return $value;
-    }
-
-    /**
-     * Safely cast a value to string.
-     *
-     * Only casts scalar values (int, float, bool, string).
-     */
-    protected static function castToString(mixed $value): mixed
-    {
-        // Already a string
-        if (is_string($value)) {
-            return $value;
-        }
-
-        // Scalar values can be safely cast to string
-        if (is_scalar($value)) {
-            return (string)$value;
-        }
-
-        // Don't cast arrays or objects
-        return $value;
-    }
-
-    /**
-     * Safely cast a value to array.
-     *
-     * Attempts to decode JSON strings, otherwise returns as-is.
-     */
-    protected static function castToArray(mixed $value): mixed
-    {
-        // Already an array
-        if (is_array($value)) {
-            return $value;
-        }
-
-        // Try to decode JSON string
-        if (is_string($value)) {
-            $decoded = json_decode($value, true);
-            if (null !== $decoded && is_array($decoded)) {
-                return $decoded;
-            }
-        }
-
-        // Don't cast other types
-        return $value;
     }
 }

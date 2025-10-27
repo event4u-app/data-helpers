@@ -18,9 +18,9 @@ const COMPARE_WITH = [
 ];
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
-use event4u\DataHelpers\DataMapper;
 use Tests\Utils\Dtos\DepartmentDto;
+use Tests\Utils\SimpleDtos\CompanyAutoCastDto;
+use Tests\Utils\SimpleDtos\CompanySimpleDto;
 use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
 
 $rootDir = dirname(__DIR__);
@@ -36,22 +36,28 @@ foreach (COMPARE_WITH as $encodedPackage) {
     $packagesToInstall[] = $package;
 }
 
-if (!empty($packagesToInstall)) {
+if ($packagesToInstall !== []) {
     $packageList = implode(' ', $packagesToInstall);
-    $composerCmd = "cd {$rootDir} && composer require --dev {$packageList} --no-interaction --quiet > /dev/null 2>&1";
+    $composerCmd = sprintf('cd %s && composer require --dev %s --no-interaction --quiet > /dev/null 2>&1', $rootDir, $packageList);
     exec($composerCmd, $output, $returnCode);
 }
 
 // ============================================================================
 // Step 1: Run PHPBench benchmarks
 // ============================================================================
-echo "📊  Step 1/4: Running PHPBench benchmarks (10 runs)...\n\n";
+echo "📊  Step 1/4: Running PHPBench benchmarks (5 runs with warmup)...\n\n";
+
+// Warmup: Run benchmarks once to warm up OPcache
+echo "  Warming up OPcache...\n";
+$warmupCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1 > /dev/null';
+exec($warmupCommand);
+echo "  Warmup complete!\n\n";
 
 $allRuns = [];
 $benchCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1';
 
-for ($run = 1; 10 >= $run; $run++) {
-    echo "  Run {$run}/10...\n";
+for ($run = 1; 5 >= $run; $run++) {
+    echo "  Run {$run}/5...\n";
 
     exec($benchCommand, $outputLines, $returnCode);
 
@@ -154,7 +160,7 @@ foreach ($results as $className => $subjects) {
 }
 
 // ============================================================================
-// Step 2: Run custom DTO benchmarks
+// Step 2: Run custom DTO benchmarks (including AutoCast comparison)
 // ============================================================================
 echo "📊  Step 2/4: Running custom DTO benchmarks...\n\n";
 
@@ -179,6 +185,68 @@ $dtoBenchmarks['SimpleDto'] = runDtoBenchmark('SimpleDto', function() use ($test
     DepartmentSimpleDto::fromArray($testData);
 }, 100000);
 
+// AutoCast comparison benchmarks
+$correctTypeData = [
+    'name' => 'Acme Corporation',
+    'registration_number' => 'REG123456',
+    'email' => 'info@acme.com',
+    'phone' => '+1-555-0123',
+    'address' => '123 Main St',
+    'city' => 'New York',
+    'country' => 'USA',
+    'founded_year' => 1990,
+    'employee_count' => 500,
+    'annual_revenue' => 50000000.50,
+    'is_active' => true,
+    'departments' => [],
+    'projects' => [],
+];
+
+$stringTypeData = [
+    'name' => 'Acme Corporation',
+    'registration_number' => 'REG123456',
+    'email' => 'info@acme.com',
+    'phone' => '+1-555-0123',
+    'address' => '123 Main St',
+    'city' => 'New York',
+    'country' => 'USA',
+    'founded_year' => '1990',
+    'employee_count' => '500',
+    'annual_revenue' => '50000000.50',
+    'is_active' => '1',
+    'departments' => [],
+    'projects' => [],
+];
+
+$dtoBenchmarks['SimpleDtoNoAutoCast'] = runDtoBenchmark('SimpleDto (no AutoCast)', function() use (
+    $correctTypeData
+): void {
+    CompanySimpleDto::fromArray($correctTypeData);
+}, 10000);
+
+$dtoBenchmarks['SimpleDtoWithAutoCastCorrectTypes'] = runDtoBenchmark(
+    'SimpleDto (with AutoCast, correct types)',
+    function() use ($correctTypeData): void {
+    CompanyAutoCastDto::fromArray($correctTypeData);
+},
+    10000
+);
+
+$dtoBenchmarks['SimpleDtoWithAutoCastStringTypes'] = runDtoBenchmark(
+    'SimpleDto (with AutoCast, string types)',
+    function() use ($stringTypeData): void {
+    CompanyAutoCastDto::fromArray($stringTypeData);
+},
+    10000
+);
+
+$dtoBenchmarks['PlainPhp'] = runDtoBenchmark('Plain PHP', function() use ($correctTypeData): void {
+    $obj = new stdClass();
+    foreach ($correctTypeData as $key => $value) {
+        $obj->$key = $value;
+    }
+}, 10000);
+
 // ============================================================================
 // Step 3: Generate markdown and update documentation
 // ============================================================================
@@ -188,7 +256,7 @@ $markdown = generateMarkdown($results, $dtoBenchmarks);
 
 // Update documentation
 if (!file_exists($benchmarkDocsPath)) {
-    echo "❌  Benchmark documentation not found at: {$benchmarkDocsPath}\n";
+    echo sprintf('❌  Benchmark documentation not found at: %s%s', $benchmarkDocsPath, PHP_EOL);
     exit(1);
 }
 
@@ -201,6 +269,7 @@ if (false === $docsContent) {
 // Update sections with markers
 $docsContent = updateSection($docsContent, 'BENCHMARK_INTRODUCTION', $markdown['Introduction']);
 $docsContent = updateSection($docsContent, 'BENCHMARK_TRADEOFFS', $markdown['Tradeoffs']);
+$docsContent = updateSection($docsContent, 'BENCHMARK_AUTOCAST_PERFORMANCE', $markdown['AutoCastPerformance']);
 $docsContent = updateSection($docsContent, 'BENCHMARK_DATA_ACCESSOR', $markdown['DataAccessor']);
 $docsContent = updateSection($docsContent, 'BENCHMARK_DATA_MUTATOR', $markdown['DataMutator']);
 $docsContent = updateSection($docsContent, 'BENCHMARK_DATA_MAPPER', $markdown['DataMapper']);
@@ -262,6 +331,26 @@ function formatTime(float $microseconds): string
         return number_format($microseconds, 3) . 'μs';
     }
     return number_format($microseconds / 1000, 3) . 'ms';
+}
+
+/**
+ * Format a range of values, ensuring proper ordering and avoiding duplicates
+ */
+function formatRange(float $min, float $max, int $decimals = 0): string
+{
+    // Ensure min is actually smaller than max
+    if ($min > $max) {
+        [$min, $max] = [$max, $min];
+    }
+
+    // If values are the same (within 1% tolerance), show only one value
+    $tolerance = 0.01;
+    if (abs($max - $min) / max($min, $max) < $tolerance) {
+        return sprintf(sprintf('~%%.%df', $decimals), $min);
+    }
+
+    // Show range
+    return sprintf(sprintf('~%%.%df-%%.%df', $decimals, $decimals), $min, $max);
 }
 
 /**
@@ -342,7 +431,13 @@ function generateMarkdown(array $results, array $dtoBenchmarks): array
     ];
 
     foreach ($results['ExternalDto'] as $result) {
-        if (str_contains($result['name'], 'FromArray') || str_contains($result['name'], 'From') || str_contains($result['name'], 'NewAssign') || str_contains($result['name'], 'Constructor')) {
+        if (str_contains($result['name'], 'FromArray') || str_contains($result['name'], 'From') || str_contains(
+            $result['name'],
+            'NewAssign'
+        ) || str_contains(
+            $result['name'],
+            'Constructor'
+        )) {
             if (str_contains($result['name'], 'SimpleDto')) {
                 $dtoGroups['FromArray']['SimpleDto'] = $result;
             } elseif (str_contains($result['name'], 'PlainPhp')) {
@@ -381,12 +476,10 @@ function generateMarkdown(array $results, array $dtoBenchmarks): array
         if ($group['PlainPhp']) {
             $plainTime = formatTime($group['PlainPhp']['time']);
             $factor = $group['SimpleDto']['time'] / $group['PlainPhp']['time'];
-            if ($factor > 1.1) {
-                // We are slower (our time is bigger)
-                $plainPhp = sprintf('%s<br>(**%.1fx slower**)', $plainTime, $factor);
-            } elseif ($factor < 0.9) {
-                // We are faster (our time is smaller)
-                $plainPhp = sprintf('%s<br>(**%.1fx faster**)', $plainTime, 1 / $factor);
+            if (1.1 < $factor) {
+                $plainPhp = sprintf('%s<br>(**%.1fx faster**)', $plainTime, $factor);
+            } elseif (0.9 > $factor) {
+                $plainPhp = sprintf('%s<br>(**%.1fx slower**)', $plainTime, 1 / $factor);
             } else {
                 $plainPhp = sprintf('%s<br>(~same)', $plainTime);
             }
@@ -396,19 +489,17 @@ function generateMarkdown(array $results, array $dtoBenchmarks): array
         if ($group['OtherDto']) {
             $otherTime = formatTime($group['OtherDto']['time']);
             $factor = $group['SimpleDto']['time'] / $group['OtherDto']['time'];
-            if ($factor > 1.1) {
-                // We are slower (our time is bigger)
-                $otherDto = sprintf('%s<br>(**%.1fx slower**)', $otherTime, $factor);
-            } elseif ($factor < 0.9) {
-                // We are faster (our time is smaller)
-                $otherDto = sprintf('%s<br>(**%.1fx faster**)', $otherTime, 1 / $factor);
+            if (1.1 < $factor) {
+                $otherDto = sprintf('%s<br>(**%.1fx faster**)', $otherTime, $factor);
+            } elseif (0.9 > $factor) {
+                $otherDto = sprintf('%s<br>(**%.1fx slower**)', $otherTime, 1 / $factor);
             } else {
                 $otherDto = sprintf('%s<br>(~same)', $otherTime);
             }
         }
 
         $displayName = $group['displayName'] ?? $operation;
-        $ourTimeFormatted = "{$ourTime}<br>(we are)";
+        $ourTimeFormatted = $ourTime . '<br>&nbsp;';
         $md .= "| {$displayName} | {$ourTimeFormatted} | {$plainPhp} | {$otherDto} | {$desc} |\n";
     }
     $markdown['DtoComparison'] = $md;
@@ -463,12 +554,10 @@ function generateMarkdown(array $results, array $dtoBenchmarks): array
         if ($group['PlainPhp']) {
             $plainTime = formatTime($group['PlainPhp']['time']);
             $factor = $group['DataMapper']['time'] / $group['PlainPhp']['time'];
-            if ($factor > 1.1) {
-                // We are slower (our time is bigger)
-                $plainPhp = sprintf('%s<br>(**%.1fx slower**)', $plainTime, $factor);
-            } elseif ($factor < 0.9) {
-                // We are faster (our time is smaller)
-                $plainPhp = sprintf('%s<br>(**%.1fx faster**)', $plainTime, 1 / $factor);
+            if (1.1 < $factor) {
+                $plainPhp = sprintf('%s<br>(**%.1fx faster**)', $plainTime, $factor);
+            } elseif (0.9 > $factor) {
+                $plainPhp = sprintf('%s<br>(**%.1fx slower**)', $plainTime, 1 / $factor);
             } else {
                 $plainPhp = sprintf('%s<br>(~same)', $plainTime);
             }
@@ -479,19 +568,17 @@ function generateMarkdown(array $results, array $dtoBenchmarks): array
             $avgOtherTime = array_sum(array_column($group['Others'], 'time')) / count($group['Others']);
             $avgOtherTimeFormatted = formatTime($avgOtherTime);
             $factor = $group['DataMapper']['time'] / $avgOtherTime;
-            if ($factor > 1.1) {
-                // We are slower (our time is bigger)
-                $otherMappers = sprintf('%s<br>(**%.1fx slower**)', $avgOtherTimeFormatted, $factor);
-            } elseif ($factor < 0.9) {
-                // We are faster (our time is smaller)
-                $otherMappers = sprintf('%s<br>(**%.1fx faster**)', $avgOtherTimeFormatted, 1 / $factor);
+            if (1.1 < $factor) {
+                $otherMappers = sprintf('%s<br>(**%.1fx faster**)', $avgOtherTimeFormatted, $factor);
+            } elseif (0.9 > $factor) {
+                $otherMappers = sprintf('%s<br>(**%.1fx slower**)', $avgOtherTimeFormatted, 1 / $factor);
             } else {
                 $otherMappers = sprintf('%s<br>(~same)', $avgOtherTimeFormatted);
             }
         }
 
         $displayName = $group['displayName'] ?? $operation;
-        $ourTimeFormatted = "{$ourTime}<br>(we are)";
+        $ourTimeFormatted = $ourTime . '<br>&nbsp;';
         $md .= "| {$displayName} | {$ourTimeFormatted} | {$plainPhp} | {$otherMappers} | {$desc} |\n";
     }
     $markdown['MapperComparison'] = $md;
@@ -515,7 +602,7 @@ function generateMarkdown(array $results, array $dtoBenchmarks): array
             $symfonyCount++;
         }
     }
-    $symfonyTime = $symfonyCount > 0 ? $symfonyTime / $symfonyCount : 0;
+    $symfonyTime = 0 < $symfonyCount ? $symfonyTime / $symfonyCount : 0;
 
     // Populate groups
     foreach ($results['DtoSerialization'] as $result) {
@@ -542,34 +629,30 @@ function generateMarkdown(array $results, array $dtoBenchmarks): array
         if ($group['PlainPhp']) {
             $plainTime = formatTime($group['PlainPhp']['time']);
             $factor = $group['DataMapper']['time'] / $group['PlainPhp']['time'];
-            if ($factor > 1.1) {
-                // We are slower (our time is bigger)
-                $plainPhp = sprintf('%s<br>(**%.1fx slower**)', $plainTime, $factor);
-            } elseif ($factor < 0.9) {
-                // We are faster (our time is smaller)
-                $plainPhp = sprintf('%s<br>(**%.1fx faster**)', $plainTime, 1 / $factor);
+            if (1.1 < $factor) {
+                $plainPhp = sprintf('%s<br>(**%.1fx faster**)', $plainTime, $factor);
+            } elseif (0.9 > $factor) {
+                $plainPhp = sprintf('%s<br>(**%.1fx slower**)', $plainTime, 1 / $factor);
             } else {
                 $plainPhp = sprintf('%s<br>(~same)', $plainTime);
             }
         }
 
         $symfony = '-';
-        if ($symfonyTime > 0) {
+        if (0 < $symfonyTime) {
             $symfonyTimeFormatted = formatTime($symfonyTime);
             $factor = $symfonyTime / $group['DataMapper']['time'];
-            if ($factor > 1.1) {
-                // Symfony is slower (their time is bigger) = We are faster
-                $symfony = sprintf('%s<br>(**%.1fx faster**)', $symfonyTimeFormatted, $factor);
-            } elseif ($factor < 0.9) {
-                // Symfony is faster (their time is smaller) = We are slower
-                $symfony = sprintf('%s<br>(**%.1fx slower**)', $symfonyTimeFormatted, 1 / $factor);
+            if (1.1 < $factor) {
+                $symfony = sprintf('%s<br>(**%.1fx slower**)', $symfonyTimeFormatted, $factor);
+            } elseif (0.9 > $factor) {
+                $symfony = sprintf('%s<br>(**%.1fx faster**)', $symfonyTimeFormatted, 1 / $factor);
             } else {
                 $symfony = sprintf('%s<br>(~same)', $symfonyTimeFormatted);
             }
         }
 
         $displayName = $group['displayName'] ?? $operation;
-        $ourTimeFormatted = "{$ourTime}<br>(we are)";
+        $ourTimeFormatted = $ourTime . '<br>&nbsp;';
         $md .= "| {$displayName} | {$ourTimeFormatted} | {$plainPhp} | {$symfony} | {$desc} |\n";
     }
     $markdown['Serialization'] = $md;
@@ -578,7 +661,10 @@ function generateMarkdown(array $results, array $dtoBenchmarks): array
     $markdown['Introduction'] = generateIntroduction($results);
 
     // Generate Trade-offs section
-    $markdown['Tradeoffs'] = generateTradeoffs($results);
+    $markdown['Tradeoffs'] = generateTradeoffs($results, $dtoBenchmarks);
+
+    // Generate AutoCast Performance section
+    $markdown['AutoCastPerformance'] = generateAutoCastPerformance($dtoBenchmarks);
 
     // Generate Insights sections
     $markdown['DtoInsights'] = generateDtoInsights($results);
@@ -603,8 +689,8 @@ function generateIntroduction(array $results): string
             $symfonyAvg += $result['time'];
         }
     }
-    $dataMapperSerializationAvg = $serializationCount > 0 ? $dataMapperSerializationAvg / $serializationCount : 40;
-    $symfonyAvg = $symfonyAvg > 0 ? $symfonyAvg / 2 : 150;
+    $dataMapperSerializationAvg = 0 < $serializationCount ? $dataMapperSerializationAvg / $serializationCount : 40;
+    $symfonyAvg = 0 < $symfonyAvg ? $symfonyAvg / 2 : 150;
     $symfonyFactor = round($symfonyAvg / $dataMapperSerializationAvg, 1);
 
     // Calculate other mapper comparison
@@ -622,25 +708,33 @@ function generateIntroduction(array $results): string
         }
     }
 
-    $dataMapperAvg = $counts['DataMapper'] > 0 ? $dataMapperAvg / $counts['DataMapper'] : 20;
-    $otherMapperAvg = $counts['Others'] > 0 ? $otherMapperAvg / $counts['Others'] : 5;
+    $dataMapperAvg = 0 < $counts['DataMapper'] ? $dataMapperAvg / $counts['DataMapper'] : 20;
+    $otherMapperAvg = 0 < $counts['Others'] ? $otherMapperAvg / $counts['Others'] : 5;
     $vsOthersFactor = round($dataMapperAvg / $otherMapperAvg, 1);
 
     $md = "- **Type safety and validation** - With reasonable performance cost\n";
     $md .= sprintf("- **%.1fx faster** than Symfony Serializer for complex mappings\n", $symfonyFactor);
 
-    if ($vsOthersFactor < 1) {
-        $md .= sprintf("- **%.1fx faster** than other mapper libraries (AutoMapper Plus, Laminas)\n", 1 / $vsOthersFactor);
+    if (1 > $vsOthersFactor) {
+        $md .= sprintf(
+            "- **%.1fx faster** than other mapper libraries (AutoMapper Plus, Laminas)\n",
+            1 / $vsOthersFactor
+        );
     } else {
-        $md .= sprintf("- Other mapper libraries are **%.1fx faster**, but DataMapper provides better features\n", $vsOthersFactor);
+        $md .= sprintf(
+            "- Other mapper libraries are **%.1fx faster**, but DataMapper provides better features\n",
+            $vsOthersFactor
+        );
     }
 
-    $md .= "- **Low memory footprint** - ~1.2 KB per instance";
-
-    return $md;
+    return $md . "- **Low memory footprint** - ~1.2 KB per instance";
 }
 
-function generateTradeoffs(array $results): string
+/**
+ * @param array<string, array<int, array{name: string, time: float}>> $results
+ * @param array<string, array{name: string, iterations: int, avg_time: float, ops_per_sec: int}> $dtoBenchmarks
+ */
+function generateTradeoffs(array $results, array $dtoBenchmarks): string
 {
     // Calculate average times
     $simpleDtoAvg = 0;
@@ -655,8 +749,14 @@ function generateTradeoffs(array $results): string
             $plainPhpDtoAvg += $result['time'];
         }
     }
-    $simpleDtoAvg = $dtoCount > 0 ? $simpleDtoAvg / $dtoCount : 0;
-    $plainPhpDtoAvg = $plainPhpDtoAvg > 0 ? $plainPhpDtoAvg : 0.2;
+    $simpleDtoAvg = 0 < $dtoCount ? $simpleDtoAvg / $dtoCount : 0;
+    $plainPhpDtoAvg = 0 < $plainPhpDtoAvg ? $plainPhpDtoAvg : 0.2;
+
+    // Get AutoCast benchmark times
+    $noAutoCastTime = $dtoBenchmarks['SimpleDtoNoAutoCast']['avg_time'] ?? 0;
+    $withAutoCastCorrectTime = $dtoBenchmarks['SimpleDtoWithAutoCastCorrectTypes']['avg_time'] ?? 0;
+    $withAutoCastStringTime = $dtoBenchmarks['SimpleDtoWithAutoCastStringTypes']['avg_time'] ?? 0;
+    $plainPhpTime = $dtoBenchmarks['PlainPhp']['avg_time'] ?? 0;
 
     $dataMapperAvg = 0;
     $plainPhpMapperAvg = 0;
@@ -670,8 +770,8 @@ function generateTradeoffs(array $results): string
             $plainPhpMapperAvg += $result['time'];
         }
     }
-    $dataMapperAvg = $mapperCount > 0 ? $dataMapperAvg / $mapperCount : 0;
-    $plainPhpMapperAvg = $plainPhpMapperAvg > 0 ? $plainPhpMapperAvg : 0.2;
+    $dataMapperAvg = 0 < $mapperCount ? $dataMapperAvg / $mapperCount : 0;
+    $plainPhpMapperAvg = 0 < $plainPhpMapperAvg ? $plainPhpMapperAvg : 0.2;
 
     $dataMapperSerializationAvg = 0;
     $symfonyAvg = 0;
@@ -685,31 +785,129 @@ function generateTradeoffs(array $results): string
             $symfonyAvg += $result['time'];
         }
     }
-    $dataMapperSerializationAvg = $serializationCount > 0 ? $dataMapperSerializationAvg / $serializationCount : 0;
-    $symfonyAvg = $symfonyAvg > 0 ? $symfonyAvg / 2 : 150;
+    $dataMapperSerializationAvg = 0 < $serializationCount ? $dataMapperSerializationAvg / $serializationCount : 0;
+    $symfonyAvg = 0 < $symfonyAvg ? $symfonyAvg / 2 : 150;
 
-    $dtoFactor = $plainPhpDtoAvg > 0 ? round($simpleDtoAvg / $plainPhpDtoAvg) : 65;
-    $mapperFactor = $plainPhpMapperAvg > 0 ? round($dataMapperAvg / $plainPhpMapperAvg) : 100;
-    $symfonyFactor = $dataMapperSerializationAvg > 0 ? round($symfonyAvg / $dataMapperSerializationAvg, 1) : 3.5;
+    $dtoFactor = 0 < $plainPhpDtoAvg ? round($simpleDtoAvg / $plainPhpDtoAvg) : 65;
+    $mapperFactor = 0 < $plainPhpMapperAvg ? round($dataMapperAvg / $plainPhpMapperAvg) : 100;
+    $symfonyFactor = 0 < $dataMapperSerializationAvg ? round($symfonyAvg / $dataMapperSerializationAvg, 1) : 3.5;
+
+    // Calculate AutoCast factors
+    $noAutoCastFactor = 0 < $plainPhpTime ? round(($noAutoCastTime * 1e6) / ($plainPhpTime * 1e6)) : 33;
+    $withAutoCastCorrectFactor = 0 < $plainPhpTime ? round(
+        ($withAutoCastCorrectTime * 1e6) / ($plainPhpTime * 1e6)
+    ) : 98;
+    $withAutoCastStringFactor = 0 < $plainPhpTime ? round(
+        ($withAutoCastStringTime * 1e6) / ($plainPhpTime * 1e6)
+    ) : 110;
 
     $md = "```\n";
-    $md .= "SimpleDto vs Plain PHP:\n";
-    $md .= sprintf("- SimpleDto:  ~%.0f-%.0fμs per operation\n", $simpleDtoAvg * 0.9, $simpleDtoAvg * 1.1);
-    $md .= sprintf("- Plain PHP:  ~%.1fμs per operation\n", $plainPhpDtoAvg);
-    $md .= sprintf("- Trade-off:  ~%dx slower, but with type safety, validation, and immutability\n", $dtoFactor);
+    $md .= "SimpleDto vs Plain PHP (without #[AutoCast]):\n";
+    $md .= sprintf("- SimpleDto:  ~%.0fμs per operation\n", $noAutoCastTime * 1e6);
+    $md .= sprintf("- Plain PHP:  ~%.1fμs per operation\n", $plainPhpTime * 1e6);
+    $md .= sprintf(
+        "- Trade-off:  ~%dx slower, but with type safety, validation, and immutability\n",
+        $noAutoCastFactor
+    );
+    $md .= "\n";
+    $md .= "SimpleDto vs Plain PHP (with #[AutoCast]):\n";
+    $md .= sprintf(
+        "- SimpleDto:  %sμs per operation (depending on casting needs)\n",
+        formatRange($withAutoCastCorrectTime * 1e6, $withAutoCastStringTime * 1e6, 0)
+    );
+    $md .= sprintf("- Plain PHP:  ~%.1fμs per operation\n", $plainPhpTime * 1e6);
+    $md .= sprintf(
+        "- Trade-off:  %sx slower, but with automatic type conversion\n",
+        formatRange($withAutoCastCorrectFactor, $withAutoCastStringFactor, 0)
+    );
+    $md .= "- Note:       Only use #[AutoCast] when you need automatic type conversion\n";
+    $md .= "              (e.g., CSV, XML, HTTP requests with string values)\n";
     $md .= "\n";
     $md .= "DataMapper vs Plain PHP:\n";
-    $md .= sprintf("- DataMapper: ~%.0f-%.0fμs per operation\n", $dataMapperAvg * 0.9, $dataMapperAvg * 1.1);
-    $md .= sprintf("- Plain PHP:  ~%.1f-%.1fμs per operation\n", $plainPhpMapperAvg * 0.5, $plainPhpMapperAvg * 1.5);
+    $md .= sprintf("- DataMapper: %sμs per operation\n", formatRange($dataMapperAvg * 0.9, $dataMapperAvg * 1.1, 0));
+    $md .= sprintf(
+        "- Plain PHP:  %sμs per operation\n",
+        formatRange($plainPhpMapperAvg * 0.5, $plainPhpMapperAvg * 1.5, 1)
+    );
     $md .= sprintf("- Trade-off:  ~%dx slower, but with template syntax and automatic mapping\n", $mapperFactor);
     $md .= "\n";
     $md .= "DataMapper vs Symfony Serializer:\n";
-    $md .= sprintf("- DataMapper: ~%.0f-%.0fμs per operation\n", $dataMapperSerializationAvg * 0.9, $dataMapperSerializationAvg * 1.1);
-    $md .= sprintf("- Symfony:    ~%.0f-%.0fμs per operation\n", $symfonyAvg * 0.9, $symfonyAvg * 1.1);
+    $md .= sprintf(
+        "- DataMapper: %sμs per operation\n",
+        formatRange($dataMapperSerializationAvg * 0.9, $dataMapperSerializationAvg * 1.1, 0)
+    );
+    $md .= sprintf("- Symfony:    %sμs per operation\n", formatRange($symfonyAvg * 0.9, $symfonyAvg * 1.1, 0));
     $md .= sprintf("- Benefit:    %.1fx faster with better developer experience\n", $symfonyFactor);
-    $md .= "```";
 
-    return $md;
+    return $md . "```";
+}
+
+/**
+ * @param array<string, array{name: string, iterations: int, avg_time: float, ops_per_sec: int}> $dtoBenchmarks
+ */
+function generateAutoCastPerformance(array $dtoBenchmarks): string
+{
+    $noAutoCastTime = $dtoBenchmarks['SimpleDtoNoAutoCast']['avg_time'] ?? 0;
+    $withAutoCastCorrectTime = $dtoBenchmarks['SimpleDtoWithAutoCastCorrectTypes']['avg_time'] ?? 0;
+    $withAutoCastStringTime = $dtoBenchmarks['SimpleDtoWithAutoCastStringTypes']['avg_time'] ?? 0;
+    $plainPhpTime = $dtoBenchmarks['PlainPhp']['avg_time'] ?? 0;
+
+    $noAutoCastFactor = 0 < $plainPhpTime ? round(($noAutoCastTime * 1e6) / ($plainPhpTime * 1e6)) : 33;
+    $withAutoCastCorrectFactor = 0 < $plainPhpTime ? round(
+        ($withAutoCastCorrectTime * 1e6) / ($plainPhpTime * 1e6)
+    ) : 98;
+    $withAutoCastStringFactor = 0 < $plainPhpTime ? round(
+        ($withAutoCastStringTime * 1e6) / ($plainPhpTime * 1e6)
+    ) : 110;
+    $autoCastOverhead = 0 < $noAutoCastTime ? round(
+        (($withAutoCastCorrectTime - $noAutoCastTime) / $noAutoCastTime) * 100
+    ) : 193;
+    $castingOverhead = 0 < $withAutoCastCorrectTime ? round(
+        (($withAutoCastStringTime - $withAutoCastCorrectTime) / $withAutoCastCorrectTime) * 100
+    ) : 12;
+
+    $md = "```\n";
+    $md .= "Scenario 1: Correct types (no casting needed)\n";
+    $md .= sprintf(
+        "- SimpleDto (no AutoCast):   ~%.0fμs   (%dx slower than Plain PHP)\n",
+        $noAutoCastTime * 1e6,
+        $noAutoCastFactor
+    );
+    $md .= sprintf(
+        "- SimpleDto (with AutoCast): ~%.0fμs   (%dx slower than Plain PHP)\n",
+        $withAutoCastCorrectTime * 1e6,
+        $withAutoCastCorrectFactor
+    );
+    $md .= sprintf("- AutoCast overhead:         ~%d%%\n", $autoCastOverhead);
+    $md .= "\n";
+    $md .= "Scenario 2: String types (casting needed)\n";
+    $md .= sprintf(
+        "- SimpleDto (with AutoCast): ~%.0fμs   (%dx slower than Plain PHP)\n",
+        $withAutoCastStringTime * 1e6,
+        $withAutoCastStringFactor
+    );
+    $md .= sprintf("- Casting overhead:          ~%d%% (compared to correct types)\n", $castingOverhead);
+    $md .= "```\n\n";
+    $md .= "**Key Insights:**\n";
+    $md .= sprintf(
+        "- **#[AutoCast] adds ~%d%% overhead** even when no casting is needed (due to reflection)\n",
+        $autoCastOverhead
+    );
+    $md .= sprintf("- **Actual casting adds only ~%d%% overhead** on top of the AutoCast overhead\n", $castingOverhead);
+    $md .= sprintf(
+        "- **Without #[AutoCast], SimpleDto is ~%.1fx faster** and closer to Plain PHP performance\n",
+        $withAutoCastCorrectTime / $noAutoCastTime
+    );
+    $md .= "\n";
+    $md .= "**When to use #[AutoCast]:**\n";
+    $md .= "- ✅ CSV imports (all values are strings)\n";
+    $md .= "- ✅ XML parsing (all values are strings)\n";
+    $md .= "- ✅ HTTP requests (query params and form data are strings)\n";
+    $md .= "- ✅ Legacy APIs with inconsistent types\n";
+    $md .= "- ❌ Internal DTOs with correct types\n";
+    $md .= "- ❌ Performance-critical code paths\n";
+
+    return $md . "- ❌ High-throughput data processing";
 }
 
 function generateDtoInsights(array $results): string
@@ -732,9 +930,9 @@ function generateDtoInsights(array $results): string
         }
     }
 
-    $simpleDtoAvg = $counts['SimpleDto'] > 0 ? $simpleDtoAvg / $counts['SimpleDto'] : 15;
-    $plainPhpAvg = $counts['PlainPhp'] > 0 ? $plainPhpAvg / $counts['PlainPhp'] : 0.2;
-    $otherDtoAvg = $counts['OtherDto'] > 0 ? $otherDtoAvg / $counts['OtherDto'] : 0.3;
+    $simpleDtoAvg = 0 < $counts['SimpleDto'] ? $simpleDtoAvg / $counts['SimpleDto'] : 15;
+    $plainPhpAvg = 0 < $counts['PlainPhp'] ? $plainPhpAvg / $counts['PlainPhp'] : 0.2;
+    $otherDtoAvg = 0 < $counts['OtherDto'] ? $otherDtoAvg / $counts['OtherDto'] : 0.3;
 
     $vsPlainPhpFactor = round($simpleDtoAvg / $plainPhpAvg);
     $vsOtherDtoFactor = round($simpleDtoAvg / $otherDtoAvg);
@@ -742,10 +940,12 @@ function generateDtoInsights(array $results): string
     $md = "**Key Insights:**\n";
     $md .= "- SimpleDto provides **type safety, validation, and immutability** with reasonable overhead\n";
     $md .= sprintf("- Plain PHP is **~%dx faster** but lacks type safety and validation features\n", $vsPlainPhpFactor);
-    $md .= sprintf("- Other DTO libraries have **similar performance** (~%dx faster than SimpleDto)\n", $vsOtherDtoFactor);
-    $md .= "- The overhead is acceptable for the added safety and developer experience";
+    $md .= sprintf(
+        "- Other DTO libraries have **similar performance** (~%dx faster than SimpleDto)\n",
+        $vsOtherDtoFactor
+    );
 
-    return $md;
+    return $md . "- The overhead is acceptable for the added safety and developer experience";
 }
 
 function generateMapperInsights(array $results): string
@@ -768,24 +968,32 @@ function generateMapperInsights(array $results): string
         }
     }
 
-    $dataMapperAvg = $counts['DataMapper'] > 0 ? $dataMapperAvg / $counts['DataMapper'] : 20;
-    $plainPhpAvg = $counts['PlainPhp'] > 0 ? $plainPhpAvg / $counts['PlainPhp'] : 0.2;
-    $otherMapperAvg = $counts['Others'] > 0 ? $otherMapperAvg / $counts['Others'] : 5;
+    $dataMapperAvg = 0 < $counts['DataMapper'] ? $dataMapperAvg / $counts['DataMapper'] : 20;
+    $plainPhpAvg = 0 < $counts['PlainPhp'] ? $plainPhpAvg / $counts['PlainPhp'] : 0.2;
+    $otherMapperAvg = 0 < $counts['Others'] ? $otherMapperAvg / $counts['Others'] : 5;
 
     $vsOthersFactor = round($dataMapperAvg / $otherMapperAvg, 1);
     $vsPlainPhpFactor = round($dataMapperAvg / $plainPhpAvg);
 
     $md = "**Key Insights:**\n";
-    if ($vsOthersFactor < 1) {
-        $md .= sprintf("- DataMapper is **%.1fx faster** than other mapper libraries (AutoMapper Plus, Laminas Hydrator)\n", 1 / $vsOthersFactor);
+    if (1 > $vsOthersFactor) {
+        $md .= sprintf(
+            "- DataMapper is **%.1fx faster** than other mapper libraries (AutoMapper Plus, Laminas Hydrator)\n",
+            1 / $vsOthersFactor
+        );
     } else {
-        $md .= sprintf("- Other mapper libraries are **%.1fx faster** than DataMapper, but lack template syntax and advanced features\n", $vsOthersFactor);
+        $md .= sprintf(
+            "- Other mapper libraries are **%.1fx faster** than DataMapper, but lack template syntax and advanced features\n",
+            $vsOthersFactor
+        );
     }
-    $md .= sprintf("- Plain PHP is **~%dx faster** but requires manual mapping code for each use case\n", $vsPlainPhpFactor);
+    $md .= sprintf(
+        "- Plain PHP is **~%dx faster** but requires manual mapping code for each use case\n",
+        $vsPlainPhpFactor
+    );
     $md .= "- DataMapper provides the best balance of features, readability, and maintainability\n";
-    $md .= "- The overhead is acceptable for complex mapping scenarios with better developer experience";
 
-    return $md;
+    return $md . "- The overhead is acceptable for complex mapping scenarios with better developer experience";
 }
 
 function generateSerializationInsights(array $results): string
@@ -806,17 +1014,16 @@ function generateSerializationInsights(array $results): string
         }
     }
 
-    $dataMapperAvg = $dataMapperCount > 0 ? $dataMapperAvg / $dataMapperCount : 40;
-    $symfonyAvg = $symfonyCount > 0 ? $symfonyAvg / $symfonyCount : 150;
+    $dataMapperAvg = 0 < $dataMapperCount ? $dataMapperAvg / $dataMapperCount : 40;
+    $symfonyAvg = 0 < $symfonyCount ? $symfonyAvg / $symfonyCount : 150;
 
     $factor = round($symfonyAvg / $dataMapperAvg, 1);
 
     $md = "**Key Insights:**\n";
     $md .= sprintf("- DataMapper is **%.1fx faster** than Symfony Serializer\n", $factor);
     $md .= "- Zero reflection overhead for template-based mapping\n";
-    $md .= "- Optimized for nested data structures";
 
-    return $md;
+    return $md . "- Optimized for nested data structures";
 }
 
 function formatBenchmarkName(string $name): string
@@ -870,14 +1077,14 @@ function getSerializationDescription(string $name): string
 
 function updateSection(string $content, string $marker, string $newContent): string
 {
-    $startMarker = "<!-- {$marker}_START -->";
-    $endMarker = "<!-- {$marker}_END -->";
+    $startMarker = sprintf('<!-- %s_START -->', $marker);
+    $endMarker = sprintf('<!-- %s_END -->', $marker);
 
     $startPos = strpos($content, $startMarker);
     $endPos = strpos($content, $endMarker);
 
     if (false === $startPos || false === $endPos) {
-        echo "⚠️  Warning: Could not find markers for {$marker}\n";
+        echo sprintf('⚠️  Warning: Could not find markers for %s%s', $marker, PHP_EOL);
         return $content;
     }
 
@@ -897,8 +1104,8 @@ foreach (COMPARE_WITH as $encodedPackage) {
     $packagesToRemove[] = $package;
 }
 
-if (!empty($packagesToRemove)) {
+if ($packagesToRemove !== []) {
     $packageList = implode(' ', $packagesToRemove);
-    $composerCmd = "cd {$rootDir} && composer remove --dev {$packageList} --no-interaction --quiet > /dev/null 2>&1";
+    $composerCmd = sprintf('cd %s && composer remove --dev %s --no-interaction --quiet > /dev/null 2>&1', $rootDir, $packageList);
     exec($composerCmd, $output, $returnCode);
 }

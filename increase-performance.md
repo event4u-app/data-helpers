@@ -675,6 +675,151 @@ Cumulative Improvement: [X]%
 
 ---
 
+## 📋 Phase 6: Fast Path Optimization
+
+**Goal**: Implement fast path for simple DTOs without attributes, mapping, validation, or casts
+**Expected Improvement**: 30-50% for simple DTOs
+**Effort**: Medium
+**Priority**: HIGH
+**Discovered During**: Phase 2 - Realized that simple DTOs without any attributes could skip all trait overhead
+
+### Background:
+
+After implementing #[AutoCast] in Phase 2, we discovered that many DTOs are "simple":
+- No class-level attributes
+- No parameter-level attributes
+- No custom casts() method
+- No custom rules() method
+- No custom template() method
+
+These simple DTOs still pay the full overhead of:
+1. Checking for attributes (even when none exist)
+2. Calling trait methods (even when they do nothing)
+3. Iterating through properties multiple times
+4. Building intermediate arrays
+
+**Current Performance (Phase 2):**
+- SimpleDto (no AutoCast): ~4μs
+- Plain PHP: ~0.3μs
+- **Gap: 13x slower**
+
+**Target Performance (Phase 6):**
+- SimpleDto (simple, fast path): ~2-3μs
+- **Gap: 6-10x slower** (much closer to Plain PHP!)
+
+### Solution:
+
+Create a `FastPath` class that:
+1. **Detects simple DTOs** - Cache characteristics per class
+2. **Provides fast path methods** - Skip all trait overhead
+3. **Integrates seamlessly** - Automatic detection, no code changes needed
+
+### Tasks:
+
+- [ ] **Task 6.1**: Create `FastPath` class
+  - `src/SimpleDto/Support/FastPath.php`
+  - Implement `canUseFastPath()` to detect simple DTOs
+  - Implement `getCharacteristics()` to cache DTO features
+  - Implement `fastFromArray()` for fast instantiation
+  - Implement `fastToArray()` for fast serialization
+
+- [ ] **Task 6.2**: Integrate FastPath into `SimpleDtoTrait::fromArray()`
+  - Check `FastPath::canUseFastPath()` at the start
+  - Use `FastPath::fastFromArray()` if eligible
+  - Fall back to normal path if not eligible
+  - Ensure no breaking changes
+
+- [ ] **Task 6.3**: Integrate FastPath into `SimpleDtoTrait::toArray()`
+  - Check for simple DTOs and runtime overhead
+  - Use `FastPath::fastToArray()` if eligible
+  - Fall back to normal path if not eligible
+  - Ensure visibility/computed properties still work
+
+- [ ] **Task 6.4**: Add FastPath detection to `ConstructorMetadata`
+  - Cache fast path eligibility in metadata
+  - Avoid repeated characteristic checks
+  - Integrate with existing metadata cache
+
+- [ ] **Task 6.5**: Write comprehensive tests
+  - Unit tests for FastPath detection
+  - Test fast path vs normal path equivalence
+  - Test edge cases (inheritance, traits, etc.)
+  - Test that complex DTOs still use normal path
+  - Regression tests for all features
+
+- [ ] **Task 6.6**: Run benchmarks and document results
+  - Benchmark simple DTOs with/without fast path
+  - Benchmark complex DTOs (should be unchanged)
+  - Compare with Plain PHP baseline
+  - Update documentation with Phase 6 results
+
+### Files to Modify:
+- `src/SimpleDto/Support/FastPath.php` (NEW)
+- `src/SimpleDto/SimpleDtoTrait.php`
+- `src/SimpleDto/Support/ConstructorMetadata.php`
+
+### Tests Required:
+
+- [ ] **Unit Tests**:
+  - Test `FastPath::canUseFastPath()` detection
+  - Test `FastPath::getCharacteristics()` caching
+  - Test `FastPath::fastFromArray()` correctness
+  - Test `FastPath::fastToArray()` correctness
+  - Test cache invalidation
+- [ ] **Integration Tests**:
+  - Test simple DTO uses fast path
+  - Test complex DTO uses normal path
+  - Test mixed scenarios (some simple, some complex)
+  - Test that results are identical (fast path vs normal path)
+- [ ] **Edge Cases**:
+  - DTO with inheritance (should not use fast path)
+  - DTO with traits (should not use fast path)
+  - DTO with only explicit casts (should not use fast path)
+  - DTO with nested DTOs (should not use fast path)
+  - Empty DTO (should use fast path)
+  - DTO with many properties (should use fast path if simple)
+- [ ] **Regression Tests**:
+  - Ensure all existing tests still pass
+  - Test all attribute types still work
+  - Test all trait features still work
+  - Test visibility, mapping, validation, casts
+- [ ] **Performance Tests**:
+  - Benchmark simple DTO: fast path vs normal path
+  - Benchmark complex DTO: should be unchanged
+  - Measure characteristic detection overhead
+  - Compare with Plain PHP baseline
+
+### Expected Results:
+
+**Simple DTOs (no attributes, no casts):**
+- **Before Phase 6**: ~4μs (13x slower than Plain PHP)
+- **After Phase 6**: ~2-3μs (6-10x slower than Plain PHP)
+- **Improvement**: 30-50% faster
+
+**Complex DTOs (with attributes, casts, etc.):**
+- **Before Phase 6**: ~13μs (with AutoCast)
+- **After Phase 6**: ~13μs (unchanged, uses normal path)
+- **Improvement**: 0% (as expected)
+
+### Results:
+
+**Benchmark Results After Phase 6:**
+```
+[Agent will fill this after running benchmarks]
+
+SimpleDto (simple, fast path): [X]μs (was ~4μs) - [X]% improvement
+SimpleDto (complex, normal path): [X]μs (was ~13μs) - [X]% improvement (should be ~0%)
+Plain PHP baseline: ~0.3μs
+
+Fast Path Detection Overhead: [X]μs
+Fast Path vs Normal Path Equivalence: [PASS/FAIL]
+
+Overall Phase 6 Improvement: [X]% (for simple DTOs)
+Cumulative Improvement: [X]%
+```
+
+---
+
 ## 📋 Template for New Phases
 
 **When you discover new optimization opportunities, copy this template and add it as a new phase:**

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Utils\Docu\Dtos;
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 
+#[AutoCast]
 class UserDto extends SimpleDto
 {
     public function __construct(

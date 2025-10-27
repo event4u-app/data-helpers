@@ -8,12 +8,12 @@ use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
 use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromJson;
 use event4u\DataHelpers\SimpleDto\Attributes\Visible;
+use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
 use event4u\DataHelpers\Support\CallbackHelper;
 use Illuminate\Support\Facades\Gate;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionProperty;
 
 /**
  * Trait for handling property visibility in SimpleDtos.
@@ -62,18 +62,13 @@ trait SimpleDtoVisibilityTrait
         }
 
         $hidden = [];
-        $reflection = new ReflectionClass($this);
 
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
-            $attributes = $reflectionProperty->getAttributes();
+        // Use centralized metadata cache
+        $metadata = ConstructorMetadata::get(static::class);
 
-            foreach ($attributes as $attribute) {
-                $attributeName = $attribute->getName();
-
-                if (Hidden::class === $attributeName || HiddenFromArray::class === $attributeName) {
-                    $hidden[] = $reflectionProperty->getName();
-                    break;
-                }
+        foreach ($metadata['parameters'] as $param) {
+            if (isset($param['attributes'][Hidden::class]) || isset($param['attributes'][HiddenFromArray::class])) {
+                $hidden[] = $param['name'];
             }
         }
 
@@ -107,18 +102,13 @@ trait SimpleDtoVisibilityTrait
         }
 
         $hidden = [];
-        $reflection = new ReflectionClass($this);
 
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
-            $attributes = $reflectionProperty->getAttributes();
+        // Use centralized metadata cache
+        $metadata = ConstructorMetadata::get(static::class);
 
-            foreach ($attributes as $attribute) {
-                $attributeName = $attribute->getName();
-
-                if (Hidden::class === $attributeName || HiddenFromJson::class === $attributeName) {
-                    $hidden[] = $reflectionProperty->getName();
-                    break;
-                }
+        foreach ($metadata['parameters'] as $param) {
+            if (isset($param['attributes'][Hidden::class]) || isset($param['attributes'][HiddenFromJson::class])) {
+                $hidden[] = $param['name'];
             }
         }
 
@@ -148,16 +138,15 @@ trait SimpleDtoVisibilityTrait
         }
 
         $visible = [];
-        $reflection = new ReflectionClass($this);
 
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
-            $attributes = $reflectionProperty->getAttributes(Visible::class);
+        // Use centralized metadata cache
+        $metadata = ConstructorMetadata::get(static::class);
 
-            if (!empty($attributes)) {
-                $instance = $attributes[0]->newInstance();
-                if ($instance instanceof Visible) {
-                    $visible[$reflectionProperty->getName()] = $instance;
-                }
+        foreach ($metadata['parameters'] as $param) {
+            if (isset($param['attributes'][Visible::class])) {
+                /** @var Visible $instance */
+                $instance = $param['attributes'][Visible::class];
+                $visible[$param['name']] = $instance;
             }
         }
 

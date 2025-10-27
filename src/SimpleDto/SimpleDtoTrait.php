@@ -180,7 +180,7 @@ trait SimpleDtoTrait
         $data = $this->applyOutputMapping($data);
 
         // Apply visibility filters (context-specific)
-        $data = $context === 'json'
+        $data = 'json' === $context
             ? $this->applyJsonVisibilityFilters($data)
             : $this->applyArrayVisibilityFilters($data);
 

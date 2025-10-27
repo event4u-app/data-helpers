@@ -5,11 +5,45 @@ description: Reference for type casting with 20+ built-in cast classes
 
 Reference for type casting attributes and 20+ built-in cast classes.
 
+## The AutoCast Attribute
+
+### #[AutoCast]
+
+Enable automatic native PHP type casting (opt-in).
+
+<!-- skip-test: property declaration only -->
+```php skip-test
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
+
+// Class-level: Enable for ALL properties
+#[AutoCast]
+class UserDto extends SimpleDto
+{
+    public readonly int $id;        // "123" → 123 ✅
+    public readonly string $name;   // 123 → "123" ✅
+}
+
+// Property-level: Enable for specific properties
+class UserDto extends SimpleDto
+{
+    #[AutoCast]
+    public readonly int $id;        // "123" → 123 ✅
+
+    public readonly string $name;   // Must be string (no conversion)
+}
+```
+
+**Key Points:**
+- ✅ Automatic type casting is **opt-in** (not enabled by default)
+- ✅ Explicit casts (like `#[Cast]`) **ALWAYS work**, regardless of `#[AutoCast]`
+- ✅ Use `#[AutoCast]` for CSV/XML imports or inconsistent data sources
+- ✅ Skip `#[AutoCast]` for better performance and strict type checking
+
 ## The Cast Attribute
 
 ### #[Cast(string $castClass)]
 
-Cast property to a specific type:
+Cast property to a specific type (always applied, regardless of `#[AutoCast]`):
 
 <!-- skip-test: property declaration only -->
 ```php
