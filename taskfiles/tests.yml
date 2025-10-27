@@ -41,6 +41,15 @@ tasks:
         task_test "Running Documentation Tests (PHP {{.PHP | default .DEFAULT_PHP}})" \
           docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --testsuite=Documentation
 
+  docs:
+    desc: Validate all documentation examples
+    aliases: [test:docs, validate:docs]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_test "Validating All Documentation Examples (PHP {{.PHP | default .DEFAULT_PHP}})" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} php tests/Utils/validate-all-docs.php
+
   run:82:
     desc: Run tests with PHP 8.2
     aliases: [test:82]
