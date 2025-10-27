@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
+use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDto\Casts\ArrayCast;
 use event4u\DataHelpers\SimpleDto\Casts\BooleanCast;
 use event4u\DataHelpers\SimpleDto\Casts\CollectionCast;
+use event4u\DataHelpers\SimpleDto\Casts\ConvertEmptyToNullCast;
 use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 use event4u\DataHelpers\SimpleDto\Casts\DecimalCast;
 use event4u\DataHelpers\SimpleDto\Casts\DtoCast;
@@ -123,7 +125,7 @@ trait SimpleDtoCastsTrait
     }
 
     /**
-     * Get casts from DataCollectionOf attributes.
+     * Get casts from attributes (DataCollectionOf, ConvertEmptyToNull, etc.).
      *
      * @return array<string, string>
      */
@@ -134,17 +136,73 @@ trait SimpleDtoCastsTrait
         try {
             $reflection = new ReflectionClass(static::class);
 
+            // Check for class-level ConvertEmptyToNull attribute
+            $classAttributes = $reflection->getAttributes(ConvertEmptyToNull::class);
+            $hasClassLevelConvertEmptyToNull = [] !== $classAttributes;
+
             foreach ($reflection->getProperties() as $reflectionProperty) {
-                $attributes = $reflectionProperty->getAttributes(
+                // Check for DataCollectionOf attribute
+                $dataCollectionAttributes = $reflectionProperty->getAttributes(
                     DataCollectionOf::class
                 );
 
-                foreach ($attributes as $attribute) {
+                foreach ($dataCollectionAttributes as $attribute) {
                     /** @var DataCollectionOf $instance */
                     $instance = $attribute->newInstance();
 
                     // Build cast string: collection:dtoClass
                     $castString = 'collection:' . $instance->dtoClass;
+
+                    $casts[$reflectionProperty->getName()] = $castString;
+                }
+
+                // Check for property-level ConvertEmptyToNull attribute
+                $convertEmptyAttributes = $reflectionProperty->getAttributes(
+                    ConvertEmptyToNull::class
+                );
+
+                if (!empty($convertEmptyAttributes)) {
+                    // Property-level attribute takes precedence
+                    /** @var ConvertEmptyToNull $instance */
+                    $instance = $convertEmptyAttributes[0]->newInstance();
+
+                    // Build cast string with parameters
+                    $castString = ConvertEmptyToNullCast::class;
+                    if ($instance->convertZero || $instance->convertStringZero || $instance->convertFalse) {
+                        $params = [];
+                        if ($instance->convertZero) {
+                            $params[] = 'convertZero=1';
+                        }
+                        if ($instance->convertStringZero) {
+                            $params[] = 'convertStringZero=1';
+                        }
+                        if ($instance->convertFalse) {
+                            $params[] = 'convertFalse=1';
+                        }
+                        $castString .= ':' . implode(',', $params);
+                    }
+
+                    $casts[$reflectionProperty->getName()] = $castString;
+                } elseif ($hasClassLevelConvertEmptyToNull) {
+                    // Use class-level attribute settings
+                    /** @var ConvertEmptyToNull $classInstance */
+                    $classInstance = $classAttributes[0]->newInstance();
+
+                    // Build cast string with parameters
+                    $castString = ConvertEmptyToNullCast::class;
+                    if ($classInstance->convertZero || $classInstance->convertStringZero || $classInstance->convertFalse) {
+                        $params = [];
+                        if ($classInstance->convertZero) {
+                            $params[] = 'convertZero=1';
+                        }
+                        if ($classInstance->convertStringZero) {
+                            $params[] = 'convertStringZero=1';
+                        }
+                        if ($classInstance->convertFalse) {
+                            $params[] = 'convertFalse=1';
+                        }
+                        $castString .= ':' . implode(',', $params);
+                    }
 
                     $casts[$reflectionProperty->getName()] = $castString;
                 }

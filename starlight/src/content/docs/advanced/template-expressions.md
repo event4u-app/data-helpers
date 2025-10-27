@@ -22,7 +22,7 @@ The Template Expression Engine provides a powerful expression syntax that works 
 - 🎯 **Declarative syntax** - Define transformations in the template
 - 🔄 **Unified across all methods** - Same syntax in `map()`, `mapFromFile()`, and `mapFromTemplate()`
 - 🔄 **Composable filters** - Chain multiple transformations
-- 📦 **15+ built-in filters** - Common transformations out of the box
+- 📦 **30+ built-in filters** - Common transformations out of the box
 - 🔧 **Extensible** - Register custom filters
 - ⚡ **Fast** - Optimized expression parsing and evaluation
 
@@ -189,6 +189,43 @@ $template = [
 // timestamp - Convert to timestamp
 '{{ created | timestamp }}' // DateTime -> 1705276800
 ```
+
+### Data Cleaning Filters
+
+```php
+// empty_to_null - Convert empty values to null
+'{{ bio | empty_to_null }}' // '' -> null, [] -> null
+
+// empty_to_null with zero conversion
+'{{ count | empty_to_null:"zero" }}' // 0 -> null
+
+// empty_to_null with string zero conversion
+'{{ value | empty_to_null:"string_zero" }}' // '0' -> null
+
+// empty_to_null with false conversion
+'{{ active | empty_to_null:"false" }}' // false -> null
+
+// empty_to_null with multiple conversions
+'{{ amount | empty_to_null:"zero,string_zero" }}' // 0 -> null, '0' -> null
+
+// empty_to_null with all conversions
+'{{ flexible | empty_to_null:"zero,string_zero,false" }}' // 0, '0', false -> null
+
+// default - Provide default value
+'{{ name | default:"Unknown" }}' // null -> 'Unknown'
+```
+
+**ConvertEmptyToNull Options:**
+- No options: Converts `""`, `[]`, and `null` to `null`
+- `"zero"`: Also converts integer `0` to `null`
+- `"string_zero"`: Also converts string `"0"` to `null`
+- `"false"`: Also converts boolean `false` to `null`
+- `"zero,string_zero"`: Converts both zero types to `null`
+- `"zero,string_zero,false"`: Converts all three types to `null`
+
+**Note:** By default, boolean `false` is **not** converted to `null` unless you use the `"false"` option.
+
+**See also:** [ConvertEmptyToNull Attribute](/data-helpers/simple-dto/convert-empty-to-null/) for SimpleDto usage.
 
 ## Custom Filters
 
