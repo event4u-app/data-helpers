@@ -6,7 +6,7 @@ use Tests\Utils\Helpers\DocumentationExampleExtractor;
 
 describe('README.md Examples', function(): void {
     beforeEach(function(): void {
-        $this->readmePath = __DIR__ . '/../../../README.md';
+        $this->readmePath = __DIR__ . '/../../README.md';
         $this->examples = DocumentationExampleExtractor::extractExamples($this->readmePath);
     });
 
@@ -43,7 +43,7 @@ describe('README.md Examples', function(): void {
             $tempFile = tempnam(sys_get_temp_dir(), 'readme_test_');
 
             // Add autoloader after <?php and declare(strict_types=1)
-            $autoloaderPath = __DIR__ . '/../../../vendor/autoload.php';
+            $autoloaderPath = __DIR__ . '/../../vendor/autoload.php';
             $codeWithoutPhpTag = substr($executableCode, 5); // Remove <?php
 
             // Check if code has declare(strict_types=1)

@@ -21,11 +21,11 @@ describe('Examples Directory', function(): void {
     });
 
     it('has examples directory', function(): void {
-        expect(__DIR__ . '/../../../examples')->toBeDirectory();
+        expect(__DIR__ . '/../../examples')->toBeDirectory();
     });
 
     it('executes all example files without errors', function(): void {
-        $examplesDir = __DIR__ . '/../../../examples';
+        $examplesDir = __DIR__ . '/../../examples';
 
         // Recursively find all PHP files in examples directory
         $iterator = new RecursiveIteratorIterator(

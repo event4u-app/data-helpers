@@ -6,7 +6,7 @@ use Tests\Utils\Helpers\DocumentationExampleExtractor;
 
 describe('Starlight All Documentation Examples', function(): void {
     it('validates all documentation examples', function(): void {
-        $docsPath = __DIR__ . '/../../../starlight/src/content/docs';
+        $docsPath = __DIR__ . '/../../starlight/src/content/docs';
         $files = DocumentationExampleExtractor::findMarkdownFiles($docsPath);
         $allExamples = DocumentationExampleExtractor::extractFromFiles($files);
 
