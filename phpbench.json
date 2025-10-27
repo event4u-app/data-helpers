@@ -1,7 +1,7 @@
 {
     "$schema": "./vendor/phpbench/phpbench/phpbench.schema.json",
     "runner.bootstrap": "vendor/autoload.php",
-    "runner.path": "benchmarks",
+    "runner.path": "benchmarks/*Bench.php",
     "runner.progress": "dots",
     "report.generators": {
         "table": {

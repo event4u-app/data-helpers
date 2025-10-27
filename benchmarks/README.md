@@ -1,25 +1,72 @@
-# Dto Performance Benchmarks
+# Performance Benchmarks
 
-This directory contains performance benchmarks comparing Traditional Mutable Dtos with SimpleDto Immutable Dtos.
+This directory contains comprehensive performance benchmarks for Data Helpers, including comparisons with external libraries.
 
 ## Running the Benchmarks
 
-```bash
-# Run the comparison benchmark
-docker exec data-helpers-php84 php benchmarks/dto-comparison-benchmark.php
+### Comprehensive Benchmarks (Recommended)
 
-# Run the detailed benchmark
-docker exec data-helpers-php84 php benchmarks/dto-detailed-benchmark.php
+Run all benchmarks and update documentation:
+
+```bash
+# Using Task
+task bench:comprehensive
+
+# Or directly with Docker
+docker exec data-helpers-php84 php scripts/comprehensive-benchmark.php
 ```
 
-## Benchmark Results Summary
+This will:
+- Run all PHPBench benchmarks (10 iterations for accuracy)
+- Run custom DTO benchmarks
+- Compare with external libraries (AutoMapper Plus, Laminas Hydrator, etc.)
+- Update the documentation automatically
 
-### 1. Dto Creation with DataMapper
+### Individual Benchmarks
 
-**Winner: SimpleDto (41.8% faster)**
+```bash
+# Run PHPBench benchmarks only
+task bench:run
 
-- **Traditional Mutable Dto**: 247.38 μs per operation
-- **SimpleDto Immutable**: 144.04 μs per operation
+# Run specific benchmark class
+docker exec data-helpers-php84 vendor/bin/phpbench run benchmarks/DataAccessorBench.php
+
+# Run legacy DTO comparison (deprecated)
+docker exec data-helpers-php84 php benchmarks/dto-comparison-benchmark.php
+```
+
+## Benchmark Classes
+
+### Core Benchmarks
+
+- **DataAccessorBench** - Get operations, wildcards, typed access
+- **DataMutatorBench** - Set, merge, unset operations
+- **DataMapperBench** - Mapping operations, templates, auto-mapping
+- **DtoSerializationBench** - Serialization comparison with Symfony
+
+### External Library Comparisons
+
+- **ExternalDtoBench** - DTO creation/serialization vs other DTO libraries and plain PHP
+- **ExternalMapperBench** - Mapping performance vs AutoMapper Plus, Laminas Hydrator, and plain PHP
+
+## Benchmark Results
+
+Results are automatically updated in the documentation at:
+`starlight/src/content/docs/performance/benchmarks.md`
+
+### Key Findings
+
+**DataMapper vs Symfony Serializer:**
+- **3-4x faster** for nested JSON to DTO mapping
+- Zero reflection overhead with template syntax
+
+**DataMapper vs Other Mappers:**
+- Competitive performance with better developer experience
+- Template syntax provides excellent balance
+
+**SimpleDto vs Plain PHP:**
+- Minimal overhead for type safety and immutability
+- Comparable performance to plain PHP constructors
 
 SimpleDto is significantly faster when used with DataMapper because it maps to an array first, then creates the Dto in one go using named arguments. Traditional Dtos require the DataMapper to set each property individually.
 
