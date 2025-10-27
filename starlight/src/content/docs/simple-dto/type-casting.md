@@ -446,7 +446,7 @@ task test:unit -- --filter=Cast
 
 ## See Also
 
-- [Validation](/simple-dto/validation/) - Validate your data
-- [Property Mapping](/simple-dto/property-mapping/) - Map property names
-- [Nested Dtos](/simple-dto/nested-dtos/) - Complex structures
-- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods
+- [Validation](/data-helpers/simple-dto/validation/) - Validate your data
+- [Property Mapping](/data-helpers/simple-dto/property-mapping/) - Map property names
+- [Nested Dtos](/data-helpers/simple-dto/nested-dtos/) - Complex structures
+- [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Creation methods

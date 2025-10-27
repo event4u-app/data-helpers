@@ -225,7 +225,7 @@ class UserData extends SimpleDto
 }
 ```
 
-**See also:** [Migration from Spatie](/guides/migration-from-spatie/) - Complete migration guide
+**See also:** [Migration from Spatie](/data-helpers/guides/migration-from-spatie/) - Complete migration guide
 
 ## dto:list
 
@@ -434,7 +434,7 @@ php artisan dto:typescript --check
 
 ## See Also
 
-- [Laravel Integration](/framework-integration/laravel/) - Laravel integration guide
-- [TypeScript Generation](/simple-dto/typescript-generation/) - TypeScript generation details
-- [Validation](/simple-dto/validation/) - Validation guide
+- [Laravel Integration](/data-helpers/framework-integration/laravel/) - Laravel integration guide
+- [TypeScript Generation](/data-helpers/simple-dto/typescript-generation/) - TypeScript generation details
+- [Validation](/data-helpers/simple-dto/validation/) - Validation guide
 

@@ -193,8 +193,8 @@ $dto = $dto->except(['password', 'token']);
 
 ## See Also
 
-- [SimpleDto Guide](/simple-dto/introduction/) - Complete guide
-- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods
-- [Validation](/simple-dto/validation/) - Validation guide
-- [Serialization](/simple-dto/serialization/) - Serialization guide
+- [SimpleDto Guide](/data-helpers/simple-dto/introduction/) - Complete guide
+- [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Creation methods
+- [Validation](/data-helpers/simple-dto/validation/) - Validation guide
+- [Serialization](/data-helpers/simple-dto/serialization/) - Serialization guide
 

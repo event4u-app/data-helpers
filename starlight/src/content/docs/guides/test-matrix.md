@@ -322,7 +322,7 @@ The test matrix provides:
 
 ## Next Steps
 
-- [Development Setup](/guides/development-setup/) - Setup your environment
-- [Package Verification](/guides/package-verification/) - Learn about package verification
-- [Testing Guide](/testing/testing-dtos/) - Learn about testing Dtos
+- [Development Setup](/data-helpers/guides/development-setup/) - Setup your environment
+- [Package Verification](/data-helpers/guides/package-verification/) - Learn about package verification
+- [Testing Guide](/data-helpers/testing/testing-dtos/) - Learn about testing Dtos
 

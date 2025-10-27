@@ -392,7 +392,7 @@ $template = [
 
 ## See Also
 
-- [DataMapper](/main-classes/data-mapper/) - DataMapper guide
-- [Callback Filters](/advanced/callback-filters/) - Custom callbacks
-- [Query Builder](/advanced/query-builder/) - Query builder
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - DataMapper guide
+- [Callback Filters](/data-helpers/advanced/callback-filters/) - Custom callbacks
+- [Query Builder](/data-helpers/advanced/query-builder/) - Query builder
 

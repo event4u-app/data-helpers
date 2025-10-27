@@ -321,7 +321,7 @@ task dev:clean
 
 ## Next Steps
 
-- [Contributing Guide](/guides/contributing/) - Learn how to contribute
-- [Testing Guide](/testing/testing-dtos/) - Learn about testing
-- [Troubleshooting](/troubleshooting/common-issues/) - Common issues and solutions
+- [Contributing Guide](/data-helpers/guides/contributing/) - Learn how to contribute
+- [Testing Guide](/data-helpers/testing/testing-dtos/) - Learn about testing
+- [Troubleshooting](/data-helpers/troubleshooting/common-issues/) - Common issues and solutions
 

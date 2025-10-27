@@ -310,7 +310,7 @@ public function cast(mixed $value): string
 
 ## See Also
 
-- [Type Casting](/simple-dto/type-casting/) - Built-in casts
-- [Custom Validation](/advanced/custom-validation/) - Custom validation rules
-- [Custom Attributes](/advanced/custom-attributes/) - Custom attributes
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Built-in casts
+- [Custom Validation](/data-helpers/advanced/custom-validation/) - Custom validation rules
+- [Custom Attributes](/data-helpers/advanced/custom-attributes/) - Custom attributes
 

@@ -310,7 +310,7 @@ Hover doesn't show type information.
 
 ## See Also
 
-- [Creating Dtos](/simple-dto/creating-dtos/) - Dto creation guide
-- [TypeScript Generation](/simple-dto/typescript-generation/) - Generate TypeScript types
-- [Validation](/simple-dto/validation/) - Validation guide
+- [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Dto creation guide
+- [TypeScript Generation](/data-helpers/simple-dto/typescript-generation/) - Generate TypeScript types
+- [Validation](/data-helpers/simple-dto/validation/) - Validation guide
 

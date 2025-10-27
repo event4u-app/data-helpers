@@ -75,11 +75,11 @@ $user = $dto->toModel(User::class);
 
 ## Browse Examples
 
-- [API Integration](/examples/api-integration/) - External APIs, webhooks
-- [Form Processing](/examples/form-processing/) - Contact forms, registration
-- [Database Operations](/examples/database-operations/) - CRUD, relationships
-- [File Upload](/examples/file-upload/) - Images, documents
-- [Real-World Apps](/examples/real-world/) - Complete applications
+- [API Integration](/data-helpers/examples/api-integration/) - External APIs, webhooks
+- [Form Processing](/data-helpers/examples/form-processing/) - Contact forms, registration
+- [Database Operations](/data-helpers/examples/database-operations/) - CRUD, relationships
+- [File Upload](/data-helpers/examples/file-upload/) - Images, documents
+- [Real-World Apps](/data-helpers/examples/real-world/) - Complete applications
 
 ## Example Repository
 
@@ -100,6 +100,6 @@ php examples/78-real-world-ecommerce.php
 
 ## See Also
 
-- [Getting Started](/getting-started/quick-start/) - Quick start guide
-- [SimpleDto Introduction](/simple-dto/introduction/) - Dto basics
-- [Framework Integration](/framework-integration/overview/) - Framework guides
+- [Getting Started](/data-helpers/getting-started/quick-start/) - Quick start guide
+- [SimpleDto Introduction](/data-helpers/simple-dto/introduction/) - Dto basics
+- [Framework Integration](/data-helpers/framework-integration/overview/) - Framework guides

@@ -21,7 +21,7 @@ $structure = $accessor->getStructure();
 // ['name' => 'string', 'emails.*' => '\EmailDto', ...]
 ```
 
-[Learn more →](/main-classes/data-accessor/)
+[Learn more →](/data-helpers/main-classes/data-accessor/)
 
 ## DataMutator
 
@@ -36,7 +36,7 @@ DataMutator::make($data)
 // $data is now modified in-place
 ```
 
-[Learn more →](/main-classes/data-mutator/)
+[Learn more →](/data-helpers/main-classes/data-mutator/)
 
 ## DataMapper
 
@@ -53,7 +53,7 @@ $result = DataMapper::source($source)
     ->map();
 ```
 
-[Learn more →](/main-classes/data-mapper/)
+[Learn more →](/data-helpers/main-classes/data-mapper/)
 
 ## DataFilter
 
@@ -74,7 +74,7 @@ $result = DataFilter::query($data)
     ->get();
 ```
 
-[Learn more →](/main-classes/data-filter/)
+[Learn more →](/data-helpers/main-classes/data-filter/)
 
 ## SimpleDto
 
@@ -95,4 +95,4 @@ class UserDto extends SimpleDto
 $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' => 25]);
 ```
 
-[Learn more →](/main-classes/simple-dto/)
+[Learn more →](/data-helpers/main-classes/simple-dto/)

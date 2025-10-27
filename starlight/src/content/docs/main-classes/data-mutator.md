@@ -742,9 +742,9 @@ vendor/bin/pest tests/Unit/DataMutator/DataMutatorTest.php
 ```
 ## See Also
 
-- [DataAccessor](/main-classes/data-accessor/) - Read nested data
-- [DataMapper](/main-classes/data-mapper/) - Transform data structures
-- [DataFilter](/main-classes/data-filter/) - Query and filter data
-- [Core Concepts: Dot-Notation](/core-concepts/dot-notation/) - Path syntax
-- [Core Concepts: Wildcards](/core-concepts/wildcards/) - Wildcard operators
-- [Examples](/examples/) - 90+ code examples
+- [DataAccessor](/data-helpers/main-classes/data-accessor/) - Read nested data
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - Transform data structures
+- [DataFilter](/data-helpers/main-classes/data-filter/) - Query and filter data
+- [Core Concepts: Dot-Notation](/data-helpers/core-concepts/dot-notation/) - Path syntax
+- [Core Concepts: Wildcards](/data-helpers/core-concepts/wildcards/) - Wildcard operators
+- [Examples](/data-helpers/examples/) - 90+ code examples

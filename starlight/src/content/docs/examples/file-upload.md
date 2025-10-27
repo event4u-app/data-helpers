@@ -193,7 +193,7 @@ return Storage::download($document->path, $document->title);
 
 ## See Also
 
-- [Validation](/simple-dto/validation/) - Validation rules
-- [Form Processing](/examples/form-processing/) - Form examples
-- [Database Operations](/examples/database-operations/) - Database examples
+- [Validation](/data-helpers/simple-dto/validation/) - Validation rules
+- [Form Processing](/data-helpers/examples/form-processing/) - Form examples
+- [Database Operations](/data-helpers/examples/database-operations/) - Database examples
 

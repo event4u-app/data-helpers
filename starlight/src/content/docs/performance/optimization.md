@@ -127,5 +127,5 @@ User::chunk(1000, function($users) {
 
 ## See Also
 
-- [Performance Benchmarks](/performance/benchmarks/) - Detailed benchmarks
-- [Lazy Properties](/simple-dto/lazy-properties/) - Lazy loading guide
+- [Performance Benchmarks](/data-helpers/performance/benchmarks/) - Detailed benchmarks
+- [Lazy Properties](/data-helpers/simple-dto/lazy-properties/) - Lazy loading guide

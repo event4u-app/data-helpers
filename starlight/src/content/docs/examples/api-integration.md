@@ -301,7 +301,7 @@ if ($rateLimit->remaining < 10) {
 
 ## See Also
 
-- [Property Mapping](/simple-dto/property-mapping/) - MapFrom attribute
-- [Type Casting](/simple-dto/type-casting/) - Type casting
-- [Validation](/simple-dto/validation/) - Validation rules
+- [Property Mapping](/data-helpers/simple-dto/property-mapping/) - MapFrom attribute
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Type casting
+- [Validation](/data-helpers/simple-dto/validation/) - Validation rules
 

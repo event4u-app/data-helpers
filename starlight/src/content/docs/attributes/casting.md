@@ -140,5 +140,5 @@ class UserDto extends SimpleDto
 
 ## See Also
 
-- [Type Casting](/simple-dto/type-casting/) - Detailed guide
-- [Validation Attributes](/attributes/validation/) - Validation reference
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Detailed guide
+- [Validation Attributes](/data-helpers/attributes/validation/) - Validation reference

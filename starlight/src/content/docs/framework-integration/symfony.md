@@ -242,7 +242,7 @@ php bin/console dto:typescript
 
 Generates TypeScript interfaces from your Dtos.
 
-**See also:** [Console Commands](/framework-integration/console-commands/) - Complete guide to all available console commands
+**See also:** [Console Commands](/data-helpers/framework-integration/console-commands/) - Complete guide to all available console commands
 
 ## Real-World Example
 
@@ -318,6 +318,6 @@ cd tests-e2e/Symfony && composer install && vendor/bin/phpunit
 ```
 ## See Also
 
-- [Doctrine Integration](/framework-integration/doctrine/) - Doctrine entity mapping
-- [Validation Attributes](/attributes/validation/) - Validation reference
-- [Conditional Attributes](/attributes/conditional/) - Conditional visibility
+- [Doctrine Integration](/data-helpers/framework-integration/doctrine/) - Doctrine entity mapping
+- [Validation Attributes](/data-helpers/attributes/validation/) - Validation reference
+- [Conditional Attributes](/data-helpers/attributes/conditional/) - Conditional visibility

@@ -216,4 +216,4 @@ php artisan dto:typescript
 
 Generates TypeScript interfaces from your Dtos.
 
-**See also:** [Artisan Commands](/framework-integration/artisan-commands/) - Complete guide to all available Artisan commands
+**See also:** [Artisan Commands](/data-helpers/framework-integration/artisan-commands/) - Complete guide to all available Artisan commands

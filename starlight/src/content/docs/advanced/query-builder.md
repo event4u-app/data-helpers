@@ -388,7 +388,7 @@ $result = DataMapper::query()
 
 ## See Also
 
-- [DataMapper](/main-classes/data-mapper/) - DataMapper guide
-- [Template Expressions](/advanced/template-expressions/) - Template syntax
-- [Pipelines](/advanced/pipelines/) - Pipeline processing
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - DataMapper guide
+- [Template Expressions](/data-helpers/advanced/template-expressions/) - Template syntax
+- [Pipelines](/data-helpers/advanced/pipelines/) - Pipeline processing
 

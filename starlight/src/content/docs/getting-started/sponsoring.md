@@ -76,7 +76,7 @@ Have an idea for a new feature? We'd love to hear it:
 
 Contributions are always welcome! Check out our contributing guide:
 
-[Contributing Guide](/guides/contributing/)
+[Contributing Guide](/data-helpers/guides/contributing/)
 
 ### 📚 Improve Documentation
 

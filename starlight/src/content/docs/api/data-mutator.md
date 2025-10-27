@@ -175,6 +175,6 @@ $ref = &$mutator->getReference();
 
 ## See Also
 
-- [DataMutator Guide](/main-classes/data-mutator/) - Complete guide
-- [Dot-Notation](/core-concepts/dot-notation/) - Path syntax
+- [DataMutator Guide](/data-helpers/main-classes/data-mutator/) - Complete guide
+- [Dot-Notation](/data-helpers/core-concepts/dot-notation/) - Path syntax
 

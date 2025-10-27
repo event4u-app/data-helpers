@@ -111,5 +111,5 @@ composer benchmark:compare
 
 ## See Also
 
-- [Performance Benchmarks](/performance/benchmarks/) - Results
-- [Optimization](/performance/optimization/) - Optimization guide
+- [Performance Benchmarks](/data-helpers/performance/benchmarks/) - Results
+- [Optimization](/data-helpers/performance/optimization/) - Optimization guide

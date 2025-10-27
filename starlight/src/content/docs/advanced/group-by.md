@@ -375,7 +375,7 @@ $template = [
 
 ## See Also
 
-- [Query Builder](/advanced/query-builder/) - Query builder
-- [Template Expressions](/advanced/template-expressions/) - Template syntax
-- [DataMapper](/main-classes/data-mapper/) - DataMapper guide
+- [Query Builder](/data-helpers/advanced/query-builder/) - Query builder
+- [Template Expressions](/data-helpers/advanced/template-expressions/) - Template syntax
+- [DataMapper](/data-helpers/main-classes/data-mapper/) - DataMapper guide
 

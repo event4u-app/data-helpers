@@ -128,7 +128,7 @@ Data Helpers is tested against multiple PHP versions and framework combinations:
 - Symfony 6, 7
 - Doctrine 2, 3
 
-See [Test Matrix](/testing/test-matrix) for detailed test results.
+See [Test Matrix](/data-helpers/testing/test-matrix) for detailed test results.
 
 ## Browser Requirements
 
@@ -139,7 +139,7 @@ For TypeScript generation feature:
 
 ## Next Steps
 
-- [Installation](/getting-started/installation) - Install Data Helpers
-- [Quick Start](/getting-started/quick-start) - Get started in 5 minutes
-- [Configuration](/getting-started/configuration) - Configure for your environment
+- [Installation](/data-helpers/getting-started/installation) - Install Data Helpers
+- [Quick Start](/data-helpers/getting-started/quick-start) - Get started in 5 minutes
+- [Configuration](/data-helpers/getting-started/configuration) - Configure for your environment
 

@@ -316,6 +316,6 @@ task test:unit -- --filter=Serialization
 
 ## See Also
 
-- [Conditional Properties](/simple-dto/conditional-properties/) - Dynamic visibility
-- [Security & Visibility](/simple-dto/security-visibility/) - Control data exposure
-- [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
+- [Conditional Properties](/data-helpers/simple-dto/conditional-properties/) - Dynamic visibility
+- [Security & Visibility](/data-helpers/simple-dto/security-visibility/) - Control data exposure
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Automatic type conversion

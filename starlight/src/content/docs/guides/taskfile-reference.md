@@ -19,7 +19,7 @@ This project uses [Task](https://taskfile.dev/) as the task runner. Task is a mo
 
 ### Installation
 
-See [Development Setup](/guides/development-setup/#install-task-optional-but-recommended) for installation instructions.
+See [Development Setup](/data-helpers/guides/development-setup/#install-task-optional-but-recommended) for installation instructions.
 
 ## Quick Reference
 
@@ -415,7 +415,7 @@ task test:run
 
 ## Next Steps
 
-- [Development Setup](/guides/development-setup/) - Setup your environment
-- [Test Matrix](/guides/test-matrix/) - Learn about the test matrix
-- [Contributing Guide](/guides/contributing/) - Learn how to contribute
+- [Development Setup](/data-helpers/guides/development-setup/) - Setup your environment
+- [Test Matrix](/data-helpers/guides/test-matrix/) - Learn about the test matrix
+- [Contributing Guide](/data-helpers/guides/contributing/) - Learn how to contribute
 

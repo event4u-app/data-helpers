@@ -11,7 +11,7 @@ SimpleDto provides visibility attributes:
 
 - **#[Hidden]** - Always hide property
 - **#[Visible(callback)]** - Conditionally visible
-- **18 Conditional Attributes** - See [Conditional Attributes](/attributes/conditional/)
+- **18 Conditional Attributes** - See [Conditional Attributes](/data-helpers/attributes/conditional/)
 
 ## Hidden Attribute
 
@@ -71,7 +71,7 @@ public readonly string $email;
 
 ## Conditional Attributes
 
-See [Conditional Attributes](/attributes/conditional/) for 18 conditional attributes:
+See [Conditional Attributes](/data-helpers/attributes/conditional/) for 18 conditional attributes:
 
 <!-- skip-test: property declarations only -->
 ```php
@@ -132,5 +132,5 @@ public readonly ?string $email;
 
 ## See Also
 
-- [Security & Visibility](/simple-dto/security-visibility/) - Security guide
-- [Conditional Attributes](/attributes/conditional/) - Conditional visibility
+- [Security & Visibility](/data-helpers/simple-dto/security-visibility/) - Security guide
+- [Conditional Attributes](/data-helpers/attributes/conditional/) - Conditional visibility

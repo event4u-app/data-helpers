@@ -299,6 +299,6 @@ public readonly string $email;
 
 ## See Also
 
-- [SimpleDto Introduction](/simple-dto/introduction/) - Dto basics
-- [Validation](/simple-dto/validation/) - Validation guide
-- [Type Casting](/simple-dto/type-casting/) - Type casting guide
+- [SimpleDto Introduction](/data-helpers/simple-dto/introduction/) - Dto basics
+- [Validation](/data-helpers/simple-dto/validation/) - Validation guide
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Type casting guide

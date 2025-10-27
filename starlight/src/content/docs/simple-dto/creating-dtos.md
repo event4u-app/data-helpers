@@ -547,7 +547,7 @@ vendor/bin/pest tests/Unit/SimpleDto/SimpleDtoTest.php
 ```
 ## See Also
 
-- [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
-- [Validation](/simple-dto/validation/) - Validate your data
-- [Property Mapping](/simple-dto/property-mapping/) - Map property names
-- [Collections](/simple-dto/collections/) - Working with collections
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Automatic type conversion
+- [Validation](/data-helpers/simple-dto/validation/) - Validate your data
+- [Property Mapping](/data-helpers/simple-dto/property-mapping/) - Map property names
+- [Collections](/data-helpers/simple-dto/collections/) - Working with collections

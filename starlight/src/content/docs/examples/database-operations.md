@@ -261,7 +261,7 @@ $dtos = $posts->map(fn($post) => PostDto::fromModel($post));
 
 ## See Also
 
-- [Creating Dtos](/simple-dto/creating-dtos/) - Dto creation methods
-- [Nested Dtos](/simple-dto/nested-dtos/) - Nested Dtos
-- [Collections](/simple-dto/collections/) - DataCollection
+- [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Dto creation methods
+- [Nested Dtos](/data-helpers/simple-dto/nested-dtos/) - Nested Dtos
+- [Collections](/data-helpers/simple-dto/collections/) - DataCollection
 

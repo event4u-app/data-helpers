@@ -384,7 +384,7 @@ class ProductDescriptionMinWords extends ValidationAttribute
 
 ## See Also
 
-- [Validation](/simple-dto/validation/) - Built-in validation
-- [Custom Casts](/advanced/custom-casts/) - Custom type casts
-- [Custom Attributes](/advanced/custom-attributes/) - Custom attributes
+- [Validation](/data-helpers/simple-dto/validation/) - Built-in validation
+- [Custom Casts](/data-helpers/advanced/custom-casts/) - Custom type casts
+- [Custom Attributes](/data-helpers/advanced/custom-attributes/) - Custom attributes
 

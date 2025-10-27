@@ -322,6 +322,6 @@ task test:unit -- --filter=Visibility
 
 ## See Also
 
-- [Conditional Properties](/simple-dto/conditional-properties/) - Dynamic visibility
-- [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
-- [Serialization](/simple-dto/serialization/) - Convert to different formats
+- [Conditional Properties](/data-helpers/simple-dto/conditional-properties/) - Dynamic visibility
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Automatic type conversion
+- [Serialization](/data-helpers/simple-dto/serialization/) - Convert to different formats

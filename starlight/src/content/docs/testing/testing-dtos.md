@@ -354,7 +354,7 @@ public function invalidEmailProvider(): array
 
 ## See Also
 
-- [Creating Dtos](/simple-dto/creating-dtos/) - Dto creation guide
-- [Validation](/simple-dto/validation/) - Validation guide
-- [Type Casting](/simple-dto/type-casting/) - Type casting guide
+- [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Dto creation guide
+- [Validation](/data-helpers/simple-dto/validation/) - Validation guide
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Type casting guide
 

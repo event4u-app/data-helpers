@@ -235,6 +235,6 @@ public readonly array $items;
 
 ## See Also
 
-- [Collections](/simple-dto/collections/) - Work with collections
-- [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
-- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods
+- [Collections](/data-helpers/simple-dto/collections/) - Work with collections
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Automatic type conversion
+- [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Creation methods

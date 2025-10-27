@@ -133,5 +133,5 @@ Result: True framework-agnostic design
 
 ## See Also
 
-- [Running Benchmarks](/performance/running-benchmarks/) - How to run
-- [Optimization](/performance/optimization/) - Optimization guide
+- [Running Benchmarks](/data-helpers/performance/running-benchmarks/) - How to run
+- [Optimization](/data-helpers/performance/optimization/) - Optimization guide

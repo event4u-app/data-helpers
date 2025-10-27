@@ -297,6 +297,6 @@ task test:unit -- --filter=Doctrine
 ```
 ## See Also
 
-- [Symfony Integration](/framework-integration/symfony/) - Symfony guide
-- [Lazy Properties](/simple-dto/lazy-properties/) - Lazy loading guide
-- [Collections](/simple-dto/collections/) - Collection handling
+- [Symfony Integration](/data-helpers/framework-integration/symfony/) - Symfony guide
+- [Lazy Properties](/data-helpers/simple-dto/lazy-properties/) - Lazy loading guide
+- [Collections](/data-helpers/simple-dto/collections/) - Collection handling

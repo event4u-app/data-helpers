@@ -451,7 +451,7 @@ public function getFullName()
 
 ## See Also
 
-- [SimpleDto Introduction](/simple-dto/introduction/) - Dto basics
-- [Custom Casts](/advanced/custom-casts/) - Custom type casts
-- [Custom Validation](/advanced/custom-validation/) - Custom validation rules
+- [SimpleDto Introduction](/data-helpers/simple-dto/introduction/) - Dto basics
+- [Custom Casts](/data-helpers/advanced/custom-casts/) - Custom type casts
+- [Custom Validation](/data-helpers/advanced/custom-validation/) - Custom validation rules
 

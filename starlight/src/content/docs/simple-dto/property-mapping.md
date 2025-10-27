@@ -247,6 +247,6 @@ task test:unit -- --filter=PropertyMapping
 
 ## See Also
 
-- [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
-- [Validation](/simple-dto/validation/) - Validate your data
-- [Creating Dtos](/simple-dto/creating-dtos/) - Creation methods
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Automatic type conversion
+- [Validation](/data-helpers/simple-dto/validation/) - Validate your data
+- [Creating Dtos](/data-helpers/simple-dto/creating-dtos/) - Creation methods

@@ -151,8 +151,8 @@ public function fullName(): string
 
 ## See Also
 
-- [Attributes Overview](/attributes/overview/) - Complete overview
-- [Validation Attributes](/attributes/validation/) - Validation guide
-- [Conditional Attributes](/attributes/conditional/) - Conditional guide
-- [Casting Attributes](/attributes/casting/) - Casting guide
+- [Attributes Overview](/data-helpers/attributes/overview/) - Complete overview
+- [Validation Attributes](/data-helpers/attributes/validation/) - Validation guide
+- [Conditional Attributes](/data-helpers/attributes/conditional/) - Conditional guide
+- [Casting Attributes](/data-helpers/attributes/casting/) - Casting guide
 

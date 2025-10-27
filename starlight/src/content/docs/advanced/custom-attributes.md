@@ -398,7 +398,7 @@ public function __construct(
 
 ## See Also
 
-- [Custom Casts](/advanced/custom-casts/) - Custom type casts
-- [Custom Validation](/advanced/custom-validation/) - Custom validation rules
-- [Attributes Overview](/attributes/overview/) - Built-in attributes
+- [Custom Casts](/data-helpers/advanced/custom-casts/) - Custom type casts
+- [Custom Validation](/data-helpers/advanced/custom-validation/) - Custom validation rules
+- [Attributes Overview](/data-helpers/attributes/overview/) - Built-in attributes
 

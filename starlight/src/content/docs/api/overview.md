@@ -16,7 +16,7 @@ Browse the complete API reference:
 
 ## Main Classes
 
-### [DataAccessor](/api/data-accessor/)
+### [DataAccessor](/data-helpers/api/data-accessor/)
 
 Read data using dot-notation paths:
 
@@ -25,7 +25,7 @@ $accessor = DataAccessor::make(['user' => ['profile' => ['name' => 'John']]]);
 $value = $accessor->get('user.profile.name');
 ```
 
-### [DataMutator](/api/data-mutator/)
+### [DataMutator](/data-helpers/api/data-mutator/)
 
 Modify data using dot-notation paths:
 
@@ -35,7 +35,7 @@ $mutator = DataMutator::make($data);
 $mutator->set('user.profile.name', 'John Doe');
 ```
 
-### [DataMapper](/api/data-mapper/)
+### [DataMapper](/data-helpers/api/data-mapper/)
 
 Map data between structures:
 
@@ -48,7 +48,7 @@ $result = DataMapper::source($src)
     ->getTarget();
 ```
 
-### [DataFilter](/api/data-filter/)
+### [DataFilter](/data-helpers/api/data-filter/)
 
 Filter and transform data:
 
@@ -57,7 +57,7 @@ $filter = DataFilter::make(['name' => 'John', 'email' => 'john@example.com', 'ag
 $filtered = $filter->only(['name', 'email']);
 ```
 
-### [SimpleDto](/api/simple-dto/)
+### [SimpleDto](/data-helpers/api/simple-dto/)
 
 Type-safe data transfer objects:
 
@@ -73,7 +73,7 @@ class UserDto extends SimpleDto
 
 ## Helpers
 
-### [EnvHelper](/api/helpers/#envhelper)
+### [EnvHelper](/data-helpers/api/helpers/#envhelper)
 
 Framework-agnostic environment variables:
 
@@ -81,7 +81,7 @@ Framework-agnostic environment variables:
 $value = EnvHelper::get('APP_NAME', 'default');
 ```
 
-### [MathHelper](/api/helpers/#mathhelper)
+### [MathHelper](/data-helpers/api/helpers/#mathhelper)
 
 High-precision math operations:
 
@@ -89,7 +89,7 @@ High-precision math operations:
 $result = MathHelper::add('0.1', '0.2', 2); // '0.30'
 ```
 
-### [ConfigHelper](/api/helpers/#confighelper)
+### [ConfigHelper](/data-helpers/api/helpers/#confighelper)
 
 Universal configuration helper:
 
@@ -98,7 +98,7 @@ Universal configuration helper:
 $value = ConfigHelper::get('app.name', 'default');
 ```
 
-### [DotPathHelper](/api/helpers/#dotpathhelper)
+### [DotPathHelper](/data-helpers/api/helpers/#dotpathhelper)
 
 Dot-path notation utilities:
 
@@ -107,7 +107,7 @@ $segments = DotPathHelper::segments('user.profile.name');
 // $segments = ['user', 'profile', 'name']
 ```
 
-### [ObjectHelper](/api/helpers/#objecthelper)
+### [ObjectHelper](/data-helpers/api/helpers/#objecthelper)
 
 Object manipulation utilities:
 
@@ -118,7 +118,7 @@ $clone = ObjectHelper::copy($object);
 
 ## Attributes
 
-### [Validation Attributes](/api/attributes/#validation)
+### [Validation Attributes](/data-helpers/api/attributes/#validation)
 
 30+ validation attributes:
 
@@ -128,7 +128,7 @@ $clone = ObjectHelper::copy($object);
 public readonly string $email;
 ```
 
-### [Conditional Attributes](/api/attributes/#conditional)
+### [Conditional Attributes](/data-helpers/api/attributes/#conditional)
 
 18 conditional attributes:
 
@@ -138,7 +138,7 @@ public readonly string $email;
 public readonly ?string $adminNotes = null;
 ```
 
-### [Cast Attributes](/api/attributes/#casting)
+### [Cast Attributes](/data-helpers/api/attributes/#casting)
 
 Type casting:
 
@@ -148,7 +148,7 @@ Type casting:
 public readonly Carbon $createdAt;
 ```
 
-### [Mapping Attributes](/api/attributes/#mapping)
+### [Mapping Attributes](/data-helpers/api/attributes/#mapping)
 
 Property mapping:
 
@@ -160,7 +160,7 @@ public readonly string $name;
 
 ## Casts
 
-### [Primitive Casts](/api/casts/#primitive)
+### [Primitive Casts](/data-helpers/api/casts/#primitive)
 
 Basic type casts:
 
@@ -169,7 +169,7 @@ Basic type casts:
 StringCast, IntCast, FloatCast, BoolCast, ArrayCast
 ```
 
-### [Date Casts](/api/casts/#date)
+### [Date Casts](/data-helpers/api/casts/#date)
 
 Date and time casts:
 
@@ -178,7 +178,7 @@ Date and time casts:
 DateTimeCast, DateCast, TimeCast, TimestampCast
 ```
 
-### [Enum Casts](/api/casts/#enum)
+### [Enum Casts](/data-helpers/api/casts/#enum)
 
 Enum casts:
 
@@ -187,7 +187,7 @@ Enum casts:
 EnumCast, BackedEnumCast
 ```
 
-### [Collection Casts](/api/casts/#collection)
+### [Collection Casts](/data-helpers/api/casts/#collection)
 
 Collection casts:
 
@@ -198,6 +198,6 @@ CollectionCast, DataCollectionCast
 
 ## See Also
 
-- [Getting Started](/getting-started/quick-start/) - Quick start guide
-- [Main Classes](/main-classes/overview/) - Main classes overview
-- [SimpleDto](/simple-dto/introduction/) - Dto introduction
+- [Getting Started](/data-helpers/getting-started/quick-start/) - Quick start guide
+- [Main Classes](/data-helpers/main-classes/overview/) - Main classes overview
+- [SimpleDto](/data-helpers/simple-dto/introduction/) - Dto introduction

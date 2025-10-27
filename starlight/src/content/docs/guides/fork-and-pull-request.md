@@ -511,7 +511,7 @@ git reset --hard HEAD~1
 
 ## Next Steps
 
-- [Contributing Guide](/guides/contributing/) - Learn about code style and testing
-- [Development Setup](/guides/development-setup/) - Setup your development environment
-- [Test Matrix](/guides/test-matrix/) - Learn about testing
+- [Contributing Guide](/data-helpers/guides/contributing/) - Learn about code style and testing
+- [Development Setup](/data-helpers/guides/development-setup/) - Setup your development environment
+- [Test Matrix](/data-helpers/guides/test-matrix/) - Learn about testing
 

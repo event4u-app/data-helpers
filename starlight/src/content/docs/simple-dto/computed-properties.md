@@ -277,6 +277,6 @@ task test:unit -- --filter=Computed
 ```
 ## See Also
 
-- [Lazy Properties](/simple-dto/lazy-properties/) - Defer expensive operations
-- [Conditional Properties](/simple-dto/conditional-properties/) - Dynamic visibility
-- [Type Casting](/simple-dto/type-casting/) - Automatic type conversion
+- [Lazy Properties](/data-helpers/simple-dto/lazy-properties/) - Defer expensive operations
+- [Conditional Properties](/data-helpers/simple-dto/conditional-properties/) - Dynamic visibility
+- [Type Casting](/data-helpers/simple-dto/type-casting/) - Automatic type conversion

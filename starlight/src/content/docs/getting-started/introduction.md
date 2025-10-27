@@ -107,7 +107,7 @@ DataMapper is significantly faster than traditional serializers for Dto mapping:
 - Up to 3.7x faster than Symfony Serializer
 - Optimized for nested data structures
 - Zero reflection overhead for template-based mapping
-- See [Performance Benchmarks](/performance/benchmarks) for detailed comparison
+- See [Performance Benchmarks](/data-helpers/performance/benchmarks) for detailed comparison
 
 ## Key Features
 
@@ -167,14 +167,14 @@ Install via Composer:
 composer require event4u/data-helpers
 ```
 
-See [Installation](/getting-started/installation) for detailed setup instructions.
+See [Installation](/data-helpers/getting-started/installation) for detailed setup instructions.
 
 ## Next Steps
 
-- [Installation](/getting-started/installation) - Install and configure Data Helpers
-- [Quick Start](/getting-started/quick-start) - Get started in 5 minutes
-- [Core Concepts](/core-concepts/dot-notation) - Learn the fundamentals
-- [Examples](/examples) - Browse 90+ code examples
+- [Installation](/data-helpers/getting-started/installation) - Install and configure Data Helpers
+- [Quick Start](/data-helpers/getting-started/quick-start) - Get started in 5 minutes
+- [Core Concepts](/data-helpers/core-concepts/dot-notation) - Learn the fundamentals
+- [Examples](/data-helpers/examples) - Browse 90+ code examples
 
 ## Comparison with Similar Libraries
 
@@ -187,14 +187,14 @@ Data Helpers offers several advantages over comparable projects:
 - **High performance** - Up to 3.7x faster than traditional serializers
 - **Rich feature set** - 40+ filters, 20+ casts, 22+ validation attributes, 18 conditional attributes
 
-See [Performance Comparison](/performance/comparison) for detailed benchmarks.
+See [Performance Comparison](/data-helpers/performance/comparison) for detailed benchmarks.
 
 ## Support
 
 - [GitHub Issues](https://github.com/event4u-app/data-helpers/issues) - Report bugs or request features
 - [GitHub Discussions](https://github.com/event4u-app/data-helpers/discussions) - Ask questions and share ideas
-- [Examples](/examples) - Browse 90+ code examples
-- [API Reference](/api) - Complete API documentation
+- [Examples](/data-helpers/examples) - Browse 90+ code examples
+- [API Reference](/data-helpers/api) - Complete API documentation
 
 ## License
 

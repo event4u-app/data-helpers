@@ -348,7 +348,7 @@ bin/console dto:typescript --check
 
 ## See Also
 
-- [Symfony Integration](/framework-integration/symfony/) - Symfony integration guide
-- [TypeScript Generation](/simple-dto/typescript-generation/) - TypeScript generation details
-- [Validation](/simple-dto/validation/) - Validation guide
+- [Symfony Integration](/data-helpers/framework-integration/symfony/) - Symfony integration guide
+- [TypeScript Generation](/data-helpers/simple-dto/typescript-generation/) - TypeScript generation details
+- [Validation](/data-helpers/simple-dto/validation/) - Validation guide
 
