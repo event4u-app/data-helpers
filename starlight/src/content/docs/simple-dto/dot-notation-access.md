@@ -215,6 +215,8 @@ The `set()` method allows you to update DTO properties using dot notation. Since
 ### Basic Usage
 
 ```php
+use Tests\Utils\Docu\DTOs\UserDTO;
+
 $user = new UserDTO(
     name: 'John Doe',
     email: 'john@example.com',
@@ -233,6 +235,9 @@ echo $updatedUser->name; // 'Jane Doe' (new instance)
 Update nested DTO properties:
 
 ```php
+use Tests\Utils\Docu\DTOs\UserDTO;
+use Tests\Utils\Docu\DTOs\AddressDTO;
+
 $user = new UserDTO(
     name: 'John Doe',
     address: new AddressDTO(
@@ -307,6 +312,8 @@ $statuses = $updated->get('employees.*.orders.*.status');
 Since `set()` returns a new instance, you can chain multiple calls:
 
 ```php
+use Tests\Utils\Docu\DTOs\UserDTO;
+
 $user = new UserDTO(
     name: 'John Doe',
     email: 'john@example.com',
@@ -332,6 +339,8 @@ echo $updatedUser->email; // 'jane@example.com'
 ### Non-Existent Paths
 
 ```php
+use Tests\Utils\Docu\DTOs\UserDTO;
+
 $user = new UserDTO(name: 'John', email: 'john@example.com', age: 30);
 
 // Returns null for non-existent paths

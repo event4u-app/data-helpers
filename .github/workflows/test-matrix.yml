@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - '**.md'
       - '**.php'
       - 'composer.json'
       - 'composer.lock'
@@ -15,6 +16,7 @@ on:
     branches:
       - main
     paths:
+      - '**.md'
       - '**.php'
       - 'composer.json'
       - 'composer.lock'

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Utils\DTOs;
 
-final class UserDTO
+use event4u\DataHelpers\SimpleDTO;
+
+final class UserDTO extends SimpleDTO
 {
     public string $name = '';
     public string $email = '';

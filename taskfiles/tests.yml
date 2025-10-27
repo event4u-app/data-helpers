@@ -33,8 +33,8 @@ tasks:
           docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
 
   documentation:
-    desc: Run documentation tests (examples + docblock examples)
-    aliases: [test:docs, test:documentation]
+    desc: Run documentation tests (examples + markdown docs)
+    aliases: [docs]
     cmds:
       - |
         source {{.OUTPUT_HELPER}}

@@ -73,7 +73,7 @@ describe('Examples Directory', function(): void {
 
             // Execute the example file in a separate process to avoid conflicts
             // Change to repository root directory so relative paths work correctly
-            $repoRoot = __DIR__ . '/../..';
+            $repoRoot = __DIR__ . '/../../..';
             $command = sprintf('cd %s && php %s 2>&1', escapeshellarg($repoRoot), escapeshellarg($filepath));
             exec($command, $output, $returnCode);
 

@@ -198,6 +198,7 @@ export default defineConfig({
 					{ label: 'Test Matrix', slug: 'guides/test-matrix' },
 					{ label: 'Package Verification', slug: 'guides/package-verification' },
 					{ label: 'Contributing Guide', slug: 'guides/contributing' },
+					{ label: 'Documentation Testing', slug: 'guides/documentation-testing' },
 					{ label: 'Fork & Pull Request', slug: 'guides/fork-and-pull-request' },
 					{ label: 'Migration from Spatie', slug: 'guides/migration-from-spatie' },
 				],

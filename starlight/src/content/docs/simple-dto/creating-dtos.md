@@ -204,6 +204,8 @@ $dtos = DataCollection::make($users, UserDTO::class);
 ### Basic Usage
 
 ```php
+use Tests\Utils\Docu\DTOs\UserDTO;
+
 $xml = '<?xml version="1.0"?>
 <user>
     <name>John Doe</name>
@@ -308,6 +310,8 @@ try {
 ### Using Constructor
 
 ```php
+use Tests\Utils\Docu\DTOs\UserDTO;
+
 $dto = new UserDTO(
     name: 'John Doe',
     email: 'john@example.com',
@@ -318,6 +322,8 @@ $dto = new UserDTO(
 ### With Named Arguments
 
 ```php
+use Tests\Utils\Docu\DTOs\UserDTO;
+
 // ✅ Good - clear and explicit
 $dto = new UserDTO(
     name: 'John Doe',
@@ -334,6 +340,8 @@ $dto = new UserDTO('John Doe', 'john@example.com', 30);
 ### Clone and Modify
 
 ```php
+use Tests\Utils\Docu\DTOs\UserDTO;
+
 $dto1 = UserDTO::fromArray([
     'name' => 'John Doe',
     'email' => 'john@example.com',
