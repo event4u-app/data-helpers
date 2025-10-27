@@ -14,7 +14,7 @@
             <directory suffix="Test.php">./tests/Integration</directory>
         </testsuite>
         <testsuite name="Documentation">
-            <directory suffix="Test.php">./tests/Documentation</directory>
+            <directory suffix="Test.php">./tests/Unit/Docs</directory>
         </testsuite>
     </testsuites>
 

@@ -5,8 +5,6 @@ description: How to write and test documentation examples in Data Helpers
 
 This guide explains how to write documentation with testable code examples and how to run the documentation tests.
 
-## Overview
-
 All PHP code examples in the documentation are automatically tested to ensure they work correctly. This helps maintain high-quality documentation that stays in sync with the codebase.
 
 ## Running Documentation Tests
@@ -19,39 +17,37 @@ Run all documentation tests using the Task command:
 task test:documentation
 ```
 
-Or using the alias:
+Or using the short alias:
 
 ```bash
 task test:docs
 ```
 
-### Validate All Documentation
+### What Gets Tested
 
-To validate all documentation examples at once, use the validation script:
-
-```bash
-task test:docs
-```
-
-This runs the `tests/Utils/validate-all-docs.php` script which:
-- Scans all Markdown files in `starlight/src/content/docs/`
-- Extracts all PHP code blocks
-- Executes them to verify they work
-- Reports any failures with detailed error messages
+The documentation tests include:
+- **All Markdown files** in `starlight/src/content/docs/` (via `StarlightAllExamplesTest`)
+- **README.md** examples (via `ReadmeExamplesTest`)
+- **Examples directory** (`examples/`) files (via `ExamplesTest`)
+- **Specific class examples** (DataAccessor, DataFilter, DataMapper tests)
 
 ### Manual Execution
 
-You can also run the validation script directly:
+You can also run the tests directly with Pest:
 
 ```bash
-docker exec data-helpers-php84 php tests/Utils/validate-all-docs.php
+# Run all documentation tests (using testsuite)
+docker exec data-helpers-php84 vendor/bin/pest --testsuite=Documentation
+
+# Or using the docs group
+docker exec data-helpers-php84 vendor/bin/pest --group=docs
 ```
 
-Or with a specific PHP version:
+With a specific PHP version:
 
 ```bash
-docker exec data-helpers-php82 php tests/Utils/validate-all-docs.php
-docker exec data-helpers-php83 php tests/Utils/validate-all-docs.php
+docker exec data-helpers-php82 vendor/bin/pest --testsuite=Documentation
+docker exec data-helpers-php83 vendor/bin/pest --testsuite=Documentation
 ```
 
 ## Writing Testable Documentation

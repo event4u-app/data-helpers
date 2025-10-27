@@ -21,11 +21,11 @@ describe('Examples Directory', function(): void {
     });
 
     it('has examples directory', function(): void {
-        expect(__DIR__ . '/../../examples')->toBeDirectory();
+        expect(__DIR__ . '/../../../examples')->toBeDirectory();
     });
 
     it('executes all example files without errors', function(): void {
-        $examplesDir = __DIR__ . '/../../examples';
+        $examplesDir = __DIR__ . '/../../../examples';
 
         // Recursively find all PHP files in examples directory
         $iterator = new RecursiveIteratorIterator(
@@ -73,7 +73,7 @@ describe('Examples Directory', function(): void {
 
             // Execute the example file in a separate process to avoid conflicts
             // Change to repository root directory so relative paths work correctly
-            $repoRoot = __DIR__ . '/../..';
+            $repoRoot = __DIR__ . '/../../..';
             $command = sprintf('cd %s && php %s 2>&1', escapeshellarg($repoRoot), escapeshellarg($filepath));
             exec($command, $output, $returnCode);
 
