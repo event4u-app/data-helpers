@@ -27,6 +27,10 @@ describe('ConvertEmptyToNull Attribute', function(): void {
 
     it('converts empty array to null on property level', function(): void {
         $dtoClass = new class () extends SimpleDto {
+            /**
+             * @param array<string>|null $tags
+             * @param array<string>|null $categories
+             */
             public function __construct(
                 #[ConvertEmptyToNull]
                 public readonly ?array $tags = null,
@@ -60,6 +64,7 @@ describe('ConvertEmptyToNull Attribute', function(): void {
 
     it('converts empty string to null when using fromArray', function(): void {
         $dto = new class () extends SimpleDto {
+            /** @param array<string>|null $tags */
             public function __construct(
                 #[ConvertEmptyToNull]
                 public readonly ?string $bio = null,
@@ -79,6 +84,7 @@ describe('ConvertEmptyToNull Attribute', function(): void {
 
     it('keeps non-empty values unchanged', function(): void {
         $dto = new class () extends SimpleDto {
+            /** @param array<string>|null $tags */
             public function __construct(
                 #[ConvertEmptyToNull]
                 public readonly ?string $bio = null,
@@ -98,6 +104,7 @@ describe('ConvertEmptyToNull Attribute', function(): void {
 
     it('works on class level', function(): void {
         $dtoClass = new #[ConvertEmptyToNull] class () extends SimpleDto {
+            /** @param array<string>|null $tags */
             public function __construct(
                 public readonly ?string $bio = null,
                 public readonly ?array $tags = null,
@@ -231,6 +238,7 @@ describe('ConvertEmptyToNull Attribute', function(): void {
 
     it('works with toArray output', function(): void {
         $dto = new class () extends SimpleDto {
+            /** @param array<string>|null $tags */
             public function __construct(
                 #[ConvertEmptyToNull]
                 public readonly ?string $bio = null,
@@ -339,5 +347,123 @@ describe('ConvertEmptyToNull Attribute', function(): void {
         expect($dto2->value)->toBeNull();
         expect($dto3->value)->toBeNull();
         expect($dto4->value)->toBeNull();
+    });
+
+    it('converts float zero to null when convertZero is enabled', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull(convertZero: true)]
+                public readonly ?float $amount = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'amount' => 0.0,
+        ]);
+
+        expect($dto->amount)->toBeNull();
+    });
+
+    it('does not convert float zero by default', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull]
+                public readonly ?float $amount = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'amount' => 0.0,
+        ]);
+
+        expect($dto->amount)->toBe(0.0);
+    });
+
+    it('does not convert string "false" or "true"', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull(convertFalse: true)]
+                public readonly ?string $falseString = null,
+                #[ConvertEmptyToNull(convertFalse: true)]
+                public readonly ?string $trueString = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'falseString' => 'false',
+            'trueString' => 'true',
+        ]);
+
+        expect($dto->falseString)->toBe('false');
+        expect($dto->trueString)->toBe('true');
+    });
+
+    it('does not convert array with null values', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            /** @param array<mixed>|null $items */
+            public function __construct(
+                #[ConvertEmptyToNull]
+                public readonly ?array $items = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'items' => [null],
+        ]);
+
+        expect($dto->items)->toBe([null]);
+    });
+
+    it('does not convert whitespace-only strings', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull]
+                public readonly ?string $value = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'value' => '   ',
+        ]);
+
+        expect($dto->value)->toBe('   ');
+    });
+
+    it('does not convert numeric strings other than "0"', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull(convertStringZero: true)]
+                public readonly ?string $value1 = null,
+                #[ConvertEmptyToNull(convertStringZero: true)]
+                public readonly ?string $value2 = null,
+                #[ConvertEmptyToNull(convertStringZero: true)]
+                public readonly ?string $value3 = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'value1' => '1',
+            'value2' => '42',
+            'value3' => '-1',
+        ]);
+
+        expect($dto->value1)->toBe('1');
+        expect($dto->value2)->toBe('42');
+        expect($dto->value3)->toBe('-1');
+    });
+
+    it('does not convert negative numbers', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull(convertZero: true)]
+                public readonly ?int $value = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'value' => -1,
+        ]);
+
+        expect($dto->value)->toBe(-1);
     });
 });

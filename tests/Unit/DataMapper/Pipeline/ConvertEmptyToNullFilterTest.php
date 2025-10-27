@@ -67,7 +67,7 @@ describe('ConvertEmptyToNull Filter', function(): void {
             $template = ['result' => '{{ data.value | empty_to_null:"zero" }}'];
             $sources = ['data' => ['value' => 0]];
 
-            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
 
             expect($result['result'])->toBeNull();
         });
@@ -377,6 +377,107 @@ describe('ConvertEmptyToNull Filter', function(): void {
                 ->getTarget();
 
             expect($result['result'])->toBe(true);
+        });
+    });
+
+    describe('Edge Cases', function(): void {
+        it('converts float zero to null with "zero" option', function(): void {
+            $template = ['result' => '{{ data.value | empty_to_null:"zero" }}'];
+            $sources = ['data' => ['value' => 0.0]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['result'])->toBeNull();
+        });
+
+        it('does not convert float zero by default', function(): void {
+            $template = ['result' => '{{ data.value | empty_to_null }}'];
+            $sources = ['data' => ['value' => 0.0]];
+
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+            expect($result['result'])->toBe(0.0);
+        });
+
+        it('does not convert string "false" or "true"', function(): void {
+            $template = [
+                'falseString' => '{{ data.falseString | empty_to_null:"false" }}',
+                'trueString' => '{{ data.trueString | empty_to_null:"false" }}',
+            ];
+            $sources = ['data' => [
+                'falseString' => 'false',
+                'trueString' => 'true',
+            ]];
+
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+            expect($result['falseString'])->toBe('false');
+            expect($result['trueString'])->toBe('true');
+        });
+
+        it('does not convert array with null values', function(): void {
+            $template = ['result' => '{{ data.value | empty_to_null }}'];
+            $sources = ['data' => ['value' => [null]]];
+
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+            expect($result['result'])->toBe([null]);
+        });
+
+        it('does not convert whitespace-only strings', function(): void {
+            $template = ['result' => '{{ data.value | empty_to_null }}'];
+            $sources = ['data' => ['value' => '   ']];
+
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+            expect($result['result'])->toBe('   ');
+        });
+
+        it('does not convert numeric strings other than "0"', function(): void {
+            $template = [
+                'value1' => '{{ data.value1 | empty_to_null:"string_zero" }}',
+                'value2' => '{{ data.value2 | empty_to_null:"string_zero" }}',
+                'value3' => '{{ data.value3 | empty_to_null:"string_zero" }}',
+            ];
+            $sources = ['data' => [
+                'value1' => '1',
+                'value2' => '42',
+                'value3' => '-1',
+            ]];
+
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+            expect($result['value1'])->toBe('1');
+            expect($result['value2'])->toBe('42');
+            expect($result['value3'])->toBe('-1');
+        });
+
+        it('does not convert negative numbers', function(): void {
+            $template = ['result' => '{{ data.value | empty_to_null:"zero" }}'];
+            $sources = ['data' => ['value' => -1]];
+
+            $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+            expect($result['result'])->toBe(-1);
+        });
+
+        it('converts only integer and float zero with "zero" option', function(): void {
+            $template = [
+                'intZero' => '{{ data.intZero | empty_to_null:"zero" }}',
+                'floatZero' => '{{ data.floatZero | empty_to_null:"zero" }}',
+                'negativeZero' => '{{ data.negativeZero | empty_to_null:"zero" }}',
+            ];
+            $sources = ['data' => [
+                'intZero' => 0,
+                'floatZero' => 0.0,
+                'negativeZero' => -0,
+            ]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['intZero'])->toBeNull();
+            expect($result['floatZero'])->toBeNull();
+            expect($result['negativeZero'])->toBeNull();
         });
     });
 });

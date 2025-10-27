@@ -17,7 +17,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
  * - null to null
  *
  * Optional conversions (disabled by default):
- * - Integer zero (0) - enable with convertZero: true
+ * - Integer and float zero (0, 0.0) - enable with convertZero: true
  * - String zero ("0") - enable with convertStringZero: true
  * - Boolean false - enable with convertFalse: true
  *
@@ -131,8 +131,8 @@ class ConvertEmptyToNullCast implements CastsAttributes
             return null;
         }
 
-        // Handle integer zero (optional)
-        if ($this->convertZero && 0 === $value) {
+        // Handle integer and float zero (optional)
+        if ($this->convertZero && (0 === $value || 0.0 === $value)) {
             return null;
         }
 
