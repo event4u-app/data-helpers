@@ -27,6 +27,13 @@ use ReflectionClass;
 trait SimpleDtoMappingTrait
 {
     /**
+     * Cache for ReflectionClass instances per Dto class.
+     *
+     * @var array<string, ReflectionClass>
+     */
+    private static array $reflectionCache = [];
+
+    /**
      * Cache for input mapping configurations per Dto class.
      *
      * @var array<string, array<string, string|array<string>>>
@@ -55,6 +62,22 @@ trait SimpleDtoMappingTrait
     private static array $outputNameTransformCache = [];
 
     /**
+     * Get cached ReflectionClass instance for the current class.
+     *
+     * @return ReflectionClass
+     */
+    private static function getReflection(): ReflectionClass
+    {
+        $class = static::class;
+
+        if (!isset(self::$reflectionCache[$class])) {
+            self::$reflectionCache[$class] = new ReflectionClass($class);
+        }
+
+        return self::$reflectionCache[$class];
+    }
+
+    /**
      * Get the mapping configuration for this Dto.
      *
      * Returns an array where keys are property names and values are source keys.
@@ -70,7 +93,7 @@ trait SimpleDtoMappingTrait
             return self::$mappingCache[$class];
         }
 
-        $reflection = new ReflectionClass($class);
+        $reflection = self::getReflection();
         $constructor = $reflection->getConstructor();
 
         if (null === $constructor) {
@@ -110,7 +133,7 @@ trait SimpleDtoMappingTrait
             return self::$inputNameTransformCache[$class];
         }
 
-        $reflection = new ReflectionClass($class);
+        $reflection = self::getReflection();
         $attributes = $reflection->getAttributes(MapInputName::class);
 
         if ([] === $attributes) {
@@ -148,7 +171,7 @@ trait SimpleDtoMappingTrait
         $mappedData = [];
 
         // Get all constructor parameters
-        $reflection = new ReflectionClass(static::class);
+        $reflection = self::getReflection();
         $constructor = $reflection->getConstructor();
 
         if (null !== $constructor) {
@@ -241,7 +264,7 @@ trait SimpleDtoMappingTrait
             return self::$outputMappingCache[$class];
         }
 
-        $reflection = new ReflectionClass($class);
+        $reflection = self::getReflection();
         $constructor = $reflection->getConstructor();
 
         if (null === $constructor) {
@@ -281,7 +304,7 @@ trait SimpleDtoMappingTrait
             return self::$outputNameTransformCache[$class];
         }
 
-        $reflection = new ReflectionClass($class);
+        $reflection = self::getReflection();
         $attributes = $reflection->getAttributes(MapOutputName::class);
 
         if ([] === $attributes) {

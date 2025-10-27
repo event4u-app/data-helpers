@@ -26,12 +26,6 @@ use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
 $rootDir = dirname(__DIR__);
 $benchmarkDocsPath = $rootDir . '/starlight/src/content/docs/performance/benchmarks.md';
 
-echo "\n";
-echo "╔════════════════════════════════════════════════════════════════╗\n";
-echo "║  Comprehensive Benchmark Suite                                 ║\n";
-echo "╚════════════════════════════════════════════════════════════════╝\n";
-echo "\n";
-
 // ============================================================================
 // Step 0: Prepare compare environment
 // ============================================================================

@@ -118,36 +118,51 @@ trait SimpleDtoTrait
     }
 
     /**
-     * Convert the Dto to an array.
+     * Internal properties that should be excluded from toArray/jsonSerialize.
      *
-     * Returns all public properties as an associative array.
-     * Applies casts (set method), output mapping, visibility filters, lazy loading, and computed properties.
+     * @var array<string, true>
+     */
+    private const INTERNAL_PROPERTIES = [
+        'onlyProperties' => true,
+        'exceptProperties' => true,
+        'visibilityContext' => true,
+        'computedCache' => true,
+        'includedComputed' => true,
+        'includedLazy' => true,
+        'includeAllLazy' => true,
+        'wrapKey' => true,
+        'objectVarsCache' => true,
+        'castedProperties' => true,
+        'conditionalContext' => true,
+        'additionalData' => true,
+        'sortingEnabled' => true,
+        'sortDirection' => true,
+        'nestedSort' => true,
+        'sortCallback' => true,
+    ];
+
+    /**
+     * Get object properties with internal properties removed.
+     *
+     * Uses array_diff_key for better performance than multiple unset() calls.
      *
      * @return array<string, mixed>
      */
-    public function toArray(): array
+    private function getCleanObjectVars(): array
     {
         $data = get_object_vars($this);
+        return array_diff_key($data, self::INTERNAL_PROPERTIES);
+    }
 
-        // Remove internal properties
-        unset(
-            $data['onlyProperties'],
-            $data['exceptProperties'],
-            $data['visibilityContext'],
-            $data['computedCache'],
-            $data['includedComputed'],
-            $data['includedLazy'],
-            $data['includeAllLazy'],
-            $data['wrapKey'],
-            $data['objectVarsCache'],
-            $data['castedProperties'],
-            $data['conditionalContext'],
-            $data['additionalData'],
-            $data['sortingEnabled'],
-            $data['sortDirection'],
-            $data['nestedSort'],
-            $data['sortCallback']
-        );
+    /**
+     * Process data for serialization (shared logic between toArray and jsonSerialize).
+     *
+     * @param string $context Either 'array' or 'json'
+     * @return array<string, mixed>
+     */
+    private function processDataForSerialization(string $context): array
+    {
+        $data = $this->getCleanObjectVars();
 
         // Unwrap optional properties
         $data = static::unwrapOptionalProperties($data);
@@ -164,14 +179,16 @@ trait SimpleDtoTrait
         // Apply output mapping
         $data = $this->applyOutputMapping($data);
 
-        // Apply visibility filters
-        $data = $this->applyArrayVisibilityFilters($data);
+        // Apply visibility filters (context-specific)
+        $data = $context === 'json'
+            ? $this->applyJsonVisibilityFilters($data)
+            : $this->applyArrayVisibilityFilters($data);
 
         // Apply conditional filters
         $data = $this->applyConditionalFilters($data);
 
-        // Add computed properties
-        $computed = $this->getComputedValues('array');
+        // Add computed properties (context-specific)
+        $computed = $this->getComputedValues($context);
         $data = array_merge($data, $computed);
 
         // Add additional data from with() method
@@ -188,6 +205,19 @@ trait SimpleDtoTrait
     }
 
     /**
+     * Convert the Dto to an array.
+     *
+     * Returns all public properties as an associative array.
+     * Applies casts (set method), output mapping, visibility filters, lazy loading, and computed properties.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return $this->processDataForSerialization('array');
+    }
+
+    /**
      * Serialize the Dto to JSON.
      *
      * This method is called automatically by json_encode().
@@ -197,64 +227,7 @@ trait SimpleDtoTrait
      */
     public function jsonSerialize(): array
     {
-        $data = get_object_vars($this);
-
-        // Remove internal properties
-        unset(
-            $data['onlyProperties'],
-            $data['exceptProperties'],
-            $data['visibilityContext'],
-            $data['computedCache'],
-            $data['includedComputed'],
-            $data['includedLazy'],
-            $data['includeAllLazy'],
-            $data['wrapKey'],
-            $data['objectVarsCache'],
-            $data['castedProperties'],
-            $data['conditionalContext'],
-            $data['additionalData'],
-            $data['sortingEnabled'],
-            $data['sortDirection'],
-            $data['nestedSort'],
-            $data['sortCallback']
-        );
-
-        // Unwrap optional properties
-        $data = static::unwrapOptionalProperties($data);
-
-        // Filter lazy properties (before unwrapping)
-        $data = $this->filterLazyProperties($data);
-
-        // Unwrap lazy properties
-        $data = $this->unwrapLazyProperties($data);
-
-        // Apply casts (set method) to convert values back
-        $data = $this->applyOutputCasts($data);
-
-        // Apply output mapping
-        $data = $this->applyOutputMapping($data);
-
-        // Apply visibility filters
-        $data = $this->applyJsonVisibilityFilters($data);
-
-        // Apply conditional filters
-        $data = $this->applyConditionalFilters($data);
-
-        // Add computed properties
-        $computed = $this->getComputedValues('json');
-        $data = array_merge($data, $computed);
-
-        // Add additional data from with() method
-        $additional = $this->getAdditionalData();
-        $data = array_merge($data, $additional);
-
-        // Apply wrapping
-        $data = $this->applyWrapping($data);
-
-        // Apply sorting
-        $data = $this->applySorting($data);
-
-        return $data;
+        return $this->processDataForSerialization('json');
     }
 
     /**

@@ -20,15 +20,6 @@ tasks:
         task_run "Running Benchmarks" \
           docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpbench run --report=table
 
-  readme:
-    desc: Update benchmark results in README (use PHP=8.2|8.3|8.4) [DEPRECATED - use bench:comprehensive]
-    aliases: [benchmark:readme]
-    cmds:
-      - |
-        source {{.OUTPUT_HELPER}}
-        task_run "Updating Benchmark Results in README" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-benchmark-results.php
-
   dto:
     desc: Run Dto benchmarks (Traditional vs SimpleDto) [DEPRECATED - use bench:comprehensive]
     aliases: [bench:dto]
@@ -38,16 +29,7 @@ tasks:
         task_run "Running Dto Benchmarks" \
           docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/dto-benchmark.php
 
-  dto:readme:
-    desc: Update Dto benchmark results in docs/simple-dto.md [DEPRECATED - use bench:comprehensive]
-    aliases: [bench:dto:readme]
-    cmds:
-      - |
-        source {{.OUTPUT_HELPER}}
-        task_run "Updating Dto Benchmark Results" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-dto-benchmark-results.php
-
-  comprehensive:
+  readme:
     desc: Run comprehensive benchmarks and update documentation (use PHP=8.2|8.3|8.4)
     aliases: [bench:all, bench:complete]
     cmds:
@@ -55,15 +37,4 @@ tasks:
         source {{.OUTPUT_HELPER}}
         task_run "Running Comprehensive Benchmarks" \
           docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/comprehensive-benchmark.php
-
-  all:
-    desc: Run all benchmarks and update documentation [DEPRECATED - use bench:comprehensive]
-    cmds:
-      - task: run
-      - task: readme
-      - task: dto
-      - task: dto:readme
-      - |
-        source {{.OUTPUT_HELPER}}
-        task_success "All benchmarks completed and documentation updated"
 
