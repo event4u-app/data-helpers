@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\Enums\CacheDriver;
+use event4u\DataHelpers\Enums\CacheInvalidation;
 use event4u\DataHelpers\Helpers\EnvHelper;
 use event4u\DataHelpers\Logging\LogEvent;
 
@@ -29,6 +31,116 @@ return [
     |
     */
     'performance_mode' => EnvHelper::string('DATA_HELPERS_PERFORMANCE_MODE', 'fast'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure persistent caching for metadata and generated code.
+    | Improves performance by caching reflection analysis and generated code.
+    |
+    */
+    'cache' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Cache Directory
+        |--------------------------------------------------------------------------
+        |
+        | Directory where cache files will be stored.
+        | Used for metadata cache and generated code.
+        |
+        | Default: ./.event4u/data-helpers/cache/
+        |
+        | Note: This directory is automatically added to .gitignore
+        |
+        */
+        'path' => EnvHelper::string('DATA_HELPERS_CACHE_PATH', './.event4u/data-helpers/cache/'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cache Driver
+        |--------------------------------------------------------------------------
+        |
+        | The cache driver to use for metadata caching.
+        |
+        | Supported: CacheDriver::NONE, CacheDriver::AUTO, CacheDriver::LARAVEL,
+        |            CacheDriver::SYMFONY, CacheDriver::FILESYSTEM
+        |
+        | - NONE: Disable caching completely (not recommended for production)
+        | - AUTO: Automatically detect Laravel/Symfony cache, fallback to filesystem
+        | - LARAVEL: Use Laravel Cache (requires Laravel)
+        | - SYMFONY: Use Symfony Cache (requires Symfony)
+        | - FILESYSTEM: Use filesystem cache (always available)
+        |
+        | Default: CacheDriver::AUTO (recommended)
+        |
+        */
+        'driver' => EnvHelper::string('DATA_HELPERS_CACHE_DRIVER')
+            ? CacheDriver::from(EnvHelper::string('DATA_HELPERS_CACHE_DRIVER'))
+            : CacheDriver::AUTO,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cache TTL (Time To Live)
+        |--------------------------------------------------------------------------
+        |
+        | How long to cache metadata in seconds.
+        | Set to null for forever (recommended for production).
+        |
+        | Note: Cache is automatically invalidated when source files change,
+        | so a long TTL is safe and recommended.
+        |
+        | Default: null (forever)
+        |
+        */
+        'ttl' => EnvHelper::string('DATA_HELPERS_CACHE_TTL', null) !== null
+            ? (int)EnvHelper::string('DATA_HELPERS_CACHE_TTL')
+            : null,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Enable Code Generation
+        |--------------------------------------------------------------------------
+        |
+        | Enable automatic code generation for optimized fromArray() methods.
+        | Generated code is stored in cache/generated/ directory.
+        |
+        | When enabled, optimized code is generated on first use and
+        | automatically regenerated when source files change.
+        |
+        | Default: true (recommended for production)
+        |
+        */
+        'code_generation' => EnvHelper::boolean('DATA_HELPERS_CODE_GENERATION', true),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cache Invalidation Strategy
+        |--------------------------------------------------------------------------
+        |
+        | How to detect when cache should be invalidated.
+        |
+        | Supported: CacheInvalidation::MANUAL, CacheInvalidation::MTIME,
+        |            CacheInvalidation::HASH, CacheInvalidation::BOTH
+        |
+        | - MANUAL: No automatic validation - cache only invalidated by clear-cache
+        |           command (like Spatie Laravel Data). Best performance, but requires
+        |           manual cache clearing after code changes.
+        | - MTIME: Check file modification time on every cache hit (fast, automatic)
+        | - HASH: Check file content hash on every cache hit (slower, more accurate)
+        | - BOTH: Check both mtime and hash on every cache hit (most accurate)
+        |
+        | Default: CacheInvalidation::MANUAL (recommended for production with deployment cache clearing)
+        |
+        | Note: Use MANUAL in production with cache warming/clearing in deployment pipeline.
+        |       Use MTIME/HASH/BOTH in development for automatic cache invalidation.
+        |
+        */
+        'invalidation' => EnvHelper::string('DATA_HELPERS_CACHE_INVALIDATION')
+            ? CacheInvalidation::from(EnvHelper::string('DATA_HELPERS_CACHE_INVALIDATION'))
+            : CacheInvalidation::MTIME,
+    ],
 
     /*
     |--------------------------------------------------------------------------

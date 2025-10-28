@@ -257,21 +257,22 @@ tasks:
   # Cache Management
   # ============================================================================
 
+  cache:warmup:
+    desc: Warm up persistent cache for SimpleDtos (use PHP=8.2|8.3|8.4)
+    aliases: [cache:warm]
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_run "Warming Up Cache" \
+          docker exec {{.PHP | default .DEFAULT_PHP}} php bin/warm-cache.php tests/Utils/SimpleDtos tests/Utils/Dtos
+
   cache:clear:
-    desc: Clear cache (use PHP=8.2|8.3|8.4)
+    desc: Clear persistent cache (use PHP=8.2|8.3|8.4)
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Clearing Cache" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/cache-clear.php
-
-  cache:stats:
-    desc: Show cache statistics (use PHP=8.2|8.3|8.4)
-    cmds:
-      - |
-        source {{.OUTPUT_HELPER}}
-        task_run "Cache Statistics" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/cache-stats.php
+          docker exec {{.PHP | default .DEFAULT_PHP}} php bin/clear-cache.php -v
 
   # ============================================================================
   # Utilities

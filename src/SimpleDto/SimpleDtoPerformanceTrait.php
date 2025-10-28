@@ -177,6 +177,7 @@ trait SimpleDtoPerformanceTrait
      * Clear all performance caches.
      *
      * Phase 8: Now also clears ReflectionCache
+     * Phase 11a: Now also clears ConstructorMetadata (including persistent cache)
      *
      * Useful for testing or when dealing with dynamic class loading.
      */
@@ -188,6 +189,9 @@ trait SimpleDtoPerformanceTrait
 
         // Phase 8: Also clear ReflectionCache
         ReflectionCache::clear();
+
+        // Phase 11a: Also clear ConstructorMetadata (including persistent cache)
+        \event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata::clear();
     }
 
     /**

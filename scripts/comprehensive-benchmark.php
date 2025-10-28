@@ -23,6 +23,9 @@ use Tests\Utils\SimpleDtos\CompanyAutoCastDto;
 use Tests\Utils\SimpleDtos\CompanySimpleDto;
 use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
 
+// Parse command line arguments
+$updateReadme = in_array('--readme', $argv, true);
+
 $rootDir = dirname(__DIR__);
 $benchmarkDocsPath = $rootDir . '/starlight/src/content/docs/performance/benchmarks.md';
 
@@ -47,8 +50,8 @@ if ($packagesToInstall !== []) {
 // ============================================================================
 echo "📊  Step 1/4: Running PHPBench benchmarks (5 runs with warmup)...\n\n";
 
-// Warmup: Run benchmarks once to warm up OPcache
-echo "  Warming up OPcache...\n";
+// Warmup: Run benchmarks once to warm up OPcache and build DTOs
+echo "  Warming up OPcache and building DTOs...\n";
 $warmupCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1 > /dev/null';
 exec($warmupCommand);
 echo "  Warmup complete!\n\n";
@@ -179,7 +182,7 @@ $dtoBenchmarks = runDtoBenchmark('Traditional Dto', function() use ($testData): 
     $dto->budget = $testData['budget'];
     $dto->employee_count = $testData['employee_count'];
     $dto->manager_name = $testData['manager_name'];
-}, 100000);
+}, 500000);
 
 $dtoBenchmarks['SimpleDto'] = runDtoBenchmark('SimpleDto', function() use ($testData): void {
     DepartmentSimpleDto::fromArray($testData);
@@ -248,11 +251,72 @@ $dtoBenchmarks['PlainPhp'] = runDtoBenchmark('Plain PHP', function() use ($corre
 }, 10000);
 
 // ============================================================================
+// Step 2b: Run Cache Invalidation Benchmarks
+// ============================================================================
+echo "📊  Step 2b/4: Running Cache Invalidation benchmarks...\n\n";
+
+$cacheInvalidationBenchmarks = [];
+
+// Test data for cache benchmarks
+$employeeData = [
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+    'position' => 'Developer',
+    'salary' => 75000.0,
+    'hire_date' => '2024-01-01',
+];
+
+$config = event4u\DataHelpers\Helpers\ConfigHelper::getInstance();
+
+// Warm cache first
+$config->set('cache.invalidation', event4u\DataHelpers\Enums\CacheInvalidation::MANUAL);
+Tests\Utils\SimpleDtos\EmployeeSimpleDto::fromArray($employeeData);
+
+// Run 5 times in random order to avoid bias
+$cacheResults = [
+    'MANUAL' => [],
+    'MTIME' => [],
+    'HASH' => [],
+];
+
+for ($run = 1; 5 >= $run; $run++) {
+    $modes = ['MANUAL', 'MTIME', 'HASH'];
+    shuffle($modes);
+
+    foreach ($modes as $mode) {
+        $enum = event4u\DataHelpers\Enums\CacheInvalidation::from(strtolower($mode));
+        $config->set('cache.invalidation', $enum);
+        event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata::clearCache();
+
+        $start = hrtime(true);
+        for ($i = 0; $i < 10000; $i++) {
+            Tests\Utils\SimpleDtos\EmployeeSimpleDto::fromArray($employeeData);
+        }
+        $end = hrtime(true);
+
+        $time = ($end - $start) / 1000 / 10000; // μs per iteration
+        $cacheResults[$mode][] = $time;
+    }
+}
+
+// Calculate averages
+foreach ($cacheResults as $mode => $times) {
+    $avg = array_sum($times) / count($times);
+    $cacheInvalidationBenchmarks[$mode] = [
+        'name' => $mode,
+        'avg_time' => $avg,
+        'times' => $times,
+    ];
+}
+
+echo "  ✅ Cache Invalidation benchmarks completed\n\n";
+
+// ============================================================================
 // Step 3: Generate markdown and update documentation
 // ============================================================================
 echo "📊  Step 3/4: Generating markdown and updating documentation...\n\n";
 
-$markdown = generateMarkdown($results, $dtoBenchmarks);
+$markdown = generateMarkdown($results, $dtoBenchmarks, $cacheInvalidationBenchmarks);
 
 // Update documentation
 if (!file_exists($benchmarkDocsPath)) {
@@ -279,8 +343,40 @@ $docsContent = updateSection($docsContent, 'BENCHMARK_MAPPER_COMPARISON', $markd
 $docsContent = updateSection($docsContent, 'BENCHMARK_MAPPER_INSIGHTS', $markdown['MapperInsights']);
 $docsContent = updateSection($docsContent, 'BENCHMARK_SERIALIZATION', $markdown['Serialization']);
 $docsContent = updateSection($docsContent, 'BENCHMARK_SERIALIZATION_INSIGHTS', $markdown['SerializationInsights']);
+$docsContent = updateSection($docsContent, 'BENCHMARK_CACHE_INVALIDATION', $markdown['CacheInvalidation']);
 
 file_put_contents($benchmarkDocsPath, $docsContent);
+
+// Update SimpleDto Caching documentation
+$cachingDocsPath = $rootDir . '/starlight/src/content/docs/simple-dto/caching.md';
+if (file_exists($cachingDocsPath)) {
+    $cachingContent = file_get_contents($cachingDocsPath);
+    if (false !== $cachingContent) {
+        $cachingContent = updateSection($cachingContent, 'BENCHMARK_CACHE_INVALIDATION', $markdown['CacheInvalidation']);
+        file_put_contents($cachingDocsPath, $cachingContent);
+        echo "✅  SimpleDto Caching documentation updated\n";
+    }
+}
+
+// Update README.md (only if --readme flag is provided)
+if ($updateReadme) {
+    $readmePath = $rootDir . '/README.md';
+    if (file_exists($readmePath)) {
+        $readmeContent = file_get_contents($readmePath);
+        if (false !== $readmeContent) {
+            // Generate README-specific content
+            $readmeFast = generateReadmeFast($results);
+            $readmePerformance = generateReadmePerformance($results);
+
+            $readmeContent = updateSection($readmeContent, 'BENCHMARK_README_FAST', $readmeFast);
+            $readmeContent = updateSection($readmeContent, 'BENCHMARK_README_PERFORMANCE', $readmePerformance);
+            file_put_contents($readmePath, $readmeContent);
+            echo "✅  README.md updated\n";
+        }
+    }
+} else {
+    echo "ℹ️  README.md not updated (use --readme flag to update)\n";
+}
 
 echo "✅  Comprehensive benchmarks completed!\n";
 echo "✅  Documentation updated at: starlight/src/content/docs/performance/benchmarks.md\n";
@@ -343,22 +439,26 @@ function formatRange(float $min, float $max, int $decimals = 0): string
         [$min, $max] = [$max, $min];
     }
 
-    // If values are the same (within 1% tolerance), show only one value
-    $tolerance = 0.01;
-    if (abs($max - $min) / max($min, $max) < $tolerance) {
-        return sprintf(sprintf('~%%.%df', $decimals), $min);
+    // Round values first
+    $minRounded = round($min, $decimals);
+    $maxRounded = round($max, $decimals);
+
+    // If rounded values are the same, show only one value
+    if ($minRounded === $maxRounded) {
+        return sprintf(sprintf('~%%.%df', $decimals), $minRounded);
     }
 
     // Show range
-    return sprintf(sprintf('~%%.%df-%%.%df', $decimals, $decimals), $min, $max);
+    return sprintf(sprintf('~%%.%df-%%.%df', $decimals, $decimals), $minRounded, $maxRounded);
 }
 
 /**
  * @param array<string, array<int, array{name: string, time: float}>> $results
  * @param array<string, array{name: string, iterations: int, avg_time: float, ops_per_sec: int}> $dtoBenchmarks
+ * @param array<string, array{name: string, avg_time: float, times: array<float>}> $cacheInvalidationBenchmarks
  * @return array<string, string>
  */
-function generateMarkdown(array $results, array $dtoBenchmarks): array
+function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInvalidationBenchmarks): array
 {
     $markdown = [];
 
@@ -670,6 +770,9 @@ function generateMarkdown(array $results, array $dtoBenchmarks): array
     $markdown['DtoInsights'] = generateDtoInsights($results);
     $markdown['MapperInsights'] = generateMapperInsights($results);
     $markdown['SerializationInsights'] = generateSerializationInsights($results);
+
+    // Generate Cache Invalidation section
+    $markdown['CacheInvalidation'] = generateCacheInvalidation($cacheInvalidationBenchmarks);
 
     return $markdown;
 }
@@ -1073,6 +1176,95 @@ function getSerializationDescription(string $name): string
         'benchSymfonySerializerJson' => 'Symfony Serializer from JSON',
     ];
     return $descriptions[$name] ?? '';
+}
+
+/**
+ * @param array<string, array{name: string, avg_time: float, times: array<float>}> $cacheInvalidationBenchmarks
+ */
+function generateCacheInvalidation(array $cacheInvalidationBenchmarks): string
+{
+    $manualTime = $cacheInvalidationBenchmarks['MANUAL']['avg_time'] ?? 0;
+    $mtimeTime = $cacheInvalidationBenchmarks['MTIME']['avg_time'] ?? 0;
+    $hashTime = $cacheInvalidationBenchmarks['HASH']['avg_time'] ?? 0;
+
+    $md = "```\n";
+    $md .= "Cache Invalidation Modes (50,000 iterations, warm cache):\n";
+    $md .= sprintf("- MANUAL (no validation):     %.2f μs\n", $manualTime);
+    $md .= sprintf("- MTIME (auto-validation):    %.2f μs\n", $mtimeTime);
+    $md .= sprintf("- HASH (auto-validation):     %.2f μs\n", $hashTime);
+    $md .= "```";
+
+    return $md;
+}
+
+/**
+ * @param array<string, array<int, array{name: string, time: float}>> $results
+ */
+function generateReadmeFast(array $results): string
+{
+    // Calculate Symfony comparison
+    $dataMapperSerializationAvg = 0;
+    $symfonyAvg = 0;
+    $serializationCount = 0;
+
+    foreach ($results['DtoSerialization'] as $result) {
+        if (str_contains($result['name'], 'DataMapper')) {
+            $dataMapperSerializationAvg += $result['time'];
+            $serializationCount++;
+        } elseif (str_contains($result['name'], 'Symfony')) {
+            $symfonyAvg += $result['time'];
+        }
+    }
+    $dataMapperSerializationAvg = 0 < $serializationCount ? $dataMapperSerializationAvg / $serializationCount : 40;
+    $symfonyAvg = 0 < $symfonyAvg ? $symfonyAvg / 2 : 150;
+    $symfonyFactor = round($symfonyAvg / $dataMapperSerializationAvg, 1);
+
+    return sprintf('- **Fast** - Up to %.1fx faster than Symfony Serializer', $symfonyFactor);
+}
+
+/**
+ * @param array<string, array<int, array{name: string, time: float}>> $results
+ */
+function generateReadmePerformance(array $results): string
+{
+    // Get DataAccessor times
+    $simpleAccessTime = 0;
+    $nestedAccessTime = 0;
+    $wildcardTime = 0;
+
+    foreach ($results['DataAccessor'] as $result) {
+        if (str_contains($result['name'], 'SimpleGet')) {
+            $simpleAccessTime = $result['time'];
+        } elseif (str_contains($result['name'], 'NestedGet')) {
+            $nestedAccessTime = $result['time'];
+        } elseif (str_contains($result['name'], 'WildcardGet') && !str_contains($result['name'], 'Deep')) {
+            $wildcardTime = $result['time'];
+        }
+    }
+
+    // Calculate Symfony comparison
+    $dataMapperSerializationAvg = 0;
+    $symfonyAvg = 0;
+    $serializationCount = 0;
+
+    foreach ($results['DtoSerialization'] as $result) {
+        if (str_contains($result['name'], 'DataMapper')) {
+            $dataMapperSerializationAvg += $result['time'];
+            $serializationCount++;
+        } elseif (str_contains($result['name'], 'Symfony')) {
+            $symfonyAvg += $result['time'];
+        }
+    }
+    $dataMapperSerializationAvg = 0 < $serializationCount ? $dataMapperSerializationAvg / $serializationCount : 40;
+    $symfonyAvg = 0 < $symfonyAvg ? $symfonyAvg / 2 : 150;
+    $symfonyFactor = round($symfonyAvg / $dataMapperSerializationAvg, 1);
+
+    $md = sprintf("- Simple access: ~%.1fμs\n", $simpleAccessTime);
+    $md .= sprintf("- Nested access: ~%.1fμs\n", $nestedAccessTime);
+    $md .= sprintf("- Wildcards: ~%.0fμs\n", $wildcardTime);
+    $md .= sprintf("- **Up to %.1fx faster** than Symfony Serializer for Dto mapping", $symfonyFactor);
+
+    return $md;
 }
 
 function updateSection(string $content, string $marker, string $newContent): string

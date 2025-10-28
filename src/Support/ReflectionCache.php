@@ -15,6 +15,11 @@ use ReflectionAttribute;
  * Reflection operations are expensive, so we cache ReflectionClass,
  * ReflectionProperty, ReflectionMethod, and ReflectionAttribute instances
  * to avoid repeated lookups.
+ *
+ * Phase 11a Note: This cache remains in-memory only (not persistent) because:
+ * - Reflection objects cannot be serialized
+ * - They are lightweight and fast to recreate
+ * - ConstructorMetadata provides persistent caching for the expensive metadata extraction
  */
 final class ReflectionCache
 {

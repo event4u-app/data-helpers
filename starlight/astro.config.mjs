@@ -102,6 +102,7 @@ export default defineConfig({
 						{ label: 'Collections', slug: 'simple-dto/collections' },
 						{ label: 'Nested Dtos', slug: 'simple-dto/nested-dtos' },
 						{ label: 'Security & Visibility', slug: 'simple-dto/security-visibility' },
+						{ label: 'Caching', slug: 'simple-dto/caching' },
 						{ label: 'TypeScript Generation', slug: 'simple-dto/typescript-generation' },
 						{ label: 'IDE Support', slug: 'simple-dto/ide-support' },
 					],
@@ -160,6 +161,8 @@ export default defineConfig({
 					items: [
 						{ label: 'Benchmarks', slug: 'performance/benchmarks' },
 						{ label: 'Running Benchmarks', slug: 'performance/running-benchmarks' },
+						{ label: 'Cache Warming', slug: 'performance/cache-warming' },
+						{ label: 'Cache Generation', slug: 'performance/cache-generation' },
 						{ label: 'Optimization Tips', slug: 'performance/optimization' },
 						{ label: 'Comparison', slug: 'performance/comparison' },
 					],

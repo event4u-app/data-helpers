@@ -11,6 +11,31 @@ data_helpers:
   # Default: 'fast' (recommended for most use cases)
   performance_mode: '%env(DATA_HELPERS_PERFORMANCE_MODE)%'
 
+  # Cache Configuration
+  # Configure persistent caching for metadata and generated code.
+  cache:
+    # Cache directory path
+    # Default: ./.event4u/data-helpers/cache/
+    path: '%env(DATA_HELPERS_CACHE_PATH)%'
+
+    # Cache driver: none, auto, laravel, symfony, filesystem
+    # - none: Disable caching (not recommended for production)
+    # - auto: Automatically detect (recommended)
+    # Default: 'auto'
+    driver: '%env(DATA_HELPERS_CACHE_DRIVER)%'
+
+    # Cache TTL in seconds (null = forever)
+    # Default: null (recommended for production)
+    ttl: '%env(DATA_HELPERS_CACHE_TTL)%'
+
+    # Enable code generation
+    # Default: true
+    code_generation: '%env(bool:DATA_HELPERS_CODE_GENERATION)%'
+
+    # Cache invalidation strategy: mtime, hash, both
+    # Default: 'mtime'
+    invalidation: '%env(DATA_HELPERS_CACHE_INVALIDATION)%'
+
   # Logging Configuration
   # Configure logging for data-helpers operations, performance metrics,
   # and data quality issues.
@@ -107,6 +132,13 @@ data_helpers:
 # Default values for environment variables
 parameters:
   env(DATA_HELPERS_PERFORMANCE_MODE): 'fast'
+
+  # Cache defaults
+  env(DATA_HELPERS_CACHE_PATH): './.event4u/data-helpers/cache/'
+  env(DATA_HELPERS_CACHE_DRIVER): 'auto'
+  env(DATA_HELPERS_CACHE_TTL): ~
+  env(DATA_HELPERS_CODE_GENERATION): true
+  env(DATA_HELPERS_CACHE_INVALIDATION): 'mtime'
 
   # Logging defaults
   env(DATA_HELPERS_LOG_DRIVER): 'filesystem'

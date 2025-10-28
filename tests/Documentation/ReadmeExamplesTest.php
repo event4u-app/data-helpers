@@ -50,18 +50,18 @@ describe('README.md Examples', function(): void {
             if (preg_match('/^(\s*declare\s*\(\s*strict_types\s*=\s*1\s*\)\s*;)/m', $codeWithoutPhpTag, $matches)) {
                 // Insert autoloader after declare statement
                 $codeWithAutoloader = "<?php\n\n" . $matches[1] . "\n\nrequire_once " . var_export(
-                    $autoloaderPath,
-                    true
-                ) . ";\n\n" . substr(
-                    $codeWithoutPhpTag,
-                    strlen($matches[1])
-                );
+                        $autoloaderPath,
+                        true
+                    ) . ";\n\n" . substr(
+                        $codeWithoutPhpTag,
+                        strlen($matches[1])
+                    );
             } else {
                 // No declare statement, add autoloader at the beginning
                 $codeWithAutoloader = "<?php\n\nrequire_once " . var_export(
-                    $autoloaderPath,
-                    true
-                ) . ";\n\n" . $codeWithoutPhpTag;
+                        $autoloaderPath,
+                        true
+                    ) . ";\n\n" . $codeWithoutPhpTag;
             }
 
             file_put_contents($tempFile, $codeWithAutoloader);

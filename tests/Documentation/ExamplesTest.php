@@ -40,8 +40,11 @@ describe('Examples Directory', function(): void {
             }
         }
 
-        // Filter out debug files
-        $files = array_filter($files, fn(string $file): bool => ! str_starts_with(basename($file), 'debug-'));
+        // Filter out debug files and bootstrap.php (helper file, not an example)
+        $files = array_filter($files, fn(string $file): bool =>
+            ! str_starts_with(basename($file), 'debug-') &&
+            basename($file) !== 'bootstrap.php'
+        );
 
         // Sort files
         sort($files);
@@ -74,6 +77,7 @@ describe('Examples Directory', function(): void {
             // Execute the example file in a separate process to avoid conflicts
             // Change to repository root directory so relative paths work correctly
             $repoRoot = __DIR__ . '/../../..';
+            $output = [];
             $command = sprintf('cd %s && php %s 2>&1', escapeshellarg($repoRoot), escapeshellarg($filepath));
             exec($command, $output, $returnCode);
 
@@ -96,18 +100,18 @@ describe('Examples Directory', function(): void {
             // Examples that demonstrate error handling may exit with non-zero code
             // but should still produce meaningful output
             $isValidationExample = str_contains($filename, 'validation') ||
-                                   str_contains($filename, 'pipeline') ||
-                                   str_contains($filename, 'error');
+                str_contains($filename, 'pipeline') ||
+                str_contains($filename, 'error');
 
             if (0 !== $returnCode) {
                 // If it's a validation/error example and has output, it's OK
                 if ($isValidationExample && $hasOutput) {
                     // Check if the output shows expected error handling
                     $hasExpectedError = str_contains($outputText, 'Validation failed') ||
-                                       str_contains($outputText, 'ValidationException') ||
-                                       str_contains($outputText, '❌') ||
-                                       str_contains($outputText, 'Error:') ||
-                                       str_contains($outputText, 'Exception:');
+                        str_contains($outputText, 'ValidationException') ||
+                        str_contains($outputText, '❌') ||
+                        str_contains($outputText, 'Error:') ||
+                        str_contains($outputText, 'Exception:');
 
                     if ($hasExpectedError) {
                         $passed++;

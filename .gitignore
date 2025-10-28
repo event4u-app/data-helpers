@@ -59,6 +59,9 @@ auth.json
 # storage for testing, etc.
 /storage/
 
+# event4u runtime cache and generated files
+/.event4u/
+
 # documentation build output
 /dist/
 

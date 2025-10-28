@@ -17,7 +17,7 @@ tasks:
 
   run:
     desc: Run tests in normal container (use PHP=8.2|8.3|8.4)
-    aliases: [test]
+    aliases: [test, check]
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
