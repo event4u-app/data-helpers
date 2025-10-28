@@ -224,11 +224,17 @@ trait SimpleDtoTrait
      * Applies casts (set method), output mapping, visibility filters, lazy loading, and computed properties.
      *
      * Phase 7 Optimization: Uses fast path for simple DTOs (30-50% faster)
+     * Ultra-Fast Mode: Uses UltraFastEngine for maximum speed (target: <1μs)
      *
      * @return array<string, mixed>
      */
     public function toArray(): array
     {
+        // Ultra-Fast Mode: Bypass all overhead
+        if (Support\UltraFastEngine::isUltraFast(static::class)) {
+            return Support\UltraFastEngine::toArray($this);
+        }
+
         // Phase 7: Fast path for simple DTOs without attributes or runtime modifications
         if (FastPath::canUseFastPath(static::class) && FastPath::canUseFastPathAtRuntime($this)) {
             return FastPath::fastToArray($this);
@@ -266,6 +272,9 @@ trait SimpleDtoTrait
      * 2. Attributes (#[MapFrom], #[MapTo])
      * 3. Automapping (fallback)
      *
+     * Performance Optimization: If the class has #[UltraFast] attribute,
+     * bypasses all overhead and uses direct reflection (target: <1μs).
+     *
      * @param array<string, mixed> $data
      * @param array<string, mixed>|null $template Optional template override
      * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
@@ -277,6 +286,12 @@ trait SimpleDtoTrait
         ?array $filters = null,
         ?array $pipeline = null
     ): static {
+        // Ultra-Fast Mode: Bypass all overhead
+        if (Support\UltraFastEngine::isUltraFast(static::class)) {
+            /** @var static */
+            return Support\UltraFastEngine::createFromArray(static::class, $data);
+        }
+
         return static::fromSource($data, $template, $filters, $pipeline);
     }
 

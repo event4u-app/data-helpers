@@ -123,9 +123,9 @@ The following benchmarks show the performance impact of each cache invalidation 
 
 ```
 Cache Invalidation Modes (50,000 iterations, warm cache):
-- MANUAL (no validation):     1.96 μs
-- MTIME (auto-validation):    1.98 μs
-- HASH (auto-validation):     1.96 μs
+- MANUAL (no validation):     3.82 μs
+- MTIME (auto-validation):    2.76 μs
+- HASH (auto-validation):     2.87 μs
 ```
 <!-- BENCHMARK_CACHE_INVALIDATION_END -->
 

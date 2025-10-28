@@ -90,6 +90,27 @@ trait SimpleDtoMapperTrait
     private static array $pipelineCache = [];
 
     /**
+     * Cache for hasNoCastsAttribute check.
+     *
+     * @var array<class-string, bool>
+     */
+    private static array $noCastsCache = [];
+
+    /**
+     * Cache for hasLazyProperties check.
+     *
+     * @var array<class-string, bool>
+     */
+    private static array $hasLazyCache = [];
+
+    /**
+     * Cache for hasOptionalProperties check.
+     *
+     * @var array<class-string, bool>
+     */
+    private static array $hasOptionalCache = [];
+
+    /**
      * Define the DataMapper template for this Dto.
      *
      * Override this method to define a template that will be used
@@ -443,20 +464,27 @@ trait SimpleDtoMapperTrait
 
         /** @var array<string, mixed> $data */
 
-        // Step 6: Get casts without creating an instance
+        // Step 6: Get casts without creating an instance (LAZY)
+        // Only get casts if we actually need them
         // This includes:
         // - Automatic casts from #[AutoCast] attribute (lowest priority)
         // - Auto-detected nested DTOs (medium priority)
         // - Casts from attributes like #[DataCollectionOf] (high priority)
         // - Casts from casts() method (highest priority)
-        $casts = static::getCasts();
 
-        // Step 7: Apply casts if defined
-        if ([] !== $casts) {
-            $data = static::applyCasts($data, $casts);
+        // Performance Optimization: Check if we need casts at all
+        // Skip getCasts() if #[NoCasts] is present
+        if (!static::hasNoCastsAttribute()) {
+            $casts = static::getCasts();
+
+            // Step 7: Apply casts if defined (LAZY)
+            if ([] !== $casts) {
+                $data = static::applyCasts($data, $casts);
+            }
         }
 
-        // Step 8: Auto-validate if enabled (before wrapping!)
+        // Step 8: Auto-validate if enabled (LAZY - before wrapping!)
+        // Only validate if auto-validation is enabled
         if (static::shouldAutoValidate()) {
             $validateAttr = static::getValidateRequestAttribute();
             if ($validateAttr?->auto) {
@@ -464,14 +492,65 @@ trait SimpleDtoMapperTrait
             }
         }
 
-        // Step 9: Wrap lazy properties (first!)
-        $data = static::wrapLazyProperties($data);
+        // Step 9: Wrap lazy properties (LAZY - first!)
+        // Only wrap if lazy properties exist
+        if (static::hasLazyProperties()) {
+            $data = static::wrapLazyProperties($data);
+        }
 
-        // Step 10: Wrap optional properties (second, can wrap Lazy)
-        $data = static::wrapOptionalProperties($data);
+        // Step 10: Wrap optional properties (LAZY - second, can wrap Lazy)
+        // Only wrap if optional properties exist
+        if (static::hasOptionalProperties()) {
+            $data = static::wrapOptionalProperties($data);
+        }
 
         // Step 11: Construct Dto instance
         /** @phpstan-ignore new.static */
         return new static(...$data);
+    }
+
+    /**
+     * Check if class has #[NoCasts] attribute (cached).
+     */
+    private static function hasNoCastsAttribute(): bool
+    {
+        $class = static::class;
+
+        if (!isset(self::$noCastsCache[$class])) {
+            $metadata = \event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata::get($class);
+            self::$noCastsCache[$class] = isset($metadata['classAttributes'][\event4u\DataHelpers\SimpleDto\Attributes\NoCasts::class]);
+        }
+
+        return self::$noCastsCache[$class];
+    }
+
+    /**
+     * Check if class has lazy properties (cached).
+     */
+    private static function hasLazyProperties(): bool
+    {
+        $class = static::class;
+
+        if (!isset(self::$hasLazyCache[$class])) {
+            $lazyProps = static::getLazyProperties();
+            self::$hasLazyCache[$class] = [] !== $lazyProps;
+        }
+
+        return self::$hasLazyCache[$class];
+    }
+
+    /**
+     * Check if class has optional properties (cached).
+     */
+    private static function hasOptionalProperties(): bool
+    {
+        $class = static::class;
+
+        if (!isset(self::$hasOptionalCache[$class])) {
+            $optionalProps = static::getOptionalProperties();
+            self::$hasOptionalCache[$class] = [] !== $optionalProps;
+        }
+
+        return self::$hasOptionalCache[$class];
     }
 }

@@ -90,6 +90,8 @@ export default defineConfig({
 					items: [
 						{ label: 'Introduction', slug: 'simple-dto/introduction' },
 						{ label: 'Creating Dtos', slug: 'simple-dto/creating-dtos' },
+                        { label: 'Performance Modes', slug: 'simple-dto/performance-modes' },
+                        { label: 'Caching', slug: 'simple-dto/caching' },
 						{ label: 'Type Casting', slug: 'simple-dto/type-casting' },
 						{ label: 'Validation', slug: 'simple-dto/validation' },
                         { label: 'Dot Notation Access', slug: 'simple-dto/dot-notation-access' },
@@ -102,7 +104,6 @@ export default defineConfig({
 						{ label: 'Collections', slug: 'simple-dto/collections' },
 						{ label: 'Nested Dtos', slug: 'simple-dto/nested-dtos' },
 						{ label: 'Security & Visibility', slug: 'simple-dto/security-visibility' },
-						{ label: 'Caching', slug: 'simple-dto/caching' },
 						{ label: 'TypeScript Generation', slug: 'simple-dto/typescript-generation' },
 						{ label: 'IDE Support', slug: 'simple-dto/ide-support' },
 					],

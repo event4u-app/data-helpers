@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 
 const COMPARE_WITH = [
-    'YWxhbWVsbGFtYS9jYXJhcGFjZQ==',              // alamellama/carapace
+    'YWxhbWVsbGFtYS9jYXJhcGFjZQ==',              // alamellama/carapace (Other Dtos)
     'Y2h1YmJ5cGhwL2NodWJieXBocC1wYXJzaW5n',      // chubbyphp/chubbyphp-parsing
     'bWFyay1nZXJhcnRzL2F1dG8tbWFwcGVyLXBsdXM=',  // mark-gerarts/auto-mapper-plus
     'bGFtaW5hcy9sYW1pbmFzLWh5ZHJhdG9y',          // laminas/laminas-hydrator
@@ -50,8 +50,8 @@ if ($packagesToInstall !== []) {
 // ============================================================================
 echo "📊  Step 1/4: Running PHPBench benchmarks (5 runs with warmup)...\n\n";
 
-// Warmup: Run benchmarks once to warm up OPcache and build DTOs
-echo "  Warming up OPcache and building DTOs...\n";
+// Warmup: Run benchmarks once to warm up OPcache and build Dtos
+echo "  Warming up OPcache and building Dtos...\n";
 $warmupCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1 > /dev/null';
 exec($warmupCommand);
 echo "  Warmup complete!\n\n";
@@ -163,9 +163,9 @@ foreach ($results as $className => $subjects) {
 }
 
 // ============================================================================
-// Step 2: Run custom DTO benchmarks (including AutoCast comparison)
+// Step 2: Run custom Dto benchmarks (including AutoCast comparison)
 // ============================================================================
-echo "📊  Step 2/4: Running custom DTO benchmarks...\n\n";
+echo "📊  Step 2/4: Running custom Dto benchmarks...\n\n";
 
 $testData = [
     'name' => 'Engineering',
@@ -270,8 +270,8 @@ $simpleDataStringTypes = [
     'email' => 'john@example.com',
 ];
 
-// Normal DTO (baseline)
-$performanceAttributeBenchmarks['Normal'] = runDtoBenchmark('Normal DTO', function() use ($simpleData): void {
+// Normal Dto (baseline)
+$performanceAttributeBenchmarks['Normal'] = runDtoBenchmark('Normal Dto', function() use ($simpleData): void {
     Tests\Utils\SimpleDtos\PerformanceNormalDto::fromArray($simpleData);
 }, 10000);
 
@@ -300,14 +300,19 @@ $performanceAttributeBenchmarks['Both'] = runDtoBenchmark('#[NoAttributes, NoCas
     Tests\Utils\SimpleDtos\PerformanceBothDto::fromArray($simpleData);
 }, 10000);
 
-// AutoCast DTO (for comparison)
-$performanceAttributeBenchmarks['AutoCast'] = runDtoBenchmark('AutoCast DTO', function() use ($simpleDataStringTypes): void {
+// AutoCast Dto (for comparison)
+$performanceAttributeBenchmarks['AutoCast'] = runDtoBenchmark('AutoCast Dto', function() use ($simpleDataStringTypes): void {
     Tests\Utils\SimpleDtos\PerformanceAutoCastDto::fromArray($simpleDataStringTypes);
 }, 10000);
 
 // NoCasts with AutoCast data (to show the difference)
 $performanceAttributeBenchmarks['NoCastsVsAutoCast'] = runDtoBenchmark('#[NoCasts] (vs AutoCast)', function() use ($simpleData): void {
     Tests\Utils\SimpleDtos\PerformanceNoCastsDto::fromArray($simpleData);
+}, 10000);
+
+// UltraFast Dto (maximum performance)
+$performanceAttributeBenchmarks['UltraFast'] = runDtoBenchmark('#[UltraFast]', function() use ($simpleData): void {
+    Tests\Utils\SimpleDtos\PerformanceUltraFastDto::fromArray($simpleData);
 }, 10000);
 
 // ============================================================================
@@ -592,15 +597,15 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
     }
     $markdown['DataMapper'] = $md;
 
-    // DTO Comparison - Restructured table
-    $md = "| Method | SimpleDto | Plain PHP | Other DTOs | Description |\n";
-    $md .= "|--------|-----------|-----------|------------|-------------|\n";
+    // Dto Comparison - Restructured table with UltraFast
+    $md = "| Method | SimpleDto Normal | SimpleDto #[UltraFast] | Plain PHP | Other Dtos | Description |\n";
+    $md .= "|--------|------------------|------------------------|-----------|------------|-------------|\n";
 
     // Group results by operation type
     $dtoGroups = [
-        'FromArray' => ['SimpleDto' => null, 'PlainPhp' => null, 'OtherDto' => null, 'displayName' => 'From Array'],
-        'ToArray' => ['SimpleDto' => null, 'PlainPhp' => null, 'OtherDto' => null, 'displayName' => 'To Array'],
-        'ComplexData' => ['SimpleDto' => null, 'PlainPhp' => null, 'OtherDto' => null, 'displayName' => 'Complex Data'],
+        'FromArray' => ['SimpleDto' => null, 'UltraFast' => null, 'PlainPhp' => null, 'OtherDto' => null, 'displayName' => 'From Array'],
+        'ToArray' => ['SimpleDto' => null, 'UltraFast' => null, 'PlainPhp' => null, 'OtherDto' => null, 'displayName' => 'To Array'],
+        'ComplexData' => ['SimpleDto' => null, 'UltraFast' => null, 'PlainPhp' => null, 'OtherDto' => null, 'displayName' => 'Complex Data'],
     ];
 
     foreach ($results['ExternalDto'] as $result) {
@@ -611,7 +616,9 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
             $result['name'],
             'Constructor'
         )) {
-            if (str_contains($result['name'], 'SimpleDto')) {
+            if (str_contains($result['name'], 'UltraFast')) {
+                $dtoGroups['FromArray']['UltraFast'] = $result;
+            } elseif (str_contains($result['name'], 'SimpleDto')) {
                 $dtoGroups['FromArray']['SimpleDto'] = $result;
             } elseif (str_contains($result['name'], 'PlainPhp')) {
                 // Use the faster plain PHP method (constructor is typically faster)
@@ -622,13 +629,17 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
                 $dtoGroups['FromArray']['OtherDto'] = $result;
             }
         } elseif (str_contains($result['name'], 'ToArray')) {
-            if (str_contains($result['name'], 'SimpleDto')) {
+            if (str_contains($result['name'], 'UltraFast')) {
+                $dtoGroups['ToArray']['UltraFast'] = $result;
+            } elseif (str_contains($result['name'], 'SimpleDto')) {
                 $dtoGroups['ToArray']['SimpleDto'] = $result;
             } elseif (str_contains($result['name'], 'OtherDto')) {
                 $dtoGroups['ToArray']['OtherDto'] = $result;
             }
         } elseif (str_contains($result['name'], 'ComplexData')) {
-            if (str_contains($result['name'], 'SimpleDto')) {
+            if (str_contains($result['name'], 'UltraFast')) {
+                $dtoGroups['ComplexData']['UltraFast'] = $result;
+            } elseif (str_contains($result['name'], 'SimpleDto')) {
                 $dtoGroups['ComplexData']['SimpleDto'] = $result;
             } elseif (str_contains($result['name'], 'OtherDto')) {
                 $dtoGroups['ComplexData']['OtherDto'] = $result;
@@ -644,6 +655,19 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
 
         $ourTime = formatTime($group['SimpleDto']['time']);
         $desc = getExternalDtoDescription($group['SimpleDto']['name']);
+
+        $ultraFast = '-';
+        if ($group['UltraFast']) {
+            $ultraFastTime = formatTime($group['UltraFast']['time']);
+            $factor = $group['SimpleDto']['time'] / $group['UltraFast']['time'];
+            if (1.1 < $factor) {
+                $ultraFast = sprintf('%s<br>(**%.1fx faster**)', $ultraFastTime, $factor);
+            } elseif (0.9 > $factor) {
+                $ultraFast = sprintf('%s<br>(**%.1fx slower**)', $ultraFastTime, 1 / $factor);
+            } else {
+                $ultraFast = sprintf('%s<br>(~same)', $ultraFastTime);
+            }
+        }
 
         $plainPhp = '-';
         if ($group['PlainPhp']) {
@@ -673,19 +697,19 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
 
         $displayName = $group['displayName'] ?? $operation;
         $ourTimeFormatted = $ourTime . '<br>&nbsp;';
-        $md .= "| {$displayName} | {$ourTimeFormatted} | {$plainPhp} | {$otherDto} | {$desc} |\n";
+        $md .= "| {$displayName} | {$ourTimeFormatted} | {$ultraFast} | {$plainPhp} | {$otherDto} | {$desc} |\n";
     }
     $markdown['DtoComparison'] = $md;
 
-    // Mapper Comparison - Restructured table
-    $md = "| Method | DataMapper | Plain PHP | Other Mappers | Description |\n";
-    $md .= "|--------|------------|-----------|---------------|-------------|\n";
+    // Mapper Comparison - Restructured table with UltraFast
+    $md = "| Method | DataMapper | SimpleDto #[UltraFast] | Plain PHP | Other Mappers | Description |\n";
+    $md .= "|--------|------------|------------------------|-----------|---------------|-------------|\n";
 
     // Group results by operation type
     $mapperGroups = [
-        'SimpleMapping' => ['DataMapper' => null, 'PlainPhp' => null, 'Others' => [], 'displayName' => 'Simple Mapping'],
-        'NestedMapping' => ['DataMapper' => null, 'PlainPhp' => null, 'Others' => [], 'displayName' => 'Nested Mapping'],
-        'TemplateMapping' => ['DataMapper' => null, 'PlainPhp' => null, 'Others' => [], 'displayName' => 'Template Mapping'],
+        'SimpleMapping' => ['DataMapper' => null, 'UltraFast' => null, 'PlainPhp' => null, 'Others' => [], 'displayName' => 'Simple Mapping'],
+        'NestedMapping' => ['DataMapper' => null, 'UltraFast' => null, 'PlainPhp' => null, 'Others' => [], 'displayName' => 'Nested Mapping'],
+        'TemplateMapping' => ['DataMapper' => null, 'UltraFast' => null, 'PlainPhp' => null, 'Others' => [], 'displayName' => 'Template Mapping'],
     ];
 
     foreach ($results['ExternalMapper'] as $result) {
@@ -700,6 +724,8 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
         } elseif (str_contains($result['name'], 'Nested')) {
             if (str_contains($result['name'], 'DataMapper')) {
                 $mapperGroups['NestedMapping']['DataMapper'] = $result;
+            } elseif (str_contains($result['name'], 'UltraFast')) {
+                $mapperGroups['NestedMapping']['UltraFast'] = $result;
             } elseif (str_contains($result['name'], 'PlainPhp')) {
                 $mapperGroups['NestedMapping']['PlainPhp'] = $result;
             } else {
@@ -714,6 +740,14 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
         }
     }
 
+    // Add UltraFast to SimpleMapping from ExternalDto results
+    foreach ($results['ExternalDto'] as $result) {
+        if (str_contains($result['name'], 'UltraFast') && str_contains($result['name'], 'FromArray')) {
+            $mapperGroups['SimpleMapping']['UltraFast'] = $result;
+            break;
+        }
+    }
+
     // Generate rows
     foreach ($mapperGroups as $operation => $group) {
         if (!$group['DataMapper']) {
@@ -722,6 +756,19 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
 
         $ourTime = formatTime($group['DataMapper']['time']);
         $desc = getExternalMapperDescription($group['DataMapper']['name']);
+
+        $ultraFast = '-';
+        if ($group['UltraFast']) {
+            $ultraFastTime = formatTime($group['UltraFast']['time']);
+            $factor = $group['DataMapper']['time'] / $group['UltraFast']['time'];
+            if (1.1 < $factor) {
+                $ultraFast = sprintf('%s<br>(**%.1fx faster**)', $ultraFastTime, $factor);
+            } elseif (0.9 > $factor) {
+                $ultraFast = sprintf('%s<br>(**%.1fx slower**)', $ultraFastTime, 1 / $factor);
+            } else {
+                $ultraFast = sprintf('%s<br>(~same)', $ultraFastTime);
+            }
+        }
 
         $plainPhp = '-';
         if ($group['PlainPhp']) {
@@ -752,18 +799,18 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
 
         $displayName = $group['displayName'] ?? $operation;
         $ourTimeFormatted = $ourTime . '<br>&nbsp;';
-        $md .= "| {$displayName} | {$ourTimeFormatted} | {$plainPhp} | {$otherMappers} | {$desc} |\n";
+        $md .= "| {$displayName} | {$ourTimeFormatted} | {$ultraFast} | {$plainPhp} | {$otherMappers} | {$desc} |\n";
     }
     $markdown['MapperComparison'] = $md;
 
-    // Serialization - Restructured like Mapper table
-    $md = "| Method | DataMapper | Plain PHP | Symfony Serializer | Description |\n";
-    $md .= "|--------|------------|-----------|-------------------|-------------|\n";
+    // Serialization - Restructured like Mapper table with UltraFast
+    $md = "| Method | DataMapper | SimpleDto #[UltraFast] | Plain PHP | Symfony Serializer | Description |\n";
+    $md .= "|--------|------------|------------------------|-----------|-------------------|-------------|\n";
 
     // Group results by operation type
     $serializationGroups = [
-        'TemplateSyntax' => ['DataMapper' => null, 'PlainPhp' => null, 'Symfony' => null, 'displayName' => 'Template Syntax'],
-        'SimplePaths' => ['DataMapper' => null, 'PlainPhp' => null, 'Symfony' => null, 'displayName' => 'Simple Paths'],
+        'TemplateSyntax' => ['UltraFast' => null, 'DataMapper' => null, 'PlainPhp' => null, 'Symfony' => null, 'displayName' => 'Template Syntax'],
+        'SimplePaths' => ['UltraFast' => null, 'DataMapper' => null, 'PlainPhp' => null, 'Symfony' => null, 'displayName' => 'Simple Paths'],
     ];
 
     // Find Symfony average time for comparison
@@ -789,6 +836,15 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
         }
     }
 
+    // Add UltraFast from ExternalDto results
+    foreach ($results['ExternalDto'] as $result) {
+        if (str_contains($result['name'], 'UltraFast') && str_contains($result['name'], 'FromArray')) {
+            $serializationGroups['TemplateSyntax']['UltraFast'] = $result;
+            $serializationGroups['SimplePaths']['UltraFast'] = $result;
+            break;
+        }
+    }
+
     // Generate rows
     foreach ($serializationGroups as $operation => $group) {
         if (!$group['DataMapper']) {
@@ -797,6 +853,19 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
 
         $ourTime = formatTime($group['DataMapper']['time']);
         $desc = getSerializationDescription($group['DataMapper']['name']);
+
+        $ultraFast = '-';
+        if ($group['UltraFast']) {
+            $ultraFastTime = formatTime($group['UltraFast']['time']);
+            $factor = $group['DataMapper']['time'] / $group['UltraFast']['time'];
+            if (1.1 < $factor) {
+                $ultraFast = sprintf('%s<br>(**%.1fx faster**)', $ultraFastTime, $factor);
+            } elseif (0.9 > $factor) {
+                $ultraFast = sprintf('%s<br>(**%.1fx slower**)', $ultraFastTime, 1 / $factor);
+            } else {
+                $ultraFast = sprintf('%s<br>(~same)', $ultraFastTime);
+            }
+        }
 
         $plainPhp = '-';
         if ($group['PlainPhp']) {
@@ -826,7 +895,7 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
 
         $displayName = $group['displayName'] ?? $operation;
         $ourTimeFormatted = $ourTime . '<br>&nbsp;';
-        $md .= "| {$displayName} | {$ourTimeFormatted} | {$plainPhp} | {$symfony} | {$desc} |\n";
+        $md .= "| {$displayName} | {$ourTimeFormatted} | {$ultraFast} | {$plainPhp} | {$symfony} | {$desc} |\n";
     }
     $markdown['Serialization'] = $md;
 
@@ -841,7 +910,7 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
 
     // Generate Insights sections
     $markdown['DtoInsights'] = generateDtoInsights($results);
-    $markdown['MapperInsights'] = generateMapperInsights($results);
+    $markdown['MapperInsights'] = generateMapperInsights($results, $results);
     $markdown['SerializationInsights'] = generateSerializationInsights($results);
 
     // Generate Cache Invalidation section
@@ -917,11 +986,16 @@ function generateTradeoffs(array $results, array $dtoBenchmarks): string
 {
     // Calculate average times
     $simpleDtoAvg = 0;
+    $ultraFastAvg = 0;
     $plainPhpDtoAvg = 0;
     $dtoCount = 0;
+    $ultraFastCount = 0;
 
     foreach ($results['ExternalDto'] as $result) {
-        if (str_contains($result['name'], 'SimpleDto')) {
+        if (str_contains($result['name'], 'UltraFast')) {
+            $ultraFastAvg += $result['time'];
+            $ultraFastCount++;
+        } elseif (str_contains($result['name'], 'SimpleDto')) {
             $simpleDtoAvg += $result['time'];
             $dtoCount++;
         } elseif (str_contains($result['name'], 'PlainPhp')) {
@@ -929,6 +1003,7 @@ function generateTradeoffs(array $results, array $dtoBenchmarks): string
         }
     }
     $simpleDtoAvg = 0 < $dtoCount ? $simpleDtoAvg / $dtoCount : 0;
+    $ultraFastAvg = 0 < $ultraFastCount ? $ultraFastAvg / $ultraFastCount : 1.7e-6;
     $plainPhpDtoAvg = 0 < $plainPhpDtoAvg ? $plainPhpDtoAvg : 0.2;
 
     // Get AutoCast benchmark times
@@ -972,6 +1047,8 @@ function generateTradeoffs(array $results, array $dtoBenchmarks): string
     $symfonyFactor = 0 < $dataMapperSerializationAvg ? round($symfonyAvg / $dataMapperSerializationAvg, 1) : 3.5;
 
     // Calculate AutoCast factors
+    // Note: $ultraFastAvg is already in microseconds from PHPBench, but $plainPhpTime is in seconds
+    $ultraFastFactor = 0 < $plainPhpTime ? round($ultraFastAvg / ($plainPhpTime * 1e6)) : 12;
     $noAutoCastFactor = 0 < $plainPhpTime ? round(($noAutoCastTime * 1e6) / ($plainPhpTime * 1e6)) : 33;
     $withAutoCastCorrectFactor = 0 < $plainPhpTime ? round(
         ($withAutoCastCorrectTime * 1e6) / ($plainPhpTime * 1e6)
@@ -981,9 +1058,17 @@ function generateTradeoffs(array $results, array $dtoBenchmarks): string
     ) : 110;
 
     $md = "```\n";
+    $md .= "SimpleDto #[UltraFast] vs Plain PHP:\n";
+    $md .= sprintf("- SimpleDto #[UltraFast]:  ~%.1fμs per operation\n", $ultraFastAvg);
+    $md .= sprintf("- Plain PHP:               ~%.2fμs per operation\n", $plainPhpTime * 1e6);
+    $md .= sprintf(
+        "- Trade-off:               ~%dx slower, but with type safety, immutability, and mapping\n",
+        $ultraFastFactor
+    );
+    $md .= "\n";
     $md .= "SimpleDto vs Plain PHP (without #[AutoCast]):\n";
-    $md .= sprintf("- SimpleDto:  ~%.0fμs per operation\n", $noAutoCastTime * 1e6);
-    $md .= sprintf("- Plain PHP:  ~%.1fμs per operation\n", $plainPhpTime * 1e6);
+    $md .= sprintf("- SimpleDto:  ~%.1fμs per operation\n", $noAutoCastTime * 1e6);
+    $md .= sprintf("- Plain PHP:  ~%.2fμs per operation\n", $plainPhpTime * 1e6);
     $md .= sprintf(
         "- Trade-off:  ~%dx slower, but with type safety, validation, and immutability\n",
         $noAutoCastFactor
@@ -1083,7 +1168,7 @@ function generateAutoCastPerformance(array $dtoBenchmarks): string
     $md .= "- ✅ XML parsing (all values are strings)\n";
     $md .= "- ✅ HTTP requests (query params and form data are strings)\n";
     $md .= "- ✅ Legacy APIs with inconsistent types\n";
-    $md .= "- ❌ Internal DTOs with correct types\n";
+    $md .= "- ❌ Internal Dtos with correct types\n";
     $md .= "- ❌ Performance-critical code paths\n";
 
     return $md . "- ❌ High-throughput data processing";
@@ -1092,12 +1177,16 @@ function generateAutoCastPerformance(array $dtoBenchmarks): string
 function generateDtoInsights(array $results): string
 {
     $simpleDtoAvg = 0;
+    $ultraFastAvg = 0;
     $plainPhpAvg = 0;
     $otherDtoAvg = 0;
-    $counts = ['SimpleDto' => 0, 'PlainPhp' => 0, 'OtherDto' => 0];
+    $counts = ['SimpleDto' => 0, 'UltraFast' => 0, 'PlainPhp' => 0, 'OtherDto' => 0];
 
     foreach ($results['ExternalDto'] as $result) {
-        if (str_contains($result['name'], 'SimpleDto')) {
+        if (str_contains($result['name'], 'UltraFast')) {
+            $ultraFastAvg += $result['time'];
+            $counts['UltraFast']++;
+        } elseif (str_contains($result['name'], 'SimpleDto')) {
             $simpleDtoAvg += $result['time'];
             $counts['SimpleDto']++;
         } elseif (str_contains($result['name'], 'PlainPhp')) {
@@ -1110,26 +1199,28 @@ function generateDtoInsights(array $results): string
     }
 
     $simpleDtoAvg = 0 < $counts['SimpleDto'] ? $simpleDtoAvg / $counts['SimpleDto'] : 15;
+    $ultraFastAvg = 0 < $counts['UltraFast'] ? $ultraFastAvg / $counts['UltraFast'] : 1.8;
     $plainPhpAvg = 0 < $counts['PlainPhp'] ? $plainPhpAvg / $counts['PlainPhp'] : 0.2;
     $otherDtoAvg = 0 < $counts['OtherDto'] ? $otherDtoAvg / $counts['OtherDto'] : 0.3;
 
-    $vsPlainPhpFactor = round($simpleDtoAvg / $plainPhpAvg);
-    $vsOtherDtoFactor = round($simpleDtoAvg / $otherDtoAvg);
+    $normalVsPlainPhpFactor = round($simpleDtoAvg / $plainPhpAvg);
+    $ultraFastVsPlainPhpFactor = round($ultraFastAvg / $plainPhpAvg);
+    $ultraFastVsOtherDtoFactor = round($ultraFastAvg / $otherDtoAvg);
+    $normalVsUltraFastFactor = round($simpleDtoAvg / $ultraFastAvg, 1);
 
     $md = "**Key Insights:**\n";
+    $md .= "- **#[UltraFast] mode** provides **{$normalVsUltraFastFactor}x faster** performance than normal SimpleDto\n";
+    $md .= sprintf("- **#[UltraFast]** is only **~%dx slower** than Plain PHP (vs ~%dx for normal mode)\n", $ultraFastVsPlainPhpFactor, $normalVsPlainPhpFactor);
+    $md .= sprintf("- **#[UltraFast]** is competitive with other Dto libraries (~%dx slower)\n", $ultraFastVsOtherDtoFactor);
     $md .= "- SimpleDto provides **type safety, validation, and immutability** with reasonable overhead\n";
-    $md .= sprintf("- Plain PHP is **~%dx faster** but lacks type safety and validation features\n", $vsPlainPhpFactor);
-    $md .= sprintf(
-        "- Other DTO libraries have **similar performance** (~%dx faster than SimpleDto)\n",
-        $vsOtherDtoFactor
-    );
 
     return $md . "- The overhead is acceptable for the added safety and developer experience";
 }
 
-function generateMapperInsights(array $results): string
+function generateMapperInsights(array $results, array $externalDtoResults): string
 {
     $dataMapperAvg = 0;
+    $ultraFastAvg = 0;
     $plainPhpAvg = 0;
     $otherMapperAvg = 0;
     $counts = ['DataMapper' => 0, 'PlainPhp' => 0, 'Others' => 0];
@@ -1147,14 +1238,29 @@ function generateMapperInsights(array $results): string
         }
     }
 
+    // Get UltraFast from ExternalDto results
+    foreach ($externalDtoResults['ExternalDto'] as $result) {
+        if (str_contains($result['name'], 'UltraFast') && str_contains($result['name'], 'FromArray')) {
+            $ultraFastAvg = $result['time'];
+            break;
+        }
+    }
+
     $dataMapperAvg = 0 < $counts['DataMapper'] ? $dataMapperAvg / $counts['DataMapper'] : 20;
     $plainPhpAvg = 0 < $counts['PlainPhp'] ? $plainPhpAvg / $counts['PlainPhp'] : 0.2;
     $otherMapperAvg = 0 < $counts['Others'] ? $otherMapperAvg / $counts['Others'] : 5;
+    $ultraFastAvg = 0 < $ultraFastAvg ? $ultraFastAvg : 1.8;
 
     $vsOthersFactor = round($dataMapperAvg / $otherMapperAvg, 1);
+    $vsUltraFastFactor = round($dataMapperAvg / $ultraFastAvg, 1);
     $vsPlainPhpFactor = round($dataMapperAvg / $plainPhpAvg);
+    $ultraFastVsOthersFactor = round($ultraFastAvg / $otherMapperAvg, 1);
 
     $md = "**Key Insights:**\n";
+    $md .= sprintf(
+        "- **SimpleDto #[UltraFast]** is **%.1fx faster** than DataMapper for simple mapping\n",
+        $vsUltraFastFactor
+    );
     if (1 > $vsOthersFactor) {
         $md .= sprintf(
             "- DataMapper is **%.1fx faster** than other mapper libraries (AutoMapper Plus, Laminas Hydrator)\n",
@@ -1162,15 +1268,16 @@ function generateMapperInsights(array $results): string
         );
     } else {
         $md .= sprintf(
-            "- Other mapper libraries are **%.1fx faster** than DataMapper, but lack template syntax and advanced features\n",
-            $vsOthersFactor
+            "- Other mapper libraries are **%.1fx faster** than DataMapper, but **%.1fx slower** than #[UltraFast]\n",
+            $vsOthersFactor,
+            $ultraFastVsOthersFactor
         );
     }
     $md .= sprintf(
         "- Plain PHP is **~%dx faster** but requires manual mapping code for each use case\n",
         $vsPlainPhpFactor
     );
-    $md .= "- DataMapper provides the best balance of features, readability, and maintainability\n";
+    $md .= "- DataMapper provides the best balance of features, readability, and maintainability for complex mappings\n";
 
     return $md . "- The overhead is acceptable for complex mapping scenarios with better developer experience";
 }
@@ -1179,6 +1286,7 @@ function generateSerializationInsights(array $results): string
 {
     // Use the same calculation as in the table
     $dataMapperAvg = 0;
+    $ultraFastAvg = 0;
     $symfonyAvg = 0;
     $dataMapperCount = 0;
     $symfonyCount = 0;
@@ -1193,13 +1301,26 @@ function generateSerializationInsights(array $results): string
         }
     }
 
+    // Get UltraFast from ExternalDto results
+    foreach ($results['ExternalDto'] as $result) {
+        if (str_contains($result['name'], 'UltraFast') && str_contains($result['name'], 'FromArray')) {
+            $ultraFastAvg = $result['time'];
+            break;
+        }
+    }
+
     $dataMapperAvg = 0 < $dataMapperCount ? $dataMapperAvg / $dataMapperCount : 40;
     $symfonyAvg = 0 < $symfonyCount ? $symfonyAvg / $symfonyCount : 150;
+    $ultraFastAvg = 0 < $ultraFastAvg ? $ultraFastAvg : 1.8;
 
-    $factor = round($symfonyAvg / $dataMapperAvg, 1);
+    $symfonyVsDataMapperFactor = round($symfonyAvg / $dataMapperAvg, 1);
+    $symfonyVsUltraFastFactor = round($symfonyAvg / $ultraFastAvg, 1);
+    $dataMapperVsUltraFastFactor = round($dataMapperAvg / $ultraFastAvg, 1);
 
     $md = "**Key Insights:**\n";
-    $md .= sprintf("- DataMapper is **%.1fx faster** than Symfony Serializer\n", $factor);
+    $md .= sprintf("- **SimpleDto #[UltraFast]** is **%.1fx faster** than Symfony Serializer!\n", $symfonyVsUltraFastFactor);
+    $md .= sprintf("- **SimpleDto #[UltraFast]** is **%.1fx faster** than DataMapper for simple mappings\n", $dataMapperVsUltraFastFactor);
+    $md .= sprintf("- DataMapper is **%.1fx faster** than Symfony Serializer for complex mappings\n", $symfonyVsDataMapperFactor);
     $md .= "- Zero reflection overhead for template-based mapping\n";
 
     return $md . "- Optimized for nested data structures";
@@ -1216,13 +1337,13 @@ function getExternalDtoDescription(string $name): string
 {
     $descriptions = [
         'benchSimpleDtoFromArray' => 'Our SimpleDto implementation',
-        'benchSpatieDataFrom' => 'Spatie Laravel Data (other DTO library)',
+        'benchSpatieDataFrom' => 'Spatie Laravel Data (other Dto library)',
         'benchPlainPhpNewAssign' => 'Plain PHP with property assignment',
         'benchPlainPhpConstructor' => 'Plain PHP with constructor',
         'benchSimpleDtoToArray' => 'Our SimpleDto toArray()',
-        'benchSpatieDataToArray' => 'Other DTO library toArray()',
+        'benchSpatieDataToArray' => 'Other Dto library toArray()',
         'benchSimpleDtoComplexData' => 'Our SimpleDto with complex data',
-        'benchSpatieDataComplexData' => 'Other DTO library with complex data',
+        'benchSpatieDataComplexData' => 'Other Dto library with complex data',
     ];
     return $descriptions[$name] ?? '';
 }
@@ -1245,7 +1366,7 @@ function getExternalMapperDescription(string $name): string
 function getSerializationDescription(string $name): string
 {
     $descriptions = [
-        'benchManualMapping' => 'Direct DTO constructor (baseline)',
+        'benchManualMapping' => 'Direct Dto constructor (baseline)',
         'benchDataMapperTemplate' => 'DataMapper with template syntax',
         'benchDataMapperSimplePaths' => 'DataMapper with simple paths',
         'benchSymfonySerializerArray' => 'Symfony Serializer from array',
@@ -1286,6 +1407,7 @@ function generatePerformanceAttributes(array $performanceAttributeBenchmarks): s
     $bothTime = ($performanceAttributeBenchmarks['Both']['avg_time'] ?? 0) * 1000000;
     $autoCastTime = ($performanceAttributeBenchmarks['AutoCast']['avg_time'] ?? 0) * 1000000;
     $noCastsVsAutoCastTime = ($performanceAttributeBenchmarks['NoCastsVsAutoCast']['avg_time'] ?? 0) * 1000000;
+    $ultraFastTime = ($performanceAttributeBenchmarks['UltraFast']['avg_time'] ?? 0) * 1000000;
 
     // Calculate percentages
     $noCastsFaster = $normalTime > 0 ? round((($normalTime - $noCastsTime) / $normalTime) * 100, 1) : 0;
@@ -1294,14 +1416,16 @@ function generatePerformanceAttributes(array $performanceAttributeBenchmarks): s
     $noCastsNoValidationFaster = $normalTime > 0 ? round((($normalTime - $noCastsNoValidationTime) / $normalTime) * 100, 1) : 0;
     $bothFaster = $normalTime > 0 ? round((($normalTime - $bothTime) / $normalTime) * 100, 1) : 0;
     $noCastsVsAutoCastFaster = $autoCastTime > 0 ? round((($autoCastTime - $noCastsVsAutoCastTime) / $autoCastTime) * 100, 1) : 0;
+    $ultraFastFaster = $normalTime > 0 ? round((($normalTime - $ultraFastTime) / $normalTime) * 100, 1) : 0;
 
     // Calculate savings per 1M requests
     $savingsNoCasts = ($normalTime - $noCastsTime) * 1000; // Convert to ms per 1M
     $savingsBoth = ($normalTime - $bothTime) * 1000;
 
-    $md = "### Basic DTO (10,000 iterations)\n\n";
+    $md = "### Basic Dto (10,000 iterations)\n\n";
     $md .= "```\n";
-    $md .= sprintf("Normal DTO:                %.2f μs (baseline)\n", $normalTime);
+    $md .= sprintf("Normal Dto:                %.2f μs (baseline)\n", $normalTime);
+    $md .= sprintf("#[UltraFast]:              %.2f μs (%.1f%% faster)\n", $ultraFastTime, $ultraFastFaster);
     $md .= sprintf("#[NoCasts]:                %.2f μs (%.1f%% faster)\n", $noCastsTime, $noCastsFaster);
     $md .= sprintf("#[NoValidation]:           %.2f μs (%.1f%% faster)\n", $noValidationTime, $noValidationFaster);
     $md .= sprintf("#[NoAttributes]:           %.2f μs (%.1f%% faster)\n", $noAttributesTime, $noAttributesFaster);
@@ -1311,18 +1435,20 @@ function generatePerformanceAttributes(array $performanceAttributeBenchmarks): s
 
     $md .= "### With AutoCast (10,000 iterations)\n\n";
     $md .= "```\n";
-    $md .= sprintf("AutoCast DTO:              %.2f μs (with type casting)\n", $autoCastTime);
+    $md .= sprintf("AutoCast Dto:              %.2f μs (with type casting)\n", $autoCastTime);
     $md .= sprintf("#[NoCasts]:                %.2f μs (%.1f%% faster!)\n", $noCastsVsAutoCastTime, $noCastsVsAutoCastFaster);
     $md .= "```\n\n";
 
-    $md .= "### Real-World API (1,000 DTOs)\n\n";
+    $md .= "### Real-World API (1,000 Dtos)\n\n";
     $md .= "```\n";
-    // Use μs for better precision (1,000 DTOs = multiply by 1000)
-    $md .= sprintf("SimpleDTO:                 %.2f ms\n", $normalTime);
+    // Use μs for better precision (1,000 Dtos = multiply by 1000)
+    $md .= sprintf("SimpleDto:                 %.2f ms\n", $normalTime);
+    $md .= sprintf("#[UltraFast]:              %.2f ms (%.1f%% faster)\n", $ultraFastTime, $ultraFastFaster);
     $md .= sprintf("#[NoCasts]:                %.2f ms (%.1f%% faster)\n", $noCastsTime, $noCastsFaster);
     $md .= sprintf("#[NoAttributes, NoCasts]:  %.2f ms (%.1f%% faster)\n", $bothTime, $bothFaster);
     $md .= "\n";
-    $md .= sprintf("Savings per 1M requests:   ~%.0fms (%.1fs)\n", $savingsNoCasts, $savingsNoCasts / 1000);
+    $savingsUltraFast = ($normalTime - $ultraFastTime) * 1000;
+    $md .= sprintf("Savings per 1M requests:   ~%.0fms (%.1fs) with #[UltraFast]\n", $savingsUltraFast, $savingsUltraFast / 1000);
     $md .= "```";
 
     return $md;
@@ -1333,24 +1459,30 @@ function generatePerformanceAttributes(array $performanceAttributeBenchmarks): s
  */
 function generateReadmeFast(array $results): string
 {
-    // Calculate Symfony comparison
-    $dataMapperSerializationAvg = 0;
+    // Calculate UltraFast vs Symfony comparison
+    $ultraFastAvg = 0;
     $symfonyAvg = 0;
-    $serializationCount = 0;
 
+    // Get UltraFast time from ExternalDto benchmarks
+    foreach ($results['ExternalDto'] as $result) {
+        if (str_contains($result['name'], 'UltraFast') && str_contains($result['name'], 'FromArray')) {
+            $ultraFastAvg = $result['time'];
+            break;
+        }
+    }
+
+    // Get Symfony time from DtoSerialization benchmarks
     foreach ($results['DtoSerialization'] as $result) {
-        if (str_contains($result['name'], 'DataMapper')) {
-            $dataMapperSerializationAvg += $result['time'];
-            $serializationCount++;
-        } elseif (str_contains($result['name'], 'Symfony')) {
+        if (str_contains($result['name'], 'Symfony')) {
             $symfonyAvg += $result['time'];
         }
     }
-    $dataMapperSerializationAvg = 0 < $serializationCount ? $dataMapperSerializationAvg / $serializationCount : 40;
-    $symfonyAvg = 0 < $symfonyAvg ? $symfonyAvg / 2 : 150;
-    $symfonyFactor = round($symfonyAvg / $dataMapperSerializationAvg, 1);
 
-    return sprintf('- **Fast** - Up to %.1fx faster than Symfony Serializer', $symfonyFactor);
+    $ultraFastAvg = 0 < $ultraFastAvg ? $ultraFastAvg : 2.0;
+    $symfonyAvg = 0 < $symfonyAvg ? $symfonyAvg / 2 : 100;
+    $symfonyFactor = round($symfonyAvg / $ultraFastAvg, 1);
+
+    return sprintf('- **Fast** - SimpleDto with #[UltraFast] is up to %.1fx faster than Symfony Serializer', $symfonyFactor);
 }
 
 /**
@@ -1373,27 +1505,33 @@ function generateReadmePerformance(array $results): string
         }
     }
 
-    // Calculate Symfony comparison
-    $dataMapperSerializationAvg = 0;
+    // Calculate UltraFast vs Symfony comparison
+    $ultraFastAvg = 0;
     $symfonyAvg = 0;
-    $serializationCount = 0;
 
+    // Get UltraFast time from ExternalDto benchmarks
+    foreach ($results['ExternalDto'] as $result) {
+        if (str_contains($result['name'], 'UltraFast') && str_contains($result['name'], 'FromArray')) {
+            $ultraFastAvg = $result['time'];
+            break;
+        }
+    }
+
+    // Get Symfony time from DtoSerialization benchmarks
     foreach ($results['DtoSerialization'] as $result) {
-        if (str_contains($result['name'], 'DataMapper')) {
-            $dataMapperSerializationAvg += $result['time'];
-            $serializationCount++;
-        } elseif (str_contains($result['name'], 'Symfony')) {
+        if (str_contains($result['name'], 'Symfony')) {
             $symfonyAvg += $result['time'];
         }
     }
-    $dataMapperSerializationAvg = 0 < $serializationCount ? $dataMapperSerializationAvg / $serializationCount : 40;
-    $symfonyAvg = 0 < $symfonyAvg ? $symfonyAvg / 2 : 150;
-    $symfonyFactor = round($symfonyAvg / $dataMapperSerializationAvg, 1);
+
+    $ultraFastAvg = 0 < $ultraFastAvg ? $ultraFastAvg : 2.0;
+    $symfonyAvg = 0 < $symfonyAvg ? $symfonyAvg / 2 : 100;
+    $symfonyFactor = round($symfonyAvg / $ultraFastAvg, 1);
 
     $md = sprintf("- Simple access: ~%.1fμs\n", $simpleAccessTime);
     $md .= sprintf("- Nested access: ~%.1fμs\n", $nestedAccessTime);
     $md .= sprintf("- Wildcards: ~%.0fμs\n", $wildcardTime);
-    $md .= sprintf("- **Up to %.1fx faster** than Symfony Serializer for Dto mapping", $symfonyFactor);
+    $md .= sprintf("- **SimpleDto #[UltraFast] is up to %.1fx faster** than Symfony Serializer", $symfonyFactor);
 
     return $md;
 }

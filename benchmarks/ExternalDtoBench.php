@@ -8,6 +8,8 @@ use PhpBench\Attributes\BeforeMethods;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 
 // External DTO libraries (installed temporarily)
 use ALameLlama\Carapace\Data as CarapaceData;
@@ -53,10 +55,18 @@ class ExternalDtoBench
         DepartmentSimpleDto::fromArray($this->testData);
     }
 
-    /** Benchmark: Carapace - from() */
+    /** Benchmark: Our SimpleDto with #[UltraFast] - fromArray() */
     #[Revs(1000)]
     #[Iterations(5)]
-    public function benchCarapaceDataFrom(): void
+    public function benchSimpleDtoUltraFastFromArray(): void
+    {
+        UltraFastDepartmentDto::fromArray($this->testData);
+    }
+
+    /** Benchmark: Other Dtos - from() */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchOtherDtoFrom(): void
     {
         if (!class_exists(CarapaceData::class)) {
             return; // Skip if not installed
@@ -100,10 +110,19 @@ class ExternalDtoBench
         $dto->toArray();
     }
 
-    /** Benchmark: Carapace - toArray() */
+    /** Benchmark: Our SimpleDto with #[UltraFast] - toArray() */
     #[Revs(1000)]
     #[Iterations(5)]
-    public function benchCarapaceDataToArray(): void
+    public function benchSimpleDtoUltraFastToArray(): void
+    {
+        $dto = UltraFastDepartmentDto::fromArray($this->testData);
+        $dto->toArray();
+    }
+
+    /** Benchmark: Other Dtos - toArray() */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchOtherDtoToArray(): void
     {
         if (!class_exists(CarapaceData::class)) {
             return; // Skip if not installed
@@ -120,10 +139,18 @@ class ExternalDtoBench
         DepartmentSimpleDto::fromArray($this->complexData);
     }
 
-    /** Benchmark: Carapace - Complex Data */
+    /** Benchmark: Our SimpleDto with #[UltraFast] - Complex Data */
     #[Revs(1000)]
     #[Iterations(5)]
-    public function benchCarapaceDataComplexData(): void
+    public function benchSimpleDtoUltraFastComplexData(): void
+    {
+        UltraFastDepartmentDto::fromArray($this->complexData);
+    }
+
+    /** Benchmark: Other Dtos - Complex Data */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchOtherDtoComplexData(): void
     {
         if (!class_exists(CarapaceData::class)) {
             return; // Skip if not installed
@@ -177,5 +204,21 @@ class PlainDepartmentDtoWithConstructor
         public float $budget,
         public int $employee_count,
         public string $manager_name,
+    ) {}
+}
+
+/**
+ * SimpleDto with #[UltraFast] attribute
+ * For maximum performance benchmarking
+ */
+#[UltraFast]
+class UltraFastDepartmentDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $code,
+        public readonly float $budget,
+        public readonly int $employee_count,
+        public readonly string $manager_name,
     ) {}
 }

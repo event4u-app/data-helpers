@@ -129,6 +129,14 @@ class ExternalMapperBench
             ->map();
     }
 
+    /** Benchmark: SimpleDto #[UltraFast] - Nested Mapping */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchUltraFastNested(): void
+    {
+        UltraFastNestedMapperDto::fromArray($this->nestedSourceData);
+    }
+
     /** Benchmark: Plain PHP - Nested Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
@@ -195,4 +203,36 @@ class MapperTargetDto
     public ?string $phone = null;
     public ?string $city = null;
     public ?string $country = null;
+}
+
+/**
+ * UltraFast DTO for nested mapping benchmarks
+ */
+#[\event4u\DataHelpers\SimpleDto\Attributes\UltraFast(allowMapFrom: true)]
+class UltraFastNestedMapperDto extends \event4u\DataHelpers\SimpleDto
+{
+    use \event4u\DataHelpers\SimpleDto\SimpleDtoTrait;
+
+    public function __construct(
+        #[\event4u\DataHelpers\SimpleDto\Attributes\MapFrom('user.profile.firstName')]
+        public readonly string $firstName,
+
+        #[\event4u\DataHelpers\SimpleDto\Attributes\MapFrom('user.profile.lastName')]
+        public readonly string $lastName,
+
+        #[\event4u\DataHelpers\SimpleDto\Attributes\MapFrom('user.profile.age')]
+        public readonly int $age,
+
+        #[\event4u\DataHelpers\SimpleDto\Attributes\MapFrom('user.contact.email')]
+        public readonly string $email,
+
+        #[\event4u\DataHelpers\SimpleDto\Attributes\MapFrom('user.contact.phone')]
+        public readonly string $phone,
+
+        #[\event4u\DataHelpers\SimpleDto\Attributes\MapFrom('user.address.city')]
+        public readonly string $city,
+
+        #[\event4u\DataHelpers\SimpleDto\Attributes\MapFrom('user.address.country')]
+        public readonly string $country,
+    ) {}
 }

@@ -7,6 +7,10 @@ sidebar:
 
 Performance attributes allow you to skip unnecessary operations for maximum DTO instantiation speed.
 
+:::tip[Performance Modes Guide]
+See the [Performance Modes Guide](/data-helpers/simple-dto/performance-modes/) for a comprehensive comparison of all performance optimization strategies and when to use each mode.
+:::
+
 :::note[Important: strict_types=1]
 All SimpleDto files use `declare(strict_types=1)`, which means **PHP does NOT perform automatic type coercion**. The performance attributes control which casting mechanisms are active.
 :::
@@ -15,18 +19,96 @@ All SimpleDto files use `declare(strict_types=1)`, which means **PHP does NOT pe
 
 | Attribute | Nested DTOs | Native Type Casts | Explicit `#[Cast]` | Validation | Other Attributes | Performance Gain |
 |-----------|-------------|-------------------|-------------------|------------|------------------|------------------|
-| **None** | ✅ Auto | ❌ TypeError | ✅ Applied | ✅ Active | ✅ Active | Baseline |
+| **None** | ✅ Auto | ❌ TypeError | ✅ Applied | ✅ Active | ✅ Active | Baseline (12.7μs) |
 | **`#[AutoCast]`** | ✅ Auto | ✅ Auto | ✅ Applied | ✅ Active | ✅ Active | -50% slower |
 | **`#[NoCasts]`** | ❌ TypeError | ❌ TypeError | ❌ Disabled | ✅ Active | ✅ Active | **+37% faster** |
 | **`#[NoValidation]`** | ✅ Auto | ❌ TypeError | ✅ Applied | ❌ Disabled | ✅ Active | +5% faster |
 | **`#[NoAttributes]`** | ✅ Auto | ❌ TypeError | ❌ Disabled | ❌ Disabled | ❌ Disabled | +5% faster |
 | **`#[NoAttributes, NoCasts]`** | ❌ TypeError | ❌ TypeError | ❌ Disabled | ❌ Disabled | ❌ Disabled | **+34% faster** |
+| **`#[UltraFast]`** | ✅ Auto | ❌ TypeError | ❌ Disabled | ❌ Disabled | ❌ Disabled | **+639% faster (1.7μs)** 🚀 |
 
 :::caution[Key Insight: Nested DTOs]
 **Nested DTOs are ALWAYS auto-casted** (even without `#[AutoCast]`), unless you use `#[NoCasts]`. This is different from native types which require `#[AutoCast]` or explicit `#[Cast]` attributes.
 :::
 
 ## Available Attributes
+
+### #[UltraFast] ⚡
+
+**NEW!** Bypass ALL SimpleDto overhead for maximum performance.
+
+**Use when:**
+- You need maximum speed (7.4x faster than normal SimpleDto)
+- You only need basic mapping (#[MapFrom], #[MapTo])
+- Input data is already validated and correctly typed
+- You're processing large datasets
+
+**Performance Impact:**
+- **639% faster** than normal SimpleDto! 🚀
+- **1.723μs** vs 12.740μs (normal mode)
+- Only **5.5x slower** than other minimalist Dto libraries
+- **2.4x less memory** (2.7mb vs 6.7mb)
+
+**What gets disabled:**
+- ❌ All validation
+- ❌ All type casting
+- ❌ All lazy loading
+- ❌ All optional properties
+- ❌ All computed properties
+- ❌ All pipeline steps
+- ❌ Cache overhead
+
+**What stays active:**
+- ✅ `#[MapFrom]` attribute (configurable)
+- ✅ `#[MapTo]` attribute (configurable)
+- ✅ Nested DTO auto-casting
+- ✅ Basic fromArray/toArray functionality
+
+**Example:**
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
+
+#[UltraFast]
+class FastUserDto extends SimpleDto
+{
+    public function __construct(
+        #[MapFrom('user_name')]
+        public readonly string $name,
+        public readonly string $email,
+        public readonly int $age,
+    ) {}
+}
+
+// Create from array (1.7μs)
+$user = FastUserDto::fromArray([
+    'user_name' => 'John Doe',
+    'email' => 'john@example.com',
+    'age' => 30,
+]);
+```
+
+**Configuration Options:**
+
+```php
+#[UltraFast(
+    allowMapFrom: true,   // Allow #[MapFrom] attributes (default: true)
+    allowMapTo: true,     // Allow #[MapTo] attributes (default: true)
+    allowCastWith: false, // Allow #[CastWith] attributes (default: false)
+)]
+class ConfiguredDto extends SimpleDto
+{
+    // ...
+}
+```
+
+:::caution[Do Not Combine]
+Do NOT combine `#[UltraFast]` with other performance attributes. `#[UltraFast]` bypasses all processing, making other attributes redundant.
+:::
+
+---
 
 ### #[NoCasts]
 
