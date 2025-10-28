@@ -9,6 +9,9 @@ use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
 
+// External DTO libraries (installed temporarily)
+use ALameLlama\Carapace\Data as CarapaceData;
+
 #[BeforeMethods('setUp')]
 class ExternalDtoBench
 {
@@ -50,13 +53,23 @@ class ExternalDtoBench
         DepartmentSimpleDto::fromArray($this->testData);
     }
 
-    /** Benchmark: Other DTO library - manual construction */
+    /** Benchmark: Carapace - from() */
     #[Revs(1000)]
     #[Iterations(5)]
-    public function benchOtherDtoLibraryFrom(): void
+    public function benchCarapaceDataFrom(): void
     {
-        // Simulating other DTO library behavior (similar to Spatie Laravel Data)
-        new OtherDtoLibraryDepartment(
+        if (!class_exists(CarapaceData::class)) {
+            return; // Skip if not installed
+        }
+        CarapaceDepartmentData::from($this->testData);
+    }
+
+    /** Benchmark: Plain PHP - manual construction */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchPlainPhpConstructor(): void
+    {
+        new PlainDepartmentDtoWithConstructor(
             $this->testData['name'],
             $this->testData['code'],
             $this->testData['budget'],
@@ -78,20 +91,6 @@ class ExternalDtoBench
         $dto->manager_name = $this->testData['manager_name'];
     }
 
-    /** Benchmark: Plain PHP - constructor */
-    #[Revs(1000)]
-    #[Iterations(5)]
-    public function benchPlainPhpConstructor(): void
-    {
-        new PlainDepartmentDtoWithConstructor(
-            $this->testData['name'],
-            $this->testData['code'],
-            $this->testData['budget'],
-            $this->testData['employee_count'],
-            $this->testData['manager_name']
-        );
-    }
-
     /** Benchmark: Our SimpleDto - toArray() */
     #[Revs(1000)]
     #[Iterations(5)]
@@ -101,26 +100,16 @@ class ExternalDtoBench
         $dto->toArray();
     }
 
-    /** Benchmark: Other DTO library - toArray() */
+    /** Benchmark: Carapace - toArray() */
     #[Revs(1000)]
     #[Iterations(5)]
-    public function benchOtherDtoLibraryToArray(): void
+    public function benchCarapaceDataToArray(): void
     {
-        $dto = new OtherDtoLibraryDepartment(
-            $this->testData['name'],
-            $this->testData['code'],
-            $this->testData['budget'],
-            $this->testData['employee_count'],
-            $this->testData['manager_name']
-        );
-        // Simulating toArray() behavior
-        [
-            'name' => $dto->name,
-            'code' => $dto->code,
-            'budget' => $dto->budget,
-            'employee_count' => $dto->employee_count,
-            'manager_name' => $dto->manager_name,
-        ];
+        if (!class_exists(CarapaceData::class)) {
+            return; // Skip if not installed
+        }
+        $dto = CarapaceDepartmentData::from($this->testData);
+        $dto->toArray();
     }
 
     /** Benchmark: Our SimpleDto - Complex Data */
@@ -131,44 +120,38 @@ class ExternalDtoBench
         DepartmentSimpleDto::fromArray($this->complexData);
     }
 
-    /** Benchmark: Other DTO library - Complex Data */
+    /** Benchmark: Carapace - Complex Data */
     #[Revs(1000)]
     #[Iterations(5)]
-    public function benchOtherDtoLibraryComplexData(): void
+    public function benchCarapaceDataComplexData(): void
     {
-        new OtherDtoLibraryDepartment(
-            $this->complexData['name'],
-            $this->complexData['code'],
-            $this->complexData['budget'],
-            $this->complexData['employee_count'],
-            $this->complexData['manager_name'],
-            $this->complexData['location'] ?? null,
-            $this->complexData['floor'] ?? null,
-            $this->complexData['phone'] ?? null,
-            $this->complexData['email'] ?? null,
-            $this->complexData['established_date'] ?? null
-        );
+        if (!class_exists(CarapaceData::class)) {
+            return; // Skip if not installed
+        }
+        CarapaceDepartmentData::from($this->complexData);
     }
 }
 
 /**
- * Simulated other DTO library (similar to Spatie Laravel Data)
- * This represents typical behavior of other DTO libraries
+ * Carapace DTO
+ * Real implementation using Carapace's Data class
  */
-class OtherDtoLibraryDepartment
-{
-    public function __construct(
-        public string $name,
-        public string $code,
-        public float $budget,
-        public int $employee_count,
-        public string $manager_name,
-        public ?string $location = null,
-        public ?int $floor = null,
-        public ?string $phone = null,
-        public ?string $email = null,
-        public ?string $established_date = null,
-    ) {}
+if (class_exists(CarapaceData::class)) {
+    class CarapaceDepartmentData extends CarapaceData
+    {
+        public function __construct(
+            public string $name,
+            public string $code,
+            public float $budget,
+            public int $employee_count,
+            public string $manager_name,
+            public ?string $location = null,
+            public ?int $floor = null,
+            public ?string $phone = null,
+            public ?string $email = null,
+            public ?string $established_date = null,
+        ) {}
+    }
 }
 
 /**

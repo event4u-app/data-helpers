@@ -66,7 +66,7 @@ $emails = $accessor->get('departments.*.users.*.email');
 - **Type-Safe** - PHPStan Level 9 compliant with 2900+ tests
 <!-- BENCHMARK_README_FAST_START -->
 
-- **Fast** - Up to 3.3x faster than Symfony Serializer
+- **Fast** - Up to 3.8x faster than Symfony Serializer
 <!-- BENCHMARK_README_FAST_END -->
 - **Framework-Agnostic** - Works with Laravel, Symfony, Doctrine, or plain PHP
 - **Zero Dependencies** - No required dependencies, optional framework integrations
@@ -373,10 +373,10 @@ All operations are highly optimized:
 
 <!-- BENCHMARK_README_PERFORMANCE_START -->
 
-- Simple access: ~0.3μs
+- Simple access: ~0.2μs
 - Nested access: ~0.3μs
-- Wildcards: ~6μs
-- **Up to 3.3x faster** than Symfony Serializer for Dto mapping
+- Wildcards: ~5μs
+- **Up to 3.8x faster** than Symfony Serializer for Dto mapping
 <!-- BENCHMARK_README_PERFORMANCE_END -->
 
 📖 **[Performance Benchmarks](https://event4u-app.github.io/data-helpers/performance/benchmarks/)** • [Optimization Tips](https://event4u-app.github.io/data-helpers/performance/optimization/)

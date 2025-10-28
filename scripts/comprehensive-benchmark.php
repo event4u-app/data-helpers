@@ -11,10 +11,10 @@ declare(strict_types=1);
  */
 
 const COMPARE_WITH = [
-    'c3BhdGllL2xhcmF2ZWwtZGF0YQ==',
-    'Y2h1YmJ5cGhwL2NodWJieXBocC1wYXJzaW5n',
-    'bWFyay1nZXJhcnRzL2F1dG8tbWFwcGVyLXBsdXM=',
-    'bGFtaW5hcy9sYW1pbmFzLWh5ZHJhdG9y',
+    'YWxhbWVsbGFtYS9jYXJhcGFjZQ==',              // alamellama/carapace
+    'Y2h1YmJ5cGhwL2NodWJieXBocC1wYXJzaW5n',      // chubbyphp/chubbyphp-parsing
+    'bWFyay1nZXJhcnRzL2F1dG8tbWFwcGVyLXBsdXM=',  // mark-gerarts/auto-mapper-plus
+    'bGFtaW5hcy9sYW1pbmFzLWh5ZHJhdG9y',          // laminas/laminas-hydrator
 ];
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -251,9 +251,69 @@ $dtoBenchmarks['PlainPhp'] = runDtoBenchmark('Plain PHP', function() use ($corre
 }, 10000);
 
 // ============================================================================
-// Step 2b: Run Cache Invalidation Benchmarks
+// Step 2b: Run Performance Attributes Benchmarks
 // ============================================================================
-echo "📊  Step 2b/4: Running Cache Invalidation benchmarks...\n\n";
+echo "📊  Step 2b/4: Running Performance Attributes benchmarks...\n\n";
+
+$performanceAttributeBenchmarks = [];
+
+// Simple test data for performance attributes
+$simpleData = [
+    'name' => 'John Doe',
+    'age' => 30,
+    'email' => 'john@example.com',
+];
+
+$simpleDataStringTypes = [
+    'name' => 'John Doe',
+    'age' => '30',
+    'email' => 'john@example.com',
+];
+
+// Normal DTO (baseline)
+$performanceAttributeBenchmarks['Normal'] = runDtoBenchmark('Normal DTO', function() use ($simpleData): void {
+    Tests\Utils\SimpleDtos\PerformanceNormalDto::fromArray($simpleData);
+}, 10000);
+
+// NoCasts DTO
+$performanceAttributeBenchmarks['NoCasts'] = runDtoBenchmark('#[NoCasts]', function() use ($simpleData): void {
+    Tests\Utils\SimpleDtos\PerformanceNoCastsDto::fromArray($simpleData);
+}, 10000);
+
+// NoValidation DTO
+$performanceAttributeBenchmarks['NoValidation'] = runDtoBenchmark('#[NoValidation]', function() use ($simpleData): void {
+    Tests\Utils\SimpleDtos\PerformanceNoValidationDto::fromArray($simpleData);
+}, 10000);
+
+// NoAttributes DTO (use same data as Normal for fair comparison)
+$performanceAttributeBenchmarks['NoAttributes'] = runDtoBenchmark('#[NoAttributes]', function() use ($simpleData): void {
+    Tests\Utils\SimpleDtos\PerformanceNoAttributesDto::fromArray($simpleData);
+}, 10000);
+
+// Both NoCasts and NoValidation
+$performanceAttributeBenchmarks['NoCastsNoValidation'] = runDtoBenchmark('#[NoCasts, NoValidation]', function() use ($simpleData): void {
+    Tests\Utils\SimpleDtos\PerformanceNoCastsNoValidationDto::fromArray($simpleData);
+}, 10000);
+
+// Both NoAttributes and NoCasts (maximum performance)
+$performanceAttributeBenchmarks['Both'] = runDtoBenchmark('#[NoAttributes, NoCasts]', function() use ($simpleData): void {
+    Tests\Utils\SimpleDtos\PerformanceBothDto::fromArray($simpleData);
+}, 10000);
+
+// AutoCast DTO (for comparison)
+$performanceAttributeBenchmarks['AutoCast'] = runDtoBenchmark('AutoCast DTO', function() use ($simpleDataStringTypes): void {
+    Tests\Utils\SimpleDtos\PerformanceAutoCastDto::fromArray($simpleDataStringTypes);
+}, 10000);
+
+// NoCasts with AutoCast data (to show the difference)
+$performanceAttributeBenchmarks['NoCastsVsAutoCast'] = runDtoBenchmark('#[NoCasts] (vs AutoCast)', function() use ($simpleData): void {
+    Tests\Utils\SimpleDtos\PerformanceNoCastsDto::fromArray($simpleData);
+}, 10000);
+
+// ============================================================================
+// Step 2c: Run Cache Invalidation Benchmarks
+// ============================================================================
+echo "📊  Step 2c/4: Running Cache Invalidation benchmarks...\n\n";
 
 $cacheInvalidationBenchmarks = [];
 
@@ -316,7 +376,7 @@ echo "  ✅ Cache Invalidation benchmarks completed\n\n";
 // ============================================================================
 echo "📊  Step 3/4: Generating markdown and updating documentation...\n\n";
 
-$markdown = generateMarkdown($results, $dtoBenchmarks, $cacheInvalidationBenchmarks);
+$markdown = generateMarkdown($results, $dtoBenchmarks, $cacheInvalidationBenchmarks, $performanceAttributeBenchmarks);
 
 // Update documentation
 if (!file_exists($benchmarkDocsPath)) {
@@ -344,8 +404,20 @@ $docsContent = updateSection($docsContent, 'BENCHMARK_MAPPER_INSIGHTS', $markdow
 $docsContent = updateSection($docsContent, 'BENCHMARK_SERIALIZATION', $markdown['Serialization']);
 $docsContent = updateSection($docsContent, 'BENCHMARK_SERIALIZATION_INSIGHTS', $markdown['SerializationInsights']);
 $docsContent = updateSection($docsContent, 'BENCHMARK_CACHE_INVALIDATION', $markdown['CacheInvalidation']);
+$docsContent = updateSection($docsContent, 'BENCHMARK_PERFORMANCE_ATTRIBUTES', $markdown['PerformanceAttributes']);
 
 file_put_contents($benchmarkDocsPath, $docsContent);
+
+// Update Performance Optimization documentation
+$optimizationDocsPath = $rootDir . '/starlight/src/content/docs/performance/optimization.md';
+if (file_exists($optimizationDocsPath)) {
+    $optimizationContent = file_get_contents($optimizationDocsPath);
+    if (false !== $optimizationContent) {
+        $optimizationContent = updateSection($optimizationContent, 'BENCHMARK_PERFORMANCE_ATTRIBUTES', $markdown['PerformanceAttributes']);
+        file_put_contents($optimizationDocsPath, $optimizationContent);
+        echo "✅  Performance Optimization documentation updated\n";
+    }
+}
 
 // Update SimpleDto Caching documentation
 $cachingDocsPath = $rootDir . '/starlight/src/content/docs/simple-dto/caching.md';
@@ -456,9 +528,10 @@ function formatRange(float $min, float $max, int $decimals = 0): string
  * @param array<string, array<int, array{name: string, time: float}>> $results
  * @param array<string, array{name: string, iterations: int, avg_time: float, ops_per_sec: int}> $dtoBenchmarks
  * @param array<string, array{name: string, avg_time: float, times: array<float>}> $cacheInvalidationBenchmarks
+ * @param array<string, array{name: string, iterations: int, avg_time: float, ops_per_sec: int}> $performanceAttributeBenchmarks
  * @return array<string, string>
  */
-function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInvalidationBenchmarks): array
+function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInvalidationBenchmarks, array $performanceAttributeBenchmarks): array
 {
     $markdown = [];
 
@@ -773,6 +846,9 @@ function generateMarkdown(array $results, array $dtoBenchmarks, array $cacheInva
 
     // Generate Cache Invalidation section
     $markdown['CacheInvalidation'] = generateCacheInvalidation($cacheInvalidationBenchmarks);
+
+    // Generate Performance Attributes section
+    $markdown['PerformanceAttributes'] = generatePerformanceAttributes($performanceAttributeBenchmarks);
 
     return $markdown;
 }
@@ -1192,6 +1268,61 @@ function generateCacheInvalidation(array $cacheInvalidationBenchmarks): string
     $md .= sprintf("- MANUAL (no validation):     %.2f μs\n", $manualTime);
     $md .= sprintf("- MTIME (auto-validation):    %.2f μs\n", $mtimeTime);
     $md .= sprintf("- HASH (auto-validation):     %.2f μs\n", $hashTime);
+    $md .= "```";
+
+    return $md;
+}
+
+/**
+ * @param array<string, array{name: string, iterations: int, avg_time: float, ops_per_sec: int}> $performanceAttributeBenchmarks
+ */
+function generatePerformanceAttributes(array $performanceAttributeBenchmarks): string
+{
+    $normalTime = ($performanceAttributeBenchmarks['Normal']['avg_time'] ?? 0) * 1000000; // Convert to μs
+    $noCastsTime = ($performanceAttributeBenchmarks['NoCasts']['avg_time'] ?? 0) * 1000000;
+    $noValidationTime = ($performanceAttributeBenchmarks['NoValidation']['avg_time'] ?? 0) * 1000000;
+    $noAttributesTime = ($performanceAttributeBenchmarks['NoAttributes']['avg_time'] ?? 0) * 1000000;
+    $noCastsNoValidationTime = ($performanceAttributeBenchmarks['NoCastsNoValidation']['avg_time'] ?? 0) * 1000000;
+    $bothTime = ($performanceAttributeBenchmarks['Both']['avg_time'] ?? 0) * 1000000;
+    $autoCastTime = ($performanceAttributeBenchmarks['AutoCast']['avg_time'] ?? 0) * 1000000;
+    $noCastsVsAutoCastTime = ($performanceAttributeBenchmarks['NoCastsVsAutoCast']['avg_time'] ?? 0) * 1000000;
+
+    // Calculate percentages
+    $noCastsFaster = $normalTime > 0 ? round((($normalTime - $noCastsTime) / $normalTime) * 100, 1) : 0;
+    $noValidationFaster = $normalTime > 0 ? round((($normalTime - $noValidationTime) / $normalTime) * 100, 1) : 0;
+    $noAttributesFaster = $normalTime > 0 ? round((($normalTime - $noAttributesTime) / $normalTime) * 100, 1) : 0;
+    $noCastsNoValidationFaster = $normalTime > 0 ? round((($normalTime - $noCastsNoValidationTime) / $normalTime) * 100, 1) : 0;
+    $bothFaster = $normalTime > 0 ? round((($normalTime - $bothTime) / $normalTime) * 100, 1) : 0;
+    $noCastsVsAutoCastFaster = $autoCastTime > 0 ? round((($autoCastTime - $noCastsVsAutoCastTime) / $autoCastTime) * 100, 1) : 0;
+
+    // Calculate savings per 1M requests
+    $savingsNoCasts = ($normalTime - $noCastsTime) * 1000; // Convert to ms per 1M
+    $savingsBoth = ($normalTime - $bothTime) * 1000;
+
+    $md = "### Basic DTO (10,000 iterations)\n\n";
+    $md .= "```\n";
+    $md .= sprintf("Normal DTO:                %.2f μs (baseline)\n", $normalTime);
+    $md .= sprintf("#[NoCasts]:                %.2f μs (%.1f%% faster)\n", $noCastsTime, $noCastsFaster);
+    $md .= sprintf("#[NoValidation]:           %.2f μs (%.1f%% faster)\n", $noValidationTime, $noValidationFaster);
+    $md .= sprintf("#[NoAttributes]:           %.2f μs (%.1f%% faster)\n", $noAttributesTime, $noAttributesFaster);
+    $md .= sprintf("#[NoCasts, NoValidation]:  %.2f μs (%.1f%% faster)\n", $noCastsNoValidationTime, $noCastsNoValidationFaster);
+    $md .= sprintf("#[NoAttributes, NoCasts]:  %.2f μs (%.1f%% faster)\n", $bothTime, $bothFaster);
+    $md .= "```\n\n";
+
+    $md .= "### With AutoCast (10,000 iterations)\n\n";
+    $md .= "```\n";
+    $md .= sprintf("AutoCast DTO:              %.2f μs (with type casting)\n", $autoCastTime);
+    $md .= sprintf("#[NoCasts]:                %.2f μs (%.1f%% faster!)\n", $noCastsVsAutoCastTime, $noCastsVsAutoCastFaster);
+    $md .= "```\n\n";
+
+    $md .= "### Real-World API (1,000 DTOs)\n\n";
+    $md .= "```\n";
+    // Use μs for better precision (1,000 DTOs = multiply by 1000)
+    $md .= sprintf("SimpleDTO:                 %.2f ms\n", $normalTime);
+    $md .= sprintf("#[NoCasts]:                %.2f ms (%.1f%% faster)\n", $noCastsTime, $noCastsFaster);
+    $md .= sprintf("#[NoAttributes, NoCasts]:  %.2f ms (%.1f%% faster)\n", $bothTime, $bothFaster);
+    $md .= "\n";
+    $md .= sprintf("Savings per 1M requests:   ~%.0fms (%.1fs)\n", $savingsNoCasts, $savingsNoCasts / 1000);
     $md .= "```";
 
     return $md;

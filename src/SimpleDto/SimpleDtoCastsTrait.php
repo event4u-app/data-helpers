@@ -108,6 +108,12 @@ trait SimpleDtoCastsTrait
     protected static function getCasts(): array
     {
         try {
+            // Check if NoCasts attribute is present - skip all casting
+            $metadata = ConstructorMetadata::get(static::class);
+            if (isset($metadata['classAttributes'][\event4u\DataHelpers\SimpleDto\Attributes\NoCasts::class])) {
+                return [];
+            }
+
             $reflection = new ReflectionClass(static::class);
             $method = $reflection->getMethod('casts');
 

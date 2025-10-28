@@ -16,6 +16,7 @@ SimpleDto provides 50+ attributes organized into categories:
 - ✅ **Computed Attributes** (1) - Calculated properties
 - ✅ **Lazy Attributes** (1) - Deferred evaluation
 - ✅ **Hidden Attributes** (1) - Always hidden
+- ✅ **Performance Attributes** (3) - Performance optimization
 
 ## Quick Reference
 
@@ -62,6 +63,36 @@ See [Mapping Attributes](/data-helpers/attributes/mapping/) for complete list.
 - `#[Computed]` - Mark method as computed property
 - `#[Lazy]` - Defer property evaluation
 - `#[Hidden]` - Always hide property
+
+### Performance Attributes {#performance-attributes}
+
+**Optimize DTO performance by skipping unnecessary operations:**
+
+- `#[NoCasts]` - Skip **ALL** casting operations (34-63% faster)
+  - ❌ Disables nested DTO auto-casting
+  - ❌ Disables native type casts (even with `#[AutoCast]`)
+  - ❌ Disables explicit `#[Cast]` attributes
+  - ✅ Keeps validation, visibility, mapping attributes
+
+- `#[NoValidation]` - Skip all validation operations (+5% faster)
+  - ❌ Disables all validation attributes
+  - ✅ Keeps casting, visibility, mapping attributes
+
+- `#[NoAttributes]` - Skip all attribute processing (+5% faster)
+  - ❌ Disables validation, visibility, mapping, cast attributes
+  - ✅ Keeps nested DTO auto-casting (!)
+  - ✅ Use when you have simple DTOs without attributes
+
+:::tip[Maximum Performance]
+**Key Insight:** Nested DTOs are ALWAYS auto-casted (even without `#[AutoCast]`), unless you use `#[NoCasts]`. This is different from native types which require `#[AutoCast]` or explicit `#[Cast]` attributes.
+
+**Best combinations:**
+- `#[NoCasts]` alone: +37% faster, keeps validation
+- `#[NoCasts, NoValidation]`: +34% faster, maximum performance
+- `#[NoAttributes]`: +5% faster, keeps nested DTO auto-casting
+
+See [Performance Attributes](/data-helpers/attributes/performance/) for detailed benchmarks and usage examples.
+:::
 
 
 ## Combining Attributes

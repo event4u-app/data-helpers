@@ -102,6 +102,12 @@ trait SimpleDtoRequestValidationTrait
      */
     protected static function performValidation(array $data, bool $throw): array
     {
+        // Check if NoValidation attribute is present - skip all validation
+        $metadata = \event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata::get(static::class);
+        if (isset($metadata['classAttributes'][\event4u\DataHelpers\SimpleDto\Attributes\NoValidation::class])) {
+            return $data;
+        }
+
         // Get validation rules
         $rules = static::getAllRules();
         $messages = static::getAllMessages();

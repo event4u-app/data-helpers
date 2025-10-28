@@ -128,6 +128,7 @@ export default defineConfig({
 						{ label: 'Mapping Attributes', slug: 'attributes/mapping' },
 						{ label: 'Visibility Attributes', slug: 'attributes/visibility' },
 						{ label: 'Conditional Attributes', slug: 'attributes/conditional' },
+						{ label: 'Performance Attributes', slug: 'attributes/performance' },
 					],
 				},
                 {

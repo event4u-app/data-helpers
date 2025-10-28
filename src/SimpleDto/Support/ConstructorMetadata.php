@@ -138,14 +138,20 @@ final class ConstructorMetadata
             $reflection = new ReflectionClass($class);
             $constructor = $reflection->getConstructor();
 
+            // Extract class attributes first
+            $classAttributes = self::extractClassAttributes($reflection);
+
+            // Check if NoAttributes is present - skip all attribute processing
+            $skipAttributes = isset($classAttributes[\event4u\DataHelpers\SimpleDto\Attributes\NoAttributes::class]);
+
             $metadata = [
                 'parameters' => [],
-                'classAttributes' => self::extractClassAttributes($reflection),
+                'classAttributes' => $classAttributes,
             ];
 
             if (null !== $constructor) {
                 foreach ($constructor->getParameters() as $reflectionParameter) {
-                    $metadata['parameters'][$reflectionParameter->getName()] = self::extractParameterMetadata($reflectionParameter);
+                    $metadata['parameters'][$reflectionParameter->getName()] = self::extractParameterMetadata($reflectionParameter, $skipAttributes);
                 }
             }
 
@@ -360,6 +366,7 @@ final class ConstructorMetadata
     /**
      * Extract parameter metadata including type and all attributes.
      *
+     * @param bool $skipAttributes If true, skip attribute extraction (NoAttributes optimization)
      * @return array{
      *     name: string,
      *     type: ?string,
@@ -368,7 +375,7 @@ final class ConstructorMetadata
      *     attributes: array<string, object>
      * }
      */
-    private static function extractParameterMetadata(ReflectionParameter $param): array
+    private static function extractParameterMetadata(ReflectionParameter $param, bool $skipAttributes = false): array
     {
         $type = $param->getType();
         $typeName = null;
@@ -384,17 +391,20 @@ final class ConstructorMetadata
         $attributes = [];
         $mapFrom = null;
 
-        foreach ($param->getAttributes() as $attribute) {
-            try {
-                $instance = $attribute->newInstance();
-                $attributes[$attribute->getName()] = $instance;
+        // Skip attribute extraction if NoAttributes is present
+        if (!$skipAttributes) {
+            foreach ($param->getAttributes() as $attribute) {
+                try {
+                    $instance = $attribute->newInstance();
+                    $attributes[$attribute->getName()] = $instance;
 
-                // Extract MapFrom attribute for code generation
-                if ($instance instanceof \event4u\DataHelpers\SimpleDto\Attributes\MapFrom) {
-                    $mapFrom = $instance->path;
+                    // Extract MapFrom attribute for code generation
+                    if ($instance instanceof \event4u\DataHelpers\SimpleDto\Attributes\MapFrom) {
+                        $mapFrom = $instance->path;
+                    }
+                } catch (Throwable) {
+                    // Skip attributes that can't be instantiated
                 }
-            } catch (Throwable) {
-                // Skip attributes that can't be instantiated
             }
         }
 
