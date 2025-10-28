@@ -66,7 +66,7 @@ $emails = $accessor->get('departments.*.users.*.email');
 - **Type-Safe** - PHPStan Level 9 compliant with 2900+ tests
 <!-- BENCHMARK_README_FAST_START -->
 
-- **Fast** - SimpleDto with #[UltraFast] is up to 45.0x faster than Symfony Serializer
+- **Fast** - SimpleDto with #[UltraFast] is up to 35.8x faster than Other Serializer
 <!-- BENCHMARK_README_FAST_END -->
 - **Framework-Agnostic** - Works with Laravel, Symfony, Doctrine, or plain PHP
 - **Zero Dependencies** - No required dependencies, optional framework integrations
@@ -183,6 +183,43 @@ class StrictUserDto extends SimpleDto
 ```
 
 📖 **[SimpleDto Documentation](https://event4u-app.github.io/data-helpers/simple-dto/introduction/)**
+
+### 6️⃣ LiteDto - Ultra-Fast Dtos
+
+Create ultra-fast, minimalistic DTOs with essential features:
+
+```php
+use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
+use event4u\DataHelpers\LiteDto\Attributes\Hidden;
+
+class UserDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+
+        #[MapFrom('email_address')]
+        public readonly string $email,
+
+        #[Hidden]
+        public readonly string $password,
+    ) {}
+}
+
+$user = UserDto::from([
+    'name' => 'John',
+    'email_address' => 'john@example.com',
+    'password' => 'secret',
+]);
+
+$array = $user->toArray();
+// ['name' => 'John', 'email' => 'john@example.com']
+// password is hidden
+```
+
+**Performance**: LiteDto is **7.6x faster** than SimpleDto Normal (~2.3μs vs ~18.5μs)
+
+📖 **[LiteDto Documentation](https://event4u-app.github.io/data-helpers/lite-dto/introduction/)**
 
 ### 3️⃣ DataMapper - Transform Data
 
@@ -348,6 +385,7 @@ The documentation includes:
 - 📖 **Getting Started Guides** - Installation, configuration, and quick start tutorials
 - 🔧 **Main Classes** - Detailed guides for DataAccessor, DataMutator, DataMapper, and DataFilter
 - 🎯 **SimpleDto** - Type-safe Dtos with validation, casting, and collections
+- ⚡ **LiteDto** - Ultra-fast, minimalistic Dtos (7.6x faster than SimpleDto)
 - 🚀 **Advanced Features** - Template expressions, query builder, pipelines, and reverse mapping
 - 🔌 **Framework Integration** - Laravel, Symfony, and Doctrine integration guides
 - 💡 **90+ Code Examples** - Runnable examples for every feature
@@ -373,10 +411,10 @@ All operations are highly optimized:
 
 <!-- BENCHMARK_README_PERFORMANCE_START -->
 
-- Simple access: ~0.3μs
-- Nested access: ~0.4μs
-- Wildcards: ~7μs
-- **SimpleDto #[UltraFast] is up to 45.0x faster** than Symfony Serializer
+- Simple access: ~0.2μs
+- Nested access: ~0.3μs
+- Wildcards: ~5μs
+- **SimpleDto #[UltraFast] is up to 35.8x faster** than Other Serializer
 <!-- BENCHMARK_README_PERFORMANCE_END -->
 
 📖 **[Performance Benchmarks](https://event4u-app.github.io/data-helpers/performance/benchmarks/)** • [Optimization Tips](https://event4u-app.github.io/data-helpers/performance/optimization/)

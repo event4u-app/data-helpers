@@ -84,6 +84,16 @@ export default defineConfig({
 						{ label: 'Reverse Mapping', slug: 'advanced/reverse-mapping' },
 					],
 				},
+                {
+                    label: 'LiteDto',
+                    collapsed: true,
+                    items: [
+                        { label: 'Introduction', slug: 'lite-dto/introduction' },
+                        { label: 'Creating LiteDtos', slug: 'lite-dto/creating-litedtos' },
+                        { label: 'Attributes', slug: 'lite-dto/attributes' },
+                        { label: 'Performance', slug: 'lite-dto/performance' },
+                    ],
+                },
 				{
 					label: 'SimpleDto',
                     collapsed: true,

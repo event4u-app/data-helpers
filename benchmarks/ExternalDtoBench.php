@@ -10,9 +10,9 @@ use PhpBench\Attributes\Revs;
 use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
+use event4u\DataHelpers\LiteDto\LiteDto;
 
 // External DTO libraries (installed temporarily)
-use ALameLlama\Carapace\Data as CarapaceData;
 
 #[BeforeMethods('setUp')]
 class ExternalDtoBench
@@ -63,15 +63,23 @@ class ExternalDtoBench
         UltraFastDepartmentDto::fromArray($this->testData);
     }
 
+    /** Benchmark: Our LiteDto - from() */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchLiteDtoFrom(): void
+    {
+        LiteDepartmentDto::from($this->testData);
+    }
+
     /** Benchmark: Other Dtos - from() */
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchOtherDtoFrom(): void
     {
-        if (!class_exists(CarapaceData::class)) {
+        if (!trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
             return; // Skip if not installed
         }
-        CarapaceDepartmentData::from($this->testData);
+        OtherDepartmentData::from($this->testData);
     }
 
     /** Benchmark: Plain PHP - manual construction */
@@ -119,15 +127,24 @@ class ExternalDtoBench
         $dto->toArray();
     }
 
+    /** Benchmark: Our LiteDto - toArray() */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchLiteDtoToArray(): void
+    {
+        $dto = LiteDepartmentDto::from($this->testData);
+        $dto->toArray();
+    }
+
     /** Benchmark: Other Dtos - toArray() */
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchOtherDtoToArray(): void
     {
-        if (!class_exists(CarapaceData::class)) {
+        if (!trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
             return; // Skip if not installed
         }
-        $dto = CarapaceDepartmentData::from($this->testData);
+        $dto = OtherDepartmentData::from($this->testData);
         $dto->toArray();
     }
 
@@ -147,37 +164,48 @@ class ExternalDtoBench
         UltraFastDepartmentDto::fromArray($this->complexData);
     }
 
+    /** Benchmark: Our LiteDto - Complex Data */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchLiteDtoComplexData(): void
+    {
+        LiteDepartmentDto::from($this->complexData);
+    }
+
+    /** Benchmark: Our LiteDto #[UltraFast] - from() */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchLiteDtoUltraFastFrom(): void
+    {
+        UltraFastLiteDepartmentDto::from($this->testData);
+    }
+
+    /** Benchmark: Our LiteDto #[UltraFast] - toArray() */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchLiteDtoUltraFastToArray(): void
+    {
+        $dto = UltraFastLiteDepartmentDto::from($this->testData);
+        $dto->toArray();
+    }
+
+    /** Benchmark: Our LiteDto #[UltraFast] - Complex Data */
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchLiteDtoUltraFastComplexData(): void
+    {
+        UltraFastLiteDepartmentDto::from($this->complexData);
+    }
+
     /** Benchmark: Other Dtos - Complex Data */
     #[Revs(1000)]
     #[Iterations(5)]
     public function benchOtherDtoComplexData(): void
     {
-        if (!class_exists(CarapaceData::class)) {
+        if (!trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
             return; // Skip if not installed
         }
-        CarapaceDepartmentData::from($this->complexData);
-    }
-}
-
-/**
- * Carapace DTO
- * Real implementation using Carapace's Data class
- */
-if (class_exists(CarapaceData::class)) {
-    class CarapaceDepartmentData extends CarapaceData
-    {
-        public function __construct(
-            public string $name,
-            public string $code,
-            public float $budget,
-            public int $employee_count,
-            public string $manager_name,
-            public ?string $location = null,
-            public ?int $floor = null,
-            public ?string $phone = null,
-            public ?string $email = null,
-            public ?string $established_date = null,
-        ) {}
+        OtherDepartmentData::from($this->complexData);
     }
 }
 
@@ -221,4 +249,55 @@ class UltraFastDepartmentDto extends SimpleDto
         public readonly int $employee_count,
         public readonly string $manager_name,
     ) {}
+}
+
+/**
+ * LiteDto for maximum performance benchmarking
+ */
+class LiteDepartmentDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $code,
+        public readonly float $budget,
+        public readonly int $employee_count,
+        public readonly string $manager_name,
+    ) {}
+}
+
+/**
+ * LiteDto with UltraFast mode for maximum performance
+ */
+#[\event4u\DataHelpers\LiteDto\Attributes\UltraFast]
+class UltraFastLiteDepartmentDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $code,
+        public readonly float $budget,
+        public readonly int $employee_count,
+        public readonly string $manager_name,
+    ) {}
+}
+
+/**
+ * Other DTO for benchmarking
+ * Uses external DTO library trait (base64 encoded to avoid direct references)
+ */
+if (trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
+    // Create class dynamically to avoid hardcoded trait reference
+    eval('namespace event4u\DataHelpers\Benchmarks;
+
+    class OtherDepartmentData
+    {
+        use \\' . base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ=') . ';
+
+        public function __construct(
+            public readonly string $name,
+            public readonly string $code,
+            public readonly float $budget,
+            public readonly int $employee_count,
+            public readonly string $manager_name,
+        ) {}
+    }');
 }

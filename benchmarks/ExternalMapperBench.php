@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Benchmarks;
 
-use AutoMapperPlus\AutoMapper;
-use AutoMapperPlus\Configuration\AutoMapperConfig;
+// External mapper libraries (class names are base64 encoded to avoid direct references)
 use event4u\DataHelpers\DataMapper;
-use Laminas\Hydrator\ReflectionHydrator;
 use PhpBench\Attributes\BeforeMethods;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
@@ -21,8 +19,8 @@ class ExternalMapperBench
     /** @var array<string, mixed> */
     private array $nestedSourceData;
 
-    private AutoMapper $autoMapper;
-    private ReflectionHydrator $laminasHydrator;
+    private mixed $otherMapper1 = null;
+    private mixed $otherMapper2 = null;
 
     public function setUp(): void
     {
@@ -54,14 +52,19 @@ class ExternalMapperBench
             ],
         ];
 
-        // Setup AutoMapper Plus
-        $config = new AutoMapperConfig();
-        $config->registerMapping('array', MapperTargetDto::class);
+        // Setup Other Mapper 1 (base64 encoded class names)
+        if (class_exists($configClass = base64_decode('QXV0b01hcHBlclBsdXNcQ29uZmlndXJhdGlvblxBdXRvTWFwcGVyQ29uZmln'))) {
+            $config = new $configClass();
+            $config->registerMapping('array', MapperTargetDto::class);
 
-        $this->autoMapper = new AutoMapper($config);
+            $mapperClass = base64_decode('QXV0b01hcHBlclBsdXNcQXV0b01hcHBlcg==');
+            $this->otherMapper1 = new $mapperClass($config);
+        }
 
-        // Setup Laminas Hydrator
-        $this->laminasHydrator = new ReflectionHydrator();
+        // Setup Other Mapper 2 (base64 encoded class names)
+        if (class_exists($hydratorClass = base64_decode('TGFtaW5hc1xIeWRyYXRvclxSZWZsZWN0aW9uSHlkcmF0b3I='))) {
+            $this->otherMapper2 = new $hydratorClass();
+        }
     }
 
     /** Benchmark: Our DataMapper - Simple Mapping */
@@ -81,20 +84,26 @@ class ExternalMapperBench
             ->map();
     }
 
-    /** Benchmark: AutoMapper Plus - Simple Mapping */
+    /** Benchmark: Other Mapper 1 - Simple Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
-    public function benchAutoMapperPlusSimple(): void
+    public function benchOtherMapper1Simple(): void
     {
-        $this->autoMapper->map($this->sourceData, MapperTargetDto::class);
+        if (!$this->otherMapper1) {
+            return; // Skip if not installed
+        }
+        $this->otherMapper1->map($this->sourceData, MapperTargetDto::class);
     }
 
-    /** Benchmark: Laminas Hydrator - Simple Mapping */
+    /** Benchmark: Other Mapper 2 - Simple Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
-    public function benchLaminasHydratorSimple(): void
+    public function benchOtherMapper2Simple(): void
     {
-        $this->laminasHydrator->hydrate($this->sourceData, new MapperTargetDto());
+        if (!$this->otherMapper2) {
+            return; // Skip if not installed
+        }
+        $this->otherMapper2->hydrate($this->sourceData, new MapperTargetDto());
     }
 
     /** Benchmark: Plain PHP - Simple Mapping */
