@@ -94,4 +94,3 @@ final readonly class UltraFast
         public bool $allowCastWith = false,
     ) {}
 }
-

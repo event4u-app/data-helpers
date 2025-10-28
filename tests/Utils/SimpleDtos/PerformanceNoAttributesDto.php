@@ -16,4 +16,3 @@ class PerformanceNoAttributesDto extends SimpleDto
         public readonly string $email,
     ) {}
 }
-

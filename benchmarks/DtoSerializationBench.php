@@ -69,11 +69,21 @@ class DtoSerializationBench
 
         // Setup Other Serializer (base64 encoded class names)
         if (class_exists($serializerClass = base64_decode('U3ltZm9ueVxDb21wb25lbnRcU2VyaWFsaXplclxTZXJpYWxpemVy'))) {
-            $reflectionExtractorClass = base64_decode('U3ltZm9ueVxDb21wb25lbnRcUHJvcGVydHlJbmZvXEV4dHJhY3RvclxSZWZsZWN0aW9uRXh0cmFjdG9y');
-            $phpDocExtractorClass = base64_decode('U3ltZm9ueVxDb21wb25lbnRcUHJvcGVydHlJbmZvXEV4dHJhY3RvclxQaHBEb2NFeHRyYWN0b3I=');
-            $propertyInfoExtractorClass = base64_decode('U3ltZm9ueVxDb21wb25lbnRcUHJvcGVydHlJbmZvXFByb3BlcnR5SW5mb0V4dHJhY3Rvcg==');
-            $objectNormalizerClass = base64_decode('U3ltZm9ueVxDb21wb25lbnRcU2VyaWFsaXplclxOb3JtYWxpemVyXE9iamVjdE5vcm1hbGl6ZXI=');
-            $arrayDenormalizerClass = base64_decode('U3ltZm9ueVxDb21wb25lbnRcU2VyaWFsaXplclxOb3JtYWxpemVyXEFycmF5RGVub3JtYWxpemVy');
+            $reflectionExtractorClass = base64_decode(
+                'U3ltZm9ueVxDb21wb25lbnRcUHJvcGVydHlJbmZvXEV4dHJhY3RvclxSZWZsZWN0aW9uRXh0cmFjdG9y'
+            );
+            $phpDocExtractorClass = base64_decode(
+                'U3ltZm9ueVxDb21wb25lbnRcUHJvcGVydHlJbmZvXEV4dHJhY3RvclxQaHBEb2NFeHRyYWN0b3I='
+            );
+            $propertyInfoExtractorClass = base64_decode(
+                'U3ltZm9ueVxDb21wb25lbnRcUHJvcGVydHlJbmZvXFByb3BlcnR5SW5mb0V4dHJhY3Rvcg=='
+            );
+            $objectNormalizerClass = base64_decode(
+                'U3ltZm9ueVxDb21wb25lbnRcU2VyaWFsaXplclxOb3JtYWxpemVyXE9iamVjdE5vcm1hbGl6ZXI='
+            );
+            $arrayDenormalizerClass = base64_decode(
+                'U3ltZm9ueVxDb21wb25lbnRcU2VyaWFsaXplclxOb3JtYWxpemVyXEFycmF5RGVub3JtYWxpemVy'
+            );
             $jsonEncoderClass = base64_decode('U3ltZm9ueVxDb21wb25lbnRcU2VyaWFsaXplclxFbmNvZGVyXEpzb25FbmNvZGVy');
 
             $reflectionExtractor = new $reflectionExtractorClass();
@@ -150,6 +160,9 @@ class DtoSerializationBench
         if (!$this->otherSerializer) {
             return; // Skip if not installed
         }
+        if (!is_object($this->otherSerializer) || !method_exists($this->otherSerializer, 'deserialize')) {
+            return;
+        }
         $this->otherSerializer->deserialize(
             $this->nestedJson,
             UserDataDto::class,
@@ -164,6 +177,9 @@ class DtoSerializationBench
     {
         if (!$this->otherSerializer) {
             return; // Skip if not installed
+        }
+        if (!is_object($this->otherSerializer) || !method_exists($this->otherSerializer, 'denormalize')) {
+            return;
         }
         $this->otherSerializer->denormalize(
             $this->nestedData,

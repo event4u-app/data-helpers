@@ -26,4 +26,3 @@ class MapFrom
         public readonly string $source,
     ) {}
 }
-

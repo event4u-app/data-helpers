@@ -21,4 +21,3 @@ enum CacheDriver: string
     case SYMFONY = 'symfony';
     case FILESYSTEM = 'filesystem';
 }
-

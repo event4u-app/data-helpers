@@ -28,4 +28,3 @@ class MapTo
         public readonly string $target,
     ) {}
 }
-

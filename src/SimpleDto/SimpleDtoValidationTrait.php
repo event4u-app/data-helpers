@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
@@ -128,7 +129,7 @@ trait SimpleDtoValidationTrait
     {
         // Check if NoValidation attribute is present - skip all validation
         $metadata = ConstructorMetadata::get(static::class);
-        if (isset($metadata['classAttributes'][\event4u\DataHelpers\SimpleDto\Attributes\NoValidation::class])) {
+        if (isset($metadata['classAttributes'][NoValidation::class])) {
             return $data;
         }
 

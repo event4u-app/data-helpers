@@ -32,7 +32,7 @@ trait SimpleDtoConditionalTrait
     public function withContext(array $context): static
     {
         // Phase 6 Optimization: Lazy cloning - avoid clone if no context to add
-        if (empty($context)) {
+        if ([] === $context) {
             return $this; // No context to add, return self
         }
 

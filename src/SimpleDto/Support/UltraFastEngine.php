@@ -7,10 +7,10 @@ namespace event4u\DataHelpers\SimpleDto\Support;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
-use InvalidArgumentException;
 
 /**
  * Ultra-Fast Engine for SimpleDto
@@ -39,7 +39,7 @@ final class UltraFastEngine
     /**
      * Cache for reflection classes.
      *
-     * @var array<class-string, ReflectionClass>
+     * @var array<class-string, ReflectionClass<object>>
      */
     private static array $reflectionCache = [];
 
@@ -53,10 +53,10 @@ final class UltraFastEngine
         if (!isset(self::$ultraFastCache[$class])) {
             $reflection = self::getReflection($class);
             $attributes = $reflection->getAttributes(UltraFast::class);
-            self::$ultraFastCache[$class] = !empty($attributes) ? $attributes[0]->newInstance() : null;
+            self::$ultraFastCache[$class] = [] === $attributes ? null : $attributes[0]->newInstance();
         }
 
-        return self::$ultraFastCache[$class] !== null;
+        return null !== self::$ultraFastCache[$class];
     }
 
     /**
@@ -84,15 +84,14 @@ final class UltraFastEngine
      *
      * @param class-string $class
      * @param array<string, mixed> $data
-     * @return object
      */
     public static function createFromArray(string $class, array $data): object
     {
         $reflection = self::getReflection($class);
         $ultraFast = self::getUltraFastAttribute($class);
 
-        if (!$ultraFast) {
-            throw new InvalidArgumentException("Class {$class} does not have #[UltraFast] attribute");
+        if (!$ultraFast instanceof UltraFast) {
+            throw new InvalidArgumentException(sprintf('Class %s does not have #[UltraFast] attribute', $class));
         }
 
         // Get constructor parameters
@@ -115,6 +114,7 @@ final class UltraFastEngine
      * Resolve a constructor parameter value.
      *
      * @param array<string, mixed> $data
+     * @param ReflectionClass<object> $reflection
      */
     private static function resolveParameter(
         ReflectionParameter $param,
@@ -129,7 +129,7 @@ final class UltraFastEngine
         if ($ultraFast->allowMapFrom) {
             // First check parameter attributes (for constructor promoted properties)
             $mapFromAttrs = $param->getAttributes(MapFrom::class);
-            if (!empty($mapFromAttrs)) {
+            if ([] !== $mapFromAttrs) {
                 /** @var MapFrom $mapFrom */
                 $mapFrom = $mapFromAttrs[0]->newInstance();
                 $mappedName = $mapFrom->source;
@@ -151,8 +151,36 @@ final class UltraFastEngine
         $value = null;
         $found = false;
 
-        // Check if mappedName contains dots (nested path)
-        if (str_contains($mappedName, '.')) {
+        // Handle array of sources (fallback)
+        if (is_array($mappedName)) {
+            foreach ($mappedName as $source) {
+                if (str_contains($source, '.')) {
+                    $parts = explode('.', $source);
+                    $current = $data;
+                    $tempFound = true;
+
+                    foreach ($parts as $part) {
+                        if (is_array($current) && array_key_exists($part, $current)) {
+                            $current = $current[$part];
+                        } else {
+                            $tempFound = false;
+                            break;
+                        }
+                    }
+
+                    if ($tempFound) {
+                        $value = $current;
+                        $found = true;
+                        break;
+                    }
+                } elseif (array_key_exists($source, $data)) {
+                    $value = $data[$source];
+                    $found = true;
+                    break;
+                }
+            }
+        } elseif (str_contains($mappedName, '.')) {
+            // Check if mappedName contains dots (nested path)
             $parts = explode('.', $mappedName);
             $current = $data;
             $found = true;
@@ -185,7 +213,7 @@ final class UltraFastEngine
                 return null;
             }
 
-            throw new InvalidArgumentException("Missing required parameter: {$name}");
+            throw new InvalidArgumentException('Missing required parameter: ' . $name);
         }
 
         // Step 3: Handle nested DTOs (auto-cast)
@@ -193,16 +221,16 @@ final class UltraFastEngine
         if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
             $typeName = $type->getName();
 
-            // Check if it's a DTO class
-            if (self::isDtoClass($typeName)) {
-                if (is_array($value)) {
-                    // Recursively create nested DTO
-                    if (self::isUltraFast($typeName)) {
-                        return self::createFromArray($typeName, $value);
-                    }
-                    // Fall back to normal fromArray for non-UltraFast DTOs
-                    return $typeName::fromArray($value);
+            // Check if it's a DTO class (also validates it's a class-string)
+            if (class_exists($typeName) && self::isDtoClass($typeName) && is_array($value)) {
+                /** @var class-string $typeName */
+                /** @var array<string, mixed> $value */
+                // Recursively create nested DTO
+                if (self::isUltraFast($typeName)) {
+                    return self::createFromArray($typeName, $value);
                 }
+                // Fall back to normal fromArray for non-UltraFast DTOs
+                return $typeName::fromArray($value);
             }
         }
 
@@ -223,8 +251,8 @@ final class UltraFastEngine
         $reflection = self::getReflection($class);
         $ultraFast = self::getUltraFastAttribute($class);
 
-        if (!$ultraFast) {
-            throw new InvalidArgumentException("Class {$class} does not have #[UltraFast] attribute");
+        if (!$ultraFast instanceof UltraFast) {
+            throw new InvalidArgumentException(sprintf('Class %s does not have #[UltraFast] attribute', $class));
         }
 
         // Get all public properties
@@ -233,14 +261,14 @@ final class UltraFastEngine
         // Apply #[MapTo] if allowed
         if ($ultraFast->allowMapTo) {
             $result = [];
-            foreach ($reflection->getProperties() as $property) {
-                $name = $property->getName();
+            foreach ($reflection->getProperties() as $reflectionProperty) {
+                $name = $reflectionProperty->getName();
                 if (!array_key_exists($name, $data)) {
                     continue;
                 }
 
                 // Check for #[MapTo] attribute
-                $mapToAttrs = $property->getAttributes(MapTo::class);
+                $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
                 if (!empty($mapToAttrs)) {
                     /** @var MapTo $mapTo */
                     $mapTo = $mapToAttrs[0]->newInstance();
@@ -263,9 +291,7 @@ final class UltraFastEngine
         return $result;
     }
 
-    /**
-     * Convert a value recursively (handle nested DTOs).
-     */
+    /** Convert a value recursively (handle nested DTOs). */
     private static function convertValue(mixed $value): mixed
     {
         // Handle arrays
@@ -303,23 +329,23 @@ final class UltraFastEngine
      * Get reflection class (cached).
      *
      * @param class-string $class
+     * @return ReflectionClass<object>
      */
     private static function getReflection(string $class): ReflectionClass
     {
         if (!isset(self::$reflectionCache[$class])) {
-            self::$reflectionCache[$class] = new ReflectionClass($class);
+            /** @var ReflectionClass<object> $reflection */
+            $reflection = new ReflectionClass($class);
+            self::$reflectionCache[$class] = $reflection;
         }
 
         return self::$reflectionCache[$class];
     }
 
-    /**
-     * Clear all caches (for testing).
-     */
+    /** Clear all caches (for testing). */
     public static function clearCache(): void
     {
         self::$ultraFastCache = [];
         self::$reflectionCache = [];
     }
 }
-

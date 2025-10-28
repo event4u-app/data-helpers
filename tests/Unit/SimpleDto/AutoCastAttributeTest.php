@@ -10,6 +10,7 @@ use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
 #[AutoCast]
 class AutoCastClassLevelDto extends SimpleDto
 {
+    /** @param array<mixed> $tags */
     public function __construct(
         public int $id,
         public string $name,
@@ -460,6 +461,7 @@ describe('AutoCast Attribute', function(): void {
 
         it('handles valid JSON for array casting', function(): void {
             $dto = new #[AutoCast] class([]) extends SimpleDto {
+                /** @param array<mixed> $data */
                 public function __construct(
                     public array $data,
                 ) {}
@@ -574,6 +576,7 @@ describe('AutoCast Attribute', function(): void {
         it('works with complex casting scenarios', function(): void {
             // Test that AutoCast works in complex scenarios with multiple types
             $dto = new #[AutoCast] class(0, '', 0.0, false, []) extends SimpleDto {
+                /** @param array<mixed> $tags */
                 public function __construct(
                     public int $id,
                     public string $name,
@@ -636,6 +639,7 @@ describe('AutoCast Attribute', function(): void {
 
         it('handles already correct types (no casting needed)', function(): void {
             $dto = new #[AutoCast] class(0, '', 0.0, false, []) extends SimpleDto {
+                /** @param array<mixed> $arrayValue */
                 public function __construct(
                     public int $intValue,
                     public string $stringValue,
@@ -899,6 +903,7 @@ describe('AutoCast Attribute', function(): void {
             $obj->baz = 42;
 
             $dto = new #[AutoCast] class([]) extends SimpleDto {
+                /** @param array<mixed> $value */
                 public function __construct(
                     public array $value,
                 ) {}
@@ -910,6 +915,7 @@ describe('AutoCast Attribute', function(): void {
 
         it('handles empty JSON array', function(): void {
             $dto = new #[AutoCast] class([]) extends SimpleDto {
+                /** @param array<mixed> $value */
                 public function __construct(
                     public array $value,
                 ) {}
@@ -921,6 +927,7 @@ describe('AutoCast Attribute', function(): void {
 
         it('handles nested JSON', function(): void {
             $dto = new #[AutoCast] class([]) extends SimpleDto {
+                /** @param array<mixed> $value */
                 public function __construct(
                     public array $value,
                 ) {}

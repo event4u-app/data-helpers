@@ -16,4 +16,3 @@ class ParentDto extends SimpleDto
         public readonly ?string $parentProperty = null,
     ) {}
 }
-

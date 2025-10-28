@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\LiteDto\Support;
 
+use BackedEnum;
 use event4u\DataHelpers\LiteDto\Attributes\CastWith;
 use event4u\DataHelpers\LiteDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
 use event4u\DataHelpers\LiteDto\Attributes\EnumSerialize;
-use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\Hidden;
+use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
 use event4u\DataHelpers\LiteDto\LiteDto;
@@ -19,6 +20,7 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
+use UnitEnum;
 
 /**
  * High-performance engine for LiteDto.
@@ -31,7 +33,7 @@ final class LiteEngine
     /**
      * Cache for reflection classes.
      *
-     * @var array<class-string, ReflectionClass>
+     * @var array<class-string, ReflectionClass<object>>
      */
     private static array $reflectionCache = [];
 
@@ -120,7 +122,10 @@ final class LiteEngine
                 $data = self::parseWithConverter($data);
             } else {
                 throw new InvalidArgumentException(
-                    "LiteDto only accepts arrays in standard mode. Use #[ConverterMode] attribute on {$class} to enable JSON/XML/CSV support."
+                    sprintf(
+                        'LiteDto only accepts arrays in standard mode. Use #[ConverterMode] attribute on %s to enable JSON/XML/CSV support.',
+                        $class
+                    )
                 );
             }
         }
@@ -135,8 +140,8 @@ final class LiteEngine
 
         // Step 4: Build constructor arguments
         $args = [];
-        foreach ($constructor->getParameters() as $param) {
-            $args[] = self::resolveParameter($param, $data, $reflection);
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            $args[] = self::resolveParameter($reflectionParameter, $data, $reflection);
         }
 
         // Step 5: Create instance
@@ -163,30 +168,31 @@ final class LiteEngine
         $data = get_object_vars($dto);
         $result = [];
 
-        foreach ($reflection->getProperties() as $property) {
-            $name = $property->getName();
+        foreach ($reflection->getProperties() as $reflectionProperty) {
+            $name = $reflectionProperty->getName();
 
             if (!array_key_exists($name, $data)) {
                 continue;
             }
 
             // Check if hidden
-            if (self::isHidden($class, $name, $property)) {
+            if (self::isHidden($class, $name, $reflectionProperty)) {
                 continue;
             }
 
             // Get output name (check for #[MapTo] attribute)
-            $outputName = self::getToMapping($class, $name, $property);
+            $outputName = self::getToMapping($class, $name, $reflectionProperty);
 
             // Convert value (handle nested DTOs and enums)
-            $result[$outputName] = self::convertValue($data[$name], $class, $name, $property);
+            $result[$outputName] = self::convertValue($data[$name], $class, $name, $reflectionProperty);
         }
 
         return $result;
     }
 
-    /**
-     * Resolve parameter value from data.
+    /** Resolve parameter value from data.
+     * @param array<string, mixed> $data
+     * @param ReflectionClass<object> $reflection
      */
     private static function resolveParameter(
         ReflectionParameter $param,
@@ -202,15 +208,13 @@ final class LiteEngine
         $value = $data[$sourceKey] ?? null;
 
         // Check for #[ConvertEmptyToNull]
-        if (self::shouldConvertEmptyToNull($reflection->getName(), $name, $param)) {
-            if ($value === '' || $value === []) {
-                $value = null;
-            }
+        if (self::shouldConvertEmptyToNull($reflection->getName(), $name, $param) && ('' === $value || [] === $value)) {
+            $value = null;
         }
 
         // Check for #[CastWith] - apply custom caster
         $casterClass = self::getCastWith($reflection->getName(), $name, $param);
-        if ($casterClass !== null && $value !== null) {
+        if (null !== $casterClass && null !== $value) {
             $value = $casterClass::cast($value);
         }
 
@@ -220,33 +224,33 @@ final class LiteEngine
             $typeName = $type->getName();
 
             // Check if it's an array (potential collection)
-            if ($typeName === 'array' && is_array($value)) {
+            if ('array' === $typeName && is_array($value)) {
                 // Try to extract DTO type from docblock
                 $dtoClass = self::extractDtoClassFromDocBlock($param);
                 if ($dtoClass && self::isCollection($value)) {
-                    return array_map(fn($item) => $dtoClass::from($item), $value);
+                    return array_map($dtoClass::from(...), $value);
                 }
             }
 
             // Check if it's a LiteDto (nested DTO)
             if (!$type->isBuiltin() && is_subclass_of($typeName, LiteDto::class)) {
-                if (is_array($value)) {
-                    // Single nested DTO
+                // Single nested DTO
+                /** @var class-string<LiteDto> $typeName */
+                if (is_array($value) || is_object($value) || is_string($value)) {
+                    /** @var array<string, mixed>|object|string $value */
                     return $typeName::from($value);
                 }
             }
 
             // Check if it's an Enum
-            if (!$type->isBuiltin() && enum_exists($typeName)) {
-                if ($value !== null) {
-                    // Try to cast to enum
-                    return self::castToEnum($typeName, $value);
-                }
+            if (!$type->isBuiltin() && enum_exists($typeName) && null !== $value) {
+                // Try to cast to enum
+                return self::castToEnum($typeName, $value);
             }
         }
 
         // Handle default values
-        if ($value === null && $param->isDefaultValueAvailable()) {
+        if (null === $value && $param->isDefaultValueAvailable()) {
             return $param->getDefaultValue();
         }
 
@@ -267,7 +271,7 @@ final class LiteEngine
 
         // Check for #[MapFrom] attribute on parameter
         $attrs = $param->getAttributes(MapFrom::class);
-        if (!empty($attrs)) {
+        if ([] !== $attrs) {
             /** @var MapFrom $from */
             $from = $attrs[0]->newInstance();
             self::$fromMappingCache[$class][$name] = $from->source;
@@ -293,7 +297,7 @@ final class LiteEngine
 
         // Check for #[MapTo] attribute
         $attrs = $property->getAttributes(MapTo::class);
-        if (!empty($attrs)) {
+        if ([] !== $attrs) {
             /** @var MapTo $to */
             $to = $attrs[0]->newInstance();
             self::$toMappingCache[$class][$name] = $to->target;
@@ -319,7 +323,7 @@ final class LiteEngine
 
         // Check for #[Hidden] attribute
         $attrs = $property->getAttributes(Hidden::class);
-        $isHidden = !empty($attrs);
+        $isHidden = [] !== $attrs;
 
         self::$hiddenCache[$class][$name] = $isHidden;
         return $isHidden;
@@ -339,7 +343,7 @@ final class LiteEngine
 
         // Check for #[ConvertEmptyToNull] attribute
         $attrs = $param->getAttributes(ConvertEmptyToNull::class);
-        $shouldConvert = !empty($attrs);
+        $shouldConvert = [] !== $attrs;
 
         self::$convertEmptyCache[$class][$name] = $shouldConvert;
         return $shouldConvert;
@@ -363,7 +367,7 @@ final class LiteEngine
         $attrs = $reflection->getAttributes(CastWith::class);
         $casterClass = null;
 
-        if (!empty($attrs)) {
+        if ([] !== $attrs) {
             $attr = $attrs[0]->newInstance();
             $casterClass = $attr->casterClass;
         }
@@ -385,7 +389,7 @@ final class LiteEngine
 
         $reflection = self::getReflection($class);
         $attrs = $reflection->getAttributes(ConverterMode::class);
-        $hasMode = !empty($attrs);
+        $hasMode = [] !== $attrs;
 
         self::$converterModeCache[$class] = $hasMode;
         return $hasMode;
@@ -400,7 +404,7 @@ final class LiteEngine
     {
         // Handle objects
         if (is_object($data)) {
-            return (array) $data;
+            return (array)$data;
         }
 
         // Handle strings
@@ -413,6 +417,7 @@ final class LiteEngine
                 if (false !== $parsed) {
                     $json = json_encode($parsed);
                     if (false !== $json) {
+                        /** @var array<string, mixed> */
                         return json_decode($json, true) ?? [];
                     }
                 }
@@ -420,6 +425,7 @@ final class LiteEngine
 
             // Try JSON
             if (StringFormatDetector::isJson($trimmed)) {
+                /** @var array<string, mixed> */
                 return json_decode($data, true) ?? [];
             }
 
@@ -436,7 +442,7 @@ final class LiteEngine
      */
     private static function isCollection(array $value): bool
     {
-        if (empty($value)) {
+        if ([] === $value) {
             return false;
         }
 
@@ -445,8 +451,8 @@ final class LiteEngine
         return is_array($first);
     }
 
-    /**
-     * Convert value recursively (handle nested DTOs and enums).
+    /** Convert value recursively (handle nested DTOs and enums).
+     * @param class-string|null $class
      */
     private static function convertValue(
         mixed $value,
@@ -455,13 +461,13 @@ final class LiteEngine
         ?ReflectionProperty $property = null
     ): mixed {
         // Handle enums
-        if ($value instanceof \BackedEnum || $value instanceof \UnitEnum) {
-            if ($class && $propertyName && $property) {
+        if ($value instanceof BackedEnum || $value instanceof UnitEnum) {
+            if ($class && $propertyName && $property instanceof ReflectionProperty) {
                 $mode = self::getEnumSerializeMode($class, $propertyName, $property);
                 return self::serializeEnum($value, $mode);
             }
             // Default: serialize to value
-            return $value instanceof \BackedEnum ? $value->value : $value->name;
+            return $value instanceof BackedEnum ? $value->value : $value->name;
         }
 
         // Handle arrays
@@ -485,6 +491,7 @@ final class LiteEngine
      * Get reflection class (cached).
      *
      * @param class-string $class
+     * @return ReflectionClass<object>
      */
     private static function getReflection(string $class): ReflectionClass
     {
@@ -548,12 +555,14 @@ final class LiteEngine
         }
 
         // Try to cast from value (BackedEnum)
-        if (is_subclass_of($enumClass, \BackedEnum::class)) {
+        if (is_subclass_of($enumClass, BackedEnum::class) && (is_int($value) || is_string($value))) {
+            /** @var class-string<BackedEnum> $enumClass */
             return $enumClass::from($value);
         }
 
         // Try to cast from name (UnitEnum)
         if (is_string($value)) {
+            /** @var class-string<UnitEnum> $enumClass */
             $cases = $enumClass::cases();
             foreach ($cases as $case) {
                 if ($case->name === $value) {
@@ -562,7 +571,7 @@ final class LiteEngine
             }
         }
 
-        throw new InvalidArgumentException("Cannot cast value to enum {$enumClass}");
+        throw new InvalidArgumentException('Cannot cast value to enum ' . $enumClass);
     }
 
     /**
@@ -582,7 +591,7 @@ final class LiteEngine
         $attrs = $property->getAttributes(EnumSerialize::class);
         $mode = 'value'; // Default
 
-        if (!empty($attrs)) {
+        if ([] !== $attrs) {
             $attr = $attrs[0]->newInstance();
             $mode = $attr->mode;
         }
@@ -596,16 +605,16 @@ final class LiteEngine
      *
      * @return string|int|array<string, string|int>
      */
-    private static function serializeEnum(\BackedEnum|\UnitEnum $enum, string $mode): string|int|array
+    private static function serializeEnum(BackedEnum|UnitEnum $enum, string $mode): string|int|array
     {
         return match ($mode) {
             'name' => $enum->name,
-            'value' => $enum instanceof \BackedEnum ? $enum->value : $enum->name,
+            'value' => $enum instanceof BackedEnum ? $enum->value : $enum->name,
             'both' => [
                 'name' => $enum->name,
-                'value' => $enum instanceof \BackedEnum ? $enum->value : $enum->name,
+                'value' => $enum instanceof BackedEnum ? $enum->value : $enum->name,
             ],
-            default => $enum instanceof \BackedEnum ? $enum->value : $enum->name,
+            default => $enum instanceof BackedEnum ? $enum->value : $enum->name,
         };
     }
 
@@ -622,7 +631,7 @@ final class LiteEngine
 
         $reflection = self::getReflection($class);
         $attrs = $reflection->getAttributes(UltraFast::class);
-        $isUltraFast = !empty($attrs);
+        $isUltraFast = [] !== $attrs;
 
         self::$ultraFastCache[$class] = $isUltraFast;
         return $isUltraFast;
@@ -632,7 +641,6 @@ final class LiteEngine
      * Create DTO in UltraFast mode (minimal overhead).
      *
      * @param class-string $class
-     * @param mixed $data
      */
     private static function createUltraFast(string $class, mixed $data): object
     {
@@ -652,8 +660,8 @@ final class LiteEngine
                 self::$paramNamesCache[$class] = [];
             } else {
                 $names = [];
-                foreach ($constructor->getParameters() as $param) {
-                    $names[] = $param->getName();
+                foreach ($constructor->getParameters() as $reflectionParameter) {
+                    $names[] = $reflectionParameter->getName();
                 }
                 self::$paramNamesCache[$class] = $names;
             }
@@ -677,4 +685,3 @@ final class LiteEngine
         return $reflection->newInstanceArgs($args);
     }
 }
-

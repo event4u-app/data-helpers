@@ -73,9 +73,9 @@ class UnitEnumDto extends LiteDto
     ) {}
 }
 
-describe('Enum Support', function (): void {
-    describe('BackedEnum (string)', function (): void {
-        it('casts string to BackedEnum', function (): void {
+describe('Enum Support', function(): void {
+    describe('BackedEnum (string)', function(): void {
+        it('casts string to BackedEnum', function(): void {
             $dto = EnumUserDto::from([
                 'name' => 'John',
                 'status' => 'active',
@@ -87,7 +87,7 @@ describe('Enum Support', function (): void {
                 ->and($dto->role)->toBe(Role::ADMIN);
         });
 
-        it('serializes BackedEnum to value by default', function (): void {
+        it('serializes BackedEnum to value by default', function(): void {
             $dto = EnumUserDto::from([
                 'name' => 'John',
                 'status' => 'active',
@@ -103,7 +103,7 @@ describe('Enum Support', function (): void {
             ]);
         });
 
-        it('handles all enum cases', function (): void {
+        it('handles all enum cases', function(): void {
             $dto1 = EnumUserDto::from(['name' => 'User1', 'status' => 'active', 'role' => 'admin']);
             $dto2 = EnumUserDto::from(['name' => 'User2', 'status' => 'inactive', 'role' => 'user']);
             $dto3 = EnumUserDto::from(['name' => 'User3', 'status' => 'pending', 'role' => 'guest']);
@@ -114,8 +114,8 @@ describe('Enum Support', function (): void {
         });
     });
 
-    describe('BackedEnum (int)', function (): void {
-        it('casts int to BackedEnum', function (): void {
+    describe('BackedEnum (int)', function(): void {
+        it('casts int to BackedEnum', function(): void {
             $dto = EnumTaskDto::from([
                 'title' => 'Fix bug',
                 'priority' => 3,
@@ -125,7 +125,7 @@ describe('Enum Support', function (): void {
                 ->and($dto->priority)->toBe(Priority::HIGH);
         });
 
-        it('serializes int BackedEnum to value', function (): void {
+        it('serializes int BackedEnum to value', function(): void {
             $dto = EnumTaskDto::from([
                 'title' => 'Fix bug',
                 'priority' => 2,
@@ -140,8 +140,8 @@ describe('Enum Support', function (): void {
         });
     });
 
-    describe('UnitEnum', function (): void {
-        it('casts string to UnitEnum by name', function (): void {
+    describe('UnitEnum', function(): void {
+        it('casts string to UnitEnum by name', function(): void {
             $dto = UnitEnumDto::from([
                 'name' => 'Test',
                 'color' => 'RED',
@@ -151,7 +151,7 @@ describe('Enum Support', function (): void {
                 ->and($dto->color)->toBe(Color::RED);
         });
 
-        it('serializes UnitEnum to name', function (): void {
+        it('serializes UnitEnum to name', function(): void {
             $dto = UnitEnumDto::from([
                 'name' => 'Test',
                 'color' => 'GREEN',
@@ -166,8 +166,8 @@ describe('Enum Support', function (): void {
         });
     });
 
-    describe('EnumSerialize Attribute', function (): void {
-        it('serializes with mode "value"', function (): void {
+    describe('EnumSerialize Attribute', function(): void {
+        it('serializes with mode "value"', function(): void {
             $dto = EnumSerializeModeDto::from([
                 'name' => 'Test',
                 'statusValue' => 'active',
@@ -180,7 +180,7 @@ describe('Enum Support', function (): void {
             expect($array['statusValue'])->toBe('active');
         });
 
-        it('serializes with mode "name"', function (): void {
+        it('serializes with mode "name"', function(): void {
             $dto = EnumSerializeModeDto::from([
                 'name' => 'Test',
                 'statusValue' => 'active',
@@ -193,7 +193,7 @@ describe('Enum Support', function (): void {
             expect($array['statusName'])->toBe('ACTIVE');
         });
 
-        it('serializes with mode "both"', function (): void {
+        it('serializes with mode "both"', function(): void {
             $dto = EnumSerializeModeDto::from([
                 'name' => 'Test',
                 'statusValue' => 'active',
@@ -210,8 +210,8 @@ describe('Enum Support', function (): void {
         });
     });
 
-    describe('JSON Serialization', function (): void {
-        it('serializes enum to JSON', function (): void {
+    describe('JSON Serialization', function(): void {
+        it('serializes enum to JSON', function(): void {
             $dto = EnumUserDto::from([
                 'name' => 'John',
                 'status' => 'active',
@@ -224,8 +224,8 @@ describe('Enum Support', function (): void {
         });
     });
 
-    describe('Error Handling', function (): void {
-        it('throws exception for invalid enum value', function (): void {
+    describe('Error Handling', function(): void {
+        it('throws exception for invalid enum value', function(): void {
             EnumUserDto::from([
                 'name' => 'John',
                 'status' => 'invalid',
@@ -233,7 +233,7 @@ describe('Enum Support', function (): void {
             ]);
         })->throws(ValueError::class);
 
-        it('throws exception for invalid enum name', function (): void {
+        it('throws exception for invalid enum name', function(): void {
             UnitEnumDto::from([
                 'name' => 'Test',
                 'color' => 'INVALID',
@@ -241,4 +241,3 @@ describe('Enum Support', function (): void {
         })->throws(InvalidArgumentException::class);
     });
 });
-

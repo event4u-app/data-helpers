@@ -49,4 +49,3 @@ use Attribute;
 final readonly class NoCasts
 {
 }
-

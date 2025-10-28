@@ -37,6 +37,7 @@ final class WarmCacheCommand
     private int $classesWarmed = 0;
     private int $classesSkipped = 0;
     private int $classesFailed = 0;
+    /** @var array<string> */
     private array $errors = [];
 
     /**
@@ -50,7 +51,7 @@ final class WarmCacheCommand
     {
         $this->printHeader();
 
-        if (empty($directories)) {
+        if ([] === $directories) {
             $this->printError('No directories specified. Usage: php bin/warm-cache.php [directories...]');
 
             return 1;
@@ -59,7 +60,7 @@ final class WarmCacheCommand
         // Scan directories for DTO classes
         $classes = $this->scanDirectories($directories, $verbose);
 
-        if (empty($classes)) {
+        if ([] === $classes) {
             $this->printWarning('No SimpleDto classes found in specified directories.');
 
             return 0;
@@ -83,7 +84,7 @@ final class WarmCacheCommand
         // Print summary
         $this->printSummary();
 
-        return $this->classesFailed > 0 ? 1 : 0;
+        return 0 < $this->classesFailed ? 1 : 0;
     }
 
     /**
@@ -133,10 +134,16 @@ final class WarmCacheCommand
             );
 
             foreach ($iterator as $file) {
+                if (!is_object($file) || !method_exists($file, 'isFile') || !method_exists($file, 'getExtension')) {
+                    continue;
+                }
                 if (!$file->isFile() || 'php' !== $file->getExtension()) {
                     continue;
                 }
 
+                if (!method_exists($file, 'getPathname')) {
+                    continue;
+                }
                 $class = $this->extractClassFromFile($file->getPathname());
 
                 if (null !== $class && $this->isSimpleDto($class)) {
@@ -144,8 +151,8 @@ final class WarmCacheCommand
                     $this->classesFound++;
                 }
             }
-        } catch (Throwable $e) {
-            $this->printError(sprintf('Error scanning directory %s: %s', $directory, $e->getMessage()));
+        } catch (Throwable $throwable) {
+            $this->printError(sprintf('Error scanning directory %s: %s', $directory, $throwable->getMessage()));
         }
 
         return $classes;
@@ -178,11 +185,19 @@ final class WarmCacheCommand
 
         $className = trim($classMatch[1]);
 
-        return $namespace . '\\' . $className;
+        $fullClassName = $namespace . '\\' . $className;
+
+        // Verify it's a valid class string
+        if (!class_exists($fullClassName)) {
+            return null;
+        }
+
+        /** @var class-string $fullClassName */
+        return $fullClassName;
     }
 
-    /**
-     * Check if class is a SimpleDto.
+    /** Check if class is a SimpleDto.
+     * @param class-string $class
      */
     private function isSimpleDto(string $class): bool
     {
@@ -199,8 +214,8 @@ final class WarmCacheCommand
         }
     }
 
-    /**
-     * Warm cache for a single class.
+    /** Warm cache for a single class.
+     * @param class-string $class
      */
     private function warmClass(string $class, bool $verbose): void
     {
@@ -240,20 +255,20 @@ final class WarmCacheCommand
             } else {
                 echo '.';
             }
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             $this->classesFailed++;
-            $this->errors[] = sprintf('%s: %s', $class, $e->getMessage());
+            $this->errors[] = sprintf('%s: %s', $class, $throwable->getMessage());
 
             if ($verbose) {
-                $this->printError(sprintf('  ❌  Failed: %s - %s', $class, $e->getMessage()));
+                $this->printError(sprintf('  ❌  Failed: %s - %s', $class, $throwable->getMessage()));
             } else {
                 echo 'F';
             }
         }
     }
 
-    /**
-     * Validate that cache entries were created.
+    /** Validate that cache entries were created.
+     * @param array<class-string> $classes
      */
     private function validateCache(array $classes, bool $verbose): void
     {
@@ -282,15 +297,13 @@ final class WarmCacheCommand
         if ($verbose) {
             $this->printSuccess(sprintf('  ✅  Validated: %d cache entries', $validated));
 
-            if ($missing > 0) {
+            if (0 < $missing) {
                 $this->printWarning(sprintf('  ⚠️  Missing: %d cache entries', $missing));
             }
         }
     }
 
-    /**
-     * Print summary statistics.
-     */
+    /** Print summary statistics. */
     private function printSummary(): void
     {
         echo "\n";
@@ -301,7 +314,7 @@ final class WarmCacheCommand
         echo sprintf("  Classes skipped: %s\n", $this->colorize($this->classesSkipped, 'yellow'));
         echo sprintf("  Classes failed:  %s\n", $this->colorize($this->classesFailed, 'red'));
 
-        if (!empty($this->errors)) {
+        if ([] !== $this->errors) {
             echo "\n";
             $this->printHeader('Errors');
 
@@ -312,7 +325,7 @@ final class WarmCacheCommand
 
         echo "\n";
 
-        if ($this->classesFailed > 0) {
+        if (0 < $this->classesFailed) {
             $this->printError('❌  Cache warming completed with errors');
         } else {
             $this->printSuccess('✅  Cache warming completed successfully');
@@ -363,4 +376,3 @@ final class WarmCacheCommand
         return ($colors[$color] ?? '') . $text . $colors['reset'];
     }
 }
-

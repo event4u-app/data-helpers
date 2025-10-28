@@ -41,7 +41,7 @@ trait SimpleDtoWithTrait
     public function with(string|array $key, mixed $value = null): static
     {
         // Phase 6 Optimization: Lazy cloning - avoid clone if no data to add
-        if (is_array($key) && empty($key)) {
+        if ([] === $key) {
             return $this; // No data to add, return self
         }
 

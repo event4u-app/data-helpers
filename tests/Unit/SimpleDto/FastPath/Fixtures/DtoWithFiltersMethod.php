@@ -16,6 +16,7 @@ class DtoWithFiltersMethod extends SimpleDto
         public readonly ?string $name = null,
     ) {}
 
+    /** @return array<string, string> */
     protected function filters(): array
     {
         return [
@@ -23,4 +24,3 @@ class DtoWithFiltersMethod extends SimpleDto
         ];
     }
 }
-

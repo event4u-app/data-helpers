@@ -18,4 +18,3 @@ class DtoWithCustomAttribute extends SimpleDto
         public readonly ?string $value = null,
     ) {}
 }
-

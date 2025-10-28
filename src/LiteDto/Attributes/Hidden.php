@@ -26,4 +26,3 @@ use Attribute;
 class Hidden
 {
 }
-

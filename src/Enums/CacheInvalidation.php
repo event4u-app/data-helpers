@@ -19,12 +19,9 @@ enum CacheInvalidation: string
     case HASH = 'hash';
     case BOTH = 'both';
 
-    /**
-     * Check if this strategy requires automatic validation on cache hits.
-     */
+    /** Check if this strategy requires automatic validation on cache hits. */
     public function requiresValidation(): bool
     {
-        return $this !== self::MANUAL;
+        return self::MANUAL !== $this;
     }
 }
-

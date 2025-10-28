@@ -5,17 +5,17 @@ declare(strict_types=1);
 use event4u\DataHelpers\Support\Cache\CacheInvalidator;
 use event4u\DataHelpers\Support\Cache\CacheManager;
 
-beforeEach(function () {
+beforeEach(function(): void {
     CacheManager::reset();
     CacheManager::clear();
 });
 
-afterEach(function () {
+afterEach(function(): void {
     CacheManager::clear();
     CacheManager::reset();
 });
 
-it('can wrap and unwrap values', function () {
+it('can wrap and unwrap values', function(): void {
     $value = ['foo' => 'bar', 'nested' => ['data' => 123]];
     $sourceFile = __FILE__;
 
@@ -30,7 +30,7 @@ it('can wrap and unwrap values', function () {
     expect($unwrapped)->toBe($value);
 });
 
-it('validates cache based on file modification time', function () {
+it('validates cache based on file modification time', function(): void {
     $value = 'test_value';
     $sourceFile = __FILE__;
 
@@ -40,7 +40,7 @@ it('validates cache based on file modification time', function () {
     expect(CacheInvalidator::isValid($wrapped, $sourceFile))->toBeTrue();
 });
 
-it('invalidates cache when file does not exist', function () {
+it('invalidates cache when file does not exist', function(): void {
     $value = 'test_value';
     $sourceFile = '/non/existent/file.php';
 
@@ -50,12 +50,12 @@ it('invalidates cache when file does not exist', function () {
     expect(CacheInvalidator::isValid($wrapped, $sourceFile))->toBeFalse();
 });
 
-it('can use remember helper for automatic caching', function () {
+it('can use remember helper for automatic caching', function(): void {
     $key = 'remember_test';
     $sourceFile = __FILE__;
     $callCount = 0;
 
-    $generator = function () use (&$callCount) {
+    $generator = function() use (&$callCount): string {
         $callCount++;
 
         return 'generated_value_' . $callCount;
@@ -72,31 +72,33 @@ it('can use remember helper for automatic caching', function () {
     expect($callCount)->toBe(1); // Generator not called again
 });
 
-it('handles missing mtime in cached data', function () {
+it('handles missing mtime in cached data', function(): void {
     $sourceFile = __FILE__;
 
     $invalidData = [
         'data' => 'test',
         'version' => '1.0.0',
-        // Missing mtime
+        'mtime' => false,
+        'hash' => null,
     ];
 
     expect(CacheInvalidator::isValid($invalidData, $sourceFile))->toBeFalse();
 });
 
-it('handles missing version in cached data', function () {
+it('handles missing version in cached data', function(): void {
     $sourceFile = __FILE__;
 
     $invalidData = [
         'data' => 'test',
         'mtime' => filemtime($sourceFile),
-        // Missing version
+        'hash' => null,
+        'version' => '',
     ];
 
     expect(CacheInvalidator::isValid($invalidData, $sourceFile))->toBeFalse();
 });
 
-it('wraps values with null hash when using mtime strategy', function () {
+it('wraps values with null hash when using mtime strategy', function(): void {
     $value = 'test_value';
     $sourceFile = __FILE__;
 
@@ -105,4 +107,3 @@ it('wraps values with null hash when using mtime strategy', function () {
     // Hash should be null for mtime strategy (default)
     expect($wrapped['hash'])->toBeNull();
 });
-

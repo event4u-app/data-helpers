@@ -501,7 +501,7 @@ describe('SimpleDto set() method', function(): void {
         test('get() handles null values in nested structures', function(): void {
             $dto = new class (null) extends SimpleDto {
                 public function __construct(
-                    public readonly ?AddressDto $address,
+                    public readonly ?GetSetAddressDto $address,
                 ) {}
             };
 

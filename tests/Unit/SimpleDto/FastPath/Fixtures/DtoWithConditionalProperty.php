@@ -19,4 +19,3 @@ class DtoWithConditionalProperty extends SimpleDto
         public readonly ?string $adultContent = null,
     ) {}
 }
-

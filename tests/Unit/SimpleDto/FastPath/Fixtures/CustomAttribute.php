@@ -18,4 +18,3 @@ class CustomAttribute
         public readonly string $value = '',
     ) {}
 }
-

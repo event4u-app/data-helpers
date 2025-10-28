@@ -42,4 +42,3 @@ use Attribute;
 final readonly class NoAttributes
 {
 }
-

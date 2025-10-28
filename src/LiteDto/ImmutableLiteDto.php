@@ -68,4 +68,3 @@ abstract class ImmutableLiteDto extends LiteDto
         );
     }
 }
-

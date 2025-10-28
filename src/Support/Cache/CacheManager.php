@@ -130,13 +130,16 @@ final class CacheManager
             $driver = self::detectDriver();
         }
 
-        self::$detectedDriver = $driver;
+        if ($driver instanceof CacheDriver) {
+            self::$detectedDriver = $driver;
+        }
 
         return match ($driver) {
             CacheDriver::NONE => new NullCacheAdapter(),
             CacheDriver::LARAVEL => self::createLaravelAdapter(),
             CacheDriver::SYMFONY => self::createSymfonyAdapter(),
             CacheDriver::FILESYSTEM => self::createFilesystemAdapter(),
+            default => new NullCacheAdapter(),
         };
     }
 
@@ -208,7 +211,8 @@ final class CacheManager
 
         try {
             // Test if cache is actually working
-            $cachePath = self::getCachePath();
+            $config = ConfigHelper::getInstance();
+            $cachePath = $config->getString('cache.path', './.event4u/data-helpers/cache/');
             $cache = new \Symfony\Component\Cache\Adapter\FilesystemAdapter(
                 'data_helpers_test',
                 0,
@@ -238,6 +242,7 @@ final class CacheManager
      */
     private static function createLaravelAdapter(): CacheInterface
     {
+        /** @phpstan-ignore-next-line function.notFound */
         $cache = app('cache.store') ?? app('cache');
 
         return new LaravelCacheAdapter($cache);

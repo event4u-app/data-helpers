@@ -94,8 +94,8 @@ return [
         | Default: null (forever)
         |
         */
-        'ttl' => EnvHelper::string('DATA_HELPERS_CACHE_TTL', null) !== null
-            ? (int)EnvHelper::string('DATA_HELPERS_CACHE_TTL')
+        'ttl' => (($ttlValue = EnvHelper::string('DATA_HELPERS_CACHE_TTL', '')) !== '')
+            ? (int)$ttlValue
             : null,
 
         /*

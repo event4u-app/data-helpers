@@ -19,4 +19,3 @@ class DtoWithHiddenProperty extends SimpleDto
         public readonly ?string $secret = null,
     ) {}
 }
-

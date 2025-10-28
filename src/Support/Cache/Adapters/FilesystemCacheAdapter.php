@@ -51,7 +51,7 @@ final class FilesystemCacheAdapter implements CacheInterface
         }
 
         // Check if expired
-        if (null !== $data['expires_at'] && $data['expires_at'] < time()) {
+        if (isset($data['expires_at']) && is_int($data['expires_at']) && $data['expires_at'] < time()) {
             $this->delete($key);
 
             return $default;

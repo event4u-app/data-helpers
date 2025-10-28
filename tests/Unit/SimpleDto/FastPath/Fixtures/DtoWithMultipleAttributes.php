@@ -22,4 +22,3 @@ class DtoWithMultipleAttributes extends SimpleDto
         public readonly ?string $email = null,
     ) {}
 }
-

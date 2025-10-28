@@ -324,7 +324,7 @@ trait SimpleDtoVisibilityTrait
     public function except(array $properties): static
     {
         // Phase 6 Optimization: Lazy cloning - avoid clone if empty array
-        if (empty($properties)) {
+        if ([] === $properties) {
             return $this; // No properties to exclude, return self
         }
 

@@ -24,4 +24,3 @@ class DtoWithCastsMethod extends SimpleDto
         ];
     }
 }
-

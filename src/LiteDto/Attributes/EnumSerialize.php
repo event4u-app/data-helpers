@@ -48,4 +48,3 @@ class EnumSerialize
         public readonly string $mode = 'value',
     ) {}
 }
-

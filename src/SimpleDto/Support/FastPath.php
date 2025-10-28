@@ -4,18 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto\Support;
 
-use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
-use event4u\DataHelpers\SimpleDto\Attributes\Computed;
-use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
-use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
-use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromJson;
-use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
-use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
-use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
-use event4u\DataHelpers\SimpleDto\Attributes\Visible;
-use event4u\DataHelpers\Support\ReflectionCache;
 use ReflectionClass;
-use ReflectionMethod;
+use Throwable;
 
 /**
  * Phase 7: Fast Path Optimization
@@ -112,7 +102,7 @@ class FastPath
 
             // All checks passed - eligible for fast path
             return self::$eligibilityCache[$class] = true;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // On error, fall back to normal path
             return self::$eligibilityCache[$class] = false;
         }
@@ -131,7 +121,7 @@ class FastPath
     {
         // Cast to array to get ALL properties (including private from traits)
         // Format: "\0ClassName\0propertyName" for private, "\0*\0propertyName" for protected
-        $allVars = (array) $dto;
+        $allVars = (array)$dto;
 
         // Properties that indicate runtime modifications
         $checkProperties = [
@@ -165,7 +155,7 @@ class FastPath
             if (null !== $value && false !== $value) {
                 // Special case: empty arrays are OK EXCEPT for onlyProperties
                 // only([]) has semantic meaning (show nothing)
-                if (is_array($value) && empty($value) && $propertyName !== 'onlyProperties') {
+                if ([] === $value && 'onlyProperties' !== $propertyName) {
                     continue;
                 }
                 return false;
@@ -203,6 +193,8 @@ class FastPath
      * Check if class has any class-level attributes that require special handling.
      *
      * Phase 7: Check for ALL class-level attributes from our namespace, not just AutoCast.
+     *
+     * @param ReflectionClass<object> $reflection
      */
     private static function hasAutoCastAttribute(ReflectionClass $reflection): bool
     {
@@ -230,6 +222,8 @@ class FastPath
      *
      * Phase 8: Don't use ReflectionCache here because we only need attribute NAMES, not instances.
      * ReflectionCache tries to instantiate attributes which may fail for some attributes.
+     *
+     * @param ReflectionClass<object> $reflection
      */
     private static function hasPropertyAttributes(ReflectionClass $reflection): bool
     {
@@ -258,7 +252,7 @@ class FastPath
             // Check 2: Optional or Lazy wrapper types
             $type = $property->getType();
             if (null !== $type) {
-                $typeString = (string) $type;
+                $typeString = (string)$type;
                 // Check for Optional or Lazy in union types
                 if (str_contains($typeString, 'Optional') || str_contains($typeString, 'Lazy')) {
                     return true;
@@ -290,6 +284,8 @@ class FastPath
      * Check if class overrides any methods that require special handling.
      *
      * Phase 7: Check for all methods that can customize DTO behavior.
+     *
+     * @param ReflectionClass<object> $reflection
      */
     private static function hasMethodOverrides(ReflectionClass $reflection): bool
     {
@@ -337,9 +333,9 @@ class FastPath
 
         foreach (self::$eligibilityCache as $isEligible) {
             if ($isEligible) {
-                ++$eligible;
+                $eligible++;
             } else {
-                ++$ineligible;
+                $ineligible++;
             }
         }
 
@@ -350,4 +346,3 @@ class FastPath
         ];
     }
 }
-

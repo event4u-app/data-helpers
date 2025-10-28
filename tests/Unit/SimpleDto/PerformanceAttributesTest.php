@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
-use event4u\DataHelpers\SimpleDto\Attributes\Cast;
+use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDto\Attributes\Email;
 use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
@@ -12,7 +12,6 @@ use event4u\DataHelpers\SimpleDto\Attributes\NoAttributes;
 use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
 use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
-use event4u\DataHelpers\SimpleDto\Casts\IntegerCast;
 
 // Test DTOs for #[NoCasts]
 #[NoCasts]
@@ -44,8 +43,8 @@ class NoCastsWithAutoCastDto extends SimpleDto
 class NoCastsWithExplicitCastDto extends SimpleDto
 {
     public function __construct(
-        #[Cast(IntegerCast::class)]
-        public readonly int $age,
+        #[DataCollectionOf(SimpleDto::class)]
+        public readonly mixed $items,
     ) {}
 }
 
@@ -194,8 +193,8 @@ class NoAttributesWithVisibilityDto extends SimpleDto
 class NoAttributesWithCastDto extends SimpleDto
 {
     public function __construct(
-        #[Cast(IntegerCast::class)]
-        public readonly int $age,
+        #[DataCollectionOf(SimpleDto::class)]
+        public readonly mixed $items,
     ) {}
 }
 
@@ -233,7 +232,7 @@ class BothAttributesBasicDto extends SimpleDto
 class BothAttributesComplexDto extends SimpleDto
 {
     public function __construct(
-        #[Required, Email, MapFrom('user_email'), Cast(IntegerCast::class)]
+        #[Required, Email, MapFrom('user_email')]
         public readonly string $email,
         #[Hidden]
         public readonly string $password,
@@ -302,20 +301,20 @@ describe('Performance Attributes', function(): void {
 
         it('throws TypeError when types are wrong', function(): void {
             // With wrong type - should throw TypeError
-            expect(fn() => NoCastsStrictDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoCastsStrictDto => NoCastsStrictDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
 
         it('disables AutoCast attribute', function(): void {
             // AutoCast should be disabled by NoCasts
-            expect(fn() => NoCastsWithAutoCastDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoCastsWithAutoCastDto => NoCastsWithAutoCastDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
 
         it('disables explicit Cast attributes', function(): void {
             // Explicit Cast should be disabled by NoCasts
-            expect(fn() => NoCastsWithExplicitCastDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoCastsWithExplicitCastDto => NoCastsWithExplicitCastDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
 
         it('still allows validation attributes', function(): void {
@@ -391,8 +390,12 @@ describe('Performance Attributes', function(): void {
         it('does not cast types without AutoCast (strict_types=1)', function(): void {
             // With declare(strict_types=1), PHP does NOT do type coercion
             // We need Cast classes for type conversion
-            expect(fn() => NoAttributesWithTypeHintsDto::fromArray(['name' => 123, 'age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(
+                fn(): \NoAttributesWithTypeHintsDto => NoAttributesWithTypeHintsDto::fromArray([
+                    'name' => 123, 'age' => '30']
+                )
+            )
+                ->toThrow(TypeError::class);
         });
 
         it('disables validation attributes', function(): void {
@@ -419,8 +422,8 @@ describe('Performance Attributes', function(): void {
         it('disables cast attributes (strict_types=1)', function(): void {
             // Cast attribute should be skipped
             // With declare(strict_types=1), no type coercion happens
-            expect(fn() => NoAttributesWithCastDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoAttributesWithCastDto => NoAttributesWithCastDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
     });
 
@@ -441,8 +444,8 @@ describe('Performance Attributes', function(): void {
         });
 
         it('throws TypeError with wrong types', function(): void {
-            expect(fn() => BothAttributesStrictDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \BothAttributesStrictDto => BothAttributesStrictDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
     });
 
@@ -460,10 +463,10 @@ describe('Performance Attributes', function(): void {
 
         it('NoCasts prevents nested DTO auto-casting', function(): void {
             // #[NoCasts] prevents ALL casts, including nested DTOs
-            expect(fn() => UserWithNestedNoCastsDto::fromArray([
+            expect(fn(): \UserWithNestedNoCastsDto => UserWithNestedNoCastsDto::fromArray([
                 'name' => 'John',
                 'address' => ['street' => 'Main St', 'city' => 'NYC'],
-            ]))->toThrow(\TypeError::class);
+            ]))->toThrow(TypeError::class);
         });
     });
 
@@ -477,21 +480,21 @@ describe('Performance Attributes', function(): void {
 
         it('NoCasts is faster than AutoCast', function(): void {
             // Warm up
-            for ($i = 0; $i < 100; $i++) {
+            for ($i = 0; 100 > $i; $i++) {
                 PerformanceAutoCastDto::fromArray(['age' => '30']);
                 PerformanceNoCastsDto::fromArray(['age' => 30]);
             }
 
             // Benchmark AutoCast
             $start = hrtime(true);
-            for ($i = 0; $i < 1000; $i++) {
+            for ($i = 0; 1000 > $i; $i++) {
                 PerformanceAutoCastDto::fromArray(['age' => '30']);
             }
             $timeAutoCast = hrtime(true) - $start;
 
             // Benchmark NoCasts
             $start = hrtime(true);
-            for ($i = 0; $i < 1000; $i++) {
+            for ($i = 0; 1000 > $i; $i++) {
                 PerformanceNoCastsDto::fromArray(['age' => 30]);
             }
             $timeNoCasts = hrtime(true) - $start;
@@ -511,8 +514,8 @@ describe('Performance Attributes', function(): void {
             expect($user->address)->toBeInstanceOf(NestedAddressDto::class);
 
             // But native types need correct types (strict_types=1)
-            expect(fn() => NoCastsBasicDto::fromArray(['name' => 'John', 'age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoCastsBasicDto => NoCastsBasicDto::fromArray(['name' => 'John', 'age' => '30']))
+                ->toThrow(TypeError::class);
         });
 
         it('AutoCast: enables native type conversion, nested DTOs still work', function(): void {
@@ -526,22 +529,22 @@ describe('Performance Attributes', function(): void {
 
         it('NoCasts: disables ALL casts including nested DTOs', function(): void {
             // NoCasts disables nested DTO auto-casting
-            expect(fn() => UserWithNestedNoCastsDto::fromArray([
+            expect(fn(): \UserWithNestedNoCastsDto => UserWithNestedNoCastsDto::fromArray([
                 'name' => 'John',
                 'address' => ['street' => 'Main St', 'city' => 'NYC'],
-            ]))->toThrow(\TypeError::class);
+            ]))->toThrow(TypeError::class);
 
             // NoCasts also disables native type conversion
-            expect(fn() => NoCastsStrictDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoCastsStrictDto => NoCastsStrictDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
 
             // NoCasts disables explicit Cast attributes
-            expect(fn() => NoCastsWithExplicitCastDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoCastsWithExplicitCastDto => NoCastsWithExplicitCastDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
 
             // NoCasts disables AutoCast
-            expect(fn() => NoCastsWithAutoCastDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoCastsWithAutoCastDto => NoCastsWithAutoCastDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
 
         it('NoValidation: disables validation, casts still work', function(): void {
@@ -559,8 +562,8 @@ describe('Performance Attributes', function(): void {
             expect($dto->email)->toBe('invalid-email');
 
             // NoAttributes disables explicit Cast attributes
-            expect(fn() => NoAttributesWithCastDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoAttributesWithCastDto => NoAttributesWithCastDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
 
             // But nested DTOs still work (unless NoCasts is also used)
             $user = UserWithNestedDto::fromArray([
@@ -577,8 +580,12 @@ describe('Performance Attributes', function(): void {
                 ->and($dto->age)->toBe(25);
 
             // TypeError with wrong types
-            expect(fn() => NoCastsNoValidationDto::fromArray(['email' => 'test@example.com', 'age' => '25']))
-                ->toThrow(\TypeError::class);
+            expect(
+                fn(): \NoCastsNoValidationDto => NoCastsNoValidationDto::fromArray([
+                    'email' => 'test@example.com', 'age' => '25']
+                )
+            )
+                ->toThrow(TypeError::class);
         });
 
         it('NoAttributes + NoCasts: maximum performance, strict types', function(): void {
@@ -588,39 +595,43 @@ describe('Performance Attributes', function(): void {
                 ->and($dto->age)->toBe(30);
 
             // TypeError with wrong types
-            expect(fn() => BothAttributesStrictDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \BothAttributesStrictDto => BothAttributesStrictDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
 
             // Nested DTOs also disabled
-            expect(fn() => UserWithNestedNoCastsDto::fromArray([
+            expect(fn(): \UserWithNestedNoCastsDto => UserWithNestedNoCastsDto::fromArray([
                 'name' => 'John',
                 'address' => ['street' => 'Main St', 'city' => 'NYC'],
-            ]))->toThrow(\TypeError::class);
+            ]))->toThrow(TypeError::class);
         });
 
         it('AutoCast + NoCasts: NoCasts wins (disables AutoCast)', function(): void {
             // NoCasts has higher priority than AutoCast
-            expect(fn() => NoCastsWithAutoCastDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoCastsWithAutoCastDto => NoCastsWithAutoCastDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
 
         it('explicit Cast + NoCasts: NoCasts wins (disables Cast)', function(): void {
             // NoCasts has higher priority than explicit Cast
-            expect(fn() => NoCastsWithExplicitCastDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoCastsWithExplicitCastDto => NoCastsWithExplicitCastDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
 
         it('NoAttributes + AutoCast: NoAttributes wins (disables AutoCast)', function(): void {
             // NoAttributes disables all attributes including AutoCast
             // So native types need correct types
-            expect(fn() => NoAttributesWithTypeHintsDto::fromArray(['name' => 123, 'age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(
+                fn(): \NoAttributesWithTypeHintsDto => NoAttributesWithTypeHintsDto::fromArray([
+                    'name' => 123, 'age' => '30']
+                )
+            )
+                ->toThrow(TypeError::class);
         });
 
         it('NoAttributes + explicit Cast: NoAttributes wins (disables Cast)', function(): void {
             // NoAttributes disables all attributes including explicit Cast
-            expect(fn() => NoAttributesWithCastDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \NoAttributesWithCastDto => NoAttributesWithCastDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
     });
 
@@ -637,10 +648,10 @@ describe('Performance Attributes', function(): void {
 
         it('NoAttributes + NoCasts with nested DTOs: nested DTOs disabled', function(): void {
             // Combining both disables nested DTO auto-casting
-            expect(fn() => UserWithNestedNoCastsDto::fromArray([
+            expect(fn(): \UserWithNestedNoCastsDto => UserWithNestedNoCastsDto::fromArray([
                 'name' => 'John',
                 'address' => ['street' => 'Main St', 'city' => 'NYC'],
-            ]))->toThrow(\TypeError::class);
+            ]))->toThrow(TypeError::class);
         });
 
         it('NoCasts with nullable properties: works with null', function(): void {
@@ -724,8 +735,8 @@ describe('Performance Attributes', function(): void {
                 ->and($dto->age)->toBe(30);
 
             // TypeError with wrong types
-            expect(fn() => BothAttributesStrictDto::fromArray(['age' => '30']))
-                ->toThrow(\TypeError::class);
+            expect(fn(): \BothAttributesStrictDto => BothAttributesStrictDto::fromArray(['age' => '30']))
+                ->toThrow(TypeError::class);
         });
 
         it('correct types with NoCasts: no performance overhead', function(): void {
@@ -750,4 +761,3 @@ describe('Performance Attributes', function(): void {
         });
     });
 });
-

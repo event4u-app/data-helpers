@@ -18,4 +18,3 @@ class DtoWithMappingAttribute extends SimpleDto
         public readonly ?string $name = null,
     ) {}
 }
-

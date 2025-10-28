@@ -15,7 +15,7 @@ use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
  *
  * Phase 7: Tests for complex scenarios, nesting, collections, etc.
  */
-test('FastPath fastToArray() produces same result as normal toArray() for simple DTO', function (): void {
+test('FastPath fastToArray() produces same result as normal toArray() for simple DTO', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30, email: 'test@example.com');
 
     $fastPathResult = FastPath::fastToArray($dto);
@@ -24,7 +24,7 @@ test('FastPath fastToArray() produces same result as normal toArray() for simple
     expect($fastPathResult)->toBe($normalResult);
 });
 
-test('FastPath handles null values correctly', function (): void {
+test('FastPath handles null values correctly', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: null, email: null);
 
     $result = FastPath::fastToArray($dto);
@@ -36,7 +36,7 @@ test('FastPath handles null values correctly', function (): void {
     ]);
 });
 
-test('FastPath handles all null values correctly', function (): void {
+test('FastPath handles all null values correctly', function(): void {
     $dto = new SimpleDtoForFastPath(name: null, age: null, email: null);
 
     $result = FastPath::fastToArray($dto);
@@ -48,7 +48,7 @@ test('FastPath handles all null values correctly', function (): void {
     ]);
 });
 
-test('FastPath handles nested DTOs correctly', function (): void {
+test('FastPath handles nested DTOs correctly', function(): void {
     $nested = new SimpleDtoForFastPath(name: 'Nested', age: 25, email: 'nested@example.com');
     $dto = new DtoWithNestedDto(name: 'Parent', nested: $nested);
 
@@ -58,11 +58,13 @@ test('FastPath handles nested DTOs correctly', function (): void {
 
     expect($result['name'])->toBe('Parent');
     expect($result['nested'])->toBeInstanceOf(SimpleDtoForFastPath::class);
-    expect($result['nested']->name)->toBe('Nested');
-    expect($result['nested']->age)->toBe(25);
+    /** @var SimpleDtoForFastPath $nested */
+    $nested = $result['nested'];
+    expect($nested->name)->toBe('Nested');
+    expect($nested->age)->toBe(25);
 });
 
-test('FastPath handles null nested DTO correctly', function (): void {
+test('FastPath handles null nested DTO correctly', function(): void {
     $dto = new DtoWithNestedDto(name: 'Parent', nested: null);
 
     $result = FastPath::fastToArray($dto);
@@ -73,7 +75,7 @@ test('FastPath handles null nested DTO correctly', function (): void {
     ]);
 });
 
-test('FastPath handles deeply nested DTOs correctly', function (): void {
+test('FastPath handles deeply nested DTOs correctly', function(): void {
     $level2 = new SimpleDtoForFastPath(name: 'Level 2', age: 25, email: 'level2@example.com');
     $level1 = new DtoWithNestedDto(name: 'Level 1', nested: $level2);
 
@@ -82,10 +84,12 @@ test('FastPath handles deeply nested DTOs correctly', function (): void {
 
     expect($result['name'])->toBe('Level 1');
     expect($result['nested'])->toBeInstanceOf(SimpleDtoForFastPath::class);
-    expect($result['nested']->name)->toBe('Level 2');
+    /** @var SimpleDtoForFastPath $nested */
+    $nested = $result['nested'];
+    expect($nested->name)->toBe('Level 2');
 });
 
-test('FastPath handles arrays of DTOs correctly', function (): void {
+test('FastPath handles arrays of DTOs correctly', function(): void {
     $departments = [
         new DepartmentSimpleDto(name: 'IT', code: 'IT'),
         new DepartmentSimpleDto(name: 'HR', code: 'HR'),
@@ -102,12 +106,16 @@ test('FastPath handles arrays of DTOs correctly', function (): void {
     expect($result['departments'])->toBeArray();
     expect($result['departments'])->toHaveCount(2);
     expect($result['departments'][0])->toBeInstanceOf(DepartmentSimpleDto::class);
-    expect($result['departments'][0]->name)->toBe('IT');
+    /** @var DepartmentSimpleDto $dept0 */
+    $dept0 = $result['departments'][0];
+    expect($dept0->name)->toBe('IT');
     expect($result['departments'][1])->toBeInstanceOf(DepartmentSimpleDto::class);
-    expect($result['departments'][1]->name)->toBe('HR');
+    /** @var DepartmentSimpleDto $dept1 */
+    $dept1 = $result['departments'][1];
+    expect($dept1->name)->toBe('HR');
 });
 
-test('FastPath handles empty arrays correctly', function (): void {
+test('FastPath handles empty arrays correctly', function(): void {
     $dto = new CompanySimpleDto(
         name: 'Test Company',
         departments: [],
@@ -120,7 +128,7 @@ test('FastPath handles empty arrays correctly', function (): void {
     expect($result['projects'])->toBe([]);
 });
 
-test('FastPath handles mixed arrays correctly', function (): void {
+test('FastPath handles mixed arrays correctly', function(): void {
     $dto = new CompanySimpleDto(
         name: 'Test Company',
         departments: [
@@ -135,7 +143,7 @@ test('FastPath handles mixed arrays correctly', function (): void {
     expect($result['projects'])->toBe([]);
 });
 
-test('FastPath handles boolean values correctly', function (): void {
+test('FastPath handles boolean values correctly', function(): void {
     $dto = new CompanySimpleDto(
         name: 'Test Company',
         is_active: true,
@@ -146,7 +154,7 @@ test('FastPath handles boolean values correctly', function (): void {
     expect($result['is_active'])->toBeTrue();
 });
 
-test('FastPath handles false boolean correctly', function (): void {
+test('FastPath handles false boolean correctly', function(): void {
     $dto = new CompanySimpleDto(
         name: 'Test Company',
         is_active: false,
@@ -157,7 +165,7 @@ test('FastPath handles false boolean correctly', function (): void {
     expect($result['is_active'])->toBeFalse();
 });
 
-test('FastPath handles numeric values correctly', function (): void {
+test('FastPath handles numeric values correctly', function(): void {
     $dto = new CompanySimpleDto(
         name: 'Test Company',
         founded_year: 2020,
@@ -172,7 +180,7 @@ test('FastPath handles numeric values correctly', function (): void {
     expect($result['annual_revenue'])->toBe(1000000.50);
 });
 
-test('FastPath handles zero values correctly', function (): void {
+test('FastPath handles zero values correctly', function(): void {
     $dto = new CompanySimpleDto(
         name: 'Test Company',
         founded_year: 0,
@@ -187,7 +195,7 @@ test('FastPath handles zero values correctly', function (): void {
     expect($result['annual_revenue'])->toBe(0.0);
 });
 
-test('FastPath handles string values correctly', function (): void {
+test('FastPath handles string values correctly', function(): void {
     $dto = new CompanySimpleDto(
         name: 'Test Company',
         email: 'test@example.com',
@@ -207,7 +215,7 @@ test('FastPath handles string values correctly', function (): void {
     expect($result['country'])->toBe('USA');
 });
 
-test('FastPath handles empty strings correctly', function (): void {
+test('FastPath handles empty strings correctly', function(): void {
     $dto = new CompanySimpleDto(
         name: '',
         email: '',
@@ -219,7 +227,7 @@ test('FastPath handles empty strings correctly', function (): void {
     expect($result['email'])->toBe('');
 });
 
-test('FastPath toArray() uses FastPath for eligible DTOs', function (): void {
+test('FastPath toArray() uses FastPath for eligible DTOs', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30);
 
     // Should use FastPath
@@ -235,7 +243,7 @@ test('FastPath toArray() uses FastPath for eligible DTOs', function (): void {
     ]);
 });
 
-test('FastPath jsonSerialize() uses FastPath for eligible DTOs', function (): void {
+test('FastPath jsonSerialize() uses FastPath for eligible DTOs', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30);
 
     $result = $dto->jsonSerialize();
@@ -247,7 +255,7 @@ test('FastPath jsonSerialize() uses FastPath for eligible DTOs', function (): vo
     ]);
 });
 
-test('FastPath json_encode() works correctly', function (): void {
+test('FastPath json_encode() works correctly', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30, email: 'test@example.com');
 
     $json = json_encode($dto);
@@ -259,4 +267,3 @@ test('FastPath json_encode() works correctly', function (): void {
         'email' => 'test@example.com',
     ]);
 });
-

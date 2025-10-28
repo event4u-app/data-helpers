@@ -16,6 +16,7 @@ class DtoWithTemplateMethod extends SimpleDto
         public readonly ?string $name = null,
     ) {}
 
+    /** @return array<string, string> */
     protected function template(): array
     {
         return [
@@ -23,4 +24,3 @@ class DtoWithTemplateMethod extends SimpleDto
         ];
     }
 }
-

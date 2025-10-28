@@ -43,4 +43,3 @@ use Attribute;
 final readonly class NoValidation
 {
 }
-

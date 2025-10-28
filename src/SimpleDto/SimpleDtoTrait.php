@@ -8,6 +8,7 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\SimpleDto\Support\FastPath;
+use event4u\DataHelpers\SimpleDto\Support\UltraFastEngine;
 use RuntimeException;
 
 /**
@@ -156,7 +157,7 @@ trait SimpleDtoTrait
         $data = get_object_vars($this);
 
         // Phase 6 Optimization: Direct filtering is faster than array_diff_key for small sets
-        foreach (self::INTERNAL_PROPERTIES as $key => $_) {
+        foreach (array_keys(self::INTERNAL_PROPERTIES) as $key) {
             unset($data[$key]);
         }
 
@@ -231,8 +232,8 @@ trait SimpleDtoTrait
     public function toArray(): array
     {
         // Ultra-Fast Mode: Bypass all overhead
-        if (Support\UltraFastEngine::isUltraFast(static::class)) {
-            return Support\UltraFastEngine::toArray($this);
+        if (UltraFastEngine::isUltraFast(static::class)) {
+            return UltraFastEngine::toArray($this);
         }
 
         // Phase 7: Fast path for simple DTOs without attributes or runtime modifications
@@ -287,9 +288,9 @@ trait SimpleDtoTrait
         ?array $pipeline = null
     ): static {
         // Ultra-Fast Mode: Bypass all overhead
-        if (Support\UltraFastEngine::isUltraFast(static::class)) {
+        if (UltraFastEngine::isUltraFast(static::class)) {
             /** @var static */
-            return Support\UltraFastEngine::createFromArray(static::class, $data);
+            return UltraFastEngine::createFromArray(static::class, $data);
         }
 
         return static::fromSource($data, $template, $filters, $pipeline);

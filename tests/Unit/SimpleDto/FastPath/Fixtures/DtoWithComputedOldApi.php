@@ -17,11 +17,11 @@ class DtoWithComputedOldApi extends SimpleDto
         public readonly ?string $lastName = null,
     ) {}
 
+    /** @return array<string, callable(): string> */
     protected function computed(): array
     {
         return [
-            'fullName' => fn() => trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? '')),
+            'fullName' => fn(): string => trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? '')),
         ];
     }
 }
-

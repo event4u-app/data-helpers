@@ -25,4 +25,3 @@ use Attribute;
 class ConvertEmptyToNull
 {
 }
-

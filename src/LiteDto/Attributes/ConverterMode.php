@@ -28,4 +28,3 @@ use Attribute;
 class ConverterMode
 {
 }
-

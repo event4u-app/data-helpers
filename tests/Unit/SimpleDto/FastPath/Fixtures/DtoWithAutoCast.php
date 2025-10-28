@@ -19,4 +19,3 @@ class DtoWithAutoCast extends SimpleDto
         public readonly ?int $age = null,
     ) {}
 }
-

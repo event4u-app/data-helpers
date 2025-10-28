@@ -16,23 +16,22 @@ use Tests\Unit\SimpleDto\FastPath\Fixtures\DtoWithTemplateMethod;
  *
  * Phase 7: Tests for all method overrides that should disable FastPath.
  */
-test('DTO with casts() method is NOT eligible for FastPath', function (): void {
+test('DTO with casts() method is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithCastsMethod::class))->toBeFalse();
 });
 
-test('DTO with template() method is NOT eligible for FastPath', function (): void {
+test('DTO with template() method is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithTemplateMethod::class))->toBeFalse();
 });
 
-test('DTO with rules() method is NOT eligible for FastPath', function (): void {
+test('DTO with rules() method is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithRulesMethod::class))->toBeFalse();
 });
 
-test('DTO with filters() method is NOT eligible for FastPath', function (): void {
+test('DTO with filters() method is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithFiltersMethod::class))->toBeFalse();
 });
 
-test('DTO with computed() method (old API) is NOT eligible for FastPath', function (): void {
+test('DTO with computed() method (old API) is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithComputedOldApi::class))->toBeFalse();
 });
-

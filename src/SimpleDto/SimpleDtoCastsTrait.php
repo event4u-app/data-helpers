@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
+use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
 use event4u\DataHelpers\SimpleDto\Casts\ArrayCast;
 use event4u\DataHelpers\SimpleDto\Casts\BooleanCast;
 use event4u\DataHelpers\SimpleDto\Casts\CollectionCast;
@@ -110,7 +111,7 @@ trait SimpleDtoCastsTrait
         try {
             // Check if NoCasts attribute is present - skip all casting
             $metadata = ConstructorMetadata::get(static::class);
-            if (isset($metadata['classAttributes'][\event4u\DataHelpers\SimpleDto\Attributes\NoCasts::class])) {
+            if (isset($metadata['classAttributes'][NoCasts::class])) {
                 return [];
             }
 

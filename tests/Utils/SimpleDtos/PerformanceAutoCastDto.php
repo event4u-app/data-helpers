@@ -16,4 +16,3 @@ class PerformanceAutoCastDto extends SimpleDto
         public readonly string $email,
     ) {}
 }
-

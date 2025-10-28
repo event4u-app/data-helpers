@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDto;
 use ArrayAccess;
 use Countable;
 use event4u\DataHelpers\SimpleDto;
+use Generator;
 use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
@@ -222,9 +223,9 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
      *       // Process one item at a time
      *   }
      *
-     * @return \Generator<int, TDto>
+     * @return Generator<int, TDto>
      */
-    public function lazy(): \Generator
+    public function lazy(): Generator
     {
         foreach ($this->items as $key => $item) {
             yield $key => $item;
@@ -235,9 +236,9 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
      * Phase 6: Lazy filter using Generator for memory efficiency.
      *
      * @param callable(TDto, int): bool $callback
-     * @return \Generator<int, TDto>
+     * @return Generator<int, TDto>
      */
-    public function lazyFilter(callable $callback): \Generator
+    public function lazyFilter(callable $callback): Generator
     {
         foreach ($this->items as $key => $item) {
             if ($callback($item, $key)) {
@@ -251,9 +252,9 @@ final class DataCollection implements IteratorAggregate, ArrayAccess, Countable,
      *
      * @template TMapValue
      * @param callable(TDto, int): TMapValue $callback
-     * @return \Generator<int, TMapValue>
+     * @return Generator<int, TMapValue>
      */
-    public function lazyMap(callable $callback): \Generator
+    public function lazyMap(callable $callback): Generator
     {
         foreach ($this->items as $key => $item) {
             yield $key => $callback($item, $key);

@@ -20,11 +20,10 @@ class DateTimeCaster
      * Cast value to DateTime.
      *
      * @param mixed $value String date, timestamp, or null
-     * @return DateTime|null
      */
     public static function cast(mixed $value): ?DateTime
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
 
@@ -36,7 +35,6 @@ class DateTimeCaster
             return DateTime::createFromImmutable($value);
         }
 
-        return new DateTime((string) $value);
+        return new DateTime((string)$value);
     }
 }
-

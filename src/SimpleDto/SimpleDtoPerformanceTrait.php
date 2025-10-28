@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
+use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
 use event4u\DataHelpers\Support\ReflectionCache;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -191,7 +192,7 @@ trait SimpleDtoPerformanceTrait
         ReflectionCache::clear();
 
         // Phase 11a: Also clear ConstructorMetadata (including persistent cache)
-        \event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata::clear();
+        ConstructorMetadata::clear();
     }
 
     /**

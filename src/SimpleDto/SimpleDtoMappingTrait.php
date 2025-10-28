@@ -30,7 +30,7 @@ trait SimpleDtoMappingTrait
     /**
      * Cache for ReflectionClass instances per Dto class.
      *
-     * @var array<string, ReflectionClass>
+     * @var array<string, ReflectionClass<object>>
      */
     private static array $reflectionCache = [];
 
@@ -62,8 +62,8 @@ trait SimpleDtoMappingTrait
      */
     private static array $outputNameTransformCache = [];
 
-    /**
-     * Get cached ReflectionClass instance for the current class.
+    /** Get cached ReflectionClass instance for the current class.
+     * @return ReflectionClass<object>
      */
     private static function getReflection(): ReflectionClass
     {

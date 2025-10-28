@@ -45,4 +45,3 @@ use Attribute;
 class UltraFast
 {
 }
-

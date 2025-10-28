@@ -47,11 +47,13 @@ final class LaravelCacheAdapter implements CacheInterface
 
     public function clear(): bool
     {
+        /** @phpstan-ignore-next-line method.notFound */
         return $this->cache->flush();
     }
 
     public function getMultiple(array $keys, mixed $default = null): array
     {
+        /** @phpstan-ignore-next-line method.notFound */
         $result = $this->cache->many($keys);
 
         // Fill missing keys with default value
@@ -74,6 +76,7 @@ final class LaravelCacheAdapter implements CacheInterface
             return true;
         }
 
+        /** @phpstan-ignore-next-line method.notFound */
         return $this->cache->putMany($values, $ttl);
     }
 

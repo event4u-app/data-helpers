@@ -24,4 +24,3 @@ class DtoWithComputedMethod extends SimpleDto
         return trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
     }
 }
-

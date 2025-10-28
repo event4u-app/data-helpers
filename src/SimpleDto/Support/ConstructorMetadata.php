@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto\Support;
 
+use event4u\DataHelpers\Enums\CacheDriver;
+use event4u\DataHelpers\Enums\CacheInvalidation;
+use event4u\DataHelpers\Helpers\ConfigHelper;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDto\Attributes\NoAttributes;
 use event4u\DataHelpers\Support\Cache\CacheInvalidator;
 use event4u\DataHelpers\Support\Cache\CacheManager;
 use ReflectionClass;
@@ -83,7 +88,7 @@ final class ConstructorMetadata
         // Phase 6 Optimization #3: LRU Cache cleanup when size limit reached
         if (count(self::$cache) >= self::MAX_CACHE_SIZE) {
             // Remove oldest 20% of entries (simple LRU approximation)
-            $removeCount = (int) (self::MAX_CACHE_SIZE * 0.2);
+            $removeCount = (int)(self::MAX_CACHE_SIZE * 0.2);
             self::$cache = array_slice(self::$cache, $removeCount, null, true);
         }
 
@@ -142,7 +147,7 @@ final class ConstructorMetadata
             $classAttributes = self::extractClassAttributes($reflection);
 
             // Check if NoAttributes is present - skip all attribute processing
-            $skipAttributes = isset($classAttributes[\event4u\DataHelpers\SimpleDto\Attributes\NoAttributes::class]);
+            $skipAttributes = isset($classAttributes[NoAttributes::class]);
 
             $metadata = [
                 'parameters' => [],
@@ -151,7 +156,10 @@ final class ConstructorMetadata
 
             if (null !== $constructor) {
                 foreach ($constructor->getParameters() as $reflectionParameter) {
-                    $metadata['parameters'][$reflectionParameter->getName()] = self::extractParameterMetadata($reflectionParameter, $skipAttributes);
+                    $metadata['parameters'][$reflectionParameter->getName()] = self::extractParameterMetadata(
+                        $reflectionParameter,
+                        $skipAttributes
+                    );
                 }
             }
 
@@ -169,24 +177,22 @@ final class ConstructorMetadata
      * Check if persistent cache is enabled.
      *
      * Phase 11a Performance: Cache the result to avoid repeated config lookups.
-     *
-     * @return bool
      */
     private static function isPersistentCacheEnabled(): bool
     {
         if (null === self::$persistentCacheEnabled) {
             try {
-                $config = \event4u\DataHelpers\Helpers\ConfigHelper::getInstance();
-                $driver = $config->get('cache.driver', \event4u\DataHelpers\Enums\CacheDriver::AUTO);
+                $config = ConfigHelper::getInstance();
+                $driver = $config->get('cache.driver', CacheDriver::AUTO);
 
                 // Convert string to enum if needed
                 if (is_string($driver)) {
-                    $driver = \event4u\DataHelpers\Enums\CacheDriver::from($driver);
+                    $driver = CacheDriver::from($driver);
                 }
 
                 // Cache is disabled if driver is NONE
-                self::$persistentCacheEnabled = \event4u\DataHelpers\Enums\CacheDriver::NONE !== $driver;
-            } catch (\Throwable) {
+                self::$persistentCacheEnabled = CacheDriver::NONE !== $driver;
+            } catch (Throwable) {
                 // If config fails, assume cache is enabled (safe default)
                 self::$persistentCacheEnabled = true;
             }
@@ -243,44 +249,52 @@ final class ConstructorMetadata
             }
 
             // Check if validation is required based on cache.invalidation config
-            if (self::shouldValidateCache()) {
-                // MTIME/HASH/BOTH mode: Validate cache on every hit
-                if (!self::isCacheValid($class)) {
-                    // Cache is invalid - return null to trigger regeneration
-                    return null;
-                }
+            // MTIME/HASH/BOTH mode: Validate cache on every hit
+            if (self::shouldValidateCache() && !self::isCacheValid($class)) {
+                // Cache is invalid - return null to trigger regeneration
+                return null;
             }
             // MANUAL mode: No validation - trust the cache completely (Spatie-style)
 
             // Deserialize and return
-            return unserialize($serialized);
+            if (!is_string($serialized)) {
+                return null;
+            }
+
+            /** @var array{parameters: array<string, array{name: string, type: string|null, isBuiltin: bool, allowsNull: bool, attributes: array<string, object>}>, classAttributes: array<string, object>}|false $unserialized */
+            $unserialized = unserialize($serialized);
+
+            return false === $unserialized ? null : $unserialized;
         } catch (Throwable) {
             return null;
         }
     }
 
-    /**
-     * Check if cache validation is required based on config.
-     *
-     * @return bool
-     */
+    /** Check if cache validation is required based on config. */
     private static function shouldValidateCache(): bool
     {
         static $shouldValidate = null;
 
         if (null === $shouldValidate) {
             try {
-                $config = \event4u\DataHelpers\Helpers\ConfigHelper::getInstance();
-                $invalidation = $config->get('cache.invalidation', \event4u\DataHelpers\Enums\CacheInvalidation::MANUAL);
+                $config = ConfigHelper::getInstance();
+                $invalidation = $config->get(
+                    'cache.invalidation',
+                    CacheInvalidation::MANUAL
+                );
 
                 // Convert string to enum if needed
                 if (is_string($invalidation)) {
-                    $invalidation = \event4u\DataHelpers\Enums\CacheInvalidation::from($invalidation);
+                    $invalidation = CacheInvalidation::from($invalidation);
                 }
 
                 // Check if validation is required (MTIME/HASH/BOTH)
-                $shouldValidate = $invalidation->requiresValidation();
-            } catch (\Throwable) {
+                if ($invalidation instanceof CacheInvalidation) {
+                    $shouldValidate = $invalidation->requiresValidation();
+                } else {
+                    $shouldValidate = false;
+                }
+            } catch (Throwable) {
                 // If config fails, assume MANUAL mode (no validation)
                 $shouldValidate = false;
             }
@@ -293,22 +307,37 @@ final class ConstructorMetadata
      * Check if cache is valid for a class.
      *
      * @param class-string $class
-     * @return bool
      */
     private static function isCacheValid(string $class): bool
     {
         try {
-            $config = \event4u\DataHelpers\Helpers\ConfigHelper::getInstance();
-            $invalidation = $config->get('cache.invalidation', \event4u\DataHelpers\Enums\CacheInvalidation::MANUAL);
+            $cacheKey = 'dto_metadata_' . str_replace('\\', '_', $class);
 
-            // Convert string to enum if needed
-            if (is_string($invalidation)) {
-                $invalidation = \event4u\DataHelpers\Enums\CacheInvalidation::from($invalidation);
+            // Get cached data
+            $serialized = CacheManager::get($cacheKey);
+
+            if (null === $serialized || !is_string($serialized)) {
+                return false;
+            }
+
+            /** @var array{data: mixed, source_file?: string, mtime: int|false, hash: string|null, version: string}|false $cachedData */
+            $cachedData = unserialize($serialized);
+
+            if (false === $cachedData || !is_array($cachedData)) {
+                return false;
+            }
+
+            // Get source file for the class
+            $reflection = new ReflectionClass($class);
+            $sourceFile = $reflection->getFileName();
+
+            if (false === $sourceFile) {
+                return false;
             }
 
             // Use CacheInvalidator to check validity
-            return CacheInvalidator::isValid($class, $invalidation);
-        } catch (\Throwable) {
+            return CacheInvalidator::isValid($cachedData, $sourceFile);
+        } catch (Throwable) {
             // If validation fails, assume cache is invalid
             return false;
         }
@@ -345,6 +374,7 @@ final class ConstructorMetadata
     /**
      * Extract class-level attributes.
      *
+     * @param ReflectionClass<object> $reflection
      * @return array<string, object>
      */
     private static function extractClassAttributes(ReflectionClass $reflection): array
@@ -399,8 +429,8 @@ final class ConstructorMetadata
                     $attributes[$attribute->getName()] = $instance;
 
                     // Extract MapFrom attribute for code generation
-                    if ($instance instanceof \event4u\DataHelpers\SimpleDto\Attributes\MapFrom) {
-                        $mapFrom = $instance->path;
+                    if ($instance instanceof MapFrom) {
+                        $mapFrom = is_array($instance->source) ? $instance->source[0] : $instance->source;
                     }
                 } catch (Throwable) {
                     // Skip attributes that can't be instantiated
@@ -420,7 +450,11 @@ final class ConstructorMetadata
         ];
     }
 
-    /** Check if a class has a specific class-level attribute. */
+    /**
+     * Check if a class has a specific class-level attribute.
+     *
+     * @param class-string $class
+     */
     public static function hasClassAttribute(string $class, string $attributeClass): bool
     {
         $metadata = self::get($class);
@@ -428,7 +462,11 @@ final class ConstructorMetadata
         return isset($metadata['classAttributes'][$attributeClass]);
     }
 
-    /** Get a specific class-level attribute instance. */
+    /**
+     * Get a specific class-level attribute instance.
+     *
+     * @param class-string $class
+     */
     public static function getClassAttribute(string $class, string $attributeClass): ?object
     {
         $metadata = self::get($class);
@@ -436,7 +474,11 @@ final class ConstructorMetadata
         return $metadata['classAttributes'][$attributeClass] ?? null;
     }
 
-    /** Check if a parameter has a specific attribute. */
+    /**
+     * Check if a parameter has a specific attribute.
+     *
+     * @param class-string $class
+     */
     public static function hasParameterAttribute(string $class, string $paramName, string $attributeClass): bool
     {
         $metadata = self::get($class);
@@ -444,7 +486,11 @@ final class ConstructorMetadata
         return isset($metadata['parameters'][$paramName]['attributes'][$attributeClass]);
     }
 
-    /** Get a specific parameter attribute instance. */
+    /**
+     * Get a specific parameter attribute instance.
+     *
+     * @param class-string $class
+     */
     public static function getParameterAttribute(string $class, string $paramName, string $attributeClass): ?object
     {
         $metadata = self::get($class);
@@ -455,6 +501,7 @@ final class ConstructorMetadata
     /**
      * Get all parameters with their metadata.
      *
+     * @param class-string $class
      * @return array<string, array{
      *     name: string,
      *     type: ?string,
@@ -470,7 +517,11 @@ final class ConstructorMetadata
         return $metadata['parameters'];
     }
 
-    /** Get parameter type. */
+    /**
+     * Get parameter type.
+     *
+     * @param class-string $class
+     */
     public static function getParameterType(string $class, string $paramName): ?string
     {
         $metadata = self::get($class);
@@ -478,7 +529,11 @@ final class ConstructorMetadata
         return $metadata['parameters'][$paramName]['type'] ?? null;
     }
 
-    /** Check if parameter type is builtin. */
+    /**
+     * Check if parameter type is builtin.
+     *
+     * @param class-string $class
+     */
     public static function isParameterBuiltin(string $class, string $paramName): bool
     {
         $metadata = self::get($class);
@@ -486,7 +541,11 @@ final class ConstructorMetadata
         return $metadata['parameters'][$paramName]['isBuiltin'] ?? false;
     }
 
-    /** Check if parameter allows null. */
+    /**
+     * Check if parameter allows null.
+     *
+     * @param class-string $class
+     */
     public static function parameterAllowsNull(string $class, string $paramName): bool
     {
         $metadata = self::get($class);
@@ -507,7 +566,7 @@ final class ConstructorMetadata
         // Also clear persistent cache
         try {
             CacheManager::clear();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Silently fail - persistent cache is optional
         }
     }
@@ -525,7 +584,7 @@ final class ConstructorMetadata
         try {
             $cacheKey = 'dto_metadata_' . str_replace('\\', '_', $class);
             CacheManager::delete($cacheKey);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Silently fail - persistent cache is optional
         }
     }

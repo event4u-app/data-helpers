@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto\Support;
 
-use WeakMap;
+use Exception;
 
 /**
  * Phase 6: Object Pool for DTO instances to reduce memory allocations.
@@ -29,9 +29,9 @@ final class DtoPool
     /**
      * Pool of DTO instances by class and hash.
      *
-     * @var WeakMap<object, array<string, object>>
+     * @var array<string, array<string, object>>
      */
-    private WeakMap $pool;
+    private array $pool = [];
 
     /** @var array<string, int> Statistics: hits per class */
     private array $hits = [];
@@ -41,12 +41,11 @@ final class DtoPool
 
     private function __construct()
     {
-        $this->pool = new WeakMap();
     }
 
     public static function getInstance(): self
     {
-        if (null === self::$instance) {
+        if (!self::$instance instanceof \event4u\DataHelpers\SimpleDto\Support\DtoPool) {
             self::$instance = new self();
         }
 
@@ -69,12 +68,16 @@ final class DtoPool
         // Check if we have a pooled instance
         if (isset($this->pool[$class][$hash])) {
             $this->hits[$class] = ($this->hits[$class] ?? 0) + 1;
+            /** @var TDto */
             return $this->pool[$class][$hash];
         }
 
         // Create new instance
         $this->misses[$class] = ($this->misses[$class] ?? 0) + 1;
-        $dto = $class::fromArray($data);
+
+        // Create DTO using new instance (assuming constructor accepts data)
+        /** @var TDto $dto */
+        $dto = new $class(...$data);
 
         // Store in pool
         if (!isset($this->pool[$class])) {
@@ -93,7 +96,7 @@ final class DtoPool
     public function clear(?string $class = null): void
     {
         if (null === $class) {
-            $this->pool = new WeakMap();
+            $this->pool = [];
             $this->hits = [];
             $this->misses = [];
         } else {
@@ -113,7 +116,7 @@ final class DtoPool
         $hitRate = [];
         foreach ($this->hits as $class => $hits) {
             $total = $hits + ($this->misses[$class] ?? 0);
-            $hitRate[$class] = $total > 0 ? round($hits / $total * 100, 2) : 0.0;
+            $hitRate[$class] = 0 < $total ? round($hits / $total * 100, 2) : 0.0;
         }
 
         return [
@@ -134,7 +137,8 @@ final class DtoPool
         ksort($data);
 
         // Use serialize for complex data structures
-        return md5(serialize($data));
+        // Using xxh128 for better performance and security than md5
+        return hash('xxh128', serialize($data));
     }
 
     /** Prevent cloning. */
@@ -143,7 +147,6 @@ final class DtoPool
     /** Prevent unserialization. */
     public function __wakeup(): void
     {
-        throw new \Exception('Cannot unserialize singleton');
+        throw new Exception('Cannot unserialize singleton');
     }
 }
-

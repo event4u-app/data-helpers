@@ -30,8 +30,7 @@ try {
 
     // Execute cache warming silently
     $command->execute($directories, verbose: false, validate: false);
-} catch (Throwable $e) {
+} catch (Throwable) {
     // Silently fail - cache warming is optional
     // Tests will still work, just slower on first run
 }
-

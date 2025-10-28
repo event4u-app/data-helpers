@@ -59,6 +59,7 @@ abstract class LiteDto implements JsonSerializable
      */
     public static function from(mixed $data): static
     {
+        /** @var static */
         return LiteEngine::createFromData(static::class, $data);
     }
 
@@ -74,9 +75,7 @@ abstract class LiteDto implements JsonSerializable
         return LiteEngine::toArray($this);
     }
 
-    /**
-     * Convert DTO to JSON.
-     */
+    /** Convert DTO to JSON. */
     public function toJson(int $options = 0): string
     {
         return json_encode($this->toArray(), JSON_THROW_ON_ERROR | $options);
@@ -92,4 +91,3 @@ abstract class LiteDto implements JsonSerializable
         return $this->toArray();
     }
 }
-

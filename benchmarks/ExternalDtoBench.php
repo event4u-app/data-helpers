@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Benchmarks;
 
+use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 use PhpBench\Attributes\BeforeMethods;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
-use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
-use event4u\DataHelpers\LiteDto\LiteDto;
 
 // External DTO libraries (installed temporarily)
 
@@ -79,6 +79,9 @@ class ExternalDtoBench
         if (!trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
             return; // Skip if not installed
         }
+        if (!class_exists(OtherDepartmentData::class)) {
+            return;
+        }
         OtherDepartmentData::from($this->testData);
     }
 
@@ -87,13 +90,26 @@ class ExternalDtoBench
     #[Iterations(5)]
     public function benchPlainPhpConstructor(): void
     {
-        new PlainDepartmentDtoWithConstructor(
-            $this->testData['name'],
-            $this->testData['code'],
-            $this->testData['budget'],
-            $this->testData['employee_count'],
-            $this->testData['manager_name']
+        /** @var string $name */
+        $name = $this->testData['name'];
+        /** @var string $code */
+        $code = $this->testData['code'];
+        /** @var float $budget */
+        $budget = $this->testData['budget'];
+        /** @var int $employeeCount */
+        $employeeCount = $this->testData['employee_count'];
+        /** @var string $managerName */
+        $managerName = $this->testData['manager_name'];
+
+        $dto = new PlainDepartmentDtoWithConstructor(
+            $name,
+            $code,
+            $budget,
+            $employeeCount,
+            $managerName
         );
+        // Ensure the object is used to prevent optimization
+        unset($dto);
     }
 
     /** Benchmark: Plain PHP - new + assign */
@@ -102,11 +118,22 @@ class ExternalDtoBench
     public function benchPlainPhpNewAssign(): void
     {
         $dto = new PlainDepartmentDto();
-        $dto->name = $this->testData['name'];
-        $dto->code = $this->testData['code'];
-        $dto->budget = $this->testData['budget'];
-        $dto->employee_count = $this->testData['employee_count'];
-        $dto->manager_name = $this->testData['manager_name'];
+        /** @var string $name */
+        $name = $this->testData['name'];
+        /** @var string $code */
+        $code = $this->testData['code'];
+        /** @var float $budget */
+        $budget = $this->testData['budget'];
+        /** @var int $employeeCount */
+        $employeeCount = $this->testData['employee_count'];
+        /** @var string $managerName */
+        $managerName = $this->testData['manager_name'];
+
+        $dto->name = $name;
+        $dto->code = $code;
+        $dto->budget = $budget;
+        $dto->employee_count = $employeeCount;
+        $dto->manager_name = $managerName;
     }
 
     /** Benchmark: Our SimpleDto - toArray() */
@@ -143,6 +170,9 @@ class ExternalDtoBench
     {
         if (!trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
             return; // Skip if not installed
+        }
+        if (!class_exists(OtherDepartmentData::class)) {
+            return;
         }
         $dto = OtherDepartmentData::from($this->testData);
         $dto->toArray();
@@ -204,6 +234,9 @@ class ExternalDtoBench
     {
         if (!trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
             return; // Skip if not installed
+        }
+        if (!class_exists(OtherDepartmentData::class)) {
+            return;
         }
         OtherDepartmentData::from($this->complexData);
     }
@@ -286,6 +319,7 @@ class UltraFastLiteDepartmentDto extends LiteDto
  */
 if (trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
     // Create class dynamically to avoid hardcoded trait reference
+    // @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval
     eval('namespace event4u\DataHelpers\Benchmarks;
 
     class OtherDepartmentData

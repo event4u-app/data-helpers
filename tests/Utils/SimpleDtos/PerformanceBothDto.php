@@ -17,4 +17,3 @@ class PerformanceBothDto extends SimpleDto
         public readonly string $email,
     ) {}
 }
-

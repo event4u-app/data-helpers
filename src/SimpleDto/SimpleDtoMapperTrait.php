@@ -6,6 +6,8 @@ namespace event4u\DataHelpers\SimpleDto;
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
+use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
 use Exception;
 use InvalidArgumentException;
 use ReflectionClass;
@@ -509,25 +511,21 @@ trait SimpleDtoMapperTrait
         return new static(...$data);
     }
 
-    /**
-     * Check if class has #[NoCasts] attribute (cached).
-     */
-    private static function hasNoCastsAttribute(): bool
+    /** Check if class has #[NoCasts] attribute (cached). */
+    protected static function hasNoCastsAttribute(): bool
     {
         $class = static::class;
 
         if (!isset(self::$noCastsCache[$class])) {
-            $metadata = \event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata::get($class);
-            self::$noCastsCache[$class] = isset($metadata['classAttributes'][\event4u\DataHelpers\SimpleDto\Attributes\NoCasts::class]);
+            $metadata = ConstructorMetadata::get($class);
+            self::$noCastsCache[$class] = isset($metadata['classAttributes'][NoCasts::class]);
         }
 
         return self::$noCastsCache[$class];
     }
 
-    /**
-     * Check if class has lazy properties (cached).
-     */
-    private static function hasLazyProperties(): bool
+    /** Check if class has lazy properties (cached). */
+    protected static function hasLazyProperties(): bool
     {
         $class = static::class;
 
@@ -539,10 +537,8 @@ trait SimpleDtoMapperTrait
         return self::$hasLazyCache[$class];
     }
 
-    /**
-     * Check if class has optional properties (cached).
-     */
-    private static function hasOptionalProperties(): bool
+    /** Check if class has optional properties (cached). */
+    protected static function hasOptionalProperties(): bool
     {
         $class = static::class;
 

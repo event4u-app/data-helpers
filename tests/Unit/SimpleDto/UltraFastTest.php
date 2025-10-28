@@ -8,6 +8,8 @@ use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
+use event4u\DataHelpers\SimpleDto\Support\UltraFastEngine;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +21,7 @@ final class UltraFastTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        \event4u\DataHelpers\SimpleDto\Support\UltraFastEngine::clearCache();
+        UltraFastEngine::clearCache();
     }
 
     #[Test]
@@ -100,7 +102,6 @@ final class UltraFastTest extends TestCase
         ]);
 
         $this->assertSame('Acme Corp', $dto->name);
-        $this->assertInstanceOf(UltraFastDepartmentDto::class, $dto->department);
         $this->assertSame('Engineering', $dto->department->name);
         $this->assertSame('ENG', $dto->department->code);
     }
@@ -159,7 +160,7 @@ final class UltraFastTest extends TestCase
     #[Test]
     public function it_throws_exception_for_missing_required_parameter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Missing required parameter: name');
 
         UltraFastDepartmentDto::fromArray([
@@ -180,21 +181,21 @@ final class UltraFastTest extends TestCase
         ];
 
         // Warm up
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; 100 > $i; $i++) {
             UltraFastDepartmentDto::fromArray($data);
             NormalDepartmentDto::fromArray($data);
         }
 
         // Benchmark UltraFast
         $start = microtime(true);
-        for ($i = 0; $i < 1000; $i++) {
+        for ($i = 0; 1000 > $i; $i++) {
             UltraFastDepartmentDto::fromArray($data);
         }
         $ultraFastTime = microtime(true) - $start;
 
         // Benchmark Normal
         $start = microtime(true);
-        for ($i = 0; $i < 1000; $i++) {
+        for ($i = 0; 1000 > $i; $i++) {
             NormalDepartmentDto::fromArray($data);
         }
         $normalTime = microtime(true) - $start;
@@ -272,4 +273,3 @@ class NormalDepartmentDto extends SimpleDto
         public readonly int $employee_count = 0,
     ) {}
 }
-

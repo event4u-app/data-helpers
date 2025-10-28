@@ -37,7 +37,8 @@ final class CacheInvalidator
         $hash = null;
 
         if (CacheInvalidation::HASH === $strategy || CacheInvalidation::BOTH === $strategy) {
-            $hash = file_exists($sourceFile) ? hash_file('xxh128', $sourceFile) : null;
+            $hashResult = file_exists($sourceFile) ? hash_file('xxh128', $sourceFile) : false;
+            $hash = is_string($hashResult) ? $hashResult : null;
         }
 
         return [
@@ -116,7 +117,7 @@ final class CacheInvalidator
      *
      * @param string $key Cache key
      * @param string $sourceFile Source file to track for changes
-     * @param callable $generator Callback to generate value if cache is invalid
+     * @param callable(): mixed $generator Callback to generate value if cache is invalid
      *
      * @return mixed The cached or generated value
      */
@@ -126,9 +127,11 @@ final class CacheInvalidator
         $cached = CacheManager::get($key);
 
         // Check if cache is valid
-        if (is_array($cached) && isset($cached['data'], $cached['mtime'], $cached['version'])) {
-            if (self::isValid($cached, $sourceFile)) {
-                return self::unwrap($cached);
+        if (is_array($cached) && isset($cached['data'], $cached['mtime'], $cached['hash'], $cached['version'])) {
+            /** @var array{data: mixed, source_file?: string, mtime: int|false, hash: string|null, version: string} $cachedData */
+            $cachedData = $cached;
+            if (self::isValid($cachedData, $sourceFile)) {
+                return self::unwrap($cachedData);
             }
         }
 
@@ -154,7 +157,11 @@ final class CacheInvalidator
             return CacheInvalidation::from($strategy);
         }
 
-        return $strategy;
+        if ($strategy instanceof CacheInvalidation) {
+            return $strategy;
+        }
+
+        return CacheInvalidation::MTIME;
     }
 
     /**
@@ -165,9 +172,13 @@ final class CacheInvalidator
         // Try to get version from composer.json
         $composerFile = __DIR__ . '/../../../composer.json';
         if (file_exists($composerFile)) {
-            $composer = json_decode(file_get_contents($composerFile), true);
-            if (isset($composer['version'])) {
-                return $composer['version'];
+            $contents = file_get_contents($composerFile);
+            if (is_string($contents)) {
+                /** @var array{version?: string}|null $composer */
+                $composer = json_decode($contents, true);
+                if (is_array($composer) && isset($composer['version']) && is_string($composer['version'])) {
+                    return $composer['version'];
+                }
             }
         }
 

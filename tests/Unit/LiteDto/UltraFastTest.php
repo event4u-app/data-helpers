@@ -26,9 +26,9 @@ class UltraFastProductDto extends LiteDto
     ) {}
 }
 
-describe('UltraFast Mode', function (): void {
-    describe('Basic Functionality', function (): void {
-        it('creates DTO from array', function (): void {
+describe('UltraFast Mode', function(): void {
+    describe('Basic Functionality', function(): void {
+        it('creates DTO from array', function(): void {
             $dto = UltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -40,7 +40,7 @@ describe('UltraFast Mode', function (): void {
                 ->and($dto->email)->toBe('john@example.com');
         });
 
-        it('converts DTO to array', function (): void {
+        it('converts DTO to array', function(): void {
             $dto = UltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -56,7 +56,7 @@ describe('UltraFast Mode', function (): void {
             ]);
         });
 
-        it('converts DTO to JSON', function (): void {
+        it('converts DTO to JSON', function(): void {
             $dto = UltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -69,15 +69,15 @@ describe('UltraFast Mode', function (): void {
         });
     });
 
-    describe('Performance Optimizations', function (): void {
-        it('throws TypeError for missing required properties', function (): void {
+    describe('Performance Optimizations', function(): void {
+        it('throws TypeError for missing required properties', function(): void {
             UltraFastUserDto::from([
                 'name' => 'John',
                 // age and email missing - will cause TypeError
             ]);
         })->throws(TypeError::class);
 
-        it('ignores extra properties', function (): void {
+        it('ignores extra properties', function(): void {
             $dto = UltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -95,8 +95,8 @@ describe('UltraFast Mode', function (): void {
         });
     });
 
-    describe('Multiple DTOs', function (): void {
-        it('handles different DTO types', function (): void {
+    describe('Multiple DTOs', function(): void {
+        it('handles different DTO types', function(): void {
             $user = UltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -115,15 +115,15 @@ describe('UltraFast Mode', function (): void {
         });
     });
 
-    describe('Error Handling', function (): void {
-        it('throws exception for non-array data', function (): void {
+    describe('Error Handling', function(): void {
+        it('throws exception for non-array data', function(): void {
             UltraFastUserDto::from('{"name":"John"}');
         })->throws(
             InvalidArgumentException::class,
             'UltraFast mode only accepts arrays'
         );
 
-        it('throws exception for objects', function (): void {
+        it('throws exception for objects', function(): void {
             UltraFastUserDto::from((object)['name' => 'John']);
         })->throws(
             InvalidArgumentException::class,
@@ -131,8 +131,8 @@ describe('UltraFast Mode', function (): void {
         );
     });
 
-    describe('Caching', function (): void {
-        it('caches parameter names for performance', function (): void {
+    describe('Caching', function(): void {
+        it('caches parameter names for performance', function(): void {
             // First call
             $dto1 = UltraFastUserDto::from([
                 'name' => 'John',
@@ -152,4 +152,3 @@ describe('UltraFast Mode', function (): void {
         });
     });
 });
-

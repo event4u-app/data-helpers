@@ -23,4 +23,3 @@ class DtoWithRulesMethod extends SimpleDto
         ];
     }
 }
-

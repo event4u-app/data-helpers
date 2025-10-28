@@ -65,4 +65,3 @@ class LargeDto extends SimpleDto
         public readonly ?string $prop50 = null,
     ) {}
 }
-

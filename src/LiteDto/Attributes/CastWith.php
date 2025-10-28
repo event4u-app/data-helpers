@@ -31,11 +31,8 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class CastWith
 {
-    /**
-     * @param class-string $casterClass
-     */
+    /** @param class-string $casterClass */
     public function __construct(
         public readonly string $casterClass,
     ) {}
 }
-

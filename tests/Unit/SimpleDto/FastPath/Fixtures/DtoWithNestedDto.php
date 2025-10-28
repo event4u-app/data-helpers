@@ -17,4 +17,3 @@ class DtoWithNestedDto extends SimpleDto
         public readonly ?SimpleDtoForFastPath $nested = null,
     ) {}
 }
-

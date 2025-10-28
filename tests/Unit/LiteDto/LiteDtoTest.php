@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\LiteDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
-use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\Hidden;
+use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use event4u\DataHelpers\LiteDto\LiteDto;
 
@@ -151,7 +151,7 @@ describe('LiteDto', function(): void {
         });
 
         it('throws exception for missing required property', function(): void {
-            expect(fn() => MappedLiteDto::from([
+            expect(fn(): \MappedLiteDto => MappedLiteDto::from([
                 'user_name' => 'John',
             ]))->toThrow(TypeError::class);
         });
@@ -327,9 +327,8 @@ describe('LiteDto', function(): void {
         });
 
         it('throws exception without ConverterMode', function(): void {
-            expect(fn() => BasicLiteDto::from('{"name":"John","age":30}'))
+            expect(fn(): \BasicLiteDto => BasicLiteDto::from('{"name":"John","age":30}'))
                 ->toThrow(InvalidArgumentException::class);
         });
     });
 });
-

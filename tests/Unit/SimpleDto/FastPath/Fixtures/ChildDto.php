@@ -17,4 +17,3 @@ class ChildDto extends ParentDto
         parent::__construct($parentProperty);
     }
 }
-

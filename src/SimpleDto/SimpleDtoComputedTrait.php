@@ -45,7 +45,7 @@ trait SimpleDtoComputedTrait
     public function includeComputed(array $properties): static
     {
         // Phase 6 Optimization: Lazy cloning - avoid clone if no properties to add
-        if (empty($properties)) {
+        if ([] === $properties) {
             return $this; // No properties to add, return self
         }
 

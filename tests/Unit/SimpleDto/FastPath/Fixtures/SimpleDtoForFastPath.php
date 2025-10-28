@@ -18,4 +18,3 @@ class SimpleDtoForFastPath extends SimpleDto
         public readonly ?string $email = null,
     ) {}
 }
-

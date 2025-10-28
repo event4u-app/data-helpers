@@ -13,9 +13,9 @@ use event4u\DataHelpers\SimpleDto\DataCollection;
  */
 class DtoWithDataCollection extends SimpleDto
 {
+    /** @param DataCollection<SimpleDto>|null $items */
     public function __construct(
         public readonly ?string $name = null,
         public readonly ?DataCollection $items = null,
     ) {}
 }
-

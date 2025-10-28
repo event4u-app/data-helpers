@@ -27,12 +27,12 @@ use Tests\Unit\SimpleDto\FastPath\Fixtures\SimpleDtoForFastPath;
 // DataCollection Tests
 // ============================================================================
 
-test('DTO with DataCollection property is eligible for FastPath', function (): void {
+test('DTO with DataCollection property is eligible for FastPath', function(): void {
     // DataCollection is just a property, doesn't affect FastPath eligibility
     expect(FastPath::canUseFastPath(DtoWithDataCollection::class))->toBeTrue();
 });
 
-test('FastPath handles DataCollection correctly', function (): void {
+test('FastPath handles DataCollection correctly', function(): void {
     $collection = DataCollection::forDto(SimpleDtoForFastPath::class, [
         ['name' => 'Item 1', 'age' => 20],
         ['name' => 'Item 2', 'age' => 30],
@@ -50,23 +50,23 @@ test('FastPath handles DataCollection correctly', function (): void {
 // Attribute Category Tests
 // ============================================================================
 
-test('DTO with conditional property attribute is NOT eligible for FastPath', function (): void {
+test('DTO with conditional property attribute is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithConditionalProperty::class))->toBeFalse();
 });
 
-test('DTO with mapping attribute is NOT eligible for FastPath', function (): void {
+test('DTO with mapping attribute is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithMappingAttribute::class))->toBeFalse();
 });
 
-test('DTO with validation attribute is NOT eligible for FastPath', function (): void {
+test('DTO with validation attribute is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithValidationAttribute::class))->toBeFalse();
 });
 
-test('DTO with cast attribute is NOT eligible for FastPath', function (): void {
+test('DTO with cast attribute is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithCastAttribute::class))->toBeFalse();
 });
 
-test('DTO with multiple attributes on one property is NOT eligible for FastPath', function (): void {
+test('DTO with multiple attributes on one property is NOT eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(DtoWithMultipleAttributes::class))->toBeFalse();
 });
 
@@ -74,35 +74,35 @@ test('DTO with multiple attributes on one property is NOT eligible for FastPath'
 // Runtime Modification Tests (Wrapping, Sorting, Additional Data)
 // ============================================================================
 
-test('DTO with wrap() is NOT eligible for FastPath at runtime', function (): void {
+test('DTO with wrap() is NOT eligible for FastPath at runtime', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30);
     $wrapped = $dto->wrap('data');
 
     expect(FastPath::canUseFastPathAtRuntime($wrapped))->toBeFalse();
 });
 
-test('DTO with sorted() is NOT eligible for FastPath at runtime', function (): void {
+test('DTO with sorted() is NOT eligible for FastPath at runtime', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30);
     $sorted = $dto->sorted();
 
     expect(FastPath::canUseFastPathAtRuntime($sorted))->toBeFalse();
 });
 
-test('DTO with sorted(desc) is NOT eligible for FastPath at runtime', function (): void {
+test('DTO with sorted(desc) is NOT eligible for FastPath at runtime', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30);
     $sorted = $dto->sorted('desc');
 
     expect(FastPath::canUseFastPathAtRuntime($sorted))->toBeFalse();
 });
 
-test('DTO with sortedBy() is NOT eligible for FastPath at runtime', function (): void {
+test('DTO with sortedBy() is NOT eligible for FastPath at runtime', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30);
-    $sorted = $dto->sortedBy(fn($a, $b) => strcmp($a, $b));
+    $sorted = $dto->sortedBy(fn(mixed $a, mixed $b): int => strcmp((string)$a, (string)$b));
 
     expect(FastPath::canUseFastPathAtRuntime($sorted))->toBeFalse();
 });
 
-test('DTO with with() additional data is NOT eligible for FastPath at runtime', function (): void {
+test('DTO with with() additional data is NOT eligible for FastPath at runtime', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30);
     $withData = $dto->with('extra', 'value');
 
@@ -113,15 +113,15 @@ test('DTO with with() additional data is NOT eligible for FastPath at runtime', 
 // Inheritance Tests
 // ============================================================================
 
-test('parent DTO without attributes is eligible for FastPath', function (): void {
+test('parent DTO without attributes is eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(ParentDto::class))->toBeTrue();
 });
 
-test('child DTO extending parent without attributes is eligible for FastPath', function (): void {
+test('child DTO extending parent without attributes is eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(ChildDto::class))->toBeTrue();
 });
 
-test('FastPath works correctly with inherited properties', function (): void {
+test('FastPath works correctly with inherited properties', function(): void {
     $dto = new ChildDto(parentProperty: 'Parent', childProperty: 'Child');
 
     $result = FastPath::fastToArray($dto);
@@ -134,11 +134,11 @@ test('FastPath works correctly with inherited properties', function (): void {
 // Performance Tests
 // ============================================================================
 
-test('large DTO with 50 properties is eligible for FastPath', function (): void {
+test('large DTO with 50 properties is eligible for FastPath', function(): void {
     expect(FastPath::canUseFastPath(LargeDto::class))->toBeTrue();
 });
 
-test('FastPath handles large DTOs efficiently', function (): void {
+test('FastPath handles large DTOs efficiently', function(): void {
     $dto = new LargeDto(
         prop1: 'value1',
         prop2: 'value2',
@@ -162,7 +162,7 @@ test('FastPath handles large DTOs efficiently', function (): void {
     expect($result['prop50'])->toBe('value50');
 });
 
-test('FastPath is faster than normal path for large DTOs', function (): void {
+test('FastPath is faster than normal path for large DTOs', function(): void {
     $dto = new LargeDto(
         prop1: 'value1',
         prop10: 'value10',
@@ -199,7 +199,7 @@ test('FastPath is faster than normal path for large DTOs', function (): void {
 // Edge Cases
 // ============================================================================
 
-test('FastPath handles DTO with all null properties', function (): void {
+test('FastPath handles DTO with all null properties', function(): void {
     $dto = new LargeDto();
 
     $result = FastPath::fastToArray($dto);
@@ -209,7 +209,7 @@ test('FastPath handles DTO with all null properties', function (): void {
     expect($result['prop50'])->toBeNull();
 });
 
-test('FastPath cache can be cleared', function (): void {
+test('FastPath cache can be cleared', function(): void {
     // First call - caches result
     $result1 = FastPath::canUseFastPath(SimpleDtoForFastPath::class);
 
@@ -223,7 +223,7 @@ test('FastPath cache can be cleared', function (): void {
     expect($result1)->toBeTrue();
 });
 
-test('FastPath stats are tracked correctly', function (): void {
+test('FastPath stats are tracked correctly', function(): void {
     FastPath::clearCache();
 
     // Check some DTOs
@@ -238,12 +238,12 @@ test('FastPath stats are tracked correctly', function (): void {
     expect($stats['ineligible'])->toBe(1);
 });
 
-test('FastPath handles concurrent toArray() calls correctly', function (): void {
+test('FastPath handles concurrent toArray() calls correctly', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30);
 
     // Simulate concurrent calls
     $results = [];
-    for ($i = 0; $i < 10; $i++) {
+    for ($i = 0; 10 > $i; $i++) {
         $results[] = $dto->toArray();
     }
 
@@ -253,7 +253,7 @@ test('FastPath handles concurrent toArray() calls correctly', function (): void 
     }
 });
 
-test('FastPath correctly identifies DTOs that become ineligible at runtime', function (): void {
+test('FastPath correctly identifies DTOs that become ineligible at runtime', function(): void {
     $dto = new SimpleDtoForFastPath(name: 'Test', age: 30);
 
     // Initially eligible
@@ -265,4 +265,3 @@ test('FastPath correctly identifies DTOs that become ineligible at runtime', fun
     expect(FastPath::canUseFastPath(SimpleDtoForFastPath::class))->toBeTrue(); // Class still eligible
     expect(FastPath::canUseFastPathAtRuntime($modified))->toBeFalse(); // Instance not eligible
 });
-

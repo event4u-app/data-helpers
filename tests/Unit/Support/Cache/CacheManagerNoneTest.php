@@ -7,8 +7,8 @@ use event4u\DataHelpers\Helpers\ConfigHelper;
 use event4u\DataHelpers\Support\Cache\Adapters\NullCacheAdapter;
 use event4u\DataHelpers\Support\Cache\CacheManager;
 
-describe('CacheManager with NONE driver', function () {
-    beforeEach(function () {
+describe('CacheManager with NONE driver', function(): void {
+    beforeEach(function(): void {
         // Reset cache manager
         CacheManager::reset();
 
@@ -16,22 +16,22 @@ describe('CacheManager with NONE driver', function () {
         ConfigHelper::getInstance()->set('cache.driver', CacheDriver::NONE);
     });
 
-    afterEach(function () {
+    afterEach(function(): void {
         CacheManager::reset();
         ConfigHelper::getInstance()->reset();
     });
 
-    it('uses NullCacheAdapter when driver is NONE', function () {
+    it('uses NullCacheAdapter when driver is NONE', function(): void {
         $instance = CacheManager::getInstance();
         expect($instance)->toBeInstanceOf(NullCacheAdapter::class);
     });
 
-    it('reports NONE as detected driver', function () {
+    it('reports NONE as detected driver', function(): void {
         CacheManager::getInstance(); // Trigger detection
         expect(CacheManager::getDriver())->toBe(CacheDriver::NONE);
     });
 
-    it('does not cache anything', function () {
+    it('does not cache anything', function(): void {
         // Set a value
         $result = CacheManager::set('test_key', 'test_value');
         expect($result)->toBeFalse();
@@ -44,7 +44,7 @@ describe('CacheManager with NONE driver', function () {
         expect(CacheManager::has('test_key'))->toBeFalse();
     });
 
-    it('always returns default values', function () {
+    it('always returns default values', function(): void {
         CacheManager::set('key', 'value');
 
         expect(CacheManager::get('key'))->toBeNull();
@@ -52,7 +52,7 @@ describe('CacheManager with NONE driver', function () {
         expect(CacheManager::get('key', 123))->toBe(123);
     });
 
-    it('handles multiple operations', function () {
+    it('handles multiple operations', function(): void {
         // Set multiple
         $result = CacheManager::getInstance()->setMultiple([
             'key1' => 'value1',
@@ -72,8 +72,7 @@ describe('CacheManager with NONE driver', function () {
         expect($result)->toBeFalse();
     });
 
-    it('clear always succeeds', function () {
+    it('clear always succeeds', function(): void {
         expect(CacheManager::clear())->toBeTrue();
     });
 });
-

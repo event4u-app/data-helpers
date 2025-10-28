@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 
 describe('SimpleDtoCastsEdgeCases', function(): void {
     describe('Cast Combinations', function(): void {
