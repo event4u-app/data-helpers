@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
+use event4u\DataHelpers\Support\ReflectionCache;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
@@ -36,6 +37,7 @@ trait SimpleDtoPerformanceTrait
     /**
      * Cache for attribute metadata per class and property.
      *
+     * @deprecated Phase 8: Use ReflectionCache::getPropertyAttributes() instead
      * @var array<class-string, array<string, array<string, object>>>
      */
     private static array $attributeMetadataCache = [];
@@ -133,39 +135,16 @@ trait SimpleDtoPerformanceTrait
     /**
      * Get cached attributes for a property.
      *
+     * Phase 8: Now uses ReflectionCache instead of duplicate cache
+     *
      * @return array<string, object>
      */
     public static function getCachedPropertyAttributes(string $propertyName): array
     {
         $class = static::class;
 
-        if (isset(self::$attributeMetadataCache[$class][$propertyName])) {
-            return self::$attributeMetadataCache[$class][$propertyName];
-        }
-
-        if (!isset(self::$attributeMetadataCache[$class])) {
-            self::$attributeMetadataCache[$class] = [];
-        }
-
-        $reflection = new ReflectionClass($class);
-
-        if (!$reflection->hasProperty($propertyName)) {
-            self::$attributeMetadataCache[$class][$propertyName] = [];
-
-            return [];
-        }
-
-        $property = $reflection->getProperty($propertyName);
-        $attributes = [];
-
-        foreach ($property->getAttributes() as $attribute) {
-            $attributeName = $attribute->getName();
-            $attributes[$attributeName] = $attribute->newInstance();
-        }
-
-        self::$attributeMetadataCache[$class][$propertyName] = $attributes;
-
-        return $attributes;
+        // Phase 8: Use ReflectionCache instead of duplicate cache
+        return ReflectionCache::getPropertyAttributes($class, $propertyName);
     }
 
     /**
@@ -197,6 +176,8 @@ trait SimpleDtoPerformanceTrait
     /**
      * Clear all performance caches.
      *
+     * Phase 8: Now also clears ReflectionCache
+     *
      * Useful for testing or when dealing with dynamic class loading.
      */
     public static function clearPerformanceCache(): void
@@ -204,10 +185,15 @@ trait SimpleDtoPerformanceTrait
         self::$constructorParamsCache = [];
         self::$propertyMetadataCache = [];
         self::$attributeMetadataCache = [];
+
+        // Phase 8: Also clear ReflectionCache
+        ReflectionCache::clear();
     }
 
     /**
      * Get cache statistics for debugging.
+     *
+     * Phase 8: Now includes ReflectionCache stats for attribute metadata
      *
      * @return array{
      *     constructorParams: int,
@@ -220,12 +206,15 @@ trait SimpleDtoPerformanceTrait
     {
         $constructorParamsCount = count(self::$constructorParamsCache);
         $propertyMetadataCount = count(self::$propertyMetadataCache);
-        $attributeMetadataCount = array_sum(array_map('count', self::$attributeMetadataCache));
+
+        // Phase 8: Get attribute metadata count from ReflectionCache
+        $reflectionStats = ReflectionCache::getStats();
+        $attributeMetadataCount = $reflectionStats['propertyAttributes'];
 
         // Estimate memory usage (rough approximation)
         $memory = strlen(serialize(self::$constructorParamsCache))
             + strlen(serialize(self::$propertyMetadataCache))
-            + strlen(serialize(self::$attributeMetadataCache));
+            + strlen(serialize(self::$attributeMetadataCache)); // Keep for backward compatibility
 
         return [
             'constructorParams' => $constructorParamsCount,

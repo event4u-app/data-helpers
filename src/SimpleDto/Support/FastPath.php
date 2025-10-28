@@ -13,6 +13,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\Visible;
+use event4u\DataHelpers\Support\ReflectionCache;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -226,6 +227,9 @@ class FastPath
      * 1. Any attribute from our namespace on properties (50+ attributes)
      * 2. Any attribute from our namespace on methods (#[Computed])
      * 3. Optional or Lazy wrapper types
+     *
+     * Phase 8: Don't use ReflectionCache here because we only need attribute NAMES, not instances.
+     * ReflectionCache tries to instantiate attributes which may fail for some attributes.
      */
     private static function hasPropertyAttributes(ReflectionClass $reflection): bool
     {
@@ -233,6 +237,7 @@ class FastPath
         $properties = $reflection->getProperties();
 
         foreach ($properties as $property) {
+            // Phase 8: Use direct getAttributes() to get attribute NAMES only (don't instantiate)
             $attributes = $property->getAttributes();
 
             foreach ($attributes as $attribute) {
@@ -265,6 +270,7 @@ class FastPath
         $methods = $reflection->getMethods();
 
         foreach ($methods as $method) {
+            // Phase 8: Use direct getAttributes() to get attribute NAMES only (don't instantiate)
             $attributes = $method->getAttributes();
 
             foreach ($attributes as $attribute) {

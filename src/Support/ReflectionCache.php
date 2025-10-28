@@ -27,6 +27,9 @@ final class ReflectionCache
     /** @var array<class-string, array<string, ReflectionMethod>> */
     private static array $methods = [];
 
+    /** @var array<class-string, bool> Track if all methods have been loaded for a class */
+    private static array $allMethodsLoaded = [];
+
     /** @var array<class-string, array<string, array<string, object>>> */
     private static array $propertyAttributes = [];
 
@@ -138,6 +141,8 @@ final class ReflectionCache
     /**
      * Get all public methods for a class.
      *
+     * Phase 8: Fixed to properly track when all methods have been loaded
+     *
      * @param object|class-string $objectOrClass Object instance or class name
      * @return array<string, ReflectionMethod>
      */
@@ -145,7 +150,8 @@ final class ReflectionCache
     {
         $class = is_object($objectOrClass) ? $objectOrClass::class : $objectOrClass;
 
-        if (isset(self::$methods[$class]) && !empty(self::$methods[$class])) {
+        // Phase 8: Check if all methods have been loaded, not just if the array exists
+        if (isset(self::$allMethodsLoaded[$class])) {
             return self::$methods[$class];
         }
 
@@ -157,6 +163,7 @@ final class ReflectionCache
         }
 
         self::$methods[$class] = $methods;
+        self::$allMethodsLoaded[$class] = true; // Phase 8: Mark that all methods have been loaded
 
         return $methods;
     }
@@ -308,6 +315,8 @@ final class ReflectionCache
     /**
      * Clear all cached reflection data.
      *
+     * Phase 8: Also clear allMethodsLoaded tracker
+     *
      * Useful for testing or when dealing with dynamic class loading.
      */
     public static function clear(): void
@@ -315,6 +324,7 @@ final class ReflectionCache
         self::$classes = [];
         self::$properties = [];
         self::$methods = [];
+        self::$allMethodsLoaded = []; // Phase 8
         self::$propertyAttributes = [];
         self::$methodAttributes = [];
         self::$classAttributes = [];
@@ -322,6 +332,8 @@ final class ReflectionCache
 
     /**
      * Clear cached data for a specific class.
+     *
+     * Phase 8: Also clear allMethodsLoaded tracker
      *
      * @param class-string $class Class name
      */
@@ -331,6 +343,7 @@ final class ReflectionCache
             self::$classes[$class],
             self::$properties[$class],
             self::$methods[$class],
+            self::$allMethodsLoaded[$class], // Phase 8
             self::$propertyAttributes[$class],
             self::$methodAttributes[$class],
             self::$classAttributes[$class]

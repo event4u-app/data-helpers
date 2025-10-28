@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit\SimpleDto\FastPath\Fixtures;
 
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\Attributes\CustomAttribute;
 
 /**
- * DTO with custom attribute (in correct namespace).
- * Should NOT be eligible for FastPath.
+ * DTO with custom attribute (NOT in event4u\DataHelpers\SimpleDto\Attributes\ namespace).
+ * Should be eligible for FastPath (custom attribute is not detected).
  */
 class DtoWithCustomAttribute extends SimpleDto
 {

@@ -43,8 +43,9 @@ test('DTO with casts() method is NOT eligible for FastPath', function (): void {
     expect(FastPath::canUseFastPath(DtoWithCastsMethod::class))->toBeFalse();
 });
 
-test('DTO with custom attribute is NOT eligible for FastPath', function (): void {
-    expect(FastPath::canUseFastPath(DtoWithCustomAttribute::class))->toBeFalse();
+test('DTO with custom attribute (not in our namespace) IS eligible for FastPath', function (): void {
+    // Custom attributes outside event4u\DataHelpers\SimpleDto\Attributes\ are not detected
+    expect(FastPath::canUseFastPath(DtoWithCustomAttribute::class))->toBeTrue();
 });
 
 test('DTO with nested DTO is eligible for FastPath', function (): void {

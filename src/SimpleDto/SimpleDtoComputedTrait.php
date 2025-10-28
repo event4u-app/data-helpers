@@ -153,6 +153,8 @@ trait SimpleDtoComputedTrait
     /**
      * Check if a computed property should be visible based on visibility attributes.
      *
+     * Phase 8: Use direct getAttributes() because we need specific attribute classes
+     *
      * @param string $methodName The method name
      * @param string $context 'array' or 'json'
      */
@@ -162,6 +164,7 @@ trait SimpleDtoComputedTrait
             $reflection = new ReflectionClass($this);
             $method = $reflection->getMethod($methodName);
 
+            // Phase 8: Use direct getAttributes() for specific attribute checks
             // Check for Hidden attribute
             $hiddenAttrs = $method->getAttributes(Hidden::class);
             if (!empty($hiddenAttrs)) {

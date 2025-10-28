@@ -59,10 +59,13 @@ trait SimpleDtoConditionalTrait
             return $cache[$class];
         }
 
+        // Phase 8: Use ReflectionCache for ReflectionClass but direct getAttributes() for filtering
+        // We need IS_INSTANCEOF filtering which ReflectionCache doesn't support
         $reflection = ReflectionCache::getClass($class);
         $conditionals = [];
 
         foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+            // Phase 8: Use direct getAttributes() with IS_INSTANCEOF to get all ConditionalProperty implementations
             $attributes = $reflectionProperty->getAttributes(
                 ConditionalProperty::class,
                 ReflectionAttribute::IS_INSTANCEOF
