@@ -10,7 +10,7 @@ use event4u\DataHelpers\SimpleDto\Support\UltraFastEngine;
 
 // UltraFast DTOs
 #[UltraFast]
-class UltraFastDepartmentDto extends SimpleDto
+class SimpleDtoUltraFastDepartmentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -21,7 +21,7 @@ class UltraFastDepartmentDto extends SimpleDto
 }
 
 #[UltraFast]
-class UltraFastWithMapFromDto extends SimpleDto
+class SimpleDtoUltraFastWithMapFromDto extends SimpleDto
 {
     public function __construct(
         #[MapFrom('department_name')]
@@ -33,7 +33,7 @@ class UltraFastWithMapFromDto extends SimpleDto
 }
 
 #[UltraFast]
-class UltraFastWithMapToDto extends SimpleDto
+class SimpleDtoUltraFastWithMapToDto extends SimpleDto
 {
     public function __construct(
         #[MapTo('department_name')]
@@ -45,16 +45,16 @@ class UltraFastWithMapToDto extends SimpleDto
 }
 
 #[UltraFast]
-class UltraFastCompanyDto extends SimpleDto
+class SimpleDtoUltraFastCompanyDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly UltraFastDepartmentDto $department,
+        public readonly SimpleDtoUltraFastDepartmentDto $department,
     ) {}
 }
 
 #[UltraFast]
-class UltraFastWithNullableDto extends SimpleDto
+class SimpleDtoUltraFastWithNullableDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -62,7 +62,7 @@ class UltraFastWithNullableDto extends SimpleDto
     ) {}
 }
 
-class NormalDepartmentDto extends SimpleDto
+class SimpleDtoNormalDepartmentDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -79,7 +79,7 @@ beforeEach(function(): void {
 describe('UltraFast Mode', function(): void {
     describe('Basic Functionality', function(): void {
         it('creates DTO from array', function(): void {
-            $dto = UltraFastDepartmentDto::fromArray([
+            $dto = SimpleDtoUltraFastDepartmentDto::fromArray([
                 'name' => 'Engineering',
                 'code' => 'ENG',
                 'budget' => 1000000.0,
@@ -93,7 +93,7 @@ describe('UltraFast Mode', function(): void {
         });
 
         it('converts DTO to array', function(): void {
-            $dto = UltraFastDepartmentDto::fromArray([
+            $dto = SimpleDtoUltraFastDepartmentDto::fromArray([
                 'name' => 'Engineering',
                 'code' => 'ENG',
                 'budget' => 1000000.0,
@@ -111,7 +111,7 @@ describe('UltraFast Mode', function(): void {
         });
 
         it('converts DTO to JSON', function(): void {
-            $dto = UltraFastDepartmentDto::fromArray([
+            $dto = SimpleDtoUltraFastDepartmentDto::fromArray([
                 'name' => 'Engineering',
                 'code' => 'ENG',
                 'budget' => 1000000.0,
@@ -127,7 +127,7 @@ describe('UltraFast Mode', function(): void {
     describe('Attribute Support', function(): void {
         it('handles MapFrom attribute', function(): void {
             /** @phpstan-ignore-next-line staticMethod.notFound */
-            $dto = UltraFastWithMapFromDto::fromArray([
+            $dto = SimpleDtoUltraFastWithMapFromDto::fromArray([
                 'department_name' => 'Engineering',
                 'department_code' => 'ENG',
             ]);
@@ -139,7 +139,7 @@ describe('UltraFast Mode', function(): void {
 
         it('handles MapTo attribute', function(): void {
             /** @phpstan-ignore-next-line staticMethod.notFound */
-            $dto = UltraFastWithMapToDto::fromArray([
+            $dto = SimpleDtoUltraFastWithMapToDto::fromArray([
                 'name' => 'Engineering',
                 'code' => 'ENG',
             ]);
@@ -155,7 +155,7 @@ describe('UltraFast Mode', function(): void {
 
     describe('Nested DTOs', function(): void {
         it('handles nested DTOs', function(): void {
-            $dto = UltraFastCompanyDto::fromArray([
+            $dto = SimpleDtoUltraFastCompanyDto::fromArray([
                 'name' => 'Acme Corp',
                 'department' => [
                     'name' => 'Engineering',
@@ -171,7 +171,7 @@ describe('UltraFast Mode', function(): void {
         });
 
         it('handles nested DTOs in toArray', function(): void {
-            $dto = UltraFastCompanyDto::fromArray([
+            $dto = SimpleDtoUltraFastCompanyDto::fromArray([
                 'name' => 'Acme Corp',
                 'department' => [
                     'name' => 'Engineering',
@@ -197,7 +197,7 @@ describe('UltraFast Mode', function(): void {
 
     describe('Default and Nullable Values', function(): void {
         it('handles default values', function(): void {
-            $dto = UltraFastDepartmentDto::fromArray([
+            $dto = SimpleDtoUltraFastDepartmentDto::fromArray([
                 'name' => 'Engineering',
                 'code' => 'ENG',
                 'budget' => 1000000.0,
@@ -208,7 +208,7 @@ describe('UltraFast Mode', function(): void {
         });
 
         it('handles nullable values', function(): void {
-            $dto = UltraFastWithNullableDto::fromArray([
+            $dto = SimpleDtoUltraFastWithNullableDto::fromArray([
                 'name' => 'Engineering',
                 // code is missing, should be null
             ]);
@@ -220,7 +220,7 @@ describe('UltraFast Mode', function(): void {
 
     describe('Error Handling', function(): void {
         it('throws exception for missing required parameter', function(): void {
-            UltraFastDepartmentDto::fromArray([
+            SimpleDtoUltraFastDepartmentDto::fromArray([
                 'code' => 'ENG',
                 'budget' => 1000000.0,
                 'employee_count' => 50,
@@ -239,21 +239,21 @@ describe('UltraFast Mode', function(): void {
 
             // Warm up
             for ($i = 0; 100 > $i; $i++) {
-                UltraFastDepartmentDto::fromArray($data);
-                NormalDepartmentDto::fromArray($data);
+                SimpleDtoUltraFastDepartmentDto::fromArray($data);
+                SimpleDtoNormalDepartmentDto::fromArray($data);
             }
 
             // Benchmark UltraFast
             $start = microtime(true);
             for ($i = 0; 1000 > $i; $i++) {
-                UltraFastDepartmentDto::fromArray($data);
+                SimpleDtoUltraFastDepartmentDto::fromArray($data);
             }
             $ultraFastTime = microtime(true) - $start;
 
             // Benchmark Normal
             $start = microtime(true);
             for ($i = 0; 1000 > $i; $i++) {
-                NormalDepartmentDto::fromArray($data);
+                SimpleDtoNormalDepartmentDto::fromArray($data);
             }
             $normalTime = microtime(true) - $start;
 
