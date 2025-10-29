@@ -69,6 +69,8 @@ export default defineConfig({
                         { label: 'DataAccessor', slug: 'main-classes/data-accessor' },
                         { label: 'DataMutator', slug: 'main-classes/data-mutator' },
                         { label: 'DataFilter', slug: 'main-classes/data-filter' },
+                        { label: 'DataMapper', slug: 'main-classes/data-mapper-overview' },
+                        { label: 'LiteDto & SimpleDto', slug: 'main-classes/dto-comparison' },
                     ],
                 },
 				{

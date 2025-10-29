@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\LiteDto;
 
+use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\LiteDto\Support\LiteEngine;
 use JsonSerializable;
 
@@ -89,5 +91,93 @@ abstract class LiteDto implements JsonSerializable
     public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    /**
+     * Get value from Dto using dot notation.
+     *
+     * Supports:
+     * - Simple paths: 'name', 'email'
+     * - Nested paths: 'address.city', 'user.profile.bio'
+     * - Wildcards: 'emails.*.address', 'users.*.orders.*.total'
+     * - Array indices: 'items.0.name', 'users.1.email'
+     *
+     * @param string $path Dot-notation path to the property
+     * @param mixed $default Default value if path doesn't exist
+     * @return mixed The value at the path, or default if not found
+     */
+    public function get(string $path, mixed $default = null): mixed
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->get($path, $default);
+    }
+
+    /**
+     * Set value in Dto using dot notation (returns new instance).
+     *
+     * Since LiteDtos are immutable, this method returns a new instance
+     * with the updated value.
+     *
+     * Supports:
+     * - Simple paths: 'name', 'email'
+     * - Nested paths: 'address.city', 'user.profile.bio'
+     * - Array indices: 'items.0.name', 'users.1.email'
+     *
+     * @param string $path Dot-notation path to the property
+     * @param mixed $value Value to set
+     * @return static New Dto instance with the updated value
+     */
+    public function set(string $path, mixed $value): static
+    {
+        $data = $this->toArrayRecursive();
+        DataMutator::make($data)->set($path, $value);
+
+        // Ensure we have an array with string keys
+        if (!is_array($data)) {
+            return static::from([]);
+        }
+
+        /** @var array<string, mixed> $data */
+        return static::from($data);
+    }
+
+    /**
+     * Convert Dto to array recursively, including nested Dtos.
+     *
+     * @return array<string, mixed>
+     */
+    private function toArrayRecursive(): array
+    {
+        $data = $this->toArray();
+        $result = $this->convertToArrayRecursive($data);
+
+        // Ensure we return an array with string keys
+        if (!is_array($result)) {
+            return [];
+        }
+
+        /** @var array<string, mixed> $result */
+        return $result;
+    }
+
+    /** Recursively convert nested Dtos to arrays. */
+    private function convertToArrayRecursive(mixed $data): mixed
+    {
+        if (is_array($data)) {
+            /** @var array<string, mixed> $result */
+            $result = [];
+            foreach ($data as $key => $value) {
+                $result[$key] = $this->convertToArrayRecursive($value);
+            }
+            return $result;
+        }
+
+        if ($data instanceof self) {
+            return $this->convertToArrayRecursive($data->toArray());
+        }
+
+        return $data;
     }
 }

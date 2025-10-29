@@ -94,11 +94,11 @@ final class LiteEngine
     private static array $ultraFastCache = [];
 
     /**
-     * Cache for constructor parameter names (UltraFast mode).
+     * Cache for UltraFast attribute instances per class.
      *
-     * @var array<class-string, array<int, string>>
+     * @var array<class-string, UltraFast|null>
      */
-    private static array $paramNamesCache = [];
+    private static array $ultraFastAttributeCache = [];
 
     /**
      * Create DTO from data.
@@ -157,9 +157,41 @@ final class LiteEngine
     {
         $class = $dto::class;
 
-        // UltraFast mode: just return get_object_vars()
+        // UltraFast mode: check if MapTo is allowed
         if (self::isUltraFast($class)) {
-            return get_object_vars($dto);
+            $ultraFast = self::getUltraFastAttribute($class);
+            $data = get_object_vars($dto);
+
+            // If MapTo is not allowed, just return raw data
+            if (!$ultraFast instanceof UltraFast || !$ultraFast->allowMapTo) {
+                return $data;
+            }
+
+            // Process MapTo attributes
+            $reflection = self::getReflection($class);
+            $result = [];
+
+            foreach ($reflection->getProperties() as $reflectionProperty) {
+                $name = $reflectionProperty->getName();
+
+                if (!array_key_exists($name, $data)) {
+                    continue;
+                }
+
+                // Check for #[MapTo] attribute
+                $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
+                if (!empty($mapToAttrs)) {
+                    /** @var MapTo $mapTo */
+                    $mapTo = $mapToAttrs[0]->newInstance();
+                    $outputName = $mapTo->target;
+                } else {
+                    $outputName = $name;
+                }
+
+                $result[$outputName] = $data[$name];
+            }
+
+            return $result;
         }
 
         $reflection = self::getReflection($class);
@@ -638,6 +670,31 @@ final class LiteEngine
     }
 
     /**
+     * Get UltraFast attribute instance for a class.
+     *
+     * @param class-string $class
+     */
+    private static function getUltraFastAttribute(string $class): ?UltraFast
+    {
+        if (isset(self::$ultraFastAttributeCache[$class])) {
+            return self::$ultraFastAttributeCache[$class];
+        }
+
+        $reflection = self::getReflection($class);
+        $attrs = $reflection->getAttributes(UltraFast::class);
+
+        if ([] === $attrs) {
+            self::$ultraFastAttributeCache[$class] = null;
+            return null;
+        }
+
+        /** @var UltraFast $ultraFast */
+        $ultraFast = $attrs[0]->newInstance();
+        self::$ultraFastAttributeCache[$class] = $ultraFast;
+        return $ultraFast;
+    }
+
+    /**
      * Create DTO in UltraFast mode (minimal overhead).
      *
      * @param class-string $class
@@ -651,37 +708,53 @@ final class LiteEngine
             );
         }
 
-        // Get cached parameter names
-        if (!isset(self::$paramNamesCache[$class])) {
-            $reflection = self::getReflection($class);
-            $constructor = $reflection->getConstructor();
+        $ultraFast = self::getUltraFastAttribute($class);
+        $reflection = self::getReflection($class);
+        $constructor = $reflection->getConstructor();
 
-            if (!$constructor) {
-                self::$paramNamesCache[$class] = [];
-            } else {
-                $names = [];
-                foreach ($constructor->getParameters() as $reflectionParameter) {
-                    $names[] = $reflectionParameter->getName();
-                }
-                self::$paramNamesCache[$class] = $names;
-            }
-        }
-
-        $paramNames = self::$paramNamesCache[$class];
-
-        // No parameters? Just create instance
-        if (empty($paramNames)) {
+        if (!$constructor) {
             return new $class();
         }
 
-        // Build args array directly from data (no attribute processing)
+        // Build constructor arguments
         $args = [];
-        foreach ($paramNames as $name) {
-            $args[] = $data[$name] ?? null;
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            $paramName = $reflectionParameter->getName();
+            $value = null;
+
+            // Step 1: Check for #[MapFrom] if allowed
+            if ($ultraFast instanceof UltraFast && $ultraFast->allowMapFrom) {
+                $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
+                if (!empty($mapFromAttrs)) {
+                    /** @var MapFrom $mapFrom */
+                    $mapFrom = $mapFromAttrs[0]->newInstance();
+                    $sourceKey = $mapFrom->source;
+                    $value = $data[$sourceKey] ?? null;
+                } else {
+                    $value = $data[$paramName] ?? null;
+                }
+            } else {
+                $value = $data[$paramName] ?? null;
+            }
+
+            // Step 2: Apply #[CastWith] if allowed and value is not null
+            if ($ultraFast instanceof UltraFast && $ultraFast->allowCastWith && null !== $value) {
+                $castWithAttrs = $reflectionParameter->getAttributes(CastWith::class);
+                if (!empty($castWithAttrs)) {
+                    /** @var CastWith $castWith */
+                    $castWith = $castWithAttrs[0]->newInstance();
+                    $casterClass = $castWith->casterClass;
+
+                    if (class_exists($casterClass) && method_exists($casterClass, 'cast')) {
+                        $value = $casterClass::cast($value);
+                    }
+                }
+            }
+
+            $args[] = $value;
         }
 
-        // Create instance using cached reflection
-        $reflection = self::$reflectionCache[$class];
+        // Create instance
         return $reflection->newInstanceArgs($args);
     }
 }
