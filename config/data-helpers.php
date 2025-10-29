@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\Enums\CacheDriver;
 use event4u\DataHelpers\Enums\CacheInvalidation;
+use event4u\DataHelpers\Enums\PerformanceMode;
 use event4u\DataHelpers\Helpers\EnvHelper;
+use event4u\DataHelpers\Logging\LogDriver;
 use event4u\DataHelpers\Logging\LogEvent;
+use event4u\DataHelpers\Logging\LogLevel;
 
 return [
     /*
@@ -30,7 +33,7 @@ return [
     | Default: 'fast' (recommended for most use cases)
     |
     */
-    'performance_mode' => EnvHelper::string('DATA_HELPERS_PERFORMANCE_MODE', 'fast'),
+    'performance_mode' => PerformanceMode::from((string)EnvHelper::string('DATA_HELPERS_PERFORMANCE_MODE', PerformanceMode::FAST->value))->value,
 
     /*
     |--------------------------------------------------------------------------
@@ -76,9 +79,7 @@ return [
         | Default: CacheDriver::AUTO (recommended)
         |
         */
-        'driver' => EnvHelper::string('DATA_HELPERS_CACHE_DRIVER')
-            ? CacheDriver::from(EnvHelper::string('DATA_HELPERS_CACHE_DRIVER'))
-            : CacheDriver::AUTO,
+        'driver' => CacheDriver::from((string)EnvHelper::string('DATA_HELPERS_CACHE_DRIVER', CacheDriver::AUTO->value))->value,
 
         /*
         |--------------------------------------------------------------------------
@@ -94,9 +95,7 @@ return [
         | Default: null (forever)
         |
         */
-        'ttl' => (($ttlValue = EnvHelper::string('DATA_HELPERS_CACHE_TTL', '')) !== '')
-            ? (int)$ttlValue
-            : null,
+        'ttl' => EnvHelper::integer('DATA_HELPERS_CACHE_TTL', null),
 
         /*
         |--------------------------------------------------------------------------
@@ -137,9 +136,7 @@ return [
         |       Use MTIME/HASH/BOTH in development for automatic cache invalidation.
         |
         */
-        'invalidation' => EnvHelper::string('DATA_HELPERS_CACHE_INVALIDATION')
-            ? CacheInvalidation::from(EnvHelper::string('DATA_HELPERS_CACHE_INVALIDATION'))
-            : CacheInvalidation::MTIME,
+        'invalidation' => CacheInvalidation::from((string)EnvHelper::string('DATA_HELPERS_CACHE_INVALIDATION', CacheInvalidation::MTIME->value))->value,
     ],
 
     /*
@@ -179,9 +176,7 @@ return [
         | - none: Disable logging
         |
         */
-        'driver' => \event4u\DataHelpers\Logging\LogDriver::from(
-            EnvHelper::string('DATA_HELPERS_LOG_DRIVER', 'filesystem'),
-        ),
+        'driver' => LogDriver::from((string)EnvHelper::string('DATA_HELPERS_LOG_DRIVER', LogDriver::FILESYSTEM->value))->value,
 
         /*
         |--------------------------------------------------------------------------
@@ -218,8 +213,8 @@ return [
         | Levels: emergency, alert, critical, error, warning, notice, info, debug
         |
         */
-        'level' => \event4u\DataHelpers\Logging\LogLevel::from(
-            EnvHelper::string('DATA_HELPERS_LOG_LEVEL', 'info'),
+        'level' => LogLevel::from(
+            (string)EnvHelper::string('DATA_HELPERS_LOG_LEVEL', 'info'),
         ),
 
         /*
@@ -268,11 +263,11 @@ return [
         |
         */
         'sampling' => [
-            'errors' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_ERRORS', '1.0'),
-            'success' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_SUCCESS', '0.01'),
-            'performance' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_PERFORMANCE', '0.1'),
-            'data_quality' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_DATA_QUALITY', '1.0'),
-            'metrics' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_METRICS', '0.1'),
+            'errors' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_ERRORS', 1.0),
+            'success' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_SUCCESS', 0.1),
+            'performance' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_PERFORMANCE', 0.1),
+            'data_quality' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_DATA_QUALITY', 1.0),
+            'metrics' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_METRICS', 0.1),
         ],
 
         /*
@@ -290,15 +285,13 @@ return [
             'username' => EnvHelper::string('DATA_HELPERS_SLACK_USERNAME', 'Data Helpers Bot'),
 
             // Minimum log level for Slack (usually 'error')
-            'level' => \event4u\DataHelpers\Logging\LogLevel::from(
-                EnvHelper::string('DATA_HELPERS_SLACK_LEVEL', 'error'),
-            ),
+            'level' => LogLevel::from((string)EnvHelper::string('DATA_HELPERS_SLACK_LEVEL', LogLevel::ERROR->value))->value,
 
             // Which events to send to Slack
             'events' => [
-                \event4u\DataHelpers\Logging\LogEvent::MAPPING_ERROR->value,
-                \event4u\DataHelpers\Logging\LogEvent::EXCEPTION->value,
-                \event4u\DataHelpers\Logging\LogEvent::VALIDATION_FAILURE->value,
+                LogEvent::MAPPING_ERROR->value,
+                LogEvent::EXCEPTION->value,
+                LogEvent::VALIDATION_FAILURE->value,
             ],
 
             // Queue name for async sending (null = sync)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration\Config;
 
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Enums\PerformanceMode;
 use event4u\DataHelpers\Frameworks\Symfony\DataHelpersExtension;
 use Exception;
 use Symfony\Component\Config\Definition\Processor;
@@ -33,7 +34,7 @@ describe('Symfony Config Integration', function(): void {
 
         expect($config)->toBeArray();
         expect($config)->toHaveKey('performance_mode');
-        expect($config['performance_mode'])->toBe('fast');
+        expect($config['performance_mode'])->toBe(PerformanceMode::FAST->value);
     });
 
     it('validates config values', function(): void {
@@ -43,11 +44,11 @@ describe('Symfony Config Integration', function(): void {
         // Process custom config
         $config = $processor->processConfiguration($extension, [
             'data_helpers' => [
-                'performance_mode' => 'safe',
+                'performance_mode' => PerformanceMode::SAFE->value,
             ],
         ]);
 
-        expect($config['performance_mode'])->toBe('safe');
+        expect($config['performance_mode'])->toBe(PerformanceMode::SAFE->value);
     });
 
     it('rejects invalid performance mode', function(): void {
@@ -83,11 +84,11 @@ describe('Symfony Config Integration', function(): void {
         /** @phpstan-ignore-next-line unknown */
         $extension->load([
             'data_helpers' => [
-                'performance_mode' => 'safe',
+                'performance_mode' => PerformanceMode::SAFE->value,
             ],
         ], $container);
 
-        expect($container->getParameter('data_helpers.performance_mode'))->toBe('safe');
+        expect($container->getParameter('data_helpers.performance_mode'))->toBe(PerformanceMode::SAFE->value);
     });
 
     it('extension has correct alias', function(): void {
@@ -112,12 +113,12 @@ describe('Symfony Config Integration', function(): void {
         /** @phpstan-ignore-next-line unknown */
         $extension->load([
             'data_helpers' => [
-                'performance_mode' => 'safe',
+                'performance_mode' => PerformanceMode::SAFE->value,
             ],
         ], $container);
 
         // DataHelpersConfig should be initialized
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::SAFE->value);
         expect(DataHelpersConfig::isFastMode())->toBeFalse();
     });
 
@@ -165,7 +166,7 @@ describe('Symfony Config Integration', function(): void {
             'data_helpers' => [],
         ]);
 
-        expect($config['performance_mode'])->toBe('fast'); // default
+        expect($config['performance_mode'])->toBe(PerformanceMode::FAST->value); // default
     });
 })->group('symfony')->skip(
     !class_exists('Symfony\Component\DependencyInjection\ContainerBuilder'),

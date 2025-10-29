@@ -16,10 +16,12 @@ declare(strict_types=1);
  */
 
 const COMPARE_WITH = [
-    'YWxhbWVsbGFtYS9jYXJhcGFjZQ==',              // Other Dtos
-    'Y2h1YmJ5cGhwL2NodWJieXBocC1wYXJzaW5n',      // Other Mappers
-    'bWFyay1nZXJhcnRzL2F1dG8tbWFwcGVyLXBsdXM=',  // Other Mappers
-    'bGFtaW5hcy9sYW1pbmFzLWh5ZHJhdG9y',          // Other Mappers
+    // Other Dtos
+    'YWxhbWVsbGFtYS9jYXJhcGFjZQ==',
+    // Other Mappers
+    'Y2h1YmJ5cGhwL2NodWJieXBocC1wYXJzaW5n',
+    'bWFyay1nZXJhcnRzL2F1dG8tbWFwcGVyLXBsdXM=',
+    'bGFtaW5hcy9sYW1pbmFzLWh5ZHJhdG9y',
 ];
 
 require_once __DIR__ . '/../vendor/autoload.php';

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
+use event4u\DataHelpers\Enums\PerformanceMode;
 use event4u\DataHelpers\Helpers\ConfigHelper;
 
 /**
@@ -43,13 +44,13 @@ final class DataHelpersConfig
     /** Get performance mode setting. */
     public static function getPerformanceMode(): string
     {
-        return (string)self::get('performance_mode', 'fast');
+        return (string)self::get('performance_mode', PerformanceMode::FAST->value);
     }
 
     /** Check if fast mode is enabled. */
     public static function isFastMode(): bool
     {
-        return 'fast' === self::getPerformanceMode();
+        return PerformanceMode::FAST->value === self::getPerformanceMode();
     }
 
     /**

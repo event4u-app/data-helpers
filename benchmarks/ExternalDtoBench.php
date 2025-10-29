@@ -12,8 +12,6 @@ use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
 
-// External DTO libraries (installed temporarily)
-
 #[BeforeMethods('setUp')]
 class ExternalDtoBench
 {

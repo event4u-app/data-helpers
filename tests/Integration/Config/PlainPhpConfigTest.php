@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration\Config;
 
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Enums\PerformanceMode;
 use event4u\DataHelpers\Helpers\ConfigHelper;
 
 describe('Plain PHP Config Integration', function(): void {
@@ -31,7 +32,7 @@ describe('Plain PHP Config Integration', function(): void {
         $helper = ConfigHelper::getInstance();
 
         expect($helper->getSource())->toBeIn(['plain', 'default', 'laravel', 'symfony']);
-        expect($helper->get('performance_mode'))->toBe('fast');
+        expect($helper->get('performance_mode'))->toBe(PerformanceMode::FAST->value);
     })->group('package-only');
 
     it('uses default performance mode when no ENV is set', function(): void {
@@ -96,23 +97,23 @@ describe('Plain PHP Config Integration', function(): void {
     });
 
     it('supports dot notation access', function(): void {
-        expect(DataHelpersConfig::get('performance_mode'))->toBe('fast');
-        expect(DataHelpersConfig::get('performance_mode', 'safe'))->toBe('fast');
+        expect(DataHelpersConfig::get('performance_mode'))->toBe(PerformanceMode::FAST->value);
+        expect(DataHelpersConfig::get('performance_mode', PerformanceMode::SAFE->value))->toBe(PerformanceMode::FAST->value);
         expect(DataHelpersConfig::get('nonexistent.key', 'default'))->toBe('default');
     })->group('package-only');
 
     it('can be manually set', function(): void {
         DataHelpersConfig::setMany([
-            'performance_mode' => 'safe',
+            'performance_mode' => PerformanceMode::SAFE->value,
         ]);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::SAFE->value);
     });
 
     it('handles missing config file gracefully', function(): void {
         // Even if config file is missing, should use defaults
         $helper = ConfigHelper::getInstance();
 
-        expect($helper->get('performance_mode'))->toBeIn(['fast', 'safe']);
+        expect($helper->get('performance_mode'))->toBeIn([PerformanceMode::FAST->value, PerformanceMode::SAFE->value]);
     });
 });
