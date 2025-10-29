@@ -10,7 +10,7 @@ use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use event4u\DataHelpers\LiteDto\LiteDto;
 
 // Test DTOs
-class BasicLiteDto extends LiteDto
+class LiteDtoBasicLiteDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
@@ -18,7 +18,7 @@ class BasicLiteDto extends LiteDto
     ) {}
 }
 
-class MappedLiteDto extends LiteDto
+class LiteDtoMappedLiteDto extends LiteDto
 {
     public function __construct(
         #[MapFrom('user_name')]
@@ -28,7 +28,7 @@ class MappedLiteDto extends LiteDto
     ) {}
 }
 
-class OutputMappedLiteDto extends LiteDto
+class LiteDtoOutputMappedLiteDto extends LiteDto
 {
     public function __construct(
         #[MapTo('user_name')]
@@ -38,7 +38,7 @@ class OutputMappedLiteDto extends LiteDto
     ) {}
 }
 
-class HiddenLiteDto extends LiteDto
+class LiteDtoHiddenLiteDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
@@ -47,7 +47,7 @@ class HiddenLiteDto extends LiteDto
     ) {}
 }
 
-class ConvertEmptyLiteDto extends LiteDto
+class LiteDtoConvertEmptyLiteDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
@@ -56,7 +56,7 @@ class ConvertEmptyLiteDto extends LiteDto
     ) {}
 }
 
-class NestedAddressDto extends LiteDto
+class LiteDtoNestedAddressDto extends LiteDto
 {
     public function __construct(
         public readonly string $street,
@@ -64,25 +64,25 @@ class NestedAddressDto extends LiteDto
     ) {}
 }
 
-class NestedUserDto extends LiteDto
+class LiteDtoNestedUserDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly NestedAddressDto $address,
+        public readonly LiteDtoNestedAddressDto $address,
     ) {}
 }
 
-class CollectionTeamDto extends LiteDto
+class LiteDtoCollectionTeamDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
-        /** @var array<BasicLiteDto> */
+        /** @var array<LiteDtoBasicLiteDto> */
         public readonly array $members,
     ) {}
 }
 
 #[ConverterMode]
-class ConverterLiteDto extends LiteDto
+class LiteDtoConverterLiteDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
@@ -93,7 +93,7 @@ class ConverterLiteDto extends LiteDto
 describe('LiteDto', function(): void {
     describe('Basic Functionality', function(): void {
         it('can be created from array', function(): void {
-            $dto = BasicLiteDto::from([
+            $dto = LiteDtoBasicLiteDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -103,7 +103,7 @@ describe('LiteDto', function(): void {
         });
 
         it('can be converted to array', function(): void {
-            $dto = BasicLiteDto::from([
+            $dto = LiteDtoBasicLiteDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -117,7 +117,7 @@ describe('LiteDto', function(): void {
         });
 
         it('can be converted to JSON', function(): void {
-            $dto = BasicLiteDto::from([
+            $dto = LiteDtoBasicLiteDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -128,7 +128,7 @@ describe('LiteDto', function(): void {
         });
 
         it('implements JsonSerializable', function(): void {
-            $dto = BasicLiteDto::from([
+            $dto = LiteDtoBasicLiteDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -141,7 +141,7 @@ describe('LiteDto', function(): void {
 
     describe('#[MapFrom] Attribute', function(): void {
         it('maps properties from source keys', function(): void {
-            $dto = MappedLiteDto::from([
+            $dto = LiteDtoMappedLiteDto::from([
                 'user_name' => 'John',
                 'user_age' => 30,
             ]);
@@ -151,7 +151,7 @@ describe('LiteDto', function(): void {
         });
 
         it('throws exception for missing required property', function(): void {
-            expect(fn(): \MappedLiteDto => MappedLiteDto::from([
+            expect(fn(): \LiteDtoMappedLiteDto => LiteDtoMappedLiteDto::from([
                 'user_name' => 'John',
             ]))->toThrow(TypeError::class);
         });
@@ -159,7 +159,7 @@ describe('LiteDto', function(): void {
 
     describe('#[MapTo] Attribute', function(): void {
         it('maps properties to target keys', function(): void {
-            $dto = OutputMappedLiteDto::from([
+            $dto = LiteDtoOutputMappedLiteDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -175,7 +175,7 @@ describe('LiteDto', function(): void {
 
     describe('#[Hidden] Attribute', function(): void {
         it('excludes properties from serialization', function(): void {
-            $dto = HiddenLiteDto::from([
+            $dto = LiteDtoHiddenLiteDto::from([
                 'name' => 'John',
                 'password' => 'secret',
             ]);
@@ -187,7 +187,7 @@ describe('LiteDto', function(): void {
         });
 
         it('excludes hidden properties from JSON', function(): void {
-            $dto = HiddenLiteDto::from([
+            $dto = LiteDtoHiddenLiteDto::from([
                 'name' => 'John',
                 'password' => 'secret',
             ]);
@@ -200,7 +200,7 @@ describe('LiteDto', function(): void {
 
     describe('#[ConvertEmptyToNull] Attribute', function(): void {
         it('converts empty string to null', function(): void {
-            $dto = ConvertEmptyLiteDto::from([
+            $dto = LiteDtoConvertEmptyLiteDto::from([
                 'name' => 'John',
                 'description' => '',
             ]);
@@ -209,7 +209,7 @@ describe('LiteDto', function(): void {
         });
 
         it('converts empty array to null', function(): void {
-            $dto = ConvertEmptyLiteDto::from([
+            $dto = LiteDtoConvertEmptyLiteDto::from([
                 'name' => 'John',
                 'description' => [],
             ]);
@@ -218,7 +218,7 @@ describe('LiteDto', function(): void {
         });
 
         it('keeps non-empty values', function(): void {
-            $dto = ConvertEmptyLiteDto::from([
+            $dto = LiteDtoConvertEmptyLiteDto::from([
                 'name' => 'John',
                 'description' => 'A description',
             ]);
@@ -229,7 +229,7 @@ describe('LiteDto', function(): void {
 
     describe('Nested DTOs', function(): void {
         it('handles nested DTOs', function(): void {
-            $dto = NestedUserDto::from([
+            $dto = LiteDtoNestedUserDto::from([
                 'name' => 'John',
                 'address' => [
                     'street' => '123 Main St',
@@ -238,13 +238,13 @@ describe('LiteDto', function(): void {
             ]);
 
             expect($dto->name)->toBe('John')
-                ->and($dto->address)->toBeInstanceOf(NestedAddressDto::class)
+                ->and($dto->address)->toBeInstanceOf(LiteDtoNestedAddressDto::class)
                 ->and($dto->address->street)->toBe('123 Main St')
                 ->and($dto->address->city)->toBe('New York');
         });
 
         it('serializes nested DTOs', function(): void {
-            $dto = NestedUserDto::from([
+            $dto = LiteDtoNestedUserDto::from([
                 'name' => 'John',
                 'address' => [
                     'street' => '123 Main St',
@@ -266,7 +266,7 @@ describe('LiteDto', function(): void {
 
     describe('Collections', function(): void {
         it('handles collections of DTOs', function(): void {
-            $dto = CollectionTeamDto::from([
+            $dto = LiteDtoCollectionTeamDto::from([
                 'name' => 'Engineering',
                 'members' => [
                     ['name' => 'John', 'age' => 30],
@@ -276,13 +276,13 @@ describe('LiteDto', function(): void {
 
             expect($dto->name)->toBe('Engineering')
                 ->and($dto->members)->toHaveCount(2)
-                ->and($dto->members[0])->toBeInstanceOf(BasicLiteDto::class)
+                ->and($dto->members[0])->toBeInstanceOf(LiteDtoBasicLiteDto::class)
                 ->and($dto->members[0]->name)->toBe('John')
                 ->and($dto->members[1]->name)->toBe('Jane');
         });
 
         it('serializes collections', function(): void {
-            $dto = CollectionTeamDto::from([
+            $dto = LiteDtoCollectionTeamDto::from([
                 'name' => 'Engineering',
                 'members' => [
                     ['name' => 'John', 'age' => 30],
@@ -304,7 +304,7 @@ describe('LiteDto', function(): void {
 
     describe('#[ConverterMode]', function(): void {
         it('accepts JSON strings', function(): void {
-            $dto = ConverterLiteDto::from('{"name":"John","age":30}');
+            $dto = LiteDtoConverterLiteDto::from('{"name":"John","age":30}');
 
             expect($dto->name)->toBe('John')
                 ->and($dto->age)->toBe(30);
@@ -312,7 +312,7 @@ describe('LiteDto', function(): void {
 
         it('accepts XML strings', function(): void {
             $xml = '<?xml version="1.0"?><root><name>John</name><age>30</age></root>';
-            $dto = ConverterLiteDto::from($xml);
+            $dto = LiteDtoConverterLiteDto::from($xml);
 
             expect($dto->name)->toBe('John')
                 ->and($dto->age)->toBe(30); // XML converts to int via type casting
@@ -320,14 +320,14 @@ describe('LiteDto', function(): void {
 
         it('accepts objects', function(): void {
             $obj = (object)['name' => 'John', 'age' => 30];
-            $dto = ConverterLiteDto::from($obj);
+            $dto = LiteDtoConverterLiteDto::from($obj);
 
             expect($dto->name)->toBe('John')
                 ->and($dto->age)->toBe(30);
         });
 
         it('throws exception without ConverterMode', function(): void {
-            expect(fn(): \BasicLiteDto => BasicLiteDto::from('{"name":"John","age":30}'))
+            expect(fn(): \LiteDtoBasicLiteDto => LiteDtoBasicLiteDto::from('{"name":"John","age":30}'))
                 ->toThrow(InvalidArgumentException::class);
         });
     });

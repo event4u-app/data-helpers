@@ -10,8 +10,6 @@ use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 use RuntimeException;
 
-// External serializer libraries (class names are base64 encoded to avoid direct references)
-
 /**
  * Benchmark comparing DataMapper with external serializers for Dto mapping.
  *

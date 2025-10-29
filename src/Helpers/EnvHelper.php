@@ -185,6 +185,10 @@ final class EnvHelper
         if (is_string($value) || is_numeric($value)) {
             $value = trim((string)$value);
 
+            if ('' === $value) {
+                return null;
+            }
+
             if (
                 '' === $separator ||
                 !str_contains($value, $separator)

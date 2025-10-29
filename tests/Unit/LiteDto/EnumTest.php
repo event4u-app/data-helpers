@@ -6,28 +6,28 @@ use event4u\DataHelpers\LiteDto\Attributes\EnumSerialize;
 use event4u\DataHelpers\LiteDto\LiteDto;
 
 // Test Enums
-enum Status: string
+enum LiteDtoStatus: string
 {
     case ACTIVE = 'active';
     case INACTIVE = 'inactive';
     case PENDING = 'pending';
 }
 
-enum Role: string
+enum LiteDtoRole: string
 {
     case ADMIN = 'admin';
     case USER = 'user';
     case GUEST = 'guest';
 }
 
-enum Priority: int
+enum LiteDtoPriority: int
 {
     case LOW = 1;
     case MEDIUM = 2;
     case HIGH = 3;
 }
 
-enum Color
+enum LiteDtoColor
 {
     case RED;
     case GREEN;
@@ -35,60 +35,60 @@ enum Color
 }
 
 // Test DTOs
-class EnumUserDto extends LiteDto
+class LiteDtoEnumUserDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly Status $status,
-        public readonly Role $role,
+        public readonly LiteDtoStatus $status,
+        public readonly LiteDtoRole $role,
     ) {}
 }
 
-class EnumTaskDto extends LiteDto
+class LiteDtoEnumTaskDto extends LiteDto
 {
     public function __construct(
         public readonly string $title,
-        public readonly Priority $priority,
+        public readonly LiteDtoPriority $priority,
     ) {}
 }
 
-class EnumSerializeModeDto extends LiteDto
+class LiteDtoEnumSerializeModeDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
         #[EnumSerialize('value')]
-        public readonly Status $statusValue,
+        public readonly LiteDtoStatus $statusValue,
         #[EnumSerialize('name')]
-        public readonly Status $statusName,
+        public readonly LiteDtoStatus $statusName,
         #[EnumSerialize('both')]
-        public readonly Status $statusBoth,
+        public readonly LiteDtoStatus $statusBoth,
     ) {}
 }
 
-class UnitEnumDto extends LiteDto
+class LiteDtoUnitEnumDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
-        public readonly Color $color,
+        public readonly LiteDtoColor $color,
     ) {}
 }
 
 describe('Enum Support', function(): void {
     describe('BackedEnum (string)', function(): void {
         it('casts string to BackedEnum', function(): void {
-            $dto = EnumUserDto::from([
+            $dto = LiteDtoEnumUserDto::from([
                 'name' => 'John',
                 'status' => 'active',
                 'role' => 'admin',
             ]);
 
             expect($dto->name)->toBe('John')
-                ->and($dto->status)->toBe(Status::ACTIVE)
-                ->and($dto->role)->toBe(Role::ADMIN);
+                ->and($dto->status)->toBe(LiteDtoStatus::ACTIVE)
+                ->and($dto->role)->toBe(LiteDtoRole::ADMIN);
         });
 
         it('serializes BackedEnum to value by default', function(): void {
-            $dto = EnumUserDto::from([
+            $dto = LiteDtoEnumUserDto::from([
                 'name' => 'John',
                 'status' => 'active',
                 'role' => 'admin',
@@ -104,29 +104,29 @@ describe('Enum Support', function(): void {
         });
 
         it('handles all enum cases', function(): void {
-            $dto1 = EnumUserDto::from(['name' => 'User1', 'status' => 'active', 'role' => 'admin']);
-            $dto2 = EnumUserDto::from(['name' => 'User2', 'status' => 'inactive', 'role' => 'user']);
-            $dto3 = EnumUserDto::from(['name' => 'User3', 'status' => 'pending', 'role' => 'guest']);
+            $dto1 = LiteDtoEnumUserDto::from(['name' => 'User1', 'status' => 'active', 'role' => 'admin']);
+            $dto2 = LiteDtoEnumUserDto::from(['name' => 'User2', 'status' => 'inactive', 'role' => 'user']);
+            $dto3 = LiteDtoEnumUserDto::from(['name' => 'User3', 'status' => 'pending', 'role' => 'guest']);
 
-            expect($dto1->status)->toBe(Status::ACTIVE)
-                ->and($dto2->status)->toBe(Status::INACTIVE)
-                ->and($dto3->status)->toBe(Status::PENDING);
+            expect($dto1->status)->toBe(LiteDtoStatus::ACTIVE)
+                ->and($dto2->status)->toBe(LiteDtoStatus::INACTIVE)
+                ->and($dto3->status)->toBe(LiteDtoStatus::PENDING);
         });
     });
 
     describe('BackedEnum (int)', function(): void {
         it('casts int to BackedEnum', function(): void {
-            $dto = EnumTaskDto::from([
+            $dto = LiteDtoEnumTaskDto::from([
                 'title' => 'Fix bug',
                 'priority' => 3,
             ]);
 
             expect($dto->title)->toBe('Fix bug')
-                ->and($dto->priority)->toBe(Priority::HIGH);
+                ->and($dto->priority)->toBe(LiteDtoPriority::HIGH);
         });
 
         it('serializes int BackedEnum to value', function(): void {
-            $dto = EnumTaskDto::from([
+            $dto = LiteDtoEnumTaskDto::from([
                 'title' => 'Fix bug',
                 'priority' => 2,
             ]);
@@ -142,17 +142,17 @@ describe('Enum Support', function(): void {
 
     describe('UnitEnum', function(): void {
         it('casts string to UnitEnum by name', function(): void {
-            $dto = UnitEnumDto::from([
+            $dto = LiteDtoUnitEnumDto::from([
                 'name' => 'Test',
                 'color' => 'RED',
             ]);
 
             expect($dto->name)->toBe('Test')
-                ->and($dto->color)->toBe(Color::RED);
+                ->and($dto->color)->toBe(LiteDtoColor::RED);
         });
 
         it('serializes UnitEnum to name', function(): void {
-            $dto = UnitEnumDto::from([
+            $dto = LiteDtoUnitEnumDto::from([
                 'name' => 'Test',
                 'color' => 'GREEN',
             ]);
@@ -168,7 +168,7 @@ describe('Enum Support', function(): void {
 
     describe('EnumSerialize Attribute', function(): void {
         it('serializes with mode "value"', function(): void {
-            $dto = EnumSerializeModeDto::from([
+            $dto = LiteDtoEnumSerializeModeDto::from([
                 'name' => 'Test',
                 'statusValue' => 'active',
                 'statusName' => 'active',
@@ -181,7 +181,7 @@ describe('Enum Support', function(): void {
         });
 
         it('serializes with mode "name"', function(): void {
-            $dto = EnumSerializeModeDto::from([
+            $dto = LiteDtoEnumSerializeModeDto::from([
                 'name' => 'Test',
                 'statusValue' => 'active',
                 'statusName' => 'active',
@@ -194,7 +194,7 @@ describe('Enum Support', function(): void {
         });
 
         it('serializes with mode "both"', function(): void {
-            $dto = EnumSerializeModeDto::from([
+            $dto = LiteDtoEnumSerializeModeDto::from([
                 'name' => 'Test',
                 'statusValue' => 'active',
                 'statusName' => 'active',
@@ -212,7 +212,7 @@ describe('Enum Support', function(): void {
 
     describe('JSON Serialization', function(): void {
         it('serializes enum to JSON', function(): void {
-            $dto = EnumUserDto::from([
+            $dto = LiteDtoEnumUserDto::from([
                 'name' => 'John',
                 'status' => 'active',
                 'role' => 'admin',
@@ -226,7 +226,7 @@ describe('Enum Support', function(): void {
 
     describe('Error Handling', function(): void {
         it('throws exception for invalid enum value', function(): void {
-            EnumUserDto::from([
+            LiteDtoEnumUserDto::from([
                 'name' => 'John',
                 'status' => 'invalid',
                 'role' => 'admin',
@@ -234,7 +234,7 @@ describe('Enum Support', function(): void {
         })->throws(ValueError::class);
 
         it('throws exception for invalid enum name', function(): void {
-            UnitEnumDto::from([
+            LiteDtoUnitEnumDto::from([
                 'name' => 'Test',
                 'color' => 'INVALID',
             ]);

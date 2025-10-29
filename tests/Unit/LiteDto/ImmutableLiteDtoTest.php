@@ -5,7 +5,7 @@ declare(strict_types=1);
 use event4u\DataHelpers\LiteDto\ImmutableLiteDto;
 
 // Test DTO
-class ImmutableUserDto extends ImmutableLiteDto
+class LiteDtoImmutableUserDto extends ImmutableLiteDto
 {
     public function __construct(
         public readonly string $name,
@@ -16,7 +16,7 @@ class ImmutableUserDto extends ImmutableLiteDto
 describe('ImmutableLiteDto', function(): void {
     describe('Basic Functionality', function(): void {
         it('can be created from array', function(): void {
-            $dto = ImmutableUserDto::from([
+            $dto = LiteDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -26,7 +26,7 @@ describe('ImmutableLiteDto', function(): void {
         });
 
         it('can be converted to array', function(): void {
-            $dto = ImmutableUserDto::from([
+            $dto = LiteDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -40,7 +40,7 @@ describe('ImmutableLiteDto', function(): void {
         });
 
         it('can be converted to JSON', function(): void {
-            $dto = ImmutableUserDto::from([
+            $dto = LiteDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -53,7 +53,7 @@ describe('ImmutableLiteDto', function(): void {
 
     describe('Immutability', function(): void {
         it('prevents property modification (readonly protection)', function(): void {
-            $dto = ImmutableUserDto::from([
+            $dto = LiteDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -64,7 +64,7 @@ describe('ImmutableLiteDto', function(): void {
         })->throws(Error::class, 'Cannot modify readonly property');
 
         it('prevents property unsetting (readonly protection)', function(): void {
-            $dto = ImmutableUserDto::from([
+            $dto = LiteDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -75,7 +75,7 @@ describe('ImmutableLiteDto', function(): void {
         })->throws(Error::class, 'Cannot unset readonly property');
 
         it('prevents adding new properties via __set', function(): void {
-            $dto = ImmutableUserDto::from([
+            $dto = LiteDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -91,7 +91,7 @@ describe('ImmutableLiteDto', function(): void {
 
     describe('Readonly Properties', function(): void {
         it('readonly properties cannot be modified directly', function(): void {
-            $dto = ImmutableUserDto::from([
+            $dto = LiteDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);
@@ -102,7 +102,7 @@ describe('ImmutableLiteDto', function(): void {
         })->throws(Error::class);
 
         it('readonly properties can be read', function(): void {
-            $dto = ImmutableUserDto::from([
+            $dto = LiteDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
             ]);

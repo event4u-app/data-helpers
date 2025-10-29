@@ -85,8 +85,8 @@ describe('EnvHelper::string()', function(): void {
         expect(EnvHelper::string('NON_EXISTENT', 'default'))->toBe('default');
     });
 
-    it('returns empty string for null value', function(): void {
-        expect(EnvHelper::string('NON_EXISTENT', null))->toBe('');
+    it('returns null for null default', function(): void {
+        expect(EnvHelper::string('NON_EXISTENT', null))->toBeNull();
     });
 });
 
@@ -225,16 +225,16 @@ describe('EnvHelper::array()', function(): void {
         expect(EnvHelper::array('NON_EXISTENT', ['default']))->toBe(['default']);
     });
 
-    it('returns default for empty string', function(): void {
+    it('returns null for empty string', function(): void {
         $_ENV['TEST_ARRAY'] = '';
 
-        expect(EnvHelper::array('TEST_ARRAY', ['default']))->toBe(['default']);
+        expect(EnvHelper::array('TEST_ARRAY', ['default']))->toBeNull();
     });
 
-    it('returns default for whitespace-only string', function(): void {
+    it('returns null for whitespace-only string', function(): void {
         $_ENV['TEST_ARRAY'] = '   ';
 
-        expect(EnvHelper::array('TEST_ARRAY', ['default']))->toBe(['default']);
+        expect(EnvHelper::array('TEST_ARRAY', ['default']))->toBeNull();
     });
 
     it('handles single value', function(): void {

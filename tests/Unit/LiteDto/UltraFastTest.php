@@ -7,7 +7,7 @@ use event4u\DataHelpers\LiteDto\LiteDto;
 
 // UltraFast DTOs
 #[UltraFast]
-class UltraFastUserDto extends LiteDto
+class LiteDtoUltraFastUserDto extends LiteDto
 {
     public function __construct(
         public readonly string $name,
@@ -17,7 +17,7 @@ class UltraFastUserDto extends LiteDto
 }
 
 #[UltraFast]
-class UltraFastProductDto extends LiteDto
+class LiteDtoUltraFastProductDto extends LiteDto
 {
     public function __construct(
         public readonly string $title,
@@ -29,7 +29,7 @@ class UltraFastProductDto extends LiteDto
 describe('UltraFast Mode', function(): void {
     describe('Basic Functionality', function(): void {
         it('creates DTO from array', function(): void {
-            $dto = UltraFastUserDto::from([
+            $dto = LiteDtoUltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
                 'email' => 'john@example.com',
@@ -41,7 +41,7 @@ describe('UltraFast Mode', function(): void {
         });
 
         it('converts DTO to array', function(): void {
-            $dto = UltraFastUserDto::from([
+            $dto = LiteDtoUltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
                 'email' => 'john@example.com',
@@ -57,7 +57,7 @@ describe('UltraFast Mode', function(): void {
         });
 
         it('converts DTO to JSON', function(): void {
-            $dto = UltraFastUserDto::from([
+            $dto = LiteDtoUltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
                 'email' => 'john@example.com',
@@ -71,14 +71,14 @@ describe('UltraFast Mode', function(): void {
 
     describe('Performance Optimizations', function(): void {
         it('throws TypeError for missing required properties', function(): void {
-            UltraFastUserDto::from([
+            LiteDtoUltraFastUserDto::from([
                 'name' => 'John',
                 // age and email missing - will cause TypeError
             ]);
         })->throws(TypeError::class);
 
         it('ignores extra properties', function(): void {
-            $dto = UltraFastUserDto::from([
+            $dto = LiteDtoUltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
                 'email' => 'john@example.com',
@@ -97,13 +97,13 @@ describe('UltraFast Mode', function(): void {
 
     describe('Multiple DTOs', function(): void {
         it('handles different DTO types', function(): void {
-            $user = UltraFastUserDto::from([
+            $user = LiteDtoUltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
                 'email' => 'john@example.com',
             ]);
 
-            $product = UltraFastProductDto::from([
+            $product = LiteDtoUltraFastProductDto::from([
                 'title' => 'Laptop',
                 'price' => 999.99,
                 'stock' => 10,
@@ -117,14 +117,14 @@ describe('UltraFast Mode', function(): void {
 
     describe('Error Handling', function(): void {
         it('throws exception for non-array data', function(): void {
-            UltraFastUserDto::from('{"name":"John"}');
+            LiteDtoUltraFastUserDto::from('{"name":"John"}');
         })->throws(
             InvalidArgumentException::class,
             'UltraFast mode only accepts arrays'
         );
 
         it('throws exception for objects', function(): void {
-            UltraFastUserDto::from((object)['name' => 'John']);
+            LiteDtoUltraFastUserDto::from((object)['name' => 'John']);
         })->throws(
             InvalidArgumentException::class,
             'UltraFast mode only accepts arrays'
@@ -134,14 +134,14 @@ describe('UltraFast Mode', function(): void {
     describe('Caching', function(): void {
         it('caches parameter names for performance', function(): void {
             // First call
-            $dto1 = UltraFastUserDto::from([
+            $dto1 = LiteDtoUltraFastUserDto::from([
                 'name' => 'John',
                 'age' => 30,
                 'email' => 'john@example.com',
             ]);
 
             // Second call (should use cache)
-            $dto2 = UltraFastUserDto::from([
+            $dto2 = LiteDtoUltraFastUserDto::from([
                 'name' => 'Jane',
                 'age' => 25,
                 'email' => 'jane@example.com',
