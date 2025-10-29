@@ -17,7 +17,7 @@ use Attribute;
  * - No custom casters
  * - Direct property assignment
  *
- * Performance: ~0.3-0.5μs (similar to Carapace, ~10x faster than normal LiteDto)
+ * Performance: ~0.3-0.5μs (similar to OtherDto, ~10x faster than normal LiteDto)
  *
  * Example:
  *   #[UltraFast]

@@ -20,6 +20,7 @@ use event4u\DataHelpers\Console\WarmCacheCommand;
 
 // Warm up cache for test DTOs
 try {
+    echo "Warming up cache for test DTOs...\n";
     $command = new WarmCacheCommand();
 
     // Warm cache for all test DTOs (silent mode)

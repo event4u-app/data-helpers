@@ -70,7 +70,9 @@ trait SimpleDtoMappingTrait
         $class = static::class;
 
         if (!isset(self::$reflectionCache[$class])) {
-            self::$reflectionCache[$class] = new ReflectionClass($class);
+            /** @var ReflectionClass<object> $reflection */
+            $reflection = new ReflectionClass($class);
+            self::$reflectionCache[$class] = $reflection;
         }
 
         return self::$reflectionCache[$class];

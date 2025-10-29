@@ -10,7 +10,7 @@ use Attribute;
  * Ultra-Fast Mode Performance Attribute
  *
  * Bypasses ALL SimpleDto overhead for maximum performance.
- * Target: <1μs per operation (similar to Carapace speed).
+ * Target: <1μs per operation (similar to OtherDto's speed).
  *
  * When applied to a DTO class, this attribute:
  * - ✅ Skips ConstructorMetadata cache system
@@ -18,7 +18,7 @@ use Attribute;
  * - ✅ Skips cast system (AutoCast, Cast attributes)
  * - ✅ Skips validation system
  * - ✅ Skips lazy/optional property wrapping
- * - ✅ Uses direct reflection + constructor call (like Carapace)
+ * - ✅ Uses direct reflection + constructor call (like OtherDto's)
  * - ✅ Only processes explicitly defined attributes on-demand
  *
  * Trade-offs:
@@ -34,7 +34,7 @@ use Attribute;
  * Use this when:
  * - You need maximum performance (e.g., processing thousands of DTOs)
  * - You have simple DTOs without complex features
- * - You want speed comparable to Carapace but with SimpleDto API
+ * - You want speed comparable to OtherDto's but with SimpleDto API
  * - Your data is already validated and in correct format
  *
  * Example:
@@ -71,7 +71,7 @@ use Attribute;
  * - Normal SimpleDto: ~13-17μs
  * - With #[NoAttributes, NoCasts, NoValidation]: ~8-10μs
  * - With #[UltraFast]: ~0.5-1μs (target)
- * - Carapace: ~0.3μs
+ * - OtherDto's: ~0.3μs
  * - Plain PHP: ~0.12-0.14μs
  *
  * @see NoAttributes For disabling attribute processing only

@@ -167,13 +167,13 @@ final class EnvHelper
      * Trims whitespace from each value.
      *
      * @param string $key Environment variable key
-     * @param mixed|array<int|string, mixed> $default Default value if not set
+     * @param null|array<int|string, mixed> $default Default value if not set
      * @param string $separator Separator for splitting (default: ',')
      * @return ?array<int|string, mixed>
      */
     public static function array(
         string $key,
-        array $default = [],
+        ?array $default = [],
         string $separator = ',',
     ): ?array {
         $value = self::get($key, $default);

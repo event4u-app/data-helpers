@@ -22,22 +22,22 @@ LiteDto is an **ultra-fast, minimalistic Data Transfer Object (Dto)** library fo
 
 | Library | Performance | Features |
 |---------|-------------|----------|
-| **LiteDto** | **~2.4μs** | Essential features, high performance |
-| SimpleDto #[UltraFast] | ~1.9μs | Fast mode with limited features |
-| SimpleDto Normal | ~11.7μs | Full features with validation |
+| **LiteDto** | **~3.6μs** | Essential features, high performance |
+| SimpleDto #[UltraFast] | ~2.9μs | Fast mode with limited features |
+| SimpleDto Normal | ~22.5μs | Full features with validation |
 
-**LiteDto is ~4.9x faster than SimpleDto Normal** while providing essential Dto features.
+**LiteDto is ~6.2x faster than SimpleDto Normal** while providing essential Dto features.
 
 ### UltraFast Mode
 
 | Library | Performance | Features |
 |---------|-------------|----------|
-| Plain PHP | ~0.144μs | No features, manual work |
-| Other Dtos | ~0.41μs | Minimal features, maximum speed |
-| **LiteDto #[UltraFast]** | **~0.6μs** | Minimal overhead, maximum speed |
-| SimpleDto #[UltraFast] | ~1.9μs | Fast mode with limited features |
+| Plain PHP | ~0.194μs | No features, manual work |
+| Other Dtos | ~4.87μs | Minimal features, maximum speed |
+| **LiteDto #[UltraFast]** | **~0.8μs** | Minimal overhead, maximum speed |
+| SimpleDto #[UltraFast] | ~2.9μs | Fast mode with limited features |
 
-**LiteDto #[UltraFast] is ~21x faster than SimpleDto Normal** and only **~3.9x slower than Plain PHP**!
+**LiteDto #[UltraFast] is ~27x faster than SimpleDto Normal** and only **~4.4x slower than Plain PHP**!
 <!-- LITEDTO_PERFORMANCE_END -->
 
 ## Quick Example
@@ -316,5 +316,4 @@ $user = UserDto::from('<root><name>John</name><age>30</age></root>');
 - [Creating LiteDtos](./creating-litedtos) - Learn how to create and use LiteDtos
 - [Attributes Reference](./attributes) - Complete guide to all attributes
 - [Performance Tips](./performance) - Optimize your LiteDtos
-- [Migration from Carapace](./migration-from-carapace) - Switch from Carapace to LiteDto
 

@@ -98,7 +98,9 @@ describe('Plain PHP Config Integration', function(): void {
 
     it('supports dot notation access', function(): void {
         expect(DataHelpersConfig::get('performance_mode'))->toBe(PerformanceMode::FAST->value);
-        expect(DataHelpersConfig::get('performance_mode', PerformanceMode::SAFE->value))->toBe(PerformanceMode::FAST->value);
+        expect(DataHelpersConfig::get('performance_mode', PerformanceMode::SAFE->value))->toBe(
+            PerformanceMode::FAST->value
+        );
         expect(DataHelpersConfig::get('nonexistent.key', 'default'))->toBe('default');
     })->group('package-only');
 

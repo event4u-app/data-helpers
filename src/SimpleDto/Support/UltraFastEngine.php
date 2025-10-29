@@ -15,7 +15,7 @@ use ReflectionParameter;
 /**
  * Ultra-Fast Engine for SimpleDto
  *
- * Provides Carapace-like performance by bypassing all SimpleDto overhead.
+ * Provides OtherDto-like performance by bypassing all SimpleDto overhead.
  * Target: <1μs per operation.
  *
  * This engine:
@@ -25,7 +25,7 @@ use ReflectionParameter;
  * - Skips validation, casts, lazy/optional wrapping
  * - Direct constructor call
  *
- * Inspired by Carapace's minimalist approach.
+ * Inspired by OtherDto's minimalist approach.
  */
 final class UltraFastEngine
 {
@@ -76,7 +76,7 @@ final class UltraFastEngine
     /**
      * Create DTO instance using ultra-fast mode.
      *
-     * This method mimics Carapace's approach:
+     * This method mimics OtherDto's approach:
      * 1. Direct reflection (no cache)
      * 2. Map constructor parameters
      * 3. Process only allowed attributes (#[MapFrom], #[MapTo], #[CastWith])

@@ -13,11 +13,12 @@ Here are the actual benchmark results from our comprehensive tests:
 
 | Implementation | From Array | To Array | Complex Data |
 |----------------|------------|----------|---------------|
-| LiteDto | 2.399μs | 3.809μs | 2.403μs |
-| SimpleDto #[UltraFast] | 1.949μs | 3.650μs | 1.901μs |
-| SimpleDto Normal | 11.712μs | 15.336μs | 11.683μs |
+| LiteDto | 3.629μs | 6.116μs | 3.604μs |
+| LiteDto #[UltraFast] | 0.847μs | 1.061μs | 0.859μs |
+| SimpleDto #[UltraFast] | 2.901μs | 5.189μs | 2.896μs |
+| SimpleDto Normal | 22.498μs | 27.324μs | 19.719μs |
 
-**Average**: LiteDto is **4.6x faster** than SimpleDto Normal.
+**Average**: LiteDto is **5.4x faster** than SimpleDto Normal.
 <!-- LITEDTO_BENCHMARKS_END -->
 
 ## Optimization Tips
@@ -185,16 +186,18 @@ for ($i = 0; $i < 1000; $i++) {
 
 ### LiteDto vs SimpleDto
 
-| Feature | LiteDto | SimpleDto Normal | SimpleDto #[UltraFast] |
-|---------|---------|------------------|------------------------|
-| Performance | ~2.3μs | ~18.5μs | ~2.8μs |
-| Validation | ❌ | ✅ | ❌ |
-| Type Casting | ❌ | ✅ | ❌ |
-| Property Mapping | ✅ | ✅ | ✅ |
-| Nested DTOs | ✅ | ✅ | ✅ |
-| Collections | ✅ | ✅ | ✅ |
-| Hidden Properties | ✅ | ✅ | ✅ |
-| Converter Support | ✅ (optional) | ✅ | ❌ |
+<!-- LITEDTO_VS_SIMPLEDTO_START -->
+
+| Feature | LiteDto | LiteDto #[UltraFast] | SimpleDto Normal | SimpleDto #[UltraFast] |
+|---------|---------|----------------------|------------------|------------------------|
+| Performance | ~4.4μs | ~0.9μs | ~23.2μs | ~3.7μs |
+| Validation | ❌ | ❌ | ✅ | ❌ |
+| Type Casting | ❌ | ❌ | ✅ | ❌ |
+| Property Mapping | ✅ | ✅ | ✅ | ✅ |
+| Nested DTOs | ✅ | ✅ | ✅ | ✅ |
+| Collections | ✅ | ✅ | ✅ | ✅ |
+| Hidden Properties | ✅ | ✅ | ✅ | ✅ |
+| Converter Support | ✅ (optional) | ✅ (optional) | ✅ | ❌ |
 
 **When to use LiteDto**:
 - You need maximum performance
@@ -205,29 +208,28 @@ for ($i = 0; $i < 1000; $i++) {
 - You need validation (Required, Email, Min, Max, etc.)
 - You need type casting (DateTime, Enum, etc.)
 - You need computed properties or lazy loading
+<!-- LITEDTO_VS_SIMPLEDTO_END -->
 
-### LiteDto vs Other Dtos (Carapace)
+### LiteDto vs Other Dtos
 
-| Metric | LiteDto | Other Dtos (Carapace) |
-|--------|---------|----------------------|
-| Performance | ~2.3μs | ~0.37μs |
-| Property Mapping | ✅ | ✅ |
-| Hidden Properties | ✅ | ✅ |
-| Nested DTOs | ✅ | ✅ |
-| Collections | ✅ | ✅ |
-| Converter Support | ✅ (optional) | ❌ |
-| ConvertEmptyToNull | ✅ | ❌ |
+<!-- LITEDTO_VS_OTHERDTO_START -->
 
-**Why is Carapace faster?**
-- Carapace uses code generation at build time
-- No reflection at runtime
-- Minimal feature set
+| Metric | LiteDto | LiteDto #[UltraFast] | Other Dtos |
+|--------|---------|----------------------|------------|
+| Performance | ~4.4μs | ~0.9μs | N/A |
+| Property Mapping | ✅ | ✅ | ✅ |
+| Hidden Properties | ✅ | ✅ | ✅ |
+| Nested DTOs | ✅ | ✅ | ✅ |
+| Collections | ✅ | ✅ | ✅ |
+| Converter Support | ✅ (optional) | ✅ (optional) | ❌ |
+| ConvertEmptyToNull | ✅ | ✅ | ❌ |
 
 **Why choose LiteDto?**
 - No build step required
 - More features (Converter, ConvertEmptyToNull)
 - Better developer experience
-- Still very fast (7x slower than Carapace, but 7.6x faster than SimpleDto)
+- Competitive performance with other Dto libraries
+<!-- LITEDTO_VS_OTHERDTO_END -->
 
 ## Real-World Performance
 

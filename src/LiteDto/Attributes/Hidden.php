@@ -9,7 +9,7 @@ use Attribute;
 /**
  * Exclude property from serialization.
  *
- * Similar to Carapace's #[Hidden] attribute.
+ * Similar to OtherDto's #[Hidden] attribute.
  *
  * Example:
  *   class UserDto extends LiteDto {

@@ -50,7 +50,7 @@ final class DataHelpersConfig
     /** Check if fast mode is enabled. */
     public static function isFastMode(): bool
     {
-        return PerformanceMode::FAST->value === self::getPerformanceMode();
+        return self::getPerformanceMode() === PerformanceMode::FAST->value;
     }
 
     /**

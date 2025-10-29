@@ -9,7 +9,7 @@ use Attribute;
 /**
  * Convert empty strings and arrays to null.
  *
- * Similar to Carapace's #[ConvertEmptyToNull] attribute.
+ * Similar to OtherDto's #[ConvertEmptyToNull] attribute.
  *
  * Example:
  *   class UserDto extends LiteDto {
