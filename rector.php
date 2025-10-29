@@ -21,6 +21,7 @@ use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPrivateMethodRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPromotedPropertyRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPublicMethodParameterRector;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
+use Rector\DeadCode\Rector\MethodCall\RemoveNullArgOnNullDefaultParamRector;
 use Rector\DeadCode\Rector\Node\RemoveNonExistingVarAnnotationRector;
 use Rector\DeadCode\Rector\PropertyProperty\RemoveNullPropertyInitializationRector;
 use Rector\DeadCode\Rector\Stmt\RemoveUnreachableStatementRector;
@@ -44,7 +45,6 @@ use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\Transform\Rector\FuncCall\FuncCallToConstFetchRector;
 use Rector\TypeDeclaration\Rector\Class_\MergeDateTimePropertyTypeDeclarationRector;
 use Rector\TypeDeclaration\Rector\Class_\PropertyTypeFromStrictSetterGetterRector;
-use Rector\TypeDeclaration\Rector\Class_\TypedPropertyFromJMSSerializerAttributeTypeRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddParamTypeFromPropertyTypeRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddReturnTypeDeclarationBasedOnParentClassMethodRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ParamTypeByMethodCallTypeRector;
@@ -149,7 +149,6 @@ return RectorConfig::configure()
         ReturnNeverTypeRector::class,
         StrictArrayParamDimFetchRector::class,
         StrictStringParamConcatRector::class,
-        TypedPropertyFromJMSSerializerAttributeTypeRector::class,
         RemoveAlwaysTrueIfConditionRector::class,
         RenameForeachValueVariableToMatchExprVariableRector::class,
         RemoveUnusedPrivateClassConstantRector::class,
@@ -160,4 +159,5 @@ return RectorConfig::configure()
         SortNamedParamRector::class,
         NullToStrictStringFuncCallArgRector::class,
         FunctionFirstClassCallableRector::class,
+        RemoveNullArgOnNullDefaultParamRector::class,
     ]);
