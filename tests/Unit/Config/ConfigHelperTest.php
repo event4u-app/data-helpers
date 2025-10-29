@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Enums\PerformanceMode;
 use event4u\DataHelpers\Helpers\ConfigHelper;
 
 beforeEach(function(): void {
@@ -76,10 +77,10 @@ describe('ConfigHelper', function(): void {
     it('gets string value', function(): void {
         $helper = ConfigHelper::getInstance();
 
-        $value = $helper->getString('performance_mode', 'safe');
+        $value = $helper->getString('performance_mode', PerformanceMode::SAFE->value);
 
         expect($value)->toBeString();
-        expect($value)->toBeIn(['fast', 'safe']);
+        expect($value)->toBeIn([PerformanceMode::FAST->value, PerformanceMode::SAFE->value]);
     });
 
     it('gets array value', function(): void {
@@ -141,7 +142,7 @@ describe('ConfigHelper', function(): void {
 
         // String casting
         expect($helper->getString('non.existent', '123'))->toBe('123');
-        expect($helper->getString('performance_mode', 'safe'))->toBeString();
+        expect($helper->getString('performance_mode', PerformanceMode::SAFE->value))->toBeString();
     });
 
     it('handles nested arrays correctly', function(): void {

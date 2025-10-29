@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
 use event4u\DataHelpers\Validation\ValidationResult;
 use event4u\DataHelpers\Validation\Validator;
 use ReflectionClass;
@@ -102,6 +104,12 @@ trait SimpleDtoRequestValidationTrait
      */
     protected static function performValidation(array $data, bool $throw): array
     {
+        // Check if NoValidation attribute is present - skip all validation
+        $metadata = ConstructorMetadata::get(static::class);
+        if (isset($metadata['classAttributes'][NoValidation::class])) {
+            return $data;
+        }
+
         // Get validation rules
         $rules = static::getAllRules();
         $messages = static::getAllMessages();

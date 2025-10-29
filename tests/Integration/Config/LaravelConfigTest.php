@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration\Config;
 
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Enums\PerformanceMode;
 use event4u\DataHelpers\Frameworks\Laravel\DataHelpersServiceProvider;
 use Illuminate\Container\Container;
 
@@ -35,10 +36,10 @@ describe('Laravel Config Integration', function(): void {
     it('loads config from Laravel', function(): void {
         // Manually set Laravel-like config
         DataHelpersConfig::setMany([
-            'performance_mode' => 'fast',
+            'performance_mode' => PerformanceMode::FAST->value,
         ]);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('fast');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::FAST->value);
         expect(DataHelpersConfig::isFastMode())->toBeTrue();
     });
 
@@ -56,23 +57,23 @@ describe('Laravel Config Integration', function(): void {
     it('respects custom Laravel config values', function(): void {
         // Set custom config values
         DataHelpersConfig::setMany([
-            'performance_mode' => 'safe',
+            'performance_mode' => PerformanceMode::SAFE->value,
         ]);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::SAFE->value);
         expect(DataHelpersConfig::isFastMode())->toBeFalse();
     });
 
     it('handles ENV variables in Laravel config', function(): void {
         // Set ENV variables
-        $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] = 'safe';
+        $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] = PerformanceMode::SAFE->value;
 
         // Set config with ENV values
         DataHelpersConfig::setMany([
             'performance_mode' => $_ENV['DATA_HELPERS_PERFORMANCE_MODE'],
         ]);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::SAFE->value);
 
         // Cleanup
         unset($_ENV['DATA_HELPERS_PERFORMANCE_MODE']);

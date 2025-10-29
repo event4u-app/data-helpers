@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
@@ -289,7 +290,7 @@ describe('Property Mapping Edge Cases', function(): void {
 
     describe('Mapping with Type Coercion', function(): void {
         it('handles type coercion with MapFrom', function(): void {
-            $dto = new class extends SimpleDto {
+            $dto = new #[AutoCast] class extends SimpleDto {
                 public function __construct(
                     #[MapFrom('age_string')]
                     public readonly int $age = 0,

@@ -63,8 +63,11 @@ $emails = $accessor->get('departments.*.users.*.email');
 
 ### 🚀 Key Benefits
 
-- **Type-Safe** - PHPStan Level 9 compliant with 2900+ tests
-- **Fast** - Up to 3.7x faster than Symfony Serializer
+- **Type-Safe** - PHPStan Level 9 compliant with 3500+ tests
+<!-- BENCHMARK_README_FAST_START -->
+
+- **Fast** - SimpleDto with #[UltraFast] is up to 34.0x faster than Other Serializer
+<!-- BENCHMARK_README_FAST_END -->
 - **Framework-Agnostic** - Works with Laravel, Symfony, Doctrine, or plain PHP
 - **Zero Dependencies** - No required dependencies, optional framework integrations
 - **No-Code Mapping** - Store templates in database, create with drag-and-drop editors
@@ -146,9 +149,13 @@ $result = DataFilter::query($products)
 
 ### 5️⃣ SimpleDto - Immutable Dtos
 
-Create type-safe, immutable Data Transfer Objects:
+Create type-safe, immutable Data Transfer Objects with automatic type casting:
 
-```php
+<!-- skip-test: property declaration only -->
+```php skip-test
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
+
+#[AutoCast]  // Enable automatic type casting (opt-in for performance)
 class ReadmeUserDto extends SimpleDto
 {
     public function __construct(
@@ -158,10 +165,61 @@ class ReadmeUserDto extends SimpleDto
     ) {}
 }
 
-$user = ReadmeUserDto::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
+// Automatic type conversion with #[AutoCast]
+$user = ReadmeUserDto::fromArray([
+    'name' => 'John',
+    'email' => 'john@example.com',
+    'age' => '30'  // String "30" → int 30 (automatic)
+]);
+
+// Without #[AutoCast]: Strict types, better performance
+class StrictUserDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly int $age,  // Must be int, no conversion
+    ) {}
+}
 ```
 
 📖 **[SimpleDto Documentation](https://event4u-app.github.io/data-helpers/simple-dto/introduction/)**
+
+### 6️⃣ LiteDto - Ultra-Fast Dtos
+
+Create ultra-fast, minimalistic DTOs with essential features:
+
+```php
+use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
+use event4u\DataHelpers\LiteDto\Attributes\Hidden;
+
+class UserDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+
+        #[MapFrom('email_address')]
+        public readonly string $email,
+
+        #[Hidden]
+        public readonly string $password,
+    ) {}
+}
+
+$user = UserDto::from([
+    'name' => 'John',
+    'email_address' => 'john@example.com',
+    'password' => 'secret',
+]);
+
+$array = $user->toArray();
+// ['name' => 'John', 'email' => 'john@example.com']
+// password is hidden
+```
+
+**Performance**: LiteDto is **7.6x faster** than SimpleDto Normal (~2.3μs vs ~18.5μs)
+
+📖 **[LiteDto Documentation](https://event4u-app.github.io/data-helpers/lite-dto/introduction/)**
 
 ### 3️⃣ DataMapper - Transform Data
 
@@ -327,6 +385,7 @@ The documentation includes:
 - 📖 **Getting Started Guides** - Installation, configuration, and quick start tutorials
 - 🔧 **Main Classes** - Detailed guides for DataAccessor, DataMutator, DataMapper, and DataFilter
 - 🎯 **SimpleDto** - Type-safe Dtos with validation, casting, and collections
+- ⚡ **LiteDto** - Ultra-fast, minimalistic Dtos (7.6x faster than SimpleDto)
 - 🚀 **Advanced Features** - Template expressions, query builder, pipelines, and reverse mapping
 - 🔌 **Framework Integration** - Laravel, Symfony, and Doctrine integration guides
 - 💡 **90+ Code Examples** - Runnable examples for every feature
@@ -337,7 +396,7 @@ The documentation includes:
 
 ## 🧪 Testing & Quality
 
-- ✅ **2900+ tests** with comprehensive coverage
+- ✅ **3500+ tests** with comprehensive coverage
 - ✅ **PHPStan Level 9** - Highest static analysis level
 - ✅ **100% type coverage** - All methods fully typed
 - ✅ **Continuous Integration** - Automated testing across PHP 8.2, 8.3, 8.4
@@ -350,10 +409,13 @@ The documentation includes:
 
 All operations are highly optimized:
 
-- Simple access: ~0.3μs
-- Nested access: ~0.4μs
+<!-- BENCHMARK_README_PERFORMANCE_START -->
+
+- Simple access: ~0.2μs
+- Nested access: ~0.3μs
 - Wildcards: ~5μs
-- **Up to 3.7x faster** than Symfony Serializer for Dto mapping
+- **SimpleDto #[UltraFast] is up to 34.0x faster** than Other Serializer
+<!-- BENCHMARK_README_PERFORMANCE_END -->
 
 📖 **[Performance Benchmarks](https://event4u-app.github.io/data-helpers/performance/benchmarks/)** • [Optimization Tips](https://event4u-app.github.io/data-helpers/performance/optimization/)
 

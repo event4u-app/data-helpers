@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Enums\PerformanceMode;
 use event4u\DataHelpers\Frameworks\Laravel\DataHelpersServiceProvider;
 
 describe('Laravel Service Provider E2E', function(): void {
@@ -33,19 +34,19 @@ describe('Laravel Service Provider E2E', function(): void {
     it('uses default performance mode when initialized without ENV', function(): void {
         // Initialize DataHelpersConfig with default values (ignoring ENV)
         DataHelpersConfig::initialize([
-            'performance_mode' => 'fast',
+            'performance_mode' => PerformanceMode::FAST->value,
         ]);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('fast');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::FAST->value);
     });
 
     it('loads configuration from .env file', function(): void {
         // Initialize DataHelpersConfig with ENV values
         DataHelpersConfig::initialize([
-            'performance_mode' => $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] ?? 'fast',
+            'performance_mode' => $_ENV['DATA_HELPERS_PERFORMANCE_MODE'] ?? PerformanceMode::FAST->value,
         ]);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('fast');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::FAST->value);
     });
 });
 

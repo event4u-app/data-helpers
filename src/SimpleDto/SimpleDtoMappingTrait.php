@@ -8,6 +8,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
+use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
 use event4u\DataHelpers\SimpleDto\Support\NameTransformer;
 use ReflectionClass;
 
@@ -26,6 +27,13 @@ use ReflectionClass;
  */
 trait SimpleDtoMappingTrait
 {
+    /**
+     * Cache for ReflectionClass instances per Dto class.
+     *
+     * @var array<string, ReflectionClass<object>>
+     */
+    private static array $reflectionCache = [];
+
     /**
      * Cache for input mapping configurations per Dto class.
      *
@@ -54,6 +62,22 @@ trait SimpleDtoMappingTrait
      */
     private static array $outputNameTransformCache = [];
 
+    /** Get cached ReflectionClass instance for the current class.
+     * @return ReflectionClass<object>
+     */
+    private static function getReflection(): ReflectionClass
+    {
+        $class = static::class;
+
+        if (!isset(self::$reflectionCache[$class])) {
+            /** @var ReflectionClass<object> $reflection */
+            $reflection = new ReflectionClass($class);
+            self::$reflectionCache[$class] = $reflection;
+        }
+
+        return self::$reflectionCache[$class];
+    }
+
     /**
      * Get the mapping configuration for this Dto.
      *
@@ -70,23 +94,16 @@ trait SimpleDtoMappingTrait
             return self::$mappingCache[$class];
         }
 
-        $reflection = new ReflectionClass($class);
-        $constructor = $reflection->getConstructor();
-
-        if (null === $constructor) {
-            self::$mappingCache[$class] = [];
-
-            return [];
-        }
+        // Use centralized metadata cache
+        $metadata = ConstructorMetadata::get(static::class);
 
         $mapping = [];
 
-        foreach ($constructor->getParameters() as $reflectionParameter) {
-            $mapFromAttributes = $reflectionParameter->getAttributes(MapFrom::class);
-
-            if (!empty($mapFromAttributes)) {
-                $mapFrom = $mapFromAttributes[0]->newInstance();
-                $mapping[$reflectionParameter->getName()] = $mapFrom->source;
+        foreach ($metadata['parameters'] as $param) {
+            if (isset($param['attributes'][MapFrom::class])) {
+                /** @var MapFrom $mapFrom */
+                $mapFrom = $param['attributes'][MapFrom::class];
+                $mapping[$param['name']] = $mapFrom->source;
             }
         }
 
@@ -110,16 +127,17 @@ trait SimpleDtoMappingTrait
             return self::$inputNameTransformCache[$class];
         }
 
-        $reflection = new ReflectionClass($class);
-        $attributes = $reflection->getAttributes(MapInputName::class);
+        // Use centralized metadata cache
+        $metadata = ConstructorMetadata::get(static::class);
 
-        if ([] === $attributes) {
+        if (!isset($metadata['classAttributes'][MapInputName::class])) {
             self::$inputNameTransformCache[$class] = null;
 
             return null;
         }
 
-        $mapInputName = $attributes[0]->newInstance();
+        /** @var MapInputName $mapInputName */
+        $mapInputName = $metadata['classAttributes'][MapInputName::class];
         self::$inputNameTransformCache[$class] = $mapInputName->getFormat();
 
         return $mapInputName->getFormat();
@@ -148,7 +166,7 @@ trait SimpleDtoMappingTrait
         $mappedData = [];
 
         // Get all constructor parameters
-        $reflection = new ReflectionClass(static::class);
+        $reflection = self::getReflection();
         $constructor = $reflection->getConstructor();
 
         if (null !== $constructor) {
@@ -241,23 +259,16 @@ trait SimpleDtoMappingTrait
             return self::$outputMappingCache[$class];
         }
 
-        $reflection = new ReflectionClass($class);
-        $constructor = $reflection->getConstructor();
-
-        if (null === $constructor) {
-            self::$outputMappingCache[$class] = [];
-
-            return [];
-        }
+        // Use centralized metadata cache
+        $metadata = ConstructorMetadata::get(static::class);
 
         $mapping = [];
 
-        foreach ($constructor->getParameters() as $reflectionParameter) {
-            $mapToAttributes = $reflectionParameter->getAttributes(MapTo::class);
-
-            if (!empty($mapToAttributes)) {
-                $mapTo = $mapToAttributes[0]->newInstance();
-                $mapping[$reflectionParameter->getName()] = $mapTo->target;
+        foreach ($metadata['parameters'] as $param) {
+            if (isset($param['attributes'][MapTo::class])) {
+                /** @var MapTo $mapTo */
+                $mapTo = $param['attributes'][MapTo::class];
+                $mapping[$param['name']] = $mapTo->target;
             }
         }
 
@@ -281,16 +292,17 @@ trait SimpleDtoMappingTrait
             return self::$outputNameTransformCache[$class];
         }
 
-        $reflection = new ReflectionClass($class);
-        $attributes = $reflection->getAttributes(MapOutputName::class);
+        // Use centralized metadata cache
+        $metadata = ConstructorMetadata::get(static::class);
 
-        if ([] === $attributes) {
+        if (!isset($metadata['classAttributes'][MapOutputName::class])) {
             self::$outputNameTransformCache[$class] = null;
 
             return null;
         }
 
-        $mapOutputName = $attributes[0]->newInstance();
+        /** @var MapOutputName $mapOutputName */
+        $mapOutputName = $metadata['classAttributes'][MapOutputName::class];
         self::$outputNameTransformCache[$class] = $mapOutputName->getFormat();
 
         return $mapOutputName->getFormat();

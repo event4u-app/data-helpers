@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
+use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
 use event4u\DataHelpers\SimpleDto\Casts\ArrayCast;
 use event4u\DataHelpers\SimpleDto\Casts\BooleanCast;
 use event4u\DataHelpers\SimpleDto\Casts\CollectionCast;
@@ -22,9 +24,9 @@ use event4u\DataHelpers\SimpleDto\Casts\JsonCast;
 use event4u\DataHelpers\SimpleDto\Casts\StringCast;
 use event4u\DataHelpers\SimpleDto\Casts\TimestampCast;
 use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
+use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
 use InvalidArgumentException;
 use ReflectionClass;
-use ReflectionNamedType;
 use Throwable;
 
 /**
@@ -47,6 +49,9 @@ trait SimpleDtoCastsTrait
 {
     /** @var array<string, object> Cache for cast instances */
     private static array $castCache = [];
+
+    /** @var array<string, array<string, string>> Cache for auto-casts per class */
+    private static array $autoCastCache = [];
 
     /**
      * Get the casts for the Dto.
@@ -93,13 +98,23 @@ trait SimpleDtoCastsTrait
      * Get the casts for the Dto class.
      *
      * Uses reflection to call the protected casts() method without requiring an instance.
-     * Also collects casts from DataCollectionOf attributes and auto-detects nested Dtos.
+     * Collects casts from multiple sources with the following priority (highest last):
+     * 1. Automatic native type casts (only if #[AutoCast] is present) - LOWEST PRIORITY
+     * 2. Auto-detected nested Dtos (always applied)
+     * 3. Casts from attributes (#[DataCollectionOf], #[ConvertEmptyToNull])
+     * 4. Casts from casts() method - HIGHEST PRIORITY
      *
      * @return array<string, string>
      */
     protected static function getCasts(): array
     {
         try {
+            // Check if NoCasts attribute is present - skip all casting
+            $metadata = ConstructorMetadata::get(static::class);
+            if (isset($metadata['classAttributes'][NoCasts::class])) {
+                return [];
+            }
+
             $reflection = new ReflectionClass(static::class);
             $method = $reflection->getMethod('casts');
 
@@ -111,14 +126,28 @@ trait SimpleDtoCastsTrait
                 $casts = [];
             }
 
-            // Merge with casts from DataCollectionOf attributes
-            $casts = array_merge($casts, static::getCastsFromAttributes());
+            // Start with automatic native type casts (lowest priority)
+            // These are only added if #[AutoCast] is present
+            $allCasts = static::getAutoCasts();
 
-            // Merge with auto-detected nested Dtos
-            $casts = array_merge($casts, static::getNestedDtoCasts());
+            // Merge with auto-detected nested Dtos (medium priority)
+            // Nested DTOs should always work regardless of AutoCast
+            // Performance: Use + operator instead of array_merge (10-20% faster)
+            // Note: Order matters! $b + $a means $b has priority (like array_merge($a, $b))
+            $allCasts = static::getNestedDtoCasts() + $allCasts;
 
-            /** @var array<string, string> $casts */
-            return $casts;
+            // Merge with casts from attributes (high priority)
+            // DataCollectionOf and ConvertEmptyToNull are explicit casts
+            // Performance: Use + operator instead of array_merge (10-20% faster)
+            $allCasts = static::getCastsFromAttributes() + $allCasts;
+
+            // Merge with casts() method (highest priority)
+            // Explicit casts from casts() method always override everything
+            // Performance: Use + operator instead of array_merge (10-20% faster)
+            $allCasts = $casts + $allCasts;
+
+            /** @var array<string, string> $allCasts */
+            return $allCasts;
         } catch (Throwable) {
             return [];
         }
@@ -134,37 +163,32 @@ trait SimpleDtoCastsTrait
         $casts = [];
 
         try {
-            $reflection = new ReflectionClass(static::class);
+            // Use centralized metadata cache
+            $metadata = ConstructorMetadata::get(static::class);
 
             // Check for class-level ConvertEmptyToNull attribute
-            $classAttributes = $reflection->getAttributes(ConvertEmptyToNull::class);
-            $hasClassLevelConvertEmptyToNull = [] !== $classAttributes;
+            $classConvertEmpty = $metadata['classAttributes'][ConvertEmptyToNull::class] ?? null;
+            $hasClassLevelConvertEmptyToNull = null !== $classConvertEmpty;
 
-            foreach ($reflection->getProperties() as $reflectionProperty) {
+            foreach ($metadata['parameters'] as $param) {
+                $propertyName = $param['name'];
+
                 // Check for DataCollectionOf attribute
-                $dataCollectionAttributes = $reflectionProperty->getAttributes(
-                    DataCollectionOf::class
-                );
-
-                foreach ($dataCollectionAttributes as $attribute) {
+                if (isset($param['attributes'][DataCollectionOf::class])) {
                     /** @var DataCollectionOf $instance */
-                    $instance = $attribute->newInstance();
+                    $instance = $param['attributes'][DataCollectionOf::class];
 
                     // Build cast string: collection:dtoClass
                     $castString = 'collection:' . $instance->dtoClass;
 
-                    $casts[$reflectionProperty->getName()] = $castString;
+                    $casts[$propertyName] = $castString;
                 }
 
                 // Check for property-level ConvertEmptyToNull attribute
-                $convertEmptyAttributes = $reflectionProperty->getAttributes(
-                    ConvertEmptyToNull::class
-                );
-
-                if (!empty($convertEmptyAttributes)) {
+                if (isset($param['attributes'][ConvertEmptyToNull::class])) {
                     // Property-level attribute takes precedence
                     /** @var ConvertEmptyToNull $instance */
-                    $instance = $convertEmptyAttributes[0]->newInstance();
+                    $instance = $param['attributes'][ConvertEmptyToNull::class];
 
                     // Build cast string with parameters
                     $castString = ConvertEmptyToNullCast::class;
@@ -182,11 +206,11 @@ trait SimpleDtoCastsTrait
                         $castString .= ':' . implode(',', $params);
                     }
 
-                    $casts[$reflectionProperty->getName()] = $castString;
+                    $casts[$propertyName] = $castString;
                 } elseif ($hasClassLevelConvertEmptyToNull) {
                     // Use class-level attribute settings
                     /** @var ConvertEmptyToNull $classInstance */
-                    $classInstance = $classAttributes[0]->newInstance();
+                    $classInstance = $classConvertEmpty;
 
                     // Build cast string with parameters
                     $castString = ConvertEmptyToNullCast::class;
@@ -204,7 +228,7 @@ trait SimpleDtoCastsTrait
                         $castString .= ':' . implode(',', $params);
                     }
 
-                    $casts[$reflectionProperty->getName()] = $castString;
+                    $casts[$propertyName] = $castString;
                 }
             }
         } catch (Throwable) {
@@ -224,21 +248,16 @@ trait SimpleDtoCastsTrait
         $casts = [];
 
         try {
-            $reflection = new ReflectionClass(static::class);
-            $constructor = $reflection->getConstructor();
+            // Use centralized metadata cache
+            $metadata = ConstructorMetadata::get(static::class);
 
-            if (null === $constructor) {
-                return [];
-            }
+            foreach ($metadata['parameters'] as $param) {
+                $typeName = $param['type'];
 
-            foreach ($constructor->getParameters() as $reflectionParameter) {
-                $type = $reflectionParameter->getType();
-
-                if (!$type instanceof ReflectionNamedType) {
+                // Skip if no type or is builtin
+                if (null === $typeName || $param['isBuiltin']) {
                     continue;
                 }
-
-                $typeName = $type->getName();
 
                 // Check if type is a class and extends SimpleDto
                 if (class_exists($typeName)) {
@@ -247,7 +266,7 @@ trait SimpleDtoCastsTrait
 
                         // Check if it has fromArray method (indicates it's a Dto)
                         if ($typeReflection->hasMethod('fromArray')) {
-                            $casts[$reflectionParameter->getName()] = 'dto:' . $typeName;
+                            $casts[$param['name']] = 'dto:' . $typeName;
                         }
                     } catch (Throwable) {
                         // Not a Dto, skip
@@ -259,6 +278,106 @@ trait SimpleDtoCastsTrait
         }
 
         return $casts;
+    }
+
+    /**
+     * Cache for AutoCast detection to avoid repeated reflection.
+     *
+     * @var array<string, array<string, string>>
+     */
+    private static array $autoCastsCache = [];
+
+    /**
+     * Get automatic native type casts based on #[AutoCast] attribute.
+     *
+     * This method only adds casts for native PHP types (int, string, float, bool, array)
+     * when the #[AutoCast] attribute is present at class or property level.
+     *
+     * Explicit casts (from casts() method, #[DataCollectionOf], nested DTOs) are NOT affected
+     * by this method and are ALWAYS applied.
+     *
+     * Performance: Returns empty array immediately if no #[AutoCast] attribute is found.
+     * Results are cached to avoid repeated reflection.
+     *
+     * @return array<string, string>
+     */
+    protected static function getAutoCasts(): array
+    {
+        // Check cache first
+        $cacheKey = static::class;
+        if (isset(self::$autoCastsCache[$cacheKey])) {
+            return self::$autoCastsCache[$cacheKey];
+        }
+
+        try {
+            // Use centralized metadata cache
+            $metadata = ConstructorMetadata::get(static::class);
+
+            // Early return: Check for class-level #[AutoCast] attribute first
+            $hasClassLevelAutoCast = isset($metadata['classAttributes'][AutoCast::class]);
+
+            // Early return: If no class-level AutoCast, check if ANY property has it
+            if (!$hasClassLevelAutoCast) {
+                // Quick scan: Check if ANY parameter has AutoCast attribute
+                $hasAnyPropertyAutoCast = false;
+                foreach ($metadata['parameters'] as $param) {
+                    if (isset($param['attributes'][AutoCast::class])) {
+                        $hasAnyPropertyAutoCast = true;
+                        break;
+                    }
+                }
+
+                // Early return: No AutoCast attributes found anywhere
+                if (!$hasAnyPropertyAutoCast) {
+                    self::$autoCastsCache[$cacheKey] = [];
+                    return [];
+                }
+            }
+
+            // At this point, we know there's at least one AutoCast attribute
+            $casts = [];
+
+            foreach ($metadata['parameters'] as $param) {
+                $propertyName = $param['name'];
+
+                // Check for property-level #[AutoCast] attribute
+                $hasPropertyLevelAutoCast = isset($param['attributes'][AutoCast::class]);
+
+                // Skip if no AutoCast attribute at class or property level
+                if (!$hasClassLevelAutoCast && !$hasPropertyLevelAutoCast) {
+                    continue;
+                }
+
+                // Get the parameter type
+                $typeName = $param['type'];
+                if (null === $typeName) {
+                    continue;
+                }
+
+                // Only add casts for native PHP types
+                $castClass = match ($typeName) {
+                    'int', 'integer' => IntegerCast::class,
+                    'string' => StringCast::class,
+                    'float', 'double' => FloatCast::class,
+                    'bool', 'boolean' => BooleanCast::class,
+                    'array' => ArrayCast::class,
+                    default => null,
+                };
+
+                if (null !== $castClass) {
+                    $casts[$propertyName] = $castClass;
+                }
+            }
+
+            // Cache the result
+            self::$autoCastsCache[$cacheKey] = $casts;
+
+            return $casts;
+        } catch (Throwable) {
+            // Ignore errors - cache empty array
+            self::$autoCastsCache[$cacheKey] = [];
+            return [];
+        }
     }
 
     /**

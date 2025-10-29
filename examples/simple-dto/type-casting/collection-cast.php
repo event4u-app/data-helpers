@@ -5,6 +5,7 @@ declare(strict_types=1);
 require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDto\DataCollection;
 
@@ -19,6 +20,7 @@ echo "You must specify a Dto class: 'collection:UserDto'\n\n";
 echo "Example 1: DataCollection<SimpleDto> of Dtos\n";
 echo "----------------------------------\n";
 
+#[AutoCast]
 class UserDto extends SimpleDto
 {
     public function __construct(
@@ -28,6 +30,7 @@ class UserDto extends SimpleDto
     ) {}
 }
 
+#[AutoCast]
 class TeamDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
@@ -64,6 +67,7 @@ echo "toArray(): " . json_encode($teamDto->toArray(), JSON_PRETTY_PRINT) . "\n\n
 echo "Example 2: DataCollection<SimpleDto>Of Attribute\n";
 echo "-------------------------------------\n";
 
+#[AutoCast]
 class ProductDto extends SimpleDto
 {
     public function __construct(
@@ -73,6 +77,7 @@ class ProductDto extends SimpleDto
     ) {}
 }
 
+#[AutoCast]
 class OrderDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
@@ -107,6 +112,7 @@ echo "toArray(): " . json_encode($orderDto->toArray(), JSON_PRETTY_PRINT) . "\n\
 echo "Example 3: Nested Collections\n";
 echo "-----------------------------\n";
 
+#[AutoCast]
 class CommentDto extends SimpleDto
 {
     public function __construct(
@@ -115,6 +121,7 @@ class CommentDto extends SimpleDto
     ) {}
 }
 
+#[AutoCast]
 class PostDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */
@@ -126,6 +133,7 @@ class PostDto extends SimpleDto
     ) {}
 }
 
+#[AutoCast]
 class BlogDto extends SimpleDto
 {
     /** @phpstan-ignore-next-line unknown */

@@ -17,12 +17,21 @@ tasks:
 
   run:
     desc: Run tests in normal container (use PHP=8.2|8.3|8.4)
-    aliases: [test]
+    aliases: [test, check]
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
         task_test "Running Tests (PHP {{.PHP | default .DEFAULT_PHP}})" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine --exclude-testsuite=Documentation
+
+  readme:
+    desc: Run tests in normal container and update the documentation (use PHP=8.2|8.3|8.4)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        echo ""
+        task_step "Updating test statistics..."
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/pest --compact --no-coverage --exclude-group=laravel --exclude-group=doctrine --exclude-testsuite=Documentation 2>&1 | ./scripts/update-test-stats.sh
 
   unit:
     desc: Run unit tests only (use PHP=8.2|8.3|8.4)

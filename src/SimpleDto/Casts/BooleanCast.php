@@ -10,7 +10,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
  * Cast attribute to boolean.
  *
  * Supports:
- * - Integers (0, 1)
+ * - Integers (0=false, any non-zero=true)
  * - Strings ('0', '1', 'true', 'false', 'yes', 'no', 'on', 'off')
  * - Booleans
  *
@@ -32,16 +32,31 @@ class BooleanCast implements CastsAttributes
         }
 
         if (is_int($value)) {
-            return 1 === $value;
+            return 0 !== $value;
+        }
+
+        if (is_float($value)) {
+            return 0.0 !== $value;
         }
 
         if (is_string($value)) {
-            $lower = strtolower($value);
+            $lower = strtolower(trim($value));
 
-            return in_array($lower, ['1', 'true', 'yes', 'on'], true);
+            // Only cast known boolean strings
+            if (in_array($lower, ['1', 'true', 'yes', 'on'], true)) {
+                return true;
+            }
+
+            if (in_array($lower, ['0', 'false', 'no', 'off', ''], true)) {
+                return false;
+            }
+
+            // Unknown string - return null to trigger TypeError
+            return null;
         }
 
-        return (bool)$value;
+        // Other types - return null to trigger TypeError
+        return null;
     }
 
     public function set(mixed $value, array $attributes): ?int

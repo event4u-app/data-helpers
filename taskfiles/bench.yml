@@ -13,48 +13,50 @@ vars:
 tasks:
   run:
     desc: Run benchmarks (use PHP=8.2|8.3|8.4)
-    aliases: [benchmark]
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Running Benchmarks" \
           docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/phpbench run --report=table
 
-  readme:
-    desc: Update benchmark results in README (use PHP=8.2|8.3|8.4)
-    aliases: [benchmark:readme]
-    cmds:
-      - |
-        source {{.OUTPUT_HELPER}}
-        task_run "Updating Benchmark Results in README" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-benchmark-results.php
-
   dto:
-    desc: Run Dto benchmarks (Traditional vs SimpleDto)
-    aliases: [bench:dto]
+    desc: Run Dto benchmarks (Traditional vs SimpleDto) [DEPRECATED - use bench:comprehensive]
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Running Dto Benchmarks" \
           docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/dto-benchmark.php
 
-  dto:readme:
-    desc: Update Dto benchmark results in docs/simple-dto.md
-    aliases: [bench:dto:readme]
+  isolated:
+    desc: Run comprehensive benchmarks and update documentation (isolated, use PHP=8.2|8.3|8.4)
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
-        task_run "Updating Dto Benchmark Results" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-dto-benchmark-results.php
+        task_header "Running Comprehensive Benchmarks (Isolated)"
+        ./scripts/benchmark-isolated.sh --php {{.PHP | default "8.4"}}
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "Benchmarks completed and documentation updated"
+        else
+          task_error "Benchmarks failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
 
-  all:
-    desc: Run all benchmarks and update documentation
+  readme:
+    desc: Run comprehensive benchmarks directly (no isolation, use PHP=8.2|8.3|8.4)
+    aliases: [direct]
     cmds:
-      - task: run
-      - task: readme
-      - task: dto
-      - task: dto:readme
       - |
         source {{.OUTPUT_HELPER}}
-        task_success "All benchmarks completed and documentation updated"
+        task_header "Running Comprehensive Benchmarks (Direct)"
+        docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/comprehensive-benchmark.php --readme
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "Benchmarks completed and documentation updated"
+        else
+          task_error "Benchmarks failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
 

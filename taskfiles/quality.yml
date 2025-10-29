@@ -149,7 +149,7 @@ tasks:
 
   check:
     desc: Run all quality checks (use PHP=8.2|8.3|8.4)
-    aliases: [quality]
+    aliases: [run]
     cmds:
       - |
         source {{.OUTPUT_HELPER}}
@@ -193,7 +193,6 @@ tasks:
 
   fix:
     desc: Run all quality checks with fixes (use PHP=8.2|8.3|8.4)
-    aliases: [quality:fix]
     cmds:
       - |
         source {{.OUTPUT_HELPER}}

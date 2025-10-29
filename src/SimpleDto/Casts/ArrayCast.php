@@ -37,13 +37,16 @@ class ArrayCast implements CastsAttributes
             if (JSON_ERROR_NONE === json_last_error() && is_array($decoded)) {
                 return $decoded;
             }
+            // Invalid JSON - return null to trigger TypeError
+            return null;
         }
 
         if (is_object($value)) {
             return (array)$value;
         }
 
-        return [$value];
+        // Other types (int, float, bool, etc.) - return null to trigger TypeError
+        return null;
     }
 
     public function set(mixed $value, array $attributes): ?string

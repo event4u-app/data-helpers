@@ -50,8 +50,12 @@ final class EnvHelper
         string $key,
         mixed $default = null,
         bool $forceCast = true,
-    ): string {
+    ): ?string {
         $value = self::get($key, $default);
+
+        if (null === $value) {
+            return null;
+        }
 
         if ($forceCast) {
             if (is_numeric($value) || is_string($value)) {
@@ -73,9 +77,7 @@ final class EnvHelper
             }
         }
 
-        if (null !== $value) {
-            self::checkTypeAndThrowException('string', $key, $value);
-        }
+        self::checkTypeAndThrowException('string', $key, $value);
 
         return (string)$value;
     }
@@ -84,8 +86,12 @@ final class EnvHelper
         string $key,
         mixed $default = null,
         bool $forceCast = true,
-    ): int {
+    ): ?int {
         $value = self::get($key, $default);
+
+        if (null === $value) {
+            return null;
+        }
 
         if ($forceCast) {
             if (is_numeric($value) || is_string($value)) {
@@ -97,9 +103,7 @@ final class EnvHelper
             }
         }
 
-        if (null !== $value) {
-            self::checkTypeAndThrowException('integer', $key, $value);
-        }
+        self::checkTypeAndThrowException('integer', $key, $value);
 
         return (int)$value;
     }
@@ -108,8 +112,12 @@ final class EnvHelper
         string $key,
         mixed $default = null,
         bool $forceCast = true,
-    ): float {
+    ): ?float {
         $value = self::get($key, $default);
+
+        if (null === $value) {
+            return null;
+        }
 
         if ($forceCast) {
             if (is_numeric($value) || is_string($value)) {
@@ -121,9 +129,7 @@ final class EnvHelper
             }
         }
 
-        if (null !== $value) {
-            self::checkTypeAndThrowException('float', $key, $value);
-        }
+        self::checkTypeAndThrowException('float', $key, $value);
 
         return (float)$value;
     }
@@ -132,8 +138,12 @@ final class EnvHelper
         string $key,
         mixed $default = null,
         bool $forceCast = true,
-    ): bool {
+    ): ?bool {
         $value = self::get($key, $default);
+
+        if (null === $value) {
+            return null;
+        }
 
         if ($forceCast) {
             if (is_numeric($value)) {
@@ -145,9 +155,7 @@ final class EnvHelper
             }
         }
 
-        if (null !== $value) {
-            self::checkTypeAndThrowException('boolean', $key, $value);
-        }
+        self::checkTypeAndThrowException('boolean', $key, $value);
 
         return (bool)$value;
     }
@@ -159,36 +167,39 @@ final class EnvHelper
      * Trims whitespace from each value.
      *
      * @param string $key Environment variable key
-     * @param array<mixed> $default Default value if not set
+     * @param null|array<int|string, mixed> $default Default value if not set
      * @param string $separator Separator for splitting (default: ',')
-     * @return array<mixed>
+     * @return ?array<int|string, mixed>
      */
     public static function array(
         string $key,
-        array $default = [],
+        ?array $default = [],
         string $separator = ',',
-    ): array {
-        $value = self::get($key, null);
+    ): ?array {
+        $value = self::get($key, $default);
 
         if (null === $value) {
-            return $default;
+            return null;
         }
 
-        if (is_array($value)) {
-            return $value;
-        }
+        if (is_string($value) || is_numeric($value)) {
+            $value = trim((string)$value);
 
-        if (is_string($value)) {
-            if ('' === trim($value)) {
-                return $default;
+            if ('' === $value) {
+                return null;
             }
 
-            if ('' === $separator) {
+            if (
+                '' === $separator ||
+                !str_contains($value, $separator)
+            ) {
                 return [$value];
             }
 
             return array_map('trim', explode($separator, $value));
         }
+
+        self::checkTypeAndThrowException('array', $key, $value);
 
         return $default;
     }

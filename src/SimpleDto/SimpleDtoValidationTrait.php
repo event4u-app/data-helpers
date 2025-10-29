@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
 use event4u\DataHelpers\Validation\Validator;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Validation\ValidationException as LaravelValidationException;
@@ -125,6 +127,12 @@ trait SimpleDtoValidationTrait
      */
     public static function validate(array $data): array
     {
+        // Check if NoValidation attribute is present - skip all validation
+        $metadata = ConstructorMetadata::get(static::class);
+        if (isset($metadata['classAttributes'][NoValidation::class])) {
+            return $data;
+        }
+
         $rules = static::getAllRules();
         $messages = static::getAllMessages();
         $attributes = static::getAllAttributes();
@@ -476,22 +484,13 @@ trait SimpleDtoValidationTrait
     protected static function hasSymfonyConstraints(): bool
     {
         try {
-            $reflection = new ReflectionClass(static::class);
-            $constructor = $reflection->getConstructor();
+            // Use centralized metadata cache
+            $metadata = ConstructorMetadata::get(static::class);
 
-            if (null === $constructor) {
-                return false;
-            }
-
-            foreach ($constructor->getParameters() as $reflectionParameter) {
-                foreach ($reflectionParameter->getAttributes() as $attribute) {
-                    try {
-                        $instance = $attribute->newInstance();
-                        if ($instance instanceof SymfonyConstraint) {
-                            return true;
-                        }
-                    } catch (Throwable) {
-                        continue;
+            foreach ($metadata['parameters'] as $param) {
+                foreach ($param['attributes'] as $attribute) {
+                    if ($attribute instanceof SymfonyConstraint) {
+                        return true;
                     }
                 }
             }

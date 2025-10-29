@@ -50,18 +50,18 @@ describe('README.md Examples', function(): void {
             if (preg_match('/^(\s*declare\s*\(\s*strict_types\s*=\s*1\s*\)\s*;)/m', $codeWithoutPhpTag, $matches)) {
                 // Insert autoloader after declare statement
                 $codeWithAutoloader = "<?php\n\n" . $matches[1] . "\n\nrequire_once " . var_export(
-                    $autoloaderPath,
-                    true
-                ) . ";\n\n" . substr(
-                    $codeWithoutPhpTag,
-                    strlen($matches[1])
-                );
+                        $autoloaderPath,
+                        true
+                    ) . ";\n\n" . substr(
+                        $codeWithoutPhpTag,
+                        strlen($matches[1])
+                    );
             } else {
                 // No declare statement, add autoloader at the beginning
                 $codeWithAutoloader = "<?php\n\nrequire_once " . var_export(
-                    $autoloaderPath,
-                    true
-                ) . ";\n\n" . $codeWithoutPhpTag;
+                        $autoloaderPath,
+                        true
+                    ) . ";\n\n" . $codeWithoutPhpTag;
             }
 
             file_put_contents($tempFile, $codeWithAutoloader);
@@ -121,8 +121,15 @@ $emails = $accessor->get('data.departments.*.users.*.email');
 PHP;
 
         $executableCode = DocumentationExampleExtractor::prepareCodeForExecution($bannerExample);
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
-        eval(substr($executableCode, 5));
+
+        // Capture any output to prevent unwanted output in tests
+        ob_start();
+        try {
+            /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+            eval(substr($executableCode, 5));
+        } finally {
+            ob_end_clean();
+        }
 
         /** @phpstan-ignore-next-line variable.undefined */
         expect(array_values($emails))->toBe(['alice@example.com', 'bob@example.com', 'charlie@example.com']);

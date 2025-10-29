@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\DataCollection;
 
+#[AutoCast]
 class TestDataCollectionUserDto extends SimpleDto
 {
     public function __construct(

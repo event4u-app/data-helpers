@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use Symfony\Component\Yaml\Yaml;
 
+#[AutoCast]
 class TestAutoCastingUserDto extends SimpleDto
 {
     public function __construct(
@@ -15,6 +17,7 @@ class TestAutoCastingUserDto extends SimpleDto
     }
 }
 
+#[AutoCast]
 class TestAutoCastingTypedDto extends SimpleDto
 {
     /** @param array<mixed> $arrayProp */
@@ -260,7 +263,8 @@ describe('SimpleDtoAutoCastingTest', function(): void {
             expect($dto2->boolProp)->toBeFalse();
         });
 
-        it('does NOT cast other strings', function(): void {
+        it('throws TypeError for unknown strings', function(): void {
+            // With #[AutoCast], unknown strings should throw TypeError (not a valid boolean string)
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
             expect(fn(): \TestAutoCastingTypedDto => TestAutoCastingTypedDto::fromArray(['boolProp' => 'hello']))
                 ->toThrow(TypeError::class);
@@ -336,13 +340,15 @@ describe('SimpleDtoAutoCastingTest', function(): void {
             expect($arrayProp)->toBeArray();
         });
 
-        it('does NOT cast invalid JSON strings', function(): void {
+        it('throws TypeError for invalid JSON strings', function(): void {
+            // With #[AutoCast], invalid JSON should throw TypeError
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
             expect(fn(): \TestAutoCastingTypedDto => TestAutoCastingTypedDto::fromArray(['arrayProp' => 'not json']))
                 ->toThrow(TypeError::class);
         });
 
-        it('does NOT cast non-array types', function(): void {
+        it('throws TypeError for non-array types', function(): void {
+            // With #[AutoCast], non-array types should throw TypeError
             /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
             expect(fn(): \TestAutoCastingTypedDto => TestAutoCastingTypedDto::fromArray(['arrayProp' => 42]))
                 ->toThrow(TypeError::class);

@@ -276,6 +276,8 @@ trait SimpleDtoDiffTrait
                     $nested,
                     $fullKey
                 );
+                // Note: array_merge is correct here to preserve order of differences
+                // + operator would change the order and break tests
                 $differences = array_merge($differences, $nestedDiff);
                 continue;
             }

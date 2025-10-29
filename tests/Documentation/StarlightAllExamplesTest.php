@@ -88,8 +88,14 @@ describe('Starlight All Documentation Examples', function(): void {
                         return false;
                     });
 
-                    /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
-                    eval(substr($executableCode, 5));
+                    // Capture any output to prevent unwanted output in tests
+                    ob_start();
+                    try {
+                        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+                        eval(substr($executableCode, 5));
+                    } finally {
+                        ob_end_clean();
+                    }
 
                     restore_error_handler();
 

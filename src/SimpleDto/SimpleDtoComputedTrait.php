@@ -44,7 +44,14 @@ trait SimpleDtoComputedTrait
      */
     public function includeComputed(array $properties): static
     {
+        // Phase 6 Optimization: Lazy cloning - avoid clone if no properties to add
+        if ([] === $properties) {
+            return $this; // No properties to add, return self
+        }
+
         $clone = clone $this;
+        // Note: array_merge is correct here for numeric arrays (appends items)
+        // + operator would not work correctly for numeric keys
         $clone->includedComputed = array_merge($clone->includedComputed ?? [], $properties);
         // Clone the cache array to avoid sharing between instances
         $clone->computedCache = $this->computedCache;
@@ -146,6 +153,8 @@ trait SimpleDtoComputedTrait
     /**
      * Check if a computed property should be visible based on visibility attributes.
      *
+     * Phase 8: Use direct getAttributes() because we need specific attribute classes
+     *
      * @param string $methodName The method name
      * @param string $context 'array' or 'json'
      */
@@ -155,6 +164,7 @@ trait SimpleDtoComputedTrait
             $reflection = new ReflectionClass($this);
             $method = $reflection->getMethod($methodName);
 
+            // Phase 8: Use direct getAttributes() for specific attribute checks
             // Check for Hidden attribute
             $hiddenAttrs = $method->getAttributes(Hidden::class);
             if (!empty($hiddenAttrs)) {

@@ -41,6 +41,9 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
   <Card title="SimpleDto" icon="star">
     Immutable Data Transfer Objects with validation, casting, and framework integration.
   </Card>
+  <Card title="LiteDto" icon="rocket">
+    Ultra-fast, minimalistic DTOs. 7.6x faster than SimpleDto with essential features.
+  </Card>
   <Card title="Framework-Agnostic" icon="puzzle">
     Works with Laravel, Symfony, Doctrine, or plain PHP. Zero required dependencies.
   </Card>
@@ -69,7 +72,7 @@ $emails = $accessor->get('data.departments.*.users.*.email');
 
 - **Stop writing nested loops** - Use dot notation and wildcards instead
 - **Transform data with ease** - Map between different formats without repetitive code
-- **Type-safe and well-tested** - PHPStan Level 9 with 2900+ tests
+- **Type-safe and well-tested** - PHPStan Level 9 with 3500+ tests
 - **Framework-agnostic** - Works anywhere with smart framework detection
 - **Blazing fast** - Up to 3.7x faster than traditional serializers
 

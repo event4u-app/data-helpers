@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\Enums\CacheDriver;
+use event4u\DataHelpers\Enums\CacheInvalidation;
+use event4u\DataHelpers\Enums\PerformanceMode;
 use event4u\DataHelpers\Helpers\EnvHelper;
+use event4u\DataHelpers\Logging\LogDriver;
 use event4u\DataHelpers\Logging\LogEvent;
+use event4u\DataHelpers\Logging\LogLevel;
 
 return [
     /*
@@ -28,7 +33,111 @@ return [
     | Default: 'fast' (recommended for most use cases)
     |
     */
-    'performance_mode' => EnvHelper::string('DATA_HELPERS_PERFORMANCE_MODE', 'fast'),
+    'performance_mode' => PerformanceMode::from((string)EnvHelper::string('DATA_HELPERS_PERFORMANCE_MODE', PerformanceMode::FAST->value))->value,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure persistent caching for metadata and generated code.
+    | Improves performance by caching reflection analysis and generated code.
+    |
+    */
+    'cache' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Cache Directory
+        |--------------------------------------------------------------------------
+        |
+        | Directory where cache files will be stored.
+        | Used for metadata cache and generated code.
+        |
+        | Default: ./.event4u/data-helpers/cache/
+        |
+        | Note: This directory is automatically added to .gitignore
+        |
+        */
+        'path' => EnvHelper::string('DATA_HELPERS_CACHE_PATH', './.event4u/data-helpers/cache/'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cache Driver
+        |--------------------------------------------------------------------------
+        |
+        | The cache driver to use for metadata caching.
+        |
+        | Supported: CacheDriver::NONE, CacheDriver::AUTO, CacheDriver::LARAVEL,
+        |            CacheDriver::SYMFONY, CacheDriver::FILESYSTEM
+        |
+        | - NONE: Disable caching completely (not recommended for production)
+        | - AUTO: Automatically detect Laravel/Symfony cache, fallback to filesystem
+        | - LARAVEL: Use Laravel Cache (requires Laravel)
+        | - SYMFONY: Use Symfony Cache (requires Symfony)
+        | - FILESYSTEM: Use filesystem cache (always available)
+        |
+        | Default: CacheDriver::AUTO (recommended)
+        |
+        */
+        'driver' => CacheDriver::from((string)EnvHelper::string('DATA_HELPERS_CACHE_DRIVER', CacheDriver::AUTO->value))->value,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cache TTL (Time To Live)
+        |--------------------------------------------------------------------------
+        |
+        | How long to cache metadata in seconds.
+        | Set to null for forever (recommended for production).
+        |
+        | Note: Cache is automatically invalidated when source files change,
+        | so a long TTL is safe and recommended.
+        |
+        | Default: null (forever)
+        |
+        */
+        'ttl' => EnvHelper::integer('DATA_HELPERS_CACHE_TTL', null),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Enable Code Generation
+        |--------------------------------------------------------------------------
+        |
+        | Enable automatic code generation for optimized fromArray() methods.
+        | Generated code is stored in cache/generated/ directory.
+        |
+        | When enabled, optimized code is generated on first use and
+        | automatically regenerated when source files change.
+        |
+        | Default: true (recommended for production)
+        |
+        */
+        'code_generation' => EnvHelper::boolean('DATA_HELPERS_CODE_GENERATION', true),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cache Invalidation Strategy
+        |--------------------------------------------------------------------------
+        |
+        | How to detect when cache should be invalidated.
+        |
+        | Supported: CacheInvalidation::MANUAL, CacheInvalidation::MTIME,
+        |            CacheInvalidation::HASH, CacheInvalidation::BOTH
+        |
+        | - MANUAL: No automatic validation - cache only invalidated by clear-cache
+        |           command (like Spatie Laravel Data). Best performance, but requires
+        |           manual cache clearing after code changes.
+        | - MTIME: Check file modification time on every cache hit (fast, automatic)
+        | - HASH: Check file content hash on every cache hit (slower, more accurate)
+        | - BOTH: Check both mtime and hash on every cache hit (most accurate)
+        |
+        | Default: CacheInvalidation::MANUAL (recommended for production with deployment cache clearing)
+        |
+        | Note: Use MANUAL in production with cache warming/clearing in deployment pipeline.
+        |       Use MTIME/HASH/BOTH in development for automatic cache invalidation.
+        |
+        */
+        'invalidation' => CacheInvalidation::from((string)EnvHelper::string('DATA_HELPERS_CACHE_INVALIDATION', CacheInvalidation::MTIME->value))->value,
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -67,9 +176,7 @@ return [
         | - none: Disable logging
         |
         */
-        'driver' => \event4u\DataHelpers\Logging\LogDriver::from(
-            EnvHelper::string('DATA_HELPERS_LOG_DRIVER', 'filesystem'),
-        ),
+        'driver' => LogDriver::from((string)EnvHelper::string('DATA_HELPERS_LOG_DRIVER', LogDriver::FILESYSTEM->value))->value,
 
         /*
         |--------------------------------------------------------------------------
@@ -106,8 +213,8 @@ return [
         | Levels: emergency, alert, critical, error, warning, notice, info, debug
         |
         */
-        'level' => \event4u\DataHelpers\Logging\LogLevel::from(
-            EnvHelper::string('DATA_HELPERS_LOG_LEVEL', 'info'),
+        'level' => LogLevel::from(
+            (string)EnvHelper::string('DATA_HELPERS_LOG_LEVEL', 'info'),
         ),
 
         /*
@@ -156,11 +263,11 @@ return [
         |
         */
         'sampling' => [
-            'errors' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_ERRORS', '1.0'),
-            'success' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_SUCCESS', '0.01'),
-            'performance' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_PERFORMANCE', '0.1'),
-            'data_quality' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_DATA_QUALITY', '1.0'),
-            'metrics' => (float)EnvHelper::string('DATA_HELPERS_LOG_SAMPLING_METRICS', '0.1'),
+            'errors' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_ERRORS', 1.0),
+            'success' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_SUCCESS', 0.1),
+            'performance' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_PERFORMANCE', 0.1),
+            'data_quality' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_DATA_QUALITY', 1.0),
+            'metrics' => EnvHelper::float('DATA_HELPERS_LOG_SAMPLING_METRICS', 0.1),
         ],
 
         /*
@@ -178,15 +285,13 @@ return [
             'username' => EnvHelper::string('DATA_HELPERS_SLACK_USERNAME', 'Data Helpers Bot'),
 
             // Minimum log level for Slack (usually 'error')
-            'level' => \event4u\DataHelpers\Logging\LogLevel::from(
-                EnvHelper::string('DATA_HELPERS_SLACK_LEVEL', 'error'),
-            ),
+            'level' => LogLevel::from((string)EnvHelper::string('DATA_HELPERS_SLACK_LEVEL', LogLevel::ERROR->value))->value,
 
             // Which events to send to Slack
             'events' => [
-                \event4u\DataHelpers\Logging\LogEvent::MAPPING_ERROR->value,
-                \event4u\DataHelpers\Logging\LogEvent::EXCEPTION->value,
-                \event4u\DataHelpers\Logging\LogEvent::VALIDATION_FAILURE->value,
+                LogEvent::MAPPING_ERROR->value,
+                LogEvent::EXCEPTION->value,
+                LogEvent::VALIDATION_FAILURE->value,
             ],
 
             // Queue name for async sending (null = sync)

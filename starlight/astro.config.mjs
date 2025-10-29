@@ -69,6 +69,8 @@ export default defineConfig({
                         { label: 'DataAccessor', slug: 'main-classes/data-accessor' },
                         { label: 'DataMutator', slug: 'main-classes/data-mutator' },
                         { label: 'DataFilter', slug: 'main-classes/data-filter' },
+                        { label: 'DataMapper', slug: 'main-classes/data-mapper-overview' },
+                        { label: 'LiteDto & SimpleDto', slug: 'main-classes/dto-comparison' },
                     ],
                 },
 				{
@@ -84,12 +86,24 @@ export default defineConfig({
 						{ label: 'Reverse Mapping', slug: 'advanced/reverse-mapping' },
 					],
 				},
+                {
+                    label: 'LiteDto',
+                    collapsed: true,
+                    items: [
+                        { label: 'Introduction', slug: 'lite-dto/introduction' },
+                        { label: 'Creating LiteDtos', slug: 'lite-dto/creating-litedtos' },
+                        { label: 'Attributes', slug: 'lite-dto/attributes' },
+                        { label: 'Performance', slug: 'lite-dto/performance' },
+                    ],
+                },
 				{
 					label: 'SimpleDto',
                     collapsed: true,
 					items: [
 						{ label: 'Introduction', slug: 'simple-dto/introduction' },
 						{ label: 'Creating Dtos', slug: 'simple-dto/creating-dtos' },
+                        { label: 'Performance Modes', slug: 'simple-dto/performance-modes' },
+                        { label: 'Caching', slug: 'simple-dto/caching' },
 						{ label: 'Type Casting', slug: 'simple-dto/type-casting' },
 						{ label: 'Validation', slug: 'simple-dto/validation' },
                         { label: 'Dot Notation Access', slug: 'simple-dto/dot-notation-access' },
@@ -127,6 +141,7 @@ export default defineConfig({
 						{ label: 'Mapping Attributes', slug: 'attributes/mapping' },
 						{ label: 'Visibility Attributes', slug: 'attributes/visibility' },
 						{ label: 'Conditional Attributes', slug: 'attributes/conditional' },
+						{ label: 'Performance Attributes', slug: 'attributes/performance' },
 					],
 				},
                 {
@@ -160,6 +175,8 @@ export default defineConfig({
 					items: [
 						{ label: 'Benchmarks', slug: 'performance/benchmarks' },
 						{ label: 'Running Benchmarks', slug: 'performance/running-benchmarks' },
+						{ label: 'Cache Warming', slug: 'performance/cache-warming' },
+						{ label: 'Cache Generation', slug: 'performance/cache-generation' },
 						{ label: 'Optimization Tips', slug: 'performance/optimization' },
 						{ label: 'Comparison', slug: 'performance/comparison' },
 					],

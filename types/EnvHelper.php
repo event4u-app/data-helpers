@@ -11,16 +11,16 @@ assertType('mixed', $result);
 
 // Test string
 $result = EnvHelper::string('APP_NAME', 'default');
-assertType('string', $result);
+assertType('string|null', $result);
 
 // Test integer
 $result = EnvHelper::integer('APP_PORT', 8080);
-assertType('int', $result);
+assertType('int|null', $result);
 
 // Test float
 $result = EnvHelper::float('APP_TIMEOUT', 30.5);
-assertType('float', $result);
+assertType('float|null', $result);
 
 // Test boolean
 $result = EnvHelper::boolean('APP_DEBUG', false);
-assertType('bool', $result);
+assertType('bool|null', $result);

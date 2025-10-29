@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Enums\PerformanceMode;
 use Illuminate\Support\Facades\Config;
 
 describe('Laravel Config Integration E2E', function(): void {
@@ -37,12 +38,12 @@ describe('Laravel Config Integration E2E', function(): void {
         $packageConfig = require __DIR__ . '/../../../../config/data-helpers.php';
 
         // App-specific overrides
-        Config::set('data-helpers.performance_mode', 'safe');
+        Config::set('data-helpers.performance_mode', PerformanceMode::SAFE->value);
 
         // Merged config should have app override
         $mergedConfig = Config::get('data-helpers');
 
-        expect($mergedConfig['performance_mode'])->toBe('safe');
+        expect($mergedConfig['performance_mode'])->toBe(PerformanceMode::SAFE->value);
     });
 
     it('provides default values when config not set', function(): void {
@@ -54,15 +55,15 @@ describe('Laravel Config Integration E2E', function(): void {
     });
 
     it('validates performance mode values', function(): void {
-        Config::set('data-helpers.performance_mode', 'fast');
+        Config::set('data-helpers.performance_mode', PerformanceMode::FAST->value);
         DataHelpersConfig::initialize(Config::get('data-helpers', []));
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('fast');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::FAST->value);
 
         DataHelpersConfig::reset();
 
-        Config::set('data-helpers.performance_mode', 'safe');
+        Config::set('data-helpers.performance_mode', PerformanceMode::SAFE->value);
         DataHelpersConfig::initialize(Config::get('data-helpers', []));
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::SAFE->value);
     });
 
     it('handles cache driver configuration', function(): void {
@@ -95,15 +96,15 @@ describe('Laravel Config Integration E2E', function(): void {
 
     it('can update config at runtime', function(): void {
         DataHelpersConfig::initialize([
-            'performance_mode' => 'fast',
+            'performance_mode' => PerformanceMode::FAST->value,
         ]);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('fast');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::FAST->value);
 
         // Update at runtime
-        DataHelpersConfig::set('performance_mode', 'safe');
+        DataHelpersConfig::set('performance_mode', PerformanceMode::SAFE->value);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::SAFE->value);
     });
 
     it('supports dot notation for nested config', function(): void {
@@ -126,30 +127,30 @@ describe('Laravel Config Integration E2E', function(): void {
 
     it('can set multiple config values at once', function(): void {
         DataHelpersConfig::setMany([
-            'performance_mode' => 'safe',
+            'performance_mode' => PerformanceMode::SAFE->value,
             'custom.key' => 'value',
         ]);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe')
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::SAFE->value)
             ->and(DataHelpersConfig::get('custom.key'))->toBe('value');
     });
 
     it('preserves config across multiple accesses', function(): void {
         DataHelpersConfig::initialize([
-            'performance_mode' => 'safe',
+            'performance_mode' => PerformanceMode::SAFE->value,
         ]);
 
         $first = DataHelpersConfig::getPerformanceMode();
         $second = DataHelpersConfig::getPerformanceMode();
         $third = DataHelpersConfig::getPerformanceMode();
 
-        expect($first)->toBe('safe')
-            ->and($second)->toBe('safe')
-            ->and($third)->toBe('safe');
+        expect($first)->toBe(PerformanceMode::SAFE->value)
+            ->and($second)->toBe(PerformanceMode::SAFE->value)
+            ->and($third)->toBe(PerformanceMode::SAFE->value);
     });
 
     it('config is singleton across application', function(): void {
-        DataHelpersConfig::set('performance_mode', 'safe');
+        DataHelpersConfig::set('performance_mode', PerformanceMode::SAFE->value);
 
         // Access from different part of code
         $value1 = DataHelpersConfig::getPerformanceMode();
@@ -157,15 +158,15 @@ describe('Laravel Config Integration E2E', function(): void {
         // Access again
         $value2 = DataHelpersConfig::get('performance_mode');
 
-        expect($value1)->toBe('safe')
-            ->and($value2)->toBe('safe');
+        expect($value1)->toBe(PerformanceMode::SAFE->value)
+            ->and($value2)->toBe(PerformanceMode::SAFE->value);
     });
 
     it('reset clears all configuration', function(): void {
         // Set a custom value
-        DataHelpersConfig::set('performance_mode', 'safe');
+        DataHelpersConfig::set('performance_mode', PerformanceMode::SAFE->value);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe('safe');
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::SAFE->value);
 
         // Reset should clear the custom value
         DataHelpersConfig::reset();

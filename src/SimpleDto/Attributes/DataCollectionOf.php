@@ -25,7 +25,7 @@ use Attribute;
  *       ];
  *   }
  */
-#[Attribute(Attribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class DataCollectionOf
 {
     /** @param class-string $dtoClass The Dto class for collection items */

@@ -203,7 +203,7 @@ class TestDtoWithConfirmedByAttribute extends SimpleDto
 }
 
 // Nested Dtos for testing
-class AddressDto extends SimpleDto
+class ValidationAddressDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -221,7 +221,7 @@ class AddressDto extends SimpleDto
     }
 }
 
-class UserWithAddressDto extends SimpleDto
+class ValidationUserWithAddressDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -229,12 +229,12 @@ class UserWithAddressDto extends SimpleDto
         public readonly string $email,
 
         #[Required]
-        public readonly AddressDto $address,
+        public readonly ValidationAddressDto $address,
     ) {
     }
 }
 
-class CompanyDto extends SimpleDto
+class ValidationCompanyDto extends SimpleDto
 {
     public function __construct(
         #[Required]
@@ -242,9 +242,9 @@ class CompanyDto extends SimpleDto
         public readonly string $name,
 
         #[Required]
-        public readonly AddressDto $mainAddress,
+        public readonly ValidationAddressDto $mainAddress,
 
-        public readonly ?AddressDto $billingAddress = null,
+        public readonly ?ValidationAddressDto $billingAddress = null,
     ) {
     }
 }
@@ -421,7 +421,8 @@ describe('SimpleDto Validation', function(): void {
 
     describe('Nested Validation', function(): void {
         it('validates nested Dtos automatically', function(): void {
-            $rules = UserWithAddressDto::getAllRules();
+            /** @var array<string, array<string>> $rules */
+            $rules = ValidationUserWithAddressDto::getAllRules();
 
             expect($rules)->toHaveKey('email')
                 ->and($rules)->toHaveKey('address')
@@ -438,7 +439,7 @@ describe('SimpleDto Validation', function(): void {
         });
 
         it('validates multiple nested Dtos', function(): void {
-            $rules = CompanyDto::getAllRules();
+            $rules = ValidationCompanyDto::getAllRules();
 
             expect($rules)->toHaveKey('name')
                 ->and($rules)->toHaveKey('mainAddress')
@@ -452,10 +453,14 @@ describe('SimpleDto Validation', function(): void {
         });
 
         it('handles deeply nested Dtos', function(): void {
-            $rules = UserWithAddressDto::getAllRules();
+            /** @var array<string, array<string>> $rules */
+            $rules = ValidationUserWithAddressDto::getAllRules();
 
             // Check that nested rules are properly namespaced
-            $nestedKeys = array_filter(array_keys($rules), fn(string $key): bool => str_starts_with($key, 'address.'));
+            $nestedKeys = array_filter(
+                array_keys($rules),
+                fn(int|string $key): bool => str_starts_with($key, 'address.')
+            );
 
             expect($nestedKeys)->toHaveCount(3)
                 ->and($nestedKeys)->toContain('address.street')
