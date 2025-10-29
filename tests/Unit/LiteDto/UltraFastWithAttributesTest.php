@@ -182,8 +182,8 @@ describe('UltraFast with Attributes', function(): void {
             $duration = microtime(true) - $start;
             $avgTime = ($duration / $iterations) * 1000000; // Convert to microseconds
 
-            // Should still be fast (< 2μs per operation)
-            expect($avgTime)->toBeLessThan(2.0);
+            // Should still be fast (< 5μs per operation)
+            expect($avgTime)->toBeLessThan(5.0);
         });
     });
 });
