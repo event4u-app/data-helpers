@@ -2,215 +2,13 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\Tests\Unit\SimpleDto;
-
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 use event4u\DataHelpers\SimpleDto\Support\UltraFastEngine;
-use InvalidArgumentException;
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 
-/**
- * Tests for #[UltraFast] performance attribute.
- */
-final class UltraFastTest extends TestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
-        UltraFastEngine::clearCache();
-    }
-
-    #[Test]
-    public function it_creates_ultra_fast_dto_from_array(): void
-    {
-        $dto = UltraFastDepartmentDto::fromArray([
-            'name' => 'Engineering',
-            'code' => 'ENG',
-            'budget' => 1000000.0,
-            'employee_count' => 50,
-        ]);
-
-        $this->assertSame('Engineering', $dto->name);
-        $this->assertSame('ENG', $dto->code);
-        $this->assertSame(1000000.0, $dto->budget);
-        $this->assertSame(50, $dto->employee_count);
-    }
-
-    #[Test]
-    public function it_converts_ultra_fast_dto_to_array(): void
-    {
-        $dto = UltraFastDepartmentDto::fromArray([
-            'name' => 'Engineering',
-            'code' => 'ENG',
-            'budget' => 1000000.0,
-            'employee_count' => 50,
-        ]);
-
-        $array = $dto->toArray();
-
-        $this->assertSame([
-            'name' => 'Engineering',
-            'code' => 'ENG',
-            'budget' => 1000000.0,
-            'employee_count' => 50,
-        ], $array);
-    }
-
-    #[Test]
-    public function it_handles_map_from_attribute(): void
-    {
-        $dto = UltraFastWithMapFromDto::fromArray([
-            'department_name' => 'Engineering',
-            'department_code' => 'ENG',
-        ]);
-
-        $this->assertSame('Engineering', $dto->name);
-        $this->assertSame('ENG', $dto->code);
-    }
-
-    #[Test]
-    public function it_handles_map_to_attribute(): void
-    {
-        $dto = UltraFastWithMapToDto::fromArray([
-            'name' => 'Engineering',
-            'code' => 'ENG',
-        ]);
-
-        $array = $dto->toArray();
-
-        $this->assertSame([
-            'department_name' => 'Engineering',
-            'department_code' => 'ENG',
-        ], $array);
-    }
-
-    #[Test]
-    public function it_handles_nested_dtos(): void
-    {
-        $dto = UltraFastCompanyDto::fromArray([
-            'name' => 'Acme Corp',
-            'department' => [
-                'name' => 'Engineering',
-                'code' => 'ENG',
-                'budget' => 1000000.0,
-                'employee_count' => 50,
-            ],
-        ]);
-
-        $this->assertSame('Acme Corp', $dto->name);
-        $this->assertSame('Engineering', $dto->department->name);
-        $this->assertSame('ENG', $dto->department->code);
-    }
-
-    #[Test]
-    public function it_handles_nested_dtos_in_to_array(): void
-    {
-        $dto = UltraFastCompanyDto::fromArray([
-            'name' => 'Acme Corp',
-            'department' => [
-                'name' => 'Engineering',
-                'code' => 'ENG',
-                'budget' => 1000000.0,
-                'employee_count' => 50,
-            ],
-        ]);
-
-        $array = $dto->toArray();
-
-        $this->assertSame([
-            'name' => 'Acme Corp',
-            'department' => [
-                'name' => 'Engineering',
-                'code' => 'ENG',
-                'budget' => 1000000.0,
-                'employee_count' => 50,
-            ],
-        ], $array);
-    }
-
-    #[Test]
-    public function it_handles_default_values(): void
-    {
-        $dto = UltraFastDepartmentDto::fromArray([
-            'name' => 'Engineering',
-            'code' => 'ENG',
-            'budget' => 1000000.0,
-            // employee_count is missing, should use default
-        ]);
-
-        $this->assertSame(0, $dto->employee_count);
-    }
-
-    #[Test]
-    public function it_handles_nullable_values(): void
-    {
-        $dto = UltraFastWithNullableDto::fromArray([
-            'name' => 'Engineering',
-            // code is missing, should be null
-        ]);
-
-        $this->assertSame('Engineering', $dto->name);
-        $this->assertNull($dto->code);
-    }
-
-    #[Test]
-    public function it_throws_exception_for_missing_required_parameter(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Missing required parameter: name');
-
-        UltraFastDepartmentDto::fromArray([
-            'code' => 'ENG',
-            'budget' => 1000000.0,
-            'employee_count' => 50,
-        ]);
-    }
-
-    #[Test]
-    public function it_is_much_faster_than_normal_mode(): void
-    {
-        $data = [
-            'name' => 'Engineering',
-            'code' => 'ENG',
-            'budget' => 1000000.0,
-            'employee_count' => 50,
-        ];
-
-        // Warm up
-        for ($i = 0; 100 > $i; $i++) {
-            UltraFastDepartmentDto::fromArray($data);
-            NormalDepartmentDto::fromArray($data);
-        }
-
-        // Benchmark UltraFast
-        $start = microtime(true);
-        for ($i = 0; 1000 > $i; $i++) {
-            UltraFastDepartmentDto::fromArray($data);
-        }
-        $ultraFastTime = microtime(true) - $start;
-
-        // Benchmark Normal
-        $start = microtime(true);
-        for ($i = 0; 1000 > $i; $i++) {
-            NormalDepartmentDto::fromArray($data);
-        }
-        $normalTime = microtime(true) - $start;
-
-        // UltraFast should be faster than Normal or at leas as fast as Normal
-        // Note: With cache, the difference is smaller. Real gains come with cache optimization.
-        $this->assertLessThan($normalTime, $ultraFastTime,
-            sprintf('UltraFast (%.4fms) should be faster than Normal (%.4fms)',
-                $ultraFastTime * 1000, $normalTime * 1000)
-        );
-    }
-}
-
-// Test DTOs
-
+// UltraFast DTOs
 #[UltraFast]
 class UltraFastDepartmentDto extends SimpleDto
 {
@@ -273,3 +71,195 @@ class NormalDepartmentDto extends SimpleDto
         public readonly int $employee_count = 0,
     ) {}
 }
+
+beforeEach(function(): void {
+    UltraFastEngine::clearCache();
+});
+
+describe('UltraFast Mode', function(): void {
+    describe('Basic Functionality', function(): void {
+        it('creates DTO from array', function(): void {
+            $dto = UltraFastDepartmentDto::fromArray([
+                'name' => 'Engineering',
+                'code' => 'ENG',
+                'budget' => 1000000.0,
+                'employee_count' => 50,
+            ]);
+
+            expect($dto->name)->toBe('Engineering')
+                ->and($dto->code)->toBe('ENG')
+                ->and($dto->budget)->toBe(1000000.0)
+                ->and($dto->employee_count)->toBe(50);
+        });
+
+        it('converts DTO to array', function(): void {
+            $dto = UltraFastDepartmentDto::fromArray([
+                'name' => 'Engineering',
+                'code' => 'ENG',
+                'budget' => 1000000.0,
+                'employee_count' => 50,
+            ]);
+
+            $array = $dto->toArray();
+
+            expect($array)->toBe([
+                'name' => 'Engineering',
+                'code' => 'ENG',
+                'budget' => 1000000.0,
+                'employee_count' => 50,
+            ]);
+        });
+
+        it('converts DTO to JSON', function(): void {
+            $dto = UltraFastDepartmentDto::fromArray([
+                'name' => 'Engineering',
+                'code' => 'ENG',
+                'budget' => 1000000.0,
+                'employee_count' => 50,
+            ]);
+
+            $json = $dto->toJson();
+
+            expect($json)->toBe('{"name":"Engineering","code":"ENG","budget":1000000,"employee_count":50}');
+        });
+    });
+
+    describe('Attribute Support', function(): void {
+        it('handles MapFrom attribute', function(): void {
+            /** @phpstan-ignore-next-line staticMethod.notFound */
+            $dto = UltraFastWithMapFromDto::fromArray([
+                'department_name' => 'Engineering',
+                'department_code' => 'ENG',
+            ]);
+
+            expect($dto->name)->toBe('Engineering')
+                /** @phpstan-ignore-next-line property.notFound */
+                ->and($dto->code)->toBe('ENG');
+        });
+
+        it('handles MapTo attribute', function(): void {
+            /** @phpstan-ignore-next-line staticMethod.notFound */
+            $dto = UltraFastWithMapToDto::fromArray([
+                'name' => 'Engineering',
+                'code' => 'ENG',
+            ]);
+
+            $array = $dto->toArray();
+
+            expect($array)->toBe([
+                'department_name' => 'Engineering',
+                'department_code' => 'ENG',
+            ]);
+        });
+    });
+
+    describe('Nested DTOs', function(): void {
+        it('handles nested DTOs', function(): void {
+            $dto = UltraFastCompanyDto::fromArray([
+                'name' => 'Acme Corp',
+                'department' => [
+                    'name' => 'Engineering',
+                    'code' => 'ENG',
+                    'budget' => 1000000.0,
+                    'employee_count' => 50,
+                ],
+            ]);
+
+            expect($dto->name)->toBe('Acme Corp')
+                ->and($dto->department->name)->toBe('Engineering')
+                ->and($dto->department->code)->toBe('ENG');
+        });
+
+        it('handles nested DTOs in toArray', function(): void {
+            $dto = UltraFastCompanyDto::fromArray([
+                'name' => 'Acme Corp',
+                'department' => [
+                    'name' => 'Engineering',
+                    'code' => 'ENG',
+                    'budget' => 1000000.0,
+                    'employee_count' => 50,
+                ],
+            ]);
+
+            $array = $dto->toArray();
+
+            expect($array)->toBe([
+                'name' => 'Acme Corp',
+                'department' => [
+                    'name' => 'Engineering',
+                    'code' => 'ENG',
+                    'budget' => 1000000.0,
+                    'employee_count' => 50,
+                ],
+            ]);
+        });
+    });
+
+    describe('Default and Nullable Values', function(): void {
+        it('handles default values', function(): void {
+            $dto = UltraFastDepartmentDto::fromArray([
+                'name' => 'Engineering',
+                'code' => 'ENG',
+                'budget' => 1000000.0,
+                // employee_count is missing, should use default
+            ]);
+
+            expect($dto->employee_count)->toBe(0);
+        });
+
+        it('handles nullable values', function(): void {
+            $dto = UltraFastWithNullableDto::fromArray([
+                'name' => 'Engineering',
+                // code is missing, should be null
+            ]);
+
+            expect($dto->name)->toBe('Engineering')
+                ->and($dto->code)->toBeNull();
+        });
+    });
+
+    describe('Error Handling', function(): void {
+        it('throws exception for missing required parameter', function(): void {
+            UltraFastDepartmentDto::fromArray([
+                'code' => 'ENG',
+                'budget' => 1000000.0,
+                'employee_count' => 50,
+            ]);
+        })->throws(InvalidArgumentException::class, 'Missing required parameter: name');
+    });
+
+    describe('Performance', function(): void {
+        it('is much faster than normal mode', function(): void {
+            $data = [
+                'name' => 'Engineering',
+                'code' => 'ENG',
+                'budget' => 1000000.0,
+                'employee_count' => 50,
+            ];
+
+            // Warm up
+            for ($i = 0; 100 > $i; $i++) {
+                UltraFastDepartmentDto::fromArray($data);
+                NormalDepartmentDto::fromArray($data);
+            }
+
+            // Benchmark UltraFast
+            $start = microtime(true);
+            for ($i = 0; 1000 > $i; $i++) {
+                UltraFastDepartmentDto::fromArray($data);
+            }
+            $ultraFastTime = microtime(true) - $start;
+
+            // Benchmark Normal
+            $start = microtime(true);
+            for ($i = 0; 1000 > $i; $i++) {
+                NormalDepartmentDto::fromArray($data);
+            }
+            $normalTime = microtime(true) - $start;
+
+            // UltraFast should be faster than Normal or at least as fast as Normal
+            // Note: With cache, the difference is smaller. Real gains come with cache optimization.
+            expect($ultraFastTime)->toBeLessThan($normalTime);
+        });
+    });
+});
