@@ -121,8 +121,15 @@ $emails = $accessor->get('data.departments.*.users.*.email');
 PHP;
 
         $executableCode = DocumentationExampleExtractor::prepareCodeForExecution($bannerExample);
-        /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
-        eval(substr($executableCode, 5));
+
+        // Capture any output to prevent unwanted output in tests
+        ob_start();
+        try {
+            /** @phpstan-ignore-next-line disallowed.eval, ergebnis.noEval */
+            eval(substr($executableCode, 5));
+        } finally {
+            ob_end_clean();
+        }
 
         /** @phpstan-ignore-next-line variable.undefined */
         expect(array_values($emails))->toBe(['alice@example.com', 'bob@example.com', 'charlie@example.com']);

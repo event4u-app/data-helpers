@@ -58,42 +58,38 @@ DataMapper::source($data)
     ->map();
 ```
 
-### Query Builder
+### Filtering Data
 
-Filter and transform data with SQL-like queries:
+Filter data using array functions:
 
 ```php
-DataMapper::source($users)
-    ->where('age', '>', 18)
-    ->where('status', 'active')
-    ->orderBy('name')
-    ->limit(10)
-    ->map();
+$users = [
+    ['name' => 'John', 'age' => 25, 'status' => 'active'],
+    ['name' => 'Jane', 'age' => 17, 'status' => 'active'],
+    ['name' => 'Bob', 'age' => 30, 'status' => 'inactive'],
+];
+
+$filtered = array_filter($users, function($user) {
+    return $user['age'] > 18 && $user['status'] === 'active';
+});
+
+$filtered = array_slice($filtered, 0, 10);
 ```
 
-### Pipelines
+### Transforming Data
 
-Chain multiple transformations:
-
-```php
-DataMapper::source($data)
-    ->pipeline([
-        'uppercase' => fn($value) => strtoupper($value),
-        'trim' => fn($value) => trim($value),
-    ])
-    ->map();
-```
-
-### GROUP BY Operations
-
-Group and aggregate data:
+Transform data using DataMapper:
 
 ```php
-DataMapper::source($orders)
-    ->groupBy('customer_id')
-    ->aggregate([
-        'total' => 'SUM(amount)',
-        'count' => 'COUNT(*)',
+$data = [
+    ['name' => '  john  ', 'email' => 'john@example.com'],
+    ['name' => '  jane  ', 'email' => 'jane@example.com'],
+];
+
+$result = DataMapper::source($data)
+    ->template([
+        'name' => '{{ name | trim | upper }}',
+        'email' => '{{ email }}',
     ])
     ->map();
 ```

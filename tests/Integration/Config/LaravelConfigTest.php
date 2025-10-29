@@ -36,10 +36,10 @@ describe('Laravel Config Integration', function(): void {
     it('loads config from Laravel', function(): void {
         // Manually set Laravel-like config
         DataHelpersConfig::setMany([
-            'performance_mode' => PerformanceMode::SAFE->value,
+            'performance_mode' => PerformanceMode::FAST->value,
         ]);
 
-        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::SAFE->value);
+        expect(DataHelpersConfig::getPerformanceMode())->toBe(PerformanceMode::FAST->value);
         expect(DataHelpersConfig::isFastMode())->toBeTrue();
     });
 

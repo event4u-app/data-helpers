@@ -38,8 +38,9 @@ Data Helpers supports four cache invalidation strategies, each with different tr
 
 ```php
 use event4u\DataHelpers\Enums\CacheInvalidation;
+use event4u\DataHelpers\Helpers\ConfigHelper;
 
-$config->set('cache.invalidation', CacheInvalidation::MANUAL);
+ConfigHelper::getInstance()->set('cache.invalidation', CacheInvalidation::MANUAL);
 ```
 
 **Characteristics:**
@@ -59,8 +60,9 @@ $config->set('cache.invalidation', CacheInvalidation::MANUAL);
 
 ```php
 use event4u\DataHelpers\Enums\CacheInvalidation;
+use event4u\DataHelpers\Helpers\ConfigHelper;
 
-$config->set('cache.invalidation', CacheInvalidation::MTIME);
+ConfigHelper::getInstance()->set('cache.invalidation', CacheInvalidation::MTIME);
 ```
 
 **Characteristics:**
@@ -80,8 +82,9 @@ $config->set('cache.invalidation', CacheInvalidation::MTIME);
 
 ```php
 use event4u\DataHelpers\Enums\CacheInvalidation;
+use event4u\DataHelpers\Helpers\ConfigHelper;
 
-$config->set('cache.invalidation', CacheInvalidation::HASH);
+ConfigHelper::getInstance()->set('cache.invalidation', CacheInvalidation::HASH);
 ```
 
 **Characteristics:**
@@ -101,8 +104,9 @@ $config->set('cache.invalidation', CacheInvalidation::HASH);
 
 ```php
 use event4u\DataHelpers\Enums\CacheInvalidation;
+use event4u\DataHelpers\Helpers\ConfigHelper;
 
-$config->set('cache.invalidation', CacheInvalidation::BOTH);
+ConfigHelper::getInstance()->set('cache.invalidation', CacheInvalidation::BOTH);
 ```
 
 **Characteristics:**

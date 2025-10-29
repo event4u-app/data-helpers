@@ -397,6 +397,8 @@ $user = UserDto::from(['name' => 'John', 'age' => 30]);
 Perfect for consuming external APIs:
 
 ```php
+use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
+
 #[ConverterMode]
 class GithubUserDto extends LiteDto
 {
@@ -407,9 +409,9 @@ class GithubUserDto extends LiteDto
     ) {}
 }
 
-// Fetch from GitHub API
-$response = file_get_contents('https://api.github.com/users/octocat');
-$user = GithubUserDto::from($response);  // JSON string
+// From JSON string
+$jsonResponse = '{"id": 1, "login": "octocat", "name": "The Octocat"}';
+$user = GithubUserDto::from($jsonResponse);  // JSON string
 ```
 
 ### Performance Note
@@ -507,6 +509,11 @@ class LogEntryDto extends LiteDto
 }
 
 // Process 10,000 log entries in ~8ms
+$logData = [
+    ['timestamp' => '2025-01-01 12:00:00', 'level' => 'INFO', 'message' => 'Test', 'context' => '{}'],
+    // ... more entries
+];
+
 $logs = array_map(
     fn($entry) => LogEntryDto::from($entry),
     $logData
