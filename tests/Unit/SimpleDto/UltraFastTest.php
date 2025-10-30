@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\ConverterMode;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
@@ -59,6 +60,25 @@ class SimpleDtoUltraFastWithNullableDto extends SimpleDto
     public function __construct(
         public readonly string $name,
         public readonly ?string $code = null,
+    ) {}
+}
+
+#[UltraFast]
+#[ConverterMode]
+class SimpleDtoUltraFastWithConverterDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+    ) {}
+}
+
+#[UltraFast]
+class SimpleDtoUltraFastWithoutConverterDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
     ) {}
 }
 
@@ -226,6 +246,86 @@ describe('UltraFast Mode', function(): void {
                 'employee_count' => 50,
             ]);
         })->throws(InvalidArgumentException::class, 'Missing required parameter: name');
+    });
+
+    describe('ConverterMode Support', function(): void {
+        it('accepts JSON with ConverterMode', function(): void {
+            $json = '{"name": "John Doe", "email": "john@example.com"}';
+
+            $dto = SimpleDtoUltraFastWithConverterDto::from($json);
+
+            expect($dto->name)->toBe('John Doe');
+            expect($dto->email)->toBe('john@example.com');
+        });
+
+        it('accepts XML with ConverterMode', function(): void {
+            $xml = '<root><name>John Doe</name><email>john@example.com</email></root>';
+
+            $dto = SimpleDtoUltraFastWithConverterDto::from($xml);
+
+            expect($dto->name)->toBe('John Doe');
+            expect($dto->email)->toBe('john@example.com');
+        });
+
+        it('accepts YAML with ConverterMode', function(): void {
+            $yaml = "name: John Doe\nemail: john@example.com";
+
+            $dto = SimpleDtoUltraFastWithConverterDto::from($yaml);
+
+            expect($dto->name)->toBe('John Doe');
+            expect($dto->email)->toBe('john@example.com');
+        });
+
+        it('fromJson() uses direct JSON parsing (no format detection)', function(): void {
+            $json = '{"name": "Jane Doe", "email": "jane@example.com"}';
+
+            $dto = SimpleDtoUltraFastWithConverterDto::fromJson($json);
+
+            expect($dto->name)->toBe('Jane Doe');
+            expect($dto->email)->toBe('jane@example.com');
+        });
+
+        it('fromXml() uses direct XML parsing (no format detection)', function(): void {
+            $xml = '<root><name>Bob Smith</name><email>bob@example.com</email></root>';
+
+            $dto = SimpleDtoUltraFastWithConverterDto::fromXml($xml);
+
+            expect($dto->name)->toBe('Bob Smith');
+            expect($dto->email)->toBe('bob@example.com');
+        });
+
+        it('fromYaml() uses direct YAML parsing (no format detection)', function(): void {
+            $yaml = "name: Alice Brown\nemail: alice@example.com";
+
+            $dto = SimpleDtoUltraFastWithConverterDto::fromYaml($yaml);
+
+            expect($dto->name)->toBe('Alice Brown');
+            expect($dto->email)->toBe('alice@example.com');
+        });
+
+        it('accepts arrays with ConverterMode', function(): void {
+            $data = ['name' => 'John Doe', 'email' => 'john@example.com'];
+
+            $dto = SimpleDtoUltraFastWithConverterDto::from($data);
+
+            expect($dto->name)->toBe('John Doe');
+            expect($dto->email)->toBe('john@example.com');
+        });
+
+        it('throws exception for JSON without ConverterMode', function(): void {
+            $json = '{"name": "John Doe", "email": "john@example.com"}';
+
+            SimpleDtoUltraFastWithoutConverterDto::from($json);
+        })->throws(InvalidArgumentException::class, 'UltraFast mode only accepts arrays');
+
+        it('converts JSON to array in fromArray with ConverterMode', function(): void {
+            $data = ['name' => 'John Doe', 'email' => 'john@example.com'];
+
+            $dto = SimpleDtoUltraFastWithConverterDto::fromArray($data);
+
+            expect($dto->name)->toBe('John Doe');
+            expect($dto->email)->toBe('john@example.com');
+        });
     });
 
     describe('Performance', function(): void {

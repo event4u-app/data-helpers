@@ -101,9 +101,9 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 | Dot Notation Access | ✅ | ✅ | ✅ | ✅ |
 | | | | | |
 | **Data Conversion** | | | | |
-| Converter Support | ☑️ | ☑️ | ✅ | ✅ |
+| Converter Support | ✴️ | ☑️ | ✴️ | ✅ |
 | ConvertEmptyToNull | ✅ | ✅ | ✅ | ✅ |
-| JSON/XML Support | ☑️ | ☑️ | ✅ | ✅ |
+| JSON/XML Support | ✴️ | ☑️ | ✴️ | ✅ |
 | | | | | |
 | **Developer Experience** | | | | |
 | IDE Autocomplete | ✅ | ✅ | ✅ | ✅ |
@@ -115,7 +115,10 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 
 - ✅ Fully supported
 - ☑️ Partially supported or optional
+- ✴️ Requires #[ConverterMode] attribute
 - ❌ Not supported
+
+**Note:** UltraFast mode can be combined with #[ConverterMode] to enable JSON/XML support with minimal overhead (~1.3-1.5μs vs ~0.8μs array-only).
 <!-- DTO_COMPARISON_END -->
 
 ## Available Attributes
@@ -124,7 +127,7 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 |-----------|----------------------|---------|------------------------|-----------|
 | **Class Attributes** | | | | |
 | #[UltraFast] | ✅ | ✅ | ✅ | ✅ |
-| #[ConverterMode] | ❌ | ✅ | ❌ | ✅ |
+| #[ConverterMode] | ✴️ | ✅ | ✴️ | ✅ |
 | #[AutoCast] | ❌ | ❌ | ❌ | ✅ |
 | #[NoAttributes] | ❌ | ❌ | ❌ | ✅ |
 | #[NoCasts] | ❌ | ❌ | ❌ | ✅ |

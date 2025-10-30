@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
 use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
 use event4u\DataHelpers\LiteDto\LiteDto;
 
@@ -23,6 +24,25 @@ class LiteDtoUltraFastProductDto extends LiteDto
         public readonly string $title,
         public readonly float $price,
         public readonly int $stock,
+    ) {}
+}
+
+#[UltraFast]
+#[ConverterMode]
+class LiteDtoUltraFastWithConverterDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+    ) {}
+}
+
+#[UltraFast]
+class LiteDtoUltraFastWithoutConverterDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
     ) {}
 }
 
@@ -129,6 +149,50 @@ describe('UltraFast Mode', function(): void {
             InvalidArgumentException::class,
             'UltraFast mode only accepts arrays'
         );
+    });
+
+    describe('ConverterMode Support', function(): void {
+        it('accepts JSON with ConverterMode', function(): void {
+            $json = '{"name": "John Doe", "email": "john@example.com"}';
+
+            $dto = LiteDtoUltraFastWithConverterDto::from($json);
+
+            expect($dto->name)->toBe('John Doe');
+            expect($dto->email)->toBe('john@example.com');
+        });
+
+        it('accepts XML with ConverterMode', function(): void {
+            $xml = '<root><name>John Doe</name><email>john@example.com</email></root>';
+
+            $dto = LiteDtoUltraFastWithConverterDto::from($xml);
+
+            expect($dto->name)->toBe('John Doe');
+            expect($dto->email)->toBe('john@example.com');
+        });
+
+        it('accepts YAML with ConverterMode', function(): void {
+            $yaml = "name: John Doe\nemail: john@example.com";
+
+            $dto = LiteDtoUltraFastWithConverterDto::from($yaml);
+
+            expect($dto->name)->toBe('John Doe');
+            expect($dto->email)->toBe('john@example.com');
+        });
+
+        it('accepts arrays with ConverterMode', function(): void {
+            $data = ['name' => 'John Doe', 'email' => 'john@example.com'];
+
+            $dto = LiteDtoUltraFastWithConverterDto::from($data);
+
+            expect($dto->name)->toBe('John Doe');
+            expect($dto->email)->toBe('john@example.com');
+        });
+
+        it('throws exception for JSON without ConverterMode', function(): void {
+            $json = '{"name": "John Doe", "email": "john@example.com"}';
+
+            LiteDtoUltraFastWithoutConverterDto::from($json);
+        })->throws(InvalidArgumentException::class, 'UltraFast mode only accepts arrays');
     });
 
     describe('Caching', function(): void {

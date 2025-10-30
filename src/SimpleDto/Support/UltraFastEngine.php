@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto\Support;
 
+use event4u\DataHelpers\Converters\JsonConverter;
+use event4u\DataHelpers\Converters\XmlConverter;
+use event4u\DataHelpers\Converters\YamlConverter;
+use event4u\DataHelpers\SimpleDto\Attributes\ConverterMode;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
@@ -44,6 +48,13 @@ final class UltraFastEngine
     private static array $reflectionCache = [];
 
     /**
+     * Cache for ConverterMode attribute per class.
+     *
+     * @var array<class-string, bool>
+     */
+    private static array $converterModeCache = [];
+
+    /**
      * Check if a class has #[UltraFast] attribute.
      *
      * @param class-string $class
@@ -74,13 +85,10 @@ final class UltraFastEngine
     }
 
     /**
-     * Create DTO instance using ultra-fast mode.
+     * Create DTO instance using ultra-fast mode from array.
      *
-     * This method mimics OtherDto's approach:
-     * 1. Direct reflection (no cache)
-     * 2. Map constructor parameters
-     * 3. Process only allowed attributes (#[MapFrom], #[MapTo], #[CastWith])
-     * 4. Direct constructor call
+     * This method only accepts arrays for maximum performance (~0.8μs).
+     * For other formats, use createFrom(), createFromJson(), etc.
      *
      * @param class-string $class
      * @param array<string, mixed> $data
@@ -108,6 +116,91 @@ final class UltraFastEngine
         }
 
         return $reflection->newInstanceArgs($args);
+    }
+
+    /**
+     * Create DTO instance using ultra-fast mode from mixed data.
+     *
+     * Supports arrays, JSON, XML, YAML with auto-detection (~1.3-1.5μs).
+     * Requires #[ConverterMode] attribute for non-array data.
+     *
+     * @param class-string $class
+     * @param array<string, mixed>|string|object $data
+     */
+    public static function createFrom(string $class, mixed $data): object
+    {
+        // Fast path: array
+        if (is_array($data)) {
+            return self::createFromArray($class, $data);
+        }
+
+        // Check if ConverterMode is enabled
+        if (!self::hasConverterMode($class)) {
+            throw new InvalidArgumentException(
+                "UltraFast mode only accepts arrays. Use #[ConverterMode] attribute on {$class} to enable JSON/XML/YAML support."
+            );
+        }
+
+        // Parse with auto-detection
+        $data = self::parseWithConverter($data);
+        return self::createFromArray($class, $data);
+    }
+
+    /**
+     * Create DTO instance from JSON string (no format detection, ~1.2μs).
+     *
+     * Requires #[ConverterMode] attribute.
+     *
+     * @param class-string $class
+     */
+    public static function createFromJson(string $class, string $json): object
+    {
+        if (!self::hasConverterMode($class)) {
+            throw new InvalidArgumentException(
+                "JSON parsing requires #[ConverterMode] attribute on {$class}."
+            );
+        }
+
+        $data = (new JsonConverter())->toArray($json);
+        return self::createFromArray($class, $data);
+    }
+
+    /**
+     * Create DTO instance from XML string (no format detection, ~1.2μs).
+     *
+     * Requires #[ConverterMode] attribute.
+     *
+     * @param class-string $class
+     */
+    public static function createFromXml(string $class, string $xml): object
+    {
+        if (!self::hasConverterMode($class)) {
+            throw new InvalidArgumentException(
+                "XML parsing requires #[ConverterMode] attribute on {$class}."
+            );
+        }
+
+        $data = (new XmlConverter())->toArray($xml);
+        return self::createFromArray($class, $data);
+    }
+
+    /**
+     * Create DTO instance from YAML string (no format detection, ~1.2μs).
+     *
+     * Requires #[ConverterMode] attribute.
+     *
+     * @param class-string $class
+     */
+    public static function createFromYaml(string $class, string $yaml): object
+    {
+        if (!self::hasConverterMode($class)) {
+            throw new InvalidArgumentException(
+                "YAML parsing requires #[ConverterMode] attribute on {$class}."
+            );
+        }
+
+        $data = (new YamlConverter())->toArray($yaml);
+        return self::createFromArray($class, $data);
     }
 
     /**
@@ -342,10 +435,75 @@ final class UltraFastEngine
         return self::$reflectionCache[$class];
     }
 
+    /**
+     * Check if class has ConverterMode attribute.
+     *
+     * @param class-string $class
+     */
+    private static function hasConverterMode(string $class): bool
+    {
+        if (isset(self::$converterModeCache[$class])) {
+            return self::$converterModeCache[$class];
+        }
+
+        $reflection = self::getReflection($class);
+        $attrs = $reflection->getAttributes(ConverterMode::class);
+        $hasMode = [] !== $attrs;
+
+        self::$converterModeCache[$class] = $hasMode;
+        return $hasMode;
+    }
+
+    /**
+     * Parse data with converter (JSON, XML, YAML, etc.).
+     *
+     * @return array<string, mixed>
+     */
+    private static function parseWithConverter(mixed $data): array
+    {
+        // Handle objects
+        if (is_object($data)) {
+            return (array)$data;
+        }
+
+        // Handle strings (JSON, XML, YAML, CSV)
+        if (is_string($data)) {
+            $trimmed = trim($data);
+
+            // Try JSON first (most common)
+            if (str_starts_with($trimmed, '{') || str_starts_with($trimmed, '[')) {
+                try {
+                    return (new JsonConverter())->toArray($data);
+                } catch (\Throwable) {
+                    // Fall through to XML
+                }
+            }
+
+            // Try XML
+            if (str_starts_with($trimmed, '<')) {
+                try {
+                    return (new XmlConverter())->toArray($data);
+                } catch (\Throwable) {
+                    throw new InvalidArgumentException('Invalid XML format');
+                }
+            }
+
+            // Try YAML (fallback for other string formats)
+            try {
+                return (new YamlConverter())->toArray($data);
+            } catch (\Throwable) {
+                throw new InvalidArgumentException('Unsupported string format. Expected JSON, XML, or YAML.');
+            }
+        }
+
+        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML), or object');
+    }
+
     /** Clear all caches (for testing). */
     public static function clearCache(): void
     {
         self::$ultraFastCache = [];
         self::$reflectionCache = [];
+        self::$converterModeCache = [];
     }
 }

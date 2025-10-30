@@ -428,7 +428,7 @@ final class LiteEngine
     }
 
     /**
-     * Parse data with converter (JSON, XML, etc.).
+     * Parse data with converter (JSON, XML, YAML, etc.).
      *
      * @return array<string, mixed>
      */
@@ -461,10 +461,16 @@ final class LiteEngine
                 return json_decode($data, true) ?? [];
             }
 
-            throw new InvalidArgumentException('Unable to parse string data. Supported formats: JSON, XML');
+            // Try YAML (fallback for other string formats)
+            try {
+                $converter = new \event4u\DataHelpers\Converters\YamlConverter();
+                return $converter->toArray($data);
+            } catch (\Throwable) {
+                throw new InvalidArgumentException('Unable to parse string data. Supported formats: JSON, XML, YAML');
+            }
         }
 
-        throw new InvalidArgumentException('Data must be array, string (JSON/XML), or object');
+        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML), or object');
     }
 
     /**
@@ -701,11 +707,18 @@ final class LiteEngine
      */
     private static function createUltraFast(string $class, mixed $data): object
     {
-        // Only accept arrays in UltraFast mode
+        // Check if ConverterMode is enabled
+        $converterMode = self::hasConverterMode($class);
+
+        // Parse data if not array and ConverterMode is enabled
         if (!is_array($data)) {
-            throw new InvalidArgumentException(
-                "UltraFast mode only accepts arrays. Use #[ConverterMode] for JSON/XML support."
-            );
+            if ($converterMode) {
+                $data = self::parseWithConverter($data);
+            } else {
+                throw new InvalidArgumentException(
+                    "UltraFast mode only accepts arrays. Use #[ConverterMode] attribute on {$class} to enable JSON/XML/CSV support."
+                );
+            }
         }
 
         $ultraFast = self::getUltraFastAttribute($class);

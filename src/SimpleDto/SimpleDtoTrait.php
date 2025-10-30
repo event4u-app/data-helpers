@@ -297,10 +297,57 @@ trait SimpleDtoTrait
     }
 
     /**
+     * Create a Dto instance from mixed data (array, JSON, XML, or object).
+     *
+     * This method accepts multiple input formats:
+     * - Arrays (always supported)
+     * - JSON strings (requires #[ConverterMode] with #[UltraFast])
+     * - XML strings (requires #[ConverterMode] with #[UltraFast])
+     * - YAML strings (requires #[ConverterMode] with #[UltraFast])
+     * - Objects (requires #[ConverterMode] with #[UltraFast])
+     *
+     * Performance:
+     * - Array only: ~0.8μs (UltraFast) or ~18.4μs (normal)
+     * - With auto-detection: ~1.3-1.5μs (UltraFast) or not supported (normal)
+     *
+     * @param array<string, mixed>|string|object $data
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
+     */
+    public static function from(
+        mixed $data,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        // Ultra-Fast Mode: Supports ConverterMode with auto-detection
+        if (UltraFastEngine::isUltraFast(static::class)) {
+            /** @var static */
+            return UltraFastEngine::createFrom(static::class, $data);
+        }
+
+        // Normal mode: Only arrays supported
+        if (!is_array($data)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'SimpleDto::from() only accepts arrays in standard mode. Use #[ConverterMode] with #[UltraFast] on %s to enable JSON/XML/YAML support.',
+                    static::class
+                )
+            );
+        }
+
+        return static::fromSource($data, $template, $filters, $pipeline);
+    }
+
+    /**
      * Create a Dto instance from a JSON string.
      *
      * This is an alias for fromSource() that accepts JSON strings.
      * The JSON will be decoded and processed through the full mapping pipeline.
+     *
+     * Performance Optimization: If the class has #[UltraFast] + #[ConverterMode],
+     * bypasses all overhead and uses direct JSON parsing (target: ~1.2μs, no format detection).
      *
      * @param string $json JSON string
      * @param array<string, mixed>|null $template Optional template override
@@ -313,6 +360,12 @@ trait SimpleDtoTrait
         ?array $filters = null,
         ?array $pipeline = null
     ): static {
+        // Ultra-Fast Mode: Direct JSON parsing (no format detection)
+        if (UltraFastEngine::isUltraFast(static::class)) {
+            /** @var static */
+            return UltraFastEngine::createFromJson(static::class, $json);
+        }
+
         return static::fromSource($json, $template, $filters, $pipeline);
     }
 
@@ -321,6 +374,9 @@ trait SimpleDtoTrait
      *
      * This is an alias for fromSource() that accepts XML strings.
      * The XML will be parsed and processed through the full mapping pipeline.
+     *
+     * Performance Optimization: If the class has #[UltraFast] + #[ConverterMode],
+     * bypasses all overhead and uses direct XML parsing (target: ~1.2μs, no format detection).
      *
      * @param string $xml XML string
      * @param array<string, mixed>|null $template Optional template override
@@ -333,6 +389,12 @@ trait SimpleDtoTrait
         ?array $filters = null,
         ?array $pipeline = null
     ): static {
+        // Ultra-Fast Mode: Direct XML parsing (no format detection)
+        if (UltraFastEngine::isUltraFast(static::class)) {
+            /** @var static */
+            return UltraFastEngine::createFromXml(static::class, $xml);
+        }
+
         return static::fromSource($xml, $template, $filters, $pipeline);
     }
 
@@ -341,6 +403,9 @@ trait SimpleDtoTrait
      *
      * This is an alias for fromSource() that accepts YAML strings.
      * The YAML will be parsed and processed through the full mapping pipeline.
+     *
+     * Performance Optimization: If the class has #[UltraFast] + #[ConverterMode],
+     * bypasses all overhead and uses direct YAML parsing (target: ~1.2μs, no format detection).
      *
      * @param string $yaml YAML string
      * @param array<string, mixed>|null $template Optional template override
@@ -353,6 +418,12 @@ trait SimpleDtoTrait
         ?array $filters = null,
         ?array $pipeline = null
     ): static {
+        // Ultra-Fast Mode: Direct YAML parsing (no format detection)
+        if (UltraFastEngine::isUltraFast(static::class)) {
+            /** @var static */
+            return UltraFastEngine::createFromYaml(static::class, $yaml);
+        }
+
         return static::fromSource($yaml, $template, $filters, $pipeline);
     }
 
@@ -362,6 +433,9 @@ trait SimpleDtoTrait
      * This is an alias for fromSource() that accepts CSV strings.
      * The CSV will be parsed and processed through the full mapping pipeline.
      * Note: CSV parsing expects the first row to contain headers.
+     *
+     * Note: CSV parsing is not optimized in UltraFast mode yet.
+     * Falls back to normal mode for now.
      *
      * @param string $csv CSV string
      * @param array<string, mixed>|null $template Optional template override
@@ -374,6 +448,7 @@ trait SimpleDtoTrait
         ?array $filters = null,
         ?array $pipeline = null
     ): static {
+        // Note: CSV not yet optimized for UltraFast mode
         return static::fromSource($csv, $template, $filters, $pipeline);
     }
 
