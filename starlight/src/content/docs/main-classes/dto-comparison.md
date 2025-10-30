@@ -71,9 +71,9 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 <!-- DTO_COMPARISON_START -->
 
 | Feature | LiteDto #[UltraFast] | LiteDto | SimpleDto #[UltraFast] | SimpleDto |
-|---------|----------------------|---------|-----------------------|-----------|
-| **Performance** | ~0.7μs | ~3.5μs | ~3.2μs | ~18.4μs |
-| **Speed Factor** | **26.0x faster** | **5.3x faster** | **5.8x faster** | Baseline |
+|---------|----------------------|---------|------------------------|-----------|
+| **Performance** | ~1.3μs | ~3.1μs | ~3.0μs | ~24.1μs |
+| **Speed Factor** | **17.9x faster** | **7.7x faster** | **8.1x faster** | Baseline |
 | | | | | |
 | **Core Features** | | | | |
 | Property Mapping | ✅ | ✅ | ✅ | ✅ |
@@ -98,17 +98,17 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 | Lazy Properties | ❌ | ❌ | ❌ | ✅ |
 | Conditional Properties | ❌ | ❌ | ❌ | ✅ |
 | Hooks & Events | ❌ | ❌ | ❌ | ✅ |
-| Dot Notation Access | ✅ | ✅ | ✅ | ✅ |
+| Dot Notation Access | ❌ | ❌ | ❌ | ✅ |
 | | | | | |
 | **Data Conversion** | | | | |
-| Converter Support | ✅ | ✅ | ✅ | ✅ |
+| Converter Support | ☑️ | ☑️ | ✅ | ✅ |
 | ConvertEmptyToNull | ✅ | ✅ | ✅ | ✅ |
-| JSON/XML Support | ✅ | ✅ | ✅ | ✅ |
+| JSON/XML Support | ☑️ | ☑️ | ✅ | ✅ |
 | | | | | |
 | **Developer Experience** | | | | |
 | IDE Autocomplete | ✅ | ✅ | ✅ | ✅ |
-| TypeScript Generation | ✅ | ✅ | ✅ | ✅ |
-| Constructor Promotion | ✅ | ✅ | ✅ | ✅ |
+| TypeScript Generation | ❌ | ❌ | ❌ | ✅ |
+| Constructor Promotion | ✅ | ✅ | ❌ | ❌ |
 | Property Attributes | ☑️ | ☑️ | ☑️ | ✅ |
 
 **Legend:**
@@ -116,11 +116,6 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 - ✅ Fully supported
 - ☑️ Partially supported or optional
 - ❌ Not supported
-
-**Note:**
-- LiteDto and SimpleDto with `#[UltraFast]` support JSON/XML/YAML via `#[ConverterMode]` attribute
-- UltraFast mode: ~0.8μs (array-only) or ~1.3-1.5μs (with #[ConverterMode] for JSON/XML/YAML)
-- All property attributes (`#[MapFrom]`, `#[MapTo]`, `#[CastWith]`) are automatically detected when present
 <!-- DTO_COMPARISON_END -->
 
 ## Available Attributes
@@ -227,11 +222,11 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 - No validation or casting overhead
 
 **SimpleDto** provides full features:
-- ~18.4μs average operation time
+- ~24.1μs average operation time
 - Includes validation and type casting
 - Rich attribute system
 - More overhead but more features
-- Use `#[UltraFast]` attribute to skip validation/casting when not needed (~3.2μs, **5.8x faster**)
+- Use `#[UltraFast]` attribute to skip validation/casting when not needed (~3.0μs, **8.1x faster**)
 
 ### Use Cases
 
