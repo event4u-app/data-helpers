@@ -36,6 +36,7 @@ use RuntimeException;
  */
 enum SerializationFormat: string
 {
+    case Array = 'array';
     case Json = 'json';
     case Xml = 'xml';
     case Yaml = 'yaml';
@@ -53,6 +54,7 @@ enum SerializationFormat: string
         $options ??= SerializerOptions::default();
 
         return match ($this) {
+            self::Array => throw new RuntimeException('Array serialization is built-in, use toArray() method'),
             self::Json => throw new RuntimeException('JSON serialization is built-in, use toJson() method'),
             self::Xml => new XmlSerializer($options->rootElement, $options->xmlVersion, $options->encoding),
             self::Yaml => new YamlSerializer($options->indent),
@@ -83,6 +85,7 @@ enum SerializationFormat: string
     public function getMimeType(): string
     {
         return match ($this) {
+            self::Array => 'application/x-php-array',
             self::Json => 'application/json',
             self::Xml => 'application/xml',
             self::Yaml => 'application/x-yaml',
@@ -100,6 +103,7 @@ enum SerializationFormat: string
     public static function fromString(string $format): ?self
     {
         return match (strtolower($format)) {
+            'array' => self::Array,
             'json' => self::Json,
             'xml' => self::Xml,
             'yaml', 'yml' => self::Yaml,

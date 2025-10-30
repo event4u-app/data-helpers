@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use event4u\DataHelpers\Frameworks\Symfony\DataHelpersBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -19,6 +20,7 @@ class Kernel extends BaseKernel
     {
         return [
             new FrameworkBundle(),
+            new DoctrineBundle(),
             new DataHelpersBundle(),
         ];
     }
@@ -28,6 +30,12 @@ class Kernel extends BaseKernel
         $loader->load(function (ContainerBuilder $container) use ($loader): void {
             // Load framework configuration
             $loader->load($this->getProjectDir() . '/config/packages/framework.yaml');
+
+            // Load doctrine configuration
+            $doctrineConfig = $this->getProjectDir() . '/config/packages/doctrine.yaml';
+            if (file_exists($doctrineConfig)) {
+                $loader->load($doctrineConfig);
+            }
 
             // Load data_helpers configuration if it exists (created by recipe)
             $dataHelpersConfig = $this->getProjectDir() . '/config/packages/data_helpers.yaml';

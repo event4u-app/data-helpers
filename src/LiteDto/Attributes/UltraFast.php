@@ -9,29 +9,26 @@ use Attribute;
 /**
  * Enable ultra-fast mode for LiteDto.
  *
- * Ultra-fast mode bypasses most overhead for maximum performance:
- * - No attribute processing by default (can be re-enabled)
- * - No nested DTO support
- * - No collection support
- * - No enum support
- * - Direct property assignment
+ * Ultra-fast mode automatically detects which attributes are used and processes them on-the-fly.
+ * No manual configuration needed - just add the attribute and use any features you need!
  *
- * Performance: ~0.3-0.5μs (similar to OtherDto, ~10x faster than normal LiteDto)
+ * Supported attributes (auto-detected):
+ * - #[MapFrom] - Input property mapping
+ * - #[MapTo] - Output property mapping
+ * - #[CastWith] - Custom type casting
+ * - #[ConvertEmptyToNull] - Convert empty strings/arrays to null
+ * - #[EnumSerialize] - Enum serialization mode
+ * - #[DataCollectionOf] - Array of DTOs
+ * - #[Hidden] - Hide from output
+ * - #[HiddenFromArray] - Hide from toArray()
+ * - #[HiddenFromJson] - Hide from toJson()
+ * - #[Computed] - Computed properties
+ * - #[Lazy] - Lazy-loaded properties
  *
- * Example (basic):
+ * Performance: ~2.1μs (still 15x faster than SimpleDto!)
+ *
+ * Example:
  *   #[UltraFast]
- *   class UserDto extends LiteDto {
- *       public function __construct(
- *           public readonly string $name,
- *           public readonly int $age,
- *       ) {}
- *   }
- *
- *   $user = UserDto::from(['name' => 'John', 'age' => 30]);
- *   // Ultra-fast: ~0.3μs
- *
- * Example (with selective attributes):
- *   #[UltraFast(allowMapFrom: true, allowCastWith: true)]
  *   class ProductDto extends LiteDto {
  *       public function __construct(
  *           #[MapFrom('product_name')]
@@ -39,32 +36,18 @@ use Attribute;
  *
  *           #[CastWith(PriceCaster::class)]
  *           public readonly float $price,
+ *
+ *           #[ConvertEmptyToNull]
+ *           public readonly ?string $description,
  *       ) {}
  *   }
  *
  * Use when:
- * - Maximum performance is critical
- * - Simple flat DTOs without nesting
- * - Minimal attribute features needed
- *
- * Don't use when:
- * - You need nested DTOs or collections
- * - You need enum support
- * - You need #[Hidden] attribute
+ * - You want maximum performance with full features
+ * - You don't need validation
+ * - You want automatic attribute detection
  */
 #[Attribute(Attribute::TARGET_CLASS)]
 final readonly class UltraFast
 {
-    /**
-     * Create a new UltraFast attribute.
-     *
-     * @param bool $allowMapFrom Whether to process #[MapFrom] attributes (default: false)
-     * @param bool $allowMapTo Whether to process #[MapTo] attributes (default: false)
-     * @param bool $allowCastWith Whether to process #[CastWith] attributes (default: false)
-     */
-    public function __construct(
-        public bool $allowMapFrom = false,
-        public bool $allowMapTo = false,
-        public bool $allowCastWith = false,
-    ) {}
 }

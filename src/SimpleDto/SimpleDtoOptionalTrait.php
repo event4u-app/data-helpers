@@ -182,7 +182,9 @@ trait SimpleDtoOptionalTrait
             $data['sortingEnabled'],
             $data['sortDirection'],
             $data['nestedSort'],
-            $data['sortCallback']
+            $data['sortCallback'],
+            $data['validationState'],
+            $data['validationErrors']
         );
 
         $partial = [];

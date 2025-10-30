@@ -6,7 +6,9 @@ namespace event4u\DataHelpers\LiteDto;
 
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\LiteDto\Support\LiteEngine;
+use event4u\DataHelpers\Validation\ValidationResult;
 use JsonSerializable;
 
 /**
@@ -66,21 +68,70 @@ abstract class LiteDto implements JsonSerializable
     }
 
     /**
-     * Convert DTO to array.
+     * Validate data and create DTO if validation passes.
      *
-     * Respects #[MapTo] and #[Hidden] attributes.
-     *
-     * @return array<string, mixed>
+     * @param array<string, mixed>|string|object $data
+     * @param array<string> $groups Validation groups to apply (empty = all rules)
+     * @return ValidationResult Contains validation status, errors, and validated data
      */
-    public function toArray(): array
+    public static function validate(mixed $data, array $groups = []): ValidationResult
     {
-        return LiteEngine::toArray($this);
+        return LiteEngine::validate(static::class, $data, $groups);
     }
 
-    /** Convert DTO to JSON. */
-    public function toJson(int $options = 0): string
+    /**
+     * Validate data and create DTO, throwing exception if validation fails.
+     *
+     * @param array<string, mixed>|string|object $data
+     * @param array<string> $groups Validation groups to apply (empty = all rules)
+     * @throws ValidationException
+     */
+    public static function validateAndCreate(mixed $data, array $groups = []): static
     {
-        return json_encode($this->toArray(), JSON_THROW_ON_ERROR | $options);
+        $result = static::validate($data, $groups);
+
+        if ($result->isFailed()) {
+            throw new ValidationException(
+                'Validation failed: ' . implode(', ', $result->allErrors())
+            );
+        }
+
+        /** @var static */
+        return LiteEngine::createFromData(static::class, $result->validated());
+    }
+
+    /**
+     * Validate this DTO instance.
+     *
+     * @return ValidationResult Contains validation status and errors
+     */
+    public function validateInstance(): ValidationResult
+    {
+        return LiteEngine::validateInstance($this);
+    }
+
+    /**
+     * Convert DTO to array.
+     *
+     * Respects #[MapTo], #[Hidden], and conditional attributes.
+     *
+     * @param array<string, mixed> $context Optional context for conditional properties
+     * @return array<string, mixed>
+     */
+    public function toArray(array $context = []): array
+    {
+        return LiteEngine::toArray($this, $context);
+    }
+
+    /**
+     * Convert DTO to JSON.
+     *
+     * @param array<string, mixed> $context Optional context for conditional properties
+     * @param int $options JSON encoding options
+     */
+    public function toJson(array $context = [], int $options = 0): string
+    {
+        return json_encode(LiteEngine::toJsonArray($this, $context), JSON_THROW_ON_ERROR | $options);
     }
 
     /**
@@ -90,7 +141,7 @@ abstract class LiteDto implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return $this->toArray();
+        return LiteEngine::toJsonArray($this);
     }
 
     /**
@@ -178,6 +229,150 @@ abstract class LiteDto implements JsonSerializable
             return $this->convertToArrayRecursive($data->toArray());
         }
 
+        return $data;
+    }
+
+    // =========================================================================
+    // Lifecycle Hooks
+    // =========================================================================
+    //
+    // These methods can be overridden in your DTO classes to hook into
+    // the lifecycle of DTO creation, validation, and serialization.
+    //
+    // All hooks are optional and have no performance impact when not overridden.
+    //
+    // Example:
+    //   class UserDto extends LiteDto {
+    //       protected function beforeCreate(array &$data): void {
+    //           $data['email'] = strtolower($data['email'] ?? '');
+    //       }
+    //   }
+
+    /**
+     * Called before DTO creation, allows modifying input data.
+     *
+     * This hook is called before property mapping and casting.
+     * You can modify the input data array by reference.
+     *
+     * @param array<string, mixed> $data Input data (modifiable by reference)
+     */
+    protected function beforeCreate(array &$data): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after DTO creation.
+     *
+     * This hook is called after the DTO instance has been created
+     * and all properties have been set.
+     */
+    protected function afterCreate(): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called before property mapping.
+     *
+     * This hook is called before #[MapFrom] attributes are processed.
+     * You can modify the input data array by reference.
+     *
+     * @param array<string, mixed> $data Input data (modifiable by reference)
+     */
+    protected function beforeMapping(array &$data): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after property mapping.
+     *
+     * This hook is called after #[MapFrom] attributes have been processed.
+     */
+    protected function afterMapping(): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called before casting a property value.
+     *
+     * This hook is called before type casting, nested DTOs, and custom casters.
+     * You can modify the value by reference.
+     *
+     * @param string $property Property name
+     * @param mixed $value Property value (modifiable by reference)
+     */
+    protected function beforeCasting(string $property, mixed &$value): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after casting a property value.
+     *
+     * This hook is called after type casting, nested DTOs, and custom casters.
+     *
+     * @param string $property Property name
+     * @param mixed $value Property value (after casting)
+     */
+    protected function afterCasting(string $property, mixed $value): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called before validation.
+     *
+     * This hook is called before validation rules are applied.
+     * You can modify the input data array by reference.
+     *
+     * @param array<string, mixed> $data Input data (modifiable by reference)
+     */
+    protected function beforeValidation(array &$data): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after validation.
+     *
+     * This hook is called after validation rules have been applied.
+     * You can inspect the validation result.
+     *
+     * @param ValidationResult $result Validation result
+     */
+    protected function afterValidation(ValidationResult $result): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called before serialization (toArray/toJson).
+     *
+     * This hook is called before the DTO is converted to an array.
+     * You can modify the output data array by reference.
+     *
+     * @param array<string, mixed> $data Output data (modifiable by reference)
+     */
+    protected function beforeSerialization(array &$data): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after serialization (toArray/toJson).
+     *
+     * This hook is called after the DTO has been converted to an array.
+     * You can modify and return the output data.
+     *
+     * @param array<string, mixed> $data Output data
+     * @return array<string, mixed> Modified output data
+     */
+    protected function afterSerialization(array $data): array
+    {
+        // Override in subclass to add custom logic
         return $data;
     }
 }

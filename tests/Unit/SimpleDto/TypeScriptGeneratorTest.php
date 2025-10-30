@@ -91,22 +91,22 @@ describe('TypeScriptGenerator', function(): void {
     });
 
     it('handles enums', function(): void {
-        enum Status: string
+        enum TypeScriptGeneratorTest_Status: string
         {
             case ACTIVE = 'active';
             case INACTIVE = 'inactive';
         }
 
-        $dto = new class(Status::ACTIVE) extends SimpleDto {
+        $dto = new class(TypeScriptGeneratorTest_Status::ACTIVE) extends SimpleDto {
             public function __construct(
-                public readonly Status $status,
+                public readonly TypeScriptGeneratorTest_Status $status,
             ) {}
 
             /** @return array<string, string> */
             protected function casts(): array
             {
                 return [
-                    'status' => 'enum:' . Status::class,
+                    'status' => 'enum:' . TypeScriptGeneratorTest_Status::class,
                 ];
             }
         };

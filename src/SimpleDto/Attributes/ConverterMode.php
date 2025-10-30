@@ -55,4 +55,3 @@ use Attribute;
 class ConverterMode
 {
 }
-

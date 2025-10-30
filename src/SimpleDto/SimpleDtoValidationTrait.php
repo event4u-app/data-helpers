@@ -8,10 +8,13 @@ use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDto\Enums\SerializationFormat;
 use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
+use event4u\DataHelpers\SimpleDto\ValidationErrorCollection;
 use event4u\DataHelpers\Validation\Validator;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Validation\ValidationException as LaravelValidationException;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;
 use RuntimeException;
@@ -63,6 +66,12 @@ trait SimpleDtoValidationTrait
     /** @var array<string, array<string, array<int, string>>> Cache for validation rules */
     private static array $rulesCache = [];
 
+    /** @var bool|null Validation state: null = not validated, true = valid, false = invalid */
+    private ?bool $validationState = null;
+
+    /** @var array<string, array<string>> Validation errors */
+    private array $validationErrors = [];
+
     /**
      * Get custom validation rules for the Dto.
      *
@@ -105,13 +114,38 @@ trait SimpleDtoValidationTrait
      *
      * Throws ValidationException if validation fails.
      *
-     * @param array<string, mixed> $data
+     * @param array<string, mixed>|string $data Data to validate (array or string for JSON/XML/YAML)
+     * @param SerializationFormat $format Data format (default: Array)
      * @throws ValidationException
      */
-    public static function validateAndCreate(array $data): static
+    public static function validateAndCreate(
+        array|string $data,
+        SerializationFormat $format = SerializationFormat::Array
+    ): static
     {
-        $validated = static::validate($data);
+        // Convert data to array based on format
+        $arrayData = match ($format) {
+            SerializationFormat::Json => is_string($data) ? json_decode($data, true) : $data,
+            SerializationFormat::Xml => is_string($data) ? static::fromXml($data)->toArray() : $data,
+            SerializationFormat::Yaml => is_string($data) ? static::fromYaml($data)->toArray() : $data,
+            SerializationFormat::Array => is_array($data) ? $data : json_decode($data, true),
+            SerializationFormat::Csv => throw new InvalidArgumentException(
+                'CSV format is not supported for validation'
+            ),
+        };
 
+        // Ensure we have an array
+        if (!is_array($arrayData)) {
+            throw new InvalidArgumentException('Failed to convert data to array');
+        }
+
+        // PHPStan: Assert that array has string keys (DTOs only have named properties)
+        /** @var array<string, mixed> $arrayData */
+
+        // Validate the data
+        $validated = static::validate($arrayData);
+
+        // Create DTO from validated data
         return static::fromArray($validated);
     }
 
@@ -169,6 +203,71 @@ trait SimpleDtoValidationTrait
         // Fallback to framework-independent validator
         $validator = new Validator($data, $rules, $messages, $attributes);
         return $validator->validate();
+    }
+
+    /**
+     * Validate the current DTO instance.
+     *
+     * This method validates the DTO after it has been created.
+     * Useful for on-demand validation without recreating the DTO.
+     *
+     * @param bool $throwException If true, throws ValidationException on failure. If false, returns bool.
+     * @return bool True if valid, false if invalid (only when $throwException = false)
+     * @throws ValidationException When validation fails and $throwException = true
+     */
+    public function validateInstance(bool $throwException = true): bool
+    {
+        // Convert DTO to array for validation
+        // toArray() returns array<string, mixed> as per DtoInterface
+        $data = $this->toArray();
+
+        try {
+            // Validate using static method
+            static::validate($data);
+
+            // Mark as valid
+            $this->validationState = true;
+            $this->validationErrors = [];
+
+            return true;
+        } catch (ValidationException $validationException) {
+            // Mark as invalid and store errors
+            $this->validationState = false;
+            $this->validationErrors = $validationException->errors();
+
+            if ($throwException) {
+                throw $validationException;
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * Get validation errors from the last validation.
+     *
+     * Returns a collection of validation errors. If the DTO has not been validated yet,
+     * returns an empty collection.
+     */
+    public function getValidationErrors(): ValidationErrorCollection
+    {
+        return new ValidationErrorCollection($this->validationErrors);
+    }
+
+    /** Check if the DTO has been validated. */
+    public function isValidated(): bool
+    {
+        return null !== $this->validationState;
+    }
+
+    /**
+     * Check if the DTO is valid (after validation).
+     *
+     * Returns null if not validated yet.
+     */
+    public function isValid(): ?bool
+    {
+        return $this->validationState;
     }
 
     /**

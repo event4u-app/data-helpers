@@ -6,7 +6,7 @@ use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\DtoInterface;
 
 // Test Dtos
-class TestUserDto extends SimpleDto
+class SimpleDtoTest_TestUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
@@ -43,20 +43,20 @@ class TestCustomerDto extends SimpleDto
 describe('SimpleDto', function(): void {
     describe('Basic Functionality', function(): void {
         it('can be created from array', function(): void {
-            $dto = TestUserDto::fromArray([
+            $dto = SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
             ]);
 
-            expect($dto)->toBeInstanceOf(TestUserDto::class);
+            expect($dto)->toBeInstanceOf(SimpleDtoTest_TestUserDto::class);
             expect($dto->name)->toBe('John Doe');
             expect($dto->email)->toBe('john@example.com');
             expect($dto->age)->toBe(30);
         });
 
         it('can be converted to array', function(): void {
-            $dto = TestUserDto::fromArray([
+            $dto = SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -73,7 +73,7 @@ describe('SimpleDto', function(): void {
         });
 
         it('implements DtoInterface', function(): void {
-            $dto = TestUserDto::fromArray([
+            $dto = SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -83,7 +83,7 @@ describe('SimpleDto', function(): void {
         });
 
         it('implements JsonSerializable', function(): void {
-            $dto = TestUserDto::fromArray([
+            $dto = SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -95,7 +95,7 @@ describe('SimpleDto', function(): void {
 
     describe('JSON Serialization', function(): void {
         it('can be serialized to JSON', function(): void {
-            $dto = TestUserDto::fromArray([
+            $dto = SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -113,7 +113,7 @@ describe('SimpleDto', function(): void {
         });
 
         it('handles special characters in JSON', function(): void {
-            $dto = TestUserDto::fromArray([
+            $dto = SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John "The Boss" Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -227,7 +227,7 @@ describe('SimpleDto', function(): void {
 
     describe('Immutability', function(): void {
         it('has readonly properties', function(): void {
-            $dto = TestUserDto::fromArray([
+            $dto = SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 30,
@@ -241,7 +241,7 @@ describe('SimpleDto', function(): void {
 
     describe('Type Safety', function(): void {
         it('enforces type constraints', function(): void {
-            expect(fn(): \TestUserDto => TestUserDto::fromArray([
+            expect(fn(): \SimpleDtoTest_TestUserDto => SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'age' => 'thirty', // Wrong type
@@ -249,7 +249,7 @@ describe('SimpleDto', function(): void {
         });
 
         it('requires all mandatory properties', function(): void {
-            expect(fn(): \TestUserDto => TestUserDto::fromArray([
+            expect(fn(): \SimpleDtoTest_TestUserDto => SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John Doe',
                 // Missing email and age
             ]))->toThrow(ArgumentCountError::class);

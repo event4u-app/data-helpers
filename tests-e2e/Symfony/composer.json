@@ -13,7 +13,11 @@
     "symfony/dotenv": "^7.0",
     "symfony/validator": "^7.0",
     "symfony/property-access": "^7.0",
-    "event4u/data-helpers": "*"
+    "event4u/data-helpers": "*",
+    "doctrine/orm": "^3.5",
+    "doctrine/dbal": "^4.3",
+    "doctrine/doctrine-bundle": "^3.0",
+    "symfony/mime": "^7.3"
   },
   "require-dev": {
     "pestphp/pest": "^3.0",

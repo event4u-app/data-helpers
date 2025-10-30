@@ -1,0 +1,22 @@
+doctrine:
+    dbal:
+        driver: 'pdo_sqlite'
+        path: '%kernel.project_dir%/var/test.db'
+        charset: utf8
+
+    orm:
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        mappings:
+            App:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
+                alias: App
+
+services:
+    Doctrine\ORM\EntityManagerInterface:
+        alias: doctrine.orm.entity_manager
+        public: true
+

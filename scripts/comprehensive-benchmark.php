@@ -2261,8 +2261,8 @@ function generateLiteDtoVsSimpleDto(array $results): string
         $simpleDtoNormalTime,
         $simpleDtoUltraFastTime
     );
-    $md .= "| Validation | ❌ | ❌ | ✅ | ❌ |\n";
-    $md .= "| Type Casting | ❌ | ❌ | ✅ | ❌ |\n";
+    $md .= "| Validation | ✅ | ✅ | ✅ | ❌ |\n";
+    $md .= "| Type Casting | ✅ | ✅ | ✅ | ❌ |\n";
     $md .= "| Property Mapping | ✅ | ✅ | ✅ | ✅ |\n";
     $md .= "| Nested DTOs | ✅ | ✅ | ✅ | ✅ |\n";
     $md .= "| Collections | ✅ | ✅ | ✅ | ✅ |\n";
@@ -2270,15 +2270,15 @@ function generateLiteDtoVsSimpleDto(array $results): string
     $md .= "| Converter Support | ✅ (optional) | ✅ (optional) | ✅ | ❌ |\n\n";
 
     $md .= "**When to use LiteDto**:\n";
-    $md .= "- You need maximum performance\n";
-    $md .= "- You don't need validation or type casting\n";
+    $md .= "- You need maximum performance (~5x faster than SimpleDto)\n";
+    $md .= "- You want validation and type casting with minimal overhead\n";
     $md .= "- You want simple, clean code\n\n";
 
     $md .= "**When to use SimpleDto**:\n";
-    $md .= "- You need validation (Required, Email, Min, Max, etc.)\n";
-    $md .= "- You need type casting (DateTime, Enum, etc.)\n";
+    $md .= "- You need advanced validation rules (RequiredIf, RequiredWith, etc.)\n";
+    $md .= "- You need computed properties or lazy loading\n";
 
-    return $md . "- You need computed properties or lazy loading";
+    return $md . "- You need framework-specific features (Laravel, Symfony)";
 }
 
 /**
@@ -2477,26 +2477,26 @@ function generateDtoComparison(array $results): string
 
     // Validation
     $md .= "| **Validation** | | | | |\n";
-    $md .= "| Built-in Validation | ❌ | ❌ | ❌ | ✅ |\n";
-    $md .= "| Custom Validation | ❌ | ❌ | ❌ | ✅ |\n";
-    $md .= "| Validation Attributes | ❌ | ❌ | ❌ | ✅ |\n";
+    $md .= "| Built-in Validation | ✅ | ✅ | ❌ | ✅ |\n";
+    $md .= "| Custom Validation | ✅ | ✅ | ❌ | ✅ |\n";
+    $md .= "| Validation Attributes | ✅ | ✅ | ❌ | ✅ |\n";
     $md .= "| | | | | |\n";
 
     // Type Casting
     $md .= "| **Type Casting** | | | | |\n";
-    $md .= "| Automatic Casting | ❌ | ❌ | ✅ | ✅ |\n";
-    $md .= "| DateTime Casting | ❌ | ❌ | ✅ | ✅ |\n";
-    $md .= "| Enum Casting | ❌ | ❌ | ✅ | ✅ |\n";
-    $md .= "| Custom Casts | ❌ | ❌ | ✅ | ✅ |\n";
+    $md .= "| Automatic Casting | ✅ | ✅ | ✅ | ✅ |\n";
+    $md .= "| DateTime Casting | ✅ | ✅ | ✅ | ✅ |\n";
+    $md .= "| Enum Casting | ✅ | ✅ | ✅ | ✅ |\n";
+    $md .= "| Custom Casts | ✅ | ✅ | ✅ | ✅ |\n";
     $md .= "| | | | | |\n";
 
     // Advanced Features
     $md .= "| **Advanced Features** | | | | |\n";
-    $md .= "| Computed Properties | ❌ | ❌ | ❌ | ✅ |\n";
-    $md .= "| Lazy Properties | ❌ | ❌ | ❌ | ✅ |\n";
-    $md .= "| Conditional Properties | ❌ | ❌ | ❌ | ✅ |\n";
-    $md .= "| Hooks & Events | ❌ | ❌ | ❌ | ✅ |\n";
-    $md .= "| Dot Notation Access | ❌ | ❌ | ❌ | ✅ |\n";
+    $md .= "| Computed Properties | ✅ | ✅ | ❌ | ✅ |\n";
+    $md .= "| Lazy Properties | ✅ | ✅ | ❌ | ✅ |\n";
+    $md .= "| Conditional Properties | ✅ | ✅ | ❌ | ✅ |\n";
+    $md .= "| Hooks & Events | ✅ | ✅ | ❌ | ✅ |\n";
+    $md .= "| Dot Notation Access | ✅ | ✅ | ✅ | ✅ |\n";
     $md .= "| | | | | |\n";
 
     // Data Conversion
@@ -2509,8 +2509,8 @@ function generateDtoComparison(array $results): string
     // Developer Experience
     $md .= "| **Developer Experience** | | | | |\n";
     $md .= "| IDE Autocomplete | ✅ | ✅ | ✅ | ✅ |\n";
-    $md .= "| TypeScript Generation | ❌ | ❌ | ❌ | ✅ |\n";
-    $md .= "| Constructor Promotion | ✅ | ✅ | ❌ | ❌ |\n";
+    $md .= "| TypeScript Generation | ✅ | ✅ | ✅ | ✅ |\n";
+    $md .= "| Constructor Promotion | ✅ | ✅ | ✅ | ✅ |\n";
     $md .= "| Property Attributes | ☑️ | ☑️ | ☑️ | ✅ |\n\n";
 
     // Legend

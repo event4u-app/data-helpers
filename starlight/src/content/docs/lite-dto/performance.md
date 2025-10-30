@@ -13,12 +13,12 @@ Here are the actual benchmark results from our comprehensive tests:
 
 | Implementation | From Array | To Array | Complex Data |
 |----------------|------------|----------|---------------|
-| LiteDto | 2.674μs | 4.002μs | 2.693μs |
-| LiteDto #[UltraFast] | 1.252μs | 1.481μs | 1.287μs |
-| SimpleDto #[UltraFast] | 2.217μs | 4.412μs | 2.233μs |
-| SimpleDto Normal | 22.948μs | 26.305μs | 22.899μs |
+| LiteDto | 4.493μs | 5.870μs | 4.614μs |
+| LiteDto #[UltraFast] | 3.282μs | 3.640μs | 3.315μs |
+| SimpleDto #[UltraFast] | 3.452μs | 5.396μs | 3.490μs |
+| SimpleDto Normal | 23.869μs | 27.935μs | 27.676μs |
 
-**Average**: LiteDto is **7.9x faster** than SimpleDto Normal.
+**Average**: LiteDto is **5.4x faster** than SimpleDto Normal.
 <!-- LITEDTO_BENCHMARKS_END -->
 
 ## Optimization Tips
@@ -190,9 +190,9 @@ for ($i = 0; $i < 1000; $i++) {
 
 | Feature | LiteDto | LiteDto #[UltraFast] | SimpleDto Normal | SimpleDto #[UltraFast] |
 |---------|---------|----------------------|------------------|------------------------|
-| Performance | ~3.1μs | ~1.3μs | ~24.1μs | ~3.0μs |
-| Validation | ❌ | ❌ | ✅ | ❌ |
-| Type Casting | ❌ | ❌ | ✅ | ❌ |
+| Performance | ~5.0μs | ~3.4μs | ~26.5μs | ~4.1μs |
+| Validation | ✅ | ✅ | ✅ | ❌ |
+| Type Casting | ✅ | ✅ | ✅ | ❌ |
 | Property Mapping | ✅ | ✅ | ✅ | ✅ |
 | Nested DTOs | ✅ | ✅ | ✅ | ✅ |
 | Collections | ✅ | ✅ | ✅ | ✅ |
@@ -200,14 +200,14 @@ for ($i = 0; $i < 1000; $i++) {
 | Converter Support | ✅ (optional) | ✅ (optional) | ✅ | ❌ |
 
 **When to use LiteDto**:
-- You need maximum performance
-- You don't need validation or type casting
+- You need maximum performance (~5x faster than SimpleDto)
+- You want validation and type casting with minimal overhead
 - You want simple, clean code
 
 **When to use SimpleDto**:
-- You need validation (Required, Email, Min, Max, etc.)
-- You need type casting (DateTime, Enum, etc.)
+- You need advanced validation rules (RequiredIf, RequiredWith, etc.)
 - You need computed properties or lazy loading
+- You need framework-specific features (Laravel, Symfony)
 <!-- LITEDTO_VS_SIMPLEDTO_END -->
 
 ### LiteDto vs Other Dtos
@@ -216,7 +216,7 @@ for ($i = 0; $i < 1000; $i++) {
 
 | Metric | LiteDto | LiteDto #[UltraFast] | Other Dtos |
 |--------|---------|----------------------|------------|
-| Performance | ~3.1μs | ~1.3μs | N/A |
+| Performance | ~5.0μs | ~3.4μs | N/A |
 | Property Mapping | ✅ | ✅ | ✅ |
 | Hidden Properties | ✅ | ✅ | ✅ |
 | Nested DTOs | ✅ | ✅ | ✅ |

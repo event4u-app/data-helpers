@@ -12,7 +12,8 @@ use event4u\DataHelpers\SimpleDto\Serializers\YamlSerializer;
 describe('SerializationFormat Enum', function(): void {
     describe('Enum Values', function(): void {
         it('has correct string values', function(): void {
-            expect(SerializationFormat::Json->value)->toBe('json')
+            expect(SerializationFormat::Array->value)->toBe('array')
+                ->and(SerializationFormat::Json->value)->toBe('json')
                 ->and(SerializationFormat::Xml->value)->toBe('xml')
                 ->and(SerializationFormat::Yaml->value)->toBe('yaml')
                 ->and(SerializationFormat::Csv->value)->toBe('csv');
@@ -22,7 +23,8 @@ describe('SerializationFormat Enum', function(): void {
             $values = SerializationFormat::values();
 
             expect($values)->toBeArray()
-                ->and($values)->toHaveCount(4)
+                ->and($values)->toHaveCount(5)
+                ->and($values)->toContain('array')
                 ->and($values)->toContain('json')
                 ->and($values)->toContain('xml')
                 ->and($values)->toContain('yaml')
@@ -32,7 +34,8 @@ describe('SerializationFormat Enum', function(): void {
 
     describe('fromString Method', function(): void {
         it('parses valid format strings', function(): void {
-            expect(SerializationFormat::fromString('json'))->toBe(SerializationFormat::Json)
+            expect(SerializationFormat::fromString('array'))->toBe(SerializationFormat::Array)
+                ->and(SerializationFormat::fromString('json'))->toBe(SerializationFormat::Json)
                 ->and(SerializationFormat::fromString('xml'))->toBe(SerializationFormat::Xml)
                 ->and(SerializationFormat::fromString('yaml'))->toBe(SerializationFormat::Yaml)
                 ->and(SerializationFormat::fromString('csv'))->toBe(SerializationFormat::Csv);
@@ -46,7 +49,8 @@ describe('SerializationFormat Enum', function(): void {
         });
 
         it('is case-insensitive', function(): void {
-            expect(SerializationFormat::fromString('JSON'))->toBe(SerializationFormat::Json)
+            expect(SerializationFormat::fromString('ARRAY'))->toBe(SerializationFormat::Array)
+                ->and(SerializationFormat::fromString('JSON'))->toBe(SerializationFormat::Json)
                 ->and(SerializationFormat::fromString('XML'))->toBe(SerializationFormat::Xml)
                 ->and(SerializationFormat::fromString('YAML'))->toBe(SerializationFormat::Yaml)
                 ->and(SerializationFormat::fromString('CSV'))->toBe(SerializationFormat::Csv)
@@ -56,7 +60,8 @@ describe('SerializationFormat Enum', function(): void {
 
     describe('fromExtension Method', function(): void {
         it('parses valid file extensions', function(): void {
-            expect(SerializationFormat::fromExtension('json'))->toBe(SerializationFormat::Json)
+            expect(SerializationFormat::fromExtension('array'))->toBe(SerializationFormat::Array)
+                ->and(SerializationFormat::fromExtension('json'))->toBe(SerializationFormat::Json)
                 ->and(SerializationFormat::fromExtension('xml'))->toBe(SerializationFormat::Xml)
                 ->and(SerializationFormat::fromExtension('yaml'))->toBe(SerializationFormat::Yaml)
                 ->and(SerializationFormat::fromExtension('yml'))->toBe(SerializationFormat::Yaml)
@@ -64,7 +69,8 @@ describe('SerializationFormat Enum', function(): void {
         });
 
         it('handles extensions with dots', function(): void {
-            expect(SerializationFormat::fromExtension('.json'))->toBe(SerializationFormat::Json)
+            expect(SerializationFormat::fromExtension('.array'))->toBe(SerializationFormat::Array)
+                ->and(SerializationFormat::fromExtension('.json'))->toBe(SerializationFormat::Json)
                 ->and(SerializationFormat::fromExtension('.xml'))->toBe(SerializationFormat::Xml)
                 ->and(SerializationFormat::fromExtension('.yaml'))->toBe(SerializationFormat::Yaml)
                 ->and(SerializationFormat::fromExtension('.csv'))->toBe(SerializationFormat::Csv);
@@ -79,7 +85,8 @@ describe('SerializationFormat Enum', function(): void {
 
     describe('isValid Method', function(): void {
         it('validates correct format strings', function(): void {
-            expect(SerializationFormat::isValid('json'))->toBeTrue()
+            expect(SerializationFormat::isValid('array'))->toBeTrue()
+                ->and(SerializationFormat::isValid('json'))->toBeTrue()
                 ->and(SerializationFormat::isValid('xml'))->toBeTrue()
                 ->and(SerializationFormat::isValid('yaml'))->toBeTrue()
                 ->and(SerializationFormat::isValid('csv'))->toBeTrue();
@@ -93,7 +100,8 @@ describe('SerializationFormat Enum', function(): void {
         });
 
         it('is case-insensitive for validation', function(): void {
-            expect(SerializationFormat::isValid('JSON'))->toBeTrue()
+            expect(SerializationFormat::isValid('ARRAY'))->toBeTrue()
+                ->and(SerializationFormat::isValid('JSON'))->toBeTrue()
                 ->and(SerializationFormat::isValid('XML'))->toBeTrue()
                 ->and(SerializationFormat::isValid('YAML'))->toBeTrue()
                 ->and(SerializationFormat::isValid('CSV'))->toBeTrue();
@@ -102,7 +110,8 @@ describe('SerializationFormat Enum', function(): void {
 
     describe('getFileExtension Method', function(): void {
         it('returns correct file extensions without dot', function(): void {
-            expect(SerializationFormat::Json->getFileExtension())->toBe('json')
+            expect(SerializationFormat::Array->getFileExtension())->toBe('array')
+                ->and(SerializationFormat::Json->getFileExtension())->toBe('json')
                 ->and(SerializationFormat::Xml->getFileExtension())->toBe('xml')
                 ->and(SerializationFormat::Yaml->getFileExtension())->toBe('yaml')
                 ->and(SerializationFormat::Csv->getFileExtension())->toBe('csv');
@@ -111,7 +120,8 @@ describe('SerializationFormat Enum', function(): void {
 
     describe('getMimeType Method', function(): void {
         it('returns correct MIME types', function(): void {
-            expect(SerializationFormat::Json->getMimeType())->toBe('application/json')
+            expect(SerializationFormat::Array->getMimeType())->toBe('application/x-php-array')
+                ->and(SerializationFormat::Json->getMimeType())->toBe('application/json')
                 ->and(SerializationFormat::Xml->getMimeType())->toBe('application/xml')
                 ->and(SerializationFormat::Yaml->getMimeType())->toBe('application/x-yaml')
                 ->and(SerializationFormat::Csv->getMimeType())->toBe('text/csv');

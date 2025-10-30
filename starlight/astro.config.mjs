@@ -93,6 +93,7 @@ export default defineConfig({
                         { label: 'Introduction', slug: 'lite-dto/introduction' },
                         { label: 'Creating LiteDtos', slug: 'lite-dto/creating-litedtos' },
                         { label: 'Attributes', slug: 'lite-dto/attributes' },
+                        { label: 'Lifecycle Hooks', slug: 'lite-dto/hooks' },
                         { label: 'Performance', slug: 'lite-dto/performance' },
                     ],
                 },
@@ -135,6 +136,16 @@ export default defineConfig({
 					label: 'Attributes',
 					collapsed: true,
 					items: [
+                        {
+                            label: 'Detailed',
+                            collapsed: true,
+                            items: [
+                                { label: 'ExistsCallback', slug: 'attributes/detailed/exists-callback' },
+                                { label: 'FileCallback', slug: 'attributes/detailed/file-callback' },
+                                { label: 'Optional', slug: 'attributes/detailed/optional' },
+                                { label: 'UniqueCallback', slug: 'attributes/detailed/unique-callback' },
+                            ],
+                        },
 						{ label: 'Overview', slug: 'attributes/overview' },
 						{ label: 'Validation Attributes', slug: 'attributes/validation' },
 						{ label: 'Casting Attributes', slug: 'attributes/casting' },

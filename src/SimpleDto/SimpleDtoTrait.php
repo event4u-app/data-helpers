@@ -142,6 +142,8 @@ trait SimpleDtoTrait
         'sortDirection' => true,
         'nestedSort' => true,
         'sortCallback' => true,
+        'validationState' => true,
+        'validationErrors' => true,
     ];
 
     /**
@@ -575,11 +577,19 @@ trait SimpleDtoTrait
     /**
      * Convert Dto to JSON string.
      *
+     * Ultra-Fast Mode: Uses UltraFastEngine for maximum speed with HiddenFromJson support.
+     *
      * @param int $flags JSON encoding flags (default: 0)
      * @return string JSON representation of the Dto
      */
     public function toJson(int $flags = 0): string
     {
+        // Ultra-Fast Mode: Use optimized JSON serialization
+        if (UltraFastEngine::isUltraFast(static::class)) {
+            return UltraFastEngine::toJson($this, $flags);
+        }
+
+        // Normal mode: Use toArray() and json_encode
         $json = json_encode($this->toArray(), $flags);
         if (false === $json) {
             throw new RuntimeException('Failed to encode Dto to JSON: ' . json_last_error_msg());
