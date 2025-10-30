@@ -141,7 +141,7 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 | #[MapTo] | ✅ | ✅ | ✅ | ✅ |
 | #[MapInputName] | ❌ | ❌ | ❌ | ✅ |
 | #[MapOutputName] | ❌ | ❌ | ❌ | ✅ |
-| #[Hidden] | ❌ | ✅ | ❌ | ✅ |
+| #[Hidden] | ✅ | ✅ | ✅ | ✅ |
 | #[HiddenFromArray] | ❌ | ❌ | ❌ | ✅ |
 | #[HiddenFromJson] | ❌ | ❌ | ❌ | ✅ |
 | #[Visible] | ❌ | ❌ | ❌ | ✅ |

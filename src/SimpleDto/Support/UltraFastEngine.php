@@ -8,6 +8,7 @@ use event4u\DataHelpers\Converters\JsonConverter;
 use event4u\DataHelpers\Converters\XmlConverter;
 use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\SimpleDto\Attributes\ConverterMode;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
@@ -15,6 +16,7 @@ use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
+use ReflectionProperty;
 
 /**
  * Ultra-Fast Engine for SimpleDto
@@ -53,6 +55,13 @@ final class UltraFastEngine
      * @var array<class-string, bool>
      */
     private static array $converterModeCache = [];
+
+    /**
+     * Cache for Hidden properties per class.
+     *
+     * @var array<class-string, array<string, bool>>
+     */
+    private static array $hiddenCache = [];
 
     /**
      * Check if a class has #[UltraFast] attribute.
@@ -349,12 +358,19 @@ final class UltraFastEngine
         // Get all public properties
         $data = get_object_vars($dto);
 
-        // Check if any property has #[MapTo] attribute
+        // Check if any property has #[MapTo] or #[Hidden] attribute
         $hasMapTo = false;
+        $hasHidden = false;
         $result = [];
         foreach ($reflection->getProperties() as $reflectionProperty) {
             $name = $reflectionProperty->getName();
             if (!array_key_exists($name, $data)) {
+                continue;
+            }
+
+            // Check for #[Hidden] attribute (automatically detected)
+            if (self::isHidden($class, $name, $reflectionProperty)) {
+                $hasHidden = true;
                 continue;
             }
 
@@ -372,11 +388,11 @@ final class UltraFastEngine
             $result[$outputName] = self::convertValue($data[$name]);
         }
 
-        if ($hasMapTo) {
+        if ($hasMapTo || $hasHidden) {
             return $result;
         }
 
-        // No mapping - direct conversion
+        // No mapping or hidden - direct conversion
         $result = [];
         foreach ($data as $key => $value) {
             $result[$key] = self::convertValue($value);
@@ -500,11 +516,32 @@ final class UltraFastEngine
         throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML), or object');
     }
 
+    /**
+     * Check if property is hidden.
+     *
+     * @param class-string $class
+     */
+    private static function isHidden(string $class, string $name, ReflectionProperty $property): bool
+    {
+        // Check cache
+        if (isset(self::$hiddenCache[$class][$name])) {
+            return self::$hiddenCache[$class][$name];
+        }
+
+        // Check for #[Hidden] attribute
+        $attrs = $property->getAttributes(Hidden::class);
+        $isHidden = [] !== $attrs;
+
+        self::$hiddenCache[$class][$name] = $isHidden;
+        return $isHidden;
+    }
+
     /** Clear all caches (for testing). */
     public static function clearCache(): void
     {
         self::$ultraFastCache = [];
         self::$reflectionCache = [];
         self::$converterModeCache = [];
+        self::$hiddenCache = [];
     }
 }

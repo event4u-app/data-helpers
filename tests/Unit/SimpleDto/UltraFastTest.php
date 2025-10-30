@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\ConverterMode;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
@@ -79,6 +80,21 @@ class SimpleDtoUltraFastWithoutConverterDto extends SimpleDto
     public function __construct(
         public readonly string $name,
         public readonly string $email,
+    ) {}
+}
+
+#[UltraFast]
+class SimpleDtoUltraFastWithHiddenDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+
+        #[Hidden]
+        public readonly string $password,
+
+        #[Hidden]
+        public readonly string $apiKey,
     ) {}
 }
 
@@ -360,6 +376,53 @@ describe('UltraFast Mode', function(): void {
             // UltraFast should be faster than Normal or at least as fast as Normal
             // Note: With cache, the difference is smaller. Real gains come with cache optimization.
             expect($ultraFastTime)->toBeLessThan($normalTime);
+        });
+    });
+
+    describe('Hidden Attribute Support', function(): void {
+        it('hides properties from toArray', function(): void {
+            $dto = SimpleDtoUltraFastWithHiddenDto::fromArray([
+                'name' => 'John',
+                'email' => 'john@example.com',
+                'password' => 'secret123',
+                'apiKey' => 'key_abc',
+            ]);
+
+            $array = $dto->toArray();
+
+            expect($array)->toHaveKey('name');
+            expect($array)->toHaveKey('email');
+            expect($array)->not()->toHaveKey('password');
+            expect($array)->not()->toHaveKey('apiKey');
+        });
+
+        it('keeps hidden properties accessible', function(): void {
+            $dto = SimpleDtoUltraFastWithHiddenDto::fromArray([
+                'name' => 'John',
+                'email' => 'john@example.com',
+                'password' => 'secret123',
+                'apiKey' => 'key_abc',
+            ]);
+
+            expect($dto->password)->toBe('secret123');
+            expect($dto->apiKey)->toBe('key_abc');
+        });
+
+        it('hides properties from JSON', function(): void {
+            $dto = SimpleDtoUltraFastWithHiddenDto::fromArray([
+                'name' => 'John',
+                'email' => 'john@example.com',
+                'password' => 'secret123',
+                'apiKey' => 'key_abc',
+            ]);
+
+            $json = $dto->toJson();
+            $decoded = json_decode($json, true);
+
+            expect($decoded)->toHaveKey('name');
+            expect($decoded)->toHaveKey('email');
+            expect($decoded)->not()->toHaveKey('password');
+            expect($decoded)->not()->toHaveKey('apiKey');
         });
     });
 });
