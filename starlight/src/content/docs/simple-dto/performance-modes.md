@@ -92,17 +92,20 @@ $user = FastUserDto::fromArray([
 ]);
 ```
 
-### Configuration Options
+### Automatic Attribute Detection
+
+`#[UltraFast]` automatically detects and processes `#[MapFrom]`, `#[MapTo]`, and `#[CastWith]` attributes if they are present on properties. No configuration needed!
 
 ```php
-#[UltraFast(
-    allowMapFrom: true,   // Allow #[MapFrom] attributes (default: true)
-    allowMapTo: true,     // Allow #[MapTo] attributes (default: true)
-    allowCastWith: false, // Allow #[CastWith] attributes (default: false)
-)]
-class ConfiguredDto extends SimpleDto
+#[UltraFast]
+class AutoDetectDto extends SimpleDto
 {
-    // ...
+    public function __construct(
+        #[MapFrom('old_name')]
+        public readonly string $name,  // Automatically detected!
+
+        public readonly string $email,
+    ) {}
 }
 ```
 

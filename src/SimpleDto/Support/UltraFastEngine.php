@@ -217,25 +217,23 @@ final class UltraFastEngine
     ): mixed {
         $name = $param->getName();
 
-        // Step 1: Check for #[MapFrom] attribute (if allowed)
+        // Step 1: Check for #[MapFrom] attribute (automatically detected)
         $mappedName = $name;
-        if ($ultraFast->allowMapFrom) {
-            // First check parameter attributes (for constructor promoted properties)
-            $mapFromAttrs = $param->getAttributes(MapFrom::class);
-            if ([] !== $mapFromAttrs) {
-                /** @var MapFrom $mapFrom */
-                $mapFrom = $mapFromAttrs[0]->newInstance();
-                $mappedName = $mapFrom->source;
-            } else {
-                // Fallback to property attributes
-                $property = $reflection->hasProperty($name) ? $reflection->getProperty($name) : null;
-                if ($property) {
-                    $mapFromAttrs = $property->getAttributes(MapFrom::class);
-                    if (!empty($mapFromAttrs)) {
-                        /** @var MapFrom $mapFrom */
-                        $mapFrom = $mapFromAttrs[0]->newInstance();
-                        $mappedName = $mapFrom->source;
-                    }
+        // First check parameter attributes (for constructor promoted properties)
+        $mapFromAttrs = $param->getAttributes(MapFrom::class);
+        if ([] !== $mapFromAttrs) {
+            /** @var MapFrom $mapFrom */
+            $mapFrom = $mapFromAttrs[0]->newInstance();
+            $mappedName = $mapFrom->source;
+        } else {
+            // Fallback to property attributes
+            $property = $reflection->hasProperty($name) ? $reflection->getProperty($name) : null;
+            if ($property) {
+                $mapFromAttrs = $property->getAttributes(MapFrom::class);
+                if (!empty($mapFromAttrs)) {
+                    /** @var MapFrom $mapFrom */
+                    $mapFrom = $mapFromAttrs[0]->newInstance();
+                    $mappedName = $mapFrom->source;
                 }
             }
         }
@@ -351,27 +349,30 @@ final class UltraFastEngine
         // Get all public properties
         $data = get_object_vars($dto);
 
-        // Apply #[MapTo] if allowed
-        if ($ultraFast->allowMapTo) {
-            $result = [];
-            foreach ($reflection->getProperties() as $reflectionProperty) {
-                $name = $reflectionProperty->getName();
-                if (!array_key_exists($name, $data)) {
-                    continue;
-                }
-
-                // Check for #[MapTo] attribute
-                $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
-                if (!empty($mapToAttrs)) {
-                    /** @var MapTo $mapTo */
-                    $mapTo = $mapToAttrs[0]->newInstance();
-                    $outputName = $mapTo->target;
-                } else {
-                    $outputName = $name;
-                }
-
-                $result[$outputName] = self::convertValue($data[$name]);
+        // Check if any property has #[MapTo] attribute
+        $hasMapTo = false;
+        $result = [];
+        foreach ($reflection->getProperties() as $reflectionProperty) {
+            $name = $reflectionProperty->getName();
+            if (!array_key_exists($name, $data)) {
+                continue;
             }
+
+            // Check for #[MapTo] attribute (automatically detected)
+            $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
+            if (!empty($mapToAttrs)) {
+                $hasMapTo = true;
+                /** @var MapTo $mapTo */
+                $mapTo = $mapToAttrs[0]->newInstance();
+                $outputName = $mapTo->target;
+            } else {
+                $outputName = $name;
+            }
+
+            $result[$outputName] = self::convertValue($data[$name]);
+        }
+
+        if ($hasMapTo) {
             return $result;
         }
 

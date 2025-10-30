@@ -19,7 +19,7 @@ use Attribute;
  * - ✅ Skips validation system
  * - ✅ Skips lazy/optional property wrapping
  * - ✅ Uses direct reflection + constructor call (like OtherDto's)
- * - ✅ Only processes explicitly defined attributes on-demand
+ * - ✅ Automatically detects and processes #[MapFrom], #[MapTo], #[CastWith] if present
  *
  * Trade-offs:
  * - ❌ No DataMapper integration
@@ -29,7 +29,7 @@ use Attribute;
  * - ❌ No optional properties
  * - ❌ No computed properties
  * - ❌ No visibility control
- * - ✅ Still supports: #[MapFrom], #[MapTo], #[CastWith] (processed on-demand)
+ * - ✅ Still supports: #[MapFrom], #[MapTo], #[CastWith] (automatically detected)
  *
  * Use this when:
  * - You need maximum performance (e.g., processing thousands of DTOs)
@@ -52,7 +52,7 @@ use Attribute;
  *         public readonly float $budget,
  *         public readonly int $employee_count,
  *
- *         #[MapFrom('manager_name')]  // Still works!
+ *         #[MapFrom('manager_name')]  // Automatically detected and processed!
  *         public readonly string $manager,
  *     ) {}
  * }
@@ -81,16 +81,4 @@ use Attribute;
 #[Attribute(Attribute::TARGET_CLASS)]
 final readonly class UltraFast
 {
-    /**
-     * Create a new UltraFast attribute.
-     *
-     * @param bool $allowMapFrom Whether to process #[MapFrom] attributes (default: true)
-     * @param bool $allowMapTo Whether to process #[MapTo] attributes (default: true)
-     * @param bool $allowCastWith Whether to process #[CastWith] attributes (default: false)
-     */
-    public function __construct(
-        public bool $allowMapFrom = true,
-        public bool $allowMapTo = true,
-        public bool $allowCastWith = false,
-    ) {}
 }

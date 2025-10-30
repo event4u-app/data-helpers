@@ -9,6 +9,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\SimpleDto\Support\FastPath;
 use event4u\DataHelpers\SimpleDto\Support\UltraFastEngine;
+use InvalidArgumentException;
 use RuntimeException;
 
 /**
