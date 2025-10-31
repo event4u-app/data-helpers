@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ConditionalValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 
 /**
  * Confirmed validation attribute.
@@ -15,7 +15,7 @@ use event4u\DataHelpers\LiteDto\Contracts\ConditionalValidationAttribute;
  *
  * Example:
  * ```php
- * class RegisterDto extends LiteDto
+ * class RegisterDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Confirmed]

@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 
 /**
  * Validate that a value matches a regular expression.
  *
  * Example:
  * ```php
- * class ProductDto extends LiteDto
+ * class ProductDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Regex('/^[A-Z]{2}[0-9]{4}$/')]

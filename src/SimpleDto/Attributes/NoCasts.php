@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
 /**
- * Skip all type casting for this LiteDto class.
+ * Skip all type casting for this SimpleDto class.
  *
  * This attribute improves performance by skipping all cast operations
  * including nested DTO casting and collection casting. Use this when you
@@ -21,11 +21,11 @@ use Attribute;
  *
  * Example:
  * ```php
- * use event4u\DataHelpers\LiteDto\LiteDto;
- * use event4u\DataHelpers\LiteDto\Attributes\NoCasts;
+ * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
  *
  * #[NoCasts]
- * class StrictDto extends LiteDto
+ * class StrictDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
@@ -50,7 +50,7 @@ use Attribute;
  * - Visibility attributes (#[Hidden], #[Visible])
  * - Mapping attributes (#[MapFrom], #[MapTo])
  *
- * @package event4u\DataHelpers\LiteDto\Attributes
+ * @package event4u\DataHelpers\SimpleDto\Attributes
  */
 #[Attribute(Attribute::TARGET_CLASS)]
 final readonly class NoCasts

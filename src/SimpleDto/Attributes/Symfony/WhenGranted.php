@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Symfony;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Symfony;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ConditionalProperty;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 
 /**
  * Attribute to conditionally include a property based on Symfony security grants.

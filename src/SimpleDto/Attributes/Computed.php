@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
@@ -14,7 +14,7 @@ use Attribute;
  *
  * @example
  * ```php
- * class OrderDto extends LiteDto
+ * class OrderDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly float $price,
@@ -61,10 +61,12 @@ final readonly class Computed
 {
     /**
      * @param bool $lazy If true, only compute when explicitly requested
+     * @param bool $cache If true, cache the computed value after first computation
      * @param string|null $name Custom name for the computed property in output (defaults to method name)
      */
     public function __construct(
         public bool $lazy = false,
+        public bool $cache = false,
         public ?string $name = null,
     ) {}
 }

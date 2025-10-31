@@ -252,7 +252,7 @@ describe('SimpleDto', function(): void {
             expect(fn(): \SimpleDtoTest_TestUserDto => SimpleDtoTest_TestUserDto::fromArray([
                 'name' => 'John Doe',
                 // Missing email and age
-            ]))->toThrow(ArgumentCountError::class);
+            ]))->toThrow(TypeError::class);
         });
     });
 });

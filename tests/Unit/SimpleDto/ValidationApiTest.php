@@ -6,11 +6,10 @@ use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Email;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
-use event4u\DataHelpers\SimpleDto\Enums\SerializationFormat;
 
 describe('Validation API', function(): void {
-    describe('validateAndCreate() with type parameter', function(): void {
-        it('validates and creates from array (default)', function(): void {
+    describe('validateAndCreate() method', function(): void {
+        it('validates and creates from array', function(): void {
             class SimpleDtoValidationApiArrayDto extends SimpleDto
             {
                 public function __construct(
@@ -30,34 +29,12 @@ describe('Validation API', function(): void {
 
             expect($dto->name)->toBe('John Doe');
             expect($dto->email)->toBe('john@example.com');
+            expect($dto->isValidated())->toBeTrue();
+            expect($dto->isValid())->toBeTrue();
         });
 
-        it('validates and creates from JSON string', function(): void {
-            class SimpleDtoValidationApiJsonDto extends SimpleDto
-            {
-                public function __construct(
-                    #[Required]
-                    public readonly string $name,
-
-                    #[Required, Email]
-                    public readonly string $email,
-                ) {
-                }
-            }
-
-            $json = json_encode([
-                'name' => 'John Doe',
-                'email' => 'john@example.com',
-            ]);
-
-            $dto = SimpleDtoValidationApiJsonDto::validateAndCreate($json, SerializationFormat::Json);
-
-            expect($dto->name)->toBe('John Doe');
-            expect($dto->email)->toBe('john@example.com');
-        });
-
-        it('validates and creates with different formats', function(): void {
-            class SimpleDtoValidationApiFormatsDto extends SimpleDto
+        it('stores validation result in DTO', function(): void {
+            class SimpleDtoValidationApiResultDto extends SimpleDto
             {
                 public function __construct(
                     #[Required]
@@ -66,16 +43,12 @@ describe('Validation API', function(): void {
                 }
             }
 
-            $json = json_encode(['name' => 'John']);
-            $array = ['name' => 'Jane'];
+            $dto = SimpleDtoValidationApiResultDto::validateAndCreate(['name' => 'John']);
 
-            $dto1 = SimpleDtoValidationApiFormatsDto::validateAndCreate($json, SerializationFormat::Json);
-            $dto2 = SimpleDtoValidationApiFormatsDto::validateAndCreate($array, SerializationFormat::Array);
-            $dto3 = SimpleDtoValidationApiFormatsDto::validateAndCreate($array); // Default: Array
-
-            expect($dto1->name)->toBe('John');
-            expect($dto2->name)->toBe('Jane');
-            expect($dto3->name)->toBe('Jane');
+            $result = $dto->getLastValidationResult();
+            expect($result)->not->toBeNull();
+            expect($result->isValid())->toBeTrue();
+            expect($result->validated())->toBe(['name' => 'John']);
         });
 
         it('throws ValidationException on invalid data', function(): void {
@@ -94,8 +67,8 @@ describe('Validation API', function(): void {
         })->throws(ValidationException::class);
     });
 
-    describe('validateInstance() method', function(): void {
-        it('validates DTO instance and returns true for valid data', function(): void {
+    describe('validate() method', function(): void {
+        it('validates DTO instance and returns validated data', function(): void {
             class SimpleDtoValidationInstanceValidDto extends SimpleDto
             {
                 public function __construct(
@@ -113,14 +86,14 @@ describe('Validation API', function(): void {
                 'email' => 'john@example.com',
             ]);
 
-            $result = $dto->validateInstance();
+            $validated = $dto->validate();
 
-            expect($result)->toBeTrue();
+            expect($validated)->toBe(['name' => 'John Doe', 'email' => 'john@example.com']);
             expect($dto->isValidated())->toBeTrue();
             expect($dto->isValid())->toBeTrue();
         });
 
-        it('throws ValidationException for invalid data by default', function(): void {
+        it('throws ValidationException for invalid data', function(): void {
             class SimpleDtoValidationInstanceInvalidDto extends SimpleDto
             {
                 public function __construct(
@@ -134,11 +107,11 @@ describe('Validation API', function(): void {
                 'email' => 'invalid-email',
             ]);
 
-            $dto->validateInstance();
+            $dto->validate();
         })->throws(ValidationException::class);
 
-        it('returns false for invalid data when throwException=false', function(): void {
-            class SimpleDtoValidationInstanceNoThrowDto extends SimpleDto
+        it('stores validation result even on failure', function(): void {
+            class SimpleDtoValidationInstanceFailDto extends SimpleDto
             {
                 public function __construct(
                     #[Required, Email]
@@ -147,15 +120,19 @@ describe('Validation API', function(): void {
                 }
             }
 
-            $dto = SimpleDtoValidationInstanceNoThrowDto::fromArray([
+            $dto = SimpleDtoValidationInstanceFailDto::fromArray([
                 'email' => 'invalid-email',
             ]);
 
-            $result = $dto->validateInstance(false);
+            try {
+                $dto->validate();
+            } catch (ValidationException) {
+                // Expected
+            }
 
-            expect($result)->toBeFalse();
             expect($dto->isValidated())->toBeTrue();
             expect($dto->isValid())->toBeFalse();
+            expect($dto->getLastValidationResult())->not->toBeNull();
         });
     });
 
@@ -174,7 +151,7 @@ describe('Validation API', function(): void {
                 'email' => 'john@example.com',
             ]);
 
-            $dto->validateInstance();
+            $dto->validate();
 
             $errors = $dto->getValidationErrors();
 
@@ -196,7 +173,11 @@ describe('Validation API', function(): void {
                 'email' => 'invalid-email',
             ]);
 
-            $dto->validateInstance(false);
+            try {
+                $dto->validate();
+            } catch (ValidationException) {
+                // Expected
+            }
 
             $errors = $dto->getValidationErrors();
 
@@ -219,7 +200,11 @@ describe('Validation API', function(): void {
                 'email' => 'invalid',
             ]);
 
-            $dto->validateInstance(false);
+            try {
+                $dto->validate();
+            } catch (ValidationException) {
+                // Expected
+            }
 
             $errors = $dto->getValidationErrors();
 

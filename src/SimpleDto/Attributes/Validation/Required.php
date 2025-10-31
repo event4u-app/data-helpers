@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 
 /**
  * Mark a property as required.
@@ -14,7 +14,7 @@ use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
  *
  * Example:
  * ```php
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Required]

@@ -88,11 +88,10 @@ JSON;
 
         it('handles invalid JSON gracefully', function(): void {
             $json = '{invalid json}';
-            $dto = TestSerializationUserDto::fromJson($json);
 
-            // Invalid JSON results in empty/default values
-            expect($dto->name)->toBe('');
-            expect($dto->age)->toBe(0);
+            // Invalid JSON should throw InvalidArgumentException
+            expect(fn(): \TestSerializationUserDto => TestSerializationUserDto::fromJson($json))
+                ->toThrow(InvalidArgumentException::class);
         });
 
         it('works with template parameter', function(): void {
@@ -249,11 +248,10 @@ JSON;
 
         it('handles empty CSV values', function(): void {
             $csv = "name,email,age\nJohn,,30";
-            $dto = TestSerializationUserDto::fromCsv($csv);
 
-            expect($dto->name)->toBe('John');
-            expect($dto->email)->toBe('');
-            expect($dto->age)->toBe(30);
+            // Empty CSV values result in null, which causes TypeError for non-nullable string
+            expect(fn(): \TestSerializationUserDto => TestSerializationUserDto::fromCsv($csv))
+                ->toThrow(TypeError::class);
         });
     });
 

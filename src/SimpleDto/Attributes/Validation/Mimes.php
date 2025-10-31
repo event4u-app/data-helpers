@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
 
@@ -10,7 +10,7 @@ use Attribute;
  * Validation attribute: File must have one of the given MIME types (by extension).
  *
  * This is a marker attribute for framework-specific validation (Laravel/Symfony).
- * It does NOT perform validation in LiteDto itself - use a callback attribute for custom validation.
+ * It does NOT perform validation in SimpleDto itself - use a callback attribute for custom validation.
  *
  * Framework support:
  * - Laravel: Converts to 'mimes:ext1,ext2,...'
@@ -18,7 +18,7 @@ use Attribute;
  *
  * Examples:
  * ```php
- * class DocumentDto extends LiteDto
+ * class DocumentDto extends SimpleDto
  * {
  *     public function __construct(
  *         // PDF and Word documents
@@ -36,7 +36,7 @@ use Attribute;
  * }
  * ```
  *
- * Note: This attribute is only useful when using LiteDto with Laravel or Symfony validators.
+ * Note: This attribute is only useful when using SimpleDto with Laravel or Symfony validators.
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Mimes

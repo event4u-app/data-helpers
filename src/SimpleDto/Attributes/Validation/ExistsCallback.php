@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 
 /**
  * Validation attribute: Value must exist (custom callback validation).
@@ -18,7 +18,7 @@ use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
  * use App\Models\User;
  * use App\Models\Product;
  *
- * class OrderDto extends LiteDto
+ * class OrderDto extends SimpleDto
  * {
  *     public function __construct(
  *         // Check if user exists by ID
@@ -38,7 +38,7 @@ use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
  *
  * Example with Doctrine:
  * ```php
- * class OrderDto extends LiteDto
+ * class OrderDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[ExistsCallback(fn($value) => $entityManager->getRepository(User::class)->find($value) !== null)]

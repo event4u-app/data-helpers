@@ -2,47 +2,65 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Support;
+namespace event4u\DataHelpers\SimpleDto\Support;
 
 use BackedEnum;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Error;
 use event4u\DataHelpers\Converters\YamlConverter;
-use event4u\DataHelpers\LiteDto\Attributes\AutoCast;
-use event4u\DataHelpers\LiteDto\Attributes\CastWith;
-use event4u\DataHelpers\LiteDto\Attributes\Computed;
-use event4u\DataHelpers\LiteDto\Attributes\ConvertEmptyToNull;
-use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
-use event4u\DataHelpers\LiteDto\Attributes\DataCollectionOf;
-use event4u\DataHelpers\LiteDto\Attributes\EnumSerialize;
-use event4u\DataHelpers\LiteDto\Attributes\Hidden;
-use event4u\DataHelpers\LiteDto\Attributes\HiddenFromArray;
-use event4u\DataHelpers\LiteDto\Attributes\HiddenFromJson;
-use event4u\DataHelpers\LiteDto\Attributes\Lazy;
-use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
-use event4u\DataHelpers\LiteDto\Attributes\MapInputName;
-use event4u\DataHelpers\LiteDto\Attributes\MapOutputName;
-use event4u\DataHelpers\LiteDto\Attributes\MapTo;
-use event4u\DataHelpers\LiteDto\Attributes\NoAttributes;
-use event4u\DataHelpers\LiteDto\Attributes\NoCasts;
-use event4u\DataHelpers\LiteDto\Attributes\NoValidation;
-use event4u\DataHelpers\LiteDto\Attributes\Optional as OptionalAttribute;
-use event4u\DataHelpers\LiteDto\Attributes\RuleGroup;
-use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
-use event4u\DataHelpers\LiteDto\Attributes\ValidateRequest;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\Nullable;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\Sometimes;
-use event4u\DataHelpers\LiteDto\Attributes\Visible;
-use event4u\DataHelpers\LiteDto\Attributes\WithMessage;
-use event4u\DataHelpers\LiteDto\Contracts\ConditionalProperty;
-use event4u\DataHelpers\LiteDto\Contracts\ConditionalValidationAttribute;
-use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
+use event4u\DataHelpers\SimpleDto\Attributes\CastWith;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
+use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
+use event4u\DataHelpers\SimpleDto\Attributes\ConverterMode;
+use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
+use event4u\DataHelpers\SimpleDto\Attributes\EnumSerialize;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
+use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromJson;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDto\Attributes\MapInputName;
+use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
+use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
+use event4u\DataHelpers\SimpleDto\Attributes\NoAttributes;
+use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
+use event4u\DataHelpers\SimpleDto\Attributes\NotImmutable;
+use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
+use event4u\DataHelpers\SimpleDto\Attributes\Optional as OptionalAttribute;
+use event4u\DataHelpers\SimpleDto\Attributes\RuleGroup;
+use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Nullable;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Sometimes;
+use event4u\DataHelpers\SimpleDto\Attributes\Visible;
+use event4u\DataHelpers\SimpleDto\Attributes\WithMessage;
+use event4u\DataHelpers\SimpleDto\Casts\ArrayCast;
+use event4u\DataHelpers\SimpleDto\Casts\BooleanCast;
+use event4u\DataHelpers\SimpleDto\Casts\CollectionCast;
+use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
+use event4u\DataHelpers\SimpleDto\Casts\DecimalCast;
+use event4u\DataHelpers\SimpleDto\Casts\DtoCast;
+use event4u\DataHelpers\SimpleDto\Casts\EncryptedCast;
+use event4u\DataHelpers\SimpleDto\Casts\EnumCast;
+use event4u\DataHelpers\SimpleDto\Casts\FloatCast;
+use event4u\DataHelpers\SimpleDto\Casts\HashedCast;
+use event4u\DataHelpers\SimpleDto\Casts\IntegerCast;
+use event4u\DataHelpers\SimpleDto\Casts\JsonCast;
+use event4u\DataHelpers\SimpleDto\Casts\StringCast;
+use event4u\DataHelpers\SimpleDto\Casts\TimestampCast;
+use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 use event4u\DataHelpers\Support\Optional;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use event4u\DataHelpers\Validation\ValidationResult;
 use InvalidArgumentException;
+use JsonException;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
@@ -53,12 +71,12 @@ use Throwable;
 use UnitEnum;
 
 /**
- * High-performance engine for LiteDto.
+ * High-performance engine for SimpleDto.
  *
  * Optimized for maximum speed (~0.3μs per operation) with minimal overhead.
  * Uses aggressive caching and direct property access.
  */
-final class LiteEngine
+final class SimpleEngine
 {
     /**
      * Cache for reflection classes.
@@ -159,20 +177,6 @@ final class LiteEngine
     private static array $validationSometimesCache = [];
 
     /**
-     * Cache for UltraFast mode per class.
-     *
-     * @var array<class-string, bool>
-     */
-    private static array $ultraFastCache = [];
-
-    /**
-     * Cache for UltraFast attribute instances per class.
-     *
-     * @var array<class-string, UltraFast|null>
-     */
-    private static array $ultraFastAttributeCache = [];
-
-    /**
      * Cache for MapInputName attribute per class.
      *
      * @var array<class-string, MapInputName|null>
@@ -194,11 +198,32 @@ final class LiteEngine
     private static array $dataCollectionOfCache = [];
 
     /**
+     * Cache for casts() method results per class.
+     *
+     * @var array<class-string, array<string, mixed>>
+     */
+    private static array $castsCache = [];
+
+    /**
      * Cache for Computed methods per class.
      *
      * @var array<class-string, array<string, Computed>>
      */
     private static array $computedCache = [];
+
+    /**
+     * Cache for computed property values per instance.
+     *
+     * @var array<class-string, array<int, array<string, mixed>>>
+     */
+    private static array $computedValuesCache = [];
+
+    /**
+     * Cache for included lazy computed properties per instance.
+     *
+     * @var array<int, array<int, string>>
+     */
+    private static array $includedComputedCache = [];
 
     /**
      * Cache for Lazy properties per class.
@@ -311,6 +336,9 @@ final class LiteEngine
      *     hasAnyJsonAttribute: bool,
      *     hasAutoCast: bool,
      *     hasNoCasts: bool,
+     *     hasNotImmutable: bool,
+     *     classNotImmutable: bool,
+     *     notImmutableProperties: array<string, bool>,
      * }>
      */
     private static array $featureFlags = [];
@@ -320,90 +348,18 @@ final class LiteEngine
      *
      * @param class-string $class
      * @param array<string, mixed>|string|object $data
+     * @param array<string, mixed>|null $template Optional template for mapping
+     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
+     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
      */
-    public static function createFromData(string $class, mixed $data): object
-    {
-        // Check for UltraFast mode first
-        if (self::isUltraFast($class)) {
-            return self::createUltraFast($class, $data);
-        }
-
-        // Step 1: Check ConverterMode
-        $converterMode = self::hasConverterMode($class);
-
-        // Step 2: Parse data
-        if (!is_array($data)) {
-            if ($converterMode) {
-                $data = self::parseWithConverter($data);
-            } else {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'LiteDto only accepts arrays in standard mode. Use #[ConverterMode] attribute on %s to enable JSON/XML/CSV support.',
-                        $class
-                    )
-                );
-            }
-        }
-
-        // Hook: beforeCreate (allow modifying input data)
-        // Create temporary instance to call hook
-        $tempReflection = new ReflectionClass($class);
-        $tempInstance = $tempReflection->newInstanceWithoutConstructor();
-        if ($tempReflection->hasMethod('beforeCreate')) {
-            $method = $tempReflection->getMethod('beforeCreate');
-            $method->invokeArgs($tempInstance, [&$data]);
-        }
-
-        // Hook: beforeMapping (before property mapping)
-        if ($tempReflection->hasMethod('beforeMapping')) {
-            $method = $tempReflection->getMethod('beforeMapping');
-            $method->invokeArgs($tempInstance, [&$data]);
-        }
-
-        // Step 3: Get reflection
-        $reflection = self::getReflection($class);
-        $constructor = $reflection->getConstructor();
-
-        if (!$constructor) {
-            $instance = new $class();
-
-            // Hook: afterMapping
-            if ($reflection->hasMethod('afterMapping')) {
-                $method = $reflection->getMethod('afterMapping');
-                $method->invoke($instance);
-            }
-
-            // Hook: afterCreate
-            if ($reflection->hasMethod('afterCreate')) {
-                $method = $reflection->getMethod('afterCreate');
-                $method->invoke($instance);
-            }
-
-            return $instance;
-        }
-
-        // Step 4: Build constructor arguments
-        $args = [];
-        foreach ($constructor->getParameters() as $reflectionParameter) {
-            $args[] = self::resolveParameter($reflectionParameter, $data, $reflection, $tempInstance);
-        }
-
-        // Step 5: Create instance
-        $instance = $reflection->newInstanceArgs($args);
-
-        // Hook: afterMapping (after property mapping and casting)
-        if ($reflection->hasMethod('afterMapping')) {
-            $method = $reflection->getMethod('afterMapping');
-            $method->invoke($instance);
-        }
-
-        // Hook: afterCreate (after instance creation)
-        if ($reflection->hasMethod('afterCreate')) {
-            $method = $reflection->getMethod('afterCreate');
-            $method->invoke($instance);
-        }
-
-        return $instance;
+    public static function createFromData(
+        string $class,
+        mixed $data,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): object {
+        return self::createFromDataInternal($class, $data, $template, $filters, $pipeline);
     }
 
     /**
@@ -417,10 +373,8 @@ final class LiteEngine
     {
         $class = $dto::class;
 
-        // UltraFast mode: auto-detect attributes with feature flags
-        if (self::isUltraFast($class)) {
-            // Get feature flags (cached after first call)
-            $flags = self::getFeatureFlags($class);
+        // Get feature flags (cached after first call)
+        $flags = self::getFeatureFlags($class);
 
             // Fast path: No attributes that affect toArray()
             if (!$flags['hasAnyArrayAttribute']) {
@@ -430,6 +384,15 @@ final class LiteEngine
             // Slow path: Process attributes
             $reflection = self::getReflection($class);
             $data = get_object_vars($dto);
+
+            // Get included computed properties for lazy handling
+            $objectId = spl_object_id($dto);
+            $includedComputed = self::$includedComputedCache[$objectId] ?? [];
+
+            // Clear the included computed cache after reading it (one-time use)
+            if (isset(self::$includedComputedCache[$objectId])) {
+                unset(self::$includedComputedCache[$objectId]);
+            }
 
             // Build skip set for Hidden/HiddenFromArray/Lazy properties (only if needed)
             $toSkip = null;
@@ -442,7 +405,13 @@ final class LiteEngine
                     $toSkip += self::$hiddenFromArrayCache[$class] ?? [];
                 }
                 if ($flags['hasLazy']) {
-                    $toSkip += self::$lazyCache[$class] ?? [];
+                    $lazyProperties = self::$lazyCache[$class] ?? [];
+                    // Only skip lazy properties that are not explicitly included
+                    foreach ($lazyProperties as $lazyName => $lazyValue) {
+                        if (!in_array($lazyName, $includedComputed, true)) {
+                            $toSkip[$lazyName] = $lazyValue;
+                        }
+                    }
                 }
             }
 
@@ -462,6 +431,12 @@ final class LiteEngine
 
                 $value = $data[$name];
 
+                // Handle Lazy values (only if flag is set)
+                if ($flags['hasLazy'] && $value instanceof \event4u\DataHelpers\Support\Lazy) {
+                    // Unwrap lazy value (already checked in toSkip)
+                    $value = $value->get();
+                }
+
                 // Unwrap Optional values (only if flag is set)
                 if ($flags['hasOptional'] && $value instanceof Optional) {
                     // Skip empty Optional values (not present)
@@ -483,14 +458,32 @@ final class LiteEngine
                     continue;
                 }
 
-                // Get output name (check for #[MapTo] attribute) - only if flag is set
+                // Get output name (check for #[MapTo] attribute first, then #[MapOutputName])
                 $outputName = $name;
+                $outputPath = null; // For dot notation support
+                $hasMapToOnProperty = false;
+
                 if ($flags['hasMapTo']) {
                     $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
                     if (!empty($mapToAttrs)) {
+                        $hasMapToOnProperty = true;
                         /** @var MapTo $mapTo */
                         $mapTo = $mapToAttrs[0]->newInstance();
                         $outputName = $mapTo->target;
+
+                        // Check if it's dot notation (e.g., 'user.email')
+                        if (str_contains($outputName, '.')) {
+                            $outputPath = explode('.', $outputName);
+                            $outputName = null; // Will be handled later
+                        }
+                    }
+                }
+
+                // If no MapTo on this property, check for class-level MapOutputName
+                if (!$hasMapToOnProperty && null === $outputPath && $flags['hasMapOutputName']) {
+                    $mapOutputName = self::getMapOutputName($class);
+                    if ($mapOutputName instanceof MapOutputName) {
+                        $outputName = $mapOutputName->convention->transform($name);
                     }
                 }
 
@@ -500,11 +493,37 @@ final class LiteEngine
                     $value = self::serializeEnum($value, $mode);
                 }
 
-                // Convert value only for complex types (nested DTOs, arrays)
-                if (is_object($value) || is_array($value)) {
-                    $result[$outputName] = self::convertValue($value, $class, $name, $reflectionProperty);
+                // Apply output casts FIRST (only if NOT #[NoCasts])
+                $convertedValue = $value;
+                if (!$flags['hasNoCasts']) {
+                    $convertedValue = self::applyOutputCast($class, $name, $value, $data);
+                }
+
+                // Then convert value only for complex types (nested DTOs, arrays)
+                // But skip if already converted by cast
+                if ($convertedValue === $value && (is_object($value) || is_array($value))) {
+                    $convertedValue = self::convertValue($value, $class, $name, $reflectionProperty);
+                }
+
+                // Handle dot notation output path (e.g., 'user.email' -> ['user' => ['email' => value]])
+                if (null !== $outputPath) {
+                    // Build nested array structure
+                    $current = &$result;
+                    $pathLength = count($outputPath);
+
+                    for ($i = 0; $pathLength - 1 > $i; $i++) {
+                        $key = $outputPath[$i];
+                        if (!isset($current[$key]) || !is_array($current[$key])) {
+                            $current[$key] = [];
+                        }
+                        $current = &$current[$key];
+                    }
+
+                    // Set the final value
+                    $current[$outputPath[$pathLength - 1]] = $convertedValue;
                 } else {
-                    $result[$outputName] = $value;
+                    // Simple key-value assignment
+                    $result[$outputName] = $convertedValue;
                 }
             }
 
@@ -512,13 +531,14 @@ final class LiteEngine
             if ($flags['hasComputed']) {
                 $computedMethods = self::getComputedMethods($class);
                 foreach ($computedMethods as $name => $computed) {
-                    // Skip lazy computed properties
-                    if ($computed->lazy) {
+                    // Skip lazy computed properties unless explicitly included
+                    if ($computed->lazy && !in_array($name, $includedComputed, true)) {
                         continue;
                     }
 
                     // Get method name (use original method name, not custom name)
                     $methodName = null;
+                    $methodReflection = null;
                     foreach ($reflection->getMethods() as $method) {
                         $attrs = $method->getAttributes(Computed::class);
                         if ([] !== $attrs) {
@@ -527,137 +547,53 @@ final class LiteEngine
                             $attrName = $attr->name ?? $method->getName();
                             if ($attrName === $name) {
                                 $methodName = $method->getName();
+                                $methodReflection = $method;
                                 break;
                             }
+                        }
+                    }
+
+                    // Check if computed property is hidden (Hidden, HiddenFromArray)
+                    if ($methodReflection) {
+                        $hiddenAttrs = $methodReflection->getAttributes(Hidden::class);
+                        $hiddenFromArrayAttrs = $methodReflection->getAttributes(HiddenFromArray::class);
+                        if ([] !== $hiddenAttrs || [] !== $hiddenFromArrayAttrs) {
+                            continue;
                         }
                     }
 
                     if ($methodName && $reflection->hasMethod($methodName)) {
                         $method = $reflection->getMethod($methodName);
                         if ($method->isPublic() && 0 === $method->getNumberOfRequiredParameters()) {
-                            $result[$name] = $method->invoke($dto);
+                            // Check if value is cached
+                            if ($computed->cache && isset(self::$computedValuesCache[$class][$objectId][$name])) {
+                                $result[$name] = self::$computedValuesCache[$class][$objectId][$name];
+                            } else {
+                                try {
+                                    $value = $method->invoke($dto);
+                                    $result[$name] = $value;
+
+                                    // Cache the value if caching is enabled
+                                    if ($computed->cache) {
+                                        if (!isset(self::$computedValuesCache[$class])) {
+                                            self::$computedValuesCache[$class] = [];
+                                        }
+                                        if (!isset(self::$computedValuesCache[$class][$objectId])) {
+                                            self::$computedValuesCache[$class][$objectId] = [];
+                                        }
+                                        self::$computedValuesCache[$class][$objectId][$name] = $value;
+                                    }
+                                } catch (Throwable) {
+                                    // If computation fails, return null instead of throwing
+                                    $result[$name] = null;
+                                }
+                            }
                         }
                     }
                 }
             }
 
             return $result;
-        }
-
-        // Get feature flags (cached after first call)
-        $flags = self::getFeatureFlags($class);
-
-        $reflection = self::getReflection($class);
-
-        // Get all public properties
-        $data = get_object_vars($dto);
-        $result = [];
-
-        foreach ($reflection->getProperties() as $reflectionProperty) {
-            $name = $reflectionProperty->getName();
-
-            if (!array_key_exists($name, $data)) {
-                continue;
-            }
-
-            // Check if hidden (from both array and JSON) - only if flag is set
-            if ($flags['hasHidden'] && self::isHidden($class, $name, $reflectionProperty)) {
-                continue;
-            }
-
-            // Check if hidden from array specifically - only if flag is set
-            if ($flags['hasHiddenFromArray'] && self::isHiddenFromArray($class, $name, $reflectionProperty)) {
-                continue;
-            }
-
-            // Check if lazy - only if flag is set
-            if ($flags['hasLazy']) {
-                $lazyProperties = self::getLazyProperties($class);
-                if (isset($lazyProperties[$name])) {
-                    continue;
-                }
-            }
-
-            $value = $data[$name];
-
-            // Unwrap Optional values (only if flag is set)
-            if ($flags['hasOptional'] && $value instanceof Optional) {
-                // Skip empty Optional values (not present)
-                if ($value->isEmpty()) {
-                    continue;
-                }
-                // Unwrap present Optional values
-                $value = $value->get();
-            }
-
-            // Check conditional properties (only if flag is set)
-            if ($flags['hasConditionalProperties'] && !self::shouldIncludeConditionalProperty(
-                $class,
-                $name,
-                $value,
-                $dto,
-                $context
-            )) {
-                continue;
-            }
-
-            // Get output name (check for #[MapTo] or #[MapOutputName] attribute) - only if flag is set
-            $outputName = $name;
-            if ($flags['hasMapTo'] || $flags['hasMapOutputName']) {
-                $outputName = self::getToMapping($class, $name, $reflectionProperty);
-            }
-
-            // Convert value (handle nested DTOs and enums) - always needed for nested DTOs
-            $result[$outputName] = self::convertValue($value, $class, $name, $reflectionProperty);
-        }
-
-        // Add computed properties - only if flag is set
-        if ($flags['hasComputed']) {
-            $computedMethods = self::getComputedMethods($class);
-            foreach ($computedMethods as $name => $computed) {
-                // Skip lazy computed properties
-                if ($computed->lazy) {
-                    continue;
-                }
-
-                // Get method name (use original method name, not custom name)
-                $methodName = null;
-                foreach ($reflection->getMethods() as $method) {
-                    $attrs = $method->getAttributes(Computed::class);
-                    if ([] !== $attrs) {
-                        /** @var Computed $attr */
-                        $attr = $attrs[0]->newInstance();
-                        $attrName = $attr->name ?? $method->getName();
-                        if ($attrName === $name) {
-                            $methodName = $method->getName();
-                            break;
-                        }
-                    }
-                }
-
-                if ($methodName && $reflection->hasMethod($methodName)) {
-                    $method = $reflection->getMethod($methodName);
-                    if ($method->isPublic() && 0 === $method->getNumberOfRequiredParameters()) {
-                        $result[$name] = $method->invoke($dto);
-                    }
-                }
-            }
-        }
-
-        // Hook: beforeSerialization (allow modifying output data)
-        $reflection = new ReflectionClass($dto);
-        if ($reflection->hasMethod('beforeSerialization')) {
-            $method = $reflection->getMethod('beforeSerialization');
-            $method->invokeArgs($dto, [&$result]);
-        }
-
-        // Hook: afterSerialization (allow modifying and returning output data)
-        if ($reflection->hasMethod('afterSerialization')) {
-            $method = $reflection->getMethod('afterSerialization');
-            $result = $method->invoke($dto, $result);
-        }
-
-        return $result;
     }
 
     /**
@@ -673,10 +609,8 @@ final class LiteEngine
     {
         $class = $dto::class;
 
-        // UltraFast mode: auto-detect attributes with feature flags
-        if (self::isUltraFast($class)) {
-            // Get feature flags (cached after first call)
-            $flags = self::getFeatureFlags($class);
+        // Get feature flags (cached after first call)
+        $flags = self::getFeatureFlags($class);
 
             // Fast path: No attributes that affect toJsonArray()
             if (!$flags['hasAnyJsonAttribute']) {
@@ -686,6 +620,15 @@ final class LiteEngine
             // Slow path: Process attributes
             $reflection = self::getReflection($class);
             $data = get_object_vars($dto);
+
+            // Get included computed properties for lazy handling
+            $objectId = spl_object_id($dto);
+            $includedComputed = self::$includedComputedCache[$objectId] ?? [];
+
+            // Clear the included computed cache after reading it (one-time use)
+            if (isset(self::$includedComputedCache[$objectId])) {
+                unset(self::$includedComputedCache[$objectId]);
+            }
 
             // Build skip set for Hidden/HiddenFromJson/Lazy properties (only if needed)
             $toSkip = null;
@@ -698,7 +641,13 @@ final class LiteEngine
                     $toSkip += self::$hiddenFromJsonCache[$class] ?? [];
                 }
                 if ($flags['hasLazy']) {
-                    $toSkip += self::$lazyCache[$class] ?? [];
+                    $lazyProperties = self::$lazyCache[$class] ?? [];
+                    // Only skip lazy properties that are not explicitly included
+                    foreach ($lazyProperties as $lazyName => $lazyValue) {
+                        if (!in_array($lazyName, $includedComputed, true)) {
+                            $toSkip[$lazyName] = $lazyValue;
+                        }
+                    }
                 }
             }
 
@@ -711,12 +660,18 @@ final class LiteEngine
                     continue;
                 }
 
-                // Skip Hidden/HiddenFromJson/Lazy properties (only if skip set exists)
+                // Skip Hidden/HiddenFromJson properties (only if skip set exists)
                 if (null !== $toSkip && isset($toSkip[$name])) {
                     continue;
                 }
 
                 $value = $data[$name];
+
+                // Handle Lazy values (only if flag is set)
+                if ($flags['hasLazy'] && $value instanceof \event4u\DataHelpers\Support\Lazy) {
+                    // Unwrap lazy value (already checked in toSkip)
+                    $value = $value->get();
+                }
 
                 // Unwrap Optional values (only if flag is set)
                 if ($flags['hasOptional'] && $value instanceof Optional) {
@@ -756,25 +711,33 @@ final class LiteEngine
                     $value = self::serializeEnum($value, $mode);
                 }
 
-                // Convert value only for complex types (nested DTOs, arrays)
-                if (is_object($value) || is_array($value)) {
-                    $result[$outputName] = self::convertValue($value, $class, $name, $reflectionProperty);
-                } else {
-                    $result[$outputName] = $value;
+                // Apply output casts FIRST (only if NOT #[NoCasts])
+                $convertedValue = $value;
+                if (!$flags['hasNoCasts']) {
+                    $convertedValue = self::applyOutputCast($class, $name, $value, $data);
                 }
+
+                // Then convert value only for complex types (nested DTOs, arrays)
+                // But skip if already converted by cast
+                if ($convertedValue === $value && (is_object($value) || is_array($value))) {
+                    $convertedValue = self::convertValue($value, $class, $name, $reflectionProperty);
+                }
+
+                $result[$outputName] = $convertedValue;
             }
 
             // Add computed properties - only if flag is set
             if ($flags['hasComputed']) {
                 $computedMethods = self::getComputedMethods($class);
                 foreach ($computedMethods as $name => $computed) {
-                    // Skip lazy computed properties
-                    if ($computed->lazy) {
+                    // Skip lazy computed properties unless explicitly included
+                    if ($computed->lazy && !in_array($name, $includedComputed, true)) {
                         continue;
                     }
 
                     // Get method name (use original method name, not custom name)
                     $methodName = null;
+                    $methodReflection = null;
                     foreach ($reflection->getMethods() as $method) {
                         $attrs = $method->getAttributes(Computed::class);
                         if ([] !== $attrs) {
@@ -783,15 +746,47 @@ final class LiteEngine
                             $attrName = $attr->name ?? $method->getName();
                             if ($attrName === $name) {
                                 $methodName = $method->getName();
+                                $methodReflection = $method;
                                 break;
                             }
+                        }
+                    }
+
+                    // Check if computed property is hidden (Hidden, HiddenFromJson)
+                    if ($methodReflection) {
+                        $hiddenAttrs = $methodReflection->getAttributes(Hidden::class);
+                        $hiddenFromJsonAttrs = $methodReflection->getAttributes(HiddenFromJson::class);
+                        if ([] !== $hiddenAttrs || [] !== $hiddenFromJsonAttrs) {
+                            continue;
                         }
                     }
 
                     if ($methodName && $reflection->hasMethod($methodName)) {
                         $method = $reflection->getMethod($methodName);
                         if ($method->isPublic() && 0 === $method->getNumberOfRequiredParameters()) {
-                            $result[$name] = $method->invoke($dto);
+                            // Check if value is cached
+                            if ($computed->cache && isset(self::$computedValuesCache[$class][$objectId][$name])) {
+                                $result[$name] = self::$computedValuesCache[$class][$objectId][$name];
+                            } else {
+                                try {
+                                    $value = $method->invoke($dto);
+                                    $result[$name] = $value;
+
+                                    // Cache the value if caching is enabled
+                                    if ($computed->cache) {
+                                        if (!isset(self::$computedValuesCache[$class])) {
+                                            self::$computedValuesCache[$class] = [];
+                                        }
+                                        if (!isset(self::$computedValuesCache[$class][$objectId])) {
+                                            self::$computedValuesCache[$class][$objectId] = [];
+                                        }
+                                        self::$computedValuesCache[$class][$objectId][$name] = $value;
+                                    }
+                                } catch (Throwable) {
+                                    // If computation fails, return null instead of throwing
+                                    $result[$name] = null;
+                                }
+                            }
                         }
                     }
                 }
@@ -811,122 +806,6 @@ final class LiteEngine
             }
 
             return $result;
-        }
-
-        // Get feature flags (cached after first call)
-        $flags = self::getFeatureFlags($class);
-
-        $reflection = self::getReflection($class);
-
-        // Get all public properties
-        $data = get_object_vars($dto);
-        $result = [];
-
-        foreach ($reflection->getProperties() as $reflectionProperty) {
-            $name = $reflectionProperty->getName();
-
-            if (!array_key_exists($name, $data)) {
-                continue;
-            }
-
-            // Check if hidden (from both array and JSON) - only if flag is set
-            if ($flags['hasHidden'] && self::isHidden($class, $name, $reflectionProperty)) {
-                continue;
-            }
-
-            // Check if hidden from JSON specifically - only if flag is set
-            if ($flags['hasHiddenFromJson'] && self::isHiddenFromJson($class, $name, $reflectionProperty)) {
-                continue;
-            }
-
-            // Check if lazy - only if flag is set
-            if ($flags['hasLazy']) {
-                $lazyProperties = self::getLazyProperties($class);
-                if (isset($lazyProperties[$name])) {
-                    continue;
-                }
-            }
-
-            $value = $data[$name];
-
-            // Unwrap Optional values (only if flag is set)
-            if ($flags['hasOptional'] && $value instanceof Optional) {
-                // Skip empty Optional values (not present)
-                if ($value->isEmpty()) {
-                    continue;
-                }
-                // Unwrap present Optional values
-                $value = $value->get();
-            }
-
-            // Check conditional properties (only if flag is set)
-            if ($flags['hasConditionalProperties'] && !self::shouldIncludeConditionalProperty(
-                $class,
-                $name,
-                $value,
-                $dto,
-                $context
-            )) {
-                continue;
-            }
-
-            // Get output name (check for #[MapTo] or #[MapOutputName] attribute) - only if flag is set
-            $outputName = $name;
-            if ($flags['hasMapTo'] || $flags['hasMapOutputName']) {
-                $outputName = self::getToMapping($class, $name, $reflectionProperty);
-            }
-
-            // Convert value (handle nested DTOs and enums) - always needed for nested DTOs
-            $result[$outputName] = self::convertValue($value, $class, $name, $reflectionProperty);
-        }
-
-        // Add computed properties - only if flag is set
-        if ($flags['hasComputed']) {
-            $computedMethods = self::getComputedMethods($class);
-            foreach ($computedMethods as $name => $computed) {
-                // Skip lazy computed properties
-                if ($computed->lazy) {
-                    continue;
-                }
-
-                // Get method name (use original method name, not custom name)
-                $methodName = null;
-                foreach ($reflection->getMethods() as $method) {
-                    $attrs = $method->getAttributes(Computed::class);
-                    if ([] !== $attrs) {
-                        /** @var Computed $attr */
-                        $attr = $attrs[0]->newInstance();
-                        $attrName = $attr->name ?? $method->getName();
-                        if ($attrName === $name) {
-                            $methodName = $method->getName();
-                            break;
-                        }
-                    }
-                }
-
-                if ($methodName && $reflection->hasMethod($methodName)) {
-                    $method = $reflection->getMethod($methodName);
-                    if ($method->isPublic() && 0 === $method->getNumberOfRequiredParameters()) {
-                        $result[$name] = $method->invoke($dto);
-                    }
-                }
-            }
-        }
-
-        // Hook: beforeSerialization (allow modifying output data)
-        $reflection = new ReflectionClass($dto);
-        if ($reflection->hasMethod('beforeSerialization')) {
-            $method = $reflection->getMethod('beforeSerialization');
-            $method->invokeArgs($dto, [&$result]);
-        }
-
-        // Hook: afterSerialization (allow modifying and returning output data)
-        if ($reflection->hasMethod('afterSerialization')) {
-            $method = $reflection->getMethod('afterSerialization');
-            $result = $method->invoke($dto, $result);
-        }
-
-        return $result;
     }
 
     /** Resolve parameter value from data.
@@ -953,7 +832,7 @@ final class LiteEngine
         $value = $data[$sourceKey] ?? null;
 
         // Check for #[ConvertEmptyToNull]
-        if (self::shouldConvertEmptyToNull($class, $name, $param) && ('' === $value || [] === $value)) {
+        if (self::shouldConvertValueToNull($class, $name, $param, $value)) {
             $value = null;
         }
 
@@ -986,7 +865,7 @@ final class LiteEngine
                     // Check for #[DataCollectionOf] attribute (highest priority)
                     $dataCollectionOfClass = self::getDataCollectionOf($reflection->getName(), $name, $param);
                     if ($dataCollectionOfClass && self::isCollection($value)) {
-                        /** @var class-string<LiteDto> $dataCollectionOfClass */
+                        /** @var class-string<SimpleDto> $dataCollectionOfClass */
                         $value = array_map($dataCollectionOfClass::from(...), $value);
 
                         // Hook: afterCasting
@@ -1007,10 +886,10 @@ final class LiteEngine
                     }
                 }
 
-                // Check if it's a LiteDto (nested DTO)
-                if (!$type->isBuiltin() && is_subclass_of($typeName, LiteDto::class)) {
+                // Check if it's a SimpleDto (nested DTO)
+                if (!$type->isBuiltin() && is_subclass_of($typeName, SimpleDto::class)) {
                     // Single nested DTO
-                    /** @var class-string<LiteDto> $typeName */
+                    /** @var class-string<SimpleDto> $typeName */
                     if (is_array($value) || is_object($value) || is_string($value)) {
                         /** @var array<string, mixed>|object|string $value */
                         $value = $typeName::from($value);
@@ -1272,6 +1151,222 @@ final class LiteEngine
     }
 
     /**
+     * Get casts() method results for class.
+     *
+     * @param class-string $class
+     * @return array<string, mixed>
+     */
+    private static function getCastsForClass(string $class): array
+    {
+        // Check cache
+        if (isset(self::$castsCache[$class])) {
+            return self::$castsCache[$class];
+        }
+
+        $casts = [];
+
+        // Check if class has casts() method
+        if (method_exists($class, 'casts')) {
+            try {
+                // Try to call it statically first (for static methods)
+                $casts = $class::casts();
+            } catch (Error) {
+                // If that fails, try with reflection (for non-static methods)
+                try {
+                    $reflection = self::getReflection($class);
+                    if ($reflection->hasMethod('casts')) {
+                        $castsMethod = $reflection->getMethod('casts');
+
+                        // Create instance without calling constructor
+                        $instance = $reflection->newInstanceWithoutConstructor();
+
+                        $casts = $castsMethod->invoke($instance);
+                    }
+                } catch (Throwable) {
+                    // If all fails, return empty array
+                    $casts = [];
+                }
+            }
+        }
+
+        self::$castsCache[$class] = $casts;
+        return $casts;
+    }
+
+    /**
+     * Get mapping configuration for a class.
+     *
+     * Returns an array mapping property names to their source keys.
+     *
+     * @param class-string $class
+     * @return array<string, string|array<int, string>>
+     */
+    public static function getMappingConfig(string $class): array
+    {
+        $config = [];
+        $reflection = self::getReflection($class);
+        $constructor = $reflection->getConstructor();
+
+        if (!$constructor) {
+            return $config;
+        }
+
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            $paramName = $reflectionParameter->getName();
+
+            // Check for #[MapFrom] attribute
+            $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
+            if (!empty($mapFromAttrs)) {
+                /** @var MapFrom $mapFrom */
+                $mapFrom = $mapFromAttrs[0]->newInstance();
+                $config[$paramName] = $mapFrom->source;
+                continue;
+            }
+
+            // Check for class-level #[MapInputName]
+            $mapInputName = self::getMapInputName($class);
+            if ($mapInputName instanceof MapInputName) {
+                $config[$paramName] = $mapInputName->convention->transform($paramName);
+                continue;
+            }
+
+            // No mapping - use parameter name
+            $config[$paramName] = $paramName;
+        }
+
+        return $config;
+    }
+
+    /**
+     * Clear mapping cache for a class.
+     *
+     * @param class-string $class
+     */
+    public static function clearMappingCache(string $class): void
+    {
+        unset(self::$fromMappingCache[$class]);
+        unset(self::$mapInputNameCache[$class]);
+        unset(self::$mapOutputNameCache[$class]);
+    }
+
+    /**
+     * Check if a computed property has a cached value.
+     *
+     * @param object $dto The DTO instance
+     * @param string $name The name of the computed property
+     * @return bool True if the computed property has a cached value
+     */
+    public static function hasComputedCache(object $dto, string $name): bool
+    {
+        $class = $dto::class;
+
+        // Check if computed cache exists for this class and property
+        if (!isset(self::$computedValuesCache[$class])) {
+            return false;
+        }
+
+        $objectId = spl_object_id($dto);
+        return isset(self::$computedValuesCache[$class][$objectId][$name]);
+    }
+
+    /**
+     * Include lazy computed properties in the next toArray() or toJson() call.
+     *
+     * This method stores the specified lazy computed properties for inclusion
+     * in the next serialization call. It also clears any cached values for these
+     * properties to ensure they are recomputed.
+     *
+     * @param object $dto The DTO instance
+     * @param array<int, string> $names The names of the lazy computed properties to include
+     * @return object The same instance with the lazy computed properties marked for inclusion
+     */
+    public static function includeComputed(object $dto, array $names): object
+    {
+        $class = $dto::class;
+        $objectId = spl_object_id($dto);
+
+        // Store the included computed property names for this instance
+        if (!isset(self::$includedComputedCache[$objectId])) {
+            self::$includedComputedCache[$objectId] = [];
+        }
+
+        foreach ($names as $name) {
+            self::$includedComputedCache[$objectId][] = $name;
+
+            // Clear cached value for this property to force recomputation
+            if (isset(self::$computedValuesCache[$class][$objectId][$name])) {
+                unset(self::$computedValuesCache[$class][$objectId][$name]);
+            }
+        }
+
+        return $dto;
+    }
+
+    /**
+     * Check if a DTO instance has included computed properties.
+     *
+     * This is used by FastPath to determine if the DTO can use the fast path at runtime.
+     *
+     * @param int $objectId The object ID of the DTO instance
+     * @return bool True if the DTO has included computed properties
+     */
+    public static function hasIncludedComputed(int $objectId): bool
+    {
+        return isset(self::$includedComputedCache[$objectId]) && !empty(self::$includedComputedCache[$objectId]);
+    }
+
+    /**
+     * Clear the computed property cache for a DTO instance.
+     *
+     * @param object $dto The DTO instance
+     * @param string|null $property Specific property to clear, or null to clear all
+     */
+    public static function clearComputedCache(object $dto, ?string $property = null): void
+    {
+        $class = $dto::class;
+        $objectId = spl_object_id($dto);
+
+        if (null === $property) {
+            // Clear all computed values for this instance
+            if (isset(self::$computedValuesCache[$class][$objectId])) {
+                unset(self::$computedValuesCache[$class][$objectId]);
+            }
+        } elseif (isset(self::$computedValuesCache[$class][$objectId][$property])) {
+            // Clear specific computed value
+            unset(self::$computedValuesCache[$class][$objectId][$property]);
+        }
+    }
+
+    /**
+     * Include all lazy properties in the next toArray() or toJson() call.
+     *
+     * @param object $dto The DTO instance
+     * @return object The same instance with all lazy properties marked for inclusion
+     */
+    public static function includeAllLazy(object $dto): object
+    {
+        $class = $dto::class;
+
+        // Get all lazy property names
+        $lazyProperties = array_keys(self::$lazyCache[$class] ?? []);
+
+        // Get all lazy computed property names
+        $computedMethods = self::getComputedMethods($class);
+        foreach ($computedMethods as $name => $computed) {
+            if ($computed->lazy) {
+                $lazyProperties[] = $name;
+            }
+        }
+
+        // Include all lazy properties
+        if ([] !== $lazyProperties) {
+            return self::includeComputed($dto, $lazyProperties);
+        }
+
+        return $dto;
+    }
+
+    /**
      * Get DataCollectionOf class for parameter.
      *
      * @param class-string $class
@@ -1406,9 +1501,56 @@ final class LiteEngine
     }
 
     /**
-     * Check if parameter should convert empty to null.
+     * Check if value should be converted to null based on ConvertEmptyToNull attribute.
      *
      * @param class-string $class
+     */
+    private static function shouldConvertValueToNull(
+        string $class,
+        string $name,
+        ReflectionParameter $param,
+        mixed $value
+    ): bool
+    {
+        // Check for #[ConvertEmptyToNull] attribute on parameter
+        $attrs = $param->getAttributes(ConvertEmptyToNull::class);
+
+        // If not on parameter, check for class-level attribute
+        if ([] === $attrs) {
+            $reflection = self::getReflection($class);
+            $attrs = $reflection->getAttributes(ConvertEmptyToNull::class);
+
+            if ([] === $attrs) {
+                return false;
+            }
+        }
+
+        /** @var ConvertEmptyToNull $attr */
+        $attr = $attrs[0]->newInstance();
+
+        // Always convert empty strings and arrays
+        if ('' === $value || [] === $value) {
+            return true;
+        }
+
+        // Convert string zero if enabled
+        if ($attr->convertStringZero && '0' === $value) {
+            return true;
+        }
+
+        // Convert numeric zero values if enabled
+        if ($attr->convertZero && (0 === $value || 0.0 === $value)) {
+            return true;
+        }
+        // Convert false if enabled
+        return $attr->convertFalse && false === $value;
+    }
+
+    /**
+     * Check if parameter should convert empty to null (legacy method for cache).
+     *
+     * @param class-string $class
+     * @deprecated Use shouldConvertValueToNull instead
      */
     private static function shouldConvertEmptyToNull(string $class, string $name, ReflectionParameter $param): bool
     {
@@ -1607,14 +1749,14 @@ final class LiteEngine
                 // Look for @var array<ClassName> or @var ClassName[]
                 if (preg_match('/@var\s+array<([^>]+)>/', $docComment, $matches)) {
                     $className = trim($matches[1]);
-                    if (class_exists($className) && is_subclass_of($className, LiteDto::class)) {
+                    if (class_exists($className) && is_subclass_of($className, SimpleDto::class)) {
                         return $className;
                     }
                 }
 
                 if (preg_match('/@var\s+([^\[\]]+)\[\]/', $docComment, $matches)) {
                     $className = trim($matches[1]);
-                    if (class_exists($className) && is_subclass_of($className, LiteDto::class)) {
+                    if (class_exists($className) && is_subclass_of($className, SimpleDto::class)) {
                         return $className;
                     }
                 }
@@ -1770,48 +1912,32 @@ final class LiteEngine
     }
 
     /**
-     * Check if class has UltraFast attribute.
+     * Check if a property is mutable (can be modified after construction).
+     *
+     * A property is mutable if:
+     * - The class has #[NotImmutable] attribute (all properties mutable)
+     * - The specific property has #[NotImmutable] attribute
+     *
+     * Performance: Uses cached feature flags, zero overhead after first scan.
      *
      * @param class-string $class
      */
-    private static function isUltraFast(string $class): bool
+    public static function isPropertyMutable(string $class, string $propertyName): bool
     {
-        if (isset(self::$ultraFastCache[$class])) {
-            return self::$ultraFastCache[$class];
+        $flags = self::getFeatureFlags($class);
+
+        // If class doesn't use NotImmutable at all, return false immediately
+        if (!$flags['hasNotImmutable']) {
+            return false;
         }
 
-        $reflection = self::getReflection($class);
-        $attrs = $reflection->getAttributes(UltraFast::class);
-        $isUltraFast = [] !== $attrs;
-
-        self::$ultraFastCache[$class] = $isUltraFast;
-        return $isUltraFast;
-    }
-
-    /**
-     * Get UltraFast attribute instance for a class.
-     *
-     * @param class-string $class
-     * @phpstan-ignore method.unused
-     */
-    private static function getUltraFastAttribute(string $class): ?UltraFast
-    {
-        if (isset(self::$ultraFastAttributeCache[$class])) {
-            return self::$ultraFastAttributeCache[$class];
+        // If class has #[NotImmutable], ALL properties are mutable
+        if ($flags['classNotImmutable']) {
+            return true;
         }
 
-        $reflection = self::getReflection($class);
-        $attrs = $reflection->getAttributes(UltraFast::class);
-
-        if ([] === $attrs) {
-            self::$ultraFastAttributeCache[$class] = null;
-            return null;
-        }
-
-        /** @var UltraFast $ultraFast */
-        $ultraFast = $attrs[0]->newInstance();
-        self::$ultraFastAttributeCache[$class] = $ultraFast;
-        return $ultraFast;
+        // Otherwise, check if specific property is marked as NotImmutable
+        return isset($flags['notImmutableProperties'][$propertyName]);
     }
 
     /**
@@ -1876,6 +2002,9 @@ final class LiteEngine
                 'hasAnyJsonAttribute' => false,
                 'hasAutoCast' => false,
                 'hasNoCasts' => false,
+                'hasNotImmutable' => false,
+                'classNotImmutable' => false,
+                'notImmutableProperties' => [],
             ];
 
             // Cache and return immediately
@@ -1909,6 +2038,9 @@ final class LiteEngine
             'hasAnyJsonAttribute' => false,
             'hasAutoCast' => false,
             'hasNoCasts' => false,
+            'hasNotImmutable' => false,
+            'classNotImmutable' => false,
+            'notImmutableProperties' => [],
         ];
 
         // Check for class-level attributes
@@ -1917,6 +2049,9 @@ final class LiteEngine
         }
         if ([] !== $reflection->getAttributes(MapOutputName::class)) {
             $flags['hasMapOutputName'] = true;
+        }
+        if ([] !== $reflection->getAttributes(ConvertEmptyToNull::class)) {
+            $flags['hasConvertEmptyToNull'] = true;
         }
 
         // Check for #[NoCasts] - disables ALL casting
@@ -1933,6 +2068,12 @@ final class LiteEngine
             self::$classAutoCastCache[$class] = true;
         } else {
             self::$classAutoCastCache[$class] = false;
+        }
+
+        // Check for class-level #[NotImmutable]
+        if ([] !== $reflection->getAttributes(NotImmutable::class)) {
+            $flags['hasNotImmutable'] = true;
+            $flags['classNotImmutable'] = true;
         }
 
         // Scan constructor parameters
@@ -1968,6 +2109,12 @@ final class LiteEngine
                         self::$autoCastCache[$class] = [];
                     }
                     self::$autoCastCache[$class][$paramName] = true;
+                }
+
+                // NotImmutable - fill cache while scanning constructor parameters
+                if ([] !== $reflectionParameter->getAttributes(NotImmutable::class)) {
+                    $flags['hasNotImmutable'] = true;
+                    $flags['notImmutableProperties'][$paramName] = true;
                 }
             }
         }
@@ -2038,6 +2185,12 @@ final class LiteEngine
                     self::$optionalCache[$class] = [];
                 }
                 self::$optionalCache[$class][$propName] = true;
+            }
+
+            // NotImmutable - fill cache while scanning properties
+            if ([] !== $reflectionProperty->getAttributes(NotImmutable::class)) {
+                $flags['hasNotImmutable'] = true;
+                $flags['notImmutableProperties'][$propName] = true;
             }
 
             // Validation Attributes - scan and cache all validation rules
@@ -2145,16 +2298,23 @@ final class LiteEngine
             }
         }
 
+        // Check if class has casts() method
+        $hasCasts = false;
+        if (!$flags['hasNoCasts']) {
+            $casts = self::getCastsForClass($class);
+            $hasCasts = [] !== $casts;
+        }
+
         // Set combined flags for fast-path checks
-        $flags['hasAnyArrayAttribute'] = $flags['hasMapTo'] || $flags['hasEnumSerialize'] ||
+        $flags['hasAnyArrayAttribute'] = $flags['hasMapTo'] || $flags['hasMapOutputName'] || $flags['hasEnumSerialize'] ||
             $flags['hasHidden'] || $flags['hasHiddenFromArray'] ||
             $flags['hasLazy'] || $flags['hasComputed'] || $flags['hasOptional'] ||
-            $flags['hasConditionalProperties'];
+            $flags['hasConditionalProperties'] || $hasCasts;
 
-        $flags['hasAnyJsonAttribute'] = $flags['hasMapTo'] || $flags['hasEnumSerialize'] ||
+        $flags['hasAnyJsonAttribute'] = $flags['hasMapTo'] || $flags['hasMapOutputName'] || $flags['hasEnumSerialize'] ||
             $flags['hasHidden'] || $flags['hasHiddenFromJson'] ||
             $flags['hasLazy'] || $flags['hasComputed'] || $flags['hasOptional'] ||
-            $flags['hasConditionalProperties'];
+            $flags['hasConditionalProperties'] || $hasCasts;
 
         // Cache and return
         self::$featureFlags[$class] = $flags;
@@ -2162,12 +2322,34 @@ final class LiteEngine
     }
 
     /**
-     * Create DTO in UltraFast mode (auto-detects attributes with feature flags).
+     * Internal method to create DTO from data.
      *
      * @param class-string $class
+     * @param array<string, mixed>|null $template Optional template for mapping
+     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
+     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
      */
-    private static function createUltraFast(string $class, mixed $data): object
-    {
+    private static function createFromDataInternal(
+        string $class,
+        mixed $data,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): object {
+        // Performance: Only apply DataMapper if at least one parameter is provided
+        // This avoids unnecessary overhead when no mapping/filtering is needed
+        $hasTemplate = null !== $template && [] !== $template;
+        $hasFilters = null !== $filters && [] !== $filters;
+        $hasPipeline = null !== $pipeline && [] !== $pipeline;
+
+        // Track if template was applied (for priority handling)
+        $templateApplied = false;
+
+        if ($hasTemplate || $hasFilters || $hasPipeline) {
+            $data = self::applyDataMapper($data, $template, $filters, $pipeline);
+            $templateApplied = $hasTemplate; // Template has highest priority
+        }
+
         // Check if ConverterMode is enabled
         $converterMode = self::hasConverterMode($class);
 
@@ -2178,7 +2360,7 @@ final class LiteEngine
             } else {
                 throw new InvalidArgumentException(
                     sprintf(
-                        'UltraFast mode only accepts arrays. Use #[ConverterMode] attribute on %s to enable JSON/XML/CSV support.',
+                        'SimpleDto only accepts arrays by default. Use #[ConverterMode] attribute on %s to enable JSON/XML/CSV support.',
                         $class
                     )
                 );
@@ -2201,47 +2383,153 @@ final class LiteEngine
             $paramName = $reflectionParameter->getName();
             $value = null;
             $wasProvided = false;
-            $sourceKey = $paramName;
 
-            // Step 1: Check for #[MapFrom] (only if flag is set)
-            if ($flags['hasMapFrom']) {
-                $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
-                if (!empty($mapFromAttrs)) {
-                    /** @var MapFrom $mapFrom */
-                    $mapFrom = $mapFromAttrs[0]->newInstance();
-                    $sourceKey = $mapFrom->source;
-                    $wasProvided = array_key_exists($sourceKey, $data);
-                    $value = $data[$sourceKey] ?? null;
-                } else {
-                    $wasProvided = array_key_exists($paramName, $data);
-                    $value = $data[$paramName] ?? null;
+            // Step 1: Determine source key for this parameter
+            // Skip #[MapFrom] if template was applied (template has highest priority)
+            $sourceKey = null;
+
+            if (!$templateApplied) {
+                // Check for #[MapFrom] attribute (highest priority after template)
+                if ($flags['hasMapFrom']) {
+                    $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
+                    if (!empty($mapFromAttrs)) {
+                        /** @var MapFrom $mapFrom */
+                        $mapFrom = $mapFromAttrs[0]->newInstance();
+                        $sourceKey = $mapFrom->source; // Can be string or array
+                    }
                 }
-            } else {
-                $wasProvided = array_key_exists($paramName, $data);
-                $value = $data[$paramName] ?? null;
+
+                // If no MapFrom, check for class-level MapInputName
+                if (null === $sourceKey && $flags['hasMapInputName']) {
+                    $mapInputName = self::getMapInputName($class);
+                    if ($mapInputName instanceof MapInputName) {
+                        // Transform property name to input naming convention
+                        $sourceKey = $mapInputName->convention->transform($paramName);
+                    }
+                }
+            }
+
+            // If still no source key, use parameter name
+            if (null === $sourceKey) {
+                $sourceKey = $paramName;
+            }
+
+            // Now resolve the value from data using the source key(s)
+            $sources = is_array($sourceKey) ? $sourceKey : [$sourceKey];
+            $wasProvided = false;
+            $value = null;
+
+            foreach ($sources as $key) {
+                // Support dot notation for nested properties
+                if (str_contains($key, '.')) {
+                    $keys = explode('.', $key);
+                    $tempValue = $data;
+                    $found = true;
+                    foreach ($keys as $nestedKey) {
+                        if (is_array($tempValue) && array_key_exists($nestedKey, $tempValue)) {
+                            $tempValue = $tempValue[$nestedKey];
+                        } else {
+                            $found = false;
+                            break;
+                        }
+                    }
+                    if ($found) {
+                        $wasProvided = true;
+                        $value = $tempValue;
+                        break;
+                    }
+                } elseif (array_key_exists($key, $data)) {
+                    $wasProvided = true;
+                    $value = $data[$key];
+                    break;
+                }
             }
 
             // Step 2: Check for #[ConvertEmptyToNull] (only if flag is set)
-            if ($flags['hasConvertEmptyToNull'] && ('' === $value || [] === $value) && self::shouldConvertEmptyToNull(
+            if ($flags['hasConvertEmptyToNull'] && self::shouldConvertValueToNull(
                 $class,
                 $paramName,
-                $reflectionParameter
+                $reflectionParameter,
+                $value
             )) {
                 $value = null;
             }
 
             // Step 3: Apply casting (only if NOT #[NoCasts])
             if (!$flags['hasNoCasts']) {
-                // Step 3a: Apply #[CastWith] if value is not null (only if flag is set)
-                if ($flags['hasCastWith'] && null !== $value) {
-                    $castWithAttrs = $reflectionParameter->getAttributes(CastWith::class);
-                    if (!empty($castWithAttrs)) {
-                        /** @var CastWith $castWith */
-                        $castWith = $castWithAttrs[0]->newInstance();
-                        $casterClass = $castWith->casterClass;
+                // Step 3a: Apply casts (check casts() method first, then #[CastWith] attribute)
+                if (null !== $value) {
+                    $casterClass = null;
+                    $casterInstance = null;
 
-                        if (class_exists($casterClass) && method_exists($casterClass, 'cast')) {
-                            $value = $casterClass::cast($value);
+                    // First check for casts() method
+                    $casts = self::getCastsForClass($class);
+                    if ([] !== $casts && isset($casts[$paramName])) {
+                        $castDef = $casts[$paramName];
+                        // Handle string cast definitions (e.g., 'hashed', 'hashed:argon2id', 'encrypted')
+                        if (is_string($castDef)) {
+                            [$castType, $castArgs] = str_contains($castDef, ':')
+                                ? explode(':', $castDef, 2)
+                                : [$castDef, null];
+
+                            // Check if castType is a class name (contains backslash)
+                            if (str_contains($castType, '\\') && class_exists($castType)) {
+                                // Full class name with optional args
+                                $casterInstance = $castArgs ? new $castType($castArgs) : new $castType();
+                            } else {
+                                // Map string cast types to classes
+                                $casterClass = match($castType) {
+                                    'array' => ArrayCast::class,
+                                    'json' => JsonCast::class,
+                                    'boolean', 'bool' => BooleanCast::class,
+                                    'integer', 'int' => IntegerCast::class,
+                                    'float', 'double' => FloatCast::class,
+                                    'string' => StringCast::class,
+                                    'datetime' => DateTimeCast::class,
+                                    'timestamp' => TimestampCast::class,
+                                    'decimal' => DecimalCast::class,
+                                    'collection' => CollectionCast::class,
+                                    'enum' => EnumCast::class,
+                                    'dto' => DtoCast::class,
+                                    'hashed' => HashedCast::class,
+                                    'encrypted' => EncryptedCast::class,
+                                    default => null,
+                                };
+
+                                if ($casterClass && class_exists($casterClass)) {
+                                    $casterInstance = $castArgs ? new $casterClass($castArgs) : new $casterClass();
+                                }
+                            }
+                        }
+                        // Handle object cast definitions (e.g., new HashedCast())
+                        elseif (is_object($castDef)) {
+                            $casterInstance = $castDef;
+                        }
+                    }
+
+                    // Then check for #[CastWith] attribute (only if no casts() method cast found)
+                    if (null === $casterInstance && $flags['hasCastWith']) {
+                        $castWithAttrs = $reflectionParameter->getAttributes(CastWith::class);
+                        if (!empty($castWithAttrs)) {
+                            /** @var CastWith $castWith */
+                            $castWith = $castWithAttrs[0]->newInstance();
+                            $casterClass = $castWith->casterClass;
+
+                            if (class_exists($casterClass)) {
+                                $casterInstance = new $casterClass();
+                            }
+                        }
+                    }
+
+                    // Apply the caster if found
+                    if (null !== $casterInstance) {
+                        // Check if it implements CastsAttributes interface
+                        if ($casterInstance instanceof CastsAttributes) {
+                            $value = $casterInstance->get($value, $data);
+                        }
+                        // Otherwise check for static cast() method
+                        elseif (method_exists($casterInstance, 'cast')) {
+                            $value = $casterInstance::cast($value);
                         }
                     }
                 }
@@ -2257,12 +2545,24 @@ final class LiteEngine
                     }
                 }
 
-                // Step 3c: Cast to DateTime/DateTimeImmutable if needed (automatic casting)
+                // Step 3c: Cast nested DTOs (automatic casting)
                 if (null !== $value) {
                     $type = $reflectionParameter->getType();
                     if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
                         $typeName = $type->getName();
-                        if (DateTime::class === $typeName || DateTimeImmutable::class === $typeName) {
+
+                        // Cast to nested SimpleDto
+                        if (is_subclass_of($typeName, SimpleDto::class)) {
+                            // Skip if already an instance of the target type
+                            if (!$value instanceof $typeName && (is_array($value) || is_object($value) || is_string(
+                                $value
+                            ))) {
+                                /** @var class-string<SimpleDto> $typeName */
+                                $value = $typeName::from($value);
+                            }
+                        }
+                        // Cast to DateTime/DateTimeImmutable
+                        elseif (DateTime::class === $typeName || DateTimeImmutable::class === $typeName) {
                             $value = self::castToDateTime($typeName, $value);
                         }
                     }
@@ -2286,7 +2586,20 @@ final class LiteEngine
                 $value = $wasProvided ? Optional::of($value) : Optional::empty();
             }
 
-            $args[] = $value;
+            // Step 4.5: Wrap in Lazy if needed (only if flag is set)
+            // Wrap in Lazy if not already a Lazy instance
+            if ($flags['hasLazy'] && isset(self::$lazyCache[$class][$paramName]) && !($value instanceof \event4u\DataHelpers\Support\Lazy)) {
+                $value = \event4u\DataHelpers\Support\Lazy::value($value);
+            }
+
+            // Step 5: Add to args
+            // If value was not provided and parameter has default value, use the default
+            // Otherwise use the (possibly casted) value
+            if (!$wasProvided && $reflectionParameter->isDefaultValueAvailable()) {
+                $args[] = $reflectionParameter->getDefaultValue();
+            } else {
+                $args[] = $value;
+            }
         }
 
         // Create instance
@@ -2296,7 +2609,7 @@ final class LiteEngine
     /**
      * Validate data before creating DTO.
      *
-     * @param class-string<LiteDto> $class
+     * @param class-string<SimpleDto> $class
      * @param array<string, mixed>|string|object $data
      * @param array<string> $groups Validation groups to apply (empty = all rules)
      */
@@ -2321,7 +2634,7 @@ final class LiteEngine
                 } else {
                     throw new InvalidArgumentException(
                         sprintf(
-                            'LiteDto only accepts arrays in standard mode. Use #[ConverterMode] attribute on %s to enable JSON/XML/CSV support.',
+                            'SimpleDto only accepts arrays in standard mode. Use #[ConverterMode] attribute on %s to enable JSON/XML/CSV support.',
                             $class
                         )
                     );
@@ -2338,7 +2651,7 @@ final class LiteEngine
             } else {
                 throw new InvalidArgumentException(
                     sprintf(
-                        'LiteDto only accepts arrays in standard mode. Use #[ConverterMode] attribute on %s to enable JSON/XML/CSV support.',
+                        'SimpleDto only accepts arrays in standard mode. Use #[ConverterMode] attribute on %s to enable JSON/XML/CSV support.',
                         $class
                     )
                 );
@@ -2456,7 +2769,7 @@ final class LiteEngine
     }
 
     /** Validate an existing DTO instance. */
-    public static function validateInstance(LiteDto $dto): ValidationResult
+    public static function validateInstance(SimpleDto $dto): ValidationResult
     {
         $class = $dto::class;
 
@@ -2627,7 +2940,7 @@ final class LiteEngine
         return self::$autoCastCache[$class][$propertyName] ?? self::$classAutoCastCache[$class] ?? false;
     }
 
-    /** Auto-cast value to native PHP type. */
+    /** Auto-cast value to native PHP type with smart casting. */
     private static function autoCastValue(mixed $value, string $typeName): mixed
     {
         // Skip if already correct type
@@ -2642,15 +2955,271 @@ final class LiteEngine
             return $value;
         }
 
-        // Cast to target type
+        // Cast to target type with smart casting
         return match ($typeName) {
-            'int' => (int)$value,
-            'float' => (float)$value,
-            'string' => (string)$value,
-            'bool' => (bool)$value,
-            'array' => (array)$value,
+            'int' => self::castToInt($value),
+            'float' => self::castToFloat($value),
+            'string' => self::castToString($value),
+            'bool' => self::castToBool($value),
+            'array' => self::castToArray($value),
             default => $value,
         };
+    }
+
+    /** Smart cast to integer (handles whitespace and non-numeric strings). */
+    private static function castToInt(mixed $value): ?int
+    {
+        // Don't cast arrays or objects to int - return null to trigger TypeError
+        if (is_array($value) || is_object($value)) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = trim($value);
+
+            // Return null for empty or non-numeric strings
+            if ('' === $value || !is_numeric($value)) {
+                return null;
+            }
+        }
+
+        return (int)$value;
+    }
+
+    /** Smart cast to float (handles whitespace and non-numeric strings). */
+    private static function castToFloat(mixed $value): ?float
+    {
+        // Don't cast arrays or objects to float - return null to trigger TypeError
+        if (is_array($value) || is_object($value)) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = trim($value);
+
+            // Return null for empty or non-numeric strings
+            if ('' === $value || !is_numeric($value)) {
+                return null;
+            }
+        }
+
+        return (float)$value;
+    }
+
+    /** Smart cast to string. */
+    private static function castToString(mixed $value): ?string
+    {
+        // Don't cast arrays to string - return null to trigger TypeError
+        if (is_array($value)) {
+            return null;
+        }
+
+        // Allow objects with __toString() method
+        if (is_object($value) && !method_exists($value, '__toString')) {
+            return null;
+        }
+
+        return (string)$value;
+    }
+
+    /** Smart cast to boolean (handles string values like 'true', 'false', 'yes', 'no', etc.). */
+    private static function castToBool(mixed $value): ?bool
+    {
+        // Don't cast arrays or objects to bool - return null to trigger TypeError
+        if (is_array($value) || is_object($value)) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = trim($value);
+            $lower = strtolower($value);
+
+            // Handle common boolean string representations
+            if (in_array($lower, ['true', 'yes', 'on', '1'], true)) {
+                return true;
+            }
+
+            if (in_array($lower, ['false', 'no', 'off', '0', ''], true)) {
+                return false;
+            }
+
+            // Unknown string - return null to trigger TypeError
+            return null;
+        }
+
+        return (bool)$value;
+    }
+
+    /** Smart cast to array (handles JSON strings and objects). */
+    private static function castToArray(mixed $value): ?array
+    {
+        // If it's a JSON string, try to decode it
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if (str_starts_with($trimmed, '[') || str_starts_with($trimmed, '{')) {
+                try {
+                    $decoded = json_decode($trimmed, true, 512, JSON_THROW_ON_ERROR);
+                    if (is_array($decoded)) {
+                        return $decoded;
+                    }
+                } catch (JsonException) {
+                    // Invalid JSON - return null to trigger TypeError
+                    return null;
+                }
+            }
+
+            // Non-JSON string - return null to trigger TypeError
+            return null;
+        }
+
+        // Cast objects to arrays
+        if (is_object($value)) {
+            return (array)$value;
+        }
+
+        // Non-string, non-array, non-object - return null to trigger TypeError
+        if (!is_array($value)) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Apply output cast to a value (for toArray/toJson).
+     *
+     * @param class-string $class
+     * @param array<string, mixed> $data
+     */
+    private static function applyOutputCast(string $class, string $propertyName, mixed $value, array $data): mixed
+    {
+        // First check for casts() method
+        $casts = self::getCastsForClass($class);
+        if ([] !== $casts && isset($casts[$propertyName])) {
+            $castDef = $casts[$propertyName];
+
+            // Handle string cast definitions
+            if (is_string($castDef)) {
+                $casterInstance = null;
+                [$castType, $castArgs] = str_contains($castDef, ':')
+                    ? explode(':', $castDef, 2)
+                    : [$castDef, null];
+
+                // Check if castType is a class name (contains backslash)
+                if (str_contains($castType, '\\') && class_exists($castType)) {
+                    $casterInstance = $castArgs ? new $castType($castArgs) : new $castType();
+                } else {
+                    // Map string cast types to classes
+                    $casterClass = match($castType) {
+                        'array' => ArrayCast::class,
+                        'json' => JsonCast::class,
+                        'boolean', 'bool' => BooleanCast::class,
+                        'integer', 'int' => IntegerCast::class,
+                        'float', 'double' => FloatCast::class,
+                        'string' => StringCast::class,
+                        'datetime' => DateTimeCast::class,
+                        'timestamp' => TimestampCast::class,
+                        'decimal' => DecimalCast::class,
+                        'collection' => CollectionCast::class,
+                        'enum' => EnumCast::class,
+                        'dto' => DtoCast::class,
+                        'hashed' => HashedCast::class,
+                        'encrypted' => EncryptedCast::class,
+                        default => null,
+                    };
+
+                    if ($casterClass && class_exists($casterClass)) {
+                        $casterInstance = $castArgs ? new $casterClass($castArgs) : new $casterClass();
+                    }
+                }
+
+                // Apply the caster if found
+                // Check if it implements CastsAttributes interface
+                if (isset($casterInstance) && $casterInstance instanceof CastsAttributes) {
+                    return $casterInstance->set($value, $data);
+                }
+            }
+            // Handle object cast definitions
+            elseif (is_object($castDef)) {
+                if ($castDef instanceof CastsAttributes) {
+                    return $castDef->set($value, $data);
+                }
+            }
+        }
+
+        // Then check for #[CastWith] attribute
+        $reflection = self::getReflection($class);
+        foreach ($reflection->getProperties() as $reflectionProperty) {
+            if ($reflectionProperty->getName() === $propertyName) {
+                $castWithAttrs = $reflectionProperty->getAttributes(CastWith::class);
+                if (!empty($castWithAttrs)) {
+                    /** @var CastWith $castWith */
+                    $castWith = $castWithAttrs[0]->newInstance();
+                    $casterInstance = $castWith->args ? new $castWith->caster(
+                        $castWith->args
+                    ) : new $castWith->caster();
+
+                    if ($casterInstance instanceof CastsAttributes) {
+                        return $casterInstance->set($value, $data);
+                    }
+                }
+                break;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Apply DataMapper with template, filters, and pipeline.
+     *
+     * @param mixed $data Source data
+     * @param array<string, mixed>|null $template Optional template for mapping
+     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
+     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
+     * @return array<string, mixed>
+     */
+    private static function applyDataMapper(
+        mixed $data,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): array {
+        // If no template but filters or pipeline are set, create auto-template
+        // that maps all source keys 1:1 (identity mapping)
+        if (null === $template && is_array($data)) {
+            $template = [];
+            foreach (array_keys($data) as $key) {
+                $template[$key] = sprintf('{{ %s }}', $key);
+            }
+        }
+
+        $mapper = DataMapper::source($data);
+
+        // Apply template if defined
+        if (null !== $template && [] !== $template) {
+            $mapper = $mapper->template($template);
+        }
+
+        // Apply property filters if defined
+        if (null !== $filters && [] !== $filters) {
+            $mapper = $mapper->setFilters($filters);
+        }
+
+        // Apply pipeline filters if defined
+        if (null !== $pipeline && [] !== $pipeline) {
+            $mapper = $mapper->pipeline($pipeline);
+        }
+
+        // Map and get result
+        $result = $mapper->map()->getTarget();
+
+        // Ensure result is array
+        if (!is_array($result)) {
+            throw new InvalidArgumentException('DataMapper result must be an array');
+        }
+
+        return $result;
     }
 
     /**

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
 /**
- * Skip loading and processing of all attributes for this LiteDto class.
+ * Skip loading and processing of all attributes for this SimpleDto class.
  *
  * This attribute improves performance by skipping attribute reflection
  * and processing. Use this when you don't need any attributes on your
@@ -21,11 +21,11 @@ use Attribute;
  *
  * Example:
  * ```php
- * use event4u\DataHelpers\LiteDto\LiteDto;
- * use event4u\DataHelpers\LiteDto\Attributes\NoAttributes;
+ * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto\Attributes\NoAttributes;
  *
  * #[NoAttributes]
- * class FastDto extends LiteDto
+ * class FastDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
@@ -50,7 +50,7 @@ use Attribute;
  * - Maximum performance scenarios
  * - When you don't need any attribute features
  *
- * @package event4u\DataHelpers\LiteDto\Attributes
+ * @package event4u\DataHelpers\SimpleDto\Attributes
  */
 #[Attribute(Attribute::TARGET_CLASS)]
 final readonly class NoAttributes

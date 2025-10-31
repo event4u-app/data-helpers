@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Laravel;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Laravel;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ConditionalProperty;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 use Illuminate\Support\Facades\Gate;
 use Throwable;
 

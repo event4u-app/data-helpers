@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
 /**
- * Attribute to enable automatic request validation for LiteDto.
+ * Attribute to enable automatic request validation for SimpleDto.
  *
- * When applied to a LiteDto class, it enables automatic validation
+ * When applied to a SimpleDto class, it enables automatic validation
  * when the Dto is created from request data in Laravel or Symfony.
  *
  * Example:
  * ```php
- * use event4u\DataHelpers\LiteDto\LiteDto;
- * use event4u\DataHelpers\LiteDto\Attributes\ValidateRequest;
- * use event4u\DataHelpers\LiteDto\Attributes\Validation\Required;
- * use event4u\DataHelpers\LiteDto\Attributes\Validation\Email;
- * use event4u\DataHelpers\LiteDto\Attributes\Validation\Min;
+ * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
+ * use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
+ * use event4u\DataHelpers\SimpleDto\Attributes\Validation\Email;
+ * use event4u\DataHelpers\SimpleDto\Attributes\Validation\Min;
  *
  * #[ValidateRequest(throw: true)]
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Required]
@@ -50,7 +50,7 @@ use Attribute;
  * }
  * ```
  *
- * @package event4u\DataHelpers\LiteDto\Attributes
+ * @package event4u\DataHelpers\SimpleDto\Attributes
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
 final readonly class ValidateRequest

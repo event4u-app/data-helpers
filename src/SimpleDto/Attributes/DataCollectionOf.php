@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
@@ -13,9 +13,9 @@ use Attribute;
  *
  * Example:
  * ```php
- * use event4u\DataHelpers\LiteDto\Attributes\DataCollectionOf;
+ * use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
  *
- * class OrderDto extends LiteDto
+ * class OrderDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $orderId,

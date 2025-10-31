@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 
 /**
  * Validation attribute: Value must be a valid file (custom callback validation).
@@ -17,7 +17,7 @@ use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
  * ```php
  * use Illuminate\Http\UploadedFile;
  *
- * class UploadDto extends LiteDto
+ * class UploadDto extends SimpleDto
  * {
  *     public function __construct(
  *         // Check if value is an uploaded file
@@ -46,7 +46,7 @@ use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
  * ```php
  * use Symfony\Component\HttpFoundation\File\UploadedFile;
  *
- * class UploadDto extends LiteDto
+ * class UploadDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[FileCallback(fn($value) => $value instanceof UploadedFile && $value->isValid())]

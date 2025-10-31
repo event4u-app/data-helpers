@@ -93,7 +93,7 @@ $data = [
 ];
 
 try {
-    $validated = ManualValidateUserDto::validate($data);
+    $validated = ManualValidateUserDto::validate();
     echo "✅  Validation passed\n";
     echo "    Validated data: " . json_encode($validated) . "\n";
 

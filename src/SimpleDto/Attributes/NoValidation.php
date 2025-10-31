@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
 /**
- * Skip all validation for this LiteDto class.
+ * Skip all validation for this SimpleDto class.
  *
  * This attribute improves performance by skipping all validation logic.
  * Use this when you trust your data source and don't need validation.
@@ -20,11 +20,11 @@ use Attribute;
  *
  * Example:
  * ```php
- * use event4u\DataHelpers\LiteDto\LiteDto;
- * use event4u\DataHelpers\LiteDto\Attributes\NoValidation;
+ * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
  *
  * #[NoValidation]
- * class TrustedDto extends LiteDto
+ * class TrustedDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $email,
@@ -47,7 +47,7 @@ use Attribute;
  * - Conditional properties (#[WhenValue], #[WhenContext], etc.)
  * - Computed properties (#[Computed])
  *
- * @package event4u\DataHelpers\LiteDto\Attributes
+ * @package event4u\DataHelpers\SimpleDto\Attributes
  */
 #[Attribute(Attribute::TARGET_CLASS)]
 final readonly class NoValidation

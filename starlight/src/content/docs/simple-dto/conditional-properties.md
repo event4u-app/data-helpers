@@ -282,8 +282,15 @@ class ApiResponseDto extends SimpleDto
     ) {}
 }
 
-// Use with context
+// Two ways to pass context:
+
+// 1. Using withContext() - returns new instance with context
 $dto = ApiResponseDto::fromArray($data)->withContext(['debug' => true]);
+$array = $dto->toArray();
+
+// 2. Passing context directly to toArray()
+$dto = ApiResponseDto::fromArray($data);
+$array = $dto->toArray(['debug' => true]);
 ```
 
 ### WhenContextEquals
@@ -302,6 +309,14 @@ class UserDto extends SimpleDto
         public readonly ?array $debugData = null,
     ) {}
 }
+
+// Pass context to toArray()
+$dto = UserDto::fromArray(['name' => 'John', 'debugData' => ['foo' => 'bar']]);
+$array = $dto->toArray(['environment' => 'development']);
+// Result: ['name' => 'John', 'debugData' => ['foo' => 'bar']]
+
+$array = $dto->toArray(['environment' => 'production']);
+// Result: ['name' => 'John'] - debugData excluded
 ```
 
 ### WhenContextIn
@@ -320,6 +335,15 @@ class ApiResponseDto extends SimpleDto
         public readonly ?array $debugInfo = null,
     ) {}
 }
+
+// Pass context to toArray()
+$dto = ApiResponseDto::fromArray(['status' => 'success', 'debugInfo' => ['memory' => '128MB']]);
+
+$array = $dto->toArray(['environment' => 'development']);
+// Result: ['status' => 'success', 'debugInfo' => ['memory' => '128MB']]
+
+$array = $dto->toArray(['environment' => 'production']);
+// Result: ['status' => 'success'] - debugInfo excluded
 ```
 
 ## All 18 Conditional Attributes

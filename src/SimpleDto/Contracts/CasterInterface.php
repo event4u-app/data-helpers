@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Contracts;
+namespace event4u\DataHelpers\SimpleDto\Contracts;
 
 /**
- * Interface for custom type casters in LiteDto.
+ * Interface for custom type casters in SimpleDto.
  *
  * Casters are used with the #[CastWith] attribute to transform
  * values during DTO creation.
@@ -20,7 +20,7 @@ namespace event4u\DataHelpers\LiteDto\Contracts;
  *     }
  * }
  *
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[CastWith(UpperCaseCaster::class)]

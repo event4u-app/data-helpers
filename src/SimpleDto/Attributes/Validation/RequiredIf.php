@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ConditionalValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 
 /**
  * Conditional validation attribute: Field is required if another field has a specific value.
  *
  * Example:
  * ```php
- * class ShippingDto extends LiteDto
+ * class ShippingDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Required]

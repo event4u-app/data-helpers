@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
 
@@ -10,7 +10,7 @@ use Attribute;
  * Validation attribute: Value must be an image file.
  *
  * This is a marker attribute for framework-specific validation (Laravel/Symfony).
- * It does NOT perform validation in LiteDto itself - use a callback attribute for custom validation.
+ * It does NOT perform validation in SimpleDto itself - use a callback attribute for custom validation.
  *
  * Framework support:
  * - Laravel: Converts to 'image' with optional 'mimes', 'max', and 'dimensions' rules
@@ -18,7 +18,7 @@ use Attribute;
  *
  * Examples:
  * ```php
- * class ProfileDto extends LiteDto
+ * class ProfileDto extends SimpleDto
  * {
  *     public function __construct(
  *         // Basic image validation
@@ -47,7 +47,7 @@ use Attribute;
  * }
  * ```
  *
- * Note: This attribute is only useful when using LiteDto with Laravel or Symfony validators.
+ * Note: This attribute is only useful when using SimpleDto with Laravel or Symfony validators.
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Image

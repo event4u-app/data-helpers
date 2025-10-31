@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 
 /**
  * Validate that a value is between min and max.
@@ -16,7 +16,7 @@ use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
  *
  * Example:
  * ```php
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Between(3, 50)]

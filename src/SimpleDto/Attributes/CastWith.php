@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
@@ -20,7 +20,7 @@ use Attribute;
  *       }
  *   }
  *
- *   class UserDto extends LiteDto {
+ *   class UserDto extends SimpleDto {
  *       public function __construct(
  *           public readonly string $name,
  *           #[CastWith(DateTimeCaster::class)]

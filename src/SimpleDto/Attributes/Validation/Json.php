@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 
 /**
  * Validation attribute: Value must be valid JSON.
  *
  * Example:
  * ```php
- * class ConfigDto extends LiteDto
+ * class ConfigDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Json]

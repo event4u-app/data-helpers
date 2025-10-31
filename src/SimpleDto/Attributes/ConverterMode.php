@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
 /**
  * Enable Converter support for JSON, XML, CSV, etc.
  *
- * By default, LiteDto only accepts arrays for maximum performance (~0.3μs).
- * With #[ConverterMode], LiteDto can parse JSON, XML, CSV, etc. (~2-3μs).
+ * By default, SimpleDto only accepts arrays for maximum performance (~0.3μs).
+ * With #[ConverterMode], SimpleDto can parse JSON, XML, CSV, etc. (~2-3μs).
  *
  * Example:
  *   #[ConverterMode]
- *   class UserDto extends LiteDto {
+ *   class UserDto extends SimpleDto {
  *       public function __construct(
  *           public readonly string $name,
  *       ) {}
