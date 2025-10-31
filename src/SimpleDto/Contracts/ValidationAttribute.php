@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Contracts;
+namespace event4u\DataHelpers\SimpleDto\Contracts;
 
 /**
  * Interface for validation attributes.

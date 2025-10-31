@@ -64,6 +64,13 @@ See [Mapping Attributes](/data-helpers/attributes/mapping/) for complete list.
 - `#[Lazy]` - Defer property evaluation
 - `#[Hidden]` - Always hide property
 
+### Mutability Attributes
+
+- `#[NotImmutable]` - Allow property modification after construction
+  - Can be applied to class (all properties mutable) or specific properties
+  - Properties without `readonly` can be modified
+  - Useful for counters, caching, tracking, statistics
+
 ### Performance Attributes {#performance-attributes}
 
 **Optimize DTO performance by skipping unnecessary operations:**

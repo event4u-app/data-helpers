@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
 /**
- * Enable automatic type casting for native PHP types in LiteDto.
+ * Enable automatic type casting for native PHP types in SimpleDto.
  *
  * This attribute controls whether automatic casting to native PHP types (int, string, float, bool, array)
  * should be performed. It can be applied at class level (affects all properties) or property level
@@ -36,11 +36,11 @@ use Attribute;
  *
  * Example (Class-level):
  * ```php
- * use event4u\DataHelpers\LiteDto\LiteDto;
- * use event4u\DataHelpers\LiteDto\Attributes\AutoCast;
+ * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
  *
  * #[AutoCast]
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly int $id,        // "123" → 123 ✅
@@ -59,7 +59,7 @@ use Attribute;
  *
  * Example (Property-level):
  * ```php
- * class ProductDto extends LiteDto
+ * class ProductDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[AutoCast]
@@ -76,7 +76,7 @@ use Attribute;
  *
  * Example (Without AutoCast - Strict typing):
  * ```php
- * class StrictDto extends LiteDto
+ * class StrictDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly int $id,        // "123" → Type Error ❌
@@ -88,7 +88,7 @@ use Attribute;
  * }
  * ```
  *
- * @package event4u\DataHelpers\LiteDto\Attributes
+ * @package event4u\DataHelpers\SimpleDto\Attributes
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final readonly class AutoCast

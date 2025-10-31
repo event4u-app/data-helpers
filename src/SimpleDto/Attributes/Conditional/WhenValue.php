@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Conditional;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Conditional;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ConditionalProperty;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 use event4u\DataHelpers\SimpleDto\Enums\ComparisonOperator;
 use InvalidArgumentException;
 use ReflectionException;
@@ -16,7 +16,7 @@ use ReflectionProperty;
  *
  * Example:
  * ```php
- * class ProductDto extends LiteDto
+ * class ProductDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,

@@ -41,6 +41,40 @@ $array = $dto->toArray();
 // ['name' => 'John Doe', 'email' => 'john@example.com', 'age' => 30]
 ```
 
+### With Context
+
+Pass context for conditional properties:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\WhenContext;
+
+class UserDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+
+        #[WhenContext('includeDebug')]
+        public readonly ?array $debugInfo = null,
+    ) {}
+}
+
+$dto = UserDto::fromArray([
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+    'debugInfo' => ['created_at' => '2024-01-01'],
+]);
+
+// Without context - debugInfo excluded
+$array = $dto->toArray();
+// ['name' => 'John Doe', 'email' => 'john@example.com']
+
+// With context - debugInfo included
+$array = $dto->toArray(['includeDebug' => true]);
+// ['name' => 'John Doe', 'email' => 'john@example.com', 'debugInfo' => ['created_at' => '2024-01-01']]
+```
+
 ### Nested Dtos
 
 ```php

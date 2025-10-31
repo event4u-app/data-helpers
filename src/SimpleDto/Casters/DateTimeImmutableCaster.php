@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Casters;
+namespace event4u\DataHelpers\SimpleDto\Casters;
 
 use DateTime;
 use DateTimeImmutable;

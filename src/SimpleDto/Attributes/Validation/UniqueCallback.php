@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
-use event4u\DataHelpers\LiteDto\Contracts\ConditionalValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 
 /**
  * Validation attribute: Value must be unique (custom callback validation).
@@ -18,7 +18,7 @@ use event4u\DataHelpers\LiteDto\Contracts\ConditionalValidationAttribute;
  * ```php
  * use App\Models\User;
  *
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         // Check if email is unique
@@ -45,7 +45,7 @@ use event4u\DataHelpers\LiteDto\Contracts\ConditionalValidationAttribute;
  *
  * Example with Doctrine:
  * ```php
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[UniqueCallback(fn($value, $data) => {

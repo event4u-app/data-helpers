@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
 
@@ -10,7 +10,7 @@ use Attribute;
  * Validation attribute: Value must be unique in database table.
  *
  * This is a marker attribute for framework-specific validation (Laravel/Symfony).
- * It does NOT perform validation in LiteDto itself - use a callback attribute for custom validation.
+ * It does NOT perform validation in SimpleDto itself - use a callback attribute for custom validation.
  *
  * Framework support:
  * - Laravel: Converts to 'unique:table,column,except,idColumn'
@@ -20,7 +20,7 @@ use Attribute;
  * ```php
  * use App\Models\User;
  *
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         // With Model class
@@ -50,7 +50,7 @@ use Attribute;
  * }
  * ```
  *
- * Note: This attribute is only useful when using LiteDto with Laravel or Symfony validators.
+ * Note: This attribute is only useful when using SimpleDto with Laravel or Symfony validators.
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Unique

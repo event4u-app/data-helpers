@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes\Validation;
+namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
 
@@ -14,7 +14,7 @@ use Attribute;
  *
  * Example:
  * ```php
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Nullable]
@@ -35,5 +35,5 @@ use Attribute;
 class Nullable
 {
     // This is a marker attribute - no methods needed
-    // The validation logic in LiteEngine will check for this attribute
+    // The validation logic in SimpleEngine will check for this attribute
 }

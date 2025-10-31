@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
@@ -19,7 +19,7 @@ use Attribute;
  *
  * @example Basic lazy property
  * ```php
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
@@ -36,7 +36,7 @@ use Attribute;
  *
  * @example Multiple lazy properties
  * ```php
- * class ProductDto extends LiteDto
+ * class ProductDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,

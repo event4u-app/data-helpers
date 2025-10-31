@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDto\Enums\NamingConvention;
@@ -21,29 +21,28 @@ use InvalidArgumentException;
  * - 'PascalCase': UserName → userName
  *
  * Example:
- * ```php
- * use event4u\DataHelpers\LiteDto\Attributes\MapInputName;
- * use event4u\DataHelpers\SimpleDto\Enums\NamingConvention;
+ *   // Using enum (recommended)
+ *   #[MapInputName(NamingConvention::SnakeCase)]
+ *   class UserDto extends SimpleDto {
+ *       public function __construct(
+ *           public readonly string $userName,      // Accepts 'user_name' from input
+ *           public readonly string $emailAddress,  // Accepts 'email_address' from input
+ *       ) {}
+ *   }
  *
- * #[MapInputName(NamingConvention::SnakeCase)]
- * class UserDto extends LiteDto
- * {
- *     public function __construct(
- *         public readonly string $userName,      // Accepts 'user_name' from input
- *         public readonly string $emailAddress,  // Accepts 'email_address' from input
- *     ) {}
- * }
+ *   // Using string (backward compatible)
+ *   #[MapInputName('snake_case')]
+ *   class UserDto extends SimpleDto { ... }
  *
- * $dto = UserDto::from([
- *     'user_name' => 'John Doe',
- *     'email_address' => 'john@example.com',
- * ]);
- * ```
+ *   $dto = UserDto::fromArray([
+ *       'user_name' => 'John Doe',
+ *       'email_address' => 'john@example.com',
+ *   ]);
  */
 #[Attribute(Attribute::TARGET_CLASS)]
-final readonly class MapInputName
+class MapInputName
 {
-    public NamingConvention $convention;
+    public readonly NamingConvention $convention;
 
     /** @param string|NamingConvention $format The naming format of input keys */
     public function __construct(

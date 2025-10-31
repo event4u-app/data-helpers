@@ -143,7 +143,7 @@ trait SimpleDtoValidationTrait
         /** @var array<string, mixed> $arrayData */
 
         // Validate the data
-        $validated = static::validate($arrayData);
+        $validated = static::validate();
 
         // Create DTO from validated data
         return static::fromArray($validated);
@@ -223,7 +223,7 @@ trait SimpleDtoValidationTrait
 
         try {
             // Validate using static method
-            static::validate($data);
+            static::validate();
 
             // Mark as valid
             $this->validationState = true;

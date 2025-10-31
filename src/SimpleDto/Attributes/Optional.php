@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\LiteDto\Attributes;
+namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 
@@ -23,11 +23,11 @@ use Attribute;
  *
  * @example Basic optional property
  * ```php
- * use event4u\DataHelpers\LiteDto\LiteDto;
- * use event4u\DataHelpers\LiteDto\Attributes\Optional;
+ * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto\Attributes\Optional;
  * use event4u\DataHelpers\Support\Optional as OptionalWrapper;
  *
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
@@ -43,7 +43,7 @@ use Attribute;
  *
  * @example Partial updates
  * ```php
- * class UpdateUserDto extends LiteDto
+ * class UpdateUserDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Optional]
@@ -65,7 +65,7 @@ use Attribute;
  *
  * @example Combining with nullable
  * ```php
- * class UserDto extends LiteDto
+ * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
@@ -92,5 +92,5 @@ use Attribute;
 class Optional
 {
     // This is a marker attribute - no methods needed
-    // The hydration logic in LiteEngine will check for this attribute
+    // The hydration logic in SimpleEngine will check for this attribute
 }

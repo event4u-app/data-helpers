@@ -32,7 +32,7 @@ describe('SimpleDto Mapper Integration', function(): void {
                 ],
             ];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->id)->toBe(123)
                 ->and($result->name)->toBe('John Doe');
@@ -51,7 +51,7 @@ describe('SimpleDto Mapper Integration', function(): void {
                 'name' => 'John Doe',
             ];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->id)->toBe(123)
                 ->and($result->name)->toBe('John Doe');
@@ -82,7 +82,7 @@ describe('SimpleDto Mapper Integration', function(): void {
 
             $data = ['name' => 'john'];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->name)->toBe('JOHN');
         });
@@ -96,7 +96,7 @@ describe('SimpleDto Mapper Integration', function(): void {
 
             $data = ['name' => 'John'];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->name)->toBe('John');
         });
@@ -126,7 +126,7 @@ describe('SimpleDto Mapper Integration', function(): void {
 
             $data = ['name' => '  John  '];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->name)->toBe('John');
         });
@@ -140,7 +140,7 @@ describe('SimpleDto Mapper Integration', function(): void {
 
             $data = ['name' => '  John  '];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->name)->toBe('  John  ');
         });
@@ -169,7 +169,7 @@ describe('SimpleDto Mapper Integration', function(): void {
             ];
 
             // With override
-            $result = $dto::fromSource($data, [
+            $result = $dto::from($data, [
                 'name' => '{{ user.custom_name }}',
             ]);
 
@@ -202,7 +202,7 @@ describe('SimpleDto Mapper Integration', function(): void {
             $data = ['name' => 'JOHN'];
 
             // With override (lowercase filter)
-            $result = $dto::fromSource($data, ['name' => '{{ name }}'], [
+            $result = $dto::from($data, ['name' => '{{ name }}'], [
                 'name' => new LowercaseStrings(),
             ]);
 
@@ -235,7 +235,7 @@ describe('SimpleDto Mapper Integration', function(): void {
             $data = ['name' => '  JOHN  '];
 
             // With additional pipeline filter
-            $result = $dto::fromSource($data, ['name' => '{{ name }}'], null, [
+            $result = $dto::from($data, ['name' => '{{ name }}'], null, [
                 new LowercaseStrings(),
             ]);
 

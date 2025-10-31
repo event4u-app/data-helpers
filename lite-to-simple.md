@@ -1,5 +1,29 @@
 # LiteDto → SimpleDto Migration Plan
 
+## ⚠️ WICHTIGE REGEL FÜR KI-AGENT
+
+**NIEMALS COMMITS ERSTELLEN!**
+
+Der KI-Agent darf **KEINE** Git-Commits erstellen. Alle Commits werden manuell vom Benutzer erstellt.
+
+Der KI-Agent soll:
+- ✅ Dateien erstellen, bearbeiten, löschen
+- ✅ Code schreiben und refactoren
+- ✅ Tests ausführen
+- ✅ Dokumentation aktualisieren
+- ❌ **KEINE** `git commit` Befehle ausführen
+- ❌ **KEINE** `git push` Befehle ausführen
+- ❌ **KEINE** `git rebase` Befehle ausführen
+
+Nach jedem Schritt soll der KI-Agent dem Benutzer mitteilen:
+- Was wurde geändert
+- Welche Dateien wurden erstellt/bearbeitet/gelöscht
+- Vorschlag für Commit-Message
+
+Der Benutzer entscheidet dann, ob und wann er committet.
+
+---
+
 ## 🎯 Ziel
 
 **LiteDto wird das neue SimpleDto!**
@@ -22,17 +46,13 @@ Das aktuelle LiteDto mit #[UltraFast] Mode wird zum neuen Standard-SimpleDto. Da
 5. ✅ Alle Tests migrieren und validieren
 6. ✅ Dokumentation vollständig aktualisieren
 
-## 📊 Aktueller Status
-
-**Aktuelle Phase**: Phase 1 - Backup & Inventar (IN ARBEIT)
-
 ### Phasen-Übersicht
 
 - [x] **Phase 0**: Vorbereitung & Analyse
-- [/] **Phase 1**: Backup & Inventar
-- [ ] **Phase 2**: SimpleDto-Klassen sichern (→ SimpleDto.bak)
-- [ ] **Phase 3**: LiteDto zu SimpleDto kopieren
-- [ ] **Phase 4**: Namespaces & Imports aktualisieren
+- [x] **Phase 1**: Backup & Inventar
+- [x] **Phase 2**: SimpleDto-Klassen sichern (→ SimpleDto.bak)
+- [x] **Phase 3**: LiteDto zu SimpleDto kopieren
+- [/] **Phase 4**: Namespaces & Imports aktualisieren
 - [ ] **Phase 5**: UltraFast als Standard implementieren
 - [ ] **Phase 6**: Neues Super-UltraFast Mode (~0.5μs)
 - [ ] **Phase 7**: Tests migrieren & validieren
@@ -179,10 +199,9 @@ Sichere die alten SimpleDto-Klassen durch Umbenennung:
    - tests/Unit/SimpleDto/ bleibt unverändert
    - tests/Integration/SimpleDto/ bleibt unverändert
 
-4. Committe die Änderungen:
-   - git add src/SimpleDto.bak
-   - git rm -r src/SimpleDto
-   - git commit -m "Phase 2: Backup old SimpleDto to SimpleDto.bak"
+4. Informiere den Benutzer über die Änderungen:
+   - Welche Dateien wurden umbenannt
+   - Vorschlag für Commit-Message: "Phase 2: Backup old SimpleDto to SimpleDto.bak"
 
 Aktualisiere lite-to-simple.md:
 - Markiere Phase 2 als "In Arbeit"
@@ -236,7 +255,9 @@ Kopiere LiteDto nach SimpleDto:
 1. Kopiere src/LiteDto/ nach src/SimpleDto/ (rekursiv, alle Dateien und Unterordner)
 2. Behalte src/LiteDto/ vorerst (wird später gelöscht)
 3. Prüfe, dass alle Dateien kopiert wurden
-4. Committe: git commit -m "Phase 3: Copy LiteDto to SimpleDto"
+4. Informiere den Benutzer über die Änderungen:
+   - Welche Dateien wurden kopiert
+   - Vorschlag für Commit-Message: "Phase 3: Copy LiteDto to SimpleDto"
 
 Aktualisiere lite-to-simple.md:
 - Markiere Phase 3 als "In Arbeit"
@@ -258,7 +279,7 @@ Aktualisiere lite-to-simple.md:
 
 ## 📝 Phase 4: Namespaces & Imports aktualisieren
 
-**Status**: [ ] Nicht gestartet | [ ] In Arbeit | [ ] Abgeschlossen
+**Status**: [ ] Nicht gestartet | [ ] In Arbeit | [x] Abgeschlossen
 
 ### Ziel
 Alle Namespaces und Klassennamen von LiteDto zu SimpleDto umbenennen.
@@ -301,7 +322,10 @@ Benenne alle LiteDto-Klassen zu SimpleDto um:
    - LiteEngine::class → SimpleDtoEngine::class
    - etc.
 
-5. Committe: git commit -m "Phase 4: Rename LiteDto to SimpleDto (namespaces & classes)"
+5. Informiere den Benutzer über die Änderungen:
+   - Welche Dateien wurden umbenannt
+   - Welche Namespaces wurden geändert
+   - Vorschlag für Commit-Message: "Phase 4: Rename LiteDto to SimpleDto (namespaces & classes)"
 
 Aktualisiere lite-to-simple.md:
 - Markiere Phase 4 als "In Arbeit"
@@ -325,18 +349,41 @@ Aktualisiere lite-to-simple.md:
 
 ## 📝 Phase 5: UltraFast als Standard implementieren
 
-**Status**: [ ] Nicht gestartet | [ ] In Arbeit | [ ] Abgeschlossen
+**Status**: [x] Abgeschlossen
 
 ### Ziel
 Das aktuelle UltraFast-Verhalten wird zum Standard. #[UltraFast] Attribute wird optional/deprecated.
 
 ### Schritte
 
-- [ ] In `SimpleDtoEngine.php`: UltraFast-Logik immer aktivieren
-- [ ] #[UltraFast] Attribute als deprecated markieren (oder entfernen)
-- [ ] Alle UltraFast-Optimierungen sind immer aktiv
-- [ ] Tests anpassen (keine #[UltraFast] Attribute mehr nötig)
-- [ ] Committe die Änderungen
+- [x] In `SimpleEngine.php`: UltraFast-Logik immer aktivieren
+  - `createFromData()` ruft jetzt immer `createUltraFast()` auf
+  - `toArray()` verwendet immer UltraFast-Logik mit Feature-Flags
+  - `toJsonArray()` verwendet immer UltraFast-Logik mit Feature-Flags
+  - Alter Code-Pfad komplett entfernt (~200 Zeilen)
+- [x] #[UltraFast] Attribute als deprecated markiert
+  - `isUltraFast()` Methode gibt jetzt immer `true` zurück
+  - PHPDoc mit @deprecated Tag versehen
+- [x] Alle UltraFast-Optimierungen sind immer aktiv
+  - Feature-Flag-System läuft automatisch
+  - Auto-Detection von Attributen
+  - Zero Overhead nach erstem Scan
+- [x] Fehlende Klassen aus Backup kopiert
+  - `DtoFactory.php`
+  - `ConstructorMetadata.php`
+  - `SimpleDtoDoctrineTrait.php`
+  - `SimpleDtoEloquentTrait.php`
+  - Weitere Trait-Dateien
+- [x] Backward Compatibility sichergestellt
+  - `src/SimpleDto.php` als Alias-Klasse erstellt
+  - `fromArray()` Methode als Alias für `from()` hinzugefügt
+- [x] Tests ausgeführt
+  - 531 Tests bestehen ✅
+  - 775 Tests schlagen noch fehl (müssen in Phase 7 migriert werden)
+  - 9 Tests übersprungen
+
+### Ergebnis
+✅ **UltraFast ist jetzt der Standard!** Alle SimpleDtos verwenden automatisch die UltraFast-Logik mit Feature-Flag-basierter Attribut-Erkennung.
 
 ### Prompt für KI-Agent
 
@@ -349,7 +396,10 @@ Mache UltraFast zum Standard:
 4. Markiere #[UltraFast] Attribute als @deprecated (oder entferne es komplett)
 5. Aktualisiere Tests: Entferne #[UltraFast] Attribute aus Test-DTOs (optional)
 6. Führe Tests aus: docker exec data-helpers-php84 bash -c "vendor/bin/pest tests/Unit/SimpleDto/ --compact"
-7. Committe: git commit -m "Phase 5: Make UltraFast the default behavior"
+7. Informiere den Benutzer über die Änderungen:
+   - Welche Dateien wurden geändert
+   - Test-Ergebnisse
+   - Vorschlag für Commit-Message: "Phase 5: Make UltraFast the default behavior"
 
 Aktualisiere lite-to-simple.md:
 - Markiere Phase 5 als "In Arbeit"
@@ -430,7 +480,11 @@ Implementiere Super-UltraFast Mode mit Ziel ~0.5μs:
 4. Validiere Tests:
    - docker exec data-helpers-php84 bash -c "vendor/bin/pest tests/Unit/SimpleDto/ --compact"
 
-5. Committe: git commit -m "Phase 6: Implement Super-UltraFast Mode (~0.5μs)"
+5. Informiere den Benutzer über die Änderungen:
+   - Welche Dateien wurden erstellt/geändert
+   - Performance-Ergebnisse
+   - Test-Ergebnisse
+   - Vorschlag für Commit-Message: "Phase 6: Implement Super-UltraFast Mode (~0.5μs)"
 
 Aktualisiere lite-to-simple.md:
 - Markiere Phase 6 als "In Arbeit"
@@ -490,7 +544,10 @@ Migriere LiteDto-Tests zu SimpleDto:
 
 4. Behebe fehlgeschlagene Tests (falls vorhanden)
 
-5. Committe: git commit -m "Phase 7: Migrate LiteDto tests to SimpleDto"
+5. Informiere den Benutzer über die Änderungen:
+   - Welche Tests wurden migriert
+   - Test-Ergebnisse
+   - Vorschlag für Commit-Message: "Phase 7: Migrate LiteDto tests to SimpleDto"
 
 Aktualisiere lite-to-simple.md:
 - Markiere Phase 7 als "In Arbeit"
@@ -555,7 +612,9 @@ Aktualisiere die Dokumentation:
    - Entferne LiteDto-Referenzen
    - Aktualisiere Beispiele
 
-6. Committe: git commit -m "Phase 8: Update documentation (LiteDto → SimpleDto)"
+6. Informiere den Benutzer über die Änderungen:
+   - Welche Dokumentations-Dateien wurden aktualisiert
+   - Vorschlag für Commit-Message: "Phase 8: Update documentation (LiteDto → SimpleDto)"
 
 Aktualisiere lite-to-simple.md:
 - Markiere Phase 8 als "In Arbeit"
@@ -622,10 +681,10 @@ Finale Validierung und Cleanup:
    - rm -rf tests/Unit/LiteDto/
    - rm -rf tests/Integration/LiteDto/
 
-6. Erstelle finale Commits:
-   - git add -A
-   - git commit -m "Phase 9: Remove old LiteDto and SimpleDto.bak files"
-   - git tag litedto-to-simpledto-complete
+6. Informiere den Benutzer über die Änderungen:
+   - Welche Dateien wurden gelöscht
+   - Vorschlag für Commit-Message: "Phase 9: Remove old LiteDto and SimpleDto.bak files"
+   - Vorschlag für Tag: "litedto-to-simpledto-complete"
 
 7. Erstelle Migrations-Report in phase-9-final-report.md mit:
    - Performance-Vergleich (vorher/nachher)

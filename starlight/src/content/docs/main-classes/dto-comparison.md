@@ -72,8 +72,8 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 
 | Feature | LiteDto #[UltraFast] | LiteDto | SimpleDto #[UltraFast] | SimpleDto |
 |---------|----------------------|---------|------------------------|-----------|
-| **Performance** | ~4.5μs | ~10.3μs | ~4.8μs | ~33.3μs |
-| **Speed Factor** | **7.4x faster** | **3.2x faster** | **6.9x faster** | Baseline |
+| **Performance** | ~3.5μs | ~8.1μs | ~11.8μs | ~12.1μs |
+| **Speed Factor** | **3.5x faster** | **1.5x faster** | **1.0x faster** | Baseline |
 | | | | | |
 | **Core Features** | | | | |
 | Property Mapping | ✅ | ✅ | ✅ | ✅ |
@@ -130,6 +130,7 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 | #[NoCasts] | ✅ | ✅ | ❌ | ✅ |
 | #[NoValidation] | ✅ | ✅ | ❌ | ✅ |
 | #[ValidateRequest] | ✅ | ✅ | ❌ | ✅ |
+| #[NotImmutable] | ✅ | ✅ | ❌ | ✅ |
 | | | | | |
 | **Property Attributes** | | | | |
 | #[MapFrom] | ✅ | ✅ | ✅ | ✅ |
@@ -147,6 +148,7 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 | #[Computed] | ✅ | ✅ | ✅ | ✅ |
 | #[Lazy] | ✅ | ✅ | ✅ | ✅ |
 | #[Optional] | ✅ | ✅ | ❌ | ✅ |
+| #[NotImmutable] | ✅ | ✅ | ❌ | ✅ |
 | | | | | |
 | **Validation Attributes** | | | | |
 | #[Required] | ✅ | ✅ | ❌ | ✅ |
@@ -245,11 +247,11 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
   - `#[NoValidation]` - Skip validation for trusted data sources
 
 **SimpleDto** provides full features:
-- ~33.3μs average operation time
+- ~12.1μs average operation time
 - Includes validation and type casting
 - Rich attribute system
 - More overhead but more features
-- Use `#[UltraFast]` attribute to skip validation/casting when not needed (~4.8μs, **6.9x faster**)
+- Use `#[UltraFast]` attribute to skip validation/casting when not needed (~11.8μs, **1.0x faster**)
 - **On-Demand Validation**: Create DTOs fast, validate later when needed (best of both worlds!)
 - **Performance Attributes** for optimization:
   - `#[NoAttributes]` - Skip ALL attribute processing
