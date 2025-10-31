@@ -97,7 +97,7 @@ Speichere die Ergebnisse in phase-0-inventory.md
 
 ## 📝 Phase 1: Backup & Inventar
 
-**Status**: [ ] Nicht gestartet | [x] In Arbeit | [ ] Abgeschlossen
+**Status**: [ ] Nicht gestartet | [ ] In Arbeit | [x] Abgeschlossen
 
 ### Ziel
 Sicherstellen, dass wir alles wiederherstellen können, falls etwas schiefgeht.
@@ -132,10 +132,10 @@ Aktualisiere lite-to-simple.md:
 - `phase-1-baseline.md` mit Test-Ergebnissen
 
 ### Validierung
-- [ ] Branch existiert
-- [ ] Tag existiert
-- [ ] Alle wichtigen Tests bestehen
-- [ ] Exit code: 0
+- [x] Branch existiert
+- [x] Tag existiert
+- [x] Alle wichtigen Tests bestehen
+- [x] Exit code: 0
 
 ---
 
