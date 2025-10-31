@@ -141,7 +141,7 @@ Aktualisiere lite-to-simple.md:
 
 ## 📝 Phase 2: SimpleDto-Klassen sichern (Backup durch Umbenennung)
 
-**Status**: [ ] Nicht gestartet | [ ] In Arbeit | [ ] Abgeschlossen
+**Status**: [ ] Nicht gestartet | [ ] In Arbeit | [x] Abgeschlossen
 
 ### Ziel
 Alte SimpleDto-Implementierung als Backup umbenennen (nicht löschen!). Dient als Referenz und Vorlage für Code-Vergleiche während der Migration.
@@ -159,10 +159,10 @@ Sie werden später verwendet, um zu validieren, dass das neue SimpleDto (basiere
 
 ### Schritte
 
-- [ ] Benenne `src/SimpleDto/` um zu `src/SimpleDto.bak/`
-- [ ] **BEHALTE** alle Tests in `tests/Unit/SimpleDto/`
-- [ ] **BEHALTE** alle Tests in `tests/Integration/SimpleDto/`
-- [ ] Committe die Änderungen
+- [x] Benenne `src/SimpleDto/` um zu `src/SimpleDto.bak/`
+- [x] **BEHALTE** alle Tests in `tests/Unit/SimpleDto/`
+- [x] **BEHALTE** alle Tests in `tests/Integration/SimpleDto/`
+- [x] Committe die Änderungen
 
 ### Prompt für KI-Agent
 
@@ -197,12 +197,12 @@ Aktualisiere lite-to-simple.md:
 - Git-Commit erstellt
 
 ### Validierung
-- [ ] `src/SimpleDto.bak/` existiert
-- [ ] `src/SimpleDto.bak/SimpleDto.php` existiert
-- [ ] `src/SimpleDto/` existiert nicht mehr
-- [ ] `tests/Unit/SimpleDto/` existiert noch
-- [ ] `tests/Integration/SimpleDto/` existiert noch
-- [ ] Git-Commit vorhanden
+- [x] `src/SimpleDto.bak/` existiert
+- [x] `src/SimpleDto.bak/SimpleDto.php` existiert (als Teil des Backups)
+- [x] `src/SimpleDto/` existiert nicht mehr (nur noch src/SimpleDto.php bleibt)
+- [x] `tests/Unit/SimpleDto/` existiert noch
+- [x] `tests/Integration/SimpleDto/` existiert noch
+- [x] Git-Commit vorhanden
 
 ### 💡 Verwendung des Backups
 
