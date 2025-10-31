@@ -24,12 +24,12 @@ Das aktuelle LiteDto mit #[UltraFast] Mode wird zum neuen Standard-SimpleDto. Da
 
 ## 📊 Aktueller Status
 
-**Aktuelle Phase**: Phase 0 - Abgeschlossen ✅ | Nächste Phase: Phase 1 - Backup & Inventar
+**Aktuelle Phase**: Phase 1 - Backup & Inventar (IN ARBEIT)
 
 ### Phasen-Übersicht
 
 - [x] **Phase 0**: Vorbereitung & Analyse
-- [ ] **Phase 1**: Backup & Inventar
+- [/] **Phase 1**: Backup & Inventar
 - [ ] **Phase 2**: SimpleDto-Klassen sichern (→ SimpleDto.bak)
 - [ ] **Phase 3**: LiteDto zu SimpleDto kopieren
 - [ ] **Phase 4**: Namespaces & Imports aktualisieren
@@ -97,7 +97,7 @@ Speichere die Ergebnisse in phase-0-inventory.md
 
 ## 📝 Phase 1: Backup & Inventar
 
-**Status**: [ ] Nicht gestartet | [ ] In Arbeit | [ ] Abgeschlossen
+**Status**: [ ] Nicht gestartet | [x] In Arbeit | [ ] Abgeschlossen
 
 ### Ziel
 Sicherstellen, dass wir alles wiederherstellen können, falls etwas schiefgeht.
