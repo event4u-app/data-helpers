@@ -72,8 +72,8 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 
 | Feature | LiteDto #[UltraFast] | LiteDto | SimpleDto #[UltraFast] | SimpleDto |
 |---------|----------------------|---------|------------------------|-----------|
-| **Performance** | ~3.4μs | ~5.0μs | ~4.1μs | ~26.5μs |
-| **Speed Factor** | **7.8x faster** | **5.3x faster** | **6.4x faster** | Baseline |
+| **Performance** | ~4.5μs | ~10.3μs | ~4.8μs | ~33.3μs |
+| **Speed Factor** | **7.4x faster** | **3.2x faster** | **6.9x faster** | Baseline |
 | | | | | |
 | **Core Features** | | | | |
 | Property Mapping | ✅ | ✅ | ✅ | ✅ |
@@ -245,11 +245,11 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
   - `#[NoValidation]` - Skip validation for trusted data sources
 
 **SimpleDto** provides full features:
-- ~26.5μs average operation time
+- ~33.3μs average operation time
 - Includes validation and type casting
 - Rich attribute system
 - More overhead but more features
-- Use `#[UltraFast]` attribute to skip validation/casting when not needed (~4.1μs, **6.4x faster**)
+- Use `#[UltraFast]` attribute to skip validation/casting when not needed (~4.8μs, **6.9x faster**)
 - **On-Demand Validation**: Create DTOs fast, validate later when needed (best of both worlds!)
 - **Performance Attributes** for optimization:
   - `#[NoAttributes]` - Skip ALL attribute processing
