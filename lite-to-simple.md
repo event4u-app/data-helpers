@@ -217,16 +217,16 @@ Das Backup wird erst in **Phase 9** (Finale Validierung) gelöscht, wenn alles f
 
 ## 📝 Phase 3: LiteDto zu SimpleDto kopieren
 
-**Status**: [ ] Nicht gestartet | [ ] In Arbeit | [ ] Abgeschlossen
+**Status**: [ ] Nicht gestartet | [ ] In Arbeit | [x] Abgeschlossen
 
 ### Ziel
 LiteDto-Dateien nach SimpleDto kopieren (noch ohne Umbenennung).
 
 ### Schritte
 
-- [ ] Kopiere `src/LiteDto/` nach `src/SimpleDto/` (rekursiv)
-- [ ] Behalte `src/LiteDto/` vorerst (für Referenz)
-- [ ] Committe die Änderungen
+- [x] Kopiere `src/LiteDto/` nach `src/SimpleDto/` (rekursiv)
+- [x] Behalte `src/LiteDto/` vorerst (für Referenz)
+- [x] Committe die Änderungen
 
 ### Prompt für KI-Agent
 
@@ -249,10 +249,10 @@ Aktualisiere lite-to-simple.md:
 - Git-Commit erstellt
 
 ### Validierung
-- [ ] `src/SimpleDto/LiteDto.php` existiert
-- [ ] `src/SimpleDto/Support/LiteEngine.php` existiert
-- [ ] `src/LiteDto/` existiert noch
-- [ ] Git-Commit vorhanden
+- [x] `src/SimpleDto/LiteDto.php` existiert
+- [x] `src/SimpleDto/Support/LiteEngine.php` existiert
+- [x] `src/LiteDto/` existiert noch
+- [x] Git-Commit vorhanden
 
 ---
 
