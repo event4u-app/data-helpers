@@ -3451,12 +3451,10 @@ final class SimpleEngine
                 if (!empty($castWithAttrs)) {
                     /** @var CastWith $castWith */
                     $castWith = $castWithAttrs[0]->newInstance();
-                    $casterInstance = $castWith->args ? new $castWith->caster(
-                        $castWith->args
-                    ) : new $castWith->caster();
+                    $casterClass = $castWith->casterClass;
 
-                    if ($casterInstance instanceof CastsAttributes) {
-                        return $casterInstance->set($value, $data);
+                    if (class_exists($casterClass) && method_exists($casterClass, 'cast')) {
+                        return $casterClass::cast($value);
                     }
                 }
                 break;

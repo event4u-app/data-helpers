@@ -12,8 +12,8 @@ Data Helpers provides powerful features with acceptable performance overhead:
 <!-- BENCHMARK_INTRODUCTION_START -->
 
 - **Type safety and validation** - With reasonable performance cost
-- **3.0x faster** than Other Serializer for complex mappings
-- Other mapper libraries are **4.4x faster**, but DataMapper provides better features
+- **3.4x faster** than Other Serializer for complex mappings
+- Other mapper libraries are **4.5x faster**, but DataMapper provides better features
 - **Low memory footprint** - ~1.2 KB per instance
 <!-- BENCHMARK_INTRODUCTION_END -->
 
@@ -25,31 +25,31 @@ Data Helpers prioritizes **developer experience, type safety, and maintainabilit
 
 ```
 SimpleDto #[UltraFast] vs Plain PHP:
-- SimpleDto:  ~7.7μs per operation
+- SimpleDto:  ~6.5μs per operation
 - Plain PHP:  ~0.21μs per operation
-- Trade-off:  ~37x slower, but with type safety, immutability, and mapping
+- Trade-off:  ~30x slower, but with type safety, immutability, and mapping
 
 SimpleDto vs Plain PHP (without #[AutoCast]):
 - SimpleDto:  ~4.0μs per operation
 - Plain PHP:  ~0.21μs per operation
-- Trade-off:  ~20x slower, but with type safety, validation, and immutability
+- Trade-off:  ~19x slower, but with type safety, validation, and immutability
 
 SimpleDto vs Plain PHP (with #[AutoCast]):
-- SimpleDto:  ~6-7μs per operation (depending on casting needs)
+- SimpleDto:  ~6μs per operation (depending on casting needs)
 - Plain PHP:  ~0.2μs per operation
-- Trade-off:  ~28-32x slower, but with automatic type conversion
+- Trade-off:  ~27-29x slower, but with automatic type conversion
 - Note:       Only use #[AutoCast] when you need automatic type conversion
               (e.g., CSV, XML, HTTP requests with string values)
 
 DataMapper vs Plain PHP:
 - DataMapper: ~13-16μs per operation
 - Plain PHP:  ~0.1-0.3μs per operation
-- Trade-off:  ~74x slower, but with template syntax and automatic mapping
+- Trade-off:  ~75x slower, but with template syntax and automatic mapping
 
 DataMapper vs Other Serializer:
-- DataMapper: ~21-25μs per operation
-- OtherSerializer:    ~62-75μs per operation
-- Benefit:    3.0x faster with better developer experience
+- DataMapper: ~20-24μs per operation
+- OtherSerializer:    ~67-82μs per operation
+- Benefit:    3.4x faster with better developer experience
 ```
 <!-- BENCHMARK_TRADEOFFS_END -->
 
@@ -61,18 +61,18 @@ The `#[AutoCast]` attribute provides automatic type conversion but comes with a 
 
 ```
 Scenario 1: Correct types (no casting needed)
-- SimpleDto (no AutoCast):   ~4μs   (20x slower than Plain PHP)
-- SimpleDto (with AutoCast): ~6μs   (28x slower than Plain PHP)
+- SimpleDto (no AutoCast):   ~4μs   (19x slower than Plain PHP)
+- SimpleDto (with AutoCast): ~6μs   (27x slower than Plain PHP)
 - AutoCast overhead:         ~44%
 
 Scenario 2: String types (casting needed)
-- SimpleDto (with AutoCast): ~7μs   (32x slower than Plain PHP)
-- Casting overhead:          ~13% (compared to correct types)
+- SimpleDto (with AutoCast): ~6μs   (29x slower than Plain PHP)
+- Casting overhead:          ~5% (compared to correct types)
 ```
 
 **Key Insights:**
 - **#[AutoCast] adds ~44% overhead** even when no casting is needed (due to reflection)
-- **Actual casting adds only ~13% overhead** on top of the AutoCast overhead
+- **Actual casting adds only ~5% overhead** on top of the AutoCast overhead
 - **Without #[AutoCast], SimpleDto is ~1.4x faster** and closer to Plain PHP performance
 
 **When to use #[AutoCast]:**
@@ -106,13 +106,13 @@ Scenario 2: String types (casting needed)
 
 | Operation | Time | Description |
 |-----------|------|-------------|
-| Simple Get | 0.262μs | Get value from flat array |
-| Nested Get | 0.327μs | Get value from nested path |
-| Wildcard Get | 9.525μs | Get values using single wildcard |
-| Deep Wildcard Get | 50.128μs | Get values using multiple wildcards |
-| Typed Get String | 0.281μs | Get typed string value |
-| Typed Get Int | 0.286μs | Get typed int value |
-| Create Accessor | 0.062μs | Instantiate DataAccessor |
+| Simple Get | 0.270μs | Get value from flat array |
+| Nested Get | 0.330μs | Get value from nested path |
+| Wildcard Get | 9.299μs | Get values using single wildcard |
+| Deep Wildcard Get | 49.217μs | Get values using multiple wildcards |
+| Typed Get String | 0.286μs | Get typed string value |
+| Typed Get Int | 0.285μs | Get typed int value |
+| Create Accessor | 0.063μs | Instantiate DataAccessor |
 
 <!-- BENCHMARK_DATA_ACCESSOR_END -->
 
@@ -122,13 +122,13 @@ Scenario 2: String types (casting needed)
 
 | Operation | Time | Description |
 |-----------|------|-------------|
-| Simple Set | 0.909μs | Set value in flat array |
-| Nested Set | 1.212μs | Set value in nested path |
-| Deep Set | 1.297μs | Set value creating new nested structure |
-| Multiple Set | 1.695μs | Set multiple values at once |
-| Merge | 1.163μs | Deep merge arrays |
-| Unset | 1.142μs | Remove single value |
-| Multiple Unset | 1.565μs | Remove multiple values |
+| Simple Set | 0.893μs | Set value in flat array |
+| Nested Set | 1.173μs | Set value in nested path |
+| Deep Set | 1.270μs | Set value creating new nested structure |
+| Multiple Set | 1.627μs | Set multiple values at once |
+| Merge | 1.145μs | Deep merge arrays |
+| Unset | 1.122μs | Remove single value |
+| Multiple Unset | 1.503μs | Remove multiple values |
 
 <!-- BENCHMARK_DATA_MUTATOR_END -->
 
@@ -138,10 +138,10 @@ Scenario 2: String types (casting needed)
 
 | Operation | Time | Description |
 |-----------|------|-------------|
-| Simple Mapping | 12.750μs | Map flat structure |
-| Nested Mapping | 13.026μs | Map nested structure |
-| Auto Map | 10.963μs | Automatic field mapping |
-| Map From Template | 12.962μs | Map using template expressions |
+| Simple Mapping | 12.497μs | Map flat structure |
+| Nested Mapping | 12.960μs | Map nested structure |
+| Auto Map | 11.066μs | Automatic field mapping |
+| Map From Template | 12.992μs | Map using template expressions |
 
 <!-- BENCHMARK_DATA_MAPPER_END -->
 
@@ -161,20 +161,20 @@ Comparison of our SimpleDto implementation with other Dto libraries and plain PH
 
 | Implementation | From Array | To Array | Complex Data |
 |----------------|------------|----------|---------------|
-| SimpleDto Normal | 4.996μs | 26.774μs | 5.013μs |
-| SimpleDto #[UltraFast] | 4.620μs | 26.467μs | 4.623μs |
-| LiteDto | 7.543μs<br>(**1.5x slower**) | 9.116μs<br>(**2.9x faster**) | 7.501μs<br>(**1.5x slower**) |
-| LiteDto #[UltraFast] | 3.357μs<br>(**1.5x faster**) | 3.576μs<br>(**7.5x faster**) | 3.368μs<br>(**1.5x faster**) |
-| Plain PHP | 0.107μs<br>(**46.7x faster**) | - | - |
-| Other Dtos | 3.209μs<br>(**1.6x faster**) | 3.925μs<br>(**6.8x faster**) | 3.200μs<br>(**1.6x faster**) |
+| SimpleDto Normal | 4.800μs | 26.217μs | 4.746μs |
+| SimpleDto #[UltraFast] | 4.541μs | 25.868μs | 4.606μs |
+| LiteDto | 2.680μs<br>(**1.8x faster**) | 3.776μs<br>(**6.9x faster**) | 2.571μs<br>(**1.8x faster**) |
+| LiteDto #[UltraFast] | 1.192μs<br>(**4.0x faster**) | 1.390μs<br>(**18.9x faster**) | 1.232μs<br>(**3.9x faster**) |
+| Plain PHP | 0.106μs<br>(**45.3x faster**) | - | - |
+| Other Dtos | 3.116μs<br>(**1.5x faster**) | 3.782μs<br>(**6.9x faster**) | 3.067μs<br>(**1.5x faster**) |
 
 <!-- BENCHMARK_DTO_COMPARISON_END -->
 
 <!-- BENCHMARK_DTO_INSIGHTS_START -->
 
 **Key Insights:**
-- **#[UltraFast] mode** provides **1.6x faster** performance than normal SimpleDto
-- **#[UltraFast]** is only **~77x slower** than Plain PHP (vs ~123x for normal mode)
+- **#[UltraFast] mode** provides **1.8x faster** performance than normal SimpleDto
+- **#[UltraFast]** is only **~66x slower** than Plain PHP (vs ~121x for normal mode)
 - **#[UltraFast]** is competitive with other Dto libraries (~2x slower)
 - SimpleDto provides **type safety, validation, and immutability** with reasonable overhead
 - The overhead is acceptable for the added safety and developer experience
@@ -188,10 +188,10 @@ Comparison of our DataMapper with other mapper libraries and plain PHP:
 
 | Implementation | Simple Mapping | Nested Mapping | Template Mapping |
 |----------------|----------------|----------------|------------------|
-| DataMapper | 12.541μs | 17.522μs | 14.217μs |
-| SimpleDto #[UltraFast] | 4.620μs<br>(**2.7x faster**) | 8.211μs<br>(**2.1x faster**) | - |
-| Plain PHP | 0.066μs<br>(**188.9x faster**) | 0.132μs<br>(**132.5x faster**) | - |
-| Other Mappers | 2.552μs<br>(**4.9x faster**) | N/A | N/A |
+| DataMapper | 13.189μs | 17.191μs | 13.580μs |
+| SimpleDto #[UltraFast] | 4.541μs<br>(**2.9x faster**) | 8.007μs<br>(**2.1x faster**) | - |
+| Plain PHP | 0.066μs<br>(**200.4x faster**) | 0.129μs<br>(**133.5x faster**) | - |
+| Other Mappers | 2.448μs<br>(**5.4x faster**) | N/A | N/A |
 
 <!-- BENCHMARK_MAPPER_COMPARISON_END -->
 
@@ -199,8 +199,8 @@ Comparison of our DataMapper with other mapper libraries and plain PHP:
 
 **Key Insights:**
 - **SimpleDto #[UltraFast]** is **3.2x faster** than DataMapper for simple mapping
-- Other mapper libraries are **4.4x faster** than DataMapper, but **1.4x slower** than #[UltraFast]
-- Plain PHP is **~149x faster** but requires manual mapping code for each use case
+- Other mapper libraries are **4.5x faster** than DataMapper, but **1.4x slower** than #[UltraFast]
+- Plain PHP is **~151x faster** but requires manual mapping code for each use case
 - DataMapper provides the best balance of features, readability, and maintainability for complex mappings
 - The overhead is acceptable for complex mapping scenarios with better developer experience
 <!-- BENCHMARK_MAPPER_INSIGHTS_END -->
@@ -213,19 +213,19 @@ Comparison with external serializers for nested JSON to Dto mapping:
 
 | Implementation | Template Syntax | Simple Paths |
 |----------------|-----------------|---------------|
-| DataMapper | 25.359μs | 20.210μs |
-| SimpleDto #[UltraFast] | 4.620μs<br>(**5.5x faster**) | 4.620μs<br>(**4.4x faster**) |
-| Plain PHP | 0.312μs<br>(**81.2x faster**) | 0.312μs<br>(**64.7x faster**) |
-| Other Serializer | 68.542μs<br>(**2.7x slower**) | 68.542μs<br>(**3.4x slower**) |
+| DataMapper | 24.662μs | 19.549μs |
+| SimpleDto #[UltraFast] | 4.541μs<br>(**5.4x faster**) | 4.541μs<br>(**4.3x faster**) |
+| Plain PHP | 0.308μs<br>(**80.0x faster**) | 0.308μs<br>(**63.4x faster**) |
+| Other Serializer | 74.495μs<br>(**3.0x slower**) | 74.495μs<br>(**3.8x slower**) |
 
 <!-- BENCHMARK_SERIALIZATION_END -->
 
 <!-- BENCHMARK_SERIALIZATION_INSIGHTS_START -->
 
 **Key Insights:**
-- **SimpleDto #[UltraFast]** is **14.8x faster** than Other Serializer!
+- **SimpleDto #[UltraFast]** is **16.4x faster** than Other Serializer!
 - **SimpleDto #[UltraFast]** is **4.9x faster** than DataMapper for simple mappings
-- DataMapper is **3.0x faster** than Other Serializer for complex mappings
+- DataMapper is **3.4x faster** than Other Serializer for complex mappings
 - Zero reflection overhead for template-based mapping
 - Optimized for nested data structures
 <!-- BENCHMARK_SERIALIZATION_INSIGHTS_END -->
@@ -238,9 +238,9 @@ Data Helpers supports different cache invalidation strategies with varying perfo
 
 ```
 Cache Invalidation Modes (50,000 iterations, warm cache):
-- MANUAL (no validation):     2.15 μs
-- MTIME (auto-validation):    2.13 μs
-- HASH (auto-validation):     2.12 μs
+- MANUAL (no validation):     2.22 μs
+- MTIME (auto-validation):    2.27 μs
+- HASH (auto-validation):     2.18 μs
 ```
 <!-- BENCHMARK_CACHE_INVALIDATION_END -->
 
@@ -263,31 +263,31 @@ Skip unnecessary operations for maximum DTO instantiation speed:
 ### Basic Dto (10,000 iterations)
 
 ```
-Normal Dto:                1.44 μs (baseline)
-#[UltraFast]:              1.33 μs (7.6% faster)
-#[NoCasts]:                1.00 μs (30.5% faster)
-#[NoValidation]:           1.42 μs (1.4% faster)
-#[NoAttributes]:           1.41 μs (2.0% faster)
-#[NoCasts, NoValidation]:  0.99 μs (31.0% faster)
-#[NoAttributes, NoCasts]:  1.42 μs (1.6% faster)
+Normal Dto:                1.35 μs (baseline)
+#[UltraFast]:              1.33 μs (1.6% faster)
+#[NoCasts]:                0.93 μs (31.1% faster)
+#[NoValidation]:           1.39 μs (3.1% slower)
+#[NoAttributes]:           1.45 μs (7.6% slower)
+#[NoCasts, NoValidation]:  0.96 μs (29.1% faster)
+#[NoAttributes, NoCasts]:  1.41 μs (4.7% slower)
 ```
 
 ### With AutoCast (10,000 iterations)
 
 ```
-AutoCast Dto:              1.92 μs (with type casting)
-#[NoCasts]:                1.00 μs (48.2% faster)
+AutoCast Dto:              2.42 μs (with type casting)
+#[NoCasts]:                1.07 μs (55.7% faster)
 ```
 
 ### Real-World API (1,000 Dtos)
 
 ```
-SimpleDto:                 1.44 ms
-#[UltraFast]:              1.33 ms (7.6% faster)
-#[NoCasts]:                1.00 ms (30.5% faster)
-#[NoAttributes, NoCasts]:  1.42 ms (1.6% faster)
+SimpleDto:                 1.35 ms
+#[UltraFast]:              1.33 ms (1.6% faster)
+#[NoCasts]:                0.93 ms (31.1% faster)
+#[NoAttributes, NoCasts]:  1.41 ms (4.7% slower)
 
-Savings per 1M requests:   ~110ms (0.1s) with #[UltraFast]
+Savings per 1M requests:   ~22ms (0.0s) with #[UltraFast]
 ```
 <!-- BENCHMARK_PERFORMANCE_ATTRIBUTES_END -->
 

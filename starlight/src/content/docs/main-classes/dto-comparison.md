@@ -102,10 +102,10 @@ $user = UserDto::from([
 
 | Feature | LiteDto #[UltraFast] | LiteDto | SimpleDto #[UltraFast] | SimpleDto |
 |---------|----------------------|---------|------------------------|-----------|
-| **Creation Performance** | ~4.7μs | ~11.6μs | ~4.6μs | ~5.0μs |
-| **Creation Speed Factor** | **1.1x faster** | **0.4x slower** | **1.1x faster** | Baseline |
-| **Serialization Performance** | ~3.6μs | ~9.1μs | ~26.5μs | ~26.8μs |
-| **Serialization Speed Factor** | **7.5x faster** | **2.9x faster** | **1.0x faster** | Baseline |
+| **Creation Performance** | ~1.2μs | ~2.7μs | ~4.5μs | ~4.8μs |
+| **Creation Speed Factor** | **4.0x faster** | **1.8x faster** | **1.1x faster** | Baseline |
+| **Serialization Performance** | ~1.4μs | ~3.8μs | ~25.9μs | ~26.2μs |
+| **Serialization Speed Factor** | **18.9x faster** | **6.9x faster** | **1.0x faster** | Baseline |
 | | | | | |
 | **Core Features** | | | | |
 | Property Mapping | ✅ | ✅ | ✅ | ✅ |
@@ -115,26 +115,26 @@ $user = UserDto::from([
 | Immutability | ✅ | ✅ | ✅ | ✅ |
 | | | | | |
 | **Validation** | | | | |
-| Built-in Validation | ✅ | ✅ | ❌ | ✅ |
-| Custom Validation | ✅ | ✅ | ❌ | ✅ |
-| Validation Attributes | ✅ | ✅ | ❌ | ✅ |
+| Built-in Validation | ❌ | ❌ | ❌ | ✅ |
+| Custom Validation | ❌ | ❌ | ❌ | ✅ |
+| Validation Attributes | ❌ | ❌ | ❌ | ✅ |
 | | | | | |
 | **Type Casting** | | | | |
-| Automatic Casting | ✅ | ✅ | ☑️ | ✅ |
-| DateTime Casting | ✅ | ✅ | ✅ | ✅ |
-| Enum Casting | ✅ | ✅ | ✅ | ✅ |
-| Custom Casts | ✅ | ✅ | ✅ | ✅ |
+| Automatic Casting | ❌ | ❌ | ✅ | ✅ |
+| DateTime Casting | ❌ | ❌ | ✅ | ✅ |
+| Enum Casting | ❌ | ❌ | ✅ | ✅ |
+| Custom Casts | ❌ | ❌ | ✅ | ✅ |
 | | | | | |
 | **Advanced Features** | | | | |
-| Computed Properties | ✅ | ✅ | ❌ | ✅ |
-| Lazy Properties | ✅ | ✅ | ❌ | ✅ |
-| Conditional Properties | ✅ | ✅ | ❌ | ✅ |
-| Hooks & Events | ✅ | ✅ | ❌ | ✅ |
+| Computed Properties | ❌ | ❌ | ❌ | ✅ |
+| Lazy Properties | ❌ | ❌ | ❌ | ✅ |
+| Conditional Properties | ❌ | ❌ | ❌ | ✅ |
+| Hooks & Events | ❌ | ❌ | ❌ | ✅ |
 | Dot Notation Access | ✅ | ✅ | ✅ | ✅ |
 | | | | | |
 | **Data Conversion** | | | | |
 | Converter Support | ☑️ | ☑️ | ✅ | ✅ |
-| ConvertEmptyToNull | ✅ | ✅ | ✅ | ✅ |
+| ConvertEmptyToNull | ❌ | ✅ | ✅ | ✅ |
 | JSON/XML Support | ☑️ | ☑️ | ✅ | ✅ |
 | | | | | |
 | **Developer Experience** | | | | |
@@ -156,92 +156,87 @@ $user = UserDto::from([
 |-----------|----------------------|---------|------------------------|-----------|
 | **Class Attributes** | | | | |
 | #[UltraFast] | ✅ | ✅ | ✅ | ✅ |
-| #[ConverterMode] | ✅ | ✅ | ✅ | ✅ |
-| #[AutoCast] | ✅ | ✅ | ❌ | ✅ |
-| #[NoAttributes] | ✅ | ✅ | ❌ | ✅ |
-| #[NoCasts] | ✅ | ✅ | ❌ | ✅ |
-| #[NoValidation] | ✅ | ✅ | ❌ | ✅ |
-| #[ValidateRequest] | ✅ | ✅ | ❌ | ✅ |
-| #[NotImmutable] | ✅ | ✅ | ❌ | ✅ |
+| #[ConverterMode] | ❌ | ✅ | ❌ | ✅ |
+| #[AutoCast] | ❌ | ❌ | ❌ | ✅ |
+| #[NoAttributes] | ❌ | ❌ | ❌ | ✅ |
+| #[NoCasts] | ❌ | ❌ | ❌ | ✅ |
+| #[NoValidation] | ❌ | ❌ | ❌ | ✅ |
+| #[ValidateRequest] | ❌ | ❌ | ❌ | ✅ |
 | | | | | |
 | **Property Attributes** | | | | |
-| #[MapFrom] | ✅ | ✅ | ✅ | ✅ |
-| #[MapTo] | ✅ | ✅ | ✅ | ✅ |
-| #[MapInputName] | ✅ | ✅ | ✅ | ✅ |
-| #[MapOutputName] | ✅ | ✅ | ✅ | ✅ |
-| #[Hidden] | ✅ | ✅ | ✅ | ✅ |
-| #[HiddenFromArray] | ✅ | ✅ | ✅ | ✅ |
-| #[HiddenFromJson] | ✅ | ✅ | ✅ | ✅ |
-| #[Visible] | ✅ | ✅ | ✅ | ✅ |
-| #[CastWith] | ✅ | ✅ | ✅ | ✅ |
-| #[EnumSerialize] | ✅ | ✅ | ✅ | ✅ |
-| #[ConvertEmptyToNull] | ✅ | ✅ | ✅ | ✅ |
-| #[DataCollectionOf] | ✅ | ✅ | ✅ | ✅ |
-| #[Computed] | ✅ | ✅ | ✅ | ✅ |
-| #[Lazy] | ✅ | ✅ | ✅ | ✅ |
-| #[Optional] | ✅ | ✅ | ❌ | ✅ |
-| #[NotImmutable] | ✅ | ✅ | ❌ | ✅ |
+| #[MapFrom] | ✴️ | ✅ | ✴️ | ✅ |
+| #[MapTo] | ✴️ | ✅ | ✴️ | ✅ |
+| #[MapInputName] | ❌ | ❌ | ❌ | ✅ |
+| #[MapOutputName] | ❌ | ❌ | ❌ | ✅ |
+| #[Hidden] | ❌ | ✅ | ❌ | ✅ |
+| #[HiddenFromArray] | ❌ | ❌ | ❌ | ✅ |
+| #[HiddenFromJson] | ❌ | ❌ | ❌ | ✅ |
+| #[Visible] | ❌ | ❌ | ❌ | ✅ |
+| #[CastWith] | ✴️ | ✅ | ✴️ | ✅ |
+| #[EnumSerialize] | ❌ | ✅ | ❌ | ✅ |
+| #[ConvertEmptyToNull] | ❌ | ✅ | ❌ | ✅ |
+| #[DataCollectionOf] | ❌ | ✅ | ❌ | ✅ |
+| #[Computed] | ❌ | ❌ | ❌ | ✅ |
+| #[Lazy] | ❌ | ❌ | ❌ | ✅ |
+| #[Optional] | ❌ | ❌ | ❌ | ✅ |
 | | | | | |
 | **Validation Attributes** | | | | |
-| #[Required] | ✅ | ✅ | ❌ | ✅ |
-| #[RequiredIf] | ✅ | ✅ | ❌ | ✅ |
-| #[RequiredUnless] | ✅ | ✅ | ❌ | ✅ |
-| #[RequiredWith] | ✅ | ✅ | ❌ | ✅ |
-| #[RequiredWithout] | ✅ | ✅ | ❌ | ✅ |
-| #[Nullable] | ✅ | ✅ | ❌ | ✅ |
-| #[Sometimes] | ✅ | ✅ | ❌ | ✅ |
-| #[Email] | ✅ | ✅ | ❌ | ✅ |
-| #[Url] | ✅ | ✅ | ❌ | ✅ |
-| #[Uuid] | ✅ | ✅ | ❌ | ✅ |
-| #[Ip] | ✅ | ✅ | ❌ | ✅ |
-| #[Json] | ✅ | ✅ | ❌ | ✅ |
-| #[Min] | ✅ | ✅ | ❌ | ✅ |
-| #[Max] | ✅ | ✅ | ❌ | ✅ |
-| #[Between] | ✅ | ✅ | ❌ | ✅ |
-| #[Size] | ✅ | ✅ | ❌ | ✅ |
-| #[In] | ✅ | ✅ | ❌ | ✅ |
-| #[NotIn] | ✅ | ✅ | ❌ | ✅ |
-| #[Regex] | ✅ | ✅ | ❌ | ✅ |
-| #[StartsWith] | ✅ | ✅ | ❌ | ✅ |
-| #[EndsWith] | ✅ | ✅ | ❌ | ✅ |
-| #[Confirmed] | ✅ | ✅ | ❌ | ✅ |
-| #[ConfirmedBy] | ✅ | ✅ | ❌ | ✅ |
-| #[Same] | ✅ | ✅ | ❌ | ✅ |
-| #[Different] | ✅ | ✅ | ❌ | ✅ |
-| #[Unique] | ☑️ | ☑️ | ❌ | ✅ |
-| #[UniqueCallback] | ✅ | ✅ | ❌ | ❌ |
-| #[Exists] | ☑️ | ☑️ | ❌ | ✅ |
-| #[ExistsCallback] | ✅ | ✅ | ❌ | ❌ |
-| #[File] | ☑️ | ☑️ | ❌ | ✅ |
-| #[FileCallback] | ✅ | ✅ | ❌ | ❌ |
-| #[Image] | ☑️ | ☑️ | ❌ | ✅ |
-| #[Mimes] | ☑️ | ☑️ | ❌ | ✅ |
-| #[MimeTypes] | ☑️ | ☑️ | ❌ | ✅ |
+| #[Required] | ❌ | ❌ | ❌ | ✅ |
+| #[RequiredIf] | ❌ | ❌ | ❌ | ✅ |
+| #[RequiredUnless] | ❌ | ❌ | ❌ | ✅ |
+| #[RequiredWith] | ❌ | ❌ | ❌ | ✅ |
+| #[RequiredWithout] | ❌ | ❌ | ❌ | ✅ |
+| #[Nullable] | ❌ | ❌ | ❌ | ✅ |
+| #[Sometimes] | ❌ | ❌ | ❌ | ✅ |
+| #[Email] | ❌ | ❌ | ❌ | ✅ |
+| #[Url] | ❌ | ❌ | ❌ | ✅ |
+| #[Uuid] | ❌ | ❌ | ❌ | ✅ |
+| #[Ip] | ❌ | ❌ | ❌ | ✅ |
+| #[Json] | ❌ | ❌ | ❌ | ✅ |
+| #[Min] | ❌ | ❌ | ❌ | ✅ |
+| #[Max] | ❌ | ❌ | ❌ | ✅ |
+| #[Between] | ❌ | ❌ | ❌ | ✅ |
+| #[Size] | ❌ | ❌ | ❌ | ✅ |
+| #[In] | ❌ | ❌ | ❌ | ✅ |
+| #[NotIn] | ❌ | ❌ | ❌ | ✅ |
+| #[Regex] | ❌ | ❌ | ❌ | ✅ |
+| #[StartsWith] | ❌ | ❌ | ❌ | ✅ |
+| #[EndsWith] | ❌ | ❌ | ❌ | ✅ |
+| #[Confirmed] | ❌ | ❌ | ❌ | ✅ |
+| #[ConfirmedBy] | ❌ | ❌ | ❌ | ✅ |
+| #[Same] | ❌ | ❌ | ❌ | ✅ |
+| #[Different] | ❌ | ❌ | ❌ | ✅ |
+| #[Unique] | ❌ | ❌ | ❌ | ✅ |
+| #[Exists] | ❌ | ❌ | ❌ | ✅ |
+| #[File] | ❌ | ❌ | ❌ | ✅ |
+| #[Image] | ❌ | ❌ | ❌ | ✅ |
+| #[Mimes] | ❌ | ❌ | ❌ | ✅ |
+| #[MimeTypes] | ❌ | ❌ | ❌ | ✅ |
 | | | | | |
 | **Conditional Attributes** | | | | |
-| #[WhenCallback] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenValue] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenEquals] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenIn] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenTrue] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenFalse] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenNull] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenNotNull] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenInstanceOf] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenContext] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenContextEquals] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenContextIn] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenContextNotNull] | ✅ | ✅ | ❌ | ✅ |
-| #[WhenAuth] (Laravel) | ✅ | ✅ | ❌ | ✅ |
-| #[WhenGuest] (Laravel) | ✅ | ✅ | ❌ | ✅ |
-| #[WhenCan] (Laravel) | ✅ | ✅ | ❌ | ✅ |
-| #[WhenRole] (Laravel) | ✅ | ✅ | ❌ | ✅ |
-| #[WhenGranted] (Symfony) | ✅ | ✅ | ❌ | ✅ |
-| #[WhenSymfonyRole] (Symfony) | ✅ | ✅ | ❌ | ✅ |
+| #[WhenCallback] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenValue] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenEquals] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenIn] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenTrue] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenFalse] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenNull] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenNotNull] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenInstanceOf] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenContext] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenContextEquals] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenContextIn] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenContextNotNull] | ❌ | ❌ | ❌ | ✅ |
+| #[WhenAuth] (Laravel) | ❌ | ❌ | ❌ | ✅ |
+| #[WhenGuest] (Laravel) | ❌ | ❌ | ❌ | ✅ |
+| #[WhenCan] (Laravel) | ❌ | ❌ | ❌ | ✅ |
+| #[WhenRole] (Laravel) | ❌ | ❌ | ❌ | ✅ |
+| #[WhenGranted] (Symfony) | ❌ | ❌ | ❌ | ✅ |
+| #[WhenSymfonyRole] (Symfony) | ❌ | ❌ | ❌ | ✅ |
 | | | | | |
 | **Other Attributes** | | | | |
-| #[RuleGroup] | ✅ | ✅ | ❌ | ✅ |
-| #[WithMessage] | ✅ | ✅ | ❌ | ✅ |
+| #[RuleGroup] | ❌ | ❌ | ❌ | ✅ |
+| #[WithMessage] | ❌ | ❌ | ❌ | ✅ |
 | | | | | |
 
 
@@ -249,51 +244,40 @@ $user = UserDto::from([
 
 - ✅ Fully supported
 - ☑️ Partially supported or optional
+-✴️ Can be re-enabled with UltraFast parameters (e.g., `#[UltraFast(allowMapFrom: true)]`)
 - ❌ Not supported
 
 **Performance Notes:**
 
-- **#[Optional]**: Zero overhead when not used (opt-in via feature flag)
-- **#[NoAttributes]**: Skips ALL attribute processing for maximum performance (LiteDto only)
-- **#[NoValidation]**: Skips ALL validation for trusted data sources (LiteDto only)
-- **#[ValidateRequest]**: Enables automatic request validation in Laravel/Symfony (LiteDto only)
+- **#[UltraFast]**: Available for both LiteDto and SimpleDto
+  - LiteDto: Can re-enable specific attributes (e.g., `#[UltraFast(allowMapFrom: true)]`)
+  - SimpleDto: Auto-detects which attributes are used and processes only those
+- **#[ConverterMode]**: Available for LiteDto (normal mode) and SimpleDto
 - **#[AutoCast]**: Enables automatic type casting for native PHP types (SimpleDto only)
+- **#[NoAttributes]**: Skips ALL attribute processing for maximum performance (SimpleDto only)
 - **#[NoCasts]**: Disables all type casting (SimpleDto only)
-- **Conditional Validation** (#[RequiredIf], #[RequiredUnless], #[RequiredWith], #[RequiredWithout]): Zero overhead when not used (opt-in via feature flag)
-- **Conditional Properties** (#[WhenCallback], #[WhenValue], #[WhenEquals], etc.): Zero overhead when not used (opt-in via feature flag)
-- **#[RuleGroup]**: Zero overhead when not used (opt-in via feature flag)
-- **#[WithMessage]**: Zero overhead when not used (opt-in via feature flag)
-- **All LiteDto attributes** use feature-flag system for optimal performance
+- **#[NoValidation]**: Skips ALL validation for trusted data sources (SimpleDto only)
+- **#[ValidateRequest]**: Enables automatic request validation in Laravel/Symfony (SimpleDto only)
+- **#[Optional]**: Zero overhead when not used (opt-in via feature flag, SimpleDto only)
 
 ## Detailed Comparison
 
 ### Performance
 
 **LiteDto** is optimized for speed:
-- ~18.5μs average operation time (normal mode)
-- ~0.7μs with `#[UltraFast]` (**11x faster** than SimpleDto)
+- ~4.5μs average creation time (normal mode)
+- ~2.0μs with `#[UltraFast]` (**3.8x faster** than SimpleDto)
 - Minimal reflection overhead
 - No validation or casting overhead
-- **Performance Attributes** for even more control:
-  - `#[NoAttributes]` - Skip ALL attribute processing (maximum speed)
-  - `#[NoValidation]` - Skip validation for trusted data sources
+- Use `#[UltraFast]` attribute for even better performance
 
 **SimpleDto** provides full features:
-- ~8.0μs average operation time (normal mode)
-- ~2-3μs with `#[UltraFast]` (**3-4x faster**)
+- ~7.6μs average creation time (normal mode)
+- ~7.7μs with `#[UltraFast]` (**1.0x faster**)
 - Includes validation and type casting
 - Rich attribute system
 - More overhead but more features
-- **UltraFast Mode**: Auto-detects which attributes are used and processes only those
-  - ✅ Supports: #[MapFrom], #[MapTo], #[CastWith], #[Hidden], #[EnumSerialize], etc.
-  - ❌ Skips: Validation, Computed properties, Lazy properties, Conditional properties
-- **On-Demand Validation**: Create DTOs fast, validate later when needed (best of both worlds!)
-- **Performance Attributes** for optimization:
-  - `#[UltraFast]` - Auto-detect attributes, skip validation (~2-3μs, **3-4x faster**)
-  - `#[NoAttributes]` - Skip ALL attribute processing
-  - `#[NoCasts]` - Skip type casting
-  - `#[NoValidation]` - Skip validation
-  - `#[AutoCast]` - Enable automatic type casting only when needed
+- Use `#[UltraFast]` attribute to skip validation/casting when not needed
 
 ### Use Cases
 
@@ -338,253 +322,22 @@ $user = UserDto::from([
 - Collection validation
 - Cross-field validation
 
-### Performance Optimization Attributes
+### Performance Tips
 
-Both LiteDto and SimpleDto support performance optimization attributes to fine-tune behavior:
+#### LiteDto Optimization
 
-#### #[NoAttributes]
+- Avoid `#[ConverterMode]` when only using arrays (~0.5μs overhead)
+- Use `readonly` properties (required)
+- Minimize nested DTOs
+- Minimize attribute usage
+- Use `#[UltraFast]` for even better performance (~2.0μs)
 
-Skip **ALL** attribute processing for maximum performance:
+#### SimpleDto Optimization
 
-```php
-use event4u\DataHelpers\LiteDto\LiteDto;
-use event4u\DataHelpers\LiteDto\Attributes\NoAttributes;
-
-#[NoAttributes]  // Skip ALL attributes - maximum speed!
-class FastDto extends LiteDto
-{
-    public function __construct(
-        public readonly string $name,
-        public readonly string $email,
-    ) {}
-}
-
-// No MapFrom, no Hidden, no Validation - pure speed!
-$dto = FastDto::from(['name' => 'John', 'email' => 'john@example.com']);
-```
-
-**When to use:**
-- ✅ Simple data transfer objects
-- ✅ High-throughput scenarios (10,000+ ops/sec)
-- ✅ No attributes needed at all
-- ✅ Maximum performance required
-
-#### #[NoValidation]
-
-Skip validation but keep other attributes:
-
-```php
-use event4u\DataHelpers\LiteDto\LiteDto;
-use event4u\DataHelpers\LiteDto\Attributes\NoValidation;
-use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
-
-#[NoValidation]  // Skip validation - data is already validated
-class TrustedDto extends LiteDto
-{
-    public function __construct(
-        #[MapFrom('user_name')]
-        public readonly string $name,
-        public readonly string $email,
-    ) {}
-}
-
-// MapFrom works, but no validation overhead
-$dto = TrustedDto::from(['user_name' => 'John', 'email' => 'john@example.com']);
-```
-
-**When to use:**
-- ✅ Data from trusted sources (database, internal APIs)
-- ✅ Pre-validated data (validated by frontend/gateway)
-- ✅ Need other attributes (MapFrom, Hidden, etc.) but not validation
-- ✅ Performance-critical paths with trusted data
-
-#### #[ValidateRequest]
-
-Enable automatic request validation in Laravel/Symfony:
-
-```php
-use event4u\DataHelpers\LiteDto\LiteDto;
-use event4u\DataHelpers\LiteDto\Attributes\ValidateRequest;
-use event4u\DataHelpers\Attributes\Validation\Email;
-use event4u\DataHelpers\Attributes\Validation\Required;
-
-#[ValidateRequest(throw: true, stopOnFirstFailure: false)]
-class CreateUserDto extends LiteDto
-{
-    public function __construct(
-        #[Required]
-        public readonly string $name,
-
-        #[Required]
-        #[Email]
-        public readonly string $email,
-    ) {}
-}
-
-// In Laravel Controller - automatic validation!
-public function store(CreateUserDto $dto)
-{
-    // $dto is already validated - no need to call validate()
-    User::create($dto->toArray());
-}
-```
-
-**When to use:**
-- ✅ Laravel/Symfony controllers
-- ✅ Automatic request validation
-- ✅ Clean controller code
-- ✅ Framework integration
-
-#### #[AutoCast]
-
-Enable automatic type casting for native PHP types:
-
-```php
-use event4u\DataHelpers\LiteDto\LiteDto;
-use event4u\DataHelpers\LiteDto\Attributes\AutoCast;
-
-// Class-level: Enable AutoCast for ALL properties
-#[AutoCast]
-class UserDto extends LiteDto
-{
-    public function __construct(
-        public readonly string $name,
-        public readonly int $age,        // Automatically cast to int
-        public readonly bool $active,    // Automatically cast to bool
-        public readonly float $score,    // Automatically cast to float
-    ) {}
-}
-
-// Strings are automatically cast to correct types
-$dto = UserDto::from(['name' => 'John', 'age' => '30', 'active' => '1', 'score' => '9.5']);
-// $dto->age === 30 (int)
-// $dto->active === true (bool)
-// $dto->score === 9.5 (float)
-
-// Property-level: Enable AutoCast for specific properties only
-class ProductDto extends LiteDto
-{
-    public function __construct(
-        #[AutoCast]
-        public readonly int $id,         // Only this property is auto-casted
-
-        public readonly string $name,    // No auto-casting
-    ) {}
-}
-```
-
-**Supported types:** `int`, `float`, `string`, `bool`, `array`
-
-**When to use:**
-- ✅ Working with external APIs that return strings
-- ✅ Processing form data (all values are strings)
-- ✅ CSV/JSON imports with inconsistent types
-- ✅ Need automatic type coercion
-
-**Performance:** Zero overhead when values are already correct type!
-
-#### #[NoCasts]
-
-Disable **ALL** type casting for maximum performance:
-
-```php
-use event4u\DataHelpers\LiteDto\LiteDto;
-use event4u\DataHelpers\LiteDto\Attributes\NoCasts;
-
-#[NoCasts]  // Disable ALL casting - even #[CastWith], nested DTOs, enums!
-class RawDto extends LiteDto
-{
-    public function __construct(
-        public readonly int $id,
-        public readonly string $name,
-    ) {}
-}
-
-// No casting happens - values must be correct type!
-$dto = RawDto::from(['id' => 123, 'name' => 'John']);
-```
-
-**When to use:**
-- ✅ Data is already in correct format (from database)
-- ✅ Maximum performance required
-- ✅ No type conversion needed at all
-- ✅ Trusted data sources
-
-**Note:** #[NoCasts] disables:
-- ❌ #[CastWith] custom casters
-- ❌ Nested DTO casting
-- ❌ #[DataCollectionOf] collections
-- ❌ Enum casting
-- ❌ #[AutoCast] automatic casting
-
-#### #[UltraFast] (SimpleDto)
-
-Auto-detect which attributes are used and process only those:
-
-```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
-use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
-use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
-use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
-use event4u\DataHelpers\SimpleDto\Attributes\CastWith;
-
-#[UltraFast]  // Auto-detect attributes - skip validation!
-class UserDto extends SimpleDto
-{
-    public function __construct(
-        public readonly string $name,
-
-        #[MapFrom('email_address')]  // Detected and processed
-        public readonly string $email,
-
-        #[Hidden]  // Detected and processed
-        public readonly string $password,
-
-        #[CastWith(DateTimeCaster::class)]  // Detected and processed
-        public readonly DateTime $createdAt,
-    ) {}
-}
-
-// Ultra-fast creation: ~2-3μs (3-4x faster!)
-$dto = UserDto::from([
-    'name' => 'John',
-    'email_address' => 'john@example.com',
-    'password' => 'secret',
-    'createdAt' => '2024-01-01',
-]);
-
-// toArray() respects #[Hidden]
-$array = $dto->toArray();  // ['name' => 'John', 'email' => 'john@example.com', 'createdAt' => DateTime]
-```
-
-**What works in UltraFast mode:**
-- ✅ #[MapFrom] - Property mapping
-- ✅ #[MapTo] - Output mapping
-- ✅ #[CastWith] - Custom casters
-- ✅ #[Hidden] / #[HiddenFromArray] / #[HiddenFromJson]
-- ✅ #[ConvertEmptyToNull]
-- ✅ #[EnumSerialize]
-- ✅ #[AutoCast] (if enabled)
-- ✅ #[DataCollectionOf] - Collections
-- ✅ Nested DTOs (automatic)
-- ✅ Enum casting (automatic)
-- ✅ DateTime casting (automatic)
-- ✅ Dot Notation Access
-
-**What is skipped in UltraFast mode:**
-- ❌ Validation (#[Required], #[Email], etc.)
-- ❌ Computed properties (#[Computed])
-- ❌ Lazy properties (#[Lazy])
-- ❌ Conditional properties (#[WhenValue], etc.)
-- ❌ DataMapper integration (template/filters/pipeline)
-
-**When to use:**
-- ✅ Need some attributes (MapFrom, Hidden, CastWith) but not validation
-- ✅ Performance-critical paths with trusted data
-- ✅ Data from internal APIs or databases
-- ✅ Want 3-4x faster performance than normal SimpleDto
-
-**Performance:** ~2-3μs (3-4x faster than normal SimpleDto, ~3-4x slower than LiteDto UltraFast)
+- Use `#[UltraFast]` mode when validation is not needed (~7.7μs)
+- Enable caching for repeated use
+- Minimize validation rules
+- Use computed properties sparingly
 
 ## Migration Between DTOs
 
