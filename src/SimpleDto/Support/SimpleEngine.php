@@ -32,6 +32,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\NotImmutable;
 use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Attributes\Optional as OptionalAttribute;
 use event4u\DataHelpers\SimpleDto\Attributes\RuleGroup;
+use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\Nullable;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\Sometimes;
@@ -311,6 +312,20 @@ final class SimpleEngine
     private static array $classAutoCastCache = [];
 
     /**
+     * Cache for UltraFast mode per class.
+     *
+     * @var array<class-string, bool>
+     */
+    private static array $ultraFastCache = [];
+
+    /**
+     * Cache for UltraFast attribute instances per class.
+     *
+     * @var array<class-string, UltraFast|null>
+     */
+    private static array $ultraFastAttributeCache = [];
+
+    /**
      * Feature flags cache for Normal mode per class.
      * Stores which features are used by each class to avoid unnecessary checks.
      *
@@ -373,13 +388,27 @@ final class SimpleEngine
     {
         $class = $dto::class;
 
-        // Get feature flags (cached after first call)
-        $flags = self::getFeatureFlags($class);
+        // UltraFast mode: auto-detect attributes with feature flags
+        if (self::isUltraFast($class)) {
+            // Get feature flags (cached after first call)
+            $flags = self::getFeatureFlags($class);
 
             // Fast path: No attributes that affect toArray()
             if (!$flags['hasAnyArrayAttribute']) {
                 return get_object_vars($dto);
             }
+
+            // Slow path: Process attributes (same as normal mode)
+            // Fall through to normal processing below
+        }
+
+        // Get feature flags (cached after first call)
+        $flags = self::getFeatureFlags($class);
+
+        // Fast path: No attributes that affect toArray()
+        if (!$flags['hasAnyArrayAttribute']) {
+            return get_object_vars($dto);
+        }
 
             // Slow path: Process attributes
             $reflection = self::getReflection($class);
@@ -609,13 +638,27 @@ final class SimpleEngine
     {
         $class = $dto::class;
 
-        // Get feature flags (cached after first call)
-        $flags = self::getFeatureFlags($class);
+        // UltraFast mode: auto-detect attributes with feature flags
+        if (self::isUltraFast($class)) {
+            // Get feature flags (cached after first call)
+            $flags = self::getFeatureFlags($class);
 
             // Fast path: No attributes that affect toJsonArray()
             if (!$flags['hasAnyJsonAttribute']) {
                 return get_object_vars($dto);
             }
+
+            // Slow path: Process attributes (same as normal mode)
+            // Fall through to normal processing below
+        }
+
+        // Get feature flags (cached after first call)
+        $flags = self::getFeatureFlags($class);
+
+        // Fast path: No attributes that affect toJsonArray()
+        if (!$flags['hasAnyJsonAttribute']) {
+            return get_object_vars($dto);
+        }
 
             // Slow path: Process attributes
             $reflection = self::getReflection($class);
@@ -1727,6 +1770,253 @@ final class SimpleEngine
     }
 
     /**
+     * Check if class has UltraFast attribute.
+     *
+     * @param class-string $class
+     */
+    private static function isUltraFast(string $class): bool
+    {
+        if (isset(self::$ultraFastCache[$class])) {
+            return self::$ultraFastCache[$class];
+        }
+
+        $reflection = self::getReflection($class);
+        $attrs = $reflection->getAttributes(UltraFast::class);
+        $isUltraFast = [] !== $attrs;
+
+        self::$ultraFastCache[$class] = $isUltraFast;
+        return $isUltraFast;
+    }
+
+    /**
+     * Get UltraFast attribute instance for a class.
+     *
+     * @param class-string $class
+     * @phpstan-ignore method.unused
+     */
+    private static function getUltraFastAttribute(string $class): ?UltraFast
+    {
+        if (isset(self::$ultraFastAttributeCache[$class])) {
+            return self::$ultraFastAttributeCache[$class];
+        }
+
+        $reflection = self::getReflection($class);
+        $attrs = $reflection->getAttributes(UltraFast::class);
+
+        if ([] === $attrs) {
+            self::$ultraFastAttributeCache[$class] = null;
+            return null;
+        }
+
+        /** @var UltraFast $ultraFast */
+        $ultraFast = $attrs[0]->newInstance();
+        self::$ultraFastAttributeCache[$class] = $ultraFast;
+        return $ultraFast;
+    }
+
+    /**
+     * Get nested value from array using dot notation.
+     *
+     * @param array<string, mixed> $data
+     * @param string $path Dot notation path (e.g., 'user.profile.firstName')
+     * @return mixed|null
+     */
+    private static function getNestedValue(array $data, string $path): mixed
+    {
+        $keys = explode('.', $path);
+        $value = $data;
+
+        foreach ($keys as $key) {
+            if (!is_array($value) || !array_key_exists($key, $value)) {
+                return null;
+            }
+
+            $value = $value[$key];
+        }
+
+        return $value;
+    }
+
+    /**
+     * Create DTO in UltraFast mode (auto-detects attributes with feature flags).
+     *
+     * @param class-string $class
+     */
+    private static function createUltraFast(string $class, mixed $data): object
+    {
+        // Check if ConverterMode is enabled
+        $converterMode = self::hasConverterMode($class);
+
+        // Parse data if not array and ConverterMode is enabled
+        if (!is_array($data)) {
+            if ($converterMode) {
+                $data = self::parseWithConverter($data);
+            } else {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'UltraFast mode only accepts arrays. Use #[ConverterMode] attribute on %s to enable JSON/XML/CSV support.',
+                        $class
+                    )
+                );
+            }
+        }
+
+        // Get feature flags (cached after first call)
+        $flags = self::getFeatureFlags($class);
+
+        $reflection = self::getReflection($class);
+        $constructor = $reflection->getConstructor();
+
+        if (!$constructor) {
+            return new $class();
+        }
+
+        // Build constructor arguments
+        $args = [];
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            $paramName = $reflectionParameter->getName();
+            $value = null;
+            $wasProvided = false;
+            $sourceKey = $paramName;
+
+            // Step 1: Check for #[MapFrom] (only if flag is set)
+            if ($flags['hasMapFrom']) {
+                $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
+                if (!empty($mapFromAttrs)) {
+                    /** @var MapFrom $mapFrom */
+                    $mapFrom = $mapFromAttrs[0]->newInstance();
+                    $sources = is_array($mapFrom->source) ? $mapFrom->source : [$mapFrom->source];
+
+                    // Try each source until we find a value
+                    $value = null;
+                    $wasProvided = false;
+                    foreach ($sources as $sourceKey) {
+                        // Support dot notation (e.g., 'user.profile.firstName')
+                        if (str_contains($sourceKey, '.')) {
+                            $value = self::getNestedValue($data, $sourceKey);
+                        } else {
+                            $value = $data[$sourceKey] ?? null;
+                        }
+
+                        if (null !== $value) {
+                            $wasProvided = true;
+                            break;
+                        }
+                    }
+                } else {
+                    $wasProvided = array_key_exists($paramName, $data);
+                    $value = $data[$paramName] ?? null;
+                }
+            } else {
+                $wasProvided = array_key_exists($paramName, $data);
+                $value = $data[$paramName] ?? null;
+            }
+
+            // Step 2: Check for #[ConvertEmptyToNull] (only if flag is set)
+            if ($flags['hasConvertEmptyToNull'] && ('' === $value || [] === $value) && self::shouldConvertEmptyToNull(
+                $class,
+                $paramName,
+                $reflectionParameter
+            )) {
+                $value = null;
+            }
+
+            // Step 3: Apply casting (only if NOT #[NoCasts])
+            if (!$flags['hasNoCasts']) {
+                // Step 3a: Apply #[CastWith] if value is not null (only if flag is set)
+                if ($flags['hasCastWith'] && null !== $value) {
+                    $castWithAttrs = $reflectionParameter->getAttributes(CastWith::class);
+                    if (!empty($castWithAttrs)) {
+                        /** @var CastWith $castWith */
+                        $castWith = $castWithAttrs[0]->newInstance();
+                        $casterClass = $castWith->casterClass;
+
+                        if (class_exists($casterClass) && method_exists($casterClass, 'cast')) {
+                            $value = $casterClass::cast($value);
+                        }
+                    }
+                }
+
+                // Step 3b: Cast to enum if needed
+                if (null !== $value) {
+                    $type = $reflectionParameter->getType();
+                    if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
+                        $typeName = $type->getName();
+                        if (enum_exists($typeName)) {
+                            $value = self::castToEnum($typeName, $value);
+                        }
+                    }
+                }
+
+                // Step 3c: Cast to DateTime/DateTimeImmutable if needed (automatic casting)
+                if (null !== $value) {
+                    $type = $reflectionParameter->getType();
+                    if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
+                        $typeName = $type->getName();
+                        if (DateTime::class === $typeName || DateTimeImmutable::class === $typeName) {
+                            $value = self::castToDateTime($typeName, $value);
+                        }
+                    }
+                }
+
+                // Step 3d: Apply #[AutoCast] for native PHP types (only if flag is set)
+                if ($flags['hasAutoCast'] && null !== $value) {
+                    $type = $reflectionParameter->getType();
+                    if ($type instanceof ReflectionNamedType && $type->isBuiltin()) {
+                        $typeName = $type->getName();
+                        if (self::shouldAutoCast($class, $paramName)) {
+                            $value = self::autoCastValue($value, $typeName);
+                        }
+                    }
+                }
+
+                // Step 3e: Handle nested DTOs and collections
+                if (null !== $value) {
+                    $type = $reflectionParameter->getType();
+                    if ($type instanceof ReflectionNamedType) {
+                        $typeName = $type->getName();
+
+                        // Check if it's an array (potential collection)
+                        if ('array' === $typeName && is_array($value)) {
+                            // Check for #[DataCollectionOf] attribute (highest priority)
+                            $dataCollectionOfClass = self::getDataCollectionOf(
+                                $class,
+                                $paramName,
+                                $reflectionParameter
+                            );
+                            if ($dataCollectionOfClass && self::isCollection($value)) {
+                                /** @var class-string<SimpleDto> $dataCollectionOfClass */
+                                $value = array_map($dataCollectionOfClass::from(...), $value);
+                            } else {
+                                // Fallback: Try to extract DTO type from docblock
+                                $dtoClass = self::extractDtoClassFromDocBlock($reflectionParameter);
+                                if ($dtoClass && self::isCollection($value)) {
+                                    $value = array_map($dtoClass::from(...), $value);
+                                }
+                            }
+                        }
+
+                        // Check if it's a SimpleDto (nested DTO)
+                        if (!$type->isBuiltin() && is_subclass_of($typeName, SimpleDto::class)) {
+                            // Single nested DTO
+                            /** @var class-string<SimpleDto> $typeName */
+                            if (is_array($value) || is_object($value) || is_string($value)) {
+                                /** @var array<string, mixed>|object|string $value */
+                                $value = $typeName::from($value);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $args[] = $value;
+        }
+
+        // Create instance
+        return $reflection->newInstanceArgs($args);
+    }
+
+    /**
      * Extract DTO class from docblock @var annotation.
      *
      * @return class-string|null
@@ -2336,11 +2626,17 @@ final class SimpleEngine
         ?array $filters = null,
         ?array $pipeline = null
     ): object {
-        // Performance: Only apply DataMapper if at least one parameter is provided
-        // This avoids unnecessary overhead when no mapping/filtering is needed
+        // Check for UltraFast mode first (skip if DataMapper parameters provided)
         $hasTemplate = null !== $template && [] !== $template;
         $hasFilters = null !== $filters && [] !== $filters;
         $hasPipeline = null !== $pipeline && [] !== $pipeline;
+
+        if (!$hasTemplate && !$hasFilters && !$hasPipeline && self::isUltraFast($class)) {
+            return self::createUltraFast($class, $data);
+        }
+
+        // Performance: Only apply DataMapper if at least one parameter is provided
+        // This avoids unnecessary overhead when no mapping/filtering is needed
 
         // Track if template was applied (for priority handling)
         $templateApplied = false;
