@@ -43,6 +43,6 @@ class WhenContextNotNull implements ConditionalProperty
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
-        return isset($context[$this->key]) && null !== $context[$this->key];
+        return isset($context[$this->key]);
     }
 }

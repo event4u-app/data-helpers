@@ -328,7 +328,15 @@ jobs:
         if: matrix.framework == 'laravel'
         run: |
           cd tests-e2e/Laravel
+          # Set absolute database path in .env
+          DB_PATH="${PWD}/database/database.sqlite"
+          sed -i "s|^DB_DATABASE=.*|DB_DATABASE=${DB_PATH}|" .env
+          # Run setup
           bash setup.sh
+          # Verify database exists and has tables
+          echo "Database path: ${DB_PATH}"
+          ls -la database/database.sqlite
+          sqlite3 database/database.sqlite ".tables"
 
       - name: Execute E2E tests
         run: |

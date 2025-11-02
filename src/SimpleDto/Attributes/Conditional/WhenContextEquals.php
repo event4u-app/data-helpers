@@ -34,10 +34,12 @@ class WhenContextEquals implements ConditionalProperty
     /**
      * @param string $key Context key to check
      * @param mixed $value Value to compare against
+     * @param bool $strict Use strict comparison (default: true)
      */
     public function __construct(
         public readonly string $key,
         public readonly mixed $value,
+        public readonly bool $strict = true,
     ) {}
 
     /**
@@ -49,6 +51,12 @@ class WhenContextEquals implements ConditionalProperty
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
-        return isset($context[$this->key]) && $context[$this->key] === $this->value;
+        if (!isset($context[$this->key])) {
+            return false;
+        }
+
+        return $this->strict
+            ? $context[$this->key] === $this->value
+            : $context[$this->key] == $this->value;
     }
 }

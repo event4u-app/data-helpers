@@ -94,15 +94,17 @@ describe('Validation Modes', function(): void {
         expect($result->name)->toBe('Jo');
     });
 
-    it('validates manually with validate()', function(): void {
+    it('validates manually with validateInstance()', function(): void {
         // Valid data
-        $validated = ValidationTestDto2::validate();
+        $dto = new ValidationTestDto2('test@example.com', 'John Doe');
+        $validated = $dto->validateInstance();
 
         expect($validated)->toHaveKey('email', 'test@example.com');
         expect($validated)->toHaveKey('name', 'John Doe');
 
         // Invalid data should throw
-        expect(fn(): array => ValidationTestDto2::validate())->toThrow(ValidationException::class);
+        $invalidDto = new ValidationTestDto2('invalid', 'Jo');
+        expect(fn(): array => $invalidDto->validateInstance())->toThrow(ValidationException::class);
     });
 
     it('validates with validateOrFail()', function(): void {

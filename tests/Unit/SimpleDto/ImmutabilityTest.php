@@ -13,9 +13,9 @@ class SimpleDtoImmutableUserDto extends SimpleDto
     ) {}
 }
 
-describe('SimpleDto Immutability', function (): void {
-    describe('Basic Functionality', function (): void {
-        it('can be created from array', function (): void {
+describe('SimpleDto Immutability', function(): void {
+    describe('Basic Functionality', function(): void {
+        it('can be created from array', function(): void {
             $dto = SimpleDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -25,7 +25,7 @@ describe('SimpleDto Immutability', function (): void {
                 ->and($dto->age)->toBe(30);
         });
 
-        it('can be converted to array', function (): void {
+        it('can be converted to array', function(): void {
             $dto = SimpleDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -39,7 +39,7 @@ describe('SimpleDto Immutability', function (): void {
             ]);
         });
 
-        it('can be converted to JSON', function (): void {
+        it('can be converted to JSON', function(): void {
             $dto = SimpleDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -51,8 +51,8 @@ describe('SimpleDto Immutability', function (): void {
         });
     });
 
-    describe('Immutability', function (): void {
-        it('prevents property modification (readonly protection)', function (): void {
+    describe('Immutability', function(): void {
+        it('prevents property modification (readonly protection)', function(): void {
             $dto = SimpleDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -63,7 +63,7 @@ describe('SimpleDto Immutability', function (): void {
             $dto->name = 'Jane';
         })->throws(Error::class, 'Cannot modify readonly property');
 
-        it('prevents property unsetting (readonly protection)', function (): void {
+        it('prevents property unsetting (readonly protection)', function(): void {
             $dto = SimpleDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -74,7 +74,7 @@ describe('SimpleDto Immutability', function (): void {
             unset($dto->name);
         })->throws(Error::class, 'Cannot unset readonly property');
 
-        it('prevents adding new properties via __set', function (): void {
+        it('prevents adding new properties via __set', function(): void {
             $dto = SimpleDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -89,8 +89,8 @@ describe('SimpleDto Immutability', function (): void {
         );
     });
 
-    describe('Readonly Properties', function (): void {
-        it('readonly properties cannot be modified directly', function (): void {
+    describe('Readonly Properties', function(): void {
+        it('readonly properties cannot be modified directly', function(): void {
             $dto = SimpleDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -101,7 +101,7 @@ describe('SimpleDto Immutability', function (): void {
             $dto->name = 'Jane';
         })->throws(Error::class);
 
-        it('readonly properties can be read', function (): void {
+        it('readonly properties can be read', function(): void {
             $dto = SimpleDtoImmutableUserDto::from([
                 'name' => 'John',
                 'age' => 30,
@@ -112,4 +112,3 @@ describe('SimpleDto Immutability', function (): void {
         });
     });
 });
-

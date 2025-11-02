@@ -188,14 +188,14 @@ describe('JSON Serialization with Combinations', function(): void {
         $dto = TestComboDto3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
         $json = json_encode($dto);
 
-        expect($json)->toBe('{"name":"John","email":null}');
+        expect($json)->toBe('{"name":"John"}');
     });
 
     it('serializes multiple optional properties with includeAll', function(): void {
         $dto = TestComboDto3::fromArray(['name' => 'John', 'bio' => 'Bio...']);
         $json = json_encode($dto->includeAll());
 
-        expect($json)->toBe('{"name":"John","email":null,"bio":"Bio..."}');
+        expect($json)->toBe('{"name":"John","bio":"Bio..."}');
     });
 });
 

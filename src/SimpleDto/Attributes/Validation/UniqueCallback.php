@@ -70,7 +70,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class UniqueCallback implements ConditionalValidationAttribute
 {
-    /** @param callable $callback Callback to check uniqueness: fn(mixed $value, array $allData): bool */
+    /** @param callable(mixed, array<string, mixed>): bool $callback Callback to check uniqueness: fn(mixed $value, array $allData): bool */
     public function __construct(
         public readonly mixed $callback,
     ) {}

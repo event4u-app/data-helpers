@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace E2E\Laravel\Dtos;
 
-use event4u\DataHelpers\LiteDto\Attributes\Validation\FileCallback;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\Required;
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\FileCallback;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 use Illuminate\Http\UploadedFile;
 
 /**
  * DTO for testing FileCallback validation with Laravel.
  */
-class FileUploadDto extends LiteDto
+class FileUploadDto extends SimpleDto
 {
     public function __construct(
         #[Required]

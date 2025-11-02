@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto;
 
 use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\SimpleDto\Support\SimpleEngine;
 use event4u\DataHelpers\Validation\ValidationResult;
@@ -56,7 +57,6 @@ trait SimpleDtoTrait
     use SimpleDtoBenchmarkTrait;
     // Note: SimpleDtoDoctrineTrait and SimpleDtoEloquentTrait are NOT imported by default
     // to maintain framework independence. Import them explicitly if needed.
-
     /**
      * Create DTO from data.
      *
@@ -69,8 +69,8 @@ trait SimpleDtoTrait
      *
      * @param array<string, mixed>|string|object $data
      * @param array<string, mixed>|null $template Optional template override
-     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional filters (property => filter)
-     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      */
     public static function from(
         mixed $data,
@@ -80,7 +80,7 @@ trait SimpleDtoTrait
     ): static {
         // Check if DTO uses SimpleDtoMapperTrait (has getTemplateConfig method)
         // and load DTO configuration if available
-        $usesMapperTrait = method_exists(static::class, 'getTemplateConfig');
+        $usesMapperTrait = method_exists(static::class, 'getTemplateConfig'); // @phpstan-ignore-line
 
         if ($usesMapperTrait) {
             // Merge with parameters (parameters have priority for template/filters, merged for pipeline)
@@ -117,23 +117,37 @@ trait SimpleDtoTrait
      */
     public function toArray(array $context = []): array
     {
+        // Merge context from withContext() method if SimpleDtoConditionalTrait is used
+        if (property_exists($this, 'conditionalContext') && isset($this->conditionalContext)) { // @phpstan-ignore-line
+            $context += $this->conditionalContext; // @phpstan-ignore-line
+        }
+
         $data = SimpleEngine::toArray($this, $context);
 
         // Apply visibility filtering if SimpleDtoVisibilityTrait is used
-        if (method_exists($this, 'filterVisibleProperties')) {
-            $hiddenProperties = method_exists($this, 'getHiddenFromArrayProperties')
+        if (method_exists($this, 'filterVisibleProperties')) { // @phpstan-ignore-line
+            $hiddenProperties = method_exists($this, 'getHiddenFromArrayProperties') // @phpstan-ignore-line
                 ? $this->getHiddenFromArrayProperties()
                 : [];
             $data = $this->filterVisibleProperties($data, $hiddenProperties);
         }
 
+        // Merge additional data from with() method if SimpleDtoWithTrait is used
+        if (method_exists($this, 'getAdditionalData')) { // @phpstan-ignore-line
+            $additionalData = $this->getAdditionalData();
+            if ([] !== $additionalData) {
+                // Use + operator for performance (additional data overwrites existing properties)
+                $data = $additionalData + $data;
+            }
+        }
+
         // Apply wrapping if SimpleDtoWrappingTrait is used
-        if (method_exists($this, 'applyWrapping')) {
+        if (method_exists($this, 'applyWrapping')) { // @phpstan-ignore-line
             $data = $this->applyWrapping($data);
         }
 
         // Apply sorting if SimpleDtoSortingTrait is used
-        if (method_exists($this, 'applySorting')) {
+        if (method_exists($this, 'applySorting')) { // @phpstan-ignore-line
             return $this->applySorting($data);
         }
 
@@ -147,18 +161,33 @@ trait SimpleDtoTrait
      */
     public function toJson(int $options = 0): string
     {
-        $data = SimpleEngine::toJsonArray($this);
+        // Merge context from withContext() method if SimpleDtoConditionalTrait is used
+        $context = [];
+        if (property_exists($this, 'conditionalContext') && isset($this->conditionalContext)) { // @phpstan-ignore-line
+            $context = $this->conditionalContext; // @phpstan-ignore-line
+        }
+
+        $data = SimpleEngine::toJsonArray($this, $context);
 
         // Apply visibility filtering if SimpleDtoVisibilityTrait is used
-        if (method_exists($this, 'filterVisibleProperties')) {
-            $hiddenProperties = method_exists($this, 'getHiddenFromJsonProperties')
+        if (method_exists($this, 'filterVisibleProperties')) { // @phpstan-ignore-line
+            $hiddenProperties = method_exists($this, 'getHiddenFromJsonProperties') // @phpstan-ignore-line
                 ? $this->getHiddenFromJsonProperties()
                 : [];
             $data = $this->filterVisibleProperties($data, $hiddenProperties);
         }
 
+        // Merge additional data from with() method if SimpleDtoWithTrait is used
+        if (method_exists($this, 'getAdditionalData')) { // @phpstan-ignore-line
+            $additionalData = $this->getAdditionalData();
+            if ([] !== $additionalData) {
+                // Use + operator for performance (additional data overwrites existing properties)
+                $data = $additionalData + $data;
+            }
+        }
+
         // Apply wrapping if SimpleDtoWrappingTrait is used
-        if (method_exists($this, 'applyWrapping')) {
+        if (method_exists($this, 'applyWrapping')) { // @phpstan-ignore-line
             $data = $this->applyWrapping($data);
         }
 
@@ -172,23 +201,38 @@ trait SimpleDtoTrait
      */
     public function jsonSerialize(): array
     {
-        $data = SimpleEngine::toJsonArray($this);
+        // Merge context from withContext() method if SimpleDtoConditionalTrait is used
+        $context = [];
+        if (property_exists($this, 'conditionalContext') && isset($this->conditionalContext)) { // @phpstan-ignore-line
+            $context = $this->conditionalContext; // @phpstan-ignore-line
+        }
+
+        $data = SimpleEngine::toJsonArray($this, $context);
 
         // Apply visibility filtering if SimpleDtoVisibilityTrait is used
-        if (method_exists($this, 'filterVisibleProperties')) {
-            $hiddenProperties = method_exists($this, 'getHiddenFromJsonProperties')
+        if (method_exists($this, 'filterVisibleProperties')) { // @phpstan-ignore-line
+            $hiddenProperties = method_exists($this, 'getHiddenFromJsonProperties') // @phpstan-ignore-line
                 ? $this->getHiddenFromJsonProperties()
                 : [];
             $data = $this->filterVisibleProperties($data, $hiddenProperties);
         }
 
+        // Merge additional data from with() method if SimpleDtoWithTrait is used
+        if (method_exists($this, 'getAdditionalData')) { // @phpstan-ignore-line
+            $additionalData = $this->getAdditionalData();
+            if ([] !== $additionalData) {
+                // Use + operator for performance (additional data overwrites existing properties)
+                $data = $additionalData + $data;
+            }
+        }
+
         // Apply wrapping if SimpleDtoWrappingTrait is used
-        if (method_exists($this, 'applyWrapping')) {
+        if (method_exists($this, 'applyWrapping')) { // @phpstan-ignore-line
             $data = $this->applyWrapping($data);
         }
 
         // Apply sorting if SimpleDtoSortingTrait is used
-        if (method_exists($this, 'applySorting')) {
+        if (method_exists($this, 'applySorting')) { // @phpstan-ignore-line
             return $this->applySorting($data);
         }
 
@@ -514,7 +558,7 @@ trait SimpleDtoTrait
      */
     public function includeComputed(array $names): static
     {
-        return SimpleEngine::includeComputed($this, $names);
+        return SimpleEngine::includeComputed($this, $names); // @phpstan-ignore-line
     }
 
     /**
@@ -527,7 +571,7 @@ trait SimpleDtoTrait
      */
     public function include(array $names): static
     {
-        return SimpleEngine::includeComputed($this, $names);
+        return SimpleEngine::includeComputed($this, $names); // @phpstan-ignore-line
     }
 
     /**
@@ -537,7 +581,7 @@ trait SimpleDtoTrait
      */
     public function includeAll(): static
     {
-        return SimpleEngine::includeAllLazy($this);
+        return SimpleEngine::includeAllLazy($this); // @phpstan-ignore-line
     }
 
     /**
@@ -547,10 +591,10 @@ trait SimpleDtoTrait
      * @return DataCollection<static> The collection of Dtos
      * @phpstan-return DataCollection<static>
      */
-    public static function collection(array $items = []): DataCollection
+    public static function collection(array $items = []): DataCollection // @phpstan-ignore-line
     {
-        /** @var DataCollection<static> $dataCollection */
-        $dataCollection = DataCollection::forDto(static::class, $items);
+        /** @var DataCollection<static> $dataCollection @phpstan-ignore-line */
+        $dataCollection = DataCollection::forDto(static::class, $items); // @phpstan-ignore-line
 
         return $dataCollection;
     }

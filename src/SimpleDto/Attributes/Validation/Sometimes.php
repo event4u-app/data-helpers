@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 
 /**
  * Conditional validation attribute: Field is only validated if it is present in the input.
@@ -32,8 +33,17 @@ use Attribute;
  * It doesn't implement ValidationAttribute because it's handled specially in the validation logic.
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Sometimes
+class Sometimes implements ValidationRule
 {
-    // This is a marker attribute - no methods needed
-    // The validation logic in SimpleEngine will check for this attribute
+    /** Convert to Laravel validation rule. */
+    public function rule(): string
+    {
+        return 'sometimes';
+    }
+
+    /** Get validation error message. */
+    public function message(): ?string
+    {
+        return null; // This is a meta-rule, no error message needed
+    }
 }

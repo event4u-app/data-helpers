@@ -27,7 +27,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class WhenCallback implements ConditionalProperty
 {
-    /** @param callable $callback Callback that receives ($value, $dto, $context) and returns bool */
+    /** @param callable(mixed, object, array<string, mixed>): bool $callback Callback that receives ($value, $dto, $context) and returns bool */
     public function __construct(
         public readonly mixed $callback,
     ) {}

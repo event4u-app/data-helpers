@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace E2E\Laravel\Dtos;
 
 use E2E\Laravel\Models\Product;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\ExistsCallback;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\Required;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\UniqueCallback;
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\ExistsCallback;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\UniqueCallback;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 
 /**
  * DTO for testing callback-based validation with products.
  */
-class ProductValidationDto extends LiteDto
+class ProductValidationDto extends SimpleDto
 {
     public function __construct(
         #[Required]

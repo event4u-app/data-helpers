@@ -41,6 +41,9 @@ class E2ESymfonyMultiRoleDto extends LiteDto
 
 class E2ESymfonySymfonyRoleDto extends LiteDto
 {
+    /**
+     * @param array<string, mixed>|null $adminData
+     */
     public function __construct(
         public readonly string $name,
         #[WhenSymfonyRole('ROLE_ADMIN')]
@@ -64,7 +67,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
             };
 
             $dto = E2ESymfonyGrantedDto::from(['title' => 'My Post', 'editLink' => '/edit']);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->toHaveKey('editLink');
         });
@@ -78,7 +81,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
             };
 
             $dto = E2ESymfonyGrantedDto::from(['title' => 'My Post', 'editLink' => '/edit']);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->not->toHaveKey('editLink');
         });
@@ -87,6 +90,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
     describe('WhenRole', function (): void {
         it('includes property when user has role (context)', function (): void {
             $user = new class {
+                /** @return array<string> */
                 public function getRoles(): array
                 {
                     return ['ROLE_ADMIN', 'ROLE_USER'];
@@ -94,7 +98,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
             };
 
             $dto = E2ESymfonyRoleDto::from(['name' => 'John', 'adminPanel' => '/admin']);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->toHaveKey('adminPanel')
                 ->and($array['adminPanel'])->toBe('/admin');
@@ -102,6 +106,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
 
         it('excludes property when user does not have role (context)', function (): void {
             $user = new class {
+                /** @return array<string> */
                 public function getRoles(): array
                 {
                     return ['ROLE_USER'];
@@ -109,13 +114,14 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
             };
 
             $dto = E2ESymfonyRoleDto::from(['name' => 'John', 'adminPanel' => '/admin']);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->not->toHaveKey('adminPanel');
         });
 
         it('includes property when user has one of multiple roles (context)', function (): void {
             $user = new class {
+                /** @return array<string> */
                 public function getRoles(): array
                 {
                     return ['ROLE_MODERATOR', 'ROLE_USER'];
@@ -123,7 +129,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
             };
 
             $dto = E2ESymfonyMultiRoleDto::from(['name' => 'John', 'moderationPanel' => '/moderation']);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->toHaveKey('moderationPanel');
         });
@@ -133,6 +139,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
     describe('WhenSymfonyRole', function (): void {
         it('includes property when user has role (context)', function (): void {
             $user = new class {
+                /** @return array<string> */
                 public function getRoles(): array
                 {
                     return ['ROLE_ADMIN', 'ROLE_USER'];
@@ -140,7 +147,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
             };
 
             $dto = E2ESymfonySymfonyRoleDto::from(['name' => 'John', 'adminData' => ['key' => 'value']]);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->toHaveKey('adminData')
                 ->and($array['adminData'])->toBe(['key' => 'value']);
@@ -148,6 +155,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
 
         it('excludes property when user does not have role (context)', function (): void {
             $user = new class {
+                /** @return array<string> */
                 public function getRoles(): array
                 {
                     return ['ROLE_USER'];
@@ -155,7 +163,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
             };
 
             $dto = E2ESymfonySymfonyRoleDto::from(['name' => 'John', 'adminData' => ['key' => 'value']]);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->not->toHaveKey('adminData');
         });
@@ -164,6 +172,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
     describe('toJson compatibility', function (): void {
         it('works with toJson', function (): void {
             $user = new class {
+                /** @return array<string> */
                 public function getRoles(): array
                 {
                     return ['ROLE_ADMIN', 'ROLE_USER'];
@@ -171,7 +180,7 @@ describe('Symfony LiteDto Conditional Attributes E2E', function (): void {
             };
 
             $dto = E2ESymfonyRoleDto::from(['name' => 'John', 'adminPanel' => '/admin']);
-            $json = $dto->toJson(['user' => $user]);
+            $json = $dto->toJson(['user' => $user]); // @phpstan-ignore-line
 
             expect($json)->toContain('"adminPanel"')
                 ->and($json)->toContain('/admin');

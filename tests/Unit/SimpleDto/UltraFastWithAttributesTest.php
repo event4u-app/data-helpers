@@ -71,9 +71,9 @@ class SimpleDtoFastNoAttributesDto extends SimpleDto
     ) {}
 }
 
-describe('UltraFast with Attributes', function (): void {
-    describe('MapFrom Support', function (): void {
-        it('auto-detects and processes MapFrom', function (): void {
+describe('UltraFast with Attributes', function(): void {
+    describe('MapFrom Support', function(): void {
+        it('auto-detects and processes MapFrom', function(): void {
             $dto = SimpleDtoFastWithMapFromDto::from([
                 'user_name' => 'John Doe',
                 'age' => 30,
@@ -83,7 +83,7 @@ describe('UltraFast with Attributes', function (): void {
             expect($dto->age)->toBe(30);
         });
 
-        it('works without MapFrom attribute', function (): void {
+        it('works without MapFrom attribute', function(): void {
             $dto = SimpleDtoFastNoAttributesDto::from([
                 'name' => 'John Doe',
                 'age' => 30,
@@ -94,8 +94,8 @@ describe('UltraFast with Attributes', function (): void {
         });
     });
 
-    describe('MapTo Support', function (): void {
-        it('auto-detects and processes MapTo', function (): void {
+    describe('MapTo Support', function(): void {
+        it('auto-detects and processes MapTo', function(): void {
             $dto = SimpleDtoFastWithMapToDto::from([
                 'name' => 'John Doe',
                 'age' => 30,
@@ -109,7 +109,7 @@ describe('UltraFast with Attributes', function (): void {
             ]);
         });
 
-        it('works without MapTo attribute', function (): void {
+        it('works without MapTo attribute', function(): void {
             $dto = SimpleDtoFastNoAttributesDto::from([
                 'name' => 'John Doe',
                 'age' => 30,
@@ -124,8 +124,8 @@ describe('UltraFast with Attributes', function (): void {
         });
     });
 
-    describe('CastWith Support', function (): void {
-        it('auto-detects and processes CastWith', function (): void {
+    describe('CastWith Support', function(): void {
+        it('auto-detects and processes CastWith', function(): void {
             $dto = SimpleDtoFastWithCastWithDto::from([
                 'name' => 'john doe',
                 'age' => 30,
@@ -135,7 +135,7 @@ describe('UltraFast with Attributes', function (): void {
             expect($dto->age)->toBe(30);
         });
 
-        it('works without CastWith attribute', function (): void {
+        it('works without CastWith attribute', function(): void {
             $dto = SimpleDtoFastNoAttributesDto::from([
                 'name' => 'john doe',
                 'age' => 30,
@@ -146,8 +146,8 @@ describe('UltraFast with Attributes', function (): void {
         });
     });
 
-    describe('Combined Attributes', function (): void {
-        it('auto-detects and processes all attributes', function (): void {
+    describe('Combined Attributes', function(): void {
+        it('auto-detects and processes all attributes', function(): void {
             $dto = SimpleDtoFastWithAllAttributesDto::from([
                 'user_name' => 'john doe',
                 'age' => 30,
@@ -166,8 +166,8 @@ describe('UltraFast with Attributes', function (): void {
         });
     });
 
-    describe('Performance', function (): void {
-        it('maintains ultra-fast performance with auto-detection', function (): void {
+    describe('Performance', function(): void {
+        it('maintains ultra-fast performance with auto-detection', function(): void {
             $iterations = 1000;
             $start = microtime(true);
 
@@ -186,4 +186,3 @@ describe('UltraFast with Attributes', function (): void {
         });
     });
 });
-

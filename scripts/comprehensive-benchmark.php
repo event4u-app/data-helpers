@@ -547,7 +547,10 @@ if (file_exists($dtoComparisonPath)) {
 
             // Only use "FromArray" or "From" benchmarks for creation performance comparison
             // Skip "ToArray" (serialization) and "ComplexData" (nested structures)
-            if (!str_contains($name, 'FromArray') && !(str_contains($name, 'From') && !str_contains($name, 'FromJson'))) {
+            if (!str_contains($name, 'FromArray') && !(str_contains($name, 'From') && !str_contains(
+                $name,
+                'FromJson'
+            ))) {
                 continue;
             }
 

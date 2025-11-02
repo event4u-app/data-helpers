@@ -104,6 +104,20 @@ trait SimpleDtoValidationTrait
     }
 
     /**
+     * Validate data without creating DTO instance.
+     *
+     * Returns a ValidationResult that can be checked with isValid().
+     * This is useful for validation-only scenarios where you don't need the DTO yet.
+     *
+     * @param array<string, mixed>|string|object $data Data to validate
+     */
+    public static function validate(mixed $data): ValidationResult
+    {
+        // Use SimpleEngine to validate (with caching, performance optimizations, etc.)
+        return SimpleEngine::validate(static::class, $data);
+    }
+
+    /**
      * Validate data and create DTO instance.
      *
      * Validates the data using SimpleEngine and stores the ValidationResult in the DTO.
@@ -119,9 +133,7 @@ trait SimpleDtoValidationTrait
 
         // Throw exception if validation failed
         if (!$result->isValid()) {
-            throw new ValidationException(
-                'Validation failed: ' . implode(', ', $result->allErrors())
-            );
+            throw ValidationException::withMessages($result->errors());
         }
 
         // Create DTO from validated data
@@ -142,7 +154,7 @@ trait SimpleDtoValidationTrait
      * @return array<string, mixed> Validated data
      * @throws ValidationException If validation fails
      */
-    public function validate(): array
+    public function validateInstance(): array
     {
         // Convert DTO to array for validation
         $data = $this->toArray();
@@ -155,9 +167,7 @@ trait SimpleDtoValidationTrait
 
         // Throw exception if validation failed
         if (!$result->isValid()) {
-            throw new ValidationException(
-                'Validation failed: ' . implode(', ', $result->allErrors())
-            );
+            throw ValidationException::withMessages($result->errors());
         }
 
         // Return validated data

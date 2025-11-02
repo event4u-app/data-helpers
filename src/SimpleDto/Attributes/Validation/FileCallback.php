@@ -58,7 +58,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class FileCallback implements ValidationAttribute
 {
-    /** @param callable $callback Callback to check file validity: fn(mixed $value, string $propertyName): bool */
+    /** @param callable(mixed, string): bool $callback Callback to check file validity: fn(mixed $value, string $propertyName): bool */
     public function __construct(
         public readonly mixed $callback,
     ) {}

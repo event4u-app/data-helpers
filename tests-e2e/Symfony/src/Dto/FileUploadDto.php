@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Dto;
 
-use event4u\DataHelpers\LiteDto\Attributes\Validation\FileCallback;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\Required;
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\FileCallback;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * DTO for testing FileCallback validation with Symfony.
  */
-class FileUploadDto extends LiteDto
+class FileUploadDto extends SimpleDto
 {
     public function __construct(
         #[Required]

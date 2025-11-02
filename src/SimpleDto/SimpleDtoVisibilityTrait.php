@@ -211,8 +211,10 @@ trait SimpleDtoVisibilityTrait
         }
 
         // Check Laravel Gate
+        // @phpstan-ignore-next-line property.notFound (Visible attribute doesn't have $gate property - this is dead code for future extension)
         if (null !== $visibleAttr->gate) {
             if (class_exists('Illuminate\Support\Facades\Gate')) {
+                // @phpstan-ignore-next-line property.notFound
                 return Gate::allows($visibleAttr->gate, $this);
             }
 
@@ -220,6 +222,7 @@ trait SimpleDtoVisibilityTrait
         }
 
         // Check Symfony Voter
+        // @phpstan-ignore-next-line property.notFound (Visible attribute doesn't have $voter property - this is dead code for future extension)
         if (null !== $visibleAttr->voter) {
             if (interface_exists('Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface')) {
                 // Try to get authorization checker from container

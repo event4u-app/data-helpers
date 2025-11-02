@@ -6,12 +6,12 @@ namespace App\Dto;
 
 use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\ExistsCallback;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\Required;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\UniqueCallback;
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\ExistsCallback;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\UniqueCallback;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 
-class ProductValidationDto extends LiteDto
+class ProductValidationDto extends SimpleDto
 {
     private static ?EntityManagerInterface $entityManager = null;
 

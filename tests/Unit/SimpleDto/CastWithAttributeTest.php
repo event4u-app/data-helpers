@@ -12,7 +12,7 @@ class SimpleDtoUpperCaseCaster
 {
     public static function cast(mixed $value): string
     {
-        return strtoupper((string) $value);
+        return strtoupper((string)$value);
     }
 }
 
@@ -26,7 +26,7 @@ class SimpleDtoJsonCaster
             $decoded = json_decode($value, true) ?? [];
             return $decoded;
         }
-        return (array) $value;
+        return (array)$value;
     }
 }
 
@@ -62,9 +62,9 @@ class SimpleDtoCastWithCustomDto extends SimpleDto
     ) {}
 }
 
-describe('CastWith Attribute', function (): void {
-    describe('DateTimeCaster', function (): void {
-        it('casts string to DateTime', function (): void {
+describe('CastWith Attribute', function(): void {
+    describe('DateTimeCaster', function(): void {
+        it('casts string to DateTime', function(): void {
             $dto = SimpleDtoCastWithUserDto::from([
                 'name' => 'John',
                 'createdAt' => '2024-01-15 10:30:00',
@@ -77,7 +77,7 @@ describe('CastWith Attribute', function (): void {
             expect($createdAt->format('Y-m-d H:i:s'))->toBe('2024-01-15 10:30:00');
         });
 
-        it('handles null values', function (): void {
+        it('handles null values', function(): void {
             $dto = SimpleDtoCastWithUserDto::from([
                 'name' => 'John',
                 'createdAt' => null,
@@ -87,7 +87,7 @@ describe('CastWith Attribute', function (): void {
                 ->and($dto->createdAt)->toBeNull();
         });
 
-        it('handles empty string', function (): void {
+        it('handles empty string', function(): void {
             $dto = SimpleDtoCastWithUserDto::from([
                 'name' => 'John',
                 'createdAt' => '',
@@ -97,7 +97,7 @@ describe('CastWith Attribute', function (): void {
                 ->and($dto->createdAt)->toBeNull();
         });
 
-        it('handles ISO 8601 format', function (): void {
+        it('handles ISO 8601 format', function(): void {
             $dto = SimpleDtoCastWithUserDto::from([
                 'name' => 'John',
                 'createdAt' => '2024-01-15T10:30:00+00:00',
@@ -110,8 +110,8 @@ describe('CastWith Attribute', function (): void {
         });
     });
 
-    describe('DateTimeImmutableCaster', function (): void {
-        it('casts string to DateTimeImmutable', function (): void {
+    describe('DateTimeImmutableCaster', function(): void {
+        it('casts string to DateTimeImmutable', function(): void {
             $dto = SimpleDtoCastWithEventDto::from([
                 'title' => 'Conference',
                 'startDate' => '2024-01-15 09:00:00',
@@ -129,7 +129,7 @@ describe('CastWith Attribute', function (): void {
                 ->and($endDate->format('H:i'))->toBe('17:00');
         });
 
-        it('handles null values', function (): void {
+        it('handles null values', function(): void {
             $dto = SimpleDtoCastWithEventDto::from([
                 'title' => 'Conference',
                 'startDate' => null,
@@ -142,8 +142,8 @@ describe('CastWith Attribute', function (): void {
         });
     });
 
-    describe('Custom Casters', function (): void {
-        it('uses custom SimpleDtoUpperCaseCaster', function (): void {
+    describe('Custom Casters', function(): void {
+        it('uses custom SimpleDtoUpperCaseCaster', function(): void {
             $dto = SimpleDtoCastWithCustomDto::from([
                 'name' => 'john doe',
                 'metadata' => '{"key":"value"}',
@@ -153,7 +153,7 @@ describe('CastWith Attribute', function (): void {
                 ->and($dto->metadata)->toBe(['key' => 'value']);
         });
 
-        it('uses custom SimpleDtoJsonCaster', function (): void {
+        it('uses custom SimpleDtoJsonCaster', function(): void {
             $dto = SimpleDtoCastWithCustomDto::from([
                 'name' => 'test',
                 'metadata' => '{"foo":"bar","count":42}',
@@ -165,7 +165,7 @@ describe('CastWith Attribute', function (): void {
             ]);
         });
 
-        it('handles invalid JSON gracefully', function (): void {
+        it('handles invalid JSON gracefully', function(): void {
             $dto = SimpleDtoCastWithCustomDto::from([
                 'name' => 'test',
                 'metadata' => 'invalid json',
@@ -175,8 +175,8 @@ describe('CastWith Attribute', function (): void {
         });
     });
 
-    describe('Multiple Casters', function (): void {
-        it('applies different casters to different properties', function (): void {
+    describe('Multiple Casters', function(): void {
+        it('applies different casters to different properties', function(): void {
             $dto = SimpleDtoCastWithCustomDto::from([
                 'name' => 'alice',
                 'metadata' => '{"role":"admin"}',
@@ -187,8 +187,8 @@ describe('CastWith Attribute', function (): void {
         });
     });
 
-    describe('toArray()', function (): void {
-        it('converts DateTime back to array', function (): void {
+    describe('toArray()', function(): void {
+        it('converts DateTime back to array', function(): void {
             $dto = SimpleDtoCastWithUserDto::from([
                 'name' => 'John',
                 'createdAt' => '2024-01-15 10:30:00',
@@ -201,4 +201,3 @@ describe('CastWith Attribute', function (): void {
         });
     });
 });
-

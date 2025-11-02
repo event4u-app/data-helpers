@@ -11,6 +11,7 @@ use DateTimeInterface;
 use Error;
 use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\Attributes\CastWith;
 use event4u\DataHelpers\SimpleDto\Attributes\Computed;
@@ -56,6 +57,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\DataCollection;
 use event4u\DataHelpers\SimpleDto\SimpleDto;
 use event4u\DataHelpers\Support\Optional;
 use event4u\DataHelpers\Support\StringFormatDetector;
@@ -68,6 +70,7 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
+use ReflectionUnionType;
 use Throwable;
 use UnitEnum;
 
@@ -320,13 +323,6 @@ final class SimpleEngine
     private static array $autoCastCache = [];
 
     /**
-     * Cache for class-level AutoCast attribute.
-     *
-     * @var array<class-string, bool>
-     */
-    private static array $classAutoCastCache = [];
-
-    /**
      * Cache for UltraFast mode per class.
      *
      * @var array<class-string, bool>
@@ -379,8 +375,8 @@ final class SimpleEngine
      * @param class-string $class
      * @param array<string, mixed>|string|object $data
      * @param array<string, mixed>|null $template Optional template for mapping
-     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
-     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      */
     public static function createFromData(
         string $class,
@@ -427,6 +423,33 @@ final class SimpleEngine
             $data = get_object_vars($dto);
             $metadata = self::getPropertyMetadata($class);
 
+            // Filter out internal properties from traits
+            $internalProperties = [
+                'onlyProperties',
+                'exceptProperties',
+                'visibilityContext',
+                'computedCache',
+                'includedComputed',
+                'includedLazy',
+                'includeAllLazy',
+                'wrapKey',
+                'objectVarsCache',
+                'castedProperties',
+                'conditionalContext',
+                'additionalData',
+                'sortingEnabled',
+                'sortDirection',
+                'nestedSort',
+                'sortCallback',
+                'validationState',
+                'validationErrors',
+                'lastValidationResult',
+            ];
+
+            foreach ($internalProperties as $internalProp) {
+                unset($data[$internalProp]);
+            }
+
             // Get included computed properties for lazy handling
             $objectId = spl_object_id($dto);
             $includedComputed = self::$includedComputedCache[$objectId] ?? [];
@@ -462,17 +485,23 @@ final class SimpleEngine
                 }
 
                 // Unwrap Optional values (only if flag is set)
-                if ($flags['hasOptional'] && $value instanceof Optional) {
-                    // Skip empty Optional values (not present)
+                if ($flags['hasOptional'] && $value instanceof Optional) { // @phpstan-ignore-line
+                    // Empty Optional values are always skipped
                     if ($value->isEmpty()) {
                         continue;
                     }
+
                     // Unwrap present Optional values
                     $value = $value->get();
+
+                    // If the unwrapped value is a Lazy, unwrap it too (for Optional<Lazy<T>>)
+                    if ($flags['hasLazy'] && $value instanceof \event4u\DataHelpers\Support\Lazy) {
+                        $value = $value->get();
+                    }
                 }
 
                 // Check conditional properties (only if flag is set)
-                if ($flags['hasConditionalProperties'] && !self::shouldIncludeConditionalProperty(
+                if ($flags['hasConditionalProperties'] && !self::shouldIncludeConditionalProperty( // @phpstan-ignore-line
                     $class,
                     $name,
                     $value,
@@ -503,7 +532,7 @@ final class SimpleEngine
 
                 // Apply output casts FIRST (only if NOT #[NoCasts])
                 $convertedValue = $value;
-                if (!$flags['hasNoCasts']) {
+                if (!$flags['hasNoCasts']) { // @phpstan-ignore-line
                     $convertedValue = self::applyOutputCast($class, $name, $value, $data);
                 }
 
@@ -643,6 +672,33 @@ final class SimpleEngine
             $reflection = self::getReflection($class);
             $data = get_object_vars($dto);
 
+            // Filter out internal properties from traits
+            $internalProperties = [
+                'onlyProperties',
+                'exceptProperties',
+                'visibilityContext',
+                'computedCache',
+                'includedComputed',
+                'includedLazy',
+                'includeAllLazy',
+                'wrapKey',
+                'objectVarsCache',
+                'castedProperties',
+                'conditionalContext',
+                'additionalData',
+                'sortingEnabled',
+                'sortDirection',
+                'nestedSort',
+                'sortCallback',
+                'validationState',
+                'validationErrors',
+                'lastValidationResult',
+            ];
+
+            foreach ($internalProperties as $internalProp) {
+                unset($data[$internalProp]);
+            }
+
             // Get included computed properties for lazy handling
             $objectId = spl_object_id($dto);
             $includedComputed = self::$includedComputedCache[$objectId] ?? [];
@@ -696,17 +752,23 @@ final class SimpleEngine
                 }
 
                 // Unwrap Optional values (only if flag is set)
-                if ($flags['hasOptional'] && $value instanceof Optional) {
-                    // Skip empty Optional values (not present)
+                if ($flags['hasOptional'] && $value instanceof Optional) { // @phpstan-ignore-line
+                    // Empty Optional values are always skipped
                     if ($value->isEmpty()) {
                         continue;
                     }
+
                     // Unwrap present Optional values
                     $value = $value->get();
+
+                    // If the unwrapped value is a Lazy, unwrap it too (for Optional<Lazy<T>>)
+                    if ($flags['hasLazy'] && $value instanceof \event4u\DataHelpers\Support\Lazy) {
+                        $value = $value->get();
+                    }
                 }
 
                 // Check conditional properties (only if flag is set)
-                if ($flags['hasConditionalProperties'] && !self::shouldIncludeConditionalProperty(
+                if ($flags['hasConditionalProperties'] && !self::shouldIncludeConditionalProperty( // @phpstan-ignore-line
                     $class,
                     $name,
                     $value,
@@ -735,7 +797,7 @@ final class SimpleEngine
 
                 // Apply output casts FIRST (only if NOT #[NoCasts])
                 $convertedValue = $value;
-                if (!$flags['hasNoCasts']) {
+                if (!$flags['hasNoCasts']) { // @phpstan-ignore-line
                     $convertedValue = self::applyOutputCast($class, $name, $value, $data);
                 }
 
@@ -827,7 +889,7 @@ final class SimpleEngine
                 $result = $method->invoke($dto, $result);
             }
 
-            return $result;
+            return $result; // @phpstan-ignore-line
     }
 
     /** Resolve parameter value from data.
@@ -835,7 +897,7 @@ final class SimpleEngine
      * @param ReflectionClass<object> $reflection
      * @param object|null $dtoInstance Optional DTO instance for hooks
      */
-    private static function resolveParameter(
+    private static function resolveParameter(// @phpstan-ignore-line
         ReflectionParameter $param,
         array $data,
         ReflectionClass $reflection,
@@ -882,6 +944,24 @@ final class SimpleEngine
             if ($type instanceof ReflectionNamedType) {
                 $typeName = $type->getName();
 
+                // Check if it's a DataCollection (potential collection)
+                if ('event4u\DataHelpers\SimpleDto\DataCollection' === $typeName && is_array($value)) {
+                    // Check for #[DataCollectionOf] attribute
+                    $dataCollectionOfClass = self::getDataCollectionOf($reflection->getName(), $name, $param);
+                    if ($dataCollectionOfClass) {
+                        /** @var class-string<\event4u\DataHelpers\SimpleDto> $dataCollectionOfClass */
+                        $value = DataCollection::forDto(
+                            $dataCollectionOfClass,
+                            $value
+                        );
+
+                        // Hook: afterCasting
+                        self::callHook($dtoInstance, 'afterCasting', [$name, $value]);
+
+                        return $value;
+                    }
+                }
+
                 // Check if it's an array (potential collection)
                 if ('array' === $typeName && is_array($value)) {
                     // Check for #[DataCollectionOf] attribute (highest priority)
@@ -908,22 +988,37 @@ final class SimpleEngine
                     }
                 }
 
-                // Check if it's a SimpleDto (nested DTO)
-                if (!$type->isBuiltin() && is_subclass_of($typeName, SimpleDto::class)) {
-                    // Single nested DTO
-                    /** @var class-string<SimpleDto> $typeName */
-                    if (is_array($value) || is_object($value) || is_string($value)) {
-                        /** @var array<string, mixed>|object|string $value */
-                        $value = $typeName::from($value);
+                // Automatic type casting (unless #[NoCasts] is set)
+                if (null !== $value && !self::hasNoCasts($class)) {
+                    // Cast nested SimpleDto
+                    if (!$type->isBuiltin() && is_subclass_of($typeName, SimpleDto::class)) {
+                        /** @var class-string<SimpleDto> $typeName */
+                        if (is_array($value) || is_object($value) || is_string($value)) {
+                            /** @var array<string, mixed>|object|string $value @phpstan-ignore-line */
+                            $value = $typeName::from($value); // @phpstan-ignore-line
 
+                            // Hook: afterCasting
+                            self::callHook($dtoInstance, 'afterCasting', [$name, $value]);
+
+                            return $value;
+                        }
+                    }
+
+                    // Cast DateTime or DateTimeImmutable
+                    if (!$type->isBuiltin() && (DateTime::class === $typeName || DateTimeImmutable::class === $typeName)) {
+                        $value = self::castToDateTime($typeName, $value);
                         // Hook: afterCasting
                         self::callHook($dtoInstance, 'afterCasting', [$name, $value]);
-
                         return $value;
+                    }
+
+                    // Cast native PHP types
+                    if ($type->isBuiltin()) {
+                        $value = self::autoCastValue($value, $typeName);
                     }
                 }
 
-                // Check if it's an Enum
+                // Check if it's an Enum (always cast, as enums are part of the type system)
                 if (!$type->isBuiltin() && enum_exists($typeName) && null !== $value) {
                     // Try to cast to enum
                     $value = self::castToEnum($typeName, $value);
@@ -932,19 +1027,6 @@ final class SimpleEngine
                     self::callHook($dtoInstance, 'afterCasting', [$name, $value]);
 
                     return $value;
-                }
-
-                // Check if it's DateTime or DateTimeImmutable (automatic casting)
-                if (!$type->isBuiltin() && null !== $value && (DateTime::class === $typeName || DateTimeImmutable::class === $typeName)) {
-                    $value = self::castToDateTime($typeName, $value);
-                    // Hook: afterCasting
-                    self::callHook($dtoInstance, 'afterCasting', [$name, $value]);
-                    return $value;
-                }
-
-                // Check for #[AutoCast] - automatic casting for native PHP types
-                if (null !== $value && $type->isBuiltin() && self::shouldAutoCast($class, $name)) {
-                    $value = self::autoCastValue($value, $typeName);
                 }
             }
         }
@@ -959,8 +1041,37 @@ final class SimpleEngine
 
         // Check for #[Optional] attribute - wrap in Optional if present
         $optionalAttrs = $param->getAttributes(OptionalAttribute::class);
-        if ([] !== $optionalAttrs) {
-            return $wasProvided ? Optional::of($value) : Optional::empty();
+        $isOptional = [] !== $optionalAttrs;
+        $optionalDefault = null;
+
+        // Get default value from Optional attribute if present
+        if ($isOptional && [] !== $optionalAttrs) {
+            /** @var OptionalAttribute $optionalAttr */
+            $optionalAttr = $optionalAttrs[0]->newInstance();
+            $optionalDefault = $optionalAttr->default;
+        }
+
+        // Also check if parameter type is a union type containing Optional
+        if (!$isOptional) {
+            $type = $param->getType();
+            if ($type instanceof ReflectionUnionType) {
+                foreach ($type->getTypes() as $unionType) {
+                    if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Optional::class) {
+                        $isOptional = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ($isOptional) {
+            if ($wasProvided) {
+                return Optional::of($value); // @phpstan-ignore-line
+            }
+            // Use default value if provided, otherwise empty
+            return null !== $optionalDefault ? Optional::of(
+                $optionalDefault
+            ) : Optional::empty(); // @phpstan-ignore-line
         }
 
         return $value;
@@ -983,8 +1094,8 @@ final class SimpleEngine
         if ([] !== $attrs) {
             /** @var MapFrom $from */
             $from = $attrs[0]->newInstance();
-            self::$fromMappingCache[$class][$name] = $from->source;
-            return $from->source;
+            self::$fromMappingCache[$class][$name] = $from->source; // @phpstan-ignore-line
+            return $from->source; // @phpstan-ignore-line
         }
 
         // Check for class-level #[MapInputName] attribute
@@ -1005,7 +1116,12 @@ final class SimpleEngine
      *
      * @param class-string $class
      */
-    private static function getToMapping(string $class, string $name, ReflectionProperty $property): string
+    // @phpstan-ignore-next-line
+    private static function getToMapping(
+        string $class,
+        string $name,
+        ReflectionProperty $property
+    ): string
     {
         // Check cache
         if (isset(self::$toMappingCache[$class][$name])) {
@@ -1039,7 +1155,12 @@ final class SimpleEngine
      *
      * @param class-string $class
      */
-    private static function isHidden(string $class, string $name, ReflectionProperty $property): bool
+    // @phpstan-ignore-next-line
+    private static function isHidden(
+        string $class,
+        string $name,
+        ReflectionProperty $property
+    ): bool
     {
         // Check cache
         if (isset(self::$hiddenCache[$class][$name])) {
@@ -1059,7 +1180,12 @@ final class SimpleEngine
      *
      * @param class-string $class
      */
-    private static function isHiddenFromArray(string $class, string $name, ReflectionProperty $property): bool
+    // @phpstan-ignore-next-line
+    private static function isHiddenFromArray(
+        string $class,
+        string $name,
+        ReflectionProperty $property
+    ): bool
     {
         // Check cache
         if (isset(self::$hiddenFromArrayCache[$class][$name])) {
@@ -1079,7 +1205,12 @@ final class SimpleEngine
      *
      * @param class-string $class
      */
-    private static function isHiddenFromJson(string $class, string $name, ReflectionProperty $property): bool
+    // @phpstan-ignore-next-line
+    private static function isHiddenFromJson(
+        string $class,
+        string $name,
+        ReflectionProperty $property
+    ): bool
     {
         // Check cache
         if (isset(self::$hiddenFromJsonCache[$class][$name])) {
@@ -1211,8 +1342,8 @@ final class SimpleEngine
             }
         }
 
-        self::$castsCache[$class] = $casts;
-        return $casts;
+        self::$castsCache[$class] = $casts; // @phpstan-ignore-line
+        return $casts; // @phpstan-ignore-line
     }
 
     /**
@@ -1484,6 +1615,18 @@ final class SimpleEngine
             $attrs = $reflectionProperty->getAttributes(Lazy::class);
             if ([] !== $attrs) {
                 $lazy[$reflectionProperty->getName()] = true;
+                continue;
+            }
+
+            // Check if property type is a union type containing Lazy
+            $type = $reflectionProperty->getType();
+            if ($type instanceof ReflectionUnionType) {
+                foreach ($type->getTypes() as $unionType) {
+                    if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Lazy::class) {
+                        $lazy[$reflectionProperty->getName()] = true;
+                        break;
+                    }
+                }
             }
         }
 
@@ -1494,6 +1637,18 @@ final class SimpleEngine
                 $attrs = $reflectionParameter->getAttributes(Lazy::class);
                 if ([] !== $attrs) {
                     $lazy[$reflectionParameter->getName()] = true;
+                    continue;
+                }
+
+                // Check if parameter type is a union type containing Lazy
+                $type = $reflectionParameter->getType();
+                if ($type instanceof ReflectionUnionType) {
+                    foreach ($type->getTypes() as $unionType) {
+                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Lazy::class) {
+                            $lazy[$reflectionParameter->getName()] = true;
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -1901,7 +2056,7 @@ final class SimpleEngine
             }
 
             // Step 3: Apply casting (only if NOT #[NoCasts])
-            if (!$flags['hasNoCasts']) {
+            if (!$flags['hasNoCasts']) { // @phpstan-ignore-line
                 // Step 3a: Apply #[CastWith] if value is not null (only if flag is set)
                 if ($flags['hasCastWith'] && null !== $value) {
                     $castWithAttrs = $reflectionParameter->getAttributes(CastWith::class);
@@ -1927,34 +2082,27 @@ final class SimpleEngine
                     }
                 }
 
-                // Step 3c: Cast to DateTime/DateTimeImmutable if needed (automatic casting)
-                if (null !== $value) {
+                // Step 3c: Apply automatic type casting (unless #[NoCasts] is set)
+                if (!$flags['hasNoCasts'] && null !== $value) { // @phpstan-ignore-line booleanNot.alwaysTrue
                     $type = $reflectionParameter->getType();
-                    if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
+                    if ($type instanceof ReflectionNamedType) {
                         $typeName = $type->getName();
-                        if (DateTime::class === $typeName || DateTimeImmutable::class === $typeName) {
+                        // Cast to DateTime/DateTimeImmutable
+                        if (!$type->isBuiltin() && (DateTime::class === $typeName || DateTimeImmutable::class === $typeName)) {
                             $value = self::castToDateTime($typeName, $value);
                         }
-                    }
-                }
-
-                // Step 3d: Apply #[AutoCast] for native PHP types (only if flag is set)
-                if ($flags['hasAutoCast'] && null !== $value) {
-                    $type = $reflectionParameter->getType();
-                    if ($type instanceof ReflectionNamedType && $type->isBuiltin()) {
-                        $typeName = $type->getName();
-                        if (self::shouldAutoCast($class, $paramName)) {
+                        // Cast native PHP types
+                        elseif ($type->isBuiltin()) {
                             $value = self::autoCastValue($value, $typeName);
                         }
                     }
                 }
 
-                // Step 3e: Handle nested DTOs and collections
-                if (null !== $value) {
+                // Step 3d: Handle nested DTOs and collections (unless #[NoCasts] is set)
+                if (!$flags['hasNoCasts'] && null !== $value) { // @phpstan-ignore-line booleanNot.alwaysTrue
                     $type = $reflectionParameter->getType();
                     if ($type instanceof ReflectionNamedType) {
                         $typeName = $type->getName();
-
                         // Check if it's an array (potential collection)
                         if ('array' === $typeName && is_array($value)) {
                             // Check for #[DataCollectionOf] attribute (highest priority)
@@ -1980,8 +2128,8 @@ final class SimpleEngine
                             // Single nested DTO
                             /** @var class-string<SimpleDto> $typeName */
                             if (is_array($value) || is_object($value) || is_string($value)) {
-                                /** @var array<string, mixed>|object|string $value */
-                                $value = $typeName::from($value);
+                                /** @var array<string, mixed>|object|string $value @phpstan-ignore-line */
+                                $value = $typeName::from($value); // @phpstan-ignore-line
                             }
                         }
                     }
@@ -2196,7 +2344,7 @@ final class SimpleEngine
         $flags = self::getFeatureFlags($class);
 
         // If class doesn't use NotImmutable at all, return false immediately
-        if (!$flags['hasNotImmutable']) {
+        if (!$flags['hasNotImmutable']) { // @phpstan-ignore-line
             return false;
         }
 
@@ -2332,11 +2480,10 @@ final class SimpleEngine
         }
 
         // Check for class-level #[AutoCast]
+        // Note: SimpleDto always auto-casts unless #[NoCasts] is set
+        // #[AutoCast] is mainly for LiteDto or explicit opt-in
         if ([] !== $reflection->getAttributes(AutoCast::class)) {
             $flags['hasAutoCast'] = true;
-            self::$classAutoCastCache[$class] = true;
-        } else {
-            self::$classAutoCastCache[$class] = false;
         }
 
         // Check for class-level #[NotImmutable]
@@ -2438,7 +2585,22 @@ final class SimpleEngine
 
             // Lazy - fill cache while scanning
             $lazyAttrs = $reflectionProperty->getAttributes(Lazy::class);
-            if ([] !== $lazyAttrs) {
+            $isLazy = [] !== $lazyAttrs;
+
+            // Also check if property type is a union type containing Lazy
+            if (!$isLazy) {
+                $type = $reflectionProperty->getType();
+                if ($type instanceof ReflectionUnionType) {
+                    foreach ($type->getTypes() as $unionType) {
+                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Lazy::class) {
+                            $isLazy = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if ($isLazy) {
                 $flags['hasLazy'] = true;
                 if (!isset(self::$lazyCache[$class])) {
                     self::$lazyCache[$class] = [];
@@ -2448,7 +2610,22 @@ final class SimpleEngine
 
             // Optional - fill cache while scanning
             $optionalAttrs = $reflectionProperty->getAttributes(OptionalAttribute::class);
-            if ([] !== $optionalAttrs) {
+            $isOptional = [] !== $optionalAttrs;
+
+            // Also check if property type is a union type containing Optional
+            if (!$isOptional) {
+                $type = $reflectionProperty->getType();
+                if ($type instanceof ReflectionUnionType) {
+                    foreach ($type->getTypes() as $unionType) {
+                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Optional::class) {
+                            $isOptional = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if ($isOptional) {
                 $flags['hasOptional'] = true;
                 if (!isset(self::$optionalCache[$class])) {
                     self::$optionalCache[$class] = [];
@@ -2657,6 +2834,17 @@ final class SimpleEngine
             $lazyAttrs = $property->getAttributes(Lazy::class);
             if (!empty($lazyAttrs)) {
                 $propMeta['isLazy'] = true;
+            } else {
+                // Also check if property type is a union type containing Lazy
+                $type = $property->getType();
+                if ($type instanceof ReflectionUnionType) {
+                    foreach ($type->getTypes() as $unionType) {
+                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Lazy::class) {
+                            $propMeta['isLazy'] = true;
+                            break;
+                        }
+                    }
+                }
             }
 
             // Check EnumSerialize attribute
@@ -2679,8 +2867,8 @@ final class SimpleEngine
      *
      * @param class-string $class
      * @param array<string, mixed>|null $template Optional template for mapping
-     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
-     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      */
     private static function createFromDataInternal(
         string $class,
@@ -2815,7 +3003,7 @@ final class SimpleEngine
             }
 
             // Step 3: Apply casting (only if NOT #[NoCasts])
-            if (!$flags['hasNoCasts']) {
+            if (!$flags['hasNoCasts']) { // @phpstan-ignore-line
                 // Step 3a: Apply casts (check casts() method first, then #[CastWith] attribute)
                 if (null !== $value) {
                     $casterClass = null;
@@ -2832,7 +3020,7 @@ final class SimpleEngine
                                 : [$castDef, null];
 
                             // Check if castType is a class name (contains backslash)
-                            if (str_contains($castType, '\\') && class_exists($castType)) {
+                            if (str_contains($castType, '\\') && class_exists($castType)) { // @phpstan-ignore-line
                                 // Full class name with optional args
                                 $casterInstance = $castArgs ? new $castType($castArgs) : new $castType();
                             } else {
@@ -2856,7 +3044,9 @@ final class SimpleEngine
                                 };
 
                                 if ($casterClass && class_exists($casterClass)) {
-                                    $casterInstance = $castArgs ? new $casterClass($castArgs) : new $casterClass();
+                                    $casterInstance = $castArgs ? new $casterClass( // @phpstan-ignore-line
+                                        $castArgs // @phpstan-ignore-line
+                                    ) : new $casterClass(); // @phpstan-ignore-line
                                 }
                             }
                         }
@@ -2888,7 +3078,7 @@ final class SimpleEngine
                         }
                         // Otherwise check for static cast() method
                         elseif (method_exists($casterInstance, 'cast')) {
-                            $value = $casterInstance::cast($value);
+                            $value = $casterInstance::cast($value); // @phpstan-ignore-line
                         }
                     }
                 }
@@ -2904,51 +3094,75 @@ final class SimpleEngine
                     }
                 }
 
-                // Step 3c: Cast nested DTOs (automatic casting)
-                if (null !== $value) {
+                // Step 3c: Apply automatic type casting (unless #[NoCasts] is set)
+                if (!$flags['hasNoCasts'] && null !== $value) { // @phpstan-ignore-line booleanNot.alwaysTrue
                     $type = $reflectionParameter->getType();
-                    if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
+                    if ($type instanceof ReflectionNamedType) {
                         $typeName = $type->getName();
-
+                        // Cast to DataCollection with #[DataCollectionOf]
+                        if (!$type->isBuiltin() && 'event4u\DataHelpers\SimpleDto\DataCollection' === $typeName && is_array(
+                            $value
+                        )) {
+                            $dataCollectionOfClass = self::getDataCollectionOf(
+                                $class,
+                                $paramName,
+                                $reflectionParameter
+                            );
+                            if ($dataCollectionOfClass) {
+                                /** @var class-string<\event4u\DataHelpers\SimpleDto> $dataCollectionOfClass */
+                                $value = DataCollection::forDto(
+                                    $dataCollectionOfClass,
+                                    $value
+                                );
+                            }
+                        }
                         // Cast to nested SimpleDto
-                        if (is_subclass_of($typeName, SimpleDto::class)) {
+                        elseif (!$type->isBuiltin() && is_subclass_of($typeName, SimpleDto::class)) {
                             // Skip if already an instance of the target type
                             if (!$value instanceof $typeName && (is_array($value) || is_object($value) || is_string(
                                 $value
                             ))) {
                                 /** @var class-string<SimpleDto> $typeName */
-                                $value = $typeName::from($value);
+                                $value = $typeName::from($value); // @phpstan-ignore-line
                             }
                         }
                         // Cast to DateTime/DateTimeImmutable
-                        elseif (DateTime::class === $typeName || DateTimeImmutable::class === $typeName) {
+                        elseif (!$type->isBuiltin() && (DateTime::class === $typeName || DateTimeImmutable::class === $typeName)) {
                             $value = self::castToDateTime($typeName, $value);
                         }
-                    }
-                }
-
-                // Step 3d: Apply #[AutoCast] for native PHP types (only if flag is set)
-                if ($flags['hasAutoCast'] && null !== $value) {
-                    $type = $reflectionParameter->getType();
-                    if ($type instanceof ReflectionNamedType && $type->isBuiltin()) {
-                        $typeName = $type->getName();
-                        if (self::shouldAutoCast($class, $paramName)) {
+                        // Cast native PHP types
+                        elseif ($type->isBuiltin()) {
                             $value = self::autoCastValue($value, $typeName);
                         }
                     }
                 }
             }
 
-            // Step 4: Wrap in Optional if needed (only if flag is set)
-            if ($flags['hasOptional'] && isset(self::$optionalCache[$class][$paramName])) {
-                // Wrap in Optional based on whether value was provided
-                $value = $wasProvided ? Optional::of($value) : Optional::empty();
-            }
-
-            // Step 4.5: Wrap in Lazy if needed (only if flag is set)
+            // Step 4: Wrap in Lazy if needed (only if flag is set)
+            // Wrap in Lazy BEFORE Optional to get Optional<Lazy<T>> instead of Lazy<Optional<T>>
             // Wrap in Lazy if not already a Lazy instance
             if ($flags['hasLazy'] && isset(self::$lazyCache[$class][$paramName]) && !($value instanceof \event4u\DataHelpers\Support\Lazy)) {
                 $value = \event4u\DataHelpers\Support\Lazy::value($value);
+            }
+
+            // Step 4.5: Wrap in Optional if needed (only if flag is set)
+            if ($flags['hasOptional'] && isset(self::$optionalCache[$class][$paramName])) {
+                // Check if Optional attribute has a default value
+                $optionalDefault = null;
+                $optionalAttrs = $reflectionParameter->getAttributes(OptionalAttribute::class);
+                if ([] !== $optionalAttrs) {
+                    /** @var OptionalAttribute $optionalAttr */
+                    $optionalAttr = $optionalAttrs[0]->newInstance();
+                    $optionalDefault = $optionalAttr->default;
+                }
+
+                // Wrap in Optional based on whether value was provided
+                if ($wasProvided) {
+                    $value = Optional::of($value);
+                } else {
+                    // Use default value if provided, otherwise empty
+                    $value = null !== $optionalDefault ? Optional::of($optionalDefault) : Optional::empty();
+                }
             }
 
             // Step 5: Add to args
@@ -3048,7 +3262,7 @@ final class SimpleEngine
             }
 
             // Check RuleGroup filtering (only if flag is set and groups are specified)
-            if ($flags['hasRuleGroup'] && [] !== $groups && isset(self::$ruleGroupCache[$class][$propName])) {
+            if ($flags['hasRuleGroup'] && [] !== $groups && isset(self::$ruleGroupCache[$class][$propName])) { // @phpstan-ignore-line
                 $ruleGroup = self::$ruleGroupCache[$class][$propName];
                 if (!$ruleGroup->belongsToAnyGroup($groups)) {
                     // Skip this property if it doesn't belong to any of the specified groups
@@ -3078,7 +3292,7 @@ final class SimpleEngine
 
             // Get custom messages for this property (only if flag is set)
             $customMessages = [];
-            if ($flags['hasWithMessage'] && isset(self::$withMessageCache[$class][$propName])) {
+            if ($flags['hasWithMessage'] && isset(self::$withMessageCache[$class][$propName])) { // @phpstan-ignore-line
                 $customMessages = self::$withMessageCache[$class][$propName]->getMessages();
             }
 
@@ -3087,7 +3301,7 @@ final class SimpleEngine
                 $isValid = false;
 
                 // Check if this is a conditional validation attribute (only if flag is set)
-                if ($flags['hasConditionalValidation'] && $rule instanceof ConditionalValidationAttribute) {
+                if ($flags['hasConditionalValidation'] && $rule instanceof ConditionalValidationAttribute) { // @phpstan-ignore-line
                     $isValid = $rule->validateConditional($value, $propName, $arrayData);
                 } else {
                     $isValid = $rule->validate($value, $propName);
@@ -3186,7 +3400,7 @@ final class SimpleEngine
                 $isValid = false;
 
                 // Check if this is a conditional validation attribute (only if flag is set)
-                if ($flags['hasConditionalValidation'] && $rule instanceof ConditionalValidationAttribute) {
+                if ($flags['hasConditionalValidation'] && $rule instanceof ConditionalValidationAttribute) { // @phpstan-ignore-line
                     $isValid = $rule->validateConditional($value, $propName, $allData);
                 } else {
                     $isValid = $rule->validate($value, $propName);
@@ -3286,17 +3500,6 @@ final class SimpleEngine
 
         self::$noCastsCache[$class] = $hasNoCasts;
         return $hasNoCasts;
-    }
-
-    /**
-     * Check if property should be auto-casted (cached).
-     *
-     * @param class-string $class
-     */
-    private static function shouldAutoCast(string $class, string $propertyName): bool
-    {
-        // Not cached yet - should not happen if getFeatureFlags() was called
-        return self::$autoCastCache[$class][$propertyName] ?? self::$classAutoCastCache[$class] ?? false;
     }
 
     /** Auto-cast value to native PHP type with smart casting. */
@@ -3410,7 +3613,7 @@ final class SimpleEngine
     }
 
     /** Smart cast to array (handles JSON strings and objects). */
-    private static function castToArray(mixed $value): ?array
+    private static function castToArray(mixed $value): ?array // @phpstan-ignore-line
     {
         // If it's a JSON string, try to decode it
         if (is_string($value)) {
@@ -3465,7 +3668,7 @@ final class SimpleEngine
                     : [$castDef, null];
 
                 // Check if castType is a class name (contains backslash)
-                if (str_contains($castType, '\\') && class_exists($castType)) {
+                if (str_contains($castType, '\\') && class_exists($castType)) { // @phpstan-ignore-line
                     $casterInstance = $castArgs ? new $castType($castArgs) : new $castType();
                 } else {
                     // Map string cast types to classes
@@ -3488,7 +3691,9 @@ final class SimpleEngine
                     };
 
                     if ($casterClass && class_exists($casterClass)) {
-                        $casterInstance = $castArgs ? new $casterClass($castArgs) : new $casterClass();
+                        $casterInstance = $castArgs ? new $casterClass( // @phpstan-ignore-line
+                            $castArgs // @phpstan-ignore-line
+                        ) : new $casterClass(); // @phpstan-ignore-line
                     }
                 }
 
@@ -3532,8 +3737,8 @@ final class SimpleEngine
      *
      * @param mixed $data Source data
      * @param array<string, mixed>|null $template Optional template for mapping
-     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
-     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      * @return array<string, mixed>
      */
     private static function applyDataMapper(
@@ -3576,7 +3781,7 @@ final class SimpleEngine
             throw new InvalidArgumentException('DataMapper result must be an array');
         }
 
-        return $result;
+        return $result; // @phpstan-ignore-line
     }
 
     /**

@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 
 /**
  * Conditional validation attribute: Field is required unless another field has a specific value.
@@ -25,7 +26,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class RequiredUnless implements ConditionalValidationAttribute
+class RequiredUnless implements ConditionalValidationAttribute, ValidationRule
 {
     /**
      * @param string $field Field name to check
@@ -70,5 +71,19 @@ class RequiredUnless implements ConditionalValidationAttribute
     {
         $valueStr = is_bool($this->value) ? ($this->value ? 'true' : 'false') : (string)$this->value;
         return sprintf('The %s field is required unless %s is %s.', $propertyName, $this->field, $valueStr);
+    }
+
+    /** Convert to Laravel validation rule. */
+    public function rule(): string
+    {
+        $valueStr = is_bool($this->value) ? ($this->value ? 'true' : 'false') : (string)$this->value;
+        return sprintf('required_unless:%s,%s', $this->field, $valueStr);
+    }
+
+    /** Get validation error message. */
+    public function message(): ?string
+    {
+        $valueStr = is_bool($this->value) ? ($this->value ? 'true' : 'false') : (string)$this->value;
+        return sprintf('The attribute is required unless %s is %s.', $this->field, $valueStr);
     }
 }

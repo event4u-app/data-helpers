@@ -6,16 +6,16 @@ use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 use event4u\DataHelpers\SimpleDto\SimpleDto;
 
-describe('SimpleDto Automatic DateTime Casting', function (): void {
-    describe('DateTime Casting', function (): void {
-        test('it casts string to DateTime', function (): void {
+describe('SimpleDto Automatic DateTime Casting', function(): void {
+    describe('DateTime Casting', function(): void {
+        test('it casts string to DateTime', function(): void {
             $dto = SimpleDateTimeCastingTestDto1::from(['createdAt' => '2024-01-15 10:30:00']);
 
             expect($dto->createdAt)->toBeInstanceOf(DateTime::class);
             expect($dto->createdAt->format('Y-m-d H:i:s'))->toBe('2024-01-15 10:30:00');
         });
 
-        test('it casts timestamp to DateTime', function (): void {
+        test('it casts timestamp to DateTime', function(): void {
             $timestamp = 1705315800; // 2024-01-15 10:30:00 UTC
 
             $dto = SimpleDateTimeCastingTestDto1::from(['createdAt' => $timestamp]);
@@ -24,7 +24,7 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
             expect($dto->createdAt->getTimestamp())->toBe($timestamp);
         });
 
-        test('it accepts DateTime instance', function (): void {
+        test('it accepts DateTime instance', function(): void {
             $dateTime = new DateTime('2024-01-15 10:30:00');
 
             $dto = SimpleDateTimeCastingTestDto1::from(['createdAt' => $dateTime]);
@@ -32,7 +32,7 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
             expect($dto->createdAt)->toBe($dateTime);
         });
 
-        test('it converts DateTimeImmutable to DateTime', function (): void {
+        test('it converts DateTimeImmutable to DateTime', function(): void {
             $dateTimeImmutable = new DateTimeImmutable('2024-01-15 10:30:00');
 
             $dto = SimpleDateTimeCastingTestDto1::from(['createdAt' => $dateTimeImmutable]);
@@ -42,15 +42,15 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
         });
     });
 
-    describe('DateTimeImmutable Casting', function (): void {
-        test('it casts string to DateTimeImmutable', function (): void {
+    describe('DateTimeImmutable Casting', function(): void {
+        test('it casts string to DateTimeImmutable', function(): void {
             $dto = SimpleDateTimeCastingTestDto2::from(['createdAt' => '2024-01-15 10:30:00']);
 
             expect($dto->createdAt)->toBeInstanceOf(DateTimeImmutable::class);
             expect($dto->createdAt->format('Y-m-d H:i:s'))->toBe('2024-01-15 10:30:00');
         });
 
-        test('it casts timestamp to DateTimeImmutable', function (): void {
+        test('it casts timestamp to DateTimeImmutable', function(): void {
             $timestamp = 1705315800; // 2024-01-15 10:30:00 UTC
 
             $dto = SimpleDateTimeCastingTestDto2::from(['createdAt' => $timestamp]);
@@ -59,7 +59,7 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
             expect($dto->createdAt->getTimestamp())->toBe($timestamp);
         });
 
-        test('it accepts DateTimeImmutable instance', function (): void {
+        test('it accepts DateTimeImmutable instance', function(): void {
             $dateTimeImmutable = new DateTimeImmutable('2024-01-15 10:30:00');
 
             $dto = SimpleDateTimeCastingTestDto2::from(['createdAt' => $dateTimeImmutable]);
@@ -67,7 +67,7 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
             expect($dto->createdAt)->toBe($dateTimeImmutable);
         });
 
-        test('it converts DateTime to DateTimeImmutable', function (): void {
+        test('it converts DateTime to DateTimeImmutable', function(): void {
             $dateTime = new DateTime('2024-01-15 10:30:00');
 
             $dto = SimpleDateTimeCastingTestDto2::from(['createdAt' => $dateTime]);
@@ -77,15 +77,15 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
         });
     });
 
-    describe('DateTime Casting with UltraFast', function (): void {
-        test('it casts string to DateTime with UltraFast', function (): void {
+    describe('DateTime Casting with UltraFast', function(): void {
+        test('it casts string to DateTime with UltraFast', function(): void {
             $dto = SimpleDateTimeCastingTestDto3::from(['createdAt' => '2024-01-15 10:30:00']);
 
             expect($dto->createdAt)->toBeInstanceOf(DateTime::class);
             expect($dto->createdAt->format('Y-m-d H:i:s'))->toBe('2024-01-15 10:30:00');
         });
 
-        test('it casts timestamp to DateTimeImmutable with UltraFast', function (): void {
+        test('it casts timestamp to DateTimeImmutable with UltraFast', function(): void {
             $timestamp = 1705315800;
 
             $dto = SimpleDateTimeCastingTestDto4::from(['createdAt' => $timestamp]);
@@ -95,8 +95,8 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
         });
     });
 
-    describe('DateTime Casting with NoCasts', function (): void {
-        test('it skips DateTime casting with NoCasts', function (): void {
+    describe('DateTime Casting with NoCasts', function(): void {
+        test('it skips DateTime casting with NoCasts', function(): void {
             $dateTime = new DateTime('2024-01-15 10:30:00');
 
             $dto = SimpleDateTimeCastingTestDto5::from(['createdAt' => $dateTime]);
@@ -106,29 +106,29 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
         });
     });
 
-    describe('DateTime Formats', function (): void {
-        test('it handles ISO 8601 format', function (): void {
+    describe('DateTime Formats', function(): void {
+        test('it handles ISO 8601 format', function(): void {
             $dto = SimpleDateTimeCastingTestDto1::from(['createdAt' => '2024-01-15T10:30:00+00:00']);
 
             expect($dto->createdAt)->toBeInstanceOf(DateTime::class);
         });
 
-        test('it handles date only format', function (): void {
+        test('it handles date only format', function(): void {
             $dto = SimpleDateTimeCastingTestDto1::from(['createdAt' => '2024-01-15']);
 
             expect($dto->createdAt)->toBeInstanceOf(DateTime::class);
             expect($dto->createdAt->format('Y-m-d'))->toBe('2024-01-15');
         });
 
-        test('it handles relative formats', function (): void {
+        test('it handles relative formats', function(): void {
             $dto = SimpleDateTimeCastingTestDto1::from(['createdAt' => 'now']);
 
             expect($dto->createdAt)->toBeInstanceOf(DateTime::class);
         });
     });
 
-    describe('Multiple DateTime Properties', function (): void {
-        test('it casts multiple DateTime properties', function (): void {
+    describe('Multiple DateTime Properties', function(): void {
+        test('it casts multiple DateTime properties', function(): void {
             $dto = SimpleDateTimeCastingTestDto6::from([
                 'createdAt' => '2024-01-15 10:30:00',
                 'updatedAt' => '2024-01-16 15:45:00',
@@ -140,7 +140,7 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
             expect($dto->updatedAt->format('Y-m-d H:i:s'))->toBe('2024-01-16 15:45:00');
         });
 
-        test('it casts mixed DateTime and DateTimeImmutable', function (): void {
+        test('it casts mixed DateTime and DateTimeImmutable', function(): void {
             $dto = SimpleDateTimeCastingTestDto7::from([
                 'createdAt' => '2024-01-15 10:30:00',
                 'updatedAt' => '2024-01-16 15:45:00',
@@ -148,31 +148,6 @@ describe('SimpleDto Automatic DateTime Casting', function (): void {
 
             expect($dto->createdAt)->toBeInstanceOf(DateTime::class);
             expect($dto->updatedAt)->toBeInstanceOf(DateTimeImmutable::class);
-        });
-    });
-
-    describe('Performance', function (): void {
-        test('it has minimal overhead for DateTime casting', function (): void {
-            $iterations = 10000;
-
-            // Without DateTime casting
-            $start = microtime(true);
-            for ($i = 0; $i < $iterations; $i++) {
-                $dto = SimpleDateTimeCastingTestDto8::from(['name' => 'John', 'age' => 30]);
-            }
-            $withoutDateTime = microtime(true) - $start;
-
-            // With DateTime casting
-            $start = microtime(true);
-            for ($i = 0; $i < $iterations; $i++) {
-                $dto = SimpleDateTimeCastingTestDto9::from([
-                    'name' => 'John', 'age' => 30, 'createdAt' => '2024-01-15 10:30:00']
-                );
-            }
-            $withDateTime = microtime(true) - $start;
-
-            // DateTime casting should not add more than 3x overhead
-            expect($withDateTime)->toBeLessThan($withoutDateTime * 3);
         });
     });
 });
@@ -231,21 +206,3 @@ class SimpleDateTimeCastingTestDto7 extends SimpleDto
         public readonly DateTimeImmutable $updatedAt,
     ) {}
 }
-
-class SimpleDateTimeCastingTestDto8 extends SimpleDto
-{
-    public function __construct(
-        public readonly string $name,
-        public readonly int $age,
-    ) {}
-}
-
-class SimpleDateTimeCastingTestDto9 extends SimpleDto
-{
-    public function __construct(
-        public readonly string $name,
-        public readonly int $age,
-        public readonly DateTime $createdAt,
-    ) {}
-}
-

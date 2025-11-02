@@ -149,35 +149,39 @@ $result = DataFilter::query($products)
 
 ### 5️⃣ SimpleDto - Immutable Dtos
 
-Create type-safe, immutable Data Transfer Objects with automatic type casting:
+Create type-safe, immutable Data Transfer Objects with automatic type casting by default:
 
 <!-- skip-test: property declaration only -->
 ```php skip-test
-use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
+use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
 
-#[AutoCast]  // Enable automatic type casting (opt-in for performance)
+// Default: Automatic type casting enabled
 class ReadmeUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
         public readonly string $email,
         public readonly int $age,
+        public readonly AddressDto $address,  // Nested DTO (auto-cast by default)
     ) {}
 }
 
-// Automatic type conversion with #[AutoCast]
+// Automatic type conversion by default
 $user = ReadmeUserDto::fromArray([
     'name' => 'John',
     'email' => 'john@example.com',
-    'age' => '30'  // String "30" → int 30 (automatic)
+    'age' => '30',  // String "30" → int 30 (automatic)
+    'address' => ['city' => 'Berlin'],  // Array → AddressDto (automatic)
 ]);
 
-// Without #[AutoCast]: Strict types, better performance
+// Disable automatic casting for better performance
+#[NoCasts]
 class StrictUserDto extends SimpleDto
 {
     public function __construct(
         public readonly string $name,
         public readonly int $age,  // Must be int, no conversion
+        public readonly AddressDto $address,  // Must be AddressDto instance, no conversion
     ) {}
 }
 ```

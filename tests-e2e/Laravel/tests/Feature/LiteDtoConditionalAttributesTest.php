@@ -56,14 +56,14 @@ describe('Laravel LiteDto Conditional Attributes E2E', function (): void {
         it('WhenAuth works with context', function (): void {
             $user = (object)['id' => 1, 'name' => 'John'];
             $dto = E2ELaravelAuthDto::from(['name' => 'John', 'email' => 'john@example.com']);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->toHaveKey('email');
         });
 
         it('WhenGuest works with context', function (): void {
             $dto = E2ELaravelGuestDto::from(['title' => 'Home', 'loginPrompt' => 'Please log in']);
-            $array = $dto->toArray(['user' => null]);
+            $array = $dto->toArray(['user' => null]); // @phpstan-ignore-line
 
             expect($array)->toHaveKey('loginPrompt');
         });
@@ -71,7 +71,7 @@ describe('Laravel LiteDto Conditional Attributes E2E', function (): void {
         it('WhenRole works with context', function (): void {
             $user = (object)['role' => 'admin'];
             $dto = E2ELaravelRoleDto::from(['name' => 'John', 'adminPanel' => '/admin']);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->toHaveKey('adminPanel');
         });
@@ -84,7 +84,7 @@ describe('Laravel LiteDto Conditional Attributes E2E', function (): void {
                 }
             };
             $dto = E2ELaravelCanDto::from(['title' => 'My Post', 'editLink' => '/edit']);
-            $array = $dto->toArray(['user' => $user]);
+            $array = $dto->toArray(['user' => $user]); // @phpstan-ignore-line
 
             expect($array)->toHaveKey('editLink');
         });

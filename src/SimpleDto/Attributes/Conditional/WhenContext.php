@@ -32,22 +32,39 @@ use InvalidArgumentException;
 class WhenContext implements ConditionalProperty
 {
     public readonly ComparisonOperator $comparisonOperator;
+    public readonly mixed $value;
 
     /**
      * @param string $key Context key to check
-     * @param string|ComparisonOperator $operator Comparison operator
-     * @param mixed $value Value to compare against
+     * @param string|ComparisonOperator|null $operatorOrValue Comparison operator or value (if 2 params)
+     * @param mixed $value Value to compare against (if 3 params)
      */
     public function __construct(
         public readonly string $key,
-        string|ComparisonOperator $operator,
-        public readonly mixed $value,
+        string|ComparisonOperator|null $operatorOrValue = null,
+        mixed $value = null,
     ) {
-        $this->comparisonOperator = is_string($operator)
-            ? (ComparisonOperator::fromString($operator) ?? throw new InvalidArgumentException(
-                'Invalid comparison operator: ' . $operator
+        // Case 1: WhenContext('key') - check if key is truthy
+        if (null === $operatorOrValue) {
+            $this->comparisonOperator = ComparisonOperator::Truthy;
+            $this->value = true;
+            return;
+        }
+
+        // Case 2: WhenContext('key', 'value') - check if key === value
+        if (null === $value) {
+            $this->comparisonOperator = ComparisonOperator::StrictEqual;
+            $this->value = $operatorOrValue;
+            return;
+        }
+
+        // Case 3: WhenContext('key', '>=', 5) - check if key >= 5
+        $this->comparisonOperator = is_string($operatorOrValue)
+            ? (ComparisonOperator::fromString($operatorOrValue) ?? throw new InvalidArgumentException(
+                'Invalid comparison operator: ' . $operatorOrValue
             ))
-            : $operator;
+            : $operatorOrValue;
+        $this->value = $value;
     }
 
     /**

@@ -35,7 +35,7 @@ class UserDtoForDotNotation extends SimpleDto
     ) {}
 }
 
-test('get() retrieves simple properties', function (): void {
+test('get() retrieves simple properties', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -50,7 +50,7 @@ test('get() retrieves simple properties', function (): void {
     expect($user->get('age'))->toBe(30);
 });
 
-test('get() retrieves nested properties using dot notation', function (): void {
+test('get() retrieves nested properties using dot notation', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -66,7 +66,7 @@ test('get() retrieves nested properties using dot notation', function (): void {
     expect($user->get('address.street'))->toBe('Main St');
 });
 
-test('get() returns default value for non-existent paths', function (): void {
+test('get() returns default value for non-existent paths', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -82,7 +82,7 @@ test('get() returns default value for non-existent paths', function (): void {
     expect($user->get('address.nonexistent', 'N/A'))->toBe('N/A');
 });
 
-test('get() works with wildcards on arrays', function (): void {
+test('get() works with wildcards on arrays', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -110,7 +110,7 @@ test('get() works with wildcards on arrays', function (): void {
     ]);
 });
 
-test('get() works with array indices', function (): void {
+test('get() works with array indices', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -131,7 +131,7 @@ test('get() works with array indices', function (): void {
     expect($user->get('emails.1.verified'))->toBeFalse();
 });
 
-test('set() creates new instance with updated simple property', function (): void {
+test('set() creates new instance with updated simple property', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -152,7 +152,7 @@ test('set() creates new instance with updated simple property', function (): voi
     expect($updated->age)->toBe(30);
 });
 
-test('set() creates new instance with updated nested property', function (): void {
+test('set() creates new instance with updated nested property', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -173,7 +173,7 @@ test('set() creates new instance with updated nested property', function (): voi
     expect($updated->get('address.country'))->toBe('USA');
 });
 
-test('set() works with array indices', function (): void {
+test('set() works with array indices', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -198,7 +198,7 @@ test('set() works with array indices', function (): void {
     expect($updated->get('emails.1.verified'))->toBeFalse();
 });
 
-test('set() maintains immutability', function (): void {
+test('set() maintains immutability', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -230,4 +230,3 @@ test('set() maintains immutability', function (): void {
     expect($updated3->age)->toBe(25);
     expect($updated3->get('address.city'))->toBe('Los Angeles');
 });
-

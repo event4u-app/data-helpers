@@ -16,7 +16,7 @@
     "event4u/data-helpers": "*",
     "doctrine/orm": "^3.5",
     "doctrine/dbal": "^4.3",
-    "doctrine/doctrine-bundle": "^3.0",
+    "doctrine/doctrine-bundle": "^2.0|^3.0",
     "symfony/mime": "^7.3"
   },
   "require-dev": {

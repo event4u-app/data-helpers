@@ -50,7 +50,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class ExistsCallback implements ValidationAttribute
 {
-    /** @param callable $callback Callback to check existence: fn(mixed $value): bool */
+    /** @param callable(mixed): bool $callback Callback to check existence: fn(mixed $value): bool */
     public function __construct(
         public readonly mixed $callback,
     ) {}

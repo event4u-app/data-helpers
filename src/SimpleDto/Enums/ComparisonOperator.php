@@ -37,6 +37,7 @@ enum ComparisonOperator: string
     case LessThan = '<';
     case GreaterThanOrEqual = '>=';
     case LessThanOrEqual = '<=';
+    case Truthy = 'truthy';
 
     /**
      * Perform comparison between two values.
@@ -57,6 +58,7 @@ enum ComparisonOperator: string
             self::LessThan => $left < $right,
             self::GreaterThanOrEqual => $left >= $right,
             self::LessThanOrEqual => $left <= $right,
+            self::Truthy => (bool)$left,
         };
     }
 

@@ -95,8 +95,7 @@ describe('SimpleDto Template Priority', function(): void {
 
     describe('Template vs MapInputName', function(): void {
         it('template overrides MapInputName convention', function(): void {
-            $dto = new class extends SimpleDto {
-                #[MapInputName(NamingConvention::SNAKE_CASE)]
+            $dto = new #[MapInputName(NamingConvention::SnakeCase)] class extends SimpleDto {
                 public function __construct(
                     public readonly int $userId = 0,
                     public readonly string $userName = '',
@@ -232,8 +231,7 @@ describe('SimpleDto Template Priority', function(): void {
 
     describe('Priority Chain', function(): void {
         it('follows priority: Parameter Template > DTO Template > MapFrom > MapInputName > Auto-mapping', function(): void {
-            $dto = new class extends SimpleDto {
-                #[MapInputName(NamingConvention::SNAKE_CASE)]
+            $dto = new #[MapInputName(NamingConvention::SnakeCase)] class extends SimpleDto {
                 public function __construct(
                     #[MapFrom('map_from_id')]
                     public readonly int $userId = 0,
@@ -272,8 +270,7 @@ describe('SimpleDto Template Priority', function(): void {
         });
 
         it('uses MapFrom when no template provided', function(): void {
-            $dto = new class extends SimpleDto {
-                #[MapInputName(NamingConvention::SNAKE_CASE)]
+            $dto = new #[MapInputName(NamingConvention::SnakeCase)] class extends SimpleDto {
                 public function __construct(
                     #[MapFrom('map_from_id')]
                     public readonly int $userId = 0,

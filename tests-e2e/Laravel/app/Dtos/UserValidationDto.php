@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace E2E\Laravel\Dtos;
 
 use E2E\Laravel\Models\User;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\Email;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\ExistsCallback;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\Required;
-use event4u\DataHelpers\LiteDto\Attributes\Validation\UniqueCallback;
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Email;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\ExistsCallback;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\UniqueCallback;
+use event4u\DataHelpers\SimpleDto\SimpleDto;
 
 /**
  * DTO for testing callback-based validation attributes with Laravel.
  */
-class UserValidationDto extends LiteDto
+class UserValidationDto extends SimpleDto
 {
     public function __construct(
         #[Required]

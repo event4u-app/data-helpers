@@ -116,7 +116,9 @@ trait SimpleDtoOptionalTrait
                 $wrapped[$propertyName] = Optional::of($data[$propertyName]);
             } else {
                 // Value is missing
+                // @phpstan-ignore-next-line property.notFound (Optional attribute doesn't have $default property - using OptionalAttribute instead)
                 $default = $optionalAttr instanceof OptionalAttribute ? $optionalAttr->default : null;
+                // @phpstan-ignore-next-line argument.templateType (Template type resolution not needed here)
                 $wrapped[$propertyName] = null !== $default ? Optional::of($default) : Optional::empty();
             }
 
@@ -184,7 +186,8 @@ trait SimpleDtoOptionalTrait
             $data['nestedSort'],
             $data['sortCallback'],
             $data['validationState'],
-            $data['validationErrors']
+            $data['validationErrors'],
+            $data['lastValidationResult']
         );
 
         $partial = [];

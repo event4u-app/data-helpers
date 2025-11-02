@@ -8,6 +8,7 @@ use event4u\DataHelpers\Converters\CsvConverter;
 use event4u\DataHelpers\Converters\JsonConverter;
 use event4u\DataHelpers\Converters\XmlConverter;
 use event4u\DataHelpers\Converters\YamlConverter;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 
 /**
  * Trait for importing Dtos from various formats.
@@ -35,8 +36,8 @@ trait SimpleDtoImporterTrait
      *
      * @param string $json JSON string
      * @param array<string, mixed>|null $template Optional template for mapping
-     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
-     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      */
     public static function fromJson(
         string $json,
@@ -56,8 +57,8 @@ trait SimpleDtoImporterTrait
      *
      * @param string $xml XML string
      * @param array<string, mixed>|null $template Optional template for mapping
-     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
-     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      * @param string $rootElement Root element name (default: 'root')
      */
     public static function fromXml(
@@ -79,8 +80,8 @@ trait SimpleDtoImporterTrait
      *
      * @param string $yaml YAML string
      * @param array<string, mixed>|null $template Optional template for mapping
-     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
-     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      */
     public static function fromYaml(
         string $yaml,
@@ -100,8 +101,8 @@ trait SimpleDtoImporterTrait
      *
      * @param string $csv CSV string
      * @param array<string, mixed>|null $template Optional template for mapping
-     * @param array<string, \event4u\DataHelpers\Filters\FilterInterface|array<int, \event4u\DataHelpers\Filters\FilterInterface>>|null $filters Optional property filters
-     * @param array<int, \event4u\DataHelpers\Filters\FilterInterface>|null $pipeline Optional pipeline filters
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      * @param bool $includeHeaders Whether the CSV has headers (default: true)
      * @param string $delimiter Field delimiter (default: ',')
      */
@@ -117,7 +118,7 @@ trait SimpleDtoImporterTrait
         $array = $converter->toArray($csv);
 
         // CSV converter returns array of rows - take first row for single DTO
-        if (is_array($array) && isset($array[0]) && is_array($array[0])) {
+        if (isset($array[0]) && is_array($array[0])) {
             $array = $array[0];
         }
 

@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\SimpleDto\Attributes\Validation;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 
 /**
  * Conditional validation attribute: Field is required if any of the specified fields are NOT present.
@@ -24,7 +25,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class RequiredWithout implements ConditionalValidationAttribute
+class RequiredWithout implements ConditionalValidationAttribute, ValidationRule
 {
     /** @param array<string> $fields Field names that trigger requirement when absent */
     public function __construct(
@@ -43,7 +44,7 @@ class RequiredWithout implements ConditionalValidationAttribute
         // Check if any of the specified fields are missing
         $anyFieldMissing = false;
         foreach ($this->fields as $field) {
-            if (!isset($allData[$field]) || null === $allData[$field]) {
+            if (!isset($allData[$field])) {
                 $anyFieldMissing = true;
                 break;
             }
@@ -65,5 +66,18 @@ class RequiredWithout implements ConditionalValidationAttribute
     {
         $fields = implode(', ', $this->fields);
         return sprintf('The %s field is required when %s is not present.', $propertyName, $fields);
+    }
+
+    /** Convert to Laravel validation rule. */
+    public function rule(): string
+    {
+        return 'required_without:' . implode(',', $this->fields);
+    }
+
+    /** Get validation error message. */
+    public function message(): ?string
+    {
+        $fields = implode(', ', $this->fields);
+        return sprintf('The attribute is required when %s is not present.', $fields);
     }
 }

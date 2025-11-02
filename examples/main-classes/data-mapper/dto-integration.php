@@ -71,7 +71,7 @@ $apiResponse = [
 ];
 
 // Create Dto from source - uses template automatically
-$user = UserDto::fromSource($apiResponse);
+$user = UserDto::from($apiResponse);
 
 echo "User from API:\n";
 /** @phpstan-ignore-next-line unknown */
@@ -121,7 +121,7 @@ $productData = [
     'product_name' => 'Wrong Name',
 ];
 
-$product = ProductDto::fromSource($productData);
+$product = ProductDto::from($productData);
 
 echo "Product:\n";
 echo sprintf('  ID: %d%s', $product->id, PHP_EOL);      // 123 (from template)
@@ -161,7 +161,7 @@ $orderData = [
 ];
 
 // Use default template
-$order1 = OrderDto::fromSource($orderData);
+$order1 = OrderDto::from($orderData);
 echo "Order 1 (default template):\n";
 echo sprintf('  ID: %d%s', $order1->id, PHP_EOL);
 echo sprintf('  Total: %s%s', $order1->total, PHP_EOL);
@@ -174,7 +174,7 @@ $customTemplate = [
     'status' => '{{ order_status }}',  // Add status!
 ];
 
-$order2 = OrderDto::fromSource($orderData, $customTemplate);
+$order2 = OrderDto::from($orderData, $customTemplate);
 echo "Order 2 (custom template):\n";
 echo sprintf('  ID: %d%s', $order2->id, PHP_EOL);
 echo sprintf('  Total: %s%s', $order2->total, PHP_EOL);
@@ -295,7 +295,7 @@ $blogData = [
     ],
 ];
 
-$post = BlogPostDto::fromSource($blogData);
+$post = BlogPostDto::from($blogData);
 
 echo "Blog Post:\n";
 /** @phpstan-ignore-next-line unknown */
@@ -321,8 +321,8 @@ echo "3. Automapping - fallback if no template and no attributes\n\n";
 echo "Features:\n";
 echo "✅ Define templates in Dto class (template() method)\n";
 echo "✅ Define filters in Dto class (filters() method)\n";
-echo "✅ Override templates dynamically (fromSource parameter)\n";
-echo "✅ Override filters dynamically (fromSource parameter)\n";
+echo "✅ Override templates dynamically (from() parameter)\n";
+echo "✅ Override filters dynamically (from() parameter)\n";
 echo "✅ Automatic integration with fromArray()\n";
 echo "✅ Template expressions with filters ({{ value | filter }})\n";
 echo "✅ Dot notation for nested data ({{ user.profile.name }})\n";

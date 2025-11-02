@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Storage;
 describe('Laravel Validation Attributes E2E', function(): void {
     beforeEach(function(): void {
         // Clean database before each test
-        DB::table('users')->truncate();
-        DB::table('products')->truncate();
+        DB::table('users')->delete();
+        DB::table('products')->delete();
     });
 
     describe('UniqueCallback with Laravel', function(): void {
@@ -199,7 +199,7 @@ describe('Laravel Validation Attributes E2E', function(): void {
                 'name' => 'Taken User',
             ]);
 
-            expect(fn() => UserValidationDto::validateAndCreate([
+            expect(fn() => UserValidationDto::validateAndCreate([ // @phpstan-ignore-line
                 'email' => 'taken@example.com',
                 'name' => 'Another User',
             ]))->toThrow(\event4u\DataHelpers\Exceptions\ValidationException::class);

@@ -91,6 +91,8 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Optional
 {
-    // This is a marker attribute - no methods needed
-    // The hydration logic in SimpleEngine will check for this attribute
+    /** @param mixed $default Default value to use when property is not provided */
+    public function __construct(
+        public readonly mixed $default = null,
+    ) {}
 }

@@ -70,17 +70,29 @@ abstract class LiteDto implements JsonSerializable
      *
      * Respects #[MapTo] and #[Hidden] attributes.
      *
+     * @param array<string, mixed> $context Optional context for conditional properties
      * @return array<string, mixed>
      */
-    public function toArray(): array
+    public function toArray(array $context = []): array
     {
-        return LiteEngine::toArray($this);
+        return LiteEngine::toArray($this, $context);
     }
 
-    /** Convert DTO to JSON. */
-    public function toJson(int $options = 0): string
+    /**
+     * Convert DTO to JSON.
+     *
+     * @param array<string, mixed>|int $contextOrOptions Context array or JSON encoding options
+     * @param int $options JSON encoding options (only used if first param is context)
+     */
+    public function toJson(array|int $contextOrOptions = 0, int $options = 0): string
     {
-        return json_encode($this->toArray(), JSON_THROW_ON_ERROR | $options);
+        // Handle backward compatibility: toJson(int $options)
+        if (is_int($contextOrOptions)) {
+            return json_encode($this->toArray(), JSON_THROW_ON_ERROR | $contextOrOptions);
+        }
+
+        // New signature: toJson(array $context, int $options)
+        return json_encode($this->toArray($contextOrOptions), JSON_THROW_ON_ERROR | $options);
     }
 
     /**

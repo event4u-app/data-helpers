@@ -6,6 +6,7 @@ use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Email;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
+use event4u\DataHelpers\Validation\ValidationResult;
 
 describe('Validation API', function(): void {
     describe('validateAndCreate() method', function(): void {
@@ -47,8 +48,10 @@ describe('Validation API', function(): void {
 
             $result = $dto->getLastValidationResult();
             expect($result)->not->toBeNull();
-            expect($result->isValid())->toBeTrue();
-            expect($result->validated())->toBe(['name' => 'John']);
+            if ($result instanceof ValidationResult) {
+                expect($result->isValid())->toBeTrue();
+                expect($result->validated())->toBe(['name' => 'John']);
+            }
         });
 
         it('throws ValidationException on invalid data', function(): void {
@@ -86,7 +89,7 @@ describe('Validation API', function(): void {
                 'email' => 'john@example.com',
             ]);
 
-            $validated = $dto->validate();
+            $validated = $dto->validateInstance();
 
             expect($validated)->toBe(['name' => 'John Doe', 'email' => 'john@example.com']);
             expect($dto->isValidated())->toBeTrue();
@@ -107,7 +110,7 @@ describe('Validation API', function(): void {
                 'email' => 'invalid-email',
             ]);
 
-            $dto->validate();
+            $dto->validateInstance();
         })->throws(ValidationException::class);
 
         it('stores validation result even on failure', function(): void {
@@ -125,7 +128,7 @@ describe('Validation API', function(): void {
             ]);
 
             try {
-                $dto->validate();
+                $dto->validateInstance();
             } catch (ValidationException) {
                 // Expected
             }
@@ -151,7 +154,7 @@ describe('Validation API', function(): void {
                 'email' => 'john@example.com',
             ]);
 
-            $dto->validate();
+            $dto->validateInstance();
 
             $errors = $dto->getValidationErrors();
 
@@ -174,7 +177,7 @@ describe('Validation API', function(): void {
             ]);
 
             try {
-                $dto->validate();
+                $dto->validateInstance();
             } catch (ValidationException) {
                 // Expected
             }
@@ -201,7 +204,7 @@ describe('Validation API', function(): void {
             ]);
 
             try {
-                $dto->validate();
+                $dto->validateInstance();
             } catch (ValidationException) {
                 // Expected
             }

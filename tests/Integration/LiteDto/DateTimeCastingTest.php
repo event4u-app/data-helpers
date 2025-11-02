@@ -208,7 +208,7 @@ class DateTimeCastingTestDto4 extends LiteDto
     ) {}
 }
 
-#[NoCasts]
+#[NoCasts] // @phpstan-ignore-line
 class DateTimeCastingTestDto5 extends LiteDto
 {
     public function __construct(
