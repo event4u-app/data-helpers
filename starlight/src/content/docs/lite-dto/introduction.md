@@ -23,21 +23,21 @@ LiteDto is an **ultra-fast, minimalistic Data Transfer Object (Dto)** library fo
 | Library | Performance | Features |
 |---------|-------------|----------|
 | **LiteDto** | **~2.7μs** | Essential features, high performance |
-| SimpleDto #[UltraFast] | ~4.5μs | Fast mode with limited features |
-| SimpleDto Normal | ~4.8μs | Full features with validation |
+| SimpleDto #[UltraFast] | ~4.7μs | Fast mode with limited features |
+| SimpleDto Normal | ~5.2μs | Full features with validation |
 
-**LiteDto is ~1.8x faster than SimpleDto Normal** while providing essential Dto features.
+**LiteDto is ~1.9x faster than SimpleDto Normal** while providing essential Dto features.
 
 ### UltraFast Mode
 
 | Library | Performance | Features |
 |---------|-------------|----------|
-| Plain PHP | ~0.106μs | No features, manual work |
-| Other Dtos | ~3.12μs | Minimal features, maximum speed |
+| Plain PHP | ~0.107μs | No features, manual work |
+| Other Dtos | ~3.22μs | Minimal features, maximum speed |
 | **LiteDto #[UltraFast]** | **~1.2μs** | Minimal overhead, maximum speed |
-| SimpleDto #[UltraFast] | ~4.5μs | Fast mode with limited features |
+| SimpleDto #[UltraFast] | ~4.7μs | Fast mode with limited features |
 
-**LiteDto #[UltraFast] is ~4x faster than SimpleDto Normal** and only **~11.2x slower than Plain PHP**!
+**LiteDto #[UltraFast] is ~4x faster than SimpleDto Normal** and only **~11.6x slower than Plain PHP**!
 <!-- LITEDTO_PERFORMANCE_END -->
 
 ## Quick Example
@@ -125,10 +125,10 @@ Map properties from different source keys:
 class ProductDto extends LiteDto
 {
     public function __construct(
-        #[From('product_name')]
+        #[MapFrom('product_name')]
         public readonly string $name,
 
-        #[From('product_price')]
+        #[MapFrom('product_price')]
         public readonly float $price,
     ) {}
 }

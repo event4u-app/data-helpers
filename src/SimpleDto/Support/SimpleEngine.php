@@ -227,6 +227,21 @@ final class SimpleEngine
     private static array $includedComputedCache = [];
 
     /**
+     * Cache for property metadata per class.
+     * Stores all attribute information for each property to avoid repeated reflection.
+     *
+     * @var array<class-string, array<string, array{
+     *     mapTo: string|null,
+     *     mapToPath: array<int, string>|null,
+     *     isHidden: bool,
+     *     isHiddenFromArray: bool,
+     *     isLazy: bool,
+     *     enumSerializeMode: string|null
+     * }>>
+     */
+    private static array $propertyMetadataCache = [];
+
+    /**
      * Cache for Lazy properties per class.
      *
      * @var array<class-string, array<string, true>>
@@ -397,9 +412,6 @@ final class SimpleEngine
             if (!$flags['hasAnyArrayAttribute']) {
                 return get_object_vars($dto);
             }
-
-            // Slow path: Process attributes (same as normal mode)
-            // Fall through to normal processing below
         }
 
         // Get feature flags (cached after first call)
@@ -413,6 +425,7 @@ final class SimpleEngine
             // Slow path: Process attributes
             $reflection = self::getReflection($class);
             $data = get_object_vars($dto);
+            $metadata = self::getPropertyMetadata($class);
 
             // Get included computed properties for lazy handling
             $objectId = spl_object_id($dto);
@@ -423,46 +436,28 @@ final class SimpleEngine
                 unset(self::$includedComputedCache[$objectId]);
             }
 
-            // Build skip set for Hidden/HiddenFromArray/Lazy properties (only if needed)
-            $toSkip = null;
-            if ($flags['hasHidden'] || $flags['hasHiddenFromArray'] || $flags['hasLazy']) {
-                $toSkip = [];
-                if ($flags['hasHidden']) {
-                    $toSkip += self::$hiddenCache[$class] ?? [];
-                }
-                if ($flags['hasHiddenFromArray']) {
-                    $toSkip += self::$hiddenFromArrayCache[$class] ?? [];
-                }
-                if ($flags['hasLazy']) {
-                    $lazyProperties = self::$lazyCache[$class] ?? [];
-                    // Only skip lazy properties that are not explicitly included
-                    foreach ($lazyProperties as $lazyName => $lazyValue) {
-                        if (!in_array($lazyName, $includedComputed, true)) {
-                            $toSkip[$lazyName] = $lazyValue;
-                        }
-                    }
-                }
-            }
-
             $result = [];
 
-            foreach ($reflection->getProperties() as $reflectionProperty) {
-                $name = $reflectionProperty->getName();
+            foreach ($data as $name => $value) {
+                // Get metadata for this property
+                $propMeta = $metadata[$name] ?? null;
+                if (null === $propMeta) {
+                    continue; // Skip unknown properties
+                }
 
-                if (!array_key_exists($name, $data)) {
+                // Skip Hidden/HiddenFromArray properties
+                if ($propMeta['isHiddenFromArray']) {
                     continue;
                 }
 
-                // Skip Hidden/HiddenFromArray/Lazy properties (only if skip set exists)
-                if (null !== $toSkip && isset($toSkip[$name])) {
+                // Skip Lazy properties unless explicitly included
+                if ($propMeta['isLazy'] && !in_array($name, $includedComputed, true)) {
                     continue;
                 }
-
-                $value = $data[$name];
 
                 // Handle Lazy values (only if flag is set)
                 if ($flags['hasLazy'] && $value instanceof \event4u\DataHelpers\Support\Lazy) {
-                    // Unwrap lazy value (already checked in toSkip)
+                    // Unwrap lazy value (already checked above)
                     $value = $value->get();
                 }
 
@@ -487,29 +482,13 @@ final class SimpleEngine
                     continue;
                 }
 
-                // Get output name (check for #[MapTo] attribute first, then #[MapOutputName])
-                $outputName = $name;
-                $outputPath = null; // For dot notation support
-                $hasMapToOnProperty = false;
-
-                if ($flags['hasMapTo']) {
-                    $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
-                    if (!empty($mapToAttrs)) {
-                        $hasMapToOnProperty = true;
-                        /** @var MapTo $mapTo */
-                        $mapTo = $mapToAttrs[0]->newInstance();
-                        $outputName = $mapTo->target;
-
-                        // Check if it's dot notation (e.g., 'user.email')
-                        if (str_contains($outputName, '.')) {
-                            $outputPath = explode('.', $outputName);
-                            $outputName = null; // Will be handled later
-                        }
-                    }
-                }
+                // Get output name from metadata
+                $outputName = $propMeta['mapTo'] ?? $name;
+                $outputPath = $propMeta['mapToPath'];
+                $hasMapToOnProperty = null !== $propMeta['mapTo'] || null !== $propMeta['mapToPath'];
 
                 // If no MapTo on this property, check for class-level MapOutputName
-                if (!$hasMapToOnProperty && null === $outputPath && $flags['hasMapOutputName']) {
+                if (!$hasMapToOnProperty && $flags['hasMapOutputName']) {
                     $mapOutputName = self::getMapOutputName($class);
                     if ($mapOutputName instanceof MapOutputName) {
                         $outputName = $mapOutputName->convention->transform($name);
@@ -518,7 +497,7 @@ final class SimpleEngine
 
                 // Handle enums with #[EnumSerialize] (only if flag is set)
                 if ($flags['hasEnumSerialize'] && ($value instanceof BackedEnum || $value instanceof UnitEnum)) {
-                    $mode = self::getEnumSerializeMode($class, $name, $reflectionProperty);
+                    $mode = $propMeta['enumSerializeMode'] ?? 'value';
                     $value = self::serializeEnum($value, $mode);
                 }
 
@@ -531,7 +510,7 @@ final class SimpleEngine
                 // Then convert value only for complex types (nested DTOs, arrays)
                 // But skip if already converted by cast
                 if ($convertedValue === $value && (is_object($value) || is_array($value))) {
-                    $convertedValue = self::convertValue($value, $class, $name, $reflectionProperty);
+                    $convertedValue = self::convertValue($value, $class, $name, null);
                 }
 
                 // Handle dot notation output path (e.g., 'user.email' -> ['user' => ['email' => value]])
@@ -2609,6 +2588,90 @@ final class SimpleEngine
         // Cache and return
         self::$featureFlags[$class] = $flags;
         return $flags;
+    }
+
+    /**
+     * Get cached property metadata for a class.
+     * This builds a cache of all property attributes to avoid repeated reflection.
+     *
+     * @param class-string $class
+     * @return array<string, array{
+     *     mapTo: string|null,
+     *     mapToPath: array<int, string>|null,
+     *     isHidden: bool,
+     *     isHiddenFromArray: bool,
+     *     isLazy: bool,
+     *     enumSerializeMode: string|null
+     * }>
+     */
+    private static function getPropertyMetadata(string $class): array
+    {
+        if (isset(self::$propertyMetadataCache[$class])) {
+            return self::$propertyMetadataCache[$class];
+        }
+
+        $metadata = [];
+        $reflection = self::getReflection($class);
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+
+        foreach ($properties as $property) {
+            $name = $property->getName();
+
+            // Initialize metadata for this property
+            $propMeta = [
+                'mapTo' => null,
+                'mapToPath' => null,
+                'isHidden' => false,
+                'isHiddenFromArray' => false,
+                'isLazy' => false,
+                'enumSerializeMode' => null,
+            ];
+
+            // Check MapTo attribute
+            $mapToAttrs = $property->getAttributes(MapTo::class);
+            if (!empty($mapToAttrs)) {
+                /** @var MapTo $mapTo */
+                $mapTo = $mapToAttrs[0]->newInstance();
+                $propMeta['mapTo'] = $mapTo->target;
+
+                // Check if it's dot notation
+                if (str_contains($mapTo->target, '.')) {
+                    $propMeta['mapToPath'] = explode('.', $mapTo->target);
+                    $propMeta['mapTo'] = null;
+                }
+            }
+
+            // Check Hidden attributes
+            $hiddenAttrs = $property->getAttributes(Hidden::class);
+            if (!empty($hiddenAttrs)) {
+                $propMeta['isHidden'] = true;
+                $propMeta['isHiddenFromArray'] = true;
+            } else {
+                $hiddenFromArrayAttrs = $property->getAttributes(HiddenFromArray::class);
+                if (!empty($hiddenFromArrayAttrs)) {
+                    $propMeta['isHiddenFromArray'] = true;
+                }
+            }
+
+            // Check Lazy attribute
+            $lazyAttrs = $property->getAttributes(Lazy::class);
+            if (!empty($lazyAttrs)) {
+                $propMeta['isLazy'] = true;
+            }
+
+            // Check EnumSerialize attribute
+            $enumSerializeAttrs = $property->getAttributes(EnumSerialize::class);
+            if (!empty($enumSerializeAttrs)) {
+                /** @var EnumSerialize $enumSerialize */
+                $enumSerialize = $enumSerializeAttrs[0]->newInstance();
+                $propMeta['enumSerializeMode'] = $enumSerialize->mode;
+            }
+
+            $metadata[$name] = $propMeta;
+        }
+
+        self::$propertyMetadataCache[$class] = $metadata;
+        return $metadata;
     }
 
     /**

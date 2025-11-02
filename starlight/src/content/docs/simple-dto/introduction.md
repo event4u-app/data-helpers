@@ -249,17 +249,16 @@ $array = $dto->toArray();
 
 ### Collections
 
-Built-in collection support with pagination.
+Built-in collection support.
 
 ```php
 $users = UserDto::collection($userArray);
 // DataCollection of UserDto instances
 
-$paginated = UserDto::paginatedCollection($users, page: 1, perPage: 10);
-// [
-//     'data' => [...],
-//     'meta' => ['current_page' => 1, 'per_page' => 10, ...],
-// ]
+// Access collection methods
+$filtered = $users->filter(fn($user) => $user->age >= 18);
+$mapped = $users->map(fn($user) => $user->name);
+$count = $users->count();
 ```
 
 ## Key Features

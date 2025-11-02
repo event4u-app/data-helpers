@@ -13,10 +13,10 @@ Here are the actual benchmark results from our comprehensive tests:
 
 | Implementation | From Array | To Array | Complex Data |
 |----------------|------------|----------|---------------|
-| LiteDto | 2.680μs | 3.776μs | 2.571μs |
-| LiteDto #[UltraFast] | 1.192μs | 1.390μs | 1.232μs |
-| SimpleDto #[UltraFast] | 4.541μs | 25.868μs | 4.606μs |
-| SimpleDto Normal | 4.800μs | 26.217μs | 4.746μs |
+| LiteDto | 2.708μs | 3.969μs | 2.702μs |
+| LiteDto #[UltraFast] | 1.241μs | 1.435μs | 1.303μs |
+| SimpleDto #[UltraFast] | 4.719μs | 26.032μs | 4.734μs |
+| SimpleDto Normal | 5.220μs | 26.379μs | 5.030μs |
 
 **Average**: LiteDto is **3.5x faster** than SimpleDto Normal.
 <!-- LITEDTO_BENCHMARKS_END -->
@@ -190,7 +190,7 @@ for ($i = 0; $i < 1000; $i++) {
 
 | Feature | LiteDto | LiteDto #[UltraFast] | SimpleDto Normal | SimpleDto #[UltraFast] |
 |---------|---------|----------------------|------------------|------------------------|
-| Performance | ~3.0μs | ~1.3μs | ~11.9μs | ~11.7μs |
+| Performance | ~3.1μs | ~1.3μs | ~12.2μs | ~11.8μs |
 | Validation | ✅ | ✅ | ✅ | ❌ |
 | Type Casting | ✅ | ✅ | ✅ | ❌ |
 | Property Mapping | ✅ | ✅ | ✅ | ✅ |
@@ -216,7 +216,7 @@ for ($i = 0; $i < 1000; $i++) {
 
 | Metric | LiteDto | LiteDto #[UltraFast] | Other Dtos |
 |--------|---------|----------------------|------------|
-| Performance | ~3.0μs | ~1.3μs | N/A |
+| Performance | ~3.1μs | ~1.3μs | N/A |
 | Property Mapping | ✅ | ✅ | ✅ |
 | Hidden Properties | ✅ | ✅ | ✅ |
 | Nested DTOs | ✅ | ✅ | ✅ |

@@ -102,10 +102,10 @@ $user = UserDto::from([
 
 | Feature | LiteDto #[UltraFast] | LiteDto | SimpleDto #[UltraFast] | SimpleDto |
 |---------|----------------------|---------|------------------------|-----------|
-| **Creation Performance** | ~1.2μs | ~2.7μs | ~4.5μs | ~4.8μs |
-| **Creation Speed Factor** | **4.0x faster** | **1.8x faster** | **1.1x faster** | Baseline |
-| **Serialization Performance** | ~1.4μs | ~3.8μs | ~25.9μs | ~26.2μs |
-| **Serialization Speed Factor** | **18.9x faster** | **6.9x faster** | **1.0x faster** | Baseline |
+| **Creation Performance** | ~1.2μs | ~2.7μs | ~4.7μs | ~5.2μs |
+| **Creation Speed Factor** | **4.2x faster** | **1.9x faster** | **1.1x faster** | Baseline |
+| **Serialization Performance** | ~1.4μs | ~4.0μs | ~26.0μs | ~26.4μs |
+| **Serialization Speed Factor** | **18.4x faster** | **6.6x faster** | **1.0x faster** | Baseline |
 | | | | | |
 | **Core Features** | | | | |
 | Property Mapping | ✅ | ✅ | ✅ | ✅ |
@@ -349,9 +349,11 @@ If you need better performance and don't need validation:
 // Before: SimpleDto
 class UserDto extends SimpleDto
 {
-    public string $name;
-    public string $email;
-    public int $age;
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly int $age,
+    ) {}
 }
 
 // After: LiteDto
@@ -383,13 +385,15 @@ class UserDto extends LiteDto
 // After: SimpleDto
 class UserDto extends SimpleDto
 {
-    public string $name;
+    public function __construct(
+        public readonly string $name,
 
-    #[Email]
-    public string $email;
+        #[Email]
+        public readonly string $email,
 
-    #[Min(18)]
-    public int $age;
+        #[Min(18)]
+        public readonly int $age,
+    ) {}
 }
 ```
 
