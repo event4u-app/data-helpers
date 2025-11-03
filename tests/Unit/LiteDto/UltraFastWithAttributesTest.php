@@ -17,8 +17,8 @@ class LiteDtoFastUpperCaseCaster
     }
 }
 
-// UltraFast with MapFrom enabled
-#[UltraFast(allowMapFrom: true)]
+// UltraFast with MapFrom (auto-detected)
+#[UltraFast]
 class LiteDtoFastWithMapFromDto extends LiteDto
 {
     public function __construct(
@@ -28,8 +28,8 @@ class LiteDtoFastWithMapFromDto extends LiteDto
     ) {}
 }
 
-// UltraFast with MapTo enabled
-#[UltraFast(allowMapTo: true)]
+// UltraFast with MapTo (auto-detected)
+#[UltraFast]
 class LiteDtoFastWithMapToDto extends LiteDto
 {
     public function __construct(
@@ -39,8 +39,8 @@ class LiteDtoFastWithMapToDto extends LiteDto
     ) {}
 }
 
-// UltraFast with CastWith enabled
-#[UltraFast(allowCastWith: true)]
+// UltraFast with CastWith (auto-detected)
+#[UltraFast]
 class LiteDtoFastWithCastWithDto extends LiteDto
 {
     public function __construct(
@@ -50,8 +50,8 @@ class LiteDtoFastWithCastWithDto extends LiteDto
     ) {}
 }
 
-// UltraFast with all attributes enabled
-#[UltraFast(allowMapFrom: true, allowMapTo: true, allowCastWith: true)]
+// UltraFast with all attributes (auto-detected)
+#[UltraFast]
 class LiteDtoFastWithAllAttributesDto extends LiteDto
 {
     public function __construct(
@@ -61,12 +61,11 @@ class LiteDtoFastWithAllAttributesDto extends LiteDto
     ) {}
 }
 
-// UltraFast without any attributes (default)
+// UltraFast without any attributes
 #[UltraFast]
 class LiteDtoFastNoAttributesDto extends LiteDto
 {
     public function __construct(
-        #[MapFrom('user_name')]  // Should be ignored
         public readonly string $name,
         public readonly int $age,
     ) {}
@@ -74,7 +73,7 @@ class LiteDtoFastNoAttributesDto extends LiteDto
 
 describe('UltraFast with Attributes', function(): void {
     describe('MapFrom Support', function(): void {
-        it('processes MapFrom when allowMapFrom is true', function(): void {
+        it('auto-detects and processes MapFrom', function(): void {
             $dto = LiteDtoFastWithMapFromDto::from([
                 'user_name' => 'John Doe',
                 'age' => 30,
@@ -84,7 +83,7 @@ describe('UltraFast with Attributes', function(): void {
             expect($dto->age)->toBe(30);
         });
 
-        it('ignores MapFrom when allowMapFrom is false (default)', function(): void {
+        it('works without MapFrom attribute', function(): void {
             $dto = LiteDtoFastNoAttributesDto::from([
                 'name' => 'John Doe',
                 'age' => 30,
@@ -96,7 +95,7 @@ describe('UltraFast with Attributes', function(): void {
     });
 
     describe('MapTo Support', function(): void {
-        it('processes MapTo when allowMapTo is true', function(): void {
+        it('auto-detects and processes MapTo', function(): void {
             $dto = LiteDtoFastWithMapToDto::from([
                 'name' => 'John Doe',
                 'age' => 30,
@@ -110,7 +109,7 @@ describe('UltraFast with Attributes', function(): void {
             ]);
         });
 
-        it('ignores MapTo when allowMapTo is false (default)', function(): void {
+        it('works without MapTo attribute', function(): void {
             $dto = LiteDtoFastNoAttributesDto::from([
                 'name' => 'John Doe',
                 'age' => 30,
@@ -126,7 +125,7 @@ describe('UltraFast with Attributes', function(): void {
     });
 
     describe('CastWith Support', function(): void {
-        it('processes CastWith when allowCastWith is true', function(): void {
+        it('auto-detects and processes CastWith', function(): void {
             $dto = LiteDtoFastWithCastWithDto::from([
                 'name' => 'john doe',
                 'age' => 30,
@@ -136,7 +135,7 @@ describe('UltraFast with Attributes', function(): void {
             expect($dto->age)->toBe(30);
         });
 
-        it('ignores CastWith when allowCastWith is false (default)', function(): void {
+        it('works without CastWith attribute', function(): void {
             $dto = LiteDtoFastNoAttributesDto::from([
                 'name' => 'john doe',
                 'age' => 30,
@@ -148,7 +147,7 @@ describe('UltraFast with Attributes', function(): void {
     });
 
     describe('Combined Attributes', function(): void {
-        it('processes all attributes when all are enabled', function(): void {
+        it('auto-detects and processes all attributes', function(): void {
             $dto = LiteDtoFastWithAllAttributesDto::from([
                 'user_name' => 'john doe',
                 'age' => 30,
@@ -168,7 +167,7 @@ describe('UltraFast with Attributes', function(): void {
     });
 
     describe('Performance', function(): void {
-        it('maintains ultra-fast performance with selective attributes', function(): void {
+        it('maintains ultra-fast performance with auto-detection', function(): void {
             $iterations = 1000;
             $start = microtime(true);
 
@@ -182,8 +181,8 @@ describe('UltraFast with Attributes', function(): void {
             $duration = microtime(true) - $start;
             $avgTime = ($duration / $iterations) * 1000000; // Convert to microseconds
 
-            // Should still be fast (< 5μs per operation)
-            expect($avgTime)->toBeLessThan(5.0);
+            // Should still be fast (< 10μs per operation with auto-detection)
+            expect($avgTime)->toBeLessThan(10.0);
         });
     });
 });

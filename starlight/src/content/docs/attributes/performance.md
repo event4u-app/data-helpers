@@ -90,18 +90,36 @@ $user = FastUserDto::fromArray([
 ]);
 ```
 
-**Configuration Options:**
+**Automatic Attribute Detection:**
+
+`#[UltraFast]` automatically detects and processes `#[MapFrom]`, `#[MapTo]`, `#[CastWith]`, and `#[Hidden]` attributes if they are present on properties. No configuration needed!
 
 ```php
-#[UltraFast(
-    allowMapFrom: true,   // Allow #[MapFrom] attributes (default: true)
-    allowMapTo: true,     // Allow #[MapTo] attributes (default: true)
-    allowCastWith: false, // Allow #[CastWith] attributes (default: false)
-)]
-class ConfiguredDto extends SimpleDto
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
+
+#[UltraFast]
+class AutoDetectDto extends SimpleDto
 {
-    // ...
+    public function __construct(
+        #[MapFrom('old_name')]
+        public readonly string $name,  // Automatically detected!
+
+        public readonly string $email,
+
+        #[Hidden]
+        public readonly string $password,  // Automatically hidden!
+    ) {}
 }
+
+$dto = AutoDetectDto::fromArray([
+    'old_name' => 'John',
+    'email' => 'john@example.com',
+    'password' => 'secret123',
+]);
+
+$array = $dto->toArray();
+// ['name' => 'John', 'email' => 'john@example.com']
+// password is hidden!
 ```
 
 :::caution[Do Not Combine]

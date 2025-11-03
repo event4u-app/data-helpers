@@ -36,7 +36,7 @@ describe('SimpleDto Mapper Priority', function(): void {
                 ],
             ];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->id)->toBe(123)
                 ->and($result->name)->toBe('Correct Name');
@@ -63,7 +63,7 @@ describe('SimpleDto Mapper Priority', function(): void {
                 ],
             ];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->id)->toBe(123);
         });
@@ -83,7 +83,7 @@ describe('SimpleDto Mapper Priority', function(): void {
                 'user_id' => 123,  // Should be used (attribute)
             ];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->id)->toBe(123);
         });
@@ -103,7 +103,7 @@ describe('SimpleDto Mapper Priority', function(): void {
                 'name' => 'John Doe',
             ];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->id)->toBe(123)
                 ->and($result->name)->toBe('John Doe');
@@ -136,7 +136,7 @@ describe('SimpleDto Mapper Priority', function(): void {
                 'user_name' => 'John Doe',
             ];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->id)->toBe(123)
                 ->and($result->name)->toBe('John Doe');
@@ -174,7 +174,7 @@ describe('SimpleDto Mapper Priority', function(): void {
                 'user_name' => '  John Doe  ',
             ];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->id)->toBe(123)
                 ->and($result->name)->toBe('John Doe');  // Trimmed by pipeline
@@ -182,7 +182,7 @@ describe('SimpleDto Mapper Priority', function(): void {
     });
 
     describe('fromArray() Alias', function(): void {
-        it('fromArray() uses same logic as fromSource()', function(): void {
+        it('fromArray() uses same logic as from()', function(): void {
             $dto = new class extends SimpleDto {
                 protected function mapperTemplate(): array
                 {
@@ -205,7 +205,7 @@ describe('SimpleDto Mapper Priority', function(): void {
                 ],
             ];
 
-            $result1 = $dto::fromSource($data);
+            $result1 = $dto::from($data);
             $result2 = $dto::fromArray($data);
 
             expect($result1->id)->toBe($result2->id)
@@ -272,7 +272,7 @@ describe('SimpleDto Mapper Priority', function(): void {
                 ],
             ];
 
-            $result = $dto::fromSource($data);
+            $result = $dto::from($data);
 
             expect($result->id)->toBe(123)
                 ->and($result->email)->toBe('john@example.com');

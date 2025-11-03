@@ -52,8 +52,9 @@ auth.json
 /.phpunit.result.cache
 
 # Symfony E2E tests - auto-generated files
-/tests-e2e/Symfony/var/
-/tests-e2e/Symfony/storage/*
+/tests-e2e/*/var/
+/tests-e2e/*/.event4u/
+/tests-e2e/*/storage/
 /tests-e2e/Symfony/config/packages/data_helpers.yaml
 
 # storage for testing, etc.

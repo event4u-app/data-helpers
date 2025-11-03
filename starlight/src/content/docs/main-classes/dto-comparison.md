@@ -66,14 +66,46 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 - Complex data structures
 - When you need type casting (DateTime, Enum, etc.)
 
+**Performance Tip:** Use `#[UltraFast]` attribute for 3-4x faster performance when validation is not needed:
+
+```php
+use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
+
+#[UltraFast]  // Auto-detect attributes, skip validation (~2-3μs)
+class UserDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+
+        #[MapFrom('email_address')]  // Still works!
+        public readonly string $email,
+
+        #[Hidden]  // Still works!
+        public readonly string $password,
+    ) {}
+}
+
+// Ultra-fast creation: ~2-3μs (3-4x faster than normal SimpleDto!)
+$user = UserDto::from([
+    'name' => 'John',
+    'email_address' => 'john@example.com',
+    'password' => 'secret',
+]);
+```
+
 ## Performance & Feature Comparison
 
 <!-- DTO_COMPARISON_START -->
 
 | Feature | LiteDto #[UltraFast] | LiteDto | SimpleDto #[UltraFast] | SimpleDto |
-|---------|----------------------|---------|-----------------------|-----------|
-| **Performance** | ~0.7μs | ~3.5μs | ~3.2μs | ~18.4μs |
-| **Speed Factor** | **26.0x faster** | **5.3x faster** | **5.8x faster** | Baseline |
+|---------|----------------------|---------|------------------------|-----------|
+| **Creation Performance** | ~1.2μs | ~2.7μs | ~4.7μs | ~5.2μs |
+| **Creation Speed Factor** | **4.2x faster** | **1.9x faster** | **1.1x faster** | Baseline |
+| **Serialization Performance** | ~1.4μs | ~4.0μs | ~26.0μs | ~26.4μs |
+| **Serialization Speed Factor** | **18.4x faster** | **6.6x faster** | **1.0x faster** | Baseline |
 | | | | | |
 | **Core Features** | | | | |
 | Property Mapping | ✅ | ✅ | ✅ | ✅ |
@@ -102,7 +134,7 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 | | | | | |
 | **Data Conversion** | | | | |
 | Converter Support | ☑️ | ☑️ | ✅ | ✅ |
-| ConvertEmptyToNull | ✅ | ✅ | ✅ | ✅ |
+| ConvertEmptyToNull | ❌ | ✅ | ✅ | ✅ |
 | JSON/XML Support | ☑️ | ☑️ | ✅ | ✅ |
 | | | | | |
 | **Developer Experience** | | | | |
@@ -205,29 +237,47 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 | **Other Attributes** | | | | |
 | #[RuleGroup] | ❌ | ❌ | ❌ | ✅ |
 | #[WithMessage] | ❌ | ❌ | ❌ | ✅ |
+| | | | | |
+
 
 **Legend:**
 
 - ✅ Fully supported
-- ✴️ Can be re-enabled with UltraFast parameters (e.g., `#[UltraFast(allowMapFrom: true)]`)
+- ☑️ Partially supported or optional
+-✴️ Can be re-enabled with UltraFast parameters (e.g., `#[UltraFast(allowMapFrom: true)]`)
 - ❌ Not supported
+
+**Performance Notes:**
+
+- **#[UltraFast]**: Available for both LiteDto and SimpleDto
+  - LiteDto: Can re-enable specific attributes (e.g., `#[UltraFast(allowMapFrom: true)]`)
+  - SimpleDto: Auto-detects which attributes are used and processes only those
+- **#[ConverterMode]**: Available for LiteDto (normal mode) and SimpleDto
+- **#[AutoCast]**: Enables automatic type casting for native PHP types (SimpleDto only)
+- **#[NoAttributes]**: Skips ALL attribute processing for maximum performance (SimpleDto only)
+- **#[NoCasts]**: Disables all type casting (SimpleDto only)
+- **#[NoValidation]**: Skips ALL validation for trusted data sources (SimpleDto only)
+- **#[ValidateRequest]**: Enables automatic request validation in Laravel/Symfony (SimpleDto only)
+- **#[Optional]**: Zero overhead when not used (opt-in via feature flag, SimpleDto only)
 
 ## Detailed Comparison
 
 ### Performance
 
 **LiteDto** is optimized for speed:
-- ~4.4μs average operation time
-- **5.3x faster** than SimpleDto
+- ~4.5μs average creation time (normal mode)
+- ~2.0μs with `#[UltraFast]` (**3.8x faster** than SimpleDto)
 - Minimal reflection overhead
 - No validation or casting overhead
+- Use `#[UltraFast]` attribute for even better performance
 
 **SimpleDto** provides full features:
-- ~18.4μs average operation time
+- ~7.6μs average creation time (normal mode)
+- ~7.7μs with `#[UltraFast]` (**1.0x faster**)
 - Includes validation and type casting
 - Rich attribute system
 - More overhead but more features
-- Use `#[UltraFast]` attribute to skip validation/casting when not needed (~3.2μs, **5.8x faster**)
+- Use `#[UltraFast]` attribute to skip validation/casting when not needed
 
 ### Use Cases
 
@@ -255,6 +305,7 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 - Form input validation
 - API request validation
 - Business rule enforcement
+- **Tip**: Use on-demand validation for best performance (create fast, validate when needed)
 
 ✅ **Type casting needed**
 - DateTime conversion
@@ -262,15 +313,31 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 - Custom type transformations
 
 ✅ **Advanced features required**
-- Computed properties
-- Lazy loading
 - Conditional properties
 - Hooks and events
+- Dot notation access
 
 ✅ **Complex data structures**
 - Nested validation
 - Collection validation
 - Cross-field validation
+
+### Performance Tips
+
+#### LiteDto Optimization
+
+- Avoid `#[ConverterMode]` when only using arrays (~0.5μs overhead)
+- Use `readonly` properties (required)
+- Minimize nested DTOs
+- Minimize attribute usage
+- Use `#[UltraFast]` for even better performance (~2.0μs)
+
+#### SimpleDto Optimization
+
+- Use `#[UltraFast]` mode when validation is not needed (~7.7μs)
+- Enable caching for repeated use
+- Minimize validation rules
+- Use computed properties sparingly
 
 ## Migration Between DTOs
 
@@ -282,9 +349,11 @@ If you need better performance and don't need validation:
 // Before: SimpleDto
 class UserDto extends SimpleDto
 {
-    public string $name;
-    public string $email;
-    public int $age;
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly int $age,
+    ) {}
 }
 
 // After: LiteDto
@@ -316,13 +385,15 @@ class UserDto extends LiteDto
 // After: SimpleDto
 class UserDto extends SimpleDto
 {
-    public string $name;
+    public function __construct(
+        public readonly string $name,
 
-    #[Email]
-    public string $email;
+        #[Email]
+        public readonly string $email,
 
-    #[Min(18)]
-    public int $age;
+        #[Min(18)]
+        public readonly int $age,
+    ) {}
 }
 ```
 
@@ -337,10 +408,12 @@ class UserDto extends SimpleDto
 
 ### SimpleDto Optimization
 
-- Use `#[UltraFast]` mode when validation is not needed (~3.7μs)
+- Use `#[UltraFast]` mode when validation is not needed (~2-3μs, **3-4x faster**)
+- UltraFast auto-detects which attributes are used (zero overhead for unused features)
 - Enable caching for repeated use
 - Minimize validation rules
 - Use computed properties sparingly
+- Combine `#[UltraFast]` with `#[ConverterMode]` for JSON/XML support
 
 ## Learn More
 

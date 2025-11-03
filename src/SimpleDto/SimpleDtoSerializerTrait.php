@@ -10,6 +10,7 @@ use event4u\DataHelpers\SimpleDto\Serializers\CsvSerializer;
 use event4u\DataHelpers\SimpleDto\Serializers\SerializerInterface;
 use event4u\DataHelpers\SimpleDto\Serializers\XmlSerializer;
 use event4u\DataHelpers\SimpleDto\Serializers\YamlSerializer;
+use InvalidArgumentException;
 
 /**
  * Trait for custom serialization formats.
@@ -82,6 +83,20 @@ trait SimpleDtoSerializerTrait
         return $serializer->serialize($this->toArray());
     }
 
+    /**
+     * Serialize to JSON.
+     *
+     * Note: toJson() is already provided by SimpleDto base class.
+     * This method is kept for backward compatibility but delegates to parent.
+     *
+     * @param int $options JSON encoding options
+     */
+    public function toJson(int $options = 0): string
+    {
+        // Use toArray() and json_encode
+        return json_encode($this->toArray(), JSON_THROW_ON_ERROR | $options);
+    }
+
     /** Serialize with a custom serializer. */
     public function serializeWith(SerializerInterface $serializer): string
     {
@@ -101,9 +116,11 @@ trait SimpleDtoSerializerTrait
         $options ??= SerializerOptions::default();
 
         return match ($format) {
-            SerializationFormat::Json => json_encode(
-                $this->toArray(),
-                $options->prettyPrint ? JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR : JSON_THROW_ON_ERROR
+            SerializationFormat::Array => throw new InvalidArgumentException(
+                'Array format cannot be serialized to string, use toArray() instead'
+            ),
+            SerializationFormat::Json => $this->toJson(
+                $options->prettyPrint ? JSON_PRETTY_PRINT : 0
             ),
             SerializationFormat::Xml => $this->toXml($options),
             SerializationFormat::Yaml => $this->toYaml($options),

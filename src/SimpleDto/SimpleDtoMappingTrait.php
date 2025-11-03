@@ -10,7 +10,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
 use event4u\DataHelpers\SimpleDto\Support\NameTransformer;
-use ReflectionClass;
+use event4u\DataHelpers\Support\ReflectionCache;
 
 /**
  * Trait for handling property mapping in SimpleDtos.
@@ -27,13 +27,6 @@ use ReflectionClass;
  */
 trait SimpleDtoMappingTrait
 {
-    /**
-     * Cache for ReflectionClass instances per Dto class.
-     *
-     * @var array<string, ReflectionClass<object>>
-     */
-    private static array $reflectionCache = [];
-
     /**
      * Cache for input mapping configurations per Dto class.
      *
@@ -61,22 +54,6 @@ trait SimpleDtoMappingTrait
      * @var array<string, string|null>
      */
     private static array $outputNameTransformCache = [];
-
-    /** Get cached ReflectionClass instance for the current class.
-     * @return ReflectionClass<object>
-     */
-    private static function getReflection(): ReflectionClass
-    {
-        $class = static::class;
-
-        if (!isset(self::$reflectionCache[$class])) {
-            /** @var ReflectionClass<object> $reflection */
-            $reflection = new ReflectionClass($class);
-            self::$reflectionCache[$class] = $reflection;
-        }
-
-        return self::$reflectionCache[$class];
-    }
 
     /**
      * Get the mapping configuration for this Dto.
@@ -166,7 +143,7 @@ trait SimpleDtoMappingTrait
         $mappedData = [];
 
         // Get all constructor parameters
-        $reflection = self::getReflection();
+        $reflection = ReflectionCache::getClass(static::class);
         $constructor = $reflection->getConstructor();
 
         if (null !== $constructor) {

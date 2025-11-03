@@ -28,7 +28,7 @@ use Attribute;
  *     }
  * }
  *
- * $order = OrderDto::fromArray(['price' => 100.0, 'quantity' => 2]);
+ * $order = OrderDto::from(['price' => 100.0, 'quantity' => 2]);
  * $order->toArray(); // ['price' => 100.0, 'quantity' => 2, 'total' => 200.0]
  * ```
  *
@@ -43,18 +43,6 @@ use Attribute;
  *
  * // Not included by default
  * $order->toArray(); // ['price' => 100.0, 'quantity' => 2]
- *
- * // Include explicitly
- * $order->include(['expensiveCalculation'])->toArray();
- * ```
- *
- * @example With dependencies for cache invalidation
- * ```php
- * #[Computed(depends: ['price', 'quantity'])]
- * public function total(): float
- * {
- *     return $this->price * $this->quantity;
- * }
  * ```
  *
  * @example Custom output name
@@ -72,15 +60,13 @@ use Attribute;
 final readonly class Computed
 {
     /**
-     * @param bool $lazy If true, only compute when explicitly requested via include()
-     * @param array<string>|null $depends List of property names this computed property depends on
+     * @param bool $lazy If true, only compute when explicitly requested
+     * @param bool $cache If true, cache the computed value after first computation
      * @param string|null $name Custom name for the computed property in output (defaults to method name)
-     * @param bool $cache Whether to cache the computed value (default: true)
      */
     public function __construct(
         public bool $lazy = false,
-        public ?array $depends = null,
+        public bool $cache = false,
         public ?string $name = null,
-        public bool $cache = true,
     ) {}
 }

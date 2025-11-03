@@ -15,14 +15,23 @@ interface DtoInterface
     /**
      * Convert the Dto to an array.
      *
+     * @param array<string, mixed> $context Optional context for conditional properties
      * @return array<string, mixed>
      */
-    public function toArray(): array;
+    public function toArray(array $context = []): array;
 
     /**
      * Create a Dto instance from an array.
      *
      * @param array<string, mixed> $data
+     * @param array<string, mixed>|null $template Optional template for mapping
+     * @param array<string, mixed>|null $filters Optional property filters
+     * @param array<int, mixed>|null $pipeline Optional pipeline filters
      */
-    public static function fromArray(array $data): static;
+    public static function fromArray(
+        array $data,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static;
 }

@@ -5,103 +5,160 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
+use Closure;
+use event4u\DataHelpers\SimpleDto\Attributes\Conditional\WhenCallback as ConditionalWhenCallback;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
-use event4u\DataHelpers\Support\CallbackHelper;
-use InvalidArgumentException;
+use ReflectionFunction;
 
 /**
  * Conditional attribute: Include property based on a callback.
  *
- * Supports two syntaxes:
- * 1. Global function or static method with optional parameters
- * 2. Legacy: Direct callable (closures, invokable objects)
+ * This is an alias for the Conditional\WhenCallback attribute for backward compatibility.
  *
- * Example with string reference (recommended for attributes):
+ * Example:
  * ```php
- * // Global function
- * function isAdult(object $dto): bool {
- *     return $dto->age >= 18;
- * }
- *
  * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
  *         public readonly int $age,
  *
- *         // Global function
- *         #[WhenCallback('isAdult')]
+ *         #[WhenCallback(fn($value, $dto) => $dto->age >= 18)]
  *         public readonly ?string $adultContent = null,
- *
- *         // Static method
- *         #[WhenCallback('static::checkPermission', ['admin'])]
- *         public readonly ?array $adminData = null,
- *
- *         // With named parameters
- *         #[WhenCallback('static::hasRole', ['role' => 'editor', 'strict' => true])]
- *         public readonly ?string $editorContent = null,
  *     ) {}
- *
- *     public static function checkPermission(object $dto, mixed $value, array $context, string $permission): bool
- *     {
- *         return in_array($permission, $context['permissions'] ?? []);
- *     }
- *
- *     public static function hasRole(object $dto, mixed $value, array $context, string $role, bool $strict = false): bool
- *     {
- *         return $strict
- *             ? ($context['role'] ?? null) === $role
- *             : in_array($role, $context['roles'] ?? []);
- *     }
  * }
  * ```
  */
-#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
 class WhenCallback implements ConditionalProperty
 {
+    private readonly ConditionalWhenCallback $inner;
+
     /**
-     * @param string|array<string>|object $callback Function name, 'static::methodName', array callable, or invokable object
-     * @param array<string|int, mixed> $parameters Parameters to pass to the callback (positional or named)
+     * @param callable(mixed, object, array<string, mixed>): bool|string $callback Callback that receives ($value, $dto, $context) and returns bool.
+     *                                  Can be a closure, callable array, or string reference to function/method.
+     * @param array<string, mixed> $parameters Optional parameters to pass to the callback
      */
     public function __construct(
-        public readonly string|array|object $callback,
+        public readonly mixed $callback,
         public readonly array $parameters = [],
-    ) {}
+    ) {
+        // Wrap the callback to handle string references and parameters
+        $wrappedCallback = $this->wrapCallback($callback, $parameters);
+        $this->inner = new ConditionalWhenCallback($wrappedCallback);
+    }
+
+    /**
+     * Wrap the callback to handle string references and parameters.
+     *
+     * @param callable(mixed, object, array<string, mixed>): bool|string $callback
+     * @param array<string, mixed> $parameters
+     * @return callable(mixed, object, array<string, mixed>): bool
+     */
+    private function wrapCallback(mixed $callback, array $parameters): callable
+    {
+        // If it's already a closure or callable, wrap it to inject parameters
+        if (is_callable($callback) && !is_string($callback)) {
+            if ([] === $parameters) {
+                // No parameters - just pass through with correct argument order
+                return function(mixed $value, object $dto, array $context = []) use ($callback): bool {
+                    // Call with correct order: ($dto, $value, $context) or legacy ($dto) or ($value, $dto)
+                    // Try to detect signature by reflection
+                    $reflection = new ReflectionFunction($callback instanceof Closure ? $callback : $callback(...));
+                    $params = $reflection->getParameters();
+
+                    // Legacy signature: fn($dto) or fn($dto, $value) or fn($value, $dto)
+                    if (count($params) === 1) {
+                        // Single parameter - assume it's $dto
+                        return (bool)$callback($dto); // @phpstan-ignore-line arguments.count
+                    }
+
+                    if (count($params) === 2) {
+                        // Two parameters - check first parameter name
+                        $firstParam = $params[0]->getName();
+                        if ('dto' === $firstParam || 'object' === $firstParam) {
+                            // ($dto, $value)
+                            return (bool)$callback($dto, $value); // @phpstan-ignore-line arguments.count
+                        }
+
+                        // ($value, $dto) - legacy
+                        return (bool)$callback($value, $dto); // @phpstan-ignore-line arguments.count
+                    }
+
+                    // Three or more parameters - assume new signature ($dto, $value, $context)
+                    return (bool)$callback($dto, $value, $context); // @phpstan-ignore-line argument.type
+                };
+            }
+
+            return fn(mixed $value, object $dto, array $context = []): bool =>
+                // Merge parameters with the standard arguments
+                (bool)$callback($dto, $value, $context, ...$parameters); // @phpstan-ignore-line argument.type
+        }
+
+        // Handle string references (function names, static methods, etc.)
+        if (is_string($callback)) { // @phpstan-ignore-line function.alreadyNarrowedType
+            return function(mixed $value, object $dto, array $context = []) use ($callback, $parameters): bool {
+                // Try to resolve the callback
+                $resolved = $this->resolveStringCallback($callback, $dto);
+
+                if (!is_callable($resolved)) {
+                    return false;
+                }
+
+                // Call with parameters
+                if ([] !== $parameters) {
+                    // Check if parameters are named or positional
+                    $isNamed = array_keys($parameters) !== range(0, count($parameters) - 1);
+
+                    // Positional parameters
+                    return (bool)$resolved($dto, $value, $context, ...$parameters); // @phpstan-ignore-line argument.type
+                }
+
+                return (bool)$resolved($dto, $value, $context); // @phpstan-ignore-line argument.type
+            };
+        }
+
+        // Fallback: return a callback that always returns false
+        return fn(): bool => false;
+    }
+
+    /**
+     * Resolve string callback to callable.
+     * @return callable(mixed, object, array<string, mixed>): bool|null
+     */
+    private function resolveStringCallback(string $callback, object $dto): ?callable
+    {
+        // Check if it's a function
+        if (function_exists($callback)) {
+            return $callback;
+        }
+
+        // Check if it's a static method reference (Class::method or static::method)
+        if (str_contains($callback, '::')) {
+            [$class, $method] = explode('::', $callback, 2);
+
+            // Handle 'static::method' - resolve to DTO class
+            if ('static' === $class) {
+                $class = $dto::class;
+            }
+
+            if (method_exists($class, $method)) {
+                return [$class, $method]; // @phpstan-ignore-line return.type
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Determine if the property should be included in serialization.
      *
      * @param mixed $value The property value
-     * @param object $dto The Dto instance
+     * @param object $dto The DTO instance
      * @param array<string, mixed> $context Additional context
      */
     public function shouldInclude(mixed $value, object $dto, array $context = []): bool
     {
-        try {
-            // Build arguments: always start with ($dto, $value, $context)
-            $args = [$dto, $value, $context];
-
-            // Add additional parameters
-            if ([] !== $this->parameters) {
-                // Check if parameters are named (associative array)
-                $isNamed = array_keys($this->parameters) !== range(0, count($this->parameters) - 1);
-
-                if ($isNamed) {
-                    // Named parameters: merge with base args
-                    $args = array_merge($args, $this->parameters);
-                } else {
-                    // Positional parameters: append to base args
-                    foreach ($this->parameters as $param) {
-                        $args[] = $param;
-                    }
-                }
-            }
-
-            // CallbackHelper will resolve 'static::method' automatically
-            $result = CallbackHelper::execute($this->callback, ...$args);
-            return (bool)$result;
-        } catch (InvalidArgumentException) {
-            return false;
-        }
+        return $this->inner->shouldInclude($value, $dto, $context);
     }
 }

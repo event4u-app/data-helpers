@@ -50,10 +50,12 @@ class TestUserDto4 extends SimpleDto
 
 class TestUserDto5 extends SimpleDto
 {
-    /** @phpstan-ignore-next-line unknown */
+    /** @param Optional<string>|string $email */
     public function __construct(
         public readonly string $name,
-        #[OptionalAttribute(default: 'default@example.com')]
+        #[OptionalAttribute(
+            default: 'default@example.com'
+        )] // @phpstan-ignore-line attribute.noConstructor (OptionalAttribute has constructor, not Optional)
         public readonly Optional|string $email,
     ) {}
 }
@@ -136,13 +138,12 @@ describe('Optional Properties', function(): void {
         ]);
     });
 
-    it('includes empty optional values in toArray', function(): void {
+    it('excludes empty optional values from toArray', function(): void {
         $dto = TestUserDto2::fromArray(['name' => 'John']);
         $array = $dto->toArray();
 
         expect($array)->toBe([
             'name' => 'John',
-            'email' => null,
         ]);
     });
 
@@ -162,11 +163,11 @@ describe('Optional Properties', function(): void {
         expect($json)->toBe('{"name":"John","email":"john@example.com"}');
     });
 
-    it('handles missing values in JSON serialization', function(): void {
+    it('excludes missing values from JSON serialization', function(): void {
         $dto = TestUserDto2::fromArray(['name' => 'John']);
         $json = json_encode($dto);
 
-        expect($json)->toBe('{"name":"John","email":null}');
+        expect($json)->toBe('{"name":"John"}');
     });
 });
 

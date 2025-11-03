@@ -23,7 +23,7 @@ use Attribute;
  *     ) {}
  * }
  *
- * $user = UserDto::fromArray(['name' => 'John', 'debugInfo' => 'debug data']);
+ * $user = UserDto::from(['name' => 'John', 'debugInfo' => 'debug data']);
  * $user->toArray(); // ['name' => 'John', 'debugInfo' => 'debug data'] - debugInfo visible
  * json_encode($user); // {"name":"John"} - debugInfo hidden
  * ```

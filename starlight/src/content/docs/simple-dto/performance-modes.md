@@ -92,19 +92,73 @@ $user = FastUserDto::fromArray([
 ]);
 ```
 
-### Configuration Options
+### Automatic Attribute Detection
+
+`#[UltraFast]` automatically detects and processes `#[MapFrom]`, `#[MapTo]`, `#[CastWith]`, and `#[Hidden]` attributes if they are present on properties. No configuration needed!
 
 ```php
-#[UltraFast(
-    allowMapFrom: true,   // Allow #[MapFrom] attributes (default: true)
-    allowMapTo: true,     // Allow #[MapTo] attributes (default: true)
-    allowCastWith: false, // Allow #[CastWith] attributes (default: false)
-)]
-class ConfiguredDto extends SimpleDto
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
+
+#[UltraFast]
+class AutoDetectDto extends SimpleDto
 {
-    // ...
+    public function __construct(
+        #[MapFrom('old_name')]
+        public readonly string $name,  // Automatically detected!
+
+        public readonly string $email,
+
+        #[Hidden]
+        public readonly string $password,  // Automatically hidden!
+    ) {}
 }
+
+$dto = AutoDetectDto::fromArray([
+    'old_name' => 'John',
+    'email' => 'john@example.com',
+    'password' => 'secret123',
+]);
+
+$array = $dto->toArray();
+// ['name' => 'John', 'email' => 'john@example.com']
+// password is hidden!
 ```
+
+### JSON/XML Support with #[ConverterMode]
+
+Combine `#[UltraFast]` with `#[ConverterMode]` to enable JSON/XML/CSV parsing with minimal overhead:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
+use event4u\DataHelpers\SimpleDto\Attributes\ConverterMode;
+
+#[UltraFast]
+#[ConverterMode]
+class ApiDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+    ) {}
+}
+
+// Accept JSON (1.3-1.5μs)
+$dto = ApiDto::from('{"name": "John", "email": "john@example.com"}');
+
+// Accept XML (1.3-1.5μs)
+$dto = ApiDto::from('<root><name>John</name><email>john@example.com</email></root>');
+
+// Accept arrays (0.8μs - no parsing overhead)
+$dto = ApiDto::from(['name' => 'John', 'email' => 'john@example.com']);
+```
+
+**Performance:**
+- **Array only** (without `#[ConverterMode]`): ~0.8μs
+- **With JSON/XML** (with `#[ConverterMode]`): ~1.3-1.5μs
+- **Still 12x faster** than normal SimpleDto (~18.4μs)
+
+**Note:** Use `from()` method for mixed input types. `fromArray()` only accepts arrays.
 
 ## #[NoCasts] Mode
 

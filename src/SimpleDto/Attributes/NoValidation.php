@@ -7,7 +7,7 @@ namespace event4u\DataHelpers\SimpleDto\Attributes;
 use Attribute;
 
 /**
- * Skip all validation for this class.
+ * Skip all validation for this SimpleDto class.
  *
  * This attribute improves performance by skipping all validation logic.
  * Use this when you trust your data source and don't need validation.
@@ -16,9 +16,13 @@ use Attribute;
  * - Skips all validation attribute processing
  * - Skips validation rule extraction
  * - Faster DTO instantiation
+ * - Zero overhead when validation is not needed
  *
  * Example:
  * ```php
+ * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
+ *
  * #[NoValidation]
  * class TrustedDto extends SimpleDto
  * {
@@ -27,17 +31,23 @@ use Attribute;
  *         public readonly int $age,
  *     ) {}
  * }
+ *
+ * // No validation will be performed
+ * $dto = TrustedDto::from(['email' => 'john@example.com', 'age' => 30]);
  * ```
  *
  * Note: This will disable ALL validation including:
  * - Validation attributes (#[Required], #[Email], #[Min], etc.)
- * - Auto-inferred validation rules
  * - Custom validation rules
+ * - Conditional validation (#[RequiredIf], #[RequiredUnless], etc.)
  *
  * Other attributes still work:
- * - Cast attributes (#[Cast], #[AutoCast])
  * - Visibility attributes (#[Hidden], #[Visible])
  * - Mapping attributes (#[MapFrom], #[MapTo])
+ * - Conditional properties (#[WhenValue], #[WhenContext], etc.)
+ * - Computed properties (#[Computed])
+ *
+ * @package event4u\DataHelpers\SimpleDto\Attributes
  */
 #[Attribute(Attribute::TARGET_CLASS)]
 final readonly class NoValidation

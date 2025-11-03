@@ -260,7 +260,7 @@ describe('Conditional Properties', function(): void {
         });
 
         it('supports legacy closure callbacks', function(): void {
-            $attr = new WhenCallback(fn($dto): bool => 18 <= $dto->age);
+            $attr = new WhenCallback(fn($dto): bool => 18 <= $dto->age); // @phpstan-ignore-line property.nonObject
             $dto = new ConditionalPropsTestDto1('John', 25);
 
             expect($attr->shouldInclude('data', $dto))->toBeTrue();
@@ -307,7 +307,7 @@ describe('Conditional Properties', function(): void {
 
         it('casts callback result to boolean', function(): void {
             // Test that non-boolean return values are cast to bool
-            $attr = new WhenCallback(fn($dto) => $dto->age); // Returns int
+            $attr = new WhenCallback(fn($dto) => $dto->age); // Returns int // @phpstan-ignore-line property.nonObject
             $dto1 = new ConditionalPropsTestDto1('John', 25);
             $dto2 = new ConditionalPropsTestDto1('Baby', 0);
 

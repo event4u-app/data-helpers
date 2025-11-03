@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
 use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
@@ -27,7 +28,7 @@ use Symfony\Component\Validator\Constraint;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Same implements ValidationRule, SymfonyConstraint
+class Same implements ConditionalValidationAttribute, ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
 
@@ -35,6 +36,36 @@ class Same implements ValidationRule, SymfonyConstraint
     public function __construct(
         public readonly string $field,
     ) {}
+
+    /** Validate the value (not used - use validateConditional instead). */
+    public function validate(mixed $value, string $propertyName): bool
+    {
+        // This should not be called directly - use validateConditional instead
+        return true;
+    }
+
+    /** Validate the value against another field. */
+    public function validateConditional(mixed $value, string $propertyName, array $allData): bool
+    {
+        // Skip validation for null values (use Required attribute to enforce non-null)
+        if (null === $value) {
+            return true;
+        }
+
+        // Check if the other field exists
+        if (!array_key_exists($this->field, $allData)) {
+            return false;
+        }
+
+        // Compare values
+        return $value === $allData[$this->field];
+    }
+
+    /** Get validation error message. */
+    public function getErrorMessage(string $propertyName): string
+    {
+        return sprintf('The %s and %s must match.', $propertyName, $this->field);
+    }
 
     /** Convert to Laravel validation rule. */
     public function rule(): string

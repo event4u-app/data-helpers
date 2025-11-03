@@ -18,105 +18,81 @@ use Attribute;
  * - API consistency where null and missing have different meanings
  * - Default values where you want to distinguish between "use null" and "use default"
  *
- * Note: You can also use union type syntax: `Optional|string` instead of `#[Optional]`
+ * Note: This is an opt-in feature. Properties without #[Optional] are not wrapped,
+ * ensuring zero performance overhead when not used.
  *
- * @example Basic optional property (attribute syntax)
+ * @example Basic optional property
  * ```php
+ * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto\Attributes\Optional;
+ * use event4u\DataHelpers\Support\Optional as OptionalWrapper;
+ *
  * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
  *         #[Optional]
- *         public readonly string $email,
+ *         public readonly OptionalWrapper|string $email,
  *     ) {}
  * }
  *
- * $user = UserDto::fromArray(['name' => 'John']);
+ * $user = UserDto::from(['name' => 'John']);
  * $user->email->isEmpty();     // true
  * $user->email->isPresent();   // false
  * ```
  *
- * @example Optional property (union type syntax)
- * ```php
- * use event4u\DataHelpers\Support\Optional;
- *
- * class UserDto extends SimpleDto
- * {
- *     public function __construct(
- *         public readonly string $name,
- *         public readonly Optional|string $email,  // Union type!
- *     ) {}
- * }
- * ```
- *
  * @example Partial updates
  * ```php
- * class UserDto extends SimpleDto
+ * class UpdateUserDto extends SimpleDto
  * {
  *     public function __construct(
  *         #[Optional]
- *         public readonly string $name,
+ *         public readonly OptionalWrapper|string $name,
  *         #[Optional]
- *         public readonly string $email,
+ *         public readonly OptionalWrapper|string $email,
  *         #[Optional]
- *         public readonly int $age,
+ *         public readonly OptionalWrapper|string $phone,
  *     ) {}
- *
- *     public function partial(): array
- *     {
- *         $data = [];
- *
- *         if ($this->name->isPresent()) {
- *             $data['name'] = $this->name->get();
- *         }
- *
- *         if ($this->email->isPresent()) {
- *             $data['email'] = $this->email->get();
- *         }
- *
- *         if ($this->age->isPresent()) {
- *             $data['age'] = $this->age->get();
- *         }
- *
- *         return $data;
- *     }
  * }
  *
- * // PATCH /users/1 with { "email": "new@example.com" }
- * $updates = UserDto::fromArray($request->all());
- * $model->update($updates->partial()); // Only updates email
+ * // Only update email
+ * $updates = UpdateUserDto::from(['email' => 'new@example.com']);
+ * if ($updates->email->isPresent()) {
+ *     $user->email = $updates->email->get();
+ * }
+ * // name and phone remain unchanged
  * ```
  *
- * @example Optional vs Nullable
+ * @example Combining with nullable
  * ```php
  * class UserDto extends SimpleDto
  * {
  *     public function __construct(
  *         public readonly string $name,
  *         #[Optional]
- *         public readonly string $email,      // Can be missing
- *         public readonly ?string $phone,     // Can be null
+ *         public readonly OptionalWrapper|string $email,      // Can be missing
+ *         public readonly ?string $phone,                     // Can be null
  *         #[Optional]
- *         public readonly ?string $bio,       // Can be missing OR null
+ *         public readonly OptionalWrapper|string|null $bio,   // Can be missing OR null
  *     ) {}
  * }
  *
  * // Missing email, explicit null phone
- * $user = UserDto::fromArray(['name' => 'John', 'phone' => null]);
+ * $user = UserDto::from(['name' => 'John', 'phone' => null]);
  * $user->email->isEmpty();     // true (missing)
  * $user->phone;                // null (explicitly set)
  *
  * // Explicit null bio
- * $user = UserDto::fromArray(['name' => 'John', 'bio' => null]);
+ * $user = UserDto::from(['name' => 'John', 'bio' => null]);
  * $user->bio->isPresent();     // true
  * $user->bio->get();           // null
  * ```
  */
-#[Attribute(Attribute::TARGET_PROPERTY)]
-final readonly class Optional
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+class Optional
 {
-    /** @param mixed $default Default value to use when the property is missing */
+    /** @param mixed $default Default value to use when property is not provided */
     public function __construct(
-        public mixed $default = null,
+        public readonly mixed $default = null,
     ) {}
 }

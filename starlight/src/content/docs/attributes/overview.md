@@ -64,13 +64,20 @@ See [Mapping Attributes](/data-helpers/attributes/mapping/) for complete list.
 - `#[Lazy]` - Defer property evaluation
 - `#[Hidden]` - Always hide property
 
+### Mutability Attributes
+
+- `#[NotImmutable]` - Allow property modification after construction
+  - Can be applied to class (all properties mutable) or specific properties
+  - Properties without `readonly` can be modified
+  - Useful for counters, caching, tracking, statistics
+
 ### Performance Attributes {#performance-attributes}
 
 **Optimize DTO performance by skipping unnecessary operations:**
 
 - `#[NoCasts]` - Skip **ALL** casting operations (34-63% faster)
   - ❌ Disables nested DTO auto-casting
-  - ❌ Disables native type casts (even with `#[AutoCast]`)
+  - ❌ Disables native type casts
   - ❌ Disables explicit `#[Cast]` attributes
   - ✅ Keeps validation, visibility, mapping attributes
 
@@ -80,16 +87,22 @@ See [Mapping Attributes](/data-helpers/attributes/mapping/) for complete list.
 
 - `#[NoAttributes]` - Skip all attribute processing (+5% faster)
   - ❌ Disables validation, visibility, mapping, cast attributes
-  - ✅ Keeps nested DTO auto-casting (!)
+  - ❌ Disables automatic type casting
   - ✅ Use when you have simple DTOs without attributes
 
-:::tip[Maximum Performance]
-**Key Insight:** Nested DTOs are ALWAYS auto-casted (even without `#[AutoCast]`), unless you use `#[NoCasts]`. This is different from native types which require `#[AutoCast]` or explicit `#[Cast]` attributes.
+:::tip[Automatic Type Casting in SimpleDto]
+**Key Insight:** SimpleDto automatically casts ALL types by default (native types, nested DTOs, DataCollections, DateTime). Use `#[NoCasts]` to disable automatic casting for better performance.
 
-**Best combinations:**
-- `#[NoCasts]` alone: +37% faster, keeps validation
+**What SimpleDto auto-casts by default:**
+- ✅ Native type casting (int, float, string, bool, array)
+- ✅ Nested DTO auto-casting (SimpleDto subclasses)
+- ✅ DataCollection auto-casting (with `#[DataCollectionOf]`)
+- ✅ DateTime/DateTimeImmutable auto-casting
+
+**Performance optimization:**
+- `#[NoCasts]` alone: +37% faster, keeps validation, disables all casting
 - `#[NoCasts, NoValidation]`: +34% faster, maximum performance
-- `#[NoAttributes]`: +5% faster, keeps nested DTO auto-casting
+- Default (no attributes): Full automatic type casting
 
 See [Performance Attributes](/data-helpers/attributes/performance/) for detailed benchmarks and usage examples.
 :::

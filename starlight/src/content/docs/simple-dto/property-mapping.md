@@ -224,6 +224,211 @@ public readonly string $cleanPropertyName;
 ```
 
 
+## Advanced Mapping with Templates
+
+### Using mapperTemplate()
+
+For complex mappings, you can define a template method in your DTO:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\SimpleDtoMapperTrait;
+
+class UserDto extends SimpleDto
+{
+    use SimpleDtoMapperTrait;
+
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly string $city,
+    ) {}
+
+    protected function mapperTemplate(): array
+    {
+        return [
+            'name' => '{{ user.name }}',
+            'email' => '{{ user.email }}',
+            'city' => '{{ user.address.city }}',
+        ];
+    }
+}
+
+// Template is automatically applied
+$dto = UserDto::fromArray([
+    'user' => [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'address' => [
+            'city' => 'New York',
+        ],
+    ],
+]);
+
+echo $dto->name;  // 'John Doe'
+echo $dto->city;  // 'New York'
+```
+
+### Using mapperFilters()
+
+Apply filters to specific properties during mapping:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\SimpleDtoMapperTrait;
+use event4u\DataHelpers\Filters\TrimStrings;
+use event4u\DataHelpers\Filters\LowercaseStrings;
+
+class UserDto extends SimpleDto
+{
+    use SimpleDtoMapperTrait;
+
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+    ) {}
+
+    protected function mapperFilters(): array
+    {
+        return [
+            'name' => new TrimStrings(),
+            'email' => [new TrimStrings(), new LowercaseStrings()],
+        ];
+    }
+}
+
+// Filters are automatically applied
+$dto = UserDto::fromArray([
+    'name' => '  John Doe  ',
+    'email' => '  JOHN@EXAMPLE.COM  ',
+]);
+
+echo $dto->name;  // 'John Doe' (trimmed)
+echo $dto->email; // 'john@example.com' (trimmed and lowercased)
+```
+
+### Using mapperPipeline()
+
+Apply global filters to all properties:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\SimpleDtoMapperTrait;
+use event4u\DataHelpers\Filters\TrimStrings;
+
+class UserDto extends SimpleDto
+{
+    use SimpleDtoMapperTrait;
+
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly string $city,
+    ) {}
+
+    protected function mapperPipeline(): array
+    {
+        return [new TrimStrings()];
+    }
+}
+
+// Pipeline is automatically applied to all properties
+$dto = UserDto::fromArray([
+    'name' => '  John Doe  ',
+    'email' => '  john@example.com  ',
+    'city' => '  New York  ',
+]);
+
+echo $dto->name;  // 'John Doe' (trimmed)
+echo $dto->email; // 'john@example.com' (trimmed)
+echo $dto->city;  // 'New York' (trimmed)
+```
+
+### Combining Template, Filters, and Pipeline
+
+You can combine all three for powerful data transformation:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\SimpleDtoMapperTrait;
+use event4u\DataHelpers\Filters\TrimStrings;
+use event4u\DataHelpers\Filters\LowercaseStrings;
+
+class UserDto extends SimpleDto
+{
+    use SimpleDtoMapperTrait;
+
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly string $city,
+    ) {}
+
+    protected function mapperTemplate(): array
+    {
+        return [
+            'name' => '{{ user.name }}',
+            'email' => '{{ user.email }}',
+            'city' => '{{ user.address.city }}',
+        ];
+    }
+
+    protected function mapperFilters(): array
+    {
+        return [
+            'email' => new LowercaseStrings(),
+        ];
+    }
+
+    protected function mapperPipeline(): array
+    {
+        return [new TrimStrings()];
+    }
+}
+
+// All transformations are automatically applied
+$dto = UserDto::fromArray([
+    'user' => [
+        'name' => '  John Doe  ',
+        'email' => '  JOHN@EXAMPLE.COM  ',
+        'address' => [
+            'city' => '  New York  ',
+        ],
+    ],
+]);
+
+echo $dto->name;  // 'John Doe' (template + pipeline)
+echo $dto->email; // 'john@example.com' (template + filters + pipeline)
+echo $dto->city;  // 'New York' (template + pipeline)
+```
+
+### Overriding at Runtime
+
+You can override DTO configuration at runtime:
+
+```php
+// Override template
+$dto = UserDto::from($data, [
+    'name' => '{{ custom.path }}',
+]);
+
+// Override filters
+$dto = UserDto::from($data, null, [
+    'name' => new CustomFilter(),
+]);
+
+// Override pipeline (merged with DTO pipeline)
+$dto = UserDto::from($data, null, null, [
+    new AdditionalFilter(),
+]);
+```
+
+**Priority:**
+1. Runtime parameters (highest priority)
+2. DTO configuration (`mapperTemplate()`, `mapperFilters()`, `mapperPipeline()`)
+3. `#[MapFrom]` attributes (only when no template is applied)
+4. Auto-mapping (lowest priority)
+
 ## Code Examples
 
 The following working examples demonstrate this feature:

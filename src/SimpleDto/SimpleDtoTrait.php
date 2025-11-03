@@ -7,402 +7,246 @@ namespace event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMutator;
-use event4u\DataHelpers\SimpleDto\Support\FastPath;
-use event4u\DataHelpers\SimpleDto\Support\UltraFastEngine;
+use event4u\DataHelpers\SimpleDto\Support\SimpleEngine;
+use event4u\DataHelpers\Validation\ValidationResult;
 use RuntimeException;
 
 /**
- * Trait providing default implementations for Dtos.
+ * Core trait for SimpleDto functionality.
  *
- * This trait orchestrates the core Dto functionality by composing
- * specialized traits for different concerns:
- * - SimpleDtoCastsTrait: Handles attribute casting
- * - SimpleDtoValidationTrait: Handles validation
- * - SimpleDtoMappingTrait: Handles property mapping
+ * This trait provides the complete SimpleDto implementation including:
+ * - Core methods (from, toArray, toJson, validate, etc.)
+ * - Lifecycle hooks (beforeCreate, afterCreate, etc.)
+ * - Additional features via traits (diff, with, sorting, etc.)
+ * - Framework integrations (Doctrine, Eloquent)
  *
- * Responsibilities:
- * - Convert Dtos to arrays (toArray)
- * - Serialize Dtos to JSON (jsonSerialize)
- * - Create Dtos from arrays (fromArray)
- * - Coordinate between specialized traits
- *
- * Example usage:
- *   class UserDto extends SimpleDto {
- *       public function __construct(
- *           #[Required]
- *           #[Email]
- *           #[MapFrom('email_address')]
- *           public readonly string $email,
- *
- *           #[Required]
- *           #[Min(3)]
- *           #[MapFrom('user_name')]
- *           public readonly string $name,
- *
- *           #[Between(18, 120)]
- *           public readonly ?int $age = null,
- *
- *           #[MapFrom('created_at')]
- *           public readonly ?DateTimeImmutable $createdAt = null,
- *       ) {}
- *
- *       protected function casts(): array {
- *           return [
- *               'createdAt' => 'datetime',
- *           ];
- *       }
+ * Usage:
+ *   class MyDto extends SimpleDto {
+ *       use SimpleDtoTrait;
  *   }
  *
- *   // Create with validation and mapping
- *   $user = UserDto::validateAndCreate([
- *       'user_name' => 'John',
- *       'email_address' => 'john@example.com',
- *       'age' => 30,
- *       'created_at' => '2024-01-01 12:00:00'
- *   ]);
- *
- *   // Or create without validation
- *   $user = UserDto::fromArray([...]);
+ * Or use the trait directly without extending SimpleDto:
+ *   class MyDto {
+ *       use SimpleDtoTrait;
+ *   }
  */
 trait SimpleDtoTrait
 {
+    // Import all feature traits
     use SimpleDtoCastsTrait;
+    use SimpleDtoMappingTrait;
     use SimpleDtoValidationTrait;
     use SimpleDtoRequestValidationTrait;
-    use SimpleDtoMappingTrait;
     use SimpleDtoMapperTrait;
-    use SimpleDtoVisibilityTrait;
-    use SimpleDtoWrappingTrait;
-    use SimpleDtoSerializerTrait;
     use SimpleDtoImporterTrait;
     use SimpleDtoTransformerTrait;
     use SimpleDtoNormalizerTrait;
     use SimpleDtoPipelineTrait;
-    use SimpleDtoPerformanceTrait;
-    use SimpleDtoLazyCastTrait;
-    use SimpleDtoBenchmarkTrait;
     use SimpleDtoOptionalTrait;
-    use SimpleDtoComputedTrait;
-    use SimpleDtoLazyTrait;
-    use SimpleDtoConditionalTrait;
+    use SimpleDtoWrappingTrait;
+    use SimpleDtoSerializerTrait;
     use SimpleDtoWithTrait;
     use SimpleDtoSortingTrait;
     use SimpleDtoDiffTrait;
-
+    use SimpleDtoVisibilityTrait;
+    use SimpleDtoLazyTrait;
+    use SimpleDtoComputedTrait;
+    use SimpleDtoConditionalTrait;
+    use SimpleDtoLazyCastTrait;
+    use SimpleDtoPerformanceTrait;
+    use SimpleDtoBenchmarkTrait;
+    // Note: SimpleDtoDoctrineTrait and SimpleDtoEloquentTrait are NOT imported by default
+    // to maintain framework independence. Import them explicitly if needed.
     /**
-     * Include specific properties in serialization.
+     * Create DTO from data.
      *
-     * This works for both lazy computed properties and lazy properties.
+     * Standard mode: Only accepts arrays
+     * ConverterMode: Accepts JSON, XML, CSV, etc.
      *
-     * @param array<string> $properties List of property names to include
+     * Automatically applies mapperTemplate(), mapperFilters(), and mapperPipeline()
+     * if defined in the DTO class (via SimpleDtoMapperTrait). Parameters override DTO configuration.
+     * Pipeline filters are merged (DTO pipeline + parameter pipeline).
+     *
+     * @param array<string, mixed>|string|object $data
+     * @param array<string, mixed>|null $template Optional template override
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      */
-    public function include(array $properties): static
-    {
-        $clone = clone $this;
+    public static function from(
+        mixed $data,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
+        // Check if DTO uses SimpleDtoMapperTrait (has getTemplateConfig method)
+        // and load DTO configuration if available
+        $usesMapperTrait = method_exists(static::class, 'getTemplateConfig'); // @phpstan-ignore-line
 
-        // Include computed properties
-        $clone->includedComputed = array_merge($clone->includedComputed ?? [], $properties);
-        $clone->computedCache = $this->computedCache;
+        if ($usesMapperTrait) {
+            // Merge with parameters (parameters have priority for template/filters, merged for pipeline)
+            if (null === $template) {
+                $template = static::getTemplateConfig();
+            }
+            if (null === $filters) {
+                $filters = static::getFilterConfig();
+            }
 
-        // Include lazy properties
-        $clone->includedLazy = array_merge($clone->includedLazy ?? [], $properties);
+            // Merge pipelines: DTO pipeline + parameter pipeline
+            $dtoPipeline = static::getPipelineConfig();
+            if (null !== $dtoPipeline && [] !== $dtoPipeline) {
+                if (null !== $pipeline && [] !== $pipeline) {
+                    // Note: array_merge is correct here for numeric arrays (appends items)
+                    $pipeline = array_merge($dtoPipeline, $pipeline);
+                } else {
+                    $pipeline = $dtoPipeline;
+                }
+            }
+        }
 
-        return $clone;
+        /** @var static */
+        return SimpleEngine::createFromData(static::class, $data, $template, $filters, $pipeline);
     }
 
-    /** Include all lazy properties in serialization. */
-    public function includeAll(): static
-    {
-        $clone = clone $this;
-        $clone->includeAllLazy = true;
-
-        return $clone;
-    }
-
     /**
-     * Internal properties that should be excluded from toArray/jsonSerialize.
+     * Convert DTO to array.
      *
-     * @var array<string, true>
-     */
-    private const INTERNAL_PROPERTIES = [
-        'onlyProperties' => true,
-        'exceptProperties' => true,
-        'visibilityContext' => true,
-        'computedCache' => true,
-        'includedComputed' => true,
-        'includedLazy' => true,
-        'includeAllLazy' => true,
-        'wrapKey' => true,
-        'objectVarsCache' => true,
-        'castedProperties' => true,
-        'conditionalContext' => true,
-        'additionalData' => true,
-        'sortingEnabled' => true,
-        'sortDirection' => true,
-        'nestedSort' => true,
-        'sortCallback' => true,
-    ];
-
-    /**
-     * Get object properties with internal properties removed.
+     * Respects #[MapTo], #[Hidden], and conditional attributes.
      *
-     * Phase 6 Optimization #2/#5: Optimized property filtering
-     * - Uses foreach instead of array_diff_key (faster for small arrays)
-     * - Avoids creating intermediate arrays
-     *
+     * @param array<string, mixed> $context Optional context for conditional properties
      * @return array<string, mixed>
      */
-    private function getCleanObjectVars(): array
+    public function toArray(array $context = []): array
     {
-        $data = get_object_vars($this);
+        // Merge context from withContext() method if SimpleDtoConditionalTrait is used
+        if (property_exists($this, 'conditionalContext') && isset($this->conditionalContext)) { // @phpstan-ignore-line
+            $context += $this->conditionalContext; // @phpstan-ignore-line
+        }
 
-        // Phase 6 Optimization: Direct filtering is faster than array_diff_key for small sets
-        foreach (array_keys(self::INTERNAL_PROPERTIES) as $key) {
-            unset($data[$key]);
+        $data = SimpleEngine::toArray($this, $context);
+
+        // Apply visibility filtering if SimpleDtoVisibilityTrait is used
+        if (method_exists($this, 'filterVisibleProperties')) { // @phpstan-ignore-line
+            $hiddenProperties = method_exists($this, 'getHiddenFromArrayProperties') // @phpstan-ignore-line
+                ? $this->getHiddenFromArrayProperties()
+                : [];
+            $data = $this->filterVisibleProperties($data, $hiddenProperties);
+        }
+
+        // Merge additional data from with() method if SimpleDtoWithTrait is used
+        if (method_exists($this, 'getAdditionalData')) { // @phpstan-ignore-line
+            $additionalData = $this->getAdditionalData();
+            if ([] !== $additionalData) {
+                // Use + operator for performance (additional data overwrites existing properties)
+                $data = $additionalData + $data;
+            }
+        }
+
+        // Apply wrapping if SimpleDtoWrappingTrait is used
+        if (method_exists($this, 'applyWrapping')) { // @phpstan-ignore-line
+            $data = $this->applyWrapping($data);
+        }
+
+        // Apply sorting if SimpleDtoSortingTrait is used
+        if (method_exists($this, 'applySorting')) { // @phpstan-ignore-line
+            return $this->applySorting($data);
         }
 
         return $data;
     }
 
     /**
-     * Process data for serialization (shared logic between toArray and jsonSerialize).
+     * Convert DTO to JSON.
      *
-     * @param string $context Either 'array' or 'json'
-     * @return array<string, mixed>
+     * @param int $options JSON encoding options
      */
-    private function processDataForSerialization(string $context): array
+    public function toJson(int $options = 0): string
     {
-        $data = $this->getCleanObjectVars();
+        // Merge context from withContext() method if SimpleDtoConditionalTrait is used
+        $context = [];
+        if (property_exists($this, 'conditionalContext') && isset($this->conditionalContext)) { // @phpstan-ignore-line
+            $context = $this->conditionalContext; // @phpstan-ignore-line
+        }
 
-        // Unwrap optional properties
-        $data = static::unwrapOptionalProperties($data);
+        $data = SimpleEngine::toJsonArray($this, $context);
 
-        // Filter lazy properties (before unwrapping)
-        $data = $this->filterLazyProperties($data);
+        // Apply visibility filtering if SimpleDtoVisibilityTrait is used
+        if (method_exists($this, 'filterVisibleProperties')) { // @phpstan-ignore-line
+            $hiddenProperties = method_exists($this, 'getHiddenFromJsonProperties') // @phpstan-ignore-line
+                ? $this->getHiddenFromJsonProperties()
+                : [];
+            $data = $this->filterVisibleProperties($data, $hiddenProperties);
+        }
 
-        // Unwrap lazy properties
-        $data = $this->unwrapLazyProperties($data);
+        // Merge additional data from with() method if SimpleDtoWithTrait is used
+        if (method_exists($this, 'getAdditionalData')) { // @phpstan-ignore-line
+            $additionalData = $this->getAdditionalData();
+            if ([] !== $additionalData) {
+                // Use + operator for performance (additional data overwrites existing properties)
+                $data = $additionalData + $data;
+            }
+        }
 
-        // Apply casts (set method) to convert values back
-        $data = $this->applyOutputCasts($data);
+        // Apply wrapping if SimpleDtoWrappingTrait is used
+        if (method_exists($this, 'applyWrapping')) { // @phpstan-ignore-line
+            $data = $this->applyWrapping($data);
+        }
 
-        // Apply output mapping
-        $data = $this->applyOutputMapping($data);
-
-        // Apply visibility filters (context-specific)
-        $data = 'json' === $context
-            ? $this->applyJsonVisibilityFilters($data)
-            : $this->applyArrayVisibilityFilters($data);
-
-        // Apply conditional filters
-        $data = $this->applyConditionalFilters($data);
-
-        // Add computed properties (context-specific)
-        $computed = $this->getComputedValues($context);
-        // Performance: Use + operator instead of array_merge (10-20% faster)
-        // Note: $computed + $data means computed properties override existing data
-        $data = $computed + $data;
-
-        // Add additional data from with() method
-        $additional = $this->getAdditionalData();
-        // Performance: Use + operator instead of array_merge (10-20% faster)
-        // Note: $additional + $data means additional data overrides existing data
-        $data = $additional + $data;
-
-        // Apply wrapping
-        $data = $this->applyWrapping($data);
-
-        // Apply sorting
-        $data = $this->applySorting($data);
-
-        return $data;
+        return json_encode($data, JSON_THROW_ON_ERROR | $options);
     }
 
     /**
-     * Convert the Dto to an array.
-     *
-     * Returns all public properties as an associative array.
-     * Applies casts (set method), output mapping, visibility filters, lazy loading, and computed properties.
-     *
-     * Phase 7 Optimization: Uses fast path for simple DTOs (30-50% faster)
-     * Ultra-Fast Mode: Uses UltraFastEngine for maximum speed (target: <1μs)
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(): array
-    {
-        // Ultra-Fast Mode: Bypass all overhead
-        if (UltraFastEngine::isUltraFast(static::class)) {
-            return UltraFastEngine::toArray($this);
-        }
-
-        // Phase 7: Fast path for simple DTOs without attributes or runtime modifications
-        if (FastPath::canUseFastPath(static::class) && FastPath::canUseFastPathAtRuntime($this)) {
-            return FastPath::fastToArray($this);
-        }
-
-        return $this->processDataForSerialization('array');
-    }
-
-    /**
-     * Serialize the Dto to JSON.
-     *
-     * This method is called automatically by json_encode().
-     * Applies casts (set method), output mapping, visibility filters, lazy loading, and computed properties.
-     *
-     * Phase 7 Optimization: Uses fast path for simple DTOs (30-50% faster)
+     * JsonSerializable implementation.
      *
      * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
-        // Phase 7: Fast path for simple DTOs without attributes or runtime modifications
-        if (FastPath::canUseFastPath(static::class) && FastPath::canUseFastPathAtRuntime($this)) {
-            return FastPath::fastToArray($this);
+        // Merge context from withContext() method if SimpleDtoConditionalTrait is used
+        $context = [];
+        if (property_exists($this, 'conditionalContext') && isset($this->conditionalContext)) { // @phpstan-ignore-line
+            $context = $this->conditionalContext; // @phpstan-ignore-line
         }
 
-        return $this->processDataForSerialization('json');
-    }
+        $data = SimpleEngine::toJsonArray($this, $context);
 
-    /**
-     * Create a Dto instance from an array.
-     *
-     * This is an alias for fromSource() for backward compatibility.
-     * Uses the full mapping pipeline with the following priority:
-     * 1. Template (from template() method) - HIGHEST PRIORITY
-     * 2. Attributes (#[MapFrom], #[MapTo])
-     * 3. Automapping (fallback)
-     *
-     * Performance Optimization: If the class has #[UltraFast] attribute,
-     * bypasses all overhead and uses direct reflection (target: <1μs).
-     *
-     * @param array<string, mixed> $data
-     * @param array<string, mixed>|null $template Optional template override
-     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
-     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
-     */
-    public static function fromArray(
-        array $data,
-        ?array $template = null,
-        ?array $filters = null,
-        ?array $pipeline = null
-    ): static {
-        // Ultra-Fast Mode: Bypass all overhead
-        if (UltraFastEngine::isUltraFast(static::class)) {
-            /** @var static */
-            return UltraFastEngine::createFromArray(static::class, $data);
+        // Apply visibility filtering if SimpleDtoVisibilityTrait is used
+        if (method_exists($this, 'filterVisibleProperties')) { // @phpstan-ignore-line
+            $hiddenProperties = method_exists($this, 'getHiddenFromJsonProperties') // @phpstan-ignore-line
+                ? $this->getHiddenFromJsonProperties()
+                : [];
+            $data = $this->filterVisibleProperties($data, $hiddenProperties);
         }
 
-        return static::fromSource($data, $template, $filters, $pipeline);
+        // Merge additional data from with() method if SimpleDtoWithTrait is used
+        if (method_exists($this, 'getAdditionalData')) { // @phpstan-ignore-line
+            $additionalData = $this->getAdditionalData();
+            if ([] !== $additionalData) {
+                // Use + operator for performance (additional data overwrites existing properties)
+                $data = $additionalData + $data;
+            }
+        }
+
+        // Apply wrapping if SimpleDtoWrappingTrait is used
+        if (method_exists($this, 'applyWrapping')) { // @phpstan-ignore-line
+            $data = $this->applyWrapping($data);
+        }
+
+        // Apply sorting if SimpleDtoSortingTrait is used
+        if (method_exists($this, 'applySorting')) { // @phpstan-ignore-line
+            return $this->applySorting($data);
+        }
+
+        return $data;
     }
 
     /**
-     * Create a Dto instance from a JSON string.
+     * Get value from Dto using dot notation.
      *
-     * This is an alias for fromSource() that accepts JSON strings.
-     * The JSON will be decoded and processed through the full mapping pipeline.
-     *
-     * @param string $json JSON string
-     * @param array<string, mixed>|null $template Optional template override
-     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
-     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
-     */
-    public static function fromJson(
-        string $json,
-        ?array $template = null,
-        ?array $filters = null,
-        ?array $pipeline = null
-    ): static {
-        return static::fromSource($json, $template, $filters, $pipeline);
-    }
-
-    /**
-     * Create a Dto instance from an XML string.
-     *
-     * This is an alias for fromSource() that accepts XML strings.
-     * The XML will be parsed and processed through the full mapping pipeline.
-     *
-     * @param string $xml XML string
-     * @param array<string, mixed>|null $template Optional template override
-     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
-     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
-     */
-    public static function fromXml(
-        string $xml,
-        ?array $template = null,
-        ?array $filters = null,
-        ?array $pipeline = null
-    ): static {
-        return static::fromSource($xml, $template, $filters, $pipeline);
-    }
-
-    /**
-     * Create a Dto instance from a YAML string.
-     *
-     * This is an alias for fromSource() that accepts YAML strings.
-     * The YAML will be parsed and processed through the full mapping pipeline.
-     *
-     * @param string $yaml YAML string
-     * @param array<string, mixed>|null $template Optional template override
-     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
-     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
-     */
-    public static function fromYaml(
-        string $yaml,
-        ?array $template = null,
-        ?array $filters = null,
-        ?array $pipeline = null
-    ): static {
-        return static::fromSource($yaml, $template, $filters, $pipeline);
-    }
-
-    /**
-     * Create a Dto instance from a CSV string.
-     *
-     * This is an alias for fromSource() that accepts CSV strings.
-     * The CSV will be parsed and processed through the full mapping pipeline.
-     * Note: CSV parsing expects the first row to contain headers.
-     *
-     * @param string $csv CSV string
-     * @param array<string, mixed>|null $template Optional template override
-     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional filters (property => filter)
-     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
-     */
-    public static function fromCsv(
-        string $csv,
-        ?array $template = null,
-        ?array $filters = null,
-        ?array $pipeline = null
-    ): static {
-        return static::fromSource($csv, $template, $filters, $pipeline);
-    }
-
-    /**
-     * Create a type-safe collection of Dtos.
-     *
-     * @param array<int|string, mixed> $items
-     * @return DataCollection<static> The collection of Dtos
-     * @phpstan-return DataCollection<static>
-     */
-    public static function collection(array $items = []): DataCollection
-    {
-        /** @var DataCollection<static> $dataCollection */
-        $dataCollection = DataCollection::forDto(static::class, $items);
-
-        return $dataCollection;
-    }
-
-    /**
-     * Get a value from the Dto using dot notation.
-     *
-     * Supports nested property access and wildcards for arrays.
-     *
-     * Examples:
-     *   $dto->get('name')                    // Get simple property
-     *   $dto->get('address.city')            // Get nested property
-     *   $dto->get('emails.*.email')          // Get all emails from array
-     *   $dto->get('user.orders.*.total')     // Nested wildcards
-     *   $dto->get('missing', 'default')      // With default value
+     * Supports:
+     * - Simple paths: 'name', 'email'
+     * - Nested paths: 'address.city', 'user.profile.bio'
+     * - Wildcards: 'emails.*.address', 'users.*.orders.*.total'
+     * - Array indices: 'items.0.name', 'users.1.email'
      *
      * @param string $path Dot-notation path to the property
      * @param mixed $default Default value if path doesn't exist
@@ -417,66 +261,15 @@ trait SimpleDtoTrait
     }
 
     /**
-     * Convert Dto to array recursively, including nested Dtos.
+     * Set value in Dto using dot notation (returns new instance).
      *
-     * @return array<string, mixed>
-     */
-    private function toArrayRecursive(): array
-    {
-        $data = $this->toArray();
-        $result = $this->convertToArrayRecursive($data);
-
-        // Ensure we return an array
-        if (!is_array($result)) {
-            return [];
-        }
-
-        /** @var array<string, mixed> $result */
-        return $result;
-    }
-
-    /**
-     * Recursively convert nested Dtos and arrays of Dtos to arrays.
+     * Since SimpleDtos are immutable, this method returns a new instance
+     * with the updated value.
      *
-     * @param mixed $value The value to convert
-     * @return mixed The converted value
-     */
-    private function convertToArrayRecursive(mixed $value): mixed
-    {
-        // Handle arrays
-        if (is_array($value)) {
-            // Phase 6 Optimization #5: Use foreach instead of array_map (faster, less memory)
-            $result = [];
-            foreach ($value as $key => $item) {
-                $result[$key] = $this->convertToArrayRecursive($item);
-            }
-            return $result;
-        }
-
-        // Handle Dtos
-        if ($value instanceof DtoInterface) {
-            return $this->convertToArrayRecursive($value->toArray());
-        }
-
-        // Handle objects with toArray method
-        if (is_object($value) && method_exists($value, 'toArray')) {
-            return $this->convertToArrayRecursive($value->toArray());
-        }
-
-        return $value;
-    }
-
-    /**
-     * Set a value in the Dto using dot notation and return a new instance.
-     *
-     * Since Dtos are immutable, this method returns a new instance with the updated value.
-     * Supports nested property access and wildcards for arrays.
-     *
-     * Examples:
-     *   $newDto = $dto->set('name', 'John')                    // Set simple property
-     *   $newDto = $dto->set('address.city', 'Berlin')          // Set nested property
-     *   $newDto = $dto->set('emails.*.verified', true)         // Set all emails as verified
-     *   $newDto = $dto->set('user.orders.*.status', 'shipped') // Nested wildcards
+     * Supports:
+     * - Simple paths: 'name', 'email'
+     * - Nested paths: 'address.city', 'user.profile.bio'
+     * - Array indices: 'items.0.name', 'users.1.email'
      *
      * @param string $path Dot-notation path to the property
      * @param mixed $value Value to set
@@ -489,28 +282,320 @@ trait SimpleDtoTrait
 
         // Ensure we have an array with string keys
         if (!is_array($data)) {
-            return static::fromArray([]);
+            return static::from([]);
         }
 
         /** @var array<string, mixed> $data */
-        return static::fromArray($data);
+        return static::from($data);
     }
 
     /**
-     * Convert Dto to JSON string.
+     * Convert Dto to array recursively, including nested Dtos.
      *
-     * @param int $flags JSON encoding flags (default: 0)
-     * @return string JSON representation of the Dto
+     * @return array<string, mixed>
      */
-    public function toJson(int $flags = 0): string
+    private function toArrayRecursive(): array
     {
-        $json = json_encode($this->toArray(), $flags);
-        if (false === $json) {
-            throw new RuntimeException('Failed to encode Dto to JSON: ' . json_last_error_msg());
+        $data = $this->toArray();
+        $result = $this->convertToArrayRecursive($data);
+
+        // Ensure we return an array with string keys
+        if (!is_array($result)) {
+            return [];
         }
 
-        return $json;
+        /** @var array<string, mixed> $result */
+        return $result;
     }
 
-    // toXml(), toYaml(), and toCsv() methods are provided by SimpleDtoSerializerTrait
+    /** Recursively convert nested Dtos to arrays. */
+    private function convertToArrayRecursive(mixed $data): mixed
+    {
+        if (is_array($data)) {
+            /** @var array<string, mixed> $result */
+            $result = [];
+            foreach ($data as $key => $value) {
+                $result[$key] = $this->convertToArrayRecursive($value);
+            }
+            return $result;
+        }
+
+        if ($data instanceof SimpleDto) {
+            return $this->convertToArrayRecursive($data->toArray());
+        }
+
+        return $data;
+    }
+
+    // =========================================================================
+    // Lifecycle Hooks
+    // =========================================================================
+    //
+    // These methods can be overridden in your DTO classes to hook into
+    // the lifecycle of DTO creation, validation, and serialization.
+    //
+    // All hooks are optional and have no performance impact when not overridden.
+    //
+    // Example:
+    //   class UserDto extends SimpleDto {
+    //       protected function beforeCreate(array &$data): void {
+    //           $data['email'] = strtolower($data['email'] ?? '');
+    //       }
+    //   }
+
+    /**
+     * Called before DTO creation, allows modifying input data.
+     *
+     * This hook is called before property mapping and casting.
+     * You can modify the input data array by reference.
+     *
+     * @param array<string, mixed> $data Input data (modifiable by reference)
+     */
+    protected function beforeCreate(array &$data): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after DTO creation.
+     *
+     * This hook is called after the DTO instance has been created
+     * and all properties have been set.
+     */
+    protected function afterCreate(): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called before property mapping.
+     *
+     * This hook is called before #[MapFrom] attributes are processed.
+     * You can modify the input data array by reference.
+     *
+     * @param array<string, mixed> $data Input data (modifiable by reference)
+     */
+    protected function beforeMapping(array &$data): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after property mapping.
+     *
+     * This hook is called after #[MapFrom] attributes have been processed.
+     */
+    protected function afterMapping(): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called before casting a property value.
+     *
+     * This hook is called before type casting, nested DTOs, and custom casters.
+     * You can modify the value by reference.
+     *
+     * @param string $property Property name
+     * @param mixed $value Property value (modifiable by reference)
+     */
+    protected function beforeCasting(string $property, mixed &$value): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after casting a property value.
+     *
+     * This hook is called after type casting, nested DTOs, and custom casters.
+     *
+     * @param string $property Property name
+     * @param mixed $value Property value (after casting)
+     */
+    protected function afterCasting(string $property, mixed $value): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called before validation.
+     *
+     * This hook is called before validation rules are applied.
+     * You can modify the input data array by reference.
+     *
+     * @param array<string, mixed> $data Input data (modifiable by reference)
+     */
+    protected function beforeValidation(array &$data): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after validation.
+     *
+     * This hook is called after validation rules have been applied.
+     * You can inspect the validation result.
+     *
+     * @param ValidationResult $result Validation result
+     */
+    protected function afterValidation(ValidationResult $result): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called before serialization (toArray/toJson).
+     *
+     * This hook is called before the DTO is converted to an array.
+     * You can modify the output data array by reference.
+     *
+     * @param array<string, mixed> $data Output data (modifiable by reference)
+     */
+    protected function beforeSerialization(array &$data): void
+    {
+        // Override in subclass to add custom logic
+    }
+
+    /**
+     * Called after serialization (toArray/toJson).
+     *
+     * This hook is called after the DTO has been converted to an array.
+     * You can modify and return the output data.
+     *
+     * @param array<string, mixed> $data Output data
+     * @return array<string, mixed> Modified output data
+     */
+    protected function afterSerialization(array $data): array
+    {
+        // Override in subclass to add custom logic
+        return $data;
+    }
+
+    // =========================================================================
+    // Magic Methods for Mutability Control
+    // =========================================================================
+
+    /**
+     * Magic method to set property values.
+     *
+     * By default, SimpleDto uses readonly properties for immutability.
+     * This method allows setting properties if:
+     * - The class has #[NotImmutable] attribute (all properties mutable)
+     * - The specific property has #[NotImmutable] attribute
+     *
+     * @param string $name Property name
+     * @param mixed $value Property value
+     * @throws RuntimeException If property is not mutable
+     */
+    public function __set(string $name, mixed $value): void
+    {
+        if (SimpleEngine::isPropertyMutable(static::class, $name)) {
+            $this->$name = $value;
+        } else {
+            throw new RuntimeException(
+                sprintf(
+                    'Cannot modify property "%s" on immutable DTO "%s". ' .
+                    'Use #[NotImmutable] attribute on the class or property to allow modifications.',
+                    $name,
+                    static::class
+                )
+            );
+        }
+    }
+
+    /**
+     * Get mapping configuration for this DTO.
+     *
+     * Returns an array mapping property names to their source keys.
+     *
+     * @return array<string, string|array<int, string>>
+     */
+    public static function getMappingConfig(): array
+    {
+        return SimpleEngine::getMappingConfig(static::class);
+    }
+
+    /**
+     * Clear the mapping cache for this DTO.
+     *
+     * Useful for testing or when mapping configuration changes dynamically.
+     */
+    public static function clearMappingCache(): void
+    {
+        SimpleEngine::clearMappingCache(static::class);
+    }
+
+    /**
+     * Check if a computed property has a cached value.
+     *
+     * @param string $name The name of the computed property
+     * @return bool True if the computed property has a cached value
+     */
+    public function hasComputedCache(string $name): bool
+    {
+        return SimpleEngine::hasComputedCache($this, $name);
+    }
+
+    /**
+     * Clear the computed property cache.
+     *
+     * This is useful when you want to force recomputation of computed properties.
+     *
+     * @param string|null $property Specific property to clear, or null to clear all
+     */
+    public function clearComputedCache(?string $property = null): static
+    {
+        SimpleEngine::clearComputedCache($this, $property);
+
+        return $this;
+    }
+
+    /**
+     * Include lazy computed properties in the next toArray() or toJson() call.
+     *
+     * @param array<int, string> $names The names of the lazy computed properties to include
+     * @return static A new instance with the lazy computed properties included
+     */
+    public function includeComputed(array $names): static
+    {
+        return SimpleEngine::includeComputed($this, $names); // @phpstan-ignore-line
+    }
+
+    /**
+     * Include lazy properties in the next toArray() or toJson() call.
+     *
+     * This is an alias for includeComputed() for backward compatibility.
+     *
+     * @param array<int, string> $names The names of the lazy properties to include
+     * @return static A new instance with the lazy properties included
+     */
+    public function include(array $names): static
+    {
+        return SimpleEngine::includeComputed($this, $names); // @phpstan-ignore-line
+    }
+
+    /**
+     * Include all lazy properties in the next toArray() or toJson() call.
+     *
+     * @return static A new instance with all lazy properties included
+     */
+    public function includeAll(): static
+    {
+        return SimpleEngine::includeAllLazy($this); // @phpstan-ignore-line
+    }
+
+    /**
+     * Create a type-safe collection of Dtos.
+     *
+     * @param array<int|string, mixed> $items
+     * @return DataCollection<static> The collection of Dtos
+     * @phpstan-return DataCollection<static>
+     */
+    public static function collection(array $items = []): DataCollection // @phpstan-ignore-line
+    {
+        /** @var DataCollection<static> $dataCollection @phpstan-ignore-line */
+        $dataCollection = DataCollection::forDto(static::class, $items); // @phpstan-ignore-line
+
+        return $dataCollection;
+    }
 }

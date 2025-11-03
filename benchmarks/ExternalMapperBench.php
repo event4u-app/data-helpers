@@ -252,7 +252,7 @@ class MapperTargetDto
 /**
  * UltraFast DTO for nested mapping benchmarks
  */
-#[UltraFast(allowMapFrom: true)]
+#[UltraFast]
 class UltraFastNestedMapperDto extends SimpleDto
 {
     use SimpleDtoTrait;

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\LiteDto\Support;
 
 use BackedEnum;
+use DateTime;
+use DateTimeImmutable;
+use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\LiteDto\Attributes\CastWith;
 use event4u\DataHelpers\LiteDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
@@ -13,13 +16,17 @@ use event4u\DataHelpers\LiteDto\Attributes\Hidden;
 use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
+use event4u\DataHelpers\LiteDto\Contracts\ConditionalProperty;
 use event4u\DataHelpers\LiteDto\LiteDto;
 use event4u\DataHelpers\Support\StringFormatDetector;
+use Exception;
 use InvalidArgumentException;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
+use Throwable;
 use UnitEnum;
 
 /**
@@ -110,6 +117,14 @@ final class LiteEngine
     {
         // Check for UltraFast mode first
         if (self::isUltraFast($class)) {
+            // Check if ConverterMode is enabled for UltraFast
+            $converterMode = self::hasConverterMode($class);
+
+            // If data is not an array and ConverterMode is enabled, convert it
+            if (!is_array($data) && $converterMode) {
+                $data = self::parseWithConverter($data);
+            }
+
             return self::createUltraFast($class, $data);
         }
 
@@ -151,9 +166,10 @@ final class LiteEngine
     /**
      * Convert DTO to array.
      *
+     * @param array<string, mixed> $context Optional context for conditional properties
      * @return array<string, mixed>
      */
-    public static function toArray(object $dto): array
+    public static function toArray(object $dto, array $context = []): array
     {
         $class = $dto::class;
 
@@ -161,14 +177,29 @@ final class LiteEngine
         if (self::isUltraFast($class)) {
             $ultraFast = self::getUltraFastAttribute($class);
             $data = get_object_vars($dto);
+            $reflection = self::getReflection($class);
 
-            // If MapTo is not allowed, just return raw data
-            if (!$ultraFast instanceof UltraFast || !$ultraFast->allowMapTo) {
+            // Check if any property has MapTo or EnumSerialize attributes (auto-detect)
+            $hasMapTo = false;
+            $hasEnumSerialize = false;
+            foreach ($reflection->getProperties() as $prop) {
+                if (!empty($prop->getAttributes(MapTo::class))) {
+                    $hasMapTo = true;
+                }
+                if (!empty($prop->getAttributes(EnumSerialize::class))) {
+                    $hasEnumSerialize = true;
+                }
+                if ($hasMapTo && $hasEnumSerialize) {
+                    break;
+                }
+            }
+
+            // If no attributes to process, just return raw data
+            if (!$hasMapTo && !$hasEnumSerialize) {
                 return $data;
             }
 
-            // Process MapTo attributes
-            $reflection = self::getReflection($class);
+            // Process attributes
             $result = [];
 
             foreach ($reflection->getProperties() as $reflectionProperty) {
@@ -177,6 +208,8 @@ final class LiteEngine
                 if (!array_key_exists($name, $data)) {
                     continue;
                 }
+
+                $value = $data[$name];
 
                 // Check for #[MapTo] attribute
                 $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
@@ -188,7 +221,19 @@ final class LiteEngine
                     $outputName = $name;
                 }
 
-                $result[$outputName] = $data[$name];
+                // Check for #[EnumSerialize] attribute
+                if ($value instanceof UnitEnum) {
+                    $enumSerializeAttrs = $reflectionProperty->getAttributes(EnumSerialize::class);
+                    if (!empty($enumSerializeAttrs)) {
+                        /** @var EnumSerialize $enumSerialize */
+                        $enumSerialize = $enumSerializeAttrs[0]->newInstance();
+                        $value = 'value' === $enumSerialize->mode && $value instanceof BackedEnum
+                            ? $value->value
+                            : $value->name;
+                    }
+                }
+
+                $result[$outputName] = $value;
             }
 
             return $result;
@@ -209,6 +254,11 @@ final class LiteEngine
 
             // Check if hidden
             if (self::isHidden($class, $name, $reflectionProperty)) {
+                continue;
+            }
+
+            // Check conditional properties
+            if (!self::shouldIncludeConditionalProperty($reflectionProperty, $data[$name], $dto, $context)) {
                 continue;
             }
 
@@ -272,6 +322,11 @@ final class LiteEngine
                     /** @var array<string, mixed>|object|string $value */
                     return $typeName::from($value);
                 }
+            }
+
+            // Check if it's DateTime or DateTimeImmutable
+            if (!$type->isBuiltin() && null !== $value && ('DateTime' === $typeName || 'DateTimeImmutable' === $typeName)) {
+                return self::castToDateTime($typeName, $value);
             }
 
             // Check if it's an Enum
@@ -461,10 +516,16 @@ final class LiteEngine
                 return json_decode($data, true) ?? [];
             }
 
-            throw new InvalidArgumentException('Unable to parse string data. Supported formats: JSON, XML');
+            // Try YAML (fallback for other string formats)
+            try {
+                $converter = new YamlConverter();
+                return $converter->toArray($data);
+            } catch (Throwable) {
+                throw new InvalidArgumentException('Unable to parse string data. Supported formats: JSON, XML, YAML');
+            }
         }
 
-        throw new InvalidArgumentException('Data must be array, string (JSON/XML), or object');
+        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML), or object');
     }
 
     /**
@@ -572,6 +633,64 @@ final class LiteEngine
         }
 
         return null;
+    }
+
+    /**
+     * Cast value to DateTime or DateTimeImmutable.
+     *
+     * @param class-string $dateTimeClass
+     */
+    private static function castToDateTime(string $dateTimeClass, mixed $value): DateTime|DateTimeImmutable
+    {
+        // If already the correct type, return it
+        if ($value instanceof $dateTimeClass) {
+            return $value; // @phpstan-ignore-line return.type
+        }
+
+        // Convert between DateTime and DateTimeImmutable
+        if ('DateTime' === $dateTimeClass && $value instanceof DateTimeImmutable) {
+            return DateTime::createFromImmutable($value);
+        }
+
+        if ('DateTimeImmutable' === $dateTimeClass && $value instanceof DateTime) {
+            return DateTimeImmutable::createFromMutable($value);
+        }
+
+        // Cast from string
+        if (is_string($value)) {
+            try {
+                return 'DateTime' === $dateTimeClass
+                    ? new DateTime($value)
+                    : new DateTimeImmutable($value);
+            } catch (Exception $e) {
+                throw new InvalidArgumentException(sprintf(
+                    'Cannot cast string "%s" to %s: %s',
+                    $value,
+                    $dateTimeClass,
+                    $e->getMessage()
+                ), $e->getCode(), $e);
+            }
+        }
+
+        // Cast from timestamp (int)
+        if (is_int($value)) {
+            try {
+                return 'DateTime' === $dateTimeClass
+                    ? (new DateTime())->setTimestamp($value)
+                    : (new DateTimeImmutable())->setTimestamp($value);
+            } catch (Exception $e) {
+                throw new InvalidArgumentException(sprintf(
+                    'Cannot cast timestamp %d to %s: %s',
+                    $value,
+                    $dateTimeClass,
+                    $e->getMessage()
+                ), $e->getCode(), $e);
+            }
+        }
+
+        throw new InvalidArgumentException(
+            sprintf('Cannot cast value of type %s to %s', get_debug_type($value), $dateTimeClass)
+        );
     }
 
     /**
@@ -722,31 +841,59 @@ final class LiteEngine
             $paramName = $reflectionParameter->getName();
             $value = null;
 
-            // Step 1: Check for #[MapFrom] if allowed
-            if ($ultraFast instanceof UltraFast && $ultraFast->allowMapFrom) {
-                $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
-                if (!empty($mapFromAttrs)) {
-                    /** @var MapFrom $mapFrom */
-                    $mapFrom = $mapFromAttrs[0]->newInstance();
-                    $sourceKey = $mapFrom->source;
-                    $value = $data[$sourceKey] ?? null;
-                } else {
-                    $value = $data[$paramName] ?? null;
-                }
+            // Step 1: Check for #[MapFrom] (auto-detect or explicitly allowed)
+            $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
+            $hasMapFrom = !empty($mapFromAttrs);
+            $allowMapFrom = ($ultraFast instanceof UltraFast && $ultraFast->allowMapFrom) || $hasMapFrom;
+
+            if ($allowMapFrom && $hasMapFrom) {
+                /** @var MapFrom $mapFrom */
+                $mapFrom = $mapFromAttrs[0]->newInstance();
+                $sourceKey = $mapFrom->source;
+                $value = $data[$sourceKey] ?? null;
             } else {
                 $value = $data[$paramName] ?? null;
             }
 
-            // Step 2: Apply #[CastWith] if allowed and value is not null
-            if ($ultraFast instanceof UltraFast && $ultraFast->allowCastWith && null !== $value) {
-                $castWithAttrs = $reflectionParameter->getAttributes(CastWith::class);
-                if (!empty($castWithAttrs)) {
-                    /** @var CastWith $castWith */
-                    $castWith = $castWithAttrs[0]->newInstance();
-                    $casterClass = $castWith->casterClass;
+            // Step 2: Apply #[ConvertEmptyToNull] if present (auto-detect)
+            $convertEmptyAttrs = $reflectionParameter->getAttributes(ConvertEmptyToNull::class);
+            if (!empty($convertEmptyAttrs) && ('' === $value || [] === $value)) {
+                $value = null;
+            }
 
-                    if (class_exists($casterClass) && method_exists($casterClass, 'cast')) {
-                        $value = $casterClass::cast($value);
+            // Step 3: Apply #[CastWith] if present (auto-detect or explicitly allowed)
+            $castWithAttrs = $reflectionParameter->getAttributes(CastWith::class);
+            $hasCastWith = !empty($castWithAttrs);
+            $allowCastWith = ($ultraFast instanceof UltraFast && $ultraFast->allowCastWith) || $hasCastWith;
+
+            if ($allowCastWith && $hasCastWith && null !== $value) {
+                /** @var CastWith $castWith */
+                $castWith = $castWithAttrs[0]->newInstance();
+                $casterClass = $castWith->casterClass;
+
+                if (class_exists($casterClass) && method_exists($casterClass, 'cast')) {
+                    $value = $casterClass::cast($value);
+                }
+            }
+
+            // Step 4: Cast DateTime/DateTimeImmutable/Enum if needed
+            if (null !== $value) {
+                $type = $reflectionParameter->getType();
+                if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
+                    $typeName = $type->getName();
+                    if ('DateTime' === $typeName || 'DateTimeImmutable' === $typeName) {
+                        $value = self::castToDateTime($typeName, $value);
+                    } elseif (enum_exists($typeName)) {
+                        // Cast to enum (auto-detect)
+                        if (is_string($value) || is_int($value)) {
+                            // Try backed enum first
+                            if (is_subclass_of($typeName, BackedEnum::class)) {
+                                $value = $typeName::from($value);
+                            } else {
+                                // Try unit enum by name
+                                $value = constant($typeName . '::' . $value);
+                            }
+                        }
                     }
                 }
             }
@@ -756,5 +903,41 @@ final class LiteEngine
 
         // Create instance
         return $reflection->newInstanceArgs($args);
+    }
+
+    /**
+     * Check if a property should be included based on conditional attributes.
+     *
+     * @param mixed $value Property value
+     * @param object $dto Dto instance
+     * @param array<string, mixed> $context Context data
+     */
+    private static function shouldIncludeConditionalProperty(
+        ReflectionProperty $property,
+        mixed $value,
+        object $dto,
+        array $context
+    ): bool {
+        // Get all conditional attributes
+        $conditionalAttrs = $property->getAttributes(
+            ConditionalProperty::class,
+            ReflectionAttribute::IS_INSTANCEOF
+        );
+
+        // No conditional attributes = always include
+        if ([] === $conditionalAttrs) {
+            return true;
+        }
+
+        // All conditional attributes must pass (AND logic)
+        foreach ($conditionalAttrs as $attr) {
+            /** @var ConditionalProperty $conditional */
+            $conditional = $attr->newInstance();
+            if (!$conditional->shouldInclude($value, $dto, $context)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

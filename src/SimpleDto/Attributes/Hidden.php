@@ -7,28 +7,22 @@ namespace event4u\DataHelpers\SimpleDto\Attributes;
 use Attribute;
 
 /**
- * Mark a property as hidden from toArray() and JSON serialization.
+ * Exclude property from serialization.
  *
- * The property will still be accessible via direct property access,
- * but will be excluded from array and JSON output.
+ * Similar to OtherDto's #[Hidden] attribute.
  *
  * Example:
- * ```php
- * class UserDto extends SimpleDto
- * {
- *     public function __construct(
- *         public readonly string $name,
- *         #[Hidden]
- *         public readonly string $password,
- *     ) {}
- * }
+ *   class UserDto extends SimpleDto {
+ *       public function __construct(
+ *           public readonly string $name,
+ *           #[Hidden]
+ *           public readonly string $password,
+ *       ) {}
+ *   }
  *
- * $user = UserDto::fromArray(['name' => 'John', 'password' => 'secret']);
- * echo $user->password; // 'secret' - accessible
- * $user->toArray(); // ['name' => 'John'] - password hidden
- * ```
+ *   $dto->toArray(); // ['name' => 'John'] (password excluded)
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-final readonly class Hidden
+class Hidden
 {
 }

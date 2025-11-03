@@ -8,6 +8,7 @@ use event4u\DataHelpers\Converters\CsvConverter;
 use event4u\DataHelpers\Converters\JsonConverter;
 use event4u\DataHelpers\Converters\XmlConverter;
 use event4u\DataHelpers\Converters\YamlConverter;
+use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 
 /**
  * Trait for importing Dtos from various formats.
@@ -34,57 +35,94 @@ trait SimpleDtoImporterTrait
      * Create Dto from JSON string.
      *
      * @param string $json JSON string
+     * @param array<string, mixed>|null $template Optional template for mapping
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      */
-    public static function fromJson(string $json): static
-    {
+    public static function fromJson(
+        string $json,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
         $converter = new JsonConverter();
         $array = $converter->toArray($json);
 
-        return static::fromArray($array);
+        /** @var static */
+        return static::from($array, $template, $filters, $pipeline);
     }
 
     /**
      * Create Dto from XML string.
      *
      * @param string $xml XML string
+     * @param array<string, mixed>|null $template Optional template for mapping
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      * @param string $rootElement Root element name (default: 'root')
      */
-    public static function fromXml(string $xml, string $rootElement = 'root'): static
-    {
+    public static function fromXml(
+        string $xml,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null,
+        string $rootElement = 'root'
+    ): static {
         $converter = new XmlConverter($rootElement);
         $array = $converter->toArray($xml);
 
-        return static::fromArray($array);
+        /** @var static */
+        return static::from($array, $template, $filters, $pipeline);
     }
 
     /**
      * Create Dto from YAML string.
      *
      * @param string $yaml YAML string
+     * @param array<string, mixed>|null $template Optional template for mapping
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      */
-    public static function fromYaml(string $yaml): static
-    {
+    public static function fromYaml(
+        string $yaml,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null
+    ): static {
         $converter = new YamlConverter();
         $array = $converter->toArray($yaml);
 
-        return static::fromArray($array);
+        /** @var static */
+        return static::from($array, $template, $filters, $pipeline);
     }
 
     /**
      * Create Dto from CSV string.
      *
      * @param string $csv CSV string
+     * @param array<string, mixed>|null $template Optional template for mapping
+     * @param array<string, FilterInterface|array<int, FilterInterface>>|null $filters Optional property filters
+     * @param array<int, FilterInterface>|null $pipeline Optional pipeline filters
      * @param bool $includeHeaders Whether the CSV has headers (default: true)
      * @param string $delimiter Field delimiter (default: ',')
      */
     public static function fromCsv(
         string $csv,
+        ?array $template = null,
+        ?array $filters = null,
+        ?array $pipeline = null,
         bool $includeHeaders = true,
         string $delimiter = ','
     ): static {
         $converter = new CsvConverter($includeHeaders, $delimiter);
         $array = $converter->toArray($csv);
 
-        return static::fromArray($array);
+        // CSV converter returns array of rows - take first row for single DTO
+        if (isset($array[0]) && is_array($array[0])) {
+            $array = $array[0];
+        }
+
+        /** @var static */
+        return static::from($array, $template, $filters, $pipeline);
     }
 }
