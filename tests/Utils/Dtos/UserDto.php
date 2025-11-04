@@ -10,5 +10,6 @@ final class UserDto extends SimpleDto
 {
     public string $name = '';
     public string $email = '';
+    public ?int $age = null;
     public ?ProfileDto $profile = null;
 }

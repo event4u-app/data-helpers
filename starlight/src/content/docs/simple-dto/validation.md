@@ -24,6 +24,7 @@ use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
 use event4u\DataHelpers\SimpleDto\Attributes\Email;
 use event4u\DataHelpers\SimpleDto\Attributes\Between;
+use event4u\DataHelpers\SimpleDto\Enums\SerializationFormat;
 
 class UserDto extends SimpleDto
 {
@@ -39,12 +40,18 @@ class UserDto extends SimpleDto
     ) {}
 }
 
-// Validate and create
+// Validate and create from array (default)
 $dto = UserDto::validateAndCreate([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'age' => 30,
 ]);
+
+// Validate and create from JSON
+$dto = UserDto::validateAndCreate($jsonString, SerializationFormat::Json);
+
+// Validate and create from XML
+$dto = UserDto::validateAndCreate($xmlString, SerializationFormat::Xml);
 ```
 
 ### Handling Validation Errors
@@ -63,6 +70,57 @@ try {
     print_r($e->errors());
 }
 ```
+
+### On-Demand Validation
+
+For maximum performance, create DTOs without validation and validate later when needed:
+
+```php
+// Create DTO without validation (ultra-fast)
+$dto = UserDto::fromArray([
+    'name' => 'John Doe',
+    'email' => 'invalid-email',
+    'age' => 15,
+]);
+
+// Validate later (throws ValidationException on error)
+$dto->validateInstance();
+
+// Or validate without throwing exception
+$isValid = $dto->validateInstance(false);
+
+if (!$isValid) {
+    $errors = $dto->getValidationErrors();
+
+    // Check if field has errors
+    if ($errors->has('email')) {
+        echo $errors->first('email'); // Get first error message
+    }
+
+    // Get all errors for a field
+    $emailErrors = $errors->get('email');
+
+    // Get all fields with errors
+    $fields = $errors->fields(); // ['email', 'age']
+
+    // Get all error messages
+    $messages = $errors->messages();
+
+    // Count errors
+    $errorCount = $errors->count(); // Number of fields with errors
+    $messageCount = $errors->countMessages(); // Total number of messages
+}
+
+// Check validation state
+$dto->isValidated(); // true/false - has validation been run?
+$dto->isValid(); // true/false/null - is DTO valid? (null if not validated yet)
+```
+
+**Benefits of On-Demand Validation:**
+- ✅ **Ultra-fast DTO creation** (~1.5μs with UltraFast mode)
+- ✅ **Validate only when needed** (e.g., before saving to database)
+- ✅ **Flexible error handling** (throw exception or return bool)
+- ✅ **Rich error API** (ValidationErrorCollection with convenient methods)
 
 ## Validation Attributes
 

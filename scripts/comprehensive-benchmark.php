@@ -544,6 +544,16 @@ if (file_exists($dtoComparisonPath)) {
         $externalDtoResults = $results['ExternalDto'];
         foreach ($externalDtoResults as $result) {
             $name = $result['name'];
+
+            // Only use "FromArray" or "From" benchmarks for creation performance comparison
+            // Skip "ToArray" (serialization) and "ComplexData" (nested structures)
+            if (!str_contains($name, 'FromArray') && !(str_contains($name, 'From') && !str_contains(
+                $name,
+                'FromJson'
+            ))) {
+                continue;
+            }
+
             if (str_contains($name, 'LiteDto') && str_contains($name, 'UltraFast')) {
                 $liteDtoUltraFastTime += $result['time'];
                 $counts['LiteDtoUltraFast']++;
@@ -559,14 +569,14 @@ if (file_exists($dtoComparisonPath)) {
             }
         }
 
-        $liteDtoUltraFastTime = 0 < $counts['LiteDtoUltraFast'] ? $liteDtoUltraFastTime / $counts['LiteDtoUltraFast'] : 0.9;
-        $liteDtoTime = 0 < $counts['LiteDto'] ? $liteDtoTime / $counts['LiteDto'] : 4.4;
-        $simpleDtoUltraFastTime = 0 < $counts['SimpleDtoUltraFast'] ? $simpleDtoUltraFastTime / $counts['SimpleDtoUltraFast'] : 3.7;
-        $simpleDtoNormalTime = 0 < $counts['SimpleDtoNormal'] ? $simpleDtoNormalTime / $counts['SimpleDtoNormal'] : 23.2;
+        $liteDtoUltraFastTime = 0 < $counts['LiteDtoUltraFast'] ? $liteDtoUltraFastTime / $counts['LiteDtoUltraFast'] : 1.9;
+        $liteDtoTime = 0 < $counts['LiteDto'] ? $liteDtoTime / $counts['LiteDto'] : 4.3;
+        $simpleDtoUltraFastTime = 0 < $counts['SimpleDtoUltraFast'] ? $simpleDtoUltraFastTime / $counts['SimpleDtoUltraFast'] : 8.1;
+        $simpleDtoNormalTime = 0 < $counts['SimpleDtoNormal'] ? $simpleDtoNormalTime / $counts['SimpleDtoNormal'] : 8.9;
 
-        $liteDtoFactor = 0.0 < $liteDtoTime ? $simpleDtoNormalTime / $liteDtoTime : 5.3;
-        $liteDtoUltraFastFactor = 0.0 < $liteDtoUltraFastTime ? $simpleDtoNormalTime / $liteDtoUltraFastTime : 24.0;
-        $simpleDtoUltraFastFactor = 0.0 < $simpleDtoUltraFastTime ? $simpleDtoNormalTime / $simpleDtoUltraFastTime : 5.5;
+        $liteDtoFactor = 0.0 < $liteDtoTime ? $simpleDtoNormalTime / $liteDtoTime : 2.1;
+        $liteDtoUltraFastFactor = 0.0 < $liteDtoUltraFastTime ? $simpleDtoNormalTime / $liteDtoUltraFastTime : 4.7;
+        $simpleDtoUltraFastFactor = 0.0 < $simpleDtoUltraFastTime ? $simpleDtoNormalTime / $simpleDtoUltraFastTime : 1.1;
 
         // Update LiteDto performance description
         $updatedContent = preg_replace(
@@ -2261,8 +2271,8 @@ function generateLiteDtoVsSimpleDto(array $results): string
         $simpleDtoNormalTime,
         $simpleDtoUltraFastTime
     );
-    $md .= "| Validation | ❌ | ❌ | ✅ | ❌ |\n";
-    $md .= "| Type Casting | ❌ | ❌ | ✅ | ❌ |\n";
+    $md .= "| Validation | ✅ | ✅ | ✅ | ❌ |\n";
+    $md .= "| Type Casting | ✅ | ✅ | ✅ | ❌ |\n";
     $md .= "| Property Mapping | ✅ | ✅ | ✅ | ✅ |\n";
     $md .= "| Nested DTOs | ✅ | ✅ | ✅ | ✅ |\n";
     $md .= "| Collections | ✅ | ✅ | ✅ | ✅ |\n";
@@ -2270,15 +2280,15 @@ function generateLiteDtoVsSimpleDto(array $results): string
     $md .= "| Converter Support | ✅ (optional) | ✅ (optional) | ✅ | ❌ |\n\n";
 
     $md .= "**When to use LiteDto**:\n";
-    $md .= "- You need maximum performance\n";
-    $md .= "- You don't need validation or type casting\n";
+    $md .= "- You need maximum performance (~5x faster than SimpleDto)\n";
+    $md .= "- You want validation and type casting with minimal overhead\n";
     $md .= "- You want simple, clean code\n\n";
 
     $md .= "**When to use SimpleDto**:\n";
-    $md .= "- You need validation (Required, Email, Min, Max, etc.)\n";
-    $md .= "- You need type casting (DateTime, Enum, etc.)\n";
+    $md .= "- You need advanced validation rules (RequiredIf, RequiredWith, etc.)\n";
+    $md .= "- You need computed properties or lazy loading\n";
 
-    return $md . "- You need computed properties or lazy loading";
+    return $md . "- You need framework-specific features (Laravel, Symfony)";
 }
 
 /**
@@ -2393,12 +2403,24 @@ function generateLiteDtoVsOtherDto(array $results): string
  */
 function generateDtoComparison(array $results): string
 {
-    // Extract average times from ExternalDto benchmarks
-    $liteDtoUltraFastTime = 0.0;
-    $liteDtoTime = 0.0;
-    $simpleDtoUltraFastTime = 0.0;
-    $simpleDtoNormalTime = 0.0;
-    $counts = [
+    // Extract average times from ExternalDto benchmarks - CREATION (FromArray)
+    $liteDtoUltraFastCreation = 0.0;
+    $liteDtoCreation = 0.0;
+    $simpleDtoUltraFastCreation = 0.0;
+    $simpleDtoNormalCreation = 0.0;
+    $creationCounts = [
+        'LiteDtoUltraFast' => 0,
+        'LiteDto' => 0,
+        'SimpleDtoUltraFast' => 0,
+        'SimpleDtoNormal' => 0,
+    ];
+
+    // Extract average times from ExternalDto benchmarks - SERIALIZATION (ToArray)
+    $liteDtoUltraFastSerialization = 0.0;
+    $liteDtoSerialization = 0.0;
+    $simpleDtoUltraFastSerialization = 0.0;
+    $simpleDtoNormalSerialization = 0.0;
+    $serializationCounts = [
         'LiteDtoUltraFast' => 0,
         'LiteDto' => 0,
         'SimpleDtoUltraFast' => 0,
@@ -2410,57 +2432,98 @@ function generateDtoComparison(array $results): string
     foreach ($externalDtoResults as $result) {
         $name = $result['name'];
 
-        // LiteDto #[UltraFast]
-        if (str_contains($name, 'LiteDto') && str_contains($name, 'UltraFast')) {
-            $liteDtoUltraFastTime += $result['time'];
-            $counts['LiteDtoUltraFast']++;
+        // Process "FromArray" or "From" benchmarks for creation performance
+        if (str_contains($name, 'FromArray') || (str_contains($name, 'From') && !str_contains($name, 'FromJson'))) {
+            if (str_contains($name, 'LiteDto') && str_contains($name, 'UltraFast')) {
+                $liteDtoUltraFastCreation += $result['time'];
+                $creationCounts['LiteDtoUltraFast']++;
+            } elseif (str_contains($name, 'LiteDto') && !str_contains($name, 'UltraFast')) {
+                $liteDtoCreation += $result['time'];
+                $creationCounts['LiteDto']++;
+            } elseif (str_contains($name, 'SimpleDto') && str_contains($name, 'UltraFast')) {
+                $simpleDtoUltraFastCreation += $result['time'];
+                $creationCounts['SimpleDtoUltraFast']++;
+            } elseif (str_contains($name, 'SimpleDto') && !str_contains($name, 'UltraFast')) {
+                $simpleDtoNormalCreation += $result['time'];
+                $creationCounts['SimpleDtoNormal']++;
+            }
         }
-        // LiteDto (normal) - NOT UltraFast
-        elseif (str_contains($name, 'LiteDto') && !str_contains($name, 'UltraFast')) {
-            $liteDtoTime += $result['time'];
-            $counts['LiteDto']++;
-        }
-        // SimpleDto #[UltraFast]
-        elseif (str_contains($name, 'SimpleDto') && str_contains($name, 'UltraFast')) {
-            $simpleDtoUltraFastTime += $result['time'];
-            $counts['SimpleDtoUltraFast']++;
-        }
-        // SimpleDto Normal - NOT UltraFast
-        elseif (str_contains($name, 'SimpleDto') && !str_contains($name, 'UltraFast')) {
-            $simpleDtoNormalTime += $result['time'];
-            $counts['SimpleDtoNormal']++;
+
+        // Process "ToArray" benchmarks for serialization performance
+        if (str_contains($name, 'ToArray')) {
+            if (str_contains($name, 'LiteDto') && str_contains($name, 'UltraFast')) {
+                $liteDtoUltraFastSerialization += $result['time'];
+                $serializationCounts['LiteDtoUltraFast']++;
+            } elseif (str_contains($name, 'LiteDto') && !str_contains($name, 'UltraFast')) {
+                $liteDtoSerialization += $result['time'];
+                $serializationCounts['LiteDto']++;
+            } elseif (str_contains($name, 'SimpleDto') && str_contains($name, 'UltraFast')) {
+                $simpleDtoUltraFastSerialization += $result['time'];
+                $serializationCounts['SimpleDtoUltraFast']++;
+            } elseif (str_contains($name, 'SimpleDto') && !str_contains($name, 'UltraFast')) {
+                $simpleDtoNormalSerialization += $result['time'];
+                $serializationCounts['SimpleDtoNormal']++;
+            }
         }
     }
 
-    // Calculate averages with fallback values
-    $liteDtoUltraFastTime = 0 < $counts['LiteDtoUltraFast'] ? $liteDtoUltraFastTime / $counts['LiteDtoUltraFast'] : 0.9;
-    $liteDtoTime = 0 < $counts['LiteDto'] ? $liteDtoTime / $counts['LiteDto'] : 4.4;
-    $simpleDtoUltraFastTime = 0 < $counts['SimpleDtoUltraFast'] ? $simpleDtoUltraFastTime / $counts['SimpleDtoUltraFast'] : 3.7;
-    $simpleDtoNormalTime = 0 < $counts['SimpleDtoNormal'] ? $simpleDtoNormalTime / $counts['SimpleDtoNormal'] : 23.2;
+    // Calculate averages with fallback values (based on typical benchmark results)
+    $liteDtoUltraFastCreation = 0 < $creationCounts['LiteDtoUltraFast'] ? $liteDtoUltraFastCreation / $creationCounts['LiteDtoUltraFast'] : 1.9;
+    $liteDtoCreation = 0 < $creationCounts['LiteDto'] ? $liteDtoCreation / $creationCounts['LiteDto'] : 4.3;
+    $simpleDtoUltraFastCreation = 0 < $creationCounts['SimpleDtoUltraFast'] ? $simpleDtoUltraFastCreation / $creationCounts['SimpleDtoUltraFast'] : 8.1;
+    $simpleDtoNormalCreation = 0 < $creationCounts['SimpleDtoNormal'] ? $simpleDtoNormalCreation / $creationCounts['SimpleDtoNormal'] : 8.9;
+
+    $liteDtoUltraFastSerialization = 0 < $serializationCounts['LiteDtoUltraFast'] ? $liteDtoUltraFastSerialization / $serializationCounts['LiteDtoUltraFast'] : 2.3;
+    $liteDtoSerialization = 0 < $serializationCounts['LiteDto'] ? $liteDtoSerialization / $serializationCounts['LiteDto'] : 6.2;
+    $simpleDtoUltraFastSerialization = 0 < $serializationCounts['SimpleDtoUltraFast'] ? $simpleDtoUltraFastSerialization / $serializationCounts['SimpleDtoUltraFast'] : 45.9;
+    $simpleDtoNormalSerialization = 0 < $serializationCounts['SimpleDtoNormal'] ? $simpleDtoNormalSerialization / $serializationCounts['SimpleDtoNormal'] : 49.5;
 
     // Table header
     $md = "| Feature | LiteDto #[UltraFast] | LiteDto | SimpleDto #[UltraFast] | SimpleDto |\n";
     $md .= "|---------|----------------------|---------|------------------------|-----------|\n";
 
-    // Performance row
+    // Creation Performance row
     $md .= sprintf(
-        "| **Performance** | ~%.1fμs | ~%.1fμs | ~%.1fμs | ~%.1fμs |\n",
-        $liteDtoUltraFastTime,
-        $liteDtoTime,
-        $simpleDtoUltraFastTime,
-        $simpleDtoNormalTime
+        "| **Creation Performance** | ~%.1fμs | ~%.1fμs | ~%.1fμs | ~%.1fμs |\n",
+        $liteDtoUltraFastCreation,
+        $liteDtoCreation,
+        $simpleDtoUltraFastCreation,
+        $simpleDtoNormalCreation
     );
 
-    // Speed Factor row (compared to SimpleDto Normal as baseline)
-    $liteDtoUltraFastFactor = 0.0 < $liteDtoUltraFastTime ? $simpleDtoNormalTime / $liteDtoUltraFastTime : 0;
-    $liteDtoFactor = 0.0 < $liteDtoTime ? $simpleDtoNormalTime / $liteDtoTime : 0;
-    $simpleDtoUltraFastFactor = 0.0 < $simpleDtoUltraFastTime ? $simpleDtoNormalTime / $simpleDtoUltraFastTime : 0;
+    // Creation Speed Factor row (compared to SimpleDto Normal as baseline)
+    $liteDtoUltraFastCreationFactor = 0.0 < $liteDtoUltraFastCreation ? $simpleDtoNormalCreation / $liteDtoUltraFastCreation : 0;
+    $liteDtoCreationFactor = 0.0 < $liteDtoCreation ? $simpleDtoNormalCreation / $liteDtoCreation : 0;
+    $simpleDtoUltraFastCreationFactor = 0.0 < $simpleDtoUltraFastCreation ? $simpleDtoNormalCreation / $simpleDtoUltraFastCreation : 0;
 
     $md .= sprintf(
-        "| **Speed Factor** | **%.1fx faster** | **%.1fx faster** | **%.1fx faster** | Baseline |\n",
-        $liteDtoUltraFastFactor,
-        $liteDtoFactor,
-        $simpleDtoUltraFastFactor
+        "| **Creation Speed Factor** | **%.1fx faster** | **%.1fx %s** | **%.1fx faster** | Baseline |\n",
+        $liteDtoUltraFastCreationFactor,
+        abs($liteDtoCreationFactor),
+        1.0 > $liteDtoCreationFactor ? 'slower' : 'faster',
+        $simpleDtoUltraFastCreationFactor
+    );
+
+    // Serialization Performance row
+    $md .= sprintf(
+        "| **Serialization Performance** | ~%.1fμs | ~%.1fμs | ~%.1fμs | ~%.1fμs |\n",
+        $liteDtoUltraFastSerialization,
+        $liteDtoSerialization,
+        $simpleDtoUltraFastSerialization,
+        $simpleDtoNormalSerialization
+    );
+
+    // Serialization Speed Factor row (compared to SimpleDto Normal as baseline)
+    $liteDtoUltraFastSerializationFactor = 0.0 < $liteDtoUltraFastSerialization ? $simpleDtoNormalSerialization / $liteDtoUltraFastSerialization : 0;
+    $liteDtoSerializationFactor = 0.0 < $liteDtoSerialization ? $simpleDtoNormalSerialization / $liteDtoSerialization : 0;
+    $simpleDtoUltraFastSerializationFactor = 0.0 < $simpleDtoUltraFastSerialization ? $simpleDtoNormalSerialization / $simpleDtoUltraFastSerialization : 0;
+
+    $md .= sprintf(
+        "| **Serialization Speed Factor** | **%.1fx faster** | **%.1fx faster** | **%.1fx %s** | Baseline |\n",
+        $liteDtoUltraFastSerializationFactor,
+        $liteDtoSerializationFactor,
+        abs($simpleDtoUltraFastSerializationFactor),
+        1.0 > $simpleDtoUltraFastSerializationFactor ? 'slower' : 'faster'
     );
 
     // Empty separator row
@@ -2496,21 +2559,21 @@ function generateDtoComparison(array $results): string
     $md .= "| Lazy Properties | ❌ | ❌ | ❌ | ✅ |\n";
     $md .= "| Conditional Properties | ❌ | ❌ | ❌ | ✅ |\n";
     $md .= "| Hooks & Events | ❌ | ❌ | ❌ | ✅ |\n";
-    $md .= "| Dot Notation Access | ❌ | ❌ | ❌ | ✅ |\n";
+    $md .= "| Dot Notation Access | ✅ | ✅ | ✅ | ✅ |\n";
     $md .= "| | | | | |\n";
 
     // Data Conversion
     $md .= "| **Data Conversion** | | | | |\n";
     $md .= "| Converter Support | ☑️ | ☑️ | ✅ | ✅ |\n";
-    $md .= "| ConvertEmptyToNull | ✅ | ✅ | ✅ | ✅ |\n";
+    $md .= "| ConvertEmptyToNull | ❌ | ✅ | ✅ | ✅ |\n";
     $md .= "| JSON/XML Support | ☑️ | ☑️ | ✅ | ✅ |\n";
     $md .= "| | | | | |\n";
 
     // Developer Experience
     $md .= "| **Developer Experience** | | | | |\n";
     $md .= "| IDE Autocomplete | ✅ | ✅ | ✅ | ✅ |\n";
-    $md .= "| TypeScript Generation | ❌ | ❌ | ❌ | ✅ |\n";
-    $md .= "| Constructor Promotion | ✅ | ✅ | ❌ | ❌ |\n";
+    $md .= "| TypeScript Generation | ✅ | ✅ | ✅ | ✅ |\n";
+    $md .= "| Constructor Promotion | ✅ | ✅ | ✅ | ✅ |\n";
     $md .= "| Property Attributes | ☑️ | ☑️ | ☑️ | ✅ |\n\n";
 
     // Legend

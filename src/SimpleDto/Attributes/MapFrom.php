@@ -7,39 +7,30 @@ namespace event4u\DataHelpers\SimpleDto\Attributes;
 use Attribute;
 
 /**
- * Maps input data from a different key name to this property.
+ * Map property from a source key or multiple source keys (fallback).
  *
  * Supports:
- * - Simple key mapping: #[MapFrom('user_name')]
- * - Dot notation for nested data: #[MapFrom('user.profile.email')]
- * - Multiple sources with fallback: #[MapFrom(['user.email', 'user.mail', 'email'])]
+ * - Single source: #[MapFrom('user_name')]
+ * - Multiple sources (fallback): #[MapFrom(['email', 'email_address', 'mail'])]
+ * - Dot notation for nested properties: #[MapFrom('user.email')]
  *
- * When multiple sources are provided, the first existing value is used.
- * This is useful for handling different API responses or data sources.
- *
- * Examples:
- *
- * Simple mapping:
- *   #[MapFrom('user_name')]
- *   public readonly string $userName;
- *
- * Nested data:
- *   #[MapFrom('user.profile.email')]
- *   public readonly string $email;
- *
- * Multiple sources (fallback):
- *   #[MapFrom(['user.email', 'user.mail', 'email'])]
- *   public readonly string $email;
+ * Example:
+ *   class UserDto extends SimpleDto {
+ *       public function __construct(
+ *           #[MapFrom('user_name')]
+ *           public readonly string $name,
+ *           #[MapFrom(['email', 'email_address'])]
+ *           public readonly string $email,
+ *           #[MapFrom('user.profile.age')]
+ *           public readonly int $age,
+ *       ) {}
+ *   }
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class MapFrom
 {
-    /**
-     * @param string|array<string> $source The source key(s) to map from.
-     *                                      Can be a single string or array of strings for fallback.
-     */
-    public function __construct(
-        public readonly string|array $source,
-    ) {
+    /** @param string|array<int, string> $source Single source key or array of source keys (fallback) */
+    public function __construct(public readonly string|array $source)
+    {
     }
 }

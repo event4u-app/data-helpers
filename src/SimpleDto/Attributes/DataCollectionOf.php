@@ -7,29 +7,39 @@ namespace event4u\DataHelpers\SimpleDto\Attributes;
 use Attribute;
 
 /**
- * Attribute to define a property as a DataCollection of Dtos.
+ * Attribute to define a property as a collection of DTOs.
  *
- * This attribute automatically configures the CollectionCast for the property.
- * It's a convenience attribute that combines casting and type information.
+ * This attribute automatically converts an array of arrays to an array of DTOs.
  *
  * Example:
- *   class OrderDto extends SimpleDto {
- *       #[DataCollectionOf(OrderItemDto::class)]
- *       public readonly DataCollection $items;
- *   }
+ * ```php
+ * use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
  *
- * This is equivalent to:
- *   protected function casts(): array {
- *       return [
- *           'items' => 'collection:App\Dtos\OrderItemDto',
- *       ];
- *   }
+ * class OrderDto extends SimpleDto
+ * {
+ *     public function __construct(
+ *         public readonly string $orderId,
+ *         #[DataCollectionOf(OrderItemDto::class)]
+ *         public readonly array $items,
+ *     ) {}
+ * }
+ *
+ * $order = OrderDto::from([
+ *     'orderId' => 'ORD-123',
+ *     'items' => [
+ *         ['name' => 'Item 1', 'price' => 10.0],
+ *         ['name' => 'Item 2', 'price' => 20.0],
+ *     ],
+ * ]);
+ *
+ * // $order->items is now an array of OrderItemDto instances
+ * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class DataCollectionOf
+final readonly class DataCollectionOf
 {
     /** @param class-string $dtoClass The Dto class for collection items */
     public function __construct(
-        public readonly string $dtoClass,
+        public string $dtoClass,
     ) {}
 }

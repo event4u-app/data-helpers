@@ -144,11 +144,14 @@ final class LoggerFactory
         /** @var array<string, float> $sampling */
         $sampling = is_array($config['sampling'] ?? null) ? $config['sampling'] : [];
 
+        $silent = (bool)($config['silent'] ?? false);
+
         return new FrameworkLogger(
             $frameworkLogger,
             self::parseLogLevel($level),
             $events,
             $sampling,
+            $silent,
         );
     }
 

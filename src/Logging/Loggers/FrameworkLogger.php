@@ -26,12 +26,14 @@ final class FrameworkLogger implements DataHelpersLogger
      * @param LogLevel $minLevel Minimum log level
      * @param array<string, bool> $enabledEvents Enabled events
      * @param array<string, float> $samplingRates Sampling rates per group
+     * @param bool $silent Suppress console output (for tests)
      */
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly LogLevel $minLevel = LogLevel::INFO,
         private array $enabledEvents = [],
         array $samplingRates = [],
+        private readonly bool $silent = false,
     ) {
         $this->sampler = new LogSampler($samplingRates);
     }
@@ -39,6 +41,10 @@ final class FrameworkLogger implements DataHelpersLogger
     public function log(LogLevel $level, string $message, array $context = []): void
     {
         if (!$this->isLevelEnabled($level)) {
+            return;
+        }
+
+        if ($this->silent) {
             return;
         }
 

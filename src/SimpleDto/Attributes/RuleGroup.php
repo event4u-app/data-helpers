@@ -61,7 +61,7 @@ class RuleGroup
      */
     public function belongsToAnyGroup(array $groups): bool
     {
-        return array_intersect($this->groups, $groups) !== [];
+        return [] !== array_intersect($this->groups, $groups);
     }
 
     /**

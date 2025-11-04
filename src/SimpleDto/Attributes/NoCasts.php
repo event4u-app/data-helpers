@@ -7,19 +7,23 @@ namespace event4u\DataHelpers\SimpleDto\Attributes;
 use Attribute;
 
 /**
- * Skip all type casting for this class.
+ * Skip all type casting for this SimpleDto class.
  *
  * This attribute improves performance by skipping all cast operations
- * including AutoCast and explicit Cast attributes. Use this when you
+ * including nested DTO casting and collection casting. Use this when you
  * know your input data is already in the correct types.
  *
  * Performance Impact:
- * - Skips all cast operations
+ * - Skips nested DTO casting
+ * - Skips collection casting (#[DataCollectionOf])
  * - No type coercion (strict types only)
  * - Faster DTO instantiation
  *
  * Example:
  * ```php
+ * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
+ *
  * #[NoCasts]
  * class StrictDto extends SimpleDto
  * {
@@ -30,18 +34,21 @@ use Attribute;
  * }
  *
  * // This will work (correct types)
- * $dto = StrictDto::fromArray(['name' => 'John', 'age' => 30]);
+ * $dto = StrictDto::from(['name' => 'John', 'age' => 30]);
  *
  * // This will throw TypeError (wrong types, no casting)
- * $dto = StrictDto::fromArray(['name' => 'John', 'age' => '30']);
+ * $dto = StrictDto::from(['name' => 'John', 'age' => '30']);
  * ```
  *
  * Note: This will disable ALL casting including:
- * - AutoCast attribute
- * - Explicit Cast attributes
+ * - Nested DTO casting (AddressDto, UserDto, etc.)
+ * - Collection casting (#[DataCollectionOf])
  * - Built-in type coercion
  *
- * Validation and other attributes will still work.
+ * Validation and other attributes will still work:
+ * - Validation attributes (#[Required], #[Email], etc.)
+ * - Visibility attributes (#[Hidden], #[Visible])
+ * - Mapping attributes (#[MapFrom], #[MapTo])
  *
  * @package event4u\DataHelpers\SimpleDto\Attributes
  */

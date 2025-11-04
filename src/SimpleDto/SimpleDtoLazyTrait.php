@@ -124,6 +124,7 @@ trait SimpleDtoLazyTrait
         }
         // Check conditional loading based on context
         // By default, lazy properties are not included
+        // @phpstan-ignore-next-line property.notFound (Lazy attribute doesn't have $when property - this is dead code for future extension)
         return null !== $lazyAttr->when && $this->visibilityContext === $lazyAttr->when;
     }
 

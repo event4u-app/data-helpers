@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto;
 
 use event4u\DataHelpers\Exceptions\ValidationException;
-use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
-use event4u\DataHelpers\Validation\Validator;
+use event4u\DataHelpers\SimpleDto\Support\SimpleEngine;
+use event4u\DataHelpers\SimpleDto\ValidationErrorCollection;
+use event4u\DataHelpers\Validation\ValidationResult;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
-use Illuminate\Validation\ValidationException as LaravelValidationException;
 use ReflectionClass;
 use ReflectionNamedType;
 use RuntimeException;
@@ -63,6 +63,9 @@ trait SimpleDtoValidationTrait
     /** @var array<string, array<string, array<int, string>>> Cache for validation rules */
     private static array $rulesCache = [];
 
+    /** @var ValidationResult|null Last validation result */
+    private ?ValidationResult $lastValidationResult = null;
+
     /**
      * Get custom validation rules for the Dto.
      *
@@ -101,74 +104,113 @@ trait SimpleDtoValidationTrait
     }
 
     /**
-     * Validate data and create Dto instance.
+     * Validate data without creating DTO instance.
      *
-     * Throws ValidationException if validation fails.
+     * Returns a ValidationResult that can be checked with isValid().
+     * This is useful for validation-only scenarios where you don't need the DTO yet.
      *
-     * @param array<string, mixed> $data
-     * @throws ValidationException
+     * @param array<string, mixed>|string|object $data Data to validate
      */
-    public static function validateAndCreate(array $data): static
+    public static function validate(mixed $data): ValidationResult
     {
-        $validated = static::validate($data);
-
-        return static::fromArray($validated);
+        // Use SimpleEngine to validate (with caching, performance optimizations, etc.)
+        return SimpleEngine::validate(static::class, $data);
     }
 
     /**
-     * Validate data without creating Dto instance.
+     * Validate data and create DTO instance.
      *
-     * Returns validated data if successful.
+     * Validates the data using SimpleEngine and stores the ValidationResult in the DTO.
      * Throws ValidationException if validation fails.
      *
-     * @param array<string, mixed> $data
-     * @return array<string, mixed>
+     * @param array<string, mixed>|string|object $data Data to validate
      * @throws ValidationException
      */
-    public static function validate(array $data): array
+    public static function validateAndCreate(mixed $data): static
     {
-        // Check if NoValidation attribute is present - skip all validation
-        $metadata = ConstructorMetadata::get(static::class);
-        if (isset($metadata['classAttributes'][NoValidation::class])) {
-            return $data;
+        // Use SimpleEngine to validate (with caching, performance optimizations, etc.)
+        $result = SimpleEngine::validate(static::class, $data);
+
+        // Throw exception if validation failed
+        if (!$result->isValid()) {
+            throw ValidationException::withMessages($result->errors());
         }
 
-        $rules = static::getAllRules();
-        $messages = static::getAllMessages();
-        $attributes = static::getAllAttributes();
+        // Create DTO from validated data
+        $dto = static::from($result->validated());
 
-        // Try Symfony validator first (if available and has constraints)
-        // But also validate with framework-independent validator for fields without Symfony constraints
-        if (static::hasSymfonyValidator() && static::hasSymfonyConstraints()) {
-            try {
-                static::validateWithSymfony($data);
-            } catch (ValidationException $e) {
-                throw $e;
-            }
+        // Store validation result in DTO
+        $dto->lastValidationResult = $result;
 
-            // Also validate with framework-independent validator for fields that don't have Symfony constraints
-            // This handles cases like Same/Different attributes that need access to all fields
-            $validator = new Validator($data, $rules, $messages, $attributes);
-            return $validator->validate();
+        return $dto;
+    }
+
+    /**
+     * Validate this DTO instance.
+     *
+     * Validates the current DTO and returns the validated data as an array.
+     * Stores the ValidationResult for later retrieval via getLastValidationResult().
+     *
+     * @return array<string, mixed> Validated data
+     * @throws ValidationException If validation fails
+     */
+    public function validateInstance(): array
+    {
+        // Convert DTO to array for validation
+        $data = $this->toArray();
+
+        // Use SimpleEngine to validate (with caching, performance optimizations, etc.)
+        $result = SimpleEngine::validate(static::class, $data);
+
+        // Store validation result
+        $this->lastValidationResult = $result;
+
+        // Throw exception if validation failed
+        if (!$result->isValid()) {
+            throw ValidationException::withMessages($result->errors());
         }
 
-        // Try Laravel validator
-        if (static::hasLaravelValidator()) {
-            try {
-                $validator = static::getValidator();
-                $validated = $validator->make($data, $rules, $messages, $attributes);
-                return $validated->validate();
-                /** @phpstan-ignore-next-line */
-            } catch (LaravelValidationException $e) {
-                // Convert Laravel ValidationException to our own
-                /** @phpstan-ignore-next-line */
-                throw ValidationException::withMessages($e->errors());
-            }
-        }
+        // Return validated data
+        return $result->validated();
+    }
 
-        // Fallback to framework-independent validator
-        $validator = new Validator($data, $rules, $messages, $attributes);
-        return $validator->validate();
+    /**
+     * Get the last validation result.
+     *
+     * Returns the ValidationResult from the last validation (either from validateAndCreate() or validate()).
+     * Returns null if the DTO has not been validated yet.
+     */
+    public function getLastValidationResult(): ?ValidationResult
+    {
+        return $this->lastValidationResult;
+    }
+
+    /** Check if this DTO has been validated. */
+    public function isValidated(): bool
+    {
+        return null !== $this->lastValidationResult;
+    }
+
+    /**
+     * Check if this DTO is valid (based on last validation).
+     *
+     * Returns null if not validated yet.
+     */
+    public function isValid(): ?bool
+    {
+        return $this->lastValidationResult?->isValid();
+    }
+
+    /**
+     * Get validation errors from the last validation.
+     *
+     * Returns a collection of validation errors. If the DTO has not been validated yet,
+     * returns an empty collection.
+     */
+    public function getValidationErrors(): ValidationErrorCollection
+    {
+        $errors = $this->lastValidationResult?->errors() ?? [];
+        return new ValidationErrorCollection($errors);
     }
 
     /**
@@ -381,7 +423,7 @@ trait SimpleDtoValidationTrait
      *
      * @return array<string, string>
      */
-    protected static function getAllMessages(): array
+    public static function getAllMessages(): array
     {
         $messages = [];
 
@@ -433,7 +475,7 @@ trait SimpleDtoValidationTrait
      *
      * @return array<string, string>
      */
-    protected static function getAllAttributes(): array
+    public static function getAllAttributes(): array
     {
         try {
             $reflection = new ReflectionClass(static::class);

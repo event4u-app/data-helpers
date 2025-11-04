@@ -59,7 +59,6 @@ auth.json
 
 # Laravel database
 /database/database.sqlite
-/database/migrations/
 
 # Laravel logs
 /storage/logs/*

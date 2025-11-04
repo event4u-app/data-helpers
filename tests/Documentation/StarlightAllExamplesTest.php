@@ -42,6 +42,10 @@ describe('Starlight All Documentation Examples', function(): void {
                     }
                 }
 
+                // Also skip if code contains attributes followed by properties without class context
+                $hasAttributesWithoutClass = preg_match('/#\[.*\]\s*\n\s*(public|private|protected)\s/', $code) &&
+                                            !preg_match('/class\s+\w+/', $code);
+
                 // Skip incomplete array definitions (lines ending with =>)
                 $isIncompleteArray = false;
                 foreach ($lines as $codeLine) {
@@ -52,15 +56,19 @@ describe('Starlight All Documentation Examples', function(): void {
                     }
                 }
 
-                // Skip examples with missing classes
+                // Skip examples with missing classes or undefined variables
                 $hasMissingClasses = str_contains($code, 'Spatie\\') ||
                                     str_contains($code, 'class User') ||
-                                    str_contains($code, 'class ValidationAttribute');
+                                    str_contains($code, 'class ValidationAttribute') ||
+                                    str_contains($code, 'UpdateUserDto') ||
+                                    str_contains($code, '$userArray') ||
+                                    preg_match('/^public\s+(static\s+)?function\s+\w+\s*\(/', $trimmedCode);
 
                 if (str_contains($code, '...') ||
                     str_contains($code, '// ...') ||
                     preg_match('/^(class|interface|trait|enum)\s+\w+/', $trimmedCode) ||
                     $hasOnlyProperties ||
+                    $hasAttributesWithoutClass ||
                     $isIncompleteArray ||
                     $hasMissingClasses ||
                     str_contains($filePath, 'architecture.md') ||

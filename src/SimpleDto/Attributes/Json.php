@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDto\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -29,9 +30,33 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Json implements ValidationRule, SymfonyConstraint
+class Json implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
+
+    /** Validate the value. */
+    public function validate(mixed $value, string $propertyName): bool
+    {
+        // Skip validation for null values (use Required attribute to enforce non-null)
+        if (null === $value) {
+            return true;
+        }
+
+        // Must be a string
+        if (!is_string($value)) {
+            return false;
+        }
+
+        // Try to decode JSON
+        json_decode($value);
+        return JSON_ERROR_NONE === json_last_error();
+    }
+
+    /** Get validation error message. */
+    public function getErrorMessage(string $propertyName): string
+    {
+        return sprintf('The %s must be a valid JSON string.', $propertyName);
+    }
 
     /** Convert to Laravel validation rule. */
     public function rule(): string

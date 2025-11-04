@@ -4,43 +4,14 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
-use Attribute;
-use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\Nullable;
 
 /**
- * Validation attribute: Field may be null.
+ * Alias for Nullable attribute.
  *
- * This explicitly marks a field as nullable for validation purposes.
- * Useful when you want to allow null values even with other validation rules.
- *
- * Example:
- * ```php
- * class UserDto extends SimpleDto
- * {
- *     public function __construct(
- *         #[Nullable]
- *         #[Email]
- *         public readonly ?string $email = null,
- *
- *         #[Nullable]
- *         #[Url]
- *         public readonly ?string $website = null,
- *     ) {}
- * }
- * ```
+ * @see \event4u\DataHelpers\SimpleDto\Attributes\Validation\Nullable
  */
-#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Nullable implements ValidationRule
-{
-    /** Convert to Laravel validation rule. */
-    public function rule(): string
-    {
-        return 'nullable';
-    }
-
-    /** Get validation error message. */
-    public function message(): ?string
-    {
-        return null;
-    }
-}
+class_alias(
+    Nullable::class,
+    __NAMESPACE__ . '\Nullable'
+);

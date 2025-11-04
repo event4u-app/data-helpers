@@ -23,7 +23,7 @@ use Attribute;
  *     ) {}
  * }
  *
- * $user = UserDto::fromArray(['name' => 'John', 'internalId' => '123']);
+ * $user = UserDto::from(['name' => 'John', 'internalId' => '123']);
  * $user->toArray(); // ['name' => 'John'] - internalId hidden
  * json_encode($user); // {"name":"John","internalId":"123"} - internalId visible
  * ```

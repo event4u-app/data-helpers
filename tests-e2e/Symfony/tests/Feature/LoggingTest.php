@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataHelpersConfig;
+use event4u\DataHelpers\Logging\DataHelpersLogger;
 use event4u\DataHelpers\Logging\LogEvent;
 use event4u\DataHelpers\Logging\LogLevel;
 use event4u\DataHelpers\Logging\LoggerFactory;
@@ -12,13 +13,14 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 describe('Logging (Symfony)', function (): void {
     beforeEach(function (): void {
-        // Enable logging for tests
+        // Enable logging for tests - use silent mode to suppress console output
         DataHelpersConfig::reset();
         DataHelpersConfig::setMany([
             'logging' => [
                 'enabled' => true,
                 'driver' => 'framework',
                 'level' => 'debug',
+                'silent' => true,
             ],
         ]);
 
@@ -40,18 +42,19 @@ describe('Logging (Symfony)', function (): void {
 
     afterEach(function (): void {
         DataHelpersConfig::reset();
+        restore_exception_handler();
     });
 
     it('creates logger with Symfony logger', function (): void {
         $logger = LoggerFactory::create($this->logger);
 
-        expect($logger)->toBeInstanceOf(\event4u\DataHelpers\Logging\DataHelpersLogger::class);
+        expect($logger)->toBeInstanceOf(DataHelpersLogger::class);
     });
 
     it('creates logger with Symfony logger and messenger', function (): void {
         $logger = LoggerFactory::create($this->logger, $this->messageBus);
 
-        expect($logger)->toBeInstanceOf(\event4u\DataHelpers\Logging\DataHelpersLogger::class);
+        expect($logger)->toBeInstanceOf(DataHelpersLogger::class);
     });
 
     it('logs to Symfony logger', function (): void {
@@ -60,7 +63,7 @@ describe('Logging (Symfony)', function (): void {
         $logger->log(LogLevel::INFO, 'Test log message from data-helpers');
 
         // Symfony logger should have logged this
-        expect(true)->toBeTrue(); // Logger doesn't throw
+        expect(true)->toBeTrue();
     });
 
     it('logs events', function (): void {
@@ -97,13 +100,14 @@ describe('Logging (Symfony)', function (): void {
 
 describe('Slack Integration (Symfony)', function (): void {
     beforeEach(function (): void {
-        // Enable logging for tests
+        // Enable logging for tests - use silent mode to suppress console output
         DataHelpersConfig::reset();
         DataHelpersConfig::initialize([
             'logging' => [
                 'enabled' => true,
                 'driver' => 'framework',
                 'level' => 'debug',
+                'silent' => true,
             ],
         ]);
 
@@ -122,7 +126,7 @@ describe('Slack Integration (Symfony)', function (): void {
     it('can create logger with messenger for async Slack', function (): void {
         $logger = LoggerFactory::create($this->logger, $this->messageBus);
 
-        expect($logger)->toBeInstanceOf(\event4u\DataHelpers\Logging\DataHelpersLogger::class);
+        expect($logger)->toBeInstanceOf(DataHelpersLogger::class);
     });
 
     it('accepts error logs that would trigger Slack', function (): void {

@@ -89,24 +89,36 @@ $dto = UserDto::fromArray($_POST);
 
 ### Type Safety
 
-Full PHP 8.2+ type support with optional automatic type casting.
+Full PHP 8.2+ type support with automatic type casting by default.
 
 ```php
-use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
+use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
 
-#[AutoCast]  // Optional: Enable automatic type casting
+// Default: Automatic type casting enabled
 class ProductDto extends SimpleDto
 {
     public function __construct(
-        public readonly string $name,
-        public readonly float $price,
-        public readonly Carbon $createdAt,
-        public readonly Status $status,  // Enum
+        public readonly string $name,        // Auto-cast from any type
+        public readonly float $price,        // Auto-cast from string/int
+        public readonly Carbon $createdAt,   // Auto-cast from string/timestamp
+        public readonly Status $status,      // Enum (always auto-cast)
+        public readonly AddressDto $address, // Auto-cast nested DTO
+    ) {}
+}
+
+// Disable automatic casting for better performance
+#[NoCasts]
+class StrictProductDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,        // Must be string, no conversion
+        public readonly float $price,        // Must be float, no conversion
+        public readonly AddressDto $address, // Must be AddressDto instance
     ) {}
 }
 ```
 
-**Note:** Automatic type casting is **opt-in** using `#[AutoCast]`. Without it, SimpleDtos use strict type checking for better performance.
+**Note:** SimpleDto automatically casts ALL types by default (native types, nested DTOs, DataCollections, DateTime). Use `#[NoCasts]` to disable automatic casting for better performance.
 
 ### Validation
 
@@ -249,17 +261,16 @@ $array = $dto->toArray();
 
 ### Collections
 
-Built-in collection support with pagination.
+Built-in collection support.
 
 ```php
 $users = UserDto::collection($userArray);
 // DataCollection of UserDto instances
 
-$paginated = UserDto::paginatedCollection($users, page: 1, perPage: 10);
-// [
-//     'data' => [...],
-//     'meta' => ['current_page' => 1, 'per_page' => 10, ...],
-// ]
+// Access collection methods
+$filtered = $users->filter(fn($user) => $user->age >= 18);
+$mapped = $users->map(fn($user) => $user->name);
+$count = $users->count();
 ```
 
 ## Key Features

@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDto\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 
@@ -36,7 +37,7 @@ use Symfony\Component\Validator\Constraint;
  * The constraint() method returns an empty array to indicate this needs special handling.
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Unique implements ValidationRule, SymfonyConstraint
+class Unique implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
 
@@ -54,6 +55,26 @@ class Unique implements ValidationRule, SymfonyConstraint
         public readonly string $idColumn = 'id',
         public readonly ?string $connection = null,
     ) {}
+
+    /**
+     * Validate the value.
+     *
+     * Note: This always returns true because database validation requires
+     * external resources (database connection). The actual validation is
+     * performed by Laravel/Symfony validators.
+     */
+    public function validate(mixed $value, string $propertyName): bool
+    {
+        // Database validation is handled by Laravel/Symfony validators
+        // This method always returns true to avoid false negatives
+        return true;
+    }
+
+    /** Get validation error message. */
+    public function getErrorMessage(string $propertyName): string
+    {
+        return sprintf('The %s has already been taken.', $propertyName);
+    }
 
     /** Convert to Laravel validation rule. */
     public function rule(): string

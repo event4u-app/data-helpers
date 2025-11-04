@@ -11,21 +11,14 @@ echo "Setting up Laravel E2E environment..."
 # Create database directory if it doesn't exist
 mkdir -p database
 
-# Always create fresh database
+# Remove old database and create fresh one
 echo "Creating SQLite database..."
+rm -f database/database.sqlite
 touch database/database.sqlite
-
-# Create cache table migration if it doesn't exist
-if [ ! -d "database/migrations" ] || [ -z "$(ls -A database/migrations 2>/dev/null)" ]; then
-    echo "Creating cache table migration..."
-    php artisan cache:table 2>/dev/null || true
-fi
 
 # Run migrations
 echo "Running migrations..."
-php artisan migrate --force 2>/dev/null || {
-    echo "Warning: Migration failed, but continuing..."
-}
+php artisan migrate --force
 
 echo "Laravel E2E setup complete!"
 

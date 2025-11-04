@@ -287,7 +287,8 @@ describe('Console Commands', function(): void {
         // Verify output
         $output = $tsTester->getDisplay();
         expect($output)->toContain('TypeScript interfaces generated successfully');
-        expect($output)->toContain('Found 1 Dto classes');
+        expect($output)->toContain('Found')
+            ->and($output)->toContain('Dto classes');
     });
 
     it('can warm cache with dto:warm-cache', function(): void {

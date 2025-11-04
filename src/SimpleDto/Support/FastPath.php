@@ -119,6 +119,14 @@ class FastPath
      */
     public static function canUseFastPathAtRuntime(object $dto): bool
     {
+        // Check SimpleEngine's static caches for runtime modifications
+        $objectId = spl_object_id($dto);
+
+        // Check if includeComputed() was called (stored in SimpleEngine's cache)
+        if (SimpleEngine::hasIncludedComputed($objectId)) {
+            return false;
+        }
+
         // Cast to array to get ALL properties (including private from traits)
         // Format: "\0ClassName\0propertyName" for private, "\0*\0propertyName" for protected
         $allVars = (array)$dto;

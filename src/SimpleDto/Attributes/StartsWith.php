@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDto\Attributes;
 use Attribute;
 use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -29,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class StartsWith implements ValidationRule, SymfonyConstraint
+class StartsWith implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
 
@@ -37,6 +38,38 @@ class StartsWith implements ValidationRule, SymfonyConstraint
     public function __construct(
         public readonly string|array $values,
     ) {}
+
+    /** Validate the value. */
+    public function validate(mixed $value, string $propertyName): bool
+    {
+        // Skip validation for null values (use Required attribute to enforce non-null)
+        if (null === $value) {
+            return true;
+        }
+
+        // Must be a string
+        if (!is_string($value)) {
+            return false;
+        }
+
+        $values = is_array($this->values) ? $this->values : [$this->values];
+
+        // Check if value starts with any of the allowed prefixes
+        foreach ($values as $prefix) {
+            if (str_starts_with($value, $prefix)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Get validation error message. */
+    public function getErrorMessage(string $propertyName): string
+    {
+        $values = is_array($this->values) ? implode(', ', $this->values) : $this->values;
+        return sprintf('The %s must start with one of the following: %s.', $propertyName, $values);
+    }
 
     /** Convert to Laravel validation rule. */
     public function rule(): string

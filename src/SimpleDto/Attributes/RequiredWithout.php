@@ -4,43 +4,14 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
-use Attribute;
-use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
+use event4u\DataHelpers\SimpleDto\Attributes\Validation\RequiredWithout;
 
 /**
- * Conditional validation attribute: Field is required if any of the specified fields are NOT present.
+ * Alias for RequiredWithout attribute.
  *
- * Example:
- * ```php
- * class ContactDto extends SimpleDto
- * {
- *     public function __construct(
- *         public readonly ?string $phone = null,
- *
- *         #[RequiredWithout(['phone'])]
- *         public readonly ?string $email = null,
- *     ) {}
- * }
- * ```
+ * @see \event4u\DataHelpers\SimpleDto\Attributes\Validation\RequiredWithout
  */
-#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class RequiredWithout implements ValidationRule
-{
-    /** @param array<string> $fields Field names that trigger requirement when absent */
-    public function __construct(
-        public readonly array $fields,
-    ) {}
-
-    /** Convert to Laravel validation rule. */
-    public function rule(): string
-    {
-        return 'required_without:' . implode(',', $this->fields);
-    }
-
-    /** Get validation error message. */
-    public function message(): ?string
-    {
-        $fields = implode(', ', $this->fields);
-        return sprintf('The attribute field is required when %s is not present.', $fields);
-    }
-}
+class_alias(
+    RequiredWithout::class,
+    __NAMESPACE__ . '\RequiredWithout'
+);
