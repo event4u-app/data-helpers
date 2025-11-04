@@ -23,9 +23,10 @@ declare(strict_types=1);
  *   -h, --help        Show this help message
  *
  * Examples:
- *   php bin/warm-cache.php src/Dtos
- *   php bin/warm-cache.php -v src/Dtos tests/Fixtures
- *   php bin/warm-cache.php --no-validate src/Dtos
+ *   php bin/warm-cache.php                              # Scan from project root
+ *   php bin/warm-cache.php src/Dtos                     # Scan specific directory
+ *   php bin/warm-cache.php -v src/Dtos tests/Fixtures   # Scan multiple directories
+ *   php bin/warm-cache.php --no-validate src/Dtos       # Skip validation
  *
  * Exit codes:
  *   0 - Success
@@ -118,9 +119,10 @@ Options:
   -h, --help        Show this help message
 
 Examples:
-  php bin/warm-cache.php src/Dtos
-  php bin/warm-cache.php -v src/Dtos tests/Fixtures
-  php bin/warm-cache.php --no-validate src/Dtos
+  php bin/warm-cache.php                              # Scan from project root
+  php bin/warm-cache.php src/Dtos                     # Scan specific directory
+  php bin/warm-cache.php -v src/Dtos tests/Fixtures   # Scan multiple directories
+  php bin/warm-cache.php --no-validate src/Dtos       # Skip validation
 
 Exit codes:
   0 - Success
@@ -130,12 +132,15 @@ HELP;
     exit(0);
 }
 
-// Validate directories
+// If no directories specified, find DTO directories in project
 if (empty($directories)) {
-    fwrite(STDERR, "Error: No directories specified.\n");
-    fwrite(STDERR, "Usage: php bin/warm-cache.php [options] [directories...]\n");
-    fwrite(STDERR, "Use --help for more information.\n");
-    exit(1);
+    $projectRoot = WarmCacheCommand::detectProjectRoot();
+    $directories = WarmCacheCommand::findDtoDirectories($projectRoot);
+
+    if (!$options['quiet']) {
+        echo "No directories specified, scanning from project root: {$projectRoot}\n";
+        echo "Found " . count($directories) . " potential DTO directories\n";
+    }
 }
 
 // Execute command

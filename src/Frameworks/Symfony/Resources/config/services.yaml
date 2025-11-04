@@ -15,3 +15,7 @@ services:
       $projectDir: '%kernel.project_dir%'
     tags:
       - { name: 'console.command' }
+
+  event4u\DataHelpers\Frameworks\Symfony\Command\WarmCacheCommand:
+    tags:
+      - { name: 'console.command' }

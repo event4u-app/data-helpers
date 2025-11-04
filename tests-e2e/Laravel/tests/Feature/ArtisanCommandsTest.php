@@ -441,5 +441,87 @@ PHP;
         expect($content2)->toContain('extends SimpleDto');
         expect($content2)->toContain('public readonly string $email');
     });
+
+    it('can warm cache with dto:warm-cache', function(): void {
+        // Create a Dto first
+        Artisan::call('make:dto', [
+            'name' => 'TestUser',
+            '--resource' => true,
+        ]);
+
+        // Dump autoload to make class available
+        exec('cd ' . base_path() . ' && composer dump-autoload 2>&1');
+
+        // Warm cache
+        $exitCode = Artisan::call('dto:warm-cache', [
+            'directories' => ['app/Dtos'],
+        ]);
+
+        expect($exitCode)->toBe(0);
+
+        // Verify output contains success message
+        $output = Artisan::output();
+        expect($output)->toContain('Data Helpers - Cache Warming');
+        expect($output)->toContain('Cache warming completed successfully');
+    });
+
+    it('can warm cache without specifying directories', function(): void {
+        // Create a Dto first
+        Artisan::call('make:dto', [
+            'name' => 'TestUser',
+            '--resource' => true,
+        ]);
+
+        // Dump autoload to make class available
+        exec('cd ' . base_path() . ' && composer dump-autoload 2>&1');
+
+        // Warm cache (auto-detect directories)
+        $exitCode = Artisan::call('dto:warm-cache');
+
+        expect($exitCode)->toBe(0);
+
+        // Verify output contains auto-detection message
+        $output = Artisan::output();
+        expect($output)->toContain('Data Helpers - Cache Warming');
+        expect($output)->toContain('No directories specified, scanning from project root');
+        expect($output)->toContain('Cache warming completed successfully');
+    });
+
+    it('can warm cache with --no-validate option', function(): void {
+        // Create a Dto first
+        Artisan::call('make:dto', [
+            'name' => 'TestUser',
+            '--resource' => true,
+        ]);
+
+        // Dump autoload to make class available
+        exec('cd ' . base_path() . ' && composer dump-autoload 2>&1');
+
+        // Warm cache without validation
+        $exitCode = Artisan::call('dto:warm-cache', [
+            'directories' => ['app/Dtos'],
+            '--no-validate' => true,
+        ]);
+
+        expect($exitCode)->toBe(0);
+
+        // Verify output
+        $output = Artisan::output();
+        expect($output)->toContain('Data Helpers - Cache Warming');
+        expect($output)->toContain('Cache warming completed successfully');
+    });
+
+    it('handles empty directories gracefully in dto:warm-cache', function(): void {
+        // Warm cache on non-existent directory
+        $exitCode = Artisan::call('dto:warm-cache', [
+            'directories' => ['app/NonExistent'],
+        ]);
+
+        expect($exitCode)->toBe(0);
+
+        // Verify output
+        $output = Artisan::output();
+        expect($output)->toContain('Data Helpers - Cache Warming');
+    });
 })->group('laravel');
 

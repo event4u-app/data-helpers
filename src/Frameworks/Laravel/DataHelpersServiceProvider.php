@@ -8,6 +8,7 @@ use event4u\DataHelpers\DataHelpersConfig;
 use event4u\DataHelpers\Frameworks\Laravel\Commands\DtoTypeScriptCommand;
 use event4u\DataHelpers\Frameworks\Laravel\Commands\MakeDtoCommand;
 use event4u\DataHelpers\Frameworks\Laravel\Commands\MigrateSpatieCommand;
+use event4u\DataHelpers\Frameworks\Laravel\Commands\WarmCacheCommand;
 use event4u\DataHelpers\MappedDataModel;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
@@ -85,6 +86,7 @@ final class DataHelpersServiceProvider extends ServiceProvider
                 MakeDtoCommand::class,
                 DtoTypeScriptCommand::class,
                 MigrateSpatieCommand::class,
+                WarmCacheCommand::class,
             ]);
         }
 
