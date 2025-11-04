@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Kernel;
+use event4u\DataHelpers\DataHelpersConfig;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -288,6 +289,133 @@ describe('Console Commands', function(): void {
         expect($output)->toContain('TypeScript interfaces generated successfully');
         expect($output)->toContain('Found')
             ->and($output)->toContain('Dto classes');
+    });
+
+    it('can warm cache with dto:warm-cache', function(): void {
+        // Override cache driver to avoid Symfony "framework" driver issue
+        DataHelpersConfig::initialize([
+            'cache' => [
+                'driver' => 'filesystem',
+            ],
+        ]);
+
+        // Create a Dto first
+        $makeCommand = $this->application->find('make:dto');
+        $makeTester = new CommandTester($makeCommand);
+        $makeExitCode = $makeTester->execute([
+            'name' => 'TestUser',
+            '--resource' => true,
+        ]);
+
+        expect($makeExitCode)->toBe(0);
+
+        // Dump autoload to make class available
+        exec('cd ' . $this->projectDir . ' && composer dump-autoload 2>&1');
+
+        // Warm cache
+        $warmCommand = $this->application->find('dto:warm-cache');
+        $warmTester = new CommandTester($warmCommand);
+        $warmExitCode = $warmTester->execute([
+            'directories' => ['src/Dto'],
+        ]);
+
+        expect($warmExitCode)->toBe(0);
+        expect($warmTester->getStatusCode())->toBe(0);
+
+        // Verify output contains success message
+        $output = $warmTester->getDisplay();
+        expect($output)->toContain('Data Helpers - Cache Warming');
+        expect($output)->toContain('Cache warming completed successfully');
+    });
+
+    it('can warm cache without specifying directories', function(): void {
+        // Override cache driver to avoid Symfony "framework" driver issue
+        DataHelpersConfig::initialize([
+            'cache' => [
+                'driver' => 'filesystem',
+            ],
+        ]);
+
+        // Create a Dto first
+        $makeCommand = $this->application->find('make:dto');
+        $makeTester = new CommandTester($makeCommand);
+        $makeExitCode = $makeTester->execute([
+            'name' => 'TestUser',
+            '--resource' => true,
+        ]);
+
+        expect($makeExitCode)->toBe(0);
+
+        // Dump autoload to make class available
+        exec('cd ' . $this->projectDir . ' && composer dump-autoload 2>&1');
+
+        // Warm cache (auto-detect directories)
+        $warmCommand = $this->application->find('dto:warm-cache');
+        $warmTester = new CommandTester($warmCommand);
+        $warmExitCode = $warmTester->execute([]);
+
+        expect($warmExitCode)->toBe(0);
+        expect($warmTester->getStatusCode())->toBe(0);
+
+        // Verify output contains auto-detection message
+        $output = $warmTester->getDisplay();
+        expect($output)->toContain('Data Helpers - Cache Warming');
+        expect($output)->toContain('No directories specified, scanning from project root');
+        expect($output)->toContain('Cache warming completed successfully');
+    });
+
+    it('can warm cache with --no-validate option', function(): void {
+        // Override cache driver to avoid Symfony "framework" driver issue
+        DataHelpersConfig::initialize([
+            'cache' => [
+                'driver' => 'filesystem',
+            ],
+        ]);
+
+        // Create a Dto first
+        $makeCommand = $this->application->find('make:dto');
+        $makeTester = new CommandTester($makeCommand);
+        $makeExitCode = $makeTester->execute([
+            'name' => 'TestUser',
+            '--resource' => true,
+        ]);
+
+        expect($makeExitCode)->toBe(0);
+
+        // Dump autoload to make class available
+        exec('cd ' . $this->projectDir . ' && composer dump-autoload 2>&1');
+
+        // Warm cache without validation
+        $warmCommand = $this->application->find('dto:warm-cache');
+        $warmTester = new CommandTester($warmCommand);
+        $warmExitCode = $warmTester->execute([
+            'directories' => ['src/Dto'],
+            '--no-validate' => true,
+        ]);
+
+        expect($warmExitCode)->toBe(0);
+        expect($warmTester->getStatusCode())->toBe(0);
+
+        // Verify output
+        $output = $warmTester->getDisplay();
+        expect($output)->toContain('Data Helpers - Cache Warming');
+        expect($output)->toContain('Cache warming completed successfully');
+    });
+
+    it('handles empty directories gracefully in dto:warm-cache', function(): void {
+        // Warm cache on non-existent directory
+        $warmCommand = $this->application->find('dto:warm-cache');
+        $warmTester = new CommandTester($warmCommand);
+        $warmExitCode = $warmTester->execute([
+            'directories' => ['src/NonExistent'],
+        ]);
+
+        expect($warmExitCode)->toBe(0);
+        expect($warmTester->getStatusCode())->toBe(0);
+
+        // Verify output
+        $output = $warmTester->getDisplay();
+        expect($output)->toContain('Data Helpers - Cache Warming');
     });
 })->group('symfony');
 

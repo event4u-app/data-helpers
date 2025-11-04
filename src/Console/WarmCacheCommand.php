@@ -41,6 +41,107 @@ final class WarmCacheCommand
     private array $errors = [];
 
     /**
+     * Detect the project root directory.
+     *
+     * Tries to find:
+     * 1. Laravel project root (artisan file)
+     * 2. Symfony project root (bin/console file)
+     * 3. Composer project root (composer.json)
+     * 4. Current working directory as fallback
+     */
+    public static function detectProjectRoot(): string
+    {
+        $cwd = getcwd();
+
+        if (false === $cwd) {
+            return '.';
+        }
+
+        // Check current directory and parent directories
+        $dir = $cwd;
+        $maxDepth = 10; // Prevent infinite loop
+        $depth = 0;
+
+        while ($depth < $maxDepth) {
+            // Laravel: Check for artisan file
+            if (file_exists($dir . '/artisan')) {
+                return $dir;
+            }
+
+            // Symfony: Check for bin/console file
+            if (file_exists($dir . '/bin/console')) {
+                return $dir;
+            }
+
+            // Generic: Check for composer.json
+            if (file_exists($dir . '/composer.json')) {
+                return $dir;
+            }
+
+            // Move up one directory
+            $parentDir = dirname($dir);
+
+            // Stop if we reached the root
+            if ($parentDir === $dir) {
+                break;
+            }
+
+            $dir = $parentDir;
+            $depth++;
+        }
+
+        // Fallback to current working directory
+        return $cwd;
+    }
+
+    /**
+     * Find common DTO directories in the project.
+     *
+     * @return array<string>
+     */
+    public static function findDtoDirectories(string $projectRoot): array
+    {
+        // Check if this is a Laravel or Symfony project
+        $isLaravel = file_exists($projectRoot . '/artisan');
+        $isSymfony = file_exists($projectRoot . '/bin/console');
+
+        // For Laravel/Symfony projects, look for common DTO directories
+        if ($isLaravel || $isSymfony) {
+            $commonDtoDirs = [
+                'src/Dtos',
+                'src/DTO',
+                'src/DataTransferObjects',
+                'app/Dtos',
+                'app/DTO',
+                'app/DataTransferObjects',
+                'src',
+                'app',
+            ];
+
+            $foundDirs = [];
+
+            foreach ($commonDtoDirs as $dir) {
+                $fullPath = $projectRoot . '/' . $dir;
+
+                if (is_dir($fullPath)) {
+                    $foundDirs[] = $fullPath;
+                }
+            }
+
+            // If no common directories found in Laravel/Symfony, use project root
+            if ([] === $foundDirs) {
+                return [$projectRoot];
+            }
+
+            return $foundDirs;
+        }
+
+        // For packages/libraries (no artisan or bin/console), scan entire project root
+        // The scanDirectory method will exclude vendor and other non-source directories
+        return [$projectRoot];
+    }
+
+    /**
      * Execute the cache warming command.
      *
      * @param array<string> $directories Directories to scan for DTOs
@@ -127,6 +228,22 @@ final class WarmCacheCommand
     {
         $classes = [];
 
+        // Directories to exclude from scanning
+        $excludeDirs = [
+            'vendor',
+            'node_modules',
+            'storage',
+            'cache',
+            'var',
+            'tests-e2e',
+            '.git',
+            'public',
+            'resources',
+            'database',
+            'bootstrap',
+            'config',
+        ];
+
         try {
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS),
@@ -137,6 +254,24 @@ final class WarmCacheCommand
                 if (!is_object($file) || !method_exists($file, 'isFile') || !method_exists($file, 'getExtension')) {
                     continue;
                 }
+
+                // Skip excluded directories
+                if (method_exists($file, 'getPathname')) {
+                    $pathname = $file->getPathname();
+                    $shouldSkip = false;
+
+                    foreach ($excludeDirs as $excludeDir) {
+                        if (str_contains($pathname, DIRECTORY_SEPARATOR . $excludeDir . DIRECTORY_SEPARATOR)) {
+                            $shouldSkip = true;
+                            break;
+                        }
+                    }
+
+                    if ($shouldSkip) {
+                        continue;
+                    }
+                }
+
                 if (!$file->isFile() || 'php' !== $file->getExtension()) {
                     continue;
                 }
@@ -187,8 +322,13 @@ final class WarmCacheCommand
 
         $fullClassName = $namespace . '\\' . $className;
 
-        // Verify it's a valid class string
-        if (!class_exists($fullClassName)) {
+        // Try to load the class (with autoload enabled)
+        try {
+            if (!class_exists($fullClassName)) {
+                return null;
+            }
+        } catch (Throwable) {
+            // Class has missing dependencies or other errors, skip it
             return null;
         }
 
