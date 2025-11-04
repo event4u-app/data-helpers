@@ -83,6 +83,6 @@ enum TypeScriptExportType: string
      */
     public static function isValid(string $type): bool
     {
-        return self::fromString($type) instanceof \event4u\DataHelpers\SimpleDto\Enums\TypeScriptExportType;
+        return self::fromString($type) instanceof self;
     }
 }

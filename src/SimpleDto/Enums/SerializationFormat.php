@@ -145,6 +145,6 @@ enum SerializationFormat: string
      */
     public static function isValid(string $format): bool
     {
-        return self::fromString($format) instanceof \event4u\DataHelpers\SimpleDto\Enums\SerializationFormat;
+        return self::fromString($format) instanceof self;
     }
 }

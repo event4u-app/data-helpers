@@ -156,6 +156,6 @@ enum ComparisonOperator: string
      */
     public static function isValid(string $operator): bool
     {
-        return self::fromString($operator) instanceof \event4u\DataHelpers\SimpleDto\Enums\ComparisonOperator;
+        return self::fromString($operator) instanceof self;
     }
 }
