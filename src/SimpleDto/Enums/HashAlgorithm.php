@@ -111,6 +111,6 @@ enum HashAlgorithm: string
      */
     public static function isValid(string $algorithm): bool
     {
-        return self::fromString($algorithm) instanceof \event4u\DataHelpers\SimpleDto\Enums\HashAlgorithm;
+        return self::fromString($algorithm) instanceof self;
     }
 }

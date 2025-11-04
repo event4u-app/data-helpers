@@ -22,7 +22,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\EnumSerialize;
 use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
 use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromJson;
-use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
+use event4u\DataHelpers\SimpleDto\Attributes\Lazy as LazyAttribute;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
@@ -59,6 +59,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\DataCollection;
 use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\Support\Lazy;
 use event4u\DataHelpers\Support\Optional;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use event4u\DataHelpers\Validation\ValidationResult;
@@ -479,7 +480,7 @@ final class SimpleEngine
                 }
 
                 // Handle Lazy values (only if flag is set)
-                if ($flags['hasLazy'] && $value instanceof \event4u\DataHelpers\Support\Lazy) {
+                if ($flags['hasLazy'] && $value instanceof Lazy) {
                     // Unwrap lazy value (already checked above)
                     $value = $value->get();
                 }
@@ -495,7 +496,7 @@ final class SimpleEngine
                     $value = $value->get();
 
                     // If the unwrapped value is a Lazy, unwrap it too (for Optional<Lazy<T>>)
-                    if ($flags['hasLazy'] && $value instanceof \event4u\DataHelpers\Support\Lazy) {
+                    if ($flags['hasLazy'] && $value instanceof Lazy) {
                         $value = $value->get();
                     }
                 }
@@ -746,7 +747,7 @@ final class SimpleEngine
                 $value = $data[$name];
 
                 // Handle Lazy values (only if flag is set)
-                if ($flags['hasLazy'] && $value instanceof \event4u\DataHelpers\Support\Lazy) {
+                if ($flags['hasLazy'] && $value instanceof Lazy) {
                     // Unwrap lazy value (already checked in toSkip)
                     $value = $value->get();
                 }
@@ -762,7 +763,7 @@ final class SimpleEngine
                     $value = $value->get();
 
                     // If the unwrapped value is a Lazy, unwrap it too (for Optional<Lazy<T>>)
-                    if ($flags['hasLazy'] && $value instanceof \event4u\DataHelpers\Support\Lazy) {
+                    if ($flags['hasLazy'] && $value instanceof Lazy) {
                         $value = $value->get();
                     }
                 }
@@ -1056,7 +1057,7 @@ final class SimpleEngine
             $type = $param->getType();
             if ($type instanceof ReflectionUnionType) {
                 foreach ($type->getTypes() as $unionType) {
-                    if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Optional::class) {
+                    if ($unionType instanceof ReflectionNamedType && $unionType->getName() === Optional::class) {
                         $isOptional = true;
                         break;
                     }
@@ -1612,7 +1613,7 @@ final class SimpleEngine
         $lazy = [];
 
         foreach ($reflection->getProperties() as $reflectionProperty) {
-            $attrs = $reflectionProperty->getAttributes(Lazy::class);
+            $attrs = $reflectionProperty->getAttributes(LazyAttribute::class);
             if ([] !== $attrs) {
                 $lazy[$reflectionProperty->getName()] = true;
                 continue;
@@ -1622,7 +1623,7 @@ final class SimpleEngine
             $type = $reflectionProperty->getType();
             if ($type instanceof ReflectionUnionType) {
                 foreach ($type->getTypes() as $unionType) {
-                    if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Lazy::class) {
+                    if ($unionType instanceof ReflectionNamedType && $unionType->getName() === Lazy::class) {
                         $lazy[$reflectionProperty->getName()] = true;
                         break;
                     }
@@ -1634,7 +1635,7 @@ final class SimpleEngine
         $constructor = $reflection->getConstructor();
         if ($constructor instanceof ReflectionMethod) {
             foreach ($constructor->getParameters() as $reflectionParameter) {
-                $attrs = $reflectionParameter->getAttributes(Lazy::class);
+                $attrs = $reflectionParameter->getAttributes(LazyAttribute::class);
                 if ([] !== $attrs) {
                     $lazy[$reflectionParameter->getName()] = true;
                     continue;
@@ -1644,7 +1645,7 @@ final class SimpleEngine
                 $type = $reflectionParameter->getType();
                 if ($type instanceof ReflectionUnionType) {
                     foreach ($type->getTypes() as $unionType) {
-                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Lazy::class) {
+                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === Lazy::class) {
                             $lazy[$reflectionParameter->getName()] = true;
                             break;
                         }
@@ -2584,7 +2585,7 @@ final class SimpleEngine
             }
 
             // Lazy - fill cache while scanning
-            $lazyAttrs = $reflectionProperty->getAttributes(Lazy::class);
+            $lazyAttrs = $reflectionProperty->getAttributes(LazyAttribute::class);
             $isLazy = [] !== $lazyAttrs;
 
             // Also check if property type is a union type containing Lazy
@@ -2592,7 +2593,7 @@ final class SimpleEngine
                 $type = $reflectionProperty->getType();
                 if ($type instanceof ReflectionUnionType) {
                     foreach ($type->getTypes() as $unionType) {
-                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Lazy::class) {
+                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === Lazy::class) {
                             $isLazy = true;
                             break;
                         }
@@ -2617,7 +2618,7 @@ final class SimpleEngine
                 $type = $reflectionProperty->getType();
                 if ($type instanceof ReflectionUnionType) {
                     foreach ($type->getTypes() as $unionType) {
-                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Optional::class) {
+                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === Optional::class) {
                             $isOptional = true;
                             break;
                         }
@@ -2831,7 +2832,7 @@ final class SimpleEngine
             }
 
             // Check Lazy attribute
-            $lazyAttrs = $property->getAttributes(Lazy::class);
+            $lazyAttrs = $property->getAttributes(LazyAttribute::class);
             if (!empty($lazyAttrs)) {
                 $propMeta['isLazy'] = true;
             } else {
@@ -2839,7 +2840,7 @@ final class SimpleEngine
                 $type = $property->getType();
                 if ($type instanceof ReflectionUnionType) {
                     foreach ($type->getTypes() as $unionType) {
-                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === \event4u\DataHelpers\Support\Lazy::class) {
+                        if ($unionType instanceof ReflectionNamedType && $unionType->getName() === Lazy::class) {
                             $propMeta['isLazy'] = true;
                             break;
                         }
@@ -3141,8 +3142,8 @@ final class SimpleEngine
             // Step 4: Wrap in Lazy if needed (only if flag is set)
             // Wrap in Lazy BEFORE Optional to get Optional<Lazy<T>> instead of Lazy<Optional<T>>
             // Wrap in Lazy if not already a Lazy instance
-            if ($flags['hasLazy'] && isset(self::$lazyCache[$class][$paramName]) && !($value instanceof \event4u\DataHelpers\Support\Lazy)) {
-                $value = \event4u\DataHelpers\Support\Lazy::value($value);
+            if ($flags['hasLazy'] && isset(self::$lazyCache[$class][$paramName]) && !($value instanceof Lazy)) {
+                $value = Lazy::value($value);
             }
 
             // Step 4.5: Wrap in Optional if needed (only if flag is set)

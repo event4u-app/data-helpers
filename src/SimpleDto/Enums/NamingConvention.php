@@ -89,6 +89,6 @@ enum NamingConvention: string
      */
     public static function isValid(string $format): bool
     {
-        return self::fromString($format) instanceof \event4u\DataHelpers\SimpleDto\Enums\NamingConvention;
+        return self::fromString($format) instanceof self;
     }
 }
