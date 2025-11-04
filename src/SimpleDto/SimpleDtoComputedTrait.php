@@ -268,6 +268,14 @@ trait SimpleDtoComputedTrait
             unset($this->computedCache[$property]);
         }
 
+        // Clear SimpleEngine's computed values cache
+        SimpleEngine::clearComputedCache($this, $property);
+
+        // Clear toArray/toJson caches to ensure fresh state
+        if (method_exists($this, 'clearSerializationCaches')) {
+            $this->clearSerializationCaches();
+        }
+
         return $this;
     }
 
@@ -284,11 +292,14 @@ trait SimpleDtoComputedTrait
     /**
      * Magic method called when cloning the Dto.
      *
-     * Ensures that the computed cache is not shared between instances.
+     * Ensures that caches are not shared between instances.
      */
     public function __clone(): void
     {
         // Create a new array to avoid sharing cache between instances
         $this->computedCache = [];
+
+        // Clear toArray/toJson caches to ensure fresh state
+        $this->clearSerializationCaches();
     }
 }

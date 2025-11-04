@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
+use BackedEnum;
+use Closure;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\SimpleDto\Attributes\Computed;
 use event4u\DataHelpers\SimpleDto\Support\SimpleEngine;
 use event4u\DataHelpers\Validation\ValidationResult;
 use RuntimeException;
+use Throwable;
+use UnitEnum;
 
 /**
  * Core trait for SimpleDto functionality.
@@ -107,10 +112,68 @@ trait SimpleDtoTrait
         return SimpleEngine::createFromData(static::class, $data, $template, $filters, $pipeline);
     }
 
+    /** @var array{hash: string, data: array<string, mixed>, context: array<string, mixed>, objectId: int, includedComputed: array<int, string>}|null */
+    private ?array $toArrayCache = null;
+
+    /** @var array{hash: string, data: array<string, mixed>, context: array<string, mixed>, objectId: int, includedComputed: array<int, string>}|null */
+    private ?array $toJsonCache = null;
+
+    /**
+     * Clear toArray/toJson caches.
+     *
+     * This method is called automatically when cloning DTOs.
+     * Can also be called manually to force cache invalidation.
+     */
+    protected function clearSerializationCaches(): void
+    {
+        $this->toArrayCache = null;
+        $this->toJsonCache = null;
+    }
+
+    /**
+     * Check if toArray() caching should be enabled.
+     *
+     * Caching is disabled if there are computed properties with cache: false,
+     * because these properties need to be recomputed on every call.
+     *
+     * @return bool True if caching should be enabled
+     */
+    private function shouldEnableToArrayCache(): bool
+    {
+        static $cache = [];
+
+        $class = static::class;
+
+        // Check static cache first
+        if (isset($cache[$class])) {
+            return $cache[$class];
+        }
+
+        // Check if there are any computed properties with cache: false
+        try {
+            /** @var array<string, Computed> $computedMethods */
+            $computedMethods = SimpleEngine::getComputedMethods($class);
+            foreach ($computedMethods as $computed) {
+                if (!$computed->cache) {
+                    // Found a computed property with cache: false, disable toArray caching
+                    $cache[$class] = false;
+                    return false;
+                }
+            }
+        } catch (Throwable) {
+            // If getComputedMethods fails, assume caching is enabled
+        }
+
+        // No computed properties with cache: false, enable caching
+        $cache[$class] = true;
+        return true;
+    }
+
     /**
      * Convert DTO to array.
      *
      * Respects #[MapTo], #[Hidden], and conditional attributes.
+     * Results are cached - if the DTO hasn't changed, the cached array is returned.
      *
      * @param array<string, mixed> $context Optional context for conditional properties
      * @return array<string, mixed>
@@ -120,6 +183,32 @@ trait SimpleDtoTrait
         // Merge context from withContext() method if SimpleDtoConditionalTrait is used
         if (property_exists($this, 'conditionalContext') && isset($this->conditionalContext)) { // @phpstan-ignore-line
             $context += $this->conditionalContext; // @phpstan-ignore-line
+        }
+
+        // Check if caching should be disabled (e.g., computed properties with cache: false)
+        $cachingEnabled = $this->shouldEnableToArrayCache();
+
+        if ($cachingEnabled) {
+            // Fast path: if context, object ID, and includedComputed are identical, use cache
+            $objectId = spl_object_id($this);
+            $includedComputed = SimpleEngine::getIncludedComputed($objectId);
+
+            if (null !== $this->toArrayCache
+                && $this->toArrayCache['context'] === $context
+                && $this->toArrayCache['objectId'] === $objectId
+                && $this->toArrayCache['includedComputed'] === $includedComputed) {
+                // Fast check: context, object identity, and includedComputed match
+                return $this->toArrayCache['data'];
+            }
+
+            // Slow path: check if state has actually changed by comparing hash
+            if (null !== $this->toArrayCache) {
+                $currentHash = $this->calculateToArrayHash($context);
+                if ($this->toArrayCache['hash'] === $currentHash) {
+                    // State hasn't changed, return cached result
+                    return $this->toArrayCache['data'];
+                }
+            }
         }
 
         $data = SimpleEngine::toArray($this, $context);
@@ -148,10 +237,213 @@ trait SimpleDtoTrait
 
         // Apply sorting if SimpleDtoSortingTrait is used
         if (method_exists($this, 'applySorting')) { // @phpstan-ignore-line
-            return $this->applySorting($data);
+            $data = $this->applySorting($data);
+        }
+
+        // Cache the result (calculate hash after processing) - only if caching is enabled
+        if ($cachingEnabled) {
+            $this->toArrayCache = [
+                'hash' => $this->calculateToArrayHash($context),
+                'data' => $data,
+                'context' => $context,
+                'objectId' => $objectId,
+                'includedComputed' => $includedComputed,
+            ];
         }
 
         return $data;
+    }
+
+    /**
+     * Calculate hash of current DTO state for toArray() caching.
+     *
+     * Uses xxHash (xxh3) for maximum performance (~10x faster than md5).
+     * Prepares data for hashing by converting Enums and removing Closures.
+     *
+     * @param array<string, mixed> $context
+     */
+    private function calculateToArrayHash(array $context): string
+    {
+        // Get all properties (including private ones like includedLazy, includeAllLazy, etc.)
+        // Using (array) cast to get all properties, not just public ones
+        $properties = (array)$this;
+
+        // Remove cache properties and internal state that doesn't affect output
+        // Note: Private properties have keys like "\0ClassName\0propertyName"
+        foreach (array_keys($properties) as $key) {
+            if (str_contains((string)$key, 'toArrayCache') ||
+                str_contains((string)$key, 'toJsonCache') ||
+                str_contains((string)$key, 'computedCache') ||
+                str_contains((string)$key, 'objectVarsCache') ||
+                str_contains((string)$key, 'castedProperties') ||
+                str_contains((string)$key, 'validationState') ||
+                str_contains((string)$key, 'validationErrors') ||
+                str_contains((string)$key, 'lastValidationResult')) {
+                unset($properties[$key]);
+            }
+        }
+
+        // Include static cache state from SimpleEngine (for included computed properties)
+        $objectId = spl_object_id($this);
+        $includedComputed = SimpleEngine::getIncludedComputed($objectId);
+
+        // Old code for reference (only worked for public properties):
+        /*unset(
+            $properties['toArrayCache'],
+            $properties['toJsonCache'],
+            $properties['computedCache'],
+            $properties['objectVarsCache'],
+            $properties['castedProperties'],
+            $properties['validationState'],
+            $properties['validationErrors'],
+            $properties['lastValidationResult']
+        );*/
+
+        // Include additional data if SimpleDtoWithTrait is used
+        $additionalData = [];
+        if (method_exists($this, 'getAdditionalData')) { // @phpstan-ignore-line
+            $additionalData = $this->getAdditionalData();
+        }
+
+        // Include wrapping key if SimpleDtoWrappingTrait is used
+        $wrappingKey = null;
+        if (property_exists($this, 'wrappingKey')) { // @phpstan-ignore-line
+            $wrappingKey = $this->wrappingKey ?? null; // @phpstan-ignore-line
+        }
+
+        // Include sorting flag if SimpleDtoSortingTrait is used
+        $sortKeys = false;
+        if (property_exists($this, 'sortKeys')) { // @phpstan-ignore-line
+            $sortKeys = $this->sortKeys ?? false; // @phpstan-ignore-line
+        }
+
+        // Prepare data for hashing (convert Enums, remove Closures)
+        $hashData = $this->prepareForHashing([
+            'properties' => $properties,
+            'context' => $context,
+            'additionalData' => $additionalData,
+            'wrappingKey' => $wrappingKey,
+            'sortKeys' => $sortKeys,
+            'includedComputed' => $includedComputed,
+        ]);
+
+        // Use json_encode for fast serialization
+        $data = json_encode($hashData, JSON_THROW_ON_ERROR);
+
+        // Use xxh3 if available (10x faster than md5), fallback to md5
+        return function_exists('hash') && in_array('xxh3', hash_algos(), true)
+            ? hash('xxh3', $data)
+            : md5($data); // @phpstan-ignore disallowed.function (fallback for systems without hash())
+    }
+
+    /** Prepare data for hashing by converting Enums and removing Closures. */
+    private function prepareForHashing(mixed $data): mixed
+    {
+        if ($data instanceof Closure) {
+            return null;
+        }
+
+        if ($data instanceof BackedEnum) {
+            return ['__enum__' => $data::class, 'value' => $data->value];
+        }
+
+        if ($data instanceof UnitEnum) {
+            return ['__enum__' => $data::class, 'name' => $data->name];
+        }
+
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if ($value instanceof Closure) {
+                    unset($data[$key]);
+                } else {
+                    $data[$key] = $this->prepareForHashing($value);
+                }
+            }
+            return $data;
+        }
+
+        if (is_object($data)) {
+            $properties = get_object_vars($data);
+            $result = [];
+            foreach ($properties as $key => $value) {
+                if (!($value instanceof Closure)) {
+                    $result[$key] = $this->prepareForHashing($value);
+                }
+            }
+            return $result;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Calculate hash of current DTO state for toJson() caching.
+     *
+     * Uses xxHash (xxh3) for maximum performance (~10x faster than md5).
+     * Prepares data for hashing by converting Enums and removing Closures.
+     *
+     * @param array<string, mixed> $context
+     */
+    private function calculateToJsonHash(array $context): string
+    {
+        // Get all properties (including private ones like includedLazy, includeAllLazy, etc.)
+        // Using (array) cast to get all properties, not just public ones
+        $properties = (array)$this;
+
+        // Remove cache properties and internal state that doesn't affect output
+        // Note: Private properties have keys like "\0ClassName\0propertyName"
+        foreach (array_keys($properties) as $key) {
+            if (str_contains((string)$key, 'toArrayCache') ||
+                str_contains((string)$key, 'toJsonCache') ||
+                str_contains((string)$key, 'computedCache') ||
+                str_contains((string)$key, 'objectVarsCache') ||
+                str_contains((string)$key, 'castedProperties') ||
+                str_contains((string)$key, 'validationState') ||
+                str_contains((string)$key, 'validationErrors') ||
+                str_contains((string)$key, 'lastValidationResult')) {
+                unset($properties[$key]);
+            }
+        }
+
+        // Include static cache state from SimpleEngine (for included computed properties)
+        $objectId = spl_object_id($this);
+        $includedComputed = SimpleEngine::getIncludedComputed($objectId);
+
+        // Include additional data if SimpleDtoWithTrait is used
+        $additionalData = [];
+        if (method_exists($this, 'getAdditionalData')) { // @phpstan-ignore-line
+            $additionalData = $this->getAdditionalData();
+        }
+
+        // Include wrapping key if SimpleDtoWrappingTrait is used
+        $wrappingKey = null;
+        if (property_exists($this, 'wrappingKey')) { // @phpstan-ignore-line
+            $wrappingKey = $this->wrappingKey ?? null; // @phpstan-ignore-line
+        }
+
+        // Include sorting flag if SimpleDtoSortingTrait is used
+        $sortKeys = false;
+        if (property_exists($this, 'sortKeys')) { // @phpstan-ignore-line
+            $sortKeys = $this->sortKeys ?? false; // @phpstan-ignore-line
+        }
+
+        // Prepare data for hashing (convert Enums, remove Closures)
+        $hashData = $this->prepareForHashing([
+            'properties' => $properties,
+            'context' => $context,
+            'additionalData' => $additionalData,
+            'wrappingKey' => $wrappingKey,
+            'sortKeys' => $sortKeys,
+            'includedComputed' => $includedComputed,
+        ]);
+
+        // Use json_encode for fast serialization
+        $data = json_encode($hashData, JSON_THROW_ON_ERROR);
+
+        // Use xxh3 if available (10x faster than md5), fallback to md5
+        return function_exists('hash') && in_array('xxh3', hash_algos(), true)
+            ? hash('xxh3', $data)
+            : md5($data); // @phpstan-ignore disallowed.function (fallback for systems without hash())
     }
 
     /**
@@ -165,6 +457,27 @@ trait SimpleDtoTrait
         $context = [];
         if (property_exists($this, 'conditionalContext') && isset($this->conditionalContext)) { // @phpstan-ignore-line
             $context = $this->conditionalContext; // @phpstan-ignore-line
+        }
+
+        // Fast path: if context, object ID, and includedComputed are identical, use cache
+        $objectId = spl_object_id($this);
+        $includedComputed = SimpleEngine::getIncludedComputed($objectId);
+
+        if (null !== $this->toJsonCache
+            && $this->toJsonCache['context'] === $context
+            && $this->toJsonCache['objectId'] === $objectId
+            && $this->toJsonCache['includedComputed'] === $includedComputed) {
+            // Fast check: context, object identity, and includedComputed match
+            return json_encode($this->toJsonCache['data'], JSON_THROW_ON_ERROR | $options);
+        }
+
+        // Slow path: check if state has actually changed by comparing hash
+        if (null !== $this->toJsonCache) {
+            $currentHash = $this->calculateToJsonHash($context);
+            if ($this->toJsonCache['hash'] === $currentHash) {
+                // State hasn't changed, return cached result
+                return json_encode($this->toJsonCache['data'], JSON_THROW_ON_ERROR | $options);
+            }
         }
 
         $data = SimpleEngine::toJsonArray($this, $context);
@@ -191,6 +504,15 @@ trait SimpleDtoTrait
             $data = $this->applyWrapping($data);
         }
 
+        // Cache the result (calculate hash after processing)
+        $this->toJsonCache = [
+            'hash' => $this->calculateToJsonHash($context),
+            'data' => $data,
+            'context' => $context,
+            'objectId' => $objectId,
+            'includedComputed' => $includedComputed,
+        ];
+
         return json_encode($data, JSON_THROW_ON_ERROR | $options);
     }
 
@@ -205,6 +527,27 @@ trait SimpleDtoTrait
         $context = [];
         if (property_exists($this, 'conditionalContext') && isset($this->conditionalContext)) { // @phpstan-ignore-line
             $context = $this->conditionalContext; // @phpstan-ignore-line
+        }
+
+        // Fast path: if context, object ID, and includedComputed are identical, use cache
+        $objectId = spl_object_id($this);
+        $includedComputed = SimpleEngine::getIncludedComputed($objectId);
+
+        if (null !== $this->toJsonCache
+            && $this->toJsonCache['context'] === $context
+            && $this->toJsonCache['objectId'] === $objectId
+            && $this->toJsonCache['includedComputed'] === $includedComputed) {
+            // Fast check: context, object identity, and includedComputed match
+            return $this->toJsonCache['data'];
+        }
+
+        // Slow path: check if state has actually changed by comparing hash
+        if (null !== $this->toJsonCache) {
+            $currentHash = $this->calculateToJsonHash($context);
+            if ($this->toJsonCache['hash'] === $currentHash) {
+                // State hasn't changed, return cached result
+                return $this->toJsonCache['data'];
+            }
         }
 
         $data = SimpleEngine::toJsonArray($this, $context);
@@ -233,8 +576,17 @@ trait SimpleDtoTrait
 
         // Apply sorting if SimpleDtoSortingTrait is used
         if (method_exists($this, 'applySorting')) { // @phpstan-ignore-line
-            return $this->applySorting($data);
+            $data = $this->applySorting($data);
         }
+
+        // Cache the result (calculate hash after processing)
+        $this->toJsonCache = [
+            'hash' => $this->calculateToJsonHash($context),
+            'data' => $data,
+            'context' => $context,
+            'objectId' => $objectId,
+            'includedComputed' => $includedComputed,
+        ];
 
         return $data;
     }
@@ -545,7 +897,20 @@ trait SimpleDtoTrait
      */
     public function clearComputedCache(?string $property = null): static
     {
+        // Clear local computed cache (from SimpleDtoComputedTrait)
+        if (isset($this->computedCache)) {
+            if (null === $property) {
+                $this->computedCache = [];
+            } else {
+                unset($this->computedCache[$property]);
+            }
+        }
+
+        // Clear SimpleEngine's computed values cache
         SimpleEngine::clearComputedCache($this, $property);
+
+        // Clear toArray/toJson caches to ensure fresh state
+        $this->clearSerializationCaches();
 
         return $this;
     }

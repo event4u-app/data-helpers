@@ -445,6 +445,8 @@ final class SimpleEngine
                 'validationState',
                 'validationErrors',
                 'lastValidationResult',
+                'toArrayCache',
+                'toJsonCache',
             ];
 
             foreach ($internalProperties as $internalProp) {
@@ -694,6 +696,8 @@ final class SimpleEngine
                 'validationState',
                 'validationErrors',
                 'lastValidationResult',
+                'toArrayCache',
+                'toJsonCache',
             ];
 
             foreach ($internalProperties as $internalProp) {
@@ -1436,24 +1440,38 @@ final class SimpleEngine
      */
     public static function includeComputed(object $dto, array $names): object
     {
-        $class = $dto::class;
-        $objectId = spl_object_id($dto);
+        // Optimization: If no properties to add, return self
+        if ([] === $names) {
+            return $dto;
+        }
 
-        // Store the included computed property names for this instance
-        if (!isset(self::$includedComputedCache[$objectId])) {
-            self::$includedComputedCache[$objectId] = [];
+        $class = $dto::class;
+
+        // Create a clone to avoid modifying the original
+        $clone = clone $dto;
+        $cloneId = spl_object_id($clone);
+
+        // Store the included computed property names for this clone
+        if (!isset(self::$includedComputedCache[$cloneId])) {
+            self::$includedComputedCache[$cloneId] = [];
+        }
+
+        // Copy existing included computed properties from original
+        $originalId = spl_object_id($dto);
+        if (isset(self::$includedComputedCache[$originalId])) {
+            self::$includedComputedCache[$cloneId] = self::$includedComputedCache[$originalId];
         }
 
         foreach ($names as $name) {
-            self::$includedComputedCache[$objectId][] = $name;
+            self::$includedComputedCache[$cloneId][] = $name;
 
             // Clear cached value for this property to force recomputation
-            if (isset(self::$computedValuesCache[$class][$objectId][$name])) {
-                unset(self::$computedValuesCache[$class][$objectId][$name]);
+            if (isset(self::$computedValuesCache[$class][$cloneId][$name])) {
+                unset(self::$computedValuesCache[$class][$cloneId][$name]);
             }
         }
 
-        return $dto;
+        return $clone;
     }
 
     /**
@@ -1467,6 +1485,19 @@ final class SimpleEngine
     public static function hasIncludedComputed(int $objectId): bool
     {
         return isset(self::$includedComputedCache[$objectId]) && !empty(self::$includedComputedCache[$objectId]);
+    }
+
+    /**
+     * Get the included computed properties for a DTO instance.
+     *
+     * This is used by the caching system to include the state in the hash calculation.
+     *
+     * @param int $objectId The object ID of the DTO instance
+     * @return array<int, string> The names of the included computed properties
+     */
+    public static function getIncludedComputed(int $objectId): array
+    {
+        return self::$includedComputedCache[$objectId] ?? [];
     }
 
     /**
@@ -1552,7 +1583,7 @@ final class SimpleEngine
      * @param class-string $class
      * @return array<string, Computed>
      */
-    private static function getComputedMethods(string $class): array
+    public static function getComputedMethods(string $class): array
     {
         // Check cache
         if (isset(self::$computedCache[$class])) {

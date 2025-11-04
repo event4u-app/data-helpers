@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\LiteDto;
 
+use BackedEnum;
+use Closure;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\LiteDto\Support\LiteEngine;
 use JsonSerializable;
+use UnitEnum;
 
 /**
  * Lightweight, high-performance Data Transfer Object.
@@ -65,17 +68,118 @@ abstract class LiteDto implements JsonSerializable
         return LiteEngine::createFromData(static::class, $data);
     }
 
+    /** @var array{hash: string, data: array<string, mixed>, context: array<string, mixed>}|null */
+    private ?array $toArrayCache = null;
+
     /**
      * Convert DTO to array.
      *
      * Respects #[MapTo] and #[Hidden] attributes.
+     * Results are cached - if the DTO hasn't changed, the cached array is returned.
      *
      * @param array<string, mixed> $context Optional context for conditional properties
      * @return array<string, mixed>
      */
     public function toArray(array $context = []): array
     {
-        return LiteEngine::toArray($this, $context);
+        // If cache exists, check if we can use it (fast path for readonly DTOs)
+        if (null !== $this->toArrayCache && $this->toArrayCache['context'] === $context) {
+            // Fast check: if context is identical (same array reference or empty), use cache
+            // This covers 99% of cases where toArray() is called multiple times without changes
+            return $this->toArrayCache['data'];
+        }
+
+        // Slow path: check if state has actually changed (for different contexts)
+        if (null !== $this->toArrayCache && $this->toArrayCache['context'] !== $context) {
+            $currentHash = $this->calculateToArrayHash($context);
+            if ($this->toArrayCache['hash'] === $currentHash) {
+                // Update cached context reference for next fast-path check
+                $this->toArrayCache['context'] = $context;
+                return $this->toArrayCache['data'];
+            }
+        }
+
+        $data = LiteEngine::toArray($this, $context);
+
+        // Cache the result (calculate hash after processing)
+        $this->toArrayCache = [
+            'hash' => $this->calculateToArrayHash($context),
+            'data' => $data,
+            'context' => $context,
+        ];
+
+        return $data;
+    }
+
+    /**
+     * Calculate hash of current DTO state for toArray() caching.
+     *
+     * Uses xxHash (xxh3) for maximum performance (~10x faster than md5).
+     * Prepares data for hashing by converting Enums and removing Closures.
+     *
+     * @param array<string, mixed> $context
+     */
+    private function calculateToArrayHash(array $context): string
+    {
+        // Get all public properties
+        $properties = get_object_vars($this);
+
+        // Remove cache property from hash calculation
+        unset($properties['toArrayCache']);
+
+        // Prepare data for hashing (convert Enums, remove Closures)
+        $hashData = $this->prepareForHashing([
+            'properties' => $properties,
+            'context' => $context,
+        ]);
+
+        // Use json_encode for fast serialization
+        $data = json_encode($hashData, JSON_THROW_ON_ERROR);
+
+        // Use xxh3 if available (10x faster than md5), fallback to md5
+        return function_exists('hash') && in_array('xxh3', hash_algos(), true)
+            ? hash('xxh3', $data)
+            : md5($data); // @phpstan-ignore disallowed.function (fallback for systems without hash())
+    }
+
+    /** Prepare data for hashing by converting Enums and removing Closures. */
+    private function prepareForHashing(mixed $data): mixed
+    {
+        if ($data instanceof Closure) {
+            return null;
+        }
+
+        if ($data instanceof BackedEnum) {
+            return ['__enum__' => $data::class, 'value' => $data->value];
+        }
+
+        if ($data instanceof UnitEnum) {
+            return ['__enum__' => $data::class, 'name' => $data->name];
+        }
+
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if ($value instanceof Closure) {
+                    unset($data[$key]);
+                } else {
+                    $data[$key] = $this->prepareForHashing($value);
+                }
+            }
+            return $data;
+        }
+
+        if (is_object($data)) {
+            $properties = get_object_vars($data);
+            $result = [];
+            foreach ($properties as $key => $value) {
+                if (!($value instanceof Closure)) {
+                    $result[$key] = $this->prepareForHashing($value);
+                }
+            }
+            return $result;
+        }
+
+        return $data;
     }
 
     /**
