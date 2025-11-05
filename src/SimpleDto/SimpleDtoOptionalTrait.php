@@ -187,7 +187,9 @@ trait SimpleDtoOptionalTrait
             $data['sortCallback'],
             $data['validationState'],
             $data['validationErrors'],
-            $data['lastValidationResult']
+            $data['lastValidationResult'],
+            $data['toArrayCache'],
+            $data['toJsonCache']
         );
 
         $partial = [];

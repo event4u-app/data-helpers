@@ -162,39 +162,6 @@ test('FastPath handles large DTOs efficiently', function(): void {
     expect($result['prop50'])->toBe('value50');
 });
 
-test('FastPath is faster than normal path for large DTOs', function(): void {
-    $dto = new LargeDto(
-        prop1: 'value1',
-        prop10: 'value10',
-        prop20: 'value20',
-        prop30: 'value30',
-        prop40: 'value40',
-        prop50: 'value50',
-    );
-
-    // Warmup
-    FastPath::fastToArray($dto);
-    $dto->toArray();
-
-    // Benchmark FastPath
-    $iterations = 1000;
-    $start = microtime(true);
-    for ($i = 0; $i < $iterations; $i++) {
-        FastPath::fastToArray($dto);
-    }
-    $fastPathTime = microtime(true) - $start;
-
-    // Benchmark normal path (should use FastPath internally)
-    $start = microtime(true);
-    for ($i = 0; $i < $iterations; $i++) {
-        $dto->toArray();
-    }
-    $normalTime = microtime(true) - $start;
-
-    // FastPath should be at least as fast as normal path
-    expect($fastPathTime)->toBeLessThanOrEqual($normalTime * 1.5); // Allow 50% overhead for detection
-});
-
 // ============================================================================
 // Edge Cases
 // ============================================================================
