@@ -161,6 +161,9 @@ jobs:
               --with-all-dependencies --no-interaction --quiet
           fi
 
+          # Regenerate autoloader to ensure all test helpers are loaded
+          composer dump-autoload
+
       - name: Run Laravel ${{ matrix.laravel }} Tests
         run: |
           echo "🧪  Running Laravel ${{ matrix.laravel }} Tests on PHP ${{ matrix.php }}..."
@@ -223,6 +226,9 @@ jobs:
             pestphp/pest \
             --with-all-dependencies --no-interaction --quiet
 
+          # Regenerate autoloader to ensure all test helpers are loaded
+          composer dump-autoload
+
       - name: Run Symfony ${{ matrix.symfony }} Tests
         run: |
           echo "🧪  Running Symfony ${{ matrix.symfony }} Tests on PHP ${{ matrix.php }}..."
@@ -283,6 +289,9 @@ jobs:
             doctrine/dbal:^${{ matrix.doctrine }}.0 \
             pestphp/pest \
             --with-all-dependencies --no-interaction --quiet
+
+          # Regenerate autoloader to ensure all test helpers are loaded
+          composer dump-autoload
 
       - name: Run Doctrine ${{ matrix.doctrine }} Tests
         run: |

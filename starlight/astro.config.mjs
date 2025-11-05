@@ -239,6 +239,7 @@ export default defineConfig({
 				collapsed: true,
 				items: [
 					{ label: 'Testing Dtos', slug: 'testing/testing-dtos' },
+					{ label: 'Duplicate DTO Detection', slug: 'testing/duplicate-dtos' },
 				],
 			},
 			{
