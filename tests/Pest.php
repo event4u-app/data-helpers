@@ -1,5 +1,27 @@
 <?php
 
+use event4u\DataHelpers\Helpers\EnvHelper;
+use Tests\Unit\Helpers\DuplicateDtoChecker;
+
+/*
+|--------------------------------------------------------------------------
+| Duplicate DTO Check
+|--------------------------------------------------------------------------
+|
+| Check for duplicate DTO class names in test files before running tests.
+| This helps catch naming conflicts early with a clear error message.
+|
+*/
+
+if (!EnvHelper::boolean('SKIP_DUPLICATE_DTO_CHECK')) {
+    try {
+        DuplicateDtoChecker::check(__DIR__);
+    } catch (RuntimeException $e) {
+        echo $e->getMessage();
+        exit(1);
+    }
+}
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
