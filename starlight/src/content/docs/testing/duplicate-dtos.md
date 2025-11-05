@@ -263,7 +263,7 @@ The checker is optimized for speed:
 
 ## See Also
 
-- [Testing DTOs](/testing/testing-dtos/) - Complete guide to testing DTOs
-- [Creating DTOs](/simple-dto/creating-dtos/) - DTO creation guide
-- [Best Practices](/simple-dto/best-practices/) - DTO best practices
+- [Testing DTOs](/data-helpers/testing/testing-dtos/) - Complete guide to testing DTOs
+- [Creating DTOs](/data-helpers/simple-dto/creating-dtos/) - DTO creation guide
+- [Best Practices](/data-helpers/simple-dto/best-practices/) - DTO best practices
 

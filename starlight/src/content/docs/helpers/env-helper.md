@@ -337,6 +337,6 @@ class DatabaseConfig
 
 ## See Also
 
-- [ConfigHelper](/helpers/config-helper/) - Configuration helper
+- [ConfigHelper](/data-helpers/helpers/config-helper/) - Configuration helper
 - [Framework Integration](/data-helpers/framework-integration/laravel/) - Framework-specific features
 - [Core Concepts: Configuration](/data-helpers/core-concepts/configuration/) - Package configuration

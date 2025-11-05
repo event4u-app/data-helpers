@@ -22,6 +22,63 @@ Data Helpers works perfectly in **plain PHP projects** without any framework:
 composer require event4u/data-helpers
 ```
 
+## Configuration
+
+:::note[Plain PHP Only]
+The `ConfigLoader` is **only for Plain PHP projects**. If you're using Laravel or Symfony, use their native configuration systems instead.
+:::
+
+Data Helpers can be configured in plain PHP projects using the `ConfigLoader`:
+
+```php skip-test
+<?php
+
+require 'vendor/autoload.php';
+
+use event4u\DataHelpers\Config\ConfigLoader;
+use event4u\DataHelpers\DataHelpersConfig;
+
+// Load configuration (merges with package defaults)
+$config = ConfigLoader::load(__DIR__ . '/config/data-helpers.php');
+
+// Initialize Data Helpers
+DataHelpersConfig::initialize($config);
+```
+
+### Create Config File
+
+You can publish a minimal config file:
+
+```php
+use event4u\DataHelpers\Config\ConfigLoader;
+
+// Publish config file
+ConfigLoader::publish('./config/data-helpers.php');
+```
+
+Or create your own config file with only the values you want to change:
+
+```php
+// config/data-helpers.php
+<?php
+
+return [
+    'performance_mode' => 'fast',
+    'cache' => [
+        'ttl' => 3600,
+        'code_generation' => true,
+    ],
+    'logging' => [
+        'enabled' => true,
+        'level' => 'error',
+    ],
+];
+```
+
+The `ConfigLoader` performs **deep merging** - you only need to specify values you want to change. All other values use package defaults.
+
+See [ConfigLoader](/data-helpers/config/config-loader/) for detailed documentation.
+
 ## Basic Usage
 
 ### Create Dto

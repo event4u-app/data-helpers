@@ -297,4 +297,4 @@ vendor/bin/phpbench run benchmarks/MyDtoBench.php --report=default
 
 - [Attributes Reference](./attributes) - Learn about all attributes
 - [Creating LiteDtos](./creating-litedtos) - Best practices
-- [Benchmarks](/performance/benchmarks) - See all performance comparisons
+- [Benchmarks](/data-helpers/performance/benchmarks/) - See all performance comparisons

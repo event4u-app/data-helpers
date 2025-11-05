@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Helpers;
 
+use event4u\DataHelpers\Config\ConfigLoader;
 use Throwable;
 
 /**
@@ -267,16 +268,14 @@ final class ConfigHelper
 
         if (null === $configPath || !file_exists($configPath)) {
             // Use default configuration
-            $this->config = $this->getDefaultConfig();
+            $this->config = ConfigLoader::load([]);
             $this->source = 'default';
 
             return;
         }
 
-        /** @var array<string, mixed> $config */
-        $config = require $configPath;
-        $this->config = $config;
-
+        // Load and merge with defaults using ConfigLoader
+        $this->config = ConfigLoader::load($configPath);
         $this->source = 'plain';
     }
 

@@ -319,7 +319,7 @@ Include:
 
 - Open a [GitHub Discussion](https://github.com/event4u-app/data-helpers/discussions)
 - Check existing [Issues](https://github.com/event4u-app/data-helpers/issues)
-- Read the [Documentation](/)
+- Read the [Documentation](/data-helpers/)
 
 ## Next Steps
 

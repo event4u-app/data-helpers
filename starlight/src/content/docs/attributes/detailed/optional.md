@@ -181,11 +181,11 @@ function applyUpdates(Product $product, UpdateProductDto $updates): void
     if ($updates->name->isPresent()) {
         $product->name = $updates->name->get();
     }
-    
+
     if ($updates->price->isPresent()) {
         $product->price = $updates->price->get();
     }
-    
+
     if ($updates->description->isPresent()) {
         // Can be null - that's intentional (clear description)
         $product->description = $updates->description->get();
@@ -215,7 +215,7 @@ class UpdateUserDto extends LiteDto
         #[OptionalAttribute]
         #[MapFrom('user_name')]
         public readonly Optional|string $name,
-        
+
         #[OptionalAttribute]
         #[CastWith(EmailCaster::class)]
         public readonly Optional|Email $email,
@@ -241,7 +241,7 @@ class UpdateUserDto extends LiteDto
 
 ## See Also
 
-- [#[Sometimes]](/litedto/validation/sometimes) - Conditional validation
-- [#[Nullable]](/litedto/validation/nullable) - Allow null values
-- [Partial Updates Pattern](/patterns/partial-updates) - Best practices for partial updates
+- [#[Sometimes]](/data-helpers/litedto/validation/sometimes/) - Conditional validation
+- [#[Nullable]](/data-helpers/litedto/validation/nullable/) - Allow null values
+- [Partial Updates Pattern](/data-helpers/patterns/partial-updates/) - Best practices for partial updates
 
