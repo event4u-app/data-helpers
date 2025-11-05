@@ -156,13 +156,20 @@ export default defineConfig({
 					],
 				},
                 {
+                    label: 'Configuration',
+                    collapsed: true,
+                    items: [
+                        { label: 'ConfigLoader', slug: 'config/config-loader' },
+                        { label: 'ConfigHelper', slug: 'helpers/config-helper' },
+                    ],
+                },
+                {
                     label: 'Helpers',
                     collapsed: true,
                     items: [
                         { label: 'CallbackHelper', slug: 'helpers/callback-helper' },
                         { label: 'EnvHelper', slug: 'helpers/env-helper' },
                         { label: 'MathHelper', slug: 'helpers/math-helper' },
-                        { label: 'ConfigHelper', slug: 'helpers/config-helper' },
                         { label: 'DotPathHelper', slug: 'helpers/dot-path-helper' },
                         { label: 'ObjectHelper', slug: 'helpers/object-helper' },
                     ],

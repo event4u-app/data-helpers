@@ -42,7 +42,28 @@ data_helpers:
 
 ## Plain PHP Configuration
 
-For plain PHP projects, you can configure Data Helpers programmatically:
+:::note[Plain PHP Only]
+The `ConfigLoader` is **only for Plain PHP projects**. Laravel and Symfony have native configuration support (see above).
+:::
+
+For plain PHP projects, use the `ConfigLoader` to load and merge configuration:
+
+```php skip-test
+use event4u\DataHelpers\Config\ConfigLoader;
+use event4u\DataHelpers\DataHelpersConfig;
+
+// Load config with deep merging
+$config = ConfigLoader::load(__DIR__ . '/config/data-helpers.php');
+DataHelpersConfig::initialize($config);
+```
+
+The `ConfigLoader` performs **deep merging** - you only need to specify values you want to change. All other values use package defaults.
+
+See [ConfigLoader](/data-helpers/config/config-loader/) for detailed documentation.
+
+### Programmatic Configuration
+
+You can also configure Data Helpers programmatically:
 
 ```php
 use event4u\DataHelpers\DataHelpersConfig;
@@ -90,7 +111,7 @@ DATA_HELPERS_CACHE_ENABLED=true
 
 ## Next Steps
 
-- [Core Concepts](/data-helpers/core-concepts/dot-notation) - Learn the fundamentals
-- [Quick Start](/data-helpers/getting-started/quick-start) - Get started in 5 minutes
-- [Performance](/data-helpers/performance/benchmarks) - Optimize for production
+- [Core Concepts](/data-helpers/core-concepts/dot-notation/) - Learn the fundamentals
+- [Quick Start](/data-helpers/getting-started/quick-start/) - Get started in 5 minutes
+- [Performance](/data-helpers/performance/benchmarks/) - Optimize for production
 

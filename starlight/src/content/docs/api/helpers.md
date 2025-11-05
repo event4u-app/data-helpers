@@ -119,9 +119,9 @@ $clone = ObjectHelper::copy($object);
 
 ## See Also
 
-- [EnvHelper Guide](/helpers/env-helper/) - EnvHelper guide
-- [MathHelper Guide](/helpers/math-helper/) - MathHelper guide
-- [ConfigHelper Guide](/helpers/config-helper/) - ConfigHelper guide
-- [DotPathHelper Guide](/helpers/dot-path-helper/) - DotPathHelper guide
-- [ObjectHelper Guide](/helpers/object-helper/) - ObjectHelper guide
+- [EnvHelper Guide](/data-helpers/helpers/env-helper/) - EnvHelper guide
+- [MathHelper Guide](/data-helpers/helpers/math-helper/) - MathHelper guide
+- [ConfigHelper Guide](/data-helpers/helpers/config-helper/) - ConfigHelper guide
+- [DotPathHelper Guide](/data-helpers/helpers/dot-path-helper/) - DotPathHelper guide
+- [ObjectHelper Guide](/data-helpers/helpers/object-helper/) - ObjectHelper guide
 

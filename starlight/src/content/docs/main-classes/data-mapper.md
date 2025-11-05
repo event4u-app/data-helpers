@@ -378,7 +378,7 @@ Data Helpers includes 40+ built-in filters:
 - **Array Filters:** FlattenArray, UniqueValues, etc.
 - **Validation Filters:** ValidateEmail, ValidateUrl, etc.
 
-See [Filters Documentation](/data-helpers/advanced-features/filters) for complete list.
+See [Filters Documentation](/data-helpers/advanced-features/filters/) for complete list.
 
 ## Property-Specific Filters
 
@@ -653,7 +653,7 @@ DataMapper is optimized for performance:
 - **Efficient caching** for path resolution and reflection
 - **Minimal overhead** (7.1%) for Fluent API wrapper
 
-See [Performance Benchmarks](/data-helpers/performance/benchmarks) for detailed comparison.
+See [Performance Benchmarks](/data-helpers/performance/benchmarks/) for detailed comparison.
 
 ## Code Examples
 

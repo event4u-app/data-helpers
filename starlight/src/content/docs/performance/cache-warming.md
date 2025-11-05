@@ -685,7 +685,7 @@ ls -lh .event4u/data-helpers/cache/
 
 ## Related
 
-- [Performance Optimization](/performance/optimization)
-- [Running Benchmarks](/performance/running-benchmarks)
-- [Configuration](/getting-started/configuration)
+- [Performance Optimization](/data-helpers/performance/optimization/)
+- [Running Benchmarks](/data-helpers/performance/running-benchmarks/)
+- [Configuration](/data-helpers/getting-started/configuration/)
 
