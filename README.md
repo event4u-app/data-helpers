@@ -13,9 +13,9 @@
 [![GitHub PHPStan Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/phpstan.yml)
 [![GitHub Test Matrix Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/test-matrix.yml?branch=main&label=test%20matrix&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/test-matrix.yml)
 
-**A powerful, framework-agnostic PHP library for data mapping, DTOs and data manipulation utilities.**
+**Framework-agnostic PHP library with deep framework integration – get the power of framework-specific solutions without the lock-in.**
 
-Transform complex data structures, create type-safe DTOs and simplify data operations with expressive syntax. Includes DataMapper, SimpleDto/LiteDto, DataAccessor/Mutator/Filter and utility helpers (MathHelper, EnvHelper, etc.).
+Transform complex data structures, create type-safe DTOs and simplify data operations with expressive syntax. Works standalone in **Pure PHP** or with **deep integration** for Laravel and Symfony. Includes DataMapper, SimpleDto/LiteDto, DataAccessor/Mutator/Filter and utility helpers (MathHelper, EnvHelper, etc.).
 
 ```php
 // From this messy API response...
@@ -34,7 +34,7 @@ $emails = $accessor->get('data.departments.*.users.*.email');
 // ['alice@example.com', 'bob@example.com', 'charlie@example.com']
 ```
 
-**Framework-agnostic** • Works with **Laravel**, **Symfony/Doctrine** or **standalone PHP** • Zero required dependencies
+**🎯 Framework-Agnostic + Deep Integration** • Pure PHP with **zero dependencies** • Optional **Laravel** & **Symfony** integration • No framework lock-in
 
 📖 **[Full Documentation](https://event4u-app.github.io/data-helpers/)** • [Getting Started](https://event4u-app.github.io/data-helpers/getting-started/quick-start/) • [API Reference](https://event4u-app.github.io/data-helpers/api/)
 
@@ -63,13 +63,14 @@ $emails = $accessor->get('departments.*.users.*.email');
 
 ### 🚀 Key Benefits
 
+- **🎯 Framework-Agnostic + Deep Integration** - Pure PHP with zero dependencies, optional deep Laravel/Symfony integration
 - **Type-Safe** - PHPStan Level 9 compliant with 3500+ tests
 <!-- BENCHMARK_README_FAST_START -->
 
 - **Fast** - SimpleDto with #[UltraFast] is up to 14.7x faster than Other Serializer
 <!-- BENCHMARK_README_FAST_END -->
-- **Framework-Agnostic** - Works with Laravel, Symfony, Doctrine or plain PHP
 - **Zero Dependencies** - No required dependencies, optional framework integrations
+- **No Framework Lock-In** - Use framework features without being tied to a framework
 - **No-Code Mapping** - Store templates in database, create with drag-and-drop editors
 
 ---
@@ -88,6 +89,129 @@ composer require event4u/data-helpers
 - 🔧 **Standalone PHP** - Works out of the box
 
 📖 **[Installation Guide](https://event4u-app.github.io/data-helpers/getting-started/installation/)** • [Configuration](https://event4u-app.github.io/data-helpers/getting-started/configuration/)
+
+---
+
+## 🔌 Framework Integration
+
+**The best of both worlds:** Use Data Helpers as a **standalone library** in pure PHP, or leverage **deep framework integration** for Laravel and Symfony – without framework lock-in.
+
+### 🎯 Framework-Agnostic Core
+
+**Zero dependencies required.** Works out of the box with:
+- ✅ **Pure PHP** - Arrays, objects, JSON, XML
+- ✅ **Any Framework** - No framework-specific code required
+- ✅ **Portable** - Move between frameworks without code changes
+
+```php
+// Works everywhere - no framework needed
+$dto = UserDto::fromArray(['name' => 'John', 'email' => 'john@example.com']);
+$json = json_encode($dto);
+```
+
+### 🚀 Optional Deep Integration
+
+**When you need it:** Add framework-specific features without changing your core code.
+
+#### Laravel Integration (Optional)
+
+```php
+// 1. Controller Injection - Automatic validation & filling
+class UserController extends Controller
+{
+    public function store(UserDto $dto): JsonResponse
+    {
+        // $dto is automatically validated and filled from request
+        $user = User::create($dto->toArray());
+        return response()->json($user, 201);
+    }
+}
+
+// 2. Eloquent Model Integration
+$user = User::find(1);
+$dto = UserDto::fromModel($user);  // From Model
+$dto->toModel($user);              // To Model
+
+// 3. Laravel-Specific Attributes
+class UserProfileDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+
+        #[WhenAuth]  // Only when authenticated
+        public readonly ?string $email = null,
+
+        #[WhenCan('edit-posts')]  // Only with permission
+        public readonly ?string $editUrl = null,
+
+        #[WhenRole('admin')]  // Only for admins
+        public readonly ?array $adminPanel = null,
+    ) {}
+}
+
+// 4. Artisan Commands
+php artisan make:dto UserDto
+php artisan dto:typescript
+php artisan dto:migrate-spatie
+```
+
+#### Symfony Integration (Optional)
+
+```php
+// 1. Controller Injection - Automatic validation & filling
+class UserController extends AbstractController
+{
+    #[Route('/users', methods: ['POST'])]
+    public function create(UserDto $dto): JsonResponse
+    {
+        // $dto is automatically validated and filled from request
+        $user = new User();
+        $dto->toEntity($user);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+        return $this->json($user, 201);
+    }
+}
+
+// 2. Doctrine Entity Integration
+$user = $this->entityManager->find(User::class, 1);
+$dto = UserDto::fromEntity($user);  // From Entity
+$dto->toEntity($user);              // To Entity
+
+// 3. Symfony-Specific Attributes
+class UserProfileDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+
+        #[WhenGranted('ROLE_ADMIN')]  // Only with permission
+        public readonly ?string $email = null,
+
+        #[WhenSymfonyRole('ROLE_MODERATOR')]  // Only for moderators
+        public readonly ?array $moderationPanel = null,
+    ) {}
+}
+
+// 4. Console Commands
+php bin/console make:dto UserDto
+php bin/console dto:typescript
+```
+
+### 💡 Key Integration Features
+
+| Feature | Pure PHP | Laravel | Symfony |
+|---------|----------|---------|---------|
+| **DTOs & Validation** | ✅ | ✅ | ✅ |
+| **Controller Injection** | ❌ | ✅ Auto | ✅ Auto |
+| **Request Validation** | ✅ Manual | ✅ Auto | ✅ Auto |
+| **Model/Entity Mapping** | ❌ | ✅ Eloquent | ✅ Doctrine |
+| **Framework Attributes** | ❌ | ✅ Auth/Can/Role | ✅ Granted/Role |
+| **Code Generation** | ❌ | ✅ Artisan | ✅ Console |
+| **TypeScript Export** | ❌ | ✅ | ✅ |
+
+**The Power:** Get framework-specific features when you need them, without framework dependencies in your core code.
+
+📖 **[Laravel Integration Guide](https://event4u-app.github.io/data-helpers/framework-integration/laravel/)** • [Symfony Integration Guide](https://event4u-app.github.io/data-helpers/framework-integration/symfony/)
 
 ---
 

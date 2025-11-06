@@ -1,9 +1,9 @@
 ---
 title: Introduction to LiteDto
-description: Ultra-fast, minimalistic Data Transfer Objects for PHP 8.2+
+description: Ultra-fast, framework-agnostic DTOs with optional deep integration
 ---
 
-LiteDto is an **ultra-fast, minimalistic Data Transfer Object (Dto)** library for PHP 8.2+ that provides essential features with maximum performance.
+LiteDto is an **ultra-fast, minimalistic Data Transfer Object (Dto)** library for PHP 8.2+ that provides essential features with maximum performance. **Framework-agnostic** with optional deep integration for Laravel and Symfony – without framework lock-in.
 
 ## What is LiteDto?
 
@@ -76,6 +76,80 @@ $array = $user->toArray();
 $json = $user->toJson();
 // {"name":"John Doe","age":30,"email":"john@example.com"}
 ```
+
+## 🎯 Framework-Agnostic + Deep Integration
+
+**The best of both worlds:** Use LiteDto as a standalone library in pure PHP, or leverage deep framework integration for Laravel and Symfony – without framework lock-in.
+
+### Pure PHP - Zero Dependencies
+
+```php
+// Works everywhere - no framework needed
+$dto = UserDto::from($_POST);
+$dto = UserDto::from($apiResponse);
+$dto = UserDto::from(json_decode($json, true));
+
+// Serialize to any format
+$array = $dto->toArray();
+$json = $dto->toJson();
+```
+
+### Optional Deep Integration
+
+LiteDto works seamlessly with framework features when available:
+
+#### Laravel Integration (Optional)
+
+```php
+// Controller Injection - Automatic filling from request
+class UserController extends Controller
+{
+    public function store(UserDto $dto): JsonResponse
+    {
+        // $dto is automatically filled from request
+        $user = User::create($dto->toArray());
+        return response()->json($user, 201);
+    }
+}
+
+// Eloquent Model Integration (with SimpleDtoEloquentTrait)
+$user = User::find(1);
+$dto = UserDto::fromModel($user);  // From Eloquent Model
+$dto->toModel($user);              // To Eloquent Model
+```
+
+#### Symfony Integration (Optional)
+
+```php
+// Controller Injection - Automatic filling from request
+class UserController extends AbstractController
+{
+    #[Route('/users', methods: ['POST'])]
+    public function create(UserDto $dto): JsonResponse
+    {
+        // $dto is automatically filled from request
+        $user = new User();
+        $dto->toEntity($user);
+        $this->entityManager->persist($user);
+        return $this->json($user, 201);
+    }
+}
+
+// Doctrine Entity Integration (with SimpleDtoDoctrineTrait)
+$user = $this->entityManager->find(User::class, 1);
+$dto = UserDto::fromEntity($user);  // From Doctrine Entity
+$dto->toEntity($user);              // To Doctrine Entity
+```
+
+### Key Benefits
+
+- ✅ **No Framework Lock-In** - Core code works everywhere
+- ✅ **Optional Integration** - Add framework features when needed
+- ✅ **Portable** - Move between frameworks without code changes
+- ✅ **Zero Dependencies** - No required dependencies
+- ✅ **Maximum Performance** - 7.6x faster than SimpleDto Normal
+
+**The Power:** Get framework-specific features when you need them, without framework dependencies in your core code.
 
 ## UltraFast Mode
 
@@ -303,6 +377,7 @@ $user = UserDto::from('<root><name>John</name><age>30</age></root>');
 - You need **property mapping** and **serialization**
 - You want **nested DTOs** and **collections**
 - Performance is critical (APIs, high-traffic applications)
+- You want **framework-agnostic** code with optional integration
 
 ### ❌ Use SimpleDto Instead When:
 - You need **validation** (Required, Email, Min, Max, etc.)
@@ -310,6 +385,7 @@ $user = UserDto::from('<root><name>John</name><age>30</age></root>');
 - You need **computed properties** or **lazy loading**
 - You need **conditional properties**
 - You need **pipeline processing**
+- You need **framework-specific attributes** (WhenAuth, WhenGranted, etc.)
 
 ## Next Steps
 

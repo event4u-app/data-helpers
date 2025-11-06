@@ -1,10 +1,10 @@
 ---
 title: event4u Data Helpers
-description: Framework-agnostic PHP library for data mapping, DTOs and data manipulation utilities
+description: Framework-agnostic PHP library with deep framework integration – get the power without the lock-in
 template: splash
 hero:
   title: "Data-Helpers"
-  tagline: A powerful, framework-agnostic PHP library for data mapping, DTOs and data manipulation. Transform data structures, create type-safe DTOs and simplify operations with utility helpers.
+  tagline: Framework-agnostic PHP library with deep framework integration – get the power of framework-specific solutions without the lock-in. Works standalone in Pure PHP or with deep integration for Laravel and Symfony.
   actions:
     - text: Get Started
       link: ./getting-started/introduction/
@@ -32,7 +32,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     **Core Feature:** Transform data structures with templates and pipelines. 40+ built-in filters and custom operators. Perfect for API integrations and ETL.
   </Card>
   <Card title="SimpleDto & LiteDto" icon="star">
-    **Core Feature:** Type-safe, immutable Data Transfer Objects with validation, casting and framework integration. LiteDto is 7.6x faster.
+    **Core Feature:** Type-safe, immutable Data Transfer Objects. Framework-agnostic with optional deep integration for Laravel/Symfony. LiteDto is 7.6x faster.
   </Card>
   <Card title="DataAccessor" icon="document">
     Read nested data with dot notation and wildcards. Analyze data structure with type information. Type-safe getters for arrays, objects, Collections and Models.
@@ -46,8 +46,8 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
   <Card title="Utility Helpers" icon="setting">
     Simplify common operations with MathHelper, EnvHelper, StringHelper, ArrayHelper and ConfigHelper.
   </Card>
-  <Card title="Framework-Agnostic" icon="puzzle">
-    Works with Laravel, Symfony, Doctrine or plain PHP. Zero required dependencies.
+  <Card title="Framework-Agnostic + Deep Integration" icon="puzzle">
+    Pure PHP with zero dependencies. Optional deep integration for Laravel and Symfony. No framework lock-in.
   </Card>
 </CardGrid>
 
@@ -72,11 +72,11 @@ $emails = $accessor->get('data.departments.*.users.*.email');
 
 ## Why Data Helpers?
 
+- **🎯 Framework-Agnostic + Deep Integration** - Pure PHP with zero dependencies, optional deep Laravel/Symfony integration, no framework lock-in
 - **Data mapping & DTOs at its core** - Transform data structures and create type-safe DTOs with ease
 - **Stop writing nested loops** - Use dot notation and wildcards instead
 - **Utility helpers included** - MathHelper, EnvHelper, StringHelper and more for common operations
 - **Type-safe and well-tested** - PHPStan Level 9 with 3500+ tests
-- **Framework-agnostic** - Works anywhere with smart framework detection
 - **Blazing fast** - Faster than most traditional serializers
 
 :::tip[Support Our Work]
