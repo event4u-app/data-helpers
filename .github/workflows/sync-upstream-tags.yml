@@ -34,6 +34,7 @@ jobs:
         if: steps.check-enabled.outputs.enabled == 'true'
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -74,25 +75,9 @@ jobs:
 
       - name: Push tags to fork
         if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
-        run: |
-          echo "Pushing tags to fork..."
-          failed_tags=0
-          success_tags=0
-          # Push each tag individually with force to handle existing tags
-          git tag -l | while read tag; do
-            if [ -n "$tag" ]; then
-              echo "Pushing tag: $tag"
-              if git push origin "refs/tags/$tag:refs/tags/$tag" --force; then
-                echo "✅  Successfully pushed: $tag"
-                success_tags=$((success_tags + 1))
-              else
-                echo "❌  Failed to push tag: $tag"
-                failed_tags=$((failed_tags + 1))
-              fi
-            fi
-          done
-          echo ""
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "✅  Tag sync complete!"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Sync tags from upstream"
+          push_options: '--force --tags'
+          skip_dirty_check: true
 
