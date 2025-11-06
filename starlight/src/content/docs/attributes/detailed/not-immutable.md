@@ -1,9 +1,9 @@
 ---
 title: "#[NotImmutable] - Mutable Properties"
-description: "Allow property modification after construction for counters, caching, and tracking"
+description: "Allow property modification after construction for counters, caching and tracking"
 ---
 
-The `#[NotImmutable]` attribute allows you to mark DTOs or specific properties as mutable, enabling modification after construction. This is useful for counters, caching, tracking, and other scenarios where you need to update values without creating a new instance.
+The `#[NotImmutable]` attribute allows you to mark DTOs or specific properties as mutable, enabling modification after construction. This is useful for counters, caching, tracking and other scenarios where you need to update values without creating a new instance.
 
 ## Basic Usage
 
@@ -265,7 +265,7 @@ class CacheDto extends SimpleDto
 {
     public function __construct(
         public readonly string $key,
-        
+
         /** @var mixed Cached value - mutable for lazy loading */
         #[NotImmutable]
         public mixed $value = null,

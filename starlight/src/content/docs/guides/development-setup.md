@@ -114,7 +114,7 @@ Task is a modern alternative to Make with YAML syntax and better readability.
 
 ### Why Task?
 
-- ✅ **Cross-platform** - Works on macOS, Linux, and Windows
+- ✅ **Cross-platform** - Works on macOS, Linux and Windows
 - ✅ **Fast** - Written in Go, much faster than Make
 - ✅ **Simple** - YAML-based configuration
 - ✅ **Powerful** - Variables, dependencies, includes

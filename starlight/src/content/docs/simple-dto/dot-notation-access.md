@@ -150,7 +150,7 @@ class EmployeeDto extends SimpleDto
 {
     /**
      * @param array<int, EmailDto> $emails
-     * @param array<int, OrderDto> $orders
+     * @param array<int orderDto> $orders
      */
     public function __construct(
         public readonly string $name,
@@ -291,7 +291,7 @@ class OrderDto extends SimpleDto
 class EmployeeDto extends SimpleDto
 {
     /**
-     * @param array<int, OrderDto> $orders
+     * @param array<int orderDto> $orders
      */
     public function __construct(
         public readonly string $name,

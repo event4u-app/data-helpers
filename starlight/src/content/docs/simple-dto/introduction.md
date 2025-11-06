@@ -3,7 +3,7 @@ title: Introduction to SimpleDto
 description: Powerful, framework-agnostic Data Transfer Objects for PHP 8.2+
 ---
 
-SimpleDto is a powerful, framework-agnostic Data Transfer Object (Dto) library for PHP 8.2+ that makes working with structured data simple, type-safe, and performant.
+SimpleDto is a powerful, framework-agnostic Data Transfer Object (Dto) library for PHP 8.2+ that makes working with structured data simple, type-safe and performant.
 
 ## What is a Dto?
 
@@ -74,7 +74,7 @@ public function store(UserDto $dto)
 
 ### Framework Agnostic
 
-Works with Laravel, Symfony, and plain PHP. No framework lock-in.
+Works with Laravel, Symfony and plain PHP. No framework lock-in.
 
 ```php
 // Laravel

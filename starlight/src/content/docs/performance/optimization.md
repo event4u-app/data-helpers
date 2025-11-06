@@ -16,7 +16,7 @@ Data Helpers provides multiple optimization techniques:
 - ✅ **Performance Attributes** - Skip unnecessary operations (34-63% faster)
 
 :::tip[Maximum Performance for SimpleDto]
-Use `#[NoAttributes]`, `#[NoCasts]`, and `#[NoValidation]` attributes to skip unnecessary operations and achieve **34-63% faster** DTO instantiation!
+Use `#[NoAttributes]`, `#[NoCasts]` and `#[NoValidation]` attributes to skip unnecessary operations and achieve **34-63% faster** DTO instantiation!
 
 See [Performance Attributes](/data-helpers/attributes/performance/#performance-attributes) for details.
 :::
@@ -128,7 +128,7 @@ Skip unnecessary operations for maximum performance.
 
 ### #[NoAttributes] - Skip Attribute Processing
 
-Skip all attribute reflection and processing when you don't need validation, visibility control, or other attribute features. Type hint casts remain active:
+Skip all attribute reflection and processing when you don't need validation, visibility control or other attribute features. Type hint casts remain active:
 
 ```php
 use event4u\DataHelpers\SimpleDto;

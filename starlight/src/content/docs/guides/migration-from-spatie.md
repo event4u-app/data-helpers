@@ -11,7 +11,7 @@ SimpleDto provides a smooth migration path from Spatie Laravel Data:
 
 - **Similar API** - Familiar methods and patterns
 - **More Features** - 18 conditional attributes for fine-grained control
-- **Framework Independent** - Works with Laravel, Symfony, and plain PHP
+- **Framework Independent** - Works with Laravel, Symfony and plain PHP
 - **Backward Compatible** - Easy to migrate incrementally
 - **Validation Caching** - Built-in caching for better performance
 

@@ -3,7 +3,7 @@ title: Installation
 description: Install Data Helpers in your PHP project
 ---
 
-Data Helpers can be installed via Composer and works with Laravel, Symfony, Doctrine, or plain PHP.
+Data Helpers can be installed via Composer and works with Laravel, Symfony, Doctrine or plain PHP.
 
 ## Requirements
 

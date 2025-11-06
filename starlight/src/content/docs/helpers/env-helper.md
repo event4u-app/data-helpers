@@ -33,7 +33,7 @@ EnvHelper provides a unified interface for accessing environment variables acros
 ### Key Features
 
 - **Automatic framework detection** - No configuration needed
-- **Type casting** - Get values as string, int, float, bool, or array
+- **Type casting** - Get values as string, int, float, bool or array
 - **Optional Carbon support** - Parse dates when Carbon is installed
 - **Default values** - Fallback values when environment variable is not set
 - **Type-safe** - PHPStan Level 9 compliant

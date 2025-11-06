@@ -13,9 +13,9 @@
 [![GitHub PHPStan Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/phpstan.yml)
 [![GitHub Test Matrix Action Status](https://img.shields.io/github/actions/workflow/status/event4u-app/data-helpers/test-matrix.yml?branch=main&label=test%20matrix&style=flat-square)](https://github.com/event4u-app/data-helpers/actions/workflows/test-matrix.yml)
 
-**A powerful, framework-agnostic PHP library for accessing, transforming, and mapping complex nested data structures with ease.**
+**A powerful, framework-agnostic PHP library for data mapping, DTOs and data manipulation utilities.**
 
-Stop writing nested loops and array checks. Access, transform, and map complex data structures with simple, expressive syntax.
+Transform complex data structures, create type-safe DTOs and simplify data operations with expressive syntax. Includes DataMapper, SimpleDto/LiteDto, DataAccessor/Mutator/Filter and utility helpers (MathHelper, EnvHelper, etc.).
 
 ```php
 // From this messy API response...
@@ -34,7 +34,7 @@ $emails = $accessor->get('data.departments.*.users.*.email');
 // ['alice@example.com', 'bob@example.com', 'charlie@example.com']
 ```
 
-**Framework-agnostic** • Works with **Laravel**, **Symfony/Doctrine**, or **standalone PHP** • Zero required dependencies
+**Framework-agnostic** • Works with **Laravel**, **Symfony/Doctrine** or **standalone PHP** • Zero required dependencies
 
 📖 **[Full Documentation](https://event4u-app.github.io/data-helpers/)** • [Getting Started](https://event4u-app.github.io/data-helpers/getting-started/quick-start/) • [API Reference](https://event4u-app.github.io/data-helpers/api/)
 
@@ -68,7 +68,7 @@ $emails = $accessor->get('departments.*.users.*.email');
 
 - **Fast** - SimpleDto with #[UltraFast] is up to 14.7x faster than Other Serializer
 <!-- BENCHMARK_README_FAST_END -->
-- **Framework-Agnostic** - Works with Laravel, Symfony, Doctrine, or plain PHP
+- **Framework-Agnostic** - Works with Laravel, Symfony, Doctrine or plain PHP
 - **Zero Dependencies** - No required dependencies, optional framework integrations
 - **No-Code Mapping** - Store templates in database, create with drag-and-drop editors
 
@@ -92,6 +92,8 @@ composer require event4u/data-helpers
 ---
 
 ## ⚡ Core Components
+
+**The heart of this library:** Data mapping and DTOs for transforming and structuring data, plus powerful data manipulation tools.
 
 ### 1️⃣ DataAccessor - Read Nested Data
 
@@ -260,9 +262,40 @@ $result = DataMapper::from($source)
     ->getTarget();
 ```
 
-**💡 No-Code Data Mapping:** Templates can be stored in a database and created with a drag-and-drop editor - perfect for import wizards, API integrations, and ETL pipelines without writing code!
+**💡 No-Code Data Mapping:** Templates can be stored in a database and created with a drag-and-drop editor - perfect for import wizards, API integrations and ETL pipelines without writing code!
 
 📖 **[DataMapper Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-mapper/)**
+
+### 7️⃣ Utility Helpers - Common Data Operations
+
+Simplify common data operations with specialized helper classes:
+
+```php
+use event4u\DataHelpers\Helpers\MathHelper;
+use event4u\DataHelpers\Helpers\EnvHelper;
+use event4u\DataHelpers\Helpers\StringHelper;
+
+// Math operations with precision
+$result = MathHelper::add('10.5', '20.3', 2);  // '30.80'
+$percentage = MathHelper::percentage(75, 300);  // 25.0
+
+// Environment variable access with type casting
+$debug = EnvHelper::getBool('APP_DEBUG', false);
+$port = EnvHelper::getInt('APP_PORT', 8080);
+
+// String manipulation
+$slug = StringHelper::slug('Hello World!');  // 'hello-world'
+$truncated = StringHelper::truncate('Long text...', 10);  // 'Long te...'
+```
+
+**Available Helpers:**
+- **MathHelper** - Precision math operations (add, subtract, multiply, divide, percentage, round)
+- **EnvHelper** - Type-safe environment variable access (getString, getInt, getBool, getFloat, getArray)
+- **StringHelper** - String manipulation (slug, truncate, camelCase, snakeCase, studlyCase)
+- **ArrayHelper** - Array operations (flatten, pluck, only, except, dot notation)
+- **ConfigHelper** - Configuration management with framework detection
+
+📖 **[Helpers Documentation](https://event4u-app.github.io/data-helpers/helpers/overview/)**
 
 ---
 
@@ -381,17 +414,17 @@ $result = DataMapper::query()
 
 ## 📚 Documentation
 
-**Comprehensive documentation with guides, examples, and API reference is available at:**
+**Comprehensive documentation with guides, examples and API reference is available at:**
 
 🔗 **[event4u-app.github.io/data-helpers](https://event4u-app.github.io/data-helpers/)**
 
 The documentation includes:
-- 📖 **Getting Started Guides** - Installation, configuration, and quick start tutorials
-- 🔧 **Main Classes** - Detailed guides for DataAccessor, DataMutator, DataMapper, and DataFilter
-- 🎯 **SimpleDto** - Type-safe Dtos with validation, casting, and collections
+- 📖 **Getting Started Guides** - Installation, configuration and quick start tutorials
+- 🔧 **Main Classes** - Detailed guides for DataAccessor, DataMutator, DataMapper and DataFilter
+- 🎯 **SimpleDto** - Type-safe Dtos with validation, casting and collections
 - ⚡ **LiteDto** - Ultra-fast, minimalistic Dtos (7.6x faster than SimpleDto)
-- 🚀 **Advanced Features** - Template expressions, query builder, pipelines, and reverse mapping
-- 🔌 **Framework Integration** - Laravel, Symfony, and Doctrine integration guides
+- 🚀 **Advanced Features** - Template expressions, query builder, pipelines and reverse mapping
+- 🔌 **Framework Integration** - Laravel, Symfony and Doctrine integration guides
 - 💡 **90+ Code Examples** - Runnable examples for every feature
 - 📊 **Performance Benchmarks** - Optimization tips and benchmark results
 - 🔍 **Complete API Reference** - Full API documentation for all classes and methods

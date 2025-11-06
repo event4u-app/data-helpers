@@ -1,6 +1,6 @@
 ---
 title: Fork & Pull Request Guide
-description: Step-by-step guide for forking, working locally, and creating pull requests
+description: Step-by-step guide for forking, working locally and creating pull requests
 ---
 
 Complete step-by-step guide for contributing to Data Helpers via fork and pull request workflow.
@@ -391,7 +391,7 @@ git push origin main
 # 2. Create a new feature branch
 git checkout -b feature/new-feature
 
-# 3. Make changes, commit, and push
+# 3. Make changes, commit and push
 git add .
 git commit -m "feat: add new feature"
 git push origin feature/new-feature

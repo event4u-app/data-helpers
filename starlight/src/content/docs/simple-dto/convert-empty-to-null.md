@@ -276,7 +276,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
 class FlexibleDto extends SimpleDto
 {
     public function __construct(
-        // Convert all: empty string, empty array, 0, "0", and false to null
+        // Convert all: empty string, empty array, 0, "0" and false to null
         #[ConvertEmptyToNull(convertZero: true, convertStringZero: true, convertFalse: true)]
         public readonly mixed $value = null,
     ) {}

@@ -19,7 +19,7 @@ Data Helpers provides powerful features with acceptable performance overhead:
 
 ## Performance Trade-offs
 
-Data Helpers prioritizes **developer experience, type safety, and maintainability** over raw speed:
+Data Helpers prioritizes **developer experience, type safety and maintainability** over raw speed:
 
 <!-- BENCHMARK_TRADEOFFS_START -->
 
@@ -27,12 +27,12 @@ Data Helpers prioritizes **developer experience, type safety, and maintainabilit
 SimpleDto #[UltraFast] vs Plain PHP:
 - SimpleDto:  ~6.6μs per operation
 - Plain PHP:  ~0.21μs per operation
-- Trade-off:  ~32x slower, but with type safety, immutability, and mapping
+- Trade-off:  ~32x slower, but with type safety, immutability and mapping
 
 SimpleDto vs Plain PHP (without #[AutoCast]):
 - SimpleDto:  ~4.1μs per operation
 - Plain PHP:  ~0.21μs per operation
-- Trade-off:  ~20x slower, but with type safety, validation, and immutability
+- Trade-off:  ~20x slower, but with type safety, validation and immutability
 
 SimpleDto vs Plain PHP (with #[AutoCast]):
 - SimpleDto:  ~6-7μs per operation (depending on casting needs)
@@ -176,7 +176,7 @@ Comparison of our SimpleDto implementation with other Dto libraries and plain PH
 - **#[UltraFast] mode** provides **1.9x faster** performance than normal SimpleDto
 - **#[UltraFast]** is only **~66x slower** than Plain PHP (vs ~122x for normal mode)
 - **#[UltraFast]** is competitive with other Dto libraries (~2x slower)
-- SimpleDto provides **type safety, validation, and immutability** with reasonable overhead
+- SimpleDto provides **type safety, validation and immutability** with reasonable overhead
 - The overhead is acceptable for the added safety and developer experience
 <!-- BENCHMARK_DTO_INSIGHTS_END -->
 
@@ -201,7 +201,7 @@ Comparison of our DataMapper with other mapper libraries and plain PHP:
 - **SimpleDto #[UltraFast]** is **3.3x faster** than DataMapper for simple mapping
 - Other mapper libraries are **4.4x faster** than DataMapper, but **1.4x slower** than #[UltraFast]
 - Plain PHP is **~154x faster** but requires manual mapping code for each use case
-- DataMapper provides the best balance of features, readability, and maintainability for complex mappings
+- DataMapper provides the best balance of features, readability and maintainability for complex mappings
 - The overhead is acceptable for complex mapping scenarios with better developer experience
 <!-- BENCHMARK_MAPPER_INSIGHTS_END -->
 
@@ -292,7 +292,7 @@ Savings per 1M requests:   ~151ms (0.2s) with #[UltraFast]
 <!-- BENCHMARK_PERFORMANCE_ATTRIBUTES_END -->
 
 :::tip[Better Performance for SimpleDto]
-Use `#[NoAttributes]`, `#[NoCasts]`, and `#[NoValidation]` attributes to skip unnecessary operations and achieve **34-63% faster** DTO instantiation!
+Use `#[NoAttributes]`, `#[NoCasts]` and `#[NoValidation]` attributes to skip unnecessary operations and achieve **34-63% faster** DTO instantiation!
 
 See [Performance Attributes](/data-helpers/attributes/performance/#performance-attributes) for details.
 :::

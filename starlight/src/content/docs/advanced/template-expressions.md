@@ -20,7 +20,7 @@ The Template Expression Engine provides a powerful expression syntax that works 
 **Key Features:**
 
 - 🎯 **Declarative syntax** - Define transformations in the template
-- 🔄 **Unified across all methods** - Same syntax in `map()`, `mapFromFile()`, and `mapFromTemplate()`
+- 🔄 **Unified across all methods** - Same syntax in `map()`, `mapFromFile()` and `mapFromTemplate()`
 - 🔄 **Composable filters** - Chain multiple transformations
 - 📦 **30+ built-in filters** - Common transformations out of the box
 - 🔧 **Extensible** - Register custom filters
@@ -216,7 +216,7 @@ $template = [
 ```
 
 **ConvertEmptyToNull Options:**
-- No options: Converts `""`, `[]`, and `null` to `null`
+- No options: Converts `""`, `[]` and `null` to `null`
 - `"zero"`: Also converts integer `0` to `null`
 - `"string_zero"`: Also converts string `"0"` to `null`
 - `"false"`: Also converts boolean `false` to `null`

@@ -7,7 +7,7 @@ The `#[FileCallback]` attribute allows you to implement **custom file validation
 
 ## Overview
 
-Unlike `#[File]`, `#[Image]`, `#[Mimes]`, and `#[MimeTypes]` which are marker attributes for Laravel/Symfony validators, `#[FileCallback]` performs actual validation in LiteDto using your custom callback function.
+Unlike `#[File]`, `#[Image]`, `#[Mimes]` and `#[MimeTypes]` which are marker attributes for Laravel/Symfony validators, `#[FileCallback]` performs actual validation in LiteDto using your custom callback function.
 
 ## Syntax
 

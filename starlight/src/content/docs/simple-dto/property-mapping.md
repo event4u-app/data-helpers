@@ -344,7 +344,7 @@ echo $dto->email; // 'john@example.com' (trimmed)
 echo $dto->city;  // 'New York' (trimmed)
 ```
 
-### Combining Template, Filters, and Pipeline
+### Combining Template, Filters and Pipeline
 
 You can combine all three for powerful data transformation:
 

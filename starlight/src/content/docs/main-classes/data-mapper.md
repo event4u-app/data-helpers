@@ -3,7 +3,7 @@ title: DataMapper
 description: Transform data structures with the powerful Fluent API
 ---
 
-DataMapper provides a modern, fluent API for transforming data between different structures. It supports template-based mapping, queries with SQL-like operators, property-specific filters, and much more.
+DataMapper provides a modern, fluent API for transforming data between different structures. It supports template-based mapping, queries with SQL-like operators, property-specific filters and much more.
 
 ## Quick Example
 

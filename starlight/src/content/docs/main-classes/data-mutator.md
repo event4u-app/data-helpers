@@ -1,9 +1,9 @@
 ---
 title: DataMutator
-description: Write, merge, and unset values in nested data structures using dot-notation paths with wildcard support
+description: Write, merge and unset values in nested data structures using dot-notation paths with wildcard support
 ---
 
-DataMutator provides methods to modify nested data structures including arrays, objects, Dtos, Laravel Collections, and Eloquent Models. All operations work with references and modify the target in-place using a fluent API.
+DataMutator provides methods to modify nested data structures including arrays, objects, Dtos, Laravel Collections and Eloquent Models. All operations work with references and modify the target in-place using a fluent API.
 
 ## Quick Example
 
@@ -714,7 +714,7 @@ This ensures:
 
 The following working examples demonstrate DataMutator in action:
 
-- [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mutator/basic-usage.php) - Complete example showing set, merge, and unset operations with wildcards
+- [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mutator/basic-usage.php) - Complete example showing set, merge and unset operations with wildcards
 
 All examples are fully tested and can be run directly:
 

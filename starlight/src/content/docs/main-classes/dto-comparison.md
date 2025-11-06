@@ -6,7 +6,7 @@ description: Comparison of LiteDto and SimpleDto - Choose the right DTO for your
 Data Helpers provides two DTO implementations, each optimized for different use cases:
 
 - **LiteDto** - Maximum performance with minimal overhead
-- **SimpleDto** - Full-featured with validation, type casting, and advanced features
+- **SimpleDto** - Full-featured with validation, type casting and advanced features
 
 ## Quick Overview
 

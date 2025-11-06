@@ -316,7 +316,7 @@ task docker:logs
 The test matrix provides:
 - ✅ **Comprehensive coverage** - 27 isolated tests + E2E tests
 - ✅ **Real-world scenarios** - Tests frameworks in isolation
-- ✅ **Flexible execution** - Run all, by group, or individually
+- ✅ **Flexible execution** - Run all, by group or individually
 - ✅ **CI-ready** - Designed for GitHub Actions
 - ✅ **Fast feedback** - Run only what you need during development
 
