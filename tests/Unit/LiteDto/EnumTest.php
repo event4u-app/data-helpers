@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\EnumSerialize;
-use event4u\DataHelpers\LiteDto\LiteDto;
 
 // Test Enums
 enum LiteDtoStatus: string

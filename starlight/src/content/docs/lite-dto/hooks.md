@@ -23,7 +23,7 @@ Called **before** the DTO instance is created. Allows you to modify the input da
 - Transform data structure
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 
 class UserDto extends LiteDto
 {
@@ -204,7 +204,7 @@ Called **before** validation begins.
 - Transform data structure
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\Validation\Attributes\Email;
 use event4u\DataHelpers\Validation\Attributes\Min;
 
@@ -362,7 +362,7 @@ beforeSerialization → toArray/toJson → afterSerialization
 ## Example: Complete Lifecycle
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\Validation\ValidationResult;
 
 class CompleteDto extends LiteDto

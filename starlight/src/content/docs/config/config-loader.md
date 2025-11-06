@@ -170,7 +170,7 @@ $config = ConfigLoader::load(__DIR__ . '/config/data-helpers.php');
 DataHelpersConfig::initialize($config);
 
 // Now you can use Data Helpers
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 class UserDto extends SimpleDto
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use event4u\DataHelpers\SimpleDto\Attributes\WhenGranted;
 use event4u\DataHelpers\SimpleDto\Attributes\WhenInstanceOf;
 use event4u\DataHelpers\SimpleDto\Attributes\WhenSymfonyRole;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 // Test DTOs
 class E2ESimpleDtoGrantedDto extends SimpleDto

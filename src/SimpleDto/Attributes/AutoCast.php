@@ -36,7 +36,7 @@ use Attribute;
  *
  * Example (Class-level):
  * ```php
- * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto;
  * use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
  *
  * #[AutoCast]

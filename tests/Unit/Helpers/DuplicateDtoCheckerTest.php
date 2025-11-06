@@ -13,7 +13,7 @@ describe('DuplicateDtoChecker', function(): void {
         // Create a test file with a DTO
         file_put_contents($tempDir . '/Test1.php', '<?php
 namespace Tests;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 class UserDto extends SimpleDto {}
 ');
 
@@ -36,13 +36,13 @@ class UserDto extends SimpleDto {}
         // Create two test files with the same DTO class name
         file_put_contents($tempDir . '/Test1.php', '<?php
 namespace Tests;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 class UserDto extends SimpleDto {}
 ');
 
         file_put_contents($tempDir . '/Test2.php', '<?php
 namespace Tests;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 class UserDto extends SimpleDto {}
 ');
 
@@ -68,14 +68,14 @@ class UserDto extends SimpleDto {}
         // Create a DTO in main directory
         file_put_contents($tempDir . '/Test1.php', '<?php
 namespace Tests;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 class UserDto extends SimpleDto {}
 ');
 
         // Create the same DTO in Fixtures directory (should be ignored)
         file_put_contents($tempDir . '/Fixtures/Test2.php', '<?php
 namespace Tests;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 class UserDto extends SimpleDto {}
 ');
 
@@ -99,12 +99,12 @@ class UserDto extends SimpleDto {}
 
         // Create two test files with the same DTO class name (no namespace)
         file_put_contents($tempDir . '/Test1.php', '<?php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 class ProductDto extends SimpleDto {}
 ');
 
         file_put_contents($tempDir . '/Test2.php', '<?php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 class ProductDto extends SimpleDto {}
 ');
 
@@ -128,12 +128,12 @@ class ProductDto extends SimpleDto {}
 
         // Create two test files with the same LiteDto class name
         file_put_contents($tempDir . '/Test1.php', '<?php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 class FastDto extends LiteDto {}
 ');
 
         file_put_contents($tempDir . '/Test2.php', '<?php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 class FastDto extends LiteDto {}
 ');
 
@@ -181,13 +181,13 @@ class DuplicateDto extends \event4u\DataHelpers\SimpleDto\SimpleDto {}
         // Create two test files with the same class name but different namespaces
         file_put_contents($tempDir . '/Test1.php', '<?php
 namespace Tests\Unit;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 class UserDto extends SimpleDto {}
 ');
 
         file_put_contents($tempDir . '/Test2.php', '<?php
 namespace Tests\Integration;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 class UserDto extends SimpleDto {}
 ');
 

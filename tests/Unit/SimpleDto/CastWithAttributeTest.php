@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\CastWith;
 use event4u\DataHelpers\SimpleDto\Casters\DateTimeCaster;
 use event4u\DataHelpers\SimpleDto\Casters\DateTimeImmutableCaster;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
 
 // Custom caster for testing
 class SimpleDtoUpperCaseCaster

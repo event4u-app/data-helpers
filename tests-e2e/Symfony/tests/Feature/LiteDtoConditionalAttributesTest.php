@@ -5,7 +5,7 @@ declare(strict_types=1);
 use event4u\DataHelpers\LiteDto\Attributes\Symfony\WhenGranted;
 use event4u\DataHelpers\LiteDto\Attributes\Symfony\WhenRole;
 use event4u\DataHelpers\LiteDto\Attributes\Symfony\WhenSymfonyRole;
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;

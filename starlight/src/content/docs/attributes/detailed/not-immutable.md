@@ -10,7 +10,7 @@ The `#[NotImmutable]` attribute allows you to mark DTOs or specific properties a
 ### Class-Level: All Properties Mutable
 
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\NotImmutable;
 
 #[NotImmutable]

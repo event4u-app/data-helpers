@@ -195,7 +195,7 @@ class StrictUserDto extends SimpleDto
 Create ultra-fast, minimalistic DTOs with essential features:
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\Hidden;
 

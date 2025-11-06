@@ -12,6 +12,7 @@ use Error;
 use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\Attributes\CastWith;
 use event4u\DataHelpers\SimpleDto\Attributes\Computed;
@@ -58,7 +59,6 @@ use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\DataCollection;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
 use event4u\DataHelpers\Support\Lazy;
 use event4u\DataHelpers\Support\Optional;
 use event4u\DataHelpers\Support\StringFormatDetector;
@@ -954,7 +954,7 @@ final class SimpleEngine
                     // Check for #[DataCollectionOf] attribute
                     $dataCollectionOfClass = self::getDataCollectionOf($reflection->getName(), $name, $param);
                     if ($dataCollectionOfClass) {
-                        /** @var class-string<\event4u\DataHelpers\SimpleDto> $dataCollectionOfClass */
+                        /** @var class-string<SimpleDto> $dataCollectionOfClass */
                         $value = DataCollection::forDto(
                             $dataCollectionOfClass,
                             $value
@@ -3141,7 +3141,7 @@ final class SimpleEngine
                                 $reflectionParameter
                             );
                             if ($dataCollectionOfClass) {
-                                /** @var class-string<\event4u\DataHelpers\SimpleDto> $dataCollectionOfClass */
+                                /** @var class-string<SimpleDto> $dataCollectionOfClass */
                                 $value = DataCollection::forDto(
                                     $dataCollectionOfClass,
                                     $value

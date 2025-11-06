@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\NotImmutable;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
 
 // ============================================================================
 // Example 1: Class-level #[NotImmutable] - All properties mutable

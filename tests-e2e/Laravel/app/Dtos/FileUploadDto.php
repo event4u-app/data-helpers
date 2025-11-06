@@ -6,7 +6,7 @@ namespace E2E\Laravel\Dtos;
 
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\FileCallback;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use Illuminate\Http\UploadedFile;
 
 /**

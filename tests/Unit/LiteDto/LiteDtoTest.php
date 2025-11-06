@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
 use event4u\DataHelpers\LiteDto\Attributes\Hidden;
 use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\MapTo;
-use event4u\DataHelpers\LiteDto\LiteDto;
 
 // Test DTOs
 class LiteDtoBasicLiteDto extends LiteDto

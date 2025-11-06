@@ -34,7 +34,7 @@ public static function callbackName(
 ### With PHP Upload Array
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\Validation\FileCallback;
 
 class UploadDto extends LiteDto

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Optional as OptionalAttribute;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
 use event4u\DataHelpers\Support\Optional;
 
 // Test DTOs (Standard SimpleDto - no UltraFast)

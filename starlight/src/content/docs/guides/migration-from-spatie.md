@@ -82,7 +82,7 @@ class UserData extends Data
 
 **After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 class UserDto extends SimpleDto
 {
@@ -182,7 +182,7 @@ $user = UserData::from([
 
 **After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 class UserDto extends SimpleDto
 {
@@ -222,7 +222,7 @@ class CreateUserData extends Data
 
 **After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
 use event4u\DataHelpers\SimpleDto\Attributes\Email;
 

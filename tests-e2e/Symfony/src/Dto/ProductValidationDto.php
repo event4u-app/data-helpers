@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\ExistsCallback;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\UniqueCallback;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 class ProductValidationDto extends SimpleDto
 {

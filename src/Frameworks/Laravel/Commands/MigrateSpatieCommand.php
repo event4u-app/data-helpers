@@ -195,7 +195,7 @@ class MigrateSpatieCommand extends Command
         // 1. Replace base class import
         $content = str_replace(
             'use Spatie\\LaravelData\\Data;',
-            'use event4u\\DataHelpers\\SimpleDto\\SimpleDto;',
+            'use event4u\\DataHelpers\\SimpleDto;',
             $content
         );
 

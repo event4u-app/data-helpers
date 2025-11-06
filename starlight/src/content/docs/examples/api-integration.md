@@ -19,7 +19,7 @@ Common patterns for API integration:
 ### GET Request
 
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 
 class UserDto extends SimpleDto

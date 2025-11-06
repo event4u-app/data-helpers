@@ -14,7 +14,7 @@ use Attribute;
  *
  * Example:
  * ```php
- * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto;
  * use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
  * use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
  * use event4u\DataHelpers\SimpleDto\Attributes\Validation\Email;

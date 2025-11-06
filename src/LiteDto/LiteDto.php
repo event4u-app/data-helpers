@@ -13,6 +13,8 @@ use JsonSerializable;
 use UnitEnum;
 
 /**
+ * @internal
+ *
  * Lightweight, high-performance Data Transfer Object.
  *
  * LiteDto is designed for maximum performance (~0.3μs per operation)

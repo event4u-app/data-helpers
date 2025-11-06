@@ -232,7 +232,7 @@ For complex mappings, you can define a template method in your DTO:
 
 ```php
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\SimpleDtoMapperTrait;
+use event4u\DataHelpers\SimpleDtoMapperTrait;
 
 class UserDto extends SimpleDto
 {
@@ -275,7 +275,7 @@ Apply filters to specific properties during mapping:
 
 ```php
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\SimpleDtoMapperTrait;
+use event4u\DataHelpers\SimpleDtoMapperTrait;
 use event4u\DataHelpers\Filters\TrimStrings;
 use event4u\DataHelpers\Filters\LowercaseStrings;
 
@@ -313,7 +313,7 @@ Apply global filters to all properties:
 
 ```php
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\SimpleDtoMapperTrait;
+use event4u\DataHelpers\SimpleDtoMapperTrait;
 use event4u\DataHelpers\Filters\TrimStrings;
 
 class UserDto extends SimpleDto
@@ -350,7 +350,7 @@ You can combine all three for powerful data transformation:
 
 ```php
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\SimpleDtoMapperTrait;
+use event4u\DataHelpers\SimpleDtoMapperTrait;
 use event4u\DataHelpers\Filters\TrimStrings;
 use event4u\DataHelpers\Filters\LowercaseStrings;
 

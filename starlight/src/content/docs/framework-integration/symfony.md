@@ -223,7 +223,7 @@ Creates `src/Dto/UserDto.php`:
 
 namespace App\Dto;
 
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 class UserDto extends SimpleDto
 {

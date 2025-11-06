@@ -34,7 +34,7 @@ public static function callbackName(
 ### With PDO (Plain PHP)
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\Validation\ExistsCallback;
 
 class OrderDto extends LiteDto
@@ -95,7 +95,7 @@ if ($result->isValid()) {
 ### With Laravel Eloquent
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\Validation\ExistsCallback;
 use App\Models\User;
 use App\Models\Product;
@@ -127,7 +127,7 @@ class OrderDto extends LiteDto
 ### With Doctrine ORM
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\Validation\ExistsCallback;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;

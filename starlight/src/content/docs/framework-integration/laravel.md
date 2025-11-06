@@ -197,7 +197,7 @@ Creates `app/Dtos/UserDto.php`:
 
 namespace App\Dtos;
 
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 class UserDto extends SimpleDto
 {

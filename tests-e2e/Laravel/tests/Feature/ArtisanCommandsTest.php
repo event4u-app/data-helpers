@@ -242,7 +242,7 @@ PHP;
         $content = File::get($path);
 
         // Check base class changed
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\SimpleDto;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto;');
         expect($content)->toContain('class SpatieUserData extends SimpleDto');
         expect($content)->not->toContain('use Spatie\LaravelData\Data;');
         expect($content)->not->toContain('extends Data');
@@ -343,7 +343,7 @@ PHP;
 
         // Check original file was migrated
         $content = File::get($path);
-        expect($content)->toContain('use event4u\DataHelpers\SimpleDto\SimpleDto;');
+        expect($content)->toContain('use event4u\DataHelpers\SimpleDto;');
         expect($content)->toContain('extends SimpleDto');
     });
 
@@ -432,12 +432,12 @@ PHP;
 
         // Check both files were migrated
         $content1 = File::get($path1);
-        expect($content1)->toContain('use event4u\DataHelpers\SimpleDto\SimpleDto;');
+        expect($content1)->toContain('use event4u\DataHelpers\SimpleDto;');
         expect($content1)->toContain('extends SimpleDto');
         expect($content1)->toContain('public readonly string $name');
 
         $content2 = File::get($path2);
-        expect($content2)->toContain('use event4u\DataHelpers\SimpleDto\SimpleDto;');
+        expect($content2)->toContain('use event4u\DataHelpers\SimpleDto;');
         expect($content2)->toContain('extends SimpleDto');
         expect($content2)->toContain('public readonly string $email');
     });

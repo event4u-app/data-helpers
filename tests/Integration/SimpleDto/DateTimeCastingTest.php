@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
 
 describe('SimpleDto Automatic DateTime Casting', function(): void {
     describe('DateTime Casting', function(): void {
