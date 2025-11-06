@@ -5,8 +5,6 @@ on:
   push:                   # Runs after "Sync fork" button
     branches:
       - main
-    # Only trigger when commit message looks like an upstream merge
-    # (works for most fork syncs)
 
 permissions:
   contents: write
@@ -16,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Can be disabled by setting repository variable DATA_HELPERS_SYNC_UPSTREAM_TAGS=false
-      # Settings → Secrets and variables → Actions → Variables → New repository variable
       SYNC_ENABLED: ${{ vars.DATA_HELPERS_SYNC_UPSTREAM_TAGS != 'false' }}
+
     steps:
       - name: Check if sync is enabled
         id: check-enabled
@@ -59,7 +57,7 @@ jobs:
             git remote remove upstream
           fi
           git remote add upstream https://github.com/event4u-app/data-helpers.git
-          echo "Upstream remote added successfully"
+          echo "✅  Upstream remote added successfully"
           git remote -v
 
       - name: Fetch upstream tags
@@ -68,16 +66,42 @@ jobs:
           echo "Fetching tags from upstream..."
           git fetch upstream --tags --verbose
           echo ""
-          echo "Available tags:"
-          git tag -l
+          echo "✅  Tags successfully fetched from upstream"
+          echo "Total upstream tags: $(git tag -l | wc -l)"
           echo ""
-          echo "Total tags: $(git tag -l | wc -l)"
+
+      - name: Compare tags between upstream and fork
+        if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        run: |
+          echo "🔍 Comparing tags between upstream and origin..."
+          NEW_TAGS=0
+          UPDATED_TAGS=0
+
+          git fetch origin --tags > /dev/null 2>&1
+
+          for tag in $(git tag -l); do
+            UPSTREAM_COMMIT=$(git rev-list -n 1 upstream/main "$tag" 2>/dev/null || git rev-list -n 1 "$tag")
+            ORIGIN_COMMIT=$(git ls-remote origin "refs/tags/$tag" | awk '{print $1}')
+
+            if [ -z "$ORIGIN_COMMIT" ]; then
+              echo "🆕  New tag: $tag"
+              ((NEW_TAGS++))
+            elif [ "$UPSTREAM_COMMIT" != "$ORIGIN_COMMIT" ]; then
+              echo "♻️  Updated tag: $tag (different commit)"
+              ((UPDATED_TAGS++))
+            fi
+          done
+
+          echo ""
+          echo "Summary:"
+          echo "→ New tags to push: $NEW_TAGS"
+          echo "→ Updated tags to overwrite: $UPDATED_TAGS"
+          echo ""
 
       - name: Push tags to fork
         if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Sync tags from upstream"
-          push_options: '--force --tags'
-          skip_dirty_check: true
-
+        run: |
+          echo "🚀 Pushing all tags from upstream to fork..."
+          git push origin --force --tags
+          echo ""
+          echo "✅  All tags successfully synced from upstream to fork!"
