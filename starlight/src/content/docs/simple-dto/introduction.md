@@ -1,9 +1,9 @@
 ---
 title: Introduction to SimpleDto
-description: Powerful, framework-agnostic Data Transfer Objects for PHP 8.2+
+description: Framework-agnostic DTOs with deep framework integration – get the power without the lock-in
 ---
 
-SimpleDto is a powerful, framework-agnostic Data Transfer Object (Dto) library for PHP 8.2+ that makes working with structured data simple, type-safe and performant.
+SimpleDto is a powerful, **framework-agnostic** Data Transfer Object (Dto) library for PHP 8.2+ that makes working with structured data simple, type-safe and performant. Works standalone in **Pure PHP** or with **deep integration** for Laravel and Symfony – without framework lock-in.
 
 ## What is a Dto?
 
@@ -72,20 +72,61 @@ public function store(UserDto $dto)
 
 ## Why SimpleDto?
 
-### Framework Agnostic
+### 🎯 Framework-Agnostic + Deep Integration
 
-Works with Laravel, Symfony and plain PHP. No framework lock-in.
+**The best of both worlds:** Use SimpleDto as a standalone library in pure PHP, or leverage deep framework integration for Laravel and Symfony – without framework lock-in.
+
+#### Pure PHP - Zero Dependencies
 
 ```php
-// Laravel
-$dto = UserDto::fromRequest($request);
-
-// Symfony
-$dto = UserDto::fromArray($request->request->all());
-
-// Plain PHP
+// Works everywhere - no framework needed
 $dto = UserDto::fromArray($_POST);
+$dto = UserDto::fromArray($apiResponse);
+$dto = UserDto::fromArray(json_decode($json, true));
 ```
+
+#### Optional Deep Integration
+
+```php
+// Laravel - Automatic controller injection & Eloquent integration
+class UserController extends Controller
+{
+    public function store(UserDto $dto): JsonResponse
+    {
+        // $dto is automatically validated and filled from request
+        $user = User::create($dto->toArray());
+        return response()->json($user, 201);
+    }
+}
+
+$user = User::find(1);
+$dto = UserDto::fromModel($user);  // From Eloquent Model
+$dto->toModel($user);              // To Eloquent Model
+
+// Symfony - Automatic controller injection & Doctrine integration
+class UserController extends AbstractController
+{
+    #[Route('/users', methods: ['POST'])]
+    public function create(UserDto $dto): JsonResponse
+    {
+        // $dto is automatically validated and filled from request
+        $user = new User();
+        $dto->toEntity($user);
+        $this->entityManager->persist($user);
+        return $this->json($user, 201);
+    }
+}
+
+$user = $this->entityManager->find(User::class, 1);
+$dto = UserDto::fromEntity($user);  // From Doctrine Entity
+$dto->toEntity($user);              // To Doctrine Entity
+```
+
+**Key Benefits:**
+- ✅ **No Framework Lock-In** - Core code works everywhere
+- ✅ **Optional Integration** - Add framework features when needed
+- ✅ **Portable** - Move between frameworks without code changes
+- ✅ **Zero Dependencies** - No required dependencies
 
 ### Type Safety
 
@@ -303,9 +344,26 @@ $count = $users->count();
 
 ### Framework Integration
 
-- **Laravel:** Eloquent, validation, Artisan commands
-- **Symfony:** Doctrine, security, console commands
-- **Plain PHP:** Works without any framework
+**Framework-Agnostic Core + Optional Deep Integration:**
+
+#### Pure PHP (Zero Dependencies)
+- ✅ **Arrays, Objects, JSON, XML** - Works everywhere
+- ✅ **No Framework Required** - Standalone usage
+- ✅ **Portable** - Move between frameworks
+
+#### Laravel (Optional)
+- ✅ **Controller Injection** - Automatic validation & filling
+- ✅ **Eloquent Integration** - fromModel(), toModel()
+- ✅ **Laravel Attributes** - WhenAuth, WhenCan, WhenRole
+- ✅ **Artisan Commands** - make:dto, dto:typescript
+
+#### Symfony (Optional)
+- ✅ **Controller Injection** - Automatic validation & filling
+- ✅ **Doctrine Integration** - fromEntity(), toEntity()
+- ✅ **Symfony Attributes** - WhenGranted, WhenSymfonyRole
+- ✅ **Console Commands** - make:dto, dto:typescript
+
+**The Power:** Get framework-specific features when you need them, without framework dependencies in your core code.
 
 ### Performance
 

@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: Learn about Data Helpers - a powerful, framework-agnostic PHP library for data manipulation
+description: Framework-agnostic PHP library with deep framework integration – get the power without the lock-in
 ---
 
 <div align="center" style="margin-bottom: 2rem;">
@@ -9,7 +9,7 @@ description: Learn about Data Helpers - a powerful, framework-agnostic PHP libra
   </a>
 </div>
 
-Data Helpers is a powerful, framework-agnostic PHP library for data mapping, DTOs and data manipulation utilities. It provides data transformation with templates, type-safe DTOs, dot notation access, wildcard support and utility helpers for common operations.
+Data Helpers is a **framework-agnostic PHP library with deep framework integration** – get the power of framework-specific solutions without the lock-in. Works standalone in **Pure PHP** or with **deep integration** for Laravel and Symfony. It provides data transformation with templates, type-safe DTOs, dot notation access, wildcard support and utility helpers for common operations.
 
 ## What is Data Helpers?
 
@@ -18,7 +18,7 @@ Data Helpers is a comprehensive toolkit for working with data in PHP application
 ### Core Components
 
 - **DataMapper** - Transform data structures with templates and pipelines (40+ built-in filters)
-- **SimpleDto & LiteDto** - Type-safe, immutable Data Transfer Objects with validation and casting
+- **SimpleDto & LiteDto** - Type-safe, immutable Data Transfer Objects. Framework-agnostic with optional deep integration for Laravel/Symfony
 
 ### Data Manipulation Tools
 
@@ -104,14 +104,70 @@ $result = DataMapper::source($source)
 - 2900+ tests with comprehensive coverage
 - Works reliably with arrays, objects, Collections, Models, JSON and XML
 
-### Framework-Agnostic with Smart Detection
+### 🎯 Framework-Agnostic + Deep Integration
 
-Use it anywhere - Laravel, Symfony, Doctrine or plain PHP. Framework support is automatically detected at runtime:
+**The best of both worlds:** Use Data Helpers as a standalone library in pure PHP, or leverage deep framework integration for Laravel and Symfony – without framework lock-in.
 
-- Laravel 9+ - Collections, Eloquent Models
-- Symfony 6+ - Collections, Entities
-- Doctrine 2+ - Collections, Entities
-- Plain PHP - Works out of the box
+```mermaid
+graph TD
+    A[Data-Helpers Package] --> B{Using a PHP Framework?}
+
+    B -- No Pure PHP --> C[No Dependencies Installed]
+    C --> D[Use LiteDto & DataAccessor/Filter]
+    D --> E[Result: Fast, Agnostic Data Processing]
+
+    B -- Yes Laravel/Symfony --> F[Framework Detection Active]
+    F --> G[Use DTOs in Controller Signature]
+    G --> H[Enable: Request Validation & Route Model Binding]
+    H --> I[Result: Deep Integration with Framework Power]
+
+    E & I --> J[Unified Toolset for All Projects]
+
+    style A fill:#4f46e5,stroke:#312e81,stroke-width:2px,color:#fff
+    style J fill:#10b981,stroke:#065f46,stroke-width:2px,color:#fff
+    style E fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style I fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+```
+
+#### Pure PHP - Zero Dependencies
+
+Works out of the box with:
+- ✅ **Pure PHP** - Arrays, objects, JSON, XML
+- ✅ **Any Framework** - No framework-specific code required
+- ✅ **Portable** - Move between frameworks without code changes
+
+```php
+// Works everywhere - no framework needed
+$dto = UserDto::fromArray($_POST);
+$accessor = new DataAccessor($apiResponse);
+$emails = $accessor->get('data.departments.*.users.*.email');
+```
+
+#### Optional Deep Integration
+
+Framework support is automatically detected at runtime:
+
+**Laravel 9+**
+- ✅ **Controller Injection** - Automatic validation & filling
+- ✅ **Eloquent Integration** - fromModel(), toModel()
+- ✅ **Laravel Attributes** - WhenAuth, WhenCan, WhenRole
+- ✅ **Artisan Commands** - make:dto, dto:typescript
+- ✅ **Collections & Models** - Full support
+
+**Symfony 6+**
+- ✅ **Controller Injection** - Automatic validation & filling
+- ✅ **Doctrine Integration** - fromEntity(), toEntity()
+- ✅ **Symfony Attributes** - WhenGranted, WhenSymfonyRole
+- ✅ **Console Commands** - make:dto, dto:typescript
+- ✅ **Collections & Entities** - Full support
+
+**Doctrine 2+**
+- ✅ **Entity Integration** - fromEntity(), toEntity()
+- ✅ **Collections** - Full support
+
+**The Power:** Get framework-specific features when you need them, without framework dependencies in your core code.
+
+📖 **[Laravel Integration Guide](/data-helpers/framework-integration/laravel/)** • [Symfony Integration Guide](/data-helpers/framework-integration/symfony/)**
 
 ### Blazing Fast Performance
 
@@ -193,7 +249,7 @@ See [Installation](/data-helpers/getting-started/installation/) for detailed set
 
 Data Helpers offers several advantages over comparable projects:
 
-- **Framework-agnostic** - Works with Laravel, Symfony or plain PHP
+- **🎯 Framework-Agnostic + Deep Integration** - Pure PHP with zero dependencies, optional deep Laravel/Symfony integration, no framework lock-in
 - **Zero dependencies** - No required dependencies, optional framework integrations
 - **Comprehensive** - 5 main components covering all data manipulation needs
 - **Well-tested** - 2900+ tests with PHPStan Level 9 compliance
