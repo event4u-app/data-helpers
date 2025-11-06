@@ -107,7 +107,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_header "Pruning Docker Resources"
-        task_warning "This will remove unused containers, networks, images, and volumes"
+        task_warning "This will remove unused containers, networks, images and volumes"
         task_step "Pruning..."
         docker system prune -af --volumes
         task_success "Prune complete"

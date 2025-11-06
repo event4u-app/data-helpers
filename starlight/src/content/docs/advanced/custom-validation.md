@@ -34,7 +34,7 @@ class StrongPassword extends ValidationAttribute
 
     public function message(): string
     {
-        return 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
+        return 'Password must be at least 8 characters with uppercase, lowercase, number and special character';
     }
 }
 ```
@@ -105,7 +105,7 @@ class Username extends ValidationAttribute
     public function messages(): array
     {
         return [
-            'regex' => 'Username can only contain letters, numbers, and underscores',
+            'regex' => 'Username can only contain letters, numbers and underscores',
             'unique' => 'This username is already taken',
         ];
     }
@@ -360,7 +360,7 @@ public readonly string $website;
 // ✅ Good - clear message
 public function message(): string
 {
-    return 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
+    return 'Password must be at least 8 characters with uppercase, lowercase, number and special character';
 }
 
 // ❌ Bad - vague message

@@ -1,9 +1,9 @@
 ---
 title: Quick Start
-description: Get started with Data Helpers in 5 minutes
+description: Get started with Data Helpers in 5 minutes - data mapping, DTOs and utilities
 ---
 
-Get up and running with Data Helpers in just a few minutes.
+Get up and running with Data Helpers in just a few minutes. This library provides **data mapping, type-safe DTOs and utility helpers** for common operations.
 
 ## Installation
 
@@ -179,10 +179,28 @@ $array = $user->toArray();
 $json = $user->toJson();
 ```
 
+### Utility Helpers - Common Operations
+
+```php
+use event4u\DataHelpers\Helpers\MathHelper;
+use event4u\DataHelpers\Helpers\EnvHelper;
+
+// Math operations with precision
+$result = MathHelper::add('10.5', '20.3', 2);  // 30.8
+$average = MathHelper::average([10, 20, 30]);  // 20.0
+$sum = MathHelper::sum([5, 10, 15]);  // 30.0
+
+// Environment variable access with type casting
+$debug = EnvHelper::boolean('APP_DEBUG', false);
+$port = EnvHelper::integer('APP_PORT', 8080);
+$timeout = EnvHelper::float('REQUEST_TIMEOUT', 30.0);
+```
+
 ## Next Steps
 
 - [Core Concepts](/data-helpers/core-concepts/dot-notation/) - Learn about dot notation and wildcards
 - [Main Classes](/data-helpers/main-classes/overview/) - Explore all main classes
+- [Helpers](/data-helpers/helpers/overview/) - Utility helpers for common operations
 - [Examples](/data-helpers/examples/) - Browse 90+ code examples
 - [API Reference](/data-helpers/api/) - Complete API documentation
 

@@ -9,7 +9,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\Validation\Email;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\ExistsCallback;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\UniqueCallback;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 /**
  * DTO for testing callback-based validation attributes with Laravel.

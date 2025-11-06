@@ -5,21 +5,34 @@ description: Learn about Data Helpers - a powerful, framework-agnostic PHP libra
 
 <div align="center" style="margin-bottom: 2rem;">
   <a href="https://event4u.app">
-    <img alt="Data Helpers - Framework-agnostic PHP library for data manipulation, transformation, and validation" src="/data-helpers/banner.png" style="max-width: 100%; height: auto; border-radius: 8px;" />
+    <img alt="Data Helpers - Framework-agnostic PHP library for data manipulation, transformation and validation" src="/data-helpers/banner.png" style="max-width: 100%; height: auto; border-radius: 8px;" />
   </a>
 </div>
 
-Data Helpers is a powerful, framework-agnostic PHP library for accessing, transforming, and mapping complex nested data structures with ease. It provides dot notation access, wildcard support, data mapping with templates, caching, and 40+ built-in filters.
+Data Helpers is a powerful, framework-agnostic PHP library for data mapping, DTOs and data manipulation utilities. It provides data transformation with templates, type-safe DTOs, dot notation access, wildcard support and utility helpers for common operations.
 
 ## What is Data Helpers?
 
-Data Helpers is a comprehensive toolkit for working with data in PHP applications. It provides five main components:
+Data Helpers is a comprehensive toolkit for working with data in PHP applications. **At its core:** Data mapping and DTOs for transforming and structuring data.
+
+### Core Components
+
+- **DataMapper** - Transform data structures with templates and pipelines (40+ built-in filters)
+- **SimpleDto & LiteDto** - Type-safe, immutable Data Transfer Objects with validation and casting
+
+### Data Manipulation Tools
 
 - **DataAccessor** - Read nested data with dot notation and wildcards
 - **DataMutator** - Modify nested data structures safely
-- **DataMapper** - Transform data structures with templates and pipelines
 - **DataFilter** - Query and filter data with SQL-like API
-- **SimpleDto** - Immutable Data Transfer Objects with validation and casting
+
+### Utility Helpers
+
+- **MathHelper** - Precision math operations using bcmath (add, subtract, multiply, divide, modulo, powerOf, squareRoot, compare, min, max, sum, average, product, time conversions)
+- **EnvHelper** - Type-safe environment variable access with framework detection (get, has, string, integer, float, boolean, array)
+- **ConfigHelper** - Singleton configuration manager with framework detection and dot notation (getInstance, get, getBoolean, getInteger, getFloat, getString, getArray, has, set, reset)
+- **DotPathHelper** - Dot notation path utilities with wildcard support (segments, buildPrefix, isWildcard, containsWildcard)
+- **ObjectHelper** - Deep object cloning with recursion control (copy)
 
 ## Quick Example
 
@@ -63,7 +76,7 @@ $emails = $accessor->get('departments.*.users.*.email');
 
 ### Transform Data Structures with Ease
 
-Map between different data formats, APIs, or database schemas without writing repetitive transformation code:
+Map between different data formats, APIs or database schemas without writing repetitive transformation code:
 
 ```php
 use event4u\DataHelpers\DataMapper;
@@ -89,11 +102,11 @@ $result = DataMapper::source($source)
 
 - PHPStan Level 9 compliant
 - 2900+ tests with comprehensive coverage
-- Works reliably with arrays, objects, Collections, Models, JSON, and XML
+- Works reliably with arrays, objects, Collections, Models, JSON and XML
 
 ### Framework-Agnostic with Smart Detection
 
-Use it anywhere - Laravel, Symfony, Doctrine, or plain PHP. Framework support is automatically detected at runtime:
+Use it anywhere - Laravel, Symfony, Doctrine or plain PHP. Framework support is automatically detected at runtime:
 
 - Laravel 9+ - Collections, Eloquent Models
 - Symfony 6+ - Collections, Entities
@@ -180,7 +193,7 @@ See [Installation](/data-helpers/getting-started/installation/) for detailed set
 
 Data Helpers offers several advantages over comparable projects:
 
-- **Framework-agnostic** - Works with Laravel, Symfony, or plain PHP
+- **Framework-agnostic** - Works with Laravel, Symfony or plain PHP
 - **Zero dependencies** - No required dependencies, optional framework integrations
 - **Comprehensive** - 5 main components covering all data manipulation needs
 - **Well-tested** - 2900+ tests with PHPStan Level 9 compliance

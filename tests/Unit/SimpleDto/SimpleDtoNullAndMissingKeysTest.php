@@ -265,7 +265,7 @@ describe('SimpleDto Null and Missing Keys Tests', function(): void {
     });
 
     describe('Mixed Scenarios', function(): void {
-        it('handles mix of present, missing, and null values', function(): void {
+        it('handles mix of present, missing and null values', function(): void {
             $dto = new class extends SimpleDto {
                 public function __construct(
                     public readonly string $name = 'default_name',

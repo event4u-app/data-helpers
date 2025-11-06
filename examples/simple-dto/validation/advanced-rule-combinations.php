@@ -258,6 +258,6 @@ echo "✅  RequiredWith - Field required when any of specified fields are presen
 echo "✅  RequiredWithout - Field required when any of specified fields are absent\n";
 echo "✅  Sometimes - Field only validated if present in input\n";
 echo "✅  Nullable - Field can be null even with other validation rules\n";
-echo "✅  All conditional rules work with Laravel, Symfony, and framework-independent validators\n";
+echo "✅  All conditional rules work with Laravel, Symfony and framework-independent validators\n";
 
 echo "\n";

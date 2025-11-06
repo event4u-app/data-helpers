@@ -19,7 +19,7 @@ final class FileLoader
      *
      * @param string $filePath Path to the file
      * @return array<string, mixed> The file content as an associative array
-     * @throws InvalidArgumentException If file doesn't exist, has unsupported format, or parsing fails
+     * @throws InvalidArgumentException If file doesn't exist, has unsupported format or parsing fails
      */
     public static function loadAsArray(string $filePath): array
     {

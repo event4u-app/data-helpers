@@ -14,7 +14,7 @@ use Attribute;
  * (affects only that property).
  *
  * **Important**: This attribute only controls AUTOMATIC casting to native PHP types.
- * Explicit casts (via #[CastWith], #[DataCollectionOf], or nested DTOs) are ALWAYS applied
+ * Explicit casts (via #[CastWith], #[DataCollectionOf] or nested DTOs) are ALWAYS applied
  * regardless of this attribute.
  *
  * **Casting Priority:**
@@ -36,7 +36,7 @@ use Attribute;
  *
  * Example (Class-level):
  * ```php
- * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto;
  * use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
  *
  * #[AutoCast]

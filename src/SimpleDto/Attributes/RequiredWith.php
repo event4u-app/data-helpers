@@ -4,14 +4,44 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
-use event4u\DataHelpers\SimpleDto\Attributes\Validation\RequiredWith;
+use Attribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 
 /**
- * Alias for RequiredWith attribute.
+ * Conditional validation attribute: Field is required if any of the specified fields are present.
  *
- * @see \event4u\DataHelpers\SimpleDto\Attributes\Validation\RequiredWith
+ * Example:
+ * ```php
+ * class ContactDto extends SimpleDto
+ * {
+ *     public function __construct(
+ *         public readonly ?string $phone = null,
+ *         public readonly ?string $email = null,
+ *
+ *         #[RequiredWith(['phone', 'email'])]
+ *         public readonly ?string $contactPreference = null,
+ *     ) {}
+ * }
+ * ```
  */
-class_alias(
-    RequiredWith::class,
-    __NAMESPACE__ . '\RequiredWith'
-);
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+class RequiredWith implements ValidationRule
+{
+    /** @param array<string> $fields Field names that trigger requirement */
+    public function __construct(
+        public readonly array $fields,
+    ) {}
+
+    /** Convert to Laravel validation rule. */
+    public function rule(): string
+    {
+        return 'required_with:' . implode(',', $this->fields);
+    }
+
+    /** Get validation error message. */
+    public function message(): ?string
+    {
+        $fields = implode(', ', $this->fields);
+        return sprintf('The attribute field is required when %s is present.', $fields);
+    }
+}

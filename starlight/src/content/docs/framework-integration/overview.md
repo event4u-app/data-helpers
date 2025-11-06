@@ -1,9 +1,9 @@
 ---
 title: Framework Integration Overview
-description: Overview of framework integrations for Laravel, Symfony, Doctrine, and Plain PHP
+description: Overview of framework integrations for Laravel, Symfony, Doctrine and Plain PHP
 ---
 
-Overview of framework integrations for Laravel, Symfony, Doctrine, and Plain PHP.
+Overview of framework integrations for Laravel, Symfony, Doctrine and Plain PHP.
 
 ## Introduction
 

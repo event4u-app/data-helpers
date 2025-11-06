@@ -6,7 +6,7 @@ description: Comparison of LiteDto and SimpleDto - Choose the right DTO for your
 Data Helpers provides two DTO implementations, each optimized for different use cases:
 
 - **LiteDto** - Maximum performance with minimal overhead
-- **SimpleDto** - Full-featured with validation, type casting, and advanced features
+- **SimpleDto** - Full-featured with validation, type casting and advanced features
 
 ## Quick Overview
 
@@ -15,7 +15,7 @@ Data Helpers provides two DTO implementations, each optimized for different use 
 LiteDto is designed for **maximum performance** when you need fast data transfer without validation or type casting.
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 
 class UserDto extends LiteDto
 {
@@ -40,7 +40,7 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 SimpleDto provides **full validation and type casting** with a rich feature set.
 
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\Attributes\Validation\Email;
 use event4u\DataHelpers\Attributes\Validation\Min;
 
@@ -69,7 +69,7 @@ $user = UserDto::from(['name' => 'John', 'email' => 'john@example.com', 'age' =>
 **Performance Tip:** Use `#[UltraFast]` attribute for 3-4x faster performance when validation is not needed:
 
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\Hidden;

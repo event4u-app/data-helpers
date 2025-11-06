@@ -87,7 +87,7 @@ describe('SimpleDtoIntegration', function(): void {
                 ->and($instance->price)->toBe('149.99');
         });
 
-        it('maps, casts, and outputs together', function(): void {
+        it('maps, casts and outputs together', function(): void {
             $dto = new class(
                 email: '',
                 createdAt: new DateTimeImmutable(),
@@ -150,7 +150,7 @@ describe('SimpleDtoIntegration', function(): void {
     });
 
     describe('All Features Combined', function(): void {
-        it('combines casts, validation, and mapping', function(): void {
+        it('combines casts, validation and mapping', function(): void {
             $dto = new class(
                 email: '',
                 age: 0,

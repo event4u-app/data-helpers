@@ -8,7 +8,7 @@ use event4u\DataHelpers\Support\ReflectionCache;
 use ReflectionException;
 
 /**
- * Handles value transformations like replacement, trimming, and case conversion.
+ * Handles value transformations like replacement, trimming and case conversion.
  */
 class ValueTransformer
 {

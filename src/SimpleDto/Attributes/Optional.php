@@ -23,7 +23,7 @@ use Attribute;
  *
  * @example Basic optional property
  * ```php
- * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto;
  * use event4u\DataHelpers\SimpleDto\Attributes\Optional;
  * use event4u\DataHelpers\Support\Optional as OptionalWrapper;
  *

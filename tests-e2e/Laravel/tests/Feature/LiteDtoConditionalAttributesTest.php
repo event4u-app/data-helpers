@@ -6,7 +6,7 @@ use event4u\DataHelpers\LiteDto\Attributes\Laravel\WhenAuth;
 use event4u\DataHelpers\LiteDto\Attributes\Laravel\WhenCan;
 use event4u\DataHelpers\LiteDto\Attributes\Laravel\WhenGuest;
 use event4u\DataHelpers\LiteDto\Attributes\Laravel\WhenRole;
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 

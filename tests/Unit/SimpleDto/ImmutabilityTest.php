@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 // Test DTO
 class SimpleDtoImmutableUserDto extends SimpleDto

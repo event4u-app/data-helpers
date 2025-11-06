@@ -176,7 +176,7 @@ final class ObjectHelper
     }
 
     /**
-     * Copy a value (handles objects, arrays, and primitives).
+     * Copy a value (handles objects, arrays and primitives).
      *
      * @param mixed $value The value to copy
      * @param bool $recursive Whether to recursively copy nested objects and arrays

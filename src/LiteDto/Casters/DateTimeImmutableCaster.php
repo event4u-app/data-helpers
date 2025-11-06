@@ -19,7 +19,7 @@ class DateTimeImmutableCaster
     /**
      * Cast value to DateTimeImmutable.
      *
-     * @param mixed $value String date, timestamp, or null
+     * @param mixed $value String date, timestamp or null
      */
     public static function cast(mixed $value): ?DateTimeImmutable
     {

@@ -8,7 +8,7 @@ use InvalidArgumentException;
 /**
  * MapperQuery - Query on wildcards during mapping.
  *
- * Allows filtering, sorting, and limiting wildcard results during mapping.
+ * Allows filtering, sorting and limiting wildcard results during mapping.
  *
  * Example:
  *   $mapper->query('project.positions.*')

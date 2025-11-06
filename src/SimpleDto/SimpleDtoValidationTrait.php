@@ -114,6 +114,7 @@ trait SimpleDtoValidationTrait
     public static function validate(mixed $data): ValidationResult
     {
         // Use SimpleEngine to validate (with caching, performance optimizations, etc.)
+        /** @phpstan-ignore argument.type */
         return SimpleEngine::validate(static::class, $data);
     }
 
@@ -129,6 +130,7 @@ trait SimpleDtoValidationTrait
     public static function validateAndCreate(mixed $data): static
     {
         // Use SimpleEngine to validate (with caching, performance optimizations, etc.)
+        /** @phpstan-ignore argument.type */
         $result = SimpleEngine::validate(static::class, $data);
 
         // Throw exception if validation failed
@@ -160,6 +162,7 @@ trait SimpleDtoValidationTrait
         $data = $this->toArray();
 
         // Use SimpleEngine to validate (with caching, performance optimizations, etc.)
+        /** @phpstan-ignore argument.type */
         $result = SimpleEngine::validate(static::class, $data);
 
         // Store validation result

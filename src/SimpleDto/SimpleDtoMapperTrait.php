@@ -21,7 +21,7 @@ use Throwable;
  * - Define templates in the Dto class (protected function mapperTemplate())
  * - Define filters in the Dto class (protected function mapperFilters())
  * - Define pipeline in the Dto class (protected function mapperPipeline())
- * - Pass templates, filters, and pipeline dynamically to from() and fromArray()
+ * - Pass templates, filters and pipeline dynamically to from() and fromArray()
  * - Automatic integration with fromArray()
  *
  * Example usage:

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
 use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
-use event4u\DataHelpers\LiteDto\LiteDto;
 
 // UltraFast DTOs
 #[UltraFast]

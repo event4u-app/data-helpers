@@ -12,7 +12,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
  * Clamps a numeric value between a minimum and maximum.
  *
  * Limits the value to the specified range by returning min if value < min,
- * max if value > max, or the value itself if it's within range.
+ * max if value > max or the value itself if it's within range.
  *
  * Examples:
  *   Pipeline: new Clamp(0, 100)

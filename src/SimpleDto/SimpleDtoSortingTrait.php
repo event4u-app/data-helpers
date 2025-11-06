@@ -8,7 +8,7 @@ namespace event4u\DataHelpers\SimpleDto;
  * Trait for sorting array output.
  *
  * This trait provides methods to configure and apply sorting to toArray() and jsonSerialize() output.
- * Sorting can be enabled/disabled, configured for direction (ASC/DESC), and can be applied recursively.
+ * Sorting can be enabled/disabled, configured for direction (ASC/DESC) and can be applied recursively.
  *
  * Example:
  *   $user = UserDto::fromArray(['name' => 'John', 'age' => 30]);

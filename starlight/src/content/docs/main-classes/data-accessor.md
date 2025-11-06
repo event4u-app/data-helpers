@@ -3,7 +3,7 @@ title: DataAccessor
 description: Read values from nested data structures using dot-notation paths with wildcard support
 ---
 
-DataAccessor provides a uniform way to read values from nested data structures including arrays, objects, Laravel Collections, and Eloquent Models. It supports dot-notation paths, numeric indices, and powerful wildcard operations.
+DataAccessor provides a uniform way to read values from nested data structures including arrays, objects, Laravel Collections and Eloquent Models. It supports dot-notation paths, numeric indices and powerful wildcard operations.
 
 ## Quick Example
 
@@ -748,7 +748,7 @@ $value2 = $accessor->get('user.profile.name');
 
 The following working examples demonstrate DataAccessor in action:
 
-- [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/basic-usage.php) - Complete example showing dot-notation, wildcards, and default values
+- [**Basic Usage**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/basic-usage.php) - Complete example showing dot-notation, wildcards and default values
 - [**Structure Introspection**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-accessor/structure-introspection.php) - Examples of analyzing data structure with type information
 
 All examples are fully tested and can be run directly:

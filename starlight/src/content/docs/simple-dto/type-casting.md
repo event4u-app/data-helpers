@@ -128,7 +128,7 @@ class UserDtoMixedCasts extends SimpleDto
 ### When to Use #[AutoCast]
 
 **Use #[AutoCast] when:**
-- ✅ Working with CSV, XML, or other string-based formats
+- ✅ Working with CSV, XML or other string-based formats
 - ✅ Need automatic type conversion (string → int, int → string, etc.)
 - ✅ Importing data from external sources with inconsistent types
 

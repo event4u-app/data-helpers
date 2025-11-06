@@ -21,7 +21,7 @@ usage() {
     echo "This ensures the local composer.json is not modified."
     echo ""
     echo -e "${YELLOW}Options:${NC}"
-    echo "  --php VERSION            PHP version to use (8.2, 8.3, or 8.4, default: 8.4)"
+    echo "  --php VERSION            PHP version to use (8.2, 8.3 or 8.4, default: 8.4)"
     echo "  -h, --help               Display this help message"
     echo ""
     echo -e "${YELLOW}Examples:${NC}"

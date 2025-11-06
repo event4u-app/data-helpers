@@ -9,7 +9,7 @@ Complete application examples.
 
 Real-world application examples:
 
-- ✅ **E-Commerce** - Product catalog, orders, payments
+- ✅ **E-Commerce** - Product catalog orders, payments
 - ✅ **Blog Platform** - Posts, comments, authors
 - ✅ **SaaS Application** - Organizations, subscriptions
 - ✅ **API Backend** - REST API with authentication

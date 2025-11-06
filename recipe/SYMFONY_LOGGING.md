@@ -27,7 +27,7 @@ The package uses environment variables for configuration. Add these to your `.en
 
 ```bash
 # Logging Driver
-DATA_HELPERS_LOG_DRIVER=framework  # filesystem, framework, or none
+DATA_HELPERS_LOG_DRIVER=framework  # filesystem, framework or none
 DATA_HELPERS_LOG_LEVEL=info        # debug, info, warning, error, etc.
 
 # Filesystem Logger (if using filesystem driver)

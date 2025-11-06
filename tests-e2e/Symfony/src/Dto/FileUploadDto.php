@@ -6,7 +6,7 @@ namespace App\Dto;
 
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\FileCallback;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\Required;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**

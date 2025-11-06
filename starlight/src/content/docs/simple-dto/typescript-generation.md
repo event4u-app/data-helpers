@@ -249,7 +249,7 @@ export interface UserDto {
 return [
     'typescript' => [
         'output' => resource_path('js/types/dtos.ts'),
-        'export_type' => 'export', // 'export', 'declare', or ''
+        'export_type' => 'export', // 'export', 'declare' or ''
         'include_comments' => true,
         'sort_properties' => false,
     ],

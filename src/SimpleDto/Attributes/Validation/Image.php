@@ -13,7 +13,7 @@ use Attribute;
  * It does NOT perform validation in SimpleDto itself - use a callback attribute for custom validation.
  *
  * Framework support:
- * - Laravel: Converts to 'image' with optional 'mimes', 'max', and 'dimensions' rules
+ * - Laravel: Converts to 'image' with optional 'mimes', 'max' and 'dimensions' rules
  * - Symfony: Uses Assert\Image constraint
  *
  * Examples:

@@ -88,7 +88,7 @@ See [ConfigLoader](/data-helpers/config/config-loader/) for detailed documentati
 
 require 'vendor/autoload.php';
 
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
 use event4u\DataHelpers\SimpleDto\Attributes\Email;
 
@@ -222,7 +222,7 @@ $xml = $dto->toXml();
 
 require 'vendor/autoload.php';
 
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\*;
 use event4u\DataHelpers\SimpleDto\Exceptions\ValidationException;
 
@@ -273,7 +273,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 require 'vendor/autoload.php';
 
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\*;
 use event4u\DataHelpers\SimpleDto\Exceptions\ValidationException;
 

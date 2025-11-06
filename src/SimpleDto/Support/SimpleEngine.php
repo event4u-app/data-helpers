@@ -12,6 +12,7 @@ use Error;
 use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\Attributes\CastWith;
 use event4u\DataHelpers\SimpleDto\Attributes\Computed;
@@ -58,7 +59,6 @@ use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\DataCollection;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
 use event4u\DataHelpers\Support\Lazy;
 use event4u\DataHelpers\Support\Optional;
 use event4u\DataHelpers\Support\StringFormatDetector;
@@ -954,7 +954,7 @@ final class SimpleEngine
                     // Check for #[DataCollectionOf] attribute
                     $dataCollectionOfClass = self::getDataCollectionOf($reflection->getName(), $name, $param);
                     if ($dataCollectionOfClass) {
-                        /** @var class-string<\event4u\DataHelpers\SimpleDto> $dataCollectionOfClass */
+                        /** @var class-string<SimpleDto> $dataCollectionOfClass */
                         $value = DataCollection::forDto(
                             $dataCollectionOfClass,
                             $value
@@ -1504,7 +1504,7 @@ final class SimpleEngine
      * Clear the computed property cache for a DTO instance.
      *
      * @param object $dto The DTO instance
-     * @param string|null $property Specific property to clear, or null to clear all
+     * @param string|null $property Specific property to clear or null to clear all
      */
     public static function clearComputedCache(object $dto, ?string $property = null): void
     {
@@ -1865,7 +1865,7 @@ final class SimpleEngine
             }
         }
 
-        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML), or object');
+        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML) or object');
     }
 
     /**
@@ -3141,7 +3141,7 @@ final class SimpleEngine
                                 $reflectionParameter
                             );
                             if ($dataCollectionOfClass) {
-                                /** @var class-string<\event4u\DataHelpers\SimpleDto> $dataCollectionOfClass */
+                                /** @var class-string<SimpleDto> $dataCollectionOfClass */
                                 $value = DataCollection::forDto(
                                     $dataCollectionOfClass,
                                     $value
@@ -3765,7 +3765,7 @@ final class SimpleEngine
     }
 
     /**
-     * Apply DataMapper with template, filters, and pipeline.
+     * Apply DataMapper with template, filters and pipeline.
      *
      * @param mixed $data Source data
      * @param array<string, mixed>|null $template Optional template for mapping

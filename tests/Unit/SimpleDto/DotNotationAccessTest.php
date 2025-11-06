@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\SimpleDto;
 
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 class AddressDtoForDotNotation extends SimpleDto
 {

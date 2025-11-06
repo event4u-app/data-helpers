@@ -11,7 +11,7 @@ use event4u\DataHelpers\Helpers\ConfigHelper;
  * Central configuration for Data Helpers package.
  *
  * This class provides a facade to the ConfigHelper singleton.
- * It automatically detects the framework (Laravel, Symfony, or plain PHP)
+ * It automatically detects the framework (Laravel, Symfony or plain PHP)
  * and loads the appropriate configuration.
  *
  * All operations are delegated to ConfigHelper - this is just a convenience wrapper.
@@ -80,7 +80,7 @@ final class DataHelpersConfig
         ConfigHelper::getInstance()->reset();
     }
 
-    /** Get the configuration source (laravel, symfony, plain, manual, or default). */
+    /** Get the configuration source (laravel, symfony, plain, manual or default). */
     public static function getSource(): string
     {
         return ConfigHelper::getInstance()->getSource();

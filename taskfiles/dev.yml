@@ -1,7 +1,7 @@
 version: '3'
 
 # Development Tasks
-# Handles development workflows, shell access, and utilities
+# Handles development workflows, shell access and utilities
 
 vars:
   PHP_82: data-helpers-php82

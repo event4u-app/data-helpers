@@ -3,7 +3,7 @@ title: ConfigHelper
 description: Universal configuration helper with automatic framework detection
 ---
 
-ConfigHelper is a universal configuration helper that automatically detects your framework (Laravel, Symfony, or plain PHP) and loads the appropriate configuration with dot-notation access.
+ConfigHelper is a universal configuration helper that automatically detects your framework (Laravel, Symfony or plain PHP) and loads the appropriate configuration with dot-notation access.
 
 ## Quick Example
 
@@ -29,10 +29,10 @@ ConfigHelper provides a unified interface for accessing configuration across dif
 
 ### Key Features
 
-- **Auto-Detection** - Automatically detects Laravel, Symfony, or falls back to plain PHP
+- **Auto-Detection** - Automatically detects Laravel, Symfony or falls back to plain PHP
 - **Dot Notation** - Access nested configuration values with dot notation
 - **Type-Safe Getters** - Get configuration values with automatic type casting
-- **Framework Agnostic** - Works with Laravel, Symfony, or standalone PHP
+- **Framework Agnostic** - Works with Laravel, Symfony or standalone PHP
 - **Singleton Pattern** - Efficient single instance across your application
 
 ### Framework Detection Order
@@ -191,7 +191,7 @@ $allConfig = $config->all();
 
 ### getSource(): string
 
-Get the configuration source (laravel, symfony, plain, or default).
+Get the configuration source (laravel, symfony, plain or default).
 
 ```php
 $config = ConfigHelper::getInstance();

@@ -16,7 +16,7 @@ use InvalidArgumentException;
  * Trait for custom serialization formats.
  *
  * This trait provides methods to serialize Dtos to different formats
- * like XML, YAML, and CSV.
+ * like XML, YAML and CSV.
  *
  * Example:
  *   $user = UserDto::fromArray(['name' => 'John', 'age' => 30]);

@@ -9,10 +9,10 @@ Complete API reference for SimpleDto.
 
 ### `from(mixed $data, ?array $template = null, ?array $filters = null, ?array $pipeline = null): static`
 
-Create DTO from data with optional template, filters, and pipeline.
+Create DTO from data with optional template, filters and pipeline.
 
 **Parameters:**
-- `$data` - Array, JSON string, XML string, or object
+- `$data` - Array, JSON string, XML string or object
 - `$template` - Optional template for mapping (overrides DTO template)
 - `$filters` - Optional property-specific filters (overrides DTO filters)
 - `$pipeline` - Optional global filters (merged with DTO pipeline)

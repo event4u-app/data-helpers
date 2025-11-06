@@ -52,7 +52,7 @@ class UserDto extends LiteDto
 $user = UserDto::from(['name' => 'John', 'age' => 30]);  // ~2.3μs
 ```
 
-**Rule**: Only use `#[ConverterMode]` when you need to accept JSON, XML, or other formats.
+**Rule**: Only use `#[ConverterMode]` when you need to accept JSON, XML or other formats.
 
 ### 2. Minimize Nested DTOs
 

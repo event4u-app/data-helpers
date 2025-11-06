@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\Hidden;
-use event4u\DataHelpers\LiteDto\LiteDto;
 
 describe('LiteDto Visibility Attributes', function(): void {
     describe('Hidden Attribute', function(): void {

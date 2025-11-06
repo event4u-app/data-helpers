@@ -11,7 +11,7 @@ The `#[Optional]` attribute allows you to mark properties as optional, wrapping 
 ## Basic Usage
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\Optional as OptionalAttribute;
 use event4u\DataHelpers\Support\Optional;
 

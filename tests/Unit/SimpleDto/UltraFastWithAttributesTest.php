@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\CastWith;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
-use event4u\DataHelpers\SimpleDto\SimpleDto;
 
 // Custom caster for testing (uses static method like SimpleDto casters)
 class SimpleDtoFastUpperCaseCaster

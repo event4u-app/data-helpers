@@ -10,7 +10,7 @@ use RuntimeException;
  * Exception thrown when validation fails.
  *
  * This is a framework-independent validation exception that can be used
- * with any validator (Laravel, Symfony, or framework-independent).
+ * with any validator (Laravel, Symfony or framework-independent).
  *
  * Example:
  * ```php

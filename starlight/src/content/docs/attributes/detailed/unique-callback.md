@@ -35,7 +35,7 @@ public static function callbackName(
 ### With PDO (Plain PHP)
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\Validation\UniqueCallback;
 
 class UserDto extends LiteDto
@@ -79,7 +79,7 @@ if ($result->isValid()) {
 ### With Laravel Eloquent
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\Validation\UniqueCallback;
 use App\Models\User;
 
@@ -105,7 +105,7 @@ class UserDto extends LiteDto
 ### With Doctrine ORM
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\Validation\UniqueCallback;
 use Doctrine\ORM\EntityManagerInterface;
 

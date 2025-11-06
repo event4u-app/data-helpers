@@ -35,7 +35,7 @@ class UpperCaseTransformer implements TransformerInterface
     private function upperCaseRecursive(array $data): array
     {
         foreach ($data as $key => $value) {
-            // Only transform if no specific fields are set, or if this field is in the list
+            // Only transform if no specific fields are set or if this field is in the list
             $shouldTransform = [] === $this->fields || in_array($key, $this->fields, true);
 
             if ($shouldTransform && is_string($value)) {

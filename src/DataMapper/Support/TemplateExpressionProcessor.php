@@ -149,7 +149,7 @@ final class TemplateExpressionProcessor
     }
 
     /**
-     * Extract path, filters, and default value from a template expression.
+     * Extract path, filters and default value from a template expression.
      *
      * This is a convenience method for cases where you need to process
      * the path and filters separately (e.g., for wildcard handling).

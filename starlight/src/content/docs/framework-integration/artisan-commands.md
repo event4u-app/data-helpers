@@ -212,7 +212,7 @@ class UserData extends Data
 
 **After migration:**
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
 
 class UserData extends SimpleDto

@@ -11,7 +11,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 /**
  * Casts values to booleans.
  *
- * Applies to fields containing 'is_', 'has_', 'can_', 'should_', or 'active' in the path.
+ * Applies to fields containing 'is_', 'has_', 'can_', 'should_' or 'active' in the path.
  * Converts: '1', 'true', 'yes', 'on' -> true
  *          '0', 'false', 'no', 'off', '' -> false
  *

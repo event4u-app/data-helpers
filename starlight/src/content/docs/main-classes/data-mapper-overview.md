@@ -1,9 +1,9 @@
 ---
 title: DataMapper
-description: Transform and map data structures with templates, pipelines, and powerful query capabilities
+description: Transform and map data structures with templates, pipelines and powerful query capabilities
 ---
 
-DataMapper is a powerful tool for transforming data structures. It provides a fluent API for mapping, filtering, and transforming data with templates, pipelines, and SQL-like queries.
+DataMapper is a powerful tool for transforming data structures. It provides a fluent API for mapping, filtering and transforming data with templates, pipelines and SQL-like queries.
 
 ## Quick Example
 
@@ -102,7 +102,7 @@ Use DataMapper when you need to:
 - **Aggregate data** - Group and summarize data with SQL-like operations
 - **Filter collections** - Query data with complex conditions
 - **Normalize data** - Convert data from one format to another
-- **Build ETL pipelines** - Extract, transform, and load data
+- **Build ETL pipelines** - Extract, transform and load data
 
 ## Performance
 

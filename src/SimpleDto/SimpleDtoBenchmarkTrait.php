@@ -9,7 +9,7 @@ use Exception;
  * Provides benchmarking capabilities for SimpleDto.
  *
  * This trait allows you to measure performance of various Dto operations
- * including instantiation, serialization, validation, and more.
+ * including instantiation, serialization, validation and more.
  */
 trait SimpleDtoBenchmarkTrait
 {

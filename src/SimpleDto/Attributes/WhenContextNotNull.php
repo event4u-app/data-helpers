@@ -4,14 +4,46 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
-use event4u\DataHelpers\SimpleDto\Attributes\Conditional\WhenContextNotNull;
+use Attribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 
 /**
- * Alias for WhenContextNotNull attribute.
+ * Attribute to conditionally include a property when context key exists and is not null.
  *
- * @see \event4u\DataHelpers\SimpleDto\Attributes\Conditional\WhenContextNotNull
+ * @example
+ * ```php
+ * class UserDto extends SimpleDto
+ * {
+ *     public function __construct(
+ *         public readonly string $name,
+ *
+ *         #[WhenContextNotNull('user')]
+ *         public readonly string $welcomeMessage,
+ *     ) {}
+ * }
+ *
+ * $dto = new UserDto('John', 'Welcome back!');
+ * $dto->withContext(['user' => $userObject])->toArray();
+ * // ['name' => 'John', 'welcomeMessage' => 'Welcome back!']
+ * ```
  */
-class_alias(
-    WhenContextNotNull::class,
-    __NAMESPACE__ . '\WhenContextNotNull'
-);
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::IS_REPEATABLE)]
+class WhenContextNotNull implements ConditionalProperty
+{
+    /** @param string $key Context key to check */
+    public function __construct(
+        public readonly string $key,
+    ) {}
+
+    /**
+     * Check if the property should be included based on context.
+     *
+     * @param mixed $value Property value
+     * @param object $dto Dto instance
+     * @param array<string, mixed> $context Context data
+     */
+    public function shouldInclude(mixed $value, object $dto, array $context = []): bool
+    {
+        return array_key_exists($this->key, $context) && null !== $context[$this->key];
+    }
+}

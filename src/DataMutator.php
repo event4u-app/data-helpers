@@ -182,7 +182,7 @@ class DataMutator
     }
 
     /**
-     * Apply setting into array, collection, model, or object.
+     * Apply setting into array, collection, model or object.
      *
      * @param array<int|string, mixed>|object $target
      * @param array<int, string> $segments

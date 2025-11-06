@@ -10,7 +10,7 @@ This guide covers everything you need to know about creating and using LiteDtos.
 The simplest LiteDto is just a class that extends `LiteDto`:
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 
 class UserDto extends LiteDto
 {

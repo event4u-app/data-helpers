@@ -12,7 +12,7 @@ use SimpleXMLElement;
 /**
  * DataFilter - Filter and query data collections.
  *
- * Provides a fluent interface for filtering arrays, Dtos, Models, Collections, JSON, and XML.
+ * Provides a fluent interface for filtering arrays, Dtos, Models, Collections, JSON and XML.
  * Works on already-loaded data (post-mapping filtering).
  *
  * Example:

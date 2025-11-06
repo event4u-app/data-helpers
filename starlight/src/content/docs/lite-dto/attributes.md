@@ -3,7 +3,7 @@ title: Attributes Reference
 description: Complete guide to all LiteDto attributes
 ---
 
-LiteDto provides six attributes to control property mapping, serialization, data conversion, and performance.
+LiteDto provides six attributes to control property mapping, serialization, data conversion and performance.
 
 ## #[MapFrom]
 
@@ -362,7 +362,7 @@ $user = UserDto::from([
 
 ## #[ConverterMode]
 
-**Purpose**: Enable Converter support for JSON, XML, and other formats.
+**Purpose**: Enable Converter support for JSON, XML and other formats.
 
 **Target**: Class
 

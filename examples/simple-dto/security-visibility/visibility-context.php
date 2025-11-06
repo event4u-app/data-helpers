@@ -101,7 +101,7 @@ class DocumentDto extends SimpleDto
 
     private function canViewContent(mixed $context): bool
     {
-        // Owner, editor, or admin can view content
+        // Owner, editor or admin can view content
         /** @phpstan-ignore-next-line unknown */
         return in_array($context?->role, ['owner', 'editor', 'admin'], true);
     }
@@ -285,7 +285,7 @@ class OrderDto extends SimpleDto
 
     private function canViewPaymentDetails(mixed $context): bool
     {
-        // Customer can see their own payment details, or admin/finance can see all
+        // Customer can see their own payment details or admin/finance can see all
         /** @phpstan-ignore-next-line unknown */
         /** @phpstan-ignore-next-line unknown */
         return ($context?->userId ?? null) === $this->customerId

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\LiteDto;
 
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 
 class AddressDto extends LiteDto
 {

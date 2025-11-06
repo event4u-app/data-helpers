@@ -11,7 +11,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 /**
  * Casts numeric values to floats.
  *
- * Applies to fields containing 'price', 'amount', 'total', 'rate', or 'percentage' in the path.
+ * Applies to fields containing 'price', 'amount', 'total', 'rate' or 'percentage' in the path.
  * Skips null values and non-numeric strings.
  *
  * Example:

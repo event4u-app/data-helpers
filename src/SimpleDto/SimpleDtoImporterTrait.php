@@ -14,7 +14,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
  * Trait for importing Dtos from various formats.
  *
  * This trait provides methods to create Dtos from different formats
- * like JSON, XML, YAML, and CSV using the unified converter system.
+ * like JSON, XML, YAML and CSV using the unified converter system.
  *
  * Example:
  *   // From JSON

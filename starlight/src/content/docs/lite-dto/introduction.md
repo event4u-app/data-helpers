@@ -43,7 +43,7 @@ LiteDto is an **ultra-fast, minimalistic Data Transfer Object (Dto)** library fo
 ## Quick Example
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\Hidden;
 
@@ -82,7 +82,7 @@ $json = $user->toJson();
 For maximum performance, use the `#[UltraFast]` attribute:
 
 ```php
-use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
 
 #[UltraFast]

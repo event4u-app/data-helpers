@@ -94,7 +94,7 @@ $user = FastUserDto::fromArray([
 
 ### Automatic Attribute Detection
 
-`#[UltraFast]` automatically detects and processes `#[MapFrom]`, `#[MapTo]`, `#[CastWith]`, and `#[Hidden]` attributes if they are present on properties. No configuration needed!
+`#[UltraFast]` automatically detects and processes `#[MapFrom]`, `#[MapTo]`, `#[CastWith]` and `#[Hidden]` attributes if they are present on properties. No configuration needed!
 
 ```php
 use event4u\DataHelpers\SimpleDto\Attributes\Hidden;

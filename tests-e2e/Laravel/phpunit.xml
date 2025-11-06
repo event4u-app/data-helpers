@@ -19,7 +19,7 @@
         </testsuite>
     </testsuites>
 
-    <!-- Exclude Symfony-specific, Doctrine, Carbon, and package-only tests in Laravel E2E environment -->
+    <!-- Exclude Symfony-specific, Doctrine, Carbon and package-only tests in Laravel E2E environment -->
     <groups>
         <exclude>
             <group>symfony</group>

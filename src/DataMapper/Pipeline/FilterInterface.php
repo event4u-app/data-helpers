@@ -26,7 +26,7 @@ interface FilterInterface
      *
      * @param mixed $value The value to transform
      * @param HookContext $context The hook context (PairContext, WriteContext, etc.)
-     * @return mixed The transformed value, or '__skip__' to skip writing
+     * @return mixed The transformed value or '__skip__' to skip writing
      */
     public function transform(mixed $value, HookContext $context): mixed;
 
@@ -50,7 +50,7 @@ interface FilterInterface
      * - 'tgt:profile.' - Only for target paths starting with profile.
      * - 'mode:simple' - Only for simple mapping mode
      *
-     * @return null|string Filter prefix, or null for no filtering
+     * @return null|string Filter prefix or null for no filtering
      */
     public function getFilter(): ?string;
 
@@ -65,7 +65,7 @@ interface FilterInterface
      * - ['upper', 'uppercase'] - Can be used as {{ value | upper }} or {{ value | uppercase }}
      * - ['snake_case', 'snake'] - Multiple aliases for the same transformer
      *
-     * @return array<int, string> Array of alias strings, or empty array if not usable in expressions
+     * @return array<int, string> Array of alias strings or empty array if not usable in expressions
      */
     public function getAliases(): array;
 }

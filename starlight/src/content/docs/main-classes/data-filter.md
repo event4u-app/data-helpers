@@ -3,7 +3,7 @@ title: DataFilter
 description: Fluent API for filtering and transforming data collections with SQL-like operators
 ---
 
-DataFilter provides a fluent API for filtering and transforming existing data collections. It works with Arrays, Dtos, Eloquent Models, Collections, and any iterable data using SQL-like operators.
+DataFilter provides a fluent API for filtering and transforming existing data collections. It works with Arrays, Dtos, Eloquent Models, Collections and any iterable data using SQL-like operators.
 
 ## Quick Example
 

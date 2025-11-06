@@ -226,7 +226,7 @@ class HookInvoker
                 continue;
             }
 
-            // Invoke with target, context, and written value
+            // Invoke with target, context and written value
             $target = self::invokeTargetCallback($callable, $target, $context, $writtenValue);
         }
 

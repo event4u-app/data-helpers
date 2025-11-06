@@ -1,9 +1,9 @@
 ---
 title: Serialization
-description: Learn how to serialize Dtos to arrays, JSON, XML, and other formats
+description: Learn how to serialize Dtos to arrays, JSON, XML and other formats
 ---
 
-Learn how to serialize Dtos to arrays, JSON, XML, and other formats.
+Learn how to serialize Dtos to arrays, JSON, XML and other formats.
 
 ## What is Serialization?
 

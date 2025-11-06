@@ -8,6 +8,7 @@ use BackedEnum;
 use DateTime;
 use DateTimeImmutable;
 use event4u\DataHelpers\Converters\YamlConverter;
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\CastWith;
 use event4u\DataHelpers\LiteDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
@@ -17,7 +18,6 @@ use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
 use event4u\DataHelpers\LiteDto\Contracts\ConditionalProperty;
-use event4u\DataHelpers\LiteDto\LiteDto;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use Exception;
 use InvalidArgumentException;
@@ -525,7 +525,7 @@ final class LiteEngine
             }
         }
 
-        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML), or object');
+        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML) or object');
     }
 
     /**

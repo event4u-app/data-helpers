@@ -21,7 +21,7 @@ use Attribute;
  *
  * Example:
  * ```php
- * use event4u\DataHelpers\SimpleDto\SimpleDto;
+ * use event4u\DataHelpers\SimpleDto;
  * use event4u\DataHelpers\SimpleDto\Attributes\NoAttributes;
  *
  * #[NoAttributes]

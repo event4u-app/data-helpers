@@ -132,7 +132,7 @@ class CollectionHelper
     }
 
     /**
-     * Set value into collection by converting to array, modifying, and converting back.
+     * Set value into collection by converting to array, modifying and converting back.
      *
      * @param array<int, string> $segments
      * @param callable(array<int|string, mixed> $array, array<int, string> $segments, mixed $value, bool $merge): void $setCallback
@@ -155,7 +155,7 @@ class CollectionHelper
     }
 
     /**
-     * Unset value from collection by converting to array, modifying, and converting back.
+     * Unset value from collection by converting to array, modifying and converting back.
      *
      * @param array<int, string> $segments
      * @param callable(array<int|string, mixed> $array, array<int, string> $segments): void $unsetCallback

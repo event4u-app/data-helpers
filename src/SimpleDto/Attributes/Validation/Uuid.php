@@ -10,7 +10,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 /**
  * Validate that a property is a valid UUID.
  *
- * Supports UUID versions 1, 2, 3, 4, and 5.
+ * Supports UUID versions 1, 2, 3, 4 and 5.
  *
  * Example:
  * ```php

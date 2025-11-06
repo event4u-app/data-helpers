@@ -11,7 +11,7 @@ This project uses [Task](https://taskfile.dev/) as the task runner. Task is a mo
 
 ### Why Task?
 
-- ✅ **Cross-platform** - Works on macOS, Linux, and Windows
+- ✅ **Cross-platform** - Works on macOS, Linux and Windows
 - ✅ **Fast** - Written in Go, much faster than Make
 - ✅ **Simple** - YAML-based configuration
 - ✅ **Powerful** - Variables, dependencies, includes

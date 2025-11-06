@@ -53,10 +53,10 @@ final class StringFormatDetector
     }
 
     /**
-     * Detect the format of a string (json, xml, or null if unknown).
+     * Detect the format of a string (json, xml or null if unknown).
      *
      * @param string $string The string to analyze
-     * @return string|null 'json', 'xml', or null if format cannot be determined
+     * @return string|null 'json', 'xml' or null if format cannot be determined
      */
     public static function detectFormat(string $string): ?string
     {

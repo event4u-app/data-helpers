@@ -86,7 +86,7 @@ usage() {
     echo "Run comprehensive test matrix with isolated framework tests."
     echo ""
     echo -e "${YELLOW}Options:${NC}"
-    echo "  -p, --php VERSION        Only test with specific PHP version (8.2, 8.3, or 8.4)"
+    echo "  -p, --php VERSION        Only test with specific PHP version (8.2, 8.3 or 8.4)"
     echo "  -f, --framework NAME     Only test with specific framework (plain, laravel, symfony, doctrine)"
     echo "  -v, --version VERSION    Only test with specific framework version"
     echo "  --phpstan                Run PHPStan after each test"

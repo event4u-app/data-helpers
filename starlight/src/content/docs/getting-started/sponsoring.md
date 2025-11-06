@@ -130,7 +130,7 @@ Yes! GitHub Sponsors allows you to cancel or modify your sponsorship at any time
 
 ### Do you offer consulting or custom development?
 
-For consulting, custom development, or enterprise support, please reach out through GitHub Discussions or email us through the event4u website.
+For consulting, custom development or enterprise support, please reach out through GitHub Discussions or email us through the event4u website.
 
 ---
 

@@ -32,7 +32,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Ip implements ValidationAttribute
 {
-    /** @param string|null $version IP version: 'ipv4', 'ipv6', or null for both */
+    /** @param string|null $version IP version: 'ipv4', 'ipv6' or null for both */
     public function __construct(
         public readonly ?string $version = null,
     ) {}

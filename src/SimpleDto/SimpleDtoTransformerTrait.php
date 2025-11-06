@@ -11,7 +11,7 @@ use event4u\DataHelpers\SimpleDto\Transformers\TransformerPipeline;
  * Trait for transformer support.
  *
  * This trait provides methods to transform data before or after Dto operations.
- * Transformers can be used to normalize data, add computed fields, or apply business logic.
+ * Transformers can be used to normalize data, add computed fields or apply business logic.
  *
  * Example:
  *   $user = UserDto::fromArray($data)

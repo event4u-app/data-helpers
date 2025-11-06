@@ -11,7 +11,7 @@ SimpleDto provides a smooth migration path from Spatie Laravel Data:
 
 - **Similar API** - Familiar methods and patterns
 - **More Features** - 18 conditional attributes for fine-grained control
-- **Framework Independent** - Works with Laravel, Symfony, and plain PHP
+- **Framework Independent** - Works with Laravel, Symfony and plain PHP
 - **Backward Compatible** - Easy to migrate incrementally
 - **Validation Caching** - Built-in caching for better performance
 
@@ -82,7 +82,7 @@ class UserData extends Data
 
 **After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 class UserDto extends SimpleDto
 {
@@ -182,7 +182,7 @@ $user = UserData::from([
 
 **After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 
 class UserDto extends SimpleDto
 {
@@ -222,7 +222,7 @@ class CreateUserData extends Data
 
 **After (SimpleDto):**
 ```php
-use event4u\DataHelpers\SimpleDto\SimpleDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
 use event4u\DataHelpers\SimpleDto\Attributes\Email;
 

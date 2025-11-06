@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\CastWith;
 use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
-use event4u\DataHelpers\LiteDto\LiteDto;
 
 // Custom caster for testing (uses static method like LiteDto casters)
 class LiteDtoFastUpperCaseCaster

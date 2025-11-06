@@ -13,7 +13,7 @@ use ReflectionAttribute;
  * Caches Reflection objects for better performance.
  *
  * Reflection operations are expensive, so we cache ReflectionClass,
- * ReflectionProperty, ReflectionMethod, and ReflectionAttribute instances
+ * ReflectionProperty, ReflectionMethod and ReflectionAttribute instances
  * to avoid repeated lookups.
  *
  * Phase 11a Note: This cache remains in-memory only (not persistent) because:

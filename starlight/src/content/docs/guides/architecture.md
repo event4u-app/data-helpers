@@ -9,9 +9,9 @@ This document describes the internal architecture of Data Helpers with a focus o
 
 DataMapper acts as a facade and delegates work to specialized components that each follow a single responsibility:
 
-- **MappingEngine** - Core mapping logic for simple and structured mappings, value flow, hook invocation, and writes
+- **MappingEngine** - Core mapping logic for simple and structured mappings, value flow, hook invocation and writes
 - **WildcardHandler** - Normalization of wildcard results and safe iteration (skip nulls, optional reindex)
-- **HookInvoker** - Hook normalization, prefix filtering (src:/tgt:/mode:), and legacy array-context compatibility
+- **HookInvoker** - Hook normalization, prefix filtering (src:/tgt:/mode:) and legacy array-context compatibility
 - **TemplateMapper** - Template-based mapping from named sources and inverse writes to named targets
 - **AutoMapper** - Automatic mapping (source → target) with optional deep mode
 - **ValueFilter** - Utilities for replacements, case conversion, property checks

@@ -36,9 +36,9 @@ MathHelper provides high-precision arithmetic operations using BCMath.
 
 - **High-precision arithmetic** - Uses BCMath for accurate decimal calculations
 - **Type-safe** - PHPStan Level 9 compliant with strict type checking
-- **Flexible input** - Accepts int, float, string, or null values
+- **Flexible input** - Accepts int, float, string or null values
 - **Array operations** - min, max, sum, average, product
-- **Time conversions** - Convert between minutes, hours, and HH:MM format
+- **Time conversions** - Convert between minutes, hours and HH:MM format
 - **Configurable error handling** - Choose between exceptions or zero conversion for malformed input
 
 ### Precision Control

@@ -6,7 +6,7 @@ description: Guidelines and instructions for contributing to Data Helpers
 Thank you for considering contributing to Data Helpers! This guide will help you get started.
 
 :::tip[New to Forking?]
-If you're new to the fork and pull request workflow, check out our detailed [Fork & Pull Request Guide](/data-helpers/guides/fork-and-pull-request/) for step-by-step instructions on how to fork, work locally, and create pull requests.
+If you're new to the fork and pull request workflow, check out our detailed [Fork & Pull Request Guide](/data-helpers/guides/fork-and-pull-request/) for step-by-step instructions on how to fork, work locally and create pull requests.
 :::
 
 ## Getting Started

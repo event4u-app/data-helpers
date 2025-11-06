@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Example 13: Wildcard WHERE, ORDER BY, LIMIT, and OFFSET
+ * Example 13: Wildcard WHERE, ORDER BY, LIMIT and OFFSET
  *
- * This example demonstrates how to filter, sort, and paginate wildcard arrays
- * using WHERE, ORDER BY, LIMIT, and OFFSET operators similar to Laravel's Query Builder.
- * You can use AND/OR logic to filter items, sort them by multiple fields, and
+ * This example demonstrates how to filter, sort and paginate wildcard arrays
+ * using WHERE, ORDER BY, LIMIT and OFFSET operators similar to Laravel's Query Builder.
+ * You can use AND/OR logic to filter items, sort them by multiple fields and
  * paginate results before mapping.
  */
 
@@ -15,7 +15,7 @@ require __DIR__ . '/../../bootstrap.php';
 
 use event4u\DataHelpers\DataMapper;
 
-echo "=== Wildcard WHERE, ORDER BY, LIMIT, and OFFSET Examples ===\n\n";
+echo "=== Wildcard WHERE, ORDER BY, LIMIT and OFFSET Examples ===\n\n";
 
 // Example data: Construction site with positions
 $constructionSite = [
