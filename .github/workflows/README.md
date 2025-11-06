@@ -4,6 +4,35 @@
 
 This project uses GitHub Actions for continuous integration with a comprehensive test matrix that ensures framework independence and compatibility.
 
+## Fork Management
+
+### Sync Upstream Tags - `sync-upstream-tags.yml`
+
+**Purpose:** Automatically synchronizes tags from the upstream repository to your fork.
+
+**Runs on:**
+- After using GitHub's "Sync fork" button (detects merge commits)
+- Manual trigger (`workflow_dispatch`)
+
+**How it works:**
+- Detects when you sync your fork with upstream
+- Automatically fetches and pushes all tags from upstream
+- Skips execution in the original repository
+
+**Disabling Tag Sync:**
+
+If you maintain your own version tags in your fork, you can disable automatic tag synchronization:
+
+1. Go to your fork's **Settings** → **Secrets and variables** → **Actions** → **Variables**
+2. Click **New repository variable**
+3. Name: `SYNC_UPSTREAM_TAGS`
+4. Value: `false`
+5. Click **Add variable**
+
+Once disabled, the workflow will skip tag synchronization. To re-enable, delete the variable or change its value to `true`.
+
+---
+
 ## Workflows
 
 ### 1. Test Matrix (Isolated) - `test-matrix.yml`

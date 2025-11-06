@@ -1,0 +1,76 @@
+name: Sync Upstream Tags
+
+on:
+  workflow_dispatch:      # Manually triggerable
+  push:                   # Runs after "Sync fork" button
+    branches:
+      - main
+    # Only trigger when commit message looks like an upstream merge
+    # (works for most fork syncs)
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    # Only run if commit message contains merge indicators or author is GitHub
+    if: contains(github.event.head_commit.message, 'Merge branch') || contains(github.event.head_commit.author.name, 'GitHub') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      # Can be disabled by setting repository variable SYNC_UPSTREAM_TAGS=false
+      # Settings → Secrets and variables → Actions → Variables → New repository variable
+      SYNC_ENABLED: ${{ vars.SYNC_UPSTREAM_TAGS != 'false' }}
+    steps:
+      - name: Check if sync is enabled
+        id: check-enabled
+        run: |
+          if [ "${{ env.SYNC_ENABLED }}" = "false" ]; then
+            echo "⚠️  Tag sync is disabled via SYNC_UPSTREAM_TAGS variable"
+            echo "enabled=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅  Tag sync is enabled"
+            echo "enabled=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout Fork
+        if: steps.check-enabled.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check if repository is a fork
+        if: steps.check-enabled.outputs.enabled == 'true'
+        id: check-fork
+        run: |
+          if [ "${{ github.repository }}" = "event4u-app/data-helpers" ]; then
+            echo "ℹ️  This is the original repository, skipping tag sync"
+            echo "is_fork=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅  This is a fork, proceeding with tag sync"
+            echo "is_fork=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add upstream remote
+        if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        run: |
+          git remote add upstream https://github.com/event4u-app/data-helpers.git || true
+          git remote -v
+
+      - name: Fetch upstream tags
+        if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        run: |
+          echo "Fetching tags from upstream..."
+          git fetch upstream --tags
+          echo "Available tags:"
+          git tag -l
+
+      - name: Push tags to fork
+        if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Pushing tags to fork..."
+          git push origin --tags --force
+          echo "✅  Tags successfully synced from upstream!"
+
