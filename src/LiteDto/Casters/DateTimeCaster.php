@@ -19,7 +19,7 @@ class DateTimeCaster
     /**
      * Cast value to DateTime.
      *
-     * @param mixed $value String date, timestamp, or null
+     * @param mixed $value String date, timestamp or null
      */
     public static function cast(mixed $value): ?DateTime
     {

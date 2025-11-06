@@ -8,7 +8,7 @@ namespace event4u\DataHelpers\SimpleDto\Transformers;
  * Interface for data transformers.
  *
  * Transformers modify data before or after Dto creation/serialization.
- * They can be used to normalize data, add computed fields, or apply business logic.
+ * They can be used to normalize data, add computed fields or apply business logic.
  */
 interface TransformerInterface
 {

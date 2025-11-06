@@ -106,7 +106,7 @@ final class FluentDataMapper
      *
      * If the source is a string and points to an existing file, it will be loaded automatically.
      *
-     * @param mixed $source Source data (array, object, model, Dto, JSON, XML, or file path)
+     * @param mixed $source Source data (array, object, model, Dto, JSON, XML or file path)
      */
     public function source(mixed $source): self
     {
@@ -165,7 +165,7 @@ final class FluentDataMapper
     /**
      * Set the template.
      *
-     * @param array<int|string, mixed>|string $template Mapping template (array, JSON string, or XML string)
+     * @param array<int|string, mixed>|string $template Mapping template (array, JSON string or XML string)
      */
     public function template(array|string $template): self
     {
@@ -207,7 +207,7 @@ final class FluentDataMapper
             return $accessor->toArray();
         }
 
-        throw new InvalidArgumentException('Template must be a valid JSON or XML string, or an array');
+        throw new InvalidArgumentException('Template must be a valid JSON or XML string or an array');
     }
 
     /**
@@ -1337,7 +1337,7 @@ final class FluentDataMapper
     /**
      * Automatically map fields from source to target with optional snake_case → camelCase conversion.
      *
-     * This method skips the template, even if one is set, and automatically maps matching field names.
+     * This method skips the template, even if one is set and automatically maps matching field names.
      *
      * @param bool|null $deep Enable deep mode (recursively maps nested structures). If null, uses the value set via deep() method.
      */
@@ -1367,7 +1367,7 @@ final class FluentDataMapper
     /**
      * Automatically map fields in reverse direction (target → source).
      *
-     * This method skips the template, even if one is set, and automatically maps matching field names.
+     * This method skips the template, even if one is set and automatically maps matching field names.
      *
      * @param bool|null $deep Enable deep mode (recursively maps nested structures). If null, uses the value set via deep() method.
      */

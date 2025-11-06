@@ -1504,7 +1504,7 @@ final class SimpleEngine
      * Clear the computed property cache for a DTO instance.
      *
      * @param object $dto The DTO instance
-     * @param string|null $property Specific property to clear, or null to clear all
+     * @param string|null $property Specific property to clear or null to clear all
      */
     public static function clearComputedCache(object $dto, ?string $property = null): void
     {
@@ -1865,7 +1865,7 @@ final class SimpleEngine
             }
         }
 
-        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML), or object');
+        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML) or object');
     }
 
     /**
@@ -3765,7 +3765,7 @@ final class SimpleEngine
     }
 
     /**
-     * Apply DataMapper with template, filters, and pipeline.
+     * Apply DataMapper with template, filters and pipeline.
      *
      * @param mixed $data Source data
      * @param array<string, mixed>|null $template Optional template for mapping

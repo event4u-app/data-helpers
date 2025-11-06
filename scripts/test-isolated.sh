@@ -26,10 +26,10 @@ usage() {
     echo ""
     echo -e "${YELLOW}Options:${NC}"
     echo "  --plain                  Test with plain PHP (no frameworks)"
-    echo "  --laravel VERSION        Test with only Laravel (10, or 11)"
+    echo "  --laravel VERSION        Test with only Laravel (10 or 11)"
     echo "  --symfony VERSION        Test with only Symfony (6 or 7)"
     echo "  --doctrine VERSION       Test with only Doctrine (2 or 3)"
-    echo "  --php VERSION            PHP version to use (8.2, 8.3, or 8.4, default: 8.4)"
+    echo "  --php VERSION            PHP version to use (8.2, 8.3 or 8.4, default: 8.4)"
     echo "  -p, --phpstan            Run PHPStan after tests"
     echo "  --no-tests               Skip running tests"
     echo "  -h, --help               Display this help message"
@@ -471,18 +471,18 @@ else
     PACKAGES_TO_REMOVE=""
     case "$FRAMEWORK" in
         laravel)
-            # For Laravel tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, Pest, code quality tools, and benchmarking tools
-            echo -e "${YELLOW}  Removing all framework packages, Pest, code quality tools, and benchmarking tools (testing Laravel only)...${NC}"
+            # For Laravel tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, Pest, code quality tools and benchmarking tools
+            echo -e "${YELLOW}  Removing all framework packages, Pest, code quality tools and benchmarking tools (testing Laravel only)...${NC}"
             PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $PEST_PACKAGES $CODE_QUALITY_PACKAGES"
             ;;
         symfony)
-            # For Symfony tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, Pest, code quality tools, and benchmarking tools
-            echo -e "${YELLOW}  Removing all framework packages, Pest, code quality tools, and benchmarking tools (testing Symfony only)...${NC}"
+            # For Symfony tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, Pest, code quality tools and benchmarking tools
+            echo -e "${YELLOW}  Removing all framework packages, Pest, code quality tools and benchmarking tools (testing Symfony only)...${NC}"
             PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $PEST_PACKAGES $CODE_QUALITY_PACKAGES"
             ;;
         doctrine)
-            # For Doctrine tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, Pest, code quality tools, and benchmarking tools
-            echo -e "${YELLOW}  Removing all framework packages, Pest, code quality tools, and benchmarking tools (testing Doctrine only)...${NC}"
+            # For Doctrine tests: remove ALL Laravel, Symfony, Doctrine packages, Carbon, Pest, code quality tools and benchmarking tools
+            echo -e "${YELLOW}  Removing all framework packages, Pest, code quality tools and benchmarking tools (testing Doctrine only)...${NC}"
             PACKAGES_TO_REMOVE="$ALL_ILLUMINATE_PACKAGES $ALL_SYMFONY_PACKAGES $ALL_DOCTRINE_PACKAGES $CARBON_PACKAGE $PEST_PACKAGES $CODE_QUALITY_PACKAGES"
             ;;
     esac
@@ -572,7 +572,7 @@ if [[ "$RUN_TESTS" == true ]]; then
         echo ""
         echo -e "${YELLOW}Failed test details:${NC}"
         echo ""
-        # Show only the failure details (lines after "FAILED", "FAIL", or "Fatal error")
+        # Show only the failure details (lines after "FAILED", "FAIL" or "Fatal error")
         grep -A 50 " FAILED\| FAIL \|Fatal error\|Tests:.*failed" "$TEMP_OUTPUT" | head -100
         rm -f "$TEMP_OUTPUT"
         exit 1

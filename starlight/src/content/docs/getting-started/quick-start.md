@@ -184,18 +184,16 @@ $json = $user->toJson();
 ```php
 use event4u\DataHelpers\Helpers\MathHelper;
 use event4u\DataHelpers\Helpers\EnvHelper;
-use event4u\DataHelpers\Helpers\StringHelper;
 
 // Math operations with precision
-$result = MathHelper::add('10.5', '20.3', 2);  // '30.80'
-$percentage = MathHelper::percentage(75, 300);  // 25.0
+$result = MathHelper::add('10.5', '20.3', 2);  // 30.8
+$average = MathHelper::average([10, 20, 30]);  // 20.0
+$sum = MathHelper::sum([5, 10, 15]);  // 30.0
 
 // Environment variable access with type casting
-$debug = EnvHelper::getBool('APP_DEBUG', false);
-$port = EnvHelper::getInt('APP_PORT', 8080);
-
-// String manipulation
-$slug = StringHelper::slug('Hello World!');  // 'hello-world'
+$debug = EnvHelper::boolean('APP_DEBUG', false);
+$port = EnvHelper::integer('APP_PORT', 8080);
+$timeout = EnvHelper::float('REQUEST_TIMEOUT', 30.0);
 ```
 
 ## Next Steps

@@ -173,7 +173,7 @@ describe('Framework Independence', function(): void {
             expect(class_exists('event4u\DataHelpers\SimpleDto\SimpleDtoEloquentCast'))->toBeTrue();
         });
 
-        it('has get, set, and serialize methods', function(): void {
+        it('has get, set and serialize methods', function(): void {
             if (!interface_exists('Illuminate\Contracts\Database\Eloquent\CastsAttributes')) {
                 $this->markTestSkipped('Laravel Eloquent not available');
             }

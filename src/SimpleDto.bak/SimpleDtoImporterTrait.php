@@ -13,7 +13,7 @@ use event4u\DataHelpers\Converters\YamlConverter;
  * Trait for importing Dtos from various formats.
  *
  * This trait provides methods to create Dtos from different formats
- * like JSON, XML, YAML, and CSV using the unified converter system.
+ * like JSON, XML, YAML and CSV using the unified converter system.
  *
  * Example:
  *   // From JSON

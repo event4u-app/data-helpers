@@ -840,11 +840,11 @@ final class UltraFastEngine
             try {
                 return (new YamlConverter())->toArray($data);
             } catch (Throwable) {
-                throw new InvalidArgumentException('Unsupported string format. Expected JSON, XML, or YAML.');
+                throw new InvalidArgumentException('Unsupported string format. Expected JSON, XML or YAML.');
             }
         }
 
-        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML), or object');
+        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML) or object');
     }
 
     /**

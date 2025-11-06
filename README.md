@@ -273,27 +273,24 @@ Simplify common data operations with specialized helper classes:
 ```php
 use event4u\DataHelpers\Helpers\MathHelper;
 use event4u\DataHelpers\Helpers\EnvHelper;
-use event4u\DataHelpers\Helpers\StringHelper;
 
 // Math operations with precision
-$result = MathHelper::add('10.5', '20.3', 2);  // '30.80'
-$percentage = MathHelper::percentage(75, 300);  // 25.0
+$result = MathHelper::add('10.5', '20.3', 2);  // 30.8
+$average = MathHelper::average([10, 20, 30]);  // 20.0
+$sum = MathHelper::sum([5, 10, 15]);  // 30.0
 
 // Environment variable access with type casting
-$debug = EnvHelper::getBool('APP_DEBUG', false);
-$port = EnvHelper::getInt('APP_PORT', 8080);
-
-// String manipulation
-$slug = StringHelper::slug('Hello World!');  // 'hello-world'
-$truncated = StringHelper::truncate('Long text...', 10);  // 'Long te...'
+$debug = EnvHelper::boolean('APP_DEBUG', false);
+$port = EnvHelper::integer('APP_PORT', 8080);
+$timeout = EnvHelper::float('REQUEST_TIMEOUT', 30.0);
 ```
 
 **Available Helpers:**
-- **MathHelper** - Precision math operations (add, subtract, multiply, divide, percentage, round)
-- **EnvHelper** - Type-safe environment variable access (getString, getInt, getBool, getFloat, getArray)
-- **StringHelper** - String manipulation (slug, truncate, camelCase, snakeCase, studlyCase)
-- **ArrayHelper** - Array operations (flatten, pluck, only, except, dot notation)
-- **ConfigHelper** - Configuration management with framework detection
+- **MathHelper** - Precision math operations using bcmath (add, subtract, multiply, divide, modulo, powerOf, squareRoot, compare, min, max, sum, average, product, time conversions)
+- **EnvHelper** - Type-safe environment variable access with framework detection (get, has, string, integer, float, boolean, array)
+- **ConfigHelper** - Singleton configuration manager with framework detection and dot notation (getInstance, get, getBoolean, getInteger, getFloat, getString, getArray, has, set, reset)
+- **DotPathHelper** - Dot notation path utilities with wildcard support (segments, buildPrefix, isWildcard, containsWildcard)
+- **ObjectHelper** - Deep object cloning with recursion control (copy)
 
 📖 **[Helpers Documentation](https://event4u-app.github.io/data-helpers/helpers/overview/)**
 

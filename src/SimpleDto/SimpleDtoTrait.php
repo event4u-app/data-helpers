@@ -68,7 +68,7 @@ trait SimpleDtoTrait
      * Standard mode: Only accepts arrays
      * ConverterMode: Accepts JSON, XML, CSV, etc.
      *
-     * Automatically applies mapperTemplate(), mapperFilters(), and mapperPipeline()
+     * Automatically applies mapperTemplate(), mapperFilters() and mapperPipeline()
      * if defined in the DTO class (via SimpleDtoMapperTrait). Parameters override DTO configuration.
      * Pipeline filters are merged (DTO pipeline + parameter pipeline).
      *
@@ -172,7 +172,7 @@ trait SimpleDtoTrait
     /**
      * Convert DTO to array.
      *
-     * Respects #[MapTo], #[Hidden], and conditional attributes.
+     * Respects #[MapTo], #[Hidden] and conditional attributes.
      * Results are cached - if the DTO hasn't changed, the cached array is returned.
      *
      * @param array<string, mixed> $context Optional context for conditional properties
@@ -189,7 +189,7 @@ trait SimpleDtoTrait
         $cachingEnabled = $this->shouldEnableToArrayCache();
 
         if ($cachingEnabled) {
-            // Fast path: if context, object ID, and includedComputed are identical, use cache
+            // Fast path: if context, object ID and includedComputed are identical, use cache
             $objectId = spl_object_id($this);
             $includedComputed = SimpleEngine::getIncludedComputed($objectId);
 
@@ -197,7 +197,7 @@ trait SimpleDtoTrait
                 && $this->toArrayCache['context'] === $context
                 && $this->toArrayCache['objectId'] === $objectId
                 && $this->toArrayCache['includedComputed'] === $includedComputed) {
-                // Fast check: context, object identity, and includedComputed match
+                // Fast check: context, object identity and includedComputed match
                 return $this->toArrayCache['data'];
             }
 
@@ -459,7 +459,7 @@ trait SimpleDtoTrait
             $context = $this->conditionalContext; // @phpstan-ignore-line
         }
 
-        // Fast path: if context, object ID, and includedComputed are identical, use cache
+        // Fast path: if context, object ID and includedComputed are identical, use cache
         $objectId = spl_object_id($this);
         $includedComputed = SimpleEngine::getIncludedComputed($objectId);
 
@@ -467,7 +467,7 @@ trait SimpleDtoTrait
             && $this->toJsonCache['context'] === $context
             && $this->toJsonCache['objectId'] === $objectId
             && $this->toJsonCache['includedComputed'] === $includedComputed) {
-            // Fast check: context, object identity, and includedComputed match
+            // Fast check: context, object identity and includedComputed match
             return json_encode($this->toJsonCache['data'], JSON_THROW_ON_ERROR | $options);
         }
 
@@ -529,7 +529,7 @@ trait SimpleDtoTrait
             $context = $this->conditionalContext; // @phpstan-ignore-line
         }
 
-        // Fast path: if context, object ID, and includedComputed are identical, use cache
+        // Fast path: if context, object ID and includedComputed are identical, use cache
         $objectId = spl_object_id($this);
         $includedComputed = SimpleEngine::getIncludedComputed($objectId);
 
@@ -537,7 +537,7 @@ trait SimpleDtoTrait
             && $this->toJsonCache['context'] === $context
             && $this->toJsonCache['objectId'] === $objectId
             && $this->toJsonCache['includedComputed'] === $includedComputed) {
-            // Fast check: context, object identity, and includedComputed match
+            // Fast check: context, object identity and includedComputed match
             return $this->toJsonCache['data'];
         }
 
@@ -602,7 +602,7 @@ trait SimpleDtoTrait
      *
      * @param string $path Dot-notation path to the property
      * @param mixed $default Default value if path doesn't exist
-     * @return mixed The value at the path, or default if not found
+     * @return mixed The value at the path or default if not found
      */
     public function get(string $path, mixed $default = null): mixed
     {
@@ -684,7 +684,7 @@ trait SimpleDtoTrait
     // =========================================================================
     //
     // These methods can be overridden in your DTO classes to hook into
-    // the lifecycle of DTO creation, validation, and serialization.
+    // the lifecycle of DTO creation, validation and serialization.
     //
     // All hooks are optional and have no performance impact when not overridden.
     //
@@ -745,7 +745,7 @@ trait SimpleDtoTrait
     /**
      * Called before casting a property value.
      *
-     * This hook is called before type casting, nested DTOs, and custom casters.
+     * This hook is called before type casting, nested DTOs and custom casters.
      * You can modify the value by reference.
      *
      * @param string $property Property name
@@ -759,7 +759,7 @@ trait SimpleDtoTrait
     /**
      * Called after casting a property value.
      *
-     * This hook is called after type casting, nested DTOs, and custom casters.
+     * This hook is called after type casting, nested DTOs and custom casters.
      *
      * @param string $property Property name
      * @param mixed $value Property value (after casting)
@@ -893,7 +893,7 @@ trait SimpleDtoTrait
      *
      * This is useful when you want to force recomputation of computed properties.
      *
-     * @param string|null $property Specific property to clear, or null to clear all
+     * @param string|null $property Specific property to clear or null to clear all
      */
     public function clearComputedCache(?string $property = null): static
     {

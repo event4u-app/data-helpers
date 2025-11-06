@@ -28,11 +28,11 @@ Data Helpers is a comprehensive toolkit for working with data in PHP application
 
 ### Utility Helpers
 
-- **MathHelper** - Precision math operations (add, subtract, multiply, divide, percentage)
-- **EnvHelper** - Type-safe environment variable access (getString, getInt, getBool, getFloat)
-- **StringHelper** - String manipulation (slug, truncate, camelCase, snakeCase)
-- **ArrayHelper** - Array operations (flatten, pluck, only, except)
-- **ConfigHelper** - Configuration management with framework detection
+- **MathHelper** - Precision math operations using bcmath (add, subtract, multiply, divide, modulo, powerOf, squareRoot, compare, min, max, sum, average, product, time conversions)
+- **EnvHelper** - Type-safe environment variable access with framework detection (get, has, string, integer, float, boolean, array)
+- **ConfigHelper** - Singleton configuration manager with framework detection and dot notation (getInstance, get, getBoolean, getInteger, getFloat, getString, getArray, has, set, reset)
+- **DotPathHelper** - Dot notation path utilities with wildcard support (segments, buildPrefix, isWildcard, containsWildcard)
+- **ObjectHelper** - Deep object cloning with recursion control (copy)
 
 ## Quick Example
 

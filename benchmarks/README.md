@@ -47,7 +47,7 @@ docker exec data-helpers-php84 php benchmarks/dto-comparison-benchmark.php
 ### External Library Comparisons
 
 - **ExternalDtoBench** - DTO creation/serialization vs other DTO libraries and plain PHP
-- **ExternalMapperBench** - Mapping performance vs AutoMapper Plus, Laminas Hydrator, and plain PHP
+- **ExternalMapperBench** - Mapping performance vs AutoMapper Plus, Laminas Hydrator and plain PHP
 
 ## Benchmark Results
 

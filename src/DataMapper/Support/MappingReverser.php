@@ -65,7 +65,7 @@ final class MappingReverser
                 continue;
             }
 
-            // Skip callbacks, closures, and other non-reversible values
+            // Skip callbacks, closures and other non-reversible values
             // These cannot be automatically reversed
         }
 

@@ -92,7 +92,7 @@ trait SimpleDtoMappingTrait
     /**
      * Get the input name transformation format for this Dto.
      *
-     * Returns the format specified by #[MapInputName] attribute, or null if not set.
+     * Returns the format specified by #[MapInputName] attribute or null if not set.
      *
      * @return string|null The transformation format or null
      */
@@ -257,7 +257,7 @@ trait SimpleDtoMappingTrait
     /**
      * Get the output name transformation format for this Dto.
      *
-     * Returns the format specified by #[MapOutputName] attribute, or null if not set.
+     * Returns the format specified by #[MapOutputName] attribute or null if not set.
      *
      * @return string|null The transformation format or null
      */

@@ -1,7 +1,7 @@
 version: '3'
 
 # Documentation Tasks
-# Handles documentation building, development, and deployment
+# Handles documentation building, development and deployment
 
 vars:
   OUTPUT_HELPER: ./scripts/task-output.sh

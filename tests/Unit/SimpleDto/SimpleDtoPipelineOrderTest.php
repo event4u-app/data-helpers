@@ -263,7 +263,7 @@ describe('SimpleDto Pipeline Order and Merging', function(): void {
     });
 
     describe('Complex Pipeline Scenarios', function(): void {
-        it('handles complex pipeline with template, filters, and multiple steps', function(): void {
+        it('handles complex pipeline with template, filters and multiple steps', function(): void {
             $dto = new class extends SimpleDto {
                 use SimpleDtoMapperTrait;
 

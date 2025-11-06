@@ -11,7 +11,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 /**
  * Casts numeric values to integers.
  *
- * Applies to fields containing 'id', 'count', 'quantity', 'age', or 'year' in the path.
+ * Applies to fields containing 'id', 'count', 'quantity', 'age' or 'year' in the path.
  * Skips null values and non-numeric strings.
  *
  * Example:

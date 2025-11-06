@@ -10,7 +10,7 @@ use Exception;
  * Pipeline for processing data through multiple stages.
  *
  * This pipeline allows you to chain multiple processing stages together,
- * including transformers, normalizers, validators, and custom stages.
+ * including transformers, normalizers, validators and custom stages.
  *
  * Example:
  *   $pipeline = new DtoPipeline();

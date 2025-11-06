@@ -36,7 +36,7 @@ class WhenCallback implements ConditionalProperty
 
     /**
      * @param callable(mixed, object, array<string, mixed>): bool|string $callback Callback that receives ($value, $dto, $context) and returns bool.
-     *                                  Can be a closure, callable array, or string reference to function/method.
+     *                                  Can be a closure, callable array or string reference to function/method.
      * @param array<string, mixed> $parameters Optional parameters to pass to the callback
      */
     public function __construct(

@@ -22,7 +22,7 @@ usage() {
     echo "Test the package with specific framework versions."
     echo ""
     echo -e "${YELLOW}Options:${NC}"
-    echo "  -l, --laravel VERSION    Test with Laravel version (10, or 11)"
+    echo "  -l, --laravel VERSION    Test with Laravel version (10 or 11)"
     echo "  -s, --symfony VERSION    Test with Symfony version (6 or 7)"
     echo "  -d, --doctrine VERSION   Test with Doctrine ORM version (2 or 3)"
     echo "  -p, --phpstan            Run PHPStan after tests"
@@ -81,7 +81,7 @@ validate_version() {
     case $framework in
         laravel)
             [[ "$version" =~ ^(10|11)$ ]] || {
-                echo -e "${RED}Error:${NC} Invalid Laravel version. Must be 10, or 11."
+                echo -e "${RED}Error:${NC} Invalid Laravel version. Must be 10 or 11."
                 exit 1
             }
             ;;
@@ -102,7 +102,7 @@ validate_version() {
 
 # Validate framework and version
 if [[ -z "$FRAMEWORK" ]]; then
-    echo -e "${RED}Error:${NC} No framework specified. Use -l, -s, or -d."
+    echo -e "${RED}Error:${NC} No framework specified. Use -l, -s or -d."
     exit 1
 fi
 

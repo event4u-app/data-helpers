@@ -266,7 +266,7 @@ echo "╚═══════════════════════�
 echo "\n";
 echo "  ✅ SimpleDto is FASTER for DataMapper integration\n";
 echo "  ⚠️  Traditional Dto is FASTER for simple creation without DataMapper\n";
-echo "  💡 Use SimpleDto for APIs, immutability, and type safety\n";
+echo "  💡 Use SimpleDto for APIs, immutability and type safety\n";
 echo "  💡 Use Traditional Dto for performance-critical hot paths\n";
 echo "\n";
 echo "  Run 'composer bench:dto:readme' to update docs/simple-dto.md\n";

@@ -17,7 +17,7 @@ use Traversable;
 /**
  * Type-safe collection for Dtos.
  *
- * Framework-independent collection that works with plain PHP, Laravel, and Symfony.
+ * Framework-independent collection that works with plain PHP, Laravel and Symfony.
  * All methods are type-safe and return Dtos of the specified type.
  *
  * Example:

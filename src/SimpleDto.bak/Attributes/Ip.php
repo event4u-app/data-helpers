@@ -38,7 +38,7 @@ class Ip implements ValidationRule, SymfonyConstraint
 {
     use RequiresSymfonyValidator;
 
-    /** @param string|null $version IP version: 'ipv4', 'ipv6', or null for both */
+    /** @param string|null $version IP version: 'ipv4', 'ipv6' or null for both */
     public function __construct(
         public readonly ?string $version = null,
     ) {}

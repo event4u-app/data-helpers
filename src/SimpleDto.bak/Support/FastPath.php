@@ -10,7 +10,7 @@ use Throwable;
 /**
  * Phase 7: Fast Path Optimization
  *
- * Provides fast path for simple DTOs without attributes, mapping, or runtime modifications.
+ * Provides fast path for simple DTOs without attributes, mapping or runtime modifications.
  * Can achieve 30-50% performance improvement for simple DTOs.
  *
  * A "simple DTO" is one without:

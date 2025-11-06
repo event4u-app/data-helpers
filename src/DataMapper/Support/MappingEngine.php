@@ -584,7 +584,7 @@ class MappingEngine
     }
 
     /**
-     * Process a single wildcard item with transformation, replacement, and hooks.
+     * Process a single wildcard item with transformation, replacement and hooks.
      *
      * This method handles the complete processing pipeline for a single wildcard item:
      * 1. Apply transformation and replacement via ValueTransformer::processValue()
@@ -707,7 +707,7 @@ class MappingEngine
     }
 
     /**
-     * Process a single non-wildcard value with transformation, replacement, and hooks.
+     * Process a single non-wildcard value with transformation, replacement and hooks.
      *
      * This method handles the complete processing pipeline for a single non-wildcard value:
      * 1. Apply transformation and replacement via ValueTransformer::processValue()

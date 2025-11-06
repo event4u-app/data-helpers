@@ -14,7 +14,7 @@ use InvalidArgumentException;
  * Fluent query builder for DataMapper with Laravel-style syntax.
  *
  * Provides a chainable API for building complex data mapping queries with filters,
- * sorting, grouping, and aggregations.
+ * sorting, grouping and aggregations.
  *
  * @example
  * ```php

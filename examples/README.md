@@ -72,10 +72,10 @@ php examples/real-world/ecommerce.php
 ### Main Classes
 
 **DataAccessor** - Read nested data with dot-notation and wildcards
-- `basic-usage.php` - Complete example showing dot-notation, wildcards, and default values
+- `basic-usage.php` - Complete example showing dot-notation, wildcards and default values
 
 **DataMutator** - Modify nested data structures safely
-- `basic-usage.php` - Set, merge, and unset operations with wildcards
+- `basic-usage.php` - Set, merge and unset operations with wildcards
 
 **DataMapper** - Transform data structures with templates and pipelines
 - `simple-mapping.php` - Basic template-based mapping

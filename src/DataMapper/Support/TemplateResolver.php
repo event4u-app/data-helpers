@@ -17,7 +17,7 @@ use Throwable;
  * Resolves template-based mapping operations.
  *
  * This class handles the resolution of templates that reference values by alias.path notation.
- * It supports wildcards, operators (WHERE, ORDER BY, etc.), and multi-pass alias resolution.
+ * It supports wildcards, operators (WHERE, ORDER BY, etc.) and multi-pass alias resolution.
  */
 final class TemplateResolver
 {
@@ -551,7 +551,7 @@ final class TemplateResolver
      * Find the first wildcard path in a template.
      *
      * @param mixed $template Template to search
-     * @return string|null First wildcard path found, or null
+     * @return string|null First wildcard path found or null
      */
     private static function findWildcardPath(mixed $template): ?string
     {

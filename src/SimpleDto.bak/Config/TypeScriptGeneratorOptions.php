@@ -33,7 +33,7 @@ final readonly class TypeScriptGeneratorOptions
     /**
      * Create TypeScript generator options.
      *
-     * @param TypeScriptExportType $exportType Export type for interfaces (export, declare, or none)
+     * @param TypeScriptExportType $exportType Export type for interfaces (export, declare or none)
      * @param bool $includeComments Whether to include JSDoc comments in generated interfaces
      * @param bool $sortProperties Whether to sort properties alphabetically
      */

@@ -333,7 +333,7 @@ describe('DataMapper Multi-Target Mapping', function(): void {
         });
 
         it('FluentDataMapper DOES support mapFromTemplate via source structure', function(): void {
-            // When source is an array with named keys, and template uses those keys,
+            // When source is an array with named keys and template uses those keys,
             // it works like mapFromTemplate()
 
             $source = [

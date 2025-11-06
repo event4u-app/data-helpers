@@ -174,7 +174,7 @@ class NameTransformer
      */
     private static function toWords(string $name): array
     {
-        // Replace underscores, hyphens, and spaces with a delimiter
+        // Replace underscores, hyphens and spaces with a delimiter
         $name = str_replace(['_', '-', ' '], '|', $name);
 
         // Split on delimiter

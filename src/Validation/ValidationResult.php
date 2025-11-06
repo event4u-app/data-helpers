@@ -7,7 +7,7 @@ namespace event4u\DataHelpers\Validation;
 /**
  * Result of a validation operation.
  *
- * Contains validation status, errors, and validated data.
+ * Contains validation status, errors and validated data.
  *
  * Example:
  * ```php

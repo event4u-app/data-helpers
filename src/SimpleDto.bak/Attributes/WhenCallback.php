@@ -60,7 +60,7 @@ use InvalidArgumentException;
 class WhenCallback implements ConditionalProperty
 {
     /**
-     * @param string|array<string>|object $callback Function name, 'static::methodName', array callable, or invokable object
+     * @param string|array<string>|object $callback Function name, 'static::methodName', array callable or invokable object
      * @param array<string|int, mixed> $parameters Parameters to pass to the callback (positional or named)
      */
     public function __construct(

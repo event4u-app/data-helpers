@@ -67,7 +67,7 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
     /**
      * Create a new mapped model instance.
      *
-     * @param array<string, mixed>|object|string|null $data Input data (request, array, object, JSON string, or XML string)
+     * @param array<string, mixed>|object|string|null $data Input data (request, array, object, JSON string or XML string)
      */
     public function __construct(array|object|string|null $data = null)
     {
@@ -120,7 +120,7 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
     /**
      * Fill the model with data and apply template mapping.
      *
-     * @param array<string, mixed>|object|string $data Input data (array, object, JSON string, or XML string)
+     * @param array<string, mixed>|object|string $data Input data (array, object, JSON string or XML string)
      */
     public function fill(array|object|string $data): static
     {
@@ -397,7 +397,7 @@ abstract class MappedDataModel implements JsonSerializable, Stringable
      *
      * This static method is used by Laravel/Symfony for automatic dependency injection.
      *
-     * @param array<string, mixed>|object|string $data Request data (array, object, JSON string, or XML string)
+     * @param array<string, mixed>|object|string $data Request data (array, object, JSON string or XML string)
      */
     public static function fromRequest(array|object|string $data): static
     {

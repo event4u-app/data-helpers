@@ -265,7 +265,7 @@ describe('SimpleDto Lazy Cast Resolution', function(): void {
     });
 
     describe('Mixed Scenarios', function(): void {
-        it('handles mix of present, null, and missing properties', function(): void {
+        it('handles mix of present, null and missing properties', function(): void {
             $dto = new class extends SimpleDto {
                 public function __construct(
                     public readonly ?string $field1 = null,

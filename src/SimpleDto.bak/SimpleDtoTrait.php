@@ -225,7 +225,7 @@ trait SimpleDtoTrait
      * Convert the Dto to an array.
      *
      * Returns all public properties as an associative array.
-     * Applies casts (set method), output mapping, visibility filters, lazy loading, and computed properties.
+     * Applies casts (set method), output mapping, visibility filters, lazy loading and computed properties.
      *
      * Phase 7 Optimization: Uses fast path for simple DTOs (30-50% faster)
      * Ultra-Fast Mode: Uses UltraFastEngine for maximum speed (target: <1μs)
@@ -251,7 +251,7 @@ trait SimpleDtoTrait
      * Serialize the Dto to JSON.
      *
      * This method is called automatically by json_encode().
-     * Applies casts (set method), output mapping, visibility filters, lazy loading, and computed properties.
+     * Applies casts (set method), output mapping, visibility filters, lazy loading and computed properties.
      *
      * Phase 7 Optimization: Uses fast path for simple DTOs (30-50% faster)
      *
@@ -300,7 +300,7 @@ trait SimpleDtoTrait
     }
 
     /**
-     * Create a Dto instance from mixed data (array, JSON, XML, or object).
+     * Create a Dto instance from mixed data (array, JSON, XML or object).
      *
      * This method accepts multiple input formats:
      * - Arrays (always supported)
@@ -484,7 +484,7 @@ trait SimpleDtoTrait
      *
      * @param string $path Dot-notation path to the property
      * @param mixed $default Default value if path doesn't exist
-     * @return mixed The value at the path, or default if not found
+     * @return mixed The value at the path or default if not found
      */
     public function get(string $path, mixed $default = null): mixed
     {
@@ -598,5 +598,5 @@ trait SimpleDtoTrait
         return $json;
     }
 
-    // toXml(), toYaml(), and toCsv() methods are provided by SimpleDtoSerializerTrait
+    // toXml(), toYaml() and toCsv() methods are provided by SimpleDtoSerializerTrait
 }

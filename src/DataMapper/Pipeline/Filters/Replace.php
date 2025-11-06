@@ -52,7 +52,7 @@ final readonly class Replace implements FilterInterface
         // Get arguments from filter syntax
         $args = $context->extra();
 
-        // Determine search, replacement, and case sensitivity
+        // Determine search, replacement and case sensitivity
         $search = $this->search;
         $replacement = $this->replacement;
         $caseInsensitive = $this->caseInsensitive;

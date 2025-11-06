@@ -42,7 +42,7 @@ final readonly class Between implements FilterInterface
             return false;
         }
 
-        // Get min, max, and strict from context args (from filter syntax) or constructor
+        // Get min, max and strict from context args (from filter syntax) or constructor
         $args = $context->extra();
         $strict = $this->strict;
 

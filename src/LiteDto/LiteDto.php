@@ -220,7 +220,7 @@ abstract class LiteDto implements JsonSerializable
      *
      * @param string $path Dot-notation path to the property
      * @param mixed $default Default value if path doesn't exist
-     * @return mixed The value at the path, or default if not found
+     * @return mixed The value at the path or default if not found
      */
     public function get(string $path, mixed $default = null): mixed
     {

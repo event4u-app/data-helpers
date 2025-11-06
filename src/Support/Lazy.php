@@ -139,7 +139,7 @@ final class Lazy
     }
 
     /**
-     * Transform the value if loaded, or the loader if not.
+     * Transform the value if loaded or the loader if not.
      *
      * @template U
      * @param callable(T): U $callback The transformation function

@@ -258,7 +258,7 @@ trait SimpleDtoComputedTrait
      *
      * This is useful when you want to force recomputation of computed properties.
      *
-     * @param string|null $property Specific property to clear, or null to clear all
+     * @param string|null $property Specific property to clear or null to clear all
      */
     public function clearComputedCache(?string $property = null): static
     {

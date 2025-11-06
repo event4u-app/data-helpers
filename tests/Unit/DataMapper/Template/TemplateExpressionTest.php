@@ -95,7 +95,7 @@ describe('Template Expressions', function(): void {
         expect($result['copy'])->toBe('Alice'); // Copies value from 'fullname' in target
     });
 
-    it('distinguishes between source, target alias, and static values', function(): void {
+    it('distinguishes between source, target alias and static values', function(): void {
         $template = [
             'name' => '{{ user.name }}',           // Source reference
             'copyName' => '{{ @name }}',           // Target alias reference

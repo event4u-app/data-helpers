@@ -57,7 +57,7 @@ class DtoTypeScriptCommand extends Command
     protected $signature = 'dto:typescript
                             {--output= : Output file path (default: resources/js/types/dtos.ts)}
                             {--path= : Path to scan for Dtos (default: app/Dtos)}
-                            {--export=export : Export type (export, declare, or empty)}
+                            {--export=export : Export type (export, declare or empty)}
                             {--no-comments : Disable comments in generated interfaces}
                             {--sort : Sort properties alphabetically}
                             {--watch : Watch for changes and regenerate}';

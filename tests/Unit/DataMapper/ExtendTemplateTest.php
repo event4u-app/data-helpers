@@ -8,7 +8,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 
 /**
- * Tests for extendTemplate(), addPipelineFilter(), and copy() methods.
+ * Tests for extendTemplate(), addPipelineFilter() and copy() methods.
  *
  * @internal
  */

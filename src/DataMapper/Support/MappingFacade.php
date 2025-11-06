@@ -834,7 +834,7 @@ class MappingFacade
                 new EntryContext('structured', $map, $entrySource, $entryTarget)
             );
 
-            // Support either explicit source/target mapping arrays, or a single associative/list 'mapping'
+            // Support either explicit source/target mapping arrays or a single associative/list 'mapping'
             if (isset($map['sourceMapping']) || isset($map['targetMapping'])) {
                 /** @var array<int|string, mixed> $sourcePathMapping */
                 $sourcePathMapping = $map['sourceMapping'] ?? [];

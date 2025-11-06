@@ -1301,7 +1301,7 @@ describe('DataFilter - Combined Operators', function(): void {
         expect($result[0])->toBe(['name' => 'John', 'age' => 25, 'email' => 'john@example.com']);
     });
 
-    it('combines WHERE, MAP, and FILTER', function(): void {
+    it('combines WHERE, MAP and FILTER', function(): void {
         $data = [
             ['id' => 1, 'name' => 'john', 'age' => 15],
             ['id' => 2, 'name' => 'jane', 'age' => 25],

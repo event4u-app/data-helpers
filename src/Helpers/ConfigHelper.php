@@ -8,7 +8,7 @@ use event4u\DataHelpers\Config\ConfigLoader;
 use Throwable;
 
 /**
- * Universal configuration helper that works with Laravel, Symfony, or plain PHP.
+ * Universal configuration helper that works with Laravel, Symfony or plain PHP.
  *
  * Automatically detects the framework and loads configuration accordingly:
  * 1. Laravel (if available)
@@ -120,7 +120,7 @@ final class ConfigHelper
         return null !== $this->getNestedValue($this->config, $key);
     }
 
-    /** Get the configuration source (laravel, symfony, or plain). */
+    /** Get the configuration source (laravel, symfony or plain). */
     public function getSource(): string
     {
         return $this->source;

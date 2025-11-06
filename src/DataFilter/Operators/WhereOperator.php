@@ -7,7 +7,7 @@ namespace event4u\DataHelpers\DataFilter\Operators;
 /**
  * WHERE operator for filtering items.
  *
- * Supports comparison operators, AND/OR logic, and nested conditions.
+ * Supports comparison operators, AND/OR logic and nested conditions.
  */
 final class WhereOperator extends AbstractOperator
 {

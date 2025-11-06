@@ -212,7 +212,7 @@ final class TemplateParser
      * - A plain path: 'user.name'
      * - A static value: 'John Doe'
      *
-     * And you want to extract the path if it's a template, or return it as-is.
+     * And you want to extract the path if it's a template or return it as-is.
      *
      * @param string $value The value to normalize
      * @return string The normalized path

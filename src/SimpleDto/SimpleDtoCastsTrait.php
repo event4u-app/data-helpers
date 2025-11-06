@@ -413,7 +413,7 @@ trait SimpleDtoCastsTrait
     /**
      * Cast a single attribute.
      *
-     * Resolves built-in cast aliases, parses cast parameters, and applies the cast.
+     * Resolves built-in cast aliases, parses cast parameters and applies the cast.
      *
      * @param string $key The attribute key
      * @param mixed $value The value to cast

@@ -302,7 +302,7 @@ trait SimpleDtoMapperTrait
      *
      * Processing order:
      * 1. Convert source to array if needed
-     * 2. Apply DataMapper template, filters, and pipeline (if defined)
+     * 2. Apply DataMapper template, filters and pipeline (if defined)
      * 3. Apply property mapping (#[MapFrom] attributes)
      * 4. Get and apply casts (includes #[AutoCast] automatic casts, nested DTOs, explicit casts)
      * 5. Auto-validate if enabled
@@ -340,7 +340,7 @@ trait SimpleDtoMapperTrait
             $finalPipeline = array_merge($finalPipeline, $pipeline);
         }
 
-        // Step 5: Apply DataMapper template, filters, and pipeline (if defined)
+        // Step 5: Apply DataMapper template, filters and pipeline (if defined)
         $templateApplied = false;
         if (null !== $template || (null !== $filters && [] !== $filters) || [] !== $finalPipeline) {
             $mapper = DataMapper::source($source);

@@ -50,7 +50,7 @@ class DtoTypeScriptCommand extends Command
                 'export',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Export type (export, declare, or empty)',
+                'Export type (export, declare or empty)',
                 'export'
             )
             ->addOption('no-comments', null, InputOption::VALUE_NONE, 'Disable comments in generated interfaces')

@@ -14,7 +14,7 @@ use Attribute;
  * (affects only that property).
  *
  * **Important**: This attribute only controls AUTOMATIC casting to native PHP types.
- * Explicit casts (via #[Cast], #[DataCollectionOf], or casts() method) are ALWAYS applied
+ * Explicit casts (via #[Cast], #[DataCollectionOf] or casts() method) are ALWAYS applied
  * regardless of this attribute.
  *
  * **Casting Priority:**

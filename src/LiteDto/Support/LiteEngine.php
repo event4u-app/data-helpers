@@ -525,7 +525,7 @@ final class LiteEngine
             }
         }
 
-        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML), or object');
+        throw new InvalidArgumentException('Data must be array, string (JSON/XML/YAML) or object');
     }
 
     /**

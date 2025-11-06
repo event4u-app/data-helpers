@@ -29,7 +29,7 @@ describe('Laravel Config Integration E2E', function(): void {
         // Laravel's env() helper should be available
         $envValue = env('DATA_HELPERS_PERFORMANCE_MODE', 'fast');
 
-        // env() returns string from .env file, or default value
+        // env() returns string from .env file or default value
         expect($envValue)->not->toBeNull();
     });
 

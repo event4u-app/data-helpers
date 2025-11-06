@@ -1434,7 +1434,7 @@ function generateTradeoffs(array $results, array $dtoBenchmarks): string
     $md .= sprintf("- SimpleDto:  ~%.1fμs per operation\n", $ultraFastAvg);
     $md .= sprintf("- Plain PHP:  ~%.2fμs per operation\n", $plainPhpTime * 1e6);
     $md .= sprintf(
-        "- Trade-off:  ~%dx slower, but with type safety, immutability, and mapping\n",
+        "- Trade-off:  ~%dx slower, but with type safety, immutability and mapping\n",
         $ultraFastFactor
     );
     $md .= "\n";
@@ -1442,7 +1442,7 @@ function generateTradeoffs(array $results, array $dtoBenchmarks): string
     $md .= sprintf("- SimpleDto:  ~%.1fμs per operation\n", $noAutoCastTime * 1e6);
     $md .= sprintf("- Plain PHP:  ~%.2fμs per operation\n", $plainPhpTime * 1e6);
     $md .= sprintf(
-        "- Trade-off:  ~%dx slower, but with type safety, validation, and immutability\n",
+        "- Trade-off:  ~%dx slower, but with type safety, validation and immutability\n",
         $noAutoCastFactor
     );
     $md .= "\n";
@@ -1596,7 +1596,7 @@ function generateDtoInsights(array $results): string
         "- **#[UltraFast]** is competitive with other Dto libraries (~%dx slower)\n",
         $ultraFastVsOtherDtoFactor
     );
-    $md .= "- SimpleDto provides **type safety, validation, and immutability** with reasonable overhead\n";
+    $md .= "- SimpleDto provides **type safety, validation and immutability** with reasonable overhead\n";
 
     return $md . "- The overhead is acceptable for the added safety and developer experience";
 }
@@ -1670,7 +1670,7 @@ function generateMapperInsights(array $results, array $externalDtoResults): stri
         "- Plain PHP is **~%dx faster** but requires manual mapping code for each use case\n",
         $vsPlainPhpFactor
     );
-    $md .= "- DataMapper provides the best balance of features, readability, and maintainability for complex mappings\n";
+    $md .= "- DataMapper provides the best balance of features, readability and maintainability for complex mappings\n";
 
     return $md . "- The overhead is acceptable for complex mapping scenarios with better developer experience";
 }
