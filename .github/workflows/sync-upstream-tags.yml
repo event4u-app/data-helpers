@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if repository is a fork
         if: steps.check-enabled.outputs.enabled == 'true'
@@ -79,7 +79,7 @@ jobs:
           # Push each tag individually with force to handle existing tags
           git tag -l | while read tag; do
             echo "Pushing tag: $tag"
-            git push origin "refs/tags/$tag:refs/tags/$tag" --force || echo "Failed to push $tag"
+            git push origin "refs/tags/$tag:refs/tags/$tag" --force || exit 1
           done
           echo ""
           echo "✅  Tags successfully synced from upstream!"
