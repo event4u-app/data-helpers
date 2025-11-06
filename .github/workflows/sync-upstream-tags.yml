@@ -13,8 +13,6 @@ permissions:
 
 jobs:
   sync:
-    # Only run if commit message contains merge indicators or author is GitHub
-    if: contains(github.event.head_commit.message, 'Merge branch') || contains(github.event.head_commit.author.name, 'GitHub') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
       # Can be disabled by setting repository variable DATA_HELPERS_SYNC_UPSTREAM_TAGS=false
