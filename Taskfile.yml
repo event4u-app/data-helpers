@@ -27,6 +27,7 @@ includes:
   dev: ./taskfiles/dev.yml
   bench: ./taskfiles/bench.yml
   docs: ./taskfiles/docs.yml
+  fork: ./taskfiles/fork.yml
 
 tasks:
   default:
@@ -45,6 +46,7 @@ tasks:
         echo "  💻 dev:*        - Development workflows and utilities"
         echo "  ⚡ bench:*      - Performance benchmarking"
         echo "  📚 docs:*       - Documentation (Starlight)"
+        echo "  🔀 fork:*       - Fork management and upstream sync"
         echo ""
         echo "💡 Quick commands:"
         echo "  task docker:up          Start containers"
@@ -55,6 +57,7 @@ tasks:
         echo "  task test:matrix        Run complete test matrix (isolated)"
         echo "  task quality:check      Run all quality checks"
         echo "  task dev:pre-commit     Pre-commit checks"
+        echo "  task fork:update        Sync fork with upstream"
         echo ""
         echo "🧪 Test matrix (isolated containers):"
         echo "  task test:matrix:plain      Plain PHP (no frameworks)"

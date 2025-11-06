@@ -1,0 +1,106 @@
+version: '3'
+
+# Fork Management Tasks
+# Commands for managing forks and syncing with upstream
+
+tasks:
+  update:
+    desc: Sync fork with upstream repository
+    summary: |
+      Syncs the fork with the upstream repository (event4u-app/data-helpers).
+      
+      This command will:
+      1. Add upstream remote (if not exists)
+      2. Fetch all changes from upstream
+      3. Merge upstream/main into current branch
+      4. Fetch and push all tags
+      
+      Usage:
+        task fork:update
+    cmds:
+      - |
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  🔀 Syncing Fork with Upstream"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+      - |
+        echo "📍 Step 1/4: Adding upstream remote..."
+        if git remote | grep -q "^upstream$"; then
+          echo "✅  Upstream remote already exists"
+        else
+          git remote add upstream https://github.com/event4u-app/data-helpers.git
+          echo "✅  Upstream remote added"
+        fi
+        echo ""
+      - |
+        echo "📥 Step 2/4: Fetching from upstream..."
+        git fetch upstream
+        echo "✅  Fetched from upstream"
+        echo ""
+      - |
+        echo "🔀 Step 3/4: Merging upstream/main..."
+        git merge upstream/main --no-edit
+        echo "✅  Merged upstream/main"
+        echo ""
+      - |
+        echo "🏷️  Step 4/4: Syncing tags..."
+        git fetch upstream --tags
+        git push origin --tags
+        echo "✅  Tags synced"
+        echo ""
+      - |
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  ✅  Fork successfully synced with upstream!"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  status:
+    desc: Check fork status compared to upstream
+    summary: |
+      Shows the status of the fork compared to upstream.
+      
+      This command will:
+      1. Add upstream remote (if not exists)
+      2. Fetch from upstream
+      3. Show commits ahead/behind
+      
+      Usage:
+        task fork:status
+    cmds:
+      - |
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "  📊 Fork Status"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+      - |
+        if git remote | grep -q "^upstream$"; then
+          echo "✅  Upstream remote exists"
+        else
+          echo "⚠️  Adding upstream remote..."
+          git remote add upstream https://github.com/event4u-app/data-helpers.git
+        fi
+        echo ""
+      - |
+        echo "📥 Fetching from upstream..."
+        git fetch upstream
+        echo ""
+      - |
+        echo "📊 Comparison with upstream/main:"
+        echo ""
+        AHEAD=$(git rev-list --count upstream/main..HEAD)
+        BEHIND=$(git rev-list --count HEAD..upstream/main)
+        
+        if [ "$AHEAD" -eq 0 ] && [ "$BEHIND" -eq 0 ]; then
+          echo "✅  Your fork is up to date with upstream"
+        else
+          if [ "$AHEAD" -gt 0 ]; then
+            echo "⬆️  Your fork is $AHEAD commit(s) ahead of upstream"
+          fi
+          if [ "$BEHIND" -gt 0 ]; then
+            echo "⬇️  Your fork is $BEHIND commit(s) behind upstream"
+            echo ""
+            echo "💡 Run 'task fork:update' to sync with upstream"
+          fi
+        fi
+        echo ""
+      - |
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
