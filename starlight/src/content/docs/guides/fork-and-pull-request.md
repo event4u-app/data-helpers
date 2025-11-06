@@ -376,7 +376,7 @@ When you use GitHub's "Sync fork" button, tags are automatically synchronized fr
 **To disable automatic tag sync** (if you maintain your own version tags):
 1. Go to **Settings** → **Secrets and variables** → **Actions** → **Variables**
 2. Click **New repository variable**
-3. Name: `SYNC_UPSTREAM_TAGS`
+3. Name: `DATA_HELPERS_SYNC_UPSTREAM_TAGS`
 4. Value: `false`
 5. Click **Add variable**
 
@@ -614,7 +614,7 @@ If you maintain your own version tags in your fork (e.g., `v1.0.0-custom`), you 
 **To disable automatic tag sync:**
 1. Go to **Settings** → **Secrets and variables** → **Actions** → **Variables**
 2. Click **New repository variable**
-3. Name: `SYNC_UPSTREAM_TAGS`
+3. Name: `DATA_HELPERS_SYNC_UPSTREAM_TAGS`
 4. Value: `false`
 5. Click **Add variable**
 

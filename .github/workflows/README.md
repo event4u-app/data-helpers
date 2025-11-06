@@ -25,7 +25,7 @@ If you maintain your own version tags in your fork, you can disable automatic ta
 
 1. Go to your fork's **Settings** → **Secrets and variables** → **Actions** → **Variables**
 2. Click **New repository variable**
-3. Name: `SYNC_UPSTREAM_TAGS`
+3. Name: `DATA_HELPERS_SYNC_UPSTREAM_TAGS`
 4. Value: `false`
 5. Click **Add variable**
 
