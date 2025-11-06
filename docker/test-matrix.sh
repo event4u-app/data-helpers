@@ -19,7 +19,6 @@ TEST_MATRIX_KEYS=(
     "8.4-plain"
 
     # Laravel isolated tests
-    "8.2-laravel-9"
     "8.2-laravel-10"
     "8.2-laravel-11"
     "8.3-laravel-10"
@@ -50,7 +49,6 @@ TEST_MATRIX_VALUES=(
     "8.4 plain"
 
     # Laravel isolated tests
-    "8.2 laravel 9"
     "8.2 laravel 10"
     "8.2 laravel 11"
     "8.3 laravel 10"
