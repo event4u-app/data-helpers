@@ -54,23 +54,35 @@ jobs:
       - name: Add upstream remote
         if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
         run: |
-          git remote add upstream https://github.com/event4u-app/data-helpers.git || true
+          echo "Adding upstream remote..."
+          if git remote | grep -q "^upstream$"; then
+            echo "Upstream remote already exists, removing it first..."
+            git remote remove upstream
+          fi
+          git remote add upstream https://github.com/event4u-app/data-helpers.git
+          echo "Upstream remote added successfully"
           git remote -v
 
       - name: Fetch upstream tags
         if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
         run: |
           echo "Fetching tags from upstream..."
-          git fetch upstream --tags
+          git fetch upstream --tags --verbose
+          echo ""
           echo "Available tags:"
           git tag -l
+          echo ""
+          echo "Total tags: $(git tag -l | wc -l)"
 
       - name: Push tags to fork
         if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Pushing tags to fork..."
-          git push origin --tags --force
+          # Push each tag individually with force to handle existing tags
+          git tag -l | while read tag; do
+            echo "Pushing tag: $tag"
+            git push origin "refs/tags/$tag:refs/tags/$tag" --force || echo "Failed to push $tag"
+          done
+          echo ""
           echo "✅  Tags successfully synced from upstream!"
 
