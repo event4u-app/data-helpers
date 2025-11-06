@@ -41,6 +41,12 @@ task quality:check
 
 # Complete development setup
 task dev:setup
+
+# Sync fork with upstream
+task fork:update
+
+# Check fork status
+task fork:status
 ```
 
 ## Task Categories
@@ -413,9 +419,92 @@ task dev:pre-push
 task test:run
 ```
 
+## 🔀 Fork Management
+
+Manage forks and sync with upstream repository.
+
+```bash
+task fork:update          # Sync fork with upstream
+task fork:status          # Check fork status
+```
+
+### `task fork:update`
+
+Syncs your fork with the upstream repository (event4u-app/data-helpers).
+
+**What it does:**
+1. Adds upstream remote (if not exists)
+2. Fetches all changes from upstream
+3. Merges upstream/main into current branch
+4. Fetches and pushes all tags
+
+**Example:**
+```bash
+# Sync your fork
+task fork:update
+```
+
+**Output:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  🔀 Syncing Fork with Upstream
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📍 Step 1/4: Adding upstream remote...
+✅  Upstream remote added
+
+📥 Step 2/4: Fetching from upstream...
+✅  Fetched from upstream
+
+🔀 Step 3/4: Merging upstream/main...
+✅  Merged upstream/main
+
+🏷️  Step 4/4: Syncing tags...
+✅  Tags synced
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✅  Fork successfully synced with upstream!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### `task fork:status`
+
+Shows the status of your fork compared to upstream.
+
+**What it does:**
+1. Adds upstream remote (if not exists)
+2. Fetches from upstream
+3. Shows commits ahead/behind
+
+**Example:**
+```bash
+# Check fork status
+task fork:status
+```
+
+**Output:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  📊 Fork Status
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅  Upstream remote exists
+
+📥 Fetching from upstream...
+
+📊 Comparison with upstream/main:
+
+⬇️  Your fork is 3 commit(s) behind upstream
+
+💡 Run 'task fork:update' to sync with upstream
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
 ## Next Steps
 
 - [Development Setup](/data-helpers/guides/development-setup/) - Setup your environment
 - [Test Matrix](/data-helpers/guides/test-matrix/) - Learn about the test matrix
 - [Contributing Guide](/data-helpers/guides/contributing/) - Learn how to contribute
+- [Fork & Pull Request Guide](/data-helpers/guides/fork-and-pull-request/) - Complete fork workflow
 

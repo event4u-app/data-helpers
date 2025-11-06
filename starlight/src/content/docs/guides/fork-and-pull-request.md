@@ -343,7 +343,47 @@ git push origin feature/my-awesome-feature --force
 
 The original repository receives updates from other contributors. You need to sync your fork to stay up-to-date.
 
-### Sync Your Fork
+### Option 1: Using Task Command (Recommended)
+
+The easiest way to sync your fork is using the built-in Task command:
+
+```bash
+# Sync fork with upstream (includes tags)
+task fork:update
+```
+
+This command will:
+1. ✅ Add upstream remote (if not exists)
+2. ✅ Fetch all changes from upstream
+3. ✅ Merge upstream/main into current branch
+4. ✅ Fetch and push all tags
+
+**Check fork status:**
+```bash
+# See how many commits ahead/behind upstream
+task fork:status
+```
+
+### Option 2: Using GitHub's "Sync Fork" Button
+
+1. **Go to your fork on GitHub**
+2. **Click "Sync fork"** (appears when your fork is behind)
+3. **Click "Update branch"**
+
+:::tip[Automatic Tag Sync]
+When you use GitHub's "Sync fork" button, tags are automatically synchronized from upstream to your fork via GitHub Actions workflow.
+
+**To disable automatic tag sync** (if you maintain your own version tags):
+1. Go to **Settings** → **Secrets and variables** → **Actions** → **Variables**
+2. Click **New repository variable**
+3. Name: `DATA_HELPERS_SYNC_UPSTREAM_TAGS`
+4. Value: `false`
+5. Click **Add variable**
+
+This prevents upstream tags from overwriting your custom version tags.
+:::
+
+### Option 3: Manual Git Commands
 
 ```bash
 # Switch to main branch
@@ -357,9 +397,15 @@ git merge upstream/main
 
 # Push updates to your fork
 git push origin main
+
+# Sync tags (optional)
+git fetch upstream --tags
+git push origin --tags
 ```
 
 ### Update Your Feature Branch
+
+After syncing your main branch, update your feature branch:
 
 ```bash
 # Switch to your feature branch
@@ -381,6 +427,23 @@ git push origin feature/my-awesome-feature
 
 ### Starting a New Feature
 
+**Using Task commands:**
+```bash
+# 1. Update your main branch
+task fork:update
+
+# 2. Create a new feature branch
+git checkout -b feature/new-feature
+
+# 3. Make changes, commit and push
+git add .
+git commit -m "feat: add new feature"
+git push origin feature/new-feature
+
+# 4. Create PR on GitHub
+```
+
+**Using Git commands:**
 ```bash
 # 1. Update your main branch
 git checkout main
@@ -401,6 +464,26 @@ git push origin feature/new-feature
 
 ### Fixing a Bug
 
+**Using Task commands:**
+```bash
+# 1. Update your main branch
+task fork:update
+
+# 2. Create a fix branch
+git checkout -b fix/bug-description
+
+# 3. Fix the bug, add tests
+git add .
+git commit -m "fix: resolve bug description"
+
+# 4. Run tests
+task test:run
+
+# 5. Push and create PR
+git push origin fix/bug-description
+```
+
+**Using Git commands:**
 ```bash
 # 1. Update your main branch
 git checkout main
@@ -495,6 +578,49 @@ git reset --soft HEAD~1
 git reset --hard HEAD~1
 ```
 
+## Fork Management Commands
+
+### Available Task Commands
+
+The project includes convenient Task commands for fork management:
+
+#### `task fork:update`
+Syncs your fork with the upstream repository:
+- Adds upstream remote (if not exists)
+- Fetches all changes from upstream
+- Merges upstream/main into current branch
+- Syncs all tags
+
+```bash
+task fork:update
+```
+
+#### `task fork:status`
+Shows the status of your fork compared to upstream:
+- How many commits ahead/behind
+- Whether an update is needed
+
+```bash
+task fork:status
+```
+
+### Automatic Tag Synchronization
+
+When you use GitHub's "Sync fork" button, tags are automatically synchronized via GitHub Actions.
+
+:::caution[Custom Version Tags]
+If you maintain your own version tags in your fork (e.g., `v1.0.0-custom`), you should disable automatic tag sync to prevent upstream tags from overwriting your custom tags.
+
+**To disable automatic tag sync:**
+1. Go to **Settings** → **Secrets and variables** → **Actions** → **Variables**
+2. Click **New repository variable**
+3. Name: `DATA_HELPERS_SYNC_UPSTREAM_TAGS`
+4. Value: `false`
+5. Click **Add variable**
+
+**To re-enable:** Delete the variable or change its value to `true`.
+:::
+
 ## Summary
 
 **Complete workflow:**
@@ -507,11 +633,27 @@ git reset --hard HEAD~1
 6. ✅ Push to your fork
 7. ✅ Create a pull request
 8. ✅ Respond to feedback
-9. ✅ Keep your fork synced
+9. ✅ Keep your fork synced (use `task fork:update`)
+
+**Quick commands:**
+```bash
+# Sync fork with upstream
+task fork:update
+
+# Check fork status
+task fork:status
+
+# Run tests
+task test:run
+
+# Fix code style
+task quality:ecs:fix
+```
 
 ## Next Steps
 
 - [Contributing Guide](/data-helpers/guides/contributing/) - Learn about code style and testing
 - [Development Setup](/data-helpers/guides/development-setup/) - Setup your development environment
 - [Test Matrix](/data-helpers/guides/test-matrix/) - Learn about testing
+- [Taskfile Reference](/data-helpers/guides/taskfile-reference/) - All available Task commands
 
