@@ -141,53 +141,80 @@ jobs:
             exit 1
           fi
 
-      - name: Create releases for version tags
+      - name: Sync releases from upstream
         if: steps.check-pat.outputs.has_pat == 'true' && steps.check-fork.outputs.is_fork == 'true'
         env:
           GH_TOKEN: ${{ secrets.DATA_HELPERS_PAT }}
         run: |
           echo ""
-          echo "📦 Creating releases for version tags..."
+          echo "📦 Syncing releases from upstream..."
           echo ""
 
           new_releases=0
           skipped_releases=0
+          failed_releases=0
 
-          # Get all existing releases
-          gh release list --limit 1000 > /tmp/releases.txt || true
+          # Get all existing releases in fork
+          gh release list --limit 1000 > /tmp/fork_releases.txt || true
 
-          # Loop through all tags that match semantic versioning (*.*.*)
-          for tag in $(git tag -l | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'); do
-            # Check if release already exists
-            if grep -q "^$tag" /tmp/releases.txt; then
-              echo "⏭️  Release already exists: $tag"
+          # Get all releases from upstream
+          gh release list --repo event4u-app/data-helpers --limit 1000 > /tmp/upstream_releases.txt || {
+            echo "⚠️  Failed to fetch upstream releases"
+            exit 0
+          }
+
+          # Loop through all upstream releases
+          while IFS=$'\t' read -r tag_name release_type title published_at; do
+            # Check if release already exists in fork
+            if grep -q "^$tag_name" /tmp/fork_releases.txt; then
+              echo "⏭️  Release already exists: $tag_name"
               skipped_releases=$((skipped_releases + 1))
             else
-              echo "📦  Creating release: $tag"
+              echo "📦  Syncing release: $tag_name"
 
-              # Get tag message (if annotated tag)
-              tag_message=$(git tag -l --format='%(contents)' "$tag" | head -n 1)
+              # Get full release info from upstream
+              release_json=$(gh release view "$tag_name" --repo event4u-app/data-helpers --json body,name,isDraft,isPrerelease)
 
-              # Create release
-              if [ -n "$tag_message" ]; then
-                gh release create "$tag" --title "Release $tag" --notes "$tag_message" || {
-                  echo "⚠️  Failed to create release for $tag (might not exist in fork yet)"
-                  continue
-                }
-              else
-                gh release create "$tag" --title "Release $tag" --notes "Release $tag" || {
-                  echo "⚠️  Failed to create release for $tag (might not exist in fork yet)"
-                  continue
-                }
+              release_body=$(echo "$release_json" | jq -r '.body // ""')
+              release_name=$(echo "$release_json" | jq -r '.name // ""')
+              is_draft=$(echo "$release_json" | jq -r '.isDraft')
+              is_prerelease=$(echo "$release_json" | jq -r '.isPrerelease')
+
+              # Build gh release create command
+              cmd="gh release create \"$tag_name\""
+
+              if [ -n "$release_name" ]; then
+                cmd="$cmd --title \"$release_name\""
               fi
 
-              new_releases=$((new_releases + 1))
+              if [ -n "$release_body" ]; then
+                cmd="$cmd --notes \"$release_body\""
+              else
+                cmd="$cmd --notes \"Release $tag_name\""
+              fi
+
+              if [ "$is_draft" = "true" ]; then
+                cmd="$cmd --draft"
+              fi
+
+              if [ "$is_prerelease" = "true" ]; then
+                cmd="$cmd --prerelease"
+              fi
+
+              # Execute command
+              if eval "$cmd"; then
+                new_releases=$((new_releases + 1))
+              else
+                echo "❌  Failed to create release: $tag_name"
+                failed_releases=$((failed_releases + 1))
+              fi
             fi
-          done
+          done < /tmp/upstream_releases.txt
 
           echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "✅  Release creation complete!"
+          echo "✅  Release sync complete!"
           echo "   📦 New releases created: $new_releases"
           echo "   ⏭️  Existing releases skipped: $skipped_releases"
+          echo "   ❌  Failed releases: $failed_releases"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
