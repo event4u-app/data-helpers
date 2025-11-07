@@ -8,28 +8,55 @@ This project uses GitHub Actions for continuous integration with a comprehensive
 
 ### Sync Upstream Tags - `sync-upstream-tags.yml`
 
-**Purpose:** Automatically synchronizes tags from the upstream repository to your fork.
+**Purpose:** Automatically synchronizes tags from the upstream repository (`event4u-app/data-helpers`) to your fork.
 
-**Runs on:**
-- After using GitHub's "Sync fork" button (detects merge commits)
-- Manual trigger (`workflow_dispatch`)
+**Setup Required:**
 
-**How it works:**
-- Detects when you sync your fork with upstream
-- Automatically fetches and pushes all tags from upstream
-- Skips execution in the original repository
+This workflow requires a Personal Access Token (PAT) to push tags. Without it, the workflow will be skipped automatically.
 
-**Disabling Tag Sync:**
+#### Step 1: Create a Personal Access Token
 
-If you maintain your own version tags in your fork, you can disable automatic tag synchronization:
+1. Go to [GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)](https://github.com/settings/tokens)
+2. Click **Generate new token** → **Generate new token (classic)**
+3. Configure the token:
+   - **Note:** `Data Helpers Tag Sync` (or any descriptive name)
+   - **Expiration:** Choose your preferred expiration (e.g., 90 days, 1 year, or no expiration)
+   - **Select scopes:**
+     - ✅ `repo` - Full control of private repositories
+     - ✅ `workflow` - Update GitHub Action workflows
+4. Click **Generate token**
+5. **⚠️ Important:** Copy the token immediately - you won't be able to see it again!
 
-1. Go to your fork's **Settings** → **Secrets and variables** → **Actions** → **Variables**
-2. Click **New repository variable**
-3. Name: `DATA_HELPERS_SYNC_UPSTREAM_TAGS`
-4. Value: `false`
-5. Click **Add variable**
+#### Step 2: Add the PAT to Your Fork
 
-Once disabled, the workflow will skip tag synchronization. To re-enable, delete the variable or change its value to `true`.
+1. Go to your fork's repository on GitHub
+2. Navigate to **Settings** → **Secrets and variables** → **Actions** → **Secrets** tab
+3. Click **New repository secret**
+4. Configure the secret:
+   - **Name:** `DATA_HELPERS_PAT` (must be exactly this name)
+   - **Secret:** Paste your Personal Access Token from Step 1
+5. Click **Add secret**
+
+#### When It Runs
+
+- ✅ After clicking GitHub's "Sync fork" button (push to main branch)
+- ✅ Manually via Actions → "Sync Upstream Tags" → "Run workflow"
+- ⏭️ Only if `DATA_HELPERS_PAT` secret is configured (otherwise skipped)
+- ⏭️ Skipped in the original repository (only runs in forks)
+
+#### What It Does
+
+1. Checks if this is a fork (skips if original repository)
+2. Adds upstream remote (`https://github.com/event4u-app/data-helpers.git`)
+3. Fetches all tags from upstream (with `--force` to update existing tags locally)
+4. Pushes only new tags to your fork (skips tags that already exist)
+
+#### Behavior
+
+- ✅ **New tags** from upstream are automatically synced to your fork
+- ⏭️ **Existing tags** in your fork are skipped (not overwritten)
+- 🔒 **Your custom tags** remain untouched
+- 📊 **Statistics** are shown: how many tags were pushed vs. skipped
 
 ---
 

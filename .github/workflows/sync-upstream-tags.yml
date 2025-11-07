@@ -8,37 +8,22 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    env:
-      # Can be disabled by setting repository variable DATA_HELPERS_SYNC_UPSTREAM_TAGS=false
-      SYNC_ENABLED: ${{ vars.DATA_HELPERS_SYNC_UPSTREAM_TAGS != 'false' }}
+    # Only run if PAT is configured
+    if: secrets.DATA_HELPERS_PAT != ''
 
     steps:
-      - name: Check if sync is enabled
-        id: check-enabled
-        run: |
-          if [ "${{ env.SYNC_ENABLED }}" = "false" ]; then
-            echo "⚠️  Tag sync is disabled via DATA_HELPERS_SYNC_UPSTREAM_TAGS variable"
-            echo "enabled=false" >> $GITHUB_OUTPUT
-          else
-            echo "✅  Tag sync is enabled"
-            echo "enabled=true" >> $GITHUB_OUTPUT
-          fi
-
       - name: Checkout Fork
-        if: steps.check-enabled.outputs.enabled == 'true'
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.DATA_HELPERS_PAT }}
 
       - name: Check if repository is a fork
-        if: steps.check-enabled.outputs.enabled == 'true'
         id: check-fork
         run: |
           if [ "${{ github.repository }}" = "event4u-app/data-helpers" ]; then
@@ -50,7 +35,7 @@ jobs:
           fi
 
       - name: Add upstream remote
-        if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        if: steps.check-fork.outputs.is_fork == 'true'
         run: |
           echo "Adding upstream remote..."
           if git remote | grep -q "^upstream$"; then
@@ -62,7 +47,7 @@ jobs:
           git remote -v
 
       - name: Fetch upstream tags
-        if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        if: steps.check-fork.outputs.is_fork == 'true'
         run: |
           echo "Fetching tags from upstream..."
           # Use --force to update existing tags locally (doesn't affect remote yet)
@@ -76,7 +61,7 @@ jobs:
           echo ""
 
       - name: Push new tags to fork
-        if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        if: steps.check-fork.outputs.is_fork == 'true'
         run: |
           echo "🚀 Pushing only new tags to fork..."
           echo ""

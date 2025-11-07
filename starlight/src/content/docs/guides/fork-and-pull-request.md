@@ -371,16 +371,26 @@ task fork:status
 3. **Click "Update branch"**
 
 :::tip[Automatic Tag Sync]
-When you use GitHub's "Sync fork" button, tags are automatically synchronized from upstream to your fork via GitHub Actions workflow.
+When you use GitHub's "Sync fork" button, tags can be automatically synchronized from upstream to your fork via GitHub Actions workflow.
 
-**To disable automatic tag sync** (if you maintain your own version tags):
-1. Go to **Settings** → **Secrets and variables** → **Actions** → **Variables**
-2. Click **New repository variable**
-3. Name: `DATA_HELPERS_SYNC_UPSTREAM_TAGS`
-4. Value: `false`
-5. Click **Add variable**
+**Setup required** (one-time):
+1. Create a Personal Access Token:
+   - Go to [GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)](https://github.com/settings/tokens)
+   - Click **Generate new token (classic)**
+   - Name: `Data Helpers Tag Sync`
+   - Scopes: ✅ `repo` + ✅ `workflow`
+   - Copy the token
+2. Add to your fork:
+   - Go to **Settings** → **Secrets and variables** → **Actions** → **Secrets**
+   - Click **New repository secret**
+   - Name: `DATA_HELPERS_PAT`
+   - Paste your token
+   - Click **Add secret**
 
-This prevents upstream tags from overwriting your custom version tags.
+**Behavior:**
+- ✅ New tags from upstream are synced to your fork
+- ⏭️ Existing tags in your fork are skipped (not overwritten)
+- 🔒 Your custom tags remain untouched
 :::
 
 ### Option 3: Manual Git Commands
@@ -606,19 +616,28 @@ task fork:status
 
 ### Automatic Tag Synchronization
 
-When you use GitHub's "Sync fork" button, tags are automatically synchronized via GitHub Actions.
+When you use GitHub's "Sync fork" button, tags can be automatically synchronized via GitHub Actions.
 
-:::caution[Custom Version Tags]
-If you maintain your own version tags in your fork (e.g., `v1.0.0-custom`), you should disable automatic tag sync to prevent upstream tags from overwriting your custom tags.
+:::note[Setup Required]
+To enable automatic tag synchronization, you need to configure a Personal Access Token (PAT):
 
-**To disable automatic tag sync:**
-1. Go to **Settings** → **Secrets and variables** → **Actions** → **Variables**
-2. Click **New repository variable**
-3. Name: `DATA_HELPERS_SYNC_UPSTREAM_TAGS`
-4. Value: `false`
-5. Click **Add variable**
+**Step 1: Create PAT**
+1. Go to [GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)](https://github.com/settings/tokens)
+2. Click **Generate new token (classic)**
+3. Name: `Data Helpers Tag Sync`
+4. Scopes: ✅ `repo` + ✅ `workflow`
+5. Copy the token
 
-**To re-enable:** Delete the variable or change its value to `true`.
+**Step 2: Add to Fork**
+1. Go to **Settings** → **Secrets and variables** → **Actions** → **Secrets**
+2. Click **New repository secret**
+3. Name: `DATA_HELPERS_PAT`
+4. Paste your token
+
+**Behavior:**
+- ✅ New tags from upstream are synced
+- ⏭️ Existing tags are skipped (not overwritten)
+- 🔒 Your custom tags remain safe
 :::
 
 ## Summary
