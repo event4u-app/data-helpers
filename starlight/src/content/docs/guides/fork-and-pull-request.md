@@ -370,14 +370,14 @@ task fork:status
 2. **Click "Sync fork"** (appears when your fork is behind)
 3. **Click "Update branch"**
 
-:::tip[Automatic Tag Sync]
-When you use GitHub's "Sync fork" button, tags can be automatically synchronized from upstream to your fork via GitHub Actions workflow.
+:::tip[Automatic Upstream Sync]
+Your fork is automatically synchronized with upstream (code + tags) every hour via GitHub Actions workflow.
 
 **Setup required** (one-time):
 1. Create a Personal Access Token:
    - Go to [GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)](https://github.com/settings/tokens)
    - Click **Generate new token (classic)**
-   - Name: `Data Helpers Tag Sync`
+   - Name: `Data Helpers Sync`
    - Scopes: ✅ `repo` + ✅ `workflow`
    - Copy the token
 2. Add to your fork:
@@ -387,10 +387,16 @@ When you use GitHub's "Sync fork" button, tags can be automatically synchronized
    - Paste your token
    - Click **Add secret**
 
-**Behavior:**
+**When it runs:**
+- ✅ Automatically every hour
+- ✅ Manually via Actions → "Sync Upstream"
+
+**What it syncs:**
+- ✅ Code changes from `upstream/main` are merged into your fork
 - ✅ New tags from upstream are synced to your fork
 - ⏭️ Existing tags in your fork are skipped (not overwritten)
 - 🔒 Your custom tags remain untouched
+- ⚠️ Merge conflicts require manual resolution
 :::
 
 ### Option 3: Manual Git Commands
@@ -624,7 +630,7 @@ To enable automatic tag synchronization, you need to configure a Personal Access
 **Step 1: Create PAT**
 1. Go to [GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)](https://github.com/settings/tokens)
 2. Click **Generate new token (classic)**
-3. Name: `Data Helpers Tag Sync`
+3. Name: `Data Helpers Sync`
 4. Scopes: ✅ `repo` + ✅ `workflow`
 5. Copy the token
 
@@ -634,8 +640,9 @@ To enable automatic tag synchronization, you need to configure a Personal Access
 3. Name: `DATA_HELPERS_PAT`
 4. Paste your token
 
-**Behavior:**
-- ✅ New tags from upstream are synced
+**What it syncs:**
+- ✅ Code changes from `upstream/main` (every hour)
+- ✅ New tags from upstream
 - ⏭️ Existing tags are skipped (not overwritten)
 - 🔒 Your custom tags remain safe
 :::

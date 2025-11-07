@@ -6,20 +6,20 @@ This project uses GitHub Actions for continuous integration with a comprehensive
 
 ## Fork Management
 
-### Sync Upstream Tags - `sync-upstream-tags.yml`
+### Sync Upstream - `sync-upstream.yml`
 
-**Purpose:** Automatically synchronizes tags from the upstream repository (`event4u-app/data-helpers`) to your fork.
+**Purpose:** Automatically synchronizes code and tags from the upstream repository (`event4u-app/data-helpers`) to your fork every hour.
 
 **Setup Required:**
 
-This workflow requires a Personal Access Token (PAT) to push tags. Without it, the workflow will be skipped automatically.
+This workflow requires a Personal Access Token (PAT) to push changes. Without it, the workflow will be skipped automatically.
 
 #### Step 1: Create a Personal Access Token
 
 1. Go to [GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)](https://github.com/settings/tokens)
 2. Click **Generate new token** → **Generate new token (classic)**
 3. Configure the token:
-   - **Note:** `Data Helpers Tag Sync` (or any descriptive name)
+   - **Note:** `Data Helpers Sync` (or any descriptive name)
    - **Expiration:** Choose your preferred expiration (e.g., 90 days, 1 year, or no expiration)
    - **Select scopes:**
      - ✅ `repo` - Full control of private repositories
@@ -36,6 +36,39 @@ This workflow requires a Personal Access Token (PAT) to push tags. Without it, t
    - **Name:** `DATA_HELPERS_PAT` (must be exactly this name)
    - **Secret:** Paste your Personal Access Token from Step 1
 5. Click **Add secret**
+
+#### When It Runs
+
+- ✅ Automatically every hour (if `DATA_HELPERS_PAT` is configured)
+- ✅ Manually via Actions → "Sync Upstream" → "Run workflow"
+- ⏭️ Only if `DATA_HELPERS_PAT` secret is configured (otherwise skipped)
+- ⏭️ Skipped in the original repository (only runs in forks)
+
+#### What It Does
+
+1. Checks if this is a fork (skips if original repository)
+2. Adds upstream remote (`https://github.com/event4u-app/data-helpers.git`)
+3. Fetches all changes from upstream
+4. Merges `upstream/main` into your fork's `main` branch
+5. Pushes the merged changes to your fork
+6. Syncs all tags from upstream
+
+#### Behavior
+
+- ✅ **Code changes** from upstream are automatically merged into your fork
+- ✅ **New tags** from upstream are automatically synced to your fork
+- ⏭️ **Existing tags** in your fork are skipped (not overwritten)
+- 🔒 **Your custom tags** remain untouched
+- ⚠️ **Merge conflicts** will cause the workflow to fail (requires manual resolution)
+- 📊 **Statistics** are shown: how many tags were pushed vs. skipped
+
+---
+
+### Sync Upstream Tags - `sync-upstream-tags.yml`
+
+**Purpose:** Synchronizes only tags from the upstream repository after using GitHub's "Sync fork" button.
+
+**Setup Required:** Same PAT as above (`DATA_HELPERS_PAT`)
 
 #### When It Runs
 

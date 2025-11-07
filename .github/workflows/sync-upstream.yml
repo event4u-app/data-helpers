@@ -1,0 +1,198 @@
+name: Sync Upstream
+
+on:
+  workflow_dispatch:      # Manually triggerable
+  schedule:
+    - cron: '0 * * * *'   # Every hour (only runs if DATA_HELPERS_PAT exists)
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if PAT is configured
+        id: check-pat
+        run: |
+          if [ -z "${{ secrets.DATA_HELPERS_PAT }}" ]; then
+            echo "⚠️  DATA_HELPERS_PAT secret is not configured"
+            echo "⚠️  Upstream sync will be skipped"
+            echo "⚠️  See .github/workflows/README.md for setup instructions"
+            echo "has_pat=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅  DATA_HELPERS_PAT is configured"
+            echo "has_pat=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout Fork
+        if: steps.check-pat.outputs.has_pat == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.DATA_HELPERS_PAT }}
+
+      - name: Check if repository is a fork
+        if: steps.check-pat.outputs.has_pat == 'true'
+        id: check-fork
+        run: |
+          if [ "${{ github.repository }}" = "event4u-app/data-helpers" ]; then
+            echo "ℹ️  This is the original repository, skipping upstream sync"
+            echo "is_fork=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅  This is a fork, proceeding with upstream sync"
+            echo "is_fork=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configure Git
+        if: steps.check-pat.outputs.has_pat == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        if: steps.check-pat.outputs.has_pat == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        run: |
+          echo "Adding upstream remote..."
+          if git remote | grep -q "^upstream$"; then
+            echo "Upstream remote already exists, removing it first..."
+            git remote remove upstream
+          fi
+          git remote add upstream https://github.com/event4u-app/data-helpers.git
+          echo "✅  Upstream remote added successfully"
+          git remote -v
+
+      - name: Fetch from upstream
+        if: steps.check-pat.outputs.has_pat == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        run: |
+          echo "🔄 Fetching from upstream..."
+          git fetch upstream --verbose
+          echo ""
+          echo "✅  Successfully fetched from upstream"
+
+      - name: Merge upstream/main into main
+        if: steps.check-pat.outputs.has_pat == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        id: merge
+        run: |
+          echo "🔀 Merging upstream/main into main..."
+          
+          # Check if there are any differences
+          if git diff --quiet HEAD upstream/main; then
+            echo "ℹ️  Fork is already up to date with upstream"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "📝 Changes detected, merging..."
+            
+            # Try to merge
+            if git merge upstream/main --no-edit; then
+              echo "✅  Successfully merged upstream/main"
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+            else
+              echo "❌  Merge conflict detected!"
+              echo ""
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              echo "⚠️  MERGE CONFLICT"
+              echo ""
+              echo "Your fork has changes that conflict with upstream."
+              echo "Please resolve conflicts manually:"
+              echo ""
+              echo "1. Clone your fork locally"
+              echo "2. Run: git fetch upstream"
+              echo "3. Run: git merge upstream/main"
+              echo "4. Resolve conflicts"
+              echo "5. Run: git push origin main"
+              echo ""
+              echo "Or use the Taskfile:"
+              echo "  task fork:update"
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              exit 1
+            fi
+          fi
+
+      - name: Push changes to fork
+        if: steps.check-pat.outputs.has_pat == 'true' && steps.check-fork.outputs.is_fork == 'true' && steps.merge.outputs.has_changes == 'true'
+        run: |
+          echo "📤 Pushing changes to fork..."
+          
+          if git push origin main; then
+            echo "✅  Successfully pushed to fork"
+          else
+            echo "❌  Failed to push to fork"
+            exit 1
+          fi
+
+      - name: Sync tags from upstream
+        if: steps.check-pat.outputs.has_pat == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        run: |
+          echo ""
+          echo "🏷️  Syncing tags from upstream..."
+          echo ""
+          
+          # Fetch tags with --force to update existing tags locally
+          git fetch upstream 'refs/tags/*:refs/tags/*' --force --verbose
+          
+          echo ""
+          echo "📤 Pushing new tags to fork..."
+          echo ""
+
+          new_tags=0
+          skipped_tags=0
+          failed_tags=0
+
+          # Get all tags from origin
+          git ls-remote --tags origin > /tmp/origin_tags.txt
+
+          # Loop through all local tags (from upstream)
+          for tag in $(git tag -l); do
+            # Check if tag already exists on origin
+            if grep -q "refs/tags/$tag$" /tmp/origin_tags.txt; then
+              echo "⏭️  Skipping existing tag: $tag"
+              skipped_tags=$((skipped_tags + 1))
+            else
+              echo "📤  Pushing new tag: $tag"
+              if git push origin "refs/tags/$tag" 2>&1 | tee /tmp/push_error.txt; then
+                new_tags=$((new_tags + 1))
+              else
+                failed_tags=$((failed_tags + 1))
+                echo "❌  Failed to push tag: $tag"
+                
+                # Check for workflow scope error
+                if grep -q "without \`workflow\` scope" /tmp/push_error.txt; then
+                  echo ""
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  echo "❌  ERROR: Missing 'workflow' scope in PAT"
+                  echo ""
+                  echo "The tag '$tag' references a commit that modifies workflow files."
+                  echo "Your Personal Access Token needs the 'workflow' scope to push such tags."
+                  echo ""
+                  echo "To fix this:"
+                  echo "1. Go to: https://github.com/settings/tokens"
+                  echo "2. Find your 'Data Helpers Sync' token"
+                  echo "3. Click 'Edit' or create a new token"
+                  echo "4. Make sure BOTH scopes are selected:"
+                  echo "   ✅ repo (Full control of private repositories)"
+                  echo "   ✅ workflow (Update GitHub Action workflows)"
+                  echo "5. Update the DATA_HELPERS_PAT secret in your fork"
+                  echo ""
+                  echo "See .github/workflows/README.md for detailed instructions."
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  exit 1
+                fi
+              fi
+            fi
+          done
+
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅  Upstream sync complete!"
+          echo "   📤 New tags pushed: $new_tags"
+          echo "   ⏭️  Existing tags skipped: $skipped_tags"
+          echo "   ❌  Failed tags: $failed_tags"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+          if [ $failed_tags -gt 0 ]; then
+            exit 1
+          fi
+
