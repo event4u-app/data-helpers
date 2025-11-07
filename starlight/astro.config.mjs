@@ -238,7 +238,15 @@ export default defineConfig({
 					{ label: 'Package Verification', slug: 'guides/package-verification' },
 					{ label: 'Contributing Guide', slug: 'guides/contributing' },
 					{ label: 'Documentation Testing', slug: 'guides/documentation-testing' },
-					{ label: 'Fork & Pull Request', slug: 'guides/fork-and-pull-request' },
+					{
+						label: 'Fork & Contributions',
+						collapsed: true,
+						items: [
+							{ label: 'Fork Setup', slug: 'guides/fork-setup' },
+							{ label: 'Fork Sync', slug: 'guides/fork-sync' },
+							{ label: 'Pull Requests', slug: 'guides/pull-requests' },
+						],
+					},
 					{ label: 'Migration from Spatie', slug: 'guides/migration-from-spatie' },
 				],
 			},

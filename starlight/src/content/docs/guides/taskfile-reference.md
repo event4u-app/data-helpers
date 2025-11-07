@@ -506,5 +506,7 @@ task fork:status
 - [Development Setup](/data-helpers/guides/development-setup/) - Setup your environment
 - [Test Matrix](/data-helpers/guides/test-matrix/) - Learn about the test matrix
 - [Contributing Guide](/data-helpers/guides/contributing/) - Learn how to contribute
-- [Fork & Pull Request Guide](/data-helpers/guides/fork-and-pull-request/) - Complete fork workflow
+- [Fork Setup](/data-helpers/guides/fork-setup/) - Create and configure your fork
+- [Fork Sync](/data-helpers/guides/fork-sync/) - Keep your fork up-to-date
+- [Pull Requests](/data-helpers/guides/pull-requests/) - Contribute changes back
 
