@@ -673,7 +673,7 @@ Add this to your project's `composer.json`:
 
 ### Version Options
 
-#### Option 1: Use Latest Development Version
+#### Option 1: Latest Development Version (`dev-main`)
 
 ```json
 {
@@ -686,8 +686,24 @@ Add this to your project's `composer.json`:
 - ✅ Always uses the latest code from your fork's `main` branch
 - ✅ No tags required
 - ⚠️ May include unreleased changes
+- 💡 Best for: Development, testing new features
 
-#### Option 2: Use Specific Version
+**Example:**
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": "dev-main"
+  }
+}
+```
+
+#### Option 2: Semantic Versioning (`^1.7`)
 
 ```json
 {
@@ -697,11 +713,27 @@ Add this to your project's `composer.json`:
 }
 ```
 
-- ✅ Uses semantic versioning
+- ✅ Uses semantic versioning (allows `1.7.0`, `1.7.1`, `1.8.0`, but not `2.0.0`)
 - ✅ Requires synced tags from upstream
 - ✅ More stable for production
+- 💡 Best for: Production environments
 
-#### Option 3: Use Specific Tag
+**Example:**
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": "^1.7"
+  }
+}
+```
+
+#### Option 3: Exact Version (`1.7.5`)
 
 ```json
 {
@@ -713,6 +745,81 @@ Add this to your project's `composer.json`:
 
 - ✅ Locks to exact version
 - ✅ Most stable option
+- ✅ Requires synced tags from upstream
+- 💡 Best for: Critical production systems
+
+**Example:**
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": "1.7.5"
+  }
+}
+```
+
+#### Option 4: Version Range (`>=1.7 <2.0`)
+
+```json
+{
+  "require": {
+    "event4u-app/data-helpers": ">=1.7 <2.0"
+  }
+}
+```
+
+- ✅ Flexible version range
+- ✅ Requires synced tags from upstream
+- 💡 Best for: When you need specific version boundaries
+
+**Example:**
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": ">=1.7 <2.0"
+  }
+}
+```
+
+#### Option 5: Tilde Version (`~1.7.0`)
+
+```json
+{
+  "require": {
+    "event4u-app/data-helpers": "~1.7.0"
+  }
+}
+```
+
+- ✅ Allows patch updates only (e.g., `1.7.0`, `1.7.1`, `1.7.2`, but not `1.8.0`)
+- ✅ Requires synced tags from upstream
+- 💡 Best for: When you want bug fixes but no new features
+
+**Example:**
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": "~1.7.0"
+  }
+}
+```
 
 ### Installation
 

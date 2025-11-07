@@ -95,6 +95,7 @@ This workflow requires a Personal Access Token (PAT) to push changes. Without it
 
 To use your fork instead of the original package in your projects, add this to your `composer.json`:
 
+**Option 1: Latest Development Version (`dev-main`)**
 ```json
 {
   "repositories": [
@@ -108,8 +109,11 @@ To use your fork instead of the original package in your projects, add this to y
   }
 }
 ```
+- ✅ Always uses the latest code from your fork's `main` branch
+- ✅ No tags required
+- ⚠️ May include unreleased changes
 
-**For specific versions** (requires synced tags):
+**Option 2: Semantic Versioning (`^1.7`)**
 ```json
 {
   "repositories": [
@@ -123,18 +127,57 @@ To use your fork instead of the original package in your projects, add this to y
   }
 }
 ```
+- ✅ Uses semantic versioning (e.g., allows `1.7.0`, `1.7.1`, `1.8.0`, but not `2.0.0`)
+- ✅ Requires synced tags from upstream
+- ✅ More stable for production
+
+**Option 3: Exact Version (`1.7.5`)**
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": "1.7.5"
+  }
+}
+```
+- ✅ Locks to exact version
+- ✅ Most stable option
+- ✅ Requires synced tags from upstream
+
+**Option 4: Version Range (`>=1.7 <2.0`)**
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": ">=1.7 <2.0"
+  }
+}
+```
+- ✅ Flexible version range
+- ✅ Requires synced tags from upstream
 
 Then run:
 ```bash
 composer update event4u-app/data-helpers
 ```
 
-**Notes:**
-- Replace `YOUR-USERNAME` with your GitHub username or organization
+**Important Notes:**
+- Replace `YOUR-USERNAME` with your GitHub username or organization (e.g., `i-am-mario`)
 - The package name stays `event4u-app/data-helpers` (from the original `composer.json`)
 - Composer will use your fork's repository instead of Packagist
 - No Packagist registration needed
 - GitHub Releases are not required (Composer only uses Git tags)
+- For version constraints (Options 2-4), tags must be synced from upstream
 
 ---
 
