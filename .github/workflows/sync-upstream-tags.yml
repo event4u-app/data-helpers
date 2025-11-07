@@ -64,10 +64,14 @@ jobs:
         if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
         run: |
           echo "Fetching tags from upstream..."
-          git fetch upstream --tags --verbose
+          # Use --force to update existing tags locally (doesn't affect remote yet)
+          git fetch upstream 'refs/tags/*:refs/tags/*' --force --verbose
           echo ""
           echo "✅  Tags successfully fetched from upstream"
-          echo "Total upstream tags: $(git tag -l | wc -l)"
+          echo "Total tags: $(git tag -l | wc -l)"
+          echo ""
+          echo "Tags:"
+          git tag -l
           echo ""
 
       - name: Push new tags to fork
