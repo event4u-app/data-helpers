@@ -50,21 +50,58 @@ This workflow requires a Personal Access Token (PAT) to push tags. Without it, t
 2. Adds upstream remote (`https://github.com/event4u-app/data-helpers.git`)
 3. Fetches all tags from upstream (with `--force` to update existing tags locally)
 4. Pushes only new tags to your fork (skips tags that already exist)
-5. Creates GitHub Releases for all version tags (`*.*.*` pattern)
 
 #### Behavior
 
-**Tags:**
 - ✅ **New tags** from upstream are automatically synced to your fork
 - ⏭️ **Existing tags** in your fork are skipped (not overwritten)
 - 🔒 **Your custom tags** remain untouched
 - 📊 **Statistics** are shown: how many tags were pushed vs. skipped
 
-**Releases:**
-- ✅ **Automatic releases** are created for all semantic version tags (e.g., `1.0.0`, `2.1.3`)
-- ⏭️ **Existing releases** are skipped (not overwritten)
-- 📝 **Release notes** are taken from annotated tag messages (if available)
-- 📊 **Statistics** are shown: how many releases were created vs. skipped
+#### Using Your Fork in Projects
+
+To use your fork instead of the original package in your projects, add this to your `composer.json`:
+
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": "dev-main"
+  }
+}
+```
+
+**For specific versions** (requires synced tags):
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": "^1.7"
+  }
+}
+```
+
+Then run:
+```bash
+composer update event4u-app/data-helpers
+```
+
+**Notes:**
+- Replace `YOUR-USERNAME` with your GitHub username or organization
+- The package name stays `event4u-app/data-helpers` (from the original `composer.json`)
+- Composer will use your fork's repository instead of Packagist
+- No Packagist registration needed
+- GitHub Releases are not required (Composer only uses Git tags)
 
 ---
 

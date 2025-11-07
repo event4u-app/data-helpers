@@ -391,7 +391,6 @@ When you use GitHub's "Sync fork" button, tags can be automatically synchronized
 - ✅ New tags from upstream are synced to your fork
 - ⏭️ Existing tags in your fork are skipped (not overwritten)
 - 🔒 Your custom tags remain untouched
-- 📦 Automatic releases are created for version tags (`1.0.0`, `2.1.3`, etc.)
 :::
 
 ### Option 3: Manual Git Commands
@@ -639,8 +638,113 @@ To enable automatic tag synchronization, you need to configure a Personal Access
 - ✅ New tags from upstream are synced
 - ⏭️ Existing tags are skipped (not overwritten)
 - 🔒 Your custom tags remain safe
-- 📦 Automatic releases are created for version tags (`1.0.0`, `2.1.3`, etc.)
 :::
+
+## Using Your Fork in Projects
+
+Once you have your fork set up and synced, you can use it in your projects instead of the original package.
+
+### Configuration
+
+Add this to your project's `composer.json`:
+
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/YOUR-USERNAME/data-helpers"
+    }
+  ],
+  "require": {
+    "event4u-app/data-helpers": "dev-main"
+  }
+}
+```
+
+**Replace `YOUR-USERNAME`** with your GitHub username or organization name (e.g., `i-am-mario`).
+
+### Version Options
+
+#### Option 1: Use Latest Development Version
+
+```json
+{
+  "require": {
+    "event4u-app/data-helpers": "dev-main"
+  }
+}
+```
+
+- ✅ Always uses the latest code from your fork's `main` branch
+- ✅ No tags required
+- ⚠️ May include unreleased changes
+
+#### Option 2: Use Specific Version
+
+```json
+{
+  "require": {
+    "event4u-app/data-helpers": "^1.7"
+  }
+}
+```
+
+- ✅ Uses semantic versioning
+- ✅ Requires synced tags from upstream
+- ✅ More stable for production
+
+#### Option 3: Use Specific Tag
+
+```json
+{
+  "require": {
+    "event4u-app/data-helpers": "1.7.5"
+  }
+}
+```
+
+- ✅ Locks to exact version
+- ✅ Most stable option
+
+### Installation
+
+After updating `composer.json`, run:
+
+```bash
+composer update event4u-app/data-helpers
+```
+
+### Important Notes
+
+:::note[Package Name]
+The package name stays **`event4u-app/data-helpers`** (from the original `composer.json`).
+
+You don't change it to `your-username/data-helpers` - Composer will automatically use your fork's repository because of the VCS configuration.
+:::
+
+:::tip[No Packagist Required]
+- ✅ No Packagist registration needed
+- ✅ No GitHub Releases required (Composer only uses Git tags)
+- ✅ Works immediately after forking
+:::
+
+### Switching Back to Original
+
+To switch back to the original package, simply remove the `repositories` section:
+
+```json
+{
+  "require": {
+    "event4u-app/data-helpers": "^1.7"
+  }
+}
+```
+
+Then run:
+```bash
+composer update event4u-app/data-helpers
+```
 
 ## Summary
 
