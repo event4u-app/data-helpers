@@ -70,38 +70,34 @@ jobs:
           echo "Total upstream tags: $(git tag -l | wc -l)"
           echo ""
 
-      - name: Compare tags between upstream and fork
+      - name: Push new tags to fork
         if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
         run: |
-          echo "🔍 Comparing tags between upstream and origin..."
-          NEW_TAGS=0
-          UPDATED_TAGS=0
+          echo "🚀 Pushing only new tags to fork..."
+          echo ""
 
-          git fetch origin --tags > /dev/null 2>&1
+          new_tags=0
+          skipped_tags=0
 
+          # Get all tags from origin
+          git ls-remote --tags origin > /tmp/origin_tags.txt
+
+          # Loop through all local tags (from upstream)
           for tag in $(git tag -l); do
-            UPSTREAM_COMMIT=$(git rev-list -n 1 upstream/main "$tag" 2>/dev/null || git rev-list -n 1 "$tag")
-            ORIGIN_COMMIT=$(git ls-remote origin "refs/tags/$tag" | awk '{print $1}')
-
-            if [ -z "$ORIGIN_COMMIT" ]; then
-              echo "🆕  New tag: $tag"
-              ((NEW_TAGS++))
-            elif [ "$UPSTREAM_COMMIT" != "$ORIGIN_COMMIT" ]; then
-              echo "♻️  Updated tag: $tag (different commit)"
-              ((UPDATED_TAGS++))
+            # Check if tag already exists on origin
+            if grep -q "refs/tags/$tag$" /tmp/origin_tags.txt; then
+              echo "⏭️  Skipping existing tag: $tag"
+              skipped_tags=$((skipped_tags + 1))
+            else
+              echo "📤  Pushing new tag: $tag"
+              git push origin "refs/tags/$tag"
+              new_tags=$((new_tags + 1))
             fi
           done
 
           echo ""
-          echo "Summary:"
-          echo "→ New tags to push: $NEW_TAGS"
-          echo "→ Updated tags to overwrite: $UPDATED_TAGS"
-          echo ""
-
-      - name: Push tags to fork
-        if: steps.check-enabled.outputs.enabled == 'true' && steps.check-fork.outputs.is_fork == 'true'
-        run: |
-          echo "🚀 Pushing all tags from upstream to fork..."
-          git push origin --force --tags
-          echo ""
-          echo "✅  All tags successfully synced from upstream to fork!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅  Tag sync complete!"
+          echo "   📤 New tags pushed: $new_tags"
+          echo "   ⏭️  Existing tags skipped: $skipped_tags"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
