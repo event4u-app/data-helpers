@@ -391,6 +391,7 @@ When you use GitHub's "Sync fork" button, tags can be automatically synchronized
 - ✅ New tags from upstream are synced to your fork
 - ⏭️ Existing tags in your fork are skipped (not overwritten)
 - 🔒 Your custom tags remain untouched
+- 📦 Automatic releases are created for version tags (`1.0.0`, `2.1.3`, etc.)
 :::
 
 ### Option 3: Manual Git Commands
@@ -638,6 +639,7 @@ To enable automatic tag synchronization, you need to configure a Personal Access
 - ✅ New tags from upstream are synced
 - ⏭️ Existing tags are skipped (not overwritten)
 - 🔒 Your custom tags remain safe
+- 📦 Automatic releases are created for version tags (`1.0.0`, `2.1.3`, etc.)
 :::
 
 ## Summary

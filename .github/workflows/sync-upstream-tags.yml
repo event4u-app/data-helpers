@@ -80,6 +80,7 @@ jobs:
 
           new_tags=0
           skipped_tags=0
+          failed_tags=0
 
           # Get all tags from origin
           git ls-remote --tags origin > /tmp/origin_tags.txt
@@ -92,14 +93,101 @@ jobs:
               skipped_tags=$((skipped_tags + 1))
             else
               echo "📤  Pushing new tag: $tag"
-              git push origin "refs/tags/$tag"
-              new_tags=$((new_tags + 1))
+              if git push origin "refs/tags/$tag" 2>&1 | tee /tmp/push_error.txt; then
+                new_tags=$((new_tags + 1))
+              else
+                failed_tags=$((failed_tags + 1))
+                echo "❌  Failed to push tag: $tag"
+
+                # Check for workflow scope error
+                if grep -q "without \`workflow\` scope" /tmp/push_error.txt; then
+                  echo ""
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  echo "❌  ERROR: Missing 'workflow' scope in PAT"
+                  echo ""
+                  echo "The tag '$tag' references a commit that modifies workflow files."
+                  echo "Your Personal Access Token needs the 'workflow' scope to push such tags."
+                  echo ""
+                  echo "To fix this:"
+                  echo "1. Go to: https://github.com/settings/tokens"
+                  echo "2. Find your 'Data Helpers Tag Sync' token"
+                  echo "3. Click 'Edit' or create a new token"
+                  echo "4. Make sure BOTH scopes are selected:"
+                  echo "   ✅ repo (Full control of private repositories)"
+                  echo "   ✅ workflow (Update GitHub Action workflows)"
+                  echo "5. Update the DATA_HELPERS_PAT secret in your fork"
+                  echo ""
+                  echo "See .github/workflows/README.md for detailed instructions."
+                  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                  exit 1
+                fi
+              fi
             fi
           done
 
           echo ""
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "✅  Tag sync complete!"
+          if [ $failed_tags -eq 0 ]; then
+            echo "✅  Tag sync complete!"
+          else
+            echo "⚠️  Tag sync completed with errors!"
+          fi
           echo "   📤 New tags pushed: $new_tags"
           echo "   ⏭️  Existing tags skipped: $skipped_tags"
+          echo "   ❌  Failed tags: $failed_tags"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          if [ $failed_tags -gt 0 ]; then
+            exit 1
+          fi
+
+      - name: Create releases for version tags
+        if: steps.check-pat.outputs.has_pat == 'true' && steps.check-fork.outputs.is_fork == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.DATA_HELPERS_PAT }}
+        run: |
+          echo ""
+          echo "📦 Creating releases for version tags..."
+          echo ""
+
+          new_releases=0
+          skipped_releases=0
+
+          # Get all existing releases
+          gh release list --limit 1000 > /tmp/releases.txt || true
+
+          # Loop through all tags that match semantic versioning (*.*.*)
+          for tag in $(git tag -l | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'); do
+            # Check if release already exists
+            if grep -q "^$tag" /tmp/releases.txt; then
+              echo "⏭️  Release already exists: $tag"
+              skipped_releases=$((skipped_releases + 1))
+            else
+              echo "📦  Creating release: $tag"
+
+              # Get tag message (if annotated tag)
+              tag_message=$(git tag -l --format='%(contents)' "$tag" | head -n 1)
+
+              # Create release
+              if [ -n "$tag_message" ]; then
+                gh release create "$tag" --title "Release $tag" --notes "$tag_message" || {
+                  echo "⚠️  Failed to create release for $tag (might not exist in fork yet)"
+                  continue
+                }
+              else
+                gh release create "$tag" --title "Release $tag" --notes "Release $tag" || {
+                  echo "⚠️  Failed to create release for $tag (might not exist in fork yet)"
+                  continue
+                }
+              fi
+
+              new_releases=$((new_releases + 1))
+            fi
+          done
+
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅  Release creation complete!"
+          echo "   📦 New releases created: $new_releases"
+          echo "   ⏭️  Existing releases skipped: $skipped_releases"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

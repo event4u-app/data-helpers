@@ -50,13 +50,21 @@ This workflow requires a Personal Access Token (PAT) to push tags. Without it, t
 2. Adds upstream remote (`https://github.com/event4u-app/data-helpers.git`)
 3. Fetches all tags from upstream (with `--force` to update existing tags locally)
 4. Pushes only new tags to your fork (skips tags that already exist)
+5. Creates GitHub Releases for all version tags (`*.*.*` pattern)
 
 #### Behavior
 
+**Tags:**
 - ✅ **New tags** from upstream are automatically synced to your fork
 - ⏭️ **Existing tags** in your fork are skipped (not overwritten)
 - 🔒 **Your custom tags** remain untouched
 - 📊 **Statistics** are shown: how many tags were pushed vs. skipped
+
+**Releases:**
+- ✅ **Automatic releases** are created for all semantic version tags (e.g., `1.0.0`, `2.1.3`)
+- ⏭️ **Existing releases** are skipped (not overwritten)
+- 📝 **Release notes** are taken from annotated tag messages (if available)
+- 📊 **Statistics** are shown: how many releases were created vs. skipped
 
 ---
 
