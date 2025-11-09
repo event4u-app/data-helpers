@@ -409,8 +409,12 @@ echo "  ✅ Cache Invalidation benchmarks completed\n\n";
 // ============================================================================
 echo "📊  Step 3/4: Generating markdown and updating documentation...\n\n";
 
-// @phpstan-ignore-next-line argument.type
-$markdown = generateMarkdown($results, $dtoBenchmarks, $cacheInvalidationBenchmarks, $performanceAttributeBenchmarks);
+$markdown = generateComprehensiveMarkdown(
+    $results,
+    $dtoBenchmarks,
+    $cacheInvalidationBenchmarks,
+    $performanceAttributeBenchmarks
+);
 
 // Update documentation
 if (!file_exists($benchmarkDocsPath)) {
@@ -713,13 +717,15 @@ function formatRange(float $min, float $max, int $decimals = 0): string
 }
 
 /**
- * @param array<string, array<int, array{name: string, time: float}>> $results
- * @param array<string, array{name: string, iterations: int, avg_time: float, ops_per_sec: int}> $dtoBenchmarks
- * @param array<string, array{name: string, avg_time: float, times: array<float>}> $cacheInvalidationBenchmarks
+ * Generate comprehensive markdown for all benchmarks.
+ *
+ * @param array<string, array<int|string, mixed>> $results
+ * @param array<string, mixed> $dtoBenchmarks
+ * @param array<string, array{name: string, avg_time: float, times: list<float>}> $cacheInvalidationBenchmarks
  * @param array<string, array{name: string, iterations: int, avg_time: float, ops_per_sec: int}> $performanceAttributeBenchmarks
  * @return array<string, string>
  */
-function generateMarkdown(
+function generateComprehensiveMarkdown(
     array $results,
     array $dtoBenchmarks,
     array $cacheInvalidationBenchmarks,
@@ -741,9 +747,13 @@ function generateMarkdown(
         'benchTypedGetInt' => 'Get typed int value',
         'benchCreateAccessor' => 'Instantiate DataAccessor',
     ];
+    /** @phpstan-ignore-next-line */
     foreach ($results['DataAccessor'] as $result) {
+        /** @phpstan-ignore-next-line */
         $name = formatBenchmarkName($result['name']);
+        /** @phpstan-ignore-next-line */
         $time = formatTime($result['time']);
+        /** @phpstan-ignore-next-line */
         $desc = $descriptions[$result['name']] ?? '';
         $md .= "| {$name} | {$time} | {$desc} |\n";
     }

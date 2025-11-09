@@ -60,3 +60,18 @@ tasks:
         task_footer
         exit $EXIT_CODE
 
+  serializer:
+    desc: Run Serializer benchmarks (Symfony vs SimpleDTO vs LiteDTO)
+    cmds:
+      - |
+        source {{.OUTPUT_HELPER}}
+        task_header "Running Serializer Benchmarks"
+        docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/update-serializer-benchmarks.php
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          task_success "Serializer benchmarks completed and documentation updated"
+        else
+          task_error "Serializer benchmarks failed"
+        fi
+        task_footer
+        exit $EXIT_CODE
