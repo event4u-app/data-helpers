@@ -275,7 +275,7 @@ $result = DataFilter::query($products)
 
 ### 5️⃣ SimpleDto - Immutable Dtos
 
-Create type-safe, immutable Data Transfer Objects with automatic type casting by default:
+Create type-safe, immutable Data Transfer Objects with automatic type casting and multi-format serialization (JSON, XML, YAML, CSV):
 
 <!-- skip-test: property declaration only -->
 ```php skip-test
@@ -310,6 +310,12 @@ class StrictUserDto extends SimpleDto
         public readonly AddressDto $address,  // Must be AddressDto instance, no conversion
     ) {}
 }
+
+// Multi-format serialization
+$json = $user->toJson();  // JSON
+$xml = $user->toXml();    // XML
+$yaml = $user->toYaml();  // YAML
+$csv = $user->toCsv();    // CSV
 ```
 
 📖 **[SimpleDto Documentation](https://event4u-app.github.io/data-helpers/simple-dto/introduction/)**
@@ -353,7 +359,7 @@ $array = $user->toArray();
 
 ### 3️⃣ DataMapper - Transform Data
 
-Map between different data structures with templates:
+Map between different data structures with templates. Supports multi-format output (JSON, XML, YAML, CSV):
 
 ```php
 $source = [

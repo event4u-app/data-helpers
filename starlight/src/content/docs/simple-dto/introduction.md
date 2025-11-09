@@ -320,7 +320,7 @@ $count = $users->count();
 
 - **Immutable by design** - Use readonly properties
 - **Type-safe** - Full PHP type hinting support
-- **JSON serializable** - Implements `JsonSerializable`
+- **Multi-format serialization** - JSON, XML, YAML, CSV, and custom formats
 - **Array conversion** - `toArray()` and `fromArray()`
 - **Nested Dtos** - Support for complex structures
 - **Collections** - Built-in collection support
@@ -347,7 +347,7 @@ $count = $users->count();
 **Framework-Agnostic Core + Optional Deep Integration:**
 
 #### Pure PHP (Zero Dependencies)
-- ✅ **Arrays, Objects, JSON, XML** - Works everywhere
+- ✅ **Multi-format Support** - JSON, XML, YAML, CSV, and custom formats
 - ✅ **No Framework Required** - Standalone usage
 - ✅ **Portable** - Move between frameworks
 

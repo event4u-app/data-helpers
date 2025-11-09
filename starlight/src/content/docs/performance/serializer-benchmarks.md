@@ -10,7 +10,7 @@ Comprehensive performance benchmarks comparing Data Helpers (SimpleDTO & LiteDTO
 These benchmarks compare the performance of:
 
 - **Symfony Serializer** - Industry-standard serialization component
-- **SimpleDTO** - Data Helpers' feature-rich immutable DTO implementation
+- **SimpleDTO** - Data Helpers' feature-rich immutable DTO implementation with support for JSON, XML, YAML, CSV, and custom formats
 - **LiteDTO** - Data Helpers' lightweight mutable DTO implementation
 
 All benchmarks use identical data structures and measure:
@@ -463,6 +463,20 @@ $symfonyJson = $serializer->serialize($symfonyDto, 'json');
 | LiteDTO (json_encode) | 342.02ns | 2,923,797 | 0B | **72.1x faster** |
 | Symfony::serialize(json) | 24.66μs | 40,554 | 0B | baseline |
 
+**Note:** SimpleDTO also supports other serialization formats (LiteDTO only supports JSON):
+
+```php
+// SimpleDTO - Multi-format support
+$json = $simpleDto->toJson();  // JSON
+$xml = $simpleDto->toXml();    // XML: <?xml version="1.0"?><root><name>John Doe</name>...</root>
+$yaml = $simpleDto->toYaml();  // YAML: name: John Doe\nemail: john@example.com\nage: 30
+$csv = $simpleDto->toCsv();    // CSV: name,email,age\n"John Doe",john@example.com,30
+$custom = $simpleDto->serializeWith(new MyCustomSerializer());  // Custom format
+
+// LiteDTO - JSON only
+$json = $liteDto->toJson();    // JSON only
+```
+
 <!-- BENCHMARK_RESULTS_END -->
 
 ## Key Findings
@@ -484,10 +498,10 @@ $symfonyJson = $serializer->serialize($symfonyDto, 'json');
 - ✅ Minimal overhead, maximum performance
 
 **Symfony Serializer:**
-- ⚠️ Slower but more flexible
+- ⚠️ Slower performance
 - ⚠️ Higher memory usage
 - ✅ Industry standard
-- ✅ Extensive format support (XML, YAML, CSV, etc.)
+- ✅ Extensive ecosystem integration
 
 ### When to Use What
 
