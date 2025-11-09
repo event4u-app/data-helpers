@@ -7,15 +7,20 @@ sidebar:
 
 The `DataCollection` class is a powerful, framework-independent utility for working with arrays of data. It provides a fluent, chainable API similar to Laravel's Collection, but works in any PHP environment.
 
-**Architecture:** DataCollection acts as a container and delegates all data access and transformation operations to [DataAccessor](/data-helpers/main-classes/data-accessor/). This enables dot-notation access and all DataAccessor features within collections.
+**Architecture:** DataCollection acts as a container and delegates operations to two core classes:
+- [DataAccessor](/data-helpers/main-classes/data-accessor/) for **reading** data (get, filter, map, etc.)
+- [DataMutator](/data-helpers/main-classes/data-mutator/) for **writing** data (set, merge, forget, etc.)
+
+This enables full dot-notation support for both reading and writing within collections.
 
 ## Overview
 
 `DataCollection` is a generic, type-safe collection class that:
 - Works in any PHP environment (no framework dependencies)
-- Uses DataAccessor internally for all data operations
-- Supports dot-notation access within collections
-- Provides a fluent, chainable API
+- Uses DataAccessor internally for reading and transformations
+- Uses DataMutator internally for mutations with dot-notation
+- Supports full dot-notation for both reading and writing
+- Provides a fluent, chainable API similar to Laravel Collections
 - Supports lazy evaluation with generators for memory efficiency
 - Implements standard PHP interfaces (IteratorAggregate, ArrayAccess, Countable, JsonSerializable)
 - Offers full PHPStan Level 9 type safety with generics
@@ -161,6 +166,120 @@ $keys = $collection->keys();
 // Get all values (reindexed)
 $values = $collection->values();
 // Result: Collection([1, 2, 3])
+```
+
+## Mutable Methods with Dot-Notation
+
+DataCollection provides powerful mutable methods that use [DataMutator](/data-helpers/main-classes/data-mutator/) internally. These methods modify the collection in-place and return `$this` for chaining.
+
+### set() - Set Values
+
+Set a value at a specific path using dot notation:
+
+```php
+$collection = DataCollection::make([
+    ['user' => ['name' => 'Alice']],
+]);
+
+$collection->set('0.user.age', 30);
+// Collection: [['user' => ['name' => 'Alice', 'age' => 30]]]
+
+// Chaining
+$collection
+    ->set('0.user.city', 'Berlin')
+    ->set('0.user.country', 'Germany');
+```
+
+### merge() - Merge Values
+
+Merge an array into a specific path:
+
+```php
+$collection = DataCollection::make([
+    ['user' => ['name' => 'Alice']],
+]);
+
+$collection->merge('0.user', ['age' => 30, 'city' => 'Berlin']);
+// Collection: [['user' => ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin']]]
+
+// Merge multiple paths
+$collection->merge([
+    '0.user.age' => 30,
+    '0.user.city' => 'Berlin',
+]);
+```
+
+### forget() - Remove Values
+
+Remove a value at a specific path:
+
+```php
+$collection = DataCollection::make([
+    ['user' => ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin']],
+]);
+
+$collection->forget('0.user.age');
+// Collection: [['user' => ['name' => 'Alice', 'city' => 'Berlin']]]
+```
+
+### transform() - Transform Values
+
+Transform a value at a specific path using a callback:
+
+```php
+$collection = DataCollection::make([
+    ['user' => ['name' => 'alice']],
+]);
+
+$collection->transform('0.user.name', fn($name) => strtoupper($name));
+// Collection: [['user' => ['name' => 'ALICE']]]
+```
+
+### pushTo() - Push to Nested Array
+
+Push a value to an array at a specific path:
+
+```php
+$collection = DataCollection::make([
+    ['user' => ['tags' => ['php']]],
+]);
+
+$collection->pushTo('0.user.tags', 'laravel');
+// Collection: [['user' => ['tags' => ['php', 'laravel']]]]
+```
+
+### pull() - Remove and Return
+
+Remove a value and return it:
+
+```php
+$collection = DataCollection::make([
+    ['user' => ['name' => 'Alice', 'age' => 30]],
+]);
+
+$age = $collection->pull('0.user.age');  // 30
+// Collection: [['user' => ['name' => 'Alice']]]
+
+// With default value
+$city = $collection->pull('0.user.city', 'Unknown');  // 'Unknown'
+```
+
+### Chaining Mutable Methods
+
+All mutable methods return `$this`, enabling fluent chaining:
+
+```php
+$collection = DataCollection::make([
+    ['user' => ['name' => 'Alice']],
+]);
+
+$collection
+    ->set('0.user.age', 30)
+    ->merge('0.user', ['city' => 'Berlin'])
+    ->transform('0.user.name', fn($name) => strtoupper($name))
+    ->pushTo('0.user.tags', 'php');
+
+// Collection: [['user' => ['name' => 'ALICE', 'age' => 30, 'city' => 'Berlin', 'tags' => ['php']]]]
 ```
 
 ## Lazy Evaluation

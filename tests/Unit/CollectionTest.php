@@ -562,4 +562,1105 @@ describe('Collection', function(): void {
             expect($result->toArray())->toBe([10, 20, 30]);
         });
     });
+
+    describe('Mutable Methods with DataMutator', function(): void {
+        it('sets value using dot notation', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice']],
+            ]);
+
+            $collection->set('0.user.age', 30);
+
+            expect($collection->toArray())->toBe([
+                ['user' => ['name' => 'Alice', 'age' => 30]],
+            ]);
+        });
+
+        it('sets value and returns same instance', function(): void {
+            $collection = DataCollection::make([['name' => 'Alice']]);
+            $result = $collection->set('0.age', 30);
+
+            expect($result)->toBe($collection);
+        });
+
+        it('merges values using dot notation', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice']],
+            ]);
+
+            $collection->merge('0.user', ['age' => 30, 'city' => 'Berlin']);
+
+            expect($collection->toArray())->toBe([
+                ['user' => ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin']],
+            ]);
+        });
+
+        it('merges multiple paths', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice']],
+                ['user' => ['name' => 'Bob']],
+            ]);
+
+            $collection->merge([
+                '0.user.age' => 30,
+                '1.user.age' => 25,
+            ]);
+
+            expect($collection->toArray())->toBe([
+                ['user' => ['name' => 'Alice', 'age' => 30]],
+                ['user' => ['name' => 'Bob', 'age' => 25]],
+            ]);
+        });
+
+        it('forgets value using dot notation', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice', 'age' => 30]],
+            ]);
+
+            $collection->forget('0.user.age');
+
+            expect($collection->toArray())->toBe([
+                ['user' => ['name' => 'Alice']],
+            ]);
+        });
+
+        it('transforms value using callback', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'alice']],
+            ]);
+
+            $collection->transform('0.user.name', fn($name) => strtoupper($name));
+
+            expect($collection->toArray())->toBe([
+                ['user' => ['name' => 'ALICE']],
+            ]);
+        });
+
+        it('pushes to nested array', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['tags' => ['php']]],
+            ]);
+
+            $collection->pushTo('0.user.tags', 'laravel');
+
+            expect($collection->toArray())->toBe([
+                ['user' => ['tags' => ['php', 'laravel']]],
+            ]);
+        });
+
+        it('pulls value and removes it', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice', 'age' => 30]],
+            ]);
+
+            $age = $collection->pull('0.user.age');
+
+            expect($age)->toBe(30)
+                ->and($collection->toArray())->toBe([
+                    ['user' => ['name' => 'Alice']],
+                ]);
+        });
+
+        it('pulls with default value', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice']],
+            ]);
+
+            $age = $collection->pull('0.user.age', 25);
+
+            expect($age)->toBe(25);
+        });
+
+        it('chains mutable methods', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice']],
+            ]);
+
+            $collection
+                ->set('0.user.age', 30)
+                ->merge('0.user', ['city' => 'Berlin'])
+                ->transform('0.user.name', fn($name) => strtoupper($name));
+
+            expect($collection->toArray())->toBe([
+                ['user' => ['name' => 'ALICE', 'age' => 30, 'city' => 'Berlin']],
+            ]);
+        });
+
+        it('get() works after set()', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice']],
+            ]);
+
+            $collection->set('0.user.age', 30);
+            $age = $collection->get('0.user.age');
+
+            expect($age)->toBe(30);
+        });
+    });
+
+    describe('Comprehensive Read Operations', function(): void {
+        it('reads simple values', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+                'active' => true,
+            ]);
+
+            expect($collection->get('name'))->toBe('Alice')
+                ->and($collection->get('age'))->toBe(30)
+                ->and($collection->get('active'))->toBe(true);
+        });
+
+        it('reads nested values', function(): void {
+            $collection = DataCollection::make([
+                'user' => [
+                    'profile' => [
+                        'name' => 'Alice',
+                        'contact' => [
+                            'email' => 'alice@example.com',
+                            'phone' => '123-456',
+                        ],
+                    ],
+                ],
+            ]);
+
+            expect($collection->get('user.profile.name'))->toBe('Alice')
+                ->and($collection->get('user.profile.contact.email'))->toBe('alice@example.com')
+                ->and($collection->get('user.profile.contact.phone'))->toBe('123-456');
+        });
+
+        it('reads array elements by index', function(): void {
+            $collection = DataCollection::make([
+                'users' => [
+                    ['name' => 'Alice', 'age' => 30],
+                    ['name' => 'Bob', 'age' => 25],
+                    ['name' => 'Charlie', 'age' => 35],
+                ],
+            ]);
+
+            expect($collection->get('users.0.name'))->toBe('Alice')
+                ->and($collection->get('users.1.name'))->toBe('Bob')
+                ->and($collection->get('users.2.name'))->toBe('Charlie')
+                ->and($collection->get('users.1.age'))->toBe(25);
+        });
+
+        it('reads deeply nested array elements', function(): void {
+            $collection = DataCollection::make([
+                'company' => [
+                    'departments' => [
+                        [
+                            'name' => 'Engineering',
+                            'teams' => [
+                                ['name' => 'Backend', 'members' => ['Alice', 'Bob']],
+                                ['name' => 'Frontend', 'members' => ['Charlie', 'David']],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+
+            expect($collection->get('company.departments.0.name'))->toBe('Engineering')
+                ->and($collection->get('company.departments.0.teams.0.name'))->toBe('Backend')
+                ->and($collection->get('company.departments.0.teams.0.members.0'))->toBe('Alice')
+                ->and($collection->get('company.departments.0.teams.1.members.1'))->toBe('David');
+        });
+
+        it('returns default for non-existent paths', function(): void {
+            $collection = DataCollection::make(['name' => 'Alice']);
+
+            expect($collection->get('age', 25))->toBe(25)
+                ->and($collection->get('user.profile.name', 'Unknown'))->toBe('Unknown')
+                ->and($collection->get('missing.deeply.nested.path', null))->toBeNull();
+        });
+
+        it('reads literal keys with dots', function(): void {
+            $collection = DataCollection::make([
+                'key.with.dots' => 'value1',
+                'another.key' => 'value2',
+            ]);
+
+            expect($collection->get('key.with.dots'))->toBe('value1')
+                ->and($collection->get('another.key'))->toBe('value2');
+        });
+
+        it('reads mixed nested structures', function(): void {
+            $collection = DataCollection::make([
+                'data' => [
+                    'users' => [
+                        ['id' => 1, 'meta' => ['role' => 'admin', 'permissions' => ['read', 'write']]],
+                        ['id' => 2, 'meta' => ['role' => 'user', 'permissions' => ['read']]],
+                    ],
+                    'settings' => [
+                        'theme' => 'dark',
+                        'notifications' => ['email' => true, 'sms' => false],
+                    ],
+                ],
+            ]);
+
+            expect($collection->get('data.users.0.meta.role'))->toBe('admin')
+                ->and($collection->get('data.users.0.meta.permissions.1'))->toBe('write')
+                ->and($collection->get('data.users.1.meta.permissions.0'))->toBe('read')
+                ->and($collection->get('data.settings.notifications.email'))->toBe(true);
+        });
+    });
+
+    describe('Comprehensive Write Operations', function(): void {
+        it('sets simple values', function(): void {
+            $collection = DataCollection::make([]);
+
+            $collection
+                ->set('name', 'Alice')
+                ->set('age', 30)
+                ->set('active', true);
+
+            expect($collection->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+                'active' => true,
+            ]);
+        });
+
+        it('sets nested values', function(): void {
+            $collection = DataCollection::make([]);
+
+            $collection
+                ->set('user.profile.name', 'Alice')
+                ->set('user.profile.contact.email', 'alice@example.com')
+                ->set('user.profile.contact.phone', '123-456');
+
+            expect($collection->toArray())->toBe([
+                'user' => [
+                    'profile' => [
+                        'name' => 'Alice',
+                        'contact' => [
+                            'email' => 'alice@example.com',
+                            'phone' => '123-456',
+                        ],
+                    ],
+                ],
+            ]);
+        });
+
+        it('sets array elements by index', function(): void {
+            $collection = DataCollection::make([
+                'users' => [
+                    ['name' => 'Alice'],
+                    ['name' => 'Bob'],
+                ],
+            ]);
+
+            $collection
+                ->set('users.0.age', 30)
+                ->set('users.1.age', 25);
+
+            expect($collection->toArray())->toBe([
+                'users' => [
+                    ['name' => 'Alice', 'age' => 30],
+                    ['name' => 'Bob', 'age' => 25],
+                ],
+            ]);
+        });
+
+        it('sets deeply nested values', function(): void {
+            $collection = DataCollection::make([]);
+
+            $collection
+                ->set('company.departments.0.name', 'Engineering')
+                ->set('company.departments.0.teams.0.name', 'Backend')
+                ->set('company.departments.0.teams.0.members.0', 'Alice')
+                ->set('company.departments.0.teams.0.members.1', 'Bob');
+
+            expect($collection->toArray())->toBe([
+                'company' => [
+                    'departments' => [
+                        [
+                            'name' => 'Engineering',
+                            'teams' => [
+                                [
+                                    'name' => 'Backend',
+                                    'members' => ['Alice', 'Bob'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+        });
+
+        it('overwrites existing values', function(): void {
+            $collection = DataCollection::make([
+                'user' => ['name' => 'Alice', 'age' => 30],
+            ]);
+
+            $collection
+                ->set('user.name', 'Bob')
+                ->set('user.age', 25);
+
+            expect($collection->toArray())->toBe([
+                'user' => ['name' => 'Bob', 'age' => 25],
+            ]);
+        });
+
+        it('sets values in existing nested structures', function(): void {
+            $collection = DataCollection::make([
+                'data' => [
+                    'users' => [
+                        ['id' => 1, 'name' => 'Alice'],
+                        ['id' => 2, 'name' => 'Bob'],
+                    ],
+                ],
+            ]);
+
+            $collection
+                ->set('data.users.0.email', 'alice@example.com')
+                ->set('data.users.1.email', 'bob@example.com')
+                ->set('data.settings.theme', 'dark');
+
+            expect($collection->toArray())->toBe([
+                'data' => [
+                    'users' => [
+                        ['id' => 1, 'name' => 'Alice', 'email' => 'alice@example.com'],
+                        ['id' => 2, 'name' => 'Bob', 'email' => 'bob@example.com'],
+                    ],
+                    'settings' => ['theme' => 'dark'],
+                ],
+            ]);
+        });
+    });
+
+    describe('Merge Operations', function(): void {
+        it('merges simple arrays', function(): void {
+            $collection = DataCollection::make([
+                'user' => ['name' => 'Alice'],
+            ]);
+
+            $collection->merge('user', ['age' => 30, 'city' => 'Berlin']);
+
+            expect($collection->toArray())->toBe([
+                'user' => ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+            ]);
+        });
+
+        it('merges nested arrays', function(): void {
+            $collection = DataCollection::make([
+                'user' => [
+                    'profile' => ['name' => 'Alice'],
+                ],
+            ]);
+
+            $collection->merge('user.profile', [
+                'age' => 30,
+                'contact' => ['email' => 'alice@example.com'],
+            ]);
+
+            expect($collection->toArray())->toBe([
+                'user' => [
+                    'profile' => [
+                        'name' => 'Alice',
+                        'age' => 30,
+                        'contact' => ['email' => 'alice@example.com'],
+                    ],
+                ],
+            ]);
+        });
+
+        it('merges multiple paths at once', function(): void {
+            $collection = DataCollection::make([
+                'users' => [
+                    ['name' => 'Alice'],
+                    ['name' => 'Bob'],
+                    ['name' => 'Charlie'],
+                ],
+            ]);
+
+            $collection->merge([
+                'users.0.age' => 30,
+                'users.1.age' => 25,
+                'users.2.age' => 35,
+            ]);
+
+            expect($collection->toArray())->toBe([
+                'users' => [
+                    ['name' => 'Alice', 'age' => 30],
+                    ['name' => 'Bob', 'age' => 25],
+                    ['name' => 'Charlie', 'age' => 35],
+                ],
+            ]);
+        });
+
+        it('merges overwrites existing keys', function(): void {
+            $collection = DataCollection::make([
+                'user' => ['name' => 'Alice', 'age' => 30],
+            ]);
+
+            $collection->merge('user', ['age' => 31, 'city' => 'Berlin']);
+
+            expect($collection->toArray())->toBe([
+                'user' => ['name' => 'Alice', 'age' => 31, 'city' => 'Berlin'],
+            ]);
+        });
+
+        it('merges deeply nested structures', function(): void {
+            $collection = DataCollection::make([
+                'company' => [
+                    'departments' => [
+                        ['name' => 'Engineering', 'budget' => 100000],
+                    ],
+                ],
+            ]);
+
+            $collection->merge('company.departments.0', [
+                'budget' => 120000,
+                'head' => 'Alice',
+                'teams' => ['Backend', 'Frontend'],
+            ]);
+
+            expect($collection->toArray())->toBe([
+                'company' => [
+                    'departments' => [
+                        [
+                            'name' => 'Engineering',
+                            'budget' => 120000,
+                            'head' => 'Alice',
+                            'teams' => ['Backend', 'Frontend'],
+                        ],
+                    ],
+                ],
+            ]);
+        });
+    });
+
+    describe('Forget Operations', function(): void {
+        it('forgets simple keys', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+                'city' => 'Berlin',
+            ]);
+
+            $collection->forget('age');
+
+            expect($collection->toArray())->toBe([
+                'name' => 'Alice',
+                'city' => 'Berlin',
+            ]);
+        });
+
+        it('forgets nested keys', function(): void {
+            $collection = DataCollection::make([
+                'user' => [
+                    'name' => 'Alice',
+                    'age' => 30,
+                    'contact' => [
+                        'email' => 'alice@example.com',
+                        'phone' => '123-456',
+                    ],
+                ],
+            ]);
+
+            $collection->forget('user.contact.phone');
+
+            expect($collection->toArray())->toBe([
+                'user' => [
+                    'name' => 'Alice',
+                    'age' => 30,
+                    'contact' => [
+                        'email' => 'alice@example.com',
+                    ],
+                ],
+            ]);
+        });
+
+        it('forgets array elements', function(): void {
+            $collection = DataCollection::make([
+                'users' => [
+                    ['name' => 'Alice', 'age' => 30],
+                    ['name' => 'Bob', 'age' => 25],
+                ],
+            ]);
+
+            $collection->forget('users.0.age');
+
+            expect($collection->toArray())->toBe([
+                'users' => [
+                    ['name' => 'Alice'],
+                    ['name' => 'Bob', 'age' => 25],
+                ],
+            ]);
+        });
+
+        it('forgets deeply nested keys', function(): void {
+            $collection = DataCollection::make([
+                'company' => [
+                    'departments' => [
+                        [
+                            'name' => 'Engineering',
+                            'teams' => [
+                                ['name' => 'Backend', 'size' => 5],
+                                ['name' => 'Frontend', 'size' => 3],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+
+            $collection->forget('company.departments.0.teams.1.size');
+
+            expect($collection->toArray())->toBe([
+                'company' => [
+                    'departments' => [
+                        [
+                            'name' => 'Engineering',
+                            'teams' => [
+                                ['name' => 'Backend', 'size' => 5],
+                                ['name' => 'Frontend'],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+        });
+    });
+
+    describe('Transform Operations', function(): void {
+        it('transforms simple values', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'alice',
+                'city' => 'berlin',
+            ]);
+
+            $collection
+                ->transform('name', fn($v) => strtoupper($v))
+                ->transform('city', fn($v) => ucfirst($v));
+
+            expect($collection->toArray())->toBe([
+                'name' => 'ALICE',
+                'city' => 'Berlin',
+            ]);
+        });
+
+        it('transforms nested values', function(): void {
+            $collection = DataCollection::make([
+                'user' => [
+                    'profile' => [
+                        'name' => 'alice',
+                        'bio' => 'software developer',
+                    ],
+                ],
+            ]);
+
+            $collection
+                ->transform('user.profile.name', fn($v) => strtoupper($v))
+                ->transform('user.profile.bio', fn($v) => ucwords($v));
+
+            expect($collection->toArray())->toBe([
+                'user' => [
+                    'profile' => [
+                        'name' => 'ALICE',
+                        'bio' => 'Software Developer',
+                    ],
+                ],
+            ]);
+        });
+
+        it('transforms array elements', function(): void {
+            $collection = DataCollection::make([
+                'users' => [
+                    ['name' => 'alice', 'score' => 100],
+                    ['name' => 'bob', 'score' => 200],
+                ],
+            ]);
+
+            $collection
+                ->transform('users.0.name', fn($v) => strtoupper($v))
+                ->transform('users.1.name', fn($v) => strtoupper($v))
+                ->transform('users.0.score', fn($v) => $v + 10)
+                ->transform('users.1.score', fn($v) => $v + 20);
+
+            expect($collection->toArray())->toBe([
+                'users' => [
+                    ['name' => 'ALICE', 'score' => 110],
+                    ['name' => 'BOB', 'score' => 220],
+                ],
+            ]);
+        });
+
+        it('transforms with complex callbacks', function(): void {
+            $collection = DataCollection::make([
+                'prices' => [
+                    ['amount' => 100, 'currency' => 'USD'],
+                    ['amount' => 200, 'currency' => 'EUR'],
+                ],
+            ]);
+
+            $collection
+                ->transform('prices.0.amount', fn($v) => $v * 0.9)
+                ->transform('prices.1.amount', fn($v) => $v * 0.85);
+
+            expect($collection->toArray())->toBe([
+                'prices' => [
+                    ['amount' => 90.0, 'currency' => 'USD'],
+                    ['amount' => 170.0, 'currency' => 'EUR'],
+                ],
+            ]);
+        });
+    });
+
+    describe('PushTo Operations', function(): void {
+        it('pushes to simple arrays', function(): void {
+            $collection = DataCollection::make([
+                'tags' => ['php', 'laravel'],
+            ]);
+
+            $collection
+                ->pushTo('tags', 'symfony')
+                ->pushTo('tags', 'doctrine');
+
+            expect($collection->toArray())->toBe([
+                'tags' => ['php', 'laravel', 'symfony', 'doctrine'],
+            ]);
+        });
+
+        it('pushes to nested arrays', function(): void {
+            $collection = DataCollection::make([
+                'user' => [
+                    'profile' => [
+                        'skills' => ['php', 'javascript'],
+                    ],
+                ],
+            ]);
+
+            $collection
+                ->pushTo('user.profile.skills', 'python')
+                ->pushTo('user.profile.skills', 'rust');
+
+            expect($collection->toArray())->toBe([
+                'user' => [
+                    'profile' => [
+                        'skills' => ['php', 'javascript', 'python', 'rust'],
+                    ],
+                ],
+            ]);
+        });
+
+        it('pushes to array elements', function(): void {
+            $collection = DataCollection::make([
+                'users' => [
+                    ['name' => 'Alice', 'tags' => ['admin']],
+                    ['name' => 'Bob', 'tags' => ['user']],
+                ],
+            ]);
+
+            $collection
+                ->pushTo('users.0.tags', 'moderator')
+                ->pushTo('users.1.tags', 'guest');
+
+            expect($collection->toArray())->toBe([
+                'users' => [
+                    ['name' => 'Alice', 'tags' => ['admin', 'moderator']],
+                    ['name' => 'Bob', 'tags' => ['user', 'guest']],
+                ],
+            ]);
+        });
+
+        it('pushes creates array if not exists', function(): void {
+            $collection = DataCollection::make([
+                'user' => ['name' => 'Alice'],
+            ]);
+
+            $collection->pushTo('user.tags', 'php');
+
+            expect($collection->toArray())->toBe([
+                'user' => ['name' => 'Alice', 'tags' => ['php']],
+            ]);
+        });
+    });
+
+    describe('Pull Operations', function(): void {
+        it('pulls simple values', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+                'city' => 'Berlin',
+            ]);
+
+            $age = $collection->pull('age');
+
+            expect($age)->toBe(30)
+                ->and($collection->toArray())->toBe([
+                    'name' => 'Alice',
+                    'city' => 'Berlin',
+                ]);
+        });
+
+        it('pulls nested values', function(): void {
+            $collection = DataCollection::make([
+                'user' => [
+                    'profile' => [
+                        'name' => 'Alice',
+                        'age' => 30,
+                        'city' => 'Berlin',
+                    ],
+                ],
+            ]);
+
+            $age = $collection->pull('user.profile.age');
+
+            expect($age)->toBe(30)
+                ->and($collection->toArray())->toBe([
+                    'user' => [
+                        'profile' => [
+                            'name' => 'Alice',
+                            'city' => 'Berlin',
+                        ],
+                    ],
+                ]);
+        });
+
+        it('pulls array elements', function(): void {
+            $collection = DataCollection::make([
+                'users' => [
+                    ['name' => 'Alice', 'age' => 30],
+                    ['name' => 'Bob', 'age' => 25],
+                ],
+            ]);
+
+            $age = $collection->pull('users.0.age');
+
+            expect($age)->toBe(30)
+                ->and($collection->toArray())->toBe([
+                    'users' => [
+                        ['name' => 'Alice'],
+                        ['name' => 'Bob', 'age' => 25],
+                    ],
+                ]);
+        });
+
+        it('pulls with default for non-existent paths', function(): void {
+            $collection = DataCollection::make([
+                'user' => ['name' => 'Alice'],
+            ]);
+
+            $age = $collection->pull('user.age', 25);
+            $city = $collection->pull('user.city', 'Unknown');
+
+            expect($age)->toBe(25)
+                ->and($city)->toBe('Unknown')
+                ->and($collection->toArray())->toBe([
+                    'user' => ['name' => 'Alice'],
+                ]);
+        });
+
+        it('pulls deeply nested values', function(): void {
+            $collection = DataCollection::make([
+                'company' => [
+                    'departments' => [
+                        [
+                            'name' => 'Engineering',
+                            'teams' => [
+                                ['name' => 'Backend', 'budget' => 50000],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+
+            $budget = $collection->pull('company.departments.0.teams.0.budget');
+
+            expect($budget)->toBe(50000)
+                ->and($collection->toArray())->toBe([
+                    'company' => [
+                        'departments' => [
+                            [
+                                'name' => 'Engineering',
+                                'teams' => [
+                                    ['name' => 'Backend'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ]);
+        });
+    });
+
+    describe('Complex Scenarios', function(): void {
+        it('combines read and write operations', function(): void {
+            $collection = DataCollection::make([
+                'users' => [
+                    ['name' => 'Alice', 'score' => 85],
+                    ['name' => 'Bob', 'score' => 92],
+                ],
+            ]);
+
+            // Read
+            $aliceScore = $collection->get('users.0.score');
+            expect($aliceScore)->toBe(85);
+
+            // Write
+            $collection->set('users.0.score', 90);
+            expect($collection->get('users.0.score'))->toBe(90);
+
+            // Transform
+            $collection->transform('users.1.score', fn($v) => $v + 5);
+            expect($collection->get('users.1.score'))->toBe(97);
+        });
+
+        it('chains all mutable operations', function(): void {
+            $collection = DataCollection::make([
+                'project' => [
+                    'name' => 'data-helpers',
+                    'version' => '1.0.0',
+                ],
+            ]);
+
+            $collection
+                ->set('project.author', 'event4u')
+                ->merge('project', ['license' => 'MIT', 'status' => 'active'])
+                ->transform('project.name', fn($v) => strtoupper($v))
+                ->pushTo('project.tags', 'php')
+                ->pushTo('project.tags', 'library');
+
+            expect($collection->toArray())->toBe([
+                'project' => [
+                    'name' => 'DATA-HELPERS',
+                    'version' => '1.0.0',
+                    'author' => 'event4u',
+                    'license' => 'MIT',
+                    'status' => 'active',
+                    'tags' => ['php', 'library'],
+                ],
+            ]);
+        });
+
+        it('handles complex nested modifications', function(): void {
+            $collection = DataCollection::make([
+                'company' => [
+                    'name' => 'TechCorp',
+                    'departments' => [
+                        [
+                            'name' => 'Engineering',
+                            'employees' => [
+                                ['name' => 'Alice', 'salary' => 80000],
+                                ['name' => 'Bob', 'salary' => 75000],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+
+            $collection
+                ->set('company.departments.0.employees.0.bonus', 5000)
+                ->set('company.departments.0.employees.1.bonus', 4000)
+                ->transform('company.departments.0.employees.0.salary', fn($v) => $v * 1.1)
+                ->transform('company.departments.0.employees.1.salary', fn($v) => $v * 1.1)
+                ->merge('company', ['founded' => 2020])
+                ->pushTo('company.departments.0.employees.0.skills', 'PHP')
+                ->pushTo('company.departments.0.employees.0.skills', 'Laravel');
+
+            $result = $collection->toArray();
+
+            expect($result['company']['name'])->toBe('TechCorp')
+                ->and($result['company']['founded'])->toBe(2020)
+                ->and($result['company']['departments'][0]['employees'][0]['salary'])->toBe(88000.0)
+                ->and($result['company']['departments'][0]['employees'][0]['bonus'])->toBe(5000)
+                ->and($result['company']['departments'][0]['employees'][0]['skills'])->toBe(['PHP', 'Laravel'])
+                ->and($result['company']['departments'][0]['employees'][1]['salary'])->toBe(82500.0);
+        });
+
+        it('modifies and reads in sequence', function(): void {
+            $collection = DataCollection::make([
+                'config' => [
+                    'database' => ['host' => 'localhost', 'port' => 3306],
+                ],
+            ]);
+
+            // Initial read
+            expect($collection->get('config.database.host'))->toBe('localhost');
+
+            // Modify
+            $collection->set('config.database.host', '127.0.0.1');
+
+            // Read after modification
+            expect($collection->get('config.database.host'))->toBe('127.0.0.1');
+
+            // Add new value
+            $collection->set('config.database.username', 'root');
+
+            // Read new value
+            expect($collection->get('config.database.username'))->toBe('root');
+
+            // Merge
+            $collection->merge('config.database', ['password' => 'secret', 'charset' => 'utf8mb4']);
+
+            // Read merged values
+            expect($collection->get('config.database.password'))->toBe('secret')
+                ->and($collection->get('config.database.charset'))->toBe('utf8mb4');
+        });
+
+        it('handles array of objects modifications', function(): void {
+            $collection = DataCollection::make([
+                'products' => [
+                    ['id' => 1, 'name' => 'Laptop', 'price' => 1000, 'stock' => 5],
+                    ['id' => 2, 'name' => 'Mouse', 'price' => 25, 'stock' => 50],
+                    ['id' => 3, 'name' => 'Keyboard', 'price' => 75, 'stock' => 30],
+                ],
+            ]);
+
+            // Apply discount to all products
+            $collection
+                ->transform('products.0.price', fn($v) => $v * 0.9)
+                ->transform('products.1.price', fn($v) => $v * 0.9)
+                ->transform('products.2.price', fn($v) => $v * 0.9);
+
+            // Add tags
+            $collection
+                ->pushTo('products.0.tags', 'electronics')
+                ->pushTo('products.0.tags', 'computers')
+                ->pushTo('products.1.tags', 'accessories')
+                ->pushTo('products.2.tags', 'accessories');
+
+            // Update stock
+            $collection
+                ->set('products.0.stock', 3)
+                ->set('products.1.stock', 45);
+
+            $result = $collection->toArray();
+
+            expect($result['products'][0]['price'])->toBe(900.0)
+                ->and($result['products'][0]['stock'])->toBe(3)
+                ->and($result['products'][0]['tags'])->toBe(['electronics', 'computers'])
+                ->and($result['products'][1]['price'])->toBe(22.5)
+                ->and($result['products'][1]['stock'])->toBe(45)
+                ->and($result['products'][2]['price'])->toBe(67.5);
+        });
+    });
+
+    describe('Edge Cases and Special Scenarios', function(): void {
+        it('handles non-existent paths with default', function(): void {
+            $collection = DataCollection::make(['name' => 'Alice']);
+
+            expect($collection->get('missing.path', 'default'))->toBe('default');
+        });
+
+        it('handles numeric string keys', function(): void {
+            $collection = DataCollection::make([
+                '0' => 'zero',
+                '1' => 'one',
+                '2' => 'two',
+            ]);
+
+            $collection->set('0', 'ZERO');
+
+            expect($collection->get('0'))->toBe('ZERO');
+        });
+
+        it('handles mixed key types', function(): void {
+            $collection = DataCollection::make([
+                'string_key' => 'value1',
+                0 => 'value2',
+                'nested' => [
+                    'key' => 'value3',
+                    0 => 'value4',
+                ],
+            ]);
+
+            expect($collection->get('string_key'))->toBe('value1')
+                ->and($collection->get('0'))->toBe('value2')
+                ->and($collection->get('nested.key'))->toBe('value3')
+                ->and($collection->get('nested.0'))->toBe('value4');
+        });
+
+        it('handles null values', function(): void {
+            $collection = DataCollection::make([
+                'user' => ['name' => 'Alice', 'age' => null],
+            ]);
+
+            expect($collection->get('user.age'))->toBeNull();
+
+            $collection->set('user.age', 30);
+            expect($collection->get('user.age'))->toBe(30);
+        });
+
+        it('handles boolean values', function(): void {
+            $collection = DataCollection::make([
+                'settings' => ['active' => true, 'debug' => false],
+            ]);
+
+            expect($collection->get('settings.active'))->toBe(true)
+                ->and($collection->get('settings.debug'))->toBe(false);
+
+            $collection->set('settings.debug', true);
+            expect($collection->get('settings.debug'))->toBe(true);
+        });
+
+        it('handles array values', function(): void {
+            $collection = DataCollection::make([
+                'user' => ['tags' => ['php', 'laravel']],
+            ]);
+
+            $tags = $collection->get('user.tags');
+            expect($tags)->toBe(['php', 'laravel']);
+
+            $collection->set('user.tags', ['php', 'symfony']);
+            expect($collection->get('user.tags'))->toBe(['php', 'symfony']);
+        });
+
+        it('preserves data types after modifications', function(): void {
+            $collection = DataCollection::make([
+                'data' => [
+                    'string' => 'text',
+                    'int' => 42,
+                    'float' => 3.14,
+                    'bool' => true,
+                    'null' => null,
+                    'array' => [1, 2, 3],
+                ],
+            ]);
+
+            $collection
+                ->set('data.new_string', 'new text')
+                ->set('data.new_int', 100)
+                ->set('data.new_float', 2.71)
+                ->set('data.new_bool', false);
+
+            expect($collection->get('data.string'))->toBeString()
+                ->and($collection->get('data.int'))->toBeInt()
+                ->and($collection->get('data.float'))->toBeFloat()
+                ->and($collection->get('data.bool'))->toBeBool()
+                ->and($collection->get('data.null'))->toBeNull()
+                ->and($collection->get('data.array'))->toBeArray();
+        });
+
+        it('handles very deep nesting', function(): void {
+            $collection = DataCollection::make([]);
+
+            $collection->set('a.b.c.d.e.f.g.h.i.j', 'deep value');
+
+            expect($collection->get('a.b.c.d.e.f.g.h.i.j'))->toBe('deep value');
+
+            $collection->transform('a.b.c.d.e.f.g.h.i.j', fn($v) => strtoupper($v));
+
+            expect($collection->get('a.b.c.d.e.f.g.h.i.j'))->toBe('DEEP VALUE');
+        });
+
+        it('handles large arrays efficiently', function(): void {
+            $items = [];
+            for ($i = 0; $i < 1000; $i++) {
+                $items[] = ['id' => $i, 'value' => "item_{$i}"];
+            }
+
+            $collection = DataCollection::make(['items' => $items]);
+
+            // Read
+            expect($collection->get('items.500.id'))->toBe(500);
+
+            // Write
+            $collection->set('items.500.value', 'modified');
+            expect($collection->get('items.500.value'))->toBe('modified');
+
+            // Transform
+            $collection->transform('items.999.value', fn($v) => strtoupper($v));
+            expect($collection->get('items.999.value'))->toBe('ITEM_999');
+        });
+    });
 });

@@ -446,10 +446,10 @@ $dtos = array_map(
 );
 ```
 
-### Using DataCollection
+### Using DtoCollection
 
 ```php
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
@@ -458,11 +458,11 @@ $data = [
     ['name' => 'Bob', 'email' => 'bob@example.com'],
 ];
 
-$collection = DataCollection::make($data, UserDto::class);
+$collection = DtoCollection::make($data, UserDto::class);
 
 $filtered = $collection->filter(fn($dto) => str_contains($dto->email, 'john'));
 $mapped = $collection->map(fn($dto) => $dto->name);
-// Result: DataCollection with filtered/mapped Dtos
+// Result: DtoCollection with filtered/mapped Dtos
 ```
 
 ## Best Practices

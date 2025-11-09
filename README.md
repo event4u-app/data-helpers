@@ -265,7 +265,7 @@ foreach ($accessor->lazyFilter(fn($user) => $user['age'] > 25) as $user) {
 
 ### 2️⃣ DataCollection - Type-Safe Collections
 
-Framework-independent collection class with fluent API. Uses DataAccessor internally for all data operations, enabling dot-notation access within collections:
+Framework-independent collection class with fluent API. Uses DataAccessor for reading and DataMutator for writing, enabling full dot-notation support:
 
 ```php
 use event4u\DataHelpers\DataCollection;
@@ -278,12 +278,18 @@ $result = $collection
     ->map(fn($item) => $item * 2)     // [6, 8, 10]
     ->reduce(fn($carry, $item) => $carry + $item, 0);  // 24
 
-// Dot-notation access within collections
+// Dot-notation read access (via DataAccessor)
 $collection = DataCollection::make([
     ['user' => ['name' => 'Alice', 'age' => 30]],
     ['user' => ['name' => 'Bob', 'age' => 25]],
 ]);
 $name = $collection->get('0.user.name');  // 'Alice'
+
+// Dot-notation write access (via DataMutator) - modifies in-place
+$collection
+    ->set('0.user.city', 'Berlin')
+    ->merge('1.user', ['city' => 'Munich', 'country' => 'Germany'])
+    ->transform('0.user.name', fn($name) => strtoupper($name));
 
 // Lazy evaluation for large datasets
 foreach ($collection->lazyFilter(fn($item) => $item > 2) as $item) {

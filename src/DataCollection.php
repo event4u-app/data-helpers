@@ -244,7 +244,158 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return $this;
     }
 
+    /**
+     * Set a value in the collection using dot notation.
+     *
+     * Modifies the collection in-place and returns $this for chaining.
+     * Uses DataMutator internally for dot-notation support.
+     *
+     * Example:
+     *   $collection = DataCollection::make([
+     *       ['user' => ['name' => 'Alice']],
+     *   ]);
+     *   $collection->set('0.user.age', 30);
+     *   // Collection now contains: [['user' => ['name' => 'Alice', 'age' => 30]]]
+     *
+     * @param string $path Dot-notation path
+     * @param mixed $value Value to set
+     * @return $this
+     */
+    public function set(string $path, mixed $value): static
+    {
+        DataMutator::make($this->items)->set($path, $value);
+        $this->accessor = new DataAccessor($this->items);
 
+        return $this;
+    }
+
+    /**
+     * Merge values into the collection using dot notation.
+     *
+     * Modifies the collection in-place and returns $this for chaining.
+     * Uses DataMutator internally for dot-notation support.
+     *
+     * Example:
+     *   $collection = DataCollection::make([
+     *       ['user' => ['name' => 'Alice']],
+     *   ]);
+     *   $collection->merge('0.user', ['age' => 30, 'city' => 'Berlin']);
+     *   // Collection now contains: [['user' => ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin']]]
+     *
+     * @param array<string, mixed>|string $pathOrValues Path or array of path => value pairs
+     * @param array<int|string, mixed>|null $value Value to merge (if path is string)
+     * @return $this
+     */
+    public function merge(array|string $pathOrValues, ?array $value = null): static
+    {
+        if (is_array($pathOrValues)) {
+            DataMutator::make($this->items)->merge($pathOrValues);
+        } else {
+            DataMutator::make($this->items)->merge($pathOrValues, $value);
+        }
+        $this->accessor = new DataAccessor($this->items);
+
+        return $this;
+    }
+
+    /**
+     * Remove a value from the collection using dot notation.
+     *
+     * Modifies the collection in-place and returns $this for chaining.
+     * Uses DataMutator internally for dot-notation support.
+     *
+     * Example:
+     *   $collection = DataCollection::make([
+     *       ['user' => ['name' => 'Alice', 'age' => 30]],
+     *   ]);
+     *   $collection->forget('0.user.age');
+     *   // Collection now contains: [['user' => ['name' => 'Alice']]]
+     *
+     * @param string $path Dot-notation path
+     * @return $this
+     */
+    public function forget(string $path): static
+    {
+        DataMutator::make($this->items)->unset($path);
+        $this->accessor = new DataAccessor($this->items);
+
+        return $this;
+    }
+
+    /**
+     * Transform a value at the given path using a callback.
+     *
+     * Modifies the collection in-place and returns $this for chaining.
+     * Uses DataMutator internally for dot-notation support.
+     *
+     * Example:
+     *   $collection = DataCollection::make([
+     *       ['user' => ['name' => 'alice']],
+     *   ]);
+     *   $collection->transform('0.user.name', fn($name) => strtoupper($name));
+     *   // Collection now contains: [['user' => ['name' => 'ALICE']]]
+     *
+     * @param string $path Dot-notation path
+     * @param callable(mixed): mixed $callback Transformation callback
+     * @return $this
+     */
+    public function transform(string $path, callable $callback): static
+    {
+        DataMutator::make($this->items)->transform($path, $callback);
+        $this->accessor = new DataAccessor($this->items);
+
+        return $this;
+    }
+
+    /**
+     * Push a value onto an array at the given path.
+     *
+     * Modifies the collection in-place and returns $this for chaining.
+     * Uses DataMutator internally for dot-notation support.
+     *
+     * Example:
+     *   $collection = DataCollection::make([
+     *       ['user' => ['tags' => ['php']]],
+     *   ]);
+     *   $collection->pushTo('0.user.tags', 'laravel');
+     *   // Collection now contains: [['user' => ['tags' => ['php', 'laravel']]]]
+     *
+     * @param string $path Dot-notation path to array
+     * @param mixed $value Value to push
+     * @return $this
+     */
+    public function pushTo(string $path, mixed $value): static
+    {
+        DataMutator::make($this->items)->push($path, $value);
+        $this->accessor = new DataAccessor($this->items);
+
+        return $this;
+    }
+
+    /**
+     * Remove and return a value from the collection using dot notation.
+     *
+     * Modifies the collection in-place and returns the removed value.
+     * Uses DataMutator internally for dot-notation support.
+     *
+     * Example:
+     *   $collection = DataCollection::make([
+     *       ['user' => ['name' => 'Alice', 'age' => 30]],
+     *   ]);
+     *   $age = $collection->pull('0.user.age');  // 30
+     *   // Collection now contains: [['user' => ['name' => 'Alice']]]
+     *
+     * @param string $path Dot-notation path
+     * @param mixed $default Default value if path doesn't exist
+     * @return mixed
+     */
+    public function pull(string $path, mixed $default = null): mixed
+    {
+        $value = DataMutator::make($this->items)->pull($path, $default);
+        $this->accessor = new DataAccessor($this->items);
+
+        return $value;
+    }
 
     /**
      * Get the collection of items as a plain array.
