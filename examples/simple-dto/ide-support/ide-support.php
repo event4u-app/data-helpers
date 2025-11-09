@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../bootstrap.php';
 
+use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Between;
 use event4u\DataHelpers\SimpleDto\Attributes\Email;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 
 // Example 1: Type Inference for fromArray()
 echo "Example 1: Type Inference for fromArray()\n";
@@ -194,9 +195,9 @@ echo "    IDE provides autocomplete for naming conventions\n\n";
 echo "\nExample 8: DataCollection<SimpleDto> Type Hints\n";
 echo str_repeat('=', 80) . "\n\n";
 
-// Create a DataCollection directly
-/** @var DataCollection<SimpleDto> $members */
-$members = DataCollection::forDto(UserDto::class, [
+// Create a DtoCollection directly
+/** @var DtoCollection<SimpleDto> $members */
+$members = DtoCollection::forDto(UserDto::class, [
     ['name' => 'John', 'age' => 30, 'email' => 'john@example.com'],
     ['name' => 'Jane', 'age' => 25, 'email' => 'jane@example.com'],
 ]);

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\Exceptions\TypeMismatchException;
 
 describe('DataAccessor Typed Getters', function(): void {
@@ -301,7 +302,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect($accessor->getIntCollection('users.*.age'))->toBe([
+                expect($accessor->getIntCollection('users.*.age')->toArray())->toBe([
                     'users.0.age' => 25,
                     'users.1.age' => 30,
                     'users.2.age' => 35,
@@ -316,7 +317,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect($accessor->getIntCollection('items.*.count'))->toBe([
+                expect($accessor->getIntCollection('items.*.count')->toArray())->toBe([
                     'items.0.count' => 10,
                     'items.1.count' => 20,
                 ]);
@@ -325,7 +326,7 @@ describe('DataAccessor Typed Getters', function(): void {
             it('throws exception when path has no wildcard', function(): void {
                 $accessor = new DataAccessor(['age' => 25]);
 
-                expect(fn(): array => $accessor->getIntCollection('age'))
+                expect(fn(): array => $accessor->getIntCollection('age')) // @phpstan-ignore return.type
                     ->toThrow(TypeMismatchException::class, 'Path "age" does not contain wildcards');
             });
 
@@ -336,7 +337,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect(fn(): array => $accessor->getIntCollection('users.*.name'))
+                expect(fn(): array => $accessor->getIntCollection('users.*.name')) // @phpstan-ignore return.type
                     ->toThrow(
                         TypeMismatchException::class,
                         'Cannot convert value at key "users.0.name" in path "users.*.name" to int'
@@ -353,7 +354,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect($accessor->getStringCollection('users.*.name'))->toBe([
+                expect($accessor->getStringCollection('users.*.name')->toArray())->toBe([
                     'users.0.name' => 'Alice',
                     'users.1.name' => 'Bob',
                 ]);
@@ -367,7 +368,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect($accessor->getStringCollection('items.*.id'))->toBe([
+                expect($accessor->getStringCollection('items.*.id')->toArray())->toBe([
                     'items.0.id' => '123',
                     'items.1.id' => '456',
                 ]);
@@ -376,7 +377,7 @@ describe('DataAccessor Typed Getters', function(): void {
             it('throws exception when path has no wildcard', function(): void {
                 $accessor = new DataAccessor(['name' => 'John']);
 
-                expect(fn(): array => $accessor->getStringCollection('name'))
+                expect(fn(): array => $accessor->getStringCollection('name')) // @phpstan-ignore return.type
                     ->toThrow(TypeMismatchException::class, 'Path "name" does not contain wildcards');
             });
 
@@ -387,7 +388,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect(fn(): array => $accessor->getStringCollection('items.*.obj'))
+                expect(fn(): array => $accessor->getStringCollection('items.*.obj')) // @phpstan-ignore return.type
                     ->toThrow(
                         TypeMismatchException::class,
                         'Cannot convert value at key "items.0.obj" in path "items.*.obj" to string'
@@ -405,7 +406,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect($accessor->getBoolCollection('users.*.active'))->toBe([
+                expect($accessor->getBoolCollection('users.*.active')->toArray())->toBe([
                     'users.0.active' => true,
                     'users.1.active' => false,
                     'users.2.active' => true,
@@ -415,7 +416,7 @@ describe('DataAccessor Typed Getters', function(): void {
             it('throws exception when path has no wildcard', function(): void {
                 $accessor = new DataAccessor(['active' => true]);
 
-                expect(fn(): array => $accessor->getBoolCollection('active'))
+                expect(fn(): DataCollection => $accessor->getBoolCollection('active')) // @phpstan-ignore return.type
                     ->toThrow(TypeMismatchException::class, 'Path "active" does not contain wildcards');
             });
         });
@@ -430,7 +431,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect($accessor->getFloatCollection('products.*.price'))->toBe([
+                expect($accessor->getFloatCollection('products.*.price')->toArray())->toBe([
                     'products.0.price' => 19.99,
                     'products.1.price' => 29.99,
                     'products.2.price' => 39.99,
@@ -440,7 +441,7 @@ describe('DataAccessor Typed Getters', function(): void {
             it('throws exception when path has no wildcard', function(): void {
                 $accessor = new DataAccessor(['price' => 19.99]);
 
-                expect(fn(): array => $accessor->getFloatCollection('price'))
+                expect(fn(): DataCollection => $accessor->getFloatCollection('price')) // @phpstan-ignore return.type
                     ->toThrow(TypeMismatchException::class, 'Path "price" does not contain wildcards');
             });
 
@@ -451,7 +452,9 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect(fn(): array => $accessor->getFloatCollection('products.*.name'))
+                expect(
+                    fn(): DataCollection => $accessor->getFloatCollection('products.*.name')
+                ) // @phpstan-ignore return.type
                     ->toThrow(
                         TypeMismatchException::class,
                         'Cannot convert value at key "products.0.name" in path "products.*.name" to float'
@@ -468,7 +471,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect($accessor->getArrayCollection('users.*.tags'))->toBe([
+                expect($accessor->getArrayCollection('users.*.tags')->toArray())->toBe([
                     'users.0.tags' => ['admin', 'user'],
                     'users.1.tags' => ['guest'],
                 ]);
@@ -477,7 +480,7 @@ describe('DataAccessor Typed Getters', function(): void {
             it('throws exception when path has no wildcard', function(): void {
                 $accessor = new DataAccessor(['tags' => ['admin']]);
 
-                expect(fn(): array => $accessor->getArrayCollection('tags'))
+                expect(fn(): DataCollection => $accessor->getArrayCollection('tags'))
                     ->toThrow(TypeMismatchException::class, 'Path "tags" does not contain wildcards');
             });
 
@@ -488,7 +491,7 @@ describe('DataAccessor Typed Getters', function(): void {
                     ],
                 ]);
 
-                expect(fn(): array => $accessor->getArrayCollection('users.*.name'))
+                expect(fn(): DataCollection => $accessor->getArrayCollection('users.*.name'))
                     ->toThrow(
                         TypeMismatchException::class,
                         'Expected array at key "users.0.name" in path "users.*.name"'

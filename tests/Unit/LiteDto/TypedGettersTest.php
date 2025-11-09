@@ -205,7 +205,7 @@ describe('LiteDto Typed Getters', function(): void {
                 'metadata' => [],
             ]);
 
-            expect($dto->getIntCollection('users.*.age'))->toBe([
+            expect($dto->getIntCollection('users.*.age')->toArray())->toBe([
                 'users.0.age' => 25,
                 'users.1.age' => 30,
             ]);
@@ -223,7 +223,7 @@ describe('LiteDto Typed Getters', function(): void {
                 'metadata' => [],
             ]);
 
-            expect($dto->getStringCollection('users.*.name'))->toBe([
+            expect($dto->getStringCollection('users.*.name')->toArray())->toBe([
                 'users.0.name' => 'Alice',
                 'users.1.name' => 'Bob',
             ]);
@@ -241,7 +241,7 @@ describe('LiteDto Typed Getters', function(): void {
                 'metadata' => ['flags' => [true, false, 1, 0]],
             ]);
 
-            expect($dto->getBoolCollection('metadata.flags.*'))->toBe([
+            expect($dto->getBoolCollection('metadata.flags.*')->toArray())->toBe([
                 'metadata.flags.0' => true,
                 'metadata.flags.1' => false,
                 'metadata.flags.2' => true,
@@ -258,7 +258,7 @@ describe('LiteDto Typed Getters', function(): void {
                 'metadata' => ['prices' => [19.99, 29.99, '39.99']],
             ]);
 
-            expect($dto->getFloatCollection('metadata.prices.*'))->toBe([
+            expect($dto->getFloatCollection('metadata.prices.*')->toArray())->toBe([
                 'metadata.prices.0' => 19.99,
                 'metadata.prices.1' => 29.99,
                 'metadata.prices.2' => 39.99,
@@ -274,7 +274,7 @@ describe('LiteDto Typed Getters', function(): void {
                 'metadata' => ['items' => [['a' => 1], ['b' => 2]]],
             ]);
 
-            expect($dto->getArrayCollection('metadata.items.*'))->toBe([
+            expect($dto->getArrayCollection('metadata.items.*')->toArray())->toBe([
                 'metadata.items.0' => ['a' => 1],
                 'metadata.items.1' => ['b' => 2],
             ]);
@@ -285,7 +285,7 @@ describe('LiteDto Typed Getters', function(): void {
                 'name' => 'John', 'age' => 30, 'email' => null, 'users' => [], 'metadata' => []]
             );
 
-            expect(fn(): array => $dto->getIntCollection('age'))
+            expect(fn(): array => $dto->getIntCollection('age')) // @phpstan-ignore return.type
                 ->toThrow(TypeMismatchException::class, 'Path "age" does not contain wildcards');
         });
     });

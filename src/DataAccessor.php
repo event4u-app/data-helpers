@@ -9,6 +9,7 @@ use event4u\DataHelpers\Helpers\DotPathHelper;
 use event4u\DataHelpers\Support\ArrayableHelper;
 use event4u\DataHelpers\Support\CollectionHelper;
 use event4u\DataHelpers\Support\EntityHelper;
+use Generator;
 use JsonSerializable;
 use SimpleXMLElement;
 use stdClass;
@@ -301,10 +302,10 @@ class DataAccessor
      * Get a collection of integer values from the data.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, int> Array of integer values
+     * @return DataCollection<int> Collection of integer values
      * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to int
      */
-    public function getIntCollection(string $path): array
+    public function getIntCollection(string $path): DataCollection
     {
         $pathInfo = $this->getPathInfo($path);
 
@@ -337,17 +338,17 @@ class DataAccessor
             $result[$key] = (int)$value;
         }
 
-        return $result;
+        return DataCollection::make($result);
     }
 
     /**
      * Get a collection of string values from the data.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, string> Array of string values
+     * @return DataCollection<string> Collection of string values
      * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to string
      */
-    public function getStringCollection(string $path): array
+    public function getStringCollection(string $path): DataCollection
     {
         $pathInfo = $this->getPathInfo($path);
 
@@ -380,17 +381,17 @@ class DataAccessor
             $result[$key] = (string)$value;
         }
 
-        return $result;
+        return DataCollection::make($result);
     }
 
     /**
      * Get a collection of boolean values from the data.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, bool> Array of boolean values
+     * @return DataCollection<bool> Collection of boolean values
      * @throws TypeMismatchException If path doesn't contain wildcards
      */
-    public function getBoolCollection(string $path): array
+    public function getBoolCollection(string $path): DataCollection
     {
         $pathInfo = $this->getPathInfo($path);
 
@@ -413,17 +414,17 @@ class DataAccessor
             $result[$key] = (bool)$value;
         }
 
-        return $result;
+        return DataCollection::make($result);
     }
 
     /**
      * Get a collection of float values from the data.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, float> Array of float values
+     * @return DataCollection<float> Collection of float values
      * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to float
      */
-    public function getFloatCollection(string $path): array
+    public function getFloatCollection(string $path): DataCollection
     {
         $pathInfo = $this->getPathInfo($path);
 
@@ -456,17 +457,17 @@ class DataAccessor
             $result[$key] = (float)$value;
         }
 
-        return $result;
+        return DataCollection::make($result);
     }
 
     /**
      * Get a collection of array values from the data.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, array<int|string, mixed>> Array of array values
+     * @return DataCollection<array<int|string, mixed>> Collection of array values
      * @throws TypeMismatchException If path doesn't contain wildcards or values are not arrays
      */
-    public function getArrayCollection(string $path): array
+    public function getArrayCollection(string $path): DataCollection
     {
         $pathInfo = $this->getPathInfo($path);
 
@@ -494,7 +495,8 @@ class DataAccessor
             $result[$key] = $value;
         }
 
-        return $result;
+        /** @var DataCollection<array<int|string, mixed>> */
+        return DataCollection::make($result);
     }
 
     /**
@@ -1311,5 +1313,162 @@ class DataAccessor
         }
 
         return $arr;
+    }
+
+    /**
+     * Get the first item from the data.
+     *
+     * @param (callable(mixed, int|string): bool)|null $callback Optional filter callback
+     * @param mixed $default Default value if no item found
+     */
+    public function first(?callable $callback = null, mixed $default = null): mixed
+    {
+        if (null === $callback) {
+            foreach ($this->data as $item) {
+                return $item;
+            }
+            return $default;
+        }
+
+        foreach ($this->data as $key => $item) {
+            if ($callback($item, $key)) {
+                return $item;
+            }
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get the last item from the data.
+     *
+     * @param (callable(mixed, int|string): bool)|null $callback Optional filter callback
+     * @param mixed $default Default value if no item found
+     */
+    public function last(?callable $callback = null, mixed $default = null): mixed
+    {
+        if (null === $callback) {
+            $items = array_reverse($this->data, true);
+            foreach ($items as $item) {
+                return $item;
+            }
+            return $default;
+        }
+
+        $items = array_reverse($this->data, true);
+        foreach ($items as $key => $item) {
+            if ($callback($item, $key)) {
+                return $item;
+            }
+        }
+
+        return $default;
+    }
+
+    /**
+     * Filter items by a given callback.
+     *
+     * @param callable(mixed, int|string): bool|null $callback Filter callback
+     * @return array<int|string, mixed> Filtered array
+     */
+    public function filter(?callable $callback = null): array
+    {
+        $filtered = [];
+
+        if (null === $callback) {
+            foreach ($this->data as $key => $item) {
+                if ($item) {
+                    $filtered[$key] = $item;
+                }
+            }
+        } else {
+            foreach ($this->data as $key => $item) {
+                if ($callback($item, $key)) {
+                    $filtered[$key] = $item;
+                }
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * Map over each item in the data.
+     *
+     * @param callable(mixed, int|string): mixed $callback Map callback
+     * @return array<int|string, mixed> Mapped array
+     */
+    public function map(callable $callback): array
+    {
+        $items = [];
+        foreach ($this->data as $key => $value) {
+            $items[$key] = $callback($value, $key);
+        }
+
+        return $items;
+    }
+
+    /**
+     * Reduce the data to a single value.
+     *
+     * @param callable(mixed, mixed, int|string): mixed $callback Reduce callback
+     * @param mixed $initial Initial value
+     */
+    public function reduce(callable $callback, mixed $initial = null): mixed
+    {
+        $carry = $initial;
+
+        foreach ($this->data as $key => $item) {
+            $carry = $callback($carry, $item, $key);
+        }
+
+        return $carry;
+    }
+
+    /**
+     * Lazy iteration using Generator for memory efficiency.
+     *
+     * Use this for large datasets (10k+ items) to avoid loading all items into memory.
+     *
+     * Example:
+     *   foreach ($accessor->lazy() as $item) {
+     *       // Process one item at a time
+     *   }
+     *
+     * @return Generator<int|string, mixed>
+     */
+    public function lazy(): Generator
+    {
+        foreach ($this->data as $key => $item) {
+            yield $key => $item;
+        }
+    }
+
+    /**
+     * Lazy filter using Generator for memory efficiency.
+     *
+     * @param callable(mixed, int|string): bool $callback Filter callback
+     * @return Generator<int|string, mixed>
+     */
+    public function lazyFilter(callable $callback): Generator
+    {
+        foreach ($this->data as $key => $item) {
+            if ($callback($item, $key)) {
+                yield $key => $item;
+            }
+        }
+    }
+
+    /**
+     * Lazy map using Generator for memory efficiency.
+     *
+     * @param callable(mixed, int|string): mixed $callback Map callback
+     * @return Generator<int|string, mixed>
+     */
+    public function lazyMap(callable $callback): Generator
+    {
+        foreach ($this->data as $key => $item) {
+            yield $key => $callback($item, $key);
+        }
     }
 }

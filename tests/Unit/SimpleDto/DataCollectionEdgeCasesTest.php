@@ -3,12 +3,29 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
+
+// Test Dtos
+class DataCollectionEdgeCaseUserDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly int $age,
+    ) {}
+}
+
+class DataCollectionEdgeCaseProductDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly float $price,
+    ) {}
+}
 
 describe('DataCollection Edge Cases', function(): void {
     describe('Constructor Edge Cases', function(): void {
         it('handles empty array', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             expect($collection->count())->toBe(0)
                 ->and($collection->isEmpty())->toBeTrue()
@@ -17,7 +34,7 @@ describe('DataCollection Edge Cases', function(): void {
 
         it('handles mixed Dtos and arrays', function(): void {
             $dto = new DataCollectionEdgeCaseUserDto('John', 30);
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 $dto,
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -32,7 +49,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('throws exception for invalid item type', function(): void {
-            expect(fn(): DataCollection => DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            expect(fn(): DtoCollection => DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [ // @phpstan-ignore return.type
                 'invalid string',
             ]))->toThrow(InvalidArgumentException::class);
         });
@@ -41,7 +58,7 @@ describe('DataCollection Edge Cases', function(): void {
             $wrongDto = new DataCollectionEdgeCaseProductDto('Product', 99.99);
 
             try {
-                DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [$wrongDto]);
+                DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [$wrongDto]);
                 expect(true)->toBeFalse('Expected InvalidArgumentException to be thrown');
             } catch (InvalidArgumentException $invalidArgumentException) {
                 expect($invalidArgumentException->getMessage())->toContain('DataCollectionEdgeCaseUserDto');
@@ -49,7 +66,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('handles null values in array data', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -60,7 +77,7 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('Filter Edge Cases', function(): void {
         it('filters with null callback removes falsy values', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -71,7 +88,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('filter removes all items', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -83,7 +100,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('filter on empty collection', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             /** @phpstan-ignore-next-line unknown */
             $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDto $u): bool => 20 < $u->age);
@@ -92,7 +109,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('filter preserves original collection', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -105,14 +122,14 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('filter resets array keys', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
             ]);
 
             /** @phpstan-ignore-next-line unknown */
-            $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDto $u): bool => 25 < $u->age);
+            $filtered = $collection->filter(fn(DataCollectionEdgeCaseUserDto $u): bool => 25 < $u->age)->values();
 
             $first = $filtered->get(0);
             $second = $filtered->get(1);
@@ -127,18 +144,18 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('Map Edge Cases', function(): void {
         it('maps to different types', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line unknown */
-            $names = $collection->map(fn(DataCollectionEdgeCaseUserDto $u): string => $u->name);
-            /** @phpstan-ignore-next-line unknown */
-            $ages = $collection->map(fn(DataCollectionEdgeCaseUserDto $u): int => $u->age);
-            $combined = $collection->map(
-                /** @phpstan-ignore-next-line unknown */
-                fn(DataCollectionEdgeCaseUserDto $u): string => sprintf('%s:%d', $u->name, $u->age)
+            // Note: DtoCollection::map() returns DTOs, not arbitrary values
+            // Use array_column() or array_map() to extract scalar values
+            $names = array_column($collection->toArray(), 'name');
+            $ages = array_column($collection->toArray(), 'age');
+            $combined = array_map(
+                fn(array $item): string => sprintf('%s:%d', $item['name'], $item['age']),
+                $collection->toArray()
             );
 
             expect($names)->toBe(['John', 'Jane'])
@@ -147,37 +164,40 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('maps on empty collection', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
-            /** @phpstan-ignore-next-line unknown */
-            $result = $collection->map(fn(DataCollectionEdgeCaseUserDto $u): string => $u->name);
+            // Note: DtoCollection::map() returns DTOs, not arbitrary values
+            $result = array_column($collection->toArray(), 'name');
 
             expect($result)->toBe([]);
         });
 
         it('map preserves original collection', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
-            /** @phpstan-ignore-next-line unknown */
-            $names = $collection->map(fn(DataCollectionEdgeCaseUserDto $u): string => $u->name);
+            // Note: DtoCollection::map() returns DTOs, not arbitrary values
+            $names = array_column($collection->toArray(), 'name');
 
             expect($collection->count())->toBe(1)
                 ->and($collection->first())->toBeInstanceOf(DataCollectionEdgeCaseUserDto::class);
         });
 
         it('maps to complex structures', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line unknown */
-            $result = $collection->map(fn(DataCollectionEdgeCaseUserDto $u): array => [
-                'fullName' => strtoupper($u->name),
-                'ageInMonths' => $u->age * 12,
-            ]);
+            // Note: DtoCollection::map() returns DTOs, not arbitrary values
+            $result = array_map(
+                fn(array $item): array => [
+                    'fullName' => strtoupper((string)$item['name']),
+                    'ageInMonths' => ((int)$item['age']) * 12,
+                ],
+                $collection->toArray()
+            );
 
             expect($result)->toBe([
                 ['fullName' => 'JOHN', 'ageInMonths' => 360],
@@ -188,7 +208,7 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('Reduce Edge Cases', function(): void {
         it('reduces without initial value', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -202,7 +222,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('reduces on empty collection with initial value', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             $result = $collection->reduce(
                 /** @phpstan-ignore-next-line unknown */
@@ -214,7 +234,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('reduces on empty collection without initial value', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             $result = $collection->reduce(
                 /** @phpstan-ignore-next-line unknown */
@@ -225,7 +245,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('reduces to complex structure', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -243,19 +263,19 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('First/Last Edge Cases', function(): void {
         it('first on empty collection returns null', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             expect($collection->first())->toBeNull();
         });
 
         it('last on empty collection returns null', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             expect($collection->last())->toBeNull();
         });
 
         it('first with callback that finds nothing returns default', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -267,7 +287,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('last with callback that finds nothing returns default', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -279,7 +299,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('first with callback returns first match', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 35],
                 ['name' => 'Bob', 'age' => 40],
@@ -293,7 +313,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('last with callback returns last match', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 35],
                 ['name' => 'Bob', 'age' => 40],
@@ -309,7 +329,7 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('Array Access Edge Cases', function(): void {
         it('handles negative indices', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -317,7 +337,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('handles out of bounds access', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -326,7 +346,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('can set items via array access', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -340,7 +360,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('can append via array access with null offset', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -354,7 +374,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('can unset items', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -366,7 +386,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('throws exception when setting invalid data via array access', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             /** @phpstan-ignore-next-line unknown */
             expect(fn(): string => $collection[0] = 'invalid')->toThrow(InvalidArgumentException::class);
@@ -375,7 +395,7 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('Iteration Edge Cases', function(): void {
         it('iterates over empty collection', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             $count = 0;
             foreach ($collection as $item) {
@@ -386,7 +406,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('can break during iteration', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -405,7 +425,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('provides correct items during iteration', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -422,21 +442,21 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('Push/Prepend Edge Cases', function(): void {
         it('push throws exception for invalid data', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             /** @phpstan-ignore-next-line unknown */
             expect(fn(): DataCollection => $collection->push('invalid'))->toThrow(InvalidArgumentException::class);
         });
 
         it('prepend throws exception for invalid data', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             /** @phpstan-ignore-next-line unknown */
             expect(fn(): DataCollection => $collection->prepend('invalid'))->toThrow(InvalidArgumentException::class);
         });
 
         it('push multiple items at once', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -453,7 +473,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('push returns collection for chaining', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             $result = $collection
                 ->push(['name' => 'John', 'age' => 30])
@@ -464,7 +484,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('prepend returns collection for chaining', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             $result = $collection
                 ->prepend(['name' => 'John', 'age' => 30])
@@ -481,19 +501,19 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('Conversion Edge Cases', function(): void {
         it('toArray on empty collection', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             expect($collection->toArray())->toBe([]);
         });
 
         it('toJson on empty collection', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             expect($collection->toJson())->toBe('[]');
         });
 
         it('toJson with options', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -504,7 +524,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('jsonSerialize returns correct structure', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -520,7 +540,7 @@ describe('DataCollection Edge Cases', function(): void {
                 $items[] = ['name' => 'User' . $i, 'age' => $i];
             }
 
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, $items);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, $items);
 
             $first = $collection->first();
             $last = $collection->last();
@@ -535,28 +555,28 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('WrapDto Edge Cases', function(): void {
         it('wraps existing collection of same type', function(): void {
-            $original = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $original = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
-            $wrapped = DataCollection::wrapDto(DataCollectionEdgeCaseUserDto::class, $original);
+            $wrapped = DtoCollection::wrapDto(DataCollectionEdgeCaseUserDto::class, $original);
 
             expect($wrapped)->toBe($original);
         });
 
         it('creates new collection for different Dto class', function(): void {
-            $original = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $original = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
-            $wrapped = DataCollection::wrapDto(DataCollectionEdgeCaseProductDto::class, []);
+            $wrapped = DtoCollection::wrapDto(DataCollectionEdgeCaseProductDto::class, []);
 
             expect($wrapped)->not->toBe($original)
                 ->and($wrapped->getDtoClass())->toBe(DataCollectionEdgeCaseProductDto::class);
         });
 
         it('wraps single item array', function(): void {
-            $wrapped = DataCollection::wrapDto(
+            $wrapped = DtoCollection::wrapDto(
                 DataCollectionEdgeCaseUserDto::class,
                 [['name' => 'John', 'age' => 30]]
             );
@@ -569,7 +589,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('wraps empty array', function(): void {
-            $wrapped = DataCollection::wrapDto(DataCollectionEdgeCaseUserDto::class, []);
+            $wrapped = DtoCollection::wrapDto(DataCollectionEdgeCaseUserDto::class, []);
 
             expect($wrapped->count())->toBe(0);
         });
@@ -577,7 +597,7 @@ describe('DataCollection Edge Cases', function(): void {
 
     describe('Utility Edge Cases', function(): void {
         it('get returns null for non-existent index', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -585,7 +605,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('items returns internal array', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -598,7 +618,7 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('all returns same as items', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -606,26 +626,9 @@ describe('DataCollection Edge Cases', function(): void {
         });
 
         it('getDtoClass returns correct class', function(): void {
-            $collection = DataCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
+            $collection = DtoCollection::forDto(DataCollectionEdgeCaseUserDto::class, []);
 
             expect($collection->getDtoClass())->toBe(DataCollectionEdgeCaseUserDto::class);
         });
     });
 });
-
-// Test Dtos
-class DataCollectionEdgeCaseUserDto extends SimpleDto
-{
-    public function __construct(
-        public readonly string $name,
-        public readonly int $age,
-    ) {}
-}
-
-class DataCollectionEdgeCaseProductDto extends SimpleDto
-{
-    public function __construct(
-        public readonly string $name,
-        public readonly float $price,
-    ) {}
-}

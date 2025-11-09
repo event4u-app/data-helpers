@@ -219,9 +219,9 @@ php bin/console dto:typescript
 
 **The heart of this library:** Data mapping and DTOs for transforming and structuring data, plus powerful data manipulation tools.
 
-### 1️⃣ DataAccessor - Read Nested Data
+### 1️⃣ DataAccessor - Read & Transform Data
 
-Access deeply nested data with dot notation and wildcards:
+Access deeply nested data with dot notation, wildcards, and powerful transformation methods:
 
 ```php
 $data = [
@@ -242,14 +242,77 @@ $name = $accessor->getString('users.0.name');  // 'Alice'
 $age = $accessor->getInt('users.0.age');       // 30 (string → int)
 $missing = $accessor->getString('users.0.phone');  // null
 
-// Collection getters for wildcards - returns typed arrays
-$ages = $accessor->getIntCollection('users.*.age');  // [25, 30]
-$names = $accessor->getStringCollection('users.*.name');  // ['Alice', 'Bob']
+// Collection getters for wildcards - returns DataCollection instances
+$ages = $accessor->getIntCollection('users.*.age');  // DataCollection<int>
+$names = $accessor->getStringCollection('users.*.name');  // DataCollection<string>
+
+// Transformation methods - filter, map, reduce directly on DataAccessor
+$filtered = $accessor->filter(fn($user) => $user['age'] > 25);  // [['name' => 'Alice', ...]]
+$mapped = $accessor->map(fn($user) => $user['name']);  // ['Alice', 'Bob']
+$sum = $accessor->reduce(fn($carry, $user) => $carry + $user['age'], 0);  // 55
+
+// first() and last() with optional callback
+$firstUser = $accessor->first();  // ['name' => 'Alice', ...]
+$lastAdult = $accessor->last(fn($user) => $user['age'] >= 18);
+
+// Lazy evaluation for large datasets
+foreach ($accessor->lazyFilter(fn($user) => $user['age'] > 25) as $user) {
+    // Process items one at a time without loading all into memory
+}
 ```
 
 📖 **[DataAccessor Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-accessor/)**
 
-### 2️⃣ DataMutator - Modify Nested Data
+### 2️⃣ DataCollection - Type-Safe Collections
+
+Framework-independent collection class with fluent API. Uses DataAccessor for reading, DataMutator for writing, and DataFilter for SQL-like querying:
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make([1, 2, 3, 4, 5]);
+
+// Filter, map, reduce with method chaining (delegates to DataAccessor)
+$result = $collection
+    ->filter(fn($item) => $item > 2)  // [3, 4, 5]
+    ->map(fn($item) => $item * 2)     // [6, 8, 10]
+    ->reduce(fn($carry, $item) => $carry + $item, 0);  // 24
+
+// Dot-notation read access (via DataAccessor)
+$collection = DataCollection::make([
+    ['user' => ['name' => 'Alice', 'age' => 30]],
+    ['user' => ['name' => 'Bob', 'age' => 25]],
+]);
+$name = $collection->get('0.user.name');  // 'Alice'
+
+// Dot-notation write access (via DataMutator) - modifies in-place
+$collection
+    ->set('0.user.city', 'Berlin')
+    ->merge('1.user', ['city' => 'Munich', 'country' => 'Germany'])
+    ->transform('0.user.name', fn($name) => strtoupper($name));
+
+// SQL-like filtering (via DataFilter) - returns new DataCollection
+$users = DataCollection::make([
+    ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+    ['name' => 'Bob', 'age' => 25, 'city' => 'Munich'],
+    ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin'],
+]);
+$filtered = $users
+    ->query()
+    ->where('age', '>', 25)
+    ->where('city', 'Berlin')
+    ->orderBy('age', 'DESC')
+    ->get();  // Returns new DataCollection
+
+// Lazy evaluation for large datasets
+foreach ($collection->lazyFilter(fn($item) => $item > 2) as $item) {
+    // Process items one at a time without loading all into memory
+}
+```
+
+📖 **[DataCollection Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-collection/)**
+
+### 3️⃣ DataMutator - Modify Nested Data
 
 Safely modify nested structures:
 

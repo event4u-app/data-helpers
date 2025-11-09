@@ -142,10 +142,10 @@ Generate a minimal config file for your project:
 use event4u\DataHelpers\Config\ConfigLoader;
 
 // Publish to your project
-ConfigLoader::publish('./config/data-helpers.php');
+ConfigLoader::publish('./.event4u/config/data-helpers.php');
 
 // Overwrite existing file
-ConfigLoader::publish('./config/data-helpers.php', overwrite: true);
+ConfigLoader::publish('./.event4u/config/data-helpers.php', overwrite: true);
 ```
 
 The published config file contains only commonly changed settings with helpful comments.

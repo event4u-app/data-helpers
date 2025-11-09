@@ -6,14 +6,14 @@ namespace event4u\DataHelpers\SimpleDto\Casts;
 
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use RuntimeException;
 
 /**
- * Cast attribute to DataCollection (framework-independent).
+ * Cast attribute to DtoCollection (framework-independent).
  *
  * Supports:
- * - DataCollection (event4u\DataHelpers\SimpleDto\DataCollection)
+ * - DtoCollection (event4u\DataHelpers\SimpleDto\DtoCollection)
  * - Typed collections (collections of Dtos)
  * - Nested Dtos
  * - Null values
@@ -33,15 +33,15 @@ class CollectionCast implements CastsAttributes
     {
     }
 
-    /** @return DataCollection<SimpleDto>|null */
-    public function get(mixed $value, array $attributes): ?DataCollection
+    /** @phpstan-ignore missingType.generics */
+    public function get(mixed $value, array $attributes): ?DtoCollection
     {
         if (null === $value) {
             return null;
         }
 
-        // If already a DataCollection, return it
-        if ($value instanceof DataCollection) {
+        // If already a DtoCollection, return it
+        if ($value instanceof DtoCollection) {
             return $value;
         }
 
@@ -50,15 +50,15 @@ class CollectionCast implements CastsAttributes
             $value = [$value];
         }
 
-        // If Dto class is specified, create typed DataCollection
+        // If Dto class is specified, create typed DtoCollection
         if (null !== $this->dtoClass && class_exists($this->dtoClass)) {
             /** @var class-string<SimpleDto> $dtoClass */
             $dtoClass = $this->dtoClass;
-            return DataCollection::forDto($dtoClass, $value);
+            return DtoCollection::forDto($dtoClass, $value);
         }
 
-        // Create generic DataCollection (without Dto type)
-        // This is not ideal, but we need a Dto class for DataCollection
+        // Create generic DtoCollection (without Dto type)
+        // This is not ideal, but we need a Dto class for DtoCollection
         throw new RuntimeException(
             'CollectionCast requires a Dto class. Use "collection:App\Dtos\UserDto" instead of "collection".'
         );
@@ -71,8 +71,8 @@ class CollectionCast implements CastsAttributes
             return null;
         }
 
-        // Convert DataCollection to array
-        if ($value instanceof DataCollection) {
+        // Convert DtoCollection to array
+        if ($value instanceof DtoCollection) {
             return $value->toArray();
         }
 

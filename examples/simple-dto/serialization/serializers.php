@@ -93,12 +93,12 @@ echo $csv . "\n\n";
 echo "Example 8: Serializing Collections\n";
 echo "-----------------------------------\n";
 
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 
-/** @var DataCollection<SimpleDto> $users */
+/** @var DtoCollection<SimpleDto> $users */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$users = DataCollection::forDto(UserDto::class, [
+$users = DtoCollection::forDto(UserDto::class, [
     ['name' => 'John Doe', 'email' => 'john@example.com', 'age' => 30],
     ['name' => 'Jane Smith', 'email' => 'jane@example.com', 'age' => 25],
     ['name' => 'Bob Johnson', 'email' => 'bob@example.com', 'age' => 35],

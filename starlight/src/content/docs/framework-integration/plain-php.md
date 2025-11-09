@@ -53,13 +53,13 @@ You can publish a minimal config file:
 use event4u\DataHelpers\Config\ConfigLoader;
 
 // Publish config file
-ConfigLoader::publish('./config/data-helpers.php');
+ConfigLoader::publish('./.event4u/config/data-helpers.php');
 ```
 
 Or create your own config file with only the values you want to change:
 
 ```php
-// config/data-helpers.php
+// ./.event4u/config/data-helpers.php
 <?php
 
 return [

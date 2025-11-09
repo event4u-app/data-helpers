@@ -23,7 +23,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\WhenAuth;
 use event4u\DataHelpers\SimpleDto\Attributes\WhenContext;
 use event4u\DataHelpers\SimpleDto\Attributes\WhenRole;
 use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 
 // Skip if Carbon is not available
 if (!class_exists('Carbon\Carbon')) {
@@ -239,9 +239,9 @@ $users = [
     ),
 ];
 
-/** @var DataCollection<SimpleDto> $collection */
+/** @var DtoCollection<SimpleDto> $collection */
 /** @phpstan-ignore-next-line unknown */
-$collection = DataCollection::forDto(UserResourceDto::class, $users);
+$collection = DtoCollection::forDto(UserResourceDto::class, $users);
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
 $response = new ApiResponseDto(data: $collection->toArray());
@@ -252,9 +252,9 @@ echo "4. Paginated User Collection:\n";
 echo str_repeat('-', 80) . "\n";
 
 $paginatedUsers = array_slice($users, 0, 2);
-/** @var DataCollection<SimpleDto> $collection */
+/** @var DtoCollection<SimpleDto> $collection */
 /** @phpstan-ignore-next-line unknown */
-$collection = DataCollection::forDto(UserResourceDto::class, $paginatedUsers);
+$collection = DtoCollection::forDto(UserResourceDto::class, $paginatedUsers);
 
 $meta = new PaginationMetaDto(
     currentPage: 1,

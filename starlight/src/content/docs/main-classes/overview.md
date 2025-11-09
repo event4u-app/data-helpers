@@ -1,9 +1,9 @@
 ---
 title: Main Classes Overview
-description: Overview of the five main Data Helpers classes
+description: Overview of the main Data Helpers classes
 ---
 
-Data Helpers provides five main classes for working with data:
+Data Helpers provides several main classes for working with data:
 
 ## DataAccessor
 
@@ -16,12 +16,36 @@ $accessor = new DataAccessor($data);
 $email = $accessor->get('user.profile.email');
 $emails = $accessor->get('users.*.email');
 
+// Type-safe collection getters
+$ages = $accessor->getIntCollection('users.*.age');  // DataCollection<int>
+
 // Get structure with type information
 $structure = $accessor->getStructure();
 // ['name' => 'string', 'emails.*' => '\EmailDto', ...]
 ```
 
 [Learn more →](/data-helpers/main-classes/data-accessor/)
+
+## DataCollection
+
+Framework-independent type-safe collection class with fluent API for working with arrays.
+
+```php
+$collection = DataCollection::make([1, 2, 3, 4, 5]);
+
+// Filter, map, reduce with method chaining
+$result = $collection
+    ->filter(fn($item) => $item > 2)
+    ->map(fn($item) => $item * 2)
+    ->toArray();  // [6, 8, 10]
+
+// Lazy evaluation for large datasets
+foreach ($collection->lazyFilter(fn($item) => $item > 2) as $item) {
+    // Process items one at a time
+}
+```
+
+[Learn more →](/data-helpers/main-classes/data-collection/)
 
 ## DataMutator
 

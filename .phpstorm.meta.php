@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPSTORM_META {
 
     use event4u\DataHelpers\SimpleDto;
-    use event4u\DataHelpers\SimpleDto\DataCollection;
+    use event4u\DataHelpers\SimpleDto\DtoCollection;
 
     // SimpleDto::fromArray() returns the specific Dto type
     override(SimpleDto::fromArray(0), map([
@@ -20,19 +20,19 @@ namespace PHPSTORM_META {
     // SimpleDto::validate() returns array
     override(SimpleDto::validate(0), type(0));
 
-    // SimpleDto::collection() returns DataCollection of the specific Dto type
+    // SimpleDto::collection() returns DtoCollection of the specific Dto type
     override(SimpleDto::collection(0), map([
-        '' => '@|DataCollection',
+        '' => '@|DtoCollection',
     ]));
 
-    // DataCollection::forDto() returns DataCollection of the specific Dto type
-    override(DataCollection::forDto(0), map([
-        '' => '@|DataCollection',
+    // DtoCollection::forDto() returns DtoCollection of the specific Dto type
+    override(DtoCollection::forDto(0), map([
+        '' => '@|DtoCollection',
     ]));
 
-    // DataCollection::wrapDto() returns DataCollection of the specific Dto type
-    override(DataCollection::wrapDto(0), map([
-        '' => '@|DataCollection',
+    // DtoCollection::wrapDto() returns DtoCollection of the specific Dto type
+    override(DtoCollection::wrapDto(0), map([
+        '' => '@|DtoCollection',
     ]));
 
     // Eloquent integration (if available)

@@ -90,7 +90,7 @@ describe('ConfigLoader', function(): void {
             ->and($path)->toContain('config/data-helpers.php');
     });
 
-    test('it publishes minimal config file', function(): void {
+    test('it publishes complete config file', function(): void {
         /** @phpstan-ignore-next-line uniqid() is fine for test temp files */
         $targetPath = sys_get_temp_dir() . '/published-config-' . uniqid() . '.php';
 
@@ -103,8 +103,8 @@ describe('ConfigLoader', function(): void {
         expect($content)->toContain('performance_mode')
             ->and($content)->toContain('cache')
             ->and($content)->toContain('logging')
-            ->and($content)->not->toContain('slack') // Minimal config shouldn't have all options
-            ->and($content)->not->toContain('grafana');
+            ->and($content)->toContain('slack') // Complete config should have all options
+            ->and($content)->toContain('grafana');
 
         unlink($targetPath);
     });
@@ -169,7 +169,7 @@ describe('ConfigLoader', function(): void {
         $userConfig = [
             'logging' => [
                 'events' => [
-                    'mapping_error' => false,
+                    'mapping.error' => false,
                 ],
                 'sampling' => [
                     'errors' => 0.5,
@@ -180,7 +180,7 @@ describe('ConfigLoader', function(): void {
         $config = ConfigLoader::load($userConfig);
 
         // User values should override
-        expect($config['logging']['events']['mapping_error'])->toBe(false)
+        expect($config['logging']['events']['mapping.error'])->toBe(false)
             ->and($config['logging']['sampling']['errors'])->toBe(0.5);
 
         // Other default values should be preserved

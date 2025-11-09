@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\SimpleDto;
 
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use event4u\DataHelpers\SimpleDto\Support\FastPath;
 use Tests\Unit\SimpleDto\FastPath\Fixtures\ChildDto;
 use Tests\Unit\SimpleDto\FastPath\Fixtures\DtoWithCastAttribute;
@@ -33,7 +33,7 @@ test('DTO with DataCollection property is eligible for FastPath', function(): vo
 });
 
 test('FastPath handles DataCollection correctly', function(): void {
-    $collection = DataCollection::forDto(SimpleDtoForFastPath::class, [
+    $collection = DtoCollection::forDto(SimpleDtoForFastPath::class, [
         ['name' => 'Item 1', 'age' => 20],
         ['name' => 'Item 2', 'age' => 30],
     ]);
@@ -43,7 +43,7 @@ test('FastPath handles DataCollection correctly', function(): void {
     $result = FastPath::fastToArray($dto);
 
     expect($result['name'])->toBe('Test');
-    expect($result['items'])->toBeInstanceOf(DataCollection::class);
+    expect($result['items'])->toBeInstanceOf(DtoCollection::class);
 });
 
 // ============================================================================

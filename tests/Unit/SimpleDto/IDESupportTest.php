@@ -1,12 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Between;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 
 // Test Dtos
 class IDESupportUserDto extends SimpleDto
@@ -74,27 +73,27 @@ describe('IDE Support', function(): void {
             ['name' => 'Jane', 'age' => 25],
         ]);
 
-        expect($users)->toBeInstanceOf(DataCollection::class)
+        expect($users)->toBeInstanceOf(DtoCollection::class)
             ->and($users->count())->toBe(2)
             ->and($users->first())->toBeInstanceOf(IDESupportUserDto::class);
     });
 
-    it('provides type inference for DataCollection::forDto()', function(): void {
-        $users = DataCollection::forDto(IDESupportUserDto::class, [
+    it('provides type inference for DtoCollection::forDto()', function(): void {
+        $users = DtoCollection::forDto(IDESupportUserDto::class, [
             ['name' => 'John', 'age' => 30],
             ['name' => 'Jane', 'age' => 25],
         ]);
 
-        expect($users)->toBeInstanceOf(DataCollection::class)
+        expect($users)->toBeInstanceOf(DtoCollection::class)
             ->and($users->count())->toBe(2)
             ->and($users->first())->toBeInstanceOf(IDESupportUserDto::class);
     });
 
-    it('provides type inference for DataCollection::wrapDto()', function(): void {
+    it('provides type inference for DtoCollection::wrapDto()', function(): void {
         $user = IDESupportUserDto::fromArray(['name' => 'John', 'age' => 30]);
-        $users = DataCollection::wrapDto(IDESupportUserDto::class, [$user]);
+        $users = DtoCollection::wrapDto(IDESupportUserDto::class, [$user]);
 
-        expect($users)->toBeInstanceOf(DataCollection::class)
+        expect($users)->toBeInstanceOf(DtoCollection::class)
             ->and($users->count())->toBe(1)
             ->and($users->first())->toBeInstanceOf(IDESupportUserDto::class);
     });
@@ -135,33 +134,33 @@ describe('IDE Support', function(): void {
     });
 
     it('supports DataCollectionOf attribute', function(): void {
-        $members = DataCollection::forDto(IDESupportUserDto::class, [
+        $members = DtoCollection::forDto(IDESupportUserDto::class, [
             ['name' => 'John', 'age' => 30],
             ['name' => 'Jane', 'age' => 25],
         ]);
 
-        expect($members)->toBeInstanceOf(DataCollection::class)
+        expect($members)->toBeInstanceOf(DtoCollection::class)
             ->and($members->count())->toBe(2)
             ->and($members->first())->toBeInstanceOf(IDESupportUserDto::class);
     });
 
     it('supports generic type hints', function(): void {
-        $users = DataCollection::forDto(IDESupportUserDto::class, [
+        $users = DtoCollection::forDto(IDESupportUserDto::class, [
             ['name' => 'John', 'age' => 30],
             ['name' => 'Jane', 'age' => 25],
         ]);
 
         // Simulate a function that uses generic type hints
-        $getUserNames = function(DataCollection $users): array {
+        $getUserNames = function(DtoCollection $users): array { // @phpstan-ignore parameter.type
             $names = [];
-            foreach ($users as $user) {
+            foreach ($users as $user) { // @phpstan-ignore foreach.nonIterable
                 /** @phpstan-ignore-next-line unknown */
                 $names[] = $user->name;
             }
             return $names;
         };
 
-        $names = $getUserNames($users);
+        $names = $getUserNames($users); // @phpstan-ignore argument.type
 
         /** @phpstan-ignore-next-line unknown */
         /** @phpstan-ignore-next-line unknown */
@@ -179,8 +178,8 @@ describe('IDE Support', function(): void {
 
         expect($content)->toContain('override(SimpleDto::fromArray(0)')
             ->and($content)->toContain('override(SimpleDto::collection(0)')
-            ->and($content)->toContain('override(DataCollection::forDto(0)')
-            ->and($content)->toContain('override(DataCollection::wrapDto(0)');
+            ->and($content)->toContain('override(DtoCollection::forDto(0)')
+            ->and($content)->toContain('override(DtoCollection::wrapDto(0)');
     });
 
     it('verifies .phpstorm.meta.php contains cast type suggestions', function(): void {

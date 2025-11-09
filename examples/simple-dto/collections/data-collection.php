@@ -57,19 +57,25 @@ echo "\n";
 echo "Example 3: Mapping\n";
 echo "----------------------------\n";
 
-/** @var DataCollection<SimpleDto> $names */
+// DtoCollection::map() transforms DTOs and returns a new DtoCollection
+// Let's transform names to uppercase for adults
+$adults = $users->filter(fn(UserDto $user): bool => 30 <= $user->age);
 /** @phpstan-ignore-next-line unknown */
-/** @phpstan-ignore-next-line unknown */
-$names = $users->map(fn(UserDto $user): string => $user->name);
-/** @var DataCollection<SimpleDto> $emails */
-/** @phpstan-ignore-next-line unknown */
-/** @phpstan-ignore-next-line unknown */
-$emails = $users->map(fn(UserDto $user): string => $user->email);
+$transformedAdults = $adults->map(fn(UserDto $user): UserDto => UserDto::fromArray([
+    'name' => strtoupper($user->name),
+    'age' => $user->age,
+    'email' => $user->email,
+]));
 
+echo "Transformed adults (uppercase names):\n";
 /** @phpstan-ignore-next-line unknown */
-echo "Names: " . implode(', ', $names) . "\n";
-/** @phpstan-ignore-next-line unknown */
-echo "Emails: " . implode(', ', $emails) . "\n";
+foreach ($transformedAdults as $user) {
+    echo "  - {$user->name} ({$user->age} years)\n";
+}
+
+// To extract scalar values, use array_column()
+$names = array_column($users->toArray(), 'name');
+echo "\nAll names: " . implode(', ', $names) . "\n";
 echo "\n";
 
 // Example 4: Reducing
@@ -181,9 +187,10 @@ echo "\n";
 echo "Example 10: Chaining Operations\n";
 echo "----------------------------\n";
 
-$expensiveProductNames = $products
-    ->filter(fn(ProductDto $p): bool => 200 < $p->price)
-    ->map(fn(ProductDto $p): string => $p->name);
+// Note: DtoCollection::map() returns DTOs, not arbitrary values
+// Filter first, then extract names
+$expensiveProducts = $products->filter(fn(ProductDto $p): bool => 200 < $p->price);
+$expensiveProductNames = array_column($expensiveProducts->toArray(), 'name');
 
 echo "Expensive products (> \$200):\n";
 foreach ($expensiveProductNames as $name) {

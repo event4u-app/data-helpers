@@ -960,8 +960,120 @@ task test:unit -- --filter=DataAccessor
 vendor/bin/pest tests/Unit/DataAccessor/DataAccessorTest.php
 ```
 
+## Transformation Methods
+
+DataAccessor provides powerful transformation methods for filtering, mapping, and reducing data:
+
+### first() and last()
+
+Get the first or last item from the data:
+
+```php
+$accessor = new DataAccessor([1, 2, 3, 4, 5]);
+
+// Get first item
+$first = $accessor->first();  // 1
+
+// Get first item matching condition
+$firstEven = $accessor->first(fn($n) => $n % 2 === 0);  // 2
+
+// Get last item
+$last = $accessor->last();  // 5
+
+// Get last item matching condition
+$lastOdd = $accessor->last(fn($n) => $n % 2 !== 0);  // 5
+
+// With default value
+$notFound = $accessor->first(fn($n) => $n > 10, 'default');  // 'default'
+```
+
+### filter()
+
+Filter items by a callback:
+
+```php
+$accessor = new DataAccessor([1, 2, 3, 4, 5]);
+
+// Filter with callback
+$filtered = $accessor->filter(fn($n) => $n > 2);
+// [2 => 3, 3 => 4, 4 => 5]
+
+// Filter falsy values (without callback)
+$accessor = new DataAccessor([0, 1, false, 2, null, 3, '']);
+$filtered = $accessor->filter();
+// [1 => 1, 3 => 2, 5 => 3]
+
+// Callback receives value and key
+$accessor = new DataAccessor(['a' => 1, 'b' => 2, 'c' => 3]);
+$filtered = $accessor->filter(fn($value, $key) => $key === 'b');
+// ['b' => 2]
+```
+
+### map()
+
+Transform each item:
+
+```php
+$accessor = new DataAccessor([1, 2, 3]);
+
+// Map values
+$mapped = $accessor->map(fn($n) => $n * 2);
+// [2, 4, 6]
+
+// Map with keys
+$accessor = new DataAccessor(['a' => 1, 'b' => 2]);
+$mapped = $accessor->map(fn($value, $key) => $key . ':' . $value);
+// ['a' => 'a:1', 'b' => 'b:2']
+```
+
+### reduce()
+
+Reduce data to a single value:
+
+```php
+$accessor = new DataAccessor([1, 2, 3, 4, 5]);
+
+// Sum all values
+$sum = $accessor->reduce(fn($carry, $item) => $carry + $item, 0);
+// 15
+
+// Concatenate keys
+$accessor = new DataAccessor(['a' => 1, 'b' => 2, 'c' => 3]);
+$keys = $accessor->reduce(fn($carry, $item, $key) => $carry . $key, '');
+// 'abc'
+```
+
+### Lazy Evaluation
+
+For large datasets, use lazy evaluation with Generators:
+
+```php
+$accessor = new DataAccessor(range(1, 100000));
+
+// Lazy iteration - processes one item at a time
+foreach ($accessor->lazy() as $item) {
+    // Memory efficient - doesn't load all items at once
+}
+
+// Lazy filter
+foreach ($accessor->lazyFilter(fn($n) => $n > 50000) as $item) {
+    // Only processes items that match the condition
+}
+
+// Lazy map
+foreach ($accessor->lazyMap(fn($n) => $n * 2) as $item) {
+    // Transforms items on-the-fly
+}
+```
+
+**Benefits of Lazy Evaluation:**
+- **Memory Efficient** - Processes one item at a time
+- **Performance** - Stops early if you break out of the loop
+- **Large Datasets** - Ideal for 10k+ items
+
 ## See Also
 
+- [DataCollection](/data-helpers/main-classes/data-collection/) - Type-safe collections (uses DataAccessor internally)
 - [DataMutator](/data-helpers/main-classes/data-mutator/) - Modify nested data
 - [DataMapper](/data-helpers/main-classes/data-mapper/) - Transform data structures
 - [DataFilter](/data-helpers/main-classes/data-filter/) - Query and filter data

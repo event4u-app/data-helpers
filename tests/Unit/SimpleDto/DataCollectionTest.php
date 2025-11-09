@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 
 class DataCollectionUserDto extends SimpleDto
 {
@@ -16,7 +16,7 @@ class DataCollectionUserDto extends SimpleDto
 describe('DataCollection', function(): void {
     describe('Creation', function(): void {
         it('creates collection from arrays', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -24,14 +24,14 @@ describe('DataCollection', function(): void {
             $first = $collection->first();
             assert($first instanceof DataCollectionUserDto);
 
-            expect($collection)->toBeInstanceOf(DataCollection::class)
+            expect($collection)->toBeInstanceOf(DtoCollection::class)
                 ->and($collection->count())->toBe(2)
                 ->and($first)->toBeInstanceOf(DataCollectionUserDto::class)
                 ->and($first->name)->toBe('John');
         });
 
         it('creates collection from Dtos', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 new DataCollectionUserDto('John', 30),
                 new DataCollectionUserDto('Jane', 25),
             ]);
@@ -44,7 +44,7 @@ describe('DataCollection', function(): void {
         });
 
         it('creates empty collection', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class);
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class);
 
             expect($collection->isEmpty())->toBeTrue()
                 ->and($collection->count())->toBe(0);
@@ -56,39 +56,41 @@ describe('DataCollection', function(): void {
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            expect($collection)->toBeInstanceOf(DataCollection::class)
+            expect($collection)->toBeInstanceOf(DtoCollection::class)
                 ->and($collection->count())->toBe(2)
-                ->and($collection->getDtoClass())->toBe(DataCollectionUserDto::class);
+                ->and($collection->getDtoClass())->toBe(
+                    DataCollectionUserDto::class
+                ); // @phpstan-ignore method.notFound
         });
     });
 
     describe('Type Safety', function(): void {
         it('returns correct Dto class', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class);
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class);
 
             expect($collection->getDtoClass())->toBe(DataCollectionUserDto::class);
         });
 
         it('throws exception for invalid item type', function(): void {
-            expect(fn(): DataCollection => DataCollection::forDto(DataCollectionUserDto::class, [
+            expect(fn(): DtoCollection => DtoCollection::forDto(DataCollectionUserDto::class, [ // @phpstan-ignore return.type
                 'invalid',
             ]))->toThrow(InvalidArgumentException::class);
         });
 
         it('ensures Dtos when pushing', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class);
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class);
 
             $collection->push(['name' => 'John', 'age' => 30]);
 
             $first = $collection->first();
+            expect($first)->toBeInstanceOf(DataCollectionUserDto::class);
             assert($first instanceof DataCollectionUserDto);
 
-            expect($first)->toBeInstanceOf(DataCollectionUserDto::class)
-                ->and($first->name)->toBe('John');
+            expect($first->name)->toBe('John');
         });
 
         it('ensures Dtos when prepending', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
@@ -102,7 +104,7 @@ describe('DataCollection', function(): void {
         });
 
         it('supports array access', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -122,7 +124,7 @@ describe('DataCollection', function(): void {
 
     describe('Collection Methods', function(): void {
         it('filters items', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -136,26 +138,26 @@ describe('DataCollection', function(): void {
             assert($first instanceof DataCollectionUserDto);
             assert($last instanceof DataCollectionUserDto);
 
-            expect($filtered)->toBeInstanceOf(DataCollection::class)
+            expect($filtered)->toBeInstanceOf(DtoCollection::class)
                 ->and($filtered->count())->toBe(2)
                 ->and($first->name)->toBe('John')
                 ->and($last->name)->toBe('Bob');
         });
 
         it('maps items', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line unknown */
-            $names = $collection->map(fn(DataCollectionUserDto $user): string => $user->name);
+            // Note: DtoCollection::map() returns DTOs, not arbitrary values
+            $names = array_column($collection->toArray(), 'name');
 
             expect($names)->toBe(['John', 'Jane']);
         });
 
         it('reduces items', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -171,7 +173,7 @@ describe('DataCollection', function(): void {
         });
 
         it('gets first item', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -184,7 +186,7 @@ describe('DataCollection', function(): void {
         });
 
         it('gets first item with callback', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -198,7 +200,7 @@ describe('DataCollection', function(): void {
         });
 
         it('gets last item', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -211,7 +213,7 @@ describe('DataCollection', function(): void {
         });
 
         it('gets last item with callback', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -228,7 +230,7 @@ describe('DataCollection', function(): void {
 
     describe('Conversion Methods', function(): void {
         it('converts to array', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -242,7 +244,7 @@ describe('DataCollection', function(): void {
         });
 
         it('converts to JSON', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -253,7 +255,7 @@ describe('DataCollection', function(): void {
         });
 
         it('implements JsonSerializable', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -267,8 +269,8 @@ describe('DataCollection', function(): void {
 
     describe('Utility Methods', function(): void {
         it('checks if empty', function(): void {
-            $empty = DataCollection::forDto(DataCollectionUserDto::class);
-            $notEmpty = DataCollection::forDto(DataCollectionUserDto::class, [
+            $empty = DtoCollection::forDto(DataCollectionUserDto::class);
+            $notEmpty = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -279,26 +281,26 @@ describe('DataCollection', function(): void {
         });
 
         it('wraps existing collection', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
-            $wrapped = DataCollection::wrapDto(DataCollectionUserDto::class, $collection);
+            $wrapped = DtoCollection::wrapDto(DataCollectionUserDto::class, $collection);
 
             expect($wrapped)->toBe($collection);
         });
 
         it('wraps array', function(): void {
-            $wrapped = DataCollection::wrapDto(DataCollectionUserDto::class, [
+            $wrapped = DtoCollection::wrapDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
-            expect($wrapped)->toBeInstanceOf(DataCollection::class)
+            expect($wrapped)->toBeInstanceOf(DtoCollection::class)
                 ->and($wrapped->count())->toBe(1);
         });
 
         it('gets items', function(): void {
-            $collection = DataCollection::forDto(DataCollectionUserDto::class, [
+            $collection = DtoCollection::forDto(DataCollectionUserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
