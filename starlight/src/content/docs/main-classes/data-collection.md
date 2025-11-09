@@ -7,11 +7,12 @@ sidebar:
 
 The `DataCollection` class is a powerful, framework-independent utility for working with arrays of data. It provides a fluent, chainable API similar to Laravel's Collection, but works in any PHP environment.
 
-**Architecture:** DataCollection acts as a container and delegates operations to two core classes:
+**Architecture:** DataCollection acts as a container and delegates operations to three core classes:
 - [DataAccessor](/data-helpers/main-classes/data-accessor/) for **reading** data (get, filter, map, etc.)
 - [DataMutator](/data-helpers/main-classes/data-mutator/) for **writing** data (set, merge, forget, etc.)
+- [DataFilter](/data-helpers/main-classes/data-filter/) for **SQL-like querying** (where, orderBy, limit, etc.)
 
-This enables full dot-notation support for both reading and writing within collections.
+This enables full dot-notation support for reading and writing, plus powerful SQL-like filtering.
 
 ## Overview
 
@@ -280,6 +281,120 @@ $collection
     ->pushTo('0.user.tags', 'php');
 
 // Collection: [['user' => ['name' => 'ALICE', 'age' => 30, 'city' => 'Berlin', 'tags' => ['php']]]]
+```
+
+## SQL-Like Filtering with DataFilter
+
+DataCollection integrates with [DataFilter](/data-helpers/main-classes/data-filter/) to provide powerful SQL-like querying capabilities. The `query()` method returns a wrapper that allows chaining filter operations and returns a new DataCollection.
+
+### Basic Filtering
+
+```php
+$users = DataCollection::make([
+    ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+    ['name' => 'Bob', 'age' => 25, 'city' => 'Munich'],
+    ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin'],
+]);
+
+// Simple where clause
+$filtered = $users
+    ->query()
+    ->where('age', '>', 25)
+    ->get();  // Returns new DataCollection
+
+// Multiple conditions
+$berliners = $users
+    ->query()
+    ->where('age', '>', 25)
+    ->where('city', 'Berlin')
+    ->get();
+```
+
+### Advanced Filtering
+
+```php
+// BETWEEN
+$filtered = $users
+    ->query()
+    ->between('age', 26, 36)
+    ->get();
+
+// WHERE IN
+$filtered = $users
+    ->query()
+    ->whereIn('city', ['Berlin', 'Hamburg'])
+    ->get();
+
+// WHERE NULL / NOT NULL
+$filtered = $users
+    ->query()
+    ->whereNull('email')
+    ->get();
+
+// LIKE pattern matching
+$filtered = $users
+    ->query()
+    ->like('name', 'Ali%')
+    ->get();
+```
+
+### Ordering and Limiting
+
+```php
+// ORDER BY
+$ordered = $users
+    ->query()
+    ->orderBy('age', 'DESC')
+    ->get();
+
+// LIMIT and OFFSET
+$paginated = $users
+    ->query()
+    ->orderBy('name', 'ASC')
+    ->limit(10)
+    ->offset(20)
+    ->get();
+```
+
+### Complex Queries
+
+```php
+$result = $users
+    ->query()
+    ->where('city', 'Berlin')
+    ->where('active', true)
+    ->where('age', '>=', 30)
+    ->orderBy('age', 'DESC')
+    ->limit(5)
+    ->get();  // Returns new DataCollection
+
+// Get first result
+$first = $users
+    ->query()
+    ->where('age', '>', 25)
+    ->first();  // Returns single item or null
+
+// Count results
+$count = $users
+    ->query()
+    ->where('city', 'Berlin')
+    ->count();  // Returns integer
+```
+
+### Working with Nested Data
+
+DataFilter supports dot-notation for nested fields:
+
+```php
+$data = DataCollection::make([
+    ['user' => ['name' => 'Alice', 'age' => 30]],
+    ['user' => ['name' => 'Bob', 'age' => 25]],
+]);
+
+$filtered = $data
+    ->query()
+    ->where('user.age', '>', 25)
+    ->get();
 ```
 
 ## Lazy Evaluation

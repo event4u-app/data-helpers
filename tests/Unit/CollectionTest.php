@@ -692,6 +692,7 @@ describe('Collection', function(): void {
             ]);
 
             $collection->set('0.user.age', 30);
+
             $age = $collection->get('0.user.age');
 
             expect($age)->toBe(30);
@@ -1131,7 +1132,7 @@ describe('Collection', function(): void {
 
             $collection
                 ->transform('name', fn($v) => strtoupper($v))
-                ->transform('city', fn($v) => ucfirst($v));
+                ->transform('city', fn($v): string => ucfirst($v));
 
             expect($collection->toArray())->toBe([
                 'name' => 'ALICE',
@@ -1151,7 +1152,7 @@ describe('Collection', function(): void {
 
             $collection
                 ->transform('user.profile.name', fn($v) => strtoupper($v))
-                ->transform('user.profile.bio', fn($v) => ucwords($v));
+                ->transform('user.profile.bio', fn($v): string => ucwords($v));
 
             expect($collection->toArray())->toBe([
                 'user' => [
@@ -1174,8 +1175,8 @@ describe('Collection', function(): void {
             $collection
                 ->transform('users.0.name', fn($v) => strtoupper($v))
                 ->transform('users.1.name', fn($v) => strtoupper($v))
-                ->transform('users.0.score', fn($v) => $v + 10)
-                ->transform('users.1.score', fn($v) => $v + 20);
+                ->transform('users.0.score', fn($v): int|float => $v + 10)
+                ->transform('users.1.score', fn($v): int|float => $v + 20);
 
             expect($collection->toArray())->toBe([
                 'users' => [
@@ -1194,8 +1195,8 @@ describe('Collection', function(): void {
             ]);
 
             $collection
-                ->transform('prices.0.amount', fn($v) => $v * 0.9)
-                ->transform('prices.1.amount', fn($v) => $v * 0.85);
+                ->transform('prices.0.amount', fn($v): float => $v * 0.9)
+                ->transform('prices.1.amount', fn($v): float => $v * 0.85);
 
             expect($collection->toArray())->toBe([
                 'prices' => [
@@ -1401,7 +1402,7 @@ describe('Collection', function(): void {
             expect($collection->get('users.0.score'))->toBe(90);
 
             // Transform
-            $collection->transform('users.1.score', fn($v) => $v + 5);
+            $collection->transform('users.1.score', fn($v): int|float => $v + 5);
             expect($collection->get('users.1.score'))->toBe(97);
         });
 
@@ -1451,8 +1452,8 @@ describe('Collection', function(): void {
             $collection
                 ->set('company.departments.0.employees.0.bonus', 5000)
                 ->set('company.departments.0.employees.1.bonus', 4000)
-                ->transform('company.departments.0.employees.0.salary', fn($v) => $v * 1.1)
-                ->transform('company.departments.0.employees.1.salary', fn($v) => $v * 1.1)
+                ->transform('company.departments.0.employees.0.salary', fn($v): float => $v * 1.1)
+                ->transform('company.departments.0.employees.1.salary', fn($v): float => $v * 1.1)
                 ->merge('company', ['founded' => 2020])
                 ->pushTo('company.departments.0.employees.0.skills', 'PHP')
                 ->pushTo('company.departments.0.employees.0.skills', 'Laravel');
@@ -1508,9 +1509,9 @@ describe('Collection', function(): void {
 
             // Apply discount to all products
             $collection
-                ->transform('products.0.price', fn($v) => $v * 0.9)
-                ->transform('products.1.price', fn($v) => $v * 0.9)
-                ->transform('products.2.price', fn($v) => $v * 0.9);
+                ->transform('products.0.price', fn($v): float => $v * 0.9)
+                ->transform('products.1.price', fn($v): float => $v * 0.9)
+                ->transform('products.2.price', fn($v): float => $v * 0.9);
 
             // Add tags
             $collection
@@ -1645,8 +1646,8 @@ describe('Collection', function(): void {
 
         it('handles large arrays efficiently', function(): void {
             $items = [];
-            for ($i = 0; $i < 1000; $i++) {
-                $items[] = ['id' => $i, 'value' => "item_{$i}"];
+            for ($i = 0; 1000 > $i; $i++) {
+                $items[] = ['id' => $i, 'value' => 'item_' . $i];
             }
 
             $collection = DataCollection::make(['items' => $items]);
@@ -1661,6 +1662,716 @@ describe('Collection', function(): void {
             // Transform
             $collection->transform('items.999.value', fn($v) => strtoupper($v));
             expect($collection->get('items.999.value'))->toBe('ITEM_999');
+        });
+    });
+
+    describe('DataFilter Integration', function(): void {
+        it('filters with where clause', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->get();
+
+            expect($filtered)->toBeInstanceOf(DataCollection::class)
+                ->and($filtered->count())->toBe(2)
+                ->and($filtered->values()->toArray())->toBe([
+                    ['name' => 'Alice', 'age' => 30],
+                    ['name' => 'Charlie', 'age' => 35],
+                ]);
+        });
+
+        it('filters with multiple where clauses', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+                ['name' => 'Bob', 'age' => 25, 'city' => 'Munich'],
+                ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin'],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->where('city', 'Berlin')
+                ->get();
+
+            expect($filtered->count())->toBe(2)
+                ->and($filtered->values()->toArray())->toBe([
+                    ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+                    ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin'],
+                ]);
+        });
+
+        it('filters with whereIn', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->whereIn('age', [25, 35])
+                ->get();
+
+            expect($filtered->count())->toBe(2);
+        });
+
+        it('filters with between', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+                ['name' => 'David', 'age' => 40],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->between('age', 26, 36)
+                ->get();
+
+            expect($filtered->count())->toBe(2)
+                ->and($filtered->values()->toArray())->toBe([
+                    ['name' => 'Alice', 'age' => 30],
+                    ['name' => 'Charlie', 'age' => 35],
+                ]);
+        });
+
+        it('filters with whereIn for cities', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'city' => 'Berlin'],
+                ['name' => 'Bob', 'city' => 'Munich'],
+                ['name' => 'Charlie', 'city' => 'Hamburg'],
+                ['name' => 'David', 'city' => 'Berlin'],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->whereIn('city', ['Berlin', 'Hamburg'])
+                ->get();
+
+            expect($filtered->count())->toBe(3);
+        });
+
+        it('filters with whereNull', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'email' => 'alice@example.com'],
+                ['name' => 'Bob', 'email' => null],
+                ['name' => 'Charlie', 'email' => 'charlie@example.com'],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->whereNull('email')
+                ->get();
+
+            expect($filtered->count())->toBe(1)
+                ->and($filtered->first()['name'])->toBe('Bob');
+        });
+
+        it('filters with like', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice Smith'],
+                ['name' => 'Bob Johnson'],
+                ['name' => 'Alice Brown'],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->like('name', 'Alice%')
+                ->get();
+
+            expect($filtered->count())->toBe(2);
+        });
+
+        it('orders results', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Charlie', 'age' => 35],
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+            ]);
+
+            $ordered = $collection
+                ->query()
+                ->orderBy('age', 'ASC')
+                ->get();
+
+            expect($ordered->values()->toArray())->toBe([
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Charlie', 'age' => 35],
+            ]);
+        });
+
+        it('limits results', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $limited = $collection
+                ->query()
+                ->orderBy('age', 'DESC')
+                ->limit(2)
+                ->get();
+
+            expect($limited->count())->toBe(2)
+                ->and($limited->first()['name'])->toBe('Charlie');
+        });
+
+        it('uses offset', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $offset = $collection
+                ->query()
+                ->orderBy('age', 'ASC')
+                ->offset(1)
+                ->get();
+
+            expect($offset->count())->toBe(2)
+                ->and($offset->first()['name'])->toBe('Alice');
+        });
+
+        it('chains multiple operations', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin', 'active' => true],
+                ['name' => 'Bob', 'age' => 25, 'city' => 'Munich', 'active' => false],
+                ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin', 'active' => true],
+                ['name' => 'David', 'age' => 28, 'city' => 'Hamburg', 'active' => true],
+                ['name' => 'Eve', 'age' => 32, 'city' => 'Berlin', 'active' => false],
+            ]);
+
+            $result = $collection
+                ->query()
+                ->where('city', 'Berlin')
+                ->where('active', true)
+                ->where('age', '>=', 30)
+                ->orderBy('age', 'DESC')
+                ->limit(2)
+                ->get();
+
+            $values = $result->values();
+            expect($result->count())->toBe(2)
+                ->and($values->first()['name'])->toBe('Charlie')
+                ->and($values->toArray()[1]['name'])->toBe('Alice');
+        });
+
+        it('returns first result', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+            ]);
+
+            $first = $collection
+                ->query()
+                ->where('age', '>', 20)
+                ->first();
+
+            expect($first)->toBe(['name' => 'Alice', 'age' => 30]);
+        });
+
+        it('counts results', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $count = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->count();
+
+            expect($count)->toBe(2);
+        });
+
+        it('works with nested data', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice', 'age' => 30]],
+                ['user' => ['name' => 'Bob', 'age' => 25]],
+                ['user' => ['name' => 'Charlie', 'age' => 35]],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('user.age', '>', 25)
+                ->get();
+
+            expect($filtered->count())->toBe(2);
+        });
+
+        it('handles empty results', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('age', '>', 100)
+                ->get();
+
+            expect($filtered->count())->toBe(0)
+                ->and($filtered->isEmpty())->toBeTrue()
+                ->and($filtered->toArray())->toBe([]);
+        });
+
+        it('preserves original collection after filtering', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->get();
+
+            // Original unchanged
+            expect($collection->count())->toBe(3)
+                ->and($filtered->count())->toBe(2);
+        });
+
+        it('chains filter with map', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $result = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->get()
+                ->values() // Reset keys
+                ->map(fn($item): mixed => $item['name'])
+                ->toArray();
+
+            expect($result)->toBe(['Alice', 'Charlie']);
+        });
+
+        it('chains filter with filter callback', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'active' => true],
+                ['name' => 'Bob', 'age' => 25, 'active' => false],
+                ['name' => 'Charlie', 'age' => 35, 'active' => true],
+            ]);
+
+            $result = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->get()
+                ->filter(fn($item): mixed => $item['active']);
+
+            expect($result->count())->toBe(2);
+        });
+
+        it('uses accessor methods on filtered results', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin']],
+                ['user' => ['name' => 'Bob', 'age' => 25, 'city' => 'Munich']],
+                ['user' => ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin']],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('user.city', 'Berlin')
+                ->get()
+                ->values(); // Reset keys
+
+            // Use accessor methods on filtered collection
+            expect($filtered->count())->toBe(2)
+                ->and($filtered->get('0.user.name'))->toBe('Alice')
+                ->and($filtered->get('1.user.name'))->toBe('Charlie')
+                ->and($filtered->first()['user']['age'])->toBe(30);
+        });
+
+        it('uses mutator methods on filtered results', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+                ['name' => 'Bob', 'age' => 25, 'city' => 'Munich'],
+                ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin'],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('city', 'Berlin')
+                ->get()
+                ->values(); // Reset keys
+
+            // Modify filtered collection
+            $filtered
+                ->set('0.country', 'Germany')
+                ->transform('1.name', fn($n) => strtoupper($n));
+
+            expect($filtered->count())->toBe(2)
+                ->and($filtered->get('0.country'))->toBe('Germany')
+                ->and($filtered->get('1.name'))->toBe('CHARLIE');
+        });
+
+        it('chains filter, mutate, and filter again', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+                ['name' => 'Bob', 'age' => 25, 'city' => 'Munich'],
+                ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin'],
+                ['name' => 'David', 'age' => 28, 'city' => 'Berlin'],
+            ]);
+
+            // First filter
+            $filtered = $collection
+                ->query()
+                ->where('city', 'Berlin')
+                ->get()
+                ->values(); // Reset keys
+
+            expect($filtered->count())->toBe(3);
+
+            // Mutate
+            $filtered->set('0.bonus', 1000);
+            $filtered->set('1.bonus', 2000);
+            $filtered->set('2.bonus', 1500);
+
+            // Second filter on mutated collection
+            $highBonus = $filtered
+                ->query()
+                ->where('bonus', '>=', 1500)
+                ->get();
+
+            expect($highBonus->count())->toBe(2);
+        });
+
+        it('combines filter with reduce', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'salary' => 50000],
+                ['name' => 'Bob', 'age' => 25, 'salary' => 40000],
+                ['name' => 'Charlie', 'age' => 35, 'salary' => 60000],
+            ]);
+
+            $totalSalary = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->get()
+                ->reduce(fn($carry, $item): int|float => $carry + $item['salary'], 0);
+
+            expect($totalSalary)->toBe(110000);
+        });
+
+        it('filters then uses lazy evaluation', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+                ['name' => 'David', 'age' => 28],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->get()
+                ->values(); // Reset keys
+
+            $names = [];
+            foreach ($filtered->lazy() as $item) {
+                $names[] = $item['name'];
+            }
+
+            expect($names)->toBe(['Alice', 'Charlie', 'David']);
+        });
+
+        it('handles complex mixed operations', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'name' => 'Alice', 'age' => 30, 'city' => 'Berlin', 'salary' => 50000],
+                ['id' => 2, 'name' => 'Bob', 'age' => 25, 'city' => 'Munich', 'salary' => 40000],
+                ['id' => 3, 'name' => 'Charlie', 'age' => 35, 'city' => 'Berlin', 'salary' => 60000],
+                ['id' => 4, 'name' => 'David', 'age' => 28, 'city' => 'Hamburg', 'salary' => 45000],
+                ['id' => 5, 'name' => 'Eve', 'age' => 32, 'city' => 'Berlin', 'salary' => 55000],
+            ]);
+
+            // Step 1: Filter by city
+            $berliners = $collection
+                ->query()
+                ->where('city', 'Berlin')
+                ->get()
+                ->values(); // Reset keys
+
+            expect($berliners->count())->toBe(3);
+
+            // Step 2: Add bonus using mutator
+            $berliners
+                ->set('0.bonus', 5000)
+                ->set('1.bonus', 6000)
+                ->set('2.bonus', 5500);
+
+            // Step 3: Filter by age using accessor
+            $seniors = $berliners->filter(fn($item): bool => 30 <= $item['age']);
+
+            expect($seniors->count())->toBe(3);
+
+            // Step 4: Calculate total compensation using reduce
+            $totalComp = $seniors->reduce(
+                fn($carry, $item): int|float => $carry + $item['salary'] + $item['bonus'],
+                0
+            );
+
+            expect($totalComp)->toBe(181500);
+
+            // Step 5: Get names using map
+            $names = $seniors->values()->map(fn($item): mixed => $item['name'])->toArray();
+
+            expect($names)->toBe(['Alice', 'Charlie', 'Eve']);
+
+            // Step 6: Filter again with DataFilter
+            $highEarners = $seniors
+                ->query()
+                ->where('salary', '>', 52000)
+                ->get();
+
+            expect($highEarners->count())->toBe(2);
+        });
+
+        it('filters with limit then mutates', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+                ['name' => 'David', 'age' => 28],
+            ]);
+
+            $top2 = $collection
+                ->query()
+                ->orderBy('age', 'DESC')
+                ->limit(2)
+                ->get();
+
+            expect($top2->count())->toBe(2);
+
+            // Mutate the limited results
+            $top2
+                ->set('0.rank', 1)
+                ->set('1.rank', 2);
+
+            expect($top2->get('0.rank'))->toBe(1)
+                ->and($top2->get('1.rank'))->toBe(2);
+        });
+
+        it('filters with offset then uses accessor', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+                ['name' => 'David', 'age' => 28],
+            ]);
+
+            $page2 = $collection
+                ->query()
+                ->orderBy('age', 'ASC')
+                ->offset(2)
+                ->get();
+
+            expect($page2->count())->toBe(2)
+                ->and($page2->first()['name'])->toBe('Alice')
+                ->and($page2->last()['name'])->toBe('Charlie');
+        });
+
+        it('filters empty collection', function(): void {
+            $collection = DataCollection::make([]);
+
+            $filtered = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->get();
+
+            expect($filtered->count())->toBe(0)
+                ->and($filtered->isEmpty())->toBeTrue();
+        });
+
+        it('filters then pushTo nested array', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'tags' => ['php']],
+                ['name' => 'Bob', 'age' => 25, 'tags' => ['js']],
+                ['name' => 'Charlie', 'age' => 35, 'tags' => ['python']],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->get()
+                ->values(); // Reset keys
+
+            $filtered
+                ->pushTo('0.tags', 'laravel')
+                ->pushTo('1.tags', 'django');
+
+            expect($filtered->get('0.tags'))->toBe(['php', 'laravel'])
+                ->and($filtered->get('1.tags'))->toBe(['python', 'django']);
+        });
+
+        it('filters then merge nested data', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'address' => ['city' => 'Berlin']],
+                ['name' => 'Bob', 'age' => 25, 'address' => ['city' => 'Munich']],
+                ['name' => 'Charlie', 'age' => 35, 'address' => ['city' => 'Berlin']],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('address.city', 'Berlin')
+                ->get()
+                ->values(); // Reset keys
+
+            $filtered
+                ->merge('0.address', ['country' => 'Germany', 'zip' => '10115'])
+                ->merge('1.address', ['country' => 'Germany', 'zip' => '10117']);
+
+            expect($filtered->get('0.address.country'))->toBe('Germany')
+                ->and($filtered->get('0.address.zip'))->toBe('10115')
+                ->and($filtered->get('1.address.country'))->toBe('Germany');
+        });
+
+        it('filters with whereIn then transform', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'city' => 'Berlin'],
+                ['name' => 'Bob', 'city' => 'Munich'],
+                ['name' => 'Charlie', 'city' => 'Hamburg'],
+                ['name' => 'David', 'city' => 'Berlin'],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->whereIn('city', ['Berlin', 'Hamburg'])
+                ->get()
+                ->values(); // Reset keys
+
+            $filtered->transform('0.name', fn($n) => strtoupper($n));
+            $filtered->transform('1.name', fn($n) => strtoupper($n));
+            $filtered->transform('2.name', fn($n) => strtoupper($n));
+
+            expect($filtered->count())->toBe(3)
+                ->and($filtered->get('0.name'))->toBe('ALICE')
+                ->and($filtered->get('1.name'))->toBe('CHARLIE')
+                ->and($filtered->get('2.name'))->toBe('DAVID');
+        });
+
+        it('filters with between then pull', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'temp' => 'delete'],
+                ['name' => 'Bob', 'age' => 25, 'temp' => 'delete'],
+                ['name' => 'Charlie', 'age' => 35, 'temp' => 'delete'],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->between('age', 26, 36)
+                ->get()
+                ->values(); // Reset keys
+
+            $temp1 = $filtered->pull('0.temp');
+            $temp2 = $filtered->pull('1.temp');
+
+            expect($filtered->count())->toBe(2)
+                ->and($temp1)->toBe('delete')
+                ->and($temp2)->toBe('delete')
+                ->and($filtered->get('0.temp', 'missing'))->toBe('missing')
+                ->and($filtered->get('1.temp', 'missing'))->toBe('missing');
+        });
+
+        it('filters with orderBy then lazyMap', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Charlie', 'age' => 35],
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->where('age', '>', 25)
+                ->orderBy('age', 'ASC')
+                ->get();
+
+            $names = [];
+            foreach ($filtered->lazyMap(fn($item): mixed => $item['name']) as $name) {
+                $names[] = $name;
+            }
+
+            expect($names)->toBe(['Alice', 'Charlie']);
+        });
+
+        it('filters multiple times in sequence', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin', 'active' => true],
+                ['name' => 'Bob', 'age' => 25, 'city' => 'Munich', 'active' => false],
+                ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin', 'active' => true],
+                ['name' => 'David', 'age' => 28, 'city' => 'Berlin', 'active' => false],
+                ['name' => 'Eve', 'age' => 32, 'city' => 'Hamburg', 'active' => true],
+            ]);
+
+            // Filter 1: City
+            $step1 = $collection
+                ->query()
+                ->where('city', 'Berlin')
+                ->get();
+
+            expect($step1->count())->toBe(3);
+
+            // Filter 2: Active
+            $step2 = $step1
+                ->query()
+                ->where('active', true)
+                ->get();
+
+            expect($step2->count())->toBe(2);
+
+            // Filter 3: Age
+            $step3 = $step2
+                ->query()
+                ->where('age', '>=', 30)
+                ->get();
+
+            expect($step3->count())->toBe(2)
+                ->and($step3->first()['name'])->toBe('Alice');
+        });
+
+        it('filters with groupBy then count', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'city' => 'Berlin'],
+                ['name' => 'Bob', 'city' => 'Munich'],
+                ['name' => 'Charlie', 'city' => 'Berlin'],
+                ['name' => 'David', 'city' => 'Berlin'],
+            ]);
+
+            $count = $collection
+                ->query()
+                ->where('city', 'Berlin')
+                ->count();
+
+            expect($count)->toBe(3);
+        });
+
+        it('filters with distinct then map', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+                ['name' => 'Bob', 'age' => 25, 'city' => 'Munich'],
+                ['name' => 'Charlie', 'age' => 30, 'city' => 'Berlin'],
+            ]);
+
+            $filtered = $collection
+                ->query()
+                ->distinct('age')
+                ->get();
+
+            $ages = $filtered->map(fn($item): mixed => $item['age']);
+
+            expect($filtered->count())->toBeGreaterThan(0);
         });
     });
 });

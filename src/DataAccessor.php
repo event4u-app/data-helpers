@@ -495,6 +495,7 @@ class DataAccessor
             $result[$key] = $value;
         }
 
+        /** @var DataCollection<array<int|string, mixed>> */
         return DataCollection::make($result);
     }
 
@@ -1319,7 +1320,6 @@ class DataAccessor
      *
      * @param (callable(mixed, int|string): bool)|null $callback Optional filter callback
      * @param mixed $default Default value if no item found
-     * @return mixed
      */
     public function first(?callable $callback = null, mixed $default = null): mixed
     {
@@ -1344,7 +1344,6 @@ class DataAccessor
      *
      * @param (callable(mixed, int|string): bool)|null $callback Optional filter callback
      * @param mixed $default Default value if no item found
-     * @return mixed
      */
     public function last(?callable $callback = null, mixed $default = null): mixed
     {
@@ -1414,7 +1413,6 @@ class DataAccessor
      *
      * @param callable(mixed, mixed, int|string): mixed $callback Reduce callback
      * @param mixed $initial Initial value
-     * @return mixed
      */
     public function reduce(callable $callback, mixed $initial = null): mixed
     {

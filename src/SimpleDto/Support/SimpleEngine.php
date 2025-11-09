@@ -58,6 +58,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use event4u\DataHelpers\SimpleDto\DataCollection;
 use event4u\DataHelpers\Support\Lazy;
 use event4u\DataHelpers\Support\Optional;
@@ -949,13 +950,13 @@ final class SimpleEngine
             if ($type instanceof ReflectionNamedType) {
                 $typeName = $type->getName();
 
-                // Check if it's a DataCollection (potential collection)
-                if ('event4u\DataHelpers\SimpleDto\DataCollection' === $typeName && is_array($value)) {
+                // Check if it's a DtoCollection (potential collection)
+                if ('event4u\DataHelpers\SimpleDto\DtoCollection' === $typeName && is_array($value)) {
                     // Check for #[DataCollectionOf] attribute
                     $dataCollectionOfClass = self::getDataCollectionOf($reflection->getName(), $name, $param);
                     if ($dataCollectionOfClass) {
                         /** @var class-string<SimpleDto> $dataCollectionOfClass */
-                        $value = DataCollection::forDto(
+                        $value = DtoCollection::forDto(
                             $dataCollectionOfClass,
                             $value
                         );
@@ -3142,7 +3143,7 @@ final class SimpleEngine
                             );
                             if ($dataCollectionOfClass) {
                                 /** @var class-string<SimpleDto> $dataCollectionOfClass */
-                                $value = DataCollection::forDto(
+                                $value = DtoCollection::forDto(
                                     $dataCollectionOfClass,
                                     $value
                                 );

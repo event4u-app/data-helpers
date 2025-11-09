@@ -265,7 +265,7 @@ foreach ($accessor->lazyFilter(fn($user) => $user['age'] > 25) as $user) {
 
 ### 2️⃣ DataCollection - Type-Safe Collections
 
-Framework-independent collection class with fluent API. Uses DataAccessor for reading and DataMutator for writing, enabling full dot-notation support:
+Framework-independent collection class with fluent API. Uses DataAccessor for reading, DataMutator for writing, and DataFilter for SQL-like querying:
 
 ```php
 use event4u\DataHelpers\DataCollection;
@@ -291,14 +291,23 @@ $collection
     ->merge('1.user', ['city' => 'Munich', 'country' => 'Germany'])
     ->transform('0.user.name', fn($name) => strtoupper($name));
 
+// SQL-like filtering (via DataFilter) - returns new DataCollection
+$users = DataCollection::make([
+    ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+    ['name' => 'Bob', 'age' => 25, 'city' => 'Munich'],
+    ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin'],
+]);
+$filtered = $users
+    ->query()
+    ->where('age', '>', 25)
+    ->where('city', 'Berlin')
+    ->orderBy('age', 'DESC')
+    ->get();  // Returns new DataCollection
+
 // Lazy evaluation for large datasets
 foreach ($collection->lazyFilter(fn($item) => $item > 2) as $item) {
     // Process items one at a time without loading all into memory
 }
-
-// Returned by all collection getters
-$ages = $accessor->getIntCollection('users.*.age');  // DataCollection<int>
-$adults = $ages->filter(fn($age) => $age >= 18);
 ```
 
 📖 **[DataCollection Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-collection/)**

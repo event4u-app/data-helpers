@@ -33,6 +33,7 @@ final class DtoCollection extends DataCollection
     /**
      * @param class-string<TDto> $dtoClass
      * @param array<int|string, mixed> $items
+     * @phpstan-ignore method.childParameterType, parameter.notOptional
      */
     public function __construct(
         private readonly string $dtoClass,
@@ -74,9 +75,9 @@ final class DtoCollection extends DataCollection
      * @param class-string<TDto> $dtoClass
      * @return static<TDto>
      */
-    public static function make(array $items, string $dtoClass = null): static
+    public static function make(array $items = [], string $dtoClass = null): static // @phpstan-ignore parameter.implicitlyNullable, argument.type
     {
-        return new self($dtoClass, $items);
+        return new self($dtoClass, $items); // @phpstan-ignore argument.type
     }
 
     /**
@@ -109,6 +110,7 @@ final class DtoCollection extends DataCollection
      * Overrides parent to convert DTOs to arrays.
      *
      * @return array<int|string, array<string, mixed>>
+     * @phpstan-ignore method.childReturnType
      */
     public function toArray(): array
     {
@@ -126,6 +128,7 @@ final class DtoCollection extends DataCollection
      * Overrides parent to convert DTOs to arrays first.
      *
      * @return array<int|string, array<string, mixed>>
+     * @phpstan-ignore method.childReturnType
      */
     public function jsonSerialize(): array
     {

@@ -6,8 +6,8 @@ namespace event4u\DataHelpers\SimpleDto;
 
 use BackedEnum;
 use Closure;
-use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Exceptions\TypeMismatchException;
