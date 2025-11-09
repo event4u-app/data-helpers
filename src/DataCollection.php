@@ -18,6 +18,9 @@ use Traversable;
  * Framework-independent collection that works with plain PHP, Laravel and Symfony.
  * Similar to Laravel Collection but without framework dependencies.
  *
+ * This class acts as a container and delegates data access operations to DataAccessor.
+ * This allows using dot-notation and all DataAccessor features within collections.
+ *
  * Example:
  *   $numbers = DataCollection::make([1, 2, 3, 4, 5]);
  *   $filtered = $numbers->filter(fn($n) => $n > 2);
@@ -29,9 +32,12 @@ use Traversable;
  */
 class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonSerializable
 {
+    protected DataAccessor $accessor;
+
     /** @param array<int|string, TValue> $items */
     public function __construct(protected array $items = [])
     {
+        $this->accessor = new DataAccessor($items);
     }
 
     /**
@@ -63,34 +69,51 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Get an item from the collection using dot notation or direct key access.
+     *
+     * First checks if the key exists directly in the collection.
+     * If not, delegates to DataAccessor for dot-notation access.
+     *
+     * Example:
+     *   $collection = DataCollection::make([
+     *       ['user' => ['name' => 'Alice', 'age' => 30]],
+     *       ['user' => ['name' => 'Bob', 'age' => 25]],
+     *   ]);
+     *   $name = $collection->get('0.user.name'); // 'Alice'
+     *
+     * @param string|int $path Dot-notation path or direct key
+     * @param mixed $default Default value if path not found
+     * @return mixed
+     */
+    public function get(string|int $path, mixed $default = null): mixed
+    {
+        // First check if key exists directly (handles keys with dots like 'key.with.dots')
+        if (array_key_exists($path, $this->items)) {
+            return $this->items[$path];
+        }
+
+        // Otherwise use DataAccessor for dot-notation
+        return $this->accessor->get((string)$path, $default);
+    }
+
+    /**
      * Filter items by a given callback.
+     *
+     * Delegates to DataAccessor for filtering logic.
      *
      * @param callable(TValue, int|string): bool|null $callback
      * @return static<TValue>
      */
     public function filter(?callable $callback = null): static
     {
-        $filtered = [];
-
-        if (null === $callback) {
-            foreach ($this->items as $key => $item) {
-                if ($item) {
-                    $filtered[$key] = $item;
-                }
-            }
-        } else {
-            foreach ($this->items as $key => $item) {
-                if ($callback($item, $key)) {
-                    $filtered[$key] = $item;
-                }
-            }
-        }
-
+        $filtered = $this->accessor->filter($callback);
         return new static($filtered);
     }
 
     /**
      * Map over each item in the collection.
+     *
+     * Delegates to DataAccessor for mapping logic.
      *
      * @template TMapValue
      * @param callable(TValue, int|string): TMapValue $callback
@@ -98,16 +121,14 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function map(callable $callback): static
     {
-        $items = [];
-        foreach ($this->items as $key => $value) {
-            $items[$key] = $callback($value, $key);
-        }
-
-        return new static($items);
+        $mapped = $this->accessor->map($callback);
+        return new static($mapped);
     }
 
     /**
      * Get the first item from the collection.
+     *
+     * Delegates to DataAccessor for first() logic.
      *
      * @param (callable(TValue, int|string): bool)|null $callback
      * @param TValue|null $default
@@ -115,24 +136,13 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function first(?callable $callback = null, mixed $default = null): mixed
     {
-        if (null === $callback) {
-            foreach ($this->items as $item) {
-                return $item;
-            }
-            return $default;
-        }
-
-        foreach ($this->items as $key => $item) {
-            if ($callback($item, $key)) {
-                return $item;
-            }
-        }
-
-        return $default;
+        return $this->accessor->first($callback, $default);
     }
 
     /**
      * Get the last item from the collection.
+     *
+     * Delegates to DataAccessor for last() logic.
      *
      * @param (callable(TValue, int|string): bool)|null $callback
      * @param TValue|null $default
@@ -140,26 +150,13 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function last(?callable $callback = null, mixed $default = null): mixed
     {
-        if (null === $callback) {
-            $items = array_reverse($this->items, true);
-            foreach ($items as $item) {
-                return $item;
-            }
-            return $default;
-        }
-
-        $items = array_reverse($this->items, true);
-        foreach ($items as $key => $item) {
-            if ($callback($item, $key)) {
-                return $item;
-            }
-        }
-
-        return $default;
+        return $this->accessor->last($callback, $default);
     }
 
     /**
      * Reduce the collection to a single value.
+     *
+     * Delegates to DataAccessor for reduce logic.
      *
      * @template TReduceInitial
      * @template TReduceReturnType
@@ -169,13 +166,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function reduce(callable $callback, mixed $initial = null): mixed
     {
-        $carry = $initial;
-
-        foreach ($this->items as $key => $item) {
-            $carry = $callback($carry, $item, $key);
-        }
-
-        return $carry;
+        return $this->accessor->reduce($callback, $initial);
     }
 
     /**
@@ -231,6 +222,9 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             $this->items[] = $value;
         }
 
+        // Update accessor with new items
+        $this->accessor = new DataAccessor($this->items);
+
         return $this;
     }
 
@@ -244,19 +238,13 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
         array_unshift($this->items, $value);
 
+        // Update accessor with new items
+        $this->accessor = new DataAccessor($this->items);
+
         return $this;
     }
 
-    /**
-     * Get an item by key.
-     *
-     * @param TValue|null $default
-     * @return TValue|null
-     */
-    public function get(int|string $key, mixed $default = null): mixed
-    {
-        return $this->items[$key] ?? $default;
-    }
+
 
     /**
      * Get the collection of items as a plain array.
@@ -289,6 +277,8 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     /**
      * Lazy iteration using Generator for memory efficiency.
      *
+     * Delegates to DataAccessor for lazy iteration.
+     *
      * Use this for large datasets (10k+ items) to avoid loading all items into memory.
      *
      * Example:
@@ -300,28 +290,26 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function lazy(): Generator
     {
-        foreach ($this->items as $key => $item) {
-            yield $key => $item;
-        }
+        return $this->accessor->lazy();
     }
 
     /**
      * Lazy filter using Generator for memory efficiency.
+     *
+     * Delegates to DataAccessor for lazy filtering.
      *
      * @param callable(TValue, int|string): bool $callback
      * @return Generator<int|string, TValue>
      */
     public function lazyFilter(callable $callback): Generator
     {
-        foreach ($this->items as $key => $item) {
-            if ($callback($item, $key)) {
-                yield $key => $item;
-            }
-        }
+        return $this->accessor->lazyFilter($callback);
     }
 
     /**
      * Lazy map using Generator for memory efficiency.
+     *
+     * Delegates to DataAccessor for lazy mapping.
      *
      * @template TMapValue
      * @param callable(TValue, int|string): TMapValue $callback
@@ -329,9 +317,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function lazyMap(callable $callback): Generator
     {
-        foreach ($this->items as $key => $item) {
-            yield $key => $callback($item, $key);
-        }
+        return $this->accessor->lazyMap($callback);
     }
 
     /**
@@ -406,6 +392,9 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         } else {
             $this->items[$offset] = $value;
         }
+
+        // Update accessor with new items
+        $this->accessor = new DataAccessor($this->items);
     }
 
     /**
@@ -416,5 +405,8 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function offsetUnset(mixed $offset): void
     {
         unset($this->items[$offset]);
+
+        // Update accessor with new items
+        $this->accessor = new DataAccessor($this->items);
     }
 }

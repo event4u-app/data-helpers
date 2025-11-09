@@ -9,6 +9,7 @@ use event4u\DataHelpers\Helpers\DotPathHelper;
 use event4u\DataHelpers\Support\ArrayableHelper;
 use event4u\DataHelpers\Support\CollectionHelper;
 use event4u\DataHelpers\Support\EntityHelper;
+use Generator;
 use JsonSerializable;
 use SimpleXMLElement;
 use stdClass;
@@ -1311,5 +1312,165 @@ class DataAccessor
         }
 
         return $arr;
+    }
+
+    /**
+     * Get the first item from the data.
+     *
+     * @param (callable(mixed, int|string): bool)|null $callback Optional filter callback
+     * @param mixed $default Default value if no item found
+     * @return mixed
+     */
+    public function first(?callable $callback = null, mixed $default = null): mixed
+    {
+        if (null === $callback) {
+            foreach ($this->data as $item) {
+                return $item;
+            }
+            return $default;
+        }
+
+        foreach ($this->data as $key => $item) {
+            if ($callback($item, $key)) {
+                return $item;
+            }
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get the last item from the data.
+     *
+     * @param (callable(mixed, int|string): bool)|null $callback Optional filter callback
+     * @param mixed $default Default value if no item found
+     * @return mixed
+     */
+    public function last(?callable $callback = null, mixed $default = null): mixed
+    {
+        if (null === $callback) {
+            $items = array_reverse($this->data, true);
+            foreach ($items as $item) {
+                return $item;
+            }
+            return $default;
+        }
+
+        $items = array_reverse($this->data, true);
+        foreach ($items as $key => $item) {
+            if ($callback($item, $key)) {
+                return $item;
+            }
+        }
+
+        return $default;
+    }
+
+    /**
+     * Filter items by a given callback.
+     *
+     * @param callable(mixed, int|string): bool|null $callback Filter callback
+     * @return array<int|string, mixed> Filtered array
+     */
+    public function filter(?callable $callback = null): array
+    {
+        $filtered = [];
+
+        if (null === $callback) {
+            foreach ($this->data as $key => $item) {
+                if ($item) {
+                    $filtered[$key] = $item;
+                }
+            }
+        } else {
+            foreach ($this->data as $key => $item) {
+                if ($callback($item, $key)) {
+                    $filtered[$key] = $item;
+                }
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * Map over each item in the data.
+     *
+     * @param callable(mixed, int|string): mixed $callback Map callback
+     * @return array<int|string, mixed> Mapped array
+     */
+    public function map(callable $callback): array
+    {
+        $items = [];
+        foreach ($this->data as $key => $value) {
+            $items[$key] = $callback($value, $key);
+        }
+
+        return $items;
+    }
+
+    /**
+     * Reduce the data to a single value.
+     *
+     * @param callable(mixed, mixed, int|string): mixed $callback Reduce callback
+     * @param mixed $initial Initial value
+     * @return mixed
+     */
+    public function reduce(callable $callback, mixed $initial = null): mixed
+    {
+        $carry = $initial;
+
+        foreach ($this->data as $key => $item) {
+            $carry = $callback($carry, $item, $key);
+        }
+
+        return $carry;
+    }
+
+    /**
+     * Lazy iteration using Generator for memory efficiency.
+     *
+     * Use this for large datasets (10k+ items) to avoid loading all items into memory.
+     *
+     * Example:
+     *   foreach ($accessor->lazy() as $item) {
+     *       // Process one item at a time
+     *   }
+     *
+     * @return Generator<int|string, mixed>
+     */
+    public function lazy(): Generator
+    {
+        foreach ($this->data as $key => $item) {
+            yield $key => $item;
+        }
+    }
+
+    /**
+     * Lazy filter using Generator for memory efficiency.
+     *
+     * @param callable(mixed, int|string): bool $callback Filter callback
+     * @return Generator<int|string, mixed>
+     */
+    public function lazyFilter(callable $callback): Generator
+    {
+        foreach ($this->data as $key => $item) {
+            if ($callback($item, $key)) {
+                yield $key => $item;
+            }
+        }
+    }
+
+    /**
+     * Lazy map using Generator for memory efficiency.
+     *
+     * @param callable(mixed, int|string): mixed $callback Map callback
+     * @return Generator<int|string, mixed>
+     */
+    public function lazyMap(callable $callback): Generator
+    {
+        foreach ($this->data as $key => $item) {
+            yield $key => $callback($item, $key);
+        }
     }
 }

@@ -7,10 +7,14 @@ sidebar:
 
 The `DataCollection` class is a powerful, framework-independent utility for working with arrays of data. It provides a fluent, chainable API similar to Laravel's Collection, but works in any PHP environment.
 
+**Architecture:** DataCollection acts as a container and delegates all data access and transformation operations to [DataAccessor](/data-helpers/main-classes/data-accessor/). This enables dot-notation access and all DataAccessor features within collections.
+
 ## Overview
 
 `DataCollection` is a generic, type-safe collection class that:
 - Works in any PHP environment (no framework dependencies)
+- Uses DataAccessor internally for all data operations
+- Supports dot-notation access within collections
 - Provides a fluent, chainable API
 - Supports lazy evaluation with generators for memory efficiency
 - Implements standard PHP interfaces (IteratorAggregate, ArrayAccess, Countable, JsonSerializable)
@@ -39,9 +43,17 @@ $same = DataCollection::wrap($wrapped); // Returns same instance
 ```php
 $collection = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
 
-// Get item by key
+// Get item by key (checks direct key first, then uses dot-notation)
 $value = $collection->get('a'); // 1
 $value = $collection->get('missing', 'default'); // 'default'
+
+// Dot-notation access (powered by DataAccessor)
+$collection = DataCollection::make([
+    ['user' => ['name' => 'Alice', 'age' => 30]],
+    ['user' => ['name' => 'Bob', 'age' => 25]],
+]);
+$name = $collection->get('0.user.name'); // 'Alice'
+$age = $collection->get('1.user.age'); // 25
 
 // Array access
 $value = $collection['a']; // 1
@@ -51,12 +63,17 @@ if ($collection->has('a')) {
     // Key exists
 }
 
-// Get first/last item
+// Get first/last item (delegates to DataAccessor)
 $first = $collection->first(); // 1
 $last = $collection->last(); // 3
+
+// With callback
+$firstEven = $collection->first(fn($n) => $n % 2 === 0);
 ```
 
 ## Transformation Methods
+
+All transformation methods delegate to [DataAccessor](/data-helpers/main-classes/data-accessor/) for consistent behavior across the library.
 
 ### Filter
 
@@ -65,7 +82,7 @@ Remove items that don't match a condition:
 ```php
 $collection = DataCollection::make([1, 2, 3, 4, 5]);
 
-// Filter with callback
+// Filter with callback (delegates to DataAccessor)
 $filtered = $collection->filter(fn($item) => $item > 2);
 // Result: [2 => 3, 3 => 4, 4 => 5]
 
