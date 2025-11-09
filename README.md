@@ -226,14 +226,25 @@ Access deeply nested data with dot notation and wildcards:
 ```php
 $data = [
     'users' => [
-        ['email' => 'alice@example.com'],
-        ['email' => 'bob@example.com'],
+        ['name' => 'Alice', 'age' => '30', 'email' => 'alice@example.com'],
+        ['name' => 'Bob', 'age' => '25', 'email' => 'bob@example.com'],
     ],
 ];
 
 $accessor = new DataAccessor($data);
+
+// Generic get() - returns mixed
 $emails = $accessor->get('users.*.email');
-// $emails = ['alice@example.com', 'bob@example.com']
+// ['users.0.email' => 'alice@example.com', 'users.1.email' => 'bob@example.com']
+
+// Type-safe getters - strict type conversion with nullable return
+$name = $accessor->getString('users.0.name');  // 'Alice'
+$age = $accessor->getInt('users.0.age');       // 30 (string → int)
+$missing = $accessor->getString('users.0.phone');  // null
+
+// Collection getters for wildcards - returns typed arrays
+$ages = $accessor->getIntCollection('users.*.age');  // [25, 30]
+$names = $accessor->getStringCollection('users.*.name');  // ['Alice', 'Bob']
 ```
 
 📖 **[DataAccessor Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-accessor/)**
