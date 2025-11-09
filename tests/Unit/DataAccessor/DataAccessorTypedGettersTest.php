@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\Exceptions\TypeMismatchException;
 
 describe('DataAccessor Typed Getters', function(): void {
     describe('getString', function(): void {
@@ -36,10 +37,18 @@ describe('DataAccessor Typed Getters', function(): void {
             expect($accessor->getString('name', 'default'))->toBe('default');
         });
 
-        it('returns default for array value', function(): void {
+        it('throws exception for array value', function(): void {
             $accessor = new DataAccessor(['data' => ['foo' => 'bar']]);
 
-            expect($accessor->getString('data', 'default'))->toBe('default');
+            expect(fn(): ?string => $accessor->getString('data'))
+                ->toThrow(TypeMismatchException::class, 'Expected single value for path "data", but got an array');
+        });
+
+        it('throws exception for object without __toString', function(): void {
+            $accessor = new DataAccessor(['obj' => new stdClass()]);
+
+            expect(fn(): ?string => $accessor->getString('obj'))
+                ->toThrow(TypeMismatchException::class, 'Cannot convert value at path "obj" to string');
         });
 
         it('returns null when no default provided', function(): void {
@@ -68,10 +77,24 @@ describe('DataAccessor Typed Getters', function(): void {
             expect($accessor->getInt('age'))->toBe(42);
         });
 
-        it('returns default for non-numeric value', function(): void {
+        it('converts boolean to integer', function(): void {
+            $accessor = new DataAccessor(['active' => true]);
+
+            expect($accessor->getInt('active'))->toBe(1);
+        });
+
+        it('throws exception for non-numeric value', function(): void {
             $accessor = new DataAccessor(['age' => 'not a number']);
 
-            expect($accessor->getInt('age', 0))->toBe(0);
+            expect(fn(): ?int => $accessor->getInt('age'))
+                ->toThrow(TypeMismatchException::class, 'Cannot convert value at path "age" to int');
+        });
+
+        it('throws exception for array value', function(): void {
+            $accessor = new DataAccessor(['data' => [1, 2, 3]]);
+
+            expect(fn(): ?int => $accessor->getInt('data'))
+                ->toThrow(TypeMismatchException::class, 'Expected single value for path "data", but got an array');
         });
 
         it('returns default for non-existent path', function(): void {
@@ -112,10 +135,24 @@ describe('DataAccessor Typed Getters', function(): void {
             expect($accessor->getFloat('price'))->toBe(19.99);
         });
 
-        it('returns default for non-numeric value', function(): void {
+        it('converts boolean to float', function(): void {
+            $accessor = new DataAccessor(['active' => true]);
+
+            expect($accessor->getFloat('active'))->toBe(1.0);
+        });
+
+        it('throws exception for non-numeric value', function(): void {
             $accessor = new DataAccessor(['price' => 'not a number']);
 
-            expect($accessor->getFloat('price', 0.0))->toBe(0.0);
+            expect(fn(): ?float => $accessor->getFloat('price'))
+                ->toThrow(TypeMismatchException::class, 'Cannot convert value at path "price" to float');
+        });
+
+        it('throws exception for array value', function(): void {
+            $accessor = new DataAccessor(['data' => [1.5, 2.5]]);
+
+            expect(fn(): ?float => $accessor->getFloat('data'))
+                ->toThrow(TypeMismatchException::class, 'Expected single value for path "data", but got an array');
         });
 
         it('returns default for non-existent path', function(): void {
@@ -144,58 +181,10 @@ describe('DataAccessor Typed Getters', function(): void {
             expect($accessor->getBool('active'))->toBeTrue();
         });
 
-        it('converts string "true" to boolean', function(): void {
-            $accessor = new DataAccessor(['active' => 'true']);
+        it('converts any value to boolean', function(): void {
+            $accessor = new DataAccessor(['active' => 'any string']);
 
             expect($accessor->getBool('active'))->toBeTrue();
-        });
-
-        it('converts string "false" to boolean', function(): void {
-            $accessor = new DataAccessor(['active' => 'false']);
-
-            expect($accessor->getBool('active'))->toBeFalse();
-        });
-
-        it('converts string "1" to boolean', function(): void {
-            $accessor = new DataAccessor(['active' => '1']);
-
-            expect($accessor->getBool('active'))->toBeTrue();
-        });
-
-        it('converts string "0" to boolean', function(): void {
-            $accessor = new DataAccessor(['active' => '0']);
-
-            expect($accessor->getBool('active'))->toBeFalse();
-        });
-
-        it('converts string "yes" to boolean', function(): void {
-            $accessor = new DataAccessor(['active' => 'yes']);
-
-            expect($accessor->getBool('active'))->toBeTrue();
-        });
-
-        it('converts string "no" to boolean', function(): void {
-            $accessor = new DataAccessor(['active' => 'no']);
-
-            expect($accessor->getBool('active'))->toBeFalse();
-        });
-
-        it('converts string "on" to boolean', function(): void {
-            $accessor = new DataAccessor(['active' => 'on']);
-
-            expect($accessor->getBool('active'))->toBeTrue();
-        });
-
-        it('converts string "off" to boolean', function(): void {
-            $accessor = new DataAccessor(['active' => 'off']);
-
-            expect($accessor->getBool('active'))->toBeFalse();
-        });
-
-        it('converts empty string to false', function(): void {
-            $accessor = new DataAccessor(['active' => '']);
-
-            expect($accessor->getBool('active'))->toBeFalse();
         });
 
         it('converts integer 1 to boolean', function(): void {
@@ -210,10 +199,11 @@ describe('DataAccessor Typed Getters', function(): void {
             expect($accessor->getBool('active'))->toBeFalse();
         });
 
-        it('returns default for non-boolean value', function(): void {
-            $accessor = new DataAccessor(['active' => 'maybe']);
+        it('throws exception for array value', function(): void {
+            $accessor = new DataAccessor(['data' => [true, false]]);
 
-            expect($accessor->getBool('active', false))->toBeFalse();
+            expect(fn(): ?bool => $accessor->getBool('data'))
+                ->toThrow(TypeMismatchException::class, 'Expected single value for path "data", but got an array');
         });
 
         it('returns default for non-existent path', function(): void {
@@ -242,10 +232,11 @@ describe('DataAccessor Typed Getters', function(): void {
             expect($accessor->getArray('items'))->toBe(['a', 'b', 'c']);
         });
 
-        it('returns default for non-array value', function(): void {
+        it('throws exception for non-array value', function(): void {
             $accessor = new DataAccessor(['items' => 'not an array']);
 
-            expect($accessor->getArray('items', []))->toBe([]);
+            expect(fn(): ?array => $accessor->getArray('items'))
+                ->toThrow(TypeMismatchException::class, 'Expected array for path "items"');
         });
 
         it('returns default for non-existent path', function(): void {
@@ -296,6 +287,213 @@ describe('DataAccessor Typed Getters', function(): void {
             $accessor = new DataAccessor(['user' => ['tags' => ['admin', 'user']]]);
 
             expect($accessor->getArray('user.tags'))->toBe(['admin', 'user']);
+        });
+    });
+
+    describe('Collection Getters', function(): void {
+        describe('getIntCollection', function(): void {
+            it('returns array of integers with wildcards', function(): void {
+                $accessor = new DataAccessor([
+                    'users' => [
+                        ['age' => 25],
+                        ['age' => 30],
+                        ['age' => '35'],
+                    ],
+                ]);
+
+                expect($accessor->getIntCollection('users.*.age'))->toBe([
+                    'users.0.age' => 25,
+                    'users.1.age' => 30,
+                    'users.2.age' => 35,
+                ]);
+            });
+
+            it('converts numeric strings to integers', function(): void {
+                $accessor = new DataAccessor([
+                    'items' => [
+                        ['count' => '10'],
+                        ['count' => '20'],
+                    ],
+                ]);
+
+                expect($accessor->getIntCollection('items.*.count'))->toBe([
+                    'items.0.count' => 10,
+                    'items.1.count' => 20,
+                ]);
+            });
+
+            it('throws exception when path has no wildcard', function(): void {
+                $accessor = new DataAccessor(['age' => 25]);
+
+                expect(fn(): array => $accessor->getIntCollection('age'))
+                    ->toThrow(TypeMismatchException::class, 'Path "age" does not contain wildcards');
+            });
+
+            it('throws exception when value cannot be converted to int', function(): void {
+                $accessor = new DataAccessor([
+                    'users' => [
+                        ['name' => 'John'],
+                    ],
+                ]);
+
+                expect(fn(): array => $accessor->getIntCollection('users.*.name'))
+                    ->toThrow(
+                        TypeMismatchException::class,
+                        'Cannot convert value at key "users.0.name" in path "users.*.name" to int'
+                    );
+            });
+        });
+
+        describe('getStringCollection', function(): void {
+            it('returns array of strings with wildcards', function(): void {
+                $accessor = new DataAccessor([
+                    'users' => [
+                        ['name' => 'Alice'],
+                        ['name' => 'Bob'],
+                    ],
+                ]);
+
+                expect($accessor->getStringCollection('users.*.name'))->toBe([
+                    'users.0.name' => 'Alice',
+                    'users.1.name' => 'Bob',
+                ]);
+            });
+
+            it('converts numbers to strings', function(): void {
+                $accessor = new DataAccessor([
+                    'items' => [
+                        ['id' => 123],
+                        ['id' => 456],
+                    ],
+                ]);
+
+                expect($accessor->getStringCollection('items.*.id'))->toBe([
+                    'items.0.id' => '123',
+                    'items.1.id' => '456',
+                ]);
+            });
+
+            it('throws exception when path has no wildcard', function(): void {
+                $accessor = new DataAccessor(['name' => 'John']);
+
+                expect(fn(): array => $accessor->getStringCollection('name'))
+                    ->toThrow(TypeMismatchException::class, 'Path "name" does not contain wildcards');
+            });
+
+            it('throws exception for object without __toString', function(): void {
+                $accessor = new DataAccessor([
+                    'items' => [
+                        ['obj' => new stdClass()],
+                    ],
+                ]);
+
+                expect(fn(): array => $accessor->getStringCollection('items.*.obj'))
+                    ->toThrow(
+                        TypeMismatchException::class,
+                        'Cannot convert value at key "items.0.obj" in path "items.*.obj" to string'
+                    );
+            });
+        });
+
+        describe('getBoolCollection', function(): void {
+            it('returns array of booleans with wildcards', function(): void {
+                $accessor = new DataAccessor([
+                    'users' => [
+                        ['active' => true],
+                        ['active' => false],
+                        ['active' => 1],
+                    ],
+                ]);
+
+                expect($accessor->getBoolCollection('users.*.active'))->toBe([
+                    'users.0.active' => true,
+                    'users.1.active' => false,
+                    'users.2.active' => true,
+                ]);
+            });
+
+            it('throws exception when path has no wildcard', function(): void {
+                $accessor = new DataAccessor(['active' => true]);
+
+                expect(fn(): array => $accessor->getBoolCollection('active'))
+                    ->toThrow(TypeMismatchException::class, 'Path "active" does not contain wildcards');
+            });
+        });
+
+        describe('getFloatCollection', function(): void {
+            it('returns array of floats with wildcards', function(): void {
+                $accessor = new DataAccessor([
+                    'products' => [
+                        ['price' => 19.99],
+                        ['price' => 29.99],
+                        ['price' => '39.99'],
+                    ],
+                ]);
+
+                expect($accessor->getFloatCollection('products.*.price'))->toBe([
+                    'products.0.price' => 19.99,
+                    'products.1.price' => 29.99,
+                    'products.2.price' => 39.99,
+                ]);
+            });
+
+            it('throws exception when path has no wildcard', function(): void {
+                $accessor = new DataAccessor(['price' => 19.99]);
+
+                expect(fn(): array => $accessor->getFloatCollection('price'))
+                    ->toThrow(TypeMismatchException::class, 'Path "price" does not contain wildcards');
+            });
+
+            it('throws exception when value cannot be converted to float', function(): void {
+                $accessor = new DataAccessor([
+                    'products' => [
+                        ['name' => 'Product'],
+                    ],
+                ]);
+
+                expect(fn(): array => $accessor->getFloatCollection('products.*.name'))
+                    ->toThrow(
+                        TypeMismatchException::class,
+                        'Cannot convert value at key "products.0.name" in path "products.*.name" to float'
+                    );
+            });
+        });
+
+        describe('getArrayCollection', function(): void {
+            it('returns array of arrays with wildcards', function(): void {
+                $accessor = new DataAccessor([
+                    'users' => [
+                        ['tags' => ['admin', 'user']],
+                        ['tags' => ['guest']],
+                    ],
+                ]);
+
+                expect($accessor->getArrayCollection('users.*.tags'))->toBe([
+                    'users.0.tags' => ['admin', 'user'],
+                    'users.1.tags' => ['guest'],
+                ]);
+            });
+
+            it('throws exception when path has no wildcard', function(): void {
+                $accessor = new DataAccessor(['tags' => ['admin']]);
+
+                expect(fn(): array => $accessor->getArrayCollection('tags'))
+                    ->toThrow(TypeMismatchException::class, 'Path "tags" does not contain wildcards');
+            });
+
+            it('throws exception when value is not an array', function(): void {
+                $accessor = new DataAccessor([
+                    'users' => [
+                        ['name' => 'John'],
+                    ],
+                ]);
+
+                expect(fn(): array => $accessor->getArrayCollection('users.*.name'))
+                    ->toThrow(
+                        TypeMismatchException::class,
+                        'Expected array at key "users.0.name" in path "users.*.name"'
+                    );
+            });
         });
     });
 });

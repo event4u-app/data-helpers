@@ -33,7 +33,7 @@ $accessor = DataAccessor::make($data);
 
 ### `get(string $path, mixed $default = null): mixed`
 
-Get value at path.
+Get value at path. Returns mixed type without type conversion.
 
 ```php
 use event4u\DataHelpers\DataAccessor;
@@ -44,64 +44,164 @@ $value = $accessor->get('user.name');
 $value = $accessor->get('user.age', 0);
 ```
 
-### `getString(string $path, string $default = ''): string`
+## Type-Safe Single Value Getters
 
-Get string value.
+These methods return a single value with strict type conversion. They return `null` if the path doesn't exist or the value is `null`. They throw `TypeMismatchException` if the value cannot be converted to the expected type or if an array is returned (use collection getters for wildcards).
+
+### `getString(string $path, ?string $default = null): ?string`
+
+Get string value with type conversion. Converts numbers and booleans to strings. Throws `TypeMismatchException` for arrays or objects without `__toString()`.
 
 ```php
 use event4u\DataHelpers\DataAccessor;
 
 $data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
 $accessor = new DataAccessor($data);
-$name = $accessor->getString('user.name');
+$name = $accessor->getString('user.name');  // 'John'
+$age = $accessor->getString('user.age');    // '25' (int → string)
+$missing = $accessor->getString('user.phone');  // null
+$withDefault = $accessor->getString('user.phone', 'N/A');  // 'N/A'
 ```
 
-### `getInt(string $path, int $default = 0): int`
+### `getInt(string $path, ?int $default = null): ?int`
 
-Get integer value.
+Get integer value with type conversion. Converts numeric strings, floats, and booleans to integers. Throws `TypeMismatchException` for non-numeric strings or arrays.
 
 ```php
 use event4u\DataHelpers\DataAccessor;
 
-$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$data = ['user' => ['name' => 'John', 'age' => '25', 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
 $accessor = new DataAccessor($data);
-$age = $accessor->getInt('user.age');
+$age = $accessor->getInt('user.age');  // 25 (string → int)
+$active = $accessor->getInt('user.active');  // 1 (bool → int)
+$missing = $accessor->getInt('user.salary');  // null
+$withDefault = $accessor->getInt('user.salary', 0);  // 0
 ```
 
-### `getFloat(string $path, float $default = 0.0): float`
+### `getFloat(string $path, ?float $default = null): ?float`
 
-Get float value.
+Get float value with type conversion. Converts numeric strings, integers, and booleans to floats. Throws `TypeMismatchException` for non-numeric strings or arrays.
 
 ```php
 use event4u\DataHelpers\DataAccessor;
 
-$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => '99.99'], 'post' => ['tags' => ['php', 'laravel']]];
 $accessor = new DataAccessor($data);
-$price = $accessor->getFloat('product.price');
+$price = $accessor->getFloat('product.price');  // 99.99 (string → float)
+$age = $accessor->getFloat('user.age');  // 25.0 (int → float)
+$missing = $accessor->getFloat('product.discount');  // null
 ```
 
-### `getBool(string $path, bool $default = false): bool`
+### `getBool(string $path, ?bool $default = null): ?bool`
 
-Get boolean value.
+Get boolean value with type conversion. Converts any value to boolean using PHP's truthiness rules. Throws `TypeMismatchException` for arrays.
 
 ```php
 use event4u\DataHelpers\DataAccessor;
 
-$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
+$data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => 1], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
 $accessor = new DataAccessor($data);
-$active = $accessor->getBool('user.active');
+$active = $accessor->getBool('user.active');  // true (1 → true)
+$inactive = $accessor->getBool('user.inactive');  // null
+$withDefault = $accessor->getBool('user.inactive', false);  // false
 ```
 
-### `getArray(string $path, array $default = []): array`
+### `getArray(string $path, ?array $default = null): ?array`
 
-Get array value.
+Get array value. Only accepts arrays. Throws `TypeMismatchException` for non-array values.
 
 ```php
 use event4u\DataHelpers\DataAccessor;
 
 $data = ['user' => ['name' => 'John', 'age' => 25, 'email' => 'john@example.com', 'active' => true], 'product' => ['price' => 99.99], 'post' => ['tags' => ['php', 'laravel']]];
 $accessor = new DataAccessor($data);
-$tags = $accessor->getArray('post.tags');
+$tags = $accessor->getArray('post.tags');  // ['php', 'laravel']
+$missing = $accessor->getArray('post.categories');  // null
+$withDefault = $accessor->getArray('post.categories', []);  // []
+```
+
+## Type-Safe Collection Getters
+
+These methods are designed for wildcard paths and return typed arrays. They throw `TypeMismatchException` if the path doesn't contain a wildcard or if any value cannot be converted to the expected type.
+
+### `getIntCollection(string $path): array`
+
+Get array of integers from wildcard path. Returns `array<int|string, int>`.
+
+```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['users' => [
+    ['name' => 'Alice', 'age' => '30'],
+    ['name' => 'Bob', 'age' => '25'],
+]];
+$accessor = new DataAccessor($data);
+$ages = $accessor->getIntCollection('users.*.age');
+// ['users.0.age' => 30, 'users.1.age' => 25]
+```
+
+### `getStringCollection(string $path): array`
+
+Get array of strings from wildcard path. Returns `array<int|string, string>`.
+
+```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['users' => [
+    ['name' => 'Alice', 'age' => 30],
+    ['name' => 'Bob', 'age' => 25],
+]];
+$accessor = new DataAccessor($data);
+$names = $accessor->getStringCollection('users.*.name');
+// ['users.0.name' => 'Alice', 'users.1.name' => 'Bob']
+```
+
+### `getBoolCollection(string $path): array`
+
+Get array of booleans from wildcard path. Returns `array<int|string, bool>`.
+
+```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['users' => [
+    ['name' => 'Alice', 'active' => true],
+    ['name' => 'Bob', 'active' => false],
+]];
+$accessor = new DataAccessor($data);
+$activeFlags = $accessor->getBoolCollection('users.*.active');
+// ['users.0.active' => true, 'users.1.active' => false]
+```
+
+### `getFloatCollection(string $path): array`
+
+Get array of floats from wildcard path. Returns `array<int|string, float>`.
+
+```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['products' => [
+    ['name' => 'Product A', 'price' => '10.50'],
+    ['name' => 'Product B', 'price' => '25.00'],
+]];
+$accessor = new DataAccessor($data);
+$prices = $accessor->getFloatCollection('products.*.price');
+// ['products.0.price' => 10.5, 'products.1.price' => 25.0]
+```
+
+### `getArrayCollection(string $path): array`
+
+Get array of arrays from wildcard path. Returns `array<int|string, array>`.
+
+```php
+use event4u\DataHelpers\DataAccessor;
+
+$data = ['orders' => [
+    ['items' => ['A', 'B']],
+    ['items' => ['C', 'D']],
+]];
+$accessor = new DataAccessor($data);
+$items = $accessor->getArrayCollection('orders.*.items');
+// ['orders.0.items' => ['A', 'B'], 'orders.1.items' => ['C', 'D']]
 ```
 
 ## Has Methods

@@ -8,6 +8,7 @@ use BackedEnum;
 use Closure;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\Exceptions\TypeMismatchException;
 use event4u\DataHelpers\LiteDto\Support\LiteEngine;
 use JsonSerializable;
 use UnitEnum;
@@ -230,6 +231,161 @@ abstract class LiteDto implements JsonSerializable
         $accessor = new DataAccessor($data);
 
         return $accessor->get($path, $default);
+    }
+
+    /**
+     * Get an integer value from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param int|null $default Default value if path not found
+     * @return int|null The integer value or null
+     * @throws TypeMismatchException If value is an array or cannot be converted to int
+     */
+    public function getInt(string $path, ?int $default = null): ?int
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getInt($path, $default);
+    }
+
+    /**
+     * Get a string value from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param string|null $default Default value if path not found
+     * @return string|null The string value or null
+     * @throws TypeMismatchException If value is an array or cannot be converted to string
+     */
+    public function getString(string $path, ?string $default = null): ?string
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getString($path, $default);
+    }
+
+    /**
+     * Get a boolean value from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param bool|null $default Default value if path not found
+     * @return bool|null The boolean value or null
+     * @throws TypeMismatchException If value is an array
+     */
+    public function getBool(string $path, ?bool $default = null): ?bool
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getBool($path, $default);
+    }
+
+    /**
+     * Get a float value from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param float|null $default Default value if path not found
+     * @return float|null The float value or null
+     * @throws TypeMismatchException If value is an array or cannot be converted to float
+     */
+    public function getFloat(string $path, ?float $default = null): ?float
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getFloat($path, $default);
+    }
+
+    /**
+     * Get an array value from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param array<int|string, mixed>|null $default Default value if path not found
+     * @return array<int|string, mixed>|null The array value or null
+     * @throws TypeMismatchException If value is not an array
+     */
+    public function getArray(string $path, ?array $default = null): ?array
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getArray($path, $default);
+    }
+
+    /**
+     * Get a collection of integer values from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, int> Array of integer values
+     * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to int
+     */
+    public function getIntCollection(string $path): array
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getIntCollection($path);
+    }
+
+    /**
+     * Get a collection of string values from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, string> Array of string values
+     * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to string
+     */
+    public function getStringCollection(string $path): array
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getStringCollection($path);
+    }
+
+    /**
+     * Get a collection of boolean values from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, bool> Array of boolean values
+     * @throws TypeMismatchException If path doesn't contain wildcards
+     */
+    public function getBoolCollection(string $path): array
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getBoolCollection($path);
+    }
+
+    /**
+     * Get a collection of float values from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, float> Array of float values
+     * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to float
+     */
+    public function getFloatCollection(string $path): array
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getFloatCollection($path);
+    }
+
+    /**
+     * Get a collection of array values from the Dto using dot notation.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, array<int|string, mixed>> Array of array values
+     * @throws TypeMismatchException If path doesn't contain wildcards or values are not arrays
+     */
+    public function getArrayCollection(string $path): array
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->getArrayCollection($path);
     }
 
     /**

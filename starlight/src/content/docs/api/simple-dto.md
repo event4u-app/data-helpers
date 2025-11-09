@@ -213,6 +213,175 @@ $dto = new UserDto($data);
 $errors = $dto->getErrors();
 ```
 
+## Data Access Methods
+
+### `get(string $path, mixed $default = null): mixed`
+
+Get value at path using dot notation. Returns mixed type without type conversion.
+
+```php
+$dto = UserDto::fromArray([
+    'name' => 'John',
+    'address' => ['city' => 'New York'],
+]);
+
+$name = $dto->get('name');  // 'John'
+$city = $dto->get('address.city');  // 'New York'
+$missing = $dto->get('phone', 'N/A');  // 'N/A'
+```
+
+### Type-Safe Single Value Getters
+
+These methods return a single value with strict type conversion. They return `null` if the path doesn't exist or the value is `null`. They throw `TypeMismatchException` if the value cannot be converted to the expected type.
+
+#### `getString(string $path, ?string $default = null): ?string`
+
+Get string value with type conversion.
+
+```php
+$dto = UserDto::fromArray(['name' => 'John', 'age' => 30]);
+$name = $dto->getString('name');  // 'John'
+$age = $dto->getString('age');    // '30' (int → string)
+$missing = $dto->getString('phone');  // null
+$withDefault = $dto->getString('phone', 'N/A');  // 'N/A'
+```
+
+#### `getInt(string $path, ?int $default = null): ?int`
+
+Get integer value with type conversion.
+
+```php
+$dto = UserDto::fromArray(['name' => 'John', 'age' => '30']);
+$age = $dto->getInt('age');  // 30 (string → int)
+$missing = $dto->getInt('salary');  // null
+$withDefault = $dto->getInt('salary', 0);  // 0
+```
+
+#### `getFloat(string $path, ?float $default = null): ?float`
+
+Get float value with type conversion.
+
+<!-- skip-test: requires UserDto -->
+```php
+$dto = UserDto::fromArray(['name' => 'John', 'score' => '99.99']);
+$score = $dto->getFloat('score');  // 99.99 (string → float)
+$missing = $dto->getFloat('discount');  // null
+```
+
+#### `getBool(string $path, ?bool $default = null): ?bool`
+
+Get boolean value with type conversion.
+
+<!-- skip-test: requires UserDto -->
+```php
+$dto = UserDto::fromArray(['name' => 'John', 'active' => 1]);
+$active = $dto->getBool('active');  // true (1 → true)
+$missing = $dto->getBool('verified');  // null
+```
+
+#### `getArray(string $path, ?array $default = null): ?array`
+
+Get array value.
+
+<!-- skip-test: requires UserDto -->
+```php
+$dto = UserDto::fromArray(['name' => 'John', 'tags' => ['php', 'laravel']]);
+$tags = $dto->getArray('tags');  // ['php', 'laravel']
+$missing = $dto->getArray('categories');  // null
+```
+
+### Type-Safe Collection Getters
+
+These methods are designed for wildcard paths and return typed arrays. They throw `TypeMismatchException` if the path doesn't contain a wildcard.
+
+#### `getIntCollection(string $path): array`
+
+Get array of integers from wildcard path.
+
+<!-- skip-test: requires DepartmentDto -->
+```php
+$dto = DepartmentDto::fromArray([
+    'employees' => [
+        ['name' => 'Alice', 'age' => 30],
+        ['name' => 'Bob', 'age' => 25],
+    ],
+]);
+$ages = $dto->getIntCollection('employees.*.age');
+// ['employees.0.age' => 30, 'employees.1.age' => 25]
+```
+
+#### `getStringCollection(string $path): array`
+
+Get array of strings from wildcard path.
+
+<!-- skip-test: requires DepartmentDto -->
+```php
+$dto = DepartmentDto::fromArray([
+    'employees' => [
+        ['name' => 'Alice'],
+        ['name' => 'Bob'],
+    ],
+]);
+$names = $dto->getStringCollection('employees.*.name');
+// ['employees.0.name' => 'Alice', 'employees.1.name' => 'Bob']
+```
+
+#### `getBoolCollection(string $path): array`
+
+Get array of booleans from wildcard path.
+
+```php
+$dto = UserDto::fromArray([
+    'emails' => [
+        ['email' => 'a@x.com', 'verified' => true],
+        ['email' => 'b@x.com', 'verified' => false],
+    ],
+]);
+$verified = $dto->getBoolCollection('emails.*.verified');
+// ['emails.0.verified' => true, 'emails.1.verified' => false]
+```
+
+#### `getFloatCollection(string $path): array`
+
+Get array of floats from wildcard path.
+
+```php
+$dto = OrderDto::fromArray([
+    'items' => [
+        ['name' => 'Item A', 'price' => 10.50],
+        ['name' => 'Item B', 'price' => 25.00],
+    ],
+]);
+$prices = $dto->getFloatCollection('items.*.price');
+// ['items.0.price' => 10.5, 'items.1.price' => 25.0]
+```
+
+#### `getArrayCollection(string $path): array`
+
+Get array of arrays from wildcard path.
+
+```php
+$dto = OrderDto::fromArray([
+    'orders' => [
+        ['items' => ['A', 'B']],
+        ['items' => ['C', 'D']],
+    ],
+]);
+$items = $dto->getArrayCollection('orders.*.items');
+// ['orders.0.items' => ['A', 'B'], 'orders.1.items' => ['C', 'D']]
+```
+
+### `set(string $path, mixed $value): static`
+
+Set value at path using dot notation. Returns a new DTO instance (immutable).
+
+```php
+$dto = UserDto::fromArray(['name' => 'John', 'age' => 30]);
+$updated = $dto->set('name', 'Jane');
+// $dto->name is still 'John' (original unchanged)
+// $updated->name is 'Jane' (new instance)
+```
+
 ## Serialization Methods
 
 ### `toArray(array $context = []): array`

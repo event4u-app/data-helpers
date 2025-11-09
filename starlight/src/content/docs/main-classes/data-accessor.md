@@ -114,6 +114,185 @@ $name = $accessor->get('user.profile.name', 'Anonymous');
 // $name = 'John Doe'
 ```
 
+## Type-Safe Getters
+
+DataAccessor provides strict type-safe getter methods that automatically convert values to the expected type or throw a `TypeMismatchException` if conversion fails.
+
+### Single Value Getters
+
+These methods return a single value with strict type conversion. They return `null` if the path doesn't exist or the value is `null`.
+
+```php
+$data = [
+    'user' => [
+        'name' => 'John Doe',
+        'age' => '30',  // string
+        'score' => '95.5',  // string
+        'active' => 1,  // int
+        'tags' => ['php', 'laravel'],
+    ],
+];
+
+$accessor = DataAccessor::make($data);
+
+// getString() - converts to string or returns null
+$name = $accessor->getString('user.name');  // 'John Doe'
+$age = $accessor->getString('user.age');    // '30'
+$missing = $accessor->getString('user.phone');  // null
+$withDefault = $accessor->getString('user.phone', 'N/A');  // 'N/A'
+
+// getInt() - converts to int or returns null
+$age = $accessor->getInt('user.age');  // 30 (string → int)
+$active = $accessor->getInt('user.active');  // 1
+$missing = $accessor->getInt('user.salary');  // null
+$withDefault = $accessor->getInt('user.salary', 0);  // 0
+
+// getFloat() - converts to float or returns null
+$score = $accessor->getFloat('user.score');  // 95.5 (string → float)
+$age = $accessor->getFloat('user.age');  // 30.0 (string → float)
+
+// getBool() - converts to bool or returns null
+$active = $accessor->getBool('user.active');  // true (1 → true)
+$inactive = $accessor->getBool('user.inactive');  // null
+
+// getArray() - returns array or null
+$tags = $accessor->getArray('user.tags');  // ['php', 'laravel']
+$missing = $accessor->getArray('user.categories');  // null
+```
+
+### Type Conversion Rules
+
+The type-safe getters follow these conversion rules:
+
+**getString():**
+- Converts numbers and booleans to strings
+- Throws `TypeMismatchException` for arrays or objects without `__toString()`
+
+**getInt():**
+- Converts numeric strings and floats to integers
+- Converts booleans to 0/1
+- Throws `TypeMismatchException` for non-numeric strings or arrays
+
+**getFloat():**
+- Converts numeric strings and integers to floats
+- Converts booleans to 0.0/1.0
+- Throws `TypeMismatchException` for non-numeric strings or arrays
+
+**getBool():**
+- Converts any value to boolean using PHP's truthiness rules
+- Throws `TypeMismatchException` for arrays
+
+**getArray():**
+- Only accepts arrays
+- Throws `TypeMismatchException` for non-array values
+
+### Collection Getters
+
+Collection getters are designed for wildcard paths and return typed arrays. They throw a `TypeMismatchException` if the path doesn't contain a wildcard or if any value cannot be converted to the expected type.
+
+```php
+$data = [
+    'users' => [
+        ['name' => 'Alice', 'age' => '30', 'score' => '95.5', 'active' => true],
+        ['name' => 'Bob', 'age' => '25', 'score' => '87.3', 'active' => false],
+        ['name' => 'Charlie', 'age' => '35', 'score' => '92.1', 'active' => true],
+    ],
+];
+
+$accessor = DataAccessor::make($data);
+
+// getIntCollection() - returns array of integers
+$ages = $accessor->getIntCollection('users.*.age');
+// ['users.0.age' => 30, 'users.1.age' => 25, 'users.2.age' => 35]
+
+// getStringCollection() - returns array of strings
+$names = $accessor->getStringCollection('users.*.name');
+// ['users.0.name' => 'Alice', 'users.1.name' => 'Bob', 'users.2.name' => 'Charlie']
+
+// getFloatCollection() - returns array of floats
+$scores = $accessor->getFloatCollection('users.*.score');
+// ['users.0.score' => 95.5, 'users.1.score' => 87.3, 'users.2.score' => 92.1]
+
+// getBoolCollection() - returns array of booleans
+$activeFlags = $accessor->getBoolCollection('users.*.active');
+// ['users.0.active' => true, 'users.1.active' => false, 'users.2.active' => true]
+
+// getArrayCollection() - returns array of arrays
+$data = ['orders' => [
+    ['items' => ['A', 'B']],
+    ['items' => ['C', 'D']],
+]];
+$accessor = DataAccessor::make($data);
+$items = $accessor->getArrayCollection('orders.*.items');
+// ['orders.0.items' => ['A', 'B'], 'orders.1.items' => ['C', 'D']]
+```
+
+### Exception Handling
+
+Type-safe getters throw `TypeMismatchException` when:
+
+1. **Single value getters** receive an array (use collection getters instead)
+2. **Collection getters** are used without wildcards in the path
+3. **Any getter** receives a value that cannot be converted to the expected type
+
+```php
+use event4u\DataHelpers\Exceptions\TypeMismatchException;
+
+$data = [
+    'user' => ['name' => 'John', 'age' => 'invalid'],
+    'users' => [
+        ['name' => 'Alice', 'age' => 30],
+        ['name' => 'Bob', 'age' => 25],
+    ],
+];
+
+$accessor = DataAccessor::make($data);
+
+// ❌ Throws TypeMismatchException - array returned for single value getter
+try {
+    $ages = $accessor->getInt('users.*.age');
+} catch (TypeMismatchException $e) {
+    // Use collection getter instead
+    $ages = $accessor->getIntCollection('users.*.age');
+}
+
+// ❌ Throws TypeMismatchException - no wildcard in path
+try {
+    $ages = $accessor->getIntCollection('users.0.age');
+} catch (TypeMismatchException $e) {
+    // Handle error
+}
+
+// ✅ Use single value getter instead
+$age = $accessor->getInt('users.0.age');
+
+// ❌ Throws TypeMismatchException - cannot convert to int
+try {
+    $age = $accessor->getInt('user.age');  // 'invalid' → int fails
+} catch (TypeMismatchException $e) {
+    // Handle error
+}
+```
+
+### When to Use Type-Safe Getters
+
+**Use single value getters when:**
+- You need strict type safety
+- You want automatic type conversion
+- You're accessing a single value (not using wildcards)
+- You want to catch type errors early
+
+**Use collection getters when:**
+- You're using wildcards to extract multiple values
+- You need all values to be of the same type
+- You want to ensure type consistency across collections
+
+**Use generic `get()` when:**
+- You need maximum flexibility
+- You're handling mixed types
+- You'll handle type conversion yourself
+- You don't need strict type safety
+
 ## Wildcards
 
 Wildcards allow you to extract values from multiple items at once.

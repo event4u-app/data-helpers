@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers;
 
+use event4u\DataHelpers\Exceptions\TypeMismatchException;
 use event4u\DataHelpers\Helpers\DotPathHelper;
 use event4u\DataHelpers\Support\ArrayableHelper;
 use event4u\DataHelpers\Support\CollectionHelper;
@@ -142,6 +143,361 @@ class DataAccessor
     }
 
     /**
+     * Get an integer value from the data.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param int|null $default Default value if path not found
+     * @return int|null The integer value or null
+     * @throws TypeMismatchException If value is an array or cannot be converted to int
+     */
+    public function getInt(string $path, ?int $default = null): ?int
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_array($value)) {
+            throw new TypeMismatchException(
+                sprintf(
+                    'Expected single value for path "%s", but got an array. Use getIntCollection() for wildcard paths.',
+                    $path
+                )
+            );
+        }
+
+        if (!is_numeric($value) && !is_bool($value)) {
+            throw new TypeMismatchException(
+                sprintf('Cannot convert value at path "%s" to int. Got: %s', $path, get_debug_type($value))
+            );
+        }
+
+        return (int)$value;
+    }
+
+    /**
+     * Get a string value from the data.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param string|null $default Default value if path not found
+     * @return string|null The string value or null
+     * @throws TypeMismatchException If value is an array or cannot be converted to string
+     */
+    public function getString(string $path, ?string $default = null): ?string
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_array($value)) {
+            throw new TypeMismatchException(
+                sprintf(
+                    'Expected single value for path "%s", but got an array. Use getStringCollection() for wildcard paths.',
+                    $path
+                )
+            );
+        }
+
+        if (is_object($value) && !method_exists($value, '__toString')) {
+            throw new TypeMismatchException(
+                sprintf('Cannot convert value at path "%s" to string. Got: %s', $path, get_debug_type($value))
+            );
+        }
+
+        return (string)$value;
+    }
+
+    /**
+     * Get a boolean value from the data.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param bool|null $default Default value if path not found
+     * @return bool|null The boolean value or null
+     * @throws TypeMismatchException If value is an array
+     */
+    public function getBool(string $path, ?bool $default = null): ?bool
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_array($value)) {
+            throw new TypeMismatchException(
+                sprintf(
+                    'Expected single value for path "%s", but got an array. Use getBoolCollection() for wildcard paths.',
+                    $path
+                )
+            );
+        }
+
+        return (bool)$value;
+    }
+
+    /**
+     * Get a float value from the data.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param float|null $default Default value if path not found
+     * @return float|null The float value or null
+     * @throws TypeMismatchException If value is an array or cannot be converted to float
+     */
+    public function getFloat(string $path, ?float $default = null): ?float
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (is_array($value)) {
+            throw new TypeMismatchException(
+                sprintf(
+                    'Expected single value for path "%s", but got an array. Use getFloatCollection() for wildcard paths.',
+                    $path
+                )
+            );
+        }
+
+        if (!is_numeric($value) && !is_bool($value)) {
+            throw new TypeMismatchException(
+                sprintf('Cannot convert value at path "%s" to float. Got: %s', $path, get_debug_type($value))
+            );
+        }
+
+        return (float)$value;
+    }
+
+    /**
+     * Get an array value from the data.
+     *
+     * @param string $path Dot-notation path (must not contain wildcards)
+     * @param array<int|string, mixed>|null $default Default value if path not found
+     * @return array<int|string, mixed>|null The array value or null
+     * @throws TypeMismatchException If value is not an array
+     */
+    public function getArray(string $path, ?array $default = null): ?array
+    {
+        $value = $this->get($path);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        if (!is_array($value)) {
+            throw new TypeMismatchException(
+                sprintf('Expected array for path "%s", but got: %s', $path, get_debug_type($value))
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * Get a collection of integer values from the data.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, int> Array of integer values
+     * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to int
+     */
+    public function getIntCollection(string $path): array
+    {
+        $pathInfo = $this->getPathInfo($path);
+
+        if (!$pathInfo['hasWildcard']) {
+            throw new TypeMismatchException(
+                sprintf('Path "%s" does not contain wildcards. Use getInt() for single values.', $path)
+            );
+        }
+
+        $values = $this->get($path, []);
+
+        if (!is_array($values)) {
+            throw new TypeMismatchException(
+                sprintf('Expected array for wildcard path "%s", but got: %s', $path, get_debug_type($values))
+            );
+        }
+
+        $result = [];
+        foreach ($values as $key => $value) {
+            if (!is_numeric($value) && !is_bool($value)) {
+                throw new TypeMismatchException(
+                    sprintf(
+                        'Cannot convert value at key "%s" in path "%s" to int. Got: %s',
+                        $key,
+                        $path,
+                        get_debug_type($value)
+                    )
+                );
+            }
+            $result[$key] = (int)$value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get a collection of string values from the data.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, string> Array of string values
+     * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to string
+     */
+    public function getStringCollection(string $path): array
+    {
+        $pathInfo = $this->getPathInfo($path);
+
+        if (!$pathInfo['hasWildcard']) {
+            throw new TypeMismatchException(
+                sprintf('Path "%s" does not contain wildcards. Use getString() for single values.', $path)
+            );
+        }
+
+        $values = $this->get($path, []);
+
+        if (!is_array($values)) {
+            throw new TypeMismatchException(
+                sprintf('Expected array for wildcard path "%s", but got: %s', $path, get_debug_type($values))
+            );
+        }
+
+        $result = [];
+        foreach ($values as $key => $value) {
+            if (is_object($value) && !method_exists($value, '__toString')) {
+                throw new TypeMismatchException(
+                    sprintf(
+                        'Cannot convert value at key "%s" in path "%s" to string. Got: %s',
+                        $key,
+                        $path,
+                        get_debug_type($value)
+                    )
+                );
+            }
+            $result[$key] = (string)$value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get a collection of boolean values from the data.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, bool> Array of boolean values
+     * @throws TypeMismatchException If path doesn't contain wildcards
+     */
+    public function getBoolCollection(string $path): array
+    {
+        $pathInfo = $this->getPathInfo($path);
+
+        if (!$pathInfo['hasWildcard']) {
+            throw new TypeMismatchException(
+                sprintf('Path "%s" does not contain wildcards. Use getBool() for single values.', $path)
+            );
+        }
+
+        $values = $this->get($path, []);
+
+        if (!is_array($values)) {
+            throw new TypeMismatchException(
+                sprintf('Expected array for wildcard path "%s", but got: %s', $path, get_debug_type($values))
+            );
+        }
+
+        $result = [];
+        foreach ($values as $key => $value) {
+            $result[$key] = (bool)$value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get a collection of float values from the data.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, float> Array of float values
+     * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to float
+     */
+    public function getFloatCollection(string $path): array
+    {
+        $pathInfo = $this->getPathInfo($path);
+
+        if (!$pathInfo['hasWildcard']) {
+            throw new TypeMismatchException(
+                sprintf('Path "%s" does not contain wildcards. Use getFloat() for single values.', $path)
+            );
+        }
+
+        $values = $this->get($path, []);
+
+        if (!is_array($values)) {
+            throw new TypeMismatchException(
+                sprintf('Expected array for wildcard path "%s", but got: %s', $path, get_debug_type($values))
+            );
+        }
+
+        $result = [];
+        foreach ($values as $key => $value) {
+            if (!is_numeric($value) && !is_bool($value)) {
+                throw new TypeMismatchException(
+                    sprintf(
+                        'Cannot convert value at key "%s" in path "%s" to float. Got: %s',
+                        $key,
+                        $path,
+                        get_debug_type($value)
+                    )
+                );
+            }
+            $result[$key] = (float)$value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get a collection of array values from the data.
+     *
+     * @param string $path Dot-notation path (should contain wildcards)
+     * @return array<int|string, array<int|string, mixed>> Array of array values
+     * @throws TypeMismatchException If path doesn't contain wildcards or values are not arrays
+     */
+    public function getArrayCollection(string $path): array
+    {
+        $pathInfo = $this->getPathInfo($path);
+
+        if (!$pathInfo['hasWildcard']) {
+            throw new TypeMismatchException(
+                sprintf('Path "%s" does not contain wildcards. Use getArray() for single values.', $path)
+            );
+        }
+
+        $values = $this->get($path, []);
+
+        if (!is_array($values)) {
+            throw new TypeMismatchException(
+                sprintf('Expected array for wildcard path "%s", but got: %s', $path, get_debug_type($values))
+            );
+        }
+
+        $result = [];
+        foreach ($values as $key => $value) {
+            if (!is_array($value)) {
+                throw new TypeMismatchException(
+                    sprintf('Expected array at key "%s" in path "%s", but got: %s', $key, $path, get_debug_type($value))
+                );
+            }
+            $result[$key] = $value;
+        }
+
+        return $result;
+    }
+
+    /**
      * Check if a path exists in the data.
      *
      * Returns true if the path exists, even if the value is null.
@@ -196,139 +552,6 @@ class DataAccessor
             'segments' => $segments,
             'hasWildcard' => $hasWildcard,
         ];
-    }
-
-    /**
-     * Get value as string.
-     *
-     * @param string $path Dot-notation path
-     * @param null|string $default Default if path not found
-     */
-    public function getString(string $path, ?string $default = null): ?string
-    {
-        $value = $this->get($path);
-
-        if (null === $value) {
-            return $default;
-        }
-
-        if (is_string($value)) {
-            return $value;
-        }
-
-        if (is_scalar($value)) {
-            return (string)$value;
-        }
-
-        return $default;
-    }
-
-    /**
-     * Get value as integer.
-     *
-     * @param string $path Dot-notation path
-     * @param null|int $default Default if path not found
-     */
-    public function getInt(string $path, ?int $default = null): ?int
-    {
-        $value = $this->get($path);
-
-        if (null === $value) {
-            return $default;
-        }
-
-        if (is_int($value)) {
-            return $value;
-        }
-
-        if (is_numeric($value)) {
-            return (int)$value;
-        }
-
-        return $default;
-    }
-
-    /**
-     * Get value as float.
-     *
-     * @param string $path Dot-notation path
-     * @param null|float $default Default if path not found
-     */
-    public function getFloat(string $path, ?float $default = null): ?float
-    {
-        $value = $this->get($path);
-
-        if (null === $value) {
-            return $default;
-        }
-
-        if (is_float($value)) {
-            return $value;
-        }
-
-        if (is_numeric($value)) {
-            return (float)$value;
-        }
-
-        return $default;
-    }
-
-    /**
-     * Get value as boolean.
-     *
-     * @param string $path Dot-notation path
-     * @param null|bool $default Default if path not found
-     */
-    public function getBool(string $path, ?bool $default = null): ?bool
-    {
-        $value = $this->get($path);
-
-        if (null === $value) {
-            return $default;
-        }
-
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        // Convert common truthy/falsy values
-        if (is_string($value)) {
-            $lower = strtolower($value);
-            if (in_array($lower, ['true', '1', 'yes', 'on'], true)) {
-                return true;
-            }
-            if (in_array($lower, ['false', '0', 'no', 'off', ''], true)) {
-                return false;
-            }
-        }
-
-        if (is_numeric($value)) {
-            return (bool)$value;
-        }
-
-        return $default;
-    }
-
-    /**
-     * Get value as array.
-     *
-     * @param string $path Dot-notation path
-     * @param null|array<int|string, mixed> $default Default if path not found
-     * @return null|array<int|string, mixed>
-     */
-    public function getArray(string $path, ?array $default = null): ?array
-    {
-        $value = $this->get($path);
-
-        if (null === $value) {
-            return $default;
-        }
-
-        if (is_array($value)) {
-            return $value;
-        }
-
-        return $default;
     }
 
     /**

@@ -75,6 +75,11 @@ $array = $user->toArray();
 
 $json = $user->toJson();
 // {"name":"John Doe","age":30,"email":"john@example.com"}
+
+// Type-safe getters with dot notation
+$name = $user->getString('name');  // 'John Doe'
+$age = $user->getInt('age');       // 30
+$email = $user->getString('email'); // 'john@example.com'
 ```
 
 ## 🎯 Framework-Agnostic + Deep Integration
@@ -368,6 +373,100 @@ $user = UserDto::from('<root><name>John</name><age>30</age></root>');
 ```
 
 **Note**: ConverterMode adds ~0.5μs overhead but enables multiple input formats.
+
+### 8. Type-Safe Getters
+
+LiteDto provides strict type-safe getter methods with dot notation support for accessing nested properties. These methods automatically convert values to the expected type or throw a `TypeMismatchException` if conversion fails.
+
+#### Single Value Getters
+
+```php
+class UserDto extends LiteDto
+{
+    public function __construct(
+        public string $name,
+        public string $age,  // stored as string
+        public int $active,
+    ) {}
+}
+
+$user = UserDto::from([
+    'name' => 'John Doe',
+    'age' => '30',
+    'active' => 1,
+]);
+
+// Type-safe getters with automatic conversion
+$name = $user->getString('name');  // 'John Doe'
+$age = $user->getInt('age');       // 30 (string → int)
+$active = $user->getBool('active'); // true (1 → true)
+
+// Returns null if property doesn't exist
+$missing = $user->getString('phone');  // null
+
+// Provide default values
+$phone = $user->getString('phone', 'N/A');  // 'N/A'
+```
+
+#### Collection Getters with Wildcards
+
+Collection getters work with nested DTOs and array properties using wildcard notation:
+
+```php
+class EmailDto extends LiteDto
+{
+    public function __construct(
+        public string $email,
+        public string $type,
+        public bool $verified,
+    ) {}
+}
+
+class UserDto extends LiteDto
+{
+    public function __construct(
+        public string $name,
+        public array $emails,  // array of EmailDto
+    ) {}
+}
+
+$user = UserDto::from([
+    'name' => 'John Doe',
+    'emails' => [
+        ['email' => 'john@work.com', 'type' => 'work', 'verified' => true],
+        ['email' => 'john@home.com', 'type' => 'home', 'verified' => false],
+    ],
+]);
+
+// Get all email addresses as strings
+$addresses = $user->getStringCollection('emails.*.email');
+// ['emails.0.email' => 'john@work.com', 'emails.1.email' => 'john@home.com']
+
+// Get all verified flags as booleans
+$verified = $user->getBoolCollection('emails.*.verified');
+// ['emails.0.verified' => true, 'emails.1.verified' => false]
+```
+
+#### Available Type-Safe Getters
+
+**Single Value Getters** (return `?type`):
+- `getString(string $path, ?string $default = null): ?string`
+- `getInt(string $path, ?int $default = null): ?int`
+- `getFloat(string $path, ?float $default = null): ?float`
+- `getBool(string $path, ?bool $default = null): ?bool`
+- `getArray(string $path, ?array $default = null): ?array`
+
+**Collection Getters** (for wildcards, return `array<int|string, type>`):
+- `getStringCollection(string $path): array`
+- `getIntCollection(string $path): array`
+- `getFloatCollection(string $path): array`
+- `getBoolCollection(string $path): array`
+- `getArrayCollection(string $path): array`
+
+**Exception Handling:**
+- Single value getters throw `TypeMismatchException` if an array is returned (use collection getters)
+- Collection getters throw `TypeMismatchException` if path has no wildcard
+- All getters throw `TypeMismatchException` if value cannot be converted to expected type
 
 ## When to Use LiteDto?
 

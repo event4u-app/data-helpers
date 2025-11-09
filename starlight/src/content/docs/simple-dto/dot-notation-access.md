@@ -54,6 +54,229 @@ $phone = $user->get('phone', 'N/A'); // 'N/A'
 $country = $user->get('address.country', 'Unknown'); // 'Unknown'
 ```
 
+## Type-Safe Getters
+
+SimpleDto provides strict type-safe getter methods that automatically convert values to the expected type or throw a `TypeMismatchException` if conversion fails. These methods delegate to the underlying `DataAccessor`.
+
+### Single Value Getters
+
+These methods return a single value with strict type conversion. They return `null` if the path doesn't exist or the value is `null`.
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\Attributes\AutoCast;
+
+#[AutoCast]
+class UserDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $age,  // stored as string
+        public readonly string $score,  // stored as string
+        public readonly int $active,  // stored as int
+    ) {}
+}
+
+$user = UserDto::fromArray([
+    'name' => 'John Doe',
+    'age' => '30',
+    'score' => '95.5',
+    'active' => 1,
+]);
+
+// getString() - returns string or null
+$name = $user->getString('name');  // 'John Doe'
+$age = $user->getString('age');    // '30'
+$missing = $user->getString('phone');  // null
+$withDefault = $user->getString('phone', 'N/A');  // 'N/A'
+
+// getInt() - converts to int or returns null
+$age = $user->getInt('age');  // 30 (string → int)
+$active = $user->getInt('active');  // 1
+$missing = $user->getInt('salary');  // null
+$withDefault = $user->getInt('salary', 0);  // 0
+
+// getFloat() - converts to float or returns null
+$score = $user->getFloat('score');  // 95.5 (string → float)
+$age = $user->getFloat('age');  // 30.0 (string → float)
+
+// getBool() - converts to bool or returns null
+$active = $user->getBool('active');  // true (1 → true)
+$inactive = $user->getBool('inactive');  // null
+
+// getArray() - returns array or null
+$tags = $user->getArray('tags');  // null (doesn't exist)
+```
+
+### Collection Getters
+
+Collection getters are designed for wildcard paths and return typed arrays. They work with nested Dtos and array properties.
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\Attributes\AutoCast;
+
+#[AutoCast]
+class EmailDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $email,
+        public readonly string $type,
+        public readonly bool $verified,
+    ) {}
+}
+
+#[AutoCast]
+class UserDto extends SimpleDto
+{
+    /**
+     * @param array<int, EmailDto> $emails
+     */
+    public function __construct(
+        public readonly string $name,
+        public readonly array $emails,
+    ) {}
+}
+
+$user = UserDto::fromArray([
+    'name' => 'John Doe',
+    'emails' => [
+        ['email' => 'john@work.com', 'type' => 'work', 'verified' => true],
+        ['email' => 'john@home.com', 'type' => 'home', 'verified' => false],
+    ],
+]);
+
+// getStringCollection() - returns array of strings
+$addresses = $user->getStringCollection('emails.*.email');
+// ['emails.0.email' => 'john@work.com', 'emails.1.email' => 'john@home.com']
+
+$types = $user->getStringCollection('emails.*.type');
+// ['emails.0.type' => 'work', 'emails.1.type' => 'home']
+
+// getBoolCollection() - returns array of booleans
+$verified = $user->getBoolCollection('emails.*.verified');
+// ['emails.0.verified' => true, 'emails.1.verified' => false]
+```
+
+### Multi-Level Collection Getters
+
+Collection getters work with deeply nested structures:
+
+```php
+#[AutoCast]
+class OrderDto extends SimpleDto
+{
+    public function __construct(
+        public readonly int $id,
+        public readonly string $total,  // stored as string
+        public readonly string $status,
+    ) {}
+}
+
+#[AutoCast]
+class EmployeeDto extends SimpleDto
+{
+    /**
+     * @param array<int, OrderDto> $orders
+     */
+    public function __construct(
+        public readonly string $name,
+        public readonly array $orders,
+    ) {}
+}
+
+#[AutoCast]
+class DepartmentDto extends SimpleDto
+{
+    /**
+     * @param array<int, EmployeeDto> $employees
+     */
+    public function __construct(
+        public readonly string $name,
+        public readonly array $employees,
+    ) {}
+}
+
+$department = DepartmentDto::fromArray([
+    'name' => 'Engineering',
+    'employees' => [
+        [
+            'name' => 'Alice',
+            'orders' => [
+                ['id' => 1, 'total' => '100.50', 'status' => 'pending'],
+                ['id' => 2, 'total' => '250.00', 'status' => 'shipped'],
+            ],
+        ],
+        [
+            'name' => 'Bob',
+            'orders' => [
+                ['id' => 3, 'total' => '75.25', 'status' => 'pending'],
+            ],
+        ],
+    ],
+]);
+
+// Get all order totals as floats
+$totals = $department->getFloatCollection('employees.*.orders.*.total');
+// ['employees.0.orders.0.total' => 100.5, 'employees.0.orders.1.total' => 250.0, 'employees.1.orders.0.total' => 75.25]
+
+// Get all order IDs as integers
+$ids = $department->getIntCollection('employees.*.orders.*.id');
+// ['employees.0.orders.0.id' => 1, 'employees.0.orders.1.id' => 2, 'employees.1.orders.0.id' => 3]
+
+// Get all order statuses as strings
+$statuses = $department->getStringCollection('employees.*.orders.*.status');
+// ['employees.0.orders.0.status' => 'pending', 'employees.0.orders.1.status' => 'shipped', 'employees.1.orders.0.status' => 'pending']
+```
+
+### Exception Handling
+
+Type-safe getters throw `TypeMismatchException` when:
+
+1. **Single value getters** receive an array (use collection getters instead)
+2. **Collection getters** are used without wildcards in the path
+3. **Any getter** receives a value that cannot be converted to the expected type
+
+<!-- skip-test: requires UserDto -->
+```php
+use event4u\DataHelpers\Exceptions\TypeMismatchException;
+
+$user = UserDto::fromArray([
+    'name' => 'John',
+    'age' => 'invalid',
+    'emails' => [
+        ['email' => 'john@work.com'],
+        ['email' => 'john@home.com'],
+    ],
+]);
+
+// ❌ Throws TypeMismatchException - array returned for single value getter
+try {
+    $emails = $user->getInt('emails.*.email');
+} catch (TypeMismatchException $e) {
+    // Use collection getter instead
+    $emails = $user->getStringCollection('emails.*.email');
+}
+
+// ❌ Throws TypeMismatchException - no wildcard in path
+try {
+    $emails = $user->getStringCollection('emails.0.email');
+} catch (TypeMismatchException $e) {
+    // Use single value getter instead
+    $email = $user->getString('emails.0.email');
+}
+
+// ❌ Throws TypeMismatchException - cannot convert to int
+try {
+    $age = $user->getInt('age');  // 'invalid' → int fails
+} catch (TypeMismatchException $e) {
+    // Handle error or use default
+    $age = $user->getInt('age', 0);  // Still throws!
+    // Better: check value first or use get()
+    $age = $user->get('age', 0);
+}
+```
+
 ### Nested Properties
 
 Access nested Dto properties using dot notation:
