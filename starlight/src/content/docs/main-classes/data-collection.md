@@ -14,7 +14,7 @@ The `DataCollection` class is a powerful, framework-independent utility for work
 
 This enables full dot-notation support for reading and writing, plus powerful SQL-like filtering.
 
-## Overview
+## Key Features
 
 `DataCollection` is a generic, type-safe collection class that:
 - Works in any PHP environment (no framework dependencies)
@@ -547,7 +547,7 @@ $users = DtoCollection::forDto(UserDto::class, [
 $adults = $users->filter(fn(UserDto $user) => $user->age >= 18);
 ```
 
-See the [DtoCollection documentation](/simple-dto/data-collection/) for more details.
+See the [DtoCollection documentation](/data-helpers/simple-dto/collections/) for more details.
 
 ## Performance Considerations
 

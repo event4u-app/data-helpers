@@ -3,9 +3,9 @@ title: Serializer Benchmarks
 description: Comprehensive performance comparison between Symfony Serializer, SimpleDTO, and LiteDTO
 ---
 
-Comprehensive performance benchmarks comparing Data Helpers (SimpleDTO & LiteDTO) with Symfony Serializer.
+## Introduction
 
-## Overview
+Comprehensive performance benchmarks comparing Data Helpers (SimpleDTO & LiteDTO) with Symfony Serializer.
 
 These benchmarks compare the performance of:
 
