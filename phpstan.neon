@@ -28,6 +28,7 @@ parameters:
         - '*.stub.php'
         - src/Frameworks/Laravel/Commands/MigrateSpatieCommand.php
         - src/Frameworks/Laravel/Commands/WarmCacheCommand.php
+        - scripts/comprehensive-benchmark.php
 
     scanDirectories:
         - types

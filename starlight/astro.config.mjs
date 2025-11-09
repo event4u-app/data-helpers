@@ -193,6 +193,7 @@ export default defineConfig({
 					collapsed: true,
 					items: [
 						{ label: 'Benchmarks', slug: 'performance/benchmarks' },
+						{ label: 'Serializer Benchmarks', slug: 'performance/serializer-benchmarks' },
 						{ label: 'Running Benchmarks', slug: 'performance/running-benchmarks' },
 						{ label: 'Cache Warming', slug: 'performance/cache-warming' },
 						{ label: 'Cache Generation', slug: 'performance/cache-generation' },
