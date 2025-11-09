@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\LiteDto;
 
 use BackedEnum;
 use Closure;
+use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Exceptions\TypeMismatchException;
@@ -317,10 +318,10 @@ abstract class LiteDto implements JsonSerializable
      * Get a collection of integer values from the Dto using dot notation.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, int> Array of integer values
+     * @return DataCollection<int> Collection of integer values
      * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to int
      */
-    public function getIntCollection(string $path): array
+    public function getIntCollection(string $path): DataCollection
     {
         $data = $this->toArrayRecursive();
         $accessor = new DataAccessor($data);
@@ -332,10 +333,10 @@ abstract class LiteDto implements JsonSerializable
      * Get a collection of string values from the Dto using dot notation.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, string> Array of string values
+     * @return DataCollection<string> Collection of string values
      * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to string
      */
-    public function getStringCollection(string $path): array
+    public function getStringCollection(string $path): DataCollection
     {
         $data = $this->toArrayRecursive();
         $accessor = new DataAccessor($data);
@@ -347,10 +348,10 @@ abstract class LiteDto implements JsonSerializable
      * Get a collection of boolean values from the Dto using dot notation.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, bool> Array of boolean values
+     * @return DataCollection<bool> Collection of boolean values
      * @throws TypeMismatchException If path doesn't contain wildcards
      */
-    public function getBoolCollection(string $path): array
+    public function getBoolCollection(string $path): DataCollection
     {
         $data = $this->toArrayRecursive();
         $accessor = new DataAccessor($data);
@@ -362,10 +363,10 @@ abstract class LiteDto implements JsonSerializable
      * Get a collection of float values from the Dto using dot notation.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, float> Array of float values
+     * @return DataCollection<float> Collection of float values
      * @throws TypeMismatchException If path doesn't contain wildcards or values cannot be converted to float
      */
-    public function getFloatCollection(string $path): array
+    public function getFloatCollection(string $path): DataCollection
     {
         $data = $this->toArrayRecursive();
         $accessor = new DataAccessor($data);
@@ -377,10 +378,10 @@ abstract class LiteDto implements JsonSerializable
      * Get a collection of array values from the Dto using dot notation.
      *
      * @param string $path Dot-notation path (should contain wildcards)
-     * @return array<int|string, array<int|string, mixed>> Array of array values
+     * @return DataCollection<array<int|string, mixed>> Collection of array values
      * @throws TypeMismatchException If path doesn't contain wildcards or values are not arrays
      */
-    public function getArrayCollection(string $path): array
+    public function getArrayCollection(string $path): DataCollection
     {
         $data = $this->toArrayRecursive();
         $accessor = new DataAccessor($data);

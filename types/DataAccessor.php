@@ -28,8 +28,11 @@ assertType('mixed', $accessor->get('users.*.name'));
 assertType('mixed', $accessor->get('users.*.emails.*.value'));
 
 // Test collection getters for wildcards
-assertType('array<int|string, int>', $accessor->getIntCollection('users.*.age'));
-assertType('array<int|string, string>', $accessor->getStringCollection('users.*.name'));
-assertType('array<int|string, bool>', $accessor->getBoolCollection('users.*.active'));
-assertType('array<int|string, float>', $accessor->getFloatCollection('users.*.score'));
-assertType('array<int|string, array<int|string, mixed>>', $accessor->getArrayCollection('users.*.profile'));
+assertType('event4u\DataHelpers\DataCollection<int>', $accessor->getIntCollection('users.*.age'));
+assertType('event4u\DataHelpers\DataCollection<string>', $accessor->getStringCollection('users.*.name'));
+assertType('event4u\DataHelpers\DataCollection<bool>', $accessor->getBoolCollection('users.*.active'));
+assertType('event4u\DataHelpers\DataCollection<float>', $accessor->getFloatCollection('users.*.score'));
+assertType(
+    'event4u\DataHelpers\DataCollection<array<int|string, mixed>>',
+    $accessor->getArrayCollection('users.*.profile')
+);

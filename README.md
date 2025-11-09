@@ -242,14 +242,44 @@ $name = $accessor->getString('users.0.name');  // 'Alice'
 $age = $accessor->getInt('users.0.age');       // 30 (string → int)
 $missing = $accessor->getString('users.0.phone');  // null
 
-// Collection getters for wildcards - returns typed arrays
-$ages = $accessor->getIntCollection('users.*.age');  // [25, 30]
-$names = $accessor->getStringCollection('users.*.name');  // ['Alice', 'Bob']
+// Collection getters for wildcards - returns Collection instances
+$ages = $accessor->getIntCollection('users.*.age');  // DataCollection<int>
+$names = $accessor->getStringCollection('users.*.name');  // DataCollection<string>
+
+// Chain collection methods (filter, map, reduce, etc.)
+$adultAges = $ages->filter(fn($age) => $age >= 18)->toArray();  // [25, 30]
 ```
 
 📖 **[DataAccessor Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-accessor/)**
 
-### 2️⃣ DataMutator - Modify Nested Data
+### 2️⃣ DataCollection - Type-Safe Collections
+
+Framework-independent collection class with fluent API for working with arrays:
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make([1, 2, 3, 4, 5]);
+
+// Filter, map, reduce with method chaining
+$result = $collection
+    ->filter(fn($item) => $item > 2)  // [3, 4, 5]
+    ->map(fn($item) => $item * 2)     // [6, 8, 10]
+    ->reduce(fn($carry, $item) => $carry + $item, 0);  // 24
+
+// Lazy evaluation for large datasets
+foreach ($collection->lazyFilter(fn($item) => $item > 2) as $item) {
+    // Process items one at a time without loading all into memory
+}
+
+// Returned by all collection getters
+$ages = $accessor->getIntCollection('users.*.age');  // DataCollection<int>
+$adults = $ages->filter(fn($age) => $age >= 18);
+```
+
+📖 **[DataCollection Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-collection/)**
+
+### 3️⃣ DataMutator - Modify Nested Data
 
 Safely modify nested structures:
 

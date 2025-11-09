@@ -68,6 +68,7 @@ export default defineConfig({
                     items: [
                         { label: 'Overview', slug: 'main-classes/overview' },
                         { label: 'DataAccessor', slug: 'main-classes/data-accessor' },
+                        { label: 'DataCollection', slug: 'main-classes/data-collection' },
                         { label: 'DataMutator', slug: 'main-classes/data-mutator' },
                         { label: 'DataFilter', slug: 'main-classes/data-filter' },
                         { label: 'DataMapper', slug: 'main-classes/data-mapper-overview' },
