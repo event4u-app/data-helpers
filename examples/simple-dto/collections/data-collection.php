@@ -57,13 +57,25 @@ echo "\n";
 echo "Example 3: Mapping\n";
 echo "----------------------------\n";
 
-// Note: DtoCollection::map() returns DTOs, not arbitrary values
-// Use array_column() to extract values
-$names = array_column($users->toArray(), 'name');
-$emails = array_column($users->toArray(), 'email');
+// DtoCollection::map() transforms DTOs and returns a new DtoCollection
+// Let's transform names to uppercase for adults
+$adults = $users->filter(fn(UserDto $user): bool => 30 <= $user->age);
+/** @phpstan-ignore-next-line unknown */
+$transformedAdults = $adults->map(fn(UserDto $user): UserDto => UserDto::fromArray([
+    'name' => strtoupper($user->name),
+    'age' => $user->age,
+    'email' => $user->email,
+]));
 
-echo "Names: " . implode(', ', $names) . "\n";
-echo "Emails: " . implode(', ', $emails) . "\n";
+echo "Transformed adults (uppercase names):\n";
+/** @phpstan-ignore-next-line unknown */
+foreach ($transformedAdults as $user) {
+    echo "  - {$user->name} ({$user->age} years)\n";
+}
+
+// To extract scalar values, use array_column()
+$names = array_column($users->toArray(), 'name');
+echo "\nAll names: " . implode(', ', $names) . "\n";
 echo "\n";
 
 // Example 4: Reducing

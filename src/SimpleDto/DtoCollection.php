@@ -31,13 +31,16 @@ use InvalidArgumentException;
  */
 final class DtoCollection extends DataCollection
 {
+    /** @var class-string<TDto> */
+    private readonly string $resolvedDtoClass;
+
     /**
      * @param class-string<TDto>|array<int|string, mixed> $dtoClass
      * @param array<int|string, mixed> $items
      * @phpstan-ignore method.childParameterType, parameter.notOptional
      */
     public function __construct(
-        private readonly string|array $dtoClass,
+        private readonly string|array $dtoClass, // @phpstan-ignore property.onlyWritten
         array $items = [],
     ) {
         // Handle backward compatibility: new static($items) from parent class
@@ -47,7 +50,7 @@ final class DtoCollection extends DataCollection
             if ([] !== $items) {
                 $firstItem = reset($items);
                 if ($firstItem instanceof SimpleDto) {
-                    $dtoClass = $firstItem::class;
+                    $resolvedDtoClass = $firstItem::class;
                 } else {
                     throw new InvalidArgumentException(
                         'Cannot create DtoCollection without DTO class. Use DtoCollection::forDto() or DtoCollection::make() instead.'
@@ -58,13 +61,22 @@ final class DtoCollection extends DataCollection
                     'Cannot create empty DtoCollection without DTO class. Use DtoCollection::forDto() or DtoCollection::make() instead.'
                 );
             }
+        } else {
+            $resolvedDtoClass = $dtoClass;
         }
+
+        /** @phpstan-ignore assign.propertyType */
+        $this->resolvedDtoClass = $resolvedDtoClass;
 
         $dtoItems = [];
         foreach ($items as $key => $item) {
             if (!is_array($item) && !($item instanceof SimpleDto)) {
                 throw new InvalidArgumentException(
-                    sprintf('Item must be an array or instance of %s, %s given', $dtoClass, get_debug_type($item))
+                    sprintf(
+                        'Item must be an array or instance of %s, %s given',
+                        is_string($dtoClass) ? $dtoClass : 'SimpleDto',
+                        get_debug_type($item)
+                    ) // @phpstan-ignore argument.type
                 );
             }
 
@@ -111,7 +123,7 @@ final class DtoCollection extends DataCollection
      */
     public function getDtoClass(): string
     {
-        return $this->dtoClass;
+        return $this->resolvedDtoClass; // @phpstan-ignore return.type
     }
 
     /**
@@ -124,8 +136,9 @@ final class DtoCollection extends DataCollection
      */
     public function filter(?callable $callback = null): static
     {
+        /** @var callable(mixed, int|string): bool|null $callback */
         $filtered = $this->accessor->filter($callback);
-        return new self($this->dtoClass, $filtered);
+        return new self($this->resolvedDtoClass, $filtered); // @phpstan-ignore argument.type
     }
 
     /**
@@ -136,12 +149,12 @@ final class DtoCollection extends DataCollection
      *
      * @param callable(TDto, int|string): TDto $callback
      * @return static<TDto>
-     * @phpstan-ignore return.type
      */
     public function map(callable $callback): static
     {
+        /** @var callable(mixed, int|string): mixed $callback */
         $mapped = $this->accessor->map($callback);
-        return new self($this->dtoClass, $mapped);
+        return new self($this->resolvedDtoClass, $mapped); // @phpstan-ignore argument.type
     }
 
     /**
@@ -153,7 +166,7 @@ final class DtoCollection extends DataCollection
      */
     public function values(): static
     {
-        return new self($this->dtoClass, array_values($this->items));
+        return new self($this->resolvedDtoClass, array_values($this->items)); // @phpstan-ignore argument.type
     }
 
     /**
@@ -255,18 +268,18 @@ final class DtoCollection extends DataCollection
      */
     private function ensureDto(mixed $value): mixed
     {
-        if ($value instanceof $this->dtoClass) {
-            return $value;
+        if ($value instanceof $this->resolvedDtoClass) {
+            return $value; // @phpstan-ignore return.type
         }
 
         if (is_array($value)) {
-            return $this->dtoClass::fromArray($value);
+            return $this->resolvedDtoClass::fromArray($value); // @phpstan-ignore return.type
         }
 
         throw new InvalidArgumentException(
             sprintf(
                 'Value must be an instance of %s or an array, %s given',
-                $this->dtoClass,
+                $this->resolvedDtoClass,
                 get_debug_type($value)
             )
         );

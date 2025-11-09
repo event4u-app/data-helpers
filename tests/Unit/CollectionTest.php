@@ -1404,8 +1404,9 @@ describe('Collection', function(): void {
             // Transform
             $collection->transform(
                 'users.1.score',
-                fn(int|float $v): int|float => $v + 5
-            ); // @phpstan-ignore argument.type
+                /** @param mixed $v */
+                fn($v): int|float => $v + 5 // @phpstan-ignore binaryOp.invalid
+            );
             expect($collection->get('users.1.score'))->toBe(97);
         });
 
@@ -1457,12 +1458,14 @@ describe('Collection', function(): void {
                 ->set('company.departments.0.employees.1.bonus', 4000)
                 ->transform(
                     'company.departments.0.employees.0.salary',
-                    fn(int|float $v): float => $v * 1.1
-                ) // @phpstan-ignore argument.type
+                    /** @param mixed $v */
+                    fn($v): float => $v * 1.1 // @phpstan-ignore binaryOp.invalid
+                )
                 ->transform(
                     'company.departments.0.employees.1.salary',
-                    fn(int|float $v): float => $v * 1.1
-                ) // @phpstan-ignore argument.type
+                    /** @param mixed $v */
+                    fn($v): float => $v * 1.1 // @phpstan-ignore binaryOp.invalid
+                )
                 ->merge('company', ['founded' => 2020])
                 ->pushTo('company.departments.0.employees.0.skills', 'PHP')
                 ->pushTo('company.departments.0.employees.0.skills', 'Laravel');
@@ -1472,12 +1475,16 @@ describe('Collection', function(): void {
             expect($result['company']['name'])->toBe('TechCorp')
                 ->and($result['company']['founded'])->toBe(2020) // @phpstan-ignore offsetAccess.notFound
                 ->and($result['company']['departments'][0]['employees'][0]['salary'])->toBe(88000.0)
-                ->and($result['company']['departments'][0]['employees'][0]['bonus'])->toBe(
+                ->and(
+                    $result['company']['departments'][0]['employees'][0]['bonus'] // @phpstan-ignore offsetAccess.notFound
+                )->toBe(
                     5000
-                ) // @phpstan-ignore offsetAccess.notFound
-                ->and($result['company']['departments'][0]['employees'][0]['skills'])->toBe(
+                )
+                ->and(
+                    $result['company']['departments'][0]['employees'][0]['skills'] // @phpstan-ignore offsetAccess.notFound
+                )->toBe(
                     ['PHP', 'Laravel']
-                ) // @phpstan-ignore offsetAccess.notFound
+                )
                 ->and($result['company']['departments'][0]['employees'][1]['salary'])->toBe(82500.0);
         });
 
@@ -1542,9 +1549,9 @@ describe('Collection', function(): void {
 
             expect($result['products'][0]['price'])->toBe(900.0)
                 ->and($result['products'][0]['stock'])->toBe(3)
-                ->and($result['products'][0]['tags'])->toBe(
+                ->and($result['products'][0]['tags'])->toBe( // @phpstan-ignore offsetAccess.notFound
                     ['electronics', 'computers']
-                ) // @phpstan-ignore offsetAccess.notFound
+                )
                 ->and($result['products'][1]['price'])->toBe(22.5)
                 ->and($result['products'][1]['stock'])->toBe(45)
                 ->and($result['products'][2]['price'])->toBe(67.5);
@@ -1986,7 +1993,7 @@ describe('Collection', function(): void {
                 ->query()
                 ->where('age', '>', 25)
                 ->get()
-                ->filter(fn(mixed $item): bool => (bool)$item['active']); // @phpstan-ignore argument.type
+                ->filter(fn(mixed $item): bool => $item['active']); // @phpstan-ignore argument.type
 
             expect($result->count())->toBe(2);
         });
@@ -2008,7 +2015,7 @@ describe('Collection', function(): void {
             expect($filtered->count())->toBe(2)
                 ->and($filtered->get('0.user.name'))->toBe('Alice')
                 ->and($filtered->get('1.user.name'))->toBe('Charlie')
-                ->and($filtered->first()['user']['age'])->toBe(30);
+                ->and($filtered->first()['user']['age'])->toBe(30); // @phpstan-ignore offsetAccess.notFound
         });
 
         it('uses mutator methods on filtered results', function(): void {
@@ -2077,7 +2084,7 @@ describe('Collection', function(): void {
                 ->where('age', '>', 25)
                 ->get()
                 ->reduce(
-                    fn(int|float $carry, mixed $item): int|float => $carry + (int)$item['salary'],
+                    fn(int|float $carry, mixed $item): int|float => $carry + $item['salary'],
                     0
                 ); // @phpstan-ignore argument.type
 
@@ -2137,7 +2144,8 @@ describe('Collection', function(): void {
 
             // Step 4: Calculate total compensation using reduce
             $totalComp = $seniors->reduce(
-                fn(int|float $carry, mixed $item): int|float => $carry + (int)$item['salary'] + (int)$item['bonus'], // @phpstan-ignore argument.type
+                /** @param mixed $carry @param mixed $item */
+                fn($carry, $item): int|float => $carry + $item['salary'] + (int)$item['bonus'], // @phpstan-ignore offsetAccess.notFound, binaryOp.invalid
                 0
             );
 
@@ -2356,7 +2364,7 @@ describe('Collection', function(): void {
                 ->get();
 
             expect($step3->count())->toBe(2)
-                ->and($step3->first()['name'])->toBe('Alice');
+                ->and($step3->first()['name'])->toBe('Alice'); // @phpstan-ignore offsetAccess.notFound
         });
 
         it('filters with groupBy then count', function(): void {

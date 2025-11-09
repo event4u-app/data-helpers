@@ -193,8 +193,8 @@ describe('DataCollection Edge Cases', function(): void {
             // Note: DtoCollection::map() returns DTOs, not arbitrary values
             $result = array_map(
                 fn(array $item): array => [
-                    'fullName' => strtoupper($item['name']),
-                    'ageInMonths' => $item['age'] * 12,
+                    'fullName' => strtoupper((string)$item['name']),
+                    'ageInMonths' => ((int)$item['age']) * 12,
                 ],
                 $collection->toArray()
             );

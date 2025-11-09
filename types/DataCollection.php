@@ -45,9 +45,16 @@ assertType('event4u\DataHelpers\SimpleDto|null', $last);
 $filtered = $products->filter(fn($p): bool => $p instanceof ProductDto && 100 < $p->price);
 assertType('event4u\DataHelpers\SimpleDto\DtoCollection<event4u\DataHelpers\SimpleDto>', $filtered);
 
-// Test map - returns array, not collection
-$names = $products->map(fn($p): string => $p instanceof ProductDto ? $p->name : '');
-assertType('event4u\DataHelpers\SimpleDto\DtoCollection<event4u\DataHelpers\SimpleDto>', $names);
+// Test map - returns DtoCollection with transformed DTOs
+$transformed = $products->map(
+    /** @param SimpleDto $p */
+    fn($p): SimpleDto => $p instanceof ProductDto ? ProductDto::fromArray([
+        'id' => $p->id,
+        'name' => strtoupper($p->name),
+        'price' => $p->price,
+    ]) : $p
+);
+assertType('event4u\DataHelpers\SimpleDto\DtoCollection<event4u\DataHelpers\SimpleDto>', $transformed);
 
 // Test toArray
 $array = $products->toArray();

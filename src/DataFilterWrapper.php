@@ -37,13 +37,13 @@ final readonly class DataFilterWrapper
      * @param string $field Field name
      * @param mixed $operator Operator or value (if 2 args)
      * @param mixed $value Value (if 3 args)
+     * @return self<TValue>
      */
     public function where(
         string $field,
         mixed $operator,
         mixed $value = null
-    ): self // @phpstan-ignore missingType.generics
-    {
+    ): self {
         $this->filter->where($field, $operator, $value);
         return $this;
     }
@@ -54,13 +54,13 @@ final readonly class DataFilterWrapper
      * @param string $field Field name
      * @param mixed $operator Operator or value (if 2 args)
      * @param mixed $value Value (if 3 args)
+     * @return self<TValue>
      */
     public function orWhere(
         string $field,
         mixed $operator,
         mixed $value = null
-    ): self // @phpstan-ignore missingType.generics
-    {
+    ): self {
         $this->filter->orWhere($field, $operator, $value);
         return $this;
     }

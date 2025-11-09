@@ -91,8 +91,9 @@ describe('DataAccessor Transformations', function(): void {
         it('passes key to callback', function(): void {
             $accessor = new DataAccessor(['a' => 1, 'b' => 2]);
             $mapped = $accessor->map(
-                fn(int $value, string $key): string => $key . ':' . $value
-            ); // @phpstan-ignore argument.type
+                /** @param mixed $value @param mixed $key */
+                fn($value, $key): string => $key . ':' . $value // @phpstan-ignore binaryOp.invalid
+            );
             expect($mapped)->toBe(['a' => 'a:1', 'b' => 'b:2']);
         });
     });
@@ -101,26 +102,29 @@ describe('DataAccessor Transformations', function(): void {
         it('reduces to single value', function(): void {
             $accessor = new DataAccessor([1, 2, 3, 4, 5]);
             $sum = $accessor->reduce(
-                fn(int $carry, int $item): int => $carry + $item,
+                /** @param mixed $carry @param mixed $item */
+                fn($carry, $item): int => (int)$carry + (int)$item,
                 0
-            ); // @phpstan-ignore argument.type
+            );
             expect($sum)->toBe(15);
         });
 
         it('reduces without initial value', function(): void {
             $accessor = new DataAccessor([1, 2, 3]);
             $result = $accessor->reduce(
-                fn(?int $carry, int $item): int => ($carry ?? 0) + $item
-            ); // @phpstan-ignore argument.type
+                /** @param mixed $carry @param mixed $item */
+                fn($carry, $item): int => ((int)$carry ?: 0) + (int)$item
+            );
             expect($result)->toBe(6);
         });
 
         it('passes key to callback', function(): void {
             $accessor = new DataAccessor(['a' => 1, 'b' => 2, 'c' => 3]);
             $result = $accessor->reduce(
-                fn(string $carry, int $item, string $key): string => $carry . $key,
+                /** @param mixed $carry @param mixed $item @param mixed $key */
+                fn($carry, $item, $key): string => $carry . $key, // @phpstan-ignore binaryOp.invalid
                 ''
-            ); // @phpstan-ignore argument.type
+            );
             expect($result)->toBe('abc');
         });
     });
