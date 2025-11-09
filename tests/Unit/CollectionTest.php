@@ -213,7 +213,7 @@ describe('Collection', function(): void {
         it('gets first item with default', function(): void {
             $collection = DataCollection::make();
 
-            expect($collection->first(default: 'default'))->toBe('default');
+            expect($collection->first(default: 'default'))->toBe('default'); // @phpstan-ignore argument.type
         });
 
         it('gets last item', function(): void {
@@ -232,7 +232,7 @@ describe('Collection', function(): void {
         it('gets last item with default', function(): void {
             $collection = DataCollection::make();
 
-            expect($collection->last(default: 'default'))->toBe('default');
+            expect($collection->last(default: 'default'))->toBe('default'); // @phpstan-ignore argument.type
         });
     });
 
@@ -1175,8 +1175,8 @@ describe('Collection', function(): void {
             $collection
                 ->transform('users.0.name', fn($v) => strtoupper($v))
                 ->transform('users.1.name', fn($v) => strtoupper($v))
-                ->transform('users.0.score', fn($v): int|float => $v + 10)
-                ->transform('users.1.score', fn($v): int|float => $v + 20);
+                ->transform('users.0.score', fn(int|float $v): int|float => $v + 10) // @phpstan-ignore argument.type
+                ->transform('users.1.score', fn(int|float $v): int|float => $v + 20); // @phpstan-ignore argument.type
 
             expect($collection->toArray())->toBe([
                 'users' => [
@@ -1195,8 +1195,8 @@ describe('Collection', function(): void {
             ]);
 
             $collection
-                ->transform('prices.0.amount', fn($v): float => $v * 0.9)
-                ->transform('prices.1.amount', fn($v): float => $v * 0.85);
+                ->transform('prices.0.amount', fn(int|float $v): float => $v * 0.9) // @phpstan-ignore argument.type
+                ->transform('prices.1.amount', fn(int|float $v): float => $v * 0.85); // @phpstan-ignore argument.type
 
             expect($collection->toArray())->toBe([
                 'prices' => [
@@ -1402,7 +1402,10 @@ describe('Collection', function(): void {
             expect($collection->get('users.0.score'))->toBe(90);
 
             // Transform
-            $collection->transform('users.1.score', fn($v): int|float => $v + 5);
+            $collection->transform(
+                'users.1.score',
+                fn(int|float $v): int|float => $v + 5
+            ); // @phpstan-ignore argument.type
             expect($collection->get('users.1.score'))->toBe(97);
         });
 
@@ -1452,8 +1455,14 @@ describe('Collection', function(): void {
             $collection
                 ->set('company.departments.0.employees.0.bonus', 5000)
                 ->set('company.departments.0.employees.1.bonus', 4000)
-                ->transform('company.departments.0.employees.0.salary', fn($v): float => $v * 1.1)
-                ->transform('company.departments.0.employees.1.salary', fn($v): float => $v * 1.1)
+                ->transform(
+                    'company.departments.0.employees.0.salary',
+                    fn(int|float $v): float => $v * 1.1
+                ) // @phpstan-ignore argument.type
+                ->transform(
+                    'company.departments.0.employees.1.salary',
+                    fn(int|float $v): float => $v * 1.1
+                ) // @phpstan-ignore argument.type
                 ->merge('company', ['founded' => 2020])
                 ->pushTo('company.departments.0.employees.0.skills', 'PHP')
                 ->pushTo('company.departments.0.employees.0.skills', 'Laravel');
@@ -1461,10 +1470,14 @@ describe('Collection', function(): void {
             $result = $collection->toArray();
 
             expect($result['company']['name'])->toBe('TechCorp')
-                ->and($result['company']['founded'])->toBe(2020)
+                ->and($result['company']['founded'])->toBe(2020) // @phpstan-ignore offsetAccess.notFound
                 ->and($result['company']['departments'][0]['employees'][0]['salary'])->toBe(88000.0)
-                ->and($result['company']['departments'][0]['employees'][0]['bonus'])->toBe(5000)
-                ->and($result['company']['departments'][0]['employees'][0]['skills'])->toBe(['PHP', 'Laravel'])
+                ->and($result['company']['departments'][0]['employees'][0]['bonus'])->toBe(
+                    5000
+                ) // @phpstan-ignore offsetAccess.notFound
+                ->and($result['company']['departments'][0]['employees'][0]['skills'])->toBe(
+                    ['PHP', 'Laravel']
+                ) // @phpstan-ignore offsetAccess.notFound
                 ->and($result['company']['departments'][0]['employees'][1]['salary'])->toBe(82500.0);
         });
 
@@ -1509,9 +1522,9 @@ describe('Collection', function(): void {
 
             // Apply discount to all products
             $collection
-                ->transform('products.0.price', fn($v): float => $v * 0.9)
-                ->transform('products.1.price', fn($v): float => $v * 0.9)
-                ->transform('products.2.price', fn($v): float => $v * 0.9);
+                ->transform('products.0.price', fn(int|float $v): float => $v * 0.9) // @phpstan-ignore argument.type
+                ->transform('products.1.price', fn(int|float $v): float => $v * 0.9) // @phpstan-ignore argument.type
+                ->transform('products.2.price', fn(int|float $v): float => $v * 0.9); // @phpstan-ignore argument.type
 
             // Add tags
             $collection
@@ -1529,7 +1542,9 @@ describe('Collection', function(): void {
 
             expect($result['products'][0]['price'])->toBe(900.0)
                 ->and($result['products'][0]['stock'])->toBe(3)
-                ->and($result['products'][0]['tags'])->toBe(['electronics', 'computers'])
+                ->and($result['products'][0]['tags'])->toBe(
+                    ['electronics', 'computers']
+                ) // @phpstan-ignore offsetAccess.notFound
                 ->and($result['products'][1]['price'])->toBe(22.5)
                 ->and($result['products'][1]['stock'])->toBe(45)
                 ->and($result['products'][2]['price'])->toBe(67.5);
@@ -1971,7 +1986,7 @@ describe('Collection', function(): void {
                 ->query()
                 ->where('age', '>', 25)
                 ->get()
-                ->filter(fn($item): mixed => $item['active']);
+                ->filter(fn(mixed $item): bool => (bool)$item['active']); // @phpstan-ignore argument.type
 
             expect($result->count())->toBe(2);
         });
@@ -2061,7 +2076,10 @@ describe('Collection', function(): void {
                 ->query()
                 ->where('age', '>', 25)
                 ->get()
-                ->reduce(fn($carry, $item): int|float => $carry + $item['salary'], 0);
+                ->reduce(
+                    fn(int|float $carry, mixed $item): int|float => $carry + (int)$item['salary'],
+                    0
+                ); // @phpstan-ignore argument.type
 
             expect($totalSalary)->toBe(110000);
         });
@@ -2119,7 +2137,7 @@ describe('Collection', function(): void {
 
             // Step 4: Calculate total compensation using reduce
             $totalComp = $seniors->reduce(
-                fn($carry, $item): int|float => $carry + $item['salary'] + $item['bonus'],
+                fn(int|float $carry, mixed $item): int|float => $carry + (int)$item['salary'] + (int)$item['bonus'], // @phpstan-ignore argument.type
                 0
             );
 

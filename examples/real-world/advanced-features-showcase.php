@@ -36,7 +36,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\WhenIn;
 use event4u\DataHelpers\SimpleDto\Attributes\WhenRole;
 use event4u\DataHelpers\SimpleDto\Attributes\WhenValue;
 use event4u\DataHelpers\SimpleDto\Casts\DateTimeCast;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 
 function isTrue(mixed $value): bool
 {
@@ -276,9 +276,9 @@ $users = [
     ),
 ];
 
-/** @var DataCollection<SimpleDto> $collection */
+/** @var DtoCollection<SimpleDto> $collection */
 /** @phpstan-ignore-next-line unknown */
-$collection = DataCollection::forDto(AdvancedUserDto::class, $users);
+$collection = DtoCollection::forDto(AdvancedUserDto::class, $users);
 
 /** @phpstan-ignore-next-line class.notFound */
 echo sprintf('Total users: %s%s', $collection->count(), PHP_EOL);
@@ -303,19 +303,18 @@ foreach ($activeUsers as $u) {
 }
 echo "\n";
 
-// Note: DataCollection doesn't have sortBy() method
-// Use map() to extract names and sort manually if needed
-/** @phpstan-ignore-next-line unknown */
-$names = $collection->map(fn($u) => $u->name);
+// Note: DtoCollection::map() returns DTOs, not arbitrary values
+// Use array_column() to extract names
+$names = array_column($collection->toArray(), 'name');
 echo "User names:\n";
 foreach ($names as $name) {
     echo sprintf('  - %s%s', $name, PHP_EOL);
 }
 echo "\n";
 
-// Note: DataCollection doesn't have pluck() method, use map() instead
-/** @phpstan-ignore-next-line unknown */
-$names = $collection->map(fn($u) => $u->name);
+// Note: DtoCollection::map() returns DTOs, not arbitrary values
+// Use array_column() to extract names
+$names = array_column($collection->toArray(), 'name');
 echo "Names: " . implode(', ', $names) . "\n\n";
 
 // 8. Nested Dtos

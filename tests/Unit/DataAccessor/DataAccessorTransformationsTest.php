@@ -78,19 +78,21 @@ describe('DataAccessor Transformations', function(): void {
     describe('map()', function(): void {
         it('maps items', function(): void {
             $accessor = new DataAccessor([1, 2, 3]);
-            $mapped = $accessor->map(fn($n): int|float => $n * 2);
+            $mapped = $accessor->map(fn(int $n): int => $n * 2); // @phpstan-ignore argument.type
             expect($mapped)->toBe([2, 4, 6]);
         });
 
         it('preserves keys', function(): void {
             $accessor = new DataAccessor(['a' => 1, 'b' => 2, 'c' => 3]);
-            $mapped = $accessor->map(fn($n): int|float => $n * 2);
+            $mapped = $accessor->map(fn(int $n): int => $n * 2); // @phpstan-ignore argument.type
             expect($mapped)->toBe(['a' => 2, 'b' => 4, 'c' => 6]);
         });
 
         it('passes key to callback', function(): void {
             $accessor = new DataAccessor(['a' => 1, 'b' => 2]);
-            $mapped = $accessor->map(fn($value, $key): string => $key . ':' . $value);
+            $mapped = $accessor->map(
+                fn(int $value, string $key): string => $key . ':' . $value
+            ); // @phpstan-ignore argument.type
             expect($mapped)->toBe(['a' => 'a:1', 'b' => 'b:2']);
         });
     });
@@ -98,19 +100,27 @@ describe('DataAccessor Transformations', function(): void {
     describe('reduce()', function(): void {
         it('reduces to single value', function(): void {
             $accessor = new DataAccessor([1, 2, 3, 4, 5]);
-            $sum = $accessor->reduce(fn($carry, $item): float|int|array => $carry + $item, 0);
+            $sum = $accessor->reduce(
+                fn(int $carry, int $item): int => $carry + $item,
+                0
+            ); // @phpstan-ignore argument.type
             expect($sum)->toBe(15);
         });
 
         it('reduces without initial value', function(): void {
             $accessor = new DataAccessor([1, 2, 3]);
-            $result = $accessor->reduce(fn($carry, $item): float|int|array => ($carry ?? 0) + $item);
+            $result = $accessor->reduce(
+                fn(?int $carry, int $item): int => ($carry ?? 0) + $item
+            ); // @phpstan-ignore argument.type
             expect($result)->toBe(6);
         });
 
         it('passes key to callback', function(): void {
             $accessor = new DataAccessor(['a' => 1, 'b' => 2, 'c' => 3]);
-            $result = $accessor->reduce(fn($carry, $item, $key): string => $carry . $key, '');
+            $result = $accessor->reduce(
+                fn(string $carry, int $item, string $key): string => $carry . $key,
+                ''
+            ); // @phpstan-ignore argument.type
             expect($result)->toBe('abc');
         });
     });
@@ -165,7 +175,7 @@ describe('DataAccessor Transformations', function(): void {
         it('maps lazily', function(): void {
             $accessor = new DataAccessor([1, 2, 3]);
             $result = [];
-            foreach ($accessor->lazyMap(fn($n): int|float => $n * 2) as $item) {
+            foreach ($accessor->lazyMap(fn(int $n): int => $n * 2) as $item) { // @phpstan-ignore argument.type
                 $result[] = $item;
             }
             expect($result)->toBe([2, 4, 6]);
@@ -174,7 +184,7 @@ describe('DataAccessor Transformations', function(): void {
         it('preserves keys', function(): void {
             $accessor = new DataAccessor(['a' => 1, 'b' => 2]);
             $result = [];
-            foreach ($accessor->lazyMap(fn($n): int|float => $n * 2) as $key => $item) {
+            foreach ($accessor->lazyMap(fn(int $n): int => $n * 2) as $key => $item) { // @phpstan-ignore argument.type
                 $result[$key] = $item;
             }
             expect($result)->toBe(['a' => 2, 'b' => 4]);

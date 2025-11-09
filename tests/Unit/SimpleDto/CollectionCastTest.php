@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use Tests\Unit\SimpleDto\Fixtures\UserDto;
 
 describe('CollectionCast', function(): void {
@@ -13,7 +13,7 @@ describe('CollectionCast', function(): void {
             $dto = new class extends SimpleDto {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
-                    public readonly ?DataCollection $tags = null,
+                    public readonly ?DtoCollection $tags = null,
                 ) {}
 
                 /** @return array<string, string> */
@@ -30,7 +30,7 @@ describe('CollectionCast', function(): void {
             $dto = new class extends SimpleDto {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
-                    public readonly ?DataCollection $users = null,
+                    public readonly ?DtoCollection $users = null,
                 ) {}
 
                 /** @return array<string, string> */
@@ -47,13 +47,13 @@ describe('CollectionCast', function(): void {
                 ],
             ]);
 
-            assert($instance->users instanceof DataCollection);
+            assert($instance->users instanceof DtoCollection);
             $first = $instance->users->first();
             $last = $instance->users->last();
             assert($first instanceof UserDto);
             assert($last instanceof UserDto);
 
-            expect($instance->users)->toBeInstanceOf(DataCollection::class)
+            expect($instance->users)->toBeInstanceOf(DtoCollection::class)
                 ->and($instance->users->count())->toBe(2)
                 ->and($first)->toBeInstanceOf(UserDto::class)
                 ->and($first->name)->toBe('John')
@@ -63,7 +63,7 @@ describe('CollectionCast', function(): void {
         });
 
         it('keeps existing DataCollection', function(): void {
-            $collection = DataCollection::forDto(UserDto::class, [
+            $collection = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'Alice', 'age' => 28],
                 ['name' => 'Bob', 'age' => 32],
             ]);
@@ -71,7 +71,7 @@ describe('CollectionCast', function(): void {
             $dto = new class($collection) extends SimpleDto {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
-                    public readonly DataCollection $users,
+                    public readonly DtoCollection $users,
                 ) {}
 
                 /** @return array<string, string> */
@@ -91,7 +91,7 @@ describe('CollectionCast', function(): void {
             $dto = new class extends SimpleDto {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
-                    public readonly ?DataCollection $users = null,
+                    public readonly ?DtoCollection $users = null,
                 ) {}
 
                 /** @return array<string, string> */
@@ -107,7 +107,7 @@ describe('CollectionCast', function(): void {
         });
 
         it('converts DataCollection to array in toArray()', function(): void {
-            $collection = DataCollection::forDto(UserDto::class, [
+            $collection = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -115,7 +115,7 @@ describe('CollectionCast', function(): void {
             $dto = new class($collection) extends SimpleDto {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
-                    public readonly DataCollection $users,
+                    public readonly DtoCollection $users,
                 ) {}
 
                 /** @return array<string, string> */
@@ -139,7 +139,7 @@ describe('CollectionCast', function(): void {
             $dto = new class extends SimpleDto {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
-                    public readonly ?DataCollection $users = null,
+                    public readonly ?DtoCollection $users = null,
                 ) {}
 
                 /** @return array<string, string> */
@@ -155,11 +155,11 @@ describe('CollectionCast', function(): void {
                 ],
             ]);
 
-            assert($instance->users instanceof DataCollection);
+            assert($instance->users instanceof DtoCollection);
             $first = $instance->users->first();
             assert($first instanceof UserDto);
 
-            expect($instance->users)->toBeInstanceOf(DataCollection::class)
+            expect($instance->users)->toBeInstanceOf(DtoCollection::class)
                 ->and($instance->users->count())->toBe(1)
                 ->and($first)->toBeInstanceOf(UserDto::class)
                 ->and($first->name)->toBe('John');
@@ -169,7 +169,7 @@ describe('CollectionCast', function(): void {
             $dto = new class extends SimpleDto {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
-                    public readonly ?DataCollection $users = null,
+                    public readonly ?DtoCollection $users = null,
                 ) {}
 
                 /** @return array<string, string> */
@@ -181,8 +181,8 @@ describe('CollectionCast', function(): void {
 
             $instance = $dto::fromArray(['users' => []]);
 
-            assert($instance->users instanceof DataCollection);
-            expect($instance->users)->toBeInstanceOf(DataCollection::class)
+            assert($instance->users instanceof DtoCollection);
+            expect($instance->users)->toBeInstanceOf(DtoCollection::class)
                 ->and($instance->users->count())->toBe(0);
         });
     });
@@ -193,7 +193,7 @@ describe('CollectionCast', function(): void {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     #[DataCollectionOf(UserDto::class)]
-                    public readonly ?DataCollection $users = null,
+                    public readonly ?DtoCollection $users = null,
                 ) {}
 
                 /** @return array<string, string> */
@@ -210,13 +210,13 @@ describe('CollectionCast', function(): void {
                 ],
             ]);
 
-            assert($instance->users instanceof DataCollection);
+            assert($instance->users instanceof DtoCollection);
             $first = $instance->users->first();
             $last = $instance->users->last();
             assert($first instanceof UserDto);
             assert($last instanceof UserDto);
 
-            expect($instance->users)->toBeInstanceOf(DataCollection::class)
+            expect($instance->users)->toBeInstanceOf(DtoCollection::class)
                 ->and($instance->users->count())->toBe(2)
                 ->and($first)->toBeInstanceOf(UserDto::class)
                 ->and($first->name)->toBe('Alice')

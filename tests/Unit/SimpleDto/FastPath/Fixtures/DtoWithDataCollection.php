@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\SimpleDto\FastPath\Fixtures;
 
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 
 /**
  * DTO with DataCollection property.
@@ -13,9 +13,9 @@ use event4u\DataHelpers\SimpleDto\DataCollection;
  */
 class DtoWithDataCollection extends SimpleDto
 {
-    /** @param DataCollection<SimpleDto>|null $items */
+    /** @param DtoCollection<SimpleDto>|null $items */
     public function __construct(
         public readonly ?string $name = null,
-        public readonly ?DataCollection $items = null,
+        public readonly ?DtoCollection $items = null,
     ) {}
 }

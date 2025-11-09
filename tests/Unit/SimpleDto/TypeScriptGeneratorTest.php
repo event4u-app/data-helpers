@@ -7,7 +7,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\Computed;
 use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
 use event4u\DataHelpers\SimpleDto\Config\TypeScriptGeneratorOptions;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use event4u\DataHelpers\SimpleDto\Enums\TypeScriptExportType;
 use event4u\DataHelpers\SimpleDto\TypeScriptGenerator;
 
@@ -27,7 +27,7 @@ class PostDtoForTest extends SimpleDto
         public readonly string $title,
         public readonly string $content,
         #[DataCollectionOf(TagDtoForTest::class)]
-        public readonly DataCollection $tags,
+        public readonly DtoCollection $tags,
     ) {}
 }
 

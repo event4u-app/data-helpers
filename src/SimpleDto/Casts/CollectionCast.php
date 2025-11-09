@@ -33,10 +33,7 @@ class CollectionCast implements CastsAttributes
     {
     }
 
-    /**
-     * @return DtoCollection|null
-     * @phpstan-ignore missingType.generics
-     */
+    /** @phpstan-ignore missingType.generics */
     public function get(mixed $value, array $attributes): ?DtoCollection
     {
         if (null === $value) {

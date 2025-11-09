@@ -155,22 +155,20 @@ echo json_encode($errorResponse, JSON_PRETTY_PRINT) . "\n\n";
 echo "Example 8: Wrapping Collections\n";
 echo "--------------------------------\n";
 
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 
-/** @var DataCollection<SimpleDto> $users */
+/** @var DtoCollection<SimpleDto> $users */
 /** @phpstan-ignore-next-line unknown */
 /** @phpstan-ignore-next-line unknown */
-$users = DataCollection::forDto(UserDto::class, [
+$users = DtoCollection::forDto(UserDto::class, [
     ['name' => 'User 1', 'email' => 'user1@example.com', 'age' => 25],
     ['name' => 'User 2', 'email' => 'user2@example.com', 'age' => 30],
     ['name' => 'User 3', 'email' => 'user3@example.com', 'age' => 35],
 ]);
 
 // Wrap each user in the collection
-/** @var DataCollection<SimpleDto> $wrappedUsers */
-/** @phpstan-ignore-next-line unknown */
-/** @phpstan-ignore-next-line unknown */
-$wrappedUsers = $users->map(fn($user): array => $user->wrap('user')->toArray());
+// Note: DtoCollection::map() returns DTOs, so we use array_map instead
+$wrappedUsers = array_map(fn($user) => $user->wrap('user')->toArray(), $users->all());
 echo "Wrapped users in collection:\n";
 echo json_encode($wrappedUsers, JSON_PRETTY_PRINT) . "\n\n";
 

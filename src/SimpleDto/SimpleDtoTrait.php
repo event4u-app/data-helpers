@@ -1110,13 +1110,13 @@ trait SimpleDtoTrait
      * Create a type-safe collection of Dtos.
      *
      * @param array<int|string, mixed> $items
-     * @return DataCollection<static> The collection of Dtos
-     * @phpstan-return DataCollection<static>
+     * @return DtoCollection<static> The collection of Dtos
+     * @phpstan-return DtoCollection<static>
      */
-    public static function collection(array $items = []): DataCollection // @phpstan-ignore-line
+    public static function collection(array $items = []): DtoCollection // @phpstan-ignore-line
     {
-        /** @var DataCollection<static> $dataCollection @phpstan-ignore-line */
-        $dataCollection = DataCollection::forDto(static::class, $items); // @phpstan-ignore-line
+        /** @var DtoCollection<static> $dataCollection @phpstan-ignore-line */
+        $dataCollection = DtoCollection::forDto(static::class, $items); // @phpstan-ignore-line
 
         return $dataCollection;
     }

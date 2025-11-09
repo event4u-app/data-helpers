@@ -38,7 +38,11 @@ final readonly class DataFilterWrapper
      * @param mixed $operator Operator or value (if 2 args)
      * @param mixed $value Value (if 3 args)
      */
-    public function where(string $field, mixed $operator, mixed $value = null): self // @phpstan-ignore missingType.generics
+    public function where(
+        string $field,
+        mixed $operator,
+        mixed $value = null
+    ): self // @phpstan-ignore missingType.generics
     {
         $this->filter->where($field, $operator, $value);
         return $this;
@@ -51,7 +55,11 @@ final readonly class DataFilterWrapper
      * @param mixed $operator Operator or value (if 2 args)
      * @param mixed $value Value (if 3 args)
      */
-    public function orWhere(string $field, mixed $operator, mixed $value = null): self // @phpstan-ignore missingType.generics
+    public function orWhere(
+        string $field,
+        mixed $operator,
+        mixed $value = null
+    ): self // @phpstan-ignore missingType.generics
     {
         $this->filter->orWhere($field, $operator, $value);
         return $this;
@@ -141,8 +149,6 @@ final readonly class DataFilterWrapper
         return $this;
     }
 
-
-
     /**
      * Add an ORDER BY clause.
      *
@@ -176,8 +182,6 @@ final readonly class DataFilterWrapper
         $this->filter->offset($offset);
         return $this;
     }
-
-
 
     /**
      * Add a DISTINCT clause.

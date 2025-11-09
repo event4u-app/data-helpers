@@ -47,14 +47,14 @@ $dtos = UserDto::collection($users);
 ### Using DataCollection::make()
 
 ```php
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
     ['name' => 'John', 'email' => 'john@example.com', 'age' => 30],
     ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 25],
 ];
-$collection = DataCollection::make($data, UserDto::class);
+$collection = DtoCollection::make($data, UserDto::class);
 ```
 
 ## Collection Methods
@@ -83,11 +83,16 @@ use Tests\Utils\Docu\Dtos\UserDto;
 $data = [
     ['name' => 'John', 'age' => 25],
     ['name' => 'Jane', 'age' => 17],
+    ['name' => 'Bob', 'age' => 30],
 ];
 
 $users = UserDto::collection($data);
-$names = $users->map(fn($user) => $user->name);
-// Result: ['John', 'Jane']
+$adults = $users->filter(fn($user) => $user->age > 18);
+$mapped = $adults->map(fn($user) => UserDto::fromArray([
+    'name' => strtoupper($user->name),
+    'age' => $user->age,
+]));
+// Result: DtoCollection with uppercase names for adults (JOHN and BOB)
 ```
 
 ### First / Last

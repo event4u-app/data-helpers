@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
+use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\SimpleDto;
 use InvalidArgumentException;
@@ -31,14 +32,34 @@ use InvalidArgumentException;
 final class DtoCollection extends DataCollection
 {
     /**
-     * @param class-string<TDto> $dtoClass
+     * @param class-string<TDto>|array<int|string, mixed> $dtoClass
      * @param array<int|string, mixed> $items
      * @phpstan-ignore method.childParameterType, parameter.notOptional
      */
     public function __construct(
-        private readonly string $dtoClass,
+        private readonly string|array $dtoClass,
         array $items = [],
     ) {
+        // Handle backward compatibility: new static($items) from parent class
+        if (is_array($dtoClass)) {
+            $items = $dtoClass;
+            // Try to infer DTO class from first item
+            if ([] !== $items) {
+                $firstItem = reset($items);
+                if ($firstItem instanceof SimpleDto) {
+                    $dtoClass = $firstItem::class;
+                } else {
+                    throw new InvalidArgumentException(
+                        'Cannot create DtoCollection without DTO class. Use DtoCollection::forDto() or DtoCollection::make() instead.'
+                    );
+                }
+            } else {
+                throw new InvalidArgumentException(
+                    'Cannot create empty DtoCollection without DTO class. Use DtoCollection::forDto() or DtoCollection::make() instead.'
+                );
+            }
+        }
+
         $dtoItems = [];
         foreach ($items as $key => $item) {
             if (!is_array($item) && !($item instanceof SimpleDto)) {
@@ -72,10 +93,13 @@ final class DtoCollection extends DataCollection
      * This method provides a more intuitive API for creating collections.
      *
      * @param array<int|string, mixed> $items
-     * @param class-string<TDto> $dtoClass
+     * @param class-string<TDto>|null $dtoClass
      * @return static<TDto>
      */
-    public static function make(array $items = [], string $dtoClass = null): static // @phpstan-ignore parameter.implicitlyNullable, argument.type
+    public static function make(
+        array $items = [],
+        ?string $dtoClass = null
+    ): static // @phpstan-ignore argument.type
     {
         return new self($dtoClass, $items); // @phpstan-ignore argument.type
     }
@@ -100,8 +124,36 @@ final class DtoCollection extends DataCollection
      */
     public function filter(?callable $callback = null): static
     {
-        $filtered = parent::filter($callback)->all();
+        $filtered = $this->accessor->filter($callback);
         return new self($this->dtoClass, $filtered);
+    }
+
+    /**
+     * Map over each item in the collection.
+     *
+     * Note: map() on DtoCollection returns the same DTO type.
+     * If you need to transform to different types, convert to DataCollection first.
+     *
+     * @param callable(TDto, int|string): TDto $callback
+     * @return static<TDto>
+     * @phpstan-ignore return.type
+     */
+    public function map(callable $callback): static
+    {
+        $mapped = $this->accessor->map($callback);
+        return new self($this->dtoClass, $mapped);
+    }
+
+    /**
+     * Get the values of the collection.
+     *
+     * Overrides parent to maintain DTO class information.
+     *
+     * @return static<TDto>
+     */
+    public function values(): static
+    {
+        return new self($this->dtoClass, array_values($this->items));
     }
 
     /**
@@ -149,6 +201,9 @@ final class DtoCollection extends DataCollection
             $this->items[] = $this->ensureDto($value);
         }
 
+        // Update accessor to reflect changes
+        $this->accessor = new DataAccessor($this->items);
+
         return $this;
     }
 
@@ -163,6 +218,9 @@ final class DtoCollection extends DataCollection
     public function prepend(mixed $value): static
     {
         array_unshift($this->items, $this->ensureDto($value));
+
+        // Update accessor to reflect changes
+        $this->accessor = new DataAccessor($this->items);
 
         return $this;
     }
@@ -184,6 +242,9 @@ final class DtoCollection extends DataCollection
         } else {
             $this->items[$offset] = $dto;
         }
+
+        // Update accessor to reflect changes
+        $this->accessor = new DataAccessor($this->items);
     }
 
     /**

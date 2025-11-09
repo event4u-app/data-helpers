@@ -9,7 +9,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\Computed;
 use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
 use event4u\DataHelpers\SimpleDto\Attributes\Lazy;
 use event4u\DataHelpers\SimpleDto\Config\TypeScriptGeneratorOptions;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use event4u\DataHelpers\SimpleDto\TypeScriptGenerator;
 
 echo "================================================================================\n";
@@ -116,7 +116,7 @@ class PostDto extends SimpleDto
         public readonly string $title,
         public readonly string $content,
         #[DataCollectionOf(TagDto::class)]
-        public readonly DataCollection $tags,
+        public readonly DtoCollection $tags,
     ) {}
 }
 
@@ -201,7 +201,7 @@ class LibraryDto extends SimpleDto
     public function __construct(
         public readonly string $name,
         #[DataCollectionOf(BookDto::class)]
-        public readonly DataCollection $books,
+        public readonly DtoCollection $books,
     ) {}
 }
 

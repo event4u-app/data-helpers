@@ -54,12 +54,12 @@ $value = $collection->get('a'); // 1
 $value = $collection->get('missing', 'default'); // 'default'
 
 // Dot-notation access (powered by DataAccessor)
-$collection = DataCollection::make([
+$nestedCollection = DataCollection::make([
     ['user' => ['name' => 'Alice', 'age' => 30]],
     ['user' => ['name' => 'Bob', 'age' => 25]],
 ]);
-$name = $collection->get('0.user.name'); // 'Alice'
-$age = $collection->get('1.user.age'); // 25
+$name = $nestedCollection->get('0.user.name'); // 'Alice'
+$age = $nestedCollection->get('1.user.age'); // 25
 
 // Array access
 $value = $collection['a']; // 1
@@ -74,7 +74,7 @@ $first = $collection->first(); // 1
 $last = $collection->last(); // 3
 
 // With callback
-$firstEven = $collection->first(fn($n) => $n % 2 === 0);
+$firstEven = $collection->first(fn($n) => $n % 2 === 0); // 2
 ```
 
 ## Transformation Methods

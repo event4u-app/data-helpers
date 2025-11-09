@@ -285,7 +285,7 @@ describe('LiteDto Typed Getters', function(): void {
                 'name' => 'John', 'age' => 30, 'email' => null, 'users' => [], 'metadata' => []]
             );
 
-            expect(fn(): array => $dto->getIntCollection('age'))
+            expect(fn(): array => $dto->getIntCollection('age')) // @phpstan-ignore return.type
                 ->toThrow(TypeMismatchException::class, 'Path "age" does not contain wildcards');
         });
     });

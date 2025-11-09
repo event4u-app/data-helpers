@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use Tests\Unit\SimpleDto\Fixtures\UserDto;
 
 describe('Collection Mixed Scenarios & Edge Cases', function(): void {
     describe('Collections with Validation', function(): void {
         it('validates collection items with Min/Max', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -23,7 +23,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
         });
 
         it('handles empty collections', function(): void {
-            $users = DataCollection::forDto(UserDto::class, []);
+            $users = DtoCollection::forDto(UserDto::class, []);
 
             expect($users->count())->toBe(0)
                 ->and($users->isEmpty())->toBeTrue()
@@ -31,7 +31,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
         });
 
         it('handles single item collections', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -46,7 +46,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
     describe('Collection toArray() Scenarios', function(): void {
         it('converts collection to array correctly', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -62,7 +62,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
     describe('Collection Iteration', function(): void {
         it('iterates over collection items', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -78,19 +78,19 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
         });
 
         it('maps over collection items', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
 
-            /** @phpstan-ignore-next-line unknown */
-            $names = $users->map(fn(UserDto $user): string => $user->name);
+            // Note: DtoCollection::map() returns DTOs, not arbitrary values
+            $names = array_column($users->toArray(), 'name');
 
             expect($names)->toBe(['John', 'Jane']);
         });
 
         it('filters collection items', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -116,7 +116,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly string $name = '',
-                    public readonly ?DataCollection $users = null,
+                    public readonly ?DtoCollection $users = null,
                 ) {}
 
                 /** @return array<string, string> */
@@ -140,7 +140,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly string $name = '',
-                    public readonly ?DataCollection $users = null,
+                    public readonly ?DtoCollection $users = null,
                 ) {}
 
                 /** @return array<string, string> */
@@ -161,7 +161,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
     describe('Collection JSON Serialization', function(): void {
         it('serializes collection to JSON', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);
@@ -181,7 +181,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
                 /** @phpstan-ignore-next-line unknown */
                 public function __construct(
                     public readonly string $name = '',
-                    public readonly ?DataCollection $users = null,
+                    public readonly ?DtoCollection $users = null,
                 ) {}
 
                 /** @return array<string, string> */
@@ -211,7 +211,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
     describe('Collection Count and Size', function(): void {
         it('counts collection items correctly', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -222,8 +222,8 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
         });
 
         it('checks if collection is empty', function(): void {
-            $empty = DataCollection::forDto(UserDto::class, []);
-            $notEmpty = DataCollection::forDto(UserDto::class, [
+            $empty = DtoCollection::forDto(UserDto::class, []);
+            $notEmpty = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
             ]);
 
@@ -236,7 +236,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
     describe('Collection First and Last', function(): void {
         it('gets first and last items', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -252,7 +252,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
         });
 
         it('returns null for first/last on empty collection', function(): void {
-            $users = DataCollection::forDto(UserDto::class, []);
+            $users = DtoCollection::forDto(UserDto::class, []);
 
             expect($users->first())->toBeNull()
                 ->and($users->last())->toBeNull();
@@ -261,7 +261,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
 
     describe('Collection Find', function(): void {
         it('finds item by callback', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
                 ['name' => 'Bob', 'age' => 35],
@@ -276,7 +276,7 @@ describe('Collection Mixed Scenarios & Edge Cases', function(): void {
         });
 
         it('returns null when item not found', function(): void {
-            $users = DataCollection::forDto(UserDto::class, [
+            $users = DtoCollection::forDto(UserDto::class, [
                 ['name' => 'John', 'age' => 30],
                 ['name' => 'Jane', 'age' => 25],
             ]);

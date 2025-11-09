@@ -57,18 +57,12 @@ echo "\n";
 echo "Example 3: Mapping\n";
 echo "----------------------------\n";
 
-/** @var DataCollection<SimpleDto> $names */
-/** @phpstan-ignore-next-line unknown */
-/** @phpstan-ignore-next-line unknown */
-$names = $users->map(fn(UserDto $user): string => $user->name);
-/** @var DataCollection<SimpleDto> $emails */
-/** @phpstan-ignore-next-line unknown */
-/** @phpstan-ignore-next-line unknown */
-$emails = $users->map(fn(UserDto $user): string => $user->email);
+// Note: DtoCollection::map() returns DTOs, not arbitrary values
+// Use array_column() to extract values
+$names = array_column($users->toArray(), 'name');
+$emails = array_column($users->toArray(), 'email');
 
-/** @phpstan-ignore-next-line unknown */
 echo "Names: " . implode(', ', $names) . "\n";
-/** @phpstan-ignore-next-line unknown */
 echo "Emails: " . implode(', ', $emails) . "\n";
 echo "\n";
 
@@ -181,9 +175,10 @@ echo "\n";
 echo "Example 10: Chaining Operations\n";
 echo "----------------------------\n";
 
-$expensiveProductNames = $products
-    ->filter(fn(ProductDto $p): bool => 200 < $p->price)
-    ->map(fn(ProductDto $p): string => $p->name);
+// Note: DtoCollection::map() returns DTOs, not arbitrary values
+// Filter first, then extract names
+$expensiveProducts = $products->filter(fn(ProductDto $p): bool => 200 < $p->price);
+$expensiveProductNames = array_column($expensiveProducts->toArray(), 'name');
 
 echo "Expensive products (> \$200):\n";
 foreach ($expensiveProductNames as $name) {

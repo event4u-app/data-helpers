@@ -7,17 +7,17 @@ require __DIR__ . '/../../bootstrap.php';
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 
 echo "================================================================================\n";
 echo "SimpleDto - Collection Cast Examples (Framework-Independent)\n";
 echo "================================================================================\n\n";
 
-echo "Note: CollectionCast now creates DataCollection instances (framework-independent).\n";
+echo "Note: CollectionCast now creates DtoCollection instances (framework-independent).\n";
 echo "You must specify a Dto class: 'collection:UserDto'\n\n";
 
-// Example 1: DataCollection<SimpleDto> of Dtos
-echo "Example 1: DataCollection<SimpleDto> of Dtos\n";
+// Example 1: DtoCollection<SimpleDto> of Dtos
+echo "Example 1: DtoCollection<SimpleDto> of Dtos\n";
 echo "----------------------------------\n";
 
 #[AutoCast]
@@ -36,7 +36,7 @@ class TeamDto extends SimpleDto
     /** @phpstan-ignore-next-line unknown */
     public function __construct(
         public readonly string $name,
-        public readonly DataCollection $members,
+        public readonly DtoCollection $members,
     ) {}
 
     protected function casts(): array
@@ -84,7 +84,7 @@ class OrderDto extends SimpleDto
     public function __construct(
         public readonly string $orderNumber,
         #[DataCollectionOf(ProductDto::class)]
-        public readonly DataCollection $items,
+        public readonly DtoCollection $items,
         public readonly float $total,
     ) {}
 }
@@ -129,7 +129,7 @@ class PostDto extends SimpleDto
         public readonly string $title,
         public readonly string $content,
         #[DataCollectionOf(CommentDto::class)]
-        public readonly DataCollection $comments,
+        public readonly DtoCollection $comments,
     ) {}
 }
 
@@ -140,7 +140,7 @@ class BlogDto extends SimpleDto
     public function __construct(
         public readonly string $name,
         #[DataCollectionOf(PostDto::class)]
-        public readonly DataCollection $posts,
+        public readonly DtoCollection $posts,
     ) {}
 }
 

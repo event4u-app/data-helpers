@@ -102,7 +102,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      * Delegates to DataAccessor for filtering logic.
      *
      * @param callable(TValue, int|string): bool|null $callback
-     * @return static
      */
     public function filter(?callable $callback = null): static
     {
@@ -119,7 +118,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      *
      * @template TMapValue
      * @param callable(TValue, int|string): TMapValue $callback
-     * @return static
      * @phpstan-ignore argument.type, return.type
      */
     public function map(callable $callback): static
@@ -510,7 +508,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     /**
      * Get the values of the collection.
      *
-     * @return static
      * @phpstan-ignore return.type
      */
     public function values(): static
@@ -521,7 +518,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     /**
      * Get the keys of the collection.
      *
-     * @return static
      * @phpstan-ignore return.type
      */
     public function keys(): static

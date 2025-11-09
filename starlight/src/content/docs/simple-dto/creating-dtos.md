@@ -453,16 +453,24 @@ use event4u\DataHelpers\SimpleDto\DtoCollection;
 use Tests\Utils\Docu\Dtos\UserDto;
 
 $data = [
-    ['name' => 'John', 'email' => 'john@example.com'],
-    ['name' => 'Jane', 'email' => 'jane@example.com'],
-    ['name' => 'Bob', 'email' => 'bob@example.com'],
+    ['name' => 'John', 'email' => 'john@example.com', 'age' => 25],
+    ['name' => 'Jane', 'email' => 'jane@example.com', 'age' => 17],
+    ['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 30],
 ];
 
 $collection = DtoCollection::make($data, UserDto::class);
 
+// Filter returns a DtoCollection with filtered DTOs
 $filtered = $collection->filter(fn($dto) => str_contains($dto->email, 'john'));
-$mapped = $collection->map(fn($dto) => $dto->name);
-// Result: DtoCollection with filtered/mapped Dtos
+
+// Map transforms each DTO and returns a new DtoCollection
+$adults = $collection->filter(fn($dto) => $dto->age > 18);
+$mapped = $adults->map(fn($dto) => UserDto::fromArray([
+    'name' => strtoupper($dto->name),
+    'email' => $dto->email,
+    'age' => $dto->age,
+]));
+// Result: DtoCollection with uppercase names for adult users (JOHN and BOB)
 ```
 
 ## Best Practices

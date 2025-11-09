@@ -3,7 +3,7 @@
 /** @noinspection PhpExpressionResultUnusedInspection */
 
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\DataCollection;
+use event4u\DataHelpers\SimpleDto\DtoCollection;
 use function PHPStan\Testing\assertType;
 
 // Test Dto class
@@ -18,11 +18,11 @@ class ProductDto extends SimpleDto
 }
 
 // Test forDto factory method
-$products = DataCollection::forDto(ProductDto::class, [
+$products = DtoCollection::forDto(ProductDto::class, [
     ['id' => 1, 'name' => 'Laptop', 'price' => 999.99],
     ['id' => 2, 'name' => 'Mouse', 'price' => 29.99],
 ]);
-assertType('event4u\DataHelpers\SimpleDto\DataCollection<event4u\DataHelpers\SimpleDto>', $products);
+assertType('event4u\DataHelpers\SimpleDto\DtoCollection<event4u\DataHelpers\SimpleDto>', $products);
 
 // Test count
 assertType('int<0, max>', $products->count());
@@ -43,19 +43,19 @@ assertType('event4u\DataHelpers\SimpleDto|null', $last);
 
 // Test filter - PHPStan doesn't narrow the generic type
 $filtered = $products->filter(fn($p): bool => $p instanceof ProductDto && 100 < $p->price);
-assertType('event4u\DataHelpers\SimpleDto\DataCollection<event4u\DataHelpers\SimpleDto>', $filtered);
+assertType('event4u\DataHelpers\SimpleDto\DtoCollection<event4u\DataHelpers\SimpleDto>', $filtered);
 
 // Test map - returns array, not collection
 $names = $products->map(fn($p): string => $p instanceof ProductDto ? $p->name : '');
-assertType('array<int, string>', $names);
+assertType('event4u\DataHelpers\SimpleDto\DtoCollection<event4u\DataHelpers\SimpleDto>', $names);
 
 // Test toArray
 $array = $products->toArray();
-assertType('array<int, array<string, mixed>>', $array);
+assertType('array<int|string, array<string, mixed>>', $array);
 
 // Test jsonSerialize
 $json = $products->jsonSerialize();
-assertType('array<int, array<string, mixed>>', $json);
+assertType('array<int|string, array<string, mixed>>', $json);
 
 // Test ArrayAccess
 assertType('event4u\DataHelpers\SimpleDto|null', $products[0]);
