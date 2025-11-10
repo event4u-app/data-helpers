@@ -138,6 +138,13 @@ export default defineConfig({
 					label: 'Attributes',
 					collapsed: true,
 					items: [
+						{ label: 'Overview', slug: 'attributes/overview' },
+						{ label: 'Validation Attributes', slug: 'attributes/validation' },
+						{ label: 'Casting Attributes', slug: 'attributes/casting' },
+						{ label: 'Mapping Attributes', slug: 'attributes/mapping' },
+						{ label: 'Visibility Attributes', slug: 'attributes/visibility' },
+						{ label: 'Conditional Attributes', slug: 'attributes/conditional' },
+						{ label: 'Performance Attributes', slug: 'attributes/performance' },
                         {
                             label: 'Detailed',
                             collapsed: true,
@@ -148,13 +155,6 @@ export default defineConfig({
                                 { label: 'UniqueCallback', slug: 'attributes/detailed/unique-callback' },
                             ],
                         },
-						{ label: 'Overview', slug: 'attributes/overview' },
-						{ label: 'Validation Attributes', slug: 'attributes/validation' },
-						{ label: 'Casting Attributes', slug: 'attributes/casting' },
-						{ label: 'Mapping Attributes', slug: 'attributes/mapping' },
-						{ label: 'Visibility Attributes', slug: 'attributes/visibility' },
-						{ label: 'Conditional Attributes', slug: 'attributes/conditional' },
-						{ label: 'Performance Attributes', slug: 'attributes/performance' },
 					],
 				},
                 {
