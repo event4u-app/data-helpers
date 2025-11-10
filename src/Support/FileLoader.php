@@ -177,8 +177,29 @@ final class FileLoader
             throw new InvalidArgumentException('Failed to read file: ' . $filePath);
         }
 
+        // Clean up content: remove XML declarations, comments, and invalid characters
+        $trimmedContent = trim($content);
+
+        // Remove NULL bytes (0x0) which are invalid in XML
+        $withoutNullBytes = str_replace("\0", '', $trimmedContent);
+
+        // Remove XML declaration
+        $withoutDeclaration = preg_replace('/<' . '?xml[^?]*?' . '>/i', '', $withoutNullBytes);
+        if (null === $withoutDeclaration) {
+            throw new InvalidArgumentException('Failed to process XML content: ' . $filePath);
+        }
+
+        // Remove comments
+        $withoutComments = preg_replace('/<!--.*?-->/s', '', $withoutDeclaration);
+        if (null === $withoutComments) {
+            throw new InvalidArgumentException('Failed to process XML content: ' . $filePath);
+        }
+
+        $cleanedContent = trim($withoutComments);
+
         // Wrap content in a temporary root element to make it valid XML
-        $wrappedContent = '<?xml version="1.0" encoding="UTF-8"?><root>' . $content . '</root>';
+        $xmlDeclaration = '<' . '?xml version="1.0" encoding="UTF-8"?' . '>';
+        $wrappedContent = $xmlDeclaration . '<root>' . $cleanedContent . '</root>';
 
         // Suppress errors and warnings
         set_error_handler(static function (): bool {
@@ -192,7 +213,7 @@ final class FileLoader
         }
 
         if (false === $xml) {
-            throw new InvalidArgumentException('Failed to parse XML file with multiple roots: ' . $filePath);
+            throw new InvalidArgumentException('Failed to parse XML file with custom method: ' . $filePath);
         }
 
         $result = [];
