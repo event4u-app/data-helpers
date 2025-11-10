@@ -45,9 +45,9 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
 
             $target = [];
             $mapping = [
-                'company_name' => '{{ name }}',
-                'company_email' => '{{ email }}',
-                'dept_codes' => '{{ departments.department.*.code }}',
+                'company_name' => '{{ company.name }}',
+                'company_email' => '{{ company.email }}',
+                'dept_codes' => '{{ company.departments.department.*.code }}',
             ];
 
             $result = DataMapper::pipeline([
@@ -128,15 +128,15 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
             $company = new Company();
 
             $mapping = [
-                'name' => '{{ name }}',
-                'email' => '{{ email }}',
-                'founded_year' => '{{ founded_year }}',
+                'name' => '{{ company.name }}',
+                'email' => '{{ company.email }}',
+                'founded_year' => '{{ company.founded_year }}',
                 'departments' => [
                     '*' => [
-                        'name' => '{{ departments.department.*.name }}',
-                        'code' => '{{ departments.department.*.code }}',
-                        'budget' => '{{ departments.department.*.budget }}',
-                        'employee_count' => '{{ departments.department.*.employee_count }}',
+                        'name' => '{{ company.departments.department.*.name }}',
+                        'code' => '{{ company.departments.department.*.code }}',
+                        'budget' => '{{ company.departments.department.*.budget }}',
+                        'employee_count' => '{{ company.departments.department.*.employee_count }}',
                     ],
                 ],
             ];
@@ -201,15 +201,15 @@ describe('DataMapper pipeQuery() with file loading', function(): void {
             $company = new EntityCompany();
 
             $mapping = [
-                'name' => '{{ name }}',
-                'email' => '{{ email }}',
-                'founded_year' => '{{ founded_year }}',
+                'name' => '{{ company.name }}',
+                'email' => '{{ company.email }}',
+                'founded_year' => '{{ company.founded_year }}',
                 'departments' => [
                     '*' => [
-                        'name' => '{{ departments.department.*.name }}',
-                        'code' => '{{ departments.department.*.code }}',
-                        'budget' => '{{ departments.department.*.budget }}',
-                        'employee_count' => '{{ departments.department.*.employee_count }}',
+                        'name' => '{{ company.departments.department.*.name }}',
+                        'code' => '{{ company.departments.department.*.code }}',
+                        'budget' => '{{ company.departments.department.*.budget }}',
+                        'employee_count' => '{{ company.departments.department.*.employee_count }}',
                     ],
                 ],
             ];

@@ -42,12 +42,12 @@ describe('DataMapper to JSON/XML String', function(): void {
             // Use JSON string as target
             $target = '{}';
             $mapping = [
-                'company_name' => '{{ name }}',
-                'company_reg' => '{{ registration_number }}',
-                'company_email' => '{{ email }}',
-                'company_phone' => '{{ phone }}',
-                'company_founded_year' => '{{ founded_year }}',
-                'company_employee_count' => '{{ employee_count }}',
+                'company_name' => '{{ company.name }}',
+                'company_reg' => '{{ company.registration_number }}',
+                'company_email' => '{{ company.email }}',
+                'company_phone' => '{{ company.phone }}',
+                'company_founded_year' => '{{ company.founded_year }}',
+                'company_employee_count' => '{{ company.employee_count }}',
             ];
 
             $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
@@ -157,12 +157,12 @@ describe('DataMapper to JSON/XML String', function(): void {
             // Use XML string as target
             $target = '<?xml version="1.0"?><root></root>';
             $mapping = [
-                'company_name' => '{{ name }}',
-                'company_reg' => '{{ registration_number }}',
-                'company_email' => '{{ email }}',
-                'company_phone' => '{{ phone }}',
-                'company_founded_year' => '{{ founded_year }}',
-                'company_employee_count' => '{{ employee_count }}',
+                'company_name' => '{{ company.name }}',
+                'company_reg' => '{{ company.registration_number }}',
+                'company_email' => '{{ company.email }}',
+                'company_phone' => '{{ company.phone }}',
+                'company_founded_year' => '{{ company.founded_year }}',
+                'company_employee_count' => '{{ company.employee_count }}',
             ];
 
             $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
@@ -185,12 +185,12 @@ describe('DataMapper to JSON/XML String', function(): void {
             // Use XML string as target
             $target = '<?xml version="1.0"?><root></root>';
             $mapping = [
-                'company_name' => '{{ name }}',
+                'company_name' => '{{ company.name }}',
                 'departments' => [
                     '*' => [
-                        'name' => '{{ departments.department.*.name }}',
-                        'code' => '{{ departments.department.*.code }}',
-                        'budget' => '{{ departments.department.*.budget }}',
+                        'name' => '{{ company.departments.department.*.name }}',
+                        'code' => '{{ company.departments.department.*.code }}',
+                        'budget' => '{{ company.departments.department.*.budget }}',
                     ],
                 ],
             ];
@@ -210,8 +210,8 @@ describe('DataMapper to JSON/XML String', function(): void {
 
             $target = '<?xml version="1.0"?><root></root>';
             $mapping = [
-                'dept_names' => '{{ departments.department.*.name }}',
-                'dept_codes' => '{{ departments.department.*.code }}',
+                'dept_names' => '{{ company.departments.department.*.name }}',
+                'dept_codes' => '{{ company.departments.department.*.code }}',
             ];
 
             $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();

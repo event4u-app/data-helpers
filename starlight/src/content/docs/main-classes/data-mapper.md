@@ -159,6 +159,115 @@ Templates use `{{ }}` for dynamic values:
 - **Dot-notation:** `'{{ user.profile.address.street }}'` - Nested access
 - **Wildcards:** `'{{ users.*.email }}'` - Array operations
 
+### Loading Data from Files
+
+DataMapper can load data directly from JSON and XML files using `sourceFile()`:
+
+<!-- skip-test: Do net test file import here -->
+```php
+// Load from JSON file
+$result = DataMapper::sourceFile('/path/to/data.json')
+    ->template([
+        'name' => '{{ user.name }}',
+        'email' => '{{ user.email }}',
+    ])
+    ->map()
+    ->getTarget();
+
+// Load from XML file
+$result = DataMapper::sourceFile('/path/to/data.xml')
+    ->template([
+        'name' => '{{ company.name }}',
+        'email' => '{{ company.email }}',
+    ])
+    ->map()
+    ->getTarget();
+```
+
+#### ⚠️ Important: XML Root Element Preservation
+
+When loading XML files, **the root element name is always preserved** and must be included in your mapping paths:
+
+```php
+// XML file content:
+// <?xml version="1.0"?>
+// <company>
+//     <name>TechCorp</name>
+//     <email>info@techcorp.com</email>
+// </company>
+
+// ✅ Correct: Include root element in path
+$mapping = [
+    'company_name' => '{{ company.name }}',
+    'company_email' => '{{ company.email }}',
+];
+
+// ❌ Wrong: Missing root element (will return null)
+$mapping = [
+    'company_name' => '{{ name }}',
+    'company_email' => '{{ email }}',
+];
+```
+
+**Different root elements require different paths:**
+
+```php
+// For <VitaCost>...</VitaCost>
+'number' => '{{ VitaCost.ConstructionSite.nr_lv }}'
+
+// For <Datafields>...</Datafields>
+'salutation' => '{{ Datafields.contact_persons.contact_person.salutation }}'
+
+// For <company>...</company>
+'name' => '{{ company.name }}'
+```
+
+**Example with nested XML arrays:**
+
+```php
+// XML: <company><departments><department>...</department></departments></company>
+$mapping = [
+    'company_name' => '{{ company.name }}',
+    'departments' => [
+        '*' => [
+            'name' => '{{ company.departments.department.*.name }}',
+            'code' => '{{ company.departments.department.*.code }}',
+        ],
+    ],
+];
+```
+
+#### XML Files with Multiple Root Elements
+
+In some cases, you may need to work with XML files that have multiple root elements (technically invalid XML, but sometimes necessary):
+
+```php
+// XML file with multiple roots:
+// <LVDATA><LV>...</LV></LVDATA>
+// <POSDATA><POS>...</POS></POSDATA>
+
+// Both root elements are preserved and accessible
+$mapping = [
+    'lv_id' => '{{ LVDATA.LV.ID_LV }}',
+    'lv_number' => '{{ LVDATA.LV.NR_LV }}',
+    'positions' => [
+        '*' => [
+            'position_id' => '{{ POSDATA.POS.*.ID_POSITION }}',
+            'lv_id' => '{{ POSDATA.POS.*.ID_LV }}',
+        ],
+    ],
+];
+
+$result = DataMapper::sourceFile('/path/to/multi-root.xml')
+    ->template($mapping)
+    ->map()
+    ->getTarget();
+```
+
+The FileLoader automatically detects and handles multiple root elements by wrapping them in a temporary container during parsing.
+
+💡 **See the complete example:** Run `php examples/data-mapper/xml-file-mapping.php` for a comprehensive demonstration of XML file loading with different root elements.
+
 ### Mapping to Objects
 
 <!-- skip-test: declares UserDto class -->

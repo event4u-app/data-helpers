@@ -468,6 +468,8 @@ $result = DataMapper::from($source)
 
 **💡 No-Code Data Mapping:** Templates can be stored in a database and created with a drag-and-drop editor - perfect for import wizards, API integrations and ETL pipelines without writing code!
 
+**⚠️ XML Files:** When loading XML files with `sourceFile()`, the root element name is preserved. Always include it in your paths: `'{{ company.name }}'` for `<company><name>...</name></company>`.
+
 📖 **[DataMapper Documentation](https://event4u-app.github.io/data-helpers/main-classes/data-mapper/)**
 
 ### 7️⃣ Utility Helpers - Common Data Operations

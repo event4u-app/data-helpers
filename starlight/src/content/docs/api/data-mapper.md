@@ -31,6 +31,31 @@ $mapper = DataMapper::template([
 ]);
 ```
 
+### `DataMapper::sourceFile(string $filePath): FluentDataMapper`
+
+Create mapper with data loaded from a JSON or XML file.
+
+<!-- skip-test: Do net test file import here -->
+```php
+use event4u\DataHelpers\DataMapper;
+
+// Load from JSON file
+$mapper = DataMapper::sourceFile('/path/to/data.json');
+
+// Load from XML file
+$mapper = DataMapper::sourceFile('/path/to/data.xml');
+```
+
+**⚠️ Important for XML files:** The root element name is preserved and must be included in mapping paths:
+
+```php
+// For XML: <company><name>TechCorp</name></company>
+$mapper = DataMapper::sourceFile('/path/to/company.xml')
+    ->template([
+        'name' => '{{ company.name }}',  // ✅ Include root element
+    ]);
+```
+
 ## Configuration Methods
 
 ### `source(mixed $source): self`

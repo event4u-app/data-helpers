@@ -81,11 +81,39 @@ final class FileLoader
     /**
      * Load and parse an XML file to array.
      *
+     * The root element name is preserved as the top-level key in the returned array.
+     * For example, <VitaCost><ConstructionSite>...</ConstructionSite></VitaCost>
+     * will return ['VitaCost' => ['ConstructionSite' => [...]]].
+     *
+     * This method first tries the native SimpleXML method. If that fails (e.g., due to
+     * invalid XML with multiple root elements), it falls back to a custom parsing method.
+     *
      * @param string $filePath Path to XML file
      * @return array<string, mixed>
      * @throws InvalidArgumentException If XML parsing fails
      */
     private static function loadXmlFile(string $filePath): array
+    {
+        // Try native XML loading first (standard SimpleXML)
+        try {
+            return self::loadXmlFileWithNativeMethod($filePath);
+        } catch (InvalidArgumentException $e) {
+            // If native loading fails, try custom method (e.g., for invalid XML with multiple roots)
+            return self::loadXmlFileWithCustomMethod($filePath);
+        }
+    }
+
+    /**
+     * Load and parse an XML file using the native SimpleXML method.
+     *
+     * This is the standard XML loading method that uses SimpleXML.
+     * The root element name is preserved as the top-level key in the returned array.
+     *
+     * @param string $filePath Path to XML file
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException If XML parsing fails
+     */
+    private static function loadXmlFileWithNativeMethod(string $filePath): array
     {
         // Suppress errors and warnings to prevent ErrorException in Laravel
         set_error_handler(static function (): bool {
@@ -103,6 +131,9 @@ final class FileLoader
             throw new InvalidArgumentException('Failed to parse XML file: ' . $filePath);
         }
 
+        // Get the root element name
+        $rootElementName = $xml->getName();
+
         $jsonString = json_encode($xml);
         if (false === $jsonString) {
             throw new InvalidArgumentException('Failed to encode XML to JSON: ' . $filePath);
@@ -110,7 +141,80 @@ final class FileLoader
 
         $result = json_decode($jsonString, true);
 
-        return is_array($result) ? $result : [];
+        // Wrap the result with the root element name to preserve it
+        if (is_array($result)) {
+            return [$rootElementName => $result];
+        }
+
+        return [];
+    }
+
+    /**
+     * Load and parse an XML file using a custom method.
+     *
+     * This handles "invalid" XML files that cannot be parsed by SimpleXML,
+     * such as files with multiple root elements.
+     * Each root element is preserved as a top-level key in the returned array.
+     *
+     * For example:
+     * <LVDATA><LV>...</LV></LVDATA>
+     * <POSDATA><POS>...</POS></POSDATA>
+     *
+     * will return:
+     * [
+     *   'LVDATA' => ['LV' => [...]],
+     *   'POSDATA' => ['POS' => [...]]
+     * ]
+     *
+     * @param string $filePath Path to XML file
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException If XML parsing fails
+     */
+    private static function loadXmlFileWithCustomMethod(string $filePath): array
+    {
+        $content = file_get_contents($filePath);
+        if (false === $content) {
+            throw new InvalidArgumentException('Failed to read file: ' . $filePath);
+        }
+
+        // Wrap content in a temporary root element to make it valid XML
+        $wrappedContent = '<?xml version="1.0" encoding="UTF-8"?><root>' . $content . '</root>';
+
+        // Suppress errors and warnings
+        set_error_handler(static function (): bool {
+            return true;
+        });
+
+        try {
+            $xml = simplexml_load_string($wrappedContent);
+        } finally {
+            restore_error_handler();
+        }
+
+        if (false === $xml) {
+            throw new InvalidArgumentException('Failed to parse XML file with multiple roots: ' . $filePath);
+        }
+
+        $result = [];
+
+        // Iterate through each child (original root element)
+        foreach ($xml->children() as $child) {
+            $rootElementName = $child->getName();
+
+            $jsonString = json_encode($child);
+            if (false === $jsonString) {
+                throw new InvalidArgumentException('Failed to encode XML element to JSON: ' . $rootElementName);
+            }
+
+            $childArray = json_decode($jsonString, true);
+
+            // Store with root element name as key
+            if (is_array($childArray)) {
+                $result[$rootElementName] = $childArray;
+            }
+        }
+
+        return $result;
     }
 }
 

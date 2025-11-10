@@ -121,31 +121,31 @@ describe('DataMapper to Dto', function(): void {
 
             $company = new CompanyDto();
             $mapping = [
-                'name' => '{{ name }}',
-                'registration_number' => '{{ registration_number }}',
-                'email' => '{{ email }}',
-                'phone' => '{{ phone }}',
-                'founded_year' => '{{ founded_year }}',
-                'employee_count' => '{{ employee_count }}',
-                'annual_revenue' => '{{ annual_revenue }}',
-                'is_active' => '{{ is_active }}',
+                'name' => '{{ company.name }}',
+                'registration_number' => '{{ company.registration_number }}',
+                'email' => '{{ company.email }}',
+                'phone' => '{{ company.phone }}',
+                'founded_year' => '{{ company.founded_year }}',
+                'employee_count' => '{{ company.employee_count }}',
+                'annual_revenue' => '{{ company.annual_revenue }}',
+                'is_active' => '{{ company.is_active }}',
                 'departments' => [
                     '*' => [
-                        'name' => '{{ departments.department.*.name }}',
-                        'code' => '{{ departments.department.*.code }}',
-                        'budget' => '{{ departments.department.*.budget }}',
-                        'employee_count' => '{{ departments.department.*.employee_count }}',
-                        'manager_name' => '{{ departments.department.*.manager_name }}',
+                        'name' => '{{ company.departments.department.*.name }}',
+                        'code' => '{{ company.departments.department.*.code }}',
+                        'budget' => '{{ company.departments.department.*.budget }}',
+                        'employee_count' => '{{ company.departments.department.*.employee_count }}',
+                        'manager_name' => '{{ company.departments.department.*.manager_name }}',
                     ],
                 ],
                 'projects' => [
                     '*' => [
-                        'name' => '{{ projects.project.*.name }}',
-                        'code' => '{{ projects.project.*.code }}',
-                        'budget' => '{{ projects.project.*.budget }}',
-                        'start_date' => '{{ projects.project.*.start_date }}',
-                        'end_date' => '{{ projects.project.*.end_date }}',
-                        'status' => '{{ projects.project.*.status }}',
+                        'name' => '{{ company.projects.project.*.name }}',
+                        'code' => '{{ company.projects.project.*.code }}',
+                        'budget' => '{{ company.projects.project.*.budget }}',
+                        'start_date' => '{{ company.projects.project.*.start_date }}',
+                        'end_date' => '{{ company.projects.project.*.end_date }}',
+                        'status' => '{{ company.projects.project.*.status }}',
                     ],
                 ],
             ];
@@ -215,13 +215,13 @@ describe('DataMapper to Dto', function(): void {
             // XML mapping
             $xmlCompany = new CompanyDto();
             $xmlMapping = [
-                'name' => '{{ name }}',
-                'email' => '{{ email }}',
-                'founded_year' => '{{ founded_year }}',
+                'name' => '{{ company.name }}',
+                'email' => '{{ company.email }}',
+                'founded_year' => '{{ company.founded_year }}',
                 'departments' => [
                     '*' => [
-                        'name' => '{{ departments.department.*.name }}',
-                        'code' => '{{ departments.department.*.code }}',
+                        'name' => '{{ company.departments.department.*.name }}',
+                        'code' => '{{ company.departments.department.*.code }}',
                     ],
                 ],
             ];
