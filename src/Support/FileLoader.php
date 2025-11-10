@@ -85,8 +85,8 @@ final class FileLoader
      * For example, <VitaCost><ConstructionSite>...</ConstructionSite></VitaCost>
      * will return ['VitaCost' => ['ConstructionSite' => [...]]].
      *
-     * If the XML file contains multiple root elements (which is technically invalid XML
-     * but sometimes needed), use loadXmlFileWithMultipleRoots() instead.
+     * This method first tries the native SimpleXML method. If that fails (e.g., due to
+     * invalid XML with multiple root elements), it falls back to a custom parsing method.
      *
      * @param string $filePath Path to XML file
      * @return array<string, mixed>
@@ -94,36 +94,43 @@ final class FileLoader
      */
     private static function loadXmlFile(string $filePath): array
     {
-        // First try to detect if file has multiple root elements
-        $content = file_get_contents($filePath);
-        if (false === $content) {
-            throw new InvalidArgumentException('Failed to read file: ' . $filePath);
+        // Try native XML loading first (standard SimpleXML)
+        try {
+            return self::loadXmlFileWithNativeMethod($filePath);
+        } catch (InvalidArgumentException $e) {
+            // If native loading fails, try custom method (e.g., for invalid XML with multiple roots)
+            return self::loadXmlFileWithCustomMethod($filePath);
         }
+    }
 
-        // Remove XML declaration and comments
-        $trimmedContent = trim($content);
-        $trimmedContent = preg_replace('/<\?xml[^?]*\?>/i', '', $trimmedContent);
-        $trimmedContent = preg_replace('/<!--.*?-->/s', '', $trimmedContent);
-        $trimmedContent = trim($trimmedContent);
-
-        // Check if file has multiple root elements by trying to parse it
-        // If it fails, it might have multiple roots
+    /**
+     * Load and parse an XML file using the native SimpleXML method.
+     *
+     * This is the standard XML loading method that uses SimpleXML.
+     * The root element name is preserved as the top-level key in the returned array.
+     *
+     * @param string $filePath Path to XML file
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException If XML parsing fails
+     */
+    private static function loadXmlFileWithNativeMethod(string $filePath): array
+    {
+        // Suppress errors and warnings to prevent ErrorException in Laravel
         set_error_handler(static function (): bool {
-            return true;
+            return true; // Suppress the error
         });
 
         try {
-            $xml = simplexml_load_string($trimmedContent);
+            $xml = simplexml_load_file($filePath);
         } finally {
+            // Always restore the previous error handler
             restore_error_handler();
         }
 
-        // If parsing failed, try with multiple roots
         if (false === $xml) {
-            return self::loadXmlFileWithMultipleRoots($filePath);
+            throw new InvalidArgumentException('Failed to parse XML file: ' . $filePath);
         }
 
-        // Standard XML loading with single root element
         // Get the root element name
         $rootElementName = $xml->getName();
 
@@ -143,9 +150,10 @@ final class FileLoader
     }
 
     /**
-     * Load and parse an XML file with multiple root elements to array.
+     * Load and parse an XML file using a custom method.
      *
-     * This handles "invalid" XML files that have multiple root elements.
+     * This handles "invalid" XML files that cannot be parsed by SimpleXML,
+     * such as files with multiple root elements.
      * Each root element is preserved as a top-level key in the returned array.
      *
      * For example:
@@ -162,7 +170,7 @@ final class FileLoader
      * @return array<string, mixed>
      * @throws InvalidArgumentException If XML parsing fails
      */
-    private static function loadXmlFileWithMultipleRoots(string $filePath): array
+    private static function loadXmlFileWithCustomMethod(string $filePath): array
     {
         $content = file_get_contents($filePath);
         if (false === $content) {

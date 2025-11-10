@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit\XMLs;
 
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\Support\FileLoader;
 
-describe('XML with Multiple Root Elements', function () {
-    it('loads XML file with multiple root elements', function () {
+describe('XML with Multiple Root Elements', function(): void {
+    it('loads XML file with multiple root elements', function(): void {
         $xmlFile = __DIR__ . '/../../Utils/XMLs/multi-root.xml';
 
         $result = DataMapper::sourceFile($xmlFile)
@@ -39,11 +40,11 @@ describe('XML with Multiple Root Elements', function () {
             ->and($result['positions'][2]['lv_id'])->toBe('2076436701850');
     });
 
-    it('loads XML file with multiple root elements as array', function () {
+    it('loads XML file with multiple root elements as array', function(): void {
         $xmlFile = __DIR__ . '/../../Utils/XMLs/multi-root.xml';
 
         // Use FileLoader directly to check the loaded structure
-        $result = \event4u\DataHelpers\Support\FileLoader::loadAsArray($xmlFile);
+        $result = FileLoader::loadAsArray($xmlFile);
 
         expect($result)->toBeArray()
             ->and($result)->toHaveKey('LVDATA')
@@ -56,7 +57,7 @@ describe('XML with Multiple Root Elements', function () {
             ->and($result['POSDATA']['POS'])->toHaveCount(3);
     });
 
-    it('maps both root elements independently', function () {
+    it('maps both root elements independently', function(): void {
         $xmlFile = __DIR__ . '/../../Utils/XMLs/multi-root.xml';
 
         // Map only LVDATA
@@ -94,7 +95,7 @@ describe('XML with Multiple Root Elements', function () {
             ->and($posResult['positions'][2]['id'])->toBe('2075853401853');
     });
 
-    it('handles empty mapping with multiple root elements', function () {
+    it('handles empty mapping with multiple root elements', function(): void {
         $xmlFile = __DIR__ . '/../../Utils/XMLs/multi-root.xml';
 
         $result = DataMapper::sourceFile($xmlFile)
@@ -106,4 +107,3 @@ describe('XML with Multiple Root Elements', function () {
             ->and($result)->toBeEmpty();
     });
 });
-

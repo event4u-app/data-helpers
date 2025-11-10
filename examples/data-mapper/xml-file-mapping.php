@@ -188,4 +188,3 @@ echo "5. Forgetting the root element will result in null values\n";
 echo "================================================================================\n";
 echo "All examples completed successfully!\n";
 echo "================================================================================\n";
-

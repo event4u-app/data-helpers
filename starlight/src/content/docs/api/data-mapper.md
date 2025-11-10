@@ -35,6 +35,7 @@ $mapper = DataMapper::template([
 
 Create mapper with data loaded from a JSON or XML file.
 
+<!-- skip-test: Do net test file import here -->
 ```php
 use event4u\DataHelpers\DataMapper;
 

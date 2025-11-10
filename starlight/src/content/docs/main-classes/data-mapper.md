@@ -163,6 +163,7 @@ Templates use `{{ }}` for dynamic values:
 
 DataMapper can load data directly from JSON and XML files using `sourceFile()`:
 
+<!-- skip-test: Do net test file import here -->
 ```php
 // Load from JSON file
 $result = DataMapper::sourceFile('/path/to/data.json')
