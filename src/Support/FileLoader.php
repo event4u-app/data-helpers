@@ -81,6 +81,10 @@ final class FileLoader
     /**
      * Load and parse an XML file to array.
      *
+     * The root element name is preserved as the top-level key in the returned array.
+     * For example, <VitaCost><ConstructionSite>...</ConstructionSite></VitaCost>
+     * will return ['VitaCost' => ['ConstructionSite' => [...]]].
+     *
      * @param string $filePath Path to XML file
      * @return array<string, mixed>
      * @throws InvalidArgumentException If XML parsing fails
@@ -103,6 +107,9 @@ final class FileLoader
             throw new InvalidArgumentException('Failed to parse XML file: ' . $filePath);
         }
 
+        // Get the root element name
+        $rootElementName = $xml->getName();
+
         $jsonString = json_encode($xml);
         if (false === $jsonString) {
             throw new InvalidArgumentException('Failed to encode XML to JSON: ' . $filePath);
@@ -110,7 +117,12 @@ final class FileLoader
 
         $result = json_decode($jsonString, true);
 
-        return is_array($result) ? $result : [];
+        // Wrap the result with the root element name to preserve it
+        if (is_array($result)) {
+            return [$rootElementName => $result];
+        }
+
+        return [];
     }
 }
 

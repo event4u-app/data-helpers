@@ -130,34 +130,34 @@ describe('DataMapper to Doctrine Entity', function(): void {
             // Map everything in one go - DataMapper automatically detects and maps the relation!
             $company = new Company();
             $mapping = [
-                'name' => '{{ name }}',
-                'registration_number' => '{{ registration_number }}',
-                'email' => '{{ email }}',
-                'phone' => '{{ phone }}',
-                'address' => '{{ address }}',
-                'city' => '{{ city }}',
-                'country' => '{{ country }}',
-                'founded_year' => '{{ founded_year }}',
-                'employee_count' => '{{ employee_count }}',
-                'annual_revenue' => '{{ annual_revenue }}',
-                'is_active' => '{{ is_active }}',
+                'name' => '{{ company.name }}',
+                'registration_number' => '{{ company.registration_number }}',
+                'email' => '{{ company.email }}',
+                'phone' => '{{ company.phone }}',
+                'address' => '{{ company.address }}',
+                'city' => '{{ company.city }}',
+                'country' => '{{ company.country }}',
+                'founded_year' => '{{ company.founded_year }}',
+                'employee_count' => '{{ company.employee_count }}',
+                'annual_revenue' => '{{ company.annual_revenue }}',
+                'is_active' => '{{ company.is_active }}',
                 'departments' => [
                     '*' => [
-                        'name' => '{{ departments.department.*.name }}',
-                        'code' => '{{ departments.department.*.code }}',
-                        'budget' => '{{ departments.department.*.budget }}',
-                        'employee_count' => '{{ departments.department.*.employee_count }}',
-                        'manager_name' => '{{ departments.department.*.manager_name }}',
+                        'name' => '{{ company.departments.department.*.name }}',
+                        'code' => '{{ company.departments.department.*.code }}',
+                        'budget' => '{{ company.departments.department.*.budget }}',
+                        'employee_count' => '{{ company.departments.department.*.employee_count }}',
+                        'manager_name' => '{{ company.departments.department.*.manager_name }}',
                     ],
                 ],
                 'projects' => [
                     '*' => [
-                        'name' => '{{ projects.project.*.name }}',
-                        'code' => '{{ projects.project.*.code }}',
-                        'budget' => '{{ projects.project.*.budget }}',
-                        'start_date' => '{{ projects.project.*.start_date }}',
-                        'end_date' => '{{ projects.project.*.end_date }}',
-                        'status' => '{{ projects.project.*.status }}',
+                        'name' => '{{ company.projects.project.*.name }}',
+                        'code' => '{{ company.projects.project.*.code }}',
+                        'budget' => '{{ company.projects.project.*.budget }}',
+                        'start_date' => '{{ company.projects.project.*.start_date }}',
+                        'end_date' => '{{ company.projects.project.*.end_date }}',
+                        'status' => '{{ company.projects.project.*.status }}',
                     ],
                 ],
             ];
@@ -263,14 +263,14 @@ describe('DataMapper to Doctrine Entity', function(): void {
             // Map XML to Company entity
             $xmlCompany = new Company();
             $xmlMapping = [
-                'name' => '{{ name }}',
-                'registration_number' => '{{ registration_number }}',
-                'email' => '{{ email }}',
-                'phone' => '{{ phone }}',
-                'founded_year' => '{{ founded_year }}',
-                'employee_count' => '{{ employee_count }}',
-                'annual_revenue' => '{{ annual_revenue }}',
-                'is_active' => '{{ is_active }}',
+                'name' => '{{ company.name }}',
+                'registration_number' => '{{ company.registration_number }}',
+                'email' => '{{ company.email }}',
+                'phone' => '{{ company.phone }}',
+                'founded_year' => '{{ company.founded_year }}',
+                'employee_count' => '{{ company.employee_count }}',
+                'annual_revenue' => '{{ company.annual_revenue }}',
+                'is_active' => '{{ company.is_active }}',
             ];
             $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlCompany)->template(
                 $xmlMapping
@@ -325,11 +325,11 @@ describe('DataMapper to Doctrine Entity', function(): void {
             // Map XML departments to Department entity
             $xmlDept = new Department();
             $xmlMapping = [
-                'name' => '{{ departments.department.0.name }}',
-                'code' => '{{ departments.department.0.code }}',
-                'budget' => '{{ departments.department.0.budget }}',
-                'employee_count' => '{{ departments.department.0.employee_count }}',
-                'manager_name' => '{{ departments.department.0.manager_name }}',
+                'name' => '{{ company.departments.department.0.name }}',
+                'code' => '{{ company.departments.department.0.code }}',
+                'budget' => '{{ company.departments.department.0.budget }}',
+                'employee_count' => '{{ company.departments.department.0.employee_count }}',
+                'manager_name' => '{{ company.departments.department.0.manager_name }}',
             ];
             $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlDept)->template($xmlMapping)->map()->getTarget();
 

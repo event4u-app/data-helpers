@@ -127,9 +127,9 @@ describe('DataMapper Enum Support', function(): void {
         $xmlFile = __DIR__ . '/../../Utils/XMLs/version1.xml';
 
         $mapping = [
-            'salutation' => '{{ contact_persons.contact_person.salutation }}',
-            'surname' => '{{ contact_persons.contact_person.surname }}',
-            'email' => '{{ contact_persons.contact_person.email }}',
+            'salutation' => '{{ Datafields.contact_persons.contact_person.salutation }}',
+            'surname' => '{{ Datafields.contact_persons.contact_person.surname }}',
+            'email' => '{{ Datafields.contact_persons.contact_person.email }}',
         ];
 
         $contactPerson = new ContactPerson();

@@ -25,10 +25,10 @@ describe('DataMapper to Array', function(): void {
             // Map from XML (different structure)
             $xmlTarget = [];
             $xmlMapping = [
-                'company_name' => '{{ name }}',
-                'company_reg' => '{{ registration_number }}',
-                'company_email' => '{{ email }}',
-                'company_phone' => '{{ phone }}',
+                'company_name' => '{{ company.name }}',
+                'company_reg' => '{{ company.registration_number }}',
+                'company_email' => '{{ company.email }}',
+                'company_phone' => '{{ company.phone }}',
             ];
             $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlTarget)->template(
                 $xmlMapping
@@ -134,19 +134,19 @@ describe('DataMapper to Array', function(): void {
             // Map everything in one go - Company fields + Department arrays
             $target = [];
             $mapping = [
-                'company_name' => '{{ name }}',
-                'company_reg' => '{{ registration_number }}',
-                'company_email' => '{{ email }}',
-                'company_phone' => '{{ phone }}',
-                'company_founded_year' => '{{ founded_year }}',
-                'company_employee_count' => '{{ employee_count }}',
-                'company_annual_revenue' => '{{ annual_revenue }}',
-                'company_is_active' => '{{ is_active }}',
-                'department_names' => '{{ departments.department.*.name }}',
-                'department_codes' => '{{ departments.department.*.code }}',
-                'department_budgets' => '{{ departments.department.*.budget }}',
-                'department_employee_counts' => '{{ departments.department.*.employee_count }}',
-                'department_manager_names' => '{{ departments.department.*.manager_name }}',
+                'company_name' => '{{ company.name }}',
+                'company_reg' => '{{ company.registration_number }}',
+                'company_email' => '{{ company.email }}',
+                'company_phone' => '{{ company.phone }}',
+                'company_founded_year' => '{{ company.founded_year }}',
+                'company_employee_count' => '{{ company.employee_count }}',
+                'company_annual_revenue' => '{{ company.annual_revenue }}',
+                'company_is_active' => '{{ company.is_active }}',
+                'department_names' => '{{ company.departments.department.*.name }}',
+                'department_codes' => '{{ company.departments.department.*.code }}',
+                'department_budgets' => '{{ company.departments.department.*.budget }}',
+                'department_employee_counts' => '{{ company.departments.department.*.employee_count }}',
+                'department_manager_names' => '{{ company.departments.department.*.manager_name }}',
             ];
             $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
 
@@ -225,11 +225,11 @@ describe('DataMapper to Array', function(): void {
             $mapping = [
                 'all_departments' => [
                     '*' => [
-                        'name' => '{{ departments.department.*.name }}',
-                        'code' => '{{ departments.department.*.code }}',
-                        'budget' => '{{ departments.department.*.budget }}',
-                        'employee_count' => '{{ departments.department.*.employee_count }}',
-                        'manager_name' => '{{ departments.department.*.manager_name }}',
+                        'name' => '{{ company.departments.department.*.name }}',
+                        'code' => '{{ company.departments.department.*.code }}',
+                        'budget' => '{{ company.departments.department.*.budget }}',
+                        'employee_count' => '{{ company.departments.department.*.employee_count }}',
+                        'manager_name' => '{{ company.departments.department.*.manager_name }}',
                     ],
                 ],
             ];
@@ -290,9 +290,9 @@ describe('DataMapper to Array', function(): void {
             $target = [];
 
             $mapping = [
-                'dept_names' => '{{ departments.department.*.name }}',
-                'dept_codes' => '{{ departments.department.*.code }}',
-                'dept_budgets' => '{{ departments.department.*.budget }}',
+                'dept_names' => '{{ company.departments.department.*.name }}',
+                'dept_codes' => '{{ company.departments.department.*.code }}',
+                'dept_budgets' => '{{ company.departments.department.*.budget }}',
             ];
 
             $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
@@ -349,12 +349,12 @@ describe('DataMapper to Array', function(): void {
             $target = [];
 
             $mapping = [
-                'dept0_name' => '{{ departments.department.0.name }}',
-                'dept1_name' => '{{ departments.department.1.name }}',
-                'dept2_name' => '{{ departments.department.2.name }}',
-                'dept0_code' => '{{ departments.department.0.code }}',
-                'dept1_code' => '{{ departments.department.1.code }}',
-                'dept2_code' => '{{ departments.department.2.code }}',
+                'dept0_name' => '{{ company.departments.department.0.name }}',
+                'dept1_name' => '{{ company.departments.department.1.name }}',
+                'dept2_name' => '{{ company.departments.department.2.name }}',
+                'dept0_code' => '{{ company.departments.department.0.code }}',
+                'dept1_code' => '{{ company.departments.department.1.code }}',
+                'dept2_code' => '{{ company.departments.department.2.code }}',
             ];
 
             $result = DataMapper::sourceFile($xmlFile)->target($target)->template($mapping)->map()->getTarget();
@@ -386,8 +386,8 @@ describe('DataMapper to Array', function(): void {
             // Map from XML
             $xmlTarget = [];
             $xmlMapping = [
-                'names' => '{{ departments.department.*.name }}',
-                'codes' => '{{ departments.department.*.code }}',
+                'names' => '{{ company.departments.department.*.name }}',
+                'codes' => '{{ company.departments.department.*.code }}',
             ];
             $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlTarget)->template(
                 $xmlMapping
@@ -471,10 +471,10 @@ describe('DataMapper to Array', function(): void {
             // Map complete structure from XML
             $xmlTarget = [];
             $xmlMapping = [
-                'company_name' => '{{ name }}',
-                'departments' => '{{ departments.department }}',
-                'first_dept' => '{{ departments.department.0.name }}',
-                'dept_count' => '{{ employee_count }}',
+                'company_name' => '{{ company.name }}',
+                'departments' => '{{ company.departments.department }}',
+                'first_dept' => '{{ company.departments.department.0.name }}',
+                'dept_count' => '{{ company.employee_count }}',
             ];
             $xmlResult = DataMapper::sourceFile($xmlFile)->target($xmlTarget)->template(
                 $xmlMapping
