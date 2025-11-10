@@ -85,28 +85,45 @@ final class FileLoader
      * For example, <VitaCost><ConstructionSite>...</ConstructionSite></VitaCost>
      * will return ['VitaCost' => ['ConstructionSite' => [...]]].
      *
+     * If the XML file contains multiple root elements (which is technically invalid XML
+     * but sometimes needed), use loadXmlFileWithMultipleRoots() instead.
+     *
      * @param string $filePath Path to XML file
      * @return array<string, mixed>
      * @throws InvalidArgumentException If XML parsing fails
      */
     private static function loadXmlFile(string $filePath): array
     {
-        // Suppress errors and warnings to prevent ErrorException in Laravel
+        // First try to detect if file has multiple root elements
+        $content = file_get_contents($filePath);
+        if (false === $content) {
+            throw new InvalidArgumentException('Failed to read file: ' . $filePath);
+        }
+
+        // Remove XML declaration and comments
+        $trimmedContent = trim($content);
+        $trimmedContent = preg_replace('/<\?xml[^?]*\?>/i', '', $trimmedContent);
+        $trimmedContent = preg_replace('/<!--.*?-->/s', '', $trimmedContent);
+        $trimmedContent = trim($trimmedContent);
+
+        // Check if file has multiple root elements by trying to parse it
+        // If it fails, it might have multiple roots
         set_error_handler(static function (): bool {
-            return true; // Suppress the error
+            return true;
         });
 
         try {
-            $xml = simplexml_load_file($filePath);
+            $xml = simplexml_load_string($trimmedContent);
         } finally {
-            // Always restore the previous error handler
             restore_error_handler();
         }
 
+        // If parsing failed, try with multiple roots
         if (false === $xml) {
-            throw new InvalidArgumentException('Failed to parse XML file: ' . $filePath);
+            return self::loadXmlFileWithMultipleRoots($filePath);
         }
 
+        // Standard XML loading with single root element
         // Get the root element name
         $rootElementName = $xml->getName();
 
@@ -123,6 +140,73 @@ final class FileLoader
         }
 
         return [];
+    }
+
+    /**
+     * Load and parse an XML file with multiple root elements to array.
+     *
+     * This handles "invalid" XML files that have multiple root elements.
+     * Each root element is preserved as a top-level key in the returned array.
+     *
+     * For example:
+     * <LVDATA><LV>...</LV></LVDATA>
+     * <POSDATA><POS>...</POS></POSDATA>
+     *
+     * will return:
+     * [
+     *   'LVDATA' => ['LV' => [...]],
+     *   'POSDATA' => ['POS' => [...]]
+     * ]
+     *
+     * @param string $filePath Path to XML file
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException If XML parsing fails
+     */
+    private static function loadXmlFileWithMultipleRoots(string $filePath): array
+    {
+        $content = file_get_contents($filePath);
+        if (false === $content) {
+            throw new InvalidArgumentException('Failed to read file: ' . $filePath);
+        }
+
+        // Wrap content in a temporary root element to make it valid XML
+        $wrappedContent = '<?xml version="1.0" encoding="UTF-8"?><root>' . $content . '</root>';
+
+        // Suppress errors and warnings
+        set_error_handler(static function (): bool {
+            return true;
+        });
+
+        try {
+            $xml = simplexml_load_string($wrappedContent);
+        } finally {
+            restore_error_handler();
+        }
+
+        if (false === $xml) {
+            throw new InvalidArgumentException('Failed to parse XML file with multiple roots: ' . $filePath);
+        }
+
+        $result = [];
+
+        // Iterate through each child (original root element)
+        foreach ($xml->children() as $child) {
+            $rootElementName = $child->getName();
+
+            $jsonString = json_encode($child);
+            if (false === $jsonString) {
+                throw new InvalidArgumentException('Failed to encode XML element to JSON: ' . $rootElementName);
+            }
+
+            $childArray = json_decode($jsonString, true);
+
+            // Store with root element name as key
+            if (is_array($childArray)) {
+                $result[$rootElementName] = $childArray;
+            }
+        }
+
+        return $result;
     }
 }
 

@@ -574,7 +574,7 @@ describe('DataMapper to Array', function(): void {
 
         it('throws exception for invalid XML file', function(): void {
             // Create a temporary file with invalid XML
-            $xmlFile = sys_get_temp_dir() . '/invalid.xml';
+            $xmlFile = sys_get_temp_dir() . '/multi-root.xml';
             file_put_contents($xmlFile, '<invalid><xml>');
 
             $target = [];

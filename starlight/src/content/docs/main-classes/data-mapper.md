@@ -236,6 +236,35 @@ $mapping = [
 ];
 ```
 
+#### XML Files with Multiple Root Elements
+
+In some cases, you may need to work with XML files that have multiple root elements (technically invalid XML, but sometimes necessary):
+
+```php
+// XML file with multiple roots:
+// <LVDATA><LV>...</LV></LVDATA>
+// <POSDATA><POS>...</POS></POSDATA>
+
+// Both root elements are preserved and accessible
+$mapping = [
+    'lv_id' => '{{ LVDATA.LV.ID_LV }}',
+    'lv_number' => '{{ LVDATA.LV.NR_LV }}',
+    'positions' => [
+        '*' => [
+            'position_id' => '{{ POSDATA.POS.*.ID_POSITION }}',
+            'lv_id' => '{{ POSDATA.POS.*.ID_LV }}',
+        ],
+    ],
+];
+
+$result = DataMapper::sourceFile('/path/to/multi-root.xml')
+    ->template($mapping)
+    ->map()
+    ->getTarget();
+```
+
+The FileLoader automatically detects and handles multiple root elements by wrapping them in a temporary container during parsing.
+
 💡 **See the complete example:** Run `php examples/data-mapper/xml-file-mapping.php` for a comprehensive demonstration of XML file loading with different root elements.
 
 ### Mapping to Objects
