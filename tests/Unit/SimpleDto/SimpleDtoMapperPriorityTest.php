@@ -10,7 +10,7 @@ describe('SimpleDto Mapper Priority', function(): void {
     describe('Template Priority', function(): void {
         it('template has highest priority over attributes', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ product.product_id }}',
@@ -44,7 +44,7 @@ describe('SimpleDto Mapper Priority', function(): void {
 
         it('template has highest priority over automapping', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ user.user_id }}',
@@ -113,7 +113,7 @@ describe('SimpleDto Mapper Priority', function(): void {
     describe('Combined Scenarios', function(): void {
         it('template for some properties, attributes for others', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ user.id }}',
@@ -144,7 +144,7 @@ describe('SimpleDto Mapper Priority', function(): void {
 
         it('template with filters and attributes', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ user.id }}',
@@ -184,7 +184,7 @@ describe('SimpleDto Mapper Priority', function(): void {
     describe('fromArray() Alias', function(): void {
         it('fromArray() uses same logic as from()', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ user.id }}',
@@ -214,7 +214,7 @@ describe('SimpleDto Mapper Priority', function(): void {
 
         it('fromArray() supports all parameters', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ user.name }}',
@@ -245,7 +245,7 @@ describe('SimpleDto Mapper Priority', function(): void {
     describe('Complex Nested Scenarios', function(): void {
         it('handles deeply nested data with template', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ data.user.profile.id }}',

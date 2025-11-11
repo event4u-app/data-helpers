@@ -226,9 +226,49 @@ public readonly string $cleanPropertyName;
 
 ## Advanced Mapping with Templates
 
-### Using mapperTemplate()
+### Using Template Property
 
-For complex mappings, you can define a template method in your DTO:
+For complex mappings, you can define a template property in your DTO:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDtoMapperTrait;
+
+class UserDto extends SimpleDto
+{
+    use SimpleDtoMapperTrait;
+
+    protected ?array $mapperTemplate = [
+        'name' => '{{ user.name }}',
+        'email' => '{{ user.email }}',
+        'city' => '{{ user.address.city }}',
+    ];
+
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly string $city,
+    ) {}
+}
+
+// Template is automatically applied
+$dto = UserDto::fromArray([
+    'user' => [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'address' => [
+            'city' => 'New York',
+        ],
+    ],
+]);
+
+echo $dto->name;  // 'John Doe'
+echo $dto->city;  // 'New York'
+```
+
+### Using getMapperTemplate() Method
+
+Alternatively, you can override the `getMapperTemplate()` method:
 
 ```php
 use event4u\DataHelpers\SimpleDto;
@@ -244,7 +284,7 @@ class UserDto extends SimpleDto
         public readonly string $city,
     ) {}
 
-    protected function mapperTemplate(): array
+    public function getMapperTemplate(): array
     {
         return [
             'name' => '{{ user.name }}',
@@ -267,6 +307,59 @@ $dto = UserDto::fromArray([
 
 echo $dto->name;  // 'John Doe'
 echo $dto->city;  // 'New York'
+```
+
+### Dynamic Template Changes with setMapperTemplate()
+
+You can dynamically change the template on a DTO instance:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDtoMapperTrait;
+
+class UserDto extends SimpleDto
+{
+    use SimpleDtoMapperTrait;
+
+    protected ?array $mapperTemplate = [
+        'id' => '{{ user.id }}',
+        'name' => '{{ user.name }}',
+    ];
+
+    public function __construct(
+        public readonly int $id = 0,
+        public readonly string $name = '',
+    ) {}
+}
+
+// First mapping with initial template
+$dto1 = UserDto::fromArray([
+    'user' => [
+        'id' => 100,
+        'name' => 'Initial Name',
+    ],
+]);
+
+echo $dto1->id;    // 100
+echo $dto1->name;  // 'Initial Name'
+
+// Change template on instance
+$instance = new UserDto();
+$instance->setMapperTemplate([
+    'id' => '{{ customer.customer_id }}',
+    'name' => '{{ customer.full_name }}',
+]);
+
+// Second mapping with new template
+$dto2 = UserDto::fromArray([
+    'customer' => [
+        'customer_id' => 200,
+        'full_name' => 'New Customer Name',
+    ],
+], $instance->getMapperTemplate());
+
+echo $dto2->id;    // 200
+echo $dto2->name;  // 'New Customer Name'
 ```
 
 ### Using mapperFilters()
@@ -358,20 +451,17 @@ class UserDto extends SimpleDto
 {
     use SimpleDtoMapperTrait;
 
+    protected ?array $mapperTemplate = [
+        'name' => '{{ user.name }}',
+        'email' => '{{ user.email }}',
+        'city' => '{{ user.address.city }}',
+    ];
+
     public function __construct(
         public readonly string $name,
         public readonly string $email,
         public readonly string $city,
     ) {}
-
-    protected function mapperTemplate(): array
-    {
-        return [
-            'name' => '{{ user.name }}',
-            'email' => '{{ user.email }}',
-            'city' => '{{ user.address.city }}',
-        ];
-    }
 
     protected function mapperFilters(): array
     {
@@ -425,7 +515,7 @@ $dto = UserDto::from($data, null, null, [
 
 **Priority:**
 1. Runtime parameters (highest priority)
-2. DTO configuration (`mapperTemplate()`, `mapperFilters()`, `mapperPipeline()`)
+2. DTO configuration (`$mapperTemplate` property or `getMapperTemplate()` method, `mapperFilters()`, `mapperPipeline()`)
 3. `#[MapFrom]` attributes (only when no template is applied)
 4. Auto-mapping (lowest priority)
 

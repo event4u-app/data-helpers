@@ -12,7 +12,7 @@ describe('SimpleDto fromArray() Edge Cases', function(): void {
     describe('fromArray() with DTO Configuration', function(): void {
         it('uses DTO template when no parameters provided', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ user.id }}',
@@ -78,7 +78,7 @@ describe('SimpleDto fromArray() Edge Cases', function(): void {
             $dto = new class extends SimpleDto {
                 use SimpleDtoMapperTrait;
 
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ user.name }}',
@@ -114,7 +114,7 @@ describe('SimpleDto fromArray() Edge Cases', function(): void {
     describe('fromArray() Parameter Override', function(): void {
         it('parameter template overrides DTO template', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ wrong.name }}',
@@ -248,7 +248,7 @@ describe('SimpleDto fromArray() Edge Cases', function(): void {
     describe('fromArray() Edge Cases', function(): void {
         it('handles null parameters with DTO configuration', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ user.name }}',
@@ -268,7 +268,7 @@ describe('SimpleDto fromArray() Edge Cases', function(): void {
 
         it('handles empty arrays with DTO configuration', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ user.name }}',

@@ -211,7 +211,7 @@ describe('SimpleDto Pipeline Order and Merging', function(): void {
             $dto = new class extends SimpleDto {
                 use SimpleDtoMapperTrait;
 
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ user.name }}',
@@ -267,7 +267,7 @@ describe('SimpleDto Pipeline Order and Merging', function(): void {
             $dto = new class extends SimpleDto {
                 use SimpleDtoMapperTrait;
 
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ user.name }}',
