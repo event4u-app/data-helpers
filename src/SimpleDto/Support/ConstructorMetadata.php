@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\SimpleDto\Support;
 use event4u\DataHelpers\Enums\CacheDriver;
 use event4u\DataHelpers\Enums\CacheInvalidation;
 use event4u\DataHelpers\Helpers\ConfigHelper;
+use event4u\DataHelpers\SimpleDto\Attributes\Map;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\NoAttributes;
 use event4u\DataHelpers\Support\Cache\CacheInvalidator;
@@ -428,8 +429,12 @@ final class ConstructorMetadata
                     $instance = $attribute->newInstance();
                     $attributes[$attribute->getName()] = $instance;
 
+                    // Extract Map attribute for code generation (bidirectional mapping)
+                    if ($instance instanceof Map) {
+                        $mapFrom = is_array($instance->key) ? $instance->key[0] : $instance->key;
+                    }
                     // Extract MapFrom attribute for code generation
-                    if ($instance instanceof MapFrom) {
+                    elseif ($instance instanceof MapFrom) {
                         $mapFrom = is_array($instance->source) ? $instance->source[0] : $instance->source;
                     }
                 } catch (Throwable) {

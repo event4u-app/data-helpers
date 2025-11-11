@@ -24,6 +24,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
 use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromJson;
 use event4u\DataHelpers\SimpleDto\Attributes\Lazy as LazyAttribute;
+use event4u\DataHelpers\SimpleDto\Attributes\Map;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
@@ -2042,13 +2043,36 @@ final class SimpleEngine
         foreach ($constructor->getParameters() as $reflectionParameter) {
             $paramName = $reflectionParameter->getName();
             $value = null;
-            $wasProvided = false;
-            $sourceKey = $paramName;
 
-            // Step 1: Check for #[MapFrom] (only if flag is set)
+            // Step 1: Check for #[Map] or #[MapFrom] (only if flag is set)
             if ($flags['hasMapFrom']) {
-                $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
-                if (!empty($mapFromAttrs)) {
+                // Check for #[Map] first (bidirectional mapping)
+                $mapAttrs = $reflectionParameter->getAttributes(Map::class);
+                if (!empty($mapAttrs)) {
+                    /** @var Map $map */
+                    $map = $mapAttrs[0]->newInstance();
+                    $sources = is_array($map->key) ? $map->key : [$map->key];
+
+                    // Try each source until we find a value
+                    $value = null;
+                    $wasProvided = false;
+                    foreach ($sources as $sourceKey) {
+                        // Support dot notation (e.g., 'user.profile.firstName')
+                        if (str_contains($sourceKey, '.')) {
+                            $value = self::getNestedValue($data, $sourceKey);
+                        } else {
+                            $value = $data[$sourceKey] ?? null;
+                        }
+
+                        if (null !== $value) {
+                            $wasProvided = true;
+                            break;
+                        }
+                    }
+                }
+                // Then check for #[MapFrom]
+                elseif (!empty($reflectionParameter->getAttributes(MapFrom::class))) {
+                    $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
                     /** @var MapFrom $mapFrom */
                     $mapFrom = $mapFromAttrs[0]->newInstance();
                     $sources = is_array($mapFrom->source) ? $mapFrom->source : [$mapFrom->source];
@@ -2530,7 +2554,11 @@ final class SimpleEngine
             foreach ($constructor->getParameters() as $reflectionParameter) {
                 $paramName = $reflectionParameter->getName();
 
-                if ([] !== $reflectionParameter->getAttributes(MapFrom::class)) {
+                if ([] !== $reflectionParameter->getAttributes(
+                    Map::class
+                ) || [] !== $reflectionParameter->getAttributes(
+                    MapFrom::class
+                )) {
                     $flags['hasMapFrom'] = true;
                 }
                 if ([] !== $reflectionParameter->getAttributes(CastWith::class)) {
@@ -2573,6 +2601,18 @@ final class SimpleEngine
 
             if ([] !== $reflectionProperty->getAttributes(MapTo::class)) {
                 $flags['hasMapTo'] = true;
+            }
+
+            // Check for Map attribute on promoted constructor parameters
+            if ($constructor) {
+                foreach ($constructor->getParameters() as $param) {
+                    if ($param->isPromoted() && $param->getName() === $propName) {
+                        if ([] !== $param->getAttributes(Map::class)) {
+                            $flags['hasMapTo'] = true;
+                        }
+                        break;
+                    }
+                }
             }
 
             // Hidden - fill cache while scanning
@@ -2836,9 +2876,24 @@ final class SimpleEngine
                 'enumSerializeMode' => null,
             ];
 
-            // Check MapTo attribute
-            $mapToAttrs = $property->getAttributes(MapTo::class);
-            if (!empty($mapToAttrs)) {
+            // Check Map attribute first (bidirectional mapping)
+            $mapAttrs = $property->getAttributes(Map::class);
+            if (!empty($mapAttrs)) {
+                /** @var Map $map */
+                $map = $mapAttrs[0]->newInstance();
+                // For output, use the first key if it's an array (fallback only applies to input)
+                $target = is_array($map->key) ? $map->key[0] : $map->key;
+                $propMeta['mapTo'] = $target;
+
+                // Check if it's dot notation
+                if (str_contains($target, '.')) {
+                    $propMeta['mapToPath'] = explode('.', $target);
+                    $propMeta['mapTo'] = null;
+                }
+            }
+            // Then check MapTo attribute
+            elseif (!empty($property->getAttributes(MapTo::class))) {
+                $mapToAttrs = $property->getAttributes(MapTo::class);
                 /** @var MapTo $mapTo */
                 $mapTo = $mapToAttrs[0]->newInstance();
                 $propMeta['mapTo'] = $mapTo->target;
@@ -2960,25 +3015,31 @@ final class SimpleEngine
         $args = [];
         foreach ($constructor->getParameters() as $reflectionParameter) {
             $paramName = $reflectionParameter->getName();
-            $value = null;
-            $wasProvided = false;
 
             // Step 1: Determine source key for this parameter
             // Skip #[MapFrom] if template was applied (template has highest priority)
             $sourceKey = null;
 
             if (!$templateApplied) {
-                // Check for #[MapFrom] attribute (highest priority after template)
+                // Check for #[Map] or #[MapFrom] attribute (highest priority after template)
                 if ($flags['hasMapFrom']) {
-                    $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
-                    if (!empty($mapFromAttrs)) {
+                    // Check for #[Map] first (bidirectional mapping)
+                    $mapAttrs = $reflectionParameter->getAttributes(Map::class);
+                    if (!empty($mapAttrs)) {
+                        /** @var Map $map */
+                        $map = $mapAttrs[0]->newInstance();
+                        $sourceKey = $map->key; // Can be string or array
+                    }
+                    // Then check for #[MapFrom]
+                    elseif (!empty($reflectionParameter->getAttributes(MapFrom::class))) {
+                        $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
                         /** @var MapFrom $mapFrom */
                         $mapFrom = $mapFromAttrs[0]->newInstance();
                         $sourceKey = $mapFrom->source; // Can be string or array
                     }
                 }
 
-                // If no MapFrom, check for class-level MapInputName
+                // If no Map/MapFrom, check for class-level MapInputName
                 if (null === $sourceKey && $flags['hasMapInputName']) {
                     $mapInputName = self::getMapInputName($class);
                     if ($mapInputName instanceof MapInputName) {
