@@ -73,6 +73,7 @@ class RequiredWith implements ConditionalValidationAttribute, ValidationRule
         // Check if ANY of the specified fields are present
         $anyFieldPresent = false;
         foreach ($this->fields as $field) {
+            // @phpstan-ignore-next-line notIdentical.alwaysTrue (mixed type from array)
             if (isset($allData[$field]) && null !== $allData[$field] && '' !== $allData[$field]) {
                 $anyFieldPresent = true;
                 break;

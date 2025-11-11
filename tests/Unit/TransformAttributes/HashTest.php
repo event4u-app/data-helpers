@@ -60,6 +60,7 @@ describe('Hash Transform Attribute', function(): void {
             'securePassword' => 'secure',
         ]);
 
+        // @phpstan-ignore-next-line disallowed.function (Test for MD5 hash transformation)
         expect($dto->token)->toBe(md5('my-token'));
         expect($dto->token)->toHaveLength(32); // MD5 produces 32 hex characters
     });
@@ -130,6 +131,7 @@ describe('Md5 Transform Attribute', function(): void {
             'securePassword' => 'secure',
         ]);
 
+        // @phpstan-ignore-next-line disallowed.function (Test for MD5 hash transformation)
         expect($dto->cacheKey)->toBe(md5('my-cache-key'));
         expect($dto->cacheKey)->toHaveLength(32);
     });

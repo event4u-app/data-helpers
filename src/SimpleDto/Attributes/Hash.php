@@ -54,6 +54,7 @@ class Hash implements TransformAttribute
             'bcrypt' => password_hash($value, PASSWORD_BCRYPT),
             'argon2i' => password_hash($value, PASSWORD_ARGON2I),
             'argon2id' => password_hash($value, PASSWORD_ARGON2ID),
+            // @phpstan-ignore-next-line disallowed.function (Transform attribute for hashing)
             'sha256', 'sha512', 'sha1', 'md5' => hash($this->algorithm, $value),
             default => throw new InvalidArgumentException(
                 sprintf(

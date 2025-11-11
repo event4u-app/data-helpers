@@ -42,6 +42,7 @@ class Md5 implements TransformAttribute
             return $value;
         }
 
+        // @phpstan-ignore-next-line disallowed.function (Transform attribute for MD5 hashing)
         return md5($value);
     }
 }

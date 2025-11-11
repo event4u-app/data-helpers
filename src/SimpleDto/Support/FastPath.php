@@ -143,6 +143,7 @@ class FastPath
             'includedLazy',
             'includeAllLazy',
             'conditionalContext',
+            'mapperTemplate',
         ];
 
         foreach ($allVars as $key => $value) {

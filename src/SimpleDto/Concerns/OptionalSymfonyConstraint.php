@@ -79,8 +79,10 @@ trait OptionalSymfonyConstraint
     {
         $message = $options['message'] ?? null;
 
+        // @phpstan-ignore-next-line function.alreadyNarrowedType (Generic trait used by multiple classes)
         if (null === $message && property_exists($this, 'message')) {
             $messageValue = $this->message;
+            // @phpstan-ignore-next-line booleanOr.alwaysTrue, identical.alwaysTrue (Generic trait used by multiple classes)
             if (is_string($messageValue) || null === $messageValue) {
                 return $messageValue;
             }

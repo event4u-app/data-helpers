@@ -2901,12 +2901,14 @@ final class SimpleEngine
      *     isHidden: bool,
      *     isHiddenFromArray: bool,
      *     isLazy: bool,
+     *     hideWhenNull: bool,
      *     enumSerializeMode: string|null
      * }>
      */
     private static function getPropertyMetadata(string $class): array
     {
         if (isset(self::$propertyMetadataCache[$class])) {
+            // @phpstan-ignore-next-line return.type (Cache may contain old structure before hideWhenNull was added)
             return self::$propertyMetadataCache[$class];
         }
 
@@ -2918,6 +2920,7 @@ final class SimpleEngine
             $name = $property->getName();
 
             // Initialize metadata for this property
+            /** @var array{mapTo: string|null, mapToPath: array<int, string>|null, isHidden: bool, isHiddenFromArray: bool, isLazy: bool, hideWhenNull: bool, enumSerializeMode: string|null} $propMeta */
             $propMeta = [
                 'mapTo' => null,
                 'mapToPath' => null,

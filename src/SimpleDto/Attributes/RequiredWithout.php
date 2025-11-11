@@ -72,6 +72,7 @@ class RequiredWithout implements ConditionalValidationAttribute, ValidationRule
         // Check if ANY of the specified fields are NOT present
         $anyFieldMissing = false;
         foreach ($this->fields as $field) {
+            // @phpstan-ignore-next-line identical.alwaysFalse (mixed type from array)
             if (!isset($allData[$field]) || null === $allData[$field] || '' === $allData[$field]) {
                 $anyFieldMissing = true;
                 break;

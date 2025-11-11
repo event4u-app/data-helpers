@@ -42,14 +42,14 @@ class SnakeCase implements TransformAttribute
 
         // Convert to snake_case
         // First, handle camelCase and PascalCase
-        $value = preg_replace('/([a-z])([A-Z])/', '$1_$2', $value);
+        $value = (string)preg_replace('/([a-z])([A-Z])/', '$1_$2', $value);
         // Replace spaces and dashes with underscores
         $value = str_replace([' ', '-'], '_', $value);
         // Convert to lowercase
         $value = mb_strtolower($value, 'UTF-8');
         // Remove multiple underscores
         $value = preg_replace('/_+/', '_', $value);
-        
+
         return $value;
     }
 }
