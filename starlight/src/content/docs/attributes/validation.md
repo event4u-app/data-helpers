@@ -10,7 +10,7 @@ Complete reference of all 30+ validation attributes available in SimpleDto.
 SimpleDto provides 30+ validation attributes organized into categories:
 
 - **Type Validation** - String, Integer, Boolean, Array, Numeric
-- **Size Validation** - Min, Max, Between, Size
+- **Size Validation** - Min, Max, Between, Size, Length
 - **Format Validation** - Email, URL, IP, UUID, Json, Regex
 - **Content Validation** - Required, In, NotIn, Same, Different
 - **Date Validation** - Date, Before, After, DateFormat
@@ -25,6 +25,7 @@ SimpleDto provides 30+ validation attributes organized into categories:
 |-----------|-------------|---------|
 | `#[Required]` | Must be present | `#[Required]` |
 | `#[Email]` | Valid email | `#[Email]` |
+| `#[Length(int $max)]` or `#[Length(int $min, int $max)]` | Maximum or range length | `#[Length(10)]` or `#[Length(3, 10)]` |
 | `#[Min(int $value)]` | Minimum value/length | `#[Min(3)]` |
 | `#[Max(int $value)]` | Maximum value/length | `#[Max(100)]` |
 | `#[Between(int $min, int $max)]` | Between range | `#[Between(18, 65)]` |
@@ -54,10 +55,96 @@ See full list below for all 30+ attributes.
 ## Size Validation
 
 ```php
+#[Length(10)]          // Exact length (strings/numbers/arrays)
 #[Min(3)]              // Minimum value/length
 #[Max(100)]            // Maximum value/length
 #[Between(18, 65)]     // Between range
 #[Size(10)]            // Exact size
+```
+
+### Length Attribute
+
+The `#[Length]` attribute validates length (maximum or range) for strings, numbers, and arrays. Perfect for database column types like `varchar(10)` or `int(3)`.
+
+**Syntax:**
+- **One parameter**: Maximum length (0 to $max)
+- **Two parameters**: Length range ($min to $max)
+
+**Validation Rules:**
+- **Strings**: Character length (using `mb_strlen`)
+- **Numbers**: Number of digits (e.g., `123` = 3 digits, `-999` = 3 digits)
+- **Arrays**: Number of items
+- **Null values**: Always pass (use `#[Required]` for mandatory fields)
+
+**Examples:**
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Length;
+use event4u\DataHelpers\SimpleDto\Attributes\Required;
+
+class ProductDto extends SimpleDto
+{
+    public function __construct(
+        // Maximum length (0 to max)
+        #[Required, Length(10)]
+        public readonly string $name,  // varchar(10) - 0-10 characters
+
+        #[Required, Length(3)]
+        public readonly int $countryCode,  // int(3) - 0-3 digits
+
+        // Length range (min to max)
+        #[Required, Length(3, 10)]
+        public readonly string $username,  // 3-10 characters
+
+        #[Required, Length(1, 3)]
+        public readonly int $code,  // 1-3 digits
+
+        // Array length
+        #[Length(5)]
+        public readonly ?array $tags = null,  // 0-5 items
+    ) {}
+}
+
+// Valid examples
+$dto = ProductDto::validateAndCreate([
+    'name' => 'Product',     // ✅ 7 characters (0-10)
+    'countryCode' => 123,    // ✅ 3 digits (0-3)
+    'username' => 'john',    // ✅ 4 characters (3-10)
+    'code' => 12,            // ✅ 2 digits (1-3)
+    'tags' => ['a', 'b'],    // ✅ 2 items (0-5)
+]);
+
+// Invalid examples - throws ValidationException
+$dto = ProductDto::validateAndCreate([
+    'name' => 'Very Long Product Name',  // ❌ Too long (>10 characters)
+    'countryCode' => 1234,                // ❌ Too many digits (>3)
+    'username' => 'ab',                   // ❌ Too short (<3 characters)
+    'code' => 1234,                       // ❌ Too many digits (>3)
+    'tags' => ['a', 'b', 'c', 'd', 'e', 'f'], // ❌ Too many items (>5)
+]);
+```
+
+**Custom Error Messages:**
+
+```php
+#[Length(10, message: 'Name must be at most 10 characters')]
+public readonly string $name;
+
+#[Length(3, 10, message: 'Username must be between 3 and 10 characters')]
+public readonly string $username;
+```
+
+**Framework Integration:**
+
+```php
+// Laravel:
+// - One parameter: Generates 'max:10' rule
+// - Two parameters: Generates 'between:3,10' rule
+
+// Symfony:
+// - One parameter: Generates Assert\Length(max: 10) constraint
+// - Two parameters: Generates Assert\Length(min: 3, max: 10) constraint
 ```
 
 ## Format Validation

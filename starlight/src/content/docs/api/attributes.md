@@ -35,6 +35,28 @@ public readonly string $name;
 public readonly int $age;
 ```
 
+### Length
+
+```php
+// Maximum length (0 to max)
+#[Length(10)]
+public readonly string $name;  // varchar(10)
+
+#[Length(3)]
+public readonly int $code;  // int(3) - 0-3 digits
+
+// Length range (min to max)
+#[Length(3, 10)]
+public readonly string $username;  // 3-10 characters
+
+#[Length(1, 3)]
+public readonly int $status;  // 1-3 digits
+
+// Array length
+#[Length(5)]
+public readonly array $tags;  // 0-5 items
+```
+
 ### In / NotIn
 
 ```php
