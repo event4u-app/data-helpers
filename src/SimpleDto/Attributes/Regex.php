@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validate that a value matches a regular expression.
@@ -22,9 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   public readonly string $slug;
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Regex implements ValidationRule, SymfonyConstraint
+class Regex implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     public function __construct(
         public readonly string $pattern,
@@ -32,17 +31,44 @@ class Regex implements ValidationRule, SymfonyConstraint
     ) {
     }
 
+    public function validate(mixed $value, string $propertyName): bool
+    {
+        if (null === $value || '' === $value) {
+            return true; // Empty values are handled by Required attribute
+        }
+
+        if (!is_string($value)) {
+            return false;
+        }
+
+        return 1 === preg_match($this->pattern, $value);
+    }
+
+    public function getErrorMessage(string $propertyName): string
+    {
+        if (null !== $this->message) {
+            return $this->message;
+        }
+
+        return sprintf('The %s format is invalid.', $propertyName);
+    }
+
     public function rule(): string
     {
         return 'regex:' . $this->pattern;
     }
 
-    public function constraint(): Constraint|array
+    public function constraint(): object|array
     {
-        $this->ensureSymfonyValidatorAvailable();
-
-        return new Assert\Regex(pattern: $this->pattern, message: $this->message);
+        return $this->createConstraint(
+            "\Symfony\Component\Validator\Constraints\Regex",
+            [
+                'pattern' => $this->pattern,
+                'message' => $this->message,
+            ]
+        );
     }
+
     public function message(): ?string
     {
         return $this->message;

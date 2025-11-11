@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validation attribute: Value must be a successfully uploaded file.
@@ -29,9 +28,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class File implements ValidationRule, SymfonyConstraint
+class File implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     /**
      * @param int|null $maxSize Maximum file size in kilobytes
@@ -41,6 +40,43 @@ class File implements ValidationRule, SymfonyConstraint
         public readonly ?int $maxSize = null,
         public readonly ?int $minSize = null,
     ) {}
+
+    public function validate(mixed $value, string $propertyName): bool
+    {
+        if (null === $value) {
+            return true; // Null values are handled by Required attribute
+        }
+
+        // Check if it's an uploaded file (Laravel UploadedFile or Symfony UploadedFile)
+        if (is_object($value)) {
+            $className = $value::class;
+            if (str_contains($className, 'UploadedFile')) {
+                // Check file size if specified
+                if (null !== $this->maxSize && method_exists($value, 'getSize')) {
+                    $sizeInKb = $value->getSize() / 1024;
+                    if ($sizeInKb > $this->maxSize) {
+                        return false;
+                    }
+                }
+
+                if (null !== $this->minSize && method_exists($value, 'getSize')) {
+                    $sizeInKb = $value->getSize() / 1024;
+                    if ($sizeInKb < $this->minSize) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getErrorMessage(string $propertyName): string
+    {
+        return sprintf('The %s must be a file.', $propertyName);
+    }
 
     /**
      * Convert to Laravel validation rule.
@@ -69,15 +105,17 @@ class File implements ValidationRule, SymfonyConstraint
     }
 
     /** Get Symfony constraint. */
-    public function constraint(): Constraint
+    public function constraint(): object
     {
-        $this->ensureSymfonyValidatorAvailable();
-
+        // Symfony uses bytes, Laravel uses kilobytes
+        $options = [];
         if (null !== $this->maxSize && 0 < $this->maxSize) {
-            // Symfony uses bytes, Laravel uses kilobytes
-            return new Assert\File(maxSize: $this->maxSize * 1024);
+            $options['maxSize'] = $this->maxSize * 1024;
         }
 
-        return new Assert\File();
+        return $this->createConstraint(
+            "\\Symfony\\Component\\Validator\\Constraints\\File",
+            $options
+        );
     }
 }

@@ -23,6 +23,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\EnumSerialize;
 use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
 use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromJson;
+use event4u\DataHelpers\SimpleDto\Attributes\HideWhenNull;
 use event4u\DataHelpers\SimpleDto\Attributes\Lazy as LazyAttribute;
 use event4u\DataHelpers\SimpleDto\Attributes\Map;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
@@ -58,6 +59,7 @@ use event4u\DataHelpers\SimpleDto\Casts\TimestampCast;
 use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalProperty;
 use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
+use event4u\DataHelpers\SimpleDto\Contracts\TransformAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\DtoCollection;
 use event4u\DataHelpers\Support\Lazy;
@@ -181,6 +183,13 @@ final class SimpleEngine
      * @var array<class-string, array<string, bool>>
      */
     private static array $validationSometimesCache = [];
+
+    /**
+     * Cache for Transform attributes per class.
+     *
+     * @var array<class-string, array<string, array<TransformAttribute>>>
+     */
+    private static array $transformAttributesCache = [];
 
     /**
      * Cache for MapInputName attribute per class.
@@ -478,6 +487,11 @@ final class SimpleEngine
                     continue;
                 }
 
+                // Skip HideWhenNull properties when value is null
+                if ($propMeta['hideWhenNull'] && null === $value) {
+                    continue;
+                }
+
                 // Skip Lazy properties unless explicitly included
                 if ($propMeta['isLazy'] && !in_array($name, $includedComputed, true)) {
                     continue;
@@ -752,6 +766,14 @@ final class SimpleEngine
                 }
 
                 $value = $data[$name];
+
+                // Skip HideWhenNull properties when value is null
+                if ($flags['hasHideWhenNull']) { // @phpstan-ignore-line
+                    $hideWhenNullAttrs = $reflectionProperty->getAttributes(HideWhenNull::class);
+                    if ([] !== $hideWhenNullAttrs && null === $value) {
+                        continue;
+                    }
+                }
 
                 // Handle Lazy values (only if flag is set)
                 if ($flags['hasLazy'] && $value instanceof Lazy) {
@@ -2458,6 +2480,7 @@ final class SimpleEngine
                 'hasHidden' => false,
                 'hasHiddenFromArray' => false,
                 'hasHiddenFromJson' => false,
+                'hasHideWhenNull' => false,
                 'hasVisible' => false,
                 'hasCastWith' => false,
                 'hasConvertEmptyToNull' => false,
@@ -2471,6 +2494,7 @@ final class SimpleEngine
                 'hasValidation' => false,
                 'hasConditionalValidation' => false,
                 'hasConditionalProperties' => false,
+                'hasTransform' => false,
                 'hasRuleGroup' => false,
                 'hasWithMessage' => false,
                 'hasAnyArrayAttribute' => false,
@@ -2494,6 +2518,7 @@ final class SimpleEngine
             'hasHidden' => false,
             'hasHiddenFromArray' => false,
             'hasHiddenFromJson' => false,
+            'hasHideWhenNull' => false,
             'hasVisible' => false,
             'hasCastWith' => false,
             'hasConvertEmptyToNull' => false,
@@ -2507,6 +2532,7 @@ final class SimpleEngine
             'hasValidation' => false,
             'hasConditionalValidation' => false,
             'hasConditionalProperties' => false,
+            'hasTransform' => false,
             'hasRuleGroup' => false,
             'hasWithMessage' => false,
             'hasAnyArrayAttribute' => false,
@@ -2647,6 +2673,11 @@ final class SimpleEngine
                 self::$hiddenFromJsonCache[$class][$propName] = true;
             }
 
+            // HideWhenNull
+            if ([] !== $reflectionProperty->getAttributes(HideWhenNull::class)) {
+                $flags['hasHideWhenNull'] = true;
+            }
+
             if ([] !== $reflectionProperty->getAttributes(Visible::class)) {
                 $flags['hasVisible'] = true;
             }
@@ -2761,6 +2792,24 @@ final class SimpleEngine
                 self::$validationSometimesCache[$class][$propName] = true;
             }
 
+            // Check for Transform attributes
+            $transformAttrs = $reflectionProperty->getAttributes(
+                TransformAttribute::class,
+                ReflectionAttribute::IS_INSTANCEOF
+            );
+            if ([] !== $transformAttrs) {
+                $flags['hasTransform'] = true;
+                if (!isset(self::$transformAttributesCache[$class])) {
+                    self::$transformAttributesCache[$class] = [];
+                }
+                if (!isset(self::$transformAttributesCache[$class][$propName])) {
+                    self::$transformAttributesCache[$class][$propName] = [];
+                }
+                foreach ($transformAttrs as $attr) {
+                    self::$transformAttributesCache[$class][$propName][] = $attr->newInstance();
+                }
+            }
+
             // Conditional Properties - scan and cache all conditional attributes
             $conditionalAttrs = $reflectionProperty->getAttributes(
                 ConditionalProperty::class,
@@ -2827,12 +2876,12 @@ final class SimpleEngine
 
         // Set combined flags for fast-path checks
         $flags['hasAnyArrayAttribute'] = $flags['hasMapTo'] || $flags['hasMapOutputName'] || $flags['hasEnumSerialize'] ||
-            $flags['hasHidden'] || $flags['hasHiddenFromArray'] ||
+            $flags['hasHidden'] || $flags['hasHiddenFromArray'] || $flags['hasHideWhenNull'] ||
             $flags['hasLazy'] || $flags['hasComputed'] || $flags['hasOptional'] ||
             $flags['hasConditionalProperties'] || $hasCasts;
 
         $flags['hasAnyJsonAttribute'] = $flags['hasMapTo'] || $flags['hasMapOutputName'] || $flags['hasEnumSerialize'] ||
-            $flags['hasHidden'] || $flags['hasHiddenFromJson'] ||
+            $flags['hasHidden'] || $flags['hasHiddenFromJson'] || $flags['hasHideWhenNull'] ||
             $flags['hasLazy'] || $flags['hasComputed'] || $flags['hasOptional'] ||
             $flags['hasConditionalProperties'] || $hasCasts;
 
@@ -2875,6 +2924,7 @@ final class SimpleEngine
                 'isHidden' => false,
                 'isHiddenFromArray' => false,
                 'isLazy' => false,
+                'hideWhenNull' => false,
                 'enumSerializeMode' => null,
             ];
 
@@ -2934,6 +2984,12 @@ final class SimpleEngine
                         }
                     }
                 }
+            }
+
+            // Check HideWhenNull attribute
+            $hideWhenNullAttrs = $property->getAttributes(HideWhenNull::class);
+            if (!empty($hideWhenNullAttrs)) {
+                $propMeta['hideWhenNull'] = true;
             }
 
             // Check EnumSerialize attribute
@@ -3095,6 +3151,13 @@ final class SimpleEngine
                 $value
             )) {
                 $value = null;
+            }
+
+            // Step 2.5: Apply transformations (only if flag is set)
+            if ($flags['hasTransform'] && isset(self::$transformAttributesCache[$class][$paramName])) { // @phpstan-ignore-line
+                foreach (self::$transformAttributesCache[$class][$paramName] as $transformer) {
+                    $value = $transformer->transform($value, $paramName);
+                }
             }
 
             // Step 3: Apply casting (only if NOT #[NoCasts])

@@ -16,7 +16,6 @@ use ReflectionClass;
 use ReflectionNamedType;
 use RuntimeException;
 use Stringable;
-use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
@@ -578,7 +577,7 @@ trait SimpleDtoValidationTrait
     /**
      * Get Symfony constraints from validation attributes.
      *
-     * @return array<string, Constraint|Constraint[]>
+     * @return array<string, object|array<object>>
      */
     protected static function getSymfonyConstraints(): array
     {

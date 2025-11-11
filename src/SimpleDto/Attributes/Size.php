@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validation attribute: Value must have exact size.
@@ -38,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Size implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     /** @param int $size Exact size required */
     public function __construct(
@@ -84,12 +82,17 @@ class Size implements ValidationAttribute, ValidationRule, SymfonyConstraint
     }
 
     /** Convert to Symfony constraint. */
-    public function constraint(): Constraint
+    public function constraint(): object
     {
-        $this->ensureSymfonyValidatorAvailable();
-
         $size = 0 < $this->size ? $this->size : null;
-        return new Assert\Length(min: $size, max: $size);
+
+        return $this->createConstraint(
+            "\\Symfony\\Component\\Validator\\Constraints\\Length",
+            [
+                'min' => $size,
+                'max' => $size,
+            ]
+        );
     }
 
     /** Get validation error message. */

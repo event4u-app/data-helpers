@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validation attribute: Value must be an image file.
@@ -29,9 +28,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Image implements ValidationRule, SymfonyConstraint
+class Image implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     /**
      * @param array<string>|null $mimes Allowed MIME types (jpg, png, gif, etc.)
@@ -94,11 +93,109 @@ class Image implements ValidationRule, SymfonyConstraint
         return 'The attribute must be an image.';
     }
 
-    /** Get Symfony constraint. */
-    public function constraint(): Constraint
+    /**
+     * Validate the value using Plain PHP.
+     *
+     * @param mixed $value The value to validate
+     * @param string $propertyName The name of the property being validated
+     * @return bool True if valid, false otherwise
+     */
+    public function validate(mixed $value, string $propertyName): bool
     {
-        $this->ensureSymfonyValidatorAvailable();
+        if (null === $value) {
+            return true; // Null values are handled by Required attribute
+        }
 
+        // Check if it's an uploaded file object
+        if (is_object($value)) {
+            $className = $value::class;
+            if (!str_contains($className, 'UploadedFile')) {
+                return false;
+            }
+
+            // Get file path for validation
+            $filePath = null;
+            if (method_exists($value, 'getRealPath')) {
+                $filePath = $value->getRealPath();
+            } elseif (method_exists($value, 'getPathname')) {
+                $filePath = $value->getPathname();
+            }
+
+            if (null === $filePath || !file_exists($filePath)) {
+                return false;
+            }
+
+            // Validate it's a valid image using getimagesize
+            $imageInfo = @getimagesize($filePath);
+            if (false === $imageInfo) {
+                return false; // Not a valid image
+            }
+
+            [$width, $height, $type] = $imageInfo;
+
+            // Validate dimensions
+            if (null !== $this->minWidth && $width < $this->minWidth) {
+                return false;
+            }
+            if (null !== $this->maxWidth && $width > $this->maxWidth) {
+                return false;
+            }
+            if (null !== $this->minHeight && $height < $this->minHeight) {
+                return false;
+            }
+            if (null !== $this->maxHeight && $height > $this->maxHeight) {
+                return false;
+            }
+
+            // Validate file size
+            if (null !== $this->maxSize && method_exists($value, 'getSize')) {
+                $sizeInKb = $value->getSize() / 1024;
+                if ($sizeInKb > $this->maxSize) {
+                    return false;
+                }
+            }
+
+            // Validate MIME types if specified
+            if (null !== $this->mimes) {
+                $imageMimeType = image_type_to_mime_type($type);
+                $allowedMimeTypes = [];
+                foreach ($this->mimes as $mime) {
+                    $allowedMimeTypes[] = match ($mime) {
+                        'jpg', 'jpeg' => 'image/jpeg',
+                        'png' => 'image/png',
+                        'gif' => 'image/gif',
+                        'bmp' => 'image/bmp',
+                        'svg' => 'image/svg+xml',
+                        'webp' => 'image/webp',
+                        default => 'image/' . $mime,
+                    };
+                }
+
+                if (!in_array($imageMimeType, $allowedMimeTypes, true)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get validation error message.
+     *
+     * @param string $propertyName The name of the property being validated
+     * @return string The error message
+     */
+    public function getErrorMessage(string $propertyName): string
+    {
+        return sprintf('The %s must be a valid image.', $propertyName);
+    }
+
+    /** Get Symfony constraint. */
+    public function constraint(): object
+    {
         $mimeTypes = null;
         if (null !== $this->mimes) {
             // Convert short names to MIME types
@@ -126,13 +223,16 @@ class Image implements ValidationRule, SymfonyConstraint
             ];
         }
 
-        return new Assert\Image(
-            maxSize: null !== $this->maxSize && 0 < $this->maxSize ? $this->maxSize * 1024 : null,
-            mimeTypes: $mimeTypes,
-            minWidth: null !== $this->minWidth && 0 < $this->minWidth ? $this->minWidth : null,
-            maxWidth: null !== $this->maxWidth && 0 < $this->maxWidth ? $this->maxWidth : null,
-            maxHeight: null !== $this->maxHeight && 0 < $this->maxHeight ? $this->maxHeight : null,
-            minHeight: null !== $this->minHeight && 0 < $this->minHeight ? $this->minHeight : null,
+        return $this->createConstraint(
+            "\\Symfony\\Component\\Validator\\Constraints\\Image",
+            [
+                'maxSize' => null !== $this->maxSize && 0 < $this->maxSize ? $this->maxSize * 1024 : null,
+                'mimeTypes' => $mimeTypes,
+                'minWidth' => null !== $this->minWidth && 0 < $this->minWidth ? $this->minWidth : null,
+                'maxWidth' => null !== $this->maxWidth && 0 < $this->maxWidth ? $this->maxWidth : null,
+                'maxHeight' => null !== $this->maxHeight && 0 < $this->maxHeight ? $this->maxHeight : null,
+                'minHeight' => null !== $this->minHeight && 0 < $this->minHeight ? $this->minHeight : null,
+            ]
         );
     }
 }

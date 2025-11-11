@@ -12,7 +12,13 @@ RUN apk add --no-cache \
     libxml2-dev \
     oniguruma-dev \
     yaml-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     $PHPIZE_DEPS
+
+# Configure GD with JPEG and FreeType support
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
 # Install PHP extensions
 RUN docker-php-ext-install \
@@ -23,7 +29,8 @@ RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
     bcmath \
-    opcache
+    opcache \
+    gd
 
 # Install YAML extension via PECL
 RUN pecl install yaml && docker-php-ext-enable yaml

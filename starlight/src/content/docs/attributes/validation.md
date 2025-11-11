@@ -1,18 +1,19 @@
 ---
 title: Validation Attributes
-description: Complete reference of all 30+ validation attributes
+description: Complete reference of all 40+ validation attributes
 ---
 
-Complete reference of all 30+ validation attributes available in SimpleDto.
+Complete reference of all 40+ validation attributes available in SimpleDto.
 
 ## Introduction
 
-SimpleDto provides 30+ validation attributes organized into categories:
+SimpleDto provides 40+ validation attributes organized into categories:
 
 - **Type Validation** - String, Integer, Boolean, Array, Numeric
 - **Size Validation** - Min, Max, Between, Size, Length
-- **Format Validation** - Email, URL, IP, UUID, Json, Regex
+- **Format Validation** - Email, URL, IP, UUID, Ulid, Json, Regex, Alpha, AlphaNum, AlphaDash, Ascii
 - **Content Validation** - Required, In, NotIn, Same, Different
+- **Numeric Validation** - Unsigned, Positive, Negative, Decimal
 - **Date Validation** - Date, Before, After, DateFormat
 - **Database Validation** - Exists, Unique (marker attributes) + UniqueCallback, ExistsCallback (LiteDto)
 - **File Validation** - File, Image, Mimes, MimeTypes (marker attributes) + FileCallback (LiteDto)
@@ -39,8 +40,17 @@ SimpleDto provides 30+ validation attributes organized into categories:
 | `#[UniqueCallback(callable $callback)]` | Custom uniqueness check | `#[UniqueCallback([self::class, 'check'])]` |
 | `#[ExistsCallback(callable $callback)]` | Custom existence check | `#[ExistsCallback([self::class, 'check'])]` |
 | `#[FileCallback(callable $callback)]` | Custom file validation | `#[FileCallback([self::class, 'check'])]` |
+| `#[Unsigned]` | Value >= 0 (MySQL UNSIGNED) | `#[Unsigned]` |
+| `#[Positive]` | Value > 0 | `#[Positive]` |
+| `#[Negative]` | Value < 0 | `#[Negative]` |
+| `#[Decimal(int $precision, int $scale)]` | MySQL DECIMAL validation | `#[Decimal(10, 2)]` |
+| `#[Alpha]` | Only alphabetic characters | `#[Alpha]` |
+| `#[AlphaNum]` | Alphabetic and numeric | `#[AlphaNum]` |
+| `#[AlphaDash]` | Alpha, numeric, dashes, underscores | `#[AlphaDash]` |
+| `#[Ascii]` | Only ASCII characters | `#[Ascii]` |
+| `#[Ulid]` | Valid ULID format | `#[Ulid]` |
 
-See full list below for all 30+ attributes.
+See full list below for all 40+ attributes.
 
 ## Type Validation
 
@@ -154,8 +164,13 @@ public readonly string $username;
 #[Url]                          // Valid URL
 #[Ip]                           // Valid IP address
 #[Uuid]                         // Valid UUID
+#[Ulid]                         // Valid ULID (26 characters, Base32)
 #[Json]                         // Valid JSON
 #[Regex('/^[A-Z]{2}\d{4}$/')]  // Match regex
+#[Alpha]                        // Only alphabetic characters (a-z, A-Z)
+#[AlphaNum]                     // Alphabetic and numeric (a-z, A-Z, 0-9)
+#[AlphaDash]                    // Alpha, numeric, dashes, underscores (a-z, A-Z, 0-9, -, _)
+#[Ascii]                        // Only ASCII characters (0-127)
 ```
 
 ## Content Validation
@@ -169,6 +184,36 @@ public readonly string $username;
 #[Different('oldPassword')]              // Differ from another field
 #[StartsWith('https://')]                // Start with prefix
 #[EndsWith('.com')]                      // End with suffix
+```
+
+## Numeric Validation
+
+```php
+#[Unsigned]                              // Value >= 0 (for MySQL UNSIGNED columns)
+#[Positive]                              // Value > 0
+#[Negative]                              // Value < 0
+#[Decimal(10, 2)]                        // MySQL DECIMAL(precision, scale) validation
+```
+
+### Examples
+
+```php
+class ProductDto extends SimpleDto
+{
+    public function __construct(
+        #[Required]
+        #[Unsigned]
+        public readonly int $quantity,  // Must be >= 0
+
+        #[Required]
+        #[Positive]
+        #[Decimal(10, 2)]
+        public readonly float $price,   // Must be > 0 and fit DECIMAL(10,2)
+
+        #[Negative]
+        public readonly ?int $discount = null,  // Must be < 0 if present
+    ) {}
+}
 ```
 
 ## Date Validation

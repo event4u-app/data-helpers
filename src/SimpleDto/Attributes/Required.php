@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Mark a property as required.
@@ -22,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Required implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     public function __construct(
         public readonly ?string $message = null
@@ -52,11 +50,14 @@ class Required implements ValidationAttribute, ValidationRule, SymfonyConstraint
         return 'required';
     }
 
-    public function constraint(): Constraint
+    public function constraint(): object
     {
-        $this->ensureSymfonyValidatorAvailable();
-
-        return new Assert\NotBlank(message: $this->message);
+        return $this->createConstraint(
+            "\Symfony\Component\Validator\Constraints\NotBlank",
+            [
+                'message' => $this->message,
+            ]
+        );
     }
 
     public function message(): ?string
