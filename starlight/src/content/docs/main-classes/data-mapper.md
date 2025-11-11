@@ -288,6 +288,143 @@ $result = DataMapper::source($source)
     ->getTarget(); // Returns UserDto instance
 ```
 
+### Working with Readonly Properties
+
+PHP 8.1+ introduced readonly properties that can only be initialized once. The DataMapper provides the `modifyReadOnly()` method to handle these properties intelligently.
+
+#### Default Behavior (modifyReadOnly disabled)
+
+By default, readonly properties that are already initialized will be skipped:
+
+<!-- skip-test: declares UserDto class -->
+```php
+class UserDto
+{
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+    ) {}
+}
+
+// Create instance with initialized readonly properties
+$dto = new UserDto(999, 'Original');
+
+$source = ['id' => 123, 'name' => 'John'];
+
+// Map to existing object - readonly properties are skipped
+$result = DataMapper::source($source)
+    ->target($dto)
+    ->template([
+        'id' => '{{ id }}',
+        'name' => '{{ name }}',
+    ])
+    ->map()
+    ->getTarget();
+
+// Result: id=999, name='Original' (unchanged)
+```
+
+#### Enabling Readonly Modification
+
+When `modifyReadOnly(true)` is enabled, the mapper will create a new instance to allow setting readonly properties:
+
+<!-- skip-test: declares UserDto class -->
+```php
+class UserDto
+{
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+    ) {}
+}
+
+$dto = new UserDto(999, 'Original');
+$source = ['id' => 123, 'name' => 'John'];
+
+// Enable readonly modification
+$result = DataMapper::source($source)
+    ->target($dto)
+    ->modifyReadOnly(true)  // Creates new instance
+    ->template([
+        'id' => '{{ id }}',
+        'name' => '{{ name }}',
+    ])
+    ->map()
+    ->getTarget();
+
+// Result: id=123, name='John' (new instance created)
+// Original $dto remains unchanged: id=999, name='Original'
+```
+
+#### Mapping to Class Names
+
+When the target is a class name (string) instead of an object instance, readonly properties can always be set:
+
+<!-- skip-test: declares UserDto class -->
+```php
+class UserDto
+{
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+    ) {}
+}
+
+$source = ['id' => 123, 'name' => 'John'];
+
+// Pass class name as target
+$result = DataMapper::source($source)
+    ->target(UserDto::class)  // Class name, not instance
+    ->modifyReadOnly(true)
+    ->template([
+        'id' => '{{ id }}',
+        'name' => '{{ name }}',
+    ])
+    ->map()
+    ->getTarget();
+
+// Result: id=123, name='John' (new instance created via constructor)
+```
+
+#### Performance Optimization
+
+The mapper only creates a new instance when necessary:
+
+- **Class name target**: Uses constructor when possible (best performance)
+- **Object target + no readonly properties to modify**: Reuses existing object (preserves reference)
+- **Object target + readonly properties to modify**: Creates new instance via reflection
+
+<!-- skip-test: declares UserDto class -->
+```php
+class UserDto
+{
+    public int $id = 0;      // Mutable property
+    public string $name = ''; // Mutable property
+}
+
+$dto = new UserDto();
+$source = ['id' => 123, 'name' => 'John'];
+
+// No readonly properties - reuses existing object
+$result = DataMapper::source($source)
+    ->target($dto)
+    ->modifyReadOnly(false)
+    ->template([
+        'id' => '{{ id }}',
+        'name' => '{{ name }}',
+    ])
+    ->map()
+    ->getTarget();
+
+// $result === $dto (same object reference)
+```
+
+:::tip[Best Practice]
+- Use `modifyReadOnly(false)` (default) for safe, predictable behavior
+- Use `modifyReadOnly(true)` only when you explicitly need to modify readonly properties
+- Prefer passing class names as targets when working with readonly properties
+:::
+
 ### Nested Structures
 
 ```php

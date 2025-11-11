@@ -118,6 +118,50 @@ $mapper = DataMapper::source([])
     ->reindexWildcard(false);
 ```
 
+### `modifyReadOnly(bool $allow = false): self`
+
+Allow or disallow modification of readonly properties.
+
+When enabled, the mapper will attempt to modify readonly properties by:
+- Using the constructor when target is a class name (string)
+- Creating a new instance via reflection when target is an object and readonly properties would be modified
+
+When disabled (default), readonly properties that are already initialized will be skipped.
+
+<!-- skip-test: declares UserDto class -->
+```php
+use event4u\DataHelpers\DataMapper;
+
+class UserDto
+{
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+    ) {}
+}
+
+// Default behavior - readonly properties are skipped
+$dto = new UserDto(999, 'Original');
+$result = DataMapper::source(['id' => 123, 'name' => 'John'])
+    ->target($dto)
+    ->modifyReadOnly(false)  // Default
+    ->template(['id' => '{{ id }}', 'name' => '{{ name }}'])
+    ->map()
+    ->getTarget();
+// Result: id=999, name='Original' (unchanged)
+
+// Enable modification - creates new instance
+$result = DataMapper::source(['id' => 123, 'name' => 'John'])
+    ->target($dto)
+    ->modifyReadOnly(true)  // Enable
+    ->template(['id' => '{{ id }}', 'name' => '{{ name }}'])
+    ->map()
+    ->getTarget();
+// Result: id=123, name='John' (new instance)
+```
+
+See [Working with Readonly Properties](/data-helpers/main-classes/data-mapper/#working-with-readonly-properties) for detailed examples.
+
 ## Execution Methods
 
 ### `map(bool $withQuery = true): DataMapperResult`
