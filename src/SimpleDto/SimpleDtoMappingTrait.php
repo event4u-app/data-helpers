@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
+use event4u\DataHelpers\SimpleDto\Attributes\Map;
 use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\MapInputName;
 use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
@@ -77,7 +78,14 @@ trait SimpleDtoMappingTrait
         $mapping = [];
 
         foreach ($metadata['parameters'] as $param) {
-            if (isset($param['attributes'][MapFrom::class])) {
+            // Check for #[Map] attribute first (bidirectional mapping)
+            if (isset($param['attributes'][Map::class])) {
+                /** @var Map $map */
+                $map = $param['attributes'][Map::class];
+                $mapping[$param['name']] = $map->key;
+            }
+            // Then check for #[MapFrom] attribute
+            elseif (isset($param['attributes'][MapFrom::class])) {
                 /** @var MapFrom $mapFrom */
                 $mapFrom = $param['attributes'][MapFrom::class];
                 $mapping[$param['name']] = $mapFrom->source;
@@ -242,7 +250,16 @@ trait SimpleDtoMappingTrait
         $mapping = [];
 
         foreach ($metadata['parameters'] as $param) {
-            if (isset($param['attributes'][MapTo::class])) {
+            // Check for #[Map] attribute first (bidirectional mapping)
+            if (isset($param['attributes'][Map::class])) {
+                /** @var Map $map */
+                $map = $param['attributes'][Map::class];
+                // For output, use the first key if it's an array (fallback only applies to input)
+                $key = is_array($map->key) ? $map->key[0] : $map->key;
+                $mapping[$param['name']] = $key;
+            }
+            // Then check for #[MapTo] attribute
+            elseif (isset($param['attributes'][MapTo::class])) {
                 /** @var MapTo $mapTo */
                 $mapTo = $param['attributes'][MapTo::class];
                 $mapping[$param['name']] = $mapTo->target;

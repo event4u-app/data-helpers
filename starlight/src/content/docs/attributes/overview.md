@@ -12,7 +12,7 @@ SimpleDto provides 50+ attributes organized into categories:
 - ✅ **Validation Attributes** (30+) - Data validation
 - ✅ **Conditional Attributes** (18) - Visibility control
 - ✅ **Cast Attributes** (1) - Type casting
-- ✅ **Mapping Attributes** (2) - Property mapping
+- ✅ **Mapping Attributes** (3) - Property mapping
 - ✅ **Computed Attributes** (1) - Calculated properties
 - ✅ **Lazy Attributes** (1) - Deferred evaluation
 - ✅ **Hidden Attributes** (1) - Always hidden
@@ -55,7 +55,8 @@ See [Casting Attributes](/data-helpers/attributes/casting/) for complete list.
 
 See [Mapping Attributes](/data-helpers/attributes/mapping/) for complete list.
 
-- `#[MapFrom(string $source)]` - Map from different input key
+- `#[Map(string|array $key)]` - Bidirectional mapping (recommended)
+- `#[MapFrom(string|array $source)]` - Map from different input key
 - `#[MapTo(string $target)]` - Map to different output key
 
 ### Other Attributes
@@ -117,7 +118,7 @@ class UserDto extends SimpleDto
 {
     public function __construct(
         // Validation + Mapping
-        #[Required, Email, MapFrom('user_email')]
+        #[Required, Email, Map('user_email')]
         public readonly string $email,
 
         // Validation + Cast
@@ -150,7 +151,7 @@ class UserDto extends SimpleDto
 
 **Data Transformation:**
 - 1 cast attribute (20+ cast classes)
-- 2 mapping attributes
+- 3 mapping attributes
 - See [Casting](/data-helpers/attributes/casting/) and [Mapping](/data-helpers/attributes/mapping/)
 
 **Computed Values:**
@@ -188,7 +189,7 @@ public readonly ?string $email;
 
 ```php
 // ✅ Good - logical combination
-#[Required, Email, MapFrom('user_email')]
+#[Required, Email, Map('user_email')]
 public readonly string $email;
 
 // ❌ Bad - conflicting attributes

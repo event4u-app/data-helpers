@@ -3,7 +3,103 @@ title: Attributes Reference
 description: Complete guide to all LiteDto attributes
 ---
 
-LiteDto provides six attributes to control property mapping, serialization, data conversion and performance.
+LiteDto provides seven attributes to control property mapping, serialization, data conversion and performance.
+
+## #[Map]
+
+**Purpose**: Bidirectional mapping - map property from/to a different key during hydration and serialization.
+
+**Target**: Property or constructor parameter
+
+**Namespace**: `event4u\DataHelpers\LiteDto\Attributes\Map`
+
+:::tip[Recommended]
+Use `#[Map]` instead of combining `#[MapFrom]` and `#[MapTo]` when the source and target keys are the same. It reduces code duplication.
+:::
+
+### Basic Usage
+
+```php
+use event4u\DataHelpers\LiteDto\Attributes\Map;
+
+class UserDto extends LiteDto
+{
+    public function __construct(
+        // Instead of: #[MapFrom('user_name'), MapTo('user_name')]
+        #[Map('user_name')]
+        public readonly string $name,
+
+        #[Map('email_address')]
+        public readonly string $email,
+    ) {}
+}
+
+// Input mapping (from)
+$user = UserDto::from([
+    'user_name' => 'John',
+    'email_address' => 'john@example.com',
+]);
+
+echo $user->name;   // John
+echo $user->email;  // john@example.com
+
+// Output mapping (to)
+$array = $user->toArray();
+// ['user_name' => 'John', 'email_address' => 'john@example.com']
+```
+
+### API Response Mapping
+
+Perfect for mapping API responses with different naming conventions:
+
+```php
+class ProductDto extends LiteDto
+{
+    public function __construct(
+        #[Map('product_id')]
+        public readonly int $id,
+
+        #[Map('product_name')]
+        public readonly string $name,
+
+        #[Map('product_price')]
+        public readonly float $price,
+
+        #[Map('created_at')]
+        public readonly string $createdAt,
+    ) {}
+}
+
+// API response
+$apiData = [
+    'product_id' => 123,
+    'product_name' => 'Laptop',
+    'product_price' => 999.99,
+    'created_at' => '2024-01-15',
+];
+
+$product = ProductDto::from($apiData);
+
+// Output for database
+$dbData = $product->toArray();
+// Same structure: ['product_id' => 123, 'product_name' => 'Laptop', ...]
+```
+
+### Priority
+
+`#[Map]` has priority over `#[MapFrom]` and `#[MapTo]`:
+
+```php
+class UserDto extends LiteDto
+{
+    public function __construct(
+        // Map takes precedence
+        #[Map('mapped_name'), MapFrom('old_name'), MapTo('old_name')]
+        public readonly string $name,
+        // Will use 'mapped_name' for both input and output
+    ) {}
+}
+```
 
 ## #[MapFrom]
 
@@ -148,7 +244,7 @@ $dbData = $user->toArray();
 
 ### Combining #[MapFrom] and #[MapTo]
 
-Use both attributes for bidirectional mapping:
+Use both attributes when source and target keys are different:
 
 ```php
 class UserDto extends LiteDto
@@ -171,6 +267,18 @@ $user = UserDto::from([
 // To Database (uses #[MapTo])
 $dbData = $user->toArray();
 // ['db_user_id' => 123, 'db_name' => 'John']
+```
+
+### When to Use #[Map] vs #[MapFrom] + #[MapTo]
+
+```php
+// ✅ Use #[Map] when source and target are the same
+#[Map('user_name')]
+public readonly string $name;
+
+// ✅ Use #[MapFrom] + #[MapTo] when source and target differ
+#[MapFrom('api_user_name'), MapTo('db_user_name')]
+public readonly string $name;
 ```
 
 ## #[Hidden]
@@ -528,13 +636,16 @@ You can combine multiple attributes on the same property (except `#[UltraFast]` 
 class UserDto extends LiteDto
 {
     public function __construct(
-        #[From('user_name'), To('full_name')]
-        public readonly string $name,
+        // Map + ConvertEmptyToNull
+        #[Map('user_name'), ConvertEmptyToNull]
+        public readonly ?string $name,
 
-        #[From('user_bio'), To('biography'), ConvertEmptyToNull]
+        // MapFrom + MapTo (different keys)
+        #[MapFrom('user_bio'), MapTo('biography'), ConvertEmptyToNull]
         public readonly ?string $bio,
 
-        #[From('api_key'), Hidden]
+        // Map + Hidden
+        #[Map('api_key'), Hidden]
         public readonly string $apiKey,
     ) {}
 }

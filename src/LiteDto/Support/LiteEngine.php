@@ -14,6 +14,7 @@ use event4u\DataHelpers\LiteDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
 use event4u\DataHelpers\LiteDto\Attributes\EnumSerialize;
 use event4u\DataHelpers\LiteDto\Attributes\Hidden;
+use event4u\DataHelpers\LiteDto\Attributes\Map;
 use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
@@ -175,15 +176,14 @@ final class LiteEngine
 
         // UltraFast mode: check if MapTo is allowed
         if (self::isUltraFast($class)) {
-            $ultraFast = self::getUltraFastAttribute($class);
             $data = get_object_vars($dto);
             $reflection = self::getReflection($class);
 
-            // Check if any property has MapTo or EnumSerialize attributes (auto-detect)
+            // Check if any property has Map, MapTo or EnumSerialize attributes (auto-detect)
             $hasMapTo = false;
             $hasEnumSerialize = false;
             foreach ($reflection->getProperties() as $prop) {
-                if (!empty($prop->getAttributes(MapTo::class))) {
+                if (!empty($prop->getAttributes(Map::class)) || !empty($prop->getAttributes(MapTo::class))) {
                     $hasMapTo = true;
                 }
                 if (!empty($prop->getAttributes(EnumSerialize::class))) {
@@ -211,11 +211,17 @@ final class LiteEngine
 
                 $value = $data[$name];
 
-                // Check for #[MapTo] attribute
-                $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
-                if (!empty($mapToAttrs)) {
+                // Check for #[Map] attribute first (bidirectional mapping)
+                $mapAttrs = $reflectionProperty->getAttributes(Map::class);
+                if (!empty($mapAttrs)) {
+                    /** @var Map $map */
+                    $map = $mapAttrs[0]->newInstance();
+                    $outputName = $map->key;
+                }
+                // Then check for #[MapTo] attribute
+                elseif (!empty($reflectionProperty->getAttributes(MapTo::class))) {
                     /** @var MapTo $mapTo */
-                    $mapTo = $mapToAttrs[0]->newInstance();
+                    $mapTo = $reflectionProperty->getAttributes(MapTo::class)[0]->newInstance();
                     $outputName = $mapTo->target;
                 } else {
                     $outputName = $name;
@@ -356,6 +362,15 @@ final class LiteEngine
             return self::$fromMappingCache[$class][$name];
         }
 
+        // Check for #[Map] attribute first (bidirectional mapping)
+        $mapAttrs = $param->getAttributes(Map::class);
+        if ([] !== $mapAttrs) {
+            /** @var Map $map */
+            $map = $mapAttrs[0]->newInstance();
+            self::$fromMappingCache[$class][$name] = $map->key;
+            return $map->key;
+        }
+
         // Check for #[MapFrom] attribute on parameter
         $attrs = $param->getAttributes(MapFrom::class);
         if ([] !== $attrs) {
@@ -380,6 +395,15 @@ final class LiteEngine
         // Check cache
         if (isset(self::$toMappingCache[$class][$name])) {
             return self::$toMappingCache[$class][$name];
+        }
+
+        // Check for #[Map] attribute first (bidirectional mapping)
+        $mapAttrs = $property->getAttributes(Map::class);
+        if ([] !== $mapAttrs) {
+            /** @var Map $map */
+            $map = $mapAttrs[0]->newInstance();
+            self::$toMappingCache[$class][$name] = $map->key;
+            return $map->key;
         }
 
         // Check for #[MapTo] attribute
@@ -841,12 +865,19 @@ final class LiteEngine
             $paramName = $reflectionParameter->getName();
             $value = null;
 
-            // Step 1: Check for #[MapFrom] (auto-detect or explicitly allowed)
+            // Step 1: Check for #[Map] or #[MapFrom] (auto-detect or explicitly allowed)
+            $mapAttrs = $reflectionParameter->getAttributes(Map::class);
             $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
+            $hasMap = !empty($mapAttrs);
             $hasMapFrom = !empty($mapFromAttrs);
-            $allowMapFrom = ($ultraFast instanceof UltraFast && $ultraFast->allowMapFrom) || $hasMapFrom;
+            $allowMapFrom = ($ultraFast instanceof UltraFast && $ultraFast->allowMapFrom) || $hasMap || $hasMapFrom;
 
-            if ($allowMapFrom && $hasMapFrom) {
+            if ($allowMapFrom && $hasMap) {
+                /** @var Map $map */
+                $map = $mapAttrs[0]->newInstance();
+                $sourceKey = $map->key;
+                $value = $data[$sourceKey] ?? null;
+            } elseif ($allowMapFrom && $hasMapFrom) {
                 /** @var MapFrom $mapFrom */
                 $mapFrom = $mapFromAttrs[0]->newInstance();
                 $sourceKey = $mapFrom->source;
