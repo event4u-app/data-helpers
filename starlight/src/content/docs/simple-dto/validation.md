@@ -224,6 +224,74 @@ class WebsiteDto extends SimpleDto
 }
 ```
 
+### Length Validation
+
+Validate length (maximum or range) for strings, numbers, and arrays. Perfect for database column types like `varchar(10)` or `int(3)`.
+
+**Syntax:**
+- **One parameter**: Maximum length (0 to $max)
+- **Two parameters**: Length range ($min to $max)
+
+```php
+use event4u\DataHelpers\SimpleDto\Attributes\Length;
+
+class ProductDto extends SimpleDto
+{
+    public function __construct(
+        // Maximum length (0 to max)
+        #[Required, Length(10)]
+        public readonly string $name,  // varchar(10) - 0-10 characters
+
+        #[Required, Length(3)]
+        public readonly int $countryCode,  // int(3) - 0-3 digits
+
+        // Length range (min to max)
+        #[Required, Length(3, 10)]
+        public readonly string $username,  // 3-10 characters
+
+        #[Required, Length(1, 3)]
+        public readonly int $code,  // 1-3 digits
+
+        // Array length
+        #[Length(5)]
+        public readonly ?array $tags = null,  // 0-5 items
+    ) {}
+}
+
+// Valid examples
+$dto = ProductDto::validateAndCreate([
+    'name' => 'Product',     // ✅ 7 characters (0-10)
+    'countryCode' => 123,    // ✅ 3 digits (0-3)
+    'username' => 'john',    // ✅ 4 characters (3-10)
+    'code' => 12,            // ✅ 2 digits (1-3)
+    'tags' => ['a', 'b'],    // ✅ 2 items (0-5)
+]);
+
+// Invalid examples
+$dto = ProductDto::validateAndCreate([
+    'name' => 'Very Long Product Name',  // ❌ Too long (>10 characters)
+    'countryCode' => 1234,                // ❌ Too many digits (>3)
+    'username' => 'ab',                   // ❌ Too short (<3 characters)
+    'code' => 1234,                       // ❌ Too many digits (>3)
+    'tags' => ['a', 'b', 'c', 'd', 'e', 'f'], // ❌ Too many items (>5)
+]);
+```
+
+**Validation Rules:**
+- **Strings**: Character length (using `mb_strlen`)
+- **Numbers**: Number of digits (e.g., `123` = 3 digits, `-999` = 3 digits)
+- **Arrays**: Number of items
+- **Null values**: Always pass (use `#[Required]` for mandatory fields)
+
+**Custom Error Messages:**
+```php
+#[Length(10, message: 'Name must be at most 10 characters')]
+public readonly string $name;
+
+#[Length(3, 10, message: 'Username must be between 3 and 10 characters')]
+public readonly string $username;
+```
+
 
 ## All Validation Attributes
 
@@ -232,6 +300,7 @@ class WebsiteDto extends SimpleDto
 | `Required` | Field is required | `#[Required]` |
 | `Email` | Valid email address | `#[Email]` |
 | `Url` | Valid URL | `#[Url]` |
+| `Length` | Maximum or range length | `#[Length(10)]` or `#[Length(3, 10)]` |
 | `Min` | Minimum value/length | `#[Min(3)]` |
 | `Max` | Maximum value/length | `#[Max(100)]` |
 | `Between` | Value between min and max | `#[Between(18, 120)]` |
