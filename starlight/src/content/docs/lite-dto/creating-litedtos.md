@@ -367,6 +367,70 @@ public readonly array $members;
 public readonly array $members;
 ```
 
+## Introspection
+
+### Getting Property Keys
+
+Use `getKeys()` to get all property names of the DTO:
+
+```php
+use event4u\DataHelpers\LiteDto;
+use event4u\DataHelpers\LiteDto\Attributes\Hidden;
+
+class UserDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+
+        #[Hidden]
+        public readonly string $password,
+
+        public readonly int $age,
+    ) {}
+}
+
+$user = UserDto::from([
+    'name' => 'John',
+    'email' => 'john@example.com',
+    'password' => 'secret',
+    'age' => 30,
+]);
+
+// Get all property keys (including hidden)
+$keys = $user->getKeys();
+// ['name', 'email', 'password', 'age']
+
+// Get only visible property keys (exclude hidden)
+$visibleKeys = $user->getKeys(includeHiddenFromArray: false);
+// ['name', 'email', 'age']
+```
+
+**Parameters:**
+- `includeHiddenFromArray` (default: `true`) - Include properties with `#[Hidden]` attribute
+- `includeHiddenFromJson` (default: `true`) - Same as `includeHiddenFromArray` for LiteDto
+
+**Use Cases:**
+
+```php
+// Dynamic property iteration
+foreach ($user->getKeys() as $key) {
+    echo "$key: " . $user->$key . "\n";
+}
+
+// Get only visible properties for API response
+$visibleKeys = $user->getKeys(includeHiddenFromArray: false);
+$apiData = [];
+foreach ($visibleKeys as $key) {
+    $apiData[$key] = $user->$key;
+}
+
+// Property validation
+$requiredKeys = ['name', 'email'];
+$actualKeys = $user->getKeys();
+$missingKeys = array_diff($requiredKeys, $actualKeys);
+```
+
 ## Next Steps
 
 - [Attributes Reference](./attributes) - Complete guide to all attributes

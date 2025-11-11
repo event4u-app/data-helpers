@@ -236,7 +236,7 @@ describe('SimpleDto from*() Methods with Template/Filter/Pipeline', function(): 
     describe('from() with DTO Configuration', function(): void {
         it('fromJson uses DTO template', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ user.id }}',

@@ -86,21 +86,49 @@ trait SimpleDtoMapperTrait
     private static array $pipelineCache = [];
 
     /**
-     * Define the DataMapper template for this Dto.
+     * DataMapper template for this Dto.
      *
-     * Override this method to define a template that will be used
-     * when creating Dtos from source data.
+     * You can override this property in your Dto class to provide a template
+     * that maps source data to Dto properties.
      *
      * Template expressions use {{ }} syntax with dot-notation and filters:
      * - '{{ user.id }}' - Simple mapping
      * - '{{ user.name | trim | ucfirst }}' - With filters
      * - '{{ user.email | lower }}' - Lowercase email
      *
+     * Example:
+     *   protected ?array $mapperTemplate = [
+     *       'id' => '{{ user.id }}',
+     *       'name' => '{{ user.profile.full_name }}',
+     *       'email' => '{{ contact.email }}',
+     *   ];
+     *
+     * @var array<string, mixed>|null
+     */
+    protected ?array $mapperTemplate = null;
+
+    /**
+     * Get the DataMapper template for this Dto instance.
+     *
      * @return array<string, mixed>|null Template array or null if no template
      */
-    protected function mapperTemplate(): ?array
+    public function getMapperTemplate(): ?array
     {
-        return null;
+        return $this->mapperTemplate;
+    }
+
+    /**
+     * Set the DataMapper template for this Dto instance.
+     *
+     * This method allows you to dynamically set a template for this specific
+     * Dto instance. The template will be used when the instance is converted
+     * or processed.
+     *
+     * @param array<string, mixed>|null $template Template array or null to clear
+     */
+    public function setMapperTemplate(?array $template): void
+    {
+        $this->mapperTemplate = $template;
     }
 
     /**
@@ -158,25 +186,27 @@ trait SimpleDtoMapperTrait
             return self::$templateCache[$class];
         }
 
-        // Check if mapperTemplate() method is overridden
+        // Check if getMapperTemplate() method is overridden or $mapperTemplate property is set
         $reflection = new ReflectionClass($class);
 
         try {
-            $method = $reflection->getMethod('mapperTemplate');
+            $method = $reflection->getMethod('getMapperTemplate');
 
             // Check if method is overridden (not from trait)
             // The method is from the trait if it's declared in SimpleDtoMapperTrait
             $declaringClass = $method->getDeclaringClass()->getName();
             if (SimpleDtoMapperTrait::class === $declaringClass) {
-                // Method is not overridden, return null
-                self::$templateCache[$class] = null;
+                // Method is not overridden, check if property is set
+                $instance = $reflection->newInstanceWithoutConstructor();
+                $template = $instance->getMapperTemplate();
+                self::$templateCache[$class] = $template;
 
-                return null;
+                return $template;
             }
 
             // Method is overridden, call it
             $instance = $reflection->newInstanceWithoutConstructor();
-            $template = $instance->mapperTemplate();
+            $template = $instance->getMapperTemplate();
             self::$templateCache[$class] = $template;
 
             return $template;

@@ -69,7 +69,7 @@ describe('SimpleDto Template/Filter/Pipeline Edge Cases', function(): void {
     describe('Template Parameter Override', function(): void {
         it('parameter template overrides DTO template', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ wrong.id }}',

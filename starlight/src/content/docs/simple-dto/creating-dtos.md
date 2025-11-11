@@ -553,6 +553,95 @@ task test:unit -- --filter=SimpleDto
 # Run specific test file
 vendor/bin/pest tests/Unit/SimpleDto/SimpleDtoTest.php
 ```
+
+## Introspection
+
+### Getting Property Keys
+
+Use `getKeys()` to get all property names of the DTO:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
+use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromJson;
+
+class UserDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+
+        #[Hidden]
+        public readonly string $password,
+
+        #[HiddenFromArray]
+        public readonly string $internalId,
+
+        #[HiddenFromJson]
+        public readonly string $debugInfo,
+
+        public readonly int $age,
+    ) {}
+}
+
+$user = UserDto::fromArray([
+    'name' => 'John',
+    'email' => 'john@example.com',
+    'password' => 'secret',
+    'internalId' => '123',
+    'debugInfo' => 'debug',
+    'age' => 30,
+]);
+
+// Get all property keys (including hidden)
+$keys = $user->getKeys();
+// ['name', 'email', 'password', 'internalId', 'debugInfo', 'age']
+
+// Exclude properties hidden from array
+$keys = $user->getKeys(includeHiddenFromArray: false);
+// ['name', 'email', 'debugInfo', 'age']
+
+// Exclude properties hidden from JSON
+$keys = $user->getKeys(includeHiddenFromJson: false);
+// ['name', 'email', 'internalId', 'age']
+
+// Exclude all hidden properties
+$keys = $user->getKeys(includeHiddenFromArray: false, includeHiddenFromJson: false);
+// ['name', 'email', 'age']
+```
+
+**Parameters:**
+- `includeHiddenFromArray` (default: `true`) - Include properties with `#[HiddenFromArray]` attribute
+- `includeHiddenFromJson` (default: `true`) - Include properties with `#[HiddenFromJson]` attribute
+
+**Use Cases:**
+
+```php
+// Dynamic property iteration
+foreach ($user->getKeys() as $key) {
+    $value = $user->get($key);
+    echo "$key: $value\n";
+}
+
+// Get only visible properties for API response
+$visibleKeys = $user->getKeys(includeHiddenFromArray: false, includeHiddenFromJson: false);
+
+// Property validation
+$requiredKeys = ['name', 'email'];
+$actualKeys = $user->getKeys();
+$missingKeys = array_diff($requiredKeys, $actualKeys);
+
+// Generate documentation
+$properties = [];
+foreach ($user->getKeys() as $key) {
+    $properties[$key] = [
+        'type' => gettype($user->get($key)),
+        'value' => $user->get($key),
+    ];
+}
+```
+
 ## See Also
 
 - [Type Casting](/data-helpers/simple-dto/type-casting/) - Automatic type conversion

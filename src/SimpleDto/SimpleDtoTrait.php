@@ -133,6 +133,21 @@ trait SimpleDtoTrait
     }
 
     /**
+     * Get all property keys of this DTO.
+     *
+     * Returns the property names (not the mapped output names) of the DTO.
+     * By default, all properties are included (even hidden ones).
+     *
+     * @param bool $includeHiddenFromArray Include properties with #[HiddenFromArray] attribute (default: true)
+     * @param bool $includeHiddenFromJson Include properties with #[HiddenFromJson] attribute (default: true)
+     * @return array<int, string> Array of property names
+     */
+    public function getKeys(bool $includeHiddenFromArray = true, bool $includeHiddenFromJson = true): array
+    {
+        return SimpleEngine::getKeys(static::class, $includeHiddenFromArray, $includeHiddenFromJson);
+    }
+
+    /**
      * Check if toArray() caching should be enabled.
      *
      * Caching is disabled if there are computed properties with cache: false,

@@ -175,7 +175,7 @@ describe('SimpleDto Template Priority', function(): void {
     describe('DTO Template vs Parameter Template', function(): void {
         it('parameter template overrides DTO template', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ wrong.id }}',
@@ -207,7 +207,7 @@ describe('SimpleDto Template Priority', function(): void {
 
         it('DTO template is used when no parameter template', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ user.id }}',

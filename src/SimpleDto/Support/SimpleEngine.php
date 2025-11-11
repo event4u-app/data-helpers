@@ -448,6 +448,7 @@ final class SimpleEngine
                 'lastValidationResult',
                 'toArrayCache',
                 'toJsonCache',
+                'mapperTemplate',
             ];
 
             foreach ($internalProperties as $internalProp) {
@@ -699,6 +700,7 @@ final class SimpleEngine
                 'lastValidationResult',
                 'toArrayCache',
                 'toJsonCache',
+                'mapperTemplate',
             ];
 
             foreach ($internalProperties as $internalProp) {
@@ -3895,5 +3897,94 @@ final class SimpleEngine
             $method = $reflection->getMethod($methodName);
             $method->invoke($instance, ...$args);
         }
+    }
+
+    /**
+     * Get all property keys of a DTO class.
+     *
+     * Returns only properties defined in the final DTO class, not from traits or parent classes.
+     * By default, all properties are included (even hidden ones).
+     *
+     * @param class-string $class DTO class name
+     * @param bool $includeHiddenFromArray Include properties with #[HiddenFromArray] attribute (default: true)
+     * @param bool $includeHiddenFromJson Include properties with #[HiddenFromJson] attribute (default: true)
+     * @return array<int, string> Array of property names
+     */
+    public static function getKeys(
+        string $class,
+        bool $includeHiddenFromArray = true,
+        bool $includeHiddenFromJson = true
+    ): array {
+        $reflection = self::getReflection($class);
+        $metadata = self::getPropertyMetadata($class);
+
+        // Get all public properties
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+
+        // Internal properties from traits that should be excluded
+        $internalProperties = [
+            'onlyProperties',
+            'exceptProperties',
+            'visibilityContext',
+            'computedCache',
+            'includedComputed',
+            'includedLazy',
+            'includeAllLazy',
+            'wrapKey',
+            'objectVarsCache',
+            'castedProperties',
+            'conditionalContext',
+            'additionalData',
+            'sortingEnabled',
+            'sortDirection',
+            'nestedSort',
+            'sortCallback',
+            'validationState',
+            'validationErrors',
+            'lastValidationResult',
+            'toArrayCache',
+            'toJsonCache',
+            'mapperTemplate',
+        ];
+
+        $keys = [];
+
+        foreach ($properties as $property) {
+            $name = $property->getName();
+
+            // Skip internal properties from traits
+            if (in_array($name, $internalProperties, true)) {
+                continue;
+            }
+
+            // Skip properties not defined in the final DTO class
+            if ($property->getDeclaringClass()->getName() !== $class) {
+                continue;
+            }
+
+            // Get metadata for this property
+            $propMeta = $metadata[$name] ?? null;
+            if (null === $propMeta) {
+                continue;
+            }
+
+            // Check if property should be excluded based on Hidden attributes
+            // Exclude if hidden from array (when includeHiddenFromArray is false)
+            if (!$includeHiddenFromArray && ($propMeta['isHidden'] || $propMeta['isHiddenFromArray'])) {
+                continue;
+            }
+
+            // Exclude if hidden from json (when includeHiddenFromJson is false)
+            if (!$includeHiddenFromJson) {
+                $hiddenFromJsonAttrs = $property->getAttributes(HiddenFromJson::class);
+                if ($propMeta['isHidden'] || !empty($hiddenFromJsonAttrs)) {
+                    continue;
+                }
+            }
+
+            $keys[] = $name;
+        }
+
+        return $keys;
     }
 }

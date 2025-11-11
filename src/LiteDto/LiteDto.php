@@ -214,6 +214,21 @@ abstract class LiteDto implements JsonSerializable
     }
 
     /**
+     * Get all property keys of this DTO.
+     *
+     * Returns the property names (not the mapped output names) of the DTO.
+     * By default, all properties are included (even hidden ones).
+     *
+     * @param bool $includeHiddenFromArray Include properties with #[Hidden] attribute (default: true)
+     * @param bool $includeHiddenFromJson Include properties with #[Hidden] attribute (same as includeHiddenFromArray for LiteDto, default: true)
+     * @return array<int, string> Array of property names
+     */
+    public function getKeys(bool $includeHiddenFromArray = true, bool $includeHiddenFromJson = true): array
+    {
+        return LiteEngine::getKeys(static::class, $includeHiddenFromArray, $includeHiddenFromJson);
+    }
+
+    /**
      * Get value from Dto using dot notation.
      *
      * Supports:

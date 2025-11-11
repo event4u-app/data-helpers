@@ -8,10 +8,36 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\UppercaseStrings;
 use event4u\DataHelpers\SimpleDto;
 
 describe('SimpleDto Mapper Integration', function(): void {
-    describe('mapperTemplate() Method', function(): void {
-        it('uses template from Dto definition', function(): void {
+    describe('getMapperTemplate() Method', function(): void {
+        it('uses template from Dto property definition', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                protected ?array $mapperTemplate = [
+                    'id' => '{{ user.id }}',
+                    'name' => '{{ user.full_name }}',
+                ];
+
+                public function __construct(
+                    public readonly int $id = 0,
+                    public readonly string $name = '',
+                ) {}
+            };
+
+            $data = [
+                'user' => [
+                    'id' => 123,
+                    'full_name' => 'John Doe',
+                ],
+            ];
+
+            $result = $dto::from($data);
+
+            expect($result->id)->toBe(123)
+                ->and($result->name)->toBe('John Doe');
+        });
+
+        it('uses template from overridden getMapperTemplate() method', function(): void {
+            $dto = new class extends SimpleDto {
+                public function getMapperTemplate(): array
                 {
                     return [
                         'id' => '{{ user.id }}',
@@ -58,10 +84,107 @@ describe('SimpleDto Mapper Integration', function(): void {
         });
     });
 
+    describe('setMapperTemplate() Method', function(): void {
+        it('sets template on instance', function(): void {
+            $dto = new class extends SimpleDto {
+                public function __construct(
+                    public readonly int $id = 0,
+                    public readonly string $name = '',
+                ) {}
+            };
+
+            $instance = new $dto(id: 1, name: 'Test');
+
+            // Set template on instance
+            $instance->setMapperTemplate([
+                'id' => '{{ user.id }}',
+                'name' => '{{ user.full_name }}',
+            ]);
+
+            expect($instance->getMapperTemplate())->toBe([
+                'id' => '{{ user.id }}',
+                'name' => '{{ user.full_name }}',
+            ]);
+        });
+
+        it('clears template when set to null', function(): void {
+            $dto = new class extends SimpleDto {
+                protected ?array $mapperTemplate = [
+                    'id' => '{{ user.id }}',
+                    'name' => '{{ user.name }}',
+                ];
+
+                public function __construct(
+                    public readonly int $id = 0,
+                    public readonly string $name = '',
+                ) {}
+            };
+
+            $instance = new $dto(id: 1, name: 'Test');
+
+            expect($instance->getMapperTemplate())->toBe([
+                'id' => '{{ user.id }}',
+                'name' => '{{ user.name }}',
+            ]);
+
+            // Clear template
+            $instance->setMapperTemplate(null);
+
+            expect($instance->getMapperTemplate())->toBeNull();
+        });
+
+        it('changes template and remaps with new template', function(): void {
+            $dto = new class extends SimpleDto {
+                protected ?array $mapperTemplate = [
+                    'id' => '{{ user.id }}',
+                    'name' => '{{ user.name }}',
+                ];
+
+                public function __construct(
+                    public readonly int $id = 0,
+                    public readonly string $name = '',
+                ) {}
+            };
+
+            // First mapping with initial template
+            $data1 = [
+                'user' => [
+                    'id' => 100,
+                    'name' => 'Initial Name',
+                ],
+            ];
+
+            $result1 = $dto::from($data1);
+
+            expect($result1->id)->toBe(100)
+                ->and($result1->name)->toBe('Initial Name');
+
+            // Change template on the class by creating new instance with modified template
+            $instance = new $dto(id: 0, name: '');
+            $instance->setMapperTemplate([
+                'id' => '{{ customer.customer_id }}',
+                'name' => '{{ customer.full_name }}',
+            ]);
+
+            // Second mapping with new template
+            $data2 = [
+                'customer' => [
+                    'customer_id' => 200,
+                    'full_name' => 'New Customer Name',
+                ],
+            ];
+
+            $result2 = $dto::from($data2, $instance->getMapperTemplate());
+
+            expect($result2->id)->toBe(200)
+                ->and($result2->name)->toBe('New Customer Name');
+        });
+    });
+
     describe('mapperFilters() Method', function(): void {
         it('uses property filters with template', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ name }}',
@@ -105,7 +228,7 @@ describe('SimpleDto Mapper Integration', function(): void {
     describe('mapperPipeline() Method', function(): void {
         it('uses pipeline filters with template', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ name }}',
@@ -149,7 +272,7 @@ describe('SimpleDto Mapper Integration', function(): void {
     describe('Template Override', function(): void {
         it('overrides template with parameter', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ user.name }}',
@@ -180,7 +303,7 @@ describe('SimpleDto Mapper Integration', function(): void {
     describe('Property Filters Override', function(): void {
         it('overrides property filters with parameter', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ name }}',
@@ -213,7 +336,7 @@ describe('SimpleDto Mapper Integration', function(): void {
     describe('Pipeline Filters Override', function(): void {
         it('merges pipeline filters from Dto and parameter', function(): void {
             $dto = new class extends SimpleDto {
-                protected function mapperTemplate(): array
+                public function getMapperTemplate(): array
                 {
                     return [
                         'name' => '{{ name }}',

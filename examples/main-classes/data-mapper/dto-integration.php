@@ -33,15 +33,12 @@ class UserDto extends SimpleDto
      * Define template in Dto.
      * Template has HIGHEST priority!
      */
-    protected function mapperTemplate(): array
-    {
-        return [
-            'id' => '{{ user.id }}',
-            'name' => '{{ user.full_name | trim | ucfirst }}',
-            'email' => '{{ user.email | lower }}',
-            'age' => '{{ user.age }}',
-        ];
-    }
+    protected ?array $mapperTemplate = [
+        'id' => '{{ user.id }}',
+        'name' => '{{ user.full_name | trim | ucfirst }}',
+        'email' => '{{ user.email | lower }}',
+        'age' => '{{ user.age }}',
+    ];
 
     /** Define pipeline filters in Dto. */
     protected function mapperPipeline(): array
@@ -90,14 +87,11 @@ echo "--- Example 2: Template Priority over Attributes ---\n\n";
 class ProductDto extends SimpleDto
 {
     /** Template has HIGHEST priority! */
-    protected function mapperTemplate(): array
-    {
-        return [
-            'id' => '{{ product.product_id }}',  // Template wins!
-            'name' => '{{ product.title }}',     // Template wins!
-            'price' => '{{ product.price }}',    // From template
-        ];
-    }
+    protected ?array $mapperTemplate = [
+        'id' => '{{ product.product_id }}',  // Template wins!
+        'name' => '{{ product.title }}',     // Template wins!
+        'price' => '{{ product.price }}',    // From template
+    ];
 
     public function __construct(
         #[MapFrom('id')]  // This is ignored because template exists!
@@ -137,13 +131,10 @@ echo "--- Example 3: Dynamic Template Override ---\n\n";
 class OrderDto extends SimpleDto
 {
     /** Default template. */
-    protected function mapperTemplate(): array
-    {
-        return [
-            'id' => '{{ order.id }}',
-            'total' => '{{ order.total }}',
-        ];
-    }
+    protected ?array $mapperTemplate = [
+        'id' => '{{ order.id }}',
+        'total' => '{{ order.total }}',
+    ];
 
     public function __construct(
         public readonly int $id,
@@ -188,7 +179,7 @@ echo "--- Example 4: Attributes as Fallback (No Template) ---\n\n";
 
 class CustomerDto extends SimpleDto
 {
-    // No template() method defined!
+    // No $mapperTemplate property or getMapperTemplate() method defined!
     // Attributes will be used instead.
 
     public function __construct(
@@ -224,7 +215,7 @@ echo "--- Example 5: Automapping as Fallback ---\n\n";
 
 class SimpleUserDto extends SimpleDto
 {
-    // No template() method
+    // No $mapperTemplate property or getMapperTemplate() method
     // No #[MapFrom] attributes
     // Uses automapping!
 
@@ -256,16 +247,13 @@ echo "--- Example 6: Complex Template with Filters ---\n\n";
 
 class BlogPostDto extends SimpleDto
 {
-    protected function mapperTemplate(): array
-    {
-        return [
-            'id' => '{{ post.id }}',
-            'title' => '{{ post.title | trim | ucfirst }}',
-            'slug' => '{{ post.slug | lower }}',
-            'author' => '{{ post.author.name | trim }}',
-            'published' => '{{ post.published_at }}',
-        ];
-    }
+    protected ?array $mapperTemplate = [
+        'id' => '{{ post.id }}',
+        'title' => '{{ post.title | trim | ucfirst }}',
+        'slug' => '{{ post.slug | lower }}',
+        'author' => '{{ post.author.name | trim }}',
+        'published' => '{{ post.published_at }}',
+    ];
 
     protected function mapperPipeline(): array
     {
@@ -314,15 +302,16 @@ echo "  Published: {$post->published}\n\n";
 
 echo "=== Summary ===\n\n";
 echo "Mapping Priority:\n";
-echo "1. Template (highest priority) - defined in template() method\n";
+echo "1. Template (highest priority) - defined in \$mapperTemplate property or getMapperTemplate() method\n";
 echo "2. Attributes (#[MapFrom], #[MapTo]) - fallback if no template\n";
 echo "3. Automapping - fallback if no template and no attributes\n\n";
 
 echo "Features:\n";
-echo "✅ Define templates in Dto class (template() method)\n";
-echo "✅ Define filters in Dto class (filters() method)\n";
+echo "✅ Define templates in Dto class (\$mapperTemplate property or getMapperTemplate() method)\n";
+echo "✅ Define filters in Dto class (mapperFilters() method)\n";
 echo "✅ Override templates dynamically (from() parameter)\n";
 echo "✅ Override filters dynamically (from() parameter)\n";
+echo "✅ Change templates on instances (setMapperTemplate() method)\n";
 echo "✅ Automatic integration with fromArray()\n";
 echo "✅ Template expressions with filters ({{ value | filter }})\n";
 echo "✅ Dot notation for nested data ({{ user.profile.name }})\n";
