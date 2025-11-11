@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
 
 /**
  * Validation attribute: Value must exist in database table.
@@ -35,7 +34,7 @@ use Symfony\Component\Validator\Constraint;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Exists implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     /**
      * @param string $table Database table name
@@ -93,13 +92,13 @@ class Exists implements ValidationAttribute, ValidationRule, SymfonyConstraint
      * For now, we return an empty array to indicate this constraint
      * needs special handling at the application level.
      */
-    public function constraint(): Constraint|array
+    public function constraint(): object|array
     {
-        $this->ensureSymfonyValidatorAvailable();
-
         // Symfony doesn't have a built-in "exists" constraint
         // This needs to be handled with custom validation logic
         // using Doctrine to query the database
+
+        // Return empty array - this constraint needs special handling
         return [];
     }
 }

@@ -141,6 +141,7 @@ export default defineConfig({
 						{ label: 'Overview', slug: 'attributes/overview' },
 						{ label: 'Validation Attributes', slug: 'attributes/validation' },
 						{ label: 'Casting Attributes', slug: 'attributes/casting' },
+                        { label: 'Transformation Attributes', slug: 'attributes/transformation' },
 						{ label: 'Mapping Attributes', slug: 'attributes/mapping' },
 						{ label: 'Visibility Attributes', slug: 'attributes/visibility' },
 						{ label: 'Conditional Attributes', slug: 'attributes/conditional' },

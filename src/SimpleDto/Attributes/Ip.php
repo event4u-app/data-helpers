@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validation attribute: Value must be a valid IP address.
@@ -37,7 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Ip implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     /** @param string|null $version IP version: 'ipv4', 'ipv6' or null for both */
     public function __construct(
@@ -95,16 +93,22 @@ class Ip implements ValidationAttribute, ValidationRule, SymfonyConstraint
         return $this->version;
     }
 
-    public function constraint(): Constraint|array
+    public function constraint(): object
     {
-        $this->ensureSymfonyValidatorAvailable();
-
+        // Determine version constant value
         if (null === $this->version) {
             // Use ALL to accept both IPv4 and IPv6
-            return new Assert\Ip(version: Assert\Ip::ALL);
+            $version = 'all';
+        } elseif ('ipv4' === $this->version) {
+            $version = '4';
+        } else {
+            $version = '6';
         }
 
-        return new Assert\Ip(version: 'ipv4' === $this->version ? Assert\Ip::V4 : Assert\Ip::V6);
+        return $this->createConstraint(
+            "\\Symfony\\Component\\Validator\\Constraints\\Ip",
+            ['version' => $version]
+        );
     }
 
     /** Get validation error message. */

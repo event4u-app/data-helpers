@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 use InvalidArgumentException;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validate length (maximum or range).
@@ -36,7 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Length implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     public readonly int $min;
     public readonly int $max;
@@ -121,21 +119,22 @@ class Length implements ValidationAttribute, ValidationRule, SymfonyConstraint
         return 'between:' . $this->min . ',' . $this->max;
     }
 
-    public function constraint(): Constraint|array
+    public function constraint(): object
     {
-        $this->ensureSymfonyValidatorAvailable();
-
         /** @var int<1, max> $max */
         $max = $this->max;
 
         /** @var int<0, max> $min */
         $min = $this->min;
 
-        return new Assert\Length(
-            min: $min,
-            max: $max,
-            minMessage: $this->message,
-            maxMessage: $this->message,
+        return $this->createConstraint(
+            "\Symfony\Component\Validator\Constraints\Length",
+            [
+                'min' => $min,
+                'max' => $max,
+                'minMessage' => $this->message,
+                'maxMessage' => $this->message,
+            ]
         );
     }
 

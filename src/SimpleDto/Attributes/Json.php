@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validation attribute: Value must be valid JSON.
@@ -32,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Json implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     /** Validate the value. */
     public function validate(mixed $value, string $propertyName): bool
@@ -64,11 +62,11 @@ class Json implements ValidationAttribute, ValidationRule, SymfonyConstraint
         return 'json';
     }
 
-    public function constraint(): Constraint|array
+    public function constraint(): object|array
     {
-        $this->ensureSymfonyValidatorAvailable();
-
-        return new Assert\Json();
+        return $this->createConstraint(
+            "\Symfony\Component\Validator\Constraints\Json"
+        );
     }
 
     /** Get validation error message. */

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validation attribute: Value must start with one of the given values.
@@ -32,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class StartsWith implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     /** @param string|array<string> $values Value(s) that the field must start with */
     public function __construct(
@@ -79,16 +77,20 @@ class StartsWith implements ValidationAttribute, ValidationRule, SymfonyConstrai
     }
 
     /** Get Symfony constraint for this validation attribute. */
-    public function constraint(): Constraint
+    public function constraint(): object
     {
-        $this->ensureSymfonyValidatorAvailable();
-
         $values = is_array($this->values) ? $this->values : [$this->values];
         // Create regex pattern: ^(value1|value2|...)
         // Use # as delimiter to avoid issues with / in values
         $pattern = '#^(' . implode('|', array_map(fn(string $v): string => preg_quote($v, '#'), $values)) . ')#';
 
-        return new Assert\Regex(pattern: $pattern, message: $this->message());
+        return $this->createConstraint(
+            "\Symfony\Component\Validator\Constraints\Regex",
+            [
+                'pattern' => $pattern,
+                'message' => $this->message(),
+            ]
+        );
     }
 
     /** Get validation error message. */

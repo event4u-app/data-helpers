@@ -7,9 +7,10 @@ Complete reference of all 50+ attributes available in SimpleDto.
 
 ## Introduction
 
-SimpleDto provides 50+ attributes organized into categories:
+SimpleDto provides 60+ attributes organized into categories:
 
-- ✅ **Validation Attributes** (30+) - Data validation
+- ✅ **Validation Attributes** (40+) - Data validation
+- ✅ **Transformation Attributes** (12) - Value transformation
 - ✅ **Conditional Attributes** (18) - Visibility control
 - ✅ **Cast Attributes** (1) - Type casting
 - ✅ **Mapping Attributes** (3) - Property mapping
@@ -22,7 +23,7 @@ SimpleDto provides 50+ attributes organized into categories:
 
 ### Validation Attributes
 
-See [Validation Attributes](/data-helpers/attributes/validation/) for complete list of 30+ validation attributes.
+See [Validation Attributes](/data-helpers/attributes/validation/) for complete list of 40+ validation attributes.
 
 **Most Common:**
 - `#[Required]` - Property must be present
@@ -33,6 +34,20 @@ See [Validation Attributes](/data-helpers/attributes/validation/) for complete l
 - `#[In(array $values)]` - Value in array
 - `#[Unique(string $table, string $column)]` - Unique in database
 - `#[Exists(string $table, string $column)]` - Exists in database
+
+### Transformation Attributes
+
+See [Transformation Attributes](/data-helpers/attributes/transformation/) for complete list of 12 transformation attributes.
+
+**Most Common:**
+- `#[Lowercase]` - Convert to lowercase
+- `#[Uppercase]` - Convert to uppercase
+- `#[Trim]` - Remove whitespace
+- `#[CamelCase]` - Convert to camelCase
+- `#[SnakeCase]` - Convert to snake_case
+- `#[Base64Encode]` - Encode to Base64
+- `#[Base64Decode]` - Decode from Base64
+- `#[Hash(string $algorithm)]` - Hash with algorithm (sha256, bcrypt, etc.)
 
 ### Conditional Attributes
 

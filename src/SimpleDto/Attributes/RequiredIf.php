@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
+use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 
 /**
@@ -26,7 +27,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class RequiredIf implements ValidationRule
+class RequiredIf implements ConditionalValidationAttribute, ValidationRule
 {
     /**
      * @param string $field Field name to check
@@ -49,5 +50,51 @@ class RequiredIf implements ValidationRule
     {
         $valueStr = is_bool($this->value) ? ($this->value ? 'true' : 'false') : (string)$this->value;
         return sprintf('The attribute field is required when %s is %s.', $this->field, $valueStr);
+    }
+
+    /**
+     * Validate the value using Plain PHP (without access to other fields).
+     *
+     * @param mixed $value The value to validate
+     * @param string $propertyName The name of the property being validated
+     * @return bool True if valid, false otherwise
+     */
+    public function validate(mixed $value, string $propertyName): bool
+    {
+        // Cannot determine if required without other data
+        // Always return true here - actual validation happens in validateConditional
+        return true;
+    }
+
+    /**
+     * Validate the value with access to all data.
+     *
+     * @param mixed $value The value to validate
+     * @param string $propertyName The name of the property being validated
+     * @param array<string, mixed> $allData All data being validated
+     * @return bool True if validation passes, false otherwise
+     */
+    public function validateConditional(mixed $value, string $propertyName, array $allData): bool
+    {
+        // Check if the other field has the expected value
+        if (isset($allData[$this->field]) && $allData[$this->field] === $this->value) {
+            // Field is required - check if value is present
+            return null !== $value && '' !== $value;
+        }
+
+        // Field is not required
+        return true;
+    }
+
+    /**
+     * Get validation error message.
+     *
+     * @param string $propertyName The name of the property being validated
+     * @return string The error message
+     */
+    public function getErrorMessage(string $propertyName): string
+    {
+        $valueStr = is_bool($this->value) ? ($this->value ? 'true' : 'false') : (string)$this->value;
+        return sprintf('The %s field is required when %s is %s.', $propertyName, $this->field, $valueStr);
     }
 }

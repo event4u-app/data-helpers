@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
 use ReflectionClass;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validate that a property is a valid URL.
@@ -20,13 +19,35 @@ use Symfony\Component\Validator\Constraints as Assert;
  *   public readonly string $website;
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Url implements ValidationRule, SymfonyConstraint
+class Url implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     public function __construct(
         public readonly ?string $message = null
     ) {
+    }
+
+    public function validate(mixed $value, string $propertyName): bool
+    {
+        if (null === $value || '' === $value) {
+            return true; // Empty values are handled by Required attribute
+        }
+
+        if (!is_string($value)) {
+            return false;
+        }
+
+        return false !== filter_var($value, FILTER_VALIDATE_URL);
+    }
+
+    public function getErrorMessage(string $propertyName): string
+    {
+        if (null !== $this->message) {
+            return $this->message;
+        }
+
+        return sprintf('The %s must be a valid URL.', $propertyName);
     }
 
     public function rule(): string
@@ -34,15 +55,13 @@ class Url implements ValidationRule, SymfonyConstraint
         return 'url';
     }
 
-    public function constraint(): Constraint|array
+    public function constraint(): object
     {
-        $this->ensureSymfonyValidatorAvailable();
-
         // Symfony 7+ requires requireTld parameter, Symfony 6 doesn't have it
         static $hasRequireTld = null;
 
-        if (null === $hasRequireTld) {
-            $reflection = new ReflectionClass(Assert\Url::class);
+        if (null === $hasRequireTld && class_exists("\\Symfony\\Component\\Validator\\Constraints\\Url")) {
+            $reflection = new ReflectionClass("\\Symfony\\Component\\Validator\\Constraints\\Url");
             $constructor = $reflection->getConstructor();
             $hasRequireTld = false;
 
@@ -56,10 +75,17 @@ class Url implements ValidationRule, SymfonyConstraint
             }
         }
 
-        return $hasRequireTld
-            ? new Assert\Url(requireTld: true)
-            : new Assert\Url();
+        $options = [];
+        if ($hasRequireTld) {
+            $options['requireTld'] = true;
+        }
+
+        return $this->createConstraint(
+            "\\Symfony\\Component\\Validator\\Constraints\\Url",
+            $options
+        );
     }
+
     public function message(): ?string
     {
         return $this->message;

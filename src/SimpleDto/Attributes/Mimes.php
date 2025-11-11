@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Validation attribute: File must have one of the given MIME types (by extension).
@@ -29,9 +28,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class Mimes implements ValidationRule, SymfonyConstraint
+class Mimes implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     /** @param array<string> $types Allowed file extensions */
     public function __construct(
@@ -51,11 +50,61 @@ class Mimes implements ValidationRule, SymfonyConstraint
         return sprintf('The attribute must be a file of type: %s.', $types);
     }
 
-    /** Get Symfony constraint. */
-    public function constraint(): Constraint
+    /**
+     * Validate the value using Plain PHP.
+     *
+     * @param mixed $value The value to validate
+     * @param string $propertyName The name of the property being validated
+     * @return bool True if valid, false otherwise
+     */
+    public function validate(mixed $value, string $propertyName): bool
     {
-        $this->ensureSymfonyValidatorAvailable();
+        if (null === $value) {
+            return true; // Null values are handled by Required attribute
+        }
 
+        // Check if it's an uploaded file object
+        if (!is_object($value)) {
+            return false;
+        }
+
+        $className = $value::class;
+        if (!str_contains($className, 'UploadedFile')) {
+            return false;
+        }
+
+        // Get file extension
+        $extension = null;
+        if (method_exists($value, 'getClientOriginalExtension')) {
+            $extension = strtolower($value->getClientOriginalExtension());
+        } elseif (method_exists($value, 'guessExtension')) {
+            $extension = strtolower($value->guessExtension() ?? '');
+        }
+
+        if (null === $extension || '' === $extension) {
+            return false;
+        }
+
+        // Check if extension is in allowed types
+        $normalizedTypes = array_map('strtolower', $this->types);
+        return in_array($extension, $normalizedTypes, true);
+    }
+
+    /**
+     * Get validation error message.
+     *
+     * @param string $propertyName The name of the property being validated
+     * @return string The error message
+     */
+    public function getErrorMessage(string $propertyName): string
+    {
+        $types = implode(', ', $this->types);
+        return sprintf('The %s must be a file of type: %s.', $propertyName, $types);
+    }
+
+    /** Get Symfony constraint. */
+    public function constraint(): object
+    {
         // Convert extensions to MIME types
         $mimeTypes = [];
         foreach ($this->types as $ext) {
@@ -86,6 +135,9 @@ class Mimes implements ValidationRule, SymfonyConstraint
             };
         }
 
-        return new Assert\File(mimeTypes: $mimeTypes);
+        return $this->createConstraint(
+            "\\Symfony\\Component\\Validator\\Constraints\\File",
+            ['mimeTypes' => $mimeTypes]
+        );
     }
 }

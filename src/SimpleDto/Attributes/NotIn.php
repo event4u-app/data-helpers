@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Attributes;
 
 use Attribute;
-use event4u\DataHelpers\SimpleDto\Concerns\RequiresSymfonyValidator;
+use event4u\DataHelpers\SimpleDto\Concerns\OptionalSymfonyConstraint;
 use event4u\DataHelpers\SimpleDto\Contracts\SymfonyConstraint;
+use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationRule;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * NotIn validation attribute.
@@ -28,10 +27,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
-class NotIn implements ValidationRule, SymfonyConstraint
+class NotIn implements ValidationAttribute, ValidationRule, SymfonyConstraint
 {
     public ?string $message = null;
-    use RequiresSymfonyValidator;
+    use OptionalSymfonyConstraint;
 
     /** @param array<int|string> $values */
     public function __construct(
@@ -39,17 +38,45 @@ class NotIn implements ValidationRule, SymfonyConstraint
     ) {
     }
 
+    public function validate(mixed $value, string $propertyName): bool
+    {
+        if (null === $value) {
+            return true; // Null values are handled by Required attribute
+        }
+
+        return !in_array($value, $this->values, true);
+    }
+
+    public function getErrorMessage(string $propertyName): string
+    {
+        if (null !== $this->message) {
+            return $this->message;
+        }
+
+        return sprintf(
+            'The %s must not be one of: %s.',
+            $propertyName,
+            implode(', ', $this->values)
+        );
+    }
+
     public function rule(): string
     {
         return 'not_in:' . implode(',', $this->values);
     }
 
-    public function constraint(): Constraint|array
+    public function constraint(): object
     {
-        $this->ensureSymfonyValidatorAvailable();
-
-        return new Assert\Choice(choices: $this->values, message: $this->message, match: false);
+        return $this->createConstraint(
+            "\Symfony\Component\Validator\Constraints\Choice",
+            [
+                'choices' => $this->values,
+                'message' => $this->message,
+                'match' => false,
+            ]
+        );
     }
+
     public function message(): ?string
     {
         return null;
