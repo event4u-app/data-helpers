@@ -971,4 +971,59 @@ final class LiteEngine
 
         return true;
     }
+
+    /**
+     * Get all property keys of a DTO class.
+     *
+     * Returns only properties defined in the final DTO class, not from traits or parent classes.
+     * By default, all properties are included (even hidden ones).
+     *
+     * @param class-string $class DTO class name
+     * @param bool $includeHiddenFromArray Include properties with #[Hidden] attribute (default: true)
+     * @param bool $includeHiddenFromJson Include properties with #[Hidden] attribute (same as includeHiddenFromArray for LiteDto, default: true)
+     * @return array<int, string> Array of property names
+     */
+    public static function getKeys(
+        string $class,
+        bool $includeHiddenFromArray = true,
+        bool $includeHiddenFromJson = true
+    ): array {
+        $reflection = self::getReflection($class);
+
+        // Get all public properties
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+
+        // Internal properties from LiteDto that should be excluded
+        $internalProperties = [
+            'toArrayCache',
+            'toJsonCache',
+        ];
+
+        $keys = [];
+
+        foreach ($properties as $property) {
+            $name = $property->getName();
+
+            // Skip internal properties
+            if (in_array($name, $internalProperties, true)) {
+                continue;
+            }
+
+            // Skip properties not defined in the final DTO class
+            if ($property->getDeclaringClass()->getName() !== $class) {
+                continue;
+            }
+
+            // Check if property should be excluded based on Hidden attribute
+            // LiteDto only has #[Hidden] attribute (no separate HiddenFromArray/HiddenFromJson)
+            // If either parameter is false, exclude hidden properties
+            if ((!$includeHiddenFromArray || !$includeHiddenFromJson) && self::isHidden($class, $name, $property)) {
+                continue;
+            }
+
+            $keys[] = $name;
+        }
+
+        return $keys;
+    }
 }

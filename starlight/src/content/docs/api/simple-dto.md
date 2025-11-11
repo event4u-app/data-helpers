@@ -560,6 +560,109 @@ $dto = new UserDto($data);
 $dto = $dto->include(['posts', 'comments']);
 ```
 
+## Introspection Methods
+
+### `getKeys(bool $includeHiddenFromArray = true, bool $includeHiddenFromJson = true): array`
+
+Get all property keys (names) of the DTO.
+
+Returns only properties defined in the final DTO class, not from traits or parent classes.
+By default, all properties are included (even hidden ones).
+
+**Parameters:**
+- `$includeHiddenFromArray` - Include properties with `#[HiddenFromArray]` attribute (default: `true`)
+- `$includeHiddenFromJson` - Include properties with `#[HiddenFromJson]` attribute (default: `true`)
+
+**Returns:** Array of property names (not mapped output names)
+
+**Get All Properties (Default):**
+
+```php
+use event4u\DataHelpers\SimpleDto;
+
+class UserDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $email,
+        public readonly int $age,
+    ) {}
+}
+
+$dto = UserDto::fromArray(['name' => 'John', 'email' => 'john@example.com', 'age' => 30]);
+$keys = $dto->getKeys();
+// ['name', 'email', 'age']
+```
+
+**With Hidden Properties:**
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
+use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
+use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromJson;
+
+class UserDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,
+
+        #[Hidden]
+        public readonly string $password,
+
+        #[HiddenFromArray]
+        public readonly string $internalId,
+
+        #[HiddenFromJson]
+        public readonly string $debugInfo,
+
+        public readonly string $email,
+    ) {}
+}
+
+$dto = UserDto::fromArray([
+    'name' => 'John',
+    'password' => 'secret',
+    'internalId' => '123',
+    'debugInfo' => 'debug',
+    'email' => 'john@example.com',
+]);
+
+// Default: All properties included
+$keys = $dto->getKeys();
+// ['name', 'password', 'internalId', 'debugInfo', 'email']
+
+// Exclude properties hidden from array
+$keys = $dto->getKeys(includeHiddenFromArray: false);
+// ['name', 'debugInfo', 'email']
+
+// Exclude properties hidden from JSON
+$keys = $dto->getKeys(includeHiddenFromJson: false);
+// ['name', 'internalId', 'email']
+
+// Exclude all hidden properties
+$keys = $dto->getKeys(includeHiddenFromArray: false, includeHiddenFromJson: false);
+// ['name', 'email']
+```
+
+**Use Cases:**
+
+```php
+// Dynamic property iteration
+foreach ($dto->getKeys() as $key) {
+    $value = $dto->get($key);
+    echo "$key: $value\n";
+}
+
+// Get only visible properties for API response
+$visibleKeys = $dto->getKeys(includeHiddenFromArray: false, includeHiddenFromJson: false);
+
+// Property validation
+$requiredKeys = ['name', 'email'];
+$actualKeys = $dto->getKeys();
+$missingKeys = array_diff($requiredKeys, $actualKeys);
+```
+
 ## Visibility Methods
 
 ### `withVisibilityContext(mixed $context): static`

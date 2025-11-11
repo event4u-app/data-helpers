@@ -125,7 +125,6 @@ trait SimpleDtoMapperTrait
      * or processed.
      *
      * @param array<string, mixed>|null $template Template array or null to clear
-     * @return void
      */
     public function setMapperTemplate(?array $template): void
     {
