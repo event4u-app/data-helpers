@@ -14,6 +14,7 @@ use event4u\DataHelpers\Helpers\ObjectHelper;
 use event4u\DataHelpers\Support\FileLoader;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
+use ReflectionClass;
 use SimpleXMLElement;
 
 /**
@@ -77,6 +78,8 @@ final class FluentDataMapper
     private ?DataMapperExceptionHandler $exceptionHandler = null;
 
     private bool $reverseMapping = false;
+
+    private bool $modifyReadOnly = false;
 
     /**
      * Create a new FluentDataMapper instance.
@@ -447,6 +450,29 @@ final class FluentDataMapper
     {
         $this->discriminatorField = $field;
         $this->discriminatorMap = $map;
+
+        return $this;
+    }
+
+    /**
+     * Allow or disallow modification of readonly properties.
+     *
+     * When enabled, the mapper will attempt to modify readonly properties by:
+     * - Using the constructor when target is a class name (string)
+     * - Creating a new instance via reflection when target is an object and readonly properties would be modified
+     *
+     * When disabled (default), readonly properties that are already initialized will be skipped.
+     *
+     * Example:
+     *   $mapper->target(UserDto::class)
+     *          ->modifyReadOnly(true)  // Allow modifying readonly properties
+     *          ->map();
+     *
+     * @param bool $allow Whether to allow modifying readonly properties (default: false)
+     */
+    public function modifyReadOnly(bool $allow = false): self
+    {
+        $this->modifyReadOnly = $allow;
 
         return $this;
     }
@@ -1295,43 +1321,132 @@ final class FluentDataMapper
      */
     private function resolveTargetWithDiscriminator(): mixed
     {
-        // No discriminator configured - return original target
-        if (null === $this->discriminatorField || [] === $this->discriminatorMap) {
-            return $this->target;
-        }
-
-        // Read discriminator value from source
-        $accessor = new DataAccessor($this->source);
-        $discriminatorValue = $accessor->get($this->discriminatorField);
-
         // Determine which class to use
-        $targetClass = null;
+        $targetClass = $this->target;
 
-        // No discriminator value found - use original target
-        if (null === $discriminatorValue) {
-            $targetClass = $this->target;
-        } elseif (is_scalar($discriminatorValue)) {
-            // Only process scalar values (string, int, float, bool)
-            // Arrays and objects cannot be used as discriminator values
-            // Convert discriminator value to string for map lookup
-            // Trim the value to handle cases where filters might trim it later
-            $discriminatorKey = is_string($discriminatorValue) ? trim(
-                $discriminatorValue
-            ) : (string)$discriminatorValue;
-            // Use mapped class if found, otherwise use original target
-            $targetClass = $this->discriminatorMap[$discriminatorKey] ?? $this->target;
-        } else {
-            // Non-scalar value (array, object) - use original target
-            $targetClass = $this->target;
+        // If discriminator is configured, resolve the target class based on discriminator value
+        if (null !== $this->discriminatorField && [] !== $this->discriminatorMap) {
+            // Read discriminator value from source
+            $accessor = new DataAccessor($this->source);
+            $discriminatorValue = $accessor->get($this->discriminatorField);
+
+            // No discriminator value found - use original target
+            if (null === $discriminatorValue) {
+                $targetClass = $this->target;
+            } elseif (is_scalar($discriminatorValue)) {
+                // Only process scalar values (string, int, float, bool)
+                // Arrays and objects cannot be used as discriminator values
+                // Convert discriminator value to string for map lookup
+                // Trim the value to handle cases where filters might trim it later
+                $discriminatorKey = is_string($discriminatorValue) ? trim(
+                    $discriminatorValue
+                ) : (string)$discriminatorValue;
+                // Use mapped class if found, otherwise use original target
+                $targetClass = $this->discriminatorMap[$discriminatorKey] ?? $this->target;
+            } else {
+                // Non-scalar value (array, object) - use original target
+                $targetClass = $this->target;
+            }
         }
 
-        // If it's a class name string, instantiate it
+        // If it's a class name string, instantiate it using constructor
+        // Constructor allows setting readonly properties during initialization
         if (is_string($targetClass) && class_exists($targetClass)) {
-            return new $targetClass();
+            $reflection = new ReflectionClass($targetClass);
+            $constructor = $reflection->getConstructor();
+
+            // If class has no constructor or constructor has no required parameters, instantiate normally
+            if (null === $constructor || 0 === $constructor->getNumberOfRequiredParameters()) {
+                return new $targetClass();
+            }
+
+            // If constructor has required parameters, create instance without constructor
+            // This allows setting properties via reflection
+            return $reflection->newInstanceWithoutConstructor();
         }
 
-        // Return as-is (could be an instance already)
+        // If it's an object and modifyReadOnly is enabled, check if we need to create a new instance
+        // Check if any readonly properties would be modified
+        if (is_object($targetClass) && $this->modifyReadOnly && $this->wouldModifyReadOnlyProperties($targetClass)) {
+            // Create new instance without constructor to allow setting readonly properties
+            $reflection = new ReflectionClass($targetClass);
+            return $reflection->newInstanceWithoutConstructor();
+        }
+
+        // Return as-is (could be an instance already, or an array)
         return $targetClass;
+    }
+
+    /**
+     * Check if mapping would modify any readonly properties of the target object.
+     *
+     * @param object $target Target object to check
+     * @return bool True if any readonly properties would be modified
+     */
+    private function wouldModifyReadOnlyProperties(object $target): bool
+    {
+        // Get all properties that would be set by the template
+        $propertiesToSet = $this->extractTargetPropertiesFromTemplate($this->template);
+
+        if ([] === $propertiesToSet) {
+            return false;
+        }
+
+        // Check if any of these properties are readonly and already initialized
+        $reflection = new ReflectionClass($target);
+
+        foreach ($propertiesToSet as $propertyName) {
+            // Skip nested properties (e.g., "address.street")
+            if (str_contains($propertyName, '.')) {
+                continue;
+            }
+
+            if (!$reflection->hasProperty($propertyName)) {
+                continue;
+            }
+
+            $property = $reflection->getProperty($propertyName);
+
+            // If property is readonly and already initialized, it would need to be modified
+            if ($property->isReadOnly() && $property->isInitialized($target)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Extract target property names from template.
+     *
+     * @param array<int|string, mixed> $template
+     * @return array<int, string>
+     */
+    private function extractTargetPropertiesFromTemplate(array $template): array
+    {
+        $properties = [];
+
+        foreach ($template as $key => $value) {
+            // Skip special keys
+            if (is_string($key) && str_starts_with($key, '__')) {
+                continue;
+            }
+
+            // Add the key as a property name
+            if (is_string($key)) {
+                $properties[] = $key;
+            }
+
+            // Recurse into nested arrays
+            if (is_array($value)) {
+                $nestedProperties = $this->extractTargetPropertiesFromTemplate($value);
+                foreach ($nestedProperties as $nestedProperty) {
+                    $properties[] = is_string($key) ? $key . '.' . $nestedProperty : $nestedProperty;
+                }
+            }
+        }
+
+        return array_unique($properties);
     }
 
     /**

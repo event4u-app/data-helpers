@@ -538,6 +538,29 @@ class EntityHelper
         return null;
     }
 
+    /**
+     * Check if a property can be set (not readonly or not yet initialized).
+     *
+     * @param \ReflectionProperty $property
+     * @param object $entity
+     * @return bool
+     */
+    private static function canSetProperty(\ReflectionProperty $property, object $entity): bool
+    {
+        // If property is not readonly, it can always be set
+        if (!$property->isReadOnly()) {
+            return true;
+        }
+
+        // If property is readonly but not yet initialized, it can be set
+        if (!$property->isInitialized($entity)) {
+            return true;
+        }
+
+        // Property is readonly and already initialized - cannot be set
+        return false;
+    }
+
     /** Set attribute/property value on entity. */
     public static function setAttribute(mixed $entity, string $key, mixed $value): void
     {
@@ -588,7 +611,11 @@ class EntityHelper
             if (self::hasProperty($entity, $key)) {
                 $reflection = self::getReflection($entity);
                 $property = $reflection->getProperty($key);
-                $property->setValue($entity, $value);
+
+                // Check if property can be set (not readonly or not yet initialized)
+                if (self::canSetProperty($property, $entity)) {
+                    $property->setValue($entity, $value);
+                }
             }
 
             return;
@@ -630,7 +657,9 @@ class EntityHelper
                     }
 
                     // Set the updated array back
-                    $property->setValue($entity, $array);
+                    if (self::canSetProperty($property, $entity)) {
+                        $property->setValue($entity, $array);
+                    }
 
                     return;
                 }
@@ -659,7 +688,10 @@ class EntityHelper
                 // Set the typed array
                 $reflection = self::getReflection($entity);
                 $property = $reflection->getProperty($key);
-                $property->setValue($entity, $typedArray);
+
+                if (self::canSetProperty($property, $entity)) {
+                    $property->setValue($entity, $typedArray);
+                }
 
                 return;
             }
@@ -673,28 +705,52 @@ class EntityHelper
             if (self::hasProperty($entity, $firstSegment)) {
                 $reflection = self::getReflection($entity);
                 $property = $reflection->getProperty($firstSegment);
-                $currentValue = $property->getValue($entity);
 
-                // If current value is an object, recursively set the nested property
-                if (is_object($currentValue)) {
+                // Check if property is initialized before accessing its value
+                // Uninitialized readonly properties will throw an error if accessed
+                $isInitialized = !$property->isReadOnly() || $property->isInitialized($entity);
+
+                if ($isInitialized) {
+                    $currentValue = $property->getValue($entity);
+
+                    // If current value is an object, recursively set the nested property
+                    if (is_object($currentValue)) {
+                        $remainingPath = implode('.', array_slice($segments, 1));
+                        self::setAttribute($currentValue, $remainingPath, $value);
+
+                        return;
+                    }
+
+                    // If current value is not an array, initialize it
+                    if (!is_array($currentValue)) {
+                        $currentValue = [];
+                    }
+
+                    // Set the nested value in the array
                     $remainingPath = implode('.', array_slice($segments, 1));
-                    self::setAttribute($currentValue, $remainingPath, $value);
+                    $currentValue = DataMutator::make($currentValue)->set($remainingPath, $value)->toArray();
+
+                    // Set the updated array back
+                    if (self::canSetProperty($property, $entity)) {
+                        $property->setValue($entity, $currentValue);
+                    }
 
                     return;
                 }
 
-                // If current value is not an array, initialize it
-                if (!is_array($currentValue)) {
-                    $currentValue = [];
+                // Property is not initialized - we need to create the nested structure
+                // For nested paths like "address.street", we need to handle the value specially
+                // If value is an object, set it directly
+                if (is_object($value)) {
+                    if (self::canSetProperty($property, $entity)) {
+                        $property->setValue($entity, $value);
+                    }
+
+                    return;
                 }
 
-                // Set the nested value in the array
-                $remainingPath = implode('.', array_slice($segments, 1));
-                $currentValue = DataMutator::make($currentValue)->set($remainingPath, $value)->toArray();
-
-                // Set the updated array back
-                $property->setValue($entity, $currentValue);
-
+                // If value is not an object, we can't set nested properties on uninitialized readonly properties
+                // Just skip this case
                 return;
             }
         }
@@ -703,7 +759,11 @@ class EntityHelper
         if (self::hasProperty($entity, $key)) {
             $reflection = self::getReflection($entity);
             $property = $reflection->getProperty($key);
-            $property->setValue($entity, $value);
+
+            // Check if property can be set (not readonly or not yet initialized)
+            if (self::canSetProperty($property, $entity)) {
+                $property->setValue($entity, $value);
+            }
         }
     }
 

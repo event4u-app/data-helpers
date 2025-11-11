@@ -346,7 +346,15 @@ class DataMutator
 
         $prop = ReflectionCache::getProperty($object, $segment);
         if ($prop instanceof ReflectionProperty) {
+            // Check if property is readonly and already initialized
+            $isReadonlyAndInitialized = $prop->isReadOnly() && $prop->isInitialized($object);
+
             if ([] === $segments) {
+                // Skip if readonly and already initialized
+                if ($isReadonlyAndInitialized) {
+                    return;
+                }
+
                 $current = $prop->getValue($object);
                 if ($merge && is_array($current) && is_array($value)) {
                     $prop->setValue($object, self::deepMerge($current, $value));
@@ -368,7 +376,11 @@ class DataMutator
                     $merge,
                     self::setIntoArray(...)
                 );
-                $prop->setValue($object, $current);
+
+                // Skip if readonly and already initialized
+                if (!$isReadonlyAndInitialized) {
+                    $prop->setValue($object, $current);
+                }
 
                 return;
             } elseif (is_object($current)) {
