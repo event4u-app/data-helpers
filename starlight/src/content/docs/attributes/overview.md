@@ -151,33 +151,11 @@ class UserDto extends SimpleDto
 }
 ```
 
-## Attribute Categories Summary
-
-### By Purpose
-
-**Data Validation:**
-- 30+ validation attributes
-- See [Validation Attributes](/data-helpers/attributes/validation/)
-
-**Visibility Control:**
-- 18 conditional attributes
-- 1 hidden attribute
-- See [Conditional Attributes](/data-helpers/attributes/conditional/)
-
-**Data Transformation:**
-- 1 cast attribute (20+ cast classes)
-- 3 mapping attributes
-- See [Casting](/data-helpers/attributes/casting/) and [Mapping](/data-helpers/attributes/mapping/)
-
-**Computed Values:**
-- 1 computed attribute
-- 1 lazy attribute
-
-### By Framework
+## Attribute Summary By Framework
 
 **Framework-Agnostic:**
 - All validation attributes
-- Core conditional attributes (9)
+- Core conditional attributes
 - Cast, mapping, computed, lazy, hidden
 
 **Laravel-Specific:**
