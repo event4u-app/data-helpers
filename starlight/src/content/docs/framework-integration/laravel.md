@@ -212,6 +212,7 @@ return new DtoResource($dto);
 
 ### Without Wrapping
 
+<!-- skip-test: requires Laravel JsonResource -->
 ```php
 return DtoResource::make($dto)->withoutWrapping();
 // {"title":"Conference","startDate":"2024-01-15 10:30:00"}
@@ -219,6 +220,7 @@ return DtoResource::make($dto)->withoutWrapping();
 
 ### DtoResourceCollection
 
+<!-- skip-test: requires Laravel JsonResource -->
 ```php
 use event4u\DataHelpers\Frameworks\Laravel\Resources\DtoResourceCollection;
 
@@ -233,6 +235,7 @@ return new DtoResourceCollection($dtos);
 
 ### With Pagination
 
+<!-- skip-test: requires Laravel Paginator -->
 ```php
 $paginator = Event::paginate(15);
 $dtos = $paginator->map(fn($event) => EventDto::fromModel($event));

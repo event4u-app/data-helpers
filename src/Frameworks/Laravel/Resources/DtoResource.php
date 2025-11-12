@@ -66,7 +66,7 @@ class DtoResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(\Illuminate\Http\Request $request): array
+    public function toArray(Request $request): array
     {
         if ($this->resource instanceof SimpleDto) {
             return SimpleEngine::toJsonArray($this->resource);

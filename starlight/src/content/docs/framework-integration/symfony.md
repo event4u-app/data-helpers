@@ -243,6 +243,7 @@ public function index(SerializerInterface $serializer): Response
 
 ### Normalize to Array
 
+<!-- skip-test: requires SerializerInterface -->
 ```php
 $array = $serializer->normalize($dto);
 // ['title' => 'Conference', 'startDate' => '2024-01-15 10:30:00']
@@ -250,6 +251,7 @@ $array = $serializer->normalize($dto);
 
 ### Serialize Collections
 
+<!-- skip-test: requires SerializerInterface -->
 ```php
 $dtos = [
     new EventDto('Conference', new DateTime('2024-01-15 10:30:00')),
@@ -262,6 +264,7 @@ $json = $serializer->serialize($dtos, 'json');
 
 ### With Context
 
+<!-- skip-test: requires SerializerInterface -->
 ```php
 $json = $serializer->serialize($dto, 'json', [
     'groups' => ['public'],
