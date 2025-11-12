@@ -65,6 +65,7 @@ use event4u\DataHelpers\SimpleDto\Contracts\ConditionalValidationAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\TransformAttribute;
 use event4u\DataHelpers\SimpleDto\Contracts\ValidationAttribute;
 use event4u\DataHelpers\SimpleDto\DtoCollection;
+use event4u\DataHelpers\Support\FileLoader;
 use event4u\DataHelpers\Support\Lazy;
 use event4u\DataHelpers\Support\Optional;
 use event4u\DataHelpers\Support\StringFormatDetector;
@@ -1889,6 +1890,11 @@ final class SimpleEngine
 
         // Handle strings
         if (is_string($data)) {
+            // Check if it's a file path first
+            if (file_exists($data)) {
+                return FileLoader::loadAsArray($data);
+            }
+
             $trimmed = trim($data);
 
             // Try XML first
