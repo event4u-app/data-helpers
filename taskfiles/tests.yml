@@ -134,7 +134,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_header "Running Laravel E2E Tests"
-        docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Laravel && composer install --quiet && bash setup.sh && vendor/bin/pest --compact"
+        docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Laravel && composer install --quiet && bash setup.sh && vendor/bin/pest --compact --no-coverage"
         EXIT_CODE=$?
         echo ""
         if [ $EXIT_CODE -eq 0 ]; then
@@ -151,7 +151,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_header "Running Symfony E2E Tests"
-        docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Symfony && composer install --quiet && vendor/bin/pest --compact"
+        docker exec {{.PHP | default .DEFAULT_PHP}} bash -c "cd tests-e2e/Symfony && composer install --quiet && vendor/bin/pest --compact --no-coverage"
         EXIT_CODE=$?
         echo ""
         if [ $EXIT_CODE -eq 0 ]; then
