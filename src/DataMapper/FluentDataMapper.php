@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
+use Error;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Support\MappingFacade;
@@ -11,11 +12,15 @@ use event4u\DataHelpers\DataMapper\Support\MappingReverser;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Helpers\ObjectHelper;
+use event4u\DataHelpers\LiteDto;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\Support\FileLoader;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
 use ReflectionClass;
 use SimpleXMLElement;
+use stdClass;
+use Throwable;
 
 /**
  * FluentDataMapper - Fluent API for data mapping.
@@ -829,6 +834,9 @@ final class FluentDataMapper
                 }
             }
         }
+
+        // Instantiate DTOs if target contains class names
+        $result = $this->instantiateTargetDtos($result, $target);
 
         return new DataMapperResult($result, $this->source, $template, $this->exceptionHandler);
     }
@@ -1795,5 +1803,161 @@ final class FluentDataMapper
         }
 
         return $word;
+    }
+
+    /**
+     * Instantiate DTOs/objects if target contains class names or write to existing objects.
+     *
+     * This method handles several cases:
+     * 1. Target is a class name string → instantiate the class
+     * 2. Target is an existing object → write to the object
+     * 3. Target is an array with class names or objects → process each entry
+     *
+     * @param mixed $result The mapping result
+     * @param mixed $target The target structure
+     * @return mixed The result with DTOs/objects instantiated or updated
+     */
+    private function instantiateTargetDtos(mixed $result, mixed $target): mixed
+    {
+        // Case 1: Target is an existing object - write to it
+        if (is_object($target) && is_array($result)) {
+            /** @var array<string, mixed> $resultData */
+            $resultData = $result;
+            return $this->writeToObject($target, $resultData);
+        }
+
+        // Case 2: Target is a class name string and result is an array
+        if (is_string($target) && class_exists($target) && is_array($result)) {
+            /** @var array<string, mixed> $resultData */
+            $resultData = $result;
+            return $this->instantiateClass($target, $resultData);
+        }
+
+        // Case 3: Target is an array with class names or objects
+        if (is_array($target) && is_array($result)) {
+            foreach ($target as $key => $value) {
+                // Skip if no data for this key
+                if (!isset($result[$key])) {
+                    continue;
+                }
+
+                // Case 3a: Value is an existing object - write to it
+                if (is_object($value) && is_array($result[$key])) {
+                    /** @var array<string, mixed> $resultData */
+                    $resultData = $result[$key];
+                    $result[$key] = $this->writeToObject($value, $resultData);
+                    continue;
+                }
+
+                // Case 3b: Value is a class name string - instantiate it
+                if (is_string($value) && class_exists($value) && is_array($result[$key])) {
+                    /** @var array<string, mixed> $resultData */
+                    $resultData = $result[$key];
+                    $result[$key] = $this->instantiateClass($value, $resultData);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Instantiate a class with data.
+     *
+     * @param class-string $className The class name to instantiate
+     * @param array<string, mixed> $data The data to populate the instance with
+     * @return object The instantiated object
+     */
+    private function instantiateClass(string $className, array $data): object
+    {
+        // Special case: stdClass
+        if (stdClass::class === $className) {
+            $instance = new stdClass();
+            foreach ($data as $key => $value) {
+                $instance->{$key} = $value;
+            }
+            return $instance;
+        }
+
+        // SimpleDto or LiteDto - use from() method
+        if (is_subclass_of($className, SimpleDto::class) || is_subclass_of($className, LiteDto::class)) {
+            return $className::from($data);
+        }
+
+        // Regular class - try to instantiate and populate
+        try {
+            $reflection = new ReflectionClass($className);
+            $instance = $reflection->newInstanceWithoutConstructor();
+
+            // Populate properties
+            foreach ($data as $key => $value) {
+                if ($reflection->hasProperty($key)) {
+                    $property = $reflection->getProperty($key);
+                    if (!$property->isReadOnly()) {
+                        $property->setValue($instance, $value);
+                    }
+                }
+            }
+
+            return $instance;
+        } catch (Throwable $throwable) {
+            // If instantiation fails, collect or throw exception
+            if (MapperExceptions::isCollectExceptionsEnabled()) {
+                MapperExceptions::addException($throwable);
+                return new stdClass(); // Fallback
+            }
+            throw $throwable;
+        }
+    }
+
+    /**
+     * Write data to an existing object.
+     *
+     * @param object $object The object to write to
+     * @param array<string, mixed> $data The data to write
+     * @return object The updated object
+     */
+    private function writeToObject(object $object, array $data): object
+    {
+        $reflection = new ReflectionClass($object);
+
+        foreach ($data as $key => $value) {
+            if (!$reflection->hasProperty($key)) {
+                continue;
+            }
+
+            $property = $reflection->getProperty($key);
+
+            // Check if property is readonly
+            if ($property->isReadOnly()) {
+                $exception = new Error(
+                    sprintf(
+                        'Cannot modify readonly property %s::$%s',
+                        $reflection->getName(),
+                        $key
+                    )
+                );
+
+                if (MapperExceptions::isCollectExceptionsEnabled()) {
+                    MapperExceptions::addException($exception);
+                    continue;
+                }
+
+                throw $exception;
+            }
+
+            // Write to property
+            try {
+                $property->setValue($object, $value);
+            } catch (Throwable $e) {
+                if (MapperExceptions::isCollectExceptionsEnabled()) {
+                    MapperExceptions::addException($e);
+                    continue;
+                }
+                throw $e;
+            }
+        }
+
+        return $object;
     }
 }
