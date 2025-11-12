@@ -11,17 +11,16 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 /**
  * Casts values to booleans.
  *
- * Applies to fields containing 'is_', 'has_', 'can_', 'should_' or 'active' in the path.
+ * When used with pipe syntax (|bool or |boolean), always casts values to booleans.
  * Converts: '1', 'true', 'yes', 'on' -> true
  *          '0', 'false', 'no', 'off', '' -> false
  *
  * Example:
+ *   Template: ['result' => 'value|bool']
  *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToBoolean::class])->map()->getTarget();
  */
 final class CastToBoolean implements FilterInterface
 {
-    private const PATTERNS = ['is_', 'has_', 'can_', 'should_', 'active', 'enabled', 'disabled'];
-
     private const TRUE_VALUES = ['1', 'true', 'yes', 'on', 1, true];
     private const FALSE_VALUES = ['0', 'false', 'no', 'off', '', 0, false];
 
@@ -29,25 +28,6 @@ final class CastToBoolean implements FilterInterface
     {
         // Skip null values
         if (null === $value) {
-            return $value;
-        }
-
-        // Check if path matches boolean patterns
-        $srcPath = $context->srcPath();
-        $tgtPath = $context->tgtPath();
-
-        $shouldCast = false;
-        foreach (self::PATTERNS as $pattern) {
-            if (
-                (null !== $srcPath && str_contains(strtolower($srcPath), $pattern))
-                || (null !== $tgtPath && str_contains(strtolower($tgtPath), $pattern))
-            ) {
-                $shouldCast = true;
-                break;
-            }
-        }
-
-        if (!$shouldCast) {
             return $value;
         }
 
@@ -70,14 +50,14 @@ final class CastToBoolean implements FilterInterface
         return DataMapperHook::BeforeTransform->value;
     }
 
-    public function getFilter(): ?string
+    public function getFilter(): string
     {
-        return null;
+        return 'bool';
     }
 
     /** @return array<int, string> */
     public function getAliases(): array
     {
-        return [];
+        return ['bool', 'boolean'];
     }
 }

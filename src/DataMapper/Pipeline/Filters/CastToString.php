@@ -9,16 +9,20 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
- * Casts numeric values to integers.
+ * Casts values to strings.
  *
- * When used with pipe syntax (|int or |integer), always casts numeric values to integers.
- * Skips null values and non-numeric strings.
+ * Converts scalar values (int, float, bool) to strings.
+ * Skips null values, arrays, and objects.
  *
  * Example:
- *   Template: ['result' => 'value|int']
- *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToInteger::class])->map()->getTarget();
+ *   'int' => 'string'
+ *   'float' => 'string'
+ *   'bool' => 'string'
+ *
+ * Usage:
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToString::class])->map()->getTarget();
  */
-final class CastToInteger implements FilterInterface
+final class CastToString implements FilterInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
@@ -27,9 +31,9 @@ final class CastToInteger implements FilterInterface
             return $value;
         }
 
-        // Cast to integer if numeric
-        if (is_numeric($value)) {
-            return (int)$value;
+        // Only cast scalar values
+        if (is_scalar($value)) {
+            return (string)$value;
         }
 
         return $value;
@@ -42,12 +46,12 @@ final class CastToInteger implements FilterInterface
 
     public function getFilter(): string
     {
-        return 'int';
+        return 'string';
     }
 
     /** @return array<int, string> */
     public function getAliases(): array
     {
-        return ['int', 'integer'];
+        return ['string'];
     }
 }

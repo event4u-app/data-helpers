@@ -11,39 +11,19 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 /**
  * Casts numeric values to floats.
  *
- * Applies to fields containing 'price', 'amount', 'total', 'rate' or 'percentage' in the path.
+ * When used with pipe syntax (|float), always casts numeric values to floats.
  * Skips null values and non-numeric strings.
  *
  * Example:
+ *   Template: ['result' => 'value|float']
  *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToFloat::class])->map()->getTarget();
  */
 final class CastToFloat implements FilterInterface
 {
-    private const PATTERNS = ['price', 'amount', 'total', 'rate', 'percentage', 'cost', 'fee'];
-
     public function transform(mixed $value, HookContext $context): mixed
     {
         // Skip null values
         if (null === $value) {
-            return $value;
-        }
-
-        // Check if path matches float patterns
-        $srcPath = $context->srcPath();
-        $tgtPath = $context->tgtPath();
-
-        $shouldCast = false;
-        foreach (self::PATTERNS as $pattern) {
-            if (
-                (null !== $srcPath && str_contains(strtolower($srcPath), $pattern))
-                || (null !== $tgtPath && str_contains(strtolower($tgtPath), $pattern))
-            ) {
-                $shouldCast = true;
-                break;
-            }
-        }
-
-        if (!$shouldCast) {
             return $value;
         }
 
@@ -60,14 +40,14 @@ final class CastToFloat implements FilterInterface
         return DataMapperHook::BeforeTransform->value;
     }
 
-    public function getFilter(): ?string
+    public function getFilter(): string
     {
-        return null;
+        return 'float';
     }
 
     /** @return array<int, string> */
     public function getAliases(): array
     {
-        return [];
+        return ['float'];
     }
 }

@@ -6,6 +6,13 @@ namespace event4u\DataHelpers\DataMapper\Pipeline;
 
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Between;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Callback;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToArray;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToBoolean;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToDecimal;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToFloat;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToInteger;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToJson;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToString;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Clamp;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\ConvertEmptyToNull;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Count;
@@ -122,6 +129,15 @@ final class FilterRegistry
 
         // Register built-in filters (without triggering ensureInitialized recursively)
         $builtInTransformers = [
+            // Cast transformers
+            CastToInteger::class,
+            CastToBoolean::class,
+            CastToFloat::class,
+            CastToString::class,
+            CastToArray::class,
+            CastToDecimal::class,
+            CastToJson::class,
+
             // String transformers
             TrimStrings::class,
             LowercaseStrings::class,

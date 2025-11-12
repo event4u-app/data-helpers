@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Length;
+use event4u\DataHelpers\SimpleDto\Attributes\Map;
 
 describe('DataMapper Target DTO Instantiation', function(): void {
     it('creates DTO instance when target is a class name', function(): void {
@@ -81,8 +83,11 @@ describe('DataMapper Target DTO Instantiation', function(): void {
     it('creates DTO instances when target is array with class names (with int mapping)', function(): void {
         $projectDto = new class (0, '') extends SimpleDto {
             public function __construct(
-                public readonly int $externalProjectId,
-                public readonly string $externalProjectNumber,
+                #[Map('ext_nr_lv'), Length(50)]
+                public readonly ?int $externalProjectId = null,
+
+                #[Map('id_lv_ext')]
+                public readonly ?string $externalProjectNumber = null,
             ) {
             }
         };

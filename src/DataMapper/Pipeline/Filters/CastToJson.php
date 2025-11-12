@@ -9,30 +9,29 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
- * Casts numeric values to integers.
+ * Casts values to JSON strings.
  *
- * When used with pipe syntax (|int or |integer), always casts numeric values to integers.
- * Skips null values and non-numeric strings.
+ * Converts arrays and objects to JSON strings.
+ * Skips null values and existing strings.
  *
  * Example:
- *   Template: ['result' => 'value|int']
- *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToInteger::class])->map()->getTarget();
+ *   ['key' => 'value'] => '{"key":"value"}'
+ *   object => '{"property":"value"}'
+ *
+ * Usage:
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToJson::class])->map()->getTarget();
  */
-final class CastToInteger implements FilterInterface
+final class CastToJson implements FilterInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
-        // Skip null values
-        if (null === $value) {
+        // Already a string - skip encoding
+        if (is_string($value)) {
             return $value;
         }
 
-        // Cast to integer if numeric
-        if (is_numeric($value)) {
-            return (int)$value;
-        }
-
-        return $value;
+        // Encode to JSON (including null)
+        return json_encode($value, JSON_THROW_ON_ERROR);
     }
 
     public function getHook(): string
@@ -42,12 +41,12 @@ final class CastToInteger implements FilterInterface
 
     public function getFilter(): string
     {
-        return 'int';
+        return 'json';
     }
 
     /** @return array<int, string> */
     public function getAliases(): array
     {
-        return ['int', 'integer'];
+        return ['json'];
     }
 }

@@ -9,17 +9,26 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\Enums\DataMapperHook;
 
 /**
- * Casts numeric values to integers.
+ * Casts numeric values to decimal strings with specified precision.
  *
- * When used with pipe syntax (|int or |integer), always casts numeric values to integers.
+ * Converts numeric values to decimal strings with 2 decimal places by default.
  * Skips null values and non-numeric strings.
  *
  * Example:
- *   Template: ['result' => 'value|int']
- *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([CastToInteger::class])->map()->getTarget();
+ *   123 => '123.00'
+ *   '45.6' => '45.60'
+ *   45.678 => '45.68'
+ *
+ * Usage:
+ *   DataMapper::source($source)->target($target)->template($mapping)->pipeline([new CastToDecimal(2)])->map()->getTarget();
  */
-final class CastToInteger implements FilterInterface
+final readonly class CastToDecimal implements FilterInterface
 {
+    public function __construct(
+        private int $precision = 2
+    ) {
+    }
+
     public function transform(mixed $value, HookContext $context): mixed
     {
         // Skip null values
@@ -27,9 +36,9 @@ final class CastToInteger implements FilterInterface
             return $value;
         }
 
-        // Cast to integer if numeric
+        // Cast to decimal if numeric
         if (is_numeric($value)) {
-            return (int)$value;
+            return number_format((float)$value, $this->precision, '.', '');
         }
 
         return $value;
@@ -42,12 +51,12 @@ final class CastToInteger implements FilterInterface
 
     public function getFilter(): string
     {
-        return 'int';
+        return 'decimal';
     }
 
     /** @return array<int, string> */
     public function getAliases(): array
     {
-        return ['int', 'integer'];
+        return ['decimal'];
     }
 }
