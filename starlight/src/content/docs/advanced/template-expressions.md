@@ -22,7 +22,7 @@ The Template Expression Engine provides a powerful expression syntax that works 
 - 🎯 **Declarative syntax** - Define transformations in the template
 - 🔄 **Unified across all methods** - Same syntax in `map()`, `mapFromFile()` and `mapFromTemplate()`
 - 🔄 **Composable filters** - Chain multiple transformations
-- 📦 **30+ built-in filters** - Common transformations out of the box
+- 📦 **35+ built-in filters** - Common transformations out of the box
 - 🔧 **Extensible** - Register custom filters
 - ⚡ **Fast** - Optimized expression parsing and evaluation
 
@@ -164,21 +164,49 @@ $template = [
 '{{ items | join:", " }}' // [1, 2, 3] -> '1, 2, 3'
 ```
 
-### Type Filters
+### Type Casting Filters
+
+Cast values to specific types:
 
 ```php
-// int - Convert to integer
+// int / integer - Convert to integer
 '{{ value | int }}' // '42' -> 42
+'{{ value | integer }}' // '2075436601850' -> 2075436601850
 
 // float - Convert to float
 '{{ value | float }}' // '3.14' -> 3.14
+'{{ price | float }}' // '19.99' -> 19.99
 
-// bool - Convert to boolean
+// bool / boolean - Convert to boolean
 '{{ value | bool }}' // '1' -> true
+'{{ active | boolean }}' // 'yes' -> true
 
 // string - Convert to string
 '{{ value | string }}' // 42 -> '42'
+'{{ id | string }}' // 123 -> '123'
+
+// array - Convert to array
+'{{ value | array }}' // 'test' -> ['test']
+'{{ items | array }}' // Wraps scalars, converts objects
+
+// decimal - Format as decimal with precision
+'{{ price | decimal }}' // 123.456 -> '123.46' (default: 2 decimals)
+'{{ amount | decimal:4 }}' // 123.456 -> '123.4560' (4 decimals)
+
+// json - Convert to JSON string
+'{{ data | json }}' // ['a' => 1] -> '{"a":1}'
+'{{ items | json }}' // Encodes arrays/objects to JSON
 ```
+
+**Type Casting Details:**
+
+- **int/integer**: Casts numeric values to integers, skips null and non-numeric values
+- **bool/boolean**: Converts `'1'`, `'true'`, `'yes'`, `'on'`, `1`, `true` → `true`; `'0'`, `'false'`, `'no'`, `'off'`, `''`, `0`, `false` → `false`
+- **float**: Casts numeric values to floats, skips null and non-numeric values
+- **string**: Casts scalar values to strings, skips null and non-scalar values
+- **array**: Wraps scalars in array, converts objects to arrays, keeps arrays unchanged
+- **decimal**: Formats numbers with specified precision (default: 2), useful for prices and amounts
+- **json**: Encodes arrays/objects to JSON strings, skips existing strings to avoid double-encoding
 
 ### Date Filters
 
@@ -326,6 +354,49 @@ $template = [
         'created' => '{{ person.createdAt | date:"Y-m-d H:i:s" }}',
     ],
 ];
+```
+
+### Type Casting in Templates
+
+```php
+$sources = [
+    'product' => [
+        'id' => '2075436601850',        // String from API
+        'price' => '19.99',              // String from API
+        'stock' => '42',                 // String from API
+        'active' => '1',                 // String from API
+        'tags' => 'electronics',         // Single value
+        'metadata' => ['color' => 'red'], // Array
+    ],
+];
+
+$template = [
+    'product' => [
+        'id' => '{{ product.id | int }}',              // Cast to integer
+        'price' => '{{ product.price | decimal:2 }}',  // Format as decimal
+        'stock' => '{{ product.stock | integer }}',    // Cast to integer
+        'active' => '{{ product.active | bool }}',     // Cast to boolean
+        'tags' => '{{ product.tags | array }}',        // Wrap in array
+        'metadata' => '{{ product.metadata | json }}', // Encode to JSON
+    ],
+];
+
+$result = DataMapper::source($sources)
+    ->template($template)
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'product' => [
+//         'id' => 2075436601850,        // int
+//         'price' => '19.99',           // string (formatted)
+//         'stock' => 42,                // int
+//         'active' => true,             // bool
+//         'tags' => ['electronics'],    // array
+//         'metadata' => '{"color":"red"}', // JSON string
+//     ]
+// ]
 ```
 
 ### Nested Data

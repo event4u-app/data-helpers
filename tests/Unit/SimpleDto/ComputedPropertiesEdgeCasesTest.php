@@ -334,10 +334,11 @@ describe('Computed Properties - Edge Cases', function(): void {
                     public readonly string $name = 'Test',
                 ) {}
 
+                /** @return array{name: string, length: int} */
                 #[Computed]
-                public function metadata(): object
+                public function metadata(): array
                 {
-                    return (object)[
+                    return [
                         'name' => $this->name,
                         'length' => strlen($this->name),
                     ];
@@ -347,11 +348,10 @@ describe('Computed Properties - Edge Cases', function(): void {
             $instance = $dto::fromArray([]);
             $array = $instance->toArray();
 
-            expect($array['metadata'])->toBeObject();
+            expect($array['metadata'])->toBeArray();
             $metadata = $array['metadata'];
-            assert(is_object($metadata) && property_exists($metadata, 'name') && property_exists($metadata, 'length'));
-            expect($metadata->name)->toBe('Test');
-            expect($metadata->length)->toBe(4);
+            expect($metadata['name'] ?? null)->toBe('Test');
+            expect($metadata['length'] ?? null)->toBe(4);
         });
 
         it('handles computed method returning nested Dto', function(): void {

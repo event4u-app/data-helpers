@@ -1880,11 +1880,49 @@ final class FluentDataMapper
             return $instance;
         }
 
-        // SimpleDto or LiteDto - use from() method with type casting
+        // SimpleDto or LiteDto - instantiate directly without attribute mapping
+        // because the template has already done the mapping
         if (is_subclass_of($className, SimpleDto::class) || is_subclass_of($className, LiteDto::class)) {
             // Cast data types based on constructor parameters
             $castedData = $this->castDataToConstructorTypes($className, $data);
-            return $className::from($castedData);
+
+            // Instantiate directly with constructor to bypass attribute mapping
+            try {
+                $reflection = new ReflectionClass($className);
+                $constructor = $reflection->getConstructor();
+
+                if (null === $constructor) {
+                    return new $className();
+                }
+
+                // Build constructor arguments
+                $args = [];
+                foreach ($constructor->getParameters() as $reflectionParameter) {
+                    $paramName = $reflectionParameter->getName();
+
+                    if (array_key_exists($paramName, $castedData)) {
+                        $args[] = $castedData[$paramName];
+                    } elseif ($reflectionParameter->isDefaultValueAvailable()) {
+                        $args[] = $reflectionParameter->getDefaultValue();
+                    } elseif ($reflectionParameter->allowsNull()) {
+                        $args[] = null;
+                    } else {
+                        // Required parameter missing - throw exception
+                        throw new InvalidArgumentException(
+                            sprintf("Missing required parameter '%s' for %s", $paramName, $className)
+                        );
+                    }
+                }
+
+                return new $className(...$args);
+            } catch (Throwable $throwable) {
+                // If instantiation fails, collect or throw exception
+                if (MapperExceptions::isCollectExceptionsEnabled()) {
+                    MapperExceptions::addException($throwable);
+                    return new stdClass(); // Fallback
+                }
+                throw $throwable;
+            }
         }
 
         // Regular class - try to instantiate and populate
