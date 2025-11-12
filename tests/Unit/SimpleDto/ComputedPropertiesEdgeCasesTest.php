@@ -334,8 +334,8 @@ describe('Computed Properties - Edge Cases', function(): void {
                     public readonly string $name = 'Test',
                 ) {}
 
-                #[Computed]
                 /** @return array{name: string, length: int} */
+                #[Computed]
                 public function metadata(): array
                 {
                     return [
@@ -350,7 +350,7 @@ describe('Computed Properties - Edge Cases', function(): void {
 
             expect($array['metadata'])->toBeArray();
             $metadata = $array['metadata'];
-            expect($metadata['namw'] ?? null)->toBe('Test');
+            expect($metadata['name'] ?? null)->toBe('Test');
             expect($metadata['length'] ?? null)->toBe(4);
         });
 
