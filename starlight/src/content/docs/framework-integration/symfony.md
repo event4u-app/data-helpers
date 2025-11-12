@@ -208,6 +208,109 @@ class UserDto extends SimpleDto
 }
 ```
 
+## Serializer Integration
+
+### Automatic DTO Serialization
+
+Data Helpers provides a `DtoNormalizer` that integrates with Symfony's Serializer component. It's **automatically registered** when you install the package.
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat;
+use Symfony\Component\Serializer\SerializerInterface;
+
+class EventDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $title,
+
+        #[DateTimeFormat('Y-m-d H:i:s')]
+        public readonly DateTime $startDate,
+    ) {}
+}
+
+// In controller
+public function index(SerializerInterface $serializer): Response
+{
+    $dto = new EventDto('Conference', new DateTime('2024-01-15 10:30:00'));
+
+    $json = $serializer->serialize($dto, 'json');
+    // {"title":"Conference","startDate":"2024-01-15 10:30:00"}
+
+    return new JsonResponse($json, 200, [], true);
+}
+```
+
+### Normalize to Array
+
+<!-- skip-test: requires SerializerInterface -->
+```php
+$array = $serializer->normalize($dto);
+// ['title' => 'Conference', 'startDate' => '2024-01-15 10:30:00']
+```
+
+### Serialize Collections
+
+<!-- skip-test: requires SerializerInterface -->
+```php
+$dtos = [
+    new EventDto('Conference', new DateTime('2024-01-15 10:30:00')),
+    new EventDto('Workshop', new DateTime('2024-01-16 14:00:00')),
+];
+
+$json = $serializer->serialize($dtos, 'json');
+// [{"title":"Conference",...},{"title":"Workshop",...}]
+```
+
+### With Context
+
+<!-- skip-test: requires SerializerInterface -->
+```php
+$json = $serializer->serialize($dto, 'json', [
+    'groups' => ['public'],
+]);
+```
+
+### Features
+
+- ✅ **Automatic DateTimeFormat Support** - DateTime objects are formatted according to `#[DateTimeFormat]` attributes
+- ✅ **SimpleDto and LiteDto Support** - Works with both DTO types
+- ✅ **Symfony Serializer Features** - Full support for context, groups, etc.
+- ✅ **Type-Safe** - Full PHPStan level 9 support
+- ✅ **High Priority** - Registered with priority 64 to ensure it's used before default normalizers
+
+### How It Works
+
+The `DtoNormalizer` uses `SimpleEngine::toJsonArray()` or `LiteEngine::toJsonArray()` internally, which:
+
+1. Converts the DTO to an array
+2. Formats DateTime objects according to `#[DateTimeFormat]` attributes
+3. Respects `#[Hidden]` and other serialization attributes
+
+This ensures consistent serialization across your application, whether you use:
+- `json_encode($dto)` - Uses `jsonSerialize()`
+- `$dto->toJson()` - Direct JSON conversion
+- Symfony Serializer - Uses `DtoNormalizer`
+
+### Configuration
+
+The normalizer is automatically registered via the Symfony Flex recipe in `config/services/data_helpers.yaml`:
+
+```yaml
+services:
+    event4u\DataHelpers\Frameworks\Symfony\Serializer\DtoNormalizer:
+        tags:
+            - { name: serializer.normalizer, priority: 64 }
+```
+
+You can adjust the priority if needed by overriding the service definition in your `services.yaml`:
+
+```yaml
+event4u\DataHelpers\Frameworks\Symfony\Serializer\DtoNormalizer:
+    tags:
+        - { name: serializer.normalizer, priority: 100 }
+```
+
 ## Console Commands
 
 ### Generate Dto

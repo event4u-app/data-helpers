@@ -182,6 +182,88 @@ public readonly ?array $adminPanel = null;
 public readonly ?array $moderationPanel = null;
 ```
 
+## API Resources
+
+### DtoResource
+
+Data Helpers provides `DtoResource` and `DtoResourceCollection` classes that work like Laravel's JsonResource but with automatic DateTimeFormat support.
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat;
+use event4u\DataHelpers\Frameworks\Laravel\Resources\DtoResource;
+
+class EventDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $title,
+
+        #[DateTimeFormat('Y-m-d H:i:s')]
+        public readonly DateTime $startDate,
+    ) {}
+}
+
+// In controller
+$dto = new EventDto('Conference', new DateTime('2024-01-15 10:30:00'));
+
+return new DtoResource($dto);
+// {"data":{"title":"Conference","startDate":"2024-01-15 10:30:00"}}
+```
+
+### Without Wrapping
+
+<!-- skip-test: requires Laravel JsonResource -->
+```php
+return DtoResource::make($dto)->withoutWrapping();
+// {"title":"Conference","startDate":"2024-01-15 10:30:00"}
+```
+
+### DtoResourceCollection
+
+<!-- skip-test: requires Laravel JsonResource -->
+```php
+use event4u\DataHelpers\Frameworks\Laravel\Resources\DtoResourceCollection;
+
+$dtos = [
+    new EventDto('Conference', new DateTime('2024-01-15 10:30:00')),
+    new EventDto('Workshop', new DateTime('2024-01-16 14:00:00')),
+];
+
+return new DtoResourceCollection($dtos);
+// {"data":[{"title":"Conference",...},{"title":"Workshop",...}]}
+```
+
+### With Pagination
+
+<!-- skip-test: requires Laravel Paginator -->
+```php
+$paginator = Event::paginate(15);
+$dtos = $paginator->map(fn($event) => EventDto::fromModel($event));
+
+return new DtoResourceCollection($dtos);
+// {"data":[...],"links":{...},"meta":{...}}
+```
+
+### Features
+
+- ✅ **Automatic DateTimeFormat Support** - DateTime objects are formatted according to `#[DateTimeFormat]` attributes
+- ✅ **SimpleDto and LiteDto Support** - Works with both DTO types
+- ✅ **Laravel Resource Features** - Full support for wrapping, pagination, etc.
+- ✅ **Type-Safe** - Full PHPStan level 9 support
+
+### How It Works
+
+The `DtoResource` uses `SimpleEngine::toJsonArray()` or `LiteEngine::toJsonArray()` internally, which:
+
+1. Converts the DTO to an array
+2. Formats DateTime objects according to `#[DateTimeFormat]` attributes
+3. Respects `#[Hidden]` and other serialization attributes
+
+This ensures consistent serialization across your application, whether you use:
+- `json_encode($dto)` - Uses `jsonSerialize()`
+- `$dto->toJson()` - Direct JSON conversion
+- `new DtoResource($dto)` - Laravel Resource
+
 ## Artisan Commands
 
 ### Generate Dto

@@ -13,6 +13,7 @@
     "symfony/dotenv": "^7.0",
     "symfony/validator": "^7.0",
     "symfony/property-access": "^7.0",
+    "symfony/serializer": "^7.0",
     "event4u/data-helpers": "*",
     "doctrine/orm": "^3.5",
     "doctrine/dbal": "^4.3",

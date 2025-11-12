@@ -14,3 +14,8 @@ services:
         tags:
             - { name: controller.argument_value_resolver, priority: 50 }
 
+    # DtoNormalizer for Symfony Serializer (automatic DTO serialization with DateTimeFormat support)
+    event4u\DataHelpers\Frameworks\Symfony\Serializer\DtoNormalizer:
+        tags:
+            - { name: serializer.normalizer, priority: 64 }
+
