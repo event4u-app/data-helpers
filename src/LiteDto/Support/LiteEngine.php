@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\LiteDto\Support;
 
 use BackedEnum;
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use DateTime;
 use DateTimeImmutable;
+use DateTimeInterface;
 use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\CastWith;
 use event4u\DataHelpers\LiteDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\LiteDto\Attributes\ConverterMode;
+use event4u\DataHelpers\LiteDto\Attributes\DateTimeFormat;
 use event4u\DataHelpers\LiteDto\Attributes\EnumSerialize;
 use event4u\DataHelpers\LiteDto\Attributes\Hidden;
 use event4u\DataHelpers\LiteDto\Attributes\Map;
@@ -165,6 +169,137 @@ final class LiteEngine
     }
 
     /**
+     * Convert DTO to array for JSON serialization.
+     * Applies DateTime formatting with #[DateTimeFormat] attribute.
+     *
+     * @param array<string, mixed> $context Optional context for conditional properties
+     * @return array<string, mixed>
+     */
+    public static function toJsonArray(object $dto, array $context = []): array
+    {
+        $class = $dto::class;
+
+        // UltraFast mode: check if MapTo is allowed
+        if (self::isUltraFast($class)) {
+            $data = get_object_vars($dto);
+            $reflection = self::getReflection($class);
+
+            // Check if any property has Map, MapTo, EnumSerialize or DateTimeFormat attributes (auto-detect)
+            $hasMapTo = false;
+            $hasEnumSerialize = false;
+            $hasDateTimeFormat = false;
+            foreach ($reflection->getProperties() as $prop) {
+                if (!empty($prop->getAttributes(Map::class)) || !empty($prop->getAttributes(MapTo::class))) {
+                    $hasMapTo = true;
+                }
+                if (!empty($prop->getAttributes(EnumSerialize::class))) {
+                    $hasEnumSerialize = true;
+                }
+                if (!empty($prop->getAttributes(DateTimeFormat::class))) {
+                    $hasDateTimeFormat = true;
+                }
+                if ($hasMapTo && $hasEnumSerialize && $hasDateTimeFormat) {
+                    break;
+                }
+            }
+
+            // If no attributes to process, just return raw data
+            if (!$hasMapTo && !$hasEnumSerialize && !$hasDateTimeFormat) {
+                return $data;
+            }
+
+            // Process attributes
+            $result = [];
+
+            foreach ($reflection->getProperties() as $reflectionProperty) {
+                $name = $reflectionProperty->getName();
+
+                if (!array_key_exists($name, $data)) {
+                    continue;
+                }
+
+                $value = $data[$name];
+
+                // Check for #[Map] attribute first (bidirectional mapping)
+                $mapAttrs = $reflectionProperty->getAttributes(Map::class);
+                if (!empty($mapAttrs)) {
+                    /** @var Map $map */
+                    $map = $mapAttrs[0]->newInstance();
+                    $outputName = $map->key;
+                }
+                // Then check for #[MapTo] attribute
+                elseif (!empty($reflectionProperty->getAttributes(MapTo::class))) {
+                    /** @var MapTo $mapTo */
+                    $mapTo = $reflectionProperty->getAttributes(MapTo::class)[0]->newInstance();
+                    $outputName = $mapTo->target;
+                } else {
+                    $outputName = $name;
+                }
+
+                // Check for #[EnumSerialize] attribute
+                if ($value instanceof UnitEnum) {
+                    $enumSerializeAttrs = $reflectionProperty->getAttributes(EnumSerialize::class);
+                    if (!empty($enumSerializeAttrs)) {
+                        /** @var EnumSerialize $enumSerialize */
+                        $enumSerialize = $enumSerializeAttrs[0]->newInstance();
+                        $value = 'value' === $enumSerialize->mode && $value instanceof BackedEnum
+                            ? $value->value
+                            : $value->name;
+                    }
+                }
+
+                // Check for #[DateTimeFormat] attribute (JSON serialization only)
+                if ($value instanceof DateTimeInterface) {
+                    $dateTimeFormatAttrs = $reflectionProperty->getAttributes(
+                        DateTimeFormat::class
+                    );
+                    if (!empty($dateTimeFormatAttrs)) {
+                        /** @var DateTimeFormat $dateTimeFormat */
+                        $dateTimeFormat = $dateTimeFormatAttrs[0]->newInstance();
+                        $value = $dateTimeFormat->format($value);
+                    }
+                }
+
+                $result[$outputName] = $value;
+            }
+
+            return $result;
+        }
+
+        $reflection = self::getReflection($class);
+
+        // Get all public properties
+        $data = get_object_vars($dto);
+        $result = [];
+
+        foreach ($reflection->getProperties() as $reflectionProperty) {
+            $name = $reflectionProperty->getName();
+
+            if (!array_key_exists($name, $data)) {
+                continue;
+            }
+
+            // Check if hidden
+            if (self::isHidden($class, $name, $reflectionProperty)) {
+                continue;
+            }
+
+            // Check conditional properties
+            if (!self::shouldIncludeConditionalProperty($reflectionProperty, $data[$name], $dto, $context)) {
+                continue;
+            }
+
+            // Get output name (check for #[MapTo] attribute)
+            $outputName = self::getToMapping($class, $name, $reflectionProperty);
+
+            // Convert value (handle nested DTOs and enums) and apply DateTime formatting
+            $result[$outputName] = self::convertValueForJson($data[$name], $class, $name, $reflectionProperty);
+        }
+
+        return $result;
+    }
+
+    /**
      * Convert DTO to array.
      *
      * @param array<string, mixed> $context Optional context for conditional properties
@@ -180,6 +315,7 @@ final class LiteEngine
             $reflection = self::getReflection($class);
 
             // Check if any property has Map, MapTo or EnumSerialize attributes (auto-detect)
+            // Note: DateTimeFormat is NOT checked here as it only affects JSON serialization, not toArray()
             $hasMapTo = false;
             $hasEnumSerialize = false;
             foreach ($reflection->getProperties() as $prop) {
@@ -238,6 +374,8 @@ final class LiteEngine
                             : $value->name;
                     }
                 }
+
+                // Note: DateTime formatting is NOT applied in toArray() - only in JSON serialization
 
                 $result[$outputName] = $value;
             }
@@ -330,9 +468,10 @@ final class LiteEngine
                 }
             }
 
-            // Check if it's DateTime or DateTimeImmutable
-            if (!$type->isBuiltin() && null !== $value && ('DateTime' === $typeName || 'DateTimeImmutable' === $typeName)) {
-                return self::castToDateTime($typeName, $value);
+            // Check if it's DateTime/DateTimeImmutable/Carbon
+            if (!$type->isBuiltin() && null !== $value && self::isDateTimeType($typeName)) {
+                /** @var class-string $typeName */
+                return self::castToDateTime($typeName, $value, $name, $reflection->getName());
             }
 
             // Check if it's an Enum
@@ -569,6 +708,7 @@ final class LiteEngine
     }
 
     /** Convert value recursively (handle nested DTOs and enums).
+     * Note: DateTime formatting is NOT applied here - only in JSON serialization.
      * @param class-string|null $class
      */
     private static function convertValue(
@@ -599,6 +739,61 @@ final class LiteEngine
         // Handle DTOs
         if (is_object($value) && method_exists($value, 'toArray')) {
             return self::convertValue($value->toArray());
+        }
+
+        return $value;
+    }
+
+    /**
+     * Convert value recursively for JSON serialization (handle nested DTOs, enums, and DateTime formatting).
+     *
+     * @param class-string|null $class
+     */
+    private static function convertValueForJson(
+        mixed $value,
+        ?string $class = null,
+        ?string $propertyName = null,
+        ?ReflectionProperty $property = null
+    ): mixed {
+        // Handle DateTime with #[DateTimeFormat]
+        if ($value instanceof DateTimeInterface && $class && $propertyName && $property instanceof ReflectionProperty) {
+            $dateTimeFormatAttrs = $property->getAttributes(
+                DateTimeFormat::class
+            );
+            if ([] !== $dateTimeFormatAttrs) {
+                /** @var DateTimeFormat $dateTimeFormat */
+                $dateTimeFormat = $dateTimeFormatAttrs[0]->newInstance();
+                return $dateTimeFormat->format($value);
+            }
+        }
+
+        // Handle enums
+        if ($value instanceof BackedEnum || $value instanceof UnitEnum) {
+            if ($class && $propertyName && $property instanceof ReflectionProperty) {
+                $mode = self::getEnumSerializeMode($class, $propertyName, $property);
+                return self::serializeEnum($value, $mode);
+            }
+            // Default: serialize to value
+            return $value instanceof BackedEnum ? $value->value : $value->name;
+        }
+
+        // Handle arrays
+        if (is_array($value)) {
+            $result = [];
+            foreach ($value as $key => $item) {
+                $result[$key] = self::convertValueForJson($item);
+            }
+            return $result;
+        }
+
+        // Handle DTOs - use toJsonArray() for JSON serialization
+        if (is_object($value) && method_exists($value, 'toJsonArray')) {
+            return self::convertValueForJson($value->toJsonArray());
+        }
+
+        // Fallback to toArray() if toJsonArray() doesn't exist
+        if (is_object($value) && method_exists($value, 'toArray')) {
+            return self::convertValueForJson($value->toArray());
         }
 
         return $value;
@@ -660,61 +855,247 @@ final class LiteEngine
     }
 
     /**
-     * Cast value to DateTime or DateTimeImmutable.
+     * Check if a type name is a DateTime-related type.
      *
-     * @param class-string $dateTimeClass
+     * @param string $typeName Type name to check
+     * @return bool True if it's DateTime, DateTimeImmutable, Carbon, or CarbonImmutable
      */
-    private static function castToDateTime(string $dateTimeClass, mixed $value): DateTime|DateTimeImmutable
+    private static function isDateTimeType(string $typeName): bool
     {
-        // If already the correct type, return it
+        if ('DateTime' === $typeName || 'DateTimeImmutable' === $typeName) {
+            return true;
+        }
+
+        // Check for Carbon types (if Carbon is installed)
+        if (class_exists('Carbon\Carbon')) {
+            return 'Carbon\Carbon' === $typeName || 'Carbon\CarbonImmutable' === $typeName;
+        }
+
+        return false;
+    }
+
+    /**
+     * Cast value to DateTime, DateTimeImmutable, Carbon, or CarbonImmutable.
+     *
+     * Supports:
+     * - DateTime/DateTimeImmutable conversion
+     * - Carbon/CarbonImmutable (if Carbon is installed)
+     * - String parsing with optional format from #[DateTimeFormat]
+     * - Automatic format detection as fallback
+     * - Unix timestamps (int)
+     *
+     * @param class-string $dateTimeClass Target class (DateTime, DateTimeImmutable, Carbon\Carbon, Carbon\CarbonImmutable)
+     * @param string|null $propertyName Property name for DateTimeFormat attribute lookup
+     * @param class-string|null $dtoClass DTO class for DateTimeFormat attribute lookup
+     * @return DateTime|DateTimeImmutable DateTime instance or Carbon instance
+     */
+    private static function castToDateTime(
+        string $dateTimeClass,
+        mixed $value,
+        ?string $propertyName = null,
+        ?string $dtoClass = null
+    ): DateTime|DateTimeImmutable {
+        // If already the correct DateTime instance, return it
         if ($value instanceof $dateTimeClass) {
-            return $value; // @phpstan-ignore-line return.type
+            return $value; // @phpstan-ignore-line
         }
 
-        // Convert between DateTime and DateTimeImmutable
-        if ('DateTime' === $dateTimeClass && $value instanceof DateTimeImmutable) {
-            return DateTime::createFromImmutable($value);
+        // Check if target is Carbon (if installed)
+        $isCarbonTarget = class_exists('Carbon\Carbon') && (
+            'Carbon\Carbon' === $dateTimeClass || 'Carbon\CarbonImmutable' === $dateTimeClass
+        );
+
+        // Convert between DateTime types
+        if ('DateTime' === $dateTimeClass || 'Carbon\Carbon' === $dateTimeClass) {
+            if ($value instanceof DateTimeImmutable) {
+                $dt = DateTime::createFromImmutable($value);
+                return $isCarbonTarget ? Carbon::instance($dt) : $dt; // @phpstan-ignore-line
+            }
+            if ($value instanceof DateTimeInterface) {
+                $dt = DateTime::createFromInterface($value);
+                return $isCarbonTarget ? Carbon::instance($dt) : $dt; // @phpstan-ignore-line
+            }
         }
 
-        if ('DateTimeImmutable' === $dateTimeClass && $value instanceof DateTime) {
-            return DateTimeImmutable::createFromMutable($value);
+        if ('DateTimeImmutable' === $dateTimeClass || 'Carbon\CarbonImmutable' === $dateTimeClass) {
+            if ($value instanceof DateTime) {
+                $dt = DateTimeImmutable::createFromMutable($value);
+                return $isCarbonTarget ? CarbonImmutable::instance($dt) : $dt; // @phpstan-ignore-line
+            }
+            if ($value instanceof DateTimeInterface) {
+                $dt = DateTimeImmutable::createFromInterface($value);
+                return $isCarbonTarget ? CarbonImmutable::instance($dt) : $dt; // @phpstan-ignore-line
+            }
+        }
+
+        // Handle null or empty string
+        if (null === $value || '' === $value) {
+            throw new InvalidArgumentException('Cannot cast null or empty string to ' . $dateTimeClass);
+        }
+
+        // Cast from int (timestamp)
+        if (is_int($value)) {
+            try {
+                if ($isCarbonTarget) {
+                    return 'Carbon\Carbon' === $dateTimeClass
+                        ? Carbon::createFromTimestamp($value) // @phpstan-ignore-line
+                        : CarbonImmutable::createFromTimestamp($value); // @phpstan-ignore-line
+                }
+
+                $dateTime = 'DateTime' === $dateTimeClass ? new DateTime() : new DateTimeImmutable();
+                return $dateTime->setTimestamp($value);
+            } catch (Exception $e) {
+                throw new InvalidArgumentException(
+                    'Cannot cast timestamp to ' . $dateTimeClass . ': ' . $e->getMessage(),
+                    $e->getCode(),
+                    $e
+                );
+            }
         }
 
         // Cast from string
         if (is_string($value)) {
-            try {
-                return 'DateTime' === $dateTimeClass
-                    ? new DateTime($value)
-                    : new DateTimeImmutable($value);
-            } catch (Exception $e) {
-                throw new InvalidArgumentException(sprintf(
-                    'Cannot cast string "%s" to %s: %s',
-                    $value,
-                    $dateTimeClass,
-                    $e->getMessage()
-                ), $e->getCode(), $e);
-            }
+            return self::parseDateTimeFromString($value, $dateTimeClass, $propertyName, $dtoClass);
         }
 
-        // Cast from timestamp (int)
-        if (is_int($value)) {
-            try {
-                return 'DateTime' === $dateTimeClass
-                    ? (new DateTime())->setTimestamp($value)
-                    : (new DateTimeImmutable())->setTimestamp($value);
-            } catch (Exception $e) {
-                throw new InvalidArgumentException(sprintf(
-                    'Cannot cast timestamp %d to %s: %s',
-                    $value,
-                    $dateTimeClass,
-                    $e->getMessage()
-                ), $e->getCode(), $e);
-            }
-        }
+        throw new InvalidArgumentException('Cannot cast value to ' . $dateTimeClass);
+    }
 
-        throw new InvalidArgumentException(
-            sprintf('Cannot cast value of type %s to %s', get_debug_type($value), $dateTimeClass)
+    /**
+     * Parse DateTime from string with optional format from #[DateTimeFormat].
+     *
+     * Strategy:
+     * 1. If #[DateTimeFormat] is present, try to parse with that format first
+     * 2. If format parsing fails or no format specified, try automatic detection
+     * 3. Support for date-only, time-only, and datetime strings
+     *
+     * @param string $value String value to parse
+     * @param class-string $dateTimeClass Target class (DateTime, DateTimeImmutable, Carbon\Carbon, Carbon\CarbonImmutable)
+     * @param string|null $propertyName Property name for DateTimeFormat attribute lookup
+     * @param class-string|null $dtoClass DTO class for DateTimeFormat attribute lookup
+     * @return DateTime|DateTimeImmutable Parsed DateTime instance
+     */
+    private static function parseDateTimeFromString(
+        string $value,
+        string $dateTimeClass,
+        ?string $propertyName = null,
+        ?string $dtoClass = null
+    ): DateTime|DateTimeImmutable {
+        $isCarbonTarget = class_exists('Carbon\Carbon') && (
+            'Carbon\Carbon' === $dateTimeClass || 'Carbon\CarbonImmutable' === $dateTimeClass
         );
+
+        // Try to get DateTimeFormat attribute if property name and DTO class are provided
+        $format = null;
+        if (null !== $propertyName && null !== $dtoClass) {
+            try {
+                $reflection = self::getReflection($dtoClass);
+                $property = $reflection->getProperty($propertyName);
+                $dateTimeFormatAttrs = $property->getAttributes(
+                    DateTimeFormat::class
+                );
+                if (!empty($dateTimeFormatAttrs)) {
+                    /** @var DateTimeFormat $dateTimeFormat */
+                    $dateTimeFormat = $dateTimeFormatAttrs[0]->newInstance();
+                    $format = $dateTimeFormat->format;
+                }
+            } catch (Exception) {
+                // Ignore errors, fall back to automatic detection
+            }
+        }
+
+        // Strategy 1: Try parsing with specified format
+        if (null !== $format) {
+            try {
+                if ($isCarbonTarget) {
+                    $parsed = 'Carbon\Carbon' === $dateTimeClass
+                        ? Carbon::createFromFormat($format, $value) // @phpstan-ignore-line
+                        : CarbonImmutable::createFromFormat($format, $value); // @phpstan-ignore-line
+
+                    if (false !== $parsed) { // @phpstan-ignore-line
+                        return $parsed; // @phpstan-ignore-line
+                    }
+                } else {
+                    $parsed = 'DateTime' === $dateTimeClass
+                        ? DateTime::createFromFormat($format, $value)
+                        : DateTimeImmutable::createFromFormat($format, $value);
+
+                    if (false !== $parsed) {
+                        return $parsed;
+                    }
+                }
+            } catch (Exception) {
+                // Format parsing failed, continue to automatic detection
+            }
+        }
+
+        // Strategy 2: Try automatic detection with common formats
+        $formats = [
+            // ISO 8601 formats
+            'Y-m-d\TH:i:s.uP',      // 2024-01-15T10:30:00.123456+01:00
+            'Y-m-d\TH:i:sP',        // 2024-01-15T10:30:00+01:00
+            'Y-m-d\TH:i:s',         // 2024-01-15T10:30:00
+            // Common datetime formats
+            'Y-m-d H:i:s.u',        // 2024-01-15 10:30:00.123456
+            'Y-m-d H:i:s',          // 2024-01-15 10:30:00
+            'Y-m-d H:i',            // 2024-01-15 10:30
+            // Date-only formats
+            'Y-m-d',                // 2024-01-15
+            'd.m.Y',                // 15.01.2024
+            'd/m/Y',                // 15/01/2024
+            'm/d/Y',                // 01/15/2024 (US format)
+            // Time-only formats
+            'H:i:s',                // 10:30:00
+            'H:i',                  // 10:30
+        ];
+
+        foreach ($formats as $tryFormat) {
+            try {
+                if ($isCarbonTarget) {
+                    $parsed = 'Carbon\Carbon' === $dateTimeClass
+                        ? Carbon::createFromFormat($tryFormat, $value) // @phpstan-ignore-line
+                        : CarbonImmutable::createFromFormat($tryFormat, $value); // @phpstan-ignore-line
+
+                    if (false !== $parsed) { // @phpstan-ignore-line
+                        return $parsed; // @phpstan-ignore-line
+                    }
+                } else {
+                    $parsed = 'DateTime' === $dateTimeClass
+                        ? DateTime::createFromFormat($tryFormat, $value)
+                        : DateTimeImmutable::createFromFormat($tryFormat, $value);
+
+                    if (false !== $parsed) {
+                        return $parsed;
+                    }
+                }
+            } catch (Exception) {
+                continue;
+            }
+        }
+
+        // Strategy 3: Fallback to native PHP parsing (strtotime)
+        try {
+            if ($isCarbonTarget) {
+                return 'Carbon\Carbon' === $dateTimeClass
+                    ? new Carbon($value) // @phpstan-ignore-line
+                    : new CarbonImmutable($value); // @phpstan-ignore-line
+            }
+
+            return 'DateTime' === $dateTimeClass
+                ? new DateTime($value)
+                : new DateTimeImmutable($value);
+        } catch (Exception $exception) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cannot parse date/time string "%s" to %s. %s',
+                    $value,
+                    $dateTimeClass,
+                    $exception->getMessage()
+                ),
+                $exception->getCode(),
+                $exception
+            );
+        }
     }
 
     /**
@@ -907,13 +1288,14 @@ final class LiteEngine
                 }
             }
 
-            // Step 4: Cast DateTime/DateTimeImmutable/Enum if needed
+            // Step 4: Cast DateTime/DateTimeImmutable/Carbon/Enum if needed
             if (null !== $value) {
                 $type = $reflectionParameter->getType();
                 if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
                     $typeName = $type->getName();
-                    if ('DateTime' === $typeName || 'DateTimeImmutable' === $typeName) {
-                        $value = self::castToDateTime($typeName, $value);
+                    if (self::isDateTimeType($typeName)) {
+                        /** @var class-string $typeName */
+                        $value = self::castToDateTime($typeName, $value, $paramName, $class);
                     } elseif (enum_exists($typeName)) {
                         // Cast to enum (auto-detect)
                         if (is_string($value) || is_int($value)) {

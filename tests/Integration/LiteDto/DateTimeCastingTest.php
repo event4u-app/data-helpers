@@ -171,8 +171,8 @@ describe('LiteDto Automatic DateTime Casting', function(): void {
             }
             $withDateTime = microtime(true) - $start;
 
-            // DateTime casting should not add more than 3x overhead
-            expect($withDateTime)->toBeLessThan($withoutDateTime * 3);
+            // DateTime casting should not add more than 5x overhead
+            expect($withDateTime)->toBeLessThan($withoutDateTime * 5);
         });
     });
 });

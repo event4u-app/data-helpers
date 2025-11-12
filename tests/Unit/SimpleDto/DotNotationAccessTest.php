@@ -9,18 +9,18 @@ use event4u\DataHelpers\SimpleDto;
 class AddressDtoForDotNotation extends SimpleDto
 {
     public function __construct(
-        public readonly string $street,
-        public readonly string $city,
-        public readonly string $country,
+        public string $street,
+        public string $city,
+        public string $country,
     ) {}
 }
 
 class EmailDtoForDotNotation extends SimpleDto
 {
     public function __construct(
-        public readonly string $email,
-        public readonly string $type,
-        public readonly bool $verified = false,
+        public string $email,
+        public string $type,
+        public bool $verified = false,
     ) {}
 }
 
@@ -28,10 +28,10 @@ class UserDtoForDotNotation extends SimpleDto
 {
     /** @param array<int, EmailDtoForDotNotation> $emails */
     public function __construct(
-        public readonly string $name,
-        public readonly int $age,
-        public readonly AddressDtoForDotNotation $address,
-        public readonly array $emails = [],
+        public string $name,
+        public int $age,
+        public AddressDtoForDotNotation $address,
+        public array $emails = [],
     ) {}
 }
 
@@ -131,7 +131,7 @@ test('get() works with array indices', function(): void {
     expect($user->get('emails.1.verified'))->toBeFalse();
 });
 
-test('set() creates new instance with updated simple property', function(): void {
+test('set() modifies mutable property directly', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -142,17 +142,14 @@ test('set() creates new instance with updated simple property', function(): void
         ],
     ]);
 
-    $updated = $user->set('name', 'Jane Doe');
+    $user->set('name', 'Jane Doe');
 
-    // Original unchanged
-    expect($user->name)->toBe('John Doe');
-
-    // New instance updated
-    expect($updated->name)->toBe('Jane Doe');
-    expect($updated->age)->toBe(30);
+    // Property modified directly
+    expect($user->name)->toBe('Jane Doe');
+    expect($user->age)->toBe(30);
 });
 
-test('set() creates new instance with updated nested property', function(): void {
+test('set() modifies nested mutable property directly', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -163,14 +160,11 @@ test('set() creates new instance with updated nested property', function(): void
         ],
     ]);
 
-    $updated = $user->set('address.city', 'Los Angeles');
+    $user->set('address.city', 'Los Angeles');
 
-    // Original unchanged
-    expect($user->get('address.city'))->toBe('New York');
-
-    // New instance updated
-    expect($updated->get('address.city'))->toBe('Los Angeles');
-    expect($updated->get('address.country'))->toBe('USA');
+    // Property modified directly
+    expect($user->get('address.city'))->toBe('Los Angeles');
+    expect($user->get('address.country'))->toBe('USA');
 });
 
 test('set() works with array indices', function(): void {
@@ -188,17 +182,14 @@ test('set() works with array indices', function(): void {
         ],
     ]);
 
-    $updated = $user->set('emails.0.verified', true);
+    $user->set('emails.0.verified', true);
 
-    // Original unchanged
-    expect($user->get('emails.0.verified'))->toBeFalse();
-
-    // New instance updated
-    expect($updated->get('emails.0.verified'))->toBeTrue();
-    expect($updated->get('emails.1.verified'))->toBeFalse();
+    // Property modified directly
+    expect($user->get('emails.0.verified'))->toBeTrue();
+    expect($user->get('emails.1.verified'))->toBeFalse();
 });
 
-test('set() maintains immutability', function(): void {
+test('set() modifies mutable DTO directly', function(): void {
     $user = UserDtoForDotNotation::from([
         'name' => 'John Doe',
         'age' => 30,
@@ -209,24 +200,12 @@ test('set() maintains immutability', function(): void {
         ],
     ]);
 
-    $updated1 = $user->set('name', 'Jane Doe');
-    $updated2 = $updated1->set('age', 25);
-    $updated3 = $updated2->set('address.city', 'Los Angeles');
+    $user->set('name', 'Jane Doe');
+    $user->set('age', 25);
+    $user->set('address.city', 'Los Angeles');
 
-    // All instances are different
-    expect($user->name)->toBe('John Doe');
-    expect($user->age)->toBe(30);
-    expect($user->get('address.city'))->toBe('New York');
-
-    expect($updated1->name)->toBe('Jane Doe');
-    expect($updated1->age)->toBe(30);
-    expect($updated1->get('address.city'))->toBe('New York');
-
-    expect($updated2->name)->toBe('Jane Doe');
-    expect($updated2->age)->toBe(25);
-    expect($updated2->get('address.city'))->toBe('New York');
-
-    expect($updated3->name)->toBe('Jane Doe');
-    expect($updated3->age)->toBe(25);
-    expect($updated3->get('address.city'))->toBe('Los Angeles');
+    // All properties modified on same instance
+    expect($user->name)->toBe('Jane Doe');
+    expect($user->age)->toBe(25);
+    expect($user->get('address.city'))->toBe('Los Angeles');
 });

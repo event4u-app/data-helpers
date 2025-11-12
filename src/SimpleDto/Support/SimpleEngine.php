@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto\Support;
 
 use BackedEnum;
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
 use Error;
 use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\DataMapper;
@@ -19,6 +22,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\Computed;
 use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\SimpleDto\Attributes\ConverterMode;
 use event4u\DataHelpers\SimpleDto\Attributes\DataCollectionOf;
+use event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat;
 use event4u\DataHelpers\SimpleDto\Attributes\EnumSerialize;
 use event4u\DataHelpers\SimpleDto\Attributes\Hidden;
 use event4u\DataHelpers\SimpleDto\Attributes\HiddenFromArray;
@@ -32,7 +36,6 @@ use event4u\DataHelpers\SimpleDto\Attributes\MapOutputName;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
 use event4u\DataHelpers\SimpleDto\Attributes\NoAttributes;
 use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
-use event4u\DataHelpers\SimpleDto\Attributes\NotImmutable;
 use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Attributes\Optional as OptionalAttribute;
 use event4u\DataHelpers\SimpleDto\Attributes\RuleGroup;
@@ -70,6 +73,7 @@ use InvalidArgumentException;
 use JsonException;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
@@ -250,7 +254,10 @@ final class SimpleEngine
      *     isHidden: bool,
      *     isHiddenFromArray: bool,
      *     isLazy: bool,
-     *     enumSerializeMode: string|null
+     *     hideWhenNull: bool,
+     *     enumSerializeMode: string|null,
+     *     dateTimeFormat: string|null,
+     *     dateTimeTimezone: string|null
      * }>>
      */
     private static array $propertyMetadataCache = [];
@@ -373,9 +380,6 @@ final class SimpleEngine
      *     hasAnyJsonAttribute: bool,
      *     hasAutoCast: bool,
      *     hasNoCasts: bool,
-     *     hasNotImmutable: bool,
-     *     classNotImmutable: bool,
-     *     notImmutableProperties: array<string, bool>,
      * }>
      */
     private static array $featureFlags = [];
@@ -550,13 +554,14 @@ final class SimpleEngine
                 }
 
                 // Apply output casts FIRST (only if NOT #[NoCasts])
+                // Note: DateTime formatting is NOT applied in toArray() - only in toJsonArray()
                 $convertedValue = $value;
                 if (!$flags['hasNoCasts']) { // @phpstan-ignore-line
                     $convertedValue = self::applyOutputCast($class, $name, $value, $data);
                 }
 
                 // Then convert value only for complex types (nested DTOs, arrays)
-                // But skip if already converted by cast
+                // But skip if already converted by cast or DateTime formatting
                 if ($convertedValue === $value && (is_object($value) || is_array($value))) {
                     $convertedValue = self::convertValue($value, $class, $name, null);
                 }
@@ -751,6 +756,9 @@ final class SimpleEngine
                 }
             }
 
+            // Get property metadata for DateTime formatting
+            $metadata = self::getPropertyMetadata($class);
+
             $result = [];
 
             foreach ($reflection->getProperties() as $reflectionProperty) {
@@ -825,14 +833,33 @@ final class SimpleEngine
                     $value = self::serializeEnum($value, $mode);
                 }
 
-                // Apply output casts FIRST (only if NOT #[NoCasts])
+                // Apply DateTime formatting FIRST if #[DateTimeFormat] is present (before output casts)
                 $convertedValue = $value;
-                if (!$flags['hasNoCasts']) { // @phpstan-ignore-line
+                $propMeta = $metadata[$name] ?? null;
+                if ($value instanceof DateTimeInterface && null !== $propMeta && null !== $propMeta['dateTimeFormat']) { // @phpstan-ignore-line
+                    $format = $propMeta['dateTimeFormat']; // @phpstan-ignore-line
+                    $timezone = $propMeta['dateTimeTimezone']; // @phpstan-ignore-line
+
+                    // If timezone is specified, convert to that timezone first
+                    if (null !== $timezone) {
+                        $tz = new DateTimeZone($timezone);
+                        // DateTimeInterface doesn't have setTimezone(), handle both DateTime and DateTimeImmutable
+                        if ($value instanceof DateTime) {
+                            $value = (clone $value)->setTimezone($tz);
+                        } elseif ($value instanceof DateTimeImmutable) {
+                            $value = $value->setTimezone($tz);
+                        }
+                    }
+
+                    $convertedValue = $value->format($format);
+                }
+                // Apply output casts if no DateTime formatting was applied (only if NOT #[NoCasts])
+                elseif (!$flags['hasNoCasts']) { // @phpstan-ignore-line
                     $convertedValue = self::applyOutputCast($class, $name, $value, $data);
                 }
 
                 // Then convert value only for complex types (nested DTOs, arrays)
-                // But skip if already converted by cast
+                // But skip if already converted by cast or DateTime formatting
                 if ($convertedValue === $value && (is_object($value) || is_array($value))) {
                     $convertedValue = self::convertValue($value, $class, $name, $reflectionProperty);
                 }
@@ -1034,9 +1061,10 @@ final class SimpleEngine
                         }
                     }
 
-                    // Cast DateTime or DateTimeImmutable
-                    if (!$type->isBuiltin() && (DateTime::class === $typeName || DateTimeImmutable::class === $typeName)) {
-                        $value = self::castToDateTime($typeName, $value);
+                    // Cast DateTime/DateTimeImmutable/Carbon
+                    if (!$type->isBuiltin() && self::isDateTimeType($typeName)) {
+                        /** @var class-string $typeName */
+                        $value = self::castToDateTime($typeName, $value, $name, $class);
                         // Hook: afterCasting
                         self::callHook($dtoInstance, 'afterCasting', [$name, $value]);
                         return $value;
@@ -2167,9 +2195,10 @@ final class SimpleEngine
                     $type = $reflectionParameter->getType();
                     if ($type instanceof ReflectionNamedType) {
                         $typeName = $type->getName();
-                        // Cast to DateTime/DateTimeImmutable
-                        if (!$type->isBuiltin() && (DateTime::class === $typeName || DateTimeImmutable::class === $typeName)) {
-                            $value = self::castToDateTime($typeName, $value);
+                        // Cast to DateTime/DateTimeImmutable/Carbon
+                        if (!$type->isBuiltin() && self::isDateTimeType($typeName)) {
+                            /** @var class-string $typeName */
+                            $value = self::castToDateTime($typeName, $value, $paramName, $class);
                         }
                         // Cast native PHP types
                         elseif ($type->isBuiltin()) {
@@ -2296,33 +2325,76 @@ final class SimpleEngine
     }
 
     /**
-     * Cast value to DateTime or DateTimeImmutable.
+     * Check if a type name is a DateTime-related type.
      *
-     * @param class-string<DateTime|DateTimeImmutable> $dateTimeClass
+     * @param string $typeName Type name to check
+     * @return bool True if it's DateTime, DateTimeImmutable, Carbon, or CarbonImmutable
      */
-    private static function castToDateTime(string $dateTimeClass, mixed $value): DateTime|DateTimeImmutable
+    private static function isDateTimeType(string $typeName): bool
     {
+        if (DateTime::class === $typeName || DateTimeImmutable::class === $typeName) {
+            return true;
+        }
+
+        // Check for Carbon types (if Carbon is installed)
+        if (class_exists('Carbon\Carbon')) {
+            return 'Carbon\Carbon' === $typeName || 'Carbon\CarbonImmutable' === $typeName;
+        }
+
+        return false;
+    }
+
+    /**
+     * Cast value to DateTime, DateTimeImmutable, Carbon, or CarbonImmutable.
+     *
+     * Supports:
+     * - DateTime/DateTimeImmutable conversion
+     * - Carbon/CarbonImmutable (if Carbon is installed)
+     * - String parsing with optional format from #[DateTimeFormat]
+     * - Automatic format detection as fallback
+     * - Unix timestamps (int)
+     *
+     * @param class-string $dateTimeClass Target class (DateTime, DateTimeImmutable, Carbon\Carbon, Carbon\CarbonImmutable)
+     * @param string|null $propertyName Property name for DateTimeFormat attribute lookup
+     * @param class-string|null $dtoClass DTO class for DateTimeFormat attribute lookup
+     * @return DateTime|DateTimeImmutable DateTime instance or Carbon instance
+     */
+    private static function castToDateTime(
+        string $dateTimeClass,
+        mixed $value,
+        ?string $propertyName = null,
+        ?string $dtoClass = null
+    ): DateTime|DateTimeImmutable {
         // If already the correct DateTime instance, return it
         if ($value instanceof $dateTimeClass) {
-            return $value;
+            return $value; // @phpstan-ignore-line
         }
 
-        // Convert between DateTime and DateTimeImmutable
-        if (DateTime::class === $dateTimeClass) {
+        // Check if target is Carbon (if installed)
+        $isCarbonTarget = class_exists('Carbon\Carbon') && (
+            'Carbon\Carbon' === $dateTimeClass || 'Carbon\CarbonImmutable' === $dateTimeClass
+        );
+
+        // Convert between DateTime types
+        if (DateTime::class === $dateTimeClass || 'Carbon\Carbon' === $dateTimeClass) {
             if ($value instanceof DateTimeImmutable) {
-                return DateTime::createFromImmutable($value);
+                $dt = DateTime::createFromImmutable($value);
+                return $isCarbonTarget ? Carbon::instance($dt) : $dt; // @phpstan-ignore-line
             }
             if ($value instanceof DateTimeInterface) {
-                return DateTime::createFromInterface($value);
+                $dt = DateTime::createFromInterface($value);
+                return $isCarbonTarget ? Carbon::instance($dt) : $dt; // @phpstan-ignore-line
             }
         }
 
-        if (DateTimeImmutable::class === $dateTimeClass) {
+        if (DateTimeImmutable::class === $dateTimeClass || 'Carbon\CarbonImmutable' === $dateTimeClass) {
             if ($value instanceof DateTime) {
-                return DateTimeImmutable::createFromMutable($value);
+                $dt = DateTimeImmutable::createFromMutable($value);
+                return $isCarbonTarget ? CarbonImmutable::instance($dt) : $dt; // @phpstan-ignore-line
             }
             if ($value instanceof DateTimeInterface) {
-                return DateTimeImmutable::createFromInterface($value);
+                $dt = DateTimeImmutable::createFromInterface($value);
+                return $isCarbonTarget ? CarbonImmutable::instance($dt) : $dt; // @phpstan-ignore-line
             }
         }
 
@@ -2331,26 +2403,16 @@ final class SimpleEngine
             throw new InvalidArgumentException('Cannot cast null or empty string to ' . $dateTimeClass);
         }
 
-        // Cast from string or int (timestamp)
-        if (is_string($value)) {
-            try {
-                return DateTime::class === $dateTimeClass
-                    ? new DateTime($value)
-                    : new DateTimeImmutable($value);
-            } catch (Throwable $e) {
-                throw new InvalidArgumentException(
-                    'Cannot cast value to ' . $dateTimeClass . ': ' . $e->getMessage(),
-                    $e->getCode(),
-                    $e
-                );
-            }
-        }
-
+        // Cast from int (timestamp)
         if (is_int($value)) {
             try {
-                $dateTime = DateTime::class === $dateTimeClass
-                    ? new DateTime()
-                    : new DateTimeImmutable();
+                if ($isCarbonTarget) {
+                    return 'Carbon\Carbon' === $dateTimeClass
+                        ? Carbon::createFromTimestamp($value) // @phpstan-ignore-line
+                        : CarbonImmutable::createFromTimestamp($value); // @phpstan-ignore-line
+                }
+
+                $dateTime = DateTime::class === $dateTimeClass ? new DateTime() : new DateTimeImmutable();
                 return $dateTime->setTimestamp($value);
             } catch (Throwable $e) {
                 throw new InvalidArgumentException(
@@ -2361,7 +2423,142 @@ final class SimpleEngine
             }
         }
 
+        // Cast from string
+        if (is_string($value)) {
+            return self::parseDateTimeFromString($value, $dateTimeClass, $propertyName, $dtoClass);
+        }
+
         throw new InvalidArgumentException('Cannot cast value to ' . $dateTimeClass);
+    }
+
+    /**
+     * Parse DateTime from string with optional format from #[DateTimeFormat].
+     *
+     * Strategy:
+     * 1. If #[DateTimeFormat] is present, try to parse with that format first
+     * 2. If format parsing fails or no format specified, try automatic detection
+     * 3. Support for date-only, time-only, and datetime strings
+     *
+     * @param class-string $dateTimeClass Target class
+     * @param string|null $propertyName Property name for DateTimeFormat lookup
+     * @param class-string|null $dtoClass DTO class for DateTimeFormat lookup
+     */
+    private static function parseDateTimeFromString(
+        string $value,
+        string $dateTimeClass,
+        ?string $propertyName = null,
+        ?string $dtoClass = null
+    ): DateTime|DateTimeImmutable {
+        $isCarbonTarget = class_exists('Carbon\Carbon') && (
+            'Carbon\Carbon' === $dateTimeClass || 'Carbon\CarbonImmutable' === $dateTimeClass
+        );
+
+        // Try to get DateTimeFormat attribute if property name and DTO class are provided
+        $format = null;
+        if (null !== $propertyName && null !== $dtoClass) {
+            try {
+                $metadata = self::getPropertyMetadata($dtoClass);
+                if (isset($metadata[$propertyName]['dateTimeFormat'])) {
+                    $format = $metadata[$propertyName]['dateTimeFormat'];
+                }
+            } catch (Throwable) {
+                // Ignore errors, fall back to automatic detection
+            }
+        }
+
+        // Strategy 1: Try parsing with specified format
+        if (null !== $format) {
+            try {
+                if ($isCarbonTarget) {
+                    $parsed = 'Carbon\Carbon' === $dateTimeClass
+                        ? Carbon::createFromFormat($format, $value) // @phpstan-ignore-line
+                        : CarbonImmutable::createFromFormat($format, $value); // @phpstan-ignore-line
+
+                    if (false !== $parsed) { // @phpstan-ignore-line
+                        return $parsed; // @phpstan-ignore-line
+                    }
+                } else {
+                    $parsed = DateTime::class === $dateTimeClass
+                        ? DateTime::createFromFormat($format, $value)
+                        : DateTimeImmutable::createFromFormat($format, $value);
+
+                    if (false !== $parsed) {
+                        return $parsed;
+                    }
+                }
+            } catch (Throwable) {
+                // Format parsing failed, continue to automatic detection
+            }
+        }
+
+        // Strategy 2: Try automatic detection with common formats
+        $formats = [
+            // ISO 8601 formats
+            'Y-m-d\TH:i:s.uP',      // 2024-01-15T10:30:00.123456+01:00
+            'Y-m-d\TH:i:sP',        // 2024-01-15T10:30:00+01:00
+            'Y-m-d\TH:i:s',         // 2024-01-15T10:30:00
+            // Common datetime formats
+            'Y-m-d H:i:s.u',        // 2024-01-15 10:30:00.123456
+            'Y-m-d H:i:s',          // 2024-01-15 10:30:00
+            'Y-m-d H:i',            // 2024-01-15 10:30
+            // Date-only formats
+            'Y-m-d',                // 2024-01-15
+            'd.m.Y',                // 15.01.2024
+            'd/m/Y',                // 15/01/2024
+            'm/d/Y',                // 01/15/2024 (US format)
+            // Time-only formats
+            'H:i:s',                // 10:30:00
+            'H:i',                  // 10:30
+        ];
+
+        foreach ($formats as $tryFormat) {
+            try {
+                if ($isCarbonTarget) {
+                    $parsed = 'Carbon\Carbon' === $dateTimeClass
+                        ? Carbon::createFromFormat($tryFormat, $value) // @phpstan-ignore-line
+                        : CarbonImmutable::createFromFormat($tryFormat, $value); // @phpstan-ignore-line
+
+                    if (false !== $parsed) { // @phpstan-ignore-line
+                        return $parsed; // @phpstan-ignore-line
+                    }
+                } else {
+                    $parsed = DateTime::class === $dateTimeClass
+                        ? DateTime::createFromFormat($tryFormat, $value)
+                        : DateTimeImmutable::createFromFormat($tryFormat, $value);
+
+                    if (false !== $parsed) {
+                        return $parsed;
+                    }
+                }
+            } catch (Throwable) {
+                // Try next format
+                continue;
+            }
+        }
+
+        // Strategy 3: Fallback to native PHP parsing (strtotime)
+        try {
+            if ($isCarbonTarget) {
+                return 'Carbon\Carbon' === $dateTimeClass
+                    ? new Carbon($value) // @phpstan-ignore-line
+                    : new CarbonImmutable($value); // @phpstan-ignore-line
+            }
+
+            return DateTime::class === $dateTimeClass
+                ? new DateTime($value)
+                : new DateTimeImmutable($value);
+        } catch (Throwable $throwable) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cannot parse date/time string "%s" to %s. %s',
+                    $value,
+                    $dateTimeClass,
+                    $throwable->getMessage()
+                ),
+                $throwable->getCode(),
+                $throwable
+            );
+        }
     }
 
     /**
@@ -2411,30 +2608,20 @@ final class SimpleEngine
     /**
      * Check if a property is mutable (can be modified after construction).
      *
-     * A property is mutable if:
-     * - The class has #[NotImmutable] attribute (all properties mutable)
-     * - The specific property has #[NotImmutable] attribute
-     *
-     * Performance: Uses cached feature flags, zero overhead after first scan.
+     * A property is mutable if it is NOT readonly.
      *
      * @param class-string $class
      */
     public static function isPropertyMutable(string $class, string $propertyName): bool
     {
-        $flags = self::getFeatureFlags($class);
+        try {
+            $reflection = new ReflectionClass($class);
+            $property = $reflection->getProperty($propertyName);
 
-        // If class doesn't use NotImmutable at all, return false immediately
-        if (!$flags['hasNotImmutable']) { // @phpstan-ignore-line
+            return !$property->isReadOnly();
+        } catch (ReflectionException) {
             return false;
         }
-
-        // If class has #[NotImmutable], ALL properties are mutable
-        if ($flags['classNotImmutable']) {
-            return true;
-        }
-
-        // Otherwise, check if specific property is marked as NotImmutable
-        return isset($flags['notImmutableProperties'][$propertyName]);
     }
 
     /**
@@ -2485,6 +2672,7 @@ final class SimpleEngine
                 'hasCastWith' => false,
                 'hasConvertEmptyToNull' => false,
                 'hasEnumSerialize' => false,
+                'hasDateTimeFormat' => false,
                 'hasDataCollectionOf' => false,
                 'hasMapInputName' => false,
                 'hasMapOutputName' => false,
@@ -2501,9 +2689,6 @@ final class SimpleEngine
                 'hasAnyJsonAttribute' => false,
                 'hasAutoCast' => false,
                 'hasNoCasts' => false,
-                'hasNotImmutable' => false,
-                'classNotImmutable' => false,
-                'notImmutableProperties' => [],
             ];
 
             // Cache and return immediately
@@ -2523,6 +2708,7 @@ final class SimpleEngine
             'hasCastWith' => false,
             'hasConvertEmptyToNull' => false,
             'hasEnumSerialize' => false,
+            'hasDateTimeFormat' => false,
             'hasDataCollectionOf' => false,
             'hasMapInputName' => false,
             'hasMapOutputName' => false,
@@ -2539,9 +2725,6 @@ final class SimpleEngine
             'hasAnyJsonAttribute' => false,
             'hasAutoCast' => false,
             'hasNoCasts' => false,
-            'hasNotImmutable' => false,
-            'classNotImmutable' => false,
-            'notImmutableProperties' => [],
         ];
 
         // Check for class-level attributes
@@ -2568,12 +2751,6 @@ final class SimpleEngine
         // #[AutoCast] is mainly for LiteDto or explicit opt-in
         if ([] !== $reflection->getAttributes(AutoCast::class)) {
             $flags['hasAutoCast'] = true;
-        }
-
-        // Check for class-level #[NotImmutable]
-        if ([] !== $reflection->getAttributes(NotImmutable::class)) {
-            $flags['hasNotImmutable'] = true;
-            $flags['classNotImmutable'] = true;
         }
 
         // Scan constructor parameters
@@ -2613,12 +2790,6 @@ final class SimpleEngine
                         self::$autoCastCache[$class] = [];
                     }
                     self::$autoCastCache[$class][$paramName] = true;
-                }
-
-                // NotImmutable - fill cache while scanning constructor parameters
-                if ([] !== $reflectionParameter->getAttributes(NotImmutable::class)) {
-                    $flags['hasNotImmutable'] = true;
-                    $flags['notImmutableProperties'][$paramName] = true;
                 }
             }
         }
@@ -2684,6 +2855,11 @@ final class SimpleEngine
             if ([] !== $reflectionProperty->getAttributes(EnumSerialize::class)) {
                 $flags['hasEnumSerialize'] = true;
             }
+            if ([] !== $reflectionProperty->getAttributes(
+                DateTimeFormat::class
+            )) {
+                $flags['hasDateTimeFormat'] = true;
+            }
             if ([] !== $reflectionProperty->getAttributes(DataCollectionOf::class)) {
                 $flags['hasDataCollectionOf'] = true;
             }
@@ -2736,12 +2912,6 @@ final class SimpleEngine
                     self::$optionalCache[$class] = [];
                 }
                 self::$optionalCache[$class][$propName] = true;
-            }
-
-            // NotImmutable - fill cache while scanning properties
-            if ([] !== $reflectionProperty->getAttributes(NotImmutable::class)) {
-                $flags['hasNotImmutable'] = true;
-                $flags['notImmutableProperties'][$propName] = true;
             }
 
             // Validation Attributes - scan and cache all validation rules
@@ -2876,12 +3046,12 @@ final class SimpleEngine
 
         // Set combined flags for fast-path checks
         $flags['hasAnyArrayAttribute'] = $flags['hasMapTo'] || $flags['hasMapOutputName'] || $flags['hasEnumSerialize'] ||
-            $flags['hasHidden'] || $flags['hasHiddenFromArray'] || $flags['hasHideWhenNull'] ||
+            $flags['hasDateTimeFormat'] || $flags['hasHidden'] || $flags['hasHiddenFromArray'] || $flags['hasHideWhenNull'] ||
             $flags['hasLazy'] || $flags['hasComputed'] || $flags['hasOptional'] ||
             $flags['hasConditionalProperties'] || $hasCasts;
 
         $flags['hasAnyJsonAttribute'] = $flags['hasMapTo'] || $flags['hasMapOutputName'] || $flags['hasEnumSerialize'] ||
-            $flags['hasHidden'] || $flags['hasHiddenFromJson'] || $flags['hasHideWhenNull'] ||
+            $flags['hasDateTimeFormat'] || $flags['hasHidden'] || $flags['hasHiddenFromJson'] || $flags['hasHideWhenNull'] ||
             $flags['hasLazy'] || $flags['hasComputed'] || $flags['hasOptional'] ||
             $flags['hasConditionalProperties'] || $hasCasts;
 
@@ -2920,7 +3090,7 @@ final class SimpleEngine
             $name = $property->getName();
 
             // Initialize metadata for this property
-            /** @var array{mapTo: string|null, mapToPath: array<int, string>|null, isHidden: bool, isHiddenFromArray: bool, isLazy: bool, hideWhenNull: bool, enumSerializeMode: string|null} $propMeta */
+            /** @var array{mapTo: string|null, mapToPath: array<int, string>|null, isHidden: bool, isHiddenFromArray: bool, isLazy: bool, hideWhenNull: bool, enumSerializeMode: string|null, dateTimeFormat: string|null, dateTimeTimezone: string|null} $propMeta */
             $propMeta = [
                 'mapTo' => null,
                 'mapToPath' => null,
@@ -2929,6 +3099,8 @@ final class SimpleEngine
                 'isLazy' => false,
                 'hideWhenNull' => false,
                 'enumSerializeMode' => null,
+                'dateTimeFormat' => null,
+                'dateTimeTimezone' => null,
             ];
 
             // Check Map attribute first (bidirectional mapping)
@@ -3001,6 +3173,17 @@ final class SimpleEngine
                 /** @var EnumSerialize $enumSerialize */
                 $enumSerialize = $enumSerializeAttrs[0]->newInstance();
                 $propMeta['enumSerializeMode'] = $enumSerialize->mode;
+            }
+
+            // Check DateTimeFormat attribute
+            $dateTimeFormatAttrs = $property->getAttributes(
+                DateTimeFormat::class
+            );
+            if (!empty($dateTimeFormatAttrs)) {
+                /** @var DateTimeFormat $dateTimeFormatAttr */
+                $dateTimeFormatAttr = $dateTimeFormatAttrs[0]->newInstance();
+                $propMeta['dateTimeFormat'] = $dateTimeFormatAttr->format;
+                $propMeta['dateTimeTimezone'] = $dateTimeFormatAttr->timezone;
             }
 
             $metadata[$name] = $propMeta;
@@ -3287,9 +3470,10 @@ final class SimpleEngine
                                 $value = $typeName::from($value); // @phpstan-ignore-line
                             }
                         }
-                        // Cast to DateTime/DateTimeImmutable
-                        elseif (!$type->isBuiltin() && (DateTime::class === $typeName || DateTimeImmutable::class === $typeName)) {
-                            $value = self::castToDateTime($typeName, $value);
+                        // Cast to DateTime/DateTimeImmutable/Carbon
+                        elseif (!$type->isBuiltin() && self::isDateTimeType($typeName)) {
+                            /** @var class-string $typeName */
+                            $value = self::castToDateTime($typeName, $value, $paramName, $class);
                         }
                         // Cast native PHP types
                         elseif ($type->isBuiltin()) {

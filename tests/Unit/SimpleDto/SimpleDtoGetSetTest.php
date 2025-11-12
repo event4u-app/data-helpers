@@ -12,9 +12,9 @@ use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 class FlatUserDto extends SimpleDto
 {
     public function __construct(
-        public readonly string $name,
-        public readonly string $email,
-        public readonly int $age,
+        public string $name,
+        public string $email,
+        public int $age,
     ) {}
 }
 
@@ -23,9 +23,9 @@ class FlatUserDto extends SimpleDto
 class GetSetAddressDto extends SimpleDto
 {
     public function __construct(
-        public readonly string $street,
-        public readonly string $city,
-        public readonly string $country,
+        public string $street,
+        public string $city,
+        public string $country,
     ) {}
 }
 
@@ -33,9 +33,9 @@ class GetSetAddressDto extends SimpleDto
 class GetSetEmailDto extends SimpleDto
 {
     public function __construct(
-        public readonly string $email,
-        public readonly string $type,
-        public readonly bool $verified = false,
+        public string $email,
+        public string $type,
+        public bool $verified = false,
     ) {}
 }
 
@@ -44,9 +44,9 @@ class GetSetNestedUserDto extends SimpleDto
 {
     /** @param array<int, GetSetEmailDto> $emails */
     public function __construct(
-        public readonly string $name,
-        public readonly GetSetAddressDto $address,
-        public readonly array $emails,
+        public string $name,
+        public GetSetAddressDto $address,
+        public array $emails,
     ) {}
 }
 
@@ -55,9 +55,9 @@ class GetSetNestedUserDto extends SimpleDto
 class GetSetOrderDto extends SimpleDto
 {
     public function __construct(
-        public readonly int $id,
-        public readonly float $total,
-        public readonly string $status,
+        public int $id,
+        public float $total,
+        public string $status,
     ) {}
 }
 
@@ -66,8 +66,8 @@ class GetSetDepartmentDto extends SimpleDto
 {
     /** @param array<int, GetSetEmployeeDto> $employees */
     public function __construct(
-        public readonly string $name,
-        public readonly array $employees,
+        public string $name,
+        public array $employees,
     ) {}
 }
 
@@ -79,9 +79,9 @@ class GetSetEmployeeDto extends SimpleDto
      * @param array<int, GetSetOrderDto> $orders
      */
     public function __construct(
-        public readonly string $name,
-        public readonly array $emails,
-        public readonly array $orders,
+        public string $name,
+        public array $emails,
+        public array $orders,
     ) {}
 }
 
@@ -263,22 +263,19 @@ describe('SimpleDto get() method', function(): void {
 
 describe('SimpleDto set() method', function(): void {
     describe('Flat Dto', function(): void {
-        test('can set simple property and returns new instance', function(): void {
+        test('can set simple property directly', function(): void {
             $dto = new FlatUserDto(
                 name: 'John Doe',
                 email: 'john@example.com',
                 age: 30
             );
 
-            $newDto = $dto->set('name', 'Jane Doe');
+            $dto->set('name', 'Jane Doe');
 
-            // Original unchanged
-            expect($dto->get('name'))->toBe('John Doe');
-
-            // New instance has updated value
-            expect($newDto->get('name'))->toBe('Jane Doe');
-            expect($newDto->get('email'))->toBe('john@example.com');
-            expect($newDto->get('age'))->toBe(30);
+            // Property modified directly
+            expect($dto->get('name'))->toBe('Jane Doe');
+            expect($dto->get('email'))->toBe('john@example.com');
+            expect($dto->get('age'))->toBe(30);
         });
 
         test('can set multiple properties', function(): void {
@@ -288,12 +285,12 @@ describe('SimpleDto set() method', function(): void {
                 age: 30
             );
 
-            $newDto = $dto->set('name', 'Jane Doe')
-                ->set('age', 25);
+            $dto->set('name', 'Jane Doe');
+            $dto->set('age', 25);
 
-            expect($newDto->get('name'))->toBe('Jane Doe');
-            expect($newDto->get('age'))->toBe(25);
-            expect($newDto->get('email'))->toBe('john@example.com');
+            expect($dto->get('name'))->toBe('Jane Doe');
+            expect($dto->get('age'))->toBe(25);
+            expect($dto->get('email'))->toBe('john@example.com');
         });
     });
 
@@ -309,15 +306,12 @@ describe('SimpleDto set() method', function(): void {
                 emails: []
             );
 
-            $newDto = $dto->set('address.city', 'Munich');
+            $dto->set('address.city', 'Munich');
 
-            // Original unchanged
-            expect($dto->get('address.city'))->toBe('Berlin');
-
-            // New instance has updated value
-            expect($newDto->get('address.city'))->toBe('Munich');
-            expect($newDto->get('address.street'))->toBe('Main St 123');
-            expect($newDto->get('address.country'))->toBe('Germany');
+            // Property modified directly
+            expect($dto->get('address.city'))->toBe('Munich');
+            expect($dto->get('address.street'))->toBe('Main St 123');
+            expect($dto->get('address.country'))->toBe('Germany');
         });
     });
 
@@ -337,13 +331,10 @@ describe('SimpleDto set() method', function(): void {
                 ]
             );
 
-            $newDto = $dto->set('emails.*.verified', true);
-
-            // Original unchanged
-            expect($dto->get('emails.0.verified'))->toBe(false);
+            $dto->set('emails.*.verified', true);
 
             // All emails are now verified
-            $verified = $newDto->get('emails.*.verified');
+            $verified = $dto->get('emails.*.verified');
             expect(array_values($verified))->toBe([true, true, true]);
         });
     });
@@ -371,10 +362,10 @@ describe('SimpleDto set() method', function(): void {
                 ]
             );
 
-            $newDto = $dto->set('employees.*.emails.*.verified', true);
+            $dto->set('employees.*.emails.*.verified', true);
 
             // All emails are now verified
-            $verified = $newDto->get('employees.*.emails.*.verified');
+            $verified = $dto->get('employees.*.emails.*.verified');
             expect(array_values($verified))->toBe([true, true, true]);
         });
 
@@ -400,10 +391,10 @@ describe('SimpleDto set() method', function(): void {
                 ]
             );
 
-            $newDto = $dto->set('employees.*.orders.*.status', 'shipped');
+            $dto->set('employees.*.orders.*.status', 'shipped');
 
             // All orders are now shipped
-            $statuses = $newDto->get('employees.*.orders.*.status');
+            $statuses = $dto->get('employees.*.orders.*.status');
             expect(array_values($statuses))->toBe(['shipped', 'shipped', 'shipped']);
         });
     });
@@ -458,18 +449,16 @@ describe('SimpleDto set() method', function(): void {
             expect($dto->get('emails.*.email'))->toBe([]);
         });
 
-        test('set() creates new instance (immutability)', function(): void {
+        test('set() modifies mutable DTO directly', function(): void {
             $dto = new FlatUserDto(
                 name: 'John',
                 email: 'john@example.com',
                 age: 30
             );
 
-            $newDto = $dto->set('name', 'Jane');
+            $dto->set('name', 'Jane');
 
-            expect($dto->name)->toBe('John');
-            expect($newDto->name)->toBe('Jane');
-            expect($dto)->not->toBe($newDto);
+            expect($dto->name)->toBe('Jane');
         });
 
         test('set() handles empty string path gracefully', function(): void {
@@ -479,23 +468,22 @@ describe('SimpleDto set() method', function(): void {
                 age: 30
             );
 
-            $newDto = $dto->set('', 'value');
+            $dto->set('', 'value');
 
-            // Should return a new instance but data unchanged
-            expect($newDto->name)->toBe('John');
-            expect($newDto)->not->toBe($dto);
+            // Data unchanged
+            expect($dto->name)->toBe('John');
         });
 
-        test('set() with wildcard on empty array returns unchanged Dto', function(): void {
+        test('set() with wildcard on empty array keeps empty array', function(): void {
             $dto = new GetSetEmployeeDto(
                 name: 'John',
                 emails: [],
                 orders: []
             );
 
-            $newDto = $dto->set('emails.*.verified', true);
+            $dto->set('emails.*.verified', true);
 
-            expect($newDto->emails)->toBe([]);
+            expect($dto->emails)->toBe([]);
         });
 
         test('get() handles null values in nested structures', function(): void {
@@ -528,9 +516,9 @@ describe('SimpleDto set() method', function(): void {
             expect($dto->get('emails.1.email'))->toBe('john@home.com');
 
             // Set by numeric index
-            $newDto = $dto->set('emails.0.verified', true);
-            expect($newDto->get('emails.0.verified'))->toBeTrue();
-            expect($newDto->get('emails.1.verified'))->toBeFalse();
+            $dto->set('emails.0.verified', true);
+            expect($dto->get('emails.0.verified'))->toBeTrue();
+            expect($dto->get('emails.1.verified'))->toBeFalse();
         });
 
         test('get() handles very deep nesting', function(): void {
@@ -560,11 +548,11 @@ describe('SimpleDto set() method', function(): void {
                 age: 30
             );
 
-            $newDto = $dto->set('name', 'Jane');
+            $dto->set('name', 'Jane');
 
-            expect($newDto->name)->toBe('Jane');
-            expect($newDto->email)->toBe('john@example.com');
-            expect($newDto->age)->toBe(30);
+            expect($dto->name)->toBe('Jane');
+            expect($dto->email)->toBe('john@example.com');
+            expect($dto->age)->toBe(30);
         });
 
         test('get() returns correct type for different value types', function(): void {
@@ -590,33 +578,27 @@ describe('SimpleDto set() method', function(): void {
                 emails: []
             );
 
-            $newDto = $dto->set('address.city', 'LA');
+            $dto->set('address.city', 'LA');
 
-            expect($newDto->get('address.city'))->toBe('LA');
-            expect($newDto->get('address.street'))->toBe('Main St');
-            expect($newDto->get('address.country'))->toBe('USA');
+            expect($dto->get('address.city'))->toBe('LA');
+            expect($dto->get('address.street'))->toBe('Main St');
+            expect($dto->get('address.country'))->toBe('USA');
         });
 
-        test('chaining multiple set() calls', function(): void {
+        test('multiple set() calls modify same instance', function(): void {
             $dto = new FlatUserDto(
                 name: 'John',
                 email: 'john@example.com',
                 age: 30
             );
 
-            $newDto = $dto
-                ->set('name', 'Jane')
-                ->set('age', 25)
-                ->set('email', 'jane@example.com');
+            $dto->set('name', 'Jane');
+            $dto->set('age', 25);
+            $dto->set('email', 'jane@example.com');
 
-            expect($newDto->name)->toBe('Jane');
-            expect($newDto->age)->toBe(25);
-            expect($newDto->email)->toBe('jane@example.com');
-
-            // Original unchanged
-            expect($dto->name)->toBe('John');
-            expect($dto->age)->toBe(30);
-            expect($dto->email)->toBe('john@example.com');
+            expect($dto->name)->toBe('Jane');
+            expect($dto->age)->toBe(25);
+            expect($dto->email)->toBe('jane@example.com');
         });
     });
 });

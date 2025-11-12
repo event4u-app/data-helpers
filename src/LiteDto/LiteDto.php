@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\LiteDto;
 
+use ArrayAccess;
 use BackedEnum;
+use BadMethodCallException;
 use Closure;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataCollection;
@@ -12,6 +14,8 @@ use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Exceptions\TypeMismatchException;
 use event4u\DataHelpers\LiteDto\Support\LiteEngine;
 use JsonSerializable;
+use ReflectionClass;
+use Stringable;
 use UnitEnum;
 
 /**
@@ -56,7 +60,10 @@ use UnitEnum;
  *   $dto = ApiDto::from('{"name": "John"}'); // JSON
  *   $dto = ApiDto::from('<root><name>John</name></root>'); // XML
  */
-abstract class LiteDto implements JsonSerializable
+/**
+ * @implements ArrayAccess<string, mixed>
+ */
+abstract class LiteDto implements JsonSerializable, Stringable, ArrayAccess
 {
     /**
      * Create DTO from data.
@@ -187,6 +194,18 @@ abstract class LiteDto implements JsonSerializable
     }
 
     /**
+     * Convert DTO to array for JSON serialization.
+     * Applies DateTime formatting with #[DateTimeFormat] attribute.
+     *
+     * @param array<string, mixed> $context Optional context for conditional properties
+     * @return array<string, mixed>
+     */
+    public function toJsonArray(array $context = []): array
+    {
+        return LiteEngine::toJsonArray($this, $context);
+    }
+
+    /**
      * Convert DTO to JSON.
      *
      * @param array<string, mixed>|int $contextOrOptions Context array or JSON encoding options
@@ -196,11 +215,11 @@ abstract class LiteDto implements JsonSerializable
     {
         // Handle backward compatibility: toJson(int $options)
         if (is_int($contextOrOptions)) {
-            return json_encode($this->toArray(), JSON_THROW_ON_ERROR | $contextOrOptions);
+            return json_encode($this->toJsonArray(), JSON_THROW_ON_ERROR | $contextOrOptions);
         }
 
         // New signature: toJson(array $context, int $options)
-        return json_encode($this->toArray($contextOrOptions), JSON_THROW_ON_ERROR | $options);
+        return json_encode($this->toJsonArray($contextOrOptions), JSON_THROW_ON_ERROR | $options);
     }
 
     /**
@@ -210,7 +229,132 @@ abstract class LiteDto implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
+        return $this->toJsonArray();
+    }
+
+    /** Convert DTO to string (JSON representation). */
+    public function __toString(): string
+    {
+        return $this->toJson();
+    }
+
+    /**
+     * Serialize DTO for PHP serialization.
+     * Required for readonly properties support.
+     *
+     * @return array<string, mixed>
+     */
+    public function __serialize(): array
+    {
         return $this->toArray();
+    }
+
+    /**
+     * Unserialize DTO from PHP serialization.
+     * Required for readonly properties support.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function __unserialize(array $data): void
+    {
+        // Reconstruct the DTO using reflection
+        // This is necessary because readonly properties can only be set during construction
+        $reflection = new ReflectionClass($this);
+        $constructor = $reflection->getConstructor();
+
+        if (null === $constructor) {
+            return;
+        }
+
+        $params = $constructor->getParameters();
+        $args = [];
+
+        foreach ($params as $param) {
+            $name = $param->getName();
+            $args[] = $data[$name] ?? ($param->isDefaultValueAvailable() ? $param->getDefaultValue() : null);
+        }
+
+        // Call constructor with unserialized data
+        $constructor->invoke($this, ...$args);
+    }
+
+    /**
+     * Check if property or path exists.
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
+     *
+     * @param string $path Property name or dot-notation path
+     */
+    public function has(string $path): bool
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->has($path);
+    }
+
+    /**
+     * Check if property exists (ArrayAccess).
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
+     * Uses the existing has() method internally.
+     *
+     * @param string $offset Property name or dot-notation path
+     */
+    public function offsetExists(mixed $offset): bool
+    {
+        if (!is_string($offset)) {
+            return false;
+        }
+
+        return $this->has($offset);
+    }
+
+    /**
+     * Get property value (ArrayAccess).
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
+     * Uses the existing get() method internally.
+     *
+     * @param string $offset Property name or dot-notation path
+     * @return mixed Property value
+     */
+    public function offsetGet(mixed $offset): mixed
+    {
+        if (!is_string($offset)) {
+            return null;
+        }
+
+        return $this->get($offset);
+    }
+
+    /**
+     * Set property value (ArrayAccess).
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
+     * Note: LiteDto is immutable, so this always throws an exception.
+     * Use set() method instead to create a new instance.
+     *
+     * @param string $offset Property name or dot-notation path
+     * @param mixed $value Property value
+     * @throws BadMethodCallException Always throws - LiteDto is immutable
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        throw new BadMethodCallException(
+            'LiteDto is immutable. Use set() method to create a new instance: $newDto = $dto->set("' . $offset . '", $value);'
+        );
+    }
+
+    /**
+     * Unset property (ArrayAccess).
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
+     * Note: LiteDto is immutable, so this always throws an exception.
+     *
+     * @param string $offset Property name or dot-notation path
+     * @throws BadMethodCallException Always throws - LiteDto is immutable
+     */
+    public function offsetUnset(mixed $offset): void
+    {
+        throw new BadMethodCallException(
+            'LiteDto is immutable. Use set() method to set null: $newDto = $dto->set("' . $offset . '", null);'
+        );
     }
 
     /**
@@ -431,6 +575,25 @@ abstract class LiteDto implements JsonSerializable
 
         /** @var array<string, mixed> $data */
         return static::from($data);
+    }
+
+    /**
+     * Unset value in Dto using dot notation (sets to null, returns new instance).
+     *
+     * Since LiteDtos are immutable, this method returns a new instance
+     * with the value set to null.
+     *
+     * Supports:
+     * - Simple paths: 'name', 'email'
+     * - Nested paths: 'address.city', 'user.profile.bio'
+     * - Array indices: 'items.0.name', 'users.1.email'
+     *
+     * @param string $path Dot-notation path to the property
+     * @return static New Dto instance with the value set to null
+     */
+    public function unset(string $path): static
+    {
+        return $this->set($path, null);
     }
 
     /**

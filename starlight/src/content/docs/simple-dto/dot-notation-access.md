@@ -433,7 +433,13 @@ $allStatuses = $department->get('employees.*.orders.*.status');
 
 ## The set() Method
 
-The `set()` method allows you to update Dto properties using dot notation. Since Dtos are immutable, `set()` returns a **new instance** with the updated value.
+The `set()` method allows you to update Dto properties using dot notation.
+
+**Important:** `set()` only works with **mutable (non-readonly) properties**. It modifies the instance **in-place** and returns `void`.
+
+:::caution
+`set()` does **not** work with readonly properties. Readonly properties cannot be modified after construction.
+:::
 
 ### Basic Usage
 
@@ -446,11 +452,10 @@ $user = new UserDto(
     age: 30
 );
 
-// Set simple property - returns new instance
-$updatedUser = $user->set('name', 'Jane Doe');
+// Set simple property - modifies in-place
+$user->set('name', 'Jane Doe');
 
-echo $user->name; // 'John Doe' (original unchanged)
-echo $updatedUser->name; // 'Jane Doe' (new instance)
+echo $user->name; // 'Jane Doe' (modified in-place)
 ```
 
 ### Nested Properties
@@ -470,11 +475,10 @@ $user = new UserDto(
     )
 );
 
-// Update nested property
-$updatedUser = $user->set('address.city', 'Los Angeles');
+// Update nested property - modifies in-place
+$user->set('address.city', 'Los Angeles');
 
-echo $user->get('address.city'); // 'New York' (original)
-echo $updatedUser->get('address.city'); // 'Los Angeles' (new)
+echo $user->get('address.city'); // 'Los Angeles' (modified)
 ```
 
 ### Array Properties with Wildcards
@@ -490,10 +494,10 @@ $user = new UserWithEmailsDto(
     ]
 );
 
-// Verify all emails at once
-$updatedUser = $user->set('emails.*.verified', true);
+// Verify all emails at once - modifies in-place
+$user->set('emails.*.verified', true);
 
-$verified = $updatedUser->get('emails.*.verified');
+$verified = $user->get('emails.*.verified');
 // Result: [true, true]
 ```
 
@@ -555,16 +559,16 @@ $department = new DepartmentDto(
     ]
 );
 
-// Ship all orders at once
-$updated = $department->set('employees.*.orders.*.status', 'shipped');
+// Ship all orders at once - modifies in-place
+$department->set('employees.*.orders.*.status', 'shipped');
 
-$statuses = $updated->get('employees.*.orders.*.status');
+$statuses = $department->get('employees.*.orders.*.status');
 // ['shipped', 'shipped', 'shipped'] - all orders shipped
 ```
 
-### Chaining set() Calls
+### Multiple Updates
 
-Since `set()` returns a new instance, you can chain multiple calls:
+Since `set()` modifies in-place and returns `void`, you need to call it multiple times:
 
 ```php
 use Tests\Utils\Docu\Dtos\UserDto;
@@ -575,19 +579,20 @@ $user = new UserDto(
     age: 30
 );
 
-$updatedUser = $user
-    ->set('name', 'Jane Doe')
-    ->set('age', 25)
-    ->set('email', 'jane@example.com');
+// Multiple updates - each modifies in-place
+$user->set('name', 'Jane Doe');
+$user->set('age', 25);
+$user->set('email', 'jane@example.com');
 
-// Original unchanged
-echo $user->name; // 'John Doe'
-
-// New instance with all updates
-echo $updatedUser->name; // 'Jane Doe'
-echo $updatedUser->age; // 25
-echo $updatedUser->email; // 'jane@example.com'
+// All properties modified
+echo $user->name; // 'Jane Doe'
+echo $user->age; // 25
+echo $user->email; // 'jane@example.com'
 ```
+
+:::note
+**Chaining is not possible** because `set()` returns `void` for mutable properties.
+:::
 
 ## Edge Cases
 

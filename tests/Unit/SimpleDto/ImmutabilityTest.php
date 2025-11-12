@@ -85,7 +85,7 @@ describe('SimpleDto Immutability', function(): void {
             $dto->email = 'john@example.com';
         })->throws(
             RuntimeException::class,
-            'Cannot modify property "email" on immutable DTO'
+            'Cannot modify readonly property "email" on DTO'
         );
     });
 
