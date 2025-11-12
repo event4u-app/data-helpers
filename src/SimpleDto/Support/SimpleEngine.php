@@ -250,7 +250,10 @@ final class SimpleEngine
      *     isHidden: bool,
      *     isHiddenFromArray: bool,
      *     isLazy: bool,
-     *     enumSerializeMode: string|null
+     *     hideWhenNull: bool,
+     *     enumSerializeMode: string|null,
+     *     dateTimeFormat: string|null,
+     *     dateTimeTimezone: string|null
      * }>>
      */
     private static array $propertyMetadataCache = [];
@@ -550,13 +553,14 @@ final class SimpleEngine
                 }
 
                 // Apply output casts FIRST (only if NOT #[NoCasts])
+                // Note: DateTime formatting is NOT applied in toArray() - only in toJsonArray()
                 $convertedValue = $value;
                 if (!$flags['hasNoCasts']) { // @phpstan-ignore-line
                     $convertedValue = self::applyOutputCast($class, $name, $value, $data);
                 }
 
                 // Then convert value only for complex types (nested DTOs, arrays)
-                // But skip if already converted by cast
+                // But skip if already converted by cast or DateTime formatting
                 if ($convertedValue === $value && (is_object($value) || is_array($value))) {
                     $convertedValue = self::convertValue($value, $class, $name, null);
                 }
@@ -751,6 +755,9 @@ final class SimpleEngine
                 }
             }
 
+            // Get property metadata for DateTime formatting
+            $metadata = self::getPropertyMetadata($class);
+
             $result = [];
 
             foreach ($reflection->getProperties() as $reflectionProperty) {
@@ -825,14 +832,33 @@ final class SimpleEngine
                     $value = self::serializeEnum($value, $mode);
                 }
 
-                // Apply output casts FIRST (only if NOT #[NoCasts])
+                // Apply DateTime formatting FIRST if #[DateTimeFormat] is present (before output casts)
                 $convertedValue = $value;
-                if (!$flags['hasNoCasts']) { // @phpstan-ignore-line
+                $propMeta = $metadata[$name] ?? null;
+                if ($value instanceof DateTimeInterface && null !== $propMeta && null !== $propMeta['dateTimeFormat']) { // @phpstan-ignore-line
+                    $format = $propMeta['dateTimeFormat']; // @phpstan-ignore-line
+                    $timezone = $propMeta['dateTimeTimezone']; // @phpstan-ignore-line
+
+                    // If timezone is specified, convert to that timezone first
+                    if (null !== $timezone) {
+                        $tz = new \DateTimeZone($timezone);
+                        // DateTimeInterface doesn't have setTimezone(), handle both DateTime and DateTimeImmutable
+                        if ($value instanceof \DateTime) {
+                            $value = (clone $value)->setTimezone($tz);
+                        } elseif ($value instanceof \DateTimeImmutable) {
+                            $value = $value->setTimezone($tz);
+                        }
+                    }
+
+                    $convertedValue = $value->format($format);
+                }
+                // Apply output casts if no DateTime formatting was applied (only if NOT #[NoCasts])
+                elseif (!$flags['hasNoCasts']) { // @phpstan-ignore-line
                     $convertedValue = self::applyOutputCast($class, $name, $value, $data);
                 }
 
                 // Then convert value only for complex types (nested DTOs, arrays)
-                // But skip if already converted by cast
+                // But skip if already converted by cast or DateTime formatting
                 if ($convertedValue === $value && (is_object($value) || is_array($value))) {
                     $convertedValue = self::convertValue($value, $class, $name, $reflectionProperty);
                 }
@@ -2485,6 +2511,7 @@ final class SimpleEngine
                 'hasCastWith' => false,
                 'hasConvertEmptyToNull' => false,
                 'hasEnumSerialize' => false,
+                'hasDateTimeFormat' => false,
                 'hasDataCollectionOf' => false,
                 'hasMapInputName' => false,
                 'hasMapOutputName' => false,
@@ -2523,6 +2550,7 @@ final class SimpleEngine
             'hasCastWith' => false,
             'hasConvertEmptyToNull' => false,
             'hasEnumSerialize' => false,
+            'hasDateTimeFormat' => false,
             'hasDataCollectionOf' => false,
             'hasMapInputName' => false,
             'hasMapOutputName' => false,
@@ -2683,6 +2711,9 @@ final class SimpleEngine
             }
             if ([] !== $reflectionProperty->getAttributes(EnumSerialize::class)) {
                 $flags['hasEnumSerialize'] = true;
+            }
+            if ([] !== $reflectionProperty->getAttributes(\event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat::class)) {
+                $flags['hasDateTimeFormat'] = true;
             }
             if ([] !== $reflectionProperty->getAttributes(DataCollectionOf::class)) {
                 $flags['hasDataCollectionOf'] = true;
@@ -2876,12 +2907,12 @@ final class SimpleEngine
 
         // Set combined flags for fast-path checks
         $flags['hasAnyArrayAttribute'] = $flags['hasMapTo'] || $flags['hasMapOutputName'] || $flags['hasEnumSerialize'] ||
-            $flags['hasHidden'] || $flags['hasHiddenFromArray'] || $flags['hasHideWhenNull'] ||
+            $flags['hasDateTimeFormat'] || $flags['hasHidden'] || $flags['hasHiddenFromArray'] || $flags['hasHideWhenNull'] ||
             $flags['hasLazy'] || $flags['hasComputed'] || $flags['hasOptional'] ||
             $flags['hasConditionalProperties'] || $hasCasts;
 
         $flags['hasAnyJsonAttribute'] = $flags['hasMapTo'] || $flags['hasMapOutputName'] || $flags['hasEnumSerialize'] ||
-            $flags['hasHidden'] || $flags['hasHiddenFromJson'] || $flags['hasHideWhenNull'] ||
+            $flags['hasDateTimeFormat'] || $flags['hasHidden'] || $flags['hasHiddenFromJson'] || $flags['hasHideWhenNull'] ||
             $flags['hasLazy'] || $flags['hasComputed'] || $flags['hasOptional'] ||
             $flags['hasConditionalProperties'] || $hasCasts;
 
@@ -2920,7 +2951,7 @@ final class SimpleEngine
             $name = $property->getName();
 
             // Initialize metadata for this property
-            /** @var array{mapTo: string|null, mapToPath: array<int, string>|null, isHidden: bool, isHiddenFromArray: bool, isLazy: bool, hideWhenNull: bool, enumSerializeMode: string|null} $propMeta */
+            /** @var array{mapTo: string|null, mapToPath: array<int, string>|null, isHidden: bool, isHiddenFromArray: bool, isLazy: bool, hideWhenNull: bool, enumSerializeMode: string|null, dateTimeFormat: string|null, dateTimeTimezone: string|null} $propMeta */
             $propMeta = [
                 'mapTo' => null,
                 'mapToPath' => null,
@@ -2929,6 +2960,8 @@ final class SimpleEngine
                 'isLazy' => false,
                 'hideWhenNull' => false,
                 'enumSerializeMode' => null,
+                'dateTimeFormat' => null,
+                'dateTimeTimezone' => null,
             ];
 
             // Check Map attribute first (bidirectional mapping)
@@ -3001,6 +3034,15 @@ final class SimpleEngine
                 /** @var EnumSerialize $enumSerialize */
                 $enumSerialize = $enumSerializeAttrs[0]->newInstance();
                 $propMeta['enumSerializeMode'] = $enumSerialize->mode;
+            }
+
+            // Check DateTimeFormat attribute
+            $dateTimeFormatAttrs = $property->getAttributes(\event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat::class);
+            if (!empty($dateTimeFormatAttrs)) {
+                /** @var \event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat $dateTimeFormatAttr */
+                $dateTimeFormatAttr = $dateTimeFormatAttrs[0]->newInstance();
+                $propMeta['dateTimeFormat'] = $dateTimeFormatAttr->format;
+                $propMeta['dateTimeTimezone'] = $dateTimeFormatAttr->timezone;
             }
 
             $metadata[$name] = $propMeta;

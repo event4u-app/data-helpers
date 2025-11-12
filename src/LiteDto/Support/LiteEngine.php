@@ -165,6 +165,135 @@ final class LiteEngine
     }
 
     /**
+     * Convert DTO to array for JSON serialization.
+     * Applies DateTime formatting with #[DateTimeFormat] attribute.
+     *
+     * @param array<string, mixed> $context Optional context for conditional properties
+     * @return array<string, mixed>
+     */
+    public static function toJsonArray(object $dto, array $context = []): array
+    {
+        $class = $dto::class;
+
+        // UltraFast mode: check if MapTo is allowed
+        if (self::isUltraFast($class)) {
+            $data = get_object_vars($dto);
+            $reflection = self::getReflection($class);
+
+            // Check if any property has Map, MapTo, EnumSerialize or DateTimeFormat attributes (auto-detect)
+            $hasMapTo = false;
+            $hasEnumSerialize = false;
+            $hasDateTimeFormat = false;
+            foreach ($reflection->getProperties() as $prop) {
+                if (!empty($prop->getAttributes(Map::class)) || !empty($prop->getAttributes(MapTo::class))) {
+                    $hasMapTo = true;
+                }
+                if (!empty($prop->getAttributes(EnumSerialize::class))) {
+                    $hasEnumSerialize = true;
+                }
+                if (!empty($prop->getAttributes(\event4u\DataHelpers\LiteDto\Attributes\DateTimeFormat::class))) {
+                    $hasDateTimeFormat = true;
+                }
+                if ($hasMapTo && $hasEnumSerialize && $hasDateTimeFormat) {
+                    break;
+                }
+            }
+
+            // If no attributes to process, just return raw data
+            if (!$hasMapTo && !$hasEnumSerialize && !$hasDateTimeFormat) {
+                return $data;
+            }
+
+            // Process attributes
+            $result = [];
+
+            foreach ($reflection->getProperties() as $reflectionProperty) {
+                $name = $reflectionProperty->getName();
+
+                if (!array_key_exists($name, $data)) {
+                    continue;
+                }
+
+                $value = $data[$name];
+
+                // Check for #[Map] attribute first (bidirectional mapping)
+                $mapAttrs = $reflectionProperty->getAttributes(Map::class);
+                if (!empty($mapAttrs)) {
+                    /** @var Map $map */
+                    $map = $mapAttrs[0]->newInstance();
+                    $outputName = $map->key;
+                }
+                // Then check for #[MapTo] attribute
+                elseif (!empty($reflectionProperty->getAttributes(MapTo::class))) {
+                    /** @var MapTo $mapTo */
+                    $mapTo = $reflectionProperty->getAttributes(MapTo::class)[0]->newInstance();
+                    $outputName = $mapTo->target;
+                } else {
+                    $outputName = $name;
+                }
+
+                // Check for #[EnumSerialize] attribute
+                if ($value instanceof UnitEnum) {
+                    $enumSerializeAttrs = $reflectionProperty->getAttributes(EnumSerialize::class);
+                    if (!empty($enumSerializeAttrs)) {
+                        /** @var EnumSerialize $enumSerialize */
+                        $enumSerialize = $enumSerializeAttrs[0]->newInstance();
+                        $value = 'value' === $enumSerialize->mode && $value instanceof BackedEnum
+                            ? $value->value
+                            : $value->name;
+                    }
+                }
+
+                // Check for #[DateTimeFormat] attribute (JSON serialization only)
+                if ($value instanceof \DateTimeInterface) {
+                    $dateTimeFormatAttrs = $reflectionProperty->getAttributes(\event4u\DataHelpers\LiteDto\Attributes\DateTimeFormat::class);
+                    if (!empty($dateTimeFormatAttrs)) {
+                        /** @var \event4u\DataHelpers\LiteDto\Attributes\DateTimeFormat $dateTimeFormat */
+                        $dateTimeFormat = $dateTimeFormatAttrs[0]->newInstance();
+                        $value = $dateTimeFormat->format($value);
+                    }
+                }
+
+                $result[$outputName] = $value;
+            }
+
+            return $result;
+        }
+
+        $reflection = self::getReflection($class);
+
+        // Get all public properties
+        $data = get_object_vars($dto);
+        $result = [];
+
+        foreach ($reflection->getProperties() as $reflectionProperty) {
+            $name = $reflectionProperty->getName();
+
+            if (!array_key_exists($name, $data)) {
+                continue;
+            }
+
+            // Check if hidden
+            if (self::isHidden($class, $name, $reflectionProperty)) {
+                continue;
+            }
+
+            // Check conditional properties
+            if (!self::shouldIncludeConditionalProperty($reflectionProperty, $data[$name], $dto, $context)) {
+                continue;
+            }
+
+            // Get output name (check for #[MapTo] attribute)
+            $outputName = self::getToMapping($class, $name, $reflectionProperty);
+
+            // Convert value (handle nested DTOs and enums) and apply DateTime formatting
+            $result[$outputName] = self::convertValueForJson($data[$name], $class, $name, $reflectionProperty);
+        }
+
+        return $result;
+    }
+
+    /**
      * Convert DTO to array.
      *
      * @param array<string, mixed> $context Optional context for conditional properties
@@ -180,6 +309,7 @@ final class LiteEngine
             $reflection = self::getReflection($class);
 
             // Check if any property has Map, MapTo or EnumSerialize attributes (auto-detect)
+            // Note: DateTimeFormat is NOT checked here as it only affects JSON serialization, not toArray()
             $hasMapTo = false;
             $hasEnumSerialize = false;
             foreach ($reflection->getProperties() as $prop) {
@@ -238,6 +368,8 @@ final class LiteEngine
                             : $value->name;
                     }
                 }
+
+                // Note: DateTime formatting is NOT applied in toArray() - only in JSON serialization
 
                 $result[$outputName] = $value;
             }
@@ -569,6 +701,7 @@ final class LiteEngine
     }
 
     /** Convert value recursively (handle nested DTOs and enums).
+     * Note: DateTime formatting is NOT applied here - only in JSON serialization.
      * @param class-string|null $class
      */
     private static function convertValue(
@@ -599,6 +732,59 @@ final class LiteEngine
         // Handle DTOs
         if (is_object($value) && method_exists($value, 'toArray')) {
             return self::convertValue($value->toArray());
+        }
+
+        return $value;
+    }
+
+    /**
+     * Convert value recursively for JSON serialization (handle nested DTOs, enums, and DateTime formatting).
+     *
+     * @param class-string|null $class
+     */
+    private static function convertValueForJson(
+        mixed $value,
+        ?string $class = null,
+        ?string $propertyName = null,
+        ?ReflectionProperty $property = null
+    ): mixed {
+        // Handle DateTime with #[DateTimeFormat]
+        if ($value instanceof \DateTimeInterface && $class && $propertyName && $property instanceof ReflectionProperty) {
+            $dateTimeFormatAttrs = $property->getAttributes(\event4u\DataHelpers\LiteDto\Attributes\DateTimeFormat::class);
+            if (!empty($dateTimeFormatAttrs)) {
+                /** @var \event4u\DataHelpers\LiteDto\Attributes\DateTimeFormat $dateTimeFormat */
+                $dateTimeFormat = $dateTimeFormatAttrs[0]->newInstance();
+                return $dateTimeFormat->format($value);
+            }
+        }
+
+        // Handle enums
+        if ($value instanceof BackedEnum || $value instanceof UnitEnum) {
+            if ($class && $propertyName && $property instanceof ReflectionProperty) {
+                $mode = self::getEnumSerializeMode($class, $propertyName, $property);
+                return self::serializeEnum($value, $mode);
+            }
+            // Default: serialize to value
+            return $value instanceof BackedEnum ? $value->value : $value->name;
+        }
+
+        // Handle arrays
+        if (is_array($value)) {
+            $result = [];
+            foreach ($value as $key => $item) {
+                $result[$key] = self::convertValueForJson($item);
+            }
+            return $result;
+        }
+
+        // Handle DTOs - use toJsonArray() for JSON serialization
+        if (is_object($value) && method_exists($value, 'toJsonArray')) {
+            return self::convertValueForJson($value->toJsonArray());
+        }
+
+        // Fallback to toArray() if toJsonArray() doesn't exist
+        if (is_object($value) && method_exists($value, 'toArray')) {
+            return self::convertValueForJson($value->toArray());
         }
 
         return $value;

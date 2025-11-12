@@ -10,8 +10,10 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Exceptions\TypeMismatchException;
+use ArrayAccess;
 use event4u\DataHelpers\LiteDto\Support\LiteEngine;
 use JsonSerializable;
+use Stringable;
 use UnitEnum;
 
 /**
@@ -56,7 +58,10 @@ use UnitEnum;
  *   $dto = ApiDto::from('{"name": "John"}'); // JSON
  *   $dto = ApiDto::from('<root><name>John</name></root>'); // XML
  */
-abstract class LiteDto implements JsonSerializable
+/**
+ * @implements ArrayAccess<string, mixed>
+ */
+abstract class LiteDto implements JsonSerializable, Stringable, ArrayAccess
 {
     /**
      * Create DTO from data.
@@ -187,6 +192,18 @@ abstract class LiteDto implements JsonSerializable
     }
 
     /**
+     * Convert DTO to array for JSON serialization.
+     * Applies DateTime formatting with #[DateTimeFormat] attribute.
+     *
+     * @param array<string, mixed> $context Optional context for conditional properties
+     * @return array<string, mixed>
+     */
+    public function toJsonArray(array $context = []): array
+    {
+        return LiteEngine::toJsonArray($this, $context);
+    }
+
+    /**
      * Convert DTO to JSON.
      *
      * @param array<string, mixed>|int $contextOrOptions Context array or JSON encoding options
@@ -196,11 +213,11 @@ abstract class LiteDto implements JsonSerializable
     {
         // Handle backward compatibility: toJson(int $options)
         if (is_int($contextOrOptions)) {
-            return json_encode($this->toArray(), JSON_THROW_ON_ERROR | $contextOrOptions);
+            return json_encode($this->toJsonArray(), JSON_THROW_ON_ERROR | $contextOrOptions);
         }
 
         // New signature: toJson(array $context, int $options)
-        return json_encode($this->toArray($contextOrOptions), JSON_THROW_ON_ERROR | $options);
+        return json_encode($this->toJsonArray($contextOrOptions), JSON_THROW_ON_ERROR | $options);
     }
 
     /**
@@ -210,7 +227,105 @@ abstract class LiteDto implements JsonSerializable
      */
     public function jsonSerialize(): array
     {
+        return $this->toJsonArray();
+    }
+
+    /**
+     * Convert DTO to string (JSON representation).
+     */
+    public function __toString(): string
+    {
+        return $this->toJson();
+    }
+
+    /**
+     * Serialize DTO for PHP serialization.
+     * Required for readonly properties support.
+     *
+     * @return array<string, mixed>
+     */
+    public function __serialize(): array
+    {
         return $this->toArray();
+    }
+
+    /**
+     * Unserialize DTO from PHP serialization.
+     * Required for readonly properties support.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function __unserialize(array $data): void
+    {
+        // Reconstruct the DTO using reflection
+        // This is necessary because readonly properties can only be set during construction
+        $reflection = new \ReflectionClass($this);
+        $constructor = $reflection->getConstructor();
+
+        if (null === $constructor) {
+            return;
+        }
+
+        $params = $constructor->getParameters();
+        $args = [];
+
+        foreach ($params as $param) {
+            $name = $param->getName();
+            $args[] = $data[$name] ?? ($param->isDefaultValueAvailable() ? $param->getDefaultValue() : null);
+        }
+
+        // Call constructor with unserialized data
+        $constructor->invoke($this, ...$args);
+    }
+
+    /**
+     * Check if property exists (ArrayAccess).
+     *
+     * @param string $offset Property name
+     */
+    public function offsetExists(mixed $offset): bool
+    {
+        return property_exists($this, $offset);
+    }
+
+    /**
+     * Get property value (ArrayAccess).
+     *
+     * @param string $offset Property name
+     * @return mixed Property value
+     */
+    public function offsetGet(mixed $offset): mixed
+    {
+        if (!property_exists($this, $offset)) {
+            return null;
+        }
+
+        return $this->{$offset}; // @phpstan-ignore-line
+    }
+
+    /**
+     * Set property value (ArrayAccess).
+     * Note: DTOs are immutable, so this throws an exception.
+     *
+     * @param string $offset Property name
+     * @param mixed $value Property value
+     * @throws \BadMethodCallException Always throws - DTOs are immutable
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        throw new \BadMethodCallException('DTOs are immutable. Use set() method to create a new instance with modified values.');
+    }
+
+    /**
+     * Unset property (ArrayAccess).
+     * Note: DTOs are immutable, so this throws an exception.
+     *
+     * @param string $offset Property name
+     * @throws \BadMethodCallException Always throws - DTOs are immutable
+     */
+    public function offsetUnset(mixed $offset): void
+    {
+        throw new \BadMethodCallException('DTOs are immutable. Properties cannot be unset.');
     }
 
     /**
