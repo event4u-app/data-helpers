@@ -65,7 +65,9 @@ describe('LiteDto DateTimeFormat Attribute', function(): void {
     });
 
     it('formats DateTime with timezone conversion in toJson', function(): void {
-        $dto = new class(new DateTimeImmutable('2024-01-15 10:30:00', new DateTimeZone('Europe/Berlin'))) extends LiteDto {
+        $dto = new class(new DateTimeImmutable('2024-01-15 10:30:00', new DateTimeZone(
+            'Europe/Berlin'
+        ))) extends LiteDto {
             public function __construct(
                 #[DateTimeFormat('Y-m-d H:i:s', timezone: 'UTC')]
                 public readonly DateTimeImmutable $timestamp,
@@ -197,9 +199,8 @@ describe('LiteDto DateTimeFormat Attribute', function(): void {
         };
 
         // __toString() should return JSON
-        $string = (string) $dto;
+        $string = (string)$dto;
         $decoded = json_decode($string, true);
         expect($decoded['date'])->toBe('2024-01-15');
     });
 });
-

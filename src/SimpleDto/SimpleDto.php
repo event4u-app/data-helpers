@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto;
 
 use ArrayAccess;
+use BadMethodCallException;
+use event4u\DataHelpers\DataAccessor;
 use JsonSerializable;
+use ReflectionClass;
 use Stringable;
 
 /**
@@ -65,62 +68,90 @@ abstract class SimpleDto implements DtoInterface, JsonSerializable, Stringable, 
 {
     use SimpleDtoTrait;
 
-    /**
-     * Convert DTO to string (JSON representation).
-     */
+    /** Convert DTO to string (JSON representation). */
     public function __toString(): string
     {
         return $this->toJson();
     }
 
     /**
-     * Check if property exists (ArrayAccess).
+     * Check if property or path exists.
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
      *
-     * @param string $offset Property name
+     * @param string $path Property name or dot-notation path
+     */
+    public function has(string $path): bool
+    {
+        $data = $this->toArrayRecursive();
+        $accessor = new DataAccessor($data);
+
+        return $accessor->has($path);
+    }
+
+    /**
+     * Check if property exists (ArrayAccess).
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
+     * Uses the existing has() method internally.
+     *
+     * @param string $offset Property name or dot-notation path
      */
     public function offsetExists(mixed $offset): bool
     {
-        return property_exists($this, $offset);
+        if (!is_string($offset)) {
+            return false;
+        }
+
+        return $this->has($offset);
     }
 
     /**
      * Get property value (ArrayAccess).
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
+     * Uses the existing get() method internally.
      *
-     * @param string $offset Property name
+     * @param string $offset Property name or dot-notation path
      * @return mixed Property value
      */
     public function offsetGet(mixed $offset): mixed
     {
-        if (!property_exists($this, $offset)) {
+        if (!is_string($offset)) {
             return null;
         }
 
-        return $this->{$offset}; // @phpstan-ignore-line
+        return $this->get($offset);
     }
 
     /**
      * Set property value (ArrayAccess).
-     * Note: DTOs are immutable, so this throws an exception.
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
+     * Uses set() method internally.
      *
-     * @param string $offset Property name
+     * @param string $offset Property name or dot-notation path
      * @param mixed $value Property value
-     * @throws \BadMethodCallException Always throws - DTOs are immutable
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        throw new \BadMethodCallException('DTOs are immutable. Use with() method to create a new instance with modified values.');
+        if (!is_string($offset)) {
+            throw new BadMethodCallException('Offset must be a string.');
+        }
+
+        $this->set($offset, $value);
     }
 
     /**
      * Unset property (ArrayAccess).
-     * Note: DTOs are immutable, so this throws an exception.
+     * Supports dot notation for nested values: 'address.city', 'user.profile.name'
+     * Uses unset() method internally.
      *
-     * @param string $offset Property name
-     * @throws \BadMethodCallException Always throws - DTOs are immutable
+     * @param string $offset Property name or dot-notation path
      */
     public function offsetUnset(mixed $offset): void
     {
-        throw new \BadMethodCallException('DTOs are immutable. Properties cannot be unset.');
+        if (!is_string($offset)) {
+            throw new BadMethodCallException('Offset must be a string.');
+        }
+
+        $this->unset($offset);
     }
 
     /**
@@ -144,7 +175,7 @@ abstract class SimpleDto implements DtoInterface, JsonSerializable, Stringable, 
     {
         // Reconstruct the DTO using reflection
         // This is necessary because readonly properties can only be set during construction
-        $reflection = new \ReflectionClass($this);
+        $reflection = new ReflectionClass($this);
         $constructor = $reflection->getConstructor();
 
         if (null === $constructor) {

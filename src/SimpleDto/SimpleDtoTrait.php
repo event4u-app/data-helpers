@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\SimpleDto;
 
 use BackedEnum;
+use BadMethodCallException;
 use Closure;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataCollection;
@@ -14,6 +15,8 @@ use event4u\DataHelpers\Exceptions\TypeMismatchException;
 use event4u\DataHelpers\SimpleDto\Attributes\Computed;
 use event4u\DataHelpers\SimpleDto\Support\SimpleEngine;
 use event4u\DataHelpers\Validation\ValidationResult;
+use ReflectionClass;
+use ReflectionNamedType;
 use RuntimeException;
 use Throwable;
 use UnitEnum;
@@ -785,10 +788,10 @@ trait SimpleDtoTrait
     }
 
     /**
-     * Set value in Dto using dot notation (returns new instance).
+     * Set value in Dto using dot notation.
      *
-     * Since SimpleDtos are immutable, this method returns a new instance
-     * with the updated value.
+     * For mutable properties (not readonly): Modifies the DTO directly
+     * For readonly properties: Throws BadMethodCallException
      *
      * Supports:
      * - Simple paths: 'name', 'email'
@@ -797,20 +800,101 @@ trait SimpleDtoTrait
      *
      * @param string $path Dot-notation path to the property
      * @param mixed $value Value to set
-     * @return static New Dto instance with the updated value
+     * @throws BadMethodCallException If property is readonly
      */
-    public function set(string $path, mixed $value): static
+    public function set(string $path, mixed $value): void
     {
+        // Empty path does nothing
+        if ('' === $path) {
+            return;
+        }
+
+        // Check if it's a simple property (no dot notation)
+        if (!str_contains($path, '.')) {
+            // Check if property is mutable
+            if (!SimpleEngine::isPropertyMutable(static::class, $path)) {
+                throw new BadMethodCallException(
+                    sprintf(
+                        'Cannot modify readonly property "%s" on DTO "%s". ' .
+                        'Remove the readonly keyword from the property to allow modifications.',
+                        $path,
+                        static::class
+                    )
+                );
+            }
+
+            // Property is mutable, set it directly
+            $this->$path = $value; // @phpstan-ignore-line
+
+            // Invalidate toArray cache since property changed
+            $this->toArrayCache = null;
+
+            return;
+        }
+
+        // For dot notation paths, check if root property is mutable
+        $segments = explode('.', $path);
+        $rootProperty = $segments[0];
+
+        if (!SimpleEngine::isPropertyMutable(static::class, $rootProperty)) {
+            throw new BadMethodCallException(
+                sprintf(
+                    'Cannot modify nested path "%s" because root property "%s" is readonly on DTO "%s". ' .
+                    'Remove the readonly keyword from the property to allow modifications.',
+                    $path,
+                    $rootProperty,
+                    static::class
+                )
+            );
+        }
+
+        // Root property is mutable, modify the nested structure directly
         $data = $this->toArrayRecursive();
         DataMutator::make($data)->set($path, $value);
 
-        // Ensure we have an array with string keys
-        if (!is_array($data)) {
-            return static::from([]);
+        // Update the root property with the modified data
+        if (is_array($data) && isset($data[$rootProperty])) { // @phpstan-ignore-line
+            $newValue = $data[$rootProperty]; // @phpstan-ignore-line
+
+            // If the property is a DTO and we have an array, reconstruct the DTO
+            if (is_array($newValue)) {
+                $reflection = new ReflectionClass(static::class);
+                $property = $reflection->getProperty($rootProperty);
+                $propertyType = $property->getType();
+
+                if ($propertyType instanceof ReflectionNamedType && !$propertyType->isBuiltin()) {
+                    $className = $propertyType->getName();
+                    if (is_subclass_of($className, SimpleDto::class)) {
+                        /** @var class-string<SimpleDto> $className */
+                        $newValue = $className::from($newValue); // @phpstan-ignore-line
+                    }
+                }
+            }
+
+            $this->$rootProperty = $newValue; // @phpstan-ignore-line
         }
 
-        /** @var array<string, mixed> $data */
-        return static::from($data);
+        // Invalidate toArray cache since property changed
+        $this->toArrayCache = null;
+    }
+
+    /**
+     * Unset value in Dto using dot notation (sets to null).
+     *
+     * For mutable properties (not readonly): Sets the value to null
+     * For readonly properties: Throws BadMethodCallException
+     *
+     * Supports:
+     * - Simple paths: 'name', 'email'
+     * - Nested paths: 'address.city', 'user.profile.bio'
+     * - Array indices: 'items.0.name', 'users.1.email'
+     *
+     * @param string $path Dot-notation path to the property
+     * @throws BadMethodCallException If property is readonly
+     */
+    public function unset(string $path): void
+    {
+        $this->set($path, null);
     }
 
     /**
@@ -1003,13 +1087,11 @@ trait SimpleDtoTrait
      * Magic method to set property values.
      *
      * By default, SimpleDto uses readonly properties for immutability.
-     * This method allows setting properties if:
-     * - The class has #[NotImmutable] attribute (all properties mutable)
-     * - The specific property has #[NotImmutable] attribute
+     * This method allows setting properties if they are NOT readonly.
      *
      * @param string $name Property name
      * @param mixed $value Property value
-     * @throws RuntimeException If property is not mutable
+     * @throws RuntimeException If property is readonly
      */
     public function __set(string $name, mixed $value): void
     {
@@ -1018,8 +1100,8 @@ trait SimpleDtoTrait
         } else {
             throw new RuntimeException(
                 sprintf(
-                    'Cannot modify property "%s" on immutable DTO "%s". ' .
-                    'Use #[NotImmutable] attribute on the class or property to allow modifications.',
+                    'Cannot modify readonly property "%s" on DTO "%s". ' .
+                    'Remove the readonly keyword from the property to allow modifications.',
                     $name,
                     static::class
                 )

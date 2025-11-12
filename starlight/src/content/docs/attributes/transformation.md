@@ -24,6 +24,7 @@ Example: `#[Lowercase]` transforms `"USER@EXAMPLE.COM"` to `"user@example.com"` 
 
 | Attribute | Description | Example Input → Output |
 |-----------|-------------|------------------------|
+| `#[DateTimeFormat]` | Format DateTime objects | `DateTime` → `"2024-01-15 10:30:00"` |
 | `#[Lowercase]` | Convert to lowercase | `"USER"` → `"user"` |
 | `#[Uppercase]` | Convert to uppercase | `"user"` → `"USER"` |
 | `#[Ucfirst]` | Uppercase first letter | `"john"` → `"John"` |
@@ -36,6 +37,136 @@ Example: `#[Lowercase]` transforms `"USER@EXAMPLE.COM"` to `"user@example.com"` 
 | `#[Hash]` | Hash with algorithm | `"secret"` → SHA256 hash |
 | `#[Md5]` | Hash with MD5 | `"secret"` → MD5 hash |
 | `#[Leetspeak]` | Convert to leetspeak | `"leet"` → `"1337"` |
+
+## DateTime Formatting
+
+### DateTimeFormat
+
+Format DateTime/DateTimeImmutable/Carbon objects to strings when serializing to JSON or arrays.
+
+**Features:**
+- ✅ Formats DateTime objects with custom format string
+- ✅ Supports DateTime, DateTimeImmutable, Carbon, CarbonImmutable
+- ✅ Only applies during `toJsonArray()` / `toJson()` / `jsonSerialize()`
+- ✅ `toArray()` keeps DateTime objects unchanged
+- ✅ Can be used as parsing format when creating DTOs from strings
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat;
+
+class EventDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $title,
+
+        #[DateTimeFormat('Y-m-d H:i:s')]
+        public readonly DateTime $startDate,
+
+        #[DateTimeFormat('d.m.Y')]
+        public readonly DateTime $germanDate,
+
+        #[DateTimeFormat('c')] // ISO 8601
+        public readonly DateTime $isoDate,
+    ) {}
+}
+
+$dto = EventDto::from([
+    'title' => 'Conference',
+    'startDate' => new DateTime('2024-01-15 10:30:00'),
+    'germanDate' => new DateTime('2024-01-15'),
+    'isoDate' => new DateTime('2024-01-15 10:30:00'),
+]);
+
+// toArray() keeps DateTime objects
+$array = $dto->toArray();
+// [
+//     'title' => 'Conference',
+//     'startDate' => DateTime object,
+//     'germanDate' => DateTime object,
+//     'isoDate' => DateTime object,
+// ]
+
+// toJsonArray() formats DateTime as strings
+$jsonArray = $dto->toJsonArray();
+// [
+//     'title' => 'Conference',
+//     'startDate' => '2024-01-15 10:30:00',
+//     'germanDate' => '15.01.2024',
+//     'isoDate' => '2024-01-15T10:30:00+00:00',
+// ]
+
+// toJson() uses toJsonArray()
+$json = $dto->toJson();
+// {"title":"Conference","startDate":"2024-01-15 10:30:00","germanDate":"15.01.2024",...}
+```
+
+**Common Format Strings:**
+
+| Format | Description | Example Output |
+|--------|-------------|----------------|
+| `'Y-m-d H:i:s'` | MySQL datetime | `2024-01-15 10:30:00` |
+| `'Y-m-d'` | Date only | `2024-01-15` |
+| `'d.m.Y'` | German date | `15.01.2024` |
+| `'d/m/Y'` | UK date | `15/01/2024` |
+| `'m/d/Y'` | US date | `01/15/2024` |
+| `'c'` | ISO 8601 | `2024-01-15T10:30:00+00:00` |
+| `'U'` | Unix timestamp | `1705318200` |
+
+**Parsing from Strings:**
+
+When creating DTOs from arrays with string dates, the format is used for parsing:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat;
+
+class EventDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $title,
+
+        #[DateTimeFormat('Y-m-d H:i:s')]
+        public readonly DateTime $startDate,
+
+        #[DateTimeFormat('d.m.Y')]
+        public readonly DateTime $germanDate,
+
+        #[DateTimeFormat('c')]
+        public readonly DateTime $isoDate,
+    ) {}
+}
+
+$dto = EventDto::from([
+    'title' => 'Conference',
+    'startDate' => '2024-01-15 10:30:00',  // Parsed with 'Y-m-d H:i:s'
+    'germanDate' => '15.01.2024',          // Parsed with 'd.m.Y'
+    'isoDate' => '2024-01-15T10:30:00+00:00', // Parsed with 'c'
+]);
+```
+
+**Carbon Support:**
+
+Works seamlessly with Carbon/CarbonImmutable:
+
+```php
+use Carbon\Carbon;
+
+class EventDto extends SimpleDto
+{
+    public function __construct(
+        #[DateTimeFormat('Y-m-d H:i:s')]
+        public readonly Carbon $startDate,
+    ) {}
+}
+
+$dto = EventDto::from([
+    'startDate' => Carbon::now(),
+]);
+
+$json = $dto->toJson();
+// {"startDate":"2024-01-15 10:30:00"}
+```
 
 ## Case Transformation
 
@@ -54,7 +185,7 @@ class UserDto extends SimpleDto
         #[Lowercase]
         #[Email]
         public readonly string $email,
-        
+
         #[Lowercase]
         public readonly string $username,
     ) {}
@@ -77,7 +208,7 @@ class ProductDto extends SimpleDto
         #[Uppercase]
         #[Length(3, 10)]
         public readonly string $sku,
-        
+
         #[Uppercase]
         public readonly string $countryCode,
     ) {}
@@ -100,7 +231,7 @@ class PersonDto extends SimpleDto
         #[Ucfirst]
         #[Alpha]
         public readonly string $firstName,
-        
+
         #[Ucfirst]
         public readonly string $lastName,
     ) {}
@@ -122,7 +253,7 @@ class ApiDto extends SimpleDto
     public function __construct(
         #[Lcfirst]
         public readonly string $variableName,
-        
+
         #[Lcfirst]
         public readonly string $propertyName,
     ) {}
@@ -146,7 +277,7 @@ class ApiDto extends SimpleDto
     public function __construct(
         #[CamelCase]
         public readonly string $fieldName,
-        
+
         #[CamelCase]
         public readonly string $propertyKey,
     ) {}
@@ -173,7 +304,7 @@ class DatabaseDto extends SimpleDto
     public function __construct(
         #[SnakeCase]
         public readonly string $columnName,
-        
+
         #[SnakeCase]
         public readonly string $tableName,
     ) {}
@@ -202,10 +333,10 @@ class FormDto extends SimpleDto
     public function __construct(
         #[Trim]
         public readonly string $name,
-        
+
         #[Trim]
         public readonly string $description,
-        
+
         // Custom characters to trim
         #[Trim('.')]
         public readonly string $domain,
@@ -231,7 +362,7 @@ class ApiDto extends SimpleDto
     public function __construct(
         #[Base64Encode]
         public readonly string $token,
-        
+
         #[Base64Encode]
         public readonly string $payload,
     ) {}
@@ -253,7 +384,7 @@ class ApiDto extends SimpleDto
     public function __construct(
         #[Base64Decode]
         public readonly string $token,
-        
+
         #[Base64Decode]
         public readonly string $payload,
     ) {}
@@ -280,13 +411,13 @@ class SecurityDto extends SimpleDto
     public function __construct(
         #[Hash] // Default: sha256
         public readonly string $password,
-        
+
         #[Hash('sha512')]
         public readonly string $apiKey,
-        
+
         #[Hash('bcrypt')]
         public readonly string $securePassword,
-        
+
         #[Hash('md5')]
         public readonly string $legacyHash,
     ) {}
@@ -326,7 +457,7 @@ class CacheDto extends SimpleDto
     public function __construct(
         #[Md5]
         public readonly string $cacheKey,
-        
+
         #[Md5]
         public readonly string $etag,
     ) {}
@@ -350,7 +481,7 @@ class GameDto extends SimpleDto
     public function __construct(
         #[Leetspeak]
         public readonly string $username,
-        
+
         #[Leetspeak]
         public readonly string $message,
     ) {}
@@ -387,14 +518,14 @@ class UserDto extends SimpleDto
         #[Email]
         #[Required]
         public readonly string $email,
-        
+
         // Multiple transformations
         #[Trim]
         #[Ucfirst]
         #[Alpha]
         #[Length(2, 50)]
         public readonly string $name,
-        
+
         // Transform for consistency
         #[Uppercase]
         #[AlphaNum]

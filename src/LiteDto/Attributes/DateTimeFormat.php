@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\LiteDto\Attributes;
 
 use Attribute;
+use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 
@@ -73,10 +75,10 @@ class DateTimeFormat
             // Check for Carbon first (if installed), then fall back to base classes
             // Carbon\CarbonImmutable extends DateTimeImmutable
             // Carbon\Carbon extends DateTime
-            if ($value instanceof \DateTimeImmutable) {
+            if ($value instanceof DateTimeImmutable) {
                 // DateTimeImmutable, Carbon\CarbonImmutable (if Carbon is installed)
                 $value = $value->setTimezone($timezone);
-            } elseif ($value instanceof \DateTime) {
+            } elseif ($value instanceof DateTime) {
                 // DateTime, Carbon\Carbon (if Carbon is installed) - mutable, so clone first
                 // @phpstan-ignore-next-line
                 $value = (clone $value)->setTimezone($timezone);
@@ -86,4 +88,3 @@ class DateTimeFormat
         return $value->format($this->format);
     }
 }
-

@@ -9,15 +9,15 @@ Complete reference of all 50+ attributes available in SimpleDto.
 
 SimpleDto provides 60+ attributes organized into categories:
 
-- ✅ **Validation Attributes** (40+) - Data validation
-- ✅ **Transformation Attributes** (12) - Value transformation
-- ✅ **Conditional Attributes** (18) - Visibility control
-- ✅ **Cast Attributes** (1) - Type casting
-- ✅ **Mapping Attributes** (3) - Property mapping
-- ✅ **Computed Attributes** (1) - Calculated properties
-- ✅ **Lazy Attributes** (1) - Deferred evaluation
-- ✅ **Hidden Attributes** (1) - Always hidden
-- ✅ **Performance Attributes** (3) - Performance optimization
+- ✅ **Validation Attributes** - Data validation
+- ✅ **Transformation Attributes** - Value transformation
+- ✅ **Conditional Attributes** - Visibility control
+- ✅ **Cast Attributes** - Type casting
+- ✅ **Mapping Attributes* - Property mapping
+- ✅ **Computed Attributes* - Calculated properties
+- ✅ **Lazy Attributes** - Deferred evaluation
+- ✅ **Hidden Attributes** - Always hidden
+- ✅ **Performance Attributes** - Performance optimization
 
 ## Quick Reference
 
@@ -37,9 +37,10 @@ See [Validation Attributes](/data-helpers/attributes/validation/) for complete l
 
 ### Transformation Attributes
 
-See [Transformation Attributes](/data-helpers/attributes/transformation/) for complete list of 12 transformation attributes.
+See [Transformation Attributes](/data-helpers/attributes/transformation/) for complete list of 13 transformation attributes.
 
 **Most Common:**
+- `#[DateTimeFormat(string $format)]` - Format DateTime objects (e.g., 'Y-m-d H:i:s', 'd.m.Y')
 - `#[Lowercase]` - Convert to lowercase
 - `#[Uppercase]` - Convert to uppercase
 - `#[Trim]` - Remove whitespace
@@ -79,13 +80,6 @@ See [Mapping Attributes](/data-helpers/attributes/mapping/) for complete list.
 - `#[Computed]` - Mark method as computed property
 - `#[Lazy]` - Defer property evaluation
 - `#[Hidden]` - Always hide property
-
-### Mutability Attributes
-
-- `#[NotImmutable]` - Allow property modification after construction
-  - Can be applied to class (all properties mutable) or specific properties
-  - Properties without `readonly` can be modified
-  - Useful for counters, caching, tracking, statistics
 
 ### Performance Attributes {#performance-attributes}
 
