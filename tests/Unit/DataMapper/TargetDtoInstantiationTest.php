@@ -78,6 +78,46 @@ describe('DataMapper Target DTO Instantiation', function(): void {
         expect($project->externalProjectNumber)->toBe('B25049');
     });
 
+    it('creates DTO instances when target is array with class names (with int mapping)', function(): void {
+        $projectDto = new class (0, '') extends SimpleDto {
+            public function __construct(
+                public readonly int $externalProjectId,
+                public readonly string $externalProjectNumber,
+            ) {
+            }
+        };
+        $projectDtoClass = $projectDto::class;
+
+        $template = [
+            'project.externalProjectId' => '{{ LVDATA.LV.ID_LV }}',
+            'project.externalProjectNumber' => '{{ LVDATA.LV.NR_LV }}',
+        ];
+
+        $source = [
+            'LVDATA' => [
+                'LV' => [
+                    'ID_LV' => '2075436601850',     // the mapper should cast it to int
+                    'NR_LV' => 'B25049',
+                ],
+            ],
+        ];
+
+        $dataMapper = DataMapper::template($template);
+        $dataMapper->source($source);
+        $dataMapper->target([
+            'project' => $projectDtoClass,
+        ]);
+        $result = $dataMapper->map()->getTarget();
+
+        expect($result)->toBeArray();
+        expect($result)->toHaveKey('project');
+        expect($result['project'])->toBeInstanceOf($projectDtoClass);
+        /** @var object{externalProjectId: string, externalProjectNumber: string} $project */
+        $project = $result['project'];
+        expect($project->externalProjectId)->toBe(2075436601850);
+        expect($project->externalProjectNumber)->toBe('B25049');
+    });
+
     it('creates multiple DTO instances when target has multiple class names', function(): void {
         $userDto = new class ('', '') extends SimpleDto {
             public function __construct(

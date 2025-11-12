@@ -23,6 +23,7 @@ use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
 use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use event4u\DataHelpers\LiteDto\Attributes\UltraFast;
 use event4u\DataHelpers\LiteDto\Contracts\ConditionalProperty;
+use event4u\DataHelpers\Support\FileLoader;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use Exception;
 use InvalidArgumentException;
@@ -659,6 +660,11 @@ final class LiteEngine
 
         // Handle strings
         if (is_string($data)) {
+            // Check if it's a file path first
+            if (file_exists($data)) {
+                return FileLoader::loadAsArray($data);
+            }
+
             $trimmed = trim($data);
 
             // Try XML first

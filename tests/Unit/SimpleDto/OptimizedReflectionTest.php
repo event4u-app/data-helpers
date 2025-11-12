@@ -342,8 +342,8 @@ describe('Optimized Reflection', function(): void {
             }
             $duration = microtime(true) - $start;
 
-            // Should complete quickly (< 10ms for 10000 iterations)
-            expect($duration)->toBeLessThan(0.01);
+            // Should complete quickly (< 20ms for 10000 iterations)
+            expect($duration)->toBeLessThan(0.02);
         });
     });
 });

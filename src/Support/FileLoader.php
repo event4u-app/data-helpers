@@ -38,8 +38,9 @@ final class FileLoader
         $result = match ($extension) {
             'json' => self::loadJsonFile($filePath),
             'xml' => self::loadXmlFile($filePath),
+            'yaml', 'yml' => self::loadYamlFile($filePath),
             default => throw new InvalidArgumentException(
-                'Unsupported file format: ' . $extension . '. Only XML and JSON are supported.'
+                'Unsupported file format: ' . $extension . '. Only XML, JSON and YAML are supported.'
             ),
         };
 
@@ -236,6 +237,25 @@ final class FileLoader
         }
 
         return $result;
+    }
+
+    /**
+     * Load and parse a YAML file to array.
+     *
+     * @param string $filePath Path to YAML file
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException If YAML parsing fails
+     */
+    private static function loadYamlFile(string $filePath): array
+    {
+        $content = file_get_contents($filePath);
+
+        if (false === $content) {
+            throw new InvalidArgumentException('Failed to read file: ' . $filePath);
+        }
+
+        $converter = new \event4u\DataHelpers\Converters\YamlConverter();
+        return $converter->toArray($content);
     }
 }
 

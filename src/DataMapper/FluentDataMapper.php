@@ -18,6 +18,7 @@ use event4u\DataHelpers\Support\FileLoader;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionNamedType;
 use SimpleXMLElement;
 use stdClass;
 use Throwable;
@@ -1879,9 +1880,11 @@ final class FluentDataMapper
             return $instance;
         }
 
-        // SimpleDto or LiteDto - use from() method
+        // SimpleDto or LiteDto - use from() method with type casting
         if (is_subclass_of($className, SimpleDto::class) || is_subclass_of($className, LiteDto::class)) {
-            return $className::from($data);
+            // Cast data types based on constructor parameters
+            $castedData = $this->castDataToConstructorTypes($className, $data);
+            return $className::from($castedData);
         }
 
         // Regular class - try to instantiate and populate
@@ -1908,6 +1911,144 @@ final class FluentDataMapper
             }
             throw $throwable;
         }
+    }
+
+    /**
+     * Cast data to match constructor parameter types.
+     *
+     * @param class-string $className The class name
+     * @param array<string, mixed> $data The data to cast
+     * @return array<string, mixed> The casted data
+     */
+    private function castDataToConstructorTypes(string $className, array $data): array
+    {
+        try {
+            /** @var ReflectionClass<object> $reflection */
+            $reflection = new ReflectionClass($className);
+            $constructor = $reflection->getConstructor();
+
+            if (null === $constructor) {
+                return $data;
+            }
+
+            $castedData = [];
+            $parameters = $constructor->getParameters();
+
+            foreach ($data as $key => $value) {
+                // Find matching parameter
+                $parameter = null;
+                foreach ($parameters as $param) {
+                    if ($param->getName() === $key) {
+                        $parameter = $param;
+                        break;
+                    }
+                }
+
+                if (null === $parameter) {
+                    // No matching parameter, keep original value
+                    $castedData[$key] = $value;
+                    continue;
+                }
+
+                $type = $parameter->getType();
+
+                // If no type hint, keep original value
+                if (null === $type || !($type instanceof ReflectionNamedType)) {
+                    $castedData[$key] = $value;
+                    continue;
+                }
+
+                $typeName = $type->getName();
+
+                // Cast value to target type
+                $castedData[$key] = $this->castValue($value, $typeName, $key);
+            }
+
+            return $castedData;
+        } catch (Throwable) {
+            // If casting fails, return original data
+            return $data;
+        }
+    }
+
+    /**
+     * Cast a value to a specific type.
+     *
+     * @param mixed $value The value to cast
+     * @param string $typeName The target type name
+     * @param string $propertyName The property name (for error messages)
+     * @return mixed The casted value
+     * @throws InvalidArgumentException If casting is not possible
+     */
+    private function castValue(mixed $value, string $typeName, string $propertyName): mixed
+    {
+        // If value is null and type allows null, return null
+        if (null === $value) {
+            return null;
+        }
+
+        // Cast to int
+        if ('int' === $typeName) {
+            if (is_numeric($value)) {
+                return (int)$value;
+            }
+            $valueStr = is_scalar($value) ? (string)$value : gettype($value);
+            throw new InvalidArgumentException(
+                sprintf(
+                    "Cannot cast value '%s' to int for property '%s'. Value is not numeric.",
+                    $valueStr,
+                    $propertyName
+                )
+            );
+        }
+
+        // Cast to float
+        if ('float' === $typeName) {
+            if (is_numeric($value)) {
+                return (float)$value;
+            }
+            $valueStr = is_scalar($value) ? (string)$value : gettype($value);
+            throw new InvalidArgumentException(
+                sprintf(
+                    "Cannot cast value '%s' to float for property '%s'. Value is not numeric.",
+                    $valueStr,
+                    $propertyName
+                )
+            );
+        }
+
+        // Cast to string
+        if ('string' === $typeName) {
+            if (is_scalar($value)) {
+                return (string)$value;
+            }
+            $valueType = gettype($value);
+            throw new InvalidArgumentException(
+                sprintf(
+                    "Cannot cast value to string for property '%s'. Value is not scalar (type: %s).",
+                    $propertyName,
+                    $valueType
+                )
+            );
+        }
+
+        // Cast to bool
+        if ('bool' === $typeName) {
+            return (bool)$value;
+        }
+
+        // Cast to array
+        if ('array' === $typeName) {
+            if (is_array($value)) {
+                return $value;
+            }
+            throw new InvalidArgumentException(
+                sprintf("Cannot cast value to array for property '%s'. Value is not an array.", $propertyName)
+            );
+        }
+
+        // For other types (objects, etc.), return as-is
+        return $value;
     }
 
     /**
