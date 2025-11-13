@@ -2407,9 +2407,17 @@ final class SimpleEngine
             }
         }
 
-        // Handle null or empty string
-        if (null === $value || '' === $value) {
-            throw new InvalidArgumentException('Cannot cast null or empty string to ' . $dateTimeClass);
+        // Handle null - should not happen as caller checks for null before calling this method
+        if (null === $value) {
+            throw new InvalidArgumentException('Cannot cast null to ' . $dateTimeClass);
+        }
+
+        // Handle empty string - this is an error, not a valid date
+        // Use ConvertEmptyToNull filter or #[ConvertEmptyToNull] attribute to convert empty strings to null before casting
+        if ('' === $value) {
+            throw new InvalidArgumentException(
+                'Cannot cast empty string to ' . $dateTimeClass . '. Empty strings are not valid dates. Use ConvertEmptyToNull filter or #[ConvertEmptyToNull] attribute to convert empty strings to null.'
+            );
         }
 
         // Cast from int (timestamp)
