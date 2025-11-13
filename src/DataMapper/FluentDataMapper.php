@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper;
 
+use DateTime;
+use DateTimeImmutable;
 use Error;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
@@ -86,6 +88,8 @@ final class FluentDataMapper
     private bool $reverseMapping = false;
 
     private bool $modifyReadOnly = false;
+
+    private bool $returnNullOnFailure = true;
 
     /**
      * Create a new FluentDataMapper instance.
@@ -479,6 +483,38 @@ final class FluentDataMapper
     public function modifyReadOnly(bool $allow = false): self
     {
         $this->modifyReadOnly = $allow;
+
+        return $this;
+    }
+
+    /**
+     * Configure whether to return null on mapping failure.
+     *
+     * When enabled (default), if any exception occurs during mapping, the entire target
+     * will be null instead of partial results.
+     *
+     * When disabled, partial results will be returned with null values for failed mappings.
+     *
+     * Example:
+     *   // Return null on any failure (default)
+     *   $mapper = DataMapper::source($source)
+     *          ->target(['project' => ProjectDto::class])
+     *          ->returnNullOnFailure(true)
+     *          ->map();
+     *   // Result: null (if any mapping fails)
+     *
+     *   // Return partial results
+     *   $mapper = DataMapper::source($source)
+     *          ->target(['project' => ProjectDto::class, 'project2' => Project2Dto::class])
+     *          ->returnNullOnFailure(false)
+     *          ->map();
+     *   // Result: ['project' => null, 'project2' => Project2Dto] (if project mapping fails)
+     *
+     * @param bool $returnNull Whether to return null on failure (default: true)
+     */
+    public function returnNullOnFailure(bool $returnNull = true): self
+    {
+        $this->returnNullOnFailure = $returnNull;
 
         return $this;
     }
@@ -1820,18 +1856,35 @@ final class FluentDataMapper
      */
     private function instantiateTargetDtos(mixed $result, mixed $target): mixed
     {
+        // Track exceptions before instantiation
+        $hadExceptionsBefore = MapperExceptions::hasExceptions();
+
         // Case 1: Target is an existing object - write to it
         if (is_object($target) && is_array($result)) {
             /** @var array<string, mixed> $resultData */
             $resultData = $result;
-            return $this->writeToObject($target, $resultData);
+            $result = $this->writeToObject($target, $resultData);
+
+            // Check if exceptions occurred and returnNullOnFailure is enabled
+            if ($this->returnNullOnFailure && !$hadExceptionsBefore && MapperExceptions::hasExceptions()) {
+                return null;
+            }
+
+            return $result;
         }
 
         // Case 2: Target is a class name string and result is an array
         if (is_string($target) && class_exists($target) && is_array($result)) {
             /** @var array<string, mixed> $resultData */
             $resultData = $result;
-            return $this->instantiateClass($target, $resultData);
+            $result = $this->instantiateClass($target, $resultData);
+
+            // Check if exceptions occurred and returnNullOnFailure is enabled
+            if ($this->returnNullOnFailure && !$hadExceptionsBefore && MapperExceptions::hasExceptions()) {
+                return null;
+            }
+
+            return $result;
         }
 
         // Case 3: Target is an array with class names or objects
@@ -1857,6 +1910,11 @@ final class FluentDataMapper
                     $result[$key] = $this->instantiateClass($value, $resultData);
                 }
             }
+
+            // Check if exceptions occurred and returnNullOnFailure is enabled
+            if ($this->returnNullOnFailure && !$hadExceptionsBefore && MapperExceptions::hasExceptions()) {
+                return null;
+            }
         }
 
         return $result;
@@ -1867,9 +1925,9 @@ final class FluentDataMapper
      *
      * @param class-string $className The class name to instantiate
      * @param array<string, mixed> $data The data to populate the instance with
-     * @return object The instantiated object
+     * @return object|null The instantiated object or null if instantiation failed
      */
-    private function instantiateClass(string $className, array $data): object
+    private function instantiateClass(string $className, array $data): ?object
     {
         // Special case: stdClass
         if (stdClass::class === $className) {
@@ -1880,11 +1938,90 @@ final class FluentDataMapper
             return $instance;
         }
 
-        // SimpleDto or LiteDto - instantiate directly without attribute mapping
+        // For SimpleDto, use fromArray() with empty template
+        // Empty template [] signals: "Data is already mapped, use parameter names directly, ignore #[Map] attributes"
+        // This allows the DTO's optimized casting engine to work while bypassing attribute-based mapping
+        if (is_subclass_of($className, SimpleDto::class)) {
+            try {
+                $hadExceptions = MapperExceptions::hasExceptions();
+
+                /** @var object|null $instance */
+                // Pass empty array as template - this signals "data already mapped, use parameter names"
+                // SimpleDto will apply its optimized casting logic
+                $instance = $className::fromArray($data, []);
+
+                // Check if fromArray produced any exceptions
+                if (!$hadExceptions && MapperExceptions::hasExceptions()) {
+                    return null;
+                }
+
+                return $instance;
+            } catch (Throwable $throwable) {
+                MapperExceptions::addException($throwable);
+                return null;
+            }
+        }
+
+        // For LiteDto, use from() method
+        // LiteDto doesn't support templates, so we just pass the data
+        // LiteDto will apply its optimized casting logic
+        if (is_subclass_of($className, LiteDto::class)) {
+            try {
+                $hadExceptions = MapperExceptions::hasExceptions();
+
+                /** @var object|null $instance */
+                // LiteDto::from() will use parameter names and apply casting
+                $instance = $className::from($data);
+
+                // Check if from produced any exceptions
+                if (!$hadExceptions && MapperExceptions::hasExceptions()) {
+                    return null;
+                }
+
+                return $instance;
+            } catch (Throwable $throwable) {
+                MapperExceptions::addException($throwable);
+                return null;
+            }
+        }
+
+        // Check if class has fromArray() method - if yes, use it instead of constructor
+        // This allows custom DTOs to handle their own mapping, casting, etc.
+        if (method_exists($className, 'fromArray')) {
+            try {
+                $hadExceptions = MapperExceptions::hasExceptions();
+
+                /** @var object|null $instance */
+                $instance = $className::fromArray($data);
+
+                // Check if fromArray produced any exceptions
+                if (!$hadExceptions && MapperExceptions::hasExceptions()) {
+                    // fromArray failed - return null
+                    return null;
+                }
+
+                return $instance;
+            } catch (Throwable $throwable) {
+                // If fromArray fails, collect exception and return null
+                MapperExceptions::addException($throwable);
+                return null;
+            }
+        }
+
+        // Regular SimpleDto or LiteDto without fromArray - instantiate directly without attribute mapping
         // because the template has already done the mapping
         if (is_subclass_of($className, SimpleDto::class) || is_subclass_of($className, LiteDto::class)) {
+            // Track if any exceptions occurred during casting
+            $hadExceptions = MapperExceptions::hasExceptions();
+
             // Cast data types based on constructor parameters
             $castedData = $this->castDataToConstructorTypes($className, $data);
+
+            // Check if casting produced any exceptions
+            if (!$hadExceptions && MapperExceptions::hasExceptions()) {
+                // Casting failed - return null instead of incomplete DTO
+                return null;
+            }
 
             // Instantiate directly with constructor to bypass attribute mapping
             try {
@@ -1907,21 +2044,20 @@ final class FluentDataMapper
                     } elseif ($reflectionParameter->allowsNull()) {
                         $args[] = null;
                     } else {
-                        // Required parameter missing - throw exception
-                        throw new InvalidArgumentException(
+                        // Required parameter missing - collect exception and return null
+                        $exception = new InvalidArgumentException(
                             sprintf("Missing required parameter '%s' for %s", $paramName, $className)
                         );
+                        MapperExceptions::addException($exception);
+                        return null;
                     }
                 }
 
                 return new $className(...$args);
             } catch (Throwable $throwable) {
-                // If instantiation fails, collect or throw exception
-                if (MapperExceptions::isCollectExceptionsEnabled()) {
-                    MapperExceptions::addException($throwable);
-                    return new stdClass(); // Fallback
-                }
-                throw $throwable;
+                // If instantiation fails, collect exception and return null
+                MapperExceptions::addException($throwable);
+                return null;
             }
         }
 
@@ -2003,8 +2139,9 @@ final class FluentDataMapper
             }
 
             return $castedData;
-        } catch (Throwable) {
-            // If casting fails, return original data
+        } catch (Throwable $throwable) {
+            // If casting fails, collect the exception and return original data
+            MapperExceptions::addException($throwable);
             return $data;
         }
     }
@@ -2082,6 +2219,50 @@ final class FluentDataMapper
             }
             throw new InvalidArgumentException(
                 sprintf("Cannot cast value to array for property '%s'. Value is not an array.", $propertyName)
+            );
+        }
+
+        // Cast to DateTime/Carbon
+        if ('DateTime' === $typeName || 'DateTimeImmutable' === $typeName || 'Carbon\Carbon' === $typeName || 'Carbon\CarbonImmutable' === $typeName) {
+            // If already the correct type, return as-is
+            if ($value instanceof $typeName) {
+                return $value;
+            }
+
+            // If string, try to parse
+            if (is_string($value)) {
+                try {
+                    if ('Carbon\Carbon' === $typeName) {
+                        return $typeName::parse($value);
+                    }
+                    if ('Carbon\CarbonImmutable' === $typeName) {
+                        return $typeName::parse($value);
+                    }
+                    if ('DateTimeImmutable' === $typeName) {
+                        return new DateTimeImmutable($value);
+                    }
+                    // @phpstan-ignore-next-line identical.alwaysTrue (we need to check each type separately)
+                    if ('DateTime' === $typeName) {
+                        return new DateTime($value);
+                    }
+                } catch (Throwable $e) {
+                    throw new InvalidArgumentException(sprintf(
+                        "Cannot cast value '%s' to %s for property '%s'. %s",
+                        $value,
+                        $typeName,
+                        $propertyName,
+                        $e->getMessage()
+                    ), $e->getCode(), $e);
+                }
+            }
+
+            throw new InvalidArgumentException(
+                sprintf(
+                    "Cannot cast value to %s for property '%s'. Value must be a string or %s instance.",
+                    $typeName,
+                    $propertyName,
+                    $typeName
+                )
             );
         }
 

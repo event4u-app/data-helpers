@@ -2103,6 +2103,7 @@ final class SimpleEngine
             $value = null;
 
             // Step 1: Check for #[Map] or #[MapFrom] (only if flag is set)
+            $wasProvided = false;
             if ($flags['hasMapFrom']) {
                 // Check for #[Map] first (bidirectional mapping)
                 $mapAttrs = $reflectionParameter->getAttributes(Map::class);
@@ -2113,7 +2114,6 @@ final class SimpleEngine
 
                     // Try each source until we find a value
                     $value = null;
-                    $wasProvided = false;
                     foreach ($sources as $sourceKey) {
                         // Support dot notation (e.g., 'user.profile.firstName')
                         if (str_contains($sourceKey, '.')) {
@@ -2137,7 +2137,6 @@ final class SimpleEngine
 
                     // Try each source until we find a value
                     $value = null;
-                    $wasProvided = false;
                     foreach ($sources as $sourceKey) {
                         // Support dot notation (e.g., 'user.profile.firstName')
                         if (str_contains($sourceKey, '.')) {
@@ -2151,13 +2150,17 @@ final class SimpleEngine
                             break;
                         }
                     }
-                } else {
-                    $wasProvided = array_key_exists($paramName, $data);
-                    $value = $data[$paramName] ?? null;
                 }
-            } else {
-                $wasProvided = array_key_exists($paramName, $data);
-                $value = $data[$paramName] ?? null;
+            }
+
+            // If no Map/MapFrom or value not found, use parameter name
+            if (!$wasProvided) {
+                if (array_key_exists($paramName, $data)) {
+                    $wasProvided = true;
+                    $value = $data[$paramName];
+                } else {
+                    $value = null;
+                }
             }
 
             // Step 2: Check for #[ConvertEmptyToNull] (only if flag is set)
@@ -3219,7 +3222,12 @@ final class SimpleEngine
         $hasFilters = null !== $filters && [] !== $filters;
         $hasPipeline = null !== $pipeline && [] !== $pipeline;
 
-        if (!$hasTemplate && !$hasFilters && !$hasPipeline && self::isUltraFast($class)) {
+        // Special case: Empty template [] signals "data already mapped, use parameter names"
+        // This is used by DataMapper when instantiating DTOs
+        $emptyTemplateProvided = is_array($template) && [] === $template;
+
+        // Use UltraFast mode only if no parameters provided AND not empty template
+        if (!$hasTemplate && !$hasFilters && !$hasPipeline && !$emptyTemplateProvided && self::isUltraFast($class)) {
             return self::createUltraFast($class, $data);
         }
 
@@ -3267,11 +3275,24 @@ final class SimpleEngine
             $paramName = $reflectionParameter->getName();
 
             // Step 1: Determine source key for this parameter
-            // Skip #[MapFrom] if template was applied (template has highest priority)
+            // Priority depends on context:
+            // - If template was applied: template has highest priority, skip attributes
+            // - If empty template provided: parameter name has priority over attributes
+            // - Otherwise: attributes have priority over parameter name
             $sourceKey = null;
 
-            if (!$templateApplied) {
-                // Check for #[Map] or #[MapFrom] attribute (highest priority after template)
+            // If empty template provided, check parameter name first
+            if ($emptyTemplateProvided && array_key_exists($paramName, $data)) {
+                $sourceKey = $paramName;
+            }
+            // If template was applied, skip attributes (template has highest priority)
+            elseif ($templateApplied) {
+                // Template was applied, use parameter name as fallback
+                $sourceKey = null;
+            }
+            // Otherwise, check attributes (normal mode)
+            else {
+                // Check for #[Map] or #[MapFrom] attribute
                 if ($flags['hasMapFrom']) {
                     // Check for #[Map] first (bidirectional mapping)
                     $mapAttrs = $reflectionParameter->getAttributes(Map::class);
