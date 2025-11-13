@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 use Carbon\Carbon;
+use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\SimpleDto\Attributes\Length;
 use event4u\DataHelpers\SimpleDto\Attributes\Map;
+use event4u\DataHelpers\SimpleDto\Attributes\Unsigned;
 
 describe('DataMapper Target DTO Instantiation', function(): void {
     beforeEach(function(): void {
@@ -60,6 +63,9 @@ describe('DataMapper Target DTO Instantiation', function(): void {
                 public readonly string $externalProjectNumber,
                 #[Map('bauende')]
                 public readonly ?Carbon $completionDate = null,
+                #[Map('baubeginn')]
+                #[ConvertEmptyToNull]
+                public readonly ?Carbon $plannedStartDate = null,
             ) {
             }
         };
@@ -69,6 +75,7 @@ describe('DataMapper Target DTO Instantiation', function(): void {
             'project.externalProjectId' => '{{ LVDATA.LV.ID_LV }}',
             'project.externalProjectNumber' => '{{ LVDATA.LV.NR_LV }}',
             'project.completionDate' => '{{ LVDATA.LV.BAUENDE_AM }}',
+            'project.plannedStartDate' => '{{ LVDATA.LV.BAUBEGINN_GEPLANT }}',
         ];
 
         $source = [
@@ -77,6 +84,7 @@ describe('DataMapper Target DTO Instantiation', function(): void {
                     'ID_LV' => '2075436601850',
                     'NR_LV' => 'B25049',
                     'BAUENDE_AM' => '2025-05-16',
+                    'BAUBEGINN_GEPLANT' => '',
                 ],
             ],
         ];
@@ -123,6 +131,152 @@ describe('DataMapper Target DTO Instantiation', function(): void {
             expect($project->completionDate)->toBeInstanceOf(Carbon::class);
             expect($project->completionDate->format('Y-m-d'))->toBe('2025-05-16');
         }
+    });
+
+    it('creates DTO instances when target is array with class names (with data collection mapping v1)', function(): void {
+        $projectDto = new class ('', '') extends SimpleDto {
+            public function __construct(
+                public readonly string $externalProjectId,
+                public readonly string $externalProjectNumber,
+            ) {
+            }
+        };
+        $projectDtoClass = $projectDto::class;
+
+        $positionDto = new class () extends SimpleDto {
+            public function __construct(
+                #[Map('id_position_ext'), Unsigned]
+                public readonly ?int $externalId = null,
+            ) {
+            }
+        };
+        $positionDtoClass = $positionDto::class;
+
+        $template = [
+            'project.externalProjectId' => '{{ LVDATA.LV.ID_LV }}',
+            'project.externalProjectNumber' => '{{ LVDATA.LV.NR_LV }}',
+            'positions' => [
+                '*' => [
+                    'id_position_ext' => '{{ POSDATA.*.ID_POSITION }}',
+                ],
+            ],
+        ];
+
+        $source = [
+            'LVDATA' => [
+                'LV' => [
+                    'ID_LV' => '2075436601850',
+                    'NR_LV' => 'B25049',
+                ],
+            ],
+            'POSDATA' => [
+                [
+                    'ID_POSITION' => '2075436601857',
+                ],
+                 [
+                    'ID_POSITION' => '2075436601858',
+                ],
+                [
+                    'ID_POSITION' => '2075436601859',
+                ],
+            ],
+        ];
+
+        $dataMapper = DataMapper::template($template);
+        $dataMapper->source($source);
+        $dataMapper->target([
+            'project' => $projectDtoClass,
+            'positions' => [
+                '*' => $positionDtoClass,
+            ],
+        ]);
+
+        $result = $dataMapper->map()->getTarget();
+        expect($result)->toBeArray();
+        expect($result)->toHaveKey('project');
+        expect($result['project'])->toBeInstanceOf($projectDtoClass);
+        /** @var object{externalProjectId: string, externalProjectNumber: string, completionDate: Carbon} $project */
+        $project = $result['project'];
+        expect($project->externalProjectId)->toBe('2075436601850');
+        expect($project->externalProjectNumber)->toBe('B25049');
+
+        $positions = $result['positions'];
+        expect($positions)->toBeInstanceOf(DataCollection::class);
+        expect($positions->first()->externalId)->toBe('2075436601857');
+        expect($positions[1]->externalId)->toBe('2075436601858');
+        expect($positions->offsetGet(2)()->externalId)->toBe('2075436601859');
+    });
+
+    it('creates DTO instances when target is array with class names (with data collection mapping v2)', function(): void {
+        $projectDto = new class ('', '') extends SimpleDto {
+            public function __construct(
+                public readonly string $externalProjectId,
+                public readonly string $externalProjectNumber,
+            ) {
+            }
+        };
+        $projectDtoClass = $projectDto::class;
+
+        $positionDto = new class () extends SimpleDto {
+            public function __construct(
+                #[Map('id_position_ext'), Unsigned]
+                public readonly ?int $externalId = null,
+            ) {
+            }
+        };
+        $positionDtoClass = $positionDto::class;
+
+        $template = [
+            'project.externalProjectId' => '{{ LVDATA.LV.ID_LV }}',
+            'project.externalProjectNumber' => '{{ LVDATA.LV.NR_LV }}',
+            'positions' => [
+                '*' => [
+                    'id_position_ext' => '{{ POSDATA.*.ID_POSITION }}',
+                ],
+            ],
+        ];
+
+        $source = [
+            'LVDATA' => [
+                'LV' => [
+                    'ID_LV' => '2075436601850',
+                    'NR_LV' => 'B25049',
+                ],
+            ],
+            'POSDATA' => [
+                [
+                    'ID_POSITION' => '2075436601857',
+                ],
+                [
+                    'ID_POSITION' => '2075436601858',
+                ],
+                [
+                    'ID_POSITION' => '2075436601859',
+                ],
+            ],
+        ];
+
+        $dataMapper = DataMapper::template($template);
+        $dataMapper->source($source);
+        $dataMapper->target([
+            'project' => $projectDtoClass,
+            'positions.*' => $positionDtoClass,
+        ]);
+
+        $result = $dataMapper->map()->getTarget();
+        expect($result)->toBeArray();
+        expect($result)->toHaveKey('project');
+        expect($result['project'])->toBeInstanceOf($projectDtoClass);
+        /** @var object{externalProjectId: string, externalProjectNumber: string, completionDate: Carbon} $project */
+        $project = $result['project'];
+        expect($project->externalProjectId)->toBe('2075436601850');
+        expect($project->externalProjectNumber)->toBe('B25049');
+
+        $positions = $result['positions'];
+        expect($positions)->toBeInstanceOf(DataCollection::class);
+        expect($positions->first()->externalId)->toBe('2075436601857');
+        expect($positions[1]->externalId)->toBe('2075436601858');
+        expect($positions->offsetGet(2)()->externalId)->toBe('2075436601859');
     });
 
     it('creates DTO instances when target is array with class names (with int mapping)', function(): void {
