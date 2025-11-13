@@ -8,7 +8,6 @@ use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Length;
 use event4u\DataHelpers\SimpleDto\Attributes\Map;
-use InvalidArgumentException;
 
 describe('DataMapper Target DTO Instantiation', function(): void {
     beforeEach(function(): void {

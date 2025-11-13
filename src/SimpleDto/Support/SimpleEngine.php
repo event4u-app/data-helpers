@@ -2105,7 +2105,6 @@ final class SimpleEngine
             // Step 1: Check for #[Map] or #[MapFrom] (only if flag is set)
             $wasProvided = false;
             if ($flags['hasMapFrom']) {
-
                 // Check for #[Map] first (bidirectional mapping)
                 $mapAttrs = $reflectionParameter->getAttributes(Map::class);
                 if (!empty($mapAttrs)) {
@@ -3223,7 +3222,12 @@ final class SimpleEngine
         $hasFilters = null !== $filters && [] !== $filters;
         $hasPipeline = null !== $pipeline && [] !== $pipeline;
 
-        if (!$hasTemplate && !$hasFilters && !$hasPipeline && self::isUltraFast($class)) {
+        // Special case: Empty template [] signals "data already mapped, use parameter names"
+        // This is used by DataMapper when instantiating DTOs
+        $emptyTemplateProvided = is_array($template) && [] === $template;
+
+        // Use UltraFast mode only if no parameters provided AND not empty template
+        if (!$hasTemplate && !$hasFilters && !$hasPipeline && !$emptyTemplateProvided && self::isUltraFast($class)) {
             return self::createUltraFast($class, $data);
         }
 
@@ -3271,10 +3275,23 @@ final class SimpleEngine
             $paramName = $reflectionParameter->getName();
 
             // Step 1: Determine source key for this parameter
-            // Skip #[MapFrom] if template was applied (template has highest priority)
+            // Priority depends on context:
+            // - If template was applied: template has highest priority, skip attributes
+            // - If empty template provided: parameter name has priority over attributes
+            // - Otherwise: attributes have priority over parameter name
             $sourceKey = null;
 
-            if (!$templateApplied) {
+            // If empty template provided, check parameter name first
+            if ($emptyTemplateProvided && array_key_exists($paramName, $data)) {
+                $sourceKey = $paramName;
+            }
+            // If template was applied, skip attributes (template has highest priority)
+            elseif ($templateApplied) {
+                // Template was applied, use parameter name as fallback
+                $sourceKey = null;
+            }
+            // Otherwise, check attributes (normal mode)
+            else {
                 // Check for #[Map] or #[MapFrom] attribute
                 if ($flags['hasMapFrom']) {
                     // Check for #[Map] first (bidirectional mapping)

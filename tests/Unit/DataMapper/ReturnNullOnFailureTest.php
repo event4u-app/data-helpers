@@ -19,7 +19,7 @@ describe('DataMapper returnNullOnFailure', function(): void {
         $projectDto = new class ('', null) extends SimpleDto {
             public function __construct(
                 public readonly string $name,
-                public readonly ?\DateTime $date = null,
+                public readonly ?DateTime $date = null,
             ) {
             }
         };
@@ -115,9 +115,7 @@ describe('DataMapper returnNullOnFailure', function(): void {
 
     it('returns null for entire target when returnNullOnFailure is true with invalid array', function(): void {
         $orderDto = new class ('', []) extends SimpleDto {
-            /**
-             * @param array<int, mixed> $items
-             */
+            /** @param array<int, mixed> $items */
             public function __construct(
                 public readonly string $orderId,
                 public readonly array $items,
@@ -169,7 +167,7 @@ describe('DataMapper returnNullOnFailure', function(): void {
         $projectDto = new class ('', null) extends SimpleDto {
             public function __construct(
                 public readonly string $name,
-                public readonly ?\DateTime $date = null,
+                public readonly ?DateTime $date = null,
             ) {
             }
         };
@@ -419,4 +417,3 @@ describe('DataMapper returnNullOnFailure', function(): void {
         expect(MapperExceptions::hasExceptions())->toBeFalse();
     });
 });
-

@@ -1938,118 +1938,42 @@ final class FluentDataMapper
             return $instance;
         }
 
-        // For SimpleDto/LiteDto, call constructor directly and apply casting
-        // This bypasses #[Map] attributes since the template has already done the mapping
-        if (is_subclass_of($className, SimpleDto::class) || is_subclass_of($className, LiteDto::class)) {
+        // For SimpleDto, use fromArray() with empty template
+        // Empty template [] signals: "Data is already mapped, use parameter names directly, ignore #[Map] attributes"
+        // This allows the DTO's optimized casting engine to work while bypassing attribute-based mapping
+        if (is_subclass_of($className, SimpleDto::class)) {
             try {
                 $hadExceptions = MapperExceptions::hasExceptions();
 
-                // Use reflection to get constructor and build arguments with casting
-                $reflection = new ReflectionClass($className);
-                $constructor = $reflection->getConstructor();
+                /** @var object|null $instance */
+                // Pass empty array as template - this signals "data already mapped, use parameter names"
+                // SimpleDto will apply its optimized casting logic
+                $instance = $className::fromArray($data, []);
 
-                if (!$constructor) {
-                    /** @var SimpleDto|LiteDto $instance */
-                    $instance = new $className();
-                    return $instance;
+                // Check if fromArray produced any exceptions
+                if (!$hadExceptions && MapperExceptions::hasExceptions()) {
+                    return null;
                 }
 
-                $args = [];
-                foreach ($constructor->getParameters() as $param) {
-                    $paramName = $param->getName();
-                    $value = $data[$paramName] ?? null;
+                return $instance;
+            } catch (Throwable $throwable) {
+                MapperExceptions::addException($throwable);
+                return null;
+            }
+        }
 
-                    // Apply type casting
-                    if (null !== $value && $param->hasType()) {
-                        $type = $param->getType();
-                        if ($type instanceof ReflectionNamedType) {
-                            $typeName = $type->getName();
+        // For LiteDto, use from() method
+        // LiteDto doesn't support templates, so we just pass the data
+        // LiteDto will apply its optimized casting logic
+        if (is_subclass_of($className, LiteDto::class)) {
+            try {
+                $hadExceptions = MapperExceptions::hasExceptions();
 
-                            // Cast to built-in types
-                            if ('int' === $typeName) {
-                                if (is_int($value)) {
-                                    // Already int, no casting needed
-                                } elseif (is_float($value)) {
-                                    $value = (int) $value;
-                                } elseif (is_string($value)) {
-                                    if (is_numeric($value)) {
-                                        $value = (int) $value;
-                                    } else {
-                                        // Invalid int value - throw exception
-                                        $exception = new InvalidArgumentException("Cannot cast '$value' to int for parameter '$paramName'");
-                                        MapperExceptions::addException($exception);
-                                        $value = null;
-                                    }
-                                } else {
-                                    // Invalid type - throw exception
-                                    $exception = new InvalidArgumentException("Cannot cast " . gettype($value) . " to int for parameter '$paramName'");
-                                    MapperExceptions::addException($exception);
-                                    $value = null;
-                                }
-                            } elseif ('float' === $typeName) {
-                                if (is_float($value)) {
-                                    // Already float, no casting needed
-                                } elseif (is_int($value)) {
-                                    $value = (float) $value;
-                                } elseif (is_string($value)) {
-                                    if (is_numeric($value)) {
-                                        $value = (float) $value;
-                                    } else {
-                                        // Invalid float value - throw exception
-                                        $exception = new InvalidArgumentException("Cannot cast '$value' to float for parameter '$paramName'");
-                                        MapperExceptions::addException($exception);
-                                        $value = null;
-                                    }
-                                } else {
-                                    // Invalid type - throw exception
-                                    $exception = new InvalidArgumentException("Cannot cast " . gettype($value) . " to float for parameter '$paramName'");
-                                    MapperExceptions::addException($exception);
-                                    $value = null;
-                                }
-                            } elseif ('bool' === $typeName) {
-                                $value = (bool) $value;
-                            } elseif ('string' === $typeName && !is_string($value)) {
-                                $value = (string) $value;
-                            } elseif ('array' === $typeName && !is_array($value)) {
-                                // Invalid array value - throw exception
-                                $exception = new InvalidArgumentException("Cannot cast " . gettype($value) . " to array for parameter '$paramName'");
-                                MapperExceptions::addException($exception);
-                                $value = null;
-                            }
-                            // Cast to DateTime/DateTimeImmutable
-                            elseif (in_array($typeName, ['DateTime', 'DateTimeImmutable'], true)) {
-                                if (is_string($value) || is_int($value)) {
-                                    try {
-                                        $value = new $typeName(is_int($value) ? "@$value" : $value);
-                                    } catch (Throwable $e) {
-                                        MapperExceptions::addException($e);
-                                        $value = null;
-                                    }
-                                }
-                            }
-                            // Cast to nested DTO
-                            elseif (!$type->isBuiltin() && is_array($value)) {
-                                if (is_subclass_of($typeName, SimpleDto::class) || is_subclass_of($typeName, LiteDto::class)) {
-                                    /** @var array<string, mixed> $valueArray */
-                                    $valueArray = $value;
-                                    $value = $this->instantiateClass($typeName, $valueArray);
-                                }
-                            }
-                        }
-                    }
+                /** @var object|null $instance */
+                // LiteDto::from() will use parameter names and apply casting
+                $instance = $className::from($data);
 
-                    // Handle default values
-                    if (null === $value && $param->isDefaultValueAvailable()) {
-                        $value = $param->getDefaultValue();
-                    }
-
-                    $args[] = $value;
-                }
-
-                /** @var object $instance */
-                $instance = $reflection->newInstanceArgs($args);
-
-                // Check if instantiation produced any exceptions
+                // Check if from produced any exceptions
                 if (!$hadExceptions && MapperExceptions::hasExceptions()) {
                     return null;
                 }
@@ -2215,9 +2139,9 @@ final class FluentDataMapper
             }
 
             return $castedData;
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             // If casting fails, collect the exception and return original data
-            MapperExceptions::addException($e);
+            MapperExceptions::addException($throwable);
             return $data;
         }
     }
@@ -2301,7 +2225,7 @@ final class FluentDataMapper
         // Cast to DateTime/Carbon
         if ('DateTime' === $typeName || 'DateTimeImmutable' === $typeName || 'Carbon\Carbon' === $typeName || 'Carbon\CarbonImmutable' === $typeName) {
             // If already the correct type, return as-is
-            if (is_object($value) && is_a($value, $typeName)) {
+            if ($value instanceof $typeName) {
                 return $value;
             }
 
@@ -2321,16 +2245,14 @@ final class FluentDataMapper
                     if ('DateTime' === $typeName) {
                         return new DateTime($value);
                     }
-                } catch (\Throwable $e) {
-                    throw new InvalidArgumentException(
-                        sprintf(
-                            "Cannot cast value '%s' to %s for property '%s'. %s",
-                            $value,
-                            $typeName,
-                            $propertyName,
-                            $e->getMessage()
-                        )
-                    );
+                } catch (Throwable $e) {
+                    throw new InvalidArgumentException(sprintf(
+                        "Cannot cast value '%s' to %s for property '%s'. %s",
+                        $value,
+                        $typeName,
+                        $propertyName,
+                        $e->getMessage()
+                    ), $e->getCode(), $e);
                 }
             }
 
