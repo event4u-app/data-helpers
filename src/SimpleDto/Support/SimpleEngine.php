@@ -2103,7 +2103,9 @@ final class SimpleEngine
             $value = null;
 
             // Step 1: Check for #[Map] or #[MapFrom] (only if flag is set)
+            $wasProvided = false;
             if ($flags['hasMapFrom']) {
+
                 // Check for #[Map] first (bidirectional mapping)
                 $mapAttrs = $reflectionParameter->getAttributes(Map::class);
                 if (!empty($mapAttrs)) {
@@ -2113,7 +2115,6 @@ final class SimpleEngine
 
                     // Try each source until we find a value
                     $value = null;
-                    $wasProvided = false;
                     foreach ($sources as $sourceKey) {
                         // Support dot notation (e.g., 'user.profile.firstName')
                         if (str_contains($sourceKey, '.')) {
@@ -2137,7 +2138,6 @@ final class SimpleEngine
 
                     // Try each source until we find a value
                     $value = null;
-                    $wasProvided = false;
                     foreach ($sources as $sourceKey) {
                         // Support dot notation (e.g., 'user.profile.firstName')
                         if (str_contains($sourceKey, '.')) {
@@ -2151,13 +2151,17 @@ final class SimpleEngine
                             break;
                         }
                     }
-                } else {
-                    $wasProvided = array_key_exists($paramName, $data);
-                    $value = $data[$paramName] ?? null;
                 }
-            } else {
-                $wasProvided = array_key_exists($paramName, $data);
-                $value = $data[$paramName] ?? null;
+            }
+
+            // If no Map/MapFrom or value not found, use parameter name
+            if (!$wasProvided) {
+                if (array_key_exists($paramName, $data)) {
+                    $wasProvided = true;
+                    $value = $data[$paramName];
+                } else {
+                    $value = null;
+                }
             }
 
             // Step 2: Check for #[ConvertEmptyToNull] (only if flag is set)
@@ -3271,7 +3275,7 @@ final class SimpleEngine
             $sourceKey = null;
 
             if (!$templateApplied) {
-                // Check for #[Map] or #[MapFrom] attribute (highest priority after template)
+                // Check for #[Map] or #[MapFrom] attribute
                 if ($flags['hasMapFrom']) {
                     // Check for #[Map] first (bidirectional mapping)
                     $mapAttrs = $reflectionParameter->getAttributes(Map::class);

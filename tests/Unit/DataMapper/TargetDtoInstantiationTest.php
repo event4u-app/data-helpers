@@ -2,12 +2,23 @@
 
 declare(strict_types=1);
 
+use Carbon\Carbon;
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Length;
 use event4u\DataHelpers\SimpleDto\Attributes\Map;
+use InvalidArgumentException;
 
 describe('DataMapper Target DTO Instantiation', function(): void {
+    beforeEach(function(): void {
+        MapperExceptions::reset();
+    });
+
+    afterEach(function(): void {
+        MapperExceptions::reset();
+    });
+
     it('creates DTO instance when target is a class name', function(): void {
         $dto = new class ('John', 'Doe') extends SimpleDto {
             public function __construct(
@@ -41,10 +52,15 @@ describe('DataMapper Target DTO Instantiation', function(): void {
     });
 
     it('creates DTO instances when target is array with class names', function(): void {
+        // Check if Carbon is installed
+        $carbonInstalled = class_exists('\Carbon\Carbon');
+
         $projectDto = new class ('', '') extends SimpleDto {
             public function __construct(
                 public readonly string $externalProjectId,
                 public readonly string $externalProjectNumber,
+                #[Map('bauende')]
+                public readonly ?Carbon $completionDate = null,
             ) {
             }
         };
@@ -53,6 +69,7 @@ describe('DataMapper Target DTO Instantiation', function(): void {
         $template = [
             'project.externalProjectId' => '{{ LVDATA.LV.ID_LV }}',
             'project.externalProjectNumber' => '{{ LVDATA.LV.NR_LV }}',
+            'project.completionDate' => '{{ LVDATA.LV.BAUENDE_AM }}',
         ];
 
         $source = [
@@ -60,6 +77,7 @@ describe('DataMapper Target DTO Instantiation', function(): void {
                 'LV' => [
                     'ID_LV' => '2075436601850',
                     'NR_LV' => 'B25049',
+                    'BAUENDE_AM' => '2025-05-16',
                 ],
             ],
         ];
@@ -69,15 +87,43 @@ describe('DataMapper Target DTO Instantiation', function(): void {
         $dataMapper->target([
             'project' => $projectDtoClass,
         ]);
-        $result = $dataMapper->map()->getTarget();
 
-        expect($result)->toBeArray();
-        expect($result)->toHaveKey('project');
-        expect($result['project'])->toBeInstanceOf($projectDtoClass);
-        /** @var object{externalProjectId: string, externalProjectNumber: string} $project */
-        $project = $result['project'];
-        expect($project->externalProjectId)->toBe('2075436601850');
-        expect($project->externalProjectNumber)->toBe('B25049');
+        if (!$carbonInstalled) {
+            // Carbon is not installed - with returnNullOnFailure(true) (default), entire target should be null
+            $result = $dataMapper->map()->getTarget();
+            expect($result)->toBeNull();
+            expect(MapperExceptions::hasExceptions())->toBeTrue();
+            expect(MapperExceptions::getExceptionCount())->toBeGreaterThan(0);
+
+            // Reset exceptions for next test
+            MapperExceptions::reset();
+
+            // With returnNullOnFailure(false), should get partial results
+            $dataMapper2 = DataMapper::template($template);
+            $dataMapper2->source($source);
+            $dataMapper2->target([
+                'project' => $projectDtoClass,
+            ]);
+            $dataMapper2->returnNullOnFailure(false);
+            $result2 = $dataMapper2->map()->getTarget();
+
+            expect($result2)->toBeArray();
+            expect($result2)->toHaveKey('project');
+            expect($result2['project'])->toBeNull();
+            expect(MapperExceptions::hasExceptions())->toBeTrue();
+        } else {
+            // Carbon is installed - expect successful mapping
+            $result = $dataMapper->map()->getTarget();
+            expect($result)->toBeArray();
+            expect($result)->toHaveKey('project');
+            expect($result['project'])->toBeInstanceOf($projectDtoClass);
+            /** @var object{externalProjectId: string, externalProjectNumber: string, completionDate: Carbon} $project */
+            $project = $result['project'];
+            expect($project->externalProjectId)->toBe('2075436601850');
+            expect($project->externalProjectNumber)->toBe('B25049');
+            expect($project->completionDate)->toBeInstanceOf(Carbon::class);
+            expect($project->completionDate->format('Y-m-d'))->toBe('2025-05-16');
+        }
     });
 
     it('creates DTO instances when target is array with class names (with int mapping)', function(): void {

@@ -1252,7 +1252,7 @@ final class LiteEngine
             $paramName = $reflectionParameter->getName();
             $value = null;
 
-            // Step 1: Check for #[Map] or #[MapFrom] (auto-detect or explicitly allowed)
+            // Check for #[Map] or #[MapFrom]
             $mapAttrs = $reflectionParameter->getAttributes(Map::class);
             $mapFromAttrs = $reflectionParameter->getAttributes(MapFrom::class);
             $hasMap = !empty($mapAttrs);
@@ -1270,6 +1270,7 @@ final class LiteEngine
                 $sourceKey = $mapFrom->source;
                 $value = $data[$sourceKey] ?? null;
             } else {
+                // No Map/MapFrom - use parameter name
                 $value = $data[$paramName] ?? null;
             }
 
