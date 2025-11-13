@@ -2415,7 +2415,9 @@ final class SimpleEngine
         // Handle empty string - this is an error, not a valid date
         // Use ConvertEmptyToNull filter or #[ConvertEmptyToNull] attribute to convert empty strings to null before casting
         if ('' === $value) {
-            throw new InvalidArgumentException('Cannot cast empty string to ' . $dateTimeClass . '. Empty strings are not valid dates. Use ConvertEmptyToNull filter or #[ConvertEmptyToNull] attribute to convert empty strings to null.');
+            throw new InvalidArgumentException(
+                'Cannot cast empty string to ' . $dateTimeClass . '. Empty strings are not valid dates. Use ConvertEmptyToNull filter or #[ConvertEmptyToNull] attribute to convert empty strings to null.'
+            );
         }
 
         // Cast from int (timestamp)

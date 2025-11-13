@@ -8,6 +8,7 @@ use DateTime;
 use DateTimeImmutable;
 use Error;
 use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Support\MappingFacade;
 use event4u\DataHelpers\DataMapper\Support\MappingReverser;
@@ -1890,12 +1891,48 @@ final class FluentDataMapper
         // Case 3: Target is an array with class names or objects
         if (is_array($target) && is_array($result)) {
             foreach ($target as $key => $value) {
+                // Case 3a: Key ends with '.*' - create DataCollection
+                // This handles targets like: ['positions.*' => PositionDto::class]
+                if (is_string($key) && str_ends_with($key, '.*') && is_string($value) && class_exists($value)) {
+                    $baseKey = substr($key, 0, -2); // Remove '.*' suffix
+                    if (isset($result[$baseKey]) && is_array($result[$baseKey])) {
+                        $dtoClass = $value;
+                        $resultData = $result[$baseKey];
+
+                        // Remove the '*' key from result if it exists (it's the class name, not data)
+                        if (isset($resultData['*'])) {
+                            unset($resultData['*']);
+                        }
+
+                        // Instantiate each item in the collection
+                        $instances = [];
+                        foreach ($resultData as $itemKey => $itemData) {
+                            if (is_array($itemData)) {
+                                /** @var array<string, mixed> $itemData */
+                                $instance = $this->instantiateClass($dtoClass, $itemData);
+                                if (null !== $instance) {
+                                    $instances[$itemKey] = $instance;
+                                }
+                            }
+                        }
+
+                        // Create DataCollection if we have instances
+                        if ([] !== $instances) {
+                            /** @var array<int|string, object> $instances */
+                            $result[$baseKey] = DataCollection::make($instances);
+                        } else {
+                            $result[$baseKey] = DataCollection::make([]);
+                        }
+                    }
+                    continue;
+                }
+
                 // Skip if no data for this key
                 if (!isset($result[$key])) {
                     continue;
                 }
 
-                // Case 3a: Value is an existing object - write to it
+                // Case 3b: Value is an existing object - write to it
                 if (is_object($value) && is_array($result[$key])) {
                     /** @var array<string, mixed> $resultData */
                     $resultData = $result[$key];
@@ -1903,11 +1940,46 @@ final class FluentDataMapper
                     continue;
                 }
 
-                // Case 3b: Value is a class name string - instantiate it
+                // Case 3c: Value is a class name string - instantiate it
                 if (is_string($value) && class_exists($value) && is_array($result[$key])) {
                     /** @var array<string, mixed> $resultData */
                     $resultData = $result[$key];
                     $result[$key] = $this->instantiateClass($value, $resultData);
+                    continue;
+                }
+
+                // Case 3d: Value is an array with '*' key - create DataCollection
+                // This handles targets like: ['positions' => ['*' => PositionDto::class]]
+                if (is_array($value) && isset($value['*']) && is_string($value['*']) && class_exists($value['*'])) {
+                    $dtoClass = $value['*'];
+                    $resultData = $result[$key];
+
+                    // Remove the '*' key from result if it exists (it's the class name, not data)
+                    if (is_array($resultData) && isset($resultData['*'])) {
+                        unset($resultData['*']);
+                    }
+
+                    // Instantiate each item in the collection
+                    if (is_array($resultData)) {
+                        $instances = [];
+                        foreach ($resultData as $itemKey => $itemData) {
+                            if (is_array($itemData)) {
+                                /** @var array<string, mixed> $itemData */
+                                $instance = $this->instantiateClass($dtoClass, $itemData);
+                                if (null !== $instance) {
+                                    $instances[$itemKey] = $instance;
+                                }
+                            }
+                        }
+
+                        // Create DataCollection if we have instances
+                        if ([] !== $instances) {
+                            /** @var array<int|string, object> $instances */
+                            $result[$key] = DataCollection::make($instances);
+                        } else {
+                            $result[$key] = DataCollection::make([]);
+                        }
+                    }
                 }
             }
 

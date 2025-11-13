@@ -202,9 +202,52 @@ describe('DataMapper Target DTO Instantiation', function(): void {
 
         $positions = $result['positions'];
         expect($positions)->toBeInstanceOf(DataCollection::class);
-        expect($positions->first()->externalId)->toBe('2075436601857');
-        expect($positions[1]->externalId)->toBe('2075436601858');
-        expect($positions->offsetGet(2)()->externalId)->toBe('2075436601859');
+        /** @var DataCollection<object{externalId: int}> $positions */
+        $firstPosition = $positions->first();
+        /** @var object{externalId: int} $firstPosition */
+        expect($firstPosition->externalId)->toBe(2075436601857);
+        $secondPosition = $positions[1];
+        /** @var object{externalId: int} $secondPosition */
+        expect($secondPosition->externalId)->toBe(2075436601858);
+        $thirdPosition = $positions[2];
+        /** @var object{externalId: int} $thirdPosition */
+        expect($thirdPosition->externalId)->toBe(2075436601859);
+    });
+
+    it('creates DTO instances when target is array with class names (dto template mapping)', function(): void {
+        $projectDto = new class ('', '') extends SimpleDto {
+            public function __construct(
+                public readonly string $externalProjectId,
+                public readonly string $externalProjectNumber,
+            ) {
+            }
+        };
+        $projectDtoClass = $projectDto::class;
+
+        $template = [
+            'externalProjectId' => '{{ LVDATA.LV.ID_LV }}',
+            'externalProjectNumber' => '{{ LVDATA.LV.NR_LV }}',
+        ];
+
+        $source = [
+            'LVDATA' => [
+                'LV' => [
+                    'ID_LV' => '2075436601850',
+                    'NR_LV' => 'B25049',
+                ],
+            ],
+            'POSDATA' => [
+                [
+                    'ID_POSITION' => '2075436601857',
+                ],
+            ],
+        ];
+
+        $project = ($projectDto::class)::from($source, $template);
+
+        expect($project)->toBeInstanceOf($projectDtoClass);
+        expect($project->externalProjectId)->toBe('2075436601850');
+        expect($project->externalProjectNumber)->toBe('B25049');
     });
 
     it('creates DTO instances when target is array with class names (with data collection mapping v2)', function(): void {
@@ -274,9 +317,16 @@ describe('DataMapper Target DTO Instantiation', function(): void {
 
         $positions = $result['positions'];
         expect($positions)->toBeInstanceOf(DataCollection::class);
-        expect($positions->first()->externalId)->toBe('2075436601857');
-        expect($positions[1]->externalId)->toBe('2075436601858');
-        expect($positions->offsetGet(2)()->externalId)->toBe('2075436601859');
+        /** @var DataCollection<object{externalId: int}> $positions */
+        $firstPosition = $positions->first();
+        /** @var object{externalId: int} $firstPosition */
+        expect($firstPosition->externalId)->toBe(2075436601857);
+        $secondPosition = $positions[1];
+        /** @var object{externalId: int} $secondPosition */
+        expect($secondPosition->externalId)->toBe(2075436601858);
+        $thirdPosition = $positions[2];
+        /** @var object{externalId: int} $thirdPosition */
+        expect($thirdPosition->externalId)->toBe(2075436601859);
     });
 
     it('creates DTO instances when target is array with class names (with int mapping)', function(): void {
