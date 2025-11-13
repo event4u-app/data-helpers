@@ -204,7 +204,7 @@ php bin/console dto:typescript
 | **DTOs & Validation** | ✅ | ✅ | ✅ |
 | **Controller Injection** | ❌ | ✅ Auto | ✅ Auto |
 | **Request Validation** | ✅ Manual | ✅ Auto | ✅ Auto |
-| **Model/Entity Mapping** | ❌ | ✅ Eloquent | ✅ Doctrine |
+| **Model/Entity Mapping** | ✅ Plain Objects | ✅ Eloquent | ✅ Doctrine |
 | **Framework Attributes** | ❌ | ✅ Auth/Can/Role | ✅ Granted/Role |
 | **Code Generation** | ❌ | ✅ Artisan | ✅ Console |
 | **TypeScript Export** | ❌ | ✅ | ✅ |
@@ -393,6 +393,68 @@ $csv = $user->toCsv();    // CSV
 ```
 
 📖 **[SimpleDto Documentation](https://event4u-app.github.io/data-helpers/simple-dto/introduction/)**
+
+#### Plain PHP Object Integration
+
+SimpleDto seamlessly integrates with plain PHP objects (like Zend Framework models or any plain PHP classes):
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\HasObject;
+use event4u\DataHelpers\SimpleDto\SimpleDtoObjectTrait;
+
+// Plain PHP object
+class Product
+{
+    public int $id;
+    public string $name;
+    public float $price;
+}
+
+// DTO with plain object integration
+#[HasObject(Product::class)]
+class ProductDto extends SimpleDto
+{
+    use SimpleDtoObjectTrait;
+
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+        public readonly float $price,
+    ) {}
+}
+
+// Object → DTO
+$product = new Product();
+$product->id = 1;
+$product->name = 'Laptop';
+$product->price = 999.99;
+$dto = ProductDto::fromObject($product);
+
+// DTO → Object
+$newProduct = $dto->toObject();  // Uses HasObject attribute
+```
+
+**Also works with getters/setters:**
+
+```php
+class Customer
+{
+    private int $id;
+    private string $name;
+
+    public function getId(): int { return $this->id; }
+    public function setId(int $id): void { $this->id = $id; }
+    public function getName(): string { return $this->name; }
+    public function setName(string $name): void { $this->name = $name; }
+}
+
+// fromObject() uses getters, toObject() uses setters
+$dto = CustomerDto::fromObject($customer);
+$newCustomer = $dto->toObject(Customer::class);
+```
+
+📖 **[Plain Object Integration Guide](docs/plain-object-integration.md)** • [Example Code](examples/plain-object-example.php)
 
 ### 6️⃣ LiteDto - Ultra-Fast Dtos
 

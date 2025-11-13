@@ -75,6 +75,15 @@ See [Mapping Attributes](/data-helpers/attributes/mapping/) for complete list.
 - `#[MapFrom(string|array $source)]` - Map from different input key
 - `#[MapTo(string $target)]` - Map to different output key
 
+### Object/Model/Entity Integration Attributes
+
+Link DTOs to objects, models, or entities for bidirectional conversion:
+
+- `#[HasObject(string $objectClass)]` - Link DTO to plain PHP object class ([Details](/data-helpers/attributes/detailed/has-object/))
+- `#[HasDto(string $dtoClass)]` - Link plain PHP object to DTO class ([Details](/data-helpers/attributes/detailed/has-object/))
+- `#[HasModel(string $modelClass)]` - Link DTO to Laravel Eloquent model ([Laravel Integration](/data-helpers/framework-integration/laravel/))
+- `#[HasEntity(string $entityClass)]` - Link DTO to Doctrine entity ([Doctrine Integration](/data-helpers/framework-integration/doctrine/))
+
 ### Other Attributes
 
 - `#[Computed]` - Mark method as computed property

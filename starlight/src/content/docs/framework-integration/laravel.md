@@ -76,6 +76,8 @@ public function register(Request $request): JsonResponse
 
 ## Eloquent Integration
 
+Laravel provides seamless integration between DTOs and Eloquent models using the `HasModel` attribute.
+
 ### From Eloquent Model
 
 <!-- skip-test: requires Eloquent User model -->
@@ -93,6 +95,35 @@ $user = new User();
 $dto->toModel($user);
 $user->save();
 ```
+
+### Using HasModel Attribute
+
+Link your DTO to an Eloquent model:
+
+<!-- skip-test: requires Eloquent User model -->
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\HasModel;
+use event4u\DataHelpers\SimpleDto\SimpleDtoEloquentTrait;
+
+#[HasModel(User::class)]
+class UserDto extends SimpleDto
+{
+    use SimpleDtoEloquentTrait;
+
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+        public readonly string $email,
+    ) {}
+}
+
+// No need to specify model class
+$dto = UserDto::fromModel($user);
+$newUser = $dto->toModel();
+```
+
+📖 **[HasModel Attribute Details](/data-helpers/attributes/detailed/has-object/)** - Similar pattern to HasObject for plain PHP
 
 ### Update Existing Model
 

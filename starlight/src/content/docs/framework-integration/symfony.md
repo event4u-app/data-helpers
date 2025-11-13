@@ -103,6 +103,8 @@ public function register(Request $request): JsonResponse
 
 ## Doctrine Integration
 
+Symfony provides seamless integration between DTOs and Doctrine entities. See the [Doctrine Integration](/data-helpers/framework-integration/doctrine/) page for complete details.
+
 ### From Doctrine Entity
 
 <!-- skip-test: requires Doctrine EntityManager -->
@@ -122,6 +124,35 @@ $dto->toEntity($user);
 $this->entityManager->persist($user);
 $this->entityManager->flush();
 ```
+
+### Using HasEntity Attribute
+
+Link your DTO to a Doctrine entity:
+
+<!-- skip-test: requires Doctrine EntityManager -->
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\HasEntity;
+use event4u\DataHelpers\SimpleDto\SimpleDtoEntityTrait;
+
+#[HasEntity(User::class)]
+class UserDto extends SimpleDto
+{
+    use SimpleDtoEntityTrait;
+
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+        public readonly string $email,
+    ) {}
+}
+
+// No need to specify entity class
+$dto = UserDto::fromEntity($user);
+$newUser = $dto->toEntity();
+```
+
+📖 **[HasEntity Attribute Details](/data-helpers/attributes/detailed/has-object/)** - Similar pattern to HasObject for plain PHP
 
 ### Update Existing Entity
 
