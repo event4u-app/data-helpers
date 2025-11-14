@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Dto\UserDto;
 use Doctrine\ORM\Mapping as ORM;
+use event4u\DataHelpers\SimpleDto\Attributes\HasDto;
+use event4u\DataHelpers\Traits\DtoMappingTrait;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
+#[HasDto(UserDto::class)]
 class User
 {
+    use DtoMappingTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

@@ -152,6 +152,7 @@ export default defineConfig({
                             items: [
                                 { label: 'ExistsCallback', slug: 'attributes/detailed/exists-callback' },
                                 { label: 'FileCallback', slug: 'attributes/detailed/file-callback' },
+                                { label: 'HasObject & HasDto', slug: 'attributes/detailed/has-object' },
                                 { label: 'Optional', slug: 'attributes/detailed/optional' },
                                 { label: 'UniqueCallback', slug: 'attributes/detailed/unique-callback' },
                             ],

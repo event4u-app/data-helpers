@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
+use event4u\DataHelpers\SimpleDto\Attributes\HasEntity;
 use event4u\DataHelpers\Support\EntityHelper;
 use InvalidArgumentException;
+use ReflectionClass;
 
 /**
  * Trait providing Doctrine Entity integration for SimpleDtos.
@@ -33,12 +35,22 @@ trait SimpleDtoDoctrineTrait
     /**
      * Convert the Dto to a Doctrine Entity instance.
      *
-     * @param class-string $entityClass The entity class name
+     * If no entity class is provided, it will try to resolve it from the #[HasEntity] attribute.
+     *
+     * @param class-string|null $entityClass The entity class name (optional if #[HasEntity] attribute is present)
      * @param bool $managed Whether the entity should be marked as managed (has ID)
      * @return object The entity instance
+     *
+     * @throws InvalidArgumentException If no entity class is provided and no #[HasEntity] attribute is found
+     * @throws InvalidArgumentException If the entity class does not exist
      */
-    public function toEntity(string $entityClass, bool $managed = false): object
+    public function toEntity(?string $entityClass = null, bool $managed = false): object
     {
+        // If no entity class provided, try to resolve from attribute
+        if (null === $entityClass) {
+            $entityClass = $this->resolveEntityClass();
+        }
+
         // Check if entity class exists
         if (!class_exists($entityClass)) {
             throw new InvalidArgumentException(sprintf('Entity class %s does not exist', $entityClass));
@@ -56,5 +68,33 @@ trait SimpleDtoDoctrineTrait
         }
 
         return $entity;
+    }
+
+    /**
+     * Resolve the Entity class from the #[HasEntity] attribute.
+     *
+     * @return class-string
+     *
+     * @throws InvalidArgumentException If no #[HasEntity] attribute is found
+     */
+    private function resolveEntityClass(): string
+    {
+        $reflection = new ReflectionClass($this);
+        $attributes = $reflection->getAttributes(HasEntity::class);
+
+        if ([] === $attributes) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'No Entity class provided and no #[HasEntity] attribute found on %s. ' .
+                    'Either provide an Entity class as parameter or add #[HasEntity(YourEntity::class)] attribute to the DTO class.',
+                    $reflection->getName()
+                )
+            );
+        }
+
+        /** @var HasEntity $hasEntity */
+        $hasEntity = $attributes[0]->newInstance();
+
+        return $hasEntity->entityClass;
     }
 }

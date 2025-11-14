@@ -12,6 +12,7 @@ Data Helpers works perfectly in **plain PHP projects** without any framework:
 - ✅ **No Dependencies** - Works standalone
 - ✅ **Full Feature Set** - All features available
 - ✅ **Arrays, Objects, JSON, XML** - Multiple input formats
+- ✅ **Plain Object Integration** - Seamless DTO ↔ Object conversion
 - ✅ **Type Safety** - Full type casting
 - ✅ **Validation** - Built-in validation
 - ✅ **Lightweight** - Minimal overhead
@@ -161,6 +162,112 @@ $data = ['name' => 'John', 'email' => 'john@example.com', 'age' => 30];
 $dto = UserDto::validateAndCreate($data);
 // Dto is valid (throws exception if invalid)
 ```
+
+## Plain Object Integration
+
+Data Helpers provides seamless integration with plain PHP objects (like Zend Framework models, legacy classes, or any plain PHP objects).
+
+### Basic Usage
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\HasObject;
+use event4u\DataHelpers\SimpleDto\SimpleDtoObjectTrait;
+
+// Plain PHP object
+class Product
+{
+    public int $id;
+    public string $name;
+    public float $price;
+}
+
+// DTO with plain object integration
+#[HasObject(Product::class)]
+class ProductDto extends SimpleDto
+{
+    use SimpleDtoObjectTrait;
+
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+        public readonly float $price,
+    ) {}
+}
+
+// Object → DTO
+$product = new Product();
+$product->id = 1;
+$product->name = 'Laptop';
+$product->price = 999.99;
+$dto = ProductDto::fromObject($product);
+
+// DTO → Object
+$newProduct = $dto->toObject();  // Uses HasObject attribute
+```
+
+### With Getters and Setters
+
+```php
+class Customer
+{
+    private int $id;
+    private string $name;
+
+    public function getId(): int { return $this->id; }
+    public function setId(int $id): void { $this->id = $id; }
+    public function getName(): string { return $this->name; }
+    public function setName(string $name): void { $this->name = $name; }
+}
+
+#[HasObject(Customer::class)]
+class CustomerDto extends SimpleDto
+{
+    use SimpleDtoObjectTrait;
+
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+    ) {}
+}
+
+$customer = new Customer();
+$customer->setId(42);
+$customer->setName('John Doe');
+
+// fromObject() uses getters, toObject() uses setters
+$dto = CustomerDto::fromObject($customer);
+$newCustomer = $dto->toObject();
+```
+
+### Object to DTO Conversion
+
+You can also add the `ObjectMappingTrait` to your plain objects:
+
+```php
+use event4u\DataHelpers\SimpleDto\Attributes\HasDto;
+use event4u\DataHelpers\Traits\ObjectMappingTrait;
+
+#[HasDto(ProductDto::class)]
+class Product
+{
+    use ObjectMappingTrait;
+
+    public int $id;
+    public string $name;
+    public float $price;
+}
+
+$product = new Product();
+$product->id = 1;
+$product->name = 'Laptop';
+$product->price = 999.99;
+
+// Convert to DTO using attribute
+$dto = $product->toDto();
+```
+
+📖 **[Complete Plain Object Integration Guide](/data-helpers/attributes/detailed/has-object/)** - Detailed documentation with all features
 
 ## Type Casting
 
