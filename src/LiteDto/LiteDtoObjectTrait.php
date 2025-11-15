@@ -88,12 +88,13 @@ trait LiteDtoObjectTrait
      * If no object class is provided, it will try to resolve it from the #[HasObject] attribute.
      *
      * @param class-string|null $objectClass The object class (optional if #[HasObject] attribute is present)
+     * @param bool $includeTimestamps Whether to include timestamp fields (created_at, updated_at, deleted_at) (default: false)
      * @return object The object instance
      *
      * @throws InvalidArgumentException If no object class is provided and no #[HasObject] attribute is found
      * @throws InvalidArgumentException If the object class does not exist
      */
-    public function toObject(?string $objectClass = null): object
+    public function toObject(?string $objectClass = null, bool $includeTimestamps = false): object
     {
         // If no object class provided, try to resolve from attribute
         if (null === $objectClass) {
@@ -111,6 +112,15 @@ trait LiteDtoObjectTrait
 
         // Get DTO data
         $data = $this->toArray();
+
+        // Filter out timestamp fields if not included
+        if (!$includeTimestamps) {
+            $data = array_filter(
+                $data,
+                fn($key): bool => !in_array($key, ['created_at', 'updated_at', 'deleted_at'], true),
+                ARRAY_FILTER_USE_KEY
+            );
+        }
 
         // Set properties on object
         foreach ($data as $key => $value) {

@@ -63,11 +63,11 @@ trait SimpleDtoObjectTrait
         // Also try to get properties via getter methods
         foreach ($reflection->getMethods() as $reflectionMethod) {
             $methodName = $reflectionMethod->getName();
-            
+
             // Check for getter methods (get*, is*, has*)
             if (preg_match('/^(get|is|has)([A-Z].*)$/', $methodName, $matches)) {
                 $propertyName = lcfirst($matches[2]);
-                
+
                 // Only add if not already present and method has no parameters
                 if (!isset($data[$propertyName]) && 0 === $reflectionMethod->getNumberOfParameters()) {
                     try {
@@ -88,12 +88,13 @@ trait SimpleDtoObjectTrait
      * If no object class is provided, it will try to resolve it from the #[HasObject] attribute.
      *
      * @param class-string|null $objectClass The object class (optional if #[HasObject] attribute is present)
+     * @param bool $includeTimestamps Whether to include timestamp fields (created_at, updated_at, deleted_at) (default: false)
      * @return object The object instance
      *
      * @throws InvalidArgumentException If no object class is provided and no #[HasObject] attribute is found
      * @throws InvalidArgumentException If the object class does not exist
      */
-    public function toObject(?string $objectClass = null): object
+    public function toObject(?string $objectClass = null, bool $includeTimestamps = false): object
     {
         // If no object class provided, try to resolve from attribute
         if (null === $objectClass) {
@@ -112,12 +113,21 @@ trait SimpleDtoObjectTrait
         // Get DTO data
         $data = $this->toArray();
 
+        // Filter out timestamp fields if not included
+        if (!$includeTimestamps) {
+            $data = array_filter(
+                $data,
+                fn($key): bool => !in_array($key, ['created_at', 'updated_at', 'deleted_at'], true),
+                ARRAY_FILTER_USE_KEY
+            );
+        }
+
         // Set properties on object
         foreach ($data as $key => $value) {
             // Try to set via public property
             if ($reflection->hasProperty($key)) {
                 $property = $reflection->getProperty($key);
-                
+
                 if ($property->isPublic()) {
                     $property->setValue($object, $value);
                     continue;
@@ -128,7 +138,7 @@ trait SimpleDtoObjectTrait
             $setterMethod = 'set' . ucfirst($key);
             if ($reflection->hasMethod($setterMethod)) {
                 $method = $reflection->getMethod($setterMethod);
-                
+
                 if ($method->isPublic() && 1 === $method->getNumberOfParameters()) {
                     $method->invoke($object, $value);
                 }

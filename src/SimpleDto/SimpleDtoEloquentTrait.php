@@ -4,50 +4,47 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
-if (!class_exists('Illuminate\Database\Eloquent\Model')) {
-    trait SimpleDtoEloquentTrait {}
-    return;
-}
-
 use event4u\DataHelpers\SimpleDto\Attributes\HasModel;
 use event4u\DataHelpers\SimpleDto\Attributes\LaravelModelFillable;
-use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionProperty;
 
-/**
- * Trait providing Eloquent Model integration for SimpleDtos.
- *
- * This trait is optional and only used when Laravel/Eloquent is available.
- * It provides methods to convert between Dtos and Eloquent Models.
- *
- * Usage:
- * ```php
- * class UserDto extends SimpleDto
- * {
- *     use SimpleDtoEloquentTrait;
- *
- *     public function __construct(
- *         public readonly string $name,
- *         public readonly string $email,
- *     ) {}
- * }
- *
- * // Create Dto from Model
- * $user = User::find(1);
- * $dto = UserDto::fromModel($user);
- *
- * // Create Model from Dto
- * $model = $dto->toModel(User::class);
- * $model->save();
- * ```
- *
- * @requires illuminate/database
- * @phpstan-ignore trait.unused (Optional trait, only used when Laravel/Eloquent is installed)
- */
-trait SimpleDtoEloquentTrait
-{
+if (!class_exists('Illuminate\Database\Eloquent\Model')) {
+    trait SimpleDtoEloquentTrait {}
+} else {
+    /**
+     * Trait providing Eloquent Model integration for SimpleDtos.
+     *
+     * This trait is optional and only used when Laravel/Eloquent is available.
+     * It provides methods to convert between Dtos and Eloquent Models.
+     *
+     * Usage:
+     * ```php
+     * class UserDto extends SimpleDto
+     * {
+     *     use SimpleDtoEloquentTrait;
+     *
+     *     public function __construct(
+     *         public readonly string $name,
+     *         public readonly string $email,
+     *     ) {}
+     * }
+     *
+     * // Create Dto from Model
+     * $user = User::find(1);
+     * $dto = UserDto::fromModel($user);
+     *
+     * // Create Model from Dto
+     * $model = $dto->toModel(User::class);
+     * $model->save();
+     * ```
+     *
+     * @requires illuminate/database
+     * @phpstan-ignore trait.unused (Optional trait, only used when Laravel/Eloquent is installed)
+     */
+    trait SimpleDtoEloquentTrait
+    {
     /**
      * Create a Dto instance from an Eloquent Model.
      *
@@ -60,7 +57,7 @@ trait SimpleDtoEloquentTrait
      * @throws InvalidArgumentException If the model does not have a toArray() method
      * @throws BadMethodCallException If Laravel/Eloquent is not installed
      */
-    public static function fromModel(Model $model): static
+    public static function fromModel(\Illuminate\Database\Eloquent\Model $model): static
     {
         // Get all model attributes including relationships
         $data = $model->toArray();
@@ -77,17 +74,23 @@ trait SimpleDtoEloquentTrait
      *
      * If no model class is provided, it will try to resolve it from the #[HasModel] attribute.
      *
-     * @param class-string<Model>|null $modelClass The Eloquent Model class (optional if #[HasModel] attribute is present)
+     * @param class-string<\Illuminate\Database\Eloquent\Model>|null $modelClass The Eloquent Model class (optional if #[HasModel] attribute is present)
      * @param bool $exists Whether the model should be marked as existing (default: false)
      * @param array<string>|null $fillable Array of property names to temporarily make fillable, or ['*'] to make all fillable (default: null = use model's fillable/guarded)
+     * @param bool $includeTimestamps Whether to include timestamp fields (created_at, updated_at, deleted_at) (default: false)
      *
-     * @return Model The model instance
+     * @return \Illuminate\Database\Eloquent\Model The model instance
      *
      * @throws InvalidArgumentException If no model class is provided and no #[HasModel] attribute is found
      * @throws InvalidArgumentException If the model class does not exist or is not an Eloquent Model
      * @throws BadMethodCallException If Laravel/Eloquent is not installed
      */
-    public function toModel(?string $modelClass = null, bool $exists = false, ?array $fillable = null): Model
+    public function toModel(
+        ?string $modelClass = null,
+        bool $exists = false,
+        ?array $fillable = null,
+        bool $includeTimestamps = false
+    ): \Illuminate\Database\Eloquent\Model
     {
         // If no model class provided, try to resolve from attribute
         if (null === $modelClass) {
@@ -100,15 +103,25 @@ trait SimpleDtoEloquentTrait
         }
 
         // Check if model class is an Eloquent Model
-        if (!is_subclass_of($modelClass, Model::class)) {
+        if (!is_subclass_of($modelClass, \Illuminate\Database\Eloquent\Model::class)) {
             throw new InvalidArgumentException(
-                sprintf('Model class %s must extend ', $modelClass) . Model::class
+                sprintf('Model class %s must extend ', $modelClass) . \Illuminate\Database\Eloquent\Model::class
             );
         }
 
         // Create new model instance
-        /** @var Model $model */
+        /** @var \Illuminate\Database\Eloquent\Model $model */
         $model = new $modelClass();
+
+        // Get DTO data and filter out timestamp fields if not included
+        $data = $this->toArray();
+        if (!$includeTimestamps) {
+            $data = array_filter(
+                $data,
+                fn($key): bool => !in_array($key, ['created_at', 'updated_at', 'deleted_at'], true),
+                ARRAY_FILTER_USE_KEY
+            );
+        }
 
         // Determine fillable properties
         $fillableProperties = $this->resolveFillableProperties($fillable);
@@ -130,7 +143,7 @@ trait SimpleDtoEloquentTrait
                 }
 
                 // Fill model with Dto data
-                $model->fill($this->toArray());
+                $model->fill($data);
 
                 // Restore original fillable/guarded
                 if (['*'] === $fillableProperties) {
@@ -142,7 +155,7 @@ trait SimpleDtoEloquentTrait
             }
         } else {
             // Fill model with Dto data using model's own fillable/guarded
-            $model->fill($this->toArray());
+            $model->fill($data);
         }
 
         // Mark as existing if requested
@@ -156,7 +169,7 @@ trait SimpleDtoEloquentTrait
     /**
      * Resolve the Model class from the #[HasModel] attribute.
      *
-     * @return class-string<Model>
+     * @return class-string<\Illuminate\Database\Eloquent\Model>
      *
      * @throws InvalidArgumentException If no #[HasModel] attribute is found
      */
@@ -178,7 +191,7 @@ trait SimpleDtoEloquentTrait
         /** @var HasModel $hasModel */
         $hasModel = $attributes[0]->newInstance();
 
-        /** @var class-string<Model> */
+        /** @var class-string<\Illuminate\Database\Eloquent\Model> */
         return $hasModel->modelClass;
     }
 
@@ -226,5 +239,6 @@ trait SimpleDtoEloquentTrait
 
         // No fillable configuration found, use model's own fillable/guarded
         return null;
+    }
     }
 }
