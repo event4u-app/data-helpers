@@ -2,32 +2,31 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\SimpleDto;
+namespace event4u\DataHelpers\LiteDto;
 
 if (!class_exists('Doctrine\ORM\EntityManagerInterface')) {
-    trait SimpleDtoDoctrineTrait {}
+    trait LiteDtoDoctrineTrait {}
     return;
 }
 
-use event4u\DataHelpers\SimpleDto\Attributes\HasEntity;
+use event4u\DataHelpers\LiteDto\Attributes\HasEntity;
 use event4u\DataHelpers\Support\EntityHelper;
 use InvalidArgumentException;
 use ReflectionClass;
 
 /**
- * Trait providing Doctrine Entity integration for SimpleDtos.
+ * Trait providing Doctrine Entity integration for LiteDtos.
  *
  * This trait is optional and only used when Doctrine ORM is available.
  *
  * @phpstan-ignore trait.unused (Optional trait, only used when Doctrine is installed)
  */
-trait SimpleDtoDoctrineTrait
+trait LiteDtoDoctrineTrait
 {
     /**
      * Create a Dto instance from a Doctrine Entity.
      *
      * @param object $entity Doctrine entity instance
-     * @throws BadMethodCallException If Doctrine ORM is not installed
      */
     public static function fromEntity(object $entity): static
     {
@@ -35,7 +34,7 @@ trait SimpleDtoDoctrineTrait
         $data = EntityHelper::toArray($entity);
 
         // Create Dto from array
-        return static::fromArray($data);
+        return static::from($data);
     }
 
     /**
@@ -49,7 +48,6 @@ trait SimpleDtoDoctrineTrait
      *
      * @throws InvalidArgumentException If no entity class is provided and no #[HasEntity] attribute is found
      * @throws InvalidArgumentException If the entity class does not exist
-     * @throws BadMethodCallException If Doctrine ORM is not installed
      */
     public function toEntity(?string $entityClass = null, bool $managed = false): object
     {

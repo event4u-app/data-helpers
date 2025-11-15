@@ -65,8 +65,12 @@ trait SimpleDtoTrait
     use SimpleDtoLazyCastTrait;
     use SimpleDtoPerformanceTrait;
     use SimpleDtoBenchmarkTrait;
-    // Note: SimpleDtoDoctrineTrait and SimpleDtoEloquentTrait are NOT imported by default
-    // to maintain framework independence. Import them explicitly if needed.
+
+    // Framework integration traits - always included, check availability internally
+    use SimpleDtoEloquentTrait;
+    use SimpleDtoDoctrineTrait;
+    use SimpleDtoObjectTrait;
+
     /**
      * Create DTO from data.
      *

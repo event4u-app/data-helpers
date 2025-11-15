@@ -26,7 +26,7 @@ describe('Framework Independence', function(): void {
             ]);
         });
 
-        it('does not have fromModel method without SimpleDtoEloquentTrait', function(): void {
+        it('does not have fromModel method without Laravel/Eloquent', function(): void {
             $dto = new class extends SimpleDto {
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -35,11 +35,12 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            // Method does not exist when Laravel is not installed
             /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromModel'))->toBeFalse();
         });
 
-        it('does not have toModel method without SimpleDtoEloquentTrait', function(): void {
+        it('does not have toModel method without Laravel/Eloquent', function(): void {
             $dto = new class extends SimpleDto {
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -48,6 +49,7 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
+            // Method does not exist when Laravel is not installed
             /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'toModel'))->toBeFalse();
         });
@@ -199,7 +201,7 @@ describe('Framework Independence', function(): void {
             expect($instance->toArray())->toBe(['name' => 'Test']);
             expect(json_encode($instance))->toBeJson();
 
-            // Eloquent methods not available
+            // Eloquent methods do not exist when Laravel is not installed
             /** @phpstan-ignore-next-line unknown */
             expect(method_exists($instance, 'fromModel'))->toBeFalse();
             /** @phpstan-ignore-next-line unknown */

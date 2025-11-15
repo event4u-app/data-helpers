@@ -172,7 +172,6 @@ Data Helpers provides seamless integration with plain PHP objects (like Zend Fra
 ```php
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\HasObject;
-use event4u\DataHelpers\SimpleDto\SimpleDtoObjectTrait;
 
 // Plain PHP object
 class Product
@@ -186,8 +185,6 @@ class Product
 #[HasObject(Product::class)]
 class ProductDto extends SimpleDto
 {
-    use SimpleDtoObjectTrait;
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -206,6 +203,12 @@ $dto = ProductDto::fromObject($product);
 $newProduct = $dto->toObject();  // Uses HasObject attribute
 ```
 
+:::tip[No Manual Trait Import Needed]
+The `SimpleDtoObjectTrait` is **automatically included** in `SimpleDto`. You don't need to manually import it!
+
+The methods `fromObject()` and `toObject()` are always available, even without any framework.
+:::
+
 ### With Getters and Setters
 
 ```php
@@ -223,8 +226,6 @@ class Customer
 #[HasObject(Customer::class)]
 class CustomerDto extends SimpleDto
 {
-    use SimpleDtoObjectTrait;
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,

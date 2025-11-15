@@ -59,13 +59,10 @@ Link your DTO to a Doctrine entity:
 ```php
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\HasEntity;
-use event4u\DataHelpers\SimpleDto\SimpleDtoEntityTrait;
 
 #[HasEntity(User::class)]
 class UserDto extends SimpleDto
 {
-    use SimpleDtoEntityTrait;
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -80,6 +77,12 @@ $newUser = $dto->toEntity();
 $entityManager->persist($newUser);
 $entityManager->flush();
 ```
+
+:::tip[No Manual Trait Import Needed]
+The `SimpleDtoDoctrineTrait` is **automatically included** in `SimpleDto` when Doctrine is installed. You don't need to manually import it!
+
+The methods `fromEntity()` and `toEntity()` are automatically available when Doctrine ORM is detected.
+:::
 
 📖 **[HasEntity Attribute Details](/data-helpers/attributes/detailed/has-object/)** - Similar pattern to HasObject for plain PHP
 

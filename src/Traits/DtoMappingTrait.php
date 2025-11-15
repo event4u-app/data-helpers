@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Traits;
 
+use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\SimpleDto\Attributes\HasDto;
 use event4u\DataHelpers\Support\EntityHelper;
 use Illuminate\Database\Eloquent\Model;
@@ -120,16 +121,58 @@ trait DtoMappingTrait
     /**
      * Extract data from Model/Entity.
      *
+     * Converts collections to DataCollection instances for better handling.
+     *
      * @return array<string, mixed>
      */
     private function extractData(): array
     {
         // Check if this is an Eloquent Model
         if ($this instanceof Model) {
-            return $this->toArray();
+            $data = $this->toArray();
+
+            // Convert array collections to DataCollection
+            return $this->convertArrayCollectionsToDataCollection($data);
         }
 
         // Otherwise, treat as Doctrine Entity
-        return EntityHelper::toArray($this);
+        $data = EntityHelper::toArray($this);
+
+        // Convert array collections to DataCollection
+        return $this->convertArrayCollectionsToDataCollection($data);
+    }
+
+    /**
+     * Convert array collections to DataCollection instances.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function convertArrayCollectionsToDataCollection(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            // Check if value is an array of arrays (collection)
+            if (is_array($value) && [] !== $value && $this->isCollection($value)) {
+                $data[$key] = DataCollection::make($value);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Check if array is a collection (array of arrays or objects).
+     *
+     * @param array<mixed> $value
+     */
+    private function isCollection(array $value): bool
+    {
+        if ([] === $value) {
+            return false;
+        }
+
+        // Check if first element is an array or object
+        $first = reset($value);
+        return is_array($first) || is_object($first);
     }
 }
