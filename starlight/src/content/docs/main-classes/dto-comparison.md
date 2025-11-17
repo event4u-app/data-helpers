@@ -102,10 +102,10 @@ $user = UserDto::from([
 
 | Feature | LiteDto #[UltraFast] | LiteDto | SimpleDto #[UltraFast] | SimpleDto |
 |---------|----------------------|---------|------------------------|-----------|
-| **Creation Performance** | ~1.2μs | ~2.7μs | ~4.7μs | ~5.2μs |
-| **Creation Speed Factor** | **4.2x faster** | **1.9x faster** | **1.1x faster** | Baseline |
-| **Serialization Performance** | ~1.4μs | ~4.0μs | ~26.0μs | ~26.4μs |
-| **Serialization Speed Factor** | **18.4x faster** | **6.6x faster** | **1.0x faster** | Baseline |
+| **Creation Performance** | ~3.8μs | ~4.7μs | ~8.3μs | ~8.8μs |
+| **Creation Speed Factor** | **2.3x faster** | **1.9x faster** | **1.1x faster** | Baseline |
+| **Serialization Performance** | ~6.7μs | ~9.2μs | ~56.3μs | ~60.4μs |
+| **Serialization Speed Factor** | **9.0x faster** | **6.5x faster** | **1.1x faster** | Baseline |
 | | | | | |
 | **Core Features** | | | | |
 | Property Mapping | ✅ | ✅ | ✅ | ✅ |
