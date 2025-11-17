@@ -237,7 +237,7 @@ describe('Plain Object Integration - SimpleDtoObjectTrait', function(): void {
             expect($object->price)->toBe(999.99); // @phpstan-ignore property.notFound
         });
 
-        it('throws exception if no object class provided and no attribute', function(): void {
+        it('creates stdClass when no object class provided and no attribute', function(): void {
             $dto = new class extends SimpleDto {
                 use SimpleDtoObjectTrait;
 
@@ -247,9 +247,10 @@ describe('Plain Object Integration - SimpleDtoObjectTrait', function(): void {
             };
 
             $instance = $dto::fromArray([]);
+            $object = $instance->toObject();
 
-            expect(fn(): object => $instance->toObject())
-                ->toThrow(InvalidArgumentException::class, 'No object class provided');
+            expect($object)->toBeInstanceOf('stdClass');
+            expect($object->name)->toBe('Test'); // @phpstan-ignore property.notFound
         });
     });
 

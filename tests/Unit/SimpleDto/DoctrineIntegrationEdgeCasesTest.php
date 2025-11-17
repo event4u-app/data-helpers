@@ -147,7 +147,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
             expect($instance->name)->toBe('John');
             expect($instance->nonExistent)->toBeNull();
         });
-    });
+    })->group('doctrine');
 
     describe('toEntity() Edge Cases', function(): void {
         it('handles Dto with null values', function(): void {
@@ -254,7 +254,7 @@ describe('Doctrine Integration Edge Cases', function(): void {
             expect(fn(): object => $instance->toEntity('NonExistentClass'))
                 ->toThrow(InvalidArgumentException::class);
         });
-    });
+    })->group('doctrine');
 
     describe('Round-trip Edge Cases', function(): void {
         it('preserves null values in round-trip', function(): void {
@@ -321,5 +321,5 @@ describe('Doctrine Integration Edge Cases', function(): void {
             /** @phpstan-ignore-next-line unknown */
             expect($newEntity->getIsActive())->toBeTrue();
         });
-    });
+    })->group('doctrine');
 })->group('doctrine');

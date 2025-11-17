@@ -25,45 +25,14 @@ describe('Framework Independence', function(): void {
                 'email' => 'john@example.com',
             ]);
         });
-
-        it('does not have fromModel method without Laravel/Eloquent', function(): void {
-            $dto = new class extends SimpleDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            // Method does not exist when Laravel is not installed
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromModel'))->toBeFalse();
-        });
-
-        it('does not have toModel method without Laravel/Eloquent', function(): void {
-            $dto = new class extends SimpleDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            // Method does not exist when Laravel is not installed
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toModel'))->toBeFalse();
-        });
     });
 
     describe('SimpleDtoEloquentTrait (Laravel/Eloquent)', function(): void {
-        it('requires Illuminate\Database\Eloquent\Model to be available', function(): void {
-            if (!class_exists('Illuminate\Database\Eloquent\Model')) {
-                $this->markTestSkipped('Laravel Eloquent not available');
+        it('throws BadMethodCallException when Laravel is not installed', function(): void {
+            if (class_exists('Illuminate\Database\Eloquent\Model')) {
+                $this->markTestSkipped('Laravel Eloquent is installed - skipping test');
             }
-            expect(class_exists('Illuminate\Database\Eloquent\Model'))->toBeTrue();
-        });
 
-        it('fromModel does NOT exist when Laravel is not installed', function(): void {
             $dto = new class extends SimpleDto {
                 use SimpleDtoEloquentTrait;
 
@@ -74,54 +43,20 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromModel'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'fromModel'))->toBeFalse();
-        });
+            // Methods exist but throw BadMethodCallException when framework is not installed
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'fromModel'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'toModel'))->toBeTrue();
 
-        it('toModel method does NOT exist when Laravel is not installed', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
+            // fromModel should throw BadMethodCallException
+            expect(fn(): object => $dto::fromModel((object)['name' => 'Test']))
+                ->toThrow(BadMethodCallException::class, 'Laravel Eloquent is not installed');
 
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toModel'))->toBeFalse();
-        });
-
-        it('fromModel does NOT exist when Laravel is not installed', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'fromModel'))->toBeFalse();
-        });
-
-        it('SimpleDtoEloquentTrait is empty when Laravel is not installed', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            // Trait should be empty - no methods should exist
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'fromModel'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'toModel'))->toBeFalse();
+            // toModel should throw BadMethodCallException
+            /** @phpstan-ignore-next-line argument.type */
+            expect(fn(): object => $instance->toModel('SomeModel'))
+                ->toThrow(BadMethodCallException::class, 'Laravel Eloquent is not installed');
         });
     });
 
@@ -165,34 +100,6 @@ describe('Framework Independence', function(): void {
             // Core functionality works
             expect($instance->toArray())->toBe(['name' => 'Test']);
             expect(json_encode($instance))->toBeJson();
-
-            // Eloquent methods do not exist when Laravel is not installed
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromModel'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toModel'))->toBeFalse();
-        });
-
-        it('can use SimpleDtoTrait with SimpleDtoEloquentTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'Test',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            // Core functionality works
-            expect($instance->toArray())->toBe(['name' => 'Test']);
-            expect(json_encode($instance))->toBeJson();
-
-            // Eloquent methods do NOT exist when Laravel is not installed
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromModel'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toModel'))->toBeFalse();
         });
 
         it('SimpleDtoEloquentTrait does not interfere with core functionality', function(): void {
@@ -221,28 +128,12 @@ describe('Framework Independence', function(): void {
         });
     });
 
-    describe('Error Handling', function(): void {
-        it('SimpleDtoEloquentTrait is empty when Laravel is not installed', function(): void {
-            // When Laravel is not installed, the trait is empty and has no methods
-
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'Test',
-                ) {}
-            };
-
-            // Verify that no Eloquent methods exist
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'fromModel'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'toModel'))->toBeFalse();
-        });
-    });
-
     describe('SimpleDtoDoctrineTrait (Doctrine/Symfony)', function(): void {
-        it('fromEntity does NOT exist when Doctrine is not installed', function(): void {
+        it('throws BadMethodCallException when Doctrine is not installed', function(): void {
+            if (interface_exists('Doctrine\ORM\EntityManagerInterface')) {
+                $this->markTestSkipped('Doctrine is installed - skipping test');
+            }
+
             $dto = new class extends SimpleDto {
                 use SimpleDtoDoctrineTrait;
 
@@ -253,67 +144,20 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromEntity'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'fromEntity'))->toBeFalse();
-        });
+            // Methods exist but throw BadMethodCallException when framework is not installed
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'fromEntity'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'toEntity'))->toBeTrue();
 
-        it('toEntity does NOT exist when Doctrine is not installed', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoDoctrineTrait;
+            // fromEntity should throw BadMethodCallException
+            expect(fn(): object => $dto::fromEntity((object)['name' => 'Test']))
+                ->toThrow(BadMethodCallException::class, 'Doctrine ORM is not installed');
 
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toEntity'))->toBeFalse();
-        });
-
-        it('SimpleDtoDoctrineTrait is empty when Doctrine is not installed', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoDoctrineTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            // Trait should be empty - no methods should exist
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'fromEntity'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'toEntity'))->toBeFalse();
-        });
-
-        it('does not have fromEntity without SimpleDtoDoctrineTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromEntity'))->toBeFalse();
-        });
-
-        it('does not have toEntity without SimpleDtoDoctrineTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toEntity'))->toBeFalse();
+            // toEntity should throw BadMethodCallException
+            /** @phpstan-ignore-next-line argument.type */
+            expect(fn(): object => $instance->toEntity('SomeEntity'))
+                ->toThrow(BadMethodCallException::class, 'Doctrine ORM is not installed');
         });
     });
 
@@ -343,7 +187,7 @@ describe('Framework Independence', function(): void {
     });
 
     describe('Multiple Framework Traits', function(): void {
-        it('can use both SimpleDtoEloquentTrait and SimpleDtoDoctrineTrait (both empty when frameworks not installed)', function(): void {
+        it('can use both SimpleDtoEloquentTrait and SimpleDtoDoctrineTrait', function(): void {
             $dto = new class extends SimpleDto {
                 use SimpleDtoEloquentTrait;
                 use SimpleDtoDoctrineTrait;
@@ -354,16 +198,6 @@ describe('Framework Independence', function(): void {
             };
 
             $instance = $dto::fromArray([]);
-
-            // Both Eloquent and Doctrine methods do NOT exist when frameworks are not installed
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromModel'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toModel'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromEntity'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toEntity'))->toBeFalse();
 
             // Core functionality still works
             expect($instance->toArray())->toBe(['name' => 'Test']);

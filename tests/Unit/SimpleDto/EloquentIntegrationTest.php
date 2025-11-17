@@ -101,7 +101,10 @@ describe('Eloquent Integration', function(): void {
 
             /** @phpstan-ignore-next-line unknown */
             expect(fn(): object => $dto::fromModel($invalidModel))
-                ->toThrow(TypeError::class);
+                ->toThrow(
+                    InvalidArgumentException::class,
+                    'Model must be an instance of Illuminate\Database\Eloquent\Model'
+                );
         });
     });
 
@@ -119,6 +122,7 @@ describe('Eloquent Integration', function(): void {
             $instance = $dto::fromArray([]);
             $model = $instance->toModel(TestUserModel::class);
 
+            /** @phpstan-ignore-next-line method.notFound */
             expect($model->toArray())->toBe([
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
@@ -137,6 +141,7 @@ describe('Eloquent Integration', function(): void {
             $instance = $dto::fromArray([]);
             $model = $instance->toModel(TestUserModel::class, exists: true);
 
+            /** @phpstan-ignore-next-line property.notFound */
             expect($model->exists)->toBeTrue();
         });
 
@@ -152,6 +157,7 @@ describe('Eloquent Integration', function(): void {
             $instance = $dto::fromArray([]);
             $model = $instance->toModel(TestUserModel::class);
 
+            /** @phpstan-ignore-next-line property.notFound */
             expect($model->exists)->toBeFalse();
         });
 
@@ -217,6 +223,7 @@ describe('Eloquent Integration', function(): void {
             // Dto → Model
             $newModel = $dtoInstance->toModel(TestUserModel::class);
 
+            /** @phpstan-ignore-next-line method.notFound */
             expect($newModel->toArray())->toBe($originalModel->toArray());
         });
 
@@ -238,6 +245,7 @@ describe('Eloquent Integration', function(): void {
             $dto2 = $dto::fromModel($model2);
             $model3 = $dto2->toModel(TestUserModel::class);
 
+            /** @phpstan-ignore-next-line method.notFound */
             expect($model3->toArray())->toBe($model1->toArray());
         });
     });

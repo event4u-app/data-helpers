@@ -121,9 +121,13 @@ $newUser = $dto->toModel();
 ```
 
 :::tip[No Manual Trait Import Needed]
-The `SimpleDtoEloquentTrait` is **automatically included** in `SimpleDto` when Laravel is installed. You don't need to manually import it!
+The `SimpleDtoEloquentTrait` is **automatically included** in `SimpleDto`. You don't need to manually import it!
 
-The methods `fromModel()` and `toModel()` are automatically available when Laravel/Eloquent is detected.
+**How it works:**
+- The trait is always available at runtime
+- Methods `fromModel()` and `toModel()` check if Laravel/Eloquent is installed when called
+- If Laravel is not installed, a clear `BadMethodCallException` is thrown with installation instructions
+- This allows the same DTO code to work across different environments (plain PHP, Laravel, Symfony)
 :::
 
 📖 **[HasModel Attribute Details](/data-helpers/attributes/detailed/has-object/)** - Similar pattern to HasObject for plain PHP

@@ -56,7 +56,7 @@ class TestUserEntity
     }
 }
 
-describe('Doctrine Integration', function(): void {
+describe('SimpleDto Doctrine Integration', function(): void {
     describe('fromEntity()', function(): void {
         it('creates Dto from entity', function(): void {
             $dto = new class extends SimpleDto {
@@ -118,7 +118,7 @@ describe('Doctrine Integration', function(): void {
             expect($instance->email)->toBe('john@example.com');
             expect($instance->age)->toBeNull();
         });
-    });
+    })->group('doctrine');
 
     describe('toEntity()', function(): void {
         it('creates entity from Dto', function(): void {
@@ -160,7 +160,7 @@ describe('Doctrine Integration', function(): void {
             expect(fn(): object => $instance->toEntity('NonExistentClass'))
                 ->toThrow(InvalidArgumentException::class, 'Entity class NonExistentClass does not exist');
         });
-    });
+    })->group('doctrine');
 
     describe('Round-trip', function(): void {
         it('preserves data in round-trip', function(): void {
@@ -214,7 +214,7 @@ describe('Doctrine Integration', function(): void {
             /** @phpstan-ignore-next-line unknown */
             expect($entity3->getEmail())->toBe('test@example.com');
         });
-    });
+    })->group('doctrine');
 
     describe('Update Entity from Dto', function(): void {
         it('updates existing entity with Dto data', function(): void {
@@ -244,7 +244,7 @@ describe('Doctrine Integration', function(): void {
             expect($entity->getName())->toBe('New Name');
             expect($entity->getEmail())->toBe('new@example.com');
         });
-    });
+    })->group('doctrine');
 
     describe('Doctrine Entity with Getters/Setters', function(): void {
         it('uses EntityHelper to read entity properties via reflection', function(): void {
@@ -351,5 +351,5 @@ describe('Doctrine Integration', function(): void {
             /** @phpstan-ignore-next-line unknown */
             expect($entity->getLastName())->toBe('Doe');
         });
-    });
+    })->group('doctrine');
 })->group('doctrine');

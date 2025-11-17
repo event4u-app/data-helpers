@@ -206,7 +206,11 @@ $newProduct = $dto->toObject();  // Uses HasObject attribute
 :::tip[No Manual Trait Import Needed]
 The `SimpleDtoObjectTrait` is **automatically included** in `SimpleDto`. You don't need to manually import it!
 
-The methods `fromObject()` and `toObject()` are always available, even without any framework.
+**How it works:**
+- The trait is always available at runtime
+- Methods `fromObject()` and `toObject()` are always available, even without any framework
+- No runtime checks needed - plain object integration has no dependencies
+- Framework-specific traits (`SimpleDtoEloquentTrait`, `SimpleDtoDoctrineTrait`) are also included but throw `BadMethodCallException` if the framework is not installed
 :::
 
 ### With Getters and Setters

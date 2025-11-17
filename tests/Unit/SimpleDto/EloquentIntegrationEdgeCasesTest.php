@@ -263,7 +263,9 @@ describe('Eloquent Integration Edge Cases', function(): void {
             $newModel = $instance->toModel(EdgeCaseTestModel::class, exists: false);
             $existingModel = $instance->toModel(EdgeCaseTestModel::class, exists: true);
 
+            /** @phpstan-ignore-next-line property.notFound */
             expect($newModel->exists)->toBeFalse();
+            /** @phpstan-ignore-next-line property.notFound */
             expect($existingModel->exists)->toBeTrue();
         });
     });

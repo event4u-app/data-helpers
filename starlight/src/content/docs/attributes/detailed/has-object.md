@@ -70,9 +70,14 @@ $newProduct = $dto->toObject();
 The `SimpleDtoObjectTrait` is **automatically included** in `SimpleDto`. You don't need to manually import it!
 
 The same applies to framework-specific traits:
-- `SimpleDtoEloquentTrait` - Automatically available when Laravel is installed
-- `SimpleDtoDoctrineTrait` - Automatically available when Doctrine is installed
-- `SimpleDtoObjectTrait` - Always available (no framework required)
+- `SimpleDtoEloquentTrait` - **Always included**, methods throw `BadMethodCallException` if Laravel is not installed
+- `SimpleDtoDoctrineTrait` - **Always included**, methods throw `BadMethodCallException` if Doctrine is not installed
+- `SimpleDtoObjectTrait` - **Always included** (no framework required)
+
+**How it works:**
+- All traits are always available at runtime
+- Methods check if the required framework is installed when called
+- If framework is missing, a clear `BadMethodCallException` is thrown with installation instructions
 :::
 
 ### Without Attribute
@@ -106,7 +111,7 @@ use event4u\DataHelpers\Traits\ObjectMappingTrait;
 
 class ProductDto extends SimpleDto
 {
-    use SimpleDtoObjectTrait;
+    // No need to use SimpleDtoObjectTrait - it's automatically included!
 
     public function __construct(
         public readonly int $id,
@@ -374,9 +379,14 @@ $object = $dto->toObject(); // Uses HasObject attribute
 :::tip[No Manual Trait Import Needed]
 Framework integration traits are **automatically included** in `LiteDto`. You don't need to manually import them!
 
-- `LiteDtoObjectTrait` - Always available (no framework required)
-- `LiteDtoEloquentTrait` - Automatically available when Laravel is installed
-- `LiteDtoDoctrineTrait` - Automatically available when Doctrine is installed
+- `LiteDtoObjectTrait` - **Always included** (no framework required)
+- `LiteDtoEloquentTrait` - **Always included**, methods throw `BadMethodCallException` if Laravel is not installed
+- `LiteDtoDoctrineTrait` - **Always included**, methods throw `BadMethodCallException` if Doctrine is not installed
+
+**How it works:**
+- All traits are always available at runtime
+- Methods check if the required framework is installed when called
+- If framework is missing, a clear `BadMethodCallException` is thrown with installation instructions
 :::
 
 **Available LiteDto Attributes:**
@@ -398,7 +408,8 @@ Framework integration traits are **automatically included** in `LiteDto`. You do
 | Lazy Loading | ✅ Yes | ✅ Yes | ✅ Yes |
 | Collections | ✅ DataCollections | ✅ DataCollections | ✅ DataCollections |
 | ORM Features | ❌ No | ✅ Full Eloquent | ✅ Full Doctrine |
-| Auto-Included | ✅ Yes | ✅ Yes (when Laravel installed) | ✅ Yes (when Doctrine installed) |
+| Auto-Included | ✅ Always | ✅ Always (runtime check) | ✅ Always (runtime check) |
+| Runtime Check | ❌ No | ✅ Yes | ✅ Yes |
 
 ## Best Practices
 
@@ -411,7 +422,7 @@ Define `HasObject` or `HasDto` attributes to avoid passing class names:
 #[HasObject(Product::class)]
 class ProductDto extends SimpleDto
 {
-    use SimpleDtoObjectTrait;
+    // No need to use SimpleDtoObjectTrait - it's automatically included!
     // ...
 }
 

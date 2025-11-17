@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
+use Doctrine\ORM\EntityManagerInterface;
 use event4u\DataHelpers\SimpleDto\Attributes\HasObject;
 use InvalidArgumentException;
 use ReflectionClass;
@@ -85,20 +86,32 @@ trait SimpleDtoObjectTrait
     /**
      * Convert the Dto to a plain PHP object instance.
      *
-     * If no object class is provided, it will try to resolve it from the #[HasObject] attribute.
+     * If the object class is an Eloquent Model or Doctrine Entity, delegates to toModel() or toEntity().
+     * Otherwise creates a plain PHP object instance.
      *
-     * @param class-string|null $objectClass The object class (optional if #[HasObject] attribute is present)
+     * If no object class is provided, creates a stdClass object or tries to resolve from #[HasObject] attribute.
+     *
+     * @param class-string|null $objectClass The object class (optional - defaults to stdClass if no #[HasObject] attribute)
      * @param bool $includeTimestamps Whether to include timestamp fields (created_at, updated_at, deleted_at) (default: false)
+     * @param mixed ...$additionalParams Additional parameters to pass to toModel() or toEntity() (e.g., EntityManager for Doctrine)
      * @return object The object instance
      *
-     * @throws InvalidArgumentException If no object class is provided and no #[HasObject] attribute is found
      * @throws InvalidArgumentException If the object class does not exist
      */
-    public function toObject(?string $objectClass = null, bool $includeTimestamps = false): object
+    public function toObject(
+        ?string $objectClass = null,
+        bool $includeTimestamps = false,
+        mixed ...$additionalParams
+    ): object
     {
-        // If no object class provided, try to resolve from attribute
+        // If no object class provided, try to resolve from attribute or use stdClass
         if (null === $objectClass) {
-            $objectClass = $this->resolveObjectClass();
+            try {
+                $objectClass = $this->resolveObjectClass();
+            } catch (InvalidArgumentException) {
+                // No attribute found - use stdClass
+                $objectClass = 'stdClass';
+            }
         }
 
         // Check if object class exists
@@ -106,9 +119,28 @@ trait SimpleDtoObjectTrait
             throw new InvalidArgumentException(sprintf('Object class %s does not exist', $objectClass));
         }
 
-        // Create new instance
-        $reflection = new ReflectionClass($objectClass);
-        $object = $reflection->newInstanceWithoutConstructor();
+        // Check if object class is an Eloquent Model and toModel() method exists
+        if (class_exists('Illuminate\Database\Eloquent\Model') &&
+            is_subclass_of($objectClass, 'Illuminate\Database\Eloquent\Model') &&
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            method_exists($this, 'toModel')) {
+            return $this->toModel($objectClass, false, null, $includeTimestamps);
+        }
+
+        // Check if object class is a Doctrine Entity and toEntity() method exists
+        if (class_exists('Doctrine\ORM\EntityManagerInterface') &&
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            method_exists($this, 'toEntity')) {
+            // Extract EntityManager from additional params if provided
+            $entityManager = null;
+            foreach ($additionalParams as $param) {
+                if ($param instanceof EntityManagerInterface) {
+                    $entityManager = $param;
+                    break;
+                }
+            }
+            return $this->toEntity($objectClass, false, $includeTimestamps, $entityManager);
+        }
 
         // Get DTO data
         $data = $this->toArray();
@@ -121,6 +153,15 @@ trait SimpleDtoObjectTrait
                 ARRAY_FILTER_USE_KEY
             );
         }
+
+        // Special handling for stdClass - just cast array to object
+        if ('stdClass' === $objectClass) {
+            return (object)$data;
+        }
+
+        // Create new instance for plain PHP object
+        $reflection = new ReflectionClass($objectClass);
+        $object = $reflection->newInstanceWithoutConstructor();
 
         // Set properties on object
         foreach ($data as $key => $value) {

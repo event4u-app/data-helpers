@@ -6,7 +6,11 @@ use event4u\DataHelpers\LiteDto\LiteDto;
 
 describe('LiteDto Framework Independence', function(): void {
     describe('Laravel/Eloquent Integration', function(): void {
-        it('does not have fromModel method without Laravel/Eloquent', function(): void {
+        it('throws BadMethodCallException when Laravel is not installed', function(): void {
+            if (class_exists('Illuminate\Database\Eloquent\Model')) {
+                $this->markTestSkipped('Laravel Eloquent is installed - skipping test');
+            }
+
             $dto = new class extends LiteDto {
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -15,26 +19,29 @@ describe('LiteDto Framework Independence', function(): void {
 
             $instance = $dto::from(['name' => 'Test']);
 
-            // Method does not exist when Laravel is not installed
-            expect(method_exists($instance, 'fromModel'))->toBeFalse();
-        });
+            // Methods exist but throw BadMethodCallException when framework is not installed
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'fromModel'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'toModel'))->toBeTrue();
 
-        it('does not have toModel method without Laravel/Eloquent', function(): void {
-            $dto = new class extends LiteDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
+            // fromModel should throw BadMethodCallException
+            expect(fn(): object => $dto::fromModel((object)['name' => 'Test']))
+                ->toThrow(BadMethodCallException::class, 'Laravel Eloquent is not installed');
 
-            $instance = $dto::from(['name' => 'Test']);
-
-            // Method does not exist when Laravel is not installed
-            expect(method_exists($instance, 'toModel'))->toBeFalse();
+            // toModel should throw BadMethodCallException
+            /** @phpstan-ignore-next-line argument.type */
+            expect(fn(): object => $instance->toModel('SomeModel'))
+                ->toThrow(BadMethodCallException::class, 'Laravel Eloquent is not installed');
         });
     });
 
     describe('Doctrine Integration', function(): void {
-        it('does not have fromEntity method without Doctrine', function(): void {
+        it('throws BadMethodCallException when Doctrine is not installed', function(): void {
+            if (interface_exists('Doctrine\ORM\EntityManagerInterface')) {
+                $this->markTestSkipped('Doctrine is installed - skipping test');
+            }
+
             $dto = new class extends LiteDto {
                 public function __construct(
                     public readonly string $name = 'John Doe',
@@ -43,21 +50,20 @@ describe('LiteDto Framework Independence', function(): void {
 
             $instance = $dto::from(['name' => 'Test']);
 
-            // Method does not exist when Doctrine is not installed
-            expect(method_exists($instance, 'fromEntity'))->toBeFalse();
-        });
+            // Methods exist but throw BadMethodCallException when framework is not installed
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'fromEntity'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'toEntity'))->toBeTrue();
 
-        it('does not have toEntity method without Doctrine', function(): void {
-            $dto = new class extends LiteDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
+            // fromEntity should throw BadMethodCallException
+            expect(fn(): object => $dto::fromEntity((object)['name' => 'Test']))
+                ->toThrow(BadMethodCallException::class, 'Doctrine ORM is not installed');
 
-            $instance = $dto::from(['name' => 'Test']);
-
-            // Method does not exist when Doctrine is not installed
-            expect(method_exists($instance, 'toEntity'))->toBeFalse();
+            // toEntity should throw BadMethodCallException
+            /** @phpstan-ignore-next-line argument.type */
+            expect(fn(): object => $instance->toEntity('SomeEntity'))
+                ->toThrow(BadMethodCallException::class, 'Doctrine ORM is not installed');
         });
     });
 
@@ -72,6 +78,7 @@ describe('LiteDto Framework Independence', function(): void {
             $instance = $dto::from(['name' => 'Test']);
 
             // Method exists because LiteDtoObjectTrait is always available
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             expect(method_exists($instance, 'fromObject'))->toBeTrue();
         });
 
@@ -85,6 +92,7 @@ describe('LiteDto Framework Independence', function(): void {
             $instance = $dto::from(['name' => 'Test']);
 
             // Method exists because LiteDtoObjectTrait is always available
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             expect(method_exists($instance, 'toObject'))->toBeTrue();
         });
 
@@ -115,7 +123,9 @@ describe('LiteDto Framework Independence', function(): void {
             $object = $instance->toObject();
 
             expect($object)->toBeObject();
+            /** @phpstan-ignore-next-line property.notFound */
             expect($object->name)->toBe('Jane');
+            /** @phpstan-ignore-next-line property.notFound */
             expect($object->age)->toBe(25);
         });
     });
@@ -134,14 +144,20 @@ describe('LiteDto Framework Independence', function(): void {
             expect($instance->toArray())->toBe(['name' => 'Test']);
             expect(json_encode($instance))->toBeJson();
 
-            // Framework-specific methods do not exist when frameworks are not installed
-            expect(method_exists($instance, 'fromModel'))->toBeFalse();
-            expect(method_exists($instance, 'toModel'))->toBeFalse();
-            expect(method_exists($instance, 'fromEntity'))->toBeFalse();
-            expect(method_exists($instance, 'toEntity'))->toBeFalse();
+            // Framework-specific methods exist (from traits)
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'fromModel'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'toModel'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'fromEntity'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            expect(method_exists($instance, 'toEntity'))->toBeTrue();
 
             // Object methods are always available
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             expect(method_exists($instance, 'fromObject'))->toBeTrue();
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             expect(method_exists($instance, 'toObject'))->toBeTrue();
         });
     });
