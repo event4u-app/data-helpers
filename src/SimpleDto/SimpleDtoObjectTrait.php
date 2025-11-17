@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\SimpleDto;
 
-use Doctrine\ORM\EntityManagerInterface;
 use event4u\DataHelpers\SimpleDto\Attributes\HasObject;
+use event4u\DataHelpers\Support\Traits\BaseObjectTrait;
 use InvalidArgumentException;
 use ReflectionClass;
-use ReflectionProperty;
-use Throwable;
 
 /**
  * Trait providing plain PHP object integration for SimpleDtos.
@@ -42,6 +40,8 @@ use Throwable;
  */
 trait SimpleDtoObjectTrait
 {
+    use BaseObjectTrait;
+
     /**
      * Create a Dto instance from a plain PHP object.
      *
@@ -52,34 +52,7 @@ trait SimpleDtoObjectTrait
      */
     public static function fromObject(object $object): static
     {
-        $reflection = new ReflectionClass($object);
-        $data = [];
-
-        // Get all public properties
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
-            $propertyName = $reflectionProperty->getName();
-            $data[$propertyName] = $reflectionProperty->getValue($object);
-        }
-
-        // Also try to get properties via getter methods
-        foreach ($reflection->getMethods() as $reflectionMethod) {
-            $methodName = $reflectionMethod->getName();
-
-            // Check for getter methods (get*, is*, has*)
-            if (preg_match('/^(get|is|has)([A-Z].*)$/', $methodName, $matches)) {
-                $propertyName = lcfirst($matches[2]);
-
-                // Only add if not already present and method has no parameters
-                if (!isset($data[$propertyName]) && 0 === $reflectionMethod->getNumberOfParameters()) {
-                    try {
-                        $data[$propertyName] = $reflectionMethod->invoke($object);
-                    } catch (Throwable) {
-                        // Skip if getter throws exception
-                    }
-                }
-            }
-        }
-
+        $data = static::extractObjectData($object);
         return static::fromArray($data);
     }
 
@@ -114,79 +87,30 @@ trait SimpleDtoObjectTrait
             }
         }
 
-        // Check if object class exists
-        if (!class_exists($objectClass)) {
-            throw new InvalidArgumentException(sprintf('Object class %s does not exist', $objectClass));
-        }
+        // Validate object class
+        static::validateObjectClass($objectClass);
 
         // Check if object class is an Eloquent Model and toModel() method exists
-        if (class_exists('Illuminate\Database\Eloquent\Model') &&
-            is_subclass_of($objectClass, 'Illuminate\Database\Eloquent\Model') &&
+        if (static::isEloquentModel($objectClass) &&
             /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             method_exists($this, 'toModel')) {
             return $this->toModel($objectClass, false, null, $includeTimestamps);
         }
 
         // Check if object class is a Doctrine Entity and toEntity() method exists
-        if (class_exists('Doctrine\ORM\EntityManagerInterface') &&
+        if (static::isDoctrineEntity($objectClass) &&
             /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             method_exists($this, 'toEntity')) {
-            // Extract EntityManager from additional params if provided
-            $entityManager = null;
-            foreach ($additionalParams as $param) {
-                if ($param instanceof EntityManagerInterface) {
-                    $entityManager = $param;
-                    break;
-                }
-            }
+            $entityManager = static::extractEntityManager($additionalParams);
             return $this->toEntity($objectClass, false, $includeTimestamps, $entityManager);
         }
 
-        // Get DTO data
+        // Get DTO data and filter timestamps
         $data = $this->toArray();
+        $data = static::filterObjectTimestamps($data, $includeTimestamps);
 
-        // Filter out timestamp fields if not included
-        if (!$includeTimestamps) {
-            $data = array_filter(
-                $data,
-                fn($key): bool => !in_array($key, ['created_at', 'updated_at', 'deleted_at'], true),
-                ARRAY_FILTER_USE_KEY
-            );
-        }
-
-        // Special handling for stdClass - just cast array to object
-        if ('stdClass' === $objectClass) {
-            return (object)$data;
-        }
-
-        // Create new instance for plain PHP object
-        $reflection = new ReflectionClass($objectClass);
-        $object = $reflection->newInstanceWithoutConstructor();
-
-        // Set properties on object
-        foreach ($data as $key => $value) {
-            // Try to set via public property
-            if ($reflection->hasProperty($key)) {
-                $property = $reflection->getProperty($key);
-
-                if ($property->isPublic()) {
-                    $property->setValue($object, $value);
-                    continue;
-                }
-            }
-
-            // Try to set via setter method
-            $setterMethod = 'set' . ucfirst($key);
-            if ($reflection->hasMethod($setterMethod)) {
-                $method = $reflection->getMethod($setterMethod);
-
-                if ($method->isPublic() && 1 === $method->getNumberOfParameters()) {
-                    $method->invoke($object, $value);
-                }
-            }
-        }
-
-        return $object;
+        // Create plain PHP object
+        return static::createPlainObject($objectClass, $data);
     }
 
     /**
@@ -196,7 +120,7 @@ trait SimpleDtoObjectTrait
      *
      * @throws InvalidArgumentException If no #[HasObject] attribute is found
      */
-    private function resolveObjectClass(): string
+    protected function resolveObjectClass(): string
     {
         $reflection = new ReflectionClass($this);
         $attributes = $reflection->getAttributes(HasObject::class);

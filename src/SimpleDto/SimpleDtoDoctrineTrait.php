@@ -9,11 +9,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use event4u\DataHelpers\SimpleDto\Attributes\HasEntity;
 use event4u\DataHelpers\SimpleDto\Attributes\Map;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
-use event4u\DataHelpers\Support\EntityHelper;
+use event4u\DataHelpers\Support\Traits\BaseDoctrineTrait;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionProperty;
-use Throwable;
 
 /**
  * Trait providing Doctrine Entity integration for SimpleDtos.
@@ -24,6 +23,8 @@ use Throwable;
  */
 trait SimpleDtoDoctrineTrait
 {
+    use BaseDoctrineTrait;
+
     /**
      * Create a Dto instance from a Doctrine Entity.
      *
@@ -32,12 +33,10 @@ trait SimpleDtoDoctrineTrait
      */
     public static function fromEntity(object $entity): static
     {
-        if (!interface_exists('Doctrine\ORM\EntityManagerInterface')) {
-            throw new BadMethodCallException('Doctrine ORM is not installed. Please install doctrine/orm package.');
-        }
+        static::ensureDoctrineIsInstalled();
 
         // Get all entity attributes using EntityHelper
-        $data = EntityHelper::toArray($entity);
+        $data = static::entityToArray($entity);
 
         // Create Dto from array
         return static::fromArray($data);
@@ -69,50 +68,28 @@ trait SimpleDtoDoctrineTrait
         ?object $entityManager = null
     ): object
     {
-        if (!interface_exists('Doctrine\ORM\EntityManagerInterface')) {
-            throw new BadMethodCallException('Doctrine ORM is not installed. Please install doctrine/orm package.');
-        }
+        static::ensureDoctrineIsInstalled();
 
         // If no entity class provided, try to resolve from attribute
         if (null === $entityClass) {
             $entityClass = $this->resolveEntityClass();
         }
 
-        // Check if entity class exists
-        if (!class_exists($entityClass)) {
-            throw new InvalidArgumentException(sprintf('Entity class %s does not exist', $entityClass));
-        }
+        // Validate entity class
+        static::validateEntityClass($entityClass);
 
         // Try to load existing entity from database if EntityManager is provided
         $entity = null;
-        if (null !== $entityManager) {
-            /** @var EntityManagerInterface $entityManager */
-            $metadata = $entityManager->getClassMetadata($entityClass);
-            $identifierFields = $metadata->getIdentifier();
-
-            // Check if all identifier fields are present in DTO (considering mapping attributes)
-            $identifierValues = [];
-            $allIdentifiersPresent = true;
-            foreach ($identifierFields as $identifierField) {
-                $value = $this->findDoctrinePrimaryKeyValue($identifierField);
-                if (null !== $value) {
-                    $identifierValues[$identifierField] = $value;
-                } else {
-                    $allIdentifiersPresent = false;
-                    break;
-                }
-            }
+        if (null !== $entityManager && $entityManager instanceof EntityManagerInterface) {
+            $identifierInfo = $this->getIdentifierFieldsAndValues($entityManager, $entityClass);
 
             // Load entity if all identifiers are present
-            if ($allIdentifiersPresent && [] !== $identifierValues) {
-                try {
-                    // For composite keys, pass array; for single key, pass value directly
-                    $identifier = count($identifierValues) === 1 ? reset($identifierValues) : $identifierValues;
-                    $entity = $entityManager->find($entityClass, $identifier);
-                } catch (Throwable) {
-                    // If database query fails (e.g., no connection, table doesn't exist), create new instance
-                    $entity = null;
-                }
+            if ($identifierInfo['allPresent'] && [] !== $identifierInfo['values']) {
+                // For composite keys, pass array; for single key, pass value directly
+                $identifier = count($identifierInfo['values']) === 1
+                    ? reset($identifierInfo['values'])
+                    : $identifierInfo['values'];
+                $entity = static::loadExistingEntity($entityManager, $entityClass, $identifier);
             }
         }
 
@@ -121,22 +98,12 @@ trait SimpleDtoDoctrineTrait
             $entity = new $entityClass();
         }
 
-        // Get Dto data
+        // Get Dto data and filter timestamps
         $data = $this->toArray();
+        $data = static::filterDoctrineTimestamps($data, $includeTimestamps);
 
-        // Filter out timestamp fields if not included
-        if (!$includeTimestamps) {
-            $data = array_filter(
-                $data,
-                fn($key): bool => !in_array($key, ['created_at', 'updated_at', 'deleted_at'], true),
-                ARRAY_FILTER_USE_KEY
-            );
-        }
-
-        // Fill entity with Dto data using EntityHelper
-        foreach ($data as $key => $value) {
-            EntityHelper::setAttribute($entity, $key, $value);
-        }
+        // Fill entity with Dto data
+        $this->setEntityProperties($entity, $data);
 
         return $entity;
     }
@@ -148,7 +115,7 @@ trait SimpleDtoDoctrineTrait
      *
      * @throws InvalidArgumentException If no #[HasEntity] attribute is found
      */
-    private function resolveEntityClass(): string
+    protected function resolveEntityClass(): string
     {
         $reflection = new ReflectionClass($this);
         $attributes = $reflection->getAttributes(HasEntity::class);
@@ -180,7 +147,7 @@ trait SimpleDtoDoctrineTrait
      * @param string $primaryKeyName The primary key field name from the Entity
      * @return mixed The primary key value, or null if not found
      */
-    private function findDoctrinePrimaryKeyValue(string $primaryKeyName): mixed
+    protected function findDoctrinePrimaryKeyValue(string $primaryKeyName): mixed
     {
         $reflection = new ReflectionClass($this);
 

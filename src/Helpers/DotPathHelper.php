@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Helpers;
 
+use event4u\DataHelpers\Support\Cache\PathParsingCache;
 use InvalidArgumentException;
 
 /**
@@ -15,14 +16,10 @@ use InvalidArgumentException;
  */
 class DotPathHelper
 {
-    /** @var array<string, array<int, string>> */
-    private static array $segmentsCache = [];
-
-    /** @var array<string, bool> */
-    private static array $wildcardCache = [];
-
     /**
      * Split a dot-notation string into segments (cached).
+     *
+     * Phase 3 Enhancement: Uses PathParsingCache for better cache management.
      *
      * Empty segments are not allowed. The following are invalid and will throw InvalidArgumentException:
      * - Leading or trailing dot: ".a", "a."
@@ -34,37 +31,7 @@ class DotPathHelper
      */
     public static function segments(string $path): array
     {
-        // Check cache first
-        if (array_key_exists($path, self::$segmentsCache)) {
-            return self::$segmentsCache[$path];
-        }
-
-        if ('' === $path) {
-            return self::$segmentsCache[$path] = [];
-        }
-
-        // Fast checks for empty segments with specific messages
-        if ('.' === $path[0]) {
-            throw new InvalidArgumentException('Invalid dot-path syntax: leading dot in "' . $path . '"');
-        }
-        if (str_ends_with($path, '.')) {
-            throw new InvalidArgumentException('Invalid dot-path syntax: trailing dot in "' . $path . '"');
-        }
-        if (str_contains($path, '..')) {
-            throw new InvalidArgumentException('Invalid dot-path syntax: double dot in "' . $path . '"');
-        }
-
-        $segments = explode('.', $path);
-
-        // Defensive check (covers rare cases like "a." or ".a" even if above changes)
-        foreach ($segments as $seg) {
-            if ('' === $seg) {
-                throw new InvalidArgumentException('Invalid dot-path syntax: empty segment in "' . $path . '"');
-            }
-        }
-
-        // Cache and return
-        return self::$segmentsCache[$path] = $segments;
+        return PathParsingCache::getSegments($path);
     }
 
     /** Join prefix and next segment into a new dot-path. */
@@ -79,21 +46,13 @@ class DotPathHelper
         return '*' === $segment;
     }
 
-    /** Detect if a path contains at least one wildcard (cached). Validates syntax and throws on invalid paths. */
+    /**
+     * Detect if a path contains at least one wildcard (cached).
+     *
+     * Phase 3 Enhancement: Uses PathParsingCache for better cache management.
+     */
     public static function containsWildcard(string $path): bool
     {
-        // Check cache first
-        if (array_key_exists($path, self::$wildcardCache)) {
-            return self::$wildcardCache[$path];
-        }
-
-        if ('' === $path) {
-            return self::$wildcardCache[$path] = false;
-        }
-
-        // Reuse validation logic
-        self::segments($path); // will throw on invalid syntax
-
-        return self::$wildcardCache[$path] = str_contains($path, '*');
+        return PathParsingCache::hasWildcard($path);
     }
 }

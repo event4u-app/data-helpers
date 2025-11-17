@@ -7,6 +7,7 @@ namespace event4u\DataHelpers;
 use event4u\DataHelpers\Exceptions\TypeMismatchException;
 use event4u\DataHelpers\Helpers\DotPathHelper;
 use event4u\DataHelpers\Support\ArrayableHelper;
+use event4u\DataHelpers\Support\Cache\PathParsingCache;
 use event4u\DataHelpers\Support\CollectionHelper;
 use event4u\DataHelpers\Support\EntityHelper;
 use Generator;
@@ -18,14 +19,6 @@ class DataAccessor
 {
     /** @var array<int|string, mixed> */
     private array $data;
-
-    /**
-     * Static path cache for compiled access paths.
-     * Stores pre-computed path information to avoid repeated parsing.
-     *
-     * @var array<string, array{segments: array<int, string>, hasWildcard: bool}>
-     */
-    private static array $pathCache = [];
 
     /**
      * Create a new DataAccessor instance (factory method).
@@ -537,23 +530,15 @@ class DataAccessor
     }
 
     /**
-     * Get compiled path information from static cache.
+     * Get compiled path information from cache.
      *
-     * @return array{segments: array<int, string>, hasWildcard: bool}
+     * Phase 3 Enhancement: Uses PathParsingCache for better cache management.
+     *
+     * @return array{segments: array<int, string>, hasWildcard: bool, depth: int}
      */
     private function getPathInfo(string $path): array
     {
-        if (isset(self::$pathCache[$path])) {
-            return self::$pathCache[$path];
-        }
-
-        $segments = DotPathHelper::segments($path);
-        $hasWildcard = DotPathHelper::containsWildcard($path);
-
-        return self::$pathCache[$path] = [
-            'segments' => $segments,
-            'hasWildcard' => $hasWildcard,
-        ];
+        return PathParsingCache::compile($path);
     }
 
     /**
