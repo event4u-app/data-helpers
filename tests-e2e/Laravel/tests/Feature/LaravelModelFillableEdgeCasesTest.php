@@ -128,7 +128,7 @@ describe('Laravel LaravelModelFillable Edge Cases E2E', function(): void {
         $model = $dto->toModel(User::class, exists: true, fillable: ['*']); // @phpstan-ignore argument.type
 
         expect($model)->toBeInstanceOf(User::class);
-        expect($model->exists)->toBeTrue();
+        expect($model->exists)->toBeTrue(); // @phpstan-ignore property.notFound
         expect($model->name)->toBe('Exists Test'); // @phpstan-ignore property.notFound
         expect($model->email)->toBe('exists@test.com'); // @phpstan-ignore property.notFound
         expect($model->role)->toBe('editor'); // @phpstan-ignore property.notFound

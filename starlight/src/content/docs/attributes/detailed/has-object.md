@@ -35,7 +35,6 @@ The `#[HasObject]` attribute links a DTO to a plain PHP object class, enabling a
 ```php
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\HasObject;
-use event4u\DataHelpers\SimpleDto\SimpleDtoObjectTrait;
 
 // Plain PHP object
 class Product
@@ -49,8 +48,6 @@ class Product
 #[HasObject(Product::class)]
 class ProductDto extends SimpleDto
 {
-    use SimpleDtoObjectTrait;
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -69,6 +66,20 @@ $dto = ProductDto::fromObject($product);
 $newProduct = $dto->toObject();
 ```
 
+:::tip[No Manual Trait Import Needed]
+The `SimpleDtoObjectTrait` is **automatically included** in `SimpleDto`. You don't need to manually import it!
+
+The same applies to framework-specific traits:
+- `SimpleDtoEloquentTrait` - **Always included**, methods throw `BadMethodCallException` if Laravel is not installed
+- `SimpleDtoDoctrineTrait` - **Always included**, methods throw `BadMethodCallException` if Doctrine is not installed
+- `SimpleDtoObjectTrait` - **Always included** (no framework required)
+
+**How it works:**
+- All traits are always available at runtime
+- Methods check if the required framework is installed when called
+- If framework is missing, a clear `BadMethodCallException` is thrown with installation instructions
+:::
+
 ### Without Attribute
 
 You can also specify the class explicitly:
@@ -76,8 +87,6 @@ You can also specify the class explicitly:
 ```php
 class ProductDto extends SimpleDto
 {
-    use SimpleDtoObjectTrait;
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -102,7 +111,7 @@ use event4u\DataHelpers\Traits\ObjectMappingTrait;
 
 class ProductDto extends SimpleDto
 {
-    use SimpleDtoObjectTrait;
+    // No need to use SimpleDtoObjectTrait - it's automatically included!
 
     public function __construct(
         public readonly int $id,
@@ -181,8 +190,6 @@ class Customer
 #[HasObject(Customer::class)]
 class CustomerDto extends SimpleDto
 {
-    use SimpleDtoObjectTrait;
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -275,13 +282,10 @@ For Laravel applications, use `#[HasModel]` instead:
 ```php
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\HasModel;
-use event4u\DataHelpers\SimpleDto\SimpleDtoEloquentTrait;
 
 #[HasModel(User::class)]
 class UserDto extends SimpleDto
 {
-    use SimpleDtoEloquentTrait;
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -314,13 +318,10 @@ For Symfony applications with Doctrine, use `#[HasEntity]` instead:
 ```php
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\HasEntity;
-use event4u\DataHelpers\SimpleDto\SimpleDtoEntityTrait;
 
 #[HasEntity(User::class)]
 class UserDto extends SimpleDto
 {
-    use SimpleDtoEntityTrait;
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -348,19 +349,67 @@ $entityManager->flush();
 
 📖 **[Complete Doctrine Integration Guide](/data-helpers/framework-integration/doctrine/)**
 
+## LiteDto Support
+
+All attributes and traits are also available for **LiteDto**:
+
+```php
+use event4u\DataHelpers\LiteDto\LiteDto;
+use event4u\DataHelpers\LiteDto\Attributes\HasObject;
+
+#[HasObject(Product::class)]
+class ProductDto extends LiteDto
+{
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+        public readonly float $price,
+    ) {}
+}
+
+// Usage
+$product = new Product();
+$product->name = 'Laptop';
+$product->price = 999.99;
+
+$dto = ProductDto::fromObject($product);
+$object = $dto->toObject(); // Uses HasObject attribute
+```
+
+:::tip[No Manual Trait Import Needed]
+Framework integration traits are **automatically included** in `LiteDto`. You don't need to manually import them!
+
+- `LiteDtoObjectTrait` - **Always included** (no framework required)
+- `LiteDtoEloquentTrait` - **Always included**, methods throw `BadMethodCallException` if Laravel is not installed
+- `LiteDtoDoctrineTrait` - **Always included**, methods throw `BadMethodCallException` if Doctrine is not installed
+
+**How it works:**
+- All traits are always available at runtime
+- Methods check if the required framework is installed when called
+- If framework is missing, a clear `BadMethodCallException` is thrown with installation instructions
+:::
+
+**Available LiteDto Attributes:**
+- `#[HasObject]` - Links DTO to plain PHP object
+- `#[HasModel]` - Links DTO to Laravel Eloquent Model
+- `#[HasEntity]` - Links DTO to Symfony Doctrine Entity
+- `#[HasDto]` - Links object/model/entity to DTO
+
 ## Comparison with Framework Integration
 
 | Feature | Plain Object | Eloquent Model | Doctrine Entity |
 |---------|-------------|----------------|-----------------|
-| Trait for DTO | `SimpleDtoObjectTrait` | `SimpleDtoEloquentTrait` | `SimpleDtoEntityTrait` |
-| Trait for Object | `ObjectMappingTrait` | `DtoMappingTrait` | `DtoMappingTrait` |
+| DTO Trait | `SimpleDtoObjectTrait` | `SimpleDtoEloquentTrait` | `SimpleDtoDoctrineTrait` |
+| Object Trait | `ObjectMappingTrait` | `DtoMappingTrait` | `DtoMappingTrait` |
 | Attribute | `HasObject` | `HasModel` | `HasEntity` |
 | Dependencies | None | Laravel/Eloquent | Symfony/Doctrine |
 | Use Case | Plain PHP | Laravel apps | Symfony apps |
 | Relationships | ❌ Manual | ✅ Automatic | ✅ Automatic |
-| Lazy Loading | ❌ No | ✅ Yes | ✅ Yes |
-| Collections | ❌ Arrays only | ✅ Eloquent Collections | ✅ Doctrine Collections |
+| Lazy Loading | ✅ Yes | ✅ Yes | ✅ Yes |
+| Collections | ✅ DataCollections | ✅ DataCollections | ✅ DataCollections |
 | ORM Features | ❌ No | ✅ Full Eloquent | ✅ Full Doctrine |
+| Auto-Included | ✅ Always | ✅ Always (runtime check) | ✅ Always (runtime check) |
+| Runtime Check | ❌ No | ✅ Yes | ✅ Yes |
 
 ## Best Practices
 
@@ -373,7 +422,7 @@ Define `HasObject` or `HasDto` attributes to avoid passing class names:
 #[HasObject(Product::class)]
 class ProductDto extends SimpleDto
 {
-    use SimpleDtoObjectTrait;
+    // No need to use SimpleDtoObjectTrait - it's automatically included!
     // ...
 }
 

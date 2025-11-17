@@ -65,6 +65,10 @@ use UnitEnum;
  */
 abstract class LiteDto implements JsonSerializable, Stringable, ArrayAccess
 {
+    // Framework integration traits - always included, check availability internally
+    use LiteDtoEloquentTrait;
+    use LiteDtoDoctrineTrait;
+    use LiteDtoObjectTrait;
     /**
      * Create DTO from data.
      *

@@ -25,43 +25,14 @@ describe('Framework Independence', function(): void {
                 'email' => 'john@example.com',
             ]);
         });
-
-        it('does not have fromModel method without SimpleDtoEloquentTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromModel'))->toBeFalse();
-        });
-
-        it('does not have toModel method without SimpleDtoEloquentTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toModel'))->toBeFalse();
-        });
     });
 
     describe('SimpleDtoEloquentTrait (Laravel/Eloquent)', function(): void {
-        it('requires Illuminate\Database\Eloquent\Model to be available', function(): void {
-            if (!class_exists('Illuminate\Database\Eloquent\Model')) {
-                $this->markTestSkipped('Laravel Eloquent not available');
+        it('throws BadMethodCallException when Laravel is not installed', function(): void {
+            if (class_exists('Illuminate\Database\Eloquent\Model')) {
+                $this->markTestSkipped('Laravel Eloquent is installed - skipping test');
             }
-            expect(class_exists('Illuminate\Database\Eloquent\Model'))->toBeTrue();
-        });
 
-        it('has fromModel method when using SimpleDtoEloquentTrait', function(): void {
             $dto = new class extends SimpleDto {
                 use SimpleDtoEloquentTrait;
 
@@ -72,89 +43,20 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line unknown */
+            // Methods exist but throw BadMethodCallException when framework is not installed
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             expect(method_exists($instance, 'fromModel'))->toBeTrue();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'fromModel'))->toBeTrue();
-        });
-
-        it('has toModel method when using SimpleDtoEloquentTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             expect(method_exists($instance, 'toModel'))->toBeTrue();
-        });
 
-        it('fromModel is a static method', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
+            // fromModel should throw BadMethodCallException
+            expect(fn(): object => $dto::fromModel((object)['name' => 'Test']))
+                ->toThrow(BadMethodCallException::class, 'Laravel Eloquent is not installed');
 
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $reflection = new ReflectionMethod($dto, 'fromModel');
-
-            expect($reflection->isStatic())->toBeTrue();
-        });
-
-        it('toModel is an instance method', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $reflection = new ReflectionMethod($dto, 'toModel');
-
-            expect($reflection->isStatic())->toBeFalse();
-        });
-
-        it('fromModel requires Illuminate\Database\Eloquent\Model parameter', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $reflection = new ReflectionMethod($dto, 'fromModel');
-            $parameters = $reflection->getParameters();
-
-            $paramType = $parameters[0]->getType();
-            assert($paramType instanceof ReflectionNamedType);
-
-            expect($parameters)->toHaveCount(1);
-            expect($parameters[0]->getName())->toBe('model');
-            expect($paramType->getName())->toBe('Illuminate\Database\Eloquent\Model');
-        });
-
-        it('toModel returns Illuminate\Database\Eloquent\Model', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $reflection = new ReflectionMethod($dto, 'toModel');
-            $returnType = $reflection->getReturnType();
-            assert($returnType instanceof ReflectionNamedType);
-
-            expect($returnType->getName())->toBe('Illuminate\Database\Eloquent\Model');
+            // toModel should throw BadMethodCallException
+            /** @phpstan-ignore-next-line argument.type */
+            expect(fn(): object => $instance->toModel('SomeModel'))
+                ->toThrow(BadMethodCallException::class, 'Laravel Eloquent is not installed');
         });
     });
 
@@ -198,34 +100,6 @@ describe('Framework Independence', function(): void {
             // Core functionality works
             expect($instance->toArray())->toBe(['name' => 'Test']);
             expect(json_encode($instance))->toBeJson();
-
-            // Eloquent methods not available
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromModel'))->toBeFalse();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toModel'))->toBeFalse();
-        });
-
-        it('can use SimpleDtoTrait with SimpleDtoEloquentTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'Test',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            // Core functionality works
-            expect($instance->toArray())->toBe(['name' => 'Test']);
-            expect(json_encode($instance))->toBeJson();
-
-            // Eloquent methods available
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromModel'))->toBeTrue();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toModel'))->toBeTrue();
         });
 
         it('SimpleDtoEloquentTrait does not interfere with core functionality', function(): void {
@@ -254,33 +128,12 @@ describe('Framework Independence', function(): void {
         });
     });
 
-    describe('Error Handling', function(): void {
-        it('SimpleDtoEloquentTrait cannot be used without Eloquent Model', function(): void {
-            // This test verifies that the trait requires Eloquent Model
-            // If Eloquent is not available, the trait will cause a fatal error
-            // In our test environment, Eloquent IS available, so we just verify the type hints
-
-            $dto = new class extends SimpleDto {
-                use SimpleDtoEloquentTrait;
-
-                public function __construct(
-                    public readonly string $name = 'Test',
-                ) {}
-            };
-
-            $reflection = new ReflectionMethod($dto, 'fromModel');
-            $parameters = $reflection->getParameters();
-            $paramType = $parameters[0]->getType();
-            assert($paramType instanceof ReflectionNamedType);
-
-            // Verify that the parameter type is Eloquent Model
-            expect($paramType->getName())->toBe('Illuminate\Database\Eloquent\Model');
-            expect($paramType->allowsNull())->toBeFalse();
-        });
-    });
-
     describe('SimpleDtoDoctrineTrait (Doctrine/Symfony)', function(): void {
-        it('has fromEntity method when using SimpleDtoDoctrineTrait', function(): void {
+        it('throws BadMethodCallException when Doctrine is not installed', function(): void {
+            if (interface_exists('Doctrine\ORM\EntityManagerInterface')) {
+                $this->markTestSkipped('Doctrine is installed - skipping test');
+            }
+
             $dto = new class extends SimpleDto {
                 use SimpleDtoDoctrineTrait;
 
@@ -291,115 +144,20 @@ describe('Framework Independence', function(): void {
 
             $instance = $dto::fromArray([]);
 
-            /** @phpstan-ignore-next-line unknown */
+            // Methods exist but throw BadMethodCallException when framework is not installed
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             expect(method_exists($instance, 'fromEntity'))->toBeTrue();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($dto, 'fromEntity'))->toBeTrue();
-        });
-
-        it('has toEntity method when using SimpleDtoDoctrineTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoDoctrineTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
             expect(method_exists($instance, 'toEntity'))->toBeTrue();
-        });
 
-        it('fromEntity is a static method', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoDoctrineTrait;
+            // fromEntity should throw BadMethodCallException
+            expect(fn(): object => $dto::fromEntity((object)['name' => 'Test']))
+                ->toThrow(BadMethodCallException::class, 'Doctrine ORM is not installed');
 
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $reflection = new ReflectionMethod($dto, 'fromEntity');
-
-            expect($reflection->isStatic())->toBeTrue();
-        });
-
-        it('toEntity is an instance method', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoDoctrineTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $reflection = new ReflectionMethod($dto, 'toEntity');
-
-            expect($reflection->isStatic())->toBeFalse();
-        });
-
-        it('fromEntity requires object parameter', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoDoctrineTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $reflection = new ReflectionMethod($dto, 'fromEntity');
-            $parameters = $reflection->getParameters();
-
-            expect($parameters)->toHaveCount(1);
-            expect($parameters[0]->getName())->toBe('entity');
-
-            $paramType = $parameters[0]->getType();
-            assert($paramType instanceof ReflectionNamedType);
-            expect($paramType->getName())->toBe('object');
-        });
-
-        it('toEntity returns object', function(): void {
-            $dto = new class extends SimpleDto {
-                use SimpleDtoDoctrineTrait;
-
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $reflection = new ReflectionMethod($dto, 'toEntity');
-            $returnType = $reflection->getReturnType();
-
-            assert($returnType instanceof ReflectionNamedType);
-            expect($returnType->getName())->toBe('object');
-        });
-
-        it('does not have fromEntity without SimpleDtoDoctrineTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromEntity'))->toBeFalse();
-        });
-
-        it('does not have toEntity without SimpleDtoDoctrineTrait', function(): void {
-            $dto = new class extends SimpleDto {
-                public function __construct(
-                    public readonly string $name = 'John Doe',
-                ) {}
-            };
-
-            $instance = $dto::fromArray([]);
-
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toEntity'))->toBeFalse();
+            // toEntity should throw BadMethodCallException
+            /** @phpstan-ignore-next-line argument.type */
+            expect(fn(): object => $instance->toEntity('SomeEntity'))
+                ->toThrow(BadMethodCallException::class, 'Doctrine ORM is not installed');
         });
     });
 
@@ -440,16 +198,6 @@ describe('Framework Independence', function(): void {
             };
 
             $instance = $dto::fromArray([]);
-
-            // Both Eloquent and Doctrine methods available
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromModel'))->toBeTrue();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toModel'))->toBeTrue();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'fromEntity'))->toBeTrue();
-            /** @phpstan-ignore-next-line unknown */
-            expect(method_exists($instance, 'toEntity'))->toBeTrue();
 
             // Core functionality still works
             expect($instance->toArray())->toBe(['name' => 'Test']);

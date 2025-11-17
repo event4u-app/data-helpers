@@ -2,25 +2,26 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\SimpleDto;
+namespace event4u\DataHelpers\LiteDto;
 
 use Doctrine\ORM\EntityManagerInterface;
-use event4u\DataHelpers\SimpleDto\Attributes\HasObject;
+use event4u\DataHelpers\LiteDto\Attributes\HasObject;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionProperty;
+use stdClass;
 use Throwable;
 
 /**
- * Trait providing plain PHP object integration for SimpleDtos.
+ * Trait providing plain PHP object integration for LiteDtos.
  *
  * This trait provides methods to convert between Dtos and plain PHP objects.
  *
  * Usage:
  * ```php
- * class ProductDto extends SimpleDto
+ * class ProductDto extends LiteDto
  * {
- *     use SimpleDtoObjectTrait;
+ *     use LiteDtoObjectTrait;
  *
  *     public function __construct(
  *         public readonly string $name,
@@ -40,7 +41,7 @@ use Throwable;
  *
  * @phpstan-ignore trait.unused (Optional trait for plain PHP object integration)
  */
-trait SimpleDtoObjectTrait
+trait LiteDtoObjectTrait
 {
     /**
      * Create a Dto instance from a plain PHP object.
@@ -52,6 +53,12 @@ trait SimpleDtoObjectTrait
      */
     public static function fromObject(object $object): static
     {
+        // For stdClass and objects with dynamic properties, use get_object_vars()
+        if ($object instanceof stdClass) {
+            $data = get_object_vars($object);
+            return static::from($data);
+        }
+
         $reflection = new ReflectionClass($object);
         $data = [];
 
@@ -80,7 +87,7 @@ trait SimpleDtoObjectTrait
             }
         }
 
-        return static::fromArray($data);
+        return static::from($data);
     }
 
     /**

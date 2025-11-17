@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\Traits;
 
+use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\SimpleDto\Attributes\HasDto;
 use InvalidArgumentException;
 use ReflectionClass;
@@ -108,6 +109,8 @@ trait ObjectMappingTrait
     /**
      * Extract data from plain PHP object.
      *
+     * Converts collections to DataCollection instances for better handling.
+     *
      * @return array<string, mixed>
      */
     private function extractData(): array
@@ -124,11 +127,11 @@ trait ObjectMappingTrait
         // Also try to get properties via getter methods
         foreach ($reflection->getMethods() as $reflectionMethod) {
             $methodName = $reflectionMethod->getName();
-            
+
             // Check for getter methods (get*, is*, has*)
             if (preg_match('/^(get|is|has)([A-Z].*)$/', $methodName, $matches)) {
                 $propertyName = lcfirst($matches[2]);
-                
+
                 // Only add if not already present and method has no parameters
                 if (!isset($data[$propertyName]) && 0 === $reflectionMethod->getNumberOfParameters()) {
                     try {
@@ -140,6 +143,41 @@ trait ObjectMappingTrait
             }
         }
 
+        // Convert array collections to DataCollection
+        return $this->convertArrayCollectionsToDataCollection($data);
+    }
+
+    /**
+     * Convert array collections to DataCollection instances.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function convertArrayCollectionsToDataCollection(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            // Check if value is an array of arrays (collection)
+            if (is_array($value) && [] !== $value && $this->isCollection($value)) {
+                $data[$key] = DataCollection::make($value);
+            }
+        }
+
         return $data;
+    }
+
+    /**
+     * Check if array is a collection (array of arrays or objects).
+     *
+     * @param array<mixed> $value
+     */
+    private function isCollection(array $value): bool
+    {
+        if ([] === $value) {
+            return false;
+        }
+
+        // Check if first element is an array or object
+        $first = reset($value);
+        return is_array($first) || is_object($first);
     }
 }

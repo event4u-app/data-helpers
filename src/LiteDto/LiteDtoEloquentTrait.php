@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace event4u\DataHelpers\SimpleDto;
+namespace event4u\DataHelpers\LiteDto;
 
 use BadMethodCallException;
-use event4u\DataHelpers\SimpleDto\Attributes\HasModel;
-use event4u\DataHelpers\SimpleDto\Attributes\LaravelModelFillable;
-use event4u\DataHelpers\SimpleDto\Attributes\Map;
-use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
+use event4u\DataHelpers\LiteDto\Attributes\HasModel;
+use event4u\DataHelpers\LiteDto\Attributes\Map;
+use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use ReflectionClass;
@@ -16,16 +15,16 @@ use ReflectionProperty;
 use Throwable;
 
 /**
- * Trait providing Eloquent Model integration for SimpleDtos.
+ * Trait providing Eloquent Model integration for LiteDtos.
  *
  * This trait is optional and only used when Laravel/Eloquent is available.
  * It provides methods to convert between Dtos and Eloquent Models.
  *
  * Usage:
  * ```php
- * class UserDto extends SimpleDto
+ * class UserDto extends LiteDto
  * {
- *     use SimpleDtoEloquentTrait;
+ *     use LiteDtoEloquentTrait;
  *
  *     public function __construct(
  *         public readonly string $name,
@@ -45,7 +44,7 @@ use Throwable;
  * @requires illuminate/database
  * @phpstan-ignore trait.unused (Optional trait, only used when Laravel/Eloquent is installed)
  */
-trait SimpleDtoEloquentTrait
+trait LiteDtoEloquentTrait
 {
     /**
      * Create a Dto instance from an Eloquent Model.
@@ -75,7 +74,7 @@ trait SimpleDtoEloquentTrait
         $data = $model->toArray();
 
         // Create Dto from array
-        return static::fromArray($data);
+        return static::from($data);
     }
 
     /**
@@ -167,12 +166,12 @@ trait SimpleDtoEloquentTrait
         }
 
         // Determine fillable properties
-        $fillableProperties = $this->resolveFillableProperties($fillable);
+        $fillableProperties = $fillable;
 
         // Temporarily set fillable if needed
         if (null !== $fillableProperties) {
             // Handle empty fillable array - don't fill anything
-            if (empty($fillableProperties)) {
+            if ([] === $fillableProperties) {
                 // Don't call fill() at all - model will remain empty
             } else {
                 $originalFillable = $model->getFillable();
@@ -236,52 +235,6 @@ trait SimpleDtoEloquentTrait
 
         /** @var class-string<Model> */
         return $hasModel->modelClass;
-    }
-
-    /**
-     * Resolve fillable properties from parameter or #[LaravelModelFillable] attribute.
-     *
-     * Priority:
-     * 1. If $fillable parameter is provided, use it
-     * 2. If #[LaravelModelFillable] attribute is present, use properties marked with it
-     * 3. Otherwise, return null to use model's own fillable/guarded
-     *
-     * @param array<string>|null $fillable Explicitly provided fillable properties
-     *
-     * @return array<string>|null Array of fillable property names, ['*'] for all, or null to use model's fillable/guarded
-     */
-    private function resolveFillableProperties(?array $fillable): ?array
-    {
-        // If fillable parameter is provided, use it
-        if (null !== $fillable) {
-            return $fillable;
-        }
-
-        // Check if class has #[LaravelModelFillable] attribute
-        $reflection = new ReflectionClass($this);
-        $classAttributes = $reflection->getAttributes(LaravelModelFillable::class);
-
-        // If class has the attribute, all properties are fillable
-        if ([] !== $classAttributes) {
-            return ['*'];
-        }
-
-        // Check for properties with #[LaravelModelFillable] attribute
-        $fillableProperties = [];
-        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
-            $propertyAttributes = $reflectionProperty->getAttributes(LaravelModelFillable::class);
-            if (!empty($propertyAttributes)) {
-                $fillableProperties[] = $reflectionProperty->getName();
-            }
-        }
-
-        // If we found properties with the attribute, return them
-        if ([] !== $fillableProperties) {
-            return $fillableProperties;
-        }
-
-        // No fillable configuration found, use model's own fillable/guarded
-        return null;
     }
 
     /**

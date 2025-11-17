@@ -104,13 +104,10 @@ Link your DTO to an Eloquent model:
 ```php
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\HasModel;
-use event4u\DataHelpers\SimpleDto\SimpleDtoEloquentTrait;
 
 #[HasModel(User::class)]
 class UserDto extends SimpleDto
 {
-    use SimpleDtoEloquentTrait;
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -122,6 +119,16 @@ class UserDto extends SimpleDto
 $dto = UserDto::fromModel($user);
 $newUser = $dto->toModel();
 ```
+
+:::tip[No Manual Trait Import Needed]
+The `SimpleDtoEloquentTrait` is **automatically included** in `SimpleDto`. You don't need to manually import it!
+
+**How it works:**
+- The trait is always available at runtime
+- Methods `fromModel()` and `toModel()` check if Laravel/Eloquent is installed when called
+- If Laravel is not installed, a clear `BadMethodCallException` is thrown with installation instructions
+- This allows the same DTO code to work across different environments (plain PHP, Laravel, Symfony)
+:::
 
 📖 **[HasModel Attribute Details](/data-helpers/attributes/detailed/has-object/)** - Similar pattern to HasObject for plain PHP
 

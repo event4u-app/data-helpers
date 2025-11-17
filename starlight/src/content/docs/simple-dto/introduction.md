@@ -100,8 +100,9 @@ class UserController extends Controller
 }
 
 $user = User::find(1);
-$dto = UserDto::fromModel($user);  // From Eloquent Model
+$dto = UserDto::fromModel($user);  // From Eloquent Model (automatically available)
 $dto->toModel($user);              // To Eloquent Model
+// Note: Methods throw BadMethodCallException if Laravel is not installed
 
 // Symfony - Automatic controller injection & Doctrine integration
 class UserController extends AbstractController
@@ -118,8 +119,9 @@ class UserController extends AbstractController
 }
 
 $user = $this->entityManager->find(User::class, 1);
-$dto = UserDto::fromEntity($user);  // From Doctrine Entity
+$dto = UserDto::fromEntity($user);  // From Doctrine Entity (automatically available)
 $dto->toEntity($user);              // To Doctrine Entity
+// Note: Methods throw BadMethodCallException if Doctrine is not installed
 ```
 
 **Key Benefits:**

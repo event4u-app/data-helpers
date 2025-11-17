@@ -117,10 +117,11 @@ class UserController extends Controller
     }
 }
 
-// Eloquent Model Integration (with SimpleDtoEloquentTrait)
+// Eloquent Model Integration (automatically available)
 $user = User::find(1);
 $dto = UserDto::fromModel($user);  // From Eloquent Model
 $dto->toModel($user);              // To Eloquent Model
+// Note: Methods throw BadMethodCallException if Laravel is not installed
 ```
 
 #### Symfony Integration (Optional)
@@ -140,10 +141,11 @@ class UserController extends AbstractController
     }
 }
 
-// Doctrine Entity Integration (with SimpleDtoDoctrineTrait)
+// Doctrine Entity Integration (automatically available)
 $user = $this->entityManager->find(User::class, 1);
 $dto = UserDto::fromEntity($user);  // From Doctrine Entity
 $dto->toEntity($user);              // To Doctrine Entity
+// Note: Methods throw BadMethodCallException if Doctrine is not installed
 ```
 
 ### Key Benefits
