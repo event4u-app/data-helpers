@@ -165,6 +165,14 @@ trait LiteDtoEloquentTrait
             );
         }
 
+        // Filter out nested arrays/objects that Laravel's fill() can't handle
+        // Only keep scalar values and null
+        $fillableData = array_filter(
+            $data,
+            fn($value): bool => is_scalar($value) || null === $value,
+            ARRAY_FILTER_USE_BOTH
+        );
+
         // Determine fillable properties
         $fillableProperties = $fillable;
 
@@ -184,8 +192,8 @@ trait LiteDtoEloquentTrait
                     $model->fillable($fillableProperties);
                 }
 
-                // Fill model with Dto data
-                $model->fill($data);
+                // Fill model with Dto data (only scalar values)
+                $model->fill($fillableData);
 
                 // Restore original fillable/guarded
                 if (['*'] === $fillableProperties) {
@@ -196,8 +204,8 @@ trait LiteDtoEloquentTrait
                 }
             }
         } else {
-            // Fill model with Dto data using model's own fillable/guarded
-            $model->fill($data);
+            // Fill model with Dto data using model's own fillable/guarded (only scalar values)
+            $model->fill($fillableData);
         }
 
         // Mark as existing if requested
