@@ -283,15 +283,23 @@ class DataMutator
         }
 
         if (DotPathHelper::isWildcard($segment)) {
-            /** @phpstan-ignore ergebnis.noParameterPassedByReference */
-            self::forEachArrayItem($array, function(&$item, int|string $key) use ($segments, $value, $merge): void {
-                if ([] === $segments) {
+            // Phase 4 Optimization: Fast path for last segment (no recursion needed)
+            if ([] === $segments) {
+                foreach ($array as &$item) {
                     if ($merge && is_array($item) && is_array($value)) {
                         $item = self::deepMerge($item, $value);
                     } else {
                         $item = $value;
                     }
-                } elseif (is_array($item)) {
+                }
+                unset($item); // break reference
+                return;
+            }
+
+            // Recursive path: continue with remaining segments
+            /** @phpstan-ignore ergebnis.noParameterPassedByReference */
+            self::forEachArrayItem($array, function(&$item, int|string $key) use ($segments, $value, $merge): void {
+                if (is_array($item)) {
                     self::setIntoArray($item, $segments, $value, $merge);
                 } elseif (is_object($item)) {
                     self::setIntoObject($item, $segments, $value, $merge);
