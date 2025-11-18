@@ -83,6 +83,38 @@ final readonly class MappingOptions
     }
 
     /**
+     * Create options from legacy MappingFacade-style arguments.
+     *
+     * This helper keeps the public API of MappingFacade backward compatible while
+     * centralizing the construction of MappingOptions.
+     *
+     * @param bool|self $skipNullOrOptions Skip-null flag or MappingOptions instance
+     * @param bool $reindexWildcard Whether to reindex wildcard results
+     * @param array<(DataMapperHook|string), mixed> $hooks Mapping lifecycle hooks
+     * @param bool $trimValues Whether to trim string values
+     * @param bool $caseInsensitiveReplace Whether to use case insensitive replacement
+     */
+    public static function fromLegacy(
+        bool|self $skipNullOrOptions = true,
+        bool $reindexWildcard = false,
+        array $hooks = [],
+        bool $trimValues = true,
+        bool $caseInsensitiveReplace = false,
+    ): self {
+        if ($skipNullOrOptions instanceof self) {
+            return $skipNullOrOptions;
+        }
+
+        return new self(
+            skipNull: $skipNullOrOptions,
+            reindexWildcard: $reindexWildcard,
+            hooks: $hooks,
+            trimValues: $trimValues,
+            caseInsensitiveReplace: $caseInsensitiveReplace,
+        );
+    }
+
+    /**
      * Create a new instance with modified skipNull setting.
      *
      * @param bool $skipNull Whether to skip null values

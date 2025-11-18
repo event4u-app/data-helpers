@@ -16,6 +16,10 @@ class DataMapperBench
     private array $simpleSource;
     /** @var array<string, mixed> */
     private array $nestedSource;
+    /** @var array<string, mixed> */
+    private array $deepNestedSource;
+    /** @var array<string, mixed> */
+    private array $largeListSource;
     /** @var array<string, string> */
     private array $simpleMapping;
 
@@ -38,6 +42,57 @@ class DataMapperBench
                     'phone' => '+1234567890',
                 ],
             ],
+        ];
+
+        $this->deepNestedSource = [
+            'companies' => array_fill(
+                0,
+                2,
+                [
+                    'name' => 'Acme Inc',
+                    'departments' => array_fill(
+                        0,
+                        5,
+                        [
+                            'name' => 'Engineering',
+                            'teams' => array_fill(
+                                0,
+                                3,
+                                [
+                                    'name' => 'Backend',
+                                    'employees' => array_fill(
+                                        0,
+                                        10,
+                                        [
+                                            'name' => 'Employee',
+                                            'email' => 'employee@example.com',
+                                            'profile' => [
+                                                'age' => 30,
+                                                'city' => 'Berlin',
+                                            ],
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                ]
+            ),
+        ];
+
+        $this->largeListSource = [
+            'users' => array_fill(
+                0,
+                200,
+                [
+                    'name' => 'User',
+                    'email' => 'user@example.com',
+                    'profile' => [
+                        'age' => 30,
+                        'city' => 'Berlin',
+                    ],
+                ]
+            ),
         ];
 
         $this->simpleMapping = [
@@ -95,5 +150,69 @@ class DataMapperBench
         DataMapper::source($this->simpleSource)
             ->template($template)
             ->map();
+    }
+
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchAutoMapDeep(): void
+    {
+        if ($this->shouldSkipDetailedBenchmarks()) {
+            return;
+        }
+
+        $source = [
+            'users' => [
+                [
+                    'name' => 'Alice',
+                    'email' => 'alice@example.com',
+                ],
+                [
+                    'name' => 'Bob',
+                    'email' => 'bob@example.com',
+                ],
+                [
+                    'name' => 'Carol',
+                    'email' => 'carol@example.com',
+                ],
+            ],
+        ];
+
+        DataMapper::source($source)
+            ->target([])
+            ->deep(true)
+            ->autoMap();
+    }
+
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchAutoMapDeepNestedWildcards(): void
+    {
+        if ($this->shouldSkipDetailedBenchmarks()) {
+            return;
+        }
+
+        DataMapper::source($this->deepNestedSource)
+            ->target([])
+            ->deep(true)
+            ->autoMap();
+    }
+
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchAutoMapDeepLargeList(): void
+    {
+        if ($this->shouldSkipDetailedBenchmarks()) {
+            return;
+        }
+
+        DataMapper::source($this->largeListSource)
+            ->target([])
+            ->deep(true)
+            ->autoMap();
+    }
+
+    private function shouldSkipDetailedBenchmarks(): bool
+    {
+        return false !== getenv('BENCH_README_ONLY');
     }
 }

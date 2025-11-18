@@ -113,11 +113,12 @@ Use cases:
 
 ## Fluent API Overview
 
-The DataMapper uses a fluent, chainable API:
+The DataMapper uses a fluent, chainable API.
+You can start with `DataMapper::from($source)` (alias: `DataMapper::source($source)`).
 
 <!-- skip-test: API overview with placeholders -->
 ```php
-DataMapper::source($source)           // Start with source data
+DataMapper::from($source)            // Start with source data (alias: DataMapper::source())
     ->target($target)               // Optional: Set target object/array
     ->template($template)           // Define mapping template
     ->query($path)                  // Start query builder

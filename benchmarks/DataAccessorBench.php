@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\Benchmarks;
 
 use event4u\DataHelpers\DataAccessor;
+use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use PhpBench\Attributes\BeforeMethods;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
@@ -90,6 +91,10 @@ class DataAccessorBench
     #[Iterations(5)]
     public function benchDeepWildcardGet(): void
     {
+        if ($this->shouldSkipDetailedBenchmarks()) {
+            return;
+        }
+
         $this->deepAccessor->get('departments.*.employees.*.email');
     }
 
@@ -113,4 +118,44 @@ class DataAccessorBench
     {
         new DataAccessor($this->simpleData);
     }
+
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchWildcardGetAndNormalize(): void
+    {
+        if ($this->shouldSkipDetailedBenchmarks()) {
+            return;
+        }
+
+        $result = $this->nestedAccessor->get('user.emails.*.value');
+
+        if (!is_array($result)) {
+            return;
+        }
+
+        WildcardHandler::normalizeWildcardArray($result);
+    }
+
+    #[Revs(1000)]
+    #[Iterations(5)]
+    public function benchDeepWildcardGetAndNormalize(): void
+    {
+        if ($this->shouldSkipDetailedBenchmarks()) {
+            return;
+        }
+
+        $result = $this->deepAccessor->get('departments.*.employees.*.email');
+
+        if (!is_array($result)) {
+            return;
+        }
+
+        WildcardHandler::normalizeWildcardArray($result);
+    }
+
+    private function shouldSkipDetailedBenchmarks(): bool
+    {
+        return false !== getenv('BENCH_README_ONLY');
+    }
+
 }

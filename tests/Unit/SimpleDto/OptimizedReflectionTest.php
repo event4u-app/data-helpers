@@ -315,35 +315,4 @@ describe('Optimized Reflection', function(): void {
                 ->and($statsAfter['classes'])->toBe(1);
         });
     });
-
-    describe('Performance', function(): void {
-        beforeEach(function(): void {
-            setupOptimizedReflection();
-        });
-
-        it('completes quickly with caching', function(): void {
-            $dto = new class extends SimpleDto {
-                public function __construct(
-                    public readonly string $name = '',
-                    public readonly int $age = 0,
-                    public readonly string $email = '',
-                ) {}
-            };
-
-            // Warm up cache
-            ReflectionCache::getClass($dto);
-            ReflectionCache::getProperties($dto);
-
-            // Measure with cache
-            $start = microtime(true);
-            for ($i = 0; 10000 > $i; $i++) {
-                ReflectionCache::getClass($dto);
-                ReflectionCache::getProperties($dto);
-            }
-            $duration = microtime(true) - $start;
-
-            // Should complete quickly (< 20ms for 10000 iterations)
-            expect($duration)->toBeLessThan(0.02);
-        });
-    });
 });

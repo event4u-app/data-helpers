@@ -107,6 +107,24 @@ $mapper = DataMapper::source(['name' => null])
     ->skipNull(true);
 ```
 
+#### Skip behavior details
+
+When `skipNull(true)` is enabled, DataMapper will:
+
+- Skip source values that resolve to `null` **after** applying defaults and template filters
+- Apply the same behavior for simple and structured mappings
+- For wildcard mappings (`*` paths), skip items that are `null` at the raw value level (before hooks/pipelines)
+
+In addition, hooks can actively skip writes by returning the special value `"__skip__"`:
+
+- `beforeTransform` / `afterTransform` value hooks: returning `"__skip__"` skips the current pair/item entirely
+- `beforeWrite` value hooks:
+  - For non-wildcard values, returning `"__skip__"` prevents the write but the pair is still considered processed
+  - For wildcard items, returning `"__skip__"` skips the current item (it is treated like a skipped element in the wildcard iteration)
+
+This ensures that `skipNull` and hook-based skips behave consistently across simple, structured and wildcard mappings while still allowing fine-grained control via hooks.
+
+
 ### `reindexWildcard(bool $reindex = true): self`
 
 Reindex wildcard results.

@@ -5,6 +5,8 @@ declare(strict_types=1);
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
+use event4u\DataHelpers\Exceptions\UndefinedTargetValueException;
+
 use Illuminate\Database\Eloquent\Model;
 
 describe('DataMapper', function(): void {
@@ -499,6 +501,70 @@ describe('DataMapper', function(): void {
                     ->getTarget();
             })->toThrow(InvalidArgumentException::class, 'Mapping paths must be strings.');
         });
+
+
+
+        test('simple mapping throws UndefinedTargetValueException when target parent path is missing', function(): void {
+            $source = [
+                'name' => 'Alice',
+            ];
+            $target = [];
+            $mapping = [
+                'profile.name' => '{{ name }}',
+            ];
+
+            MapperExceptions::reset();
+            MapperExceptions::setCollectExceptionsEnabled(false);
+            MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
+
+            try {
+                DataMapper::source($source)
+                    ->target($target)
+                    ->template($mapping)
+                    ->map();
+
+                $this->fail('Expected UndefinedTargetValueException to be thrown');
+            } catch (UndefinedTargetValueException $exception) {
+                expect($exception)->toBeInstanceOf(UndefinedTargetValueException::class);
+            } finally {
+                MapperExceptions::reset();
+            }
+        });
+
+        test('structured mapping throws UndefinedTargetValueException when target parent path is missing', function(): void {
+            $source = [
+                'name' => 'Alice',
+            ];
+            $dto = [];
+
+            $structured = [
+                [
+                    'source' => $source,
+                    'target' => $dto,
+                    'mapping' => [
+                        'name' => 'profile.fullname',
+                    ],
+                ],
+            ];
+
+            MapperExceptions::reset();
+            MapperExceptions::setCollectExceptionsEnabled(false);
+            MapperExceptions::setThrowOnUndefinedTargetEnabled(true);
+
+            try {
+                DataMapper::source(null)
+                    ->target(null)
+                    ->template($structured)
+                    ->map();
+
+                $this->fail('Expected UndefinedTargetValueException to be thrown');
+            } catch (UndefinedTargetValueException $exception) {
+                expect($exception)->toBeInstanceOf(UndefinedTargetValueException::class);
+            } finally {
+                MapperExceptions::reset();
+            }
+        });
+
     });
 
     test('does not skip null when skipNull param is false - simple mapping', function(): void {

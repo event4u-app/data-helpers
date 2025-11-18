@@ -71,13 +71,29 @@ class DataMapperQuery
     /** @var array<int, string> Order in which operators were called */
     private array $operatorOrder = [];
 
-    /** @var array<int, FilterInterface> Pipeline filters */
+    /** @var array<int, FilterInterface|class-string<FilterInterface>> Pipeline filters */
     private array $pipelineFilters = [];
+
+    /**
+     * Map of operator names to handler methods used when building templates.
+     *
+     * @var array<string, string>
+     */
+    private const OPERATOR_METHODS = [
+        'WHERE' => 'applyWhereOperator',
+        'DISTINCT' => 'applyDistinctOperator',
+        'LIKE' => 'applyLikeOperator',
+        'GROUP BY' => 'applyGroupByOperator',
+        'ORDER BY' => 'applyOrderByOperator',
+        'OFFSET' => 'applyOffsetOperator',
+        'LIMIT' => 'applyLimitOperator',
+    ];
+
 
     /**
      * Set pipeline filters for data transformation.
      *
-     * @param array<int, FilterInterface> $filters Filter instances
+     * @param array<int, FilterInterface|class-string<FilterInterface>> $filters Filter instances or class names
      */
     public function pipeline(array $filters): self
     {
@@ -573,90 +589,7 @@ class DataMapperQuery
 
         // Build operators in the order they were called
         foreach ($this->operatorOrder as $operatorName) {
-            switch ($operatorName) {
-                case 'WHERE':
-                    if ([] !== $this->whereConditions) {
-                        $wildcardMapping['WHERE'] = $this->buildWhereConditions($this->whereConditions, $sourceKey);
-                    }
-                    break;
-
-                case 'DISTINCT':
-                    if (null !== $this->distinctField) {
-                        $wildcardMapping['DISTINCT'] = $this->wrapFieldPath($this->distinctField, $sourceKey);
-                    }
-                    break;
-
-                case 'LIKE':
-                    if ([] !== $this->likePatterns) {
-                        $likeConfig = [];
-                        foreach ($this->likePatterns as $field => $pattern) {
-                            $likeConfig[$this->wrapFieldPath($field, $sourceKey)] = $pattern;
-                        }
-                        $wildcardMapping['LIKE'] = $likeConfig;
-                    }
-                    break;
-
-                case 'GROUP BY':
-                    if (null !== $this->groupByConfig) {
-                        $groupByConfig = $this->groupByConfig;
-
-                        // Wrap field paths
-                        if (isset($groupByConfig['field'])) {
-                            if (is_array($groupByConfig['field'])) {
-                                /** @var array<int|string, mixed> $fields */
-                                $fields = $groupByConfig['field'];
-                                $groupByConfig['field'] = array_map(
-                                    fn(mixed $f): string => $this->wrapFieldPath((string)$f, $sourceKey),
-                                    $fields
-                                );
-                            } elseif (is_string($groupByConfig['field'])) {
-                                $groupByConfig['field'] = $this->wrapFieldPath($groupByConfig['field'], $sourceKey);
-                            }
-                        }
-
-                        // Wrap aggregation field paths
-                        if (isset($groupByConfig['aggregations']) && is_array($groupByConfig['aggregations'])) {
-                            /** @var array<string, array<int, mixed>> $aggregations */
-                            $aggregations = $groupByConfig['aggregations'];
-                            foreach ($aggregations as $name => $agg) {
-                                if (is_array($agg) && isset($agg[1]) && is_string($agg[1])) {
-                                    $aggregations[$name][1] = $this->wrapFieldPath($agg[1], $sourceKey);
-                                }
-                            }
-                            $groupByConfig['aggregations'] = $aggregations;
-                        }
-
-                        // Add HAVING conditions
-                        if ([] !== $this->havingConditions) {
-                            $groupByConfig['HAVING'] = $this->havingConditions;
-                        }
-
-                        $wildcardMapping['GROUP BY'] = $groupByConfig;
-                    }
-                    break;
-
-                case 'ORDER BY':
-                    if ([] !== $this->orderByFields) {
-                        $orderByConfig = [];
-                        foreach ($this->orderByFields as $field => $direction) {
-                            $orderByConfig[$this->wrapFieldPath($field, $sourceKey)] = $direction;
-                        }
-                        $wildcardMapping['ORDER BY'] = $orderByConfig;
-                    }
-                    break;
-
-                case 'OFFSET':
-                    if (null !== $this->offsetValue) {
-                        $wildcardMapping['OFFSET'] = $this->offsetValue;
-                    }
-                    break;
-
-                case 'LIMIT':
-                    if (null !== $this->limitValue) {
-                        $wildcardMapping['LIMIT'] = $this->limitValue;
-                    }
-                    break;
-            }
+            $wildcardMapping = $this->applyOperator($wildcardMapping, $operatorName, $sourceKey);
         }
 
         // Add wildcard template (return all fields)
@@ -665,6 +598,184 @@ class DataMapperQuery
         return [
             $sourceKey => $wildcardMapping,
         ];
+    }
+
+    /**
+     * Apply a single operator to the wildcard mapping.
+     *
+     * @param array<string, mixed> $wildcardMapping Current wildcard mapping
+     * @param string $operatorName Operator name (e.g. WHERE, GROUP BY)
+     * @param string $sourceKey Primary source key
+     * @return array<string, mixed> Updated wildcard mapping
+     */
+    private function applyOperator(array $wildcardMapping, string $operatorName, string $sourceKey): array
+    {
+        $method = self::OPERATOR_METHODS[$operatorName] ?? null;
+
+        if (null === $method) {
+            return $wildcardMapping;
+        }
+
+        return $this->$method($wildcardMapping, $sourceKey);
+    }
+
+    /**
+     * Apply WHERE conditions to wildcard mapping.
+     *
+     * @param array<string, mixed> $wildcardMapping
+     * @param string $sourceKey
+     * @return array<string, mixed>
+     */
+    private function applyWhereOperator(array $wildcardMapping, string $sourceKey): array
+    {
+        if ([] !== $this->whereConditions) {
+            $wildcardMapping['WHERE'] = $this->buildWhereConditions($this->whereConditions, $sourceKey);
+        }
+
+        return $wildcardMapping;
+    }
+
+    /**
+     * Apply DISTINCT configuration to wildcard mapping.
+     *
+     * @param array<string, mixed> $wildcardMapping
+     * @param string $sourceKey
+     * @return array<string, mixed>
+     */
+    private function applyDistinctOperator(array $wildcardMapping, string $sourceKey): array
+    {
+        if (null !== $this->distinctField) {
+            $wildcardMapping['DISTINCT'] = $this->wrapFieldPath($this->distinctField, $sourceKey);
+        }
+
+        return $wildcardMapping;
+    }
+
+    /**
+     * Apply LIKE patterns to wildcard mapping.
+     *
+     * @param array<string, mixed> $wildcardMapping
+     * @param string $sourceKey
+     * @return array<string, mixed>
+     */
+    private function applyLikeOperator(array $wildcardMapping, string $sourceKey): array
+    {
+        if ([] === $this->likePatterns) {
+            return $wildcardMapping;
+        }
+
+        $likeConfig = [];
+        foreach ($this->likePatterns as $field => $pattern) {
+            $likeConfig[$this->wrapFieldPath($field, $sourceKey)] = $pattern;
+        }
+
+        $wildcardMapping['LIKE'] = $likeConfig;
+
+        return $wildcardMapping;
+    }
+
+    /**
+     * Apply GROUP BY configuration (including HAVING) to wildcard mapping.
+     *
+     * @param array<string, mixed> $wildcardMapping
+     * @param string $sourceKey
+     * @return array<string, mixed>
+     */
+    private function applyGroupByOperator(array $wildcardMapping, string $sourceKey): array
+    {
+        if (null === $this->groupByConfig) {
+            return $wildcardMapping;
+        }
+
+        $groupByConfig = $this->groupByConfig;
+
+        // Wrap field paths
+        if (isset($groupByConfig['field'])) {
+            if (is_array($groupByConfig['field'])) {
+                /** @var array<int|string, mixed> $fields */
+                $fields = $groupByConfig['field'];
+                $groupByConfig['field'] = array_map(
+                    fn(mixed $f): string => $this->wrapFieldPath((string)$f, $sourceKey),
+                    $fields
+                );
+            } elseif (is_string($groupByConfig['field'])) {
+                $groupByConfig['field'] = $this->wrapFieldPath($groupByConfig['field'], $sourceKey);
+            }
+        }
+
+        // Wrap aggregation field paths
+        if (isset($groupByConfig['aggregations']) && is_array($groupByConfig['aggregations'])) {
+            /** @var array<string, array<int, mixed>> $aggregations */
+            $aggregations = $groupByConfig['aggregations'];
+            foreach ($aggregations as $name => $agg) {
+                if (is_array($agg) && isset($agg[1]) && is_string($agg[1])) {
+                    $aggregations[$name][1] = $this->wrapFieldPath($agg[1], $sourceKey);
+                }
+            }
+            $groupByConfig['aggregations'] = $aggregations;
+        }
+
+        // Add HAVING conditions
+        if ([] !== $this->havingConditions) {
+            $groupByConfig['HAVING'] = $this->havingConditions;
+        }
+
+        $wildcardMapping['GROUP BY'] = $groupByConfig;
+
+        return $wildcardMapping;
+    }
+
+    /**
+     * Apply ORDER BY configuration to wildcard mapping.
+     *
+     * @param array<string, mixed> $wildcardMapping
+     * @param string $sourceKey
+     * @return array<string, mixed>
+     */
+    private function applyOrderByOperator(array $wildcardMapping, string $sourceKey): array
+    {
+        if ([] === $this->orderByFields) {
+            return $wildcardMapping;
+        }
+
+        $orderByConfig = [];
+        foreach ($this->orderByFields as $field => $direction) {
+            $orderByConfig[$this->wrapFieldPath($field, $sourceKey)] = $direction;
+        }
+
+        $wildcardMapping['ORDER BY'] = $orderByConfig;
+
+        return $wildcardMapping;
+    }
+
+    /**
+     * Apply OFFSET configuration to wildcard mapping.
+     *
+     * @param array<string, mixed> $wildcardMapping
+     * @return array<string, mixed>
+     */
+    private function applyOffsetOperator(array $wildcardMapping, string $sourceKey): array
+    {
+        if (null !== $this->offsetValue) {
+            $wildcardMapping['OFFSET'] = $this->offsetValue;
+        }
+
+        return $wildcardMapping;
+    }
+
+    /**
+     * Apply LIMIT configuration to wildcard mapping.
+     *
+     * @param array<string, mixed> $wildcardMapping
+     * @return array<string, mixed>
+     */
+    private function applyLimitOperator(array $wildcardMapping, string $sourceKey): array
+    {
+        if (null !== $this->limitValue) {
+            $wildcardMapping['LIMIT'] = $this->limitValue;
+        }
+
+        return $wildcardMapping;
     }
 
     /**

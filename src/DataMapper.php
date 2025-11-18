@@ -133,7 +133,7 @@ class DataMapper
     /**
      * Create a FluentDataMapper starting with a pipeline.
      *
-     * @param array<int, FilterInterface> $filters Filter instances
+     * @param array<int, FilterInterface|class-string<FilterInterface>> $filters Filter instances or class names
      */
     public static function pipeline(array $filters): FluentDataMapper
     {
@@ -149,7 +149,7 @@ class DataMapper
     /**
      * Create a DataMapperQuery starting with a pipeline.
      *
-     * @param array<int, FilterInterface> $filters Filter instances
+     * @param array<int, FilterInterface|class-string<FilterInterface>> $filters Filter instances or class names
      */
     public static function queryPipeline(array $filters): DataMapperQuery
     {
