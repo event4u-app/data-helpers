@@ -253,7 +253,7 @@ describe('Circular Reference Handling', function(): void {
             // Verify we can traverse the entire chain
             $node = $dto;
             $count = 1;
-            while (null !== $node->next) {
+            while ($node->next instanceof \CircularNodeDto) {
                 $node = $node->next;
                 $count++;
             }
@@ -284,4 +284,3 @@ describe('Circular Reference Handling', function(): void {
         });
     });
 });
-

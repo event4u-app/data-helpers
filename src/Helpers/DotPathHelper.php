@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\Helpers;
 
 use event4u\DataHelpers\Support\Cache\PathParsingCache;
-use InvalidArgumentException;
 
 /**
  * Helper for dot-notation paths with wildcard support.

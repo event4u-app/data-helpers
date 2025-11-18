@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace event4u\DataHelpers;
 
 use event4u\DataHelpers\Exceptions\TypeMismatchException;
-use event4u\DataHelpers\Helpers\DotPathHelper;
 use event4u\DataHelpers\Support\ArrayableHelper;
 use event4u\DataHelpers\Support\Cache\PathParsingCache;
 use event4u\DataHelpers\Support\CollectionHelper;
@@ -113,6 +112,11 @@ class DataAccessor
      */
     public function get(string $path, mixed $default = null): mixed
     {
+        // Fast path for simple keys (no dots, no wildcards, not empty)
+        if ('' !== $path && !str_contains($path, '.') && !str_contains($path, '*')) {
+            return $this->data[$path] ?? $default;
+        }
+
         // Use static path cache for compiled path information
         $pathInfo = $this->getPathInfo($path);
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMutator;
+use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
 
 // Test DTOs for Deep Nesting
@@ -62,7 +62,7 @@ describe('Deep Nesting Tests', function(): void {
             // Verify we can traverse the entire chain
             $node = $dto;
             $count = 1;
-            while (null !== $node->nested) {
+            while ($node->nested instanceof \DeepNestedDto) {
                 $node = $node->nested;
                 $count++;
             }
@@ -86,7 +86,7 @@ describe('Deep Nesting Tests', function(): void {
             // Verify we can traverse the entire chain
             $node = $dto;
             $count = 1;
-            while (null !== $node->nested) {
+            while ($node->nested instanceof \DeepNestedDto) {
                 $node = $node->nested;
                 $count++;
             }
@@ -110,7 +110,7 @@ describe('Deep Nesting Tests', function(): void {
             // Verify we can traverse the entire chain
             $node = $dto;
             $count = 1;
-            while (null !== $node->nested) {
+            while ($node->nested instanceof \DeepNestedDto) {
                 $node = $node->nested;
                 $count++;
             }
@@ -130,7 +130,7 @@ describe('Deep Nesting Tests', function(): void {
             }
             $current['value'] = 'Deep Value';
 
-            $path = 'level1.' . implode('.', array_map(fn($i) => 'level' . $i, range(2, 20))) . '.value';
+            $path = 'level1.' . implode('.', array_map(fn(int $i): string => 'level' . $i, range(2, 20))) . '.value';
             $accessor = new DataAccessor($data);
             $result = $accessor->get($path);
 
@@ -147,7 +147,7 @@ describe('Deep Nesting Tests', function(): void {
             }
             $current['value'] = 'Very Deep Value';
 
-            $path = 'level1.' . implode('.', array_map(fn($i) => 'level' . $i, range(2, 30))) . '.value';
+            $path = 'level1.' . implode('.', array_map(fn(int $i): string => 'level' . $i, range(2, 30))) . '.value';
             $accessor = new DataAccessor($data);
             $result = $accessor->get($path);
 
@@ -185,7 +185,7 @@ describe('Deep Nesting Tests', function(): void {
                 $current = &$current['level' . $i];
             }
 
-            $path = 'level1.' . implode('.', array_map(fn($i) => 'level' . $i, range(2, 20))) . '.value';
+            $path = 'level1.' . implode('.', array_map(fn(int $i): string => 'level' . $i, range(2, 20))) . '.value';
             $mutator = DataMutator::make($data);
             $mutator->set($path, 'New Deep Value');
 
@@ -260,7 +260,7 @@ describe('Deep Nesting Tests', function(): void {
             // Verify we can traverse the restored DTO
             $node = $restored;
             $count = 1;
-            while (null !== $node->nested) {
+            while ($node->nested instanceof \DeepNestedDto) {
                 $node = $node->nested;
                 $count++;
             }
@@ -311,4 +311,3 @@ describe('Deep Nesting Tests', function(): void {
         });
     });
 });
-

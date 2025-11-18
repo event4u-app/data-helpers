@@ -26,7 +26,6 @@ use event4u\DataHelpers\SimpleDto\Casts\TimestampCast;
 use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
 use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
 use event4u\DataHelpers\Support\Cache\CastInstancePool;
-use InvalidArgumentException;
 use ReflectionClass;
 use Throwable;
 

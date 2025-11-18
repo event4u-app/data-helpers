@@ -261,9 +261,7 @@ final class TemplateCompilationCache
         }
     }
 
-    /**
-     * Clear all caches.
-     */
+    /** Clear all caches. */
     public static function clear(): void
     {
         self::$isTemplateCache = [];
@@ -284,7 +282,7 @@ final class TemplateCompilationCache
     public static function getStats(): array
     {
         $total = self::$stats['hits'] + self::$stats['misses'];
-        $hitRatio = $total > 0 ? self::$stats['hits'] / $total : 0.0;
+        $hitRatio = 0 < $total ? self::$stats['hits'] / $total : 0.0;
 
         return [
             'hits' => self::$stats['hits'],
@@ -294,9 +292,7 @@ final class TemplateCompilationCache
         ];
     }
 
-    /**
-     * Reset statistics without clearing the cache.
-     */
+    /** Reset statistics without clearing the cache. */
     public static function resetStats(): void
     {
         self::$stats['hits'] = 0;
@@ -304,9 +300,7 @@ final class TemplateCompilationCache
         // Keep size as is
     }
 
-    /**
-     * Update cache size statistic.
-     */
+    /** Update cache size statistic. */
     private static function updateSize(): void
     {
         self::$stats['size'] = count(self::$isTemplateCache)
@@ -314,7 +308,7 @@ final class TemplateCompilationCache
             + count(self::$compiledMappingCache);
 
         // Cleanup if cache is too large
-        if (self::$stats['size'] >= self::MAX_CACHE_SIZE) {
+        if (self::MAX_CACHE_SIZE <= self::$stats['size']) {
             self::cleanup();
         }
     }
@@ -335,4 +329,3 @@ final class TemplateCompilationCache
         self::updateSize();
     }
 }
-
