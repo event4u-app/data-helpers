@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace event4u\DataHelpers;
 
 use event4u\DataHelpers\Exceptions\TypeMismatchException;
-use event4u\DataHelpers\Helpers\DotPathHelper;
 use event4u\DataHelpers\Support\ArrayableHelper;
+use event4u\DataHelpers\Support\Cache\PathParsingCache;
 use event4u\DataHelpers\Support\CollectionHelper;
 use event4u\DataHelpers\Support\EntityHelper;
 use Generator;
@@ -18,14 +18,6 @@ class DataAccessor
 {
     /** @var array<int|string, mixed> */
     private array $data;
-
-    /**
-     * Static path cache for compiled access paths.
-     * Stores pre-computed path information to avoid repeated parsing.
-     *
-     * @var array<string, array{segments: array<int, string>, hasWildcard: bool}>
-     */
-    private static array $pathCache = [];
 
     /**
      * Create a new DataAccessor instance (factory method).
@@ -120,6 +112,11 @@ class DataAccessor
      */
     public function get(string $path, mixed $default = null): mixed
     {
+        // Fast path for simple keys (no dots, no wildcards, not empty)
+        if ('' !== $path && !str_contains($path, '.') && !str_contains($path, '*')) {
+            return $this->data[$path] ?? $default;
+        }
+
         // Use static path cache for compiled path information
         $pathInfo = $this->getPathInfo($path);
 
@@ -537,23 +534,15 @@ class DataAccessor
     }
 
     /**
-     * Get compiled path information from static cache.
+     * Get compiled path information from cache.
      *
-     * @return array{segments: array<int, string>, hasWildcard: bool}
+     * Phase 3 Enhancement: Uses PathParsingCache for better cache management.
+     *
+     * @return array{segments: array<int, string>, hasWildcard: bool, depth: int}
      */
     private function getPathInfo(string $path): array
     {
-        if (isset(self::$pathCache[$path])) {
-            return self::$pathCache[$path];
-        }
-
-        $segments = DotPathHelper::segments($path);
-        $hasWildcard = DotPathHelper::containsWildcard($path);
-
-        return self::$pathCache[$path] = [
-            'segments' => $segments,
-            'hasWildcard' => $hasWildcard,
-        ];
+        return PathParsingCache::compile($path);
     }
 
     /**
@@ -595,6 +584,8 @@ class DataAccessor
     /**
      * Recursive extraction supporting arrays, Models, Collections and wildcards.
      *
+     * Phase 4 Optimization: Reduced string concatenations and optimized hot path.
+     *
      * @param array<int, string> $segments
      * @param int $index Current position in segments array
      * @param int $segmentCount Total number of segments (cached for performance)
@@ -616,52 +607,53 @@ class DataAccessor
 
         // Get current segment using O(1) index access
         $segment = $segments[$index];
+        $nextIndex = $index + 1;
 
         // Wildcard - inline check for performance
         if ('*' === $segment) {
-            $originalCurrent = $current;
-
-            if (CollectionHelper::isCollection($current)) {
-                $current = CollectionHelper::toArray($current);
-                // Free memory: original collection not needed anymore
-                unset($originalCurrent);
-            } elseif (EntityHelper::isEntity($current)) {
-                $current = EntityHelper::getAttributes($current);
-                // Free memory: original entity not needed anymore
-                unset($originalCurrent);
+            // Fast path: check if already array
+            if (is_array($current)) {
+                return $this->collectFromIterable($current, $segments, $prefix, $nextIndex, $segmentCount);
             }
 
-            if (!is_array($current)) {
+            // Convert collections/entities to arrays
+            if (CollectionHelper::isCollection($current)) {
+                $current = CollectionHelper::toArray($current);
+            } elseif (EntityHelper::isEntity($current)) {
+                $current = EntityHelper::getAttributes($current);
+            } else {
                 return null;
             }
 
-            return $this->collectFromIterable($current, $segments, $prefix, $index + 1, $segmentCount);
+            return $this->collectFromIterable($current, $segments, $prefix, $nextIndex, $segmentCount);
         }
 
-        // Traverse array
-        if (is_array($current) && array_key_exists($segment, $current)) {
-            // Inline buildPrefix for performance
+        // Fast path: array access (most common case)
+        if (is_array($current)) {
+            if (!array_key_exists($segment, $current)) {
+                return null;
+            }
+
+            // Optimize prefix building: avoid concatenation when prefix is empty
             $newPrefix = '' === $prefix ? $segment : $prefix . '.' . $segment;
 
-            return $this->extract($current[$segment], $segments, $newPrefix, $index + 1, $segmentCount);
+            return $this->extract($current[$segment], $segments, $newPrefix, $nextIndex, $segmentCount);
         }
 
         // Traverse entity/model
         if (EntityHelper::hasAttribute($current, $segment)) {
             $value = EntityHelper::getAttribute($current, $segment);
-            // Inline buildPrefix for performance
             $newPrefix = '' === $prefix ? $segment : $prefix . '.' . $segment;
 
-            return $this->extract($value, $segments, $newPrefix, $index + 1, $segmentCount);
+            return $this->extract($value, $segments, $newPrefix, $nextIndex, $segmentCount);
         }
 
         // Traverse collection
         if (CollectionHelper::has($current, $segment)) {
             $value = CollectionHelper::get($current, $segment);
-            // Inline buildPrefix for performance
             $newPrefix = '' === $prefix ? $segment : $prefix . '.' . $segment;
 
-            return $this->extract($value, $segments, $newPrefix, $index + 1, $segmentCount);
+            return $this->extract($value, $segments, $newPrefix, $nextIndex, $segmentCount);
         }
 
         return null;
@@ -669,6 +661,8 @@ class DataAccessor
 
     /**
      * Merge results from iterating wildcard children.
+     *
+     * Phase 4 Optimization: Optimized prefix building and reduced array operations.
      *
      * @param array<int|string, mixed> $current
      * @param array<int, string> $segments Full segments array
@@ -683,14 +677,37 @@ class DataAccessor
         int $index,
         int $segmentCount,
     ): array {
+        // Early return for empty arrays
+        if ([] === $current) {
+            return [];
+        }
+
         $collected = [];
+        $hasPrefix = '' !== $prefix;
+
+        // Optimize: pre-calculate if we're at the end (no more segments to process)
+        $isLastSegment = $index >= $segmentCount;
+
+        if ($isLastSegment) {
+            // Fast path: no more segments, just collect all items with their keys
+            foreach ($current as $key => $item) {
+                $fullKey = $hasPrefix ? $prefix . '.' . $key : (string)$key;
+                $collected[$fullKey] = $item;
+            }
+
+            return $collected;
+        }
+
+        // Normal path: continue extraction
         foreach ($current as $key => $item) {
-            // Inline prefix building for performance (avoid function call overhead)
-            $newPrefix = '' === $prefix ? (string)$key : $prefix . '.' . $key;
+            // Optimize prefix building: avoid concatenation when prefix is empty
+            $newPrefix = $hasPrefix ? $prefix . '.' . $key : (string)$key;
             $value = $this->extract($item, $segments, $newPrefix, $index, $segmentCount);
-            if (is_array($value)) {
+
+            if (null !== $value) {
+                // Inline array merge for performance (avoid array_merge copies)
                 foreach ($value as $k => $v) {
-                    $collected[$k] = $v; // avoid array_merge copies
+                    $collected[$k] = $v;
                 }
             }
         }

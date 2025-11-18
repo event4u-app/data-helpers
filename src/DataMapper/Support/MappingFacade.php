@@ -516,7 +516,7 @@ class MappingFacade
      * Internal mapping method that works with already-parsed paths (no {{ }} needed).
      *
      * @param array<int|string, mixed>|object $target
-     * @param array<string, string|array{__static__: mixed}> $mapping
+     * @param array<string, string|non-empty-array<string, mixed>> $mapping
      * @param array<string, mixed> $hooks
      * @return array<int|string, mixed>|object
      */
@@ -542,6 +542,7 @@ class MappingFacade
         $mappingIndex = 0;
         foreach ($mapping as $targetPath => $sourcePathOrStatic) {
             // Parse mapping entry (extract path, filters, default value, static flag)
+            /** @var string|array{__static__: mixed} $sourcePathOrStatic */
             $parsed = MappingParser::parseEntry($sourcePathOrStatic, self::STATIC_VALUE_MARKER);
             $isStatic = $parsed['isStatic'];
             $sourcePath = $parsed['sourcePath'];

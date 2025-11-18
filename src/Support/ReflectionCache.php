@@ -44,6 +44,12 @@ final class ReflectionCache
     /** @var array<class-string, array<string, object>> */
     private static array $classAttributes = [];
 
+    /** @var array<class-string, array<string, array{type: ?string, isBuiltin: bool, allowsNull: bool}>> */
+    private static array $propertyTypes = [];
+
+    /** @var array<class-string, array<int, string>> */
+    private static array $constructorParameters = [];
+
     /**
      * Get cached ReflectionClass for an object or class name.
      *
@@ -318,9 +324,98 @@ final class ReflectionCache
     }
 
     /**
+     * Get cached property type information.
+     *
+     * Phase 3 Enhancement: Cache property types for faster type checking.
+     *
+     * @param object|class-string $objectOrClass Object instance or class name
+     * @param string $propertyName Property name
+     * @return array{type: ?string, isBuiltin: bool, allowsNull: bool}|null Null if property doesn't exist
+     */
+    public static function getPropertyType(object|string $objectOrClass, string $propertyName): ?array
+    {
+        $class = is_object($objectOrClass) ? $objectOrClass::class : $objectOrClass;
+
+        if (isset(self::$propertyTypes[$class][$propertyName])) {
+            return self::$propertyTypes[$class][$propertyName];
+        }
+
+        // Ensure we have an object for getProperty
+        $object = is_object($objectOrClass) ? $objectOrClass : self::getClass($objectOrClass)->newInstanceWithoutConstructor();
+
+        $property = self::getProperty($object, $propertyName);
+        if (null === $property) {
+            return null;
+        }
+
+        $type = $property->getType();
+        $typeInfo = [
+            'type' => null,
+            'isBuiltin' => false,
+            'allowsNull' => true,
+        ];
+
+        if (null !== $type) {
+            if ($type instanceof \ReflectionNamedType) {
+                $typeInfo['type'] = $type->getName();
+                $typeInfo['isBuiltin'] = $type->isBuiltin();
+                $typeInfo['allowsNull'] = $type->allowsNull();
+            } elseif ($type instanceof \ReflectionUnionType) {
+                // For union types, store as string representation
+                $typeInfo['type'] = (string)$type;
+                $typeInfo['isBuiltin'] = false;
+                $typeInfo['allowsNull'] = $type->allowsNull();
+            }
+        }
+
+        if (!isset(self::$propertyTypes[$class])) {
+            self::$propertyTypes[$class] = [];
+        }
+        self::$propertyTypes[$class][$propertyName] = $typeInfo;
+
+        return $typeInfo;
+    }
+
+    /**
+     * Get cached constructor parameter names.
+     *
+     * Phase 3 Enhancement: Cache constructor parameters for faster DTO instantiation.
+     *
+     * @param object|class-string $objectOrClass Object instance or class name
+     * @return array<int, string> Parameter names in order
+     */
+    public static function getConstructorParameters(object|string $objectOrClass): array
+    {
+        $class = is_object($objectOrClass) ? $objectOrClass::class : $objectOrClass;
+
+        if (isset(self::$constructorParameters[$class])) {
+            return self::$constructorParameters[$class];
+        }
+
+        $refClass = self::getClass($objectOrClass);
+        $constructor = $refClass->getConstructor();
+
+        if (null === $constructor) {
+            self::$constructorParameters[$class] = [];
+
+            return [];
+        }
+
+        /** @var array<int, string> $parameters */
+        $parameters = [];
+        foreach ($constructor->getParameters() as $param) {
+            $parameters[] = $param->getName();
+        }
+
+        self::$constructorParameters[$class] = $parameters;
+
+        return $parameters;
+    }
+
+    /**
      * Clear all cached reflection data.
      *
-     * Phase 8: Also clear allMethodsLoaded tracker
+     * Phase 3 & 8: Also clear property types, constructor parameters, and allMethodsLoaded tracker
      *
      * Useful for testing or when dealing with dynamic class loading.
      */
@@ -333,12 +428,14 @@ final class ReflectionCache
         self::$propertyAttributes = [];
         self::$methodAttributes = [];
         self::$classAttributes = [];
+        self::$propertyTypes = []; // Phase 3
+        self::$constructorParameters = []; // Phase 3
     }
 
     /**
      * Clear cached data for a specific class.
      *
-     * Phase 8: Also clear allMethodsLoaded tracker
+     * Phase 3 & 8: Also clear property types, constructor parameters, and allMethodsLoaded tracker
      *
      * @param class-string $class Class name
      */
@@ -351,12 +448,16 @@ final class ReflectionCache
             self::$allMethodsLoaded[$class], // Phase 8
             self::$propertyAttributes[$class],
             self::$methodAttributes[$class],
-            self::$classAttributes[$class]
+            self::$classAttributes[$class],
+            self::$propertyTypes[$class], // Phase 3
+            self::$constructorParameters[$class] // Phase 3
         );
     }
 
     /**
      * Get cache statistics.
+     *
+     * Phase 3: Added property types and constructor parameters to statistics
      *
      * @return array{
      *     classes: int,
@@ -365,6 +466,8 @@ final class ReflectionCache
      *     propertyAttributes: int,
      *     methodAttributes: int,
      *     classAttributes: int,
+     *     propertyTypes: int,
+     *     constructorParameters: int,
      *     estimatedMemory: int
      * }
      */
@@ -376,7 +479,9 @@ final class ReflectionCache
             + array_sum(array_map('count', self::$methods)) * 500 // ~500B per ReflectionMethod
             + array_sum(array_map(fn($c) => array_sum(array_map('count', $c)), self::$propertyAttributes)) * 200
             + array_sum(array_map(fn($c) => array_sum(array_map('count', $c)), self::$methodAttributes)) * 200
-            + array_sum(array_map('count', self::$classAttributes)) * 200;
+            + array_sum(array_map('count', self::$classAttributes)) * 200
+            + array_sum(array_map('count', self::$propertyTypes)) * 100 // Phase 3
+            + array_sum(array_map('count', self::$constructorParameters)) * 50; // Phase 3
 
         return [
             'classes' => count(self::$classes),
@@ -385,6 +490,8 @@ final class ReflectionCache
             'propertyAttributes' => array_sum(array_map(fn($c) => array_sum(array_map('count', $c)), self::$propertyAttributes)),
             'methodAttributes' => array_sum(array_map(fn($c) => array_sum(array_map('count', $c)), self::$methodAttributes)),
             'classAttributes' => array_sum(array_map('count', self::$classAttributes)),
+            'propertyTypes' => array_sum(array_map('count', self::$propertyTypes)), // Phase 3
+            'constructorParameters' => array_sum(array_map('count', self::$constructorParameters)), // Phase 3
             'estimatedMemory' => $memory,
         ];
     }

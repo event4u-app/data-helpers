@@ -304,31 +304,31 @@ class AbsoluteFastDto extends SimpleDto
 ### Basic Dto (10,000 iterations)
 
 ```
-Normal Dto:                1.49 μs (baseline)
-#[UltraFast]:              1.34 μs (10.1% faster)
-#[NoCasts]:                1.05 μs (30.1% faster)
-#[NoValidation]:           1.48 μs (0.9% faster)
-#[NoAttributes]:           1.45 μs (3.2% faster)
-#[NoCasts, NoValidation]:  1.01 μs (32.6% faster)
-#[NoAttributes, NoCasts]:  1.45 μs (3.1% faster)
+Normal Dto:                1.71 μs (baseline)
+#[UltraFast]:              1.51 μs (11.7% faster)
+#[NoCasts]:                1.05 μs (38.2% faster)
+#[NoValidation]:           1.67 μs (2.0% faster)
+#[NoAttributes]:           1.67 μs (2.3% faster)
+#[NoCasts, NoValidation]:  1.01 μs (40.7% faster)
+#[NoAttributes, NoCasts]:  1.65 μs (3.4% faster)
 ```
 
 ### With AutoCast (10,000 iterations)
 
 ```
-AutoCast Dto:              1.94 μs (with type casting)
-#[NoCasts]:                1.08 μs (44.5% faster)
+AutoCast Dto:              1.73 μs (with type casting)
+#[NoCasts]:                1.01 μs (41.6% faster)
 ```
 
 ### Real-World API (1,000 Dtos)
 
 ```
-SimpleDto:                 1.49 ms
-#[UltraFast]:              1.34 ms (10.1% faster)
-#[NoCasts]:                1.05 ms (30.1% faster)
-#[NoAttributes, NoCasts]:  1.45 ms (3.1% faster)
+SimpleDto:                 1.71 ms
+#[UltraFast]:              1.51 ms (11.7% faster)
+#[NoCasts]:                1.05 ms (38.2% faster)
+#[NoAttributes, NoCasts]:  1.65 ms (3.4% faster)
 
-Savings per 1M requests:   ~151ms (0.2s) with #[UltraFast]
+Savings per 1M requests:   ~199ms (0.2s) with #[UltraFast]
 ```
 <!-- BENCHMARK_PERFORMANCE_ATTRIBUTES_END -->
 

@@ -9,11 +9,11 @@ use event4u\DataHelpers\SimpleDto\Attributes\HasModel;
 use event4u\DataHelpers\SimpleDto\Attributes\LaravelModelFillable;
 use event4u\DataHelpers\SimpleDto\Attributes\Map;
 use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
+use event4u\DataHelpers\Support\Traits\BaseEloquentTrait;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionProperty;
-use Throwable;
 
 /**
  * Trait providing Eloquent Model integration for SimpleDtos.
@@ -47,6 +47,8 @@ use Throwable;
  */
 trait SimpleDtoEloquentTrait
 {
+    use BaseEloquentTrait;
+
     /**
      * Create a Dto instance from an Eloquent Model.
      *
@@ -61,11 +63,7 @@ trait SimpleDtoEloquentTrait
      */
     public static function fromModel(object $model): static
     {
-        if (!class_exists('Illuminate\Database\Eloquent\Model')) {
-            throw new BadMethodCallException(
-                'Laravel Eloquent is not installed. Please install illuminate/database package.'
-            );
-        }
+        static::ensureEloquentIsInstalled();
 
         if (!($model instanceof Model)) {
             throw new InvalidArgumentException('Model must be an instance of Illuminate\Database\Eloquent\Model');
@@ -105,109 +103,38 @@ trait SimpleDtoEloquentTrait
         bool $includeTimestamps = false
     ): object
     {
-        if (!class_exists('Illuminate\Database\Eloquent\Model')) {
-            throw new BadMethodCallException(
-                'Laravel Eloquent is not installed. Please install illuminate/database package.'
-            );
-        }
+        static::ensureEloquentIsInstalled();
 
         // If no model class provided, try to resolve from attribute
         if (null === $modelClass) {
             $modelClass = $this->resolveModelClass();
         }
 
-        // Check if model class exists
-        if (!class_exists($modelClass)) {
-            throw new InvalidArgumentException(sprintf('Model class %s does not exist', $modelClass));
-        }
+        // Validate model class
+        static::validateModelClass($modelClass);
 
-        // Check if model class is an Eloquent Model
-        if (!is_subclass_of($modelClass, Model::class)) {
-            throw new InvalidArgumentException(
-                sprintf('Model class %s must extend ', $modelClass) . Model::class
-            );
-        }
-
-        // Create temporary model instance to get primary key name
-        /** @var Model $tempModel */
-        $tempModel = new $modelClass();
-        $primaryKeyName = $tempModel->getKeyName();
-
-        // Try to find primary key value in DTO (considering mapping attributes)
+        // Get primary key name and value
+        $primaryKeyName = static::getPrimaryKeyName($modelClass);
         $primaryKeyValue = $this->findEloquentPrimaryKeyValue($primaryKeyName);
 
-        // Try to load existing model from database if primary key exists in DTO
-        $model = null;
-        if (null !== $primaryKeyValue) {
-            try {
-                /** @var class-string<Model> $modelClass */
-                /** @var Model|null $model */
-                /** @phpstan-ignore-next-line staticMethod.notFound */
-                $model = $modelClass::find($primaryKeyValue);
-            } catch (Throwable) {
-                // If database query fails (e.g., no connection, table doesn't exist), create new instance
-                $model = null;
-            }
-        }
+        // Try to load existing model from database
+        $model = static::loadExistingModel($modelClass, $primaryKeyValue);
 
         // If no model found, create new instance
-        if (null === $model) {
+        if (!$model instanceof Model) {
             /** @var Model $model */
             $model = new $modelClass();
         }
 
-        // Get DTO data and filter out timestamp fields if not included
+        // Get DTO data and filter timestamps
         $data = $this->toArray();
-        if (!$includeTimestamps) {
-            $data = array_filter(
-                $data,
-                fn($key): bool => !in_array($key, ['created_at', 'updated_at', 'deleted_at'], true),
-                ARRAY_FILTER_USE_KEY
-            );
-        }
-
-        // Filter out nested arrays/objects that Laravel's fill() can't handle
-        // Only keep scalar values and null
-        $fillableData = array_filter(
-            $data,
-            fn($value): bool => is_scalar($value) || null === $value,
-            ARRAY_FILTER_USE_BOTH
-        );
+        $data = static::filterEloquentTimestamps($data, $includeTimestamps);
 
         // Determine fillable properties
         $fillableProperties = $this->resolveFillableProperties($fillable);
 
-        // Temporarily set fillable if needed
-        if (null !== $fillableProperties) {
-            // Handle empty fillable array - don't fill anything
-            if (empty($fillableProperties)) {
-                // Don't call fill() at all - model will remain empty
-            } else {
-                $originalFillable = $model->getFillable();
-                $originalGuarded = $model->getGuarded();
-
-                // Set fillable properties
-                if (['*'] === $fillableProperties) {
-                    $model->unguard();
-                } else {
-                    $model->fillable($fillableProperties);
-                }
-
-                // Fill model with Dto data (only scalar values)
-                $model->fill($fillableData);
-
-                // Restore original fillable/guarded
-                if (['*'] === $fillableProperties) {
-                    $model->reguard();
-                } else {
-                    $model->fillable($originalFillable);
-                    $model->guard($originalGuarded);
-                }
-            }
-        } else {
-            // Fill model with Dto data using model's own fillable/guarded (only scalar values)
-            $model->fill($fillableData);
-        }
+        // Fill model with data
+        static::fillModel($model, $data, $fillableProperties);
 
         // Mark as existing if requested
         if ($exists) {
@@ -224,7 +151,7 @@ trait SimpleDtoEloquentTrait
      *
      * @throws InvalidArgumentException If no #[HasModel] attribute is found
      */
-    private function resolveModelClass(): string
+    protected function resolveModelClass(): string
     {
         $reflection = new ReflectionClass($this);
         $attributes = $reflection->getAttributes(HasModel::class);
@@ -303,7 +230,7 @@ trait SimpleDtoEloquentTrait
      * @param string $primaryKeyName The primary key field name from the Model
      * @return mixed The primary key value, or null if not found
      */
-    private function findEloquentPrimaryKeyValue(string $primaryKeyName): mixed
+    protected function findEloquentPrimaryKeyValue(string $primaryKeyName): mixed
     {
         $reflection = new ReflectionClass($this);
 

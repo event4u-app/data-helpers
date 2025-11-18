@@ -64,10 +64,10 @@ $emails = $accessor->get('departments.*.users.*.email');
 ### 🚀 Key Benefits
 
 - **🎯 Framework-Agnostic + Deep Integration** - Pure PHP with zero dependencies, optional deep Laravel/Symfony integration
-- **Type-Safe** - PHPStan Level 9 compliant with 4200+ tests
+- **Type-Safe** - PHPStan Level 9 compliant with 4300+ tests
 <!-- BENCHMARK_README_FAST_START -->
 
-- **Fast** - SimpleDto with #[UltraFast] is up to 14.7x faster than Other Serializer
+- **Fast** - SimpleDto with #[UltraFast] is up to 12.4x faster than Other Serializer
 <!-- BENCHMARK_README_FAST_END -->
 - **Zero Dependencies** - No required dependencies, optional framework integrations
 - **No Framework Lock-In** - Use framework features without being tied to a framework
@@ -698,7 +698,7 @@ The documentation includes:
 
 ## 🧪 Testing & Quality
 
-- ✅ **4200+ tests** with comprehensive coverage
+- ✅ **4300+ tests** with comprehensive coverage
 - ✅ **PHPStan Level 9** - Highest static analysis level
 - ✅ **100% type coverage** - All methods fully typed
 - ✅ **Continuous Integration** - Automated testing across PHP 8.2, 8.3, 8.4
@@ -713,10 +713,10 @@ All operations are highly optimized:
 
 <!-- BENCHMARK_README_PERFORMANCE_START -->
 
-- Simple access: ~0.3μs
-- Nested access: ~0.3μs
-- Wildcards: ~11μs
-- **SimpleDto #[UltraFast] is up to 14.7x faster** than Other Serializer
+- Simple access: ~0.1μs
+- Nested access: ~0.5μs
+- Wildcards: ~1μs
+- **SimpleDto #[UltraFast] is up to 12.4x faster** than Other Serializer
 <!-- BENCHMARK_README_PERFORMANCE_END -->
 
 📖 **[Performance Benchmarks](https://event4u-app.github.io/data-helpers/performance/benchmarks/)** • [Optimization Tips](https://event4u-app.github.io/data-helpers/performance/optimization/)

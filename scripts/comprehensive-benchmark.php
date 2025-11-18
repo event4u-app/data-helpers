@@ -240,13 +240,15 @@ $stringTypeData = [
 $dtoBenchmarks['SimpleDtoNoAutoCast'] = runDtoBenchmark('SimpleDto (no AutoCast)', function() use (
     $correctTypeData
 ): void {
-    CompanySimpleDto::fromArray($correctTypeData);
+    $dto = CompanySimpleDto::fromArray($correctTypeData);
+    $dto->toArray();
 }, 10000);
 
 $dtoBenchmarks['SimpleDtoWithAutoCastCorrectTypes'] = runDtoBenchmark(
     'SimpleDto (with AutoCast, correct types)',
     function() use ($correctTypeData): void {
-    CompanyAutoCastDto::fromArray($correctTypeData);
+    $dto = CompanyAutoCastDto::fromArray($correctTypeData);
+    $dto->toArray();
 },
     10000
 );
@@ -254,16 +256,27 @@ $dtoBenchmarks['SimpleDtoWithAutoCastCorrectTypes'] = runDtoBenchmark(
 $dtoBenchmarks['SimpleDtoWithAutoCastStringTypes'] = runDtoBenchmark(
     'SimpleDto (with AutoCast, string types)',
     function() use ($stringTypeData): void {
-    CompanyAutoCastDto::fromArray($stringTypeData);
+    $dto = CompanyAutoCastDto::fromArray($stringTypeData);
+    $dto->toArray();
 },
     10000
 );
 
 $dtoBenchmarks['PlainPhp'] = runDtoBenchmark('Plain PHP', function() use ($correctTypeData): void {
+    // Create object from array (equivalent to fromArray)
     $obj = new stdClass();
     foreach ($correctTypeData as $key => $value) {
         $obj->$key = $value;
     }
+
+    // Convert back to array (equivalent to toArray)
+    $array = [];
+    foreach (get_object_vars($obj) as $key => $value) {
+        $array[$key] = $value;
+    }
+
+    // Ensure the array is used to prevent optimization
+    unset($array);
 }, 10000);
 
 // ============================================================================
@@ -1505,12 +1518,12 @@ function generateAutoCastPerformance(array $dtoBenchmarks): string
     $withAutoCastStringFactor = 0 < $plainPhpTime ? round(
         ($withAutoCastStringTime * 1e6) / ($plainPhpTime * 1e6)
     ) : 110;
-    $autoCastOverhead = 0 < $noAutoCastTime ? round(
+    $autoCastOverhead = 0 < $noAutoCastTime ? max(0, round(
         (($withAutoCastCorrectTime - $noAutoCastTime) / $noAutoCastTime) * 100
-    ) : 193;
-    $castingOverhead = 0 < $withAutoCastCorrectTime ? round(
+    )) : 193;
+    $castingOverhead = 0 < $withAutoCastCorrectTime ? max(0, round(
         (($withAutoCastStringTime - $withAutoCastCorrectTime) / $withAutoCastCorrectTime) * 100
-    ) : 12;
+    )) : 12;
 
     $md = "```\n";
     $md .= "Scenario 1: Correct types (no casting needed)\n";

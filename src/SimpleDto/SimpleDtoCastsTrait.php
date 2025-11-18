@@ -25,7 +25,7 @@ use event4u\DataHelpers\SimpleDto\Casts\StringCast;
 use event4u\DataHelpers\SimpleDto\Casts\TimestampCast;
 use event4u\DataHelpers\SimpleDto\Contracts\CastsAttributes;
 use event4u\DataHelpers\SimpleDto\Support\ConstructorMetadata;
-use InvalidArgumentException;
+use event4u\DataHelpers\Support\Cache\CastInstancePool;
 use ReflectionClass;
 use Throwable;
 
@@ -47,9 +47,6 @@ use Throwable;
  */
 trait SimpleDtoCastsTrait
 {
-    /** @var array<string, object> Cache for cast instances */
-    private static array $castCache = [];
-
     /** @var array<string, array<string, string>> Cache for auto-casts per class */
     private static array $autoCastCache = [];
 
@@ -535,8 +532,7 @@ trait SimpleDtoCastsTrait
     /**
      * Resolve a caster instance.
      *
-     * Creates a new cast instance or returns a cached one.
-     * Caching improves performance by avoiding repeated instantiation.
+     * Phase 3 Enhancement: Uses CastInstancePool for better cache management and statistics.
      *
      * @param string $castClass The cast class name
      * @param array<int, string> $parameters Cast parameters
@@ -544,37 +540,18 @@ trait SimpleDtoCastsTrait
      */
     protected static function resolveCaster(string $castClass, array $parameters): CastsAttributes
     {
-        $cacheKey = $castClass . ':' . implode(',', $parameters);
-
-        if (!isset(self::$castCache[$cacheKey])) {
-            $instance = [] === $parameters
-                ? new $castClass()
-                : new $castClass(...$parameters);
-
-            if (!$instance instanceof CastsAttributes) {
-                throw new InvalidArgumentException(sprintf('Cast class %s must implement CastsAttributes', $castClass));
-            }
-
-            self::$castCache[$cacheKey] = $instance;
-        }
-
-        $caster = self::$castCache[$cacheKey];
-
-        if (!$caster instanceof CastsAttributes) {
-            throw new InvalidArgumentException('Cached cast class must implement CastsAttributes');
-        }
-
-        return $caster;
+        /** @var class-string<CastsAttributes> $castClass */
+        return CastInstancePool::get($castClass, $parameters);
     }
 
     /**
      * Clear the cast cache.
      *
-     * Useful for testing or when you need to reset cast instances.
+     * Phase 3 Enhancement: Delegates to CastInstancePool.
      */
     public static function clearCastCache(): void
     {
-        self::$castCache = [];
+        CastInstancePool::clear();
     }
 
     /**
