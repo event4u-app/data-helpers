@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers;
 
 use ArrayAccess;
+use Closure;
 use Countable;
 use Generator;
 use IteratorAggregate;
@@ -195,6 +196,41 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function last(?callable $callback = null, mixed $default = null): mixed
     {
         return $this->accessor->last($callback, $default);
+    }
+
+
+    /**
+     * Get the item after the given item in the collection.
+     *
+     * Similar to Laravel's after(): finds the next item after a given value or predicate.
+     *
+     * @param (callable(TValue, int|string): bool)|TValue $valueOrCallback
+     * @param TValue|null $default
+     * @return TValue|null
+     */
+    public function after(mixed $valueOrCallback, mixed $default = null, bool $strict = false): mixed
+    {
+        $found = false;
+
+        foreach ($this->items as $key => $item) {
+            if ($found) {
+                return $item;
+            }
+
+            if ($valueOrCallback instanceof Closure) {
+                if ($valueOrCallback($item, $key)) {
+                    $found = true;
+                }
+
+                continue;
+            }
+
+            if ($strict ? $item === $valueOrCallback : $item == $valueOrCallback) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+                $found = true;
+            }
+        }
+
+        return $default;
     }
 
     /**

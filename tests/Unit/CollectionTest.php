@@ -300,6 +300,40 @@ describe('Collection', function(): void {
         });
     });
 
+    describe('After', function(): void {
+        it('gets item after given value', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4, 5]);
+
+            expect($collection->after(3))->toBe(4)
+                ->and($collection->after(5))->toBeNull();
+        });
+
+        it('supports strict comparison', function(): void {
+            $collection = DataCollection::make([2, 4, 6, 8]);
+
+            expect($collection->after('4'))->toBe(6)
+                ->and($collection->after('4', strict: true))->toBeNull();
+        });
+
+        it('supports callback predicate', function(): void {
+            $collection = DataCollection::make([2, 4, 6, 8]);
+
+            $after = $collection->after(function(int $item, int|string $key): bool {
+                return $item > 5;
+            });
+
+            expect($after)->toBe(8);
+        });
+
+        it('returns default when not found or last item', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c']);
+
+            expect($collection->after('x', 'fallback'))->toBe('fallback')
+                ->and($collection->after('c', 'fallback'))->toBe('fallback');
+        });
+    });
+
+
     describe('Get', function(): void {
         it('gets item by key', function(): void {
             $collection = DataCollection::make(['a' => 1, 'b' => 2]);
