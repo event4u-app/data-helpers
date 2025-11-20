@@ -17,6 +17,7 @@ use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Helpers\ObjectHelper;
 use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\Support\Cache\PathParsingCache;
 use event4u\DataHelpers\Support\FileLoader;
 use event4u\DataHelpers\Support\StringFormatDetector;
 use InvalidArgumentException;
@@ -74,7 +75,7 @@ final class FluentDataMapper
 
     private bool $deep = false;
 
-    /** @var array<string, mixed> */
+    /** @var array<int|string, mixed> */
     private array $hooks = [];
 
     private ?MappingOptions $mappingOptions = null;
@@ -646,14 +647,23 @@ final class FluentDataMapper
      */
     private function getValueFromPath(array $data, string $path): mixed
     {
-        $keys = explode('.', $path);
+        if ('' === $path) {
+            return null;
+        }
+
+        try {
+            $segments = PathParsingCache::getSegments($path);
+        } catch (InvalidArgumentException) {
+            return null;
+        }
+
         $value = $data;
 
-        foreach ($keys as $key) {
-            if (!is_array($value) || !array_key_exists($key, $value)) {
+        foreach ($segments as $segment) {
+            if (!is_array($value) || !array_key_exists($segment, $value)) {
                 return null;
             }
-            $value = $value[$key];
+            $value = $value[$segment];
         }
 
         return $value;
@@ -672,6 +682,7 @@ final class FluentDataMapper
         return $query;
     }
 
+    /** Configure skipping of null values during mapping. */
     public function skipNull(bool $skipNull = true): self
     {
         $this->skipNull = $skipNull;
@@ -679,6 +690,7 @@ final class FluentDataMapper
         return $this;
     }
 
+    /** Configure reindexing of wildcard results. */
     public function reindexWildcard(bool $reindexWildcard = false): self
     {
         $this->reindexWildcard = $reindexWildcard;
@@ -686,6 +698,7 @@ final class FluentDataMapper
         return $this;
     }
 
+    /** Enable or disable trimming of string values. */
     public function trimValues(bool $trimValues = true): self
     {
         $this->trimValues = $trimValues;
@@ -693,6 +706,7 @@ final class FluentDataMapper
         return $this;
     }
 
+    /** Enable or disable case-insensitive replacement in mapping expressions. */
     public function caseInsensitiveReplace(bool $caseInsensitiveReplace = false): self
     {
         $this->caseInsensitiveReplace = $caseInsensitiveReplace;
@@ -700,6 +714,7 @@ final class FluentDataMapper
         return $this;
     }
 
+    /** Enable or disable deep mapping (nested structures). */
     public function deep(bool $deep = true): self
     {
         $this->deep = $deep;
@@ -707,7 +722,11 @@ final class FluentDataMapper
         return $this;
     }
 
-    /** @param array<string, mixed> $hooks */
+    /**
+     * Set mapping hooks.
+     *
+     * @param array<int|string, mixed> $hooks
+     */
     public function hooks(array $hooks = []): self
     {
         $this->hooks = $hooks;
@@ -715,9 +734,20 @@ final class FluentDataMapper
         return $this;
     }
 
+    /**
+     * Set mapping options as value object.
+     *
+     * This also synchronizes core configuration flags so that callers can
+     * either configure the mapper fluently or via MappingOptions.
+     */
     public function options(MappingOptions $options): self
     {
         $this->mappingOptions = $options;
+        $this->skipNull = $options->skipNull;
+        $this->reindexWildcard = $options->reindexWildcard;
+        $this->hooks = $options->hooks;
+        $this->trimValues = $options->trimValues;
+        $this->caseInsensitiveReplace = $options->caseInsensitiveReplace;
 
         return $this;
     }
@@ -955,13 +985,21 @@ final class FluentDataMapper
     /** Get skipNull value (handle MappingOptions). */
     private function getSkipNullValue(): bool
     {
-        return $this->mappingOptions->skipNull ?? $this->skipNull;
+        if (!$this->mappingOptions instanceof MappingOptions) {
+            return $this->skipNull;
+        }
+
+        return $this->mappingOptions->skipNull;
     }
 
     /** Get reindexWildcard value (handle MappingOptions). */
     private function getReindexWildcardValue(): bool
     {
-        return $this->mappingOptions->reindexWildcard ?? $this->reindexWildcard;
+        if (!$this->mappingOptions instanceof MappingOptions) {
+            return $this->reindexWildcard;
+        }
+
+        return $this->mappingOptions->reindexWildcard;
     }
 
     /**
@@ -997,8 +1035,8 @@ final class FluentDataMapper
     /**
      * Merge hooks with property filter hooks.
      *
-     * @param array<string, mixed> $hooks
-     * @return array<string, mixed>
+     * @param array<int|string, mixed> $hooks
+     * @return array<int|string, mixed>
      */
     private function mergeHooks(array $hooks): array
     {
@@ -1034,9 +1072,9 @@ final class FluentDataMapper
      *
      * Property filters run first, then pipeline filters.
      *
-     * @param array<string, mixed> $hooks Hooks (may include property filter hooks)
+     * @param array<int|string, mixed> $hooks Hooks (may include property filter hooks)
      * @param array<string, mixed> $pipelineHooks Pipeline hooks
-     * @return array<string, mixed>
+     * @return array<int|string, mixed>
      */
     private function mergeHooksWithPipeline(array $hooks, array $pipelineHooks): array
     {

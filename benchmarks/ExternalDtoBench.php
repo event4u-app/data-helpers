@@ -8,6 +8,7 @@ use event4u\DataHelpers\LiteDto\LiteDto;
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 use PhpBench\Attributes\BeforeMethods;
+use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 use Tests\Utils\SimpleDtos\DepartmentSimpleDto;
@@ -48,6 +49,7 @@ class ExternalDtoBench
     /** Benchmark: Our SimpleDto - fromArray() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchSimpleDtoFromArray(): void
     {
         DepartmentSimpleDto::fromArray($this->testData);
@@ -56,6 +58,7 @@ class ExternalDtoBench
     /** Benchmark: Our SimpleDto with #[UltraFast] - fromArray() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchSimpleDtoUltraFastFromArray(): void
     {
         UltraFastDepartmentDto::fromArray($this->testData);
@@ -64,6 +67,7 @@ class ExternalDtoBench
     /** Benchmark: Our LiteDto - from() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchLiteDtoFrom(): void
     {
         LiteDepartmentDto::from($this->testData);
@@ -72,6 +76,7 @@ class ExternalDtoBench
     /** Benchmark: Other Dtos - from() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchOtherDtoFrom(): void
     {
         if (!trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
@@ -86,6 +91,7 @@ class ExternalDtoBench
     /** Benchmark: Plain PHP - manual construction */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchPlainPhpConstructor(): void
     {
         /** @var string $name */
@@ -113,6 +119,7 @@ class ExternalDtoBench
     /** Benchmark: Plain PHP - new + assign */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchPlainPhpNewAssign(): void
     {
         $dto = new PlainDepartmentDto();
@@ -137,6 +144,7 @@ class ExternalDtoBench
     /** Benchmark: Our SimpleDto - toArray() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchSimpleDtoToArray(): void
     {
         $dto = DepartmentSimpleDto::fromArray($this->testData);
@@ -146,6 +154,7 @@ class ExternalDtoBench
     /** Benchmark: Our SimpleDto with #[UltraFast] - toArray() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchSimpleDtoUltraFastToArray(): void
     {
         $dto = UltraFastDepartmentDto::fromArray($this->testData);
@@ -155,6 +164,7 @@ class ExternalDtoBench
     /** Benchmark: Our LiteDto - toArray() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchLiteDtoToArray(): void
     {
         $dto = LiteDepartmentDto::from($this->testData);
@@ -164,6 +174,7 @@ class ExternalDtoBench
     /** Benchmark: Other Dtos - toArray() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchOtherDtoToArray(): void
     {
         if (!trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {
@@ -179,6 +190,7 @@ class ExternalDtoBench
     /** Benchmark: Our SimpleDto - Complex Data */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchSimpleDtoComplexData(): void
     {
         DepartmentSimpleDto::fromArray($this->complexData);
@@ -187,6 +199,7 @@ class ExternalDtoBench
     /** Benchmark: Our SimpleDto with #[UltraFast] - Complex Data */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchSimpleDtoUltraFastComplexData(): void
     {
         UltraFastDepartmentDto::fromArray($this->complexData);
@@ -195,6 +208,7 @@ class ExternalDtoBench
     /** Benchmark: Our LiteDto - Complex Data */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchLiteDtoComplexData(): void
     {
         LiteDepartmentDto::from($this->complexData);
@@ -203,6 +217,7 @@ class ExternalDtoBench
     /** Benchmark: Our LiteDto #[UltraFast] - from() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchLiteDtoUltraFastFrom(): void
     {
         UltraFastLiteDepartmentDto::from($this->testData);
@@ -211,6 +226,7 @@ class ExternalDtoBench
     /** Benchmark: Our LiteDto #[UltraFast] - toArray() */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchLiteDtoUltraFastToArray(): void
     {
         $dto = UltraFastLiteDepartmentDto::from($this->testData);
@@ -220,6 +236,7 @@ class ExternalDtoBench
     /** Benchmark: Our LiteDto #[UltraFast] - Complex Data */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchLiteDtoUltraFastComplexData(): void
     {
         UltraFastLiteDepartmentDto::from($this->complexData);
@@ -228,6 +245,7 @@ class ExternalDtoBench
     /** Benchmark: Other Dtos - Complex Data */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchOtherDtoComplexData(): void
     {
         if (!trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmFpdHNcRFRPVHJhaXQ='))) {

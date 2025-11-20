@@ -10,6 +10,9 @@ use event4u\DataHelpers\Support\CallbackHelper;
 
 /**
  * Handles hook invocation and normalization.
+ *
+ * Supports plain callables as well as hook objects implementing
+ * MapperHookInterface, ValueHookInterface or TargetHookInterface.
  */
 class HookInvoker
 {

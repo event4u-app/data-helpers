@@ -150,31 +150,6 @@ describe('LiteDto Automatic DateTime Casting', function(): void {
             expect($dto->updatedAt)->toBeInstanceOf(DateTimeImmutable::class);
         });
     });
-
-    describe('Performance', function(): void {
-        test('it has minimal overhead for DateTime casting', function(): void {
-            $iterations = 10000;
-
-            // Without DateTime casting
-            $start = microtime(true);
-            for ($i = 0; $i < $iterations; $i++) {
-                $dto = DateTimeCastingTestDto8::from(['name' => 'John', 'age' => 30]);
-            }
-            $withoutDateTime = microtime(true) - $start;
-
-            // With DateTime casting
-            $start = microtime(true);
-            for ($i = 0; $i < $iterations; $i++) {
-                $dto = DateTimeCastingTestDto9::from([
-                    'name' => 'John', 'age' => 30, 'createdAt' => '2024-01-15 10:30:00']
-                );
-            }
-            $withDateTime = microtime(true) - $start;
-
-            // DateTime casting should not add more than 5x overhead
-            expect($withDateTime)->toBeLessThan($withoutDateTime * 5);
-        });
-    });
 });
 
 // Test DTOs

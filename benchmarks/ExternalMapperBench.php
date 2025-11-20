@@ -11,6 +11,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 use event4u\DataHelpers\SimpleDto\SimpleDtoTrait;
 use PhpBench\Attributes\BeforeMethods;
+use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 
@@ -78,6 +79,7 @@ class ExternalMapperBench
     /** Benchmark: Our DataMapper - Simple Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchDataMapperSimple(): void
     {
         $mapping = [
@@ -95,6 +97,7 @@ class ExternalMapperBench
     /** Benchmark: Other Mapper 1 - Simple Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchOtherMapper1Simple(): void
     {
         if (!$this->otherMapper1) {
@@ -109,6 +112,7 @@ class ExternalMapperBench
     /** Benchmark: Other Mapper 2 - Simple Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchOtherMapper2Simple(): void
     {
         if (!$this->otherMapper2) {
@@ -123,6 +127,7 @@ class ExternalMapperBench
     /** Benchmark: Plain PHP - Simple Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchPlainPhpSimple(): void
     {
         $target = new MapperTargetDto();
@@ -141,6 +146,7 @@ class ExternalMapperBench
     /** Benchmark: Our DataMapper - Nested Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchDataMapperNested(): void
     {
         $mapping = [
@@ -162,6 +168,7 @@ class ExternalMapperBench
     /** Benchmark: SimpleDto #[UltraFast] - Nested Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchUltraFastNested(): void
     {
         UltraFastNestedMapperDto::fromArray($this->nestedSourceData);
@@ -170,6 +177,7 @@ class ExternalMapperBench
     /** Benchmark: Plain PHP - Nested Mapping */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchPlainPhpNested(): void
     {
         $user = $this->nestedSourceData['user'];
@@ -200,6 +208,7 @@ class ExternalMapperBench
     /** Benchmark: Our DataMapper - Template Syntax */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchDataMapperTemplate(): void
     {
         $template = [
@@ -217,6 +226,7 @@ class ExternalMapperBench
     /** Benchmark: Other parser library - Parse Data */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchOtherParserLibrary(): void
     {
         // Simulating other parser library behavior

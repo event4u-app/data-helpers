@@ -534,6 +534,37 @@ class DataAccessor
     }
 
     /**
+     * Check if a path exists using pre-parsed segments.
+     *
+     * This avoids re-parsing the dot-notation string when segments are already available.
+     *
+     * @param array<int, string> $segments
+     */
+    public function existsSegments(array $segments): bool
+    {
+        // Empty segments refer to the root, which always exists.
+        if ([] === $segments) {
+            return true;
+        }
+
+        $hasWildcard = in_array('*', $segments, true);
+
+        $results = $hasWildcard
+            ? $this->extract($this->data, $segments, '', 0, count($segments))
+            : $this->extractSimple($this->data, $segments);
+
+        if (null === $results) {
+            return false;
+        }
+
+        if (!$hasWildcard) {
+            return true;
+        }
+
+        return [] !== $results;
+    }
+
+    /**
      * Get compiled path information from cache.
      *
      * Phase 3 Enhancement: Uses PathParsingCache for better cache management.

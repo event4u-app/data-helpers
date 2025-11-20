@@ -36,7 +36,7 @@ final class AutoMappingEngine
      * - Unknown/unsupported targets are coerced to array
      * - skipNull, reindexWildcard, hooks, trimValues, caseInsensitiveReplace behave as in map()
      *
-     * @param array<string, mixed> $hooks Optional hooks propagated to this mapping
+     * @param array<int|string, mixed> $hooks Optional hooks propagated to this mapping
      */
     public static function autoMap(
         mixed $source,
@@ -64,12 +64,9 @@ final class AutoMappingEngine
         $pairs = [];
 
         if ($deep) {
-            // Build mapping pairs from deep flattened source paths (use wildcard for numeric indices)
-            foreach (self::flattenSourcePaths($source, true) as $path => $value) {
-                if ($skipNull && null === $value) {
-                    continue;
-                }
-
+            // Build mapping pairs from deep flattened source paths (use wildcard for numeric indices).
+            // In shape-only mode we only care about the path keys; source values are read lazily via DataAccessor.
+            foreach (array_keys(self::flattenSourcePaths($source, true, '', true)) as $path) {
                 // Build target path: keep segments; if target is object, prefer camelCase for first segment when property exists
                 $segments = explode('.', (string)$path);
                 if (is_object($target) && isset($segments[0])) {
@@ -165,16 +162,25 @@ final class AutoMappingEngine
      * Flatten a source structure into dot-notation paths. Numeric indices are replaced by '*'
      * to allow wildcard-based mapping of lists.
      *
-     * @return array<string, mixed> Map of path => leaf value
+     * When $shapeOnly is true, the structure is traversed in the same way, but leaf values in
+     * the returned map are treated as placeholders and must not be relied on. This is intended
+     * for deep auto-mapping where only the path keys are relevant and source values are read
+     * lazily via DataAccessor.
+     *
+     * @return array<string, mixed> Map of path => leaf placeholder/value
      */
-    public static function flattenSourcePaths(mixed $data, bool $useWildcards = true, string $prefix = ''): array
-    {
+    public static function flattenSourcePaths(
+        mixed $data,
+        bool $useWildcards = true,
+        string $prefix = '',
+        bool $shapeOnly = false
+    ): array {
         $result = [];
 
         // Scalars and null: treat as leaf value
         if (!is_array($data) && !is_object($data)) {
             return [
-                $prefix => $data,
+                $prefix => $shapeOnly ? true : $data,
             ];
         }
 
@@ -195,7 +201,7 @@ final class AutoMappingEngine
 
         if (!is_array($data)) {
             return [
-                $prefix => $data,
+                $prefix => $shapeOnly ? true : $data,
             ];
         }
 
@@ -205,11 +211,11 @@ final class AutoMappingEngine
 
             if (is_array($value) || is_object($value)) {
                 // Avoid array_merge in loop - use foreach instead for better performance
-                foreach (self::flattenSourcePaths($value, $useWildcards, $path) as $k => $v) {
+                foreach (self::flattenSourcePaths($value, $useWildcards, $path, $shapeOnly) as $k => $v) {
                     $result[$k] = $v;
                 }
             } else {
-                $result[$path] = $value;
+                $result[$path] = $shapeOnly ? true : $value;
             }
         }
 

@@ -19,76 +19,46 @@ class WildcardHandler
      */
     public static function normalizeWildcardArray(array $array): array
     {
-        // Single pass optimization: check and process in one loop
         $hasDotPathKeys = false;
-        $normalized = [];
-        $hasMultipleWildcards = false;
+        $result = [];
 
-        // First pass: detect dot-path keys and check for multiple wildcards
         foreach ($array as $key => $value) {
             if (!is_string($key) || !str_contains($key, '.')) {
-                $normalized[$key] = $value;
+                $result[$key] = $value;
+
                 continue;
             }
 
             $hasDotPathKeys = true;
 
-            // Split the key into segments (cache for reuse)
             $segments = explode('.', $key);
             $numericCount = 0;
+            $firstNumeric = null;
 
-            foreach ($segments as $seg) {
-                if (is_numeric($seg)) {
-                    $numericCount++;
-                    if (1 < $numericCount) {
-                        $hasMultipleWildcards = true;
-                        break 2; // Break both loops
-                    }
-                }
-            }
-
-            // Free memory: unset segments array after use
-            unset($segments);
-        }
-
-        // If no dot-path keys, return as-is
-        if (!$hasDotPathKeys) {
-            // Free memory: normalized not needed
-            unset($normalized);
-
-            return $array;
-        }
-
-        // For multi-wildcard paths, keep the full dot-path keys to avoid collisions
-        if ($hasMultipleWildcards) {
-            // Free memory: normalized not needed
-            unset($normalized);
-
-            return $array;
-        }
-
-        // Free memory: normalized not needed for single wildcard processing
-        unset($normalized);
-
-        // For single wildcard, extract the numeric index
-        $result = [];
-        foreach ($array as $key => $value) {
-            if (!is_string($key) || !str_contains($key, '.')) {
-                $result[$key] = $value;
-                continue;
-            }
-
-            // Find the first numeric segment
-            $segments = explode('.', $key);
             foreach ($segments as $segment) {
-                if (is_numeric($segment)) {
-                    $result[(int)$segment] = $value;
-                    break;
+                if (!is_numeric($segment)) {
+                    continue;
                 }
+
+                $numericCount++;
+                if (1 < $numericCount) {
+                    unset($segments);
+
+                    return $array;
+                }
+
+                $firstNumeric = (int)$segment;
             }
 
-            // Free memory: unset segments array after use
             unset($segments);
+
+            if (null !== $firstNumeric) {
+                $result[$firstNumeric] = $value;
+            }
+        }
+
+        if (!$hasDotPathKeys) {
+            return $array;
         }
 
         return $result;

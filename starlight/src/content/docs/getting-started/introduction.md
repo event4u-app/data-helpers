@@ -101,7 +101,7 @@ $result = DataMapper::source($source)
 ### Type-Safe and Well-Tested
 
 - PHPStan Level 9 compliant
-- 2900+ tests with comprehensive coverage
+- 4300+ tests with comprehensive coverage
 - Works reliably with arrays, objects, Collections, Models, JSON and XML
 
 ### 🎯 Framework-Agnostic + Deep Integration
@@ -252,7 +252,7 @@ Data Helpers offers several advantages over comparable projects:
 - **🎯 Framework-Agnostic + Deep Integration** - Pure PHP with zero dependencies, optional deep Laravel/Symfony integration, no framework lock-in
 - **Zero dependencies** - No required dependencies, optional framework integrations
 - **Comprehensive** - 5 main components covering all data manipulation needs
-- **Well-tested** - 2900+ tests with PHPStan Level 9 compliance
+- **Well-tested** - 4300+ tests with PHPStan Level 9 compliance
 - **High performance** - Up to 3.7x faster than traditional serializers
 - **Rich feature set** - 40+ filters, 20+ casts, 22+ validation attributes, 18 conditional attributes
 

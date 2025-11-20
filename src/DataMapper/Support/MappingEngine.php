@@ -8,6 +8,7 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Helpers\DotPathHelper;
@@ -116,7 +117,7 @@ class MappingEngine
      * Process simple mapping (associative array of target => source paths).
      *
      * @param array<string, string> $mapping
-     * @param array<string, mixed> $hooks
+     * @param array<int|string, mixed> $hooks
      */
     public static function processSimpleMapping(
         mixed $source,
@@ -278,7 +279,7 @@ class MappingEngine
      * @param int $mappingIndex Current mapping index
      * @param bool $skipNull Whether to skip null values
      * @param bool $reindexWildcard Whether to reindex wildcard results
-     * @param array<string, mixed> $hooks Optional hooks
+     * @param array<int|string, mixed> $hooks Hook configuration
      * @param PairContext|null $pairContext Optional pair context for hooks
      * @param (callable(mixed): mixed)|null $transformFn Optional custom transformation function
      * @param array<string, mixed>|null $replaceMap Optional replacement map
@@ -305,9 +306,50 @@ class MappingEngine
         // Check if target path contains wildcard
         $targetHasWildcard = DotPathHelper::containsWildcard($targetPath);
 
+        // Fast-path is only valid when there are no hooks and no transformation or replacement
+        $useFastPath = HookInvoker::isEmpty($hooks)
+            && null === $transformFn
+            && !is_array($replaceMap);
+
         // If target has no wildcard, collect all values into an array
         if (!$targetHasWildcard) {
-            $collectedValues = [];
+            return self::processWildcardMappingWithoutTargetWildcard(
+                $value,
+                $target,
+                $sourcePath,
+                $targetPath,
+                $source,
+                $mappingIndex,
+                $skipNull,
+                $reindexWildcard,
+                $hooks,
+                $pairContext,
+                $transformFn,
+                $replaceMap,
+                $trimValues,
+                $caseInsensitiveReplace
+            );
+        }
+
+        // Target has wildcard - write each value individually
+        if ($useFastPath) {
+            $targetData = self::asTarget($target);
+            $mutator = DataMutator::make($targetData);
+
+            $targetSegmentsTemplate = DotPathHelper::segments($targetPath);
+            $wildcardSegmentIndex = null;
+
+            foreach ($targetSegmentsTemplate as $segmentIndex => $segment) {
+                if ('*' === $segment) {
+                    $wildcardSegmentIndex = $segmentIndex;
+
+                    break;
+                }
+            }
+
+            assert(null !== $wildcardSegmentIndex);
+
+            $throwOnUndefinedTarget = MapperExceptions::isThrowOnUndefinedTargetEnabled();
 
             WildcardHandler::iterateWildcardItems(
                 $value,
@@ -319,123 +361,45 @@ class MappingEngine
                     }
                 },
                 function(int|string $wildcardIndex, mixed $itemValue) use (
-                    &$collectedValues,
-                    $hooks,
-                    $pairContext,
-                    $reindexWildcard,
-                    $transformFn,
-                    $replaceMap,
+                    &$target,
+                    &$targetData,
+                    $targetSegmentsTemplate,
+                    $wildcardSegmentIndex,
                     $trimValues,
-                    $caseInsensitiveReplace
+                    $mutator,
+                    $throwOnUndefinedTarget
                 ): bool {
-                    // Apply all transformations (custom filters, trimming, replacement)
-                    $itemValue = ValueTransformer::processValue(
-                        $itemValue,
-                        $transformFn,
-                        $replaceMap,
-                        $trimValues,
-                        $caseInsensitiveReplace
-                    );
-
-                    // Only set wildcardIndex if pairContext exists
-                    if ($pairContext instanceof PairContext) {
-                        $pairContext->wildcardIndex = $wildcardIndex;
-                        $itemValue = HookInvoker::invokeValueHook(
-                            $hooks,
-                            DataMapperHook::AfterTransform->value,
-                            $pairContext,
-                            $itemValue
-                        );
+                    // Apply simple trimming when enabled
+                    if ($trimValues && is_string($itemValue)) {
+                        $itemValue = trim($itemValue);
                     }
 
-                    // Collect values into array
-                    if ($reindexWildcard) {
-                        $collectedValues[] = $itemValue;
-                    } else {
-                        $collectedValues[$wildcardIndex] = $itemValue;
+                    // Resolve target segments with wildcard index
+                    $segments = $targetSegmentsTemplate;
+                    $segments[$wildcardSegmentIndex] = (string)$wildcardIndex;
+
+                    // Optionally validate that the target parent path exists
+                    if ($throwOnUndefinedTarget && count($segments) > 1) {
+                        $parentSegments = array_slice($segments, 0, count($segments) - 1);
+                        $targetAccessor = new DataAccessor($targetData);
+                        if (!$targetAccessor->existsSegments($parentSegments)) {
+                            $parentPath = implode('.', $parentSegments);
+                            MapperExceptions::handleUndefinedTargetValue($parentPath, $target);
+                        }
                     }
+
+                    // Write value to target
+                    $mutator->setFromSegments($segments, $itemValue);
+                    $target = $targetData;
 
                     return true;
                 }
             );
 
-            // Write the collected array to target
-            $writeContext = new WriteContext(
-                'simple',
-                $mappingIndex,
-                $sourcePath,
-                $targetPath,
-                $source,
-                $target,
-                $targetPath,
-                null
-            );
-
-            $writeValue = $collectedValues;
-            if (!HookInvoker::isEmpty($hooks)) {
-                $writeValue = HookInvoker::invokeValueHook(
-                    $hooks,
-                    DataMapperHook::BeforeWrite->value,
-                    $writeContext,
-                    $collectedValues
-                );
-            }
-
-            // Free memory: collectedValues not needed anymore
-            unset($collectedValues);
-
-            if ('__skip__' !== $writeValue) {
-                // Check if target is an entity and targetPath is a relation
-                // If so, use EntityHelper::setAttribute which will handle relation mapping
-                if (is_object($target) && EntityHelper::isEntity($target)) {
-                    // Extract first segment of target path (e.g., 'departments' from 'departments.name')
-                    $segments = DotPathHelper::segments($targetPath);
-                    $firstSegment = $segments[0] ?? '';
-
-                    // Free memory: segments not needed anymore
-                    unset($segments);
-
-                    if ($firstSegment && EntityHelper::isRelation(
-                        $target,
-                        $firstSegment
-                    )) {
-                        // This is a relation - let EntityHelper handle it
-                        EntityHelper::setAttribute($target, $firstSegment, $writeValue);
-
-                        if (!HookInvoker::isEmpty($hooks)) {
-                            return HookInvoker::invokeTargetHook(
-                                $hooks,
-                                DataMapperHook::AfterWrite->value,
-                                $writeContext,
-                                $writeValue,
-                                $target
-                            );
-                        }
-
-                        return $target;
-                    }
-                }
-
-                // Normal write to target
-                $targetData = self::asTarget($target);
-                DataMutator::make($targetData)->set($targetPath, $writeValue);
-                $target = $targetData;
-
-                if (!HookInvoker::isEmpty($hooks)) {
-                    $target = HookInvoker::invokeTargetHook(
-                        $hooks,
-                        DataMapperHook::AfterWrite->value,
-                        $writeContext,
-                        $writeValue,
-                        $target
-                    );
-                }
-            }
-
             return $target;
         }
 
-        // Target has wildcard - write each value individually
+        // Generic path with hooks / transformations / replacements
         WildcardHandler::iterateWildcardItems(
             $value,
             $skipNull,
@@ -453,6 +417,103 @@ class MappingEngine
                 $targetPath,
                 $source,
                 $mappingIndex,
+                $transformFn,
+                $replaceMap,
+                $trimValues,
+                $caseInsensitiveReplace
+            ): bool {
+                $effectivePairContext = $pairContext instanceof PairContext
+                    ? $pairContext
+                    : new PairContext(
+                        'simple',
+                        $mappingIndex,
+                        $sourcePath,
+                        $targetPath,
+                        $source,
+                        $target
+                    );
+
+                return self::processWildcardItem(
+                    $wildcardIndex,
+                    $itemValue,
+                    $target,
+                    $hooks,
+                    $effectivePairContext,
+                    $transformFn,
+                    $replaceMap,
+                    $trimValues,
+                    $caseInsensitiveReplace,
+                    'simple',
+                    $mappingIndex,
+                    $sourcePath,
+                    $targetPath,
+                    $source,
+                    false
+                );
+            }
+        );
+
+        return $target;
+    }
+
+    /**
+     * Process wildcard mapping when the target path does not contain a wildcard.
+     *
+     * Collects all wildcard values into an array and writes it to the target.
+     *
+     * @param array<int|string, mixed> $value
+     * @param array<int|string, mixed> $hooks Hook configuration
+     * @param (callable(mixed): mixed)|null $transformFn Optional custom transformation function
+     * @param array<string, mixed>|null $replaceMap Optional replacement map
+     */
+    private static function processWildcardMappingWithoutTargetWildcard(
+        array $value,
+        mixed $target,
+        string $sourcePath,
+        string $targetPath,
+        mixed $source,
+        int $mappingIndex,
+        bool $skipNull,
+        bool $reindexWildcard,
+        array $hooks,
+        ?PairContext $pairContext,
+        ?callable $transformFn = null,
+        ?array $replaceMap = null,
+        bool $trimValues = true,
+        bool $caseInsensitiveReplace = false
+    ): mixed {
+        $collectedValues = [];
+
+        $useFastPath = HookInvoker::isEmpty($hooks)
+            && null === $transformFn
+            && !is_array($replaceMap);
+
+        if ($useFastPath) {
+            $onItem = function(int|string $wildcardIndex, mixed $itemValue) use (
+                &$collectedValues,
+                $reindexWildcard,
+                $trimValues
+            ): bool {
+                // Apply simple trimming when enabled
+                if ($trimValues && is_string($itemValue)) {
+                    $itemValue = trim($itemValue);
+                }
+
+                // Collect values into array
+                if ($reindexWildcard) {
+                    $collectedValues[] = $itemValue;
+                } else {
+                    $collectedValues[$wildcardIndex] = $itemValue;
+                }
+
+                return true;
+            };
+        } else {
+            $onItem = function(int|string $wildcardIndex, mixed $itemValue) use (
+                &$collectedValues,
+                $hooks,
+                $pairContext,
+                $reindexWildcard,
                 $transformFn,
                 $replaceMap,
                 $trimValues,
@@ -478,48 +539,134 @@ class MappingEngine
                     );
                 }
 
-                $resolvedTargetPath = preg_replace('/\*/', (string)$wildcardIndex, $targetPath, 1);
-                $writeContext = new WriteContext(
-                    'simple',
-                    $mappingIndex,
-                    $sourcePath,
-                    $targetPath,
-                    $source,
-                    $target,
-                    (string)$resolvedTargetPath,
-                    $wildcardIndex
-                );
-
-                $writeValue = $itemValue;
-                if (!HookInvoker::isEmpty($hooks)) {
-                    $writeValue = HookInvoker::invokeValueHook(
-                        $hooks,
-                        DataMapperHook::BeforeWrite->value,
-                        $writeContext,
-                        $itemValue
-                    );
-                }
-
-                if ('__skip__' === $writeValue) {
-                    return false;
-                }
-                $targetData = self::asTarget($target);
-                DataMutator::make($targetData)->set((string)$resolvedTargetPath, $writeValue);
-                $target = $targetData;
-
-                if (!HookInvoker::isEmpty($hooks)) {
-                    $target = HookInvoker::invokeTargetHook(
-                        $hooks,
-                        DataMapperHook::AfterWrite->value,
-                        $writeContext,
-                        $writeValue,
-                        $target
-                    );
+                // Collect values into array
+                if ($reindexWildcard) {
+                    $collectedValues[] = $itemValue;
+                } else {
+                    $collectedValues[$wildcardIndex] = $itemValue;
                 }
 
                 return true;
-            }
+            };
+        }
+
+        WildcardHandler::iterateWildcardItems(
+            $value,
+            $skipNull,
+            $reindexWildcard,
+            function(int|string $_i, string $reason) use (&$mappingIndex): void {
+                if ('null' === $reason) {
+                    $mappingIndex++;
+                }
+            },
+            $onItem
         );
+
+        if ($useFastPath) {
+            $writeValue = $collectedValues;
+
+            // Free memory: collectedValues not needed anymore
+            unset($collectedValues);
+
+            // Check if target is an entity and targetPath is a relation
+            if (is_object($target) && EntityHelper::isEntity($target)) {
+                // Extract first segment of target path (e.g., 'departments' from 'departments.name')
+                $segments = DotPathHelper::segments($targetPath);
+                $firstSegment = $segments[0] ?? '';
+
+                // Free memory: segments not needed anymore
+                unset($segments);
+
+                if ($firstSegment && EntityHelper::isRelation(
+                    $target,
+                    $firstSegment
+                )) {
+                    // This is a relation - let EntityHelper handle it
+                    EntityHelper::setAttribute($target, $firstSegment, $writeValue);
+
+                    return $target;
+                }
+            }
+
+            // Normal write to target
+            $targetData = self::asTarget($target);
+            DataMutator::make($targetData)->set($targetPath, $writeValue);
+
+            return $targetData;
+        }
+
+        // Write the collected array to target (generic path with hooks / transformations)
+        $writeContext = new WriteContext(
+            'simple',
+            $mappingIndex,
+            $sourcePath,
+            $targetPath,
+            $source,
+            $target,
+            $targetPath,
+            null
+        );
+
+        $writeValue = $collectedValues;
+        if (!HookInvoker::isEmpty($hooks)) {
+            $writeValue = HookInvoker::invokeValueHook(
+                $hooks,
+                DataMapperHook::BeforeWrite->value,
+                $writeContext,
+                $collectedValues
+            );
+        }
+
+        // Free memory: collectedValues not needed anymore
+        unset($collectedValues);
+
+        if ('__skip__' !== $writeValue) {
+            // Check if target is an entity and targetPath is a relation
+            // If so, use EntityHelper::setAttribute which will handle relation mapping
+            if (is_object($target) && EntityHelper::isEntity($target)) {
+                // Extract first segment of target path (e.g., 'departments' from 'departments.name')
+                $segments = DotPathHelper::segments($targetPath);
+                $firstSegment = $segments[0] ?? '';
+
+                // Free memory: segments not needed anymore
+                unset($segments);
+
+                if ($firstSegment && EntityHelper::isRelation(
+                    $target,
+                    $firstSegment
+                )) {
+                    // This is a relation - let EntityHelper handle it
+                    EntityHelper::setAttribute($target, $firstSegment, $writeValue);
+
+                    if (!HookInvoker::isEmpty($hooks)) {
+                        return HookInvoker::invokeTargetHook(
+                            $hooks,
+                            DataMapperHook::AfterWrite->value,
+                            $writeContext,
+                            $writeValue,
+                            $target
+                        );
+                    }
+
+                    return $target;
+                }
+            }
+
+            // Normal write to target
+            $targetData = self::asTarget($target);
+            DataMutator::make($targetData)->set($targetPath, $writeValue);
+            $target = $targetData;
+
+            if (!HookInvoker::isEmpty($hooks)) {
+                $target = HookInvoker::invokeTargetHook(
+                    $hooks,
+                    DataMapperHook::AfterWrite->value,
+                    $writeContext,
+                    $writeValue,
+                    $target
+                );
+            }
+        }
 
         return $target;
     }
@@ -527,7 +674,7 @@ class MappingEngine
     /**
      * Process single (non-wildcard) mapping.
      *
-     * @param array<string, mixed> $hooks
+     * @param array<int|string, mixed> $hooks
      */
     private static function processSingleMapping(
         mixed $value,
@@ -598,7 +745,7 @@ class MappingEngine
      * @param int|string $wildcardIndex The wildcard index (numeric or string key)
      * @param mixed $itemValue The value to process
      * @param mixed $target The target to write to (passed by reference)
-     * @param array $hooks Hook configuration
+     * @param array<int|string, mixed> $hooks Hook configuration
      * @param PairContext $pairContext Context for hooks
      * @param null|callable(mixed): mixed $transformFn Optional transformation function
      * @param null|array<int|string, mixed> $replaceMap Optional replacement map
@@ -610,7 +757,6 @@ class MappingEngine
      * @param string $targetPath Target path (may contain wildcard)
      * @param mixed $source Original source data
      * @param bool $skipNull Whether to skip null values
-     * @param array<string, mixed> $hooks
      * @return bool True if item was processed, false if skipped
      * @phpstan-ignore ergebnis.noParameterPassedByReference
      */
@@ -651,8 +797,8 @@ class MappingEngine
             $itemValue
         );
 
-        // Skip null values if requested
-        if ($skipNull && null === $itemValue) {
+        // Skip if afterTransform hook returned magic skip value
+        if ('__skip__' === $itemValue) {
             return false;
         }
 
@@ -689,6 +835,25 @@ class MappingEngine
             return false;
         }
 
+        // Optionally validate that the target parent path exists (simple & structured mappings)
+        if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
+            $targetPathString = (string)$resolvedTargetPath;
+
+            if (str_contains($targetPathString, '.')) {
+                // Get parent path (everything before the last dot)
+                $lastDotPos = strrpos($targetPathString, '.');
+                // strrpos cannot return false here because str_contains already confirmed the dot exists
+                assert(false !== $lastDotPos);
+                $parentPath = substr($targetPathString, 0, $lastDotPos);
+
+                // Check if parent path exists in target
+                $targetAccessor = new DataAccessor(self::asTarget($target));
+                if (!$targetAccessor->exists($parentPath)) {
+                    MapperExceptions::handleUndefinedTargetValue($parentPath, $target);
+                }
+            }
+        }
+
         // Write value to target
         $targetData = self::asTarget($target);
         DataMutator::make($targetData)->set($resolvedTargetPath ?? '', $writeValue);
@@ -712,15 +877,15 @@ class MappingEngine
      * This method handles the complete processing pipeline for a single non-wildcard value:
      * 1. Apply transformation and replacement via ValueTransformer::processValue()
      * 2. Invoke afterTransform hook
-     * 3. Check for null (if skipNull is enabled) - returns false if should skip
-     * 4. Create write context
-     * 5. Invoke beforeWrite hook
+     * 3. Create write context
+     * 4. Invoke beforeWrite hook
+     * 5. Optionally validate parent path (if undefined-target handling is enabled)
      * 6. Write value to target (if not skipped)
      * 7. Invoke afterWrite hook
      *
      * @param mixed $value The value to process
      * @param mixed $target The target to write to (passed by reference)
-     * @param array<string, mixed> $hooks Hook configuration
+     * @param array<int|string, mixed> $hooks Hook configuration
      * @param PairContext $pairContext Context for hooks
      * @param null|callable(mixed): mixed $transformFn Optional transformation function
      * @param null|array<int|string, mixed> $replaceMap Optional replacement map
@@ -761,10 +926,15 @@ class MappingEngine
         );
 
         // Invoke afterTransform hook
-        $value = HookInvoker::invokeValueHook($hooks, DataMapperHook::AfterTransform->value, $pairContext, $value);
+        $value = HookInvoker::invokeValueHook(
+            $hooks,
+            DataMapperHook::AfterTransform->value,
+            $pairContext,
+            $value
+        );
 
-        // Skip null values if requested
-        if ($skipNull && null === $value) {
+        // Skip if afterTransform hook returned magic skip value
+        if ('__skip__' === $value) {
             return false;
         }
 
@@ -780,24 +950,50 @@ class MappingEngine
         );
 
         // Invoke beforeWrite hook
-        $writeValue = HookInvoker::invokeValueHook($hooks, DataMapperHook::BeforeWrite->value, $writeContext, $value);
+        $writeValue = HookInvoker::invokeValueHook(
+            $hooks,
+            DataMapperHook::BeforeWrite->value,
+            $writeContext,
+            $value
+        );
 
-        // Skip if hook returned magic skip value
-        if ('__skip__' !== $writeValue) {
-            // Write value to target
-            $targetData = self::asTarget($target);
-            DataMutator::make($targetData)->set($targetPath, $writeValue);
-            $target = $targetData;
-
-            // Invoke afterWrite hook
-            $target = HookInvoker::invokeTargetHook(
-                $hooks,
-                DataMapperHook::AfterWrite->value,
-                $writeContext,
-                $writeValue,
-                $target
-            );
+        // Skip writing if hook returned magic skip value
+        if ('__skip__' === $writeValue) {
+            return true;
         }
+
+        // Optionally validate that the target parent path exists (simple & structured mappings)
+        if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
+            $targetPathString = $targetPath;
+
+            if (str_contains($targetPathString, '.')) {
+                // Get parent path (everything before the last dot)
+                $lastDotPos = strrpos($targetPathString, '.');
+                // strrpos cannot return false here because str_contains already confirmed the dot exists
+                assert(false !== $lastDotPos);
+                $parentPath = substr($targetPathString, 0, $lastDotPos);
+
+                // Check if parent path exists in target
+                $targetAccessor = new DataAccessor(self::asTarget($target));
+                if (!$targetAccessor->exists($parentPath)) {
+                    MapperExceptions::handleUndefinedTargetValue($parentPath, $target);
+                }
+            }
+        }
+
+        // Write value to target
+        $targetData = self::asTarget($target);
+        DataMutator::make($targetData)->set($targetPath, $writeValue);
+        $target = $targetData;
+
+        // Invoke afterWrite hook
+        $target = HookInvoker::invokeTargetHook(
+            $hooks,
+            DataMapperHook::AfterWrite->value,
+            $writeContext,
+            $writeValue,
+            $target
+        );
 
         return true;
     }

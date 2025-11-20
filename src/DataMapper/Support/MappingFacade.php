@@ -9,7 +9,6 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
-use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\MappingOptions;
 use event4u\DataHelpers\DataMutator;
@@ -53,15 +52,21 @@ class MappingFacade
         // Clear exceptions at the start of each mapping
         MapperExceptions::clearExceptions();
 
-        // Support new MappingOptions API
-        if ($skipNull instanceof MappingOptions) {
-            $options = $skipNull;
-            $skipNull = $options->skipNull;
-            $reindexWildcard = $options->reindexWildcard;
-            $hooks = $options->hooks;
-            $trimValues = $options->trimValues;
-            $caseInsensitiveReplace = $options->caseInsensitiveReplace;
-        }
+        // Normalize legacy MappingFacade arguments into MappingOptions
+        $options = MappingOptions::fromLegacy(
+            $skipNull,
+            $reindexWildcard,
+            $hooks,
+            $trimValues,
+            $caseInsensitiveReplace,
+        );
+
+        $skipNull = $options->skipNull;
+        $reindexWildcard = $options->reindexWildcard;
+        $hooks = $options->hooks;
+        $trimValues = $options->trimValues;
+        $caseInsensitiveReplace = $options->caseInsensitiveReplace;
+
         // Ensure target is a supported type for mutation
         if (!is_array($target) && !is_object($target)) {
             $target = [];
@@ -266,7 +271,7 @@ class MappingFacade
      * - Unknown/unsupported targets are coerced to array
      * - skipNull, reindexWildcard, hooks, trimValues, caseInsensitiveReplace behave as in map()
      *
-     * @param array<string, mixed> $hooks Optional hooks propagated to this mapping
+     * @param array<int|string, mixed> $hooks Optional hooks propagated to this mapping
      */
     public static function autoMap(
         mixed $source,
@@ -452,7 +457,7 @@ class MappingFacade
      *
      * @param array<int|string, mixed>|object $target
      * @param array<string, string|array{__static__: mixed}> $mapping Mapping with raw paths (no {{ }} syntax)
-     * @param array<string, mixed> $hooks
+     * @param array<int|string, mixed> $hooks
      * @return array<int|string, mixed>|object
      * @internal
      */
@@ -466,7 +471,20 @@ class MappingFacade
         bool $trimValues = true,
         bool $caseInsensitiveReplace = false,
     ): array|object {
-        // All paths are treated as dynamic (no static values in AutoMapper)
+        // All paths are treated as dynamic (no {{ }} syntax in AutoMapper)
+        // Fast path: no hooks, no filters/defaults, no template syntax
+        if (HookInvoker::isEmpty($hooks) && self::isFastPathRawMapping($mapping)) {
+            return self::mapWithRawPathsFastPath(
+                $source,
+                $target,
+                $mapping,
+                $skipNull,
+                $reindexWildcard,
+                $trimValues,
+                $caseInsensitiveReplace
+            );
+        }
+
         return self::mapSimpleInternal(
             $source,
             $target,
@@ -477,6 +495,163 @@ class MappingFacade
             $trimValues,
             $caseInsensitiveReplace
         );
+    }
+
+    /**
+     * Determine if mapping is eligible for the raw-path fast path.
+     *
+     * Fast path is only used for simple string-to-string mappings without
+     * template/filter syntax or per-entry options. Wildcards are allowed
+     * and handled by MappingEngine's wildcard fast path.
+     *
+     * @param array<string, string|array{__static__: mixed}> $mapping
+     */
+    private static function isFastPathRawMapping(array $mapping): bool
+    {
+        if ([] === $mapping) {
+            return false;
+        }
+
+        foreach ($mapping as $targetPath => $sourcePathOrStatic) {
+            if (!is_string($targetPath)) {
+                return false;
+            }
+
+            if (!is_string($sourcePathOrStatic)) {
+                // Static values or complex entries are not supported by this fast path
+                return false;
+            }
+
+            // Reject template/filter syntax in source (raw paths only, but allow wildcards)
+            if (str_contains($sourcePathOrStatic, '{')
+                || str_contains($sourcePathOrStatic, '}')
+                || str_contains($sourcePathOrStatic, '|')
+                || str_contains($sourcePathOrStatic, '?')
+            ) {
+                return false;
+            }
+
+            // Reject template/filter syntax in target as well
+            if (str_contains($targetPath, '{')
+                || str_contains($targetPath, '}')
+                || str_contains($targetPath, '|')
+                || str_contains($targetPath, '?')
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Fast path for raw path mappings used by AutoMapper for simple cases.
+     *
+     * This path assumes:
+     * - no hooks
+     * - no filters/defaults
+     * - no template syntax
+     *
+     * Wildcards are supported and delegated to MappingEngine::processWildcardMapping.
+     *
+     * @param array<int|string, mixed>|object $target
+     * @param array<string, string|array{__static__: mixed}> $mapping
+     * @return array<int|string, mixed>|object
+     */
+    private static function mapWithRawPathsFastPath(
+        mixed $source,
+        array|object $target,
+        array $mapping,
+        bool $skipNull,
+        bool $reindexWildcard,
+        bool $trimValues,
+        bool $caseInsensitiveReplace,
+    ): array|object {
+        $accessor = new DataAccessor($source);
+
+        /** @var array<int|string, mixed>|object $targetData */
+        $targetData = MappingEngine::asTarget($target);
+        $mutator = DataMutator::make($targetData);
+
+        $mappingIndex = 0;
+
+        foreach ($mapping as $targetPath => $sourcePath) {
+            if (!is_string($targetPath) || !is_string($sourcePath)) {
+                $mappingIndex++;
+
+                continue;
+            }
+
+            $actualSourcePath = $sourcePath;
+
+            if (!$accessor->exists($actualSourcePath)) {
+                MapperExceptions::handleUndefinedSourceValue($actualSourcePath, $source);
+            }
+
+            $value = $accessor->get($actualSourcePath);
+
+            // Handle wildcard values when the source path contains a wildcard
+            if (is_array($value) && str_contains($actualSourcePath, '*')) {
+                $value = WildcardHandler::normalizeWildcardArray($value);
+
+                $updatedTarget = MappingEngine::processWildcardMapping(
+                    $value,
+                    $targetData,
+                    $actualSourcePath,
+                    $targetPath,
+                    $source,
+                    $mappingIndex,
+                    $skipNull,
+                    $reindexWildcard,
+                    [],
+                    null,
+                    null,
+                    null,
+                    $trimValues,
+                    $caseInsensitiveReplace
+                );
+
+                /** @var array<int|string, mixed>|object $targetData */
+                $targetData = $updatedTarget;
+
+                $mappingIndex++;
+
+                continue;
+            }
+
+            if ($skipNull && null === $value) {
+                $mappingIndex++;
+
+                continue;
+            }
+
+            if ($trimValues && is_string($value)) {
+                $value = trim($value);
+            }
+
+            if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
+                $targetPathString = $targetPath;
+
+                if (str_contains($targetPathString, '.')) {
+                    // Get parent path (everything before the last dot)
+                    $lastDotPos = strrpos($targetPathString, '.');
+                    // strrpos cannot return false here because str_contains already confirmed the dot exists
+                    assert(false !== $lastDotPos);
+                    $parentPath = substr($targetPathString, 0, $lastDotPos);
+
+                    // Check if parent path exists in target
+                    $targetAccessor = new DataAccessor(MappingEngine::asTarget($targetData));
+                    if (!$targetAccessor->exists($parentPath)) {
+                        MapperExceptions::handleUndefinedTargetValue($parentPath, $targetData);
+                    }
+                }
+            }
+
+            $mutator->set($targetPath, $value);
+            $mappingIndex++;
+        }
+
+        return $targetData;
     }
 
     /**
@@ -497,6 +672,17 @@ class MappingFacade
         bool $trimValues,
         bool $caseInsensitiveReplace,
     ): array|object {
+        // Fast path: no hooks and no template expressions / wildcards
+        if (HookInvoker::isEmpty($hooks) && self::isFastPathSimpleMapping($mapping)) {
+            return self::mapSimpleFastPath(
+                $source,
+                $target,
+                $mapping,
+                $skipNull,
+                $trimValues
+            );
+        }
+
         // Parse mapping: extract {{ }} expressions to actual paths
         $parsedMapping = TemplateParser::parseMapping($mapping, self::STATIC_VALUE_MARKER);
 
@@ -513,11 +699,138 @@ class MappingFacade
     }
 
     /**
+     * Determine if a simple mapping can use the fast path implementation.
+     *
+     * Fast path constraints:
+     * - All values are either
+     *   - plain string constants (treated as static values), or
+     *   - simple template expressions of the form "{{ path }}" where path is a dot-path
+     *     without filters, default values or wildcards.
+     *
+     * @param array<string, string> $mapping
+     */
+    private static function isFastPathSimpleMapping(array $mapping): bool
+    {
+        if ([] === $mapping) {
+            return false;
+        }
+
+        foreach ($mapping as $value) {
+            if (!is_string($value)) {
+                return false;
+            }
+
+            // Template expression: only allow simple {{ path }} without filters/defaults/wildcards
+            if (TemplateParser::isTemplate($value)) {
+                $inner = TemplateParser::extractPath($value);
+
+                // Quick reject for filters (|), default values (??) or wildcards (*)
+                if (str_contains($inner, '|')
+                    || str_contains($inner, '?')
+                    || str_contains($inner, '*')
+                ) {
+                    return false;
+                }
+
+                // Ensure the inner path is a simple identifier or dot-path
+                if (!preg_match('/^[A-Za-z_][A-Za-z0-9_\.]*$/', $inner)) {
+                    return false;
+                }
+
+                continue;
+            }
+
+            // Non-template strings are treated as static constants and are always allowed
+        }
+
+        return true;
+    }
+
+    /**
+     * Fast-path implementation for simple mapping without hooks.
+     *
+     * This mirrors the behaviour of mapSimpleInternal for the constrained cases handled
+     * by isFastPathSimpleMapping():
+     * - Template values {{ path }} are resolved from the source via DataAccessor
+     * - Plain strings are treated as static constants
+     * - Trimming and skipNull are applied consistently
+     * - Optional UndefinedTargetValue handling is respected
+     *
+     * @param array<int|string, mixed>|object $target
+     * @param array<string, string> $mapping
+     * @return array<int|string, mixed>|object
+     */
+    private static function mapSimpleFastPath(
+        mixed $source,
+        array|object $target,
+        array $mapping,
+        bool $skipNull,
+        bool $trimValues,
+    ): array|object {
+        $accessor = new DataAccessor($source);
+
+        /** @var array<int|string, mixed>|object $targetData */
+        $targetData = MappingEngine::asTarget($target);
+        $mutator = DataMutator::make($targetData);
+
+        foreach ($mapping as $targetPath => $rawValue) {
+            if (!is_string($targetPath)) {
+                continue;
+            }
+
+            // Determine value: template -> dynamic source path, otherwise static constant
+            if (is_string($rawValue) && TemplateParser::isTemplate($rawValue)) {
+                $inner = TemplateParser::extractPath($rawValue);
+                $sourcePath = trim($inner);
+
+                // Validate source path existence (no default and no filters in fast path)
+                if (!$accessor->exists($sourcePath)) {
+                    MapperExceptions::handleUndefinedSourceValue($sourcePath, $source);
+                }
+
+                $value = $accessor->get($sourcePath);
+            } else {
+                $value = $rawValue;
+            }
+
+            // Apply trimming for strings if enabled (matches ValueTransformer::processValue behaviour)
+            if ($trimValues && is_string($value)) {
+                $value = trim($value);
+            }
+
+            // Skip null values if configured
+            if ($skipNull && null === $value) {
+                continue;
+            }
+
+            // Optionally validate that the target parent path exists
+            if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
+                $targetPathString = $targetPath;
+
+                if (str_contains($targetPathString, '.')) {
+                    $lastDotPos = strrpos($targetPathString, '.');
+                    assert(false !== $lastDotPos);
+                    $parentPath = substr($targetPathString, 0, $lastDotPos);
+
+                    $targetAccessor = new DataAccessor(MappingEngine::asTarget($targetData));
+                    if (!$targetAccessor->exists($parentPath)) {
+                        MapperExceptions::handleUndefinedTargetValue($parentPath, $targetData);
+                    }
+                }
+            }
+
+            $mutator->set($targetPath, $value);
+        }
+
+        return $targetData;
+    }
+
+    /**
      * Internal mapping method that works with already-parsed paths (no {{ }} needed).
      *
      * @param array<int|string, mixed>|object $target
      * @param array<string, string|non-empty-array<string, mixed>> $mapping
-     * @param array<string, mixed> $hooks
+     * @param array<int|string, mixed> $hooks
      * @return array<int|string, mixed>|object
      */
     private static function mapSimpleInternal(
@@ -610,11 +923,6 @@ class MappingFacade
                 continue;
             }
 
-            // Apply trimValues (if enabled) - use empty replaceMap to trigger trimming
-            if ($trimValues && !$isStatic) {
-                $value = ValueTransformer::processValue($value, null, [], $trimValues, $caseInsensitiveReplace);
-            }
-
             // Handle wildcard values (always arrays with dot-path keys) - only for dynamic paths
             if (is_array($value) && !$isStatic && null !== $actualSourcePath && str_contains($actualSourcePath, '*')) {
                 // Normalize wildcard array (flatten dot-path keys to simple list)
@@ -647,66 +955,27 @@ class MappingFacade
                     $caseInsensitiveReplace
                 );
             } else {
-                $value = HookInvoker::invokeValueHook(
+                $processed = MappingEngine::processSingleValue(
+                    $value,
+                    $target,
                     $hooks,
-                    DataMapperHook::AfterTransform->value,
                     $pairContext,
-                    $value
-                );
-
-                // Skip if afterTransform hook returned magic skip value
-                if ('__skip__' === $value) {
-                    $mappingIndex++;
-
-                    continue;
-                }
-
-                $writeContext = new WriteContext(
+                    null,
+                    null,
+                    $trimValues,
+                    $caseInsensitiveReplace,
                     'simple',
                     $mappingIndex,
                     (string)$sourcePath,
                     (string)$targetPath,
                     $source,
-                    $target,
-                    (string)$targetPath
+                    $skipNull
                 );
-                $writeValue = HookInvoker::invokeValueHook(
-                    $hooks,
-                    DataMapperHook::BeforeWrite->value,
-                    $writeContext,
-                    $value
-                );
-                if ('__skip__' !== $writeValue) {
-                    // Check if target parent path exists (if enabled)
-                    if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
-                        $targetPathString = (string)$targetPath;
-                        if (str_contains($targetPathString, '.')) {
-                            // Get parent path (everything before the last dot)
-                            $lastDotPos = strrpos($targetPathString, '.');
-                            // strrpos cannot return false here because str_contains already confirmed the dot exists
-                            assert(false !== $lastDotPos);
-                            $parentPath = substr($targetPathString, 0, $lastDotPos);
 
-                            // Check if parent path exists in target
-                            $targetAccessor = new DataAccessor(MappingEngine::asTarget($target));
-                            if (!$targetAccessor->exists($parentPath)) {
-                                MapperExceptions::handleUndefinedTargetValue($parentPath, $target);
-                            }
-                        }
-                    }
+                if (!$processed) {
+                    $mappingIndex++;
 
-                    $targetData = MappingEngine::asTarget($target);
-                    DataMutator::make($targetData)->set((string)$targetPath, $writeValue);
-                    $target = $targetData;
-
-                    /** @var array<int|string, mixed>|object $target */
-                    $target = HookInvoker::invokeTargetHook(
-                        $hooks,
-                        DataMapperHook::AfterWrite->value,
-                        $writeContext,
-                        $writeValue,
-                        $target
-                    );
+                    continue;
                 }
             }
 

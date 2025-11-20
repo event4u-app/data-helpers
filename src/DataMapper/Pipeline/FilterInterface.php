@@ -19,7 +19,7 @@ use event4u\DataHelpers\DataMapper\Context\HookContext;
  *       }
  *   }
  */
-interface FilterInterface
+interface FilterInterface extends PipelineStepInterface
 {
     /**
      * Transform a value during the mapping process.

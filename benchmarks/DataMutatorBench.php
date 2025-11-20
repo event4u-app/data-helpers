@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\Benchmarks;
 
 use event4u\DataHelpers\DataMutator;
 use PhpBench\Attributes\BeforeMethods;
+use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 
@@ -67,6 +68,7 @@ class DataMutatorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchSimpleSet(): void
     {
         /** @phpstan-ignore-next-line assign.propertyType */
@@ -75,6 +77,7 @@ class DataMutatorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchNestedSet(): void
     {
         /** @phpstan-ignore-next-line assign.propertyType */
@@ -83,6 +86,7 @@ class DataMutatorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchDeepSet(): void
     {
         /** @phpstan-ignore-next-line assign.propertyType */
@@ -91,6 +95,7 @@ class DataMutatorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchMultipleSet(): void
     {
         /** @phpstan-ignore-next-line assign.propertyType */
@@ -102,6 +107,7 @@ class DataMutatorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchMerge(): void
     {
         /** @phpstan-ignore-next-line assign.propertyType */
@@ -110,6 +116,7 @@ class DataMutatorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchUnset(): void
     {
         /** @phpstan-ignore-next-line assign.propertyType */
@@ -118,6 +125,7 @@ class DataMutatorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchMultipleUnset(): void
     {
         /** @phpstan-ignore-next-line assign.propertyType */
@@ -126,6 +134,7 @@ class DataMutatorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchWildcardSet(): void
     {
         /** @phpstan-ignore-next-line assign.propertyType */
@@ -134,6 +143,7 @@ class DataMutatorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchDeepWildcardSet(): void
     {
         /** @phpstan-ignore-next-line assign.propertyType */

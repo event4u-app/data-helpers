@@ -61,6 +61,18 @@ class DataMutator
     }
 
     /**
+     * Set value at pre-parsed segment path (fluent instance method).
+     *
+     * @param array<int, string> $segments
+     */
+    public function setFromSegments(array $segments, mixed $value, bool $merge = false): self
+    {
+        $this->target = $this->applySet($this->target, $segments, $value, $merge);
+
+        return $this;
+    }
+
+    /**
      * Merge array at path or multiple values (fluent instance method).
      *
      * @param array<int|string, mixed>|string $pathOrValues

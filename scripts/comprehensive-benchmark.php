@@ -64,19 +64,30 @@ $otherDtoInstalled = trait_exists(base64_decode('QWxhbWVsbGFtYVxDYXJhcGFjZVxUcmF
 // ============================================================================
 // Step 1: Run PHPBench benchmarks
 // ============================================================================
-echo "📊  Step 1/4: Running PHPBench benchmarks (5 runs with warmup)...\n\n";
+$runCount = $updateReadme ? 3 : 5;
+echo sprintf(
+    "📊  Step 1/4: Running PHPBench benchmarks (%d run%s with warmup)...\n\n",
+    $runCount,
+    1 === $runCount ? '' : 's'
+);
 
 // Warmup: Run benchmarks once to warm up OPcache and build Dtos
 echo "  Warming up OPcache and building Dtos...\n";
-$warmupCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1 > /dev/null';
+
+$phpbenchCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table';
+if ($updateReadme) {
+    $phpbenchCommand .= ' --group=docs';
+}
+
+$warmupCommand = $phpbenchCommand . ' 2>&1 > /dev/null';
 exec($warmupCommand);
 echo "  Warmup complete!\n\n";
 
 $allRuns = [];
-$benchCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1';
+$benchCommand = $phpbenchCommand . ' 2>&1';
 
-for ($run = 1; 5 >= $run; $run++) {
-    echo "  Run {$run}/5...\n";
+for ($run = 1; $runCount >= $run; $run++) {
+    echo "  Run {$run}/{$runCount}...\n";
 
     exec($benchCommand, $outputLines, $returnCode);
 
@@ -96,6 +107,7 @@ for ($run = 1; 5 >= $run; $run++) {
         'DtoSerialization' => [],
         'ExternalDto' => [],
         'ExternalMapper' => [],
+        'AutoMappingEngine' => [],
     ];
 
     $lines = explode("\n", $output);
@@ -127,6 +139,10 @@ for ($run = 1; 5 >= $run; $run++) {
             $currentClass = 'ExternalMapper';
             continue;
         }
+        if (str_contains($line, 'AutoMappingEngineBench')) {
+            $currentClass = 'AutoMappingEngine';
+            continue;
+        }
 
         // Parse data rows
         if ($currentClass && preg_match('/\|\s*(\w+)\s*\|.*\|\s*([\d.]+)μs\s*\|/', $line, $matches)) {
@@ -150,6 +166,7 @@ $results = [
     'DtoSerialization' => [],
     'ExternalDto' => [],
     'ExternalMapper' => [],
+    'AutoMappingEngine' => [],
 ];
 
 foreach ($allRuns as $runResults) {
@@ -762,6 +779,10 @@ function generateComprehensiveMarkdown(
     ];
     /** @phpstan-ignore-next-line */
     foreach ($results['DataAccessor'] as $result) {
+        if (!isset($descriptions[$result['name']])) {
+            continue;
+        }
+
         /** @phpstan-ignore-next-line */
         $name = formatBenchmarkName($result['name']);
         /** @phpstan-ignore-next-line */
@@ -802,6 +823,10 @@ function generateComprehensiveMarkdown(
         'benchMapFromTemplate' => 'Map using template expressions',
     ];
     foreach ($results['DataMapper'] as $result) {
+        if (!isset($descriptions[$result['name']])) {
+            continue;
+        }
+
         $name = formatBenchmarkName($result['name']);
         $time = formatTime($result['time']);
         $desc = $descriptions[$result['name']] ?? '';
@@ -1334,38 +1359,46 @@ function generateIntroduction(array $results): string
     $symfonyAvg = 0 < $symfonyAvg ? $symfonyAvg / 2 : 150.0;
     $symfonyFactor = round($symfonyAvg / $dataMapperSerializationAvg, 1);
 
-    // Calculate other mapper comparison
-    $dataMapperAvg = 0.0;
-    $otherMapperAvg = 0.0;
-    $counts = ['DataMapper' => 0, 'Others' => 0];
+    // Calculate other mapper comparison (simple mapping only, consistent with Mapper Insights)
+    $dataMapperSimpleTime = null;
+    $otherMapperSimpleTimes = [];
 
     /** @var array<int, array{name: string, time: float}> $externalMapperResults */
     $externalMapperResults = $results['ExternalMapper'];
     foreach ($externalMapperResults as $result) {
-        if (str_contains($result['name'], 'DataMapper')) {
-            $dataMapperAvg += $result['time'];
-            $counts['DataMapper']++;
-        } elseif (!str_contains($result['name'], 'PlainPhp')) {
-            $otherMapperAvg += $result['time'];
-            $counts['Others']++;
+        $name = $result['name'];
+
+        if (str_contains($name, 'DataMapperSimple')) {
+            $dataMapperSimpleTime = $result['time'];
+            continue;
+        }
+
+        if (str_contains($name, 'Simple') && !str_contains($name, 'PlainPhp') && 0.1 <= $result['time']) {
+            $otherMapperSimpleTimes[] = $result['time'];
         }
     }
 
-    $dataMapperAvg = 0 < $counts['DataMapper'] ? $dataMapperAvg / $counts['DataMapper'] : 20;
-    $otherMapperAvg = 0 < $counts['Others'] ? $otherMapperAvg / $counts['Others'] : 5;
-    $vsOthersFactor = round($dataMapperAvg / $otherMapperAvg, 1);
+    $otherMapperSimpleTime = null;
+    if ([] !== $otherMapperSimpleTimes) {
+        $otherMapperSimpleTime = array_sum($otherMapperSimpleTimes) / count($otherMapperSimpleTimes);
+    }
+
+    $vsOthersFactor = 0.0;
+    if (null !== $dataMapperSimpleTime && null !== $otherMapperSimpleTime && 0.0 < $otherMapperSimpleTime) {
+        $vsOthersFactor = round($dataMapperSimpleTime / $otherMapperSimpleTime, 1);
+    }
 
     $md = "- **Type safety and validation** - With reasonable performance cost\n";
     $md .= sprintf("- **%.1fx faster** than Other Serializer for complex mappings\n", $symfonyFactor);
 
-    if (1 > $vsOthersFactor) {
+    if (0.0 < $vsOthersFactor && 1.0 > $vsOthersFactor) {
         $md .= sprintf(
             "- **%.1fx faster** than other mapper libraries (Other Mappers)\n",
             1 / $vsOthersFactor
         );
-    } else {
+    } elseif (1.0 <= $vsOthersFactor) {
         $md .= sprintf(
-            "- Other mapper libraries are **%.1fx faster**, but DataMapper provides better features\n",
+            "- Other mapper libraries are up to **%.1fx faster**, but DataMapper provides better features\n",
             $vsOthersFactor
         );
     }
@@ -1630,72 +1663,94 @@ function generateDtoInsights(array $results): string
  */
 function generateMapperInsights(array $results, array $externalDtoResults): string
 {
-    $dataMapperAvg = 0.0;
-    $ultraFastAvg = 0.0;
-    $plainPhpAvg = 0.0;
-    $otherMapperAvg = 0.0;
-    $counts = ['DataMapper' => 0, 'PlainPhp' => 0, 'Others' => 0];
+    // Focus on the simple-mapping scenario for a clear, honest comparison
+    $dataMapperSimpleTime = null;
+    $plainPhpSimpleTime = null;
+    $otherMapperSimpleTimes = [];
 
     /** @var array<int, array{name: string, time: float}> $externalMapperResults */
     $externalMapperResults = $results['ExternalMapper'];
     foreach ($externalMapperResults as $result) {
-        if (str_contains($result['name'], 'DataMapper')) {
-            $dataMapperAvg += $result['time'];
-            $counts['DataMapper']++;
-        } elseif (str_contains($result['name'], 'PlainPhp')) {
-            $plainPhpAvg += $result['time'];
-            $counts['PlainPhp']++;
-        } else {
-            // All other mappers
-            $otherMapperAvg += $result['time'];
-            $counts['Others']++;
+        $name = $result['name'];
+
+        if (str_contains($name, 'DataMapperSimple')) {
+            $dataMapperSimpleTime = $result['time'];
+            continue;
+        }
+
+        if (str_contains($name, 'PlainPhpSimple')) {
+            $plainPhpSimpleTime = $result['time'];
+            continue;
+        }
+
+        if (str_contains($name, 'Simple') && 0.1 <= $result['time']) {
+            // All other "Simple" mapping implementations are treated as "Other Mappers"
+            $otherMapperSimpleTimes[] = $result['time'];
         }
     }
 
-    // Get UltraFast from ExternalDto results
+    // Get UltraFast (simple mapping) from ExternalDto results
+    $ultraFastSimpleTime = null;
     /** @var array<int, array{name: string, time: float}> $externalDtoResultsData */
     $externalDtoResultsData = $externalDtoResults['ExternalDto'];
     foreach ($externalDtoResultsData as $result) {
         if (str_contains($result['name'], 'UltraFast') && str_contains($result['name'], 'FromArray')) {
-            $ultraFastAvg = $result['time'];
+            $ultraFastSimpleTime = $result['time'];
             break;
         }
     }
 
-    $dataMapperAvg = 0 < $counts['DataMapper'] ? $dataMapperAvg / $counts['DataMapper'] : 20.0;
-    $plainPhpAvg = 0 < $counts['PlainPhp'] ? $plainPhpAvg / $counts['PlainPhp'] : 0.2;
-    $otherMapperAvg = 0 < $counts['Others'] ? $otherMapperAvg / $counts['Others'] : 5.0;
-    $ultraFastAvg = 0.0 < $ultraFastAvg ? $ultraFastAvg : 1.8;
+    // Fallback defaults to keep documentation meaningful even if some benchmarks are missing
+    $dataMapperSimpleTime ??= 20.0;
+    $plainPhpSimpleTime ??= 0.2;
+    $ultraFastSimpleTime ??= 1.8;
 
-    $vsOthersFactor = 0.0 < $otherMapperAvg ? round($dataMapperAvg / $otherMapperAvg, 1) : 0.0;
-    $vsUltraFastFactor = 0.0 < $ultraFastAvg ? round($dataMapperAvg / $ultraFastAvg, 1) : 0.0;
-    $vsPlainPhpFactor = round($dataMapperAvg / $plainPhpAvg);
-    $ultraFastVsOthersFactor = round($ultraFastAvg / $otherMapperAvg, 1);
+    $otherMapperSimpleTime = null;
+    if ([] !== $otherMapperSimpleTimes) {
+        $otherMapperSimpleTime = array_sum($otherMapperSimpleTimes) / count($otherMapperSimpleTimes);
+    }
+
+    $vsUltraFastFactor = 0.0 < $ultraFastSimpleTime ? round($dataMapperSimpleTime / $ultraFastSimpleTime, 1) : 0.0;
+    $vsPlainPhpFactor = 0.0 < $plainPhpSimpleTime ? round($dataMapperSimpleTime / $plainPhpSimpleTime) : 0;
+    $vsOthersFactor = null !== $otherMapperSimpleTime && 0.0 < $otherMapperSimpleTime
+        ? round($dataMapperSimpleTime / $otherMapperSimpleTime, 1)
+        : 0.0;
 
     $md = "**Key Insights:**\n";
     $md .= sprintf(
         "- **SimpleDto #[UltraFast]** is **%.1fx faster** than DataMapper for simple mapping\n",
         $vsUltraFastFactor
     );
-    if (1 > $vsOthersFactor) {
+
+    if (1 > $vsOthersFactor && 0.0 < $vsOthersFactor) {
         $md .= sprintf(
             "- DataMapper is **%.1fx faster** than other mapper libraries (Other Mappers Hydrator)\n",
             1 / $vsOthersFactor
         );
-    } else {
-        $md .= sprintf(
-            "- Other mapper libraries are **%.1fx faster** than DataMapper, but **%.1fx slower** than #[UltraFast]\n",
-            $vsOthersFactor,
-            $ultraFastVsOthersFactor
-        );
+    } elseif (1 <= $vsOthersFactor && 0.0 < $vsOthersFactor && null !== $otherMapperSimpleTime) {
+        if ($otherMapperSimpleTime > $ultraFastSimpleTime && 0.0 < $ultraFastSimpleTime) {
+            $relative = round($otherMapperSimpleTime / $ultraFastSimpleTime, 1);
+            $md .= sprintf(
+                "- Other mapper libraries are up to **%.1fx faster** than DataMapper, but **%.1fx slower** than #[UltraFast]\n",
+                $vsOthersFactor,
+                $relative
+            );
+        } elseif (0.0 < $otherMapperSimpleTime) {
+            $relative = round($ultraFastSimpleTime / $otherMapperSimpleTime, 1);
+            $md .= sprintf(
+                "- Other mapper libraries are up to **%.1fx faster** than DataMapper, and **%.1fx faster** than #[UltraFast]\n",
+                $vsOthersFactor,
+                $relative
+            );
+        }
     }
+
     $md .= sprintf(
         "- Plain PHP is **~%dx faster** but requires manual mapping code for each use case\n",
         $vsPlainPhpFactor
     );
-    $md .= "- DataMapper provides the best balance of features, readability and maintainability for complex mappings\n";
 
-    return $md . "- The overhead is acceptable for complex mapping scenarios with better developer experience";
+    return $md . "- DataMapper provides the best balance of features, readability and maintainability for complex mappings\n";
 }
 
 /**
