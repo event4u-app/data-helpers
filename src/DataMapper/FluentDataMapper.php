@@ -682,9 +682,7 @@ final class FluentDataMapper
         return $query;
     }
 
-    /**
-     * Configure skipping of null values during mapping.
-     */
+    /** Configure skipping of null values during mapping. */
     public function skipNull(bool $skipNull = true): self
     {
         $this->skipNull = $skipNull;
@@ -692,9 +690,7 @@ final class FluentDataMapper
         return $this;
     }
 
-    /**
-     * Configure reindexing of wildcard results.
-     */
+    /** Configure reindexing of wildcard results. */
     public function reindexWildcard(bool $reindexWildcard = false): self
     {
         $this->reindexWildcard = $reindexWildcard;
@@ -702,9 +698,7 @@ final class FluentDataMapper
         return $this;
     }
 
-    /**
-     * Enable or disable trimming of string values.
-     */
+    /** Enable or disable trimming of string values. */
     public function trimValues(bool $trimValues = true): self
     {
         $this->trimValues = $trimValues;
@@ -712,9 +706,7 @@ final class FluentDataMapper
         return $this;
     }
 
-    /**
-     * Enable or disable case-insensitive replacement in mapping expressions.
-     */
+    /** Enable or disable case-insensitive replacement in mapping expressions. */
     public function caseInsensitiveReplace(bool $caseInsensitiveReplace = false): self
     {
         $this->caseInsensitiveReplace = $caseInsensitiveReplace;
@@ -722,9 +714,7 @@ final class FluentDataMapper
         return $this;
     }
 
-    /**
-     * Enable or disable deep mapping (nested structures).
-     */
+    /** Enable or disable deep mapping (nested structures). */
     public function deep(bool $deep = true): self
     {
         $this->deep = $deep;

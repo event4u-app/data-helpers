@@ -9,7 +9,6 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\EntryContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
-use event4u\DataHelpers\DataMapper\Context\WriteContext;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\MappingOptions;
 use event4u\DataHelpers\DataMutator;
@@ -533,10 +532,10 @@ class MappingFacade
             }
 
             // Reject template/filter syntax in target as well
-            if (str_contains((string)$targetPath, '{')
-                || str_contains((string)$targetPath, '}')
-                || str_contains((string)$targetPath, '|')
-                || str_contains((string)$targetPath, '?')
+            if (str_contains($targetPath, '{')
+                || str_contains($targetPath, '}')
+                || str_contains($targetPath, '|')
+                || str_contains($targetPath, '?')
             ) {
                 return false;
             }
@@ -599,7 +598,7 @@ class MappingFacade
                     $value,
                     $targetData,
                     $actualSourcePath,
-                    (string)$targetPath,
+                    $targetPath,
                     $source,
                     $mappingIndex,
                     $skipNull,
@@ -631,7 +630,7 @@ class MappingFacade
             }
 
             if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
-                $targetPathString = (string)$targetPath;
+                $targetPathString = $targetPath;
 
                 if (str_contains($targetPathString, '.')) {
                     // Get parent path (everything before the last dot)
@@ -806,7 +805,7 @@ class MappingFacade
 
             // Optionally validate that the target parent path exists
             if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
-                $targetPathString = (string)$targetPath;
+                $targetPathString = $targetPath;
 
                 if (str_contains($targetPathString, '.')) {
                     $lastDotPos = strrpos($targetPathString, '.');

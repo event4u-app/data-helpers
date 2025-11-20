@@ -13,44 +13,28 @@ use PhpBench\Attributes\Revs;
 #[BeforeMethods('setUp')]
 class WildcardMappingBench
 {
-    /**
-     * @var array<int, string>
-     */
+    /** @var array<int, string> */
     private array $wildcardValues200;
 
-    /**
-     * @var array<int, string>
-     */
+    /** @var array<int, string> */
     private array $wildcardValues1200;
 
-    /**
-     * @var array<int, string>
-     */
+    /** @var array<int, string> */
     private array $wildcardValues200Deep;
 
-    /**
-     * @var array<int, string>
-     */
+    /** @var array<int, string> */
     private array $wildcardValues1200Deep;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private array $wildcardSource200;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private array $wildcardSource1200;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private array $wildcardSource200Deep;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private array $wildcardSource1200Deep;
 
     public function setUp(): void
@@ -207,4 +191,3 @@ class WildcardMappingBench
         );
     }
 }
-

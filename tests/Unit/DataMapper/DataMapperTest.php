@@ -6,7 +6,6 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\Exceptions\UndefinedTargetValueException;
-
 use Illuminate\Database\Eloquent\Model;
 
 describe('DataMapper', function(): void {
@@ -502,9 +501,9 @@ describe('DataMapper', function(): void {
             })->toThrow(InvalidArgumentException::class, 'Mapping paths must be strings.');
         });
 
-
-
-        test('simple mapping throws UndefinedTargetValueException when target parent path is missing', function(): void {
+        test(
+            'simple mapping throws UndefinedTargetValueException when target parent path is missing',
+            function(): void {
             $source = [
                 'name' => 'Alice',
             ];
@@ -524,14 +523,17 @@ describe('DataMapper', function(): void {
                     ->map();
 
                 $this->fail('Expected UndefinedTargetValueException to be thrown');
-            } catch (UndefinedTargetValueException $exception) {
-                expect($exception)->toBeInstanceOf(UndefinedTargetValueException::class);
+            } catch (UndefinedTargetValueException $undefinedTargetValueException) {
+                expect($undefinedTargetValueException)->toBeInstanceOf(UndefinedTargetValueException::class);
             } finally {
                 MapperExceptions::reset();
             }
-        });
+        }
+        );
 
-        test('structured mapping throws UndefinedTargetValueException when target parent path is missing', function(): void {
+        test(
+            'structured mapping throws UndefinedTargetValueException when target parent path is missing',
+            function(): void {
             $source = [
                 'name' => 'Alice',
             ];
@@ -558,13 +560,13 @@ describe('DataMapper', function(): void {
                     ->map();
 
                 $this->fail('Expected UndefinedTargetValueException to be thrown');
-            } catch (UndefinedTargetValueException $exception) {
-                expect($exception)->toBeInstanceOf(UndefinedTargetValueException::class);
+            } catch (UndefinedTargetValueException $undefinedTargetValueException) {
+                expect($undefinedTargetValueException)->toBeInstanceOf(UndefinedTargetValueException::class);
             } finally {
                 MapperExceptions::reset();
             }
-        });
-
+        }
+        );
     });
 
     test('does not skip null when skipNull param is false - simple mapping', function(): void {

@@ -8,8 +8,8 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Context\AllContext;
 use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\Context\WriteContext;
-use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
+use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Helpers\DotPathHelper;
 use event4u\DataHelpers\Support\EntityHelper;
@@ -379,15 +379,12 @@ class MappingEngine
                     $segments[$wildcardSegmentIndex] = (string)$wildcardIndex;
 
                     // Optionally validate that the target parent path exists
-                    if ($throwOnUndefinedTarget) {
-                        if (count($segments) > 1) {
-                            $parentSegments = array_slice($segments, 0, count($segments) - 1);
-
-                            $targetAccessor = new DataAccessor($targetData);
-                            if (!$targetAccessor->existsSegments($parentSegments)) {
-                                $parentPath = implode('.', $parentSegments);
-                                MapperExceptions::handleUndefinedTargetValue($parentPath, $target);
-                            }
+                    if ($throwOnUndefinedTarget && count($segments) > 1) {
+                        $parentSegments = array_slice($segments, 0, count($segments) - 1);
+                        $targetAccessor = new DataAccessor($targetData);
+                        if (!$targetAccessor->existsSegments($parentSegments)) {
+                            $parentPath = implode('.', $parentSegments);
+                            MapperExceptions::handleUndefinedTargetValue($parentPath, $target);
                         }
                     }
 
@@ -594,9 +591,8 @@ class MappingEngine
             // Normal write to target
             $targetData = self::asTarget($target);
             DataMutator::make($targetData)->set($targetPath, $writeValue);
-            $target = $targetData;
 
-            return $target;
+            return $targetData;
         }
 
         // Write the collected array to target (generic path with hooks / transformations)
@@ -674,7 +670,6 @@ class MappingEngine
 
         return $target;
     }
-
 
     /**
      * Process single (non-wildcard) mapping.
@@ -969,7 +964,7 @@ class MappingEngine
 
         // Optionally validate that the target parent path exists (simple & structured mappings)
         if (MapperExceptions::isThrowOnUndefinedTargetEnabled()) {
-            $targetPathString = (string)$targetPath;
+            $targetPathString = $targetPath;
 
             if (str_contains($targetPathString, '.')) {
                 // Get parent path (everything before the last dot)

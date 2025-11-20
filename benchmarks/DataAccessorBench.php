@@ -148,5 +148,4 @@ class DataAccessorBench
 
         WildcardHandler::normalizeWildcardArray($result);
     }
-
 }

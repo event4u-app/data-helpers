@@ -89,7 +89,6 @@ class DataMapperQuery
         'LIMIT' => 'applyLimitOperator',
     ];
 
-
     /**
      * Set pipeline filters for data transformation.
      *
@@ -623,7 +622,6 @@ class DataMapperQuery
      * Apply WHERE conditions to wildcard mapping.
      *
      * @param array<string, mixed> $wildcardMapping
-     * @param string $sourceKey
      * @return array<string, mixed>
      */
     private function applyWhereOperator(array $wildcardMapping, string $sourceKey): array
@@ -639,7 +637,6 @@ class DataMapperQuery
      * Apply DISTINCT configuration to wildcard mapping.
      *
      * @param array<string, mixed> $wildcardMapping
-     * @param string $sourceKey
      * @return array<string, mixed>
      */
     private function applyDistinctOperator(array $wildcardMapping, string $sourceKey): array
@@ -655,7 +652,6 @@ class DataMapperQuery
      * Apply LIKE patterns to wildcard mapping.
      *
      * @param array<string, mixed> $wildcardMapping
-     * @param string $sourceKey
      * @return array<string, mixed>
      */
     private function applyLikeOperator(array $wildcardMapping, string $sourceKey): array
@@ -678,7 +674,6 @@ class DataMapperQuery
      * Apply GROUP BY configuration (including HAVING) to wildcard mapping.
      *
      * @param array<string, mixed> $wildcardMapping
-     * @param string $sourceKey
      * @return array<string, mixed>
      */
     private function applyGroupByOperator(array $wildcardMapping, string $sourceKey): array
@@ -729,7 +724,6 @@ class DataMapperQuery
      * Apply ORDER BY configuration to wildcard mapping.
      *
      * @param array<string, mixed> $wildcardMapping
-     * @param string $sourceKey
      * @return array<string, mixed>
      */
     private function applyOrderByOperator(array $wildcardMapping, string $sourceKey): array

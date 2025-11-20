@@ -1391,7 +1391,7 @@ function generateIntroduction(array $results): string
     $md = "- **Type safety and validation** - With reasonable performance cost\n";
     $md .= sprintf("- **%.1fx faster** than Other Serializer for complex mappings\n", $symfonyFactor);
 
-    if (0.0 < $vsOthersFactor && $vsOthersFactor < 1.0) {
+    if (0.0 < $vsOthersFactor && 1.0 > $vsOthersFactor) {
         $md .= sprintf(
             "- **%.1fx faster** than other mapper libraries (Other Mappers)\n",
             1 / $vsOthersFactor
@@ -1749,9 +1749,8 @@ function generateMapperInsights(array $results, array $externalDtoResults): stri
         "- Plain PHP is **~%dx faster** but requires manual mapping code for each use case\n",
         $vsPlainPhpFactor
     );
-    $md .= "- DataMapper provides the best balance of features, readability and maintainability for complex mappings\n";
 
-    return $md;
+    return $md . "- DataMapper provides the best balance of features, readability and maintainability for complex mappings\n";
 }
 
 /**

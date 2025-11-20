@@ -66,7 +66,7 @@ final class AutoMappingEngine
         if ($deep) {
             // Build mapping pairs from deep flattened source paths (use wildcard for numeric indices).
             // In shape-only mode we only care about the path keys; source values are read lazily via DataAccessor.
-            foreach (self::flattenSourcePaths($source, true, '', true) as $path => $_) {
+            foreach (array_keys(self::flattenSourcePaths($source, true, '', true)) as $path) {
                 // Build target path: keep segments; if target is object, prefer camelCase for first segment when property exists
                 $segments = explode('.', (string)$path);
                 if (is_object($target) && isset($segments[0])) {

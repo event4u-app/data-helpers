@@ -13,14 +13,10 @@ use PhpBench\Attributes\Revs;
 #[BeforeMethods('setUp')]
 final class AutoMappingEngineBench
 {
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private array $deepNestedSource;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private array $largeListSource;
 
     public function setUp(): void
@@ -92,4 +88,3 @@ final class AutoMappingEngineBench
         AutoMappingEngine::flattenSourcePaths($this->largeListSource, true, '', true);
     }
 }
-
