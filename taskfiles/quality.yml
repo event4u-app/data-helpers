@@ -73,7 +73,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running ECS Code Style Check" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --clear-cache
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check
 
   ecs:fix:
     desc: Fix code style with ECS (use PHP=8.2|8.3|8.4)
@@ -81,7 +81,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Fixing Code Style with ECS" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --clear-cache --fix
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --fix
 
   # ============================================================================
   # Rector
@@ -93,7 +93,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_quality "Running Rector Dry-Run" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --dry-run --clear-cache
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --dry-run
 
   rector:fix:
     desc: Apply Rector changes (use PHP=8.2|8.3|8.4)
@@ -101,7 +101,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_run "Applying Rector Changes" \
-          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --clear-cache
+          docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process
 
   # ============================================================================
   # Combined Quality Checks
@@ -115,11 +115,11 @@ tasks:
         task_header "Running Refactor Checks (ECS + Rector)"
 
         task_step "Running ECS..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --clear-cache
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check
         ECS_EXIT=$?
 
         task_step "Running Rector..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --dry-run --clear-cache
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --dry-run
         RECTOR_EXIT=$?
 
         echo ""
@@ -139,10 +139,10 @@ tasks:
         task_header "Applying Refactor Fixes (ECS + Rector)"
 
         task_step "Fixing with ECS..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --clear-cache --fix
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --fix
 
         task_step "Fixing with Rector..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --clear-cache
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process
 
         task_success "Refactor fixes applied"
         task_footer
@@ -157,12 +157,12 @@ tasks:
 
         # Run ECS
         task_step "Running ECS..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --clear-cache
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check
         ECS_EXIT=$?
 
         # Run Rector
         task_step "Running Rector..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --dry-run --clear-cache
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --dry-run
         RECTOR_EXIT=$?
 
         # Run PHPStan
@@ -200,11 +200,11 @@ tasks:
 
         # Run ECS fix
         task_step "Fixing with ECS..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --clear-cache --fix
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/ecs check --fix
 
         # Run Rector fix
         task_step "Fixing with Rector..."
-        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process --clear-cache
+        docker exec {{.PHP | default .DEFAULT_PHP}} vendor/bin/rector process
 
         # Run PHPStan
         task_step "Running PHPStan..."
