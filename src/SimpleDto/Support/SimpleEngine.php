@@ -147,7 +147,6 @@ final class SimpleEngine
      */
     private static array $visibleCache = [];
 
-
     /**
      * Cache for CastWith casters per class.
      *
@@ -1859,7 +1858,6 @@ final class SimpleEngine
 
         // For unsupported or complex non-nullable types we leave the value unchanged
     }
-
 
     /**
      * Get CastWith caster class for property.
