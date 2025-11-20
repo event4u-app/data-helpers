@@ -260,6 +260,51 @@ describe('Collection', function(): void {
         });
     });
 
+    describe('Average and Avg', function(): void {
+        it('calculates average of numeric values', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4]);
+
+            expect($collection->average())->toBe(2.5)
+                ->and($collection->avg())->toBe(2.5);
+        });
+
+        it('calculates average using path string', function(): void {
+            $collection = DataCollection::make([
+                ['age' => 30],
+                ['age' => 20],
+                ['age' => 50],
+            ]);
+
+            expect($collection->average('age'))->toBe(100 / 3);
+        });
+
+        it('calculates average using callback', function(): void {
+            $collection = DataCollection::make([
+                ['scores' => [10, 20]],
+                ['scores' => [30, 40]],
+            ]);
+
+            $avg = $collection->average(function(array $item): int {
+                return (int) array_sum($item['scores']) / count($item['scores']);
+            });
+
+            expect($avg)->toBe(25.0);
+        });
+
+        it('ignores non-numeric values and returns null for no numeric items', function(): void {
+            $collection = DataCollection::make(['a', 'b']);
+
+            expect($collection->average())->toBeNull();
+        });
+
+        it('handles numeric strings as numbers', function(): void {
+            $collection = DataCollection::make(['1', '2', '3']);
+
+            expect($collection->average())->toBe(2.0);
+        });
+    });
+
+
     describe('First and Last', function(): void {
         it('gets first item', function(): void {
             $collection = DataCollection::make([1, 2, 3]);

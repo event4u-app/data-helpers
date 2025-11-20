@@ -288,6 +288,48 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Calculate the average (mean) of the collection values.
+     *
+     * If a string is given, it is treated as a path and resolved via DataAccessor.
+     * If a callable is given, it receives the item and key and should return a numeric value.
+     * Non-numeric values are ignored.
+     *
+     * @param callable(TValue, int|string): (int|float|string)|string|null $callbackOrPath
+     */
+    public function average(callable|string|null $callbackOrPath = null): ?float
+    {
+        $sum = 0.0;
+        $count = 0;
+
+        foreach ($this->items as $key => $item) {
+            $value = $item;
+
+            if (is_string($callbackOrPath)) {
+                $value = DataAccessor::make($item)->get($callbackOrPath);
+            } elseif (null !== $callbackOrPath) {
+                $value = $callbackOrPath($item, $key);
+            }
+
+            if (is_int($value) || is_float($value) || (is_string($value) && is_numeric($value))) {
+                $sum += (float) $value;
+                ++$count;
+            }
+        }
+
+        if (0 === $count) {
+            return null;
+        }
+
+        return $sum / $count;
+    }
+
+    public function avg(callable|string|null $callbackOrPath = null): ?float
+    {
+        return $this->average($callbackOrPath);
+    }
+
+
+    /**
      * Get all items.
      *
      * @return array<int|string, TValue>
