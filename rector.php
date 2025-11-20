@@ -56,6 +56,11 @@ use Rector\TypeDeclaration\Rector\ClassMethod\StrictStringParamConcatRector;
 use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
 
 return RectorConfig::configure()
+    ->withParallel(
+        timeoutSeconds: 300,
+        maxNumberOfProcess: 4,
+        jobSize: 8,
+    )
     ->withPaths([
         __DIR__ . '/benchmarks',
         __DIR__ . '/examples',

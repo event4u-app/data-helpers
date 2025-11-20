@@ -974,9 +974,7 @@ final class SimpleEngine
         $value = $data[$sourceKey] ?? null;
 
         // Check for #[ConvertEmptyToNull]
-        if (self::shouldConvertValueToNull($class, $name, $param, $value)) {
-            $value = null;
-        }
+        self::applyConvertEmptyToNull($class, $name, $param, $value);
 
         // Hook: beforeCasting (allow modifying value before casting)
         if (null !== $dtoInstance) {
@@ -1764,17 +1762,23 @@ final class SimpleEngine
     }
 
     /**
-     * Check if value should be converted to null based on ConvertEmptyToNull attribute.
+     * Apply #[ConvertEmptyToNull] behavior based on attribute and parameter type.
+     *
+     * If no attribute is present or the value should not be treated as "empty",
+     * the value is left unchanged.
      *
      * @param class-string $class
      */
-    private static function shouldConvertValueToNull(
+    private static function applyConvertEmptyToNull(
         string $class,
         string $name,
         ReflectionParameter $param,
-        mixed $value
-    ): bool
-    {
+        mixed &$value
+    ): void {
+        if (null === $value) {
+            return;
+        }
+
         // Check for #[ConvertEmptyToNull] attribute on parameter
         $attrs = $param->getAttributes(ConvertEmptyToNull::class);
 
@@ -1784,36 +1788,89 @@ final class SimpleEngine
             $attrs = $reflection->getAttributes(ConvertEmptyToNull::class);
 
             if ([] === $attrs) {
-                return false;
+                return;
             }
         }
 
         /** @var ConvertEmptyToNull $attr */
         $attr = $attrs[0]->newInstance();
 
-        // Always convert empty strings and arrays
+        $isEmpty = false;
+
+        // Always treat empty strings and arrays as empty
         if ('' === $value || [] === $value) {
-            return true;
+            $isEmpty = true;
+        } elseif ($attr->convertStringZero && '0' === $value) {
+            $isEmpty = true;
+        } elseif ($attr->convertZero && (0 === $value || 0.0 === $value)) {
+            $isEmpty = true;
+        } elseif ($attr->convertFalse && false === $value) {
+            $isEmpty = true;
         }
 
-        // Convert string zero if enabled
-        if ($attr->convertStringZero && '0' === $value) {
-            return true;
+        if (!$isEmpty) {
+            return;
         }
 
-        // Convert numeric zero values if enabled
-        if ($attr->convertZero && (0 === $value || 0.0 === $value)) {
-            return true;
+        // If the parameter has a default value, prefer that over any normalization.
+        if ($param->isDefaultValueAvailable()) {
+            $value = $param->getDefaultValue();
+
+            return;
         }
-        // Convert false if enabled
-        return $attr->convertFalse && false === $value;
+
+        $type = $param->getType();
+
+        // If we do not know the type, fall back to the previous behavior (null)
+        if (null === $type) {
+            $value = null;
+
+            return;
+        }
+
+        // If the field is nullable, keep the previous behavior: convert to null
+        if ($type->allowsNull()) {
+            $value = null;
+
+            return;
+        }
+
+        // Non-nullable: use a type-specific "null" value when possible
+        if ($type instanceof ReflectionNamedType && $type->isBuiltin()) {
+            $typeName = $type->getName();
+
+            switch ($typeName) {
+                case 'int':
+                    $value = 0;
+
+                    return;
+                case 'float':
+                    $value = 0.0;
+
+                    return;
+                case 'bool':
+                    $value = false;
+
+                    return;
+                case 'string':
+                    $value = '';
+
+                    return;
+                case 'array':
+                    $value = [];
+
+                    return;
+            }
+        }
+
+        // For unsupported or complex non-nullable types we leave the value unchanged
     }
 
     /**
      * Check if parameter should convert empty to null (legacy method for cache).
      *
      * @param class-string $class
-     * @deprecated Use shouldConvertValueToNull instead
+     * @deprecated Use applyConvertEmptyToNull instead
      */
     private static function shouldConvertEmptyToNull(string $class, string $name, ReflectionParameter $param): bool
     {
@@ -2164,12 +2221,8 @@ final class SimpleEngine
             }
 
             // Step 2: Check for #[ConvertEmptyToNull] (only if flag is set)
-            if ($flags['hasConvertEmptyToNull'] && ('' === $value || [] === $value) && self::shouldConvertEmptyToNull(
-                $class,
-                $paramName,
-                $reflectionParameter
-            )) {
-                $value = null;
+            if ($flags['hasConvertEmptyToNull']) {
+                self::applyConvertEmptyToNull($class, $paramName, $reflectionParameter, $value);
             }
 
             // Step 3: Apply casting (only if NOT #[NoCasts])
@@ -3365,13 +3418,8 @@ final class SimpleEngine
             }
 
             // Step 2: Check for #[ConvertEmptyToNull] (only if flag is set)
-            if ($flags['hasConvertEmptyToNull'] && self::shouldConvertValueToNull(
-                $class,
-                $paramName,
-                $reflectionParameter,
-                $value
-            )) {
-                $value = null;
+            if ($flags['hasConvertEmptyToNull']) {
+                self::applyConvertEmptyToNull($class, $paramName, $reflectionParameter, $value);
             }
 
             // Step 2.5: Apply transformations (only if flag is set)

@@ -56,6 +56,45 @@ class LiteDtoConvertEmptyLiteDto extends LiteDto
     ) {}
 }
 
+class LiteDtoConvertEmptyWithDefaultDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+        #[ConvertEmptyToNull]
+        public readonly ?string $description = 'Default',
+    ) {}
+}
+
+class LiteDtoNonNullableStringConvertEmptyDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+        #[ConvertEmptyToNull]
+        public readonly string $description,
+    ) {}
+}
+
+class LiteDtoUnknownTypeConvertEmptyDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+        #[ConvertEmptyToNull]
+        public $description,
+    ) {}
+}
+
+/**
+ * @param array<string> $tags
+ */
+class LiteDtoNonNullableArrayConvertEmptyDto extends LiteDto
+{
+    public function __construct(
+        public readonly string $name,
+        #[ConvertEmptyToNull]
+        public readonly array $tags,
+    ) {}
+}
+
 class LiteDtoNestedAddressDto extends LiteDto
 {
     public function __construct(
@@ -224,6 +263,42 @@ describe('LiteDto', function(): void {
             ]);
 
             expect($dto->description)->toBe('A description');
+        });
+
+        it('uses default value when property has a default', function(): void {
+            $dto = LiteDtoConvertEmptyWithDefaultDto::from([
+                'name' => 'John',
+                'description' => '',
+            ]);
+
+            expect($dto->description)->toBe('Default');
+        });
+
+        it('does not convert empty string for non-nullable string property', function(): void {
+            $dto = LiteDtoNonNullableStringConvertEmptyDto::from([
+                'name' => 'John',
+                'description' => '',
+            ]);
+
+            expect($dto->description)->toBe('');
+        });
+
+        it('converts empty value to null when type is unknown', function(): void {
+            $dto = LiteDtoUnknownTypeConvertEmptyDto::from([
+                'name' => 'John',
+                'description' => '',
+            ]);
+
+            expect($dto->description)->toBeNull();
+        });
+
+        it('uses type-specific default for non-nullable array', function(): void {
+            $dto = LiteDtoNonNullableArrayConvertEmptyDto::from([
+                'name' => 'John',
+                'tags' => [],
+            ]);
+
+            expect($dto->tags)->toBe([]);
         });
     });
 

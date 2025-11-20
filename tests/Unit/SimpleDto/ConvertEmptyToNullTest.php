@@ -466,4 +466,131 @@ describe('ConvertEmptyToNull Attribute', function(): void {
 
         expect($dto->value)->toBe(-1);
     });
+
+    it('uses default value when parameter has a default', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull]
+                public readonly string $name = 'Default',
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'name' => '',
+        ]);
+
+        expect($dto->name)->toBe('Default');
+    });
+
+    it('uses type-specific default for non-nullable int when convertZero is enabled', function(): void {
+        $dto = SimpleDtoNonNullableIntConvertEmptyDto::fromArray([
+            'count' => 0,
+        ]);
+
+        expect($dto->count)->toBe(0);
+    });
+
+    it('uses type-specific default for non-nullable float when convertZero is enabled', function(): void {
+        $dto = SimpleDtoNonNullableFloatConvertEmptyDto::fromArray([
+            'amount' => 0.0,
+        ]);
+
+        expect($dto->amount)->toBe(0.0);
+    });
+
+    it('uses type-specific default for non-nullable bool when convertFalse is enabled', function(): void {
+        $dto = SimpleDtoNonNullableBoolConvertEmptyDto::fromArray([
+            'active' => false,
+        ]);
+
+        expect($dto->active)->toBe(false);
+    });
+
+    it('uses type-specific default for non-nullable array', function(): void {
+        $dto = SimpleDtoNonNullableArrayConvertEmptyDto::fromArray([
+            'tags' => [],
+        ]);
+
+        expect($dto->tags)->toBe([]);
+    });
+
+    it('converts empty value to null when parameter type is unknown', function(): void {
+        $dto = SimpleDtoUnknownTypeConvertEmptyDto::fromArray([
+            'value' => '',
+        ]);
+
+        expect($dto->value)->toBeNull();
+    });
+
+    it('converts empty value to null for union types that allow null', function(): void {
+        $dtoClass = new class () extends SimpleDto {
+            public function __construct(
+                #[ConvertEmptyToNull]
+                public readonly string|int|null $value = null,
+            ) {}
+        };
+
+        $dto = $dtoClass::fromArray([
+            'value' => '',
+        ]);
+
+        expect($dto->value)->toBeNull();
+    });
+
+    it('keeps value unchanged for non-nullable union types without null', function(): void {
+        $dto = SimpleDtoUnionWithoutNullConvertEmptyDto::fromArray([
+            'value' => '',
+        ]);
+
+        expect($dto->value)->toBe('');
+    });
 });
+
+class SimpleDtoNonNullableIntConvertEmptyDto extends SimpleDto
+{
+    public function __construct(
+        #[ConvertEmptyToNull(convertZero: true)]
+        public readonly int $count,
+    ) {}
+}
+
+class SimpleDtoNonNullableFloatConvertEmptyDto extends SimpleDto
+{
+    public function __construct(
+        #[ConvertEmptyToNull(convertZero: true)]
+        public readonly float $amount,
+    ) {}
+}
+
+class SimpleDtoNonNullableBoolConvertEmptyDto extends SimpleDto
+{
+    public function __construct(
+        #[ConvertEmptyToNull(convertFalse: true)]
+        public readonly bool $active,
+    ) {}
+}
+
+class SimpleDtoNonNullableArrayConvertEmptyDto extends SimpleDto
+{
+    /** @param array<string> $tags */
+    public function __construct(
+        #[ConvertEmptyToNull]
+        public readonly array $tags,
+    ) {}
+}
+
+class SimpleDtoUnknownTypeConvertEmptyDto extends SimpleDto
+{
+    public function __construct(
+        #[ConvertEmptyToNull]
+        public $value,
+    ) {}
+}
+
+class SimpleDtoUnionWithoutNullConvertEmptyDto extends SimpleDto
+{
+    public function __construct(
+        #[ConvertEmptyToNull]
+        public readonly string|int $value,
+    ) {}
+}

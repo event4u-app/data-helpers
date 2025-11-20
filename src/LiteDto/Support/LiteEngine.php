@@ -435,8 +435,8 @@ final class LiteEngine
         $value = $data[$sourceKey] ?? null;
 
         // Check for #[ConvertEmptyToNull]
-        if (self::shouldConvertEmptyToNull($reflection->getName(), $name, $param) && ('' === $value || [] === $value)) {
-            $value = null;
+        if (self::shouldConvertEmptyToNull($reflection->getName(), $name, $param)) {
+            self::applyConvertEmptyToNull($param, $value);
         }
 
         // Check for #[CastWith] - apply custom caster
@@ -598,6 +598,83 @@ final class LiteEngine
 
         self::$convertEmptyCache[$class][$name] = $shouldConvert;
         return $shouldConvert;
+    }
+    /**
+     * Apply #[ConvertEmptyToNull] behavior based on parameter type.
+     *
+     * If no attribute is present or the value should not be treated as "empty",
+     * the value is left unchanged.
+     */
+    private static function applyConvertEmptyToNull(ReflectionParameter $param, mixed &$value): void
+    {
+        if (null === $value) {
+            return;
+        }
+
+        // Check for #[ConvertEmptyToNull] attribute on parameter
+        $attrs = $param->getAttributes(ConvertEmptyToNull::class);
+
+        if ([] === $attrs) {
+            return;
+        }
+
+        // In LiteDto, we always treat empty strings and arrays as empty
+        if ('' !== $value && [] !== $value) {
+            return;
+        }
+
+        // If the parameter has a default value, prefer that over any normalization.
+        if ($param->isDefaultValueAvailable()) {
+            $value = $param->getDefaultValue();
+
+            return;
+        }
+
+        $type = $param->getType();
+
+        // If we do not have a usable type, fall back to the previous behavior: null
+        if (!$type instanceof ReflectionNamedType) {
+            $value = null;
+
+            return;
+        }
+
+        if ($type->allowsNull()) {
+            $value = null;
+
+            return;
+        }
+
+        if (!$type->isBuiltin()) {
+            return;
+        }
+
+        $typeName = $type->getName();
+
+        switch ($typeName) {
+            case 'int':
+                $value = 0;
+
+                return;
+            case 'float':
+                $value = 0.0;
+
+                return;
+            case 'bool':
+                $value = false;
+
+                return;
+            case 'string':
+                $value = '';
+
+                return;
+            case 'array':
+                $value = [];
+
+                return;
+        }
+
+        // For unsupported or complex non-nullable types we leave the value unchanged
     }
 
     /**
@@ -1275,9 +1352,8 @@ final class LiteEngine
             }
 
             // Step 2: Apply #[ConvertEmptyToNull] if present (auto-detect)
-            $convertEmptyAttrs = $reflectionParameter->getAttributes(ConvertEmptyToNull::class);
-            if (!empty($convertEmptyAttrs) && ('' === $value || [] === $value)) {
-                $value = null;
+            if (self::shouldConvertEmptyToNull($class, $paramName, $reflectionParameter)) {
+                self::applyConvertEmptyToNull($reflectionParameter, $value);
             }
 
             // Step 3: Apply #[CastWith] if present (auto-detect or explicitly allowed)
