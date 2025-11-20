@@ -234,6 +234,43 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Get the item before the given item in the collection.
+     *
+     * Similar to Laravel's before(): finds the previous item before a given value or predicate.
+     *
+     * @param (callable(TValue, int|string): bool)|TValue $valueOrCallback
+     * @param TValue|null $default
+     * @return TValue|null
+     */
+    public function before(mixed $valueOrCallback, mixed $default = null, bool $strict = false): mixed
+    {
+        $previous = null;
+        $hasPrevious = false;
+
+        foreach ($this->items as $key => $item) {
+            if ($valueOrCallback instanceof Closure) {
+                if ($valueOrCallback($item, $key)) {
+                    return $hasPrevious ? $previous : $default;
+                }
+
+                $previous = $item;
+                $hasPrevious = true;
+
+                continue;
+            }
+
+            if ($strict ? $item === $valueOrCallback : $item == $valueOrCallback) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+                return $hasPrevious ? $previous : $default;
+            }
+
+            $previous = $item;
+            $hasPrevious = true;
+        }
+
+        return $default;
+    }
+
+    /**
      * Reduce the collection to a single value.
      *
      * Delegates to DataAccessor for reduce logic.

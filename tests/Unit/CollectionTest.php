@@ -333,6 +333,40 @@ describe('Collection', function(): void {
         });
     });
 
+    describe('Before', function(): void {
+        it('gets item before given value', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4, 5]);
+
+            expect($collection->before(3))->toBe(2)
+                ->and($collection->before(1))->toBeNull();
+        });
+
+        it('supports strict comparison', function(): void {
+            $collection = DataCollection::make([2, 4, 6, 8]);
+
+            expect($collection->before('4'))->toBe(2)
+                ->and($collection->before('4', strict: true))->toBeNull();
+        });
+
+        it('supports callback predicate', function(): void {
+            $collection = DataCollection::make([2, 4, 6, 8]);
+
+            $before = $collection->before(function(int $item, int|string $key): bool {
+                return $item > 5;
+            });
+
+            expect($before)->toBe(4);
+        });
+
+        it('returns default when not found or first item', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c']);
+
+            expect($collection->before('x', 'fallback'))->toBe('fallback')
+                ->and($collection->before('a', 'fallback'))->toBe('fallback');
+        });
+    });
+
+
 
     describe('Get', function(): void {
         it('gets item by key', function(): void {
