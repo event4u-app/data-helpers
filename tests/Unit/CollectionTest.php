@@ -165,6 +165,70 @@ describe('Collection', function(): void {
             expect($mapped)->not->toBe($collection);
         });
     });
+    describe('Pluck', function(): void {
+        it('plucks simple values', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'John', 'age' => 30],
+                ['name' => 'Jane', 'age' => 25],
+            ]);
+
+            $ages = $collection->pluck('age');
+
+            expect($ages->toArray())->toBe([30, 25]);
+        });
+
+        it('plucks nested values with dot notation', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'address' => ['city' => 'Berlin']],
+                ['id' => 2, 'address' => ['city' => 'Munich']],
+            ]);
+
+            $cities = $collection->pluck('address.city');
+
+            expect($cities->toArray())->toBe(['Berlin', 'Munich']);
+        });
+
+        it('plucks values with custom keys', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'email' => 'john@example.com'],
+                ['id' => 2, 'email' => 'jane@example.com'],
+            ]);
+
+            $emailsById = $collection->pluck('email', 'id');
+
+            expect($emailsById->toArray())->toBe([
+                1 => 'john@example.com',
+                2 => 'jane@example.com',
+            ]);
+        });
+
+        it('plucks values from objects', function(): void {
+            $obj1 = (object) ['id' => 1, 'name' => 'John'];
+            $obj2 = (object) ['id' => 2, 'name' => 'Jane'];
+
+            $collection = DataCollection::make([$obj1, $obj2]);
+
+            $namesById = $collection->pluck('name', 'id');
+
+            expect($namesById->toArray())->toBe([
+                1 => 'John',
+                2 => 'Jane',
+            ]);
+        });
+
+        it('plucks missing values as null', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1],
+                ['id' => 2, 'name' => 'John'],
+            ]);
+
+            $names = $collection->pluck('name');
+
+            expect($names->toArray())->toBe([null, 'John']);
+        });
+    });
+
+
 
     describe('Reduce', function(): void {
         it('reduces to single value', function(): void {

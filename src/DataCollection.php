@@ -129,6 +129,47 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Pluck a value from each item in the collection.
+     *
+     * Similar to Laravel's pluck(): supports dot notation and optional key path.
+     *
+     * @template TPluckValue
+     * @param string|int $valuePath Dot-notation path or key to extract from each item
+     * @param string|int|null $keyPath Optional dot-notation path or key to use for result keys
+     * @return static<TPluckValue>
+     * @phpstan-ignore return.type
+     */
+    public function pluck(string|int $valuePath, string|int|null $keyPath = null): static
+    {
+        $valuePathString = (string) $valuePath;
+        $keyPathString = null !== $keyPath ? (string) $keyPath : null;
+
+        $result = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            $value = DataAccessor::make($item)->get($valuePathString);
+
+            if (null === $keyPathString) {
+                $result[] = $value;
+
+                continue;
+            }
+
+            $key = DataAccessor::make($item)->get($keyPathString);
+
+            if (is_int($key) || is_string($key)) {
+                $result[$key] = $value;
+
+                continue;
+            }
+
+            $result[$itemKey] = $value;
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
      * Get the first item from the collection.
      *
      * Delegates to DataAccessor for first() logic.
