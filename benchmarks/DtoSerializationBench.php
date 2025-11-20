@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\Benchmarks;
 
 use event4u\DataHelpers\DataMapper;
 use PhpBench\Attributes\BeforeMethods;
+use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 use RuntimeException;
@@ -107,6 +108,7 @@ class DtoSerializationBench
     /** Benchmark: DataMapper with template syntax (nested to flat) */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchDataMapperTemplate(): void
     {
         $template = [
@@ -130,6 +132,7 @@ class DtoSerializationBench
     /** Benchmark: DataMapper with simple path mapping (nested to flat) */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchDataMapperSimplePaths(): void
     {
         $mapping = [
@@ -153,6 +156,7 @@ class DtoSerializationBench
     /** Benchmark: Other Serializer from JSON (nested structure) */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchOtherSerializerJson(): void
     {
         if (!$this->otherSerializer) {
@@ -171,6 +175,7 @@ class DtoSerializationBench
     /** Benchmark: Other Serializer from array (nested structure) */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchOtherSerializerArray(): void
     {
         if (!$this->otherSerializer) {
@@ -188,6 +193,7 @@ class DtoSerializationBench
     /** Benchmark: Manual mapping (baseline - nested to flat) */
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchManualMapping(): void
     {
         $user = $this->nestedData['user'];

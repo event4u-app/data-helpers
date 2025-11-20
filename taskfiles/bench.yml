@@ -50,7 +50,7 @@ tasks:
       - |
         source {{.OUTPUT_HELPER}}
         task_header "Running Comprehensive Benchmarks (Direct)"
-        docker exec -e BENCH_README_ONLY=1 {{.PHP | default .DEFAULT_PHP}} php scripts/comprehensive-benchmark.php --readme
+        docker exec {{.PHP | default .DEFAULT_PHP}} php scripts/comprehensive-benchmark.php --readme
         EXIT_CODE=$?
         if [ $EXIT_CODE -eq 0 ]; then
           task_success "Benchmarks completed and documentation updated"

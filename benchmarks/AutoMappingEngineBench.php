@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\Benchmarks;
 
 use event4u\DataHelpers\DataMapper\Support\AutoMappingEngine;
 use PhpBench\Attributes\BeforeMethods;
+use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 
@@ -78,6 +79,7 @@ final class AutoMappingEngineBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchFlattenDeepNested(): void
     {
         AutoMappingEngine::flattenSourcePaths($this->deepNestedSource, true, '', true);

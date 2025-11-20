@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\Benchmarks;
 
 use event4u\DataHelpers\DataMapper;
 use PhpBench\Attributes\BeforeMethods;
+use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 
@@ -104,6 +105,7 @@ class DataMapperBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchSimpleMapping(): void
     {
         DataMapper::source($this->simpleSource)
@@ -114,6 +116,7 @@ class DataMapperBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchNestedMapping(): void
     {
         $mapping = [
@@ -129,6 +132,7 @@ class DataMapperBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchAutoMap(): void
     {
         $target = ['firstName' => null, 'lastName' => null, 'email' => null];
@@ -139,6 +143,7 @@ class DataMapperBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchMapFromTemplate(): void
     {
         $template = [
@@ -156,10 +161,6 @@ class DataMapperBench
     #[Iterations(5)]
     public function benchAutoMapDeep(): void
     {
-        if ($this->shouldSkipDetailedBenchmarks()) {
-            return;
-        }
-
         $source = [
             'users' => [
                 [
@@ -187,10 +188,6 @@ class DataMapperBench
     #[Iterations(5)]
     public function benchAutoMapDeepNestedWildcards(): void
     {
-        if ($this->shouldSkipDetailedBenchmarks()) {
-            return;
-        }
-
         DataMapper::source($this->deepNestedSource)
             ->target([])
             ->deep(true)
@@ -201,18 +198,9 @@ class DataMapperBench
     #[Iterations(5)]
     public function benchAutoMapDeepLargeList(): void
     {
-        if ($this->shouldSkipDetailedBenchmarks()) {
-            return;
-        }
-
         DataMapper::source($this->largeListSource)
             ->target([])
             ->deep(true)
             ->autoMap();
-    }
-
-    private function shouldSkipDetailedBenchmarks(): bool
-    {
-        return false !== getenv('BENCH_README_ONLY');
     }
 }

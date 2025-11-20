@@ -7,6 +7,7 @@ namespace event4u\DataHelpers\Benchmarks;
 use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataMapper\Support\WildcardHandler;
 use PhpBench\Attributes\BeforeMethods;
+use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 
@@ -68,6 +69,7 @@ class DataAccessorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchSimpleGet(): void
     {
         $this->simpleAccessor->get('name');
@@ -75,6 +77,7 @@ class DataAccessorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchNestedGet(): void
     {
         $this->nestedAccessor->get('user.profile.name');
@@ -82,6 +85,7 @@ class DataAccessorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchWildcardGet(): void
     {
         $this->nestedAccessor->get('user.emails.*.value');
@@ -89,17 +93,15 @@ class DataAccessorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchDeepWildcardGet(): void
     {
-        if ($this->shouldSkipDetailedBenchmarks()) {
-            return;
-        }
-
         $this->deepAccessor->get('departments.*.employees.*.email');
     }
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchTypedGetString(): void
     {
         $this->simpleAccessor->getString('name');
@@ -107,6 +109,7 @@ class DataAccessorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchTypedGetInt(): void
     {
         $this->simpleAccessor->getInt('age');
@@ -114,6 +117,7 @@ class DataAccessorBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchCreateAccessor(): void
     {
         new DataAccessor($this->simpleData);
@@ -123,10 +127,6 @@ class DataAccessorBench
     #[Iterations(5)]
     public function benchWildcardGetAndNormalize(): void
     {
-        if ($this->shouldSkipDetailedBenchmarks()) {
-            return;
-        }
-
         $result = $this->nestedAccessor->get('user.emails.*.value');
 
         if (!is_array($result)) {
@@ -140,10 +140,6 @@ class DataAccessorBench
     #[Iterations(5)]
     public function benchDeepWildcardGetAndNormalize(): void
     {
-        if ($this->shouldSkipDetailedBenchmarks()) {
-            return;
-        }
-
         $result = $this->deepAccessor->get('departments.*.employees.*.email');
 
         if (!is_array($result)) {
@@ -151,11 +147,6 @@ class DataAccessorBench
         }
 
         WildcardHandler::normalizeWildcardArray($result);
-    }
-
-    private function shouldSkipDetailedBenchmarks(): bool
-    {
-        return false !== getenv('BENCH_README_ONLY');
     }
 
 }

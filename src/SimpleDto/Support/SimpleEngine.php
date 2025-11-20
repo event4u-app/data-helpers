@@ -3437,15 +3437,9 @@ final class SimpleEngine
 
                     // Then check for #[CastWith] attribute (only if no casts() method cast found)
                     if (null === $casterInstance && $flags['hasCastWith']) {
-                        $castWithAttrs = $reflectionParameter->getAttributes(CastWith::class);
-                        if (!empty($castWithAttrs)) {
-                            /** @var CastWith $castWith */
-                            $castWith = $castWithAttrs[0]->newInstance();
-                            $casterClass = $castWith->casterClass;
-
-                            if (class_exists($casterClass)) {
-                                $casterInstance = new $casterClass();
-                            }
+                        $casterClass = self::getCastWith($class, $paramName, $reflectionParameter);
+                        if (null !== $casterClass && class_exists($casterClass)) {
+                            $casterInstance = new $casterClass();
                         }
                     }
 

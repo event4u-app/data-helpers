@@ -73,12 +73,18 @@ echo sprintf(
 
 // Warmup: Run benchmarks once to warm up OPcache and build Dtos
 echo "  Warming up OPcache and building Dtos...\n";
-$warmupCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1 > /dev/null';
+
+$phpbenchCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table';
+if ($updateReadme) {
+    $phpbenchCommand .= ' --group=docs';
+}
+
+$warmupCommand = $phpbenchCommand . ' 2>&1 > /dev/null';
 exec($warmupCommand);
 echo "  Warmup complete!\n\n";
 
 $allRuns = [];
-$benchCommand = 'cd ' . escapeshellarg($rootDir) . ' && vendor/bin/phpbench run --report=table 2>&1';
+$benchCommand = $phpbenchCommand . ' 2>&1';
 
 for ($run = 1; $runCount >= $run; $run++) {
     echo "  Run {$run}/{$runCount}...\n";
@@ -766,6 +772,7 @@ function generateComprehensiveMarkdown(
         'benchSimpleGet' => 'Get value from flat array',
         'benchNestedGet' => 'Get value from nested path',
         'benchWildcardGet' => 'Get values using single wildcard',
+        'benchDeepWildcardGet' => 'Get values using multiple wildcards',
         'benchTypedGetString' => 'Get typed string value',
         'benchTypedGetInt' => 'Get typed int value',
         'benchCreateAccessor' => 'Instantiate DataAccessor',

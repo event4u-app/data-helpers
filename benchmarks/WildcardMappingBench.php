@@ -6,6 +6,7 @@ namespace event4u\DataHelpers\Benchmarks;
 
 use event4u\DataHelpers\DataMapper\Support\MappingEngine;
 use PhpBench\Attributes\BeforeMethods;
+use PhpBench\Attributes\Groups;
 use PhpBench\Attributes\Iterations;
 use PhpBench\Attributes\Revs;
 
@@ -111,6 +112,7 @@ class WildcardMappingBench
 
     #[Revs(1000)]
     #[Iterations(5)]
+    #[Groups(['docs'])]
     public function benchProcessWildcardMapping200Deep(): void
     {
         $target = [];
