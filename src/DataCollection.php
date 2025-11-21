@@ -856,13 +856,96 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             $this->flattenItem($result, (string) $key, $value);
         }
 
-        return new static($result); // @phpstan-ignore return.type
+        /** @var static<TValue> $collection */
+        $collection = new static($result); // @phpstan-ignore return.type
+
+        return $collection;
     }
 
-    /** Alias for flatten() */
+    /**
+     * Alias for flatten().
+     *
+     * @return static<TValue>
+     */
     public function dot(): static
     {
-        return $this->flatten();
+        /** @var static<TValue> $collection */
+        $collection = $this->flatten();
+
+        return $collection;
+    }
+
+    /**
+     * Expand a flat dot-notation array back into a nested structure.
+     *
+     * This behaves similar to Laravel's Arr::undot():
+     *
+     *   DataCollection::make([
+     *       'user.name' => 'Alice',
+     *       'user.address.city' => 'Berlin',
+     *   ])->unflatten();
+     *
+     * produces:
+     *
+     *   [
+     *       'user' => [
+     *           'name' => 'Alice',
+     *           'address' => ['city' => 'Berlin'],
+     *       ],
+     *   ]
+     *
+     * @return static<TValue>
+     */
+    public function unflatten(): static
+    {
+        $result = [];
+
+        foreach ($this->items as $path => $value) {
+            if (!is_string($path) || '' === $path) {
+                $result[$path] = $value;
+                continue;
+            }
+
+            $segments = DotPathHelper::segments($path);
+
+            // If the path contains a wildcard we cannot reliably undot it –
+            // fall back to keeping the original key.
+            if ([] === $segments || DotPathHelper::containsWildcard($path)) {
+                $result[$path] = $value;
+                continue;
+            }
+
+            $cursor = &$result;
+
+            foreach ($segments as $segment) {
+                if (!array_key_exists($segment, $cursor) || !is_array($cursor[$segment])) {
+                    $cursor[$segment] = [];
+                }
+
+                $cursor = &$cursor[$segment];
+            }
+
+            $cursor = $value;
+            unset($cursor);
+        }
+
+        /** @var static<TValue> $collection */
+        $collection = new static($result); // @phpstan-ignore return.type
+
+        return $collection;
+    }
+
+    /**
+     * Alias for unflatten().
+     *
+     * @return static<TValue>
+     */
+    public function undot(): static
+    {
+        /** @var static<TValue> $collection */
+        $collection = $this->unflatten();
+
+        return $collection;
     }
 
     /**

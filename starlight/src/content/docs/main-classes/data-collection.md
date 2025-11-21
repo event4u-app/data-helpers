@@ -865,6 +865,25 @@ $flat = $profile->flatten()->toArray();
 //     'active' => true,
 // ]
 
+// unflatten() / undot()  reverse of flatten()
+$flat = DataCollection::make([
+    'user.name' => 'Alice',
+    'user.address.city' => 'Berlin',
+    'user.address.zip' => '10115',
+]);
+
+$nested = $flat->unflatten()->toArray();
+// $nested = [
+//     'user' => [
+//         'name' => 'Alice',
+//         'address' => [
+//             'city' => 'Berlin',
+//             'zip' => '10115',
+//         ],
+//     ],
+// ]
+
+
 
 // average() / avg()
 $numbers = DataCollection::make([1, 2, 3, 4]);

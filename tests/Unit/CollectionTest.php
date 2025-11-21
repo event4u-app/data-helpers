@@ -475,6 +475,85 @@ describe('Collection', function(): void {
 
 
 
+    describe('Unflatten', function(): void {
+        it('unflattens simple dot-notation keys back to nested arrays', function(): void {
+            $collection = DataCollection::make([
+                'user.name' => 'Alice',
+                'user.address.city' => 'Berlin',
+                'user.address.zip' => '10115',
+                'active' => true,
+            ]);
+
+            expect($collection->unflatten()->toArray())->toBe([
+                'user' => [
+                    'name' => 'Alice',
+                    'address' => [
+                        'city' => 'Berlin',
+                        'zip' => '10115',
+                    ],
+                ],
+                'active' => true,
+            ]);
+        });
+
+        it('unflattens numeric segments into nested numeric arrays', function(): void {
+            $collection = DataCollection::make([
+                'numbers.0' => 1,
+                'numbers.1' => 2,
+                'numbers.2' => 3,
+            ]);
+
+            expect($collection->unflatten()->toArray())->toBe([
+                'numbers' => [1, 2, 3],
+            ]);
+        });
+
+        it('leaves non-string and empty keys untouched', function(): void {
+            $collection = DataCollection::make([
+                0 => 'keep',
+                '' => 'also-keep',
+            ]);
+
+            expect($collection->unflatten()->toArray())->toBe([
+                0 => 'keep',
+                '' => 'also-keep',
+            ]);
+        });
+
+        it('is the reverse operation of flatten for simple cases', function(): void {
+            $original = DataCollection::make([
+                'user' => [
+                    'name' => 'Alice',
+                    'address' => ['city' => 'Berlin'],
+                ],
+            ]);
+
+            $flattened = $original->flatten();
+            $unflattened = $flattened->unflatten();
+
+            expect($unflattened->toArray())->toBe($original->toArray());
+        });
+
+        it('returns an empty collection for empty input', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->unflatten()->toArray())->toBe([]);
+        });
+
+        it('has undot as alias for unflatten', function(): void {
+            $collection = DataCollection::make([
+                'user.name' => 'Alice',
+            ]);
+
+            expect($collection->undot()->toArray())->toBe([
+                'user' => ['name' => 'Alice'],
+            ]);
+        });
+    });
+
+
+
+
 
 
     describe('Reduce', function(): void {
@@ -1124,7 +1203,9 @@ describe('Collection', function(): void {
         it('supports strict comparison', function(): void {
             $collection = DataCollection::make([2, 4, 6, 8]);
 
+            /** @phpstan-ignore argument.type */
             expect($collection->after('4'))->toBe(6)
+                /** @phpstan-ignore argument.type */
                 ->and($collection->after('4', strict: true))->toBeNull();
         });
 
@@ -1157,7 +1238,9 @@ describe('Collection', function(): void {
         it('supports strict comparison', function(): void {
             $collection = DataCollection::make([2, 4, 6, 8]);
 
+            /** @phpstan-ignore argument.type */
             expect($collection->before('4'))->toBe(2)
+                /** @phpstan-ignore argument.type */
                 ->and($collection->before('4', strict: true))->toBeNull();
         });
 
