@@ -601,6 +601,12 @@ $hasA = $collection->has('a');
 $hasX = $collection->has('x');
 // $hasA = true
 // $hasX = false
+
+// hasAny()
+$anyAB = $collection->hasAny('a', 'b');
+$anyXZ = $collection->hasAny('x', 'z');
+// $anyAB = true
+// $anyXZ = false
 ```
 
 ### Transformation Methods

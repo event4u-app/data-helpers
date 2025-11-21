@@ -885,6 +885,21 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Determine if at least one of the given keys exists in the collection.
+     */
+    public function hasAny(int|string ...$keys): bool
+    {
+        foreach ($keys as $key) {
+            if ($this->has($key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
      * Get an iterator for the items.
      *
      * @return Traversable<int|string, TValue>

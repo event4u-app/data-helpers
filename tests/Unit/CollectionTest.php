@@ -725,6 +725,31 @@ describe('Collection', function(): void {
         });
     });
 
+
+
+    describe('HasAny', function(): void {
+        it('returns true if at least one key exists', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2]);
+
+            expect($collection->hasAny('a', 'c'))->toBeTrue()
+                ->and($collection->hasAny('x', 'b'))->toBeTrue();
+        });
+
+        it('returns false if none of the keys exist', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2]);
+
+            expect($collection->hasAny('x', 'y'))->toBeFalse();
+        });
+
+        it('works with numeric keys', function(): void {
+            $collection = DataCollection::make([10, 20, 30]);
+
+            expect($collection->hasAny(0, 3))->toBeTrue()
+                ->and($collection->hasAny(5, 6))->toBeFalse();
+        });
+    });
+
+
     describe('IsEmpty and IsNotEmpty', function(): void {
         it('checks if empty', function(): void {
             $empty = DataCollection::make();
