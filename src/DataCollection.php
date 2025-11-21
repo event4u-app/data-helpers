@@ -638,6 +638,54 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
         return [] !== $this->items;
     }
+    /**
+     * Determine if an item exists in the collection.
+     *
+     * Supports:
+     * - contains(value)
+     * - contains(callback(TValue, int|string): bool)
+     * - contains(key, value)
+     */
+    public function contains(mixed $keyOrCallback, mixed $value = null): bool
+    {
+        // contains(callback)
+        if ($keyOrCallback instanceof Closure) {
+            foreach ($this->items as $key => $item) {
+                if ($keyOrCallback($item, $key)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // contains(key, value)
+        if (null !== $value) {
+            foreach ($this->items as $item) {
+                if (!is_array($item) && !$item instanceof ArrayAccess && !is_object($item)) {
+                    continue;
+                }
+
+                $current = DataAccessor::make($item)->get((string) $keyOrCallback);
+
+                if ($current == $value) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // contains(value)
+        foreach ($this->items as $item) {
+            if ($item == $keyOrCallback) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     /**
      * Lazy iteration using Generator for memory efficiency.

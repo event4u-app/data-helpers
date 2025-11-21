@@ -516,6 +516,54 @@ describe('Collection', function(): void {
         });
     });
 
+
+
+
+    describe('Contains', function(): void {
+        it('checks simple value containment', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            expect($collection->contains(2))->toBeTrue()
+                ->and($collection->contains(4))->toBeFalse();
+        });
+
+        it('checks using callback', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4]);
+
+            $result = $collection->contains(function (int $item, int|string $key): bool {
+                return 3 < $item && 3 === $key;
+            });
+
+            expect($result)->toBeTrue();
+        });
+
+        it('checks key value pairs', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'name' => 'John'],
+                ['id' => 2, 'name' => 'Jane'],
+            ]);
+
+            expect($collection->contains('name', 'John'))->toBeTrue()
+                ->and($collection->contains('name', 'Bob'))->toBeFalse();
+        });
+
+        it('supports dot notation for nested key value pairs', function(): void {
+            $collection = DataCollection::make([
+                ['product' => ['name' => 'Desk', 'price' => 200]],
+                ['product' => ['name' => 'Chair', 'price' => 100]],
+            ]);
+
+            expect($collection->contains('product.name', 'Desk'))->toBeTrue()
+                ->and($collection->contains('product.name', 'Bookcase'))->toBeFalse();
+        });
+
+        it('returns false for non arrayish items with key/value', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            expect($collection->contains('name', 'John'))->toBeFalse();
+        });
+    });
+
     describe('Has', function(): void {
         it('checks if key exists', function(): void {
             $collection = DataCollection::make(['a' => 1, 'b' => 2]);
