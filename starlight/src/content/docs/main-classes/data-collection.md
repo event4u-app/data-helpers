@@ -692,6 +692,20 @@ $users = DataCollection::make([
 
 $ageAvg = $users->average('user.age');
 // $ageAvg = 25.0
+
+// max() – supports raw values, dot paths and callbacks
+$numbers = DataCollection::make([1, 2, 10, 3]);
+$maxNumber = $numbers->max();
+// $maxNumber = 10
+
+$players = DataCollection::make([
+    ['player' => ['name' => 'Alice', 'score' => 10]],
+    ['player' => ['name' => 'Bob', 'score' => 30]],
+]);
+
+$bestPlayer = $players->max('player.score');
+// $bestPlayer = ['player' => ['name' => 'Bob', 'score' => 30]]
+
 ```
 
 ### Neighbour Methods (before/after)

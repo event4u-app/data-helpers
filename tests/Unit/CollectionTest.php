@@ -438,6 +438,64 @@ describe('Collection', function(): void {
         });
     });
 
+    describe('Max', function(): void {
+        it('returns the maximum value from a list of numbers', function(): void {
+            $collection = DataCollection::make([1, 10, 3, 7]);
+
+            expect($collection->max())->toBe(10);
+        });
+
+        it('returns the item with maximum value using path', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'stats' => ['score' => 10]],
+                ['id' => 2, 'stats' => ['score' => 30]],
+                ['id' => 3, 'stats' => ['score' => 20]],
+            ]);
+
+            $max = $collection->max('stats.score');
+
+            expect($max)->toBe([
+                'id' => 2,
+                'stats' => ['score' => 30],
+            ]);
+        });
+
+        it('returns the item with maximum value using callback', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'scores' => [10, 20]],
+                ['id' => 2, 'scores' => [30, 40]],
+            ]);
+
+            $max = $collection->max(function(array $item): int {
+                return (int) array_sum($item['scores']);
+            });
+
+            expect($max)->toBe([
+                'id' => 2,
+                'scores' => [30, 40],
+            ]);
+        });
+
+        it('returns null when collection is empty', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->max())->toBeNull();
+        });
+
+        it('returns null when all values are null', function(): void {
+            $collection = DataCollection::make([null, null]);
+
+            expect($collection->max())->toBeNull();
+        });
+
+        it('handles mixed null and numeric values', function(): void {
+            $collection = DataCollection::make([null, 5, null, 2]);
+
+            expect($collection->max())->toBe(5);
+        });
+    });
+
+
 
     describe('First and Last', function(): void {
         it('gets first item', function(): void {

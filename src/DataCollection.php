@@ -361,6 +361,49 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return $this->average($callbackOrPath);
     }
 
+    /**
+     * Get the maximum value of the given items.
+     *
+     * Works similar to Laravel's max():
+     * - Without argument: compares the raw items directly.
+     * - With string path: uses DataAccessor and supports dot-notation.
+     * - With callback: compares the return value of the callback.
+     *
+     * Non-comparable (null) values are ignored. If no comparable
+     * values are found, null is returned.
+     *
+     * @param (callable(TValue, int|string): mixed)|string|null $callbackOrPath
+     * @return TValue|mixed|null
+     */
+    public function max(callable|string|null $callbackOrPath = null): mixed
+    {
+        $hasValue = false;
+        $maxValue = null;
+        $maxItem = null;
+
+        foreach ($this->items as $key => $item) {
+            $value = $item;
+
+            if (is_string($callbackOrPath)) {
+                $value = DataAccessor::make($item)->get($callbackOrPath);
+            } elseif (null !== $callbackOrPath) {
+                $value = $callbackOrPath($item, $key);
+            }
+
+            if (null === $value) {
+                continue;
+            }
+
+            if (!$hasValue || $value > $maxValue) {
+                $hasValue = true;
+                $maxValue = $value;
+                $maxItem = $item;
+            }
+        }
+
+        return $hasValue ? $maxItem : null;
+    }
+
 
     /**
      * Get all items.
