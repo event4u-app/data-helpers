@@ -888,6 +888,66 @@ describe('Collection', function(): void {
     });
 
 
+    describe('Sort', function(): void {
+        it('sorts values ascending and preserves keys', function(): void {
+            $collection = DataCollection::make([
+                10 => 3,
+                20 => 1,
+                30 => 2,
+            ]);
+
+            $sorted = $collection->sort();
+
+            expect($sorted->toArray())->toBe([
+                20 => 1,
+                30 => 2,
+                10 => 3,
+            ]);
+        });
+
+        it('returns a new collection instance', function(): void {
+            $collection = DataCollection::make([3, 1, 2]);
+
+            $sorted = $collection->sort();
+
+            expect($sorted)->not->toBe($collection)
+                ->and($collection->toArray())->toBe([3, 1, 2])
+                ->and($sorted->toArray())->toBe([
+                    1 => 1,
+                    2 => 2,
+                    0 => 3,
+                ]);
+        });
+
+        it('supports custom comparator callbacks', function(): void {
+            $collection = DataCollection::make([
+                10 => 'b',
+                20 => 'c',
+                30 => 'a',
+            ]);
+
+            $sorted = $collection->sort(static function (string $a, string $b): int {
+                return $b <=> $a;
+            });
+
+            expect($sorted->toArray())->toBe([
+                20 => 'c',
+                10 => 'b',
+                30 => 'a',
+            ]);
+        });
+
+        it('returns empty collection when original is empty', function(): void {
+            $collection = DataCollection::make();
+
+            $sorted = $collection->sort();
+
+            expect($sorted->toArray())->toBe([]);
+        });
+    });
+
+
+
 
 
         it('handles mixed null and numeric values', function(): void {

@@ -416,6 +416,20 @@ $shuffled = $numbers->shuffle();
 // $numbers->toArray() is unchanged
 ```
 
+```php
+// sort() – get a new collection with items sorted by value (keys preserved)
+$numbers = DataCollection::make([
+    10 => 3,
+    20 => 1,
+    30 => 2,
+]);
+
+$sorted = $numbers->sort();
+// $sorted->toArray() === [20 => 1, 30 => 2, 10 => 3]
+// $numbers->toArray() is unchanged
+```
+
+
 
 
 ## SQL-Like Filtering with DataFilter

@@ -697,6 +697,34 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return new static($sliced); // @phpstan-ignore return.type
     }
 
+    /**
+     * Sort the items in the collection by value.
+     *
+     * Mirrors Laravel's sort():
+     * - Returns a new collection instance.
+     * - Preserves the original keys.
+     * - By default sorts ascending using PHP's sort rules.
+     * - With a callback, delegates comparison to the callback.
+     *
+     * @param (callable(TValue, TValue): int)|null $callback
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function sort(?callable $callback = null): static
+    {
+        $items = $this->items;
+
+        if (null === $callback) {
+            asort($items);
+        } else {
+            uasort($items, $callback);
+        }
+
+        /** @var array<int|string, TValue> $items */
+        return new static($items); // @phpstan-ignore return.type
+    }
+
+
 
 
 
