@@ -1190,6 +1190,49 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
 
         return false;
     }
+    /**
+     * Search the collection for a given value or callback and return the first matching key.
+     *
+     * Supports:
+     * - search(value, bool $strict = false)
+     * - search(callback(TValue, int|string): bool)
+     *
+     * @return int|string|false
+     */
+    public function search(mixed $valueOrCallback, bool $strict = false): int|string|false
+    {
+        // search(callback)
+        if ($valueOrCallback instanceof Closure) {
+            foreach ($this->items as $key => $item) {
+                if ($valueOrCallback($item, $key)) {
+                    return $key;
+                }
+            }
+
+            return false;
+        }
+
+        // search(value)
+        if ($strict) {
+            foreach ($this->items as $key => $item) {
+                if ($item === $valueOrCallback) {
+                    return $key;
+                }
+            }
+
+            return false;
+        }
+
+        foreach ($this->items as $key => $item) {
+            if ($item == $valueOrCallback) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+                return $key;
+            }
+        }
+
+        return false;
+    }
+
+
 
 
     /**

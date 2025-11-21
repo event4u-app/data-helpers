@@ -1006,6 +1006,70 @@ describe('Collection', function(): void {
 
 
 
+    describe('Search', function(): void {
+        it('returns the key for a given value', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c']);
+
+            $key = $collection->search('b');
+
+            expect($key)->toBe(1);
+        });
+
+        it('returns false when value is not found', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c']);
+
+            $key = $collection->search('x');
+
+            expect($key)->toBeFalse();
+        });
+
+        it('supports strict comparison', function(): void {
+            $collection = DataCollection::make([1, '1', 2]);
+
+            $looseKey = $collection->search('1');
+            $strictKey = $collection->search('1', true);
+
+            expect($looseKey)->toBe(0)
+                ->and($strictKey)->toBe(1);
+        });
+
+        it('supports callback search and returns the first matching key', function(): void {
+            $collection = DataCollection::make([10, 20, 30, 40]);
+
+            $key = $collection->search(function (int $item, int|string $key): bool {
+                return 25 < $item;
+            });
+
+            expect($key)->toBe(2);
+        });
+
+        it('returns false when callback finds no match', function(): void {
+            $collection = DataCollection::make([10, 20, 30]);
+
+            $key = $collection->search(function (int $item, int|string $key): bool {
+                return 100 < $item;
+            });
+
+            expect($key)->toBeFalse();
+        });
+
+        it('preserves string keys when returning the key', function(): void {
+            $collection = DataCollection::make([
+                'first' => 'a',
+                'second' => 'b',
+            ]);
+
+            $key = $collection->search('b');
+
+            expect($key)->toBe('second');
+        });
+    });
+
+
+
+
+
+
     describe('Diff', function(): void {
         it('returns items not present in the given array', function(): void {
             $collection = DataCollection::make([1, 2, 3, 4]);

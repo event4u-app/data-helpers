@@ -967,6 +967,32 @@ $isNotEmpty = $numbers->isNotEmpty();
 ```
 
 
+### search() - Find the Key for a Value or Callback
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make(['a', 'b', 'c']);
+
+$keyOfB = $collection->search('b');
+// $keyOfB = 1
+
+$strictCollection = DataCollection::make([1, '1', 2]);
+
+$looseKey = $strictCollection->search('1');
+$strictKey = $strictCollection->search('1', true);
+// $looseKey = 0  (loose comparison)
+// $strictKey = 1 (strict comparison)
+
+$callbackKey = $collection->search(function (string $value, int|string $key): bool {
+    return 'c' === $value;
+});
+// $callbackKey = 2
+```
+
+
+
+
 ### Diff
 
 ```php
