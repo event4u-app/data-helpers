@@ -557,38 +557,272 @@ See the [DtoCollection documentation](/data-helpers/simple-dto/collections/) for
 
 ## API Reference
 
+Nachfolgend eine Übersicht aller wichtigen Methoden mit kurzen, testbaren Beispielen. Alle Code-Beispiele werden automatisch von `StarlightAllExamplesTest` ausgeführt.
+
 ### Creation Methods
-- `make(array $items = []): static` - Create new collection
-- `wrap(mixed $value): static` - Wrap value in collection
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+// Create from array
+$numbers = DataCollection::make([1, 2, 3]);
+// $numbers->toArray() = [1, 2, 3]
+
+// Wrap single value
+$wrapped = DataCollection::wrap(5);
+// $wrapped->toArray() = [5]
+```
 
 ### Access Methods
-- `get(int|string $key, mixed $default = null): mixed` - Get item by key
-- `first(?callable $callback = null, mixed $default = null): mixed` - Get first item
-- `last(?callable $callback = null, mixed $default = null): mixed` - Get last item
-- `has(int|string $key): bool` - Check if key exists
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make([
+    'a' => ['value' => 1],
+    'b' => ['value' => 2],
+    'c' => ['value' => 3],
+]);
+
+// get() – direct key and dot-notation
+$one = $collection->get('a.value', 0);
+$missing = $collection->get('x.value', 'default');
+// $one = 1
+// $missing = 'default'
+
+// first() / last()
+$first = $collection->first();
+$last = $collection->last();
+// $first = ['value' => 1]
+// $last = ['value' => 3]
+
+// has()
+$hasA = $collection->has('a');
+$hasX = $collection->has('x');
+// $hasA = true
+// $hasX = false
+```
 
 ### Transformation Methods
-- `filter(?callable $callback = null): static` - Filter items
-- `map(callable $callback): static` - Transform items
-- `reduce(callable $callback, mixed $initial = null): mixed` - Reduce to single value
 
-### Manipulation Methods
-- `push(mixed ...$values): static` - Add items to end
-- `prepend(mixed $value): static` - Add item to beginning
-- `keys(): static` - Get all keys
-- `values(): static` - Get all values (reindexed)
+```php
+use event4u\DataHelpers\DataCollection;
+
+$numbers = DataCollection::make([1, 2, 3, 4]);
+
+// filter()
+$even = $numbers->filter(fn(int $n) => $n % 2 === 0)->toArray();
+// $even = [1 => 2, 3 => 4]
+
+// map()
+$doubled = $numbers->map(fn(int $n) => $n * 2)->toArray();
+// $doubled = [2, 4, 6, 8]
+
+// reduce()
+$sum = $numbers->reduce(fn(int $carry, int $n) => $carry + $n, 0);
+// $sum = 10
+
+// pluck() – values and keys via dot-notation
+$users = DataCollection::make([
+    ['user' => ['name' => 'Alice', 'age' => 30]],
+    ['user' => ['name' => 'Bob', 'age' => 25]],
+]);
+
+$names = $users->pluck('user.name')->toArray();
+$agesByName = $users->pluck('user.age', 'user.name')->toArray();
+// $names = ['Alice', 'Bob']
+// $agesByName = ['Alice' => 30, 'Bob' => 25]
+
+// collapse()
+$nested = DataCollection::make([[1, 2], [3, 4]]);
+$flat = $nested->collapse()->toArray();
+// $flat = [1, 2, 3, 4]
+
+// average() / avg()
+$numbers = DataCollection::make([1, 2, 3, 4]);
+$avg1 = $numbers->average();
+$avg2 = $numbers->avg();
+// $avg1 = 2.5
+// $avg2 = 2.5
+
+$users = DataCollection::make([
+    ['user' => ['age' => 30]],
+    ['user' => ['age' => 20]],
+]);
+
+$ageAvg = $users->average('user.age');
+// $ageAvg = 25.0
+```
+
+### Neighbour Methods (before/after)
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$letters = DataCollection::make(['a', 'b', 'c', 'd']);
+
+$afterB = $letters->after('b');
+$beforeC = $letters->before('c');
+// $afterB = 'c'
+// $beforeC = 'b'
+
+// Mit Callback
+$afterA = $letters->after(fn(string $value) => $value === 'a');
+$beforeD = $letters->before(fn(string $value) => $value === 'd');
+// $afterA = 'b'
+// $beforeD = 'c'
+```
+
+### Manipulation Methods (mutable)
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make([2, 3]);
+
+// push() and prepend()
+$collection->push(4, 5)->prepend(1);
+// $collection->toArray() = [1, 2, 3, 4, 5]
+
+// Dot-Notation Mutationen
+$users = DataCollection::make([
+    ['user' => ['name' => 'Alice']],
+]);
+
+$users
+    ->set('0.user.age', 30)
+    ->merge('0.user', ['city' => 'Berlin'])
+    ->transform('0.user.name', fn(string $name) => strtoupper($name))
+    ->pushTo('0.user.tags', 'php');
+
+// $users->toArray() = [
+//   ['user' => [
+//       'name' => 'ALICE',
+//       'age' => 30,
+//       'city' => 'Berlin',
+//       'tags' => ['php'],
+//   ]],
+// ]
+
+// pull() – entfernen und zurückgeben
+$age = $users->pull('0.user.age');
+// $age = 30
+```
+
+### Contains & Existence
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$numbers = DataCollection::make([1, 2, 3]);
+
+// contains(value)
+$hasTwo = $numbers->contains(2);
+$hasFour = $numbers->contains(4);
+// $hasTwo = true
+// $hasFour = false
+
+// contains(callback)
+$hasEven = $numbers->contains(fn(int $n) => $n % 2 === 0);
+// $hasEven = true
+
+// contains(key, value) mit Dot-Notation
+$products = DataCollection::make([
+    ['product' => ['name' => 'Desk', 'price' => 200]],
+    ['product' => ['name' => 'Chair', 'price' => 100]],
+]);
+
+$hasDesk = $products->contains('product.name', 'Desk');
+$hasBookcase = $products->contains('product.name', 'Bookcase');
+// $hasDesk = true
+// $hasBookcase = false
+
+// isEmpty() / isNotEmpty()
+$empty = DataCollection::make();
+$isEmpty = $empty->isEmpty();
+$isNotEmpty = $numbers->isNotEmpty();
+// $isEmpty = true
+// $isNotEmpty = true
+```
 
 ### Lazy Methods
-- `lazy(): Generator` - Lazy iteration
-- `lazyFilter(callable $callback): Generator` - Lazy filter
-- `lazyMap(callable $callback): Generator` - Lazy map
 
-### Utility Methods
-- `count(): int` - Count items
-- `isEmpty(): bool` - Check if empty
-- `isNotEmpty(): bool` - Check if not empty
-- `all(): array` - Get all items
-- `items(): array` - Get all items (alias)
-- `toArray(): array` - Convert to array
-- `toJson(int $options = 0): string` - Convert to JSON
+```php
+use event4u\DataHelpers\DataCollection;
 
+$collection = DataCollection::make(range(1, 5));
+
+// lazy()
+$iterated = [];
+foreach ($collection->lazy() as $value) {
+    $iterated[] = $value;
+}
+// $iterated = [1, 2, 3, 4, 5]
+
+// lazyFilter()
+$filtered = [];
+foreach ($collection->lazyFilter(fn(int $n) => $n > 2) as $value) {
+    $filtered[] = $value;
+}
+// $filtered = [3, 4, 5]
+
+// lazyMap()
+$mapped = [];
+foreach ($collection->lazyMap(fn(int $n) => $n * 2) as $value) {
+    $mapped[] = $value;
+}
+// $mapped = [2, 4, 6, 8, 10]
+```
+
+### Conversion & ArrayAccess
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make(['a' => 1, 'b' => 2]);
+
+// toArray(), all(), items()
+$array1 = $collection->toArray();
+$array2 = $collection->all();
+$array3 = $collection->items();
+// $array1 = ['a' => 1, 'b' => 2]
+// $array2 = ['a' => 1, 'b' => 2]
+// $array3 = ['a' => 1, 'b' => 2]
+
+// toJson() / jsonSerialize()
+$json = $collection->toJson();
+$encoded = json_encode($collection);
+// $json = '{"a":1,"b":2}'
+// $encoded = '{"a":1,"b":2}'
+
+// ArrayAccess
+$valueA = $collection['a'];
+$existsB = isset($collection['b']);
+// $valueA = 1
+// $existsB = true
+
+$collection['c'] = 3;
+unset($collection['a']);
+// $collection->toArray() = ['b' => 2, 'c' => 3]
+```
+
+### Query / DataFilter Integration
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$users = DataCollection::make([
+    ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+    ['name' => 'Bob', 'age' => 25, 'city' => 'Munich'],
+    ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin'],
+]);
+
+$berlinersOver30 = $users
+    ->query()
+    ->where('city', 'Berlin')
+    ->where('age', '>', 30)
+    ->get();
+
+$result = $berlinersOver30->pluck('name')->toArray();
+// $result = ['Charlie']
+```
