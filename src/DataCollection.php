@@ -672,6 +672,31 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return new static($result); // @phpstan-ignore return.type
     }
 
+    /**
+     * Slice the collection by offset and optional length.
+     *
+     * Mirrors Laravel's slice():
+     * - Preserves the original keys.
+     * - Negative offsets count from the end of the collection.
+     * - If $length is null, slice until the end.
+     *
+     * @param int $offset
+     * @param int|null $length
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function slice(int $offset, ?int $length = null): static
+    {
+        if (null === $length) {
+            $sliced = array_slice($this->items, $offset, null, true);
+        } else {
+            $sliced = array_slice($this->items, $offset, $length, true);
+        }
+
+        /** @var array<int|string, TValue> $sliced */
+        return new static($sliced); // @phpstan-ignore return.type
+    }
+
 
 
 

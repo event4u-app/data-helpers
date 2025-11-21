@@ -879,6 +879,26 @@ $everySecondFromSecond = $letters->nth(2, 1);
 // $everySecondFromSecond->toArray() === [1 => 'b', 3 => 'd']
 
 
+// slice()   e2 80 93 take a portion of the collection, preserving keys
+$letters = DataCollection::make([
+    10 => 'a',
+    20 => 'b',
+    30 => 'c',
+    40 => 'd',
+]);
+
+$tail = $letters->slice(1);
+// $tail->toArray() === [20 => 'b', 30 => 'c', 40 => 'd']
+
+$middle = $letters->slice(1, 2);
+// $middle->toArray() === [20 => 'b', 30 => 'c']
+
+$lastTwo = $letters->slice(-2);
+// $lastTwo->toArray() === [30 => 'c', 40 => 'd']
+
+
+
+
 // median() – works like average(), also with dot-notation
 $values = DataCollection::make([1, 100, 50]);
 $median = $values->median();

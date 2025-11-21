@@ -763,6 +763,67 @@ describe('Collection', function(): void {
     });
 
 
+    describe('Slice', function(): void {
+        it('slices by offset preserving keys', function(): void {
+            $collection = DataCollection::make([
+                10 => 'a',
+                20 => 'b',
+                30 => 'c',
+                40 => 'd',
+            ]);
+
+            $slice = $collection->slice(1);
+
+            expect($slice->toArray())->toBe([
+                20 => 'b',
+                30 => 'c',
+                40 => 'd',
+            ]);
+        });
+
+        it('slices by offset and length', function(): void {
+            $collection = DataCollection::make([
+                'a',
+                'b',
+                'c',
+                'd',
+            ]);
+
+            $slice = $collection->slice(1, 2);
+
+            expect($slice->toArray())->toBe([
+                1 => 'b',
+                2 => 'c',
+            ]);
+        });
+
+        it('supports negative offsets', function(): void {
+            $collection = DataCollection::make([
+                'a',
+                'b',
+                'c',
+                'd',
+            ]);
+
+            $slice = $collection->slice(-2);
+
+            expect($slice->toArray())->toBe([
+                2 => 'c',
+                3 => 'd',
+            ]);
+        });
+
+        it('returns empty collection for out-of-range offset', function(): void {
+            $collection = DataCollection::make(['a', 'b']);
+
+            $slice = $collection->slice(5);
+
+            expect($slice->toArray())->toBe([]);
+        });
+    });
+
+
+
     describe('Pop', function(): void {
         it('removes and returns the last item', function(): void {
             $collection = DataCollection::make([1, 2, 3]);
