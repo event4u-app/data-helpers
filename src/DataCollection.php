@@ -349,6 +349,33 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return $this->items;
     }
 
+    /**
+     * Collapse a collection of arrays/Traversables into a single flat array (depth 1).
+     *
+     * Non-array/non-Traversable items are kept as-is.
+     *
+     * @return static<mixed>
+     * @phpstan-ignore return.type
+     */
+    public function collapse(): static
+    {
+        $results = [];
+
+        foreach ($this->items as $item) {
+            if (is_array($item) || $item instanceof Traversable) {
+                foreach ($item as $value) {
+                    $results[] = $value;
+                }
+
+                continue;
+            }
+
+            $results[] = $item;
+        }
+
+        return new static($results); // @phpstan-ignore return.type
+    }
+
     /** Convert the collection to JSON. */
     public function toJson(int $options = 0): string
     {

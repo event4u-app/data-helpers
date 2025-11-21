@@ -230,6 +230,38 @@ describe('Collection', function(): void {
 
 
 
+    describe('Collapse', function(): void {
+        it('collapses simple nested arrays', function(): void {
+            $collection = DataCollection::make([[1, 2], [3, 4]]);
+
+            expect($collection->collapse()->toArray())->toBe([1, 2, 3, 4]);
+        });
+
+        it('collapses Traversable items', function(): void {
+            $collection = DataCollection::make([
+                new ArrayIterator([1, 2]),
+                new ArrayIterator([3, 4]),
+            ]);
+
+            expect($collection->collapse()->toArray())->toBe([1, 2, 3, 4]);
+        });
+
+        it('keeps non-array items as-is', function(): void {
+            $collection = DataCollection::make([[1, 2], 3, [4]]);
+
+            expect($collection->collapse()->toArray())->toBe([1, 2, 3, 4]);
+        });
+
+        it('collapses empty collection', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->collapse()->toArray())->toBe([]);
+        });
+    });
+
+
+
+
     describe('Reduce', function(): void {
         it('reduces to single value', function(): void {
             $collection = DataCollection::make([1, 2, 3, 4]);
