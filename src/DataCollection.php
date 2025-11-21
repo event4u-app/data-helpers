@@ -483,6 +483,47 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Remove items from the collection by key, similar to Laravel's only/drop combo.
+     *
+     * Works similar to replace() but removes keys that match the given items
+     * and keeps everything else. Keys that do not exist are ignored.
+     *
+     * @param iterable<int|string, mixed> $keys
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function remove(iterable $keys): static
+    {
+        $keysToRemove = [];
+
+        foreach ($keys as $key) {
+            $keysToRemove[(string) $key] = true;
+        }
+
+        $result = [];
+
+        foreach ($this->items as $key => $value) {
+            if (!array_key_exists((string) $key, $keysToRemove)) {
+                $result[$key] = $value;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Alias for remove().
+     *
+     * @param iterable<int|string, mixed> $keys
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function drop(iterable $keys): static
+    {
+        return $this->remove($keys); // @phpstan-ignore return.type
+    }
+
+    /**
      * Get the minimum value of the given items.
      *
      * Works similar to Laravel's min():

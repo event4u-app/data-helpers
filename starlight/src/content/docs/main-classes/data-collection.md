@@ -255,6 +255,35 @@ $collection = DataCollection::make([
 $replaced = $collection->replace(['age' => 31], ['age' => 32]);
 // $replaced->toArray() === ['age' => 32]
 ```
+### remove() / drop() - Remove by Keys (Immutable)
+
+Create a new collection without the given keys. Existing keys are removed, missing keys are ignored; `drop()` is an alias for `remove()`:
+
+```php
+$collection = DataCollection::make([
+    'name' => 'Alice',
+    'age' => 30,
+    'city' => 'Berlin',
+]);
+
+$filtered = $collection->remove(['age']);
+
+// $filtered->toArray() === ['name' => 'Alice', 'city' => 'Berlin']
+// $collection->toArray() === ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin']
+```
+
+```php
+// drop() is an alias for remove()
+$collection = DataCollection::make([
+    'name' => 'Alice',
+    'age' => 30,
+    'city' => 'Berlin',
+]);
+
+$dropped = $collection->drop(['age']);
+// $dropped->toArray() === ['name' => 'Alice', 'city' => 'Berlin']
+```
+
 
 
 ### forget() - Remove Values

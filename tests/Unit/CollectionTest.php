@@ -1939,6 +1939,56 @@ describe('Collection', function(): void {
             ]);
         });
     });
+    describe('Remove/Drop', function(): void {
+        it('removes items by existing keys', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+                'city' => 'Berlin',
+            ]);
+
+            $removed = $collection->remove(['age']);
+
+            expect($removed->toArray())->toBe([
+                'name' => 'Alice',
+                'city' => 'Berlin',
+            ])->and($collection->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+                'city' => 'Berlin',
+            ]);
+        });
+
+        it('ignores keys that do not exist', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+
+            $removed = $collection->remove(['city']);
+
+            expect($removed->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+        });
+
+        it('drop is an alias for remove', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+                'city' => 'Berlin',
+            ]);
+
+            $dropped = $collection->drop(['age']);
+
+            expect($dropped->toArray())->toBe([
+                'name' => 'Alice',
+                'city' => 'Berlin',
+            ]);
+        });
+    });
+
 
     describe('Forget Operations', function(): void {
         it('forgets simple keys', function(): void {
