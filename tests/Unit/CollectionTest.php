@@ -549,6 +549,40 @@ describe('Collection', function(): void {
             expect($collection->min())->toBeNull();
         });
 
+
+    describe('Nth', function(): void {
+        it('takes every nth item with default offset', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
+
+            $nth = $collection->nth(2);
+
+            expect($nth->toArray())->toBe([
+                0 => 'a',
+                2 => 'c',
+                4 => 'e',
+            ]);
+        });
+
+        it('takes every nth item with custom offset', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
+
+            $nth = $collection->nth(2, 1);
+
+            expect($nth->toArray())->toBe([
+                1 => 'b',
+                3 => 'd',
+            ]);
+        });
+
+        it('returns empty collection for step less than 1', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            $nth = $collection->nth(0);
+
+            expect($nth->toArray())->toBe([]);
+        });
+    });
+
         it('handles mixed null and numeric values', function(): void {
             $collection = DataCollection::make([null, 5, null, 2]);
 

@@ -495,6 +495,45 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
 
         return ($values[$middle - 1] + $values[$middle]) / 2;
     }
+    /**
+     * Take every n-th element of the collection.
+     *
+     * Mirrors Laravel's nth():
+     * - $step defines the distance between elements
+     * - $offset defines the zero-based starting offset
+     *
+     * If $step is less than 1, an empty collection is returned.
+     *
+     * @param int $step
+     * @param int $offset
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function nth(int $step, int $offset = 0): static
+    {
+        if (1 > $step) {
+            return new static(); // @phpstan-ignore return.type
+        }
+
+        if (0 > $offset) {
+            $offset = 0;
+        }
+
+        $result = [];
+        $index = 0;
+
+        foreach ($this->items as $key => $item) {
+            if ($index >= $offset && 0 === ($index - $offset) % $step) {
+                $result[$key] = $item;
+            }
+
+            ++$index;
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+
 
 
 

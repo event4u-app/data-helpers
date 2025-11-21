@@ -721,6 +721,15 @@ $worstPlayer = $players->min('player.score');
 // $worstPlayer = ['player' => ['name' => 'Alice', 'score' => 10]]
 
 
+// nth() – take every n-th item (optionally from an offset)
+$letters = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
+$everySecond = $letters->nth(2);
+// $everySecond->toArray() === [0 => 'a', 2 => 'c', 4 => 'e']
+
+$everySecondFromSecond = $letters->nth(2, 1);
+// $everySecondFromSecond->toArray() === [1 => 'b', 3 => 'd']
+
+
 // median() – works like average(), also with dot-notation
 $values = DataCollection::make([1, 100, 50]);
 $median = $values->median();
