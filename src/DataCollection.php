@@ -376,6 +376,36 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return new static($results); // @phpstan-ignore return.type
     }
 
+    /**
+     * Get the items in the collection that are not present in the given items.
+     *
+     * Similar to Laravel's diff(): compares values using loose comparison and
+     * preserves the original keys from the collection.
+     *
+     * @param iterable<int|string, TValue> $items
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function diff(iterable $items): static
+    {
+        $otherItems = [];
+
+        foreach ($items as $item) {
+            $otherItems[] = $item;
+        }
+
+        $result = [];
+
+        foreach ($this->items as $key => $value) {
+            if (!in_array($value, $otherItems, false)) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+                $result[$key] = $value;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+
     /** Convert the collection to JSON. */
     public function toJson(int $options = 0): string
     {

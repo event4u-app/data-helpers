@@ -564,6 +564,52 @@ describe('Collection', function(): void {
         });
     });
 
+
+
+
+    describe('Diff', function(): void {
+        it('returns items not present in the given array', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4]);
+
+            $result = $collection->diff([2, 4]);
+
+            expect($result->toArray())->toBe([0 => 1, 2 => 3]);
+        });
+
+        it('preserves associative keys', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
+
+            $result = $collection->diff([1, 3]);
+
+            expect($result->toArray())->toBe(['b' => 2]);
+        });
+
+        it('accepts another DataCollection', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4]);
+            $other = DataCollection::make([2, 4]);
+
+            $result = $collection->diff($other);
+
+            expect($result->toArray())->toBe([0 => 1, 2 => 3]);
+        });
+
+        it('uses loose comparison for values', function(): void {
+            $collection = DataCollection::make([1, 2, '3']);
+
+            $result = $collection->diff(['2']);
+
+            expect($result->toArray())->toBe([0 => 1, 2 => '3']);
+        });
+
+        it('returns original collection when diffing with empty items', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            $result = $collection->diff([]);
+
+            expect($result->toArray())->toBe([1, 2, 3]);
+        });
+    });
+
     describe('Has', function(): void {
         it('checks if key exists', function(): void {
             $collection = DataCollection::make(['a' => 1, 'b' => 2]);

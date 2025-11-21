@@ -745,6 +745,22 @@ $isNotEmpty = $numbers->isNotEmpty();
 // $isNotEmpty = true
 ```
 
+
+### Diff
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make([1, 2, 3, 4]);
+
+$diff = $collection->diff([2, 4])->toArray();
+// $diff = [0 => 1, 2 => 3]
+
+$assoc = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
+$assocDiff = $assoc->diff([1, 3])->toArray();
+// $assocDiff = ['b' => 2]
+```
+
 ### Lazy Methods
 
 ```php
