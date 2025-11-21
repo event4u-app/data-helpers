@@ -347,6 +347,74 @@ describe('Collection', function(): void {
     });
 
 
+
+	    describe('Select', function(): void {
+	        it('selects a single field from each array item', function(): void {
+	            $users = DataCollection::make([
+	                ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30],
+	                ['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 25],
+	            ]);
+
+	            $selected = $users->select('name');
+
+	            expect($selected->toArray())->toBe([
+	                ['name' => 'Alice'],
+	                ['name' => 'Bob'],
+	            ]);
+	        });
+
+	        it('selects multiple fields and preserves outer keys and field order', function(): void {
+	            $users = DataCollection::make([
+	                10 => ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30],
+	                20 => ['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 25],
+	            ]);
+
+	            $selected = $users->select('email', 'name');
+
+	            expect($selected->toArray())->toBe([
+	                10 => ['email' => 'alice@example.com', 'name' => 'Alice'],
+	                20 => ['email' => 'bob@example.com', 'name' => 'Bob'],
+	            ]);
+	        });
+
+	        it('ignores missing fields', function(): void {
+	            $users = DataCollection::make([
+	                ['name' => 'Alice', 'email' => 'alice@example.com'],
+	                ['name' => 'Bob'],
+	            ]);
+
+	            $selected = $users->select('name', 'email');
+
+	            expect($selected->toArray())->toBe([
+	                ['name' => 'Alice', 'email' => 'alice@example.com'],
+	                ['name' => 'Bob'],
+	            ]);
+	        });
+
+	        it('leaves non-array items unchanged', function(): void {
+	            $numbers = DataCollection::make([1, 2, 3]);
+
+	            $selected = $numbers->select('anything');
+
+	            expect($selected->toArray())->toBe([1, 2, 3]);
+	        });
+
+	        it('returns a new collection instance (immutable)', function(): void {
+	            $users = DataCollection::make([
+	                ['name' => 'Alice', 'email' => 'alice@example.com'],
+	            ]);
+
+	            $selected = $users->select('email');
+
+	            expect($selected)->not->toBe($users)
+	                ->and($users->toArray())->toBe([
+	                    ['name' => 'Alice', 'email' => 'alice@example.com'],
+	                ]);
+	        });
+	    });
+
+
+
     describe('Flatten', function(): void {
         it('flattens nested associative arrays using dot notation keys', function(): void {
             $collection = DataCollection::make([

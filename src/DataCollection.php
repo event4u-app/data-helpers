@@ -1334,6 +1334,51 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return new static($result); // @phpstan-ignore return.type
     }
 
+    /**
+     * Select the given keys from each item in the collection, similar to an SQL SELECT statement.
+     *
+     * For array items, returns a new array containing only the given keys.
+     * Non-array items are returned as-is.
+     *
+     * @param array<int, int|string>|int|string $keys
+     * @return static<mixed>
+     * @phpstan-ignore return.type
+     */
+    public function select(array|int|string $keys): static
+    {
+        if (!is_array($keys)) {
+            $keys = func_get_args();
+        }
+
+        $fields = array_map(
+            static fn($key): int|string => is_int($key) || is_string($key) ? $key : (string) $key,
+            $keys
+        );
+
+        $result = [];
+
+        foreach ($this->items as $outerKey => $item) {
+            if (!is_array($item)) {
+                $result[$outerKey] = $item;
+
+                continue;
+            }
+
+            $selected = [];
+
+            foreach ($fields as $field) {
+                if (array_key_exists($field, $item)) {
+                    $selected[$field] = $item[$field];
+                }
+            }
+
+            $result[$outerKey] = $selected;
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+
     /** Determine if a key exists in the collection. */
     public function has(int|string $key): bool
     {

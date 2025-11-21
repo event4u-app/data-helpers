@@ -991,6 +991,28 @@ $callbackKey = $collection->search(function (string $value, int|string $key): bo
 ```
 
 
+### select() - Select Fields from Each Array Item
+
+`select()` arbeitet **auf den Feldern jedes Array-Items**, ähnlich wie ein `SELECT name, email FROM ...` im SQL.
+Das unterscheidet sich von `only()`, das die Collection **nach Keys der äußeren Collection** filtert.
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$users = DataCollection::make([
+    ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30],
+    ['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 25],
+]);
+
+$selected = $users->select('name', 'email');
+// $selected->toArray() === [
+//     ['name' => 'Alice', 'email' => 'alice@example.com'],
+//     ['name' => 'Bob', 'email' => 'bob@example.com'],
+// ]
+```
+
+
+
 
 
 ### Diff
