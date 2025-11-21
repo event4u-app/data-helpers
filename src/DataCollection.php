@@ -12,6 +12,8 @@ use IteratorAggregate;
 use JsonSerializable;
 use RuntimeException;
 use Traversable;
+use event4u\DataHelpers\Helpers\DotPathHelper;
+
 
 /**
  * Generic type-safe collection for any type of items.
@@ -374,6 +376,67 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         }
 
         return new static($results); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Flatten a nested array or collection into a single level using dot-notation keys.
+     *
+     * This behaves similar to Laravel's Arr::dot():
+     *
+     *   DataCollection::make([
+     *       'user' => [
+     *           'name' => 'Alice',
+     *           'address' => ['city' => 'Berlin'],
+     *       ],
+     *   ])->flatten();
+     *
+     * produces:
+     *
+     *   [
+     *       'user.name' => 'Alice',
+     *       'user.address.city' => 'Berlin',
+     *   ]
+     *
+     * @return static<mixed>
+     * @phpstan-ignore return.type
+     */
+    public function flatten(): static
+    {
+        $result = [];
+
+        foreach ($this->items as $key => $value) {
+            $this->flattenItem($result, (string) $key, $value);
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Recursively flatten an item into the result array using dot-notation keys.
+     *
+     * @param array<string, mixed> $result
+     */
+    private function flattenItem(array &$result, string $prefix, mixed $value): void
+    {
+        if (is_array($value)) {
+            foreach ($value as $key => $nested) {
+                $path = DotPathHelper::buildPrefix($prefix, $key);
+                $this->flattenItem($result, $path, $nested);
+            }
+
+            return;
+        }
+
+        if ($value instanceof self) {
+            foreach ($value->items as $key => $nested) {
+                $path = DotPathHelper::buildPrefix($prefix, $key);
+                $this->flattenItem($result, $path, $nested);
+            }
+
+            return;
+        }
+
+        $result[$prefix] = $value;
     }
 
     /**

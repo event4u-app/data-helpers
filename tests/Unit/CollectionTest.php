@@ -261,6 +261,67 @@ describe('Collection', function(): void {
 
 
 
+    describe('Flatten', function(): void {
+        it('flattens nested associative arrays using dot notation keys', function(): void {
+            $collection = DataCollection::make([
+                'user' => [
+                    'name' => 'Alice',
+                    'address' => [
+                        'city' => 'Berlin',
+                        'zip' => '10115',
+                    ],
+                ],
+                'active' => true,
+            ]);
+
+            expect($collection->flatten()->toArray())->toBe([
+                'user.name' => 'Alice',
+                'user.address.city' => 'Berlin',
+                'user.address.zip' => '10115',
+                'active' => true,
+            ]);
+        });
+
+        it('flattens nested numeric arrays keeping numeric segments', function(): void {
+            $collection = DataCollection::make([
+                'numbers' => [1, 2, 3],
+            ]);
+
+            expect($collection->flatten()->toArray())->toBe([
+                'numbers.0' => 1,
+                'numbers.1' => 2,
+                'numbers.2' => 3,
+            ]);
+        });
+
+        it('flattens collection items recursively', function(): void {
+            $inner = DataCollection::make([
+                'details' => [
+                    'first' => 'John',
+                    'last' => 'Doe',
+                ],
+            ]);
+
+            $collection = DataCollection::make([
+                'user' => $inner,
+            ]);
+
+            expect($collection->flatten()->toArray())->toBe([
+                'user.details.first' => 'John',
+                'user.details.last' => 'Doe',
+            ]);
+        });
+
+        it('flattens empty collection to empty array', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->flatten()->toArray())->toBe([]);
+        });
+    });
+
+
+
+
 
     describe('Reduce', function(): void {
         it('reduces to single value', function(): void {

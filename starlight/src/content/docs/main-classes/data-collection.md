@@ -638,6 +638,27 @@ $nested = DataCollection::make([[1, 2], [3, 4]]);
 $flat = $nested->collapse()->toArray();
 // $flat = [1, 2, 3, 4]
 
+// flatten() – keys as dot-notation
+$profile = DataCollection::make([
+    'user' => [
+        'name' => 'Alice',
+        'address' => [
+            'city' => 'Berlin',
+            'zip' => '10115',
+        ],
+    ],
+    'active' => true,
+]);
+
+$flat = $profile->flatten()->toArray();
+// $flat = [
+//     'user.name' => 'Alice',
+//     'user.address.city' => 'Berlin',
+//     'user.address.zip' => '10115',
+//     'active' => true,
+// ]
+
+
 // average() / avg()
 $numbers = DataCollection::make([1, 2, 3, 4]);
 $avg1 = $numbers->average();
