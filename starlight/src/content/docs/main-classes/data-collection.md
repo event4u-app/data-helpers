@@ -706,6 +706,21 @@ $players = DataCollection::make([
 $bestPlayer = $players->max('player.score');
 // $bestPlayer = ['player' => ['name' => 'Bob', 'score' => 30]]
 
+
+// median() – works like average(), also with dot-notation
+$values = DataCollection::make([1, 100, 50]);
+$median = $values->median();
+// $median = 50.0
+
+$rows = DataCollection::make([
+    ['stats' => ['value' => 10]],
+    ['stats' => ['value' => 30]],
+    ['stats' => ['value' => 20]],
+]);
+
+$medianValue = $rows->median('stats.value');
+// $medianValue = 20.0
+
 ```
 
 ### Neighbour Methods (before/after)

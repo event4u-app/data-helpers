@@ -394,7 +394,7 @@ describe('Collection', function(): void {
         });
     });
 
-    describe('Average and Avg', function(): void {
+    describe('Average, Avg and Median', function(): void {
         it('calculates average of numeric values', function(): void {
             $collection = DataCollection::make([1, 2, 3, 4]);
 
@@ -437,6 +437,7 @@ describe('Collection', function(): void {
             expect($collection->average())->toBe(2.0);
         });
     });
+
 
     describe('Max', function(): void {
         it('returns the maximum value from a list of numbers', function(): void {
@@ -492,6 +493,58 @@ describe('Collection', function(): void {
             $collection = DataCollection::make([null, 5, null, 2]);
 
             expect($collection->max())->toBe(5);
+        });
+    });
+
+
+
+    describe('Median', function(): void {
+        it('calculates median of numeric values', function(): void {
+            $collection = DataCollection::make([1, 3, 2, 4, 5]);
+
+            expect($collection->median())->toBe(3.0);
+        });
+
+        it('calculates median for even count', function(): void {
+            $collection = DataCollection::make([1, 3, 2, 4]);
+
+            expect($collection->median())->toBe(2.5);
+        });
+
+        it('calculates median using path string', function(): void {
+            $collection = DataCollection::make([
+                ['value' => 10],
+                ['value' => 30],
+                ['value' => 20],
+            ]);
+
+            expect($collection->median('value'))->toBe(20.0);
+        });
+
+        it('calculates median using callback', function(): void {
+            $collection = DataCollection::make([
+                ['scores' => [10, 20]],
+                ['scores' => [30, 40]],
+                ['scores' => [50, 60]],
+            ]);
+
+            $median = $collection->median(function(array $item): float {
+                return array_sum($item['scores']) / count($item['scores']);
+            });
+
+            expect($median)->toBe(35.0);
+        });
+
+        it('ignores non-numeric values and returns null for no numeric items', function(): void {
+            $collection = DataCollection::make(['a', 'b']);
+
+            expect($collection->median())->toBeNull();
+        });
+
+        it('handles numeric strings as numbers', function(): void {
+            $collection = DataCollection::make(['1', '2', '3']);
+
+            expect($collection->median())->toBe(2.0);
         });
     });
 

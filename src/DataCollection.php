@@ -404,6 +404,55 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return $hasValue ? $maxItem : null;
     }
 
+    /**
+     * Calculate the median of the collection values.
+     *
+     * Follows the same resolution rules as average():
+     * - Without argument: uses the raw items.
+     * - With string path: uses DataAccessor and supports dot-notation.
+     * - With callback: uses the callback return value.
+     *
+     * Non-numeric values are ignored. If no numeric values are found,
+     * null is returned.
+     *
+     * @param callable(TValue, int|string): (int|float|string)|string|null $callbackOrPath
+     */
+    public function median(callable|string|null $callbackOrPath = null): ?float
+    {
+        $values = [];
+
+        foreach ($this->items as $key => $item) {
+            $value = $item;
+
+            if (is_string($callbackOrPath)) {
+                $value = DataAccessor::make($item)->get($callbackOrPath);
+            } elseif (null !== $callbackOrPath) {
+                $value = $callbackOrPath($item, $key);
+            }
+
+            if (is_int($value) || is_float($value) || (is_string($value) && is_numeric($value))) {
+                $values[] = (float) $value;
+            }
+        }
+
+        $count = count($values);
+
+        if (0 === $count) {
+            return null;
+        }
+
+        sort($values);
+
+        $middle = intdiv($count, 2);
+
+        if (1 === $count % 2) {
+            return $values[$middle];
+        }
+
+        return ($values[$middle - 1] + $values[$middle]) / 2;
+    }
+
+
 
     /**
      * Get all items.
