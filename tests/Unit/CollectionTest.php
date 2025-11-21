@@ -301,6 +301,51 @@ describe('Collection', function(): void {
     });
 
 
+    describe('Only', function(): void {
+        it('returns only the given keys', function(): void {
+            $collection = DataCollection::make([
+                'id' => 1,
+                'name' => 'Alice',
+                'email' => 'alice@example.com',
+            ]);
+
+            $subset = $collection->only(['id', 'email']);
+
+            expect($subset->toArray())->toBe([
+                'id' => 1,
+                'email' => 'alice@example.com',
+            ]);
+        });
+
+        it('accepts variadic keys like laravel', function(): void {
+            $collection = DataCollection::make([
+                'id' => 1,
+                'name' => 'Alice',
+                'email' => 'alice@example.com',
+            ]);
+
+            $subset = $collection->only('id', 'email');
+
+            expect($subset->toArray())->toBe([
+                'id' => 1,
+                'email' => 'alice@example.com',
+            ]);
+        });
+
+        it('ignores missing keys', function(): void {
+            $collection = DataCollection::make([
+                'id' => 1,
+                'name' => 'Alice',
+            ]);
+
+            $subset = $collection->only(['id', 'missing']);
+
+            expect($subset->toArray())->toBe([
+                'id' => 1,
+            ]);
+        });
+    });
+
 
     describe('Flatten', function(): void {
         it('flattens nested associative arrays using dot notation keys', function(): void {

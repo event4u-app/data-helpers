@@ -1084,6 +1084,36 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return new static(array_keys($this->items)); // @phpstan-ignore return.type
     }
 
+    /**
+     * Get a subset of the items by the given keys.
+     *
+     * Mirrors Laravel's only(): returns a new collection containing
+     * only the items with the specified keys, in their original order.
+     * Keys that do not exist are ignored.
+     *
+     * @param array<int, int|string>|int|string $keys
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function only(array|int|string $keys): static
+    {
+        if (!is_array($keys)) {
+            $keys = func_get_args();
+        }
+
+        $keys = array_map(static fn($key): int|string => is_int($key) || is_string($key) ? $key : (string) $key, $keys);
+
+        $result = [];
+
+        foreach ($this->items as $key => $value) {
+            if (in_array($key, $keys, true)) {
+                $result[$key] = $value;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
     /** Determine if a key exists in the collection. */
     public function has(int|string $key): bool
     {

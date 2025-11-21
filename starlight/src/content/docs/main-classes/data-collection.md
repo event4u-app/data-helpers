@@ -278,6 +278,17 @@ $collection
     ->set('0.user.age', 30)
     ->merge('0.user', ['city' => 'Berlin'])
     ->transform('0.user.name', fn($name) => strtoupper($name))
+// only() – get subset by keys (array or variadic)
+$user = DataCollection::make([
+    'id' => 1,
+    'name' => 'Alice',
+    'email' => 'alice@example.com',
+]);
+
+$public = $user->only('id', 'name');
+// $public->toArray() === ['id' => 1, 'name' => 'Alice']
+
+
     ->pushTo('0.user.tags', 'php');
 
 // Collection: [['user' => ['name' => 'ALICE', 'age' => 30, 'city' => 'Berlin', 'tags' => ['php']]]]
