@@ -1875,6 +1875,69 @@ describe('Collection', function(): void {
                 ],
             ]);
         });
+
+    describe('Replace', function(): void {
+        it('replaces values by string and numeric keys', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+                0 => 'first',
+                1 => 'second',
+            ]);
+
+            $replaced = $collection->replace([
+                'age' => 31,
+                1 => 'changed',
+            ]);
+
+            expect($replaced->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 31,
+                0 => 'first',
+                1 => 'changed',
+            ]);
+
+            expect($collection->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+                0 => 'first',
+                1 => 'second',
+            ]);
+        });
+
+        it('replaces with multiple iterables where later ones win on conflicts', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+
+            $replaced = $collection->replace([
+                'age' => 31,
+            ], [
+                'age' => 32,
+                'city' => 'Berlin',
+            ]);
+
+            expect($replaced->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 32,
+                'city' => 'Berlin',
+            ]);
+        });
+
+        it('returns the same collection when no items are given', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+
+            $replaced = $collection->replace();
+
+            expect($replaced->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+        });
     });
 
     describe('Forget Operations', function(): void {
@@ -3246,4 +3309,6 @@ describe('Collection', function(): void {
             expect($filtered->count())->toBeGreaterThan(0);
         });
     });
+});
+
 });

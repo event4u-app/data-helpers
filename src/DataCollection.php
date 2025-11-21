@@ -454,6 +454,35 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Replace items in the collection by key, similar to Laravel's replace().
+     *
+     * Uses PHP's array_replace() semantics:
+     * - String and numeric keys are both overwritten instead of appended.
+     * - Later arrays overwrite earlier ones when keys collide.
+     *
+     * @param iterable<int|string, TValue> ...$items
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function replace(iterable ...$items): static
+    {
+        $result = $this->items;
+
+        foreach ($items as $iterable) {
+            $array = [];
+
+            foreach ($iterable as $key => $value) {
+                $array[$key] = $value;
+            }
+
+            /** @var array<int|string, TValue> $result */
+            $result = array_replace($result, $array);
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
      * Get the minimum value of the given items.
      *
      * Works similar to Laravel's min():

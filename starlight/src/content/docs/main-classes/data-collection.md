@@ -225,6 +225,38 @@ $collection->merge([
 ]);
 ```
 
+### replace() - Replace by Keys (Immutable)
+
+Create a new collection where values are replaced by string or numeric keys, similar to Laravel's `replace()`:
+
+```php
+$original = DataCollection::make([
+    'name' => 'Alice',
+    'age' => 30,
+    0 => 'first',
+    1 => 'second',
+]);
+
+$replaced = $original->replace([
+    'age' => 31,
+    1 => 'changed',
+]);
+
+// $replaced->toArray() === ['name' => 'Alice', 'age' => 31, 0 => 'first', 1 => 'changed']
+// $original->toArray() === ['name' => 'Alice', 'age' => 30, 0 => 'first', 1 => 'second']
+```
+
+```php
+// Later arguments win when keys collide
+$collection = DataCollection::make([
+    'age' => 30,
+]);
+
+$replaced = $collection->replace(['age' => 31], ['age' => 32]);
+// $replaced->toArray() === ['age' => 32]
+```
+
+
 ### forget() - Remove Values
 
 Remove a value at a specific path:
