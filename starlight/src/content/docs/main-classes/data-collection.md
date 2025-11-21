@@ -191,6 +191,21 @@ $collection
     ->set('0.user.country', 'Germany');
 ```
 
+### put() - Set by Direct Key
+
+Set a value by direct key on the top-level collection (no dot-notation):
+
+```php
+$collection = DataCollection::make();
+
+$collection
+    ->put('name', 'Alice')
+    ->put('age', 30);
+
+// Collection: ['name' => 'Alice', 'age' => 30]
+```
+
+
 ### merge() - Merge Values
 
 Merge an array into a specific path:
@@ -209,6 +224,85 @@ $collection->merge([
     '0.user.city' => 'Berlin',
 ]);
 ```
+
+### replace() - Replace by Keys (Immutable)
+
+Create a new collection where values are replaced by string or numeric keys, similar to Laravel's `replace()`:
+
+```php
+$original = DataCollection::make([
+    'name' => 'Alice',
+    'age' => 30,
+    0 => 'first',
+    1 => 'second',
+]);
+
+$replaced = $original->replace([
+    'age' => 31,
+    1 => 'changed',
+]);
+
+// $replaced->toArray() === ['name' => 'Alice', 'age' => 31, 0 => 'first', 1 => 'changed']
+// $original->toArray() === ['name' => 'Alice', 'age' => 30, 0 => 'first', 1 => 'second']
+```
+
+```php
+// Later arguments win when keys collide
+$collection = DataCollection::make([
+    'age' => 30,
+]);
+
+$replaced = $collection->replace(['age' => 31], ['age' => 32]);
+// $replaced->toArray() === ['age' => 32]
+```
+### remove() / drop() - Remove by Keys (Immutable)
+
+Create a new collection without the given keys. Existing keys are removed, missing keys are ignored; `drop()` is an alias for `remove()`:
+
+```php
+$collection = DataCollection::make([
+    'name' => 'Alice',
+    'age' => 30,
+    'city' => 'Berlin',
+]);
+
+$filtered = $collection->remove(['age']);
+
+// $filtered->toArray() === ['name' => 'Alice', 'city' => 'Berlin']
+// $collection->toArray() === ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin']
+```
+
+```php
+// drop() is an alias for remove()
+$collection = DataCollection::make([
+    'name' => 'Alice',
+    'age' => 30,
+    'city' => 'Berlin',
+]);
+
+$dropped = $collection->drop(['age']);
+// $dropped->toArray() === ['name' => 'Alice', 'city' => 'Berlin']
+```
+
+
+### reverse() - Reverse Order (Immutable)
+
+Return a new collection with the items in reverse order while preserving keys:
+
+```php
+$collection = DataCollection::make([
+    'a' => 1,
+    'b' => 2,
+    'c' => 3,
+]);
+
+$reversed = $collection->reverse();
+
+// $reversed->toArray() === ['c' => 3, 'b' => 2, 'a' => 1]
+// $collection->toArray() === ['a' => 1, 'b' => 2, 'c' => 3]
+```
+
+
 
 ### forget() - Remove Values
 
@@ -283,6 +377,78 @@ $collection
 // Collection: [['user' => ['name' => 'ALICE', 'age' => 30, 'city' => 'Berlin', 'tags' => ['php']]]]
 ```
 
+```php
+// only() – get subset by keys (array or variadic)
+$user = DataCollection::make([
+    'id' => 1,
+    'name' => 'Alice',
+    'email' => 'alice@example.com',
+]);
+
+$public = $user->only('id', 'name');
+// $public->toArray() === ['id' => 1, 'name' => 'Alice']
+```
+
+```php
+// pop() – remove and return last item
+$numbers = DataCollection::make([1, 2, 3]);
+
+$last = $numbers->pop();
+// $last === 3
+// $numbers->toArray() === [1, 2]
+```
+
+```php
+// shift() – remove and return first item
+$numbers = DataCollection::make([1, 2, 3]);
+
+$first = $numbers->shift();
+// $first === 1
+// $numbers->toArray() === [2, 3]
+```
+
+```php
+// shuffle() – get a new collection with randomly ordered items
+$numbers = DataCollection::make([1, 2, 3, 4]);
+
+$shuffled = $numbers->shuffle();
+// $shuffled->count() === 4
+// $numbers->toArray() is unchanged
+```
+
+```php
+// sort() – get a new collection with items sorted by value (keys preserved)
+$numbers = DataCollection::make([
+    10 => 3,
+    20 => 1,
+    30 => 2,
+]);
+
+$sorted = $numbers->sort();
+// $sorted->toArray() === [20 => 1, 30 => 2, 10 => 3]
+// $numbers->toArray() is unchanged
+```
+
+```php
+// sortBy() – sort by a field (supports dot-notation) and keep original keys
+$users = DataCollection::make([
+    10 => ['name' => 'Bob', 'age' => 30],
+    20 => ['name' => 'Alice', 'age' => 25],
+    30 => ['name' => 'Charlie', 'age' => 35],
+]);
+
+$sorted = $users->sortBy('age');
+// $sorted->toArray() === [
+//     20 => ['name' => 'Alice', 'age' => 25],
+//     10 => ['name' => 'Bob', 'age' => 30],
+//     30 => ['name' => 'Charlie', 'age' => 35],
+// ]
+```
+
+
+
+
+
 ## SQL-Like Filtering with DataFilter
 
 DataCollection integrates with [DataFilter](/data-helpers/main-classes/data-filter/) to provide powerful SQL-like querying capabilities. The `query()` method returns a wrapper that allows chaining filter operations and returns a new DataCollection.
@@ -318,6 +484,20 @@ $filtered = $users
     ->query()
     ->between('age', 26, 36)
     ->get();
+
+### random() - Get Random Items
+
+```php
+$numbers = DataCollection::make([1, 2, 3, 4, 5]);
+
+// Single random item
+$item = $numbers->random();
+
+// Multiple random items
+$some = $numbers->random(2);
+// $some->count() === 2
+```
+
 
 // WHERE IN
 $filtered = $users
@@ -458,6 +638,14 @@ $items = $collection->items();
 $json = $collection->toJson();
 // Result: '{"a":1,"b":2}'
 
+// Convert to pretty JSON (multi-line)
+$prettyJson = $collection->toPrettyJson();
+// Result (formatted JSON):
+// {
+//     "a": 1,
+//     "b": 2
+// }
+
 // JSON serialization
 $json = json_encode($collection);
 // Result: '{"a":1,"b":2}'
@@ -557,38 +745,538 @@ See the [DtoCollection documentation](/data-helpers/simple-dto/collections/) for
 
 ## API Reference
 
+Nachfolgend eine Übersicht aller wichtigen Methoden mit kurzen, testbaren Beispielen. Alle Code-Beispiele werden automatisch von `StarlightAllExamplesTest` ausgeführt.
+
 ### Creation Methods
-- `make(array $items = []): static` - Create new collection
-- `wrap(mixed $value): static` - Wrap value in collection
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+// Create from array
+$numbers = DataCollection::make([1, 2, 3]);
+// $numbers->toArray() = [1, 2, 3]
+
+// Wrap single value
+$wrapped = DataCollection::wrap(5);
+// $wrapped->toArray() = [5]
+```
 
 ### Access Methods
-- `get(int|string $key, mixed $default = null): mixed` - Get item by key
-- `first(?callable $callback = null, mixed $default = null): mixed` - Get first item
-- `last(?callable $callback = null, mixed $default = null): mixed` - Get last item
-- `has(int|string $key): bool` - Check if key exists
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make([
+    'a' => ['value' => 1],
+    'b' => ['value' => 2],
+    'c' => ['value' => 3],
+]);
+
+// get() – direct key and dot-notation
+$one = $collection->get('a.value', 0);
+$missing = $collection->get('x.value', 'default');
+// $one = 1
+// $missing = 'default'
+
+// first() / last()
+$first = $collection->first();
+$last = $collection->last();
+// $first = ['value' => 1]
+// $last = ['value' => 3]
+
+// has()
+$hasA = $collection->has('a');
+$hasX = $collection->has('x');
+// $hasA = true
+// $hasX = false
+
+// hasAny()
+$anyAB = $collection->hasAny('a', 'b');
+$anyXZ = $collection->hasAny('x', 'z');
+// $anyAB = true
+// $anyXZ = false
+```
 
 ### Transformation Methods
-- `filter(?callable $callback = null): static` - Filter items
-- `map(callable $callback): static` - Transform items
-- `reduce(callable $callback, mixed $initial = null): mixed` - Reduce to single value
 
-### Manipulation Methods
-- `push(mixed ...$values): static` - Add items to end
-- `prepend(mixed $value): static` - Add item to beginning
-- `keys(): static` - Get all keys
-- `values(): static` - Get all values (reindexed)
+```php
+use event4u\DataHelpers\DataCollection;
+
+$numbers = DataCollection::make([1, 2, 3, 4]);
+
+// filter()
+$even = $numbers->filter(fn(int $n) => $n % 2 === 0)->toArray();
+// $even = [1 => 2, 3 => 4]
+
+// map()
+$doubled = $numbers->map(fn(int $n) => $n * 2)->toArray();
+// $doubled = [2, 4, 6, 8]
+
+// reduce()
+$sum = $numbers->reduce(fn(int $carry, int $n) => $carry + $n, 0);
+// $sum = 10
+
+$users = DataCollection::make([
+    ['user' => ['id' => 1, 'name' => 'Alice', 'age' => 30]],
+    ['user' => ['id' => 1, 'name' => 'Bob', 'age' => 25]],
+]);
+
+// keyBy() - reindex by a key or dot path
+$byId = $users->keyBy('user.id')->toArray();
+// $byId = [
+//     1 => ['user' => ['id' => 1, 'name' => 'Alice', 'age' => 30]],
+//     2 => ['user' => ['id' => 2, 'name' => 'Bob', 'age' => 25]],
+// ]
+
+
+// pluck() – values and keys via dot-notation
+$names = $users->pluck('user.name')->toArray();
+$agesByName = $users->pluck('user.age', 'user.name')->toArray();
+// $names = ['Alice', 'Bob']
+// $agesByName = ['Alice' => 30, 'Bob' => 25]
+
+// collapse()
+$nested = DataCollection::make([[1, 2], [3, 4]]);
+$flat = $nested->collapse()->toArray();
+// $flat = [1, 2, 3, 4]
+
+// flatten() – keys as dot-notation
+$profile = DataCollection::make([
+    'user' => [
+        'name' => 'Alice',
+        'address' => [
+            'city' => 'Berlin',
+            'zip' => '10115',
+        ],
+    ],
+    'active' => true,
+]);
+
+$flat = $profile->flatten()->toArray();
+// $flat = [
+//     'user.name' => 'Alice',
+//     'user.address.city' => 'Berlin',
+//     'user.address.zip' => '10115',
+//     'active' => true,
+// ]
+
+// unflatten() / undot()  reverse of flatten()
+$flat = DataCollection::make([
+    'user.name' => 'Alice',
+    'user.address.city' => 'Berlin',
+    'user.address.zip' => '10115',
+]);
+
+$nested = $flat->unflatten()->toArray();
+// $nested = [
+//     'user' => [
+//         'name' => 'Alice',
+//         'address' => [
+//             'city' => 'Berlin',
+//             'zip' => '10115',
+//         ],
+//     ],
+// ]
+
+
+// average() / avg()
+$numbers = DataCollection::make([1, 2, 3, 4]);
+$avg1 = $numbers->average();
+$avg2 = $numbers->avg();
+// $avg1 = 2.5
+// $avg2 = 2.5
+
+$users = DataCollection::make([
+    ['user' => ['age' => 30]],
+    ['user' => ['age' => 20]],
+]);
+
+$ageAvg = $users->average('user.age');
+// $ageAvg = 25.0
+
+// max() – supports raw values, dot paths and callbacks
+$numbers = DataCollection::make([1, 2, 10, 3]);
+$maxNumber = $numbers->max();
+// $maxNumber = 10
+
+$players = DataCollection::make([
+    ['player' => ['name' => 'Alice', 'score' => 10]],
+    ['player' => ['name' => 'Bob', 'score' => 30]],
+]);
+
+$bestPlayer = $players->max('player.score');
+// $bestPlayer = ['player' => ['name' => 'Bob', 'score' => 30]]
+
+
+// min() – supports raw values, dot paths and callbacks
+$numbers = DataCollection::make([1, 2, 10, 3]);
+$minNumber = $numbers->min();
+// $minNumber = 1
+
+$players = DataCollection::make([
+    ['player' => ['name' => 'Alice', 'score' => 10]],
+    ['player' => ['name' => 'Bob', 'score' => 30]],
+]);
+
+$worstPlayer = $players->min('player.score');
+// $worstPlayer = ['player' => ['name' => 'Alice', 'score' => 10]]
+
+
+// nth() – take every n-th item (optionally from an offset)
+$letters = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
+$everySecond = $letters->nth(2);
+// $everySecond->toArray() === [0 => 'a', 2 => 'c', 4 => 'e']
+
+$everySecondFromSecond = $letters->nth(2, 1);
+// $everySecondFromSecond->toArray() === [1 => 'b', 3 => 'd']
+
+
+// slice()   e2 80 93 take a portion of the collection, preserving keys
+$letters = DataCollection::make([
+    10 => 'a',
+    20 => 'b',
+    30 => 'c',
+    40 => 'd',
+]);
+
+$tail = $letters->slice(1);
+// $tail->toArray() === [20 => 'b', 30 => 'c', 40 => 'd']
+
+$middle = $letters->slice(1, 2);
+// $middle->toArray() === [20 => 'b', 30 => 'c']
+
+$lastTwo = $letters->slice(-2);
+// $lastTwo->toArray() === [30 => 'c', 40 => 'd']
+
+
+
+
+// median() – works like average(), also with dot-notation
+$values = DataCollection::make([1, 100, 50]);
+$median = $values->median();
+// $median = 50.0
+
+$rows = DataCollection::make([
+    ['stats' => ['value' => 10]],
+    ['stats' => ['value' => 30]],
+    ['stats' => ['value' => 20]],
+]);
+
+$medianValue = $rows->median('stats.value');
+// $medianValue = 20.0
+
+```
+
+### Neighbour Methods (before/after)
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$letters = DataCollection::make(['a', 'b', 'c', 'd']);
+
+$afterB = $letters->after('b');
+$beforeC = $letters->before('c');
+// $afterB = 'c'
+// $beforeC = 'b'
+
+// Mit Callback
+$afterA = $letters->after(fn(string $value) => $value === 'a');
+$beforeD = $letters->before(fn(string $value) => $value === 'd');
+// $afterA = 'b'
+// $beforeD = 'c'
+```
+
+### Manipulation Methods (mutable)
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make([2, 3]);
+
+// push() and prepend()
+$collection->push(4, 5)->prepend(1);
+// $collection->toArray() = [1, 2, 3, 4, 5]
+
+// Dot-Notation Mutationen
+$users = DataCollection::make([
+    ['user' => ['name' => 'Alice']],
+]);
+
+$users
+    ->set('0.user.age', 30)
+    ->merge('0.user', ['city' => 'Berlin'])
+    ->transform('0.user.name', fn(string $name) => strtoupper($name))
+    ->pushTo('0.user.tags', 'php');
+
+// $users->toArray() = [
+//   ['user' => [
+//       'name' => 'ALICE',
+//       'age' => 30,
+//       'city' => 'Berlin',
+//       'tags' => ['php'],
+//   ]],
+// ]
+
+// pull() – entfernen und zurückgeben
+$age = $users->pull('0.user.age');
+// $age = 30
+```
+
+### Contains & Existence
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$numbers = DataCollection::make([1, 2, 3]);
+
+// contains(value)
+$hasTwo = $numbers->contains(2);
+$hasFour = $numbers->contains(4);
+// $hasTwo = true
+// $hasFour = false
+
+// contains(callback)
+$hasEven = $numbers->contains(fn(int $n) => $n % 2 === 0);
+// $hasEven = true
+
+// contains(key, value) mit Dot-Notation
+$products = DataCollection::make([
+    ['product' => ['name' => 'Desk', 'price' => 200]],
+    ['product' => ['name' => 'Chair', 'price' => 100]],
+]);
+
+$hasDesk = $products->contains('product.name', 'Desk');
+$hasBookcase = $products->contains('product.name', 'Bookcase');
+// $hasDesk = true
+// $hasBookcase = false
+
+// isEmpty() / isNotEmpty()
+$empty = DataCollection::make();
+$isEmpty = $empty->isEmpty();
+$isNotEmpty = $numbers->isNotEmpty();
+// $isEmpty = true
+// $isNotEmpty = true
+```
+
+
+### search() - Find the Key for a Value or Callback
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make(['a', 'b', 'c']);
+
+$keyOfB = $collection->search('b');
+// $keyOfB = 1
+
+$strictCollection = DataCollection::make([1, '1', 2]);
+
+$looseKey = $strictCollection->search('1');
+$strictKey = $strictCollection->search('1', true);
+// $looseKey = 0  (loose comparison)
+// $strictKey = 1 (strict comparison)
+
+$callbackKey = $collection->search(function (string $value, int|string $key): bool {
+    return 'c' === $value;
+});
+// $callbackKey = 2
+```
+
+
+### select() - Select Fields from Each Array Item
+
+`select()` arbeitet **auf den Feldern jedes Array-Items**, ähnlich wie ein `SELECT name, email FROM ...` im SQL.
+Das unterscheidet sich von `only()`, das die Collection **nach Keys der äußeren Collection** filtert.
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$users = DataCollection::make([
+    ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30],
+    ['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 25],
+]);
+
+$selected = $users->select('name', 'email');
+// $selected->toArray() === [
+//     ['name' => 'Alice', 'email' => 'alice@example.com'],
+//     ['name' => 'Bob', 'email' => 'bob@example.com'],
+// ]
+```
+
+
+
+
+
+### Diff
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make([1, 2, 3, 4]);
+
+$diff = $collection->diff([2, 4])->toArray();
+// $diff = [0 => 1, 2 => 3]
+
+$assoc = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
+$assocDiff = $assoc->diff([1, 3])->toArray();
+// $assocDiff = ['b' => 2]
+```
+
+### DiffKeys
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
+
+$onlyAC = $collection->diffKeys(['b' => 99])->toArray();
+// $onlyAC = ['a' => 1, 'c' => 3]
+```
+
+### Union
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$primary = DataCollection::make(['a' => 1, 'b' => 2]);
+$union = $primary->union(['b' => 99, 'c' => 3])->toArray();
+// $union = ['a' => 1, 'b' => 2, 'c' => 3]
+```
+
+### Unique
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$numbers = DataCollection::make([1, '1', 2, 2, 3]);
+$uniqueNumbers = $numbers->unique()->values()->toArray();
+// $uniqueNumbers = [1, 2, 3]
+
+$users = DataCollection::make([
+    ['user' => ['id' => 1, 'name' => 'Alice']],
+    ['user' => ['id' => 1, 'name' => 'Alice Duplicate']],
+    ['user' => ['id' => 2, 'name' => 'Bob']],
+]);
+
+$uniqueUsers = $users->unique('user.id')->values()->toArray();
+// $uniqueUsers contains only user id 1 and 2
+```
+
+### Where helpers
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$users = DataCollection::make([
+    ['name' => 'Alice', 'age' => 20, 'email' => 'alice@example.com'],
+    ['name' => 'Bob', 'age' => 25, 'email' => null],
+    ['name' => 'Charlie', 'age' => 30, 'email' => 'charlie@example.com'],
+]);
+
+$adults = $users->where('age', '>=', 21)->pluck('name')->values()->toArray();
+// $adults = ['Bob', 'Charlie']
+
+$between = $users->whereBetween('age', [21, 29])->pluck('name')->values()->toArray();
+// $between = ['Bob']
+
+$notBetween = $users->whereNotBetween('age', [21, 29])->pluck('name')->values()->toArray();
+// $notBetween = ['Alice', 'Charlie']
+
+$in = $users->whereIn('name', ['Alice', 'Charlie'])->pluck('name')->values()->toArray();
+// $in = ['Alice', 'Charlie']
+
+$notIn = $users->whereNotIn('name', ['Alice', 'Charlie'])->pluck('name')->values()->toArray();
+// $notIn = ['Bob']
+
+$withEmail = $users->whereNotNull('email')->pluck('name')->values()->toArray();
+// $withEmail = ['Alice', 'Charlie']
+
+$withoutEmail = $users->whereNull('email')->pluck('name')->values()->toArray();
+// $withoutEmail = ['Bob']
+```
+
+
 
 ### Lazy Methods
-- `lazy(): Generator` - Lazy iteration
-- `lazyFilter(callable $callback): Generator` - Lazy filter
-- `lazyMap(callable $callback): Generator` - Lazy map
 
-### Utility Methods
-- `count(): int` - Count items
-- `isEmpty(): bool` - Check if empty
-- `isNotEmpty(): bool` - Check if not empty
-- `all(): array` - Get all items
-- `items(): array` - Get all items (alias)
-- `toArray(): array` - Convert to array
-- `toJson(int $options = 0): string` - Convert to JSON
+```php
+use event4u\DataHelpers\DataCollection;
 
+$collection = DataCollection::make(range(1, 5));
+
+// lazy()
+$iterated = [];
+foreach ($collection->lazy() as $value) {
+    $iterated[] = $value;
+}
+// $iterated = [1, 2, 3, 4, 5]
+
+// lazyFilter()
+$filtered = [];
+foreach ($collection->lazyFilter(fn(int $n) => $n > 2) as $value) {
+    $filtered[] = $value;
+}
+// $filtered = [3, 4, 5]
+
+// lazyMap()
+$mapped = [];
+foreach ($collection->lazyMap(fn(int $n) => $n * 2) as $value) {
+    $mapped[] = $value;
+}
+// $mapped = [2, 4, 6, 8, 10]
+```
+
+### Conversion & ArrayAccess
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make(['a' => 1, 'b' => 2]);
+
+// toArray(), all(), items()
+$array1 = $collection->toArray();
+$array2 = $collection->all();
+$array3 = $collection->items();
+// $array1 = ['a' => 1, 'b' => 2]
+// $array2 = ['a' => 1, 'b' => 2]
+// $array3 = ['a' => 1, 'b' => 2]
+
+// toJson() / jsonSerialize() / toPrettyJson()
+$json = $collection->toJson();
+$encoded = json_encode($collection);
+$prettyJson = $collection->toPrettyJson();
+// $json = '{"a":1,"b":2}'
+// $encoded = '{"a":1,"b":2}'
+// $prettyJson is a formatted multi-line JSON string
+
+// ArrayAccess
+$valueA = $collection['a'];
+$existsB = isset($collection['b']);
+// $valueA = 1
+// $existsB = true
+
+$collection['c'] = 3;
+unset($collection['a']);
+// $collection->toArray() = ['b' => 2, 'c' => 3]
+```
+
+### Query / DataFilter Integration
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$users = DataCollection::make([
+    ['name' => 'Alice', 'age' => 30, 'city' => 'Berlin'],
+    ['name' => 'Bob', 'age' => 25, 'city' => 'Munich'],
+    ['name' => 'Charlie', 'age' => 35, 'city' => 'Berlin'],
+]);
+
+$berlinersOver30 = $users
+    ->query()
+    ->where('city', 'Berlin')
+    ->where('age', '>', 30)
+    ->get();
+
+$result = $berlinersOver30->pluck('name')->toArray();
+// $result = ['Charlie']
+```

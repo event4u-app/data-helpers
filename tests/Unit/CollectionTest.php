@@ -165,6 +165,384 @@ describe('Collection', function(): void {
             expect($mapped)->not->toBe($collection);
         });
     });
+    describe('Pluck', function(): void {
+        it('plucks simple values', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'John', 'age' => 30],
+                ['name' => 'Jane', 'age' => 25],
+            ]);
+
+            $ages = $collection->pluck('age');
+
+            expect($ages->toArray())->toBe([30, 25]);
+        });
+
+        it('plucks nested values with dot notation', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'address' => ['city' => 'Berlin']],
+                ['id' => 2, 'address' => ['city' => 'Munich']],
+            ]);
+
+            $cities = $collection->pluck('address.city');
+
+            expect($cities->toArray())->toBe(['Berlin', 'Munich']);
+        });
+
+        it('plucks values with custom keys', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'email' => 'john@example.com'],
+                ['id' => 2, 'email' => 'jane@example.com'],
+            ]);
+
+            $emailsById = $collection->pluck('email', 'id');
+
+            expect($emailsById->toArray())->toBe([
+                1 => 'john@example.com',
+                2 => 'jane@example.com',
+            ]);
+        });
+    });
+
+    describe('KeyBy', function(): void {
+        it('keys the collection by a given path', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'name' => 'Alice'],
+                ['id' => 2, 'name' => 'Bob'],
+            ]);
+
+            $keyed = $collection->keyBy('id')->toArray();
+
+            expect($keyed)->toBe([
+                1 => ['id' => 1, 'name' => 'Alice'],
+                2 => ['id' => 2, 'name' => 'Bob'],
+            ]);
+        });
+
+        it('supports dot-notation', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['id' => 10, 'name' => 'Alice']],
+                ['user' => ['id' => 20, 'name' => 'Bob']],
+            ]);
+
+            $keyed = $collection->keyBy('user.id')->toArray();
+
+            expect($keyed)->toBe([
+                10 => ['user' => ['id' => 10, 'name' => 'Alice']],
+                20 => ['user' => ['id' => 20, 'name' => 'Bob']],
+            ]);
+        });
+
+        it('supports callback', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'name' => 'Alice'],
+                ['id' => 2, 'name' => 'Bob'],
+            ]);
+
+            $keyed = $collection->keyBy(fn(array $item): int => $item['id'])->toArray();
+
+            expect($keyed)->toBe([
+                1 => ['id' => 1, 'name' => 'Alice'],
+                2 => ['id' => 2, 'name' => 'Bob'],
+            ]);
+        });
+
+        it('falls back to original key when resolved key is not int or string', function(): void {
+            $collection = DataCollection::make([
+                ['meta' => ['id' => 1]],
+                ['meta' => ['id' => 2]],
+            ]);
+
+            $keyed = $collection->keyBy('meta')->toArray();
+
+            expect(array_keys($keyed))->toBe([0, 1]);
+        });
+
+        it('last item wins when keys collide', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'group' => 'a'],
+                ['id' => 2, 'group' => 'a'],
+            ]);
+
+            $keyed = $collection->keyBy('group')->toArray();
+
+            expect($keyed)->toBe([
+                'a' => ['id' => 2, 'group' => 'a'],
+            ]);
+        });
+    });
+
+    describe('Collapse', function(): void {
+        it('collapses simple nested arrays', function(): void {
+            $collection = DataCollection::make([[1, 2], [3, 4]]);
+
+            expect($collection->collapse()->toArray())->toBe([1, 2, 3, 4]);
+        });
+
+        it('collapses Traversable items', function(): void {
+            $collection = DataCollection::make([
+                new ArrayIterator([1, 2]),
+                new ArrayIterator([3, 4]),
+            ]);
+
+            expect($collection->collapse()->toArray())->toBe([1, 2, 3, 4]);
+        });
+
+        it('keeps non-array items as-is', function(): void {
+            $collection = DataCollection::make([[1, 2], 3, [4]]);
+
+            expect($collection->collapse()->toArray())->toBe([1, 2, 3, 4]);
+        });
+
+        it('collapses empty collection', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->collapse()->toArray())->toBe([]);
+        });
+    });
+
+    describe('Only', function(): void {
+        it('returns only the given keys', function(): void {
+            $collection = DataCollection::make([
+                'id' => 1,
+                'name' => 'Alice',
+                'email' => 'alice@example.com',
+            ]);
+
+            $subset = $collection->only(['id', 'email']);
+
+            expect($subset->toArray())->toBe([
+                'id' => 1,
+                'email' => 'alice@example.com',
+            ]);
+        });
+
+        it('accepts variadic keys like laravel', function(): void {
+            $collection = DataCollection::make([
+                'id' => 1,
+                'name' => 'Alice',
+                'email' => 'alice@example.com',
+            ]);
+
+            $subset = $collection->only('id', 'email');
+
+            expect($subset->toArray())->toBe([
+                'id' => 1,
+                'email' => 'alice@example.com',
+            ]);
+        });
+
+        it('ignores missing keys', function(): void {
+            $collection = DataCollection::make([
+                'id' => 1,
+                'name' => 'Alice',
+            ]);
+
+            $subset = $collection->only(['id', 'missing']);
+
+            expect($subset->toArray())->toBe([
+                'id' => 1,
+            ]);
+        });
+    });
+
+	    describe('Select', function(): void {
+	        it('selects a single field from each array item', function(): void {
+	            $users = DataCollection::make([
+	                ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30],
+	                ['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 25],
+	            ]);
+
+	            $selected = $users->select('name');
+
+	            expect($selected->toArray())->toBe([
+	                ['name' => 'Alice'],
+	                ['name' => 'Bob'],
+	            ]);
+	        });
+
+	        it('selects multiple fields and preserves outer keys and field order', function(): void {
+	            $users = DataCollection::make([
+	                10 => ['name' => 'Alice', 'email' => 'alice@example.com', 'age' => 30],
+	                20 => ['name' => 'Bob', 'email' => 'bob@example.com', 'age' => 25],
+	            ]);
+
+	            $selected = $users->select('email', 'name');
+
+	            expect($selected->toArray())->toBe([
+	                10 => ['email' => 'alice@example.com', 'name' => 'Alice'],
+	                20 => ['email' => 'bob@example.com', 'name' => 'Bob'],
+	            ]);
+	        });
+
+	        it('ignores missing fields', function(): void {
+	            $users = DataCollection::make([
+	                ['name' => 'Alice', 'email' => 'alice@example.com'],
+	                ['name' => 'Bob'],
+	            ]);
+
+	            $selected = $users->select('name', 'email');
+
+	            expect($selected->toArray())->toBe([
+	                ['name' => 'Alice', 'email' => 'alice@example.com'],
+	                ['name' => 'Bob'],
+	            ]);
+	        });
+
+	        it('leaves non-array items unchanged', function(): void {
+	            $numbers = DataCollection::make([1, 2, 3]);
+
+	            $selected = $numbers->select('anything');
+
+	            expect($selected->toArray())->toBe([1, 2, 3]);
+	        });
+
+	        it('returns a new collection instance (immutable)', function(): void {
+	            $users = DataCollection::make([
+	                ['name' => 'Alice', 'email' => 'alice@example.com'],
+	            ]);
+
+	            $selected = $users->select('email');
+
+	            expect($selected)->not->toBe($users)
+	                ->and($users->toArray())->toBe([
+	                    ['name' => 'Alice', 'email' => 'alice@example.com'],
+	                ]);
+	        });
+	    });
+
+    describe('Flatten', function(): void {
+        it('flattens nested associative arrays using dot notation keys', function(): void {
+            $collection = DataCollection::make([
+                'user' => [
+                    'name' => 'Alice',
+                    'address' => [
+                        'city' => 'Berlin',
+                        'zip' => '10115',
+                    ],
+                ],
+                'active' => true,
+            ]);
+
+            expect($collection->flatten()->toArray())->toBe([
+                'user.name' => 'Alice',
+                'user.address.city' => 'Berlin',
+                'user.address.zip' => '10115',
+                'active' => true,
+            ]);
+        });
+
+        it('flattens nested numeric arrays keeping numeric segments', function(): void {
+            $collection = DataCollection::make([
+                'numbers' => [1, 2, 3],
+            ]);
+
+            expect($collection->flatten()->toArray())->toBe([
+                'numbers.0' => 1,
+                'numbers.1' => 2,
+                'numbers.2' => 3,
+            ]);
+        });
+
+        it('flattens collection items recursively', function(): void {
+            $inner = DataCollection::make([
+                'details' => [
+                    'first' => 'John',
+                    'last' => 'Doe',
+                ],
+            ]);
+
+            $collection = DataCollection::make([
+                'user' => $inner,
+            ]);
+
+            expect($collection->flatten()->toArray())->toBe([
+                'user.details.first' => 'John',
+                'user.details.last' => 'Doe',
+            ]);
+        });
+
+        it('flattens empty collection to empty array', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->flatten()->toArray())->toBe([]);
+        });
+    });
+
+    describe('Unflatten', function(): void {
+        it('unflattens simple dot-notation keys back to nested arrays', function(): void {
+            $collection = DataCollection::make([
+                'user.name' => 'Alice',
+                'user.address.city' => 'Berlin',
+                'user.address.zip' => '10115',
+                'active' => true,
+            ]);
+
+            expect($collection->unflatten()->toArray())->toBe([
+                'user' => [
+                    'name' => 'Alice',
+                    'address' => [
+                        'city' => 'Berlin',
+                        'zip' => '10115',
+                    ],
+                ],
+                'active' => true,
+            ]);
+        });
+
+        it('unflattens numeric segments into nested numeric arrays', function(): void {
+            $collection = DataCollection::make([
+                'numbers.0' => 1,
+                'numbers.1' => 2,
+                'numbers.2' => 3,
+            ]);
+
+            expect($collection->unflatten()->toArray())->toBe([
+                'numbers' => [1, 2, 3],
+            ]);
+        });
+
+        it('leaves non-string and empty keys untouched', function(): void {
+            $collection = DataCollection::make([
+                0 => 'keep',
+                '' => 'also-keep',
+            ]);
+
+            expect($collection->unflatten()->toArray())->toBe([
+                0 => 'keep',
+                '' => 'also-keep',
+            ]);
+        });
+
+        it('is the reverse operation of flatten for simple cases', function(): void {
+            $original = DataCollection::make([
+                'user' => [
+                    'name' => 'Alice',
+                    'address' => ['city' => 'Berlin'],
+                ],
+            ]);
+
+            $flattened = $original->flatten();
+            $unflattened = $flattened->unflatten();
+
+            expect($unflattened->toArray())->toBe($original->toArray());
+        });
+
+        it('returns an empty collection for empty input', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->unflatten()->toArray())->toBe([]);
+        });
+
+        it('has undot as alias for unflatten', function(): void {
+            $collection = DataCollection::make([
+                'user.name' => 'Alice',
+            ]);
+
+            expect($collection->undot()->toArray())->toBe([
+                'user' => ['name' => 'Alice'],
+            ]);
+        });
+    });
 
     describe('Reduce', function(): void {
         it('reduces to single value', function(): void {
@@ -193,6 +571,547 @@ describe('Collection', function(): void {
             $result = $collection->reduce(fn($carry, $item) => $carry + $item, 42);
 
             expect($result)->toBe(42);
+        });
+    });
+
+    describe('Random', function(): void {
+        it('returns a single random item from non-empty collection', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4, 5]);
+
+            $item = $collection->random();
+
+            expect([1, 2, 3, 4, 5])->toContain($item);
+        });
+
+        it('throws when called on empty collection', function(): void {
+            $collection = DataCollection::make();
+
+            expect(fn(): mixed => $collection->random())
+                ->toThrow(RuntimeException::class, 'Cannot pick random items from an empty collection.');
+        });
+
+        it('returns a collection with the given number of random items', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
+
+            /** @var DataCollection<string> $random */
+            $random = $collection->random(3);
+
+            expect($random->count())->toBe(3);
+
+            foreach ($random->toArray() as $value) {
+                expect(['a', 'b', 'c', 'd', 'e'])->toContain($value);
+            }
+        });
+
+        it('returns empty collection when requesting zero items', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            /** @var DataCollection<int> $random */
+            $random = $collection->random(0);
+
+            expect($random->count())->toBe(0);
+        });
+
+        it('throws when requesting more items than available', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            expect(fn(): mixed => $collection->random(5))
+                ->toThrow(
+                    RuntimeException::class,
+                    'You requested more random items than are available in the collection.'
+                );
+        });
+
+        it('preserves original keys when returning multiple items', function(): void {
+            $collection = DataCollection::make([
+                10 => 'a',
+                20 => 'b',
+                30 => 'c',
+                40 => 'd',
+            ]);
+
+            /** @var DataCollection<string> $random */
+            $random = $collection->random(2);
+
+            $keys = array_keys($random->toArray());
+
+            foreach ($keys as $key) {
+                expect([10, 20, 30, 40])->toContain($key);
+            }
+        });
+    });
+
+    describe('Average, Avg and Median', function(): void {
+        it('calculates average of numeric values', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4]);
+
+            expect($collection->average())->toBe(2.5)
+                ->and($collection->avg())->toBe(2.5);
+        });
+
+        it('calculates average using path string', function(): void {
+            $collection = DataCollection::make([
+                ['age' => 30],
+                ['age' => 20],
+                ['age' => 50],
+            ]);
+
+            expect($collection->average('age'))->toBe(100 / 3);
+        });
+
+        it('calculates average using callback', function(): void {
+            $collection = DataCollection::make([
+                ['scores' => [10, 20]],
+                ['scores' => [30, 40]],
+            ]);
+
+            $avg = $collection->average(
+                fn(array $item): int => array_sum($item['scores']) / count($item['scores'])
+            );
+
+            expect($avg)->toBe(25.0);
+        });
+
+        it('ignores non-numeric values and returns null for no numeric items', function(): void {
+            $collection = DataCollection::make(['a', 'b']);
+
+            expect($collection->average())->toBeNull();
+        });
+
+        it('handles numeric strings as numbers', function(): void {
+            $collection = DataCollection::make(['1', '2', '3']);
+
+            expect($collection->average())->toBe(2.0);
+        });
+    });
+
+    describe('Max', function(): void {
+        it('returns the maximum value from a list of numbers', function(): void {
+            $collection = DataCollection::make([1, 10, 3, 7]);
+
+            expect($collection->max())->toBe(10);
+        });
+
+        it('returns the item with maximum value using path', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'stats' => ['score' => 10]],
+                ['id' => 2, 'stats' => ['score' => 30]],
+                ['id' => 3, 'stats' => ['score' => 20]],
+            ]);
+
+            $max = $collection->max('stats.score');
+
+            expect($max)->toBe([
+                'id' => 2,
+                'stats' => ['score' => 30],
+            ]);
+        });
+
+        it('returns the item with maximum value using callback', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'scores' => [10, 20]],
+                ['id' => 2, 'scores' => [30, 40]],
+            ]);
+
+            $max = $collection->max(fn(array $item): int => array_sum($item['scores']));
+
+            expect($max)->toBe([
+                'id' => 2,
+                'scores' => [30, 40],
+            ]);
+        });
+
+        it('returns null when collection is empty', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->max())->toBeNull();
+        });
+
+        it('returns null when all values are null', function(): void {
+            $collection = DataCollection::make([null, null]);
+
+            expect($collection->max())->toBeNull();
+        });
+
+        it('handles mixed null and numeric values', function(): void {
+            $collection = DataCollection::make([null, 5, null, 2]);
+
+            expect($collection->max())->toBe(5);
+        });
+    });
+
+    describe('Min', function(): void {
+        it('returns the minimum value from a list of numbers', function(): void {
+            $collection = DataCollection::make([1, 10, 3, 7]);
+
+            expect($collection->min())->toBe(1);
+        });
+
+        it('returns the item with minimum value using path', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'stats' => ['score' => 10]],
+                ['id' => 2, 'stats' => ['score' => 30]],
+                ['id' => 3, 'stats' => ['score' => 20]],
+            ]);
+
+            $min = $collection->min('stats.score');
+
+            expect($min)->toBe([
+                'id' => 1,
+                'stats' => ['score' => 10],
+            ]);
+        });
+
+        it('returns the item with minimum value using callback', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'scores' => [10, 20]],
+                ['id' => 2, 'scores' => [30, 40]],
+            ]);
+
+            $min = $collection->min(fn(array $item): int => array_sum($item['scores']));
+
+            expect($min)->toBe([
+                'id' => 1,
+                'scores' => [10, 20],
+            ]);
+        });
+
+        it('returns null when collection is empty', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->min())->toBeNull();
+        });
+
+        it('returns null when all values are null', function(): void {
+            $collection = DataCollection::make([null, null]);
+
+            expect($collection->min())->toBeNull();
+        });
+
+    describe('Nth', function(): void {
+        it('takes every nth item with default offset', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
+
+            $nth = $collection->nth(2);
+
+            expect($nth->toArray())->toBe([
+                0 => 'a',
+                2 => 'c',
+                4 => 'e',
+            ]);
+        });
+
+        it('takes every nth item with custom offset', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
+
+            $nth = $collection->nth(2, 1);
+
+            expect($nth->toArray())->toBe([
+                1 => 'b',
+                3 => 'd',
+            ]);
+        });
+
+        it('returns empty collection for step less than 1', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            $nth = $collection->nth(0);
+
+            expect($nth->toArray())->toBe([]);
+        });
+    });
+
+    describe('Slice', function(): void {
+        it('slices by offset preserving keys', function(): void {
+            $collection = DataCollection::make([
+                10 => 'a',
+                20 => 'b',
+                30 => 'c',
+                40 => 'd',
+            ]);
+
+            $slice = $collection->slice(1);
+
+            expect($slice->toArray())->toBe([
+                20 => 'b',
+                30 => 'c',
+                40 => 'd',
+            ]);
+        });
+
+        it('slices by offset and length', function(): void {
+            $collection = DataCollection::make([
+                'a',
+                'b',
+                'c',
+                'd',
+            ]);
+
+            $slice = $collection->slice(1, 2);
+
+            expect($slice->toArray())->toBe([
+                1 => 'b',
+                2 => 'c',
+            ]);
+        });
+
+        it('supports negative offsets', function(): void {
+            $collection = DataCollection::make([
+                'a',
+                'b',
+                'c',
+                'd',
+            ]);
+
+            $slice = $collection->slice(-2);
+
+            expect($slice->toArray())->toBe([
+                2 => 'c',
+                3 => 'd',
+            ]);
+        });
+
+        it('returns empty collection for out-of-range offset', function(): void {
+            $collection = DataCollection::make(['a', 'b']);
+
+            $slice = $collection->slice(5);
+
+            expect($slice->toArray())->toBe([]);
+        });
+    });
+
+    describe('Pop', function(): void {
+        it('removes and returns the last item', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            $value = $collection->pop();
+
+            expect($value)->toBe(3)
+                ->and($collection->toArray())->toBe([1, 2]);
+        });
+
+        it('returns null on empty collection', function(): void {
+            $collection = DataCollection::make();
+
+            $value = $collection->pop();
+
+            expect($value)->toBeNull()
+                ->and($collection->toArray())->toBe([]);
+        });
+    });
+
+	    describe('Shift', function(): void {
+	        it('removes and returns the first item', function(): void {
+	            $collection = DataCollection::make([1, 2, 3]);
+
+	            $value = $collection->shift();
+
+	            expect($value)->toBe(1)
+	                ->and($collection->toArray())->toBe([2, 3]);
+	        });
+
+	        it('returns null on empty collection', function(): void {
+	            $collection = DataCollection::make();
+
+	            $value = $collection->shift();
+
+	            expect($value)->toBeNull()
+	                ->and($collection->toArray())->toBe([]);
+	        });
+	    });
+
+    describe('Shuffle', function(): void {
+        it('returns a new shuffled collection with same items', function(): void {
+            $items = [1, 2, 3, 4, 5];
+            $collection = DataCollection::make($items);
+
+            $shuffled = $collection->shuffle();
+
+            expect($shuffled)->not->toBe($collection)
+                ->and($shuffled->count())->toBe($collection->count())
+                ->and($shuffled->toArray())->toContain(...$items);
+        });
+
+        it('returns empty collection when original is empty', function(): void {
+            $collection = DataCollection::make();
+
+            $shuffled = $collection->shuffle();
+
+            expect($shuffled->toArray())->toBe([]);
+        });
+    });
+
+    describe('Sort', function(): void {
+        it('sorts values ascending and preserves keys', function(): void {
+            $collection = DataCollection::make([
+                10 => 3,
+                20 => 1,
+                30 => 2,
+            ]);
+
+            $sorted = $collection->sort();
+
+            expect($sorted->toArray())->toBe([
+                20 => 1,
+                30 => 2,
+                10 => 3,
+            ]);
+        });
+
+        it('returns a new collection instance', function(): void {
+            $collection = DataCollection::make([3, 1, 2]);
+
+            $sorted = $collection->sort();
+
+            expect($sorted)->not->toBe($collection)
+                ->and($collection->toArray())->toBe([3, 1, 2])
+                ->and($sorted->toArray())->toBe([
+                    1 => 1,
+                    2 => 2,
+                    0 => 3,
+                ]);
+        });
+
+        it('supports custom comparator callbacks', function(): void {
+            $collection = DataCollection::make([
+                10 => 'b',
+                20 => 'c',
+                30 => 'a',
+            ]);
+
+            $sorted = $collection->sort(static fn(string $a, string $b): int => $b <=> $a);
+
+            expect($sorted->toArray())->toBe([
+                20 => 'c',
+                10 => 'b',
+                30 => 'a',
+            ]);
+        });
+
+        it('returns empty collection when original is empty', function(): void {
+            $collection = DataCollection::make();
+
+            $sorted = $collection->sort();
+
+            expect($sorted->toArray())->toBe([]);
+        });
+    });
+
+    describe('SortBy', function(): void {
+        it('sorts items by callback value ascending and preserves keys', function(): void {
+            $collection = DataCollection::make([
+                10 => ['name' => 'Bob', 'age' => 30],
+                20 => ['name' => 'Alice', 'age' => 25],
+                30 => ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $sorted = $collection->sortBy(static fn(array $item): int => $item['age']);
+
+            expect($sorted->toArray())->toBe([
+                20 => ['name' => 'Alice', 'age' => 25],
+                10 => ['name' => 'Bob', 'age' => 30],
+                30 => ['name' => 'Charlie', 'age' => 35],
+            ]);
+        });
+
+        it('sorts items by dot-notation path', function(): void {
+            $collection = DataCollection::make([
+                1 => ['user' => ['score' => 50]],
+                2 => ['user' => ['score' => 10]],
+                3 => ['user' => ['score' => 30]],
+            ]);
+
+            $sorted = $collection->sortBy('user.score');
+
+            expect($sorted->toArray())->toBe([
+                2 => ['user' => ['score' => 10]],
+                3 => ['user' => ['score' => 30]],
+                1 => ['user' => ['score' => 50]],
+            ]);
+        });
+
+        it('returns a new collection instance', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Bob', 'age' => 30],
+                ['name' => 'Alice', 'age' => 25],
+            ]);
+
+            $sorted = $collection->sortBy(static fn(array $item): int => $item['age']);
+
+            expect($sorted)->not->toBe($collection)
+                ->and($collection->toArray())->toBe([
+                    ['name' => 'Bob', 'age' => 30],
+                    ['name' => 'Alice', 'age' => 25],
+                ])
+                ->and($sorted->toArray())->toBe([
+                    1 => ['name' => 'Alice', 'age' => 25],
+                    0 => ['name' => 'Bob', 'age' => 30],
+                ]);
+        });
+
+        it('returns empty collection when original is empty', function(): void {
+            $collection = DataCollection::make();
+
+            $sorted = $collection->sortBy(static fn($item): int => 0);
+
+            expect($sorted->toArray())->toBe([]);
+        });
+    });
+
+        it('handles mixed null and numeric values', function(): void {
+            $collection = DataCollection::make([null, 5, null, 2]);
+
+            expect($collection->min())->toBe(2);
+        });
+    });
+
+    describe('Median', function(): void {
+        it('calculates median of numeric values', function(): void {
+            $collection = DataCollection::make([1, 3, 2, 4, 5]);
+
+            expect($collection->median())->toBe(3.0);
+        });
+
+        it('calculates median for even count', function(): void {
+            $collection = DataCollection::make([1, 3, 2, 4]);
+
+            expect($collection->median())->toBe(2.5);
+        });
+
+        it('calculates median using path string', function(): void {
+            $collection = DataCollection::make([
+                ['value' => 10],
+                ['value' => 30],
+                ['value' => 20],
+            ]);
+
+            expect($collection->median('value'))->toBe(20.0);
+        });
+
+        it('calculates median using callback', function(): void {
+            $collection = DataCollection::make([
+                ['scores' => [10, 20]],
+                ['scores' => [30, 40]],
+                ['scores' => [50, 60]],
+            ]);
+
+            $median = $collection->median(
+                fn(array $item): float => array_sum($item['scores']) / count($item['scores'])
+            );
+
+            expect($median)->toBe(35.0);
+        });
+
+        it('ignores non-numeric values and returns null for no numeric items', function(): void {
+            $collection = DataCollection::make(['a', 'b']);
+
+            expect($collection->median())->toBeNull();
+        });
+
+        it('handles numeric strings as numbers', function(): void {
+            $collection = DataCollection::make(['1', '2', '3']);
+
+            expect($collection->median())->toBe(2.0);
         });
     });
 
@@ -233,6 +1152,72 @@ describe('Collection', function(): void {
             $collection = DataCollection::make();
 
             expect($collection->last(default: 'default'))->toBe('default'); // @phpstan-ignore argument.type
+        });
+    });
+
+    describe('After', function(): void {
+        it('gets item after given value', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4, 5]);
+
+            expect($collection->after(3))->toBe(4)
+                ->and($collection->after(5))->toBeNull();
+        });
+
+        it('supports strict comparison', function(): void {
+            $collection = DataCollection::make([2, 4, 6, 8]);
+
+            /** @phpstan-ignore argument.type */
+            expect($collection->after('4'))->toBe(6)
+                /** @phpstan-ignore argument.type */
+                ->and($collection->after('4', strict: true))->toBeNull();
+        });
+
+        it('supports callback predicate', function(): void {
+            $collection = DataCollection::make([2, 4, 6, 8]);
+
+            $after = $collection->after(fn(int $item, int|string $key): bool => 5 < $item);
+
+            expect($after)->toBe(8);
+        });
+
+        it('returns default when not found or last item', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c']);
+
+            expect($collection->after('x', 'fallback'))->toBe('fallback')
+                ->and($collection->after('c', 'fallback'))->toBe('fallback');
+        });
+    });
+
+    describe('Before', function(): void {
+        it('gets item before given value', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4, 5]);
+
+            expect($collection->before(3))->toBe(2)
+                ->and($collection->before(1))->toBeNull();
+        });
+
+        it('supports strict comparison', function(): void {
+            $collection = DataCollection::make([2, 4, 6, 8]);
+
+            /** @phpstan-ignore argument.type */
+            expect($collection->before('4'))->toBe(2)
+                /** @phpstan-ignore argument.type */
+                ->and($collection->before('4', strict: true))->toBeNull();
+        });
+
+        it('supports callback predicate', function(): void {
+            $collection = DataCollection::make([2, 4, 6, 8]);
+
+            $before = $collection->before(fn(int $item, int|string $key): bool => 5 < $item);
+
+            expect($before)->toBe(4);
+        });
+
+        it('returns default when not found or first item', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c']);
+
+            expect($collection->before('x', 'fallback'))->toBe('fallback')
+                ->and($collection->before('a', 'fallback'))->toBe('fallback');
         });
     });
 
@@ -307,6 +1292,373 @@ describe('Collection', function(): void {
         });
     });
 
+    describe('Contains', function(): void {
+        it('checks simple value containment', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            expect($collection->contains(2))->toBeTrue()
+                ->and($collection->contains(4))->toBeFalse();
+        });
+
+        it('checks using callback', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4]);
+
+            $result = $collection->contains(fn(int $item, int|string $key): bool => 3 < $item && 3 === $key);
+
+            expect($result)->toBeTrue();
+        });
+
+        it('checks key value pairs', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'name' => 'John'],
+                ['id' => 2, 'name' => 'Jane'],
+            ]);
+
+            expect($collection->contains('name', 'John'))->toBeTrue()
+                ->and($collection->contains('name', 'Bob'))->toBeFalse();
+        });
+
+        it('supports dot notation for nested key value pairs', function(): void {
+            $collection = DataCollection::make([
+                ['product' => ['name' => 'Desk', 'price' => 200]],
+                ['product' => ['name' => 'Chair', 'price' => 100]],
+            ]);
+
+            expect($collection->contains('product.name', 'Desk'))->toBeTrue()
+                ->and($collection->contains('product.name', 'Bookcase'))->toBeFalse();
+        });
+
+        it('returns false for non arrayish items with key/value', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            expect($collection->contains('name', 'John'))->toBeFalse();
+        });
+    });
+
+    describe('Search', function(): void {
+        it('returns the key for a given value', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c']);
+
+            $key = $collection->search('b');
+
+            expect($key)->toBe(1);
+        });
+
+        it('returns false when value is not found', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c']);
+
+            $key = $collection->search('x');
+
+            expect($key)->toBeFalse();
+        });
+
+        it('supports strict comparison', function(): void {
+            $collection = DataCollection::make([1, '1', 2]);
+
+            $looseKey = $collection->search('1');
+            $strictKey = $collection->search('1', true);
+
+            expect($looseKey)->toBe(0)
+                ->and($strictKey)->toBe(1);
+        });
+
+        it('supports callback search and returns the first matching key', function(): void {
+            $collection = DataCollection::make([10, 20, 30, 40]);
+
+            $key = $collection->search(fn(int $item, int|string $key): bool => 25 < $item);
+
+            expect($key)->toBe(2);
+        });
+
+        it('returns false when callback finds no match', function(): void {
+            $collection = DataCollection::make([10, 20, 30]);
+
+            $key = $collection->search(fn(int $item, int|string $key): bool => 100 < $item);
+
+            expect($key)->toBeFalse();
+        });
+
+        it('preserves string keys when returning the key', function(): void {
+            $collection = DataCollection::make([
+                'first' => 'a',
+                'second' => 'b',
+            ]);
+
+            $key = $collection->search('b');
+
+            expect($key)->toBe('second');
+        });
+    });
+
+    describe('Diff', function(): void {
+        it('returns items not present in the given array', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4]);
+
+            $result = $collection->diff([2, 4]);
+
+            expect($result->toArray())->toBe([0 => 1, 2 => 3]);
+        });
+
+        it('preserves associative keys', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
+
+            $result = $collection->diff([1, 3]);
+
+            expect($result->toArray())->toBe(['b' => 2]);
+        });
+
+        it('accepts another DataCollection', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4]);
+            $other = DataCollection::make([2, 4]);
+
+            $result = $collection->diff($other);
+
+            expect($result->toArray())->toBe([0 => 1, 2 => 3]);
+        });
+
+        it('uses loose comparison for values', function(): void {
+            $collection = DataCollection::make([1, 2, '3']);
+
+            $result = $collection->diff(['2']);
+
+            expect($result->toArray())->toBe([0 => 1, 2 => '3']);
+        });
+
+        it('returns original collection when diffing with empty items', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            $result = $collection->diff([]);
+
+            expect($result->toArray())->toBe([1, 2, 3]);
+        });
+    });
+
+    describe('DiffKeys', function(): void {
+        it('returns items whose keys are not present in the given array', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
+
+            $result = $collection->diffKeys(['b' => 20])->toArray();
+
+            expect($result)->toBe(['a' => 1, 'c' => 3]);
+        });
+
+        it('accepts another DataCollection', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2]);
+            $other = DataCollection::make(['b' => 9, 'c' => 10]);
+
+            $result = $collection->diffKeys($other)->toArray();
+
+            expect($result)->toBe(['a' => 1]);
+        });
+
+        it('handles numeric keys', function(): void {
+            $collection = DataCollection::make([10, 20, 30]);
+
+            $result = $collection->diffKeys([0 => 'x', 2 => 'y'])->toArray();
+
+            expect($result)->toBe([1 => 20]);
+        });
+
+        it('returns original collection when diffing with empty items', function(): void {
+            $collection = DataCollection::make(['a' => 1]);
+
+            $result = $collection->diffKeys([])->toArray();
+
+            expect($result)->toBe(['a' => 1]);
+        });
+    });
+
+    describe('Union', function(): void {
+        it('preserves original keys and prefers original values on conflicts', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2]);
+
+            $result = $collection->union(['b' => 99, 'c' => 3])->toArray();
+
+            expect($result)->toBe(['a' => 1, 'b' => 2, 'c' => 3]);
+        });
+
+        it('accepts another DataCollection', function(): void {
+            $collection = DataCollection::make(['a' => 1]);
+            $other = DataCollection::make(['a' => 99, 'b' => 2]);
+
+            $result = $collection->union($other)->toArray();
+
+            expect($result)->toBe(['a' => 1, 'b' => 2]);
+        });
+    });
+
+    describe('Unique', function(): void {
+        it('removes duplicate values using loose comparison', function(): void {
+            $collection = DataCollection::make([1, '1', 2, 2, 3]);
+
+            $result = $collection->unique()->values()->toArray();
+
+            expect($result)->toBe([1, 2, 3]);
+        });
+
+        it('preserves the first occurrence key', function(): void {
+            $collection = DataCollection::make([10 => 'a', 20 => 'a', 30 => 'b']);
+
+            $result = $collection->unique()->toArray();
+
+            expect($result)->toBe([10 => 'a', 30 => 'b']);
+        });
+
+        it('supports a string key using dot notation', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['id' => 1, 'name' => 'Alice']],
+                ['user' => ['id' => 1, 'name' => 'Alice Duplicate']],
+                ['user' => ['id' => 2, 'name' => 'Bob']],
+            ]);
+
+            $result = $collection->unique('user.id')->values()->toArray();
+
+            expect($result)->toHaveCount(2)
+                ->and($result[0]['user']['id'])->toBe(1)
+                ->and($result[1]['user']['id'])->toBe(2);
+        });
+
+        it('supports a callback', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'alice'],
+                ['name' => 'ALICE'],
+                ['name' => 'bob'],
+            ]);
+
+            $result = $collection->unique(fn(array $item): string => strtolower($item['name']))->values()->toArray();
+
+            expect($result)->toHaveCount(2)
+                ->and($result[0]['name'])->toBe('alice')
+                ->and($result[1]['name'])->toBe('bob');
+        });
+    });
+
+    describe('Where', function(): void {
+        it('filters by equality using two-argument form', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+            ]);
+
+            $result = $collection->where('age', 30)->values()->toArray();
+
+            expect($result)->toHaveCount(1)
+                ->and($result[0]['name'])->toBe('Alice');
+        });
+
+        it('filters by operator and value', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 30],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $result = $collection->where('age', '>=', 30)->pluck('name')->values()->toArray();
+
+            expect($result)->toBe(['Alice', 'Charlie']);
+        });
+
+        it('supports dot notation keys', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice', 'active' => true]],
+                ['user' => ['name' => 'Bob', 'active' => false]],
+            ]);
+
+            $result = $collection->where('user.active', true)->pluck('user.name')->values()->toArray();
+
+            expect($result)->toBe(['Alice']);
+        });
+    });
+
+    describe('WhereBetween / WhereNotBetween', function(): void {
+        it('filters values within the range', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 20],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 30],
+            ]);
+
+            $result = $collection->whereBetween('age', [21, 29])->pluck('name')->values()->toArray();
+
+            expect($result)->toBe(['Bob']);
+        });
+
+        it('filters values outside the range', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'age' => 20],
+                ['name' => 'Bob', 'age' => 25],
+                ['name' => 'Charlie', 'age' => 30],
+            ]);
+
+            $result = $collection->whereNotBetween('age', [21, 29])->pluck('name')->values()->toArray();
+
+            expect($result)->toBe(['Alice', 'Charlie']);
+        });
+
+        it('returns empty collection when values array does not contain exactly two items', function(): void {
+            $collection = DataCollection::make([
+                ['age' => 20],
+                ['age' => 25],
+            ]);
+
+            $result = $collection->whereBetween('age', [20])->toArray();
+
+            expect($result)->toBe([]);
+        });
+    });
+
+    describe('WhereIn / WhereNotIn', function(): void {
+        it('filters values that are in the given array using loose comparison', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1],
+                ['id' => '2'],
+                ['id' => 3],
+            ]);
+
+            $result = $collection->whereIn('id', ['1', 3])->pluck('id')->values()->toArray();
+
+            expect($result)->toBe([1, 3]);
+        });
+
+        it('filters values that are not in the given array using loose comparison', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1],
+                ['id' => '2'],
+                ['id' => 3],
+            ]);
+
+            $result = $collection->whereNotIn('id', ['1', 3])->pluck('id')->values()->toArray();
+
+            expect($result)->toBe(['2']);
+        });
+    });
+
+    describe('WhereNull / WhereNotNull', function(): void {
+        it('filters values where the key is null', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'email' => 'alice@example.com'],
+                ['name' => 'Bob', 'email' => null],
+                ['name' => 'Charlie'],
+            ]);
+
+            $result = $collection->whereNull('email')->pluck('name')->values()->toArray();
+
+            expect($result)->toBe(['Bob', 'Charlie']);
+        });
+
+        it('filters values where the key is not null', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Alice', 'email' => 'alice@example.com'],
+                ['name' => 'Bob', 'email' => null],
+                ['name' => 'Charlie'],
+            ]);
+
+            $result = $collection->whereNotNull('email')->pluck('name')->values()->toArray();
+
+            expect($result)->toBe(['Alice']);
+        });
+    });
+
     describe('Has', function(): void {
         it('checks if key exists', function(): void {
             $collection = DataCollection::make(['a' => 1, 'b' => 2]);
@@ -321,6 +1673,28 @@ describe('Collection', function(): void {
             expect($collection->has(0))->toBeTrue()
                 ->and($collection->has(1))->toBeTrue()
                 ->and($collection->has(3))->toBeFalse();
+        });
+    });
+
+    describe('HasAny', function(): void {
+        it('returns true if at least one key exists', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2]);
+
+            expect($collection->hasAny('a', 'c'))->toBeTrue()
+                ->and($collection->hasAny('x', 'b'))->toBeTrue();
+        });
+
+        it('returns false if none of the keys exist', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2]);
+
+            expect($collection->hasAny('x', 'y'))->toBeFalse();
+        });
+
+        it('works with numeric keys', function(): void {
+            $collection = DataCollection::make([10, 20, 30]);
+
+            expect($collection->hasAny(0, 3))->toBeTrue()
+                ->and($collection->hasAny(5, 6))->toBeFalse();
         });
     });
 
@@ -467,6 +1841,14 @@ describe('Collection', function(): void {
             $outer = DataCollection::make(['data' => $inner]);
 
             expect($outer->toJson())->toBe('{"data":[1,2]}');
+        });
+
+        it('serializes to pretty JSON', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2]);
+
+            $pretty = $collection->toPrettyJson();
+
+            expect($pretty)->toBe(json_encode(['a' => 1, 'b' => 2], JSON_PRETTY_PRINT));
         });
     });
 
@@ -929,6 +2311,46 @@ describe('Collection', function(): void {
         });
     });
 
+    describe('Put Operations', function(): void {
+        it('puts simple values by key', function(): void {
+            $collection = DataCollection::make([]);
+
+            $collection
+                ->put('name', 'Alice')
+                ->put('age', 30);
+
+            expect($collection->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+        });
+
+        it('overwrites existing values by key', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+            ]);
+
+            $collection->put('name', 'Bob');
+
+            expect($collection->toArray())->toBe([
+                'name' => 'Bob',
+            ]);
+        });
+
+        it('treats keys with dots literally', function(): void {
+            $collection = DataCollection::make([]);
+
+            $collection
+                ->put('user.name', 'Alice')
+                ->put('user.age', 30);
+
+            expect($collection->toArray())->toBe([
+                'user.name' => 'Alice',
+                'user.age' => 30,
+            ]);
+        });
+    });
+
     describe('Merge Operations', function(): void {
         it('merges simple arrays', function(): void {
             $collection = DataCollection::make([
@@ -1027,6 +2449,154 @@ describe('Collection', function(): void {
                         ],
                     ],
                 ],
+            ]);
+        });
+
+    describe('Replace', function(): void {
+        it('replaces values by string and numeric keys', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+                0 => 'first',
+                1 => 'second',
+            ]);
+
+            $replaced = $collection->replace([
+                'age' => 31,
+                1 => 'changed',
+            ]);
+
+            expect($replaced->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 31,
+                0 => 'first',
+                1 => 'changed',
+            ]);
+
+            expect($collection->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+                0 => 'first',
+                1 => 'second',
+            ]);
+        });
+
+        it('replaces with multiple iterables where later ones win on conflicts', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+
+            $replaced = $collection->replace([
+                'age' => 31,
+            ], [
+                'age' => 32,
+                'city' => 'Berlin',
+            ]);
+
+            expect($replaced->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 32,
+                'city' => 'Berlin',
+            ]);
+        });
+
+        it('returns the same collection when no items are given', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+
+            $replaced = $collection->replace();
+
+            expect($replaced->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+        });
+    });
+    describe('Remove/Drop', function(): void {
+        it('removes items by existing keys', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+                'city' => 'Berlin',
+            ]);
+
+            $removed = $collection->remove(['age']);
+
+            expect($removed->toArray())->toBe([
+                'name' => 'Alice',
+                'city' => 'Berlin',
+            ])->and($collection->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+                'city' => 'Berlin',
+            ]);
+        });
+
+        it('ignores keys that do not exist', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+
+            $removed = $collection->remove(['city']);
+
+            expect($removed->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+        });
+
+        it('drop is an alias for remove', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+                'age' => 30,
+                'city' => 'Berlin',
+            ]);
+
+            $dropped = $collection->drop(['age']);
+
+            expect($dropped->toArray())->toBe([
+                'name' => 'Alice',
+                'city' => 'Berlin',
+            ]);
+        });
+    });
+
+    describe('Reverse', function(): void {
+        it('reverses values while preserving keys', function(): void {
+            $collection = DataCollection::make([
+                'a' => 1,
+                'b' => 2,
+                'c' => 3,
+            ]);
+
+            $reversed = $collection->reverse();
+
+            expect($reversed->toArray())->toBe([
+                'c' => 3,
+                'b' => 2,
+                'a' => 1,
+            ])->and($collection->toArray())->toBe([
+                'a' => 1,
+                'b' => 2,
+                'c' => 3,
+            ]);
+        });
+
+        it('reverses numeric keys while preserving keys', function(): void {
+            $collection = DataCollection::make([
+                10 => 'first',
+                20 => 'second',
+            ]);
+
+            $reversed = $collection->reverse();
+
+            expect($reversed->toArray())->toBe([
+                20 => 'second',
+                10 => 'first',
             ]);
         });
     });
@@ -2400,4 +3970,5 @@ describe('Collection', function(): void {
             expect($filtered->count())->toBeGreaterThan(0);
         });
     });
+});
 });
