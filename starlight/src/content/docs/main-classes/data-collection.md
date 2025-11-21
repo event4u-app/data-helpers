@@ -634,6 +634,19 @@ $users = DataCollection::make([
     ['user' => ['name' => 'Bob', 'age' => 25]],
 ]);
 
+// keyBy()  reindex by a key or dot path
+$users = DataCollection::make([
+    ['user' => ['id' => 1, 'name' => 'Alice']],
+    ['user' => ['id' => 2, 'name' => 'Bob']],
+]);
+
+$byId = $users->keyBy('user.id')->toArray();
+// $byId = [
+//     1 => ['user' => ['id' => 1, 'name' => 'Alice']],
+//     2 => ['user' => ['id' => 2, 'name' => 'Bob']],
+// ]
+
+
 $names = $users->pluck('user.name')->toArray();
 $agesByName = $users->pluck('user.age', 'user.name')->toArray();
 // $names = ['Alice', 'Bob']

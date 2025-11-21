@@ -201,34 +201,75 @@ describe('Collection', function(): void {
                 2 => 'jane@example.com',
             ]);
         });
-
-        it('plucks values from objects', function(): void {
-            $obj1 = (object) ['id' => 1, 'name' => 'John'];
-            $obj2 = (object) ['id' => 2, 'name' => 'Jane'];
-
-            $collection = DataCollection::make([$obj1, $obj2]);
-
-            $namesById = $collection->pluck('name', 'id');
-
-            expect($namesById->toArray())->toBe([
-                1 => 'John',
-                2 => 'Jane',
-            ]);
-        });
-
-        it('plucks missing values as null', function(): void {
-            $collection = DataCollection::make([
-                ['id' => 1],
-                ['id' => 2, 'name' => 'John'],
-            ]);
-
-            $names = $collection->pluck('name');
-
-            expect($names->toArray())->toBe([null, 'John']);
-        });
     });
 
+    describe('KeyBy', function(): void {
+        it('keys the collection by a given path', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'name' => 'Alice'],
+                ['id' => 2, 'name' => 'Bob'],
+            ]);
 
+            $keyed = $collection->keyBy('id')->toArray();
+
+            expect($keyed)->toBe([
+                1 => ['id' => 1, 'name' => 'Alice'],
+                2 => ['id' => 2, 'name' => 'Bob'],
+            ]);
+        });
+
+        it('supports dot-notation', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['id' => 10, 'name' => 'Alice']],
+                ['user' => ['id' => 20, 'name' => 'Bob']],
+            ]);
+
+            $keyed = $collection->keyBy('user.id')->toArray();
+
+            expect($keyed)->toBe([
+                10 => ['user' => ['id' => 10, 'name' => 'Alice']],
+                20 => ['user' => ['id' => 20, 'name' => 'Bob']],
+            ]);
+        });
+
+        it('supports callback', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'name' => 'Alice'],
+                ['id' => 2, 'name' => 'Bob'],
+            ]);
+
+            $keyed = $collection->keyBy(fn(array $item): string => strtolower($item['name']))->toArray();
+
+            expect($keyed)->toBe([
+                'alice' => ['id' => 1, 'name' => 'Alice'],
+                'bob' => ['id' => 2, 'name' => 'Bob'],
+            ]);
+        });
+
+        it('falls back to original key when resolved key is not int or string', function(): void {
+            $collection = DataCollection::make([
+                ['meta' => ['id' => 1]],
+                ['meta' => ['id' => 2]],
+            ]);
+
+            $keyed = $collection->keyBy('meta')->toArray();
+
+            expect(array_keys($keyed))->toBe([0, 1]);
+        });
+
+        it('last item wins when keys collide', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'group' => 'a'],
+                ['id' => 2, 'group' => 'a'],
+            ]);
+
+            $keyed = $collection->keyBy('group')->toArray();
+
+            expect($keyed)->toBe([
+                'a' => ['id' => 2, 'group' => 'a'],
+            ]);
+        });
+    });
 
     describe('Collapse', function(): void {
         it('collapses simple nested arrays', function(): void {

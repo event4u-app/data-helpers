@@ -173,6 +173,37 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Key the collection by the given key or callback.
+     *
+     * Similar to Laravel's keyBy(): supports dot-notation strings or a callback.
+     * When multiple items have the same key, the last one wins.
+     *
+     * @param (callable(TValue, int|string): int|string|null)|string|int $key
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function keyBy(callable|string|int $key): static
+    {
+        $result = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            if (is_callable($key)) {
+                $resolvedKey = $key($item, $itemKey);
+            } else {
+                $resolvedKey = DataAccessor::make($item)->get((string) $key);
+            }
+
+            if (!is_int($resolvedKey) && !is_string($resolvedKey)) {
+                $resolvedKey = $itemKey;
+            }
+
+            $result[$resolvedKey] = $item;
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
      * Get the first item from the collection.
      *
      * Delegates to DataAccessor for first() logic.
