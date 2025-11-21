@@ -784,6 +784,28 @@ describe('Collection', function(): void {
     });
 
 
+	    describe('Shift', function(): void {
+	        it('removes and returns the first item', function(): void {
+	            $collection = DataCollection::make([1, 2, 3]);
+
+	            $value = $collection->shift();
+
+	            expect($value)->toBe(1)
+	                ->and($collection->toArray())->toBe([2, 3]);
+	        });
+
+	        it('returns null on empty collection', function(): void {
+	            $collection = DataCollection::make();
+
+	            $value = $collection->shift();
+
+	            expect($value)->toBeNull()
+	                ->and($collection->toArray())->toBe([]);
+	        });
+	    });
+
+
+
         it('handles mixed null and numeric values', function(): void {
             $collection = DataCollection::make([null, 5, null, 2]);
 

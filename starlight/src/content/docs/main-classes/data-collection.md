@@ -398,6 +398,16 @@ $last = $numbers->pop();
 // $numbers->toArray() === [1, 2]
 ```
 
+```php
+// shift() – remove and return first item
+$numbers = DataCollection::make([1, 2, 3]);
+
+$first = $numbers->shift();
+// $first === 1
+// $numbers->toArray() === [2, 3]
+```
+
+
 ## SQL-Like Filtering with DataFilter
 
 DataCollection integrates with [DataFilter](/data-helpers/main-classes/data-filter/) to provide powerful SQL-like querying capabilities. The `query()` method returns a wrapper that allows chaining filter operations and returns a new DataCollection.

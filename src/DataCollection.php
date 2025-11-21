@@ -899,6 +899,24 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return $value;
     }
 
+    /**
+     * Remove and return the first item from the collection.
+     *
+     * Mutates the collection in place and returns the removed value.
+     * Returns null when the collection is empty.
+     *
+     * @return TValue|null
+     */
+    public function shift(): mixed
+    {
+        $value = array_shift($this->items);
+
+        $this->accessor = new DataAccessor($this->items);
+
+        return $value;
+    }
+
+
 
     /**
      * Prepend one or more items to the beginning of the collection.
