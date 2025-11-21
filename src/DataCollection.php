@@ -136,11 +136,9 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      *
      * Similar to Laravel's pluck(): supports dot notation and optional key path.
      *
-     * @template TPluckValue
      * @param string|int $valuePath Dot-notation path or key to extract from each item
      * @param string|int|null $keyPath Optional dot-notation path or key to use for result keys
-     * @return static<TPluckValue>
-     * @phpstan-ignore return.type
+     * @return static<mixed>
      */
     public function pluck(string|int $valuePath, string|int|null $keyPath = null): static
     {
@@ -178,7 +176,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      * Similar to Laravel's keyBy(): supports dot-notation strings or a callback.
      * When multiple items have the same key, the last one wins.
      *
-     * @param (callable(TValue, int|string): int|string|null)|string|int $key
+     * @param (callable(TValue, int|string): int|string)|string|int $key
      * @return static<TValue>
      * @phpstan-ignore return.type
      */
@@ -356,6 +354,11 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return $sum / $count;
     }
 
+/**
+     * Alias for average().
+     *
+     * @param callable(TValue, int|string): (int|float|string)|string|null $callbackOrPath
+     */
     public function avg(callable|string|null $callbackOrPath = null): ?float
     {
         return $this->average($callbackOrPath);
@@ -752,6 +755,10 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             $keyA = array_search($a, $items, true);
             $keyB = array_search($b, $items, true);
 
+            if ($keyA === false || $keyB === false) {
+                return 0;
+            }
+
             $valueA = $accessor($a, $keyA);
             $valueB = $accessor($b, $keyB);
 
@@ -850,6 +857,12 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         }
 
         return new static($result); // @phpstan-ignore return.type
+    }
+
+    /** Alias for flatten() */
+    public function dot(): static
+    {
+        return $this->flatten();
     }
 
     /**

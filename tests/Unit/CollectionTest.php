@@ -238,11 +238,11 @@ describe('Collection', function(): void {
                 ['id' => 2, 'name' => 'Bob'],
             ]);
 
-            $keyed = $collection->keyBy(fn(array $item): string => strtolower($item['name']))->toArray();
+            $keyed = $collection->keyBy(fn(array $item): int => $item['id'])->toArray();
 
             expect($keyed)->toBe([
-                'alice' => ['id' => 1, 'name' => 'Alice'],
-                'bob' => ['id' => 2, 'name' => 'Bob'],
+                1 => ['id' => 1, 'name' => 'Alice'],
+                2 => ['id' => 2, 'name' => 'Bob'],
             ]);
         });
 
@@ -527,7 +527,7 @@ describe('Collection', function(): void {
         it('returns a collection with the given number of random items', function(): void {
             $collection = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
 
-            /** @var DataCollection<int, string> $random */
+            /** @var DataCollection<string> $random */
             $random = $collection->random(3);
 
             expect($random->count())->toBe(3);
@@ -540,7 +540,7 @@ describe('Collection', function(): void {
         it('returns empty collection when requesting zero items', function(): void {
             $collection = DataCollection::make([1, 2, 3]);
 
-            /** @var DataCollection<int, int> $random */
+            /** @var DataCollection<int> $random */
             $random = $collection->random(0);
 
             expect($random->count())->toBe(0);
@@ -561,7 +561,7 @@ describe('Collection', function(): void {
                 40 => 'd',
             ]);
 
-            /** @var DataCollection<int, string> $random */
+            /** @var DataCollection<string> $random */
             $random = $collection->random(2);
 
             $keys = array_keys($random->toArray());
