@@ -707,6 +707,20 @@ $bestPlayer = $players->max('player.score');
 // $bestPlayer = ['player' => ['name' => 'Bob', 'score' => 30]]
 
 
+// min() – supports raw values, dot paths and callbacks
+$numbers = DataCollection::make([1, 2, 10, 3]);
+$minNumber = $numbers->min();
+// $minNumber = 1
+
+$players = DataCollection::make([
+    ['player' => ['name' => 'Alice', 'score' => 10]],
+    ['player' => ['name' => 'Bob', 'score' => 30]],
+]);
+
+$worstPlayer = $players->min('player.score');
+// $worstPlayer = ['player' => ['name' => 'Alice', 'score' => 10]]
+
+
 // median() – works like average(), also with dot-notation
 $values = DataCollection::make([1, 100, 50]);
 $median = $values->median();

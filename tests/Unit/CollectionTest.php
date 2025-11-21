@@ -498,6 +498,65 @@ describe('Collection', function(): void {
 
 
 
+
+    describe('Min', function(): void {
+        it('returns the minimum value from a list of numbers', function(): void {
+            $collection = DataCollection::make([1, 10, 3, 7]);
+
+            expect($collection->min())->toBe(1);
+        });
+
+        it('returns the item with minimum value using path', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'stats' => ['score' => 10]],
+                ['id' => 2, 'stats' => ['score' => 30]],
+                ['id' => 3, 'stats' => ['score' => 20]],
+            ]);
+
+            $min = $collection->min('stats.score');
+
+            expect($min)->toBe([
+                'id' => 1,
+                'stats' => ['score' => 10],
+            ]);
+        });
+
+        it('returns the item with minimum value using callback', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'scores' => [10, 20]],
+                ['id' => 2, 'scores' => [30, 40]],
+            ]);
+
+            $min = $collection->min(function(array $item): int {
+                return (int) array_sum($item['scores']);
+            });
+
+            expect($min)->toBe([
+                'id' => 1,
+                'scores' => [10, 20],
+            ]);
+        });
+
+        it('returns null when collection is empty', function(): void {
+            $collection = DataCollection::make();
+
+            expect($collection->min())->toBeNull();
+        });
+
+        it('returns null when all values are null', function(): void {
+            $collection = DataCollection::make([null, null]);
+
+            expect($collection->min())->toBeNull();
+        });
+
+        it('handles mixed null and numeric values', function(): void {
+            $collection = DataCollection::make([null, 5, null, 2]);
+
+            expect($collection->min())->toBe(2);
+        });
+    });
+
+
     describe('Median', function(): void {
         it('calculates median of numeric values', function(): void {
             $collection = DataCollection::make([1, 3, 2, 4, 5]);
