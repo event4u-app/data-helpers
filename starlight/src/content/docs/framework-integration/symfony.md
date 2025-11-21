@@ -66,8 +66,7 @@ class UserController extends AbstractController
     public function register(UserRegistrationDto $dto): JsonResponse
     {
         // $dto is automatically validated and filled with request data
-        $user = new User();
-        $dto->toEntity($user);
+        $user = $dto->toEntity(User::class);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -94,8 +93,7 @@ public function register(Request $request): JsonResponse
     $dto = UserRegistrationDto::fromRequest($request);
     $dto->validate(); // Throws ValidationException on failure
 
-    $user = new User();
-    $dto->toEntity($user);
+    $user = $dto->toEntity(User::class);
 
     return $this->json($user, 201);
 }
@@ -118,8 +116,7 @@ $dto = UserDto::fromEntity($user);
 <!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $dto = UserDto::fromArray($data);
-$user = new User();
-$dto->toEntity($user);
+$user = $dto->toEntity(User::class);
 
 $this->entityManager->persist($user);
 $this->entityManager->flush();
@@ -160,7 +157,14 @@ $newUser = $dto->toEntity();
 ```php
 $user = $this->entityManager->find(User::class, 1);
 $dto = UserDto::fromRequest($request);
-$dto->toEntity($user);
+
+// Update entity with DTO data
+foreach ($dto->toArray() as $key => $value) {
+    $setter = 'set' . ucfirst($key);
+    if (method_exists($user, $setter)) {
+        $user->$setter($value);
+    }
+}
 
 $this->entityManager->flush();
 ```
@@ -396,8 +400,7 @@ class UserController extends AbstractController
     #[Route('/users', methods: ['POST'])]
     public function create(CreateUserDto $dto): JsonResponse
     {
-        $user = new User();
-        $dto->toEntity($user);
+        $user = $dto->toEntity(User::class);
 
         $this->em->persist($user);
         $this->em->flush();
@@ -418,7 +421,14 @@ class UserController extends AbstractController
     public function update(int $id, UpdateUserDto $dto): JsonResponse
     {
         $user = $this->em->find(User::class, $id);
-        $dto->toEntity($user);
+
+        // Update entity with DTO data
+        foreach ($dto->toArray() as $key => $value) {
+            $setter = 'set' . ucfirst($key);
+            if (method_exists($user, $setter)) {
+                $user->$setter($value);
+            }
+        }
 
         $this->em->flush();
 

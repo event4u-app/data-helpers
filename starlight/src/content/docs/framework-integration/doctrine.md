@@ -44,8 +44,7 @@ Convert Dto to Doctrine entity:
 <!-- skip-test: requires Doctrine EntityManager -->
 ```php
 $dto = UserDto::fromArray($data);
-$user = new User();
-$dto->toEntity($user);
+$user = $dto->toEntity(User::class);
 
 $entityManager->persist($user);
 $entityManager->flush();
@@ -96,7 +95,14 @@ The `SimpleDtoDoctrineTrait` is **automatically included** in `SimpleDto`. You d
 ```php
 $user = $entityManager->find(User::class, 1);
 $dto = UserDto::fromArray($data);
-$dto->toEntity($user);
+
+// Update entity with DTO data
+foreach ($dto->toArray() as $key => $value) {
+    $setter = 'set' . ucfirst($key);
+    if (method_exists($user, $setter)) {
+        $user->$setter($value);
+    }
+}
 
 $entityManager->flush();
 ```
@@ -255,8 +261,7 @@ class UserService
 
     public function createUser(CreateUserDto $dto): UserDto
     {
-        $user = new User();
-        $dto->toEntity($user);
+        $user = $dto->toEntity(User::class);
 
         $this->em->persist($user);
         $this->em->flush();
@@ -267,7 +272,14 @@ class UserService
     public function updateUser(int $id, UpdateUserDto $dto): UserDto
     {
         $user = $this->em->find(User::class, $id);
-        $dto->toEntity($user);
+
+        // Update entity with DTO data
+        foreach ($dto->toArray() as $key => $value) {
+            $setter = 'set' . ucfirst($key);
+            if (method_exists($user, $setter)) {
+                $user->$setter($value);
+            }
+        }
 
         $this->em->flush();
 

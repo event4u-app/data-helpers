@@ -89,8 +89,8 @@ $user = User::find($id);
 $data = array_filter($dto->toArray(), fn($v) => $v !== null);
 $user->update($data);
 
-// Or use toModel()
-$dto->toModel($user);
+// Or use fill()
+$user->fill($dto->toArray());
 $user->save();
 ```
 
