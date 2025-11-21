@@ -439,6 +439,72 @@ describe('Collection', function(): void {
         });
     });
 
+
+    describe('Random', function(): void {
+        it('returns a single random item from non-empty collection', function(): void {
+            $collection = DataCollection::make([1, 2, 3, 4, 5]);
+
+            $item = $collection->random();
+
+            expect([1, 2, 3, 4, 5])->toContain($item);
+        });
+
+        it('throws when called on empty collection', function(): void {
+            $collection = DataCollection::make();
+
+            expect(fn() => $collection->random())
+                ->toThrow(RuntimeException::class, 'Cannot pick random items from an empty collection.');
+        });
+
+        it('returns a collection with the given number of random items', function(): void {
+            $collection = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
+
+            /** @var DataCollection<int, string> $random */
+            $random = $collection->random(3);
+
+            expect($random->count())->toBe(3);
+
+            foreach ($random->toArray() as $value) {
+                expect(['a', 'b', 'c', 'd', 'e'])->toContain($value);
+            }
+        });
+
+        it('returns empty collection when requesting zero items', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            /** @var DataCollection<int, int> $random */
+            $random = $collection->random(0);
+
+            expect($random->count())->toBe(0);
+        });
+
+        it('throws when requesting more items than available', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            expect(fn() => $collection->random(5))
+                ->toThrow(RuntimeException::class, 'You requested more random items than are available in the collection.');
+        });
+
+        it('preserves original keys when returning multiple items', function(): void {
+            $collection = DataCollection::make([
+                10 => 'a',
+                20 => 'b',
+                30 => 'c',
+                40 => 'd',
+            ]);
+
+            /** @var DataCollection<int, string> $random */
+            $random = $collection->random(2);
+
+            $keys = array_keys($random->toArray());
+
+            foreach ($keys as $key) {
+                expect([10, 20, 30, 40])->toContain($key);
+            }
+        });
+    });
+
+
     describe('Average, Avg and Median', function(): void {
         it('calculates average of numeric values', function(): void {
             $collection = DataCollection::make([1, 2, 3, 4]);

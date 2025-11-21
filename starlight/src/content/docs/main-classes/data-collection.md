@@ -355,6 +355,20 @@ $filtered = $users
     ->between('age', 26, 36)
     ->get();
 
+### random() - Get Random Items
+
+```php
+$numbers = DataCollection::make([1, 2, 3, 4, 5]);
+
+// Single random item
+$item = $numbers->random();
+
+// Multiple random items
+$some = $numbers->random(2);
+// $some->count() === 2
+```
+
+
 // WHERE IN
 $filtered = $users
     ->query()

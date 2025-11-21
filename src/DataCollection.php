@@ -403,6 +403,56 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
 
         return $hasValue ? $maxItem : null;
     }
+
+    /**
+     * Get one or many items randomly from the collection.
+     *
+     * Mirrors Laravel's random():
+     * - Without argument: returns a single random item.
+     * - With integer N: returns a new collection with N distinct random items.
+     *
+     * @param int|null $number
+     * @return TValue|static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function random(?int $number = null): mixed
+    {
+        $count = count($this->items);
+
+        if (0 === $count) {
+            throw new RuntimeException('Cannot pick random items from an empty collection.');
+        }
+
+        if (null === $number) {
+            $key = array_rand($this->items);
+
+            return $this->items[$key];
+        }
+
+        if (0 > $number) {
+            throw new RuntimeException('Number of random items cannot be negative.');
+        }
+
+        if (0 === $number) {
+            return new static(); // @phpstan-ignore return.type
+        }
+
+        if ($number > $count) {
+            throw new RuntimeException('You requested more random items than are available in the collection.');
+        }
+
+        $keys = array_rand($this->items, $number);
+        $keys = is_array($keys) ? $keys : [$keys];
+
+        $results = [];
+
+        foreach ($keys as $key) {
+            $results[$key] = $this->items[$key];
+        }
+
+        return new static($results); // @phpstan-ignore return.type
+    }
+
     /**
      * Get the minimum value of the given items.
      *
