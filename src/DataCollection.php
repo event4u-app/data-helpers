@@ -406,6 +406,35 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
 
+    /**
+     * Get the items in the collection whose keys are not present in the given items.
+     *
+     * Mirrors Laravel's diffKeys(): compares keys and preserves the original
+     * values from the collection.
+     *
+     * @param iterable<int|string, mixed> $items
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function diffKeys(iterable $items): static
+    {
+        $otherKeys = [];
+
+        foreach ($items as $key => $_value) {
+            $otherKeys[] = $key;
+        }
+
+        $result = [];
+
+        foreach ($this->items as $key => $value) {
+            if (!in_array($key, $otherKeys, true)) {
+                $result[$key] = $value;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
     /** Convert the collection to JSON. */
     public function toJson(int $options = 0): string
     {

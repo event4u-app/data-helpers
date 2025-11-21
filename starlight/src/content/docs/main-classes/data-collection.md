@@ -761,6 +761,17 @@ $assocDiff = $assoc->diff([1, 3])->toArray();
 // $assocDiff = ['b' => 2]
 ```
 
+### DiffKeys
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$collection = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
+
+$onlyAC = $collection->diffKeys(['b' => 99])->toArray();
+// $onlyAC = ['a' => 1, 'c' => 3]
+```
+
 ### Lazy Methods
 
 ```php

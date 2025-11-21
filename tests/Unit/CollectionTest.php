@@ -610,6 +610,43 @@ describe('Collection', function(): void {
         });
     });
 
+
+    describe('DiffKeys', function(): void {
+        it('returns items whose keys are not present in the given array', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
+
+            $result = $collection->diffKeys(['b' => 20])->toArray();
+
+            expect($result)->toBe(['a' => 1, 'c' => 3]);
+        });
+
+        it('accepts another DataCollection', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2]);
+            $other = DataCollection::make(['b' => 9, 'c' => 10]);
+
+            $result = $collection->diffKeys($other)->toArray();
+
+            expect($result)->toBe(['a' => 1]);
+        });
+
+        it('handles numeric keys', function(): void {
+            $collection = DataCollection::make([10, 20, 30]);
+
+            $result = $collection->diffKeys([0 => 'x', 2 => 'y'])->toArray();
+
+            expect($result)->toBe([1 => 20]);
+        });
+
+        it('returns original collection when diffing with empty items', function(): void {
+            $collection = DataCollection::make(['a' => 1]);
+
+            $result = $collection->diffKeys([])->toArray();
+
+            expect($result)->toBe(['a' => 1]);
+        });
+    });
+
+
     describe('Has', function(): void {
         it('checks if key exists', function(): void {
             $collection = DataCollection::make(['a' => 1, 'b' => 2]);
