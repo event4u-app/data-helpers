@@ -137,7 +137,7 @@ final class DtoCollection extends DataCollection
     public function filter(?callable $callback = null): static
     {
         /** @var callable(mixed, int|string): bool|null $callback */
-        $filtered = $this->accessor->filter($callback);
+        $filtered = $this->accessor()->filter($callback);
         return new self($this->resolvedDtoClass, $filtered); // @phpstan-ignore argument.type
     }
 
@@ -153,7 +153,7 @@ final class DtoCollection extends DataCollection
     public function map(callable $callback): static
     {
         /** @var callable(mixed, int|string): mixed $callback */
-        $mapped = $this->accessor->map($callback);
+        $mapped = $this->accessor()->map($callback);
         return new self($this->resolvedDtoClass, $mapped); // @phpstan-ignore argument.type
     }
 

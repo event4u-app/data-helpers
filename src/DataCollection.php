@@ -35,12 +35,23 @@ use Traversable;
  */
 class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonSerializable
 {
-    protected DataAccessor $accessor;
+    protected ?DataAccessor $accessor = null;
 
     /** @param array<int|string, TValue> $items */
     public function __construct(protected array $items = [])
     {
-        $this->accessor = new DataAccessor($items);
+    }
+
+    /**
+     * Get or create the DataAccessor instance (lazy initialization).
+     */
+    protected function accessor(): DataAccessor
+    {
+        if (null === $this->accessor) {
+            $this->accessor = new DataAccessor($this->items);
+        }
+
+        return $this->accessor;
     }
 
     /**
@@ -95,7 +106,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         }
 
         // Otherwise use DataAccessor for dot-notation
-        return $this->accessor->get((string)$path, $default);
+        return $this->accessor()->get((string)$path, $default);
     }
 
     /**
@@ -108,7 +119,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function filter(?callable $callback = null): static
     {
         /** @var array<int|string, TValue> $filtered */
-        $filtered = $this->accessor->filter($callback);
+        $filtered = $this->accessor()->filter($callback);
 
         return new static($filtered); // @phpstan-ignore return.type
     }
@@ -125,7 +136,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function map(callable $callback): static
     {
         /** @var array<int|string, TMapValue> $mapped */
-        $mapped = $this->accessor->map($callback); // @phpstan-ignore argument.type
+        $mapped = $this->accessor()->map($callback); // @phpstan-ignore argument.type
 
         return new static($mapped); // @phpstan-ignore return.type
     }
@@ -211,7 +222,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function first(?callable $callback = null, mixed $default = null): mixed
     {
-        return $this->accessor->first($callback, $default);
+        return $this->accessor()->first($callback, $default);
     }
 
     /**
@@ -225,7 +236,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function last(?callable $callback = null, mixed $default = null): mixed
     {
-        return $this->accessor->last($callback, $default);
+        return $this->accessor()->last($callback, $default);
     }
 
     /**
@@ -313,7 +324,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function reduce(callable $callback, mixed $initial = null): mixed
     {
         // @phpstan-ignore argument.type (DataAccessor accepts mixed, we provide TValue)
-        return $this->accessor->reduce($callback, $initial);
+        return $this->accessor()->reduce($callback, $initial);
     }
 
     /**
@@ -733,26 +744,42 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
         $items = $this->items;
 
-        $accessor = static function(mixed $item, int|string $key) use ($callbackOrPath): mixed {
+        // Pre-compute sort values to avoid repeated accessor calls
+        $sortValues = [];
+        foreach ($items as $key => $item) {
             if (is_string($callbackOrPath)) {
-                return DataAccessor::make($item)->get($callbackOrPath);
+                $sortValues[$key] = DataAccessor::make($item)->get($callbackOrPath);
+            } else {
+                $sortValues[$key] = $callbackOrPath($item, $key);
+            }
+        }
+
+        // Sort using pre-computed values (much faster than array_search in callback)
+        uasort($items, static function(mixed $a, mixed $b) use ($items, $sortValues): int {
+            // Find keys by iterating once (still O(n) but only once per comparison)
+            $keyA = null;
+            $keyB = null;
+
+            foreach ($items as $k => $v) {
+                if ($v === $a && null === $keyA) {
+                    $keyA = $k;
+                }
+                if ($v === $b && null === $keyB) {
+                    $keyB = $k;
+                }
+                if (null !== $keyA && null !== $keyB) {
+                    break;
+                }
             }
 
-            return $callbackOrPath($item, $key);
-        };
-
-        uasort($items, static function(mixed $a, mixed $b) use ($items, $accessor): int {
-            $keyA = array_search($a, $items, true);
-            $keyB = array_search($b, $items, true);
-
-            if (false === $keyA || false === $keyB) {
+            if (null === $keyA || null === $keyB) {
                 return 0;
             }
 
-            $valueA = $accessor($a, $keyA);
-            $valueB = $accessor($b, $keyB);
+            $valueA = $sortValues[$keyA];
+            $valueB = $sortValues[$keyB];
 
-            if ($valueA == $valueB) {
+            if ($valueA == $valueB) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
                 return 0;
             }
 
@@ -1071,20 +1098,22 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
                 $uniqueValue = $key($item, $itemKey);
             }
 
-            // Loose comparison to mirror Laravel's behaviour
-            $isDuplicate = false;
-            foreach ($seen as $seenValue) {
-                if ($seenValue == $uniqueValue) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
-                    $isDuplicate = true;
-                    break;
-                }
+            // Use type-aware key generation for O(n) lookup with loose comparison semantics
+            // Normalize values to handle loose comparison (1 == '1' == true)
+            $normalizedValue = $uniqueValue;
+            if (is_numeric($uniqueValue)) {
+                $normalizedValue = (float)$uniqueValue;
+            } elseif (is_bool($uniqueValue)) {
+                $normalizedValue = (int)$uniqueValue;
             }
 
-            if ($isDuplicate) {
+            $lookupKey = gettype($normalizedValue) . ':' . json_encode($normalizedValue);
+
+            if (isset($seen[$lookupKey])) {
                 continue;
             }
 
-            $seen[] = $uniqueValue;
+            $seen[$lookupKey] = true;
             $result[$itemKey] = $item;
         }
 
@@ -1352,8 +1381,8 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             $this->items[] = $value;
         }
 
-        // Update accessor with new items
-        $this->accessor = new DataAccessor($this->items);
+        // Invalidate accessor (will be recreated on next access)
+        $this->accessor = null;
 
         return $this;
     }
@@ -1370,7 +1399,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
         $value = array_pop($this->items);
 
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $value;
     }
@@ -1387,7 +1416,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
         $value = array_shift($this->items);
 
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $value;
     }
@@ -1421,8 +1450,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
         array_unshift($this->items, $value);
 
-        // Update accessor with new items
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $this;
     }
@@ -1447,7 +1475,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function set(string $path, mixed $value): static
     {
         DataMutator::make($this->items)->set($path, $value); // @phpstan-ignore assign.propertyType
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $this;
     }
@@ -1464,7 +1492,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function put(int|string $key, mixed $value): static
     {
         $this->items[$key] = $value;
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $this;
     }
@@ -1493,7 +1521,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         } else {
             DataMutator::make($this->items)->merge($pathOrValues, $value); // @phpstan-ignore assign.propertyType
         }
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $this;
     }
@@ -1517,7 +1545,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function forget(string $path): static
     {
         DataMutator::make($this->items)->unset($path); // @phpstan-ignore assign.propertyType
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $this;
     }
@@ -1542,7 +1570,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function transform(string $path, callable $callback): static
     {
         DataMutator::make($this->items)->transform($path, $callback); // @phpstan-ignore assign.propertyType
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $this;
     }
@@ -1567,7 +1595,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function pushTo(string $path, mixed $value): static
     {
         DataMutator::make($this->items)->push($path, $value); // @phpstan-ignore assign.propertyType
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $this;
     }
@@ -1591,7 +1619,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function pull(string $path, mixed $default = null): mixed
     {
         $value = DataMutator::make($this->items)->pull($path, $default); // @phpstan-ignore assign.propertyType
-        $this->accessor = new DataAccessor($this->items);
+        $this->accessor = null;
 
         return $value;
     }
@@ -1749,7 +1777,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function lazy(): Generator
     {
-        return $this->accessor->lazy(); // @phpstan-ignore return.type
+        return $this->accessor()->lazy(); // @phpstan-ignore return.type
     }
 
     /**
@@ -1763,7 +1791,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function lazyFilter(callable $callback): Generator
     {
         // @phpstan-ignore return.type, argument.type (DataAccessor accepts mixed, we provide TValue)
-        return $this->accessor->lazyFilter($callback);
+        return $this->accessor()->lazyFilter($callback);
     }
 
     /**
@@ -1778,7 +1806,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     public function lazyMap(callable $callback): Generator
     {
         // @phpstan-ignore return.type, argument.type (DataAccessor accepts mixed, we provide TValue)
-        return $this->accessor->lazyMap($callback);
+        return $this->accessor()->lazyMap($callback);
     }
 
     /**
