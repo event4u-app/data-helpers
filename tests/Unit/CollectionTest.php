@@ -628,6 +628,28 @@ describe('Collection', function(): void {
         });
     });
 
+
+    describe('Pop', function(): void {
+        it('removes and returns the last item', function(): void {
+            $collection = DataCollection::make([1, 2, 3]);
+
+            $value = $collection->pop();
+
+            expect($value)->toBe(3)
+                ->and($collection->toArray())->toBe([1, 2]);
+        });
+
+        it('returns null on empty collection', function(): void {
+            $collection = DataCollection::make();
+
+            $value = $collection->pop();
+
+            expect($value)->toBeNull()
+                ->and($collection->toArray())->toBe([]);
+        });
+    });
+
+
         it('handles mixed null and numeric values', function(): void {
             $collection = DataCollection::make([null, 5, null, 2]);
 

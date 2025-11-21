@@ -744,6 +744,24 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Remove and return the last item from the collection.
+     *
+     * Mutates the collection in place and returns the removed value.
+     * Returns null when the collection is empty.
+     *
+     * @return TValue|null
+     */
+    public function pop(): mixed
+    {
+        $value = array_pop($this->items);
+
+        $this->accessor = new DataAccessor($this->items);
+
+        return $value;
+    }
+
+
+    /**
      * Prepend one or more items to the beginning of the collection.
      *
      * @param TValue $value

@@ -278,6 +278,12 @@ $collection
     ->set('0.user.age', 30)
     ->merge('0.user', ['city' => 'Berlin'])
     ->transform('0.user.name', fn($name) => strtoupper($name))
+    ->pushTo('0.user.tags', 'php');
+
+// Collection: [['user' => ['name' => 'ALICE', 'age' => 30, 'city' => 'Berlin', 'tags' => ['php']]]]
+```
+
+```php
 // only() – get subset by keys (array or variadic)
 $user = DataCollection::make([
     'id' => 1,
@@ -287,11 +293,15 @@ $user = DataCollection::make([
 
 $public = $user->only('id', 'name');
 // $public->toArray() === ['id' => 1, 'name' => 'Alice']
+```
 
+```php
+// pop() – remove and return last item
+$numbers = DataCollection::make([1, 2, 3]);
 
-    ->pushTo('0.user.tags', 'php');
-
-// Collection: [['user' => ['name' => 'ALICE', 'age' => 30, 'city' => 'Berlin', 'tags' => ['php']]]]
+$last = $numbers->pop();
+// $last === 3
+// $numbers->toArray() === [1, 2]
 ```
 
 ## SQL-Like Filtering with DataFilter
