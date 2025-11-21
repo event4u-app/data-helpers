@@ -524,6 +524,25 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Reverse the order of the items while preserving keys.
+     *
+     * Behaves like Laravel's reverse():
+     * - Returns a new collection (does not modify the original).
+     * - Keys are preserved.
+     *
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function reverse(): static
+    {
+        /** @var array<int|string, TValue> $reversed */
+        $reversed = array_reverse($this->items, true);
+
+        return new static($reversed); // @phpstan-ignore return.type
+    }
+
+
+    /**
      * Get the minimum value of the given items.
      *
      * Works similar to Laravel's min():

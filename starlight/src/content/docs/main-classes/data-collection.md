@@ -285,6 +285,24 @@ $dropped = $collection->drop(['age']);
 ```
 
 
+### reverse() - Reverse Order (Immutable)
+
+Return a new collection with the items in reverse order while preserving keys:
+
+```php
+$collection = DataCollection::make([
+    'a' => 1,
+    'b' => 2,
+    'c' => 3,
+]);
+
+$reversed = $collection->reverse();
+
+// $reversed->toArray() === ['c' => 3, 'b' => 2, 'a' => 1]
+// $collection->toArray() === ['a' => 1, 'b' => 2, 'c' => 3]
+```
+
+
 
 ### forget() - Remove Values
 

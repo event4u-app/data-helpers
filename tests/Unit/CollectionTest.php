@@ -1989,6 +1989,43 @@ describe('Collection', function(): void {
         });
     });
 
+    describe('Reverse', function(): void {
+        it('reverses values while preserving keys', function(): void {
+            $collection = DataCollection::make([
+                'a' => 1,
+                'b' => 2,
+                'c' => 3,
+            ]);
+
+            $reversed = $collection->reverse();
+
+            expect($reversed->toArray())->toBe([
+                'c' => 3,
+                'b' => 2,
+                'a' => 1,
+            ])->and($collection->toArray())->toBe([
+                'a' => 1,
+                'b' => 2,
+                'c' => 3,
+            ]);
+        });
+
+        it('reverses numeric keys while preserving keys', function(): void {
+            $collection = DataCollection::make([
+                10 => 'first',
+                20 => 'second',
+            ]);
+
+            $reversed = $collection->reverse();
+
+            expect($reversed->toArray())->toBe([
+                20 => 'second',
+                10 => 'first',
+            ]);
+        });
+    });
+
+
 
     describe('Forget Operations', function(): void {
         it('forgets simple keys', function(): void {
