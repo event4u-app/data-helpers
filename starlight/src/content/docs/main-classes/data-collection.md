@@ -429,6 +429,23 @@ $sorted = $numbers->sort();
 // $numbers->toArray() is unchanged
 ```
 
+```php
+// sortBy() – sort by a field (supports dot-notation) and keep original keys
+$users = DataCollection::make([
+    10 => ['name' => 'Bob', 'age' => 30],
+    20 => ['name' => 'Alice', 'age' => 25],
+    30 => ['name' => 'Charlie', 'age' => 35],
+]);
+
+$sorted = $users->sortBy('age');
+// $sorted->toArray() === [
+//     20 => ['name' => 'Alice', 'age' => 25],
+//     10 => ['name' => 'Bob', 'age' => 30],
+//     30 => ['name' => 'Charlie', 'age' => 35],
+// ]
+```
+
+
 
 
 

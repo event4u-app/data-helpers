@@ -724,6 +724,49 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return new static($items); // @phpstan-ignore return.type
     }
 
+    /**
+     * Sort the collection by a given value, path or callback.
+     *
+     * Mirrors Laravel's sortBy():
+     * - Returns a new collection instance (does not modify the original).
+     * - Preserves the original keys.
+     * - Supports string paths (dot-notation via DataAccessor) and callbacks.
+     *
+     * @param (callable(TValue, int|string): mixed)|string $callbackOrPath
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function sortBy(callable|string $callbackOrPath): static
+    {
+        $items = $this->items;
+
+        $accessor = static function (mixed $item, int|string $key) use ($callbackOrPath): mixed {
+            if (is_string($callbackOrPath)) {
+                return DataAccessor::make($item)->get($callbackOrPath);
+            }
+
+            return $callbackOrPath($item, $key);
+        };
+
+        uasort($items, static function (mixed $a, mixed $b) use ($items, $accessor): int {
+            $keyA = array_search($a, $items, true);
+            $keyB = array_search($b, $items, true);
+
+            $valueA = $accessor($a, $keyA);
+            $valueB = $accessor($b, $keyB);
+
+            if ($valueA == $valueB) {
+                return 0;
+            }
+
+            return $valueA <=> $valueB;
+        });
+
+        /** @var array<int|string, TValue> $items */
+        return new static($items); // @phpstan-ignore return.type
+    }
+
+
 
 
 

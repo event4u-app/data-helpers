@@ -947,6 +947,69 @@ describe('Collection', function(): void {
     });
 
 
+    describe('SortBy', function(): void {
+        it('sorts items by callback value ascending and preserves keys', function(): void {
+            $collection = DataCollection::make([
+                10 => ['name' => 'Bob', 'age' => 30],
+                20 => ['name' => 'Alice', 'age' => 25],
+                30 => ['name' => 'Charlie', 'age' => 35],
+            ]);
+
+            $sorted = $collection->sortBy(static fn (array $item): int => $item['age']);
+
+            expect($sorted->toArray())->toBe([
+                20 => ['name' => 'Alice', 'age' => 25],
+                10 => ['name' => 'Bob', 'age' => 30],
+                30 => ['name' => 'Charlie', 'age' => 35],
+            ]);
+        });
+
+        it('sorts items by dot-notation path', function(): void {
+            $collection = DataCollection::make([
+                1 => ['user' => ['score' => 50]],
+                2 => ['user' => ['score' => 10]],
+                3 => ['user' => ['score' => 30]],
+            ]);
+
+            $sorted = $collection->sortBy('user.score');
+
+            expect($sorted->toArray())->toBe([
+                2 => ['user' => ['score' => 10]],
+                3 => ['user' => ['score' => 30]],
+                1 => ['user' => ['score' => 50]],
+            ]);
+        });
+
+        it('returns a new collection instance', function(): void {
+            $collection = DataCollection::make([
+                ['name' => 'Bob', 'age' => 30],
+                ['name' => 'Alice', 'age' => 25],
+            ]);
+
+            $sorted = $collection->sortBy(static fn (array $item): int => $item['age']);
+
+            expect($sorted)->not->toBe($collection)
+                ->and($collection->toArray())->toBe([
+                    ['name' => 'Bob', 'age' => 30],
+                    ['name' => 'Alice', 'age' => 25],
+                ])
+                ->and($sorted->toArray())->toBe([
+                    1 => ['name' => 'Alice', 'age' => 25],
+                    0 => ['name' => 'Bob', 'age' => 30],
+                ]);
+        });
+
+        it('returns empty collection when original is empty', function(): void {
+            $collection = DataCollection::make();
+
+            $sorted = $collection->sortBy(static fn ($item): int => 0);
+
+            expect($sorted->toArray())->toBe([]);
+        });
+    });
+
+
+
 
 
 
