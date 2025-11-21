@@ -1667,6 +1667,48 @@ describe('Collection', function(): void {
         });
     });
 
+
+    describe('Put Operations', function(): void {
+        it('puts simple values by key', function(): void {
+            $collection = DataCollection::make([]);
+
+            $collection
+                ->put('name', 'Alice')
+                ->put('age', 30);
+
+            expect($collection->toArray())->toBe([
+                'name' => 'Alice',
+                'age' => 30,
+            ]);
+        });
+
+        it('overwrites existing values by key', function(): void {
+            $collection = DataCollection::make([
+                'name' => 'Alice',
+            ]);
+
+            $collection->put('name', 'Bob');
+
+            expect($collection->toArray())->toBe([
+                'name' => 'Bob',
+            ]);
+        });
+
+        it('treats keys with dots literally', function(): void {
+            $collection = DataCollection::make([]);
+
+            $collection
+                ->put('user.name', 'Alice')
+                ->put('user.age', 30);
+
+            expect($collection->toArray())->toBe([
+                'user.name' => 'Alice',
+                'user.age' => 30,
+            ]);
+        });
+    });
+
+
     describe('Merge Operations', function(): void {
         it('merges simple arrays', function(): void {
             $collection = DataCollection::make([

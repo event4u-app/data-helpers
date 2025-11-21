@@ -191,6 +191,21 @@ $collection
     ->set('0.user.country', 'Germany');
 ```
 
+### put() - Set by Direct Key
+
+Set a value by direct key on the top-level collection (no dot-notation):
+
+```php
+$collection = DataCollection::make();
+
+$collection
+    ->put('name', 'Alice')
+    ->put('age', 30);
+
+// Collection: ['name' => 'Alice', 'age' => 30]
+```
+
+
 ### merge() - Merge Values
 
 Merge an array into a specific path:

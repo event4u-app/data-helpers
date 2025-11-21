@@ -803,6 +803,26 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     }
 
     /**
+     * Set a value in the collection by direct key.
+     *
+     * Mirrors Laravel's put(): sets the given key and value on the
+     * top-level items array and returns the collection instance.
+     * This does not use dot-notation; the key is treated literally.
+     *
+     * @param int|string $key
+     * @param mixed $value
+     * @return $this
+     */
+    public function put(int|string $key, mixed $value): static
+    {
+        $this->items[$key] = $value;
+        $this->accessor = new DataAccessor($this->items);
+
+        return $this;
+    }
+
+
+    /**
      * Merge values into the collection using dot notation.
      *
      * Modifies the collection in-place and returns $this for chaining.
