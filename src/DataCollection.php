@@ -7,13 +7,12 @@ namespace event4u\DataHelpers;
 use ArrayAccess;
 use Closure;
 use Countable;
+use event4u\DataHelpers\Helpers\DotPathHelper;
 use Generator;
 use IteratorAggregate;
 use JsonSerializable;
 use RuntimeException;
 use Traversable;
-use event4u\DataHelpers\Helpers\DotPathHelper;
-
 
 /**
  * Generic type-safe collection for any type of items.
@@ -142,8 +141,8 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function pluck(string|int $valuePath, string|int|null $keyPath = null): static
     {
-        $valuePathString = (string) $valuePath;
-        $keyPathString = null !== $keyPath ? (string) $keyPath : null;
+        $valuePathString = (string)$valuePath;
+        $keyPathString = null !== $keyPath ? (string)$keyPath : null;
 
         $result = [];
 
@@ -188,7 +187,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             if (is_callable($key)) {
                 $resolvedKey = $key($item, $itemKey);
             } else {
-                $resolvedKey = DataAccessor::make($item)->get((string) $key);
+                $resolvedKey = DataAccessor::make($item)->get((string)$key);
             }
 
             if (!is_int($resolvedKey) && !is_string($resolvedKey)) {
@@ -228,7 +227,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
         return $this->accessor->last($callback, $default);
     }
-
 
     /**
      * Get the item after the given item in the collection.
@@ -342,8 +340,8 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             }
 
             if (is_int($value) || is_float($value) || (is_string($value) && is_numeric($value))) {
-                $sum += (float) $value;
-                ++$count;
+                $sum += (float)$value;
+                $count++;
             }
         }
 
@@ -414,7 +412,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      * - Without argument: returns a single random item.
      * - With integer N: returns a new collection with N distinct random items.
      *
-     * @param int|null $number
      * @return TValue|static<TValue>
      * @phpstan-ignore return.type
      */
@@ -500,13 +497,13 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         $keysToRemove = [];
 
         foreach ($keys as $key) {
-            $keysToRemove[(string) $key] = true;
+            $keysToRemove[(string)$key] = true;
         }
 
         $result = [];
 
         foreach ($this->items as $key => $value) {
-            if (!array_key_exists((string) $key, $keysToRemove)) {
+            if (!array_key_exists((string)$key, $keysToRemove)) {
                 $result[$key] = $value;
             }
         }
@@ -543,7 +540,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
 
         return new static($reversed); // @phpstan-ignore return.type
     }
-
 
     /**
      * Get the minimum value of the given items.
@@ -588,8 +584,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return $hasValue ? $minItem : null;
     }
 
-
-
     /**
      * Calculate the median of the collection values.
      *
@@ -617,7 +611,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             }
 
             if (is_int($value) || is_float($value) || (is_string($value) && is_numeric($value))) {
-                $values[] = (float) $value;
+                $values[] = (float)$value;
             }
         }
 
@@ -646,8 +640,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      *
      * If $step is less than 1, an empty collection is returned.
      *
-     * @param int $step
-     * @param int $offset
      * @return static<TValue>
      * @phpstan-ignore return.type
      */
@@ -669,7 +661,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
                 $result[$key] = $item;
             }
 
-            ++$index;
+            $index++;
         }
 
         return new static($result); // @phpstan-ignore return.type
@@ -683,8 +675,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      * - Negative offsets count from the end of the collection.
      * - If $length is null, slice until the end.
      *
-     * @param int $offset
-     * @param int|null $length
      * @return static<TValue>
      * @phpstan-ignore return.type
      */
@@ -743,7 +733,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
         $items = $this->items;
 
-        $accessor = static function (mixed $item, int|string $key) use ($callbackOrPath): mixed {
+        $accessor = static function(mixed $item, int|string $key) use ($callbackOrPath): mixed {
             if (is_string($callbackOrPath)) {
                 return DataAccessor::make($item)->get($callbackOrPath);
             }
@@ -751,11 +741,11 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             return $callbackOrPath($item, $key);
         };
 
-        uasort($items, static function (mixed $a, mixed $b) use ($items, $accessor): int {
+        uasort($items, static function(mixed $a, mixed $b) use ($items, $accessor): int {
             $keyA = array_search($a, $items, true);
             $keyB = array_search($b, $items, true);
 
-            if ($keyA === false || $keyB === false) {
+            if (false === $keyA || false === $keyB) {
                 return 0;
             }
 
@@ -772,12 +762,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         /** @var array<int|string, TValue> $items */
         return new static($items); // @phpstan-ignore return.type
     }
-
-
-
-
-
-
 
     /**
      * Get all items.
@@ -812,7 +796,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         $results = [];
 
         foreach ($this->items as $item) {
-            if (is_array($item) || $item instanceof Traversable) {
+            if (is_iterable($item)) {
                 foreach ($item as $value) {
                     $results[] = $value;
                 }
@@ -853,7 +837,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         $result = [];
 
         foreach ($this->items as $key => $value) {
-            $this->flattenItem($result, (string) $key, $value);
+            $this->flattenItem($result, (string)$key, $value);
         }
 
         /** @var static<TValue> $collection */
@@ -997,14 +981,17 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         $result = [];
 
         foreach ($this->items as $key => $value) {
-            if (!in_array($value, $otherItems, false)) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+            if (!in_array(
+                $value,
+                $otherItems,
+                false
+            )) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
                 $result[$key] = $value;
             }
         }
 
         return new static($result); // @phpstan-ignore return.type
     }
-
 
     /**
      * Get the items in the collection whose keys are not present in the given items.
@@ -1035,6 +1022,297 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return new static($result); // @phpstan-ignore return.type
     }
 
+    /**
+     * Get the items in the collection that are also present in the given items, preserving keys from the
+     * original collection.
+     *
+     * Mirrors Laravel's union(): the current collection's values are preferred when keys overlap.
+     *
+     * @param iterable<int|string, TValue> $items
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function union(iterable $items): static
+    {
+        $result = $this->items;
+
+        foreach ($items as $key => $value) {
+            if (!array_key_exists($key, $result)) {
+                $result[$key] = $value;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Remove duplicate items from the collection.
+     *
+     * Behaves similar to Laravel's unique():
+     * - When no key is given, the values themselves are used for uniqueness (loose comparison).
+     * - When a string key is given, the value at that path is used for uniqueness.
+     * - When a callback is given, its return value is used for uniqueness.
+     *
+     * @param (callable(TValue, int|string): mixed)|string|null $key
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function unique(callable|string|null $key = null): static
+    {
+        $result = [];
+        $seen = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            if (null === $key) {
+                $uniqueValue = $item;
+            } elseif (is_string($key)) {
+                $uniqueValue = DataAccessor::make($item)->get($key);
+            } else {
+                $uniqueValue = $key($item, $itemKey);
+            }
+
+            // Loose comparison to mirror Laravel's behaviour
+            $isDuplicate = false;
+            foreach ($seen as $seenValue) {
+                if ($seenValue == $uniqueValue) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+                    $isDuplicate = true;
+                    break;
+                }
+            }
+
+            if ($isDuplicate) {
+                continue;
+            }
+
+            $seen[] = $uniqueValue;
+            $result[$itemKey] = $item;
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Filter the items in the collection by a given key and value.
+     *
+     * Mirrors Laravel's where():
+     * - where('age', '>=', 18)
+     * - where('active', true)
+     *
+     * Supports dot-notation paths for nested data.
+     *
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function where(string $key, mixed $operator, mixed $value = null): static
+    {
+        if (null === $value) {
+            $value = $operator;
+            $operator = '=';
+        }
+
+        $result = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            $actual = DataAccessor::make($item)->get($key);
+
+            if ($this->compareWhere($actual, $operator, $value)) {
+                $result[$itemKey] = $item;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Filter items where the value for the given key is between the given values (inclusive).
+     *
+     * Mirrors Laravel's whereBetween(): only numeric values are considered.
+     *
+     * @param array<int, mixed> $values
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function whereBetween(string $key, array $values): static
+    {
+        if (2 !== count($values)) {
+            return new static([]); // @phpstan-ignore return.type
+        }
+
+        [$min, $max] = array_values($values);
+
+        $result = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            $actual = DataAccessor::make($item)->get($key);
+
+            if (!is_numeric($actual) || !is_numeric($min) || !is_numeric($max)) {
+                continue;
+            }
+
+            if ($actual >= $min && $actual <= $max) {
+                $result[$itemKey] = $item;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Filter items where the value for the given key is outside the given range.
+     *
+     * Mirrors Laravel's whereNotBetween(): only numeric values are considered.
+     *
+     * @param array<int, mixed> $values
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function whereNotBetween(string $key, array $values): static
+    {
+        if (2 !== count($values)) {
+            return new static([]); // @phpstan-ignore return.type
+        }
+
+        [$min, $max] = array_values($values);
+
+        $result = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            $actual = DataAccessor::make($item)->get($key);
+
+            if (!is_numeric($actual) || !is_numeric($min) || !is_numeric($max)) {
+                continue;
+            }
+
+            if ($actual < $min || $actual > $max) {
+                $result[$itemKey] = $item;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Filter items where the value for the given key is in the given array.
+     *
+     * Mirrors Laravel's whereIn(): uses loose comparison for membership checks.
+     *
+     * @param array<int, mixed> $values
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function whereIn(string $key, array $values): static
+    {
+        $result = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            $actual = DataAccessor::make($item)->get($key);
+
+            if (in_array(
+                $actual,
+                $values,
+                false
+            )) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+                $result[$itemKey] = $item;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Filter items where the value for the given key is not in the given array.
+     *
+     * Mirrors Laravel's whereNotIn(): uses loose comparison for membership checks.
+     *
+     * @param array<int, mixed> $values
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function whereNotIn(string $key, array $values): static
+    {
+        $result = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            $actual = DataAccessor::make($item)->get($key);
+
+            if (!in_array(
+                $actual,
+                $values,
+                false
+            )) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
+                $result[$itemKey] = $item;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Filter items where the value for the given key is null.
+     *
+     * Mirrors Laravel's whereNull().
+     *
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function whereNull(string $key): static
+    {
+        $result = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            $actual = DataAccessor::make($item)->get($key);
+
+            if (null === $actual) {
+                $result[$itemKey] = $item;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Filter items where the value for the given key is not null.
+     *
+     * Mirrors Laravel's whereNotNull().
+     *
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function whereNotNull(string $key): static
+    {
+        $result = [];
+
+        foreach ($this->items as $itemKey => $item) {
+            $actual = DataAccessor::make($item)->get($key);
+
+            if (null !== $actual) {
+                $result[$itemKey] = $item;
+            }
+        }
+
+        return new static($result); // @phpstan-ignore return.type
+    }
+
+    /**
+     * Compare two values using the given operator.
+     *
+     * Supported operators: =, ==, ===, !=, <>, !==, <, >, <=, >=
+     */
+    private function compareWhere(mixed $actual, mixed $operator, mixed $value): bool
+    {
+        return match ($operator) {
+            '=', '==' => $actual == $value,
+            '===' => $actual === $value,
+            '!=', '<>' => $actual != $value,
+            '!==' => $actual !== $value,
+            '<' => $actual < $value,
+            '>' => $actual > $value,
+            '<=' => $actual <= $value,
+            '>=' => $actual >= $value,
+            default => false,
+        };
+    }
+
     /** Convert the collection to JSON. */
     public function toJson(int $options = 0): string
     {
@@ -1051,7 +1329,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
         return $this->toJson(JSON_PRETTY_PRINT);
     }
-
 
     /**
      * Convert the collection to its JSON representation.
@@ -1134,11 +1411,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return new static($items); // @phpstan-ignore return.type
     }
 
-
-
-
-
-
     /**
      * Prepend one or more items to the beginning of the collection.
      *
@@ -1187,8 +1459,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      * top-level items array and returns the collection instance.
      * This does not use dot-notation; the key is treated literally.
      *
-     * @param int|string $key
-     * @param mixed $value
      * @return $this
      */
     public function put(int|string $key, mixed $value): static
@@ -1198,7 +1468,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
 
         return $this;
     }
-
 
     /**
      * Merge values into the collection using dot notation.
@@ -1410,7 +1679,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
                     continue;
                 }
 
-                $current = DataAccessor::make($item)->get((string) $keyOrCallback);
+                $current = DataAccessor::make($item)->get((string)$keyOrCallback);
 
                 if ($current == $value) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
                     return true;
@@ -1419,15 +1688,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
 
             return false;
         }
-
-        // contains(value)
-        foreach ($this->items as $item) {
-            if ($item == $keyOrCallback) { // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators
-                return true;
-            }
-        }
-
-        return false;
+        return in_array($keyOrCallback, $this->items);
     }
     /**
      * Search the collection for a given value or callback and return the first matching key.
@@ -1470,9 +1731,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
 
         return false;
     }
-
-
-
 
     /**
      * Lazy iteration using Generator for memory efficiency.
@@ -1560,7 +1818,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             $keys = func_get_args();
         }
 
-        $keys = array_map(static fn($key): int|string => is_int($key) || is_string($key) ? $key : (string) $key, $keys);
+        $keys = array_map(static fn($key): int|string => is_int($key) || is_string($key) ? $key : (string)$key, $keys);
 
         $result = [];
 
@@ -1590,7 +1848,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         }
 
         $fields = array_map(
-            static fn($key): int|string => is_int($key) || is_string($key) ? $key : (string) $key,
+            static fn($key): int|string => is_int($key) || is_string($key) ? $key : (string)$key,
             $keys
         );
 
@@ -1617,16 +1875,13 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return new static($result); // @phpstan-ignore return.type
     }
 
-
     /** Determine if a key exists in the collection. */
     public function has(int|string $key): bool
     {
         return array_key_exists($key, $this->items);
     }
 
-    /**
-     * Determine if at least one of the given keys exists in the collection.
-     */
+    /** Determine if at least one of the given keys exists in the collection. */
     public function hasAny(int|string ...$keys): bool
     {
         foreach ($keys as $key) {
@@ -1637,7 +1892,6 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
 
         return false;
     }
-
 
     /**
      * Get an iterator for the items.

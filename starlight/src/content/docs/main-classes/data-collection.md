@@ -816,25 +816,20 @@ $doubled = $numbers->map(fn(int $n) => $n * 2)->toArray();
 $sum = $numbers->reduce(fn(int $carry, int $n) => $carry + $n, 0);
 // $sum = 10
 
-// pluck() – values and keys via dot-notation
 $users = DataCollection::make([
-    ['user' => ['name' => 'Alice', 'age' => 30]],
-    ['user' => ['name' => 'Bob', 'age' => 25]],
+    ['user' => ['id' => 1, 'name' => 'Alice', 'age' => 30]],
+    ['user' => ['id' => 1, 'name' => 'Bob', 'age' => 25]],
 ]);
 
-// keyBy()  reindex by a key or dot path
-$users = DataCollection::make([
-    ['user' => ['id' => 1, 'name' => 'Alice']],
-    ['user' => ['id' => 2, 'name' => 'Bob']],
-]);
-
+// keyBy() - reindex by a key or dot path
 $byId = $users->keyBy('user.id')->toArray();
 // $byId = [
-//     1 => ['user' => ['id' => 1, 'name' => 'Alice']],
-//     2 => ['user' => ['id' => 2, 'name' => 'Bob']],
+//     1 => ['user' => ['id' => 1, 'name' => 'Alice', 'age' => 30]],
+//     2 => ['user' => ['id' => 2, 'name' => 'Bob', 'age' => 25]],
 // ]
 
 
+// pluck() – values and keys via dot-notation
 $names = $users->pluck('user.name')->toArray();
 $agesByName = $users->pluck('user.age', 'user.name')->toArray();
 // $names = ['Alice', 'Bob']
@@ -882,7 +877,6 @@ $nested = $flat->unflatten()->toArray();
 //         ],
 //     ],
 // ]
-
 
 
 // average() / avg()
@@ -1138,6 +1132,70 @@ $collection = DataCollection::make(['a' => 1, 'b' => 2, 'c' => 3]);
 $onlyAC = $collection->diffKeys(['b' => 99])->toArray();
 // $onlyAC = ['a' => 1, 'c' => 3]
 ```
+
+### Union
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$primary = DataCollection::make(['a' => 1, 'b' => 2]);
+$union = $primary->union(['b' => 99, 'c' => 3])->toArray();
+// $union = ['a' => 1, 'b' => 2, 'c' => 3]
+```
+
+### Unique
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$numbers = DataCollection::make([1, '1', 2, 2, 3]);
+$uniqueNumbers = $numbers->unique()->values()->toArray();
+// $uniqueNumbers = [1, 2, 3]
+
+$users = DataCollection::make([
+    ['user' => ['id' => 1, 'name' => 'Alice']],
+    ['user' => ['id' => 1, 'name' => 'Alice Duplicate']],
+    ['user' => ['id' => 2, 'name' => 'Bob']],
+]);
+
+$uniqueUsers = $users->unique('user.id')->values()->toArray();
+// $uniqueUsers contains only user id 1 and 2
+```
+
+### Where helpers
+
+```php
+use event4u\DataHelpers\DataCollection;
+
+$users = DataCollection::make([
+    ['name' => 'Alice', 'age' => 20, 'email' => 'alice@example.com'],
+    ['name' => 'Bob', 'age' => 25, 'email' => null],
+    ['name' => 'Charlie', 'age' => 30, 'email' => 'charlie@example.com'],
+]);
+
+$adults = $users->where('age', '>=', 21)->pluck('name')->values()->toArray();
+// $adults = ['Bob', 'Charlie']
+
+$between = $users->whereBetween('age', [21, 29])->pluck('name')->values()->toArray();
+// $between = ['Bob']
+
+$notBetween = $users->whereNotBetween('age', [21, 29])->pluck('name')->values()->toArray();
+// $notBetween = ['Alice', 'Charlie']
+
+$in = $users->whereIn('name', ['Alice', 'Charlie'])->pluck('name')->values()->toArray();
+// $in = ['Alice', 'Charlie']
+
+$notIn = $users->whereNotIn('name', ['Alice', 'Charlie'])->pluck('name')->values()->toArray();
+// $notIn = ['Bob']
+
+$withEmail = $users->whereNotNull('email')->pluck('name')->values()->toArray();
+// $withEmail = ['Alice', 'Charlie']
+
+$withoutEmail = $users->whereNull('email')->pluck('name')->values()->toArray();
+// $withoutEmail = ['Bob']
+```
+
+
 
 ### Lazy Methods
 

@@ -64,7 +64,7 @@ $emails = $accessor->get('departments.*.users.*.email');
 ### 🚀 Key Benefits
 
 - **🎯 Framework-Agnostic + Deep Integration** - Pure PHP with zero dependencies, optional deep Laravel/Symfony integration
-- **Type-Safe** - PHPStan Level 9 compliant with 4300+ tests
+- **Type-Safe** - PHPStan Level 9 compliant with 4400+ tests
 <!-- BENCHMARK_README_FAST_START -->
 
 - **Fast** - SimpleDto with #[UltraFast] is up to 12.1x faster than Other Serializer
@@ -698,7 +698,7 @@ The documentation includes:
 
 ## 🧪 Testing & Quality
 
-- ✅ **4300+ tests** with comprehensive coverage
+- ✅ **4400+ tests** with comprehensive coverage
 - ✅ **PHPStan Level 9** - Highest static analysis level
 - ✅ **100% type coverage** - All methods fully typed
 - ✅ **Continuous Integration** - Automated testing across PHP 8.2, 8.3, 8.4
