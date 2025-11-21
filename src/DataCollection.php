@@ -950,6 +950,13 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         return $json;
     }
 
+    /** Convert the collection to pretty-printed JSON. */
+    public function toPrettyJson(): string
+    {
+        return $this->toJson(JSON_PRETTY_PRINT);
+    }
+
+
     /**
      * Convert the collection to its JSON representation.
      *

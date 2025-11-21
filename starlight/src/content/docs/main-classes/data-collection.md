@@ -638,6 +638,14 @@ $items = $collection->items();
 $json = $collection->toJson();
 // Result: '{"a":1,"b":2}'
 
+// Convert to pretty JSON (multi-line)
+$prettyJson = $collection->toPrettyJson();
+// Result (formatted JSON):
+// {
+//     "a": 1,
+//     "b": 2
+// }
+
 // JSON serialization
 $json = json_encode($collection);
 // Result: '{"a":1,"b":2}'
@@ -1156,11 +1164,13 @@ $array3 = $collection->items();
 // $array2 = ['a' => 1, 'b' => 2]
 // $array3 = ['a' => 1, 'b' => 2]
 
-// toJson() / jsonSerialize()
+// toJson() / jsonSerialize() / toPrettyJson()
 $json = $collection->toJson();
 $encoded = json_encode($collection);
+$prettyJson = $collection->toPrettyJson();
 // $json = '{"a":1,"b":2}'
 // $encoded = '{"a":1,"b":2}'
+// $prettyJson is a formatted multi-line JSON string
 
 // ArrayAccess
 $valueA = $collection['a'];

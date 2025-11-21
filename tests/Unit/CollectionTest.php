@@ -1633,6 +1633,14 @@ describe('Collection', function(): void {
 
             expect($outer->toJson())->toBe('{"data":[1,2]}');
         });
+
+        it('serializes to pretty JSON', function(): void {
+            $collection = DataCollection::make(['a' => 1, 'b' => 2]);
+
+            $pretty = $collection->toPrettyJson();
+
+            expect($pretty)->toBe(json_encode(['a' => 1, 'b' => 2], JSON_PRETTY_PRINT));
+        });
     });
 
     describe('Edge Cases', function(): void {
