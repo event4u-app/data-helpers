@@ -915,6 +915,28 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
 
         return $value;
     }
+    /**
+     * Shuffle the items in the collection randomly.
+     *
+     * Mirrors Laravel's shuffle():
+     * - Returns a new collection instance.
+     * - Items are reindexed with sequential integer keys starting at 0.
+     *
+     * @return static<TValue>
+     * @phpstan-ignore return.type
+     */
+    public function shuffle(): static
+    {
+        $items = array_values($this->items);
+
+        shuffle($items);
+
+        /** @var array<int|string, TValue> $items */
+        return new static($items); // @phpstan-ignore return.type
+    }
+
+
+
 
 
 

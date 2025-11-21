@@ -407,6 +407,16 @@ $first = $numbers->shift();
 // $numbers->toArray() === [2, 3]
 ```
 
+```php
+// shuffle() – get a new collection with randomly ordered items
+$numbers = DataCollection::make([1, 2, 3, 4]);
+
+$shuffled = $numbers->shuffle();
+// $shuffled->count() === 4
+// $numbers->toArray() is unchanged
+```
+
+
 
 ## SQL-Like Filtering with DataFilter
 

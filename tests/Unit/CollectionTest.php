@@ -805,6 +805,29 @@ describe('Collection', function(): void {
 	    });
 
 
+    describe('Shuffle', function(): void {
+        it('returns a new shuffled collection with same items', function(): void {
+            $items = [1, 2, 3, 4, 5];
+            $collection = DataCollection::make($items);
+
+            $shuffled = $collection->shuffle();
+
+            expect($shuffled)->not->toBe($collection)
+                ->and($shuffled->count())->toBe($collection->count())
+                ->and($shuffled->toArray())->toContain(...$items);
+        });
+
+        it('returns empty collection when original is empty', function(): void {
+            $collection = DataCollection::make();
+
+            $shuffled = $collection->shuffle();
+
+            expect($shuffled->toArray())->toBe([]);
+        });
+    });
+
+
+
 
         it('handles mixed null and numeric values', function(): void {
             $collection = DataCollection::make([null, 5, null, 2]);
