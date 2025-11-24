@@ -3,21 +3,21 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Lowercase;
+use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
 use event4u\DataHelpers\SimpleDto\Attributes\Trim;
-use event4u\DataHelpers\SimpleDto\Attributes\Lowercase;
-use event4u\DataHelpers\SimpleDto\Attributes\Uppercase;
-use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
+use event4u\DataHelpers\SimpleDto\Attributes\Uppercase;
 
 /**
  * Advanced tests for Transform Attributes.
  *
  * These tests cover complex scenarios and edge cases.
  */
-describe('Transform Attribute - Advanced Tests', function (): void {
-    describe('Class-Level transforms on mixed property types', function (): void {
-        it('applies Class-Level Sanitize only to string properties', function (): void {
+describe('Transform Attribute - Advanced Tests', function(): void {
+    describe('Class-Level transforms on mixed property types', function(): void {
+        it('applies Class-Level Sanitize only to string properties', function(): void {
             $dtoClass = new #[Sanitize] class ('', 0, 0.0, false) extends SimpleDto {
                 public function __construct(
                     public readonly string $text,
@@ -41,7 +41,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->flag)->toBe(true);
         });
 
-        it('applies Class-Level Trim only to string properties', function (): void {
+        it('applies Class-Level Trim only to string properties', function(): void {
             $dtoClass = new #[Trim] class ('', '', 0, null) extends SimpleDto {
                 public function __construct(
                     public readonly string $text1,
@@ -65,7 +65,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->nullable)->toBeNull();
         });
 
-        it('applies Class-Level transforms to all string properties', function (): void {
+        it('applies Class-Level transforms to all string properties', function(): void {
             $dtoClass = new #[Sanitize] #[Trim] class ('', '', '', 0) extends SimpleDto {
                 public function __construct(
                     public readonly string $title,
@@ -90,8 +90,8 @@ describe('Transform Attribute - Advanced Tests', function (): void {
         });
     });
 
-    describe('Transform attributes with MapFrom', function (): void {
-        it('applies transforms after mapping with MapFrom', function (): void {
+    describe('Transform attributes with MapFrom', function(): void {
+        it('applies transforms after mapping with MapFrom', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[MapFrom('user_name')]
@@ -109,7 +109,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->name)->toBe('John Doe');
         });
 
-        it('applies Class-Level transforms after mapping with MapFrom', function (): void {
+        it('applies Class-Level transforms after mapping with MapFrom', function(): void {
             $dtoClass = new #[Sanitize] #[Trim] class ('', '') extends SimpleDto {
                 public function __construct(
                     #[MapFrom('user_name')]
@@ -129,7 +129,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->email)->toBe('john@example.com');
         });
 
-        it('Property-Level transforms override Class-Level with MapFrom', function (): void {
+        it('Property-Level transforms override Class-Level with MapFrom', function(): void {
             $dtoClass = new #[Sanitize] class ('', '') extends SimpleDto {
                 public function __construct(
                     #[MapFrom('user_name')]
@@ -152,8 +152,8 @@ describe('Transform Attribute - Advanced Tests', function (): void {
         });
     });
 
-    describe('Transform attribute priority and sorting', function (): void {
-        it('applies Sanitize before Trim before Lowercase', function (): void {
+    describe('Transform attribute priority and sorting', function(): void {
+        it('applies Sanitize before Trim before Lowercase', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Lowercase]
@@ -174,7 +174,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->text)->toBe('hello world');
         });
 
-        it('applies Sanitize before Trim before Uppercase', function (): void {
+        it('applies Sanitize before Trim before Uppercase', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Uppercase]
@@ -195,7 +195,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->text)->toBe('HELLO WORLD');
         });
 
-        it('applies Class-Level transforms in correct order', function (): void {
+        it('applies Class-Level transforms in correct order', function(): void {
             $dtoClass = new #[Trim] #[Sanitize] class ('') extends SimpleDto {
                 public function __construct(
                     public readonly string $text,
@@ -210,7 +210,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->text)->toBe('HELLO WORLD');
         });
 
-        it('maintains priority even with multiple properties', function (): void {
+        it('maintains priority even with multiple properties', function(): void {
             $dtoClass = new class ('', '') extends SimpleDto {
                 public function __construct(
                     #[Lowercase]
@@ -236,8 +236,8 @@ describe('Transform Attribute - Advanced Tests', function (): void {
         });
     });
 
-    describe('Transform attributes with nullable properties', function (): void {
-        it('handles nullable string with null value', function (): void {
+    describe('Transform attributes with nullable properties', function(): void {
+        it('handles nullable string with null value', function(): void {
             $dtoClass = new class (null) extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -251,7 +251,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->text)->toBeNull();
         });
 
-        it('handles nullable string with empty string', function (): void {
+        it('handles nullable string with empty string', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -266,7 +266,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->text)->toBe('');
         });
 
-        it('handles nullable string with whitespace-only value', function (): void {
+        it('handles nullable string with whitespace-only value', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -281,7 +281,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->text)->toBe('');
         });
 
-        it('handles Class-Level transforms on nullable properties', function (): void {
+        it('handles Class-Level transforms on nullable properties', function(): void {
             $dtoClass = new #[Sanitize] #[Trim] class (null, '') extends SimpleDto {
                 public function __construct(
                     public readonly ?string $text1,
@@ -299,8 +299,8 @@ describe('Transform Attribute - Advanced Tests', function (): void {
         });
     });
 
-    describe('Transform attributes in UltraFast mode with mixed scenarios', function (): void {
-        it('applies transforms correctly with MapFrom in UltraFast mode', function (): void {
+    describe('Transform attributes in UltraFast mode with mixed scenarios', function(): void {
+        it('applies transforms correctly with MapFrom in UltraFast mode', function(): void {
             $dtoClass = new #[UltraFast] class ('') extends SimpleDto {
                 public function __construct(
                     #[MapFrom('user_name')]
@@ -317,7 +317,7 @@ describe('Transform Attribute - Advanced Tests', function (): void {
             expect($dto->name)->toBe('John Doe');
         });
 
-        it('applies Class-Level transforms on mixed types in UltraFast mode', function (): void {
+        it('applies Class-Level transforms on mixed types in UltraFast mode', function(): void {
             $dtoClass = new #[UltraFast] #[Sanitize] #[Trim] class ('', 0) extends SimpleDto {
                 public function __construct(
                     public readonly string $text,
@@ -335,4 +335,3 @@ describe('Transform Attribute - Advanced Tests', function (): void {
         });
     });
 });
-

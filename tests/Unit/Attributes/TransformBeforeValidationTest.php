@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
+use event4u\DataHelpers\Exceptions\ValidationException;
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
-use event4u\DataHelpers\SimpleDto\Attributes\Trim;
+use event4u\DataHelpers\SimpleDto\Attributes\Length;
 use event4u\DataHelpers\SimpleDto\Attributes\Max;
 use event4u\DataHelpers\SimpleDto\Attributes\Min;
-use event4u\DataHelpers\SimpleDto\Attributes\Length;
 use event4u\DataHelpers\SimpleDto\Attributes\Required;
-use event4u\DataHelpers\Exceptions\ValidationException;
+use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
+use event4u\DataHelpers\SimpleDto\Attributes\Trim;
 
 /**
  * Tests to ensure that validation is performed AFTER transforms are applied.
@@ -17,9 +17,9 @@ use event4u\DataHelpers\Exceptions\ValidationException;
  * This is critical because transforms can change the length and content of values,
  * and validation should be performed on the transformed values, not the raw input.
  */
-describe('Transform Before Validation', function (): void {
-    describe('Max validation after Sanitize', function (): void {
-        it('validates length after HTML is removed by Sanitize', function (): void {
+describe('Transform Before Validation', function(): void {
+    describe('Max validation after Sanitize', function(): void {
+        it('validates length after HTML is removed by Sanitize', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -38,7 +38,7 @@ describe('Transform Before Validation', function (): void {
             expect($dto->text)->toBe('Hello');
         });
 
-        it('validates length after HTML and whitespace are removed', function (): void {
+        it('validates length after HTML and whitespace are removed', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -52,12 +52,12 @@ describe('Transform Before Validation', function (): void {
             // After Sanitize: '  Hello World  ' (15 characters)
             // After Trim: 'Hello World' (11 characters)
             // Max(10) should FAIL because trimmed value is 11 characters
-            expect(fn() => $dtoClass::validateAndCreate([
+            expect(fn(): object => $dtoClass::validateAndCreate([
                 'text' => '  <p>Hello World</p>  ',
             ]))->toThrow(ValidationException::class);
         });
 
-        it('validates length after Trim removes whitespace', function (): void {
+        it('validates length after Trim removes whitespace', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Trim]
@@ -77,8 +77,8 @@ describe('Transform Before Validation', function (): void {
         });
     });
 
-    describe('Min validation after Sanitize', function (): void {
-        it('validates length after HTML is removed by Sanitize', function (): void {
+    describe('Min validation after Sanitize', function(): void {
+        it('validates length after HTML is removed by Sanitize', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -90,12 +90,12 @@ describe('Transform Before Validation', function (): void {
             // Input: '<p>Hi</p>' (9 characters)
             // After Sanitize: 'Hi' (2 characters)
             // Min(5) should FAIL because sanitized value is only 2 characters
-            expect(fn() => $dtoClass::validateAndCreate([
+            expect(fn(): object => $dtoClass::validateAndCreate([
                 'text' => '<p>Hi</p>',
             ]))->toThrow(ValidationException::class);
         });
 
-        it('validates length after Trim removes whitespace', function (): void {
+        it('validates length after Trim removes whitespace', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Trim]
@@ -107,14 +107,14 @@ describe('Transform Before Validation', function (): void {
             // Input: '  Hi  ' (6 characters)
             // After Trim: 'Hi' (2 characters)
             // Min(5) should FAIL because trimmed value is only 2 characters
-            expect(fn() => $dtoClass::validateAndCreate([
+            expect(fn(): object => $dtoClass::validateAndCreate([
                 'text' => '  Hi  ',
             ]))->toThrow(ValidationException::class);
         });
     });
 
-    describe('Required validation after Sanitize + Trim', function (): void {
-        it('validates Required after Sanitize produces empty string', function (): void {
+    describe('Required validation after Sanitize + Trim', function(): void {
+        it('validates Required after Sanitize produces empty string', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -128,12 +128,12 @@ describe('Transform Before Validation', function (): void {
             // After Sanitize: '' (0 characters)
             // After Trim: '' (0 characters)
             // Required should FAIL because value is empty after transforms
-            expect(fn() => $dtoClass::validateAndCreate([
+            expect(fn(): object => $dtoClass::validateAndCreate([
                 'text' => '<p></p>',
             ]))->toThrow(ValidationException::class);
         });
 
-        it('validates Required after Trim produces empty string', function (): void {
+        it('validates Required after Trim produces empty string', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Trim]
@@ -145,14 +145,14 @@ describe('Transform Before Validation', function (): void {
             // Input: '   ' (3 characters)
             // After Trim: '' (0 characters)
             // Required should FAIL because value is empty after trim
-            expect(fn() => $dtoClass::validateAndCreate([
+            expect(fn(): object => $dtoClass::validateAndCreate([
                 'text' => '   ',
             ]))->toThrow(ValidationException::class);
         });
     });
 
-    describe('Class-Level transforms before validation', function (): void {
-        it('validates length after Class-Level Sanitize', function (): void {
+    describe('Class-Level transforms before validation', function(): void {
+        it('validates length after Class-Level Sanitize', function(): void {
             $dtoClass = new #[Sanitize] class ('') extends SimpleDto {
                 public function __construct(
                     #[Max(10)]
@@ -170,7 +170,7 @@ describe('Transform Before Validation', function (): void {
             expect($dto->text)->toBe('Hello');
         });
 
-        it('validates length after Class-Level Trim', function (): void {
+        it('validates length after Class-Level Trim', function(): void {
             $dtoClass = new #[Trim] class ('') extends SimpleDto {
                 public function __construct(
                     #[Max(5)]
@@ -188,7 +188,7 @@ describe('Transform Before Validation', function (): void {
             expect($dto->text)->toBe('Hello');
         });
 
-        it('validates length after Class-Level Sanitize + Trim', function (): void {
+        it('validates length after Class-Level Sanitize + Trim', function(): void {
             $dtoClass = new #[Sanitize] #[Trim] class ('') extends SimpleDto {
                 public function __construct(
                     #[Max(10)]
@@ -200,14 +200,14 @@ describe('Transform Before Validation', function (): void {
             // After Sanitize: '  Hello World  ' (15 characters)
             // After Trim: 'Hello World' (11 characters)
             // Max(10) should FAIL
-            expect(fn() => $dtoClass::validateAndCreate([
+            expect(fn(): object => $dtoClass::validateAndCreate([
                 'text' => '  <p>Hello World</p>  ',
             ]))->toThrow(ValidationException::class);
         });
     });
 
-    describe('validate() method applies transforms', function (): void {
-        it('validate() applies transforms before validation', function (): void {
+    describe('validate() method applies transforms', function(): void {
+        it('validate() applies transforms before validation', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -227,7 +227,7 @@ describe('Transform Before Validation', function (): void {
             expect($result->isValid())->toBeTrue();
         });
 
-        it('validate() returns transformed data in validated()', function (): void {
+        it('validate() returns transformed data in validated()', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -246,8 +246,8 @@ describe('Transform Before Validation', function (): void {
         });
     });
 
-    describe('Length validation after transforms', function (): void {
-        it('validates length after Sanitize removes HTML', function (): void {
+    describe('Length validation after transforms', function(): void {
+        it('validates length after Sanitize removes HTML', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -259,12 +259,12 @@ describe('Transform Before Validation', function (): void {
             // Input: '<p>Hello World</p>' (18 characters)
             // After Sanitize: 'Hello World' (11 characters)
             // Length(3, 10) should FAIL because sanitized value is 11 characters
-            expect(fn() => $dtoClass::validateAndCreate([
+            expect(fn(): object => $dtoClass::validateAndCreate([
                 'text' => '<p>Hello World</p>',
             ]))->toThrow(ValidationException::class);
         });
 
-        it('validates length after Sanitize + Trim', function (): void {
+        it('validates length after Sanitize + Trim', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -284,7 +284,7 @@ describe('Transform Before Validation', function (): void {
             expect($dto->text)->toBe('Hello');
         });
 
-        it('validates max length after Trim', function (): void {
+        it('validates max length after Trim', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Trim]
@@ -304,4 +304,3 @@ describe('Transform Before Validation', function (): void {
         });
     });
 });
-

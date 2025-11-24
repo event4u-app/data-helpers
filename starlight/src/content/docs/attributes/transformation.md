@@ -44,14 +44,15 @@ Example: `#[Lowercase]` transforms `"USER@EXAMPLE.COM"` to `"user@example.com"` 
 
 ### DateTimeFormat
 
-Format DateTime/DateTimeImmutable/Carbon objects to strings when serializing to JSON or arrays.
+Format DateTime/DateTimeImmutable/Carbon objects with custom format strings for **both input (parsing) and output (serialization)**.
 
 **Features:**
-- ✅ Formats DateTime objects with custom format string
+- ✅ **Bidirectional**: Works for both parsing (input) and formatting (output)
+- ✅ **Input**: Parses string dates using the specified format when creating DTOs
+- ✅ **Output**: Formats DateTime objects when serializing to JSON
 - ✅ Supports DateTime, DateTimeImmutable, Carbon, CarbonImmutable
 - ✅ Only applies during `toJsonArray()` / `toJson()` / `jsonSerialize()`
 - ✅ `toArray()` keeps DateTime objects unchanged
-- ✅ Can be used as parsing format when creating DTOs from strings
 
 ```php
 use event4u\DataHelpers\SimpleDto;
@@ -115,9 +116,9 @@ $json = $dto->toJson();
 | `'c'` | ISO 8601 | `2024-01-15T10:30:00+00:00` |
 | `'U'` | Unix timestamp | `1705318200` |
 
-**Parsing from Strings:**
+**Bidirectional Usage (Input & Output):**
 
-When creating DTOs from arrays with string dates, the format is used for parsing:
+The same format is used for **both parsing (input) and formatting (output)**:
 
 ```php
 use event4u\DataHelpers\SimpleDto;
@@ -126,25 +127,35 @@ use event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat;
 class EventDto extends SimpleDto
 {
     public function __construct(
-        public readonly string $title,
+        #[DateTimeFormat('d.m.Y')]
+        public readonly DateTimeImmutable $germanDate,
+
+        #[DateTimeFormat('m/d/Y')]
+        public readonly DateTimeImmutable $usDate,
 
         #[DateTimeFormat('Y-m-d H:i:s')]
-        public readonly DateTime $startDate,
-
-        #[DateTimeFormat('d.m.Y')]
-        public readonly DateTime $germanDate,
-
-        #[DateTimeFormat('c')]
-        public readonly DateTime $isoDate,
+        public readonly DateTimeImmutable $mysqlDate,
     ) {}
 }
 
+// INPUT: Parse from custom formats
 $dto = EventDto::from([
-    'title' => 'Conference',
-    'startDate' => '2024-01-15 10:30:00',  // Parsed with 'Y-m-d H:i:s'
-    'germanDate' => '15.01.2024',          // Parsed with 'd.m.Y'
-    'isoDate' => '2024-01-15T10:30:00+00:00', // Parsed with 'c'
+    'germanDate' => '15.01.2024',          // ← Parsed with 'd.m.Y'
+    'usDate' => '01/15/2024',              // ← Parsed with 'm/d/Y'
+    'mysqlDate' => '2024-01-15 10:30:00',  // ← Parsed with 'Y-m-d H:i:s'
 ]);
+
+// OUTPUT: Format to custom formats
+$json = $dto->toJson();
+// {
+//   "germanDate": "15.01.2024",          // ← Formatted with 'd.m.Y'
+//   "usDate": "01/15/2024",              // ← Formatted with 'm/d/Y'
+//   "mysqlDate": "2024-01-15 10:30:00"   // ← Formatted with 'Y-m-d H:i:s'
+// }
+
+// ROUND-TRIP: Parse JSON back to DTO
+$dto2 = EventDto::from(json_decode($json, true));
+// Works perfectly! Same formats are used for parsing
 ```
 
 **Carbon Support:**
@@ -331,12 +342,20 @@ Convert between different text formats: RTF (Rich Text Format), HTML, and plain 
 
 **Syntax:**
 ```php
+use event4u\DataHelpers\SimpleDto\Attributes\Convert;
 use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
 
 // Type-safe enum syntax (required)
-#[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
-#[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
-#[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
+class Example {
+    #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
+    public string $rtfToText;
+
+    #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
+    public string $htmlToText;
+
+    #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
+    public string $textToHtml;
+}
 ```
 
 **Supported Conversions:**
@@ -514,7 +533,19 @@ $dto = UserInputDto::from([
 Automatically converts RTF format to plain text:
 
 ```php
-$dto = CommentDto::from([
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Convert;
+use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
+
+class RtfDto extends SimpleDto
+{
+    public function __construct(
+        #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
+        public readonly string $content,
+    ) {}
+}
+
+$dto = RtfDto::from([
     'content' => '{\rtf1\ansi Hello World}',  // → 'Hello World'
 ]);
 ```

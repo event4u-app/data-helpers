@@ -150,11 +150,11 @@ final class FormatConverter
             $char = mb_substr($text, $i, 1, 'UTF-8');
             $code = mb_ord($char, 'UTF-8');
 
-            if ($code > 127) {
+            if (127 < $code) {
                 // Non-ASCII character - encode as Unicode escape
                 // RTF uses signed 16-bit integers, so values > 32767 need to be negative
-                if ($code > 32767) {
-                    $code = $code - 65536;
+                if (32767 < $code) {
+                    $code -= 65536;
                 }
                 $result .= '\\u' . $code . '?';
             } else {
@@ -189,4 +189,3 @@ final class FormatConverter
         return 'text';
     }
 }
-

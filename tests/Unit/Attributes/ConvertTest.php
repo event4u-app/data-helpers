@@ -6,9 +6,9 @@ use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Convert;
 use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
 
-describe('Convert Attribute', function (): void {
-    describe('RTF to Text', function (): void {
-        it('converts RTF to plain text', function (): void {
+describe('Convert Attribute', function(): void {
+    describe('RTF to Text', function(): void {
+        it('converts RTF to plain text', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
@@ -18,7 +18,7 @@ describe('Convert Attribute', function (): void {
 
             $dto = $dtoClass::from([
                 'description' => "{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0\\fnil\\fcharset0 Arial;}}" .
-                    "\\viewkind4\\uc1\\pard\\lang1031\\fs20 Einfassungen, Gossen, Einzelabl\\'e4ufe und \\line Rinnen \\par}"
+                    "\\viewkind4\\uc1\\pard\\lang1031\\fs20 Einfassungen, Gossen, Einzelabl\\'e4ufe und \\line Rinnen \\par}",
             ]);
 
             expect($dto->description)
@@ -31,7 +31,7 @@ describe('Convert Attribute', function (): void {
                 ->not->toContain('\par');
         });
 
-        it('handles RTF with unicode escapes', function (): void {
+        it('handles RTF with unicode escapes', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
@@ -47,7 +47,7 @@ describe('Convert Attribute', function (): void {
                 ->toContain('Text');
         });
 
-        it('handles empty RTF', function (): void {
+        it('handles empty RTF', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
@@ -60,8 +60,8 @@ describe('Convert Attribute', function (): void {
         });
     });
 
-    describe('RTF to HTML', function (): void {
-        it('converts RTF to HTML', function (): void {
+    describe('RTF to HTML', function(): void {
+        it('converts RTF to HTML', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::RTF, ConvertFormat::HTML)]
@@ -70,7 +70,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '{\\rtf1\\ansi Hello\\line World}'
+                'content' => '{\\rtf1\\ansi Hello\\line World}',
             ]);
 
             expect($dto->content)
@@ -82,8 +82,8 @@ describe('Convert Attribute', function (): void {
         });
     });
 
-    describe('HTML to Text', function (): void {
-        it('converts HTML to plain text', function (): void {
+    describe('HTML to Text', function(): void {
+        it('converts HTML to plain text', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
@@ -92,13 +92,13 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '<p>Hello <strong>World</strong></p>'
+                'content' => '<p>Hello <strong>World</strong></p>',
             ]);
 
             expect($dto->content)->toBe('Hello World');
         });
 
-        it('decodes HTML entities', function (): void {
+        it('decodes HTML entities', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
@@ -111,7 +111,7 @@ describe('Convert Attribute', function (): void {
             expect($dto->text)->toBe('Hello & Goodbye <tag>');
         });
 
-        it('removes HTML tags including script tags', function (): void {
+        it('removes HTML tags including script tags', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
@@ -129,8 +129,8 @@ describe('Convert Attribute', function (): void {
         });
     });
 
-    describe('HTML to RTF', function (): void {
-        it('converts HTML to RTF', function (): void {
+    describe('HTML to RTF', function(): void {
+        it('converts HTML to RTF', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::RTF)]
@@ -139,7 +139,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '<p>Hello World</p>'
+                'content' => '<p>Hello World</p>',
             ]);
 
             expect($dto->content)
@@ -149,8 +149,8 @@ describe('Convert Attribute', function (): void {
         });
     });
 
-    describe('Text to HTML', function (): void {
-        it('converts text to HTML with XSS protection', function (): void {
+    describe('Text to HTML', function(): void {
+        it('converts text to HTML with XSS protection', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
@@ -159,7 +159,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '<script>alert("xss")</script>Hello'
+                'content' => '<script>alert("xss")</script>Hello',
             ]);
 
             expect($dto->content)
@@ -168,7 +168,7 @@ describe('Convert Attribute', function (): void {
                 ->not->toContain('<script>');
         });
 
-        it('converts newlines to br tags by default', function (): void {
+        it('converts newlines to br tags by default', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
@@ -177,7 +177,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => "Line 1\nLine 2"
+                'content' => "Line 1\nLine 2",
             ]);
 
             expect($dto->content)
@@ -185,7 +185,7 @@ describe('Convert Attribute', function (): void {
                 ->toContain('Line 2');
         });
 
-        it('can disable nl2br conversion', function (): void {
+        it('can disable nl2br conversion', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML, nl2br: false)]
@@ -194,7 +194,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => "Line 1\nLine 2"
+                'content' => "Line 1\nLine 2",
             ]);
 
             expect($dto->content)
@@ -202,7 +202,7 @@ describe('Convert Attribute', function (): void {
                 ->toContain("\n");
         });
 
-        it('escapes HTML entities', function (): void {
+        it('escapes HTML entities', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
@@ -216,8 +216,8 @@ describe('Convert Attribute', function (): void {
         });
     });
 
-    describe('Text to RTF', function (): void {
-        it('converts text to RTF', function (): void {
+    describe('Text to RTF', function(): void {
+        it('converts text to RTF', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::RTF)]
@@ -226,7 +226,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => 'Hello World'
+                'content' => 'Hello World',
             ]);
 
             expect($dto->content)
@@ -235,7 +235,7 @@ describe('Convert Attribute', function (): void {
                 ->toEndWith('}');
         });
 
-        it('escapes RTF special characters', function (): void {
+        it('escapes RTF special characters', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::RTF)]
@@ -251,7 +251,7 @@ describe('Convert Attribute', function (): void {
                 ->toContain('\\\\');
         });
 
-        it('converts newlines to RTF line breaks', function (): void {
+        it('converts newlines to RTF line breaks', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::RTF)]
@@ -264,7 +264,7 @@ describe('Convert Attribute', function (): void {
             expect($dto->text)->toContain('\\line');
         });
 
-        it('encodes unicode characters', function (): void {
+        it('encodes unicode characters', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::RTF)]
@@ -280,8 +280,8 @@ describe('Convert Attribute', function (): void {
         });
     });
 
-    describe('Edge Cases', function (): void {
-        it('handles null values', function (): void {
+    describe('Edge Cases', function(): void {
+        it('handles null values', function(): void {
             $dtoClass = new class (null) extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
@@ -293,7 +293,7 @@ describe('Convert Attribute', function (): void {
             expect($dto->text)->toBeNull();
         });
 
-        it('handles empty strings', function (): void {
+        it('handles empty strings', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
@@ -305,7 +305,7 @@ describe('Convert Attribute', function (): void {
             expect($dto->text)->toBe('');
         });
 
-        it('handles non-string values', function (): void {
+        it('handles non-string values', function(): void {
             $dtoClass = new class (0) extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
@@ -318,8 +318,8 @@ describe('Convert Attribute', function (): void {
         });
     });
 
-    describe('XSS Protection', function (): void {
-        it('protects against XSS in text to HTML conversion', function (): void {
+    describe('XSS Protection', function(): void {
+        it('protects against XSS in text to HTML conversion', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
@@ -346,7 +346,7 @@ describe('Convert Attribute', function (): void {
                 ->toContain('&lt;svg');
         });
 
-        it('protects against XSS in HTML to text conversion', function (): void {
+        it('protects against XSS in HTML to text conversion', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
@@ -355,7 +355,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '<script>alert("xss")</script><p>Safe Content</p>'
+                'content' => '<script>alert("xss")</script><p>Safe Content</p>',
             ]);
 
             // strip_tags removes tags but keeps content, so we check that tags are removed
@@ -365,7 +365,7 @@ describe('Convert Attribute', function (): void {
                 ->not->toContain('<p>');
         });
 
-        it('protects against XSS in RTF to HTML conversion', function (): void {
+        it('protects against XSS in RTF to HTML conversion', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::RTF, ConvertFormat::HTML)]
@@ -374,7 +374,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '{\\rtf1\\ansi <script>alert("xss")</script>}'
+                'content' => '{\\rtf1\\ansi <script>alert("xss")</script>}',
             ]);
 
             expect($dto->content)
@@ -383,10 +383,8 @@ describe('Convert Attribute', function (): void {
         });
     });
 
-
-
-    describe('Round-trip Conversions', function (): void {
-        it('text → HTML → text preserves content', function (): void {
+    describe('Round-trip Conversions', function(): void {
+        it('text → HTML → text preserves content', function(): void {
             $original = "Hello World\nLine 2";
 
             $dtoClass1 = new class ('') extends SimpleDto {
@@ -410,7 +408,7 @@ describe('Convert Attribute', function (): void {
             expect($text)->toContain('Line 2');
         });
 
-        it('text → RTF → text preserves content', function (): void {
+        it('text → RTF → text preserves content', function(): void {
             $original = "Hello World\nLine 2";
 
             $dtoClass1 = new class ('') extends SimpleDto {
@@ -435,8 +433,8 @@ describe('Convert Attribute', function (): void {
         });
     });
 
-    describe('Enum Syntax', function (): void {
-        it('works with TextFormat enum for RTF to Text', function (): void {
+    describe('Enum Syntax', function(): void {
+        it('works with TextFormat enum for RTF to Text', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
@@ -445,13 +443,13 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'description' => '{\\rtf1\\ansi Hello World}'
+                'description' => '{\\rtf1\\ansi Hello World}',
             ]);
 
             expect($dto->description)->toContain('Hello World');
         });
 
-        it('works with TextFormat enum for HTML to Text', function (): void {
+        it('works with TextFormat enum for HTML to Text', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
@@ -460,13 +458,13 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '<p>Hello <strong>World</strong></p>'
+                'content' => '<p>Hello <strong>World</strong></p>',
             ]);
 
             expect($dto->content)->toBe('Hello World');
         });
 
-        it('works with TextFormat enum for Text to HTML', function (): void {
+        it('works with TextFormat enum for Text to HTML', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
@@ -475,7 +473,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '<script>alert("xss")</script>'
+                'content' => '<script>alert("xss")</script>',
             ]);
 
             expect($dto->content)
@@ -483,7 +481,7 @@ describe('Convert Attribute', function (): void {
                 ->toContain('&lt;script&gt;');
         });
 
-        it('works with TextFormat enum for RTF to HTML', function (): void {
+        it('works with TextFormat enum for RTF to HTML', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::RTF, ConvertFormat::HTML)]
@@ -492,7 +490,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '{\\rtf1\\ansi Hello\\line World}'
+                'content' => '{\\rtf1\\ansi Hello\\line World}',
             ]);
 
             expect($dto->content)
@@ -501,7 +499,7 @@ describe('Convert Attribute', function (): void {
                 ->toContain('<br>');
         });
 
-        it('works with TextFormat enum for HTML to RTF', function (): void {
+        it('works with TextFormat enum for HTML to RTF', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::HTML, ConvertFormat::RTF)]
@@ -510,7 +508,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => '<p>Hello World</p>'
+                'content' => '<p>Hello World</p>',
             ]);
 
             expect($dto->content)
@@ -519,7 +517,7 @@ describe('Convert Attribute', function (): void {
                 ->toEndWith('}');
         });
 
-        it('works with TextFormat enum for Text to RTF', function (): void {
+        it('works with TextFormat enum for Text to RTF', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::RTF)]
@@ -528,7 +526,7 @@ describe('Convert Attribute', function (): void {
             };
 
             $dto = $dtoClass::from([
-                'content' => 'Hello World'
+                'content' => 'Hello World',
             ]);
 
             expect($dto->content)
@@ -537,7 +535,7 @@ describe('Convert Attribute', function (): void {
                 ->toEndWith('}');
         });
 
-        it('can mix enum and string syntax', function (): void {
+        it('can mix enum and string syntax', function(): void {
             $dtoClass = new class ('', '') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
@@ -556,7 +554,7 @@ describe('Convert Attribute', function (): void {
             expect($dto->content)->toBe('HTML Content');
         });
 
-        it('validates enum values in constructor', function (): void {
+        it('validates enum values in constructor', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Convert(ConvertFormat::TEXT, ConvertFormat::TEXT)]
@@ -564,9 +562,8 @@ describe('Convert Attribute', function (): void {
                 ) {}
             };
 
-            expect(fn() => $dtoClass::from(['text' => 'test']))
+            expect(fn(): object => $dtoClass::from(['text' => 'test']))
                 ->toThrow(InvalidArgumentException::class, 'Source and target format cannot be the same');
         });
     });
 });
-

@@ -10,4 +10,3 @@ enum ConvertFormat: string
     case HTML = 'html';
     case TEXT = 'text';
 }
-

@@ -5,9 +5,9 @@ declare(strict_types=1);
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
 
-describe('Sanitize Attribute', function (): void {
-    describe('RTF Conversion', function (): void {
-        it('converts RTF to plain text', function (): void {
+describe('Sanitize Attribute', function(): void {
+    describe('RTF Conversion', function(): void {
+        it('converts RTF to plain text', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -17,7 +17,7 @@ describe('Sanitize Attribute', function (): void {
 
             $dto = $dtoClass::from([
                 'description' => "{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0\\fnil\\fcharset0 Arial;}}" .
-                    "\\viewkind4\\uc1\\pard\\lang1031\\fs20 Einfassungen, Gossen, Einzelabl\\'e4ufe und \\line Rinnen \\par}"
+                    "\\viewkind4\\uc1\\pard\\lang1031\\fs20 Einfassungen, Gossen, Einzelabl\\'e4ufe und \\line Rinnen \\par}",
             ]);
 
             expect($dto->description)
@@ -30,7 +30,7 @@ describe('Sanitize Attribute', function (): void {
                 ->not->toContain('\par');
         });
 
-        it('handles RTF with unicode escapes', function (): void {
+        it('handles RTF with unicode escapes', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -46,7 +46,7 @@ describe('Sanitize Attribute', function (): void {
                 ->toContain('Text');
         });
 
-        it('handles RTF with hex escapes', function (): void {
+        it('handles RTF with hex escapes', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -65,8 +65,8 @@ describe('Sanitize Attribute', function (): void {
         });
     });
 
-    describe('HTML Handling', function (): void {
-        it('strips HTML tags by default', function (): void {
+    describe('HTML Handling', function(): void {
+        it('strips HTML tags by default', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -82,7 +82,7 @@ describe('Sanitize Attribute', function (): void {
                 ->not->toContain('<strong>');
         });
 
-        it('keeps HTML when stripHtml is false', function (): void {
+        it('keeps HTML when stripHtml is false', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize(stripHtml: false)]
@@ -99,7 +99,7 @@ describe('Sanitize Attribute', function (): void {
                 ->toContain('World');
         });
 
-        it('decodes HTML entities by default', function (): void {
+        it('decodes HTML entities by default', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize(stripHtml: false)]
@@ -113,7 +113,7 @@ describe('Sanitize Attribute', function (): void {
                 ->toBe('Test & <tag> "quotes"');
         });
 
-        it('keeps HTML entities when decodeHtmlEntities is false', function (): void {
+        it('keeps HTML entities when decodeHtmlEntities is false', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize(decodeHtmlEntities: false)]
@@ -130,8 +130,8 @@ describe('Sanitize Attribute', function (): void {
         });
     });
 
-    describe('Whitespace Normalization', function (): void {
-        it('normalizes multiple spaces to single space', function (): void {
+    describe('Whitespace Normalization', function(): void {
+        it('normalizes multiple spaces to single space', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -144,7 +144,7 @@ describe('Sanitize Attribute', function (): void {
             expect($dto->text)->toBe('Hello World Test');
         });
 
-        it('normalizes line endings', function (): void {
+        it('normalizes line endings', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -157,7 +157,7 @@ describe('Sanitize Attribute', function (): void {
             expect($dto->text)->toBe("Line1\nLine2\nLine3\nLine4");
         });
 
-        it('removes excessive blank lines', function (): void {
+        it('removes excessive blank lines', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -170,7 +170,7 @@ describe('Sanitize Attribute', function (): void {
             expect($dto->text)->toBe("Line1\n\nLine2");
         });
 
-        it('skips whitespace normalization when disabled', function (): void {
+        it('skips whitespace normalization when disabled', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize(normalizeWhitespace: false)]
@@ -184,8 +184,8 @@ describe('Sanitize Attribute', function (): void {
         });
     });
 
-    describe('Control Characters', function (): void {
-        it('removes control characters by default', function (): void {
+    describe('Control Characters', function(): void {
+        it('removes control characters by default', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -198,7 +198,7 @@ describe('Sanitize Attribute', function (): void {
             expect($dto->text)->toBe('HelloWorld');
         });
 
-        it('keeps newlines but normalizes tabs to spaces', function (): void {
+        it('keeps newlines but normalizes tabs to spaces', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -211,7 +211,7 @@ describe('Sanitize Attribute', function (): void {
             expect($dto->text)->toBe("Hello World\nTest");
         });
 
-        it('skips control character removal when disabled', function (): void {
+        it('skips control character removal when disabled', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize(stripHtml: false, removeControlChars: false)]
@@ -225,8 +225,8 @@ describe('Sanitize Attribute', function (): void {
         });
     });
 
-    describe('Class-Level Application', function (): void {
-        it('applies to all string properties when on class', function (): void {
+    describe('Class-Level Application', function(): void {
+        it('applies to all string properties when on class', function(): void {
             $dtoClass = new #[Sanitize] class ('', '', 0) extends SimpleDto {
                 public function __construct(
                     public readonly string $name,
@@ -246,7 +246,7 @@ describe('Sanitize Attribute', function (): void {
             expect($dto->age)->toBe(25);
         });
 
-        it('does not apply to numeric properties', function (): void {
+        it('does not apply to numeric properties', function(): void {
             $dtoClass = new #[Sanitize] class ('', 0, 0.0) extends SimpleDto {
                 public function __construct(
                     public readonly string $text,
@@ -266,7 +266,7 @@ describe('Sanitize Attribute', function (): void {
             expect($dto->decimal)->toBe(45.67);
         });
 
-        it('property-level overrides class-level', function (): void {
+        it('property-level overrides class-level', function(): void {
             $dtoClass = new #[Sanitize(stripHtml: true)] class ('', '') extends SimpleDto {
                 public function __construct(
                     public readonly string $text1,
@@ -285,8 +285,8 @@ describe('Sanitize Attribute', function (): void {
         });
     });
 
-    describe('Edge Cases', function (): void {
-        it('handles null values', function (): void {
+    describe('Edge Cases', function(): void {
+        it('handles null values', function(): void {
             $dtoClass = new class (null) extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -299,7 +299,7 @@ describe('Sanitize Attribute', function (): void {
             expect($dto->text)->toBeNull();
         });
 
-        it('handles empty strings', function (): void {
+        it('handles empty strings', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -312,11 +312,12 @@ describe('Sanitize Attribute', function (): void {
             expect($dto->text)->toBe('');
         });
 
-        it('handles non-string values gracefully', function (): void {
+        it('handles non-string values gracefully', function(): void {
             $dtoClass = new class ('', []) extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
                     public readonly string $text,
+                    /** @var array<mixed> */
                     public readonly array $data,
                 ) {}
             };
@@ -331,4 +332,3 @@ describe('Sanitize Attribute', function (): void {
         });
     });
 });
-

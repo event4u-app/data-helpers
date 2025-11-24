@@ -42,12 +42,10 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
     {
     }
 
-    /**
-     * Get or create the DataAccessor instance (lazy initialization).
-     */
+    /** Get or create the DataAccessor instance (lazy initialization). */
     protected function accessor(): DataAccessor
     {
-        if (null === $this->accessor) {
+        if (!$this->accessor instanceof DataAccessor) {
             $this->accessor = new DataAccessor($this->items);
         }
 

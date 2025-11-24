@@ -50,7 +50,6 @@ use InvalidArgumentException;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 class Convert implements TransformAttribute
 {
-
     /**
      * @param ConvertFormat $from Source format
      * @param ConvertFormat $to Target format
@@ -99,4 +98,3 @@ class Convert implements TransformAttribute
         return 0;
     }
 }
-

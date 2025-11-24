@@ -3,10 +3,9 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
 use event4u\DataHelpers\SimpleDto\Attributes\Trim;
-use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
-
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 
 // UltraFast DTO: Property-Level Sanitize
@@ -121,9 +120,9 @@ class UltraFastTransform_MultipleClassLevelTransforms_Dto extends SimpleDto
     ) {}
 }
 
-describe('UltraFast Mode - Transform Order', function (): void {
-    describe('Property-Level Transforms', function (): void {
-        it('applies Sanitize in UltraFast mode', function (): void {
+describe('UltraFast Mode - Transform Order', function(): void {
+    describe('Property-Level Transforms', function(): void {
+        it('applies Sanitize in UltraFast mode', function(): void {
             $dto = UltraFastTransform_PropertyLevelSanitize_Dto::from([
                 'text' => '  <p>Hello World</p>  ',
                 'id' => 1,
@@ -133,7 +132,7 @@ describe('UltraFast Mode - Transform Order', function (): void {
             expect($dto->id)->toBe(1);
         });
 
-        it('applies Trim in UltraFast mode', function (): void {
+        it('applies Trim in UltraFast mode', function(): void {
             $dto = UltraFastTransform_PropertyLevelTrim_Dto::from([
                 'text' => '  Hello World  ',
                 'id' => 2,
@@ -143,7 +142,7 @@ describe('UltraFast Mode - Transform Order', function (): void {
             expect($dto->id)->toBe(2);
         });
 
-        it('applies Sanitize then Trim in UltraFast mode', function (): void {
+        it('applies Sanitize then Trim in UltraFast mode', function(): void {
             $dto = UltraFastTransform_PropertyLevelSanitizeAndTrim_Dto::from([
                 'text' => '  <p>Hello World</p>  ',
                 'id' => 3,
@@ -155,7 +154,7 @@ describe('UltraFast Mode - Transform Order', function (): void {
             expect($dto->id)->toBe(3);
         });
 
-        it('applies Sanitize -> Trim -> ConvertEmptyToNull in UltraFast mode', function (): void {
+        it('applies Sanitize -> Trim -> ConvertEmptyToNull in UltraFast mode', function(): void {
             $dto = UltraFastTransform_PropertyLevelAllThree_Dto::from([
                 'text' => '  <p>   </p>  ',
                 'id' => 4,
@@ -169,8 +168,8 @@ describe('UltraFast Mode - Transform Order', function (): void {
         });
     });
 
-    describe('Class-Level Transforms', function (): void {
-        it('applies Class-Level Sanitize in UltraFast mode', function (): void {
+    describe('Class-Level Transforms', function(): void {
+        it('applies Class-Level Sanitize in UltraFast mode', function(): void {
             $dto = UltraFastTransform_ClassLevelSanitize_Dto::from([
                 'text1' => '<p>Hello</p>',
                 'text2' => '<strong>World</strong>',
@@ -182,7 +181,7 @@ describe('UltraFast Mode - Transform Order', function (): void {
             expect($dto->id)->toBe(5);
         });
 
-        it('applies Class-Level Trim in UltraFast mode', function (): void {
+        it('applies Class-Level Trim in UltraFast mode', function(): void {
             $dto = UltraFastTransform_ClassLevelTrim_Dto::from([
                 'text1' => '  Hello  ',
                 'text2' => '  World  ',
@@ -194,7 +193,7 @@ describe('UltraFast Mode - Transform Order', function (): void {
             expect($dto->id)->toBe(6);
         });
 
-        it('applies Class-Level Sanitize + Trim in UltraFast mode', function (): void {
+        it('applies Class-Level Sanitize + Trim in UltraFast mode', function(): void {
             $dto = UltraFastTransform_ClassLevelSanitizeAndTrim_Dto::from([
                 'text1' => '  <p>Hello</p>  ',
                 'text2' => '  <strong>World</strong>  ',
@@ -206,7 +205,7 @@ describe('UltraFast Mode - Transform Order', function (): void {
             expect($dto->id)->toBe(7);
         });
 
-        it('applies Class-Level Sanitize -> Trim -> ConvertEmptyToNull in UltraFast mode', function (): void {
+        it('applies Class-Level Sanitize -> Trim -> ConvertEmptyToNull in UltraFast mode', function(): void {
             $dto = UltraFastTransform_ClassLevelAllThree_Dto::from([
                 'text1' => '  <p>Hello</p>  ',
                 'text2' => '  <p>   </p>  ',
@@ -219,8 +218,8 @@ describe('UltraFast Mode - Transform Order', function (): void {
         });
     });
 
-    describe('Multiple Class-Level Transforms', function (): void {
-        it('applies multiple transforms in correct order (Sanitize -> Trim)', function (): void {
+    describe('Multiple Class-Level Transforms', function(): void {
+        it('applies multiple transforms in correct order (Sanitize -> Trim)', function(): void {
             $dto = UltraFastTransform_MultipleClassLevelTransforms_Dto::from([
                 'text1' => '  <p>Hello    World</p>  ',
                 'text2' => '  <strong>Test    Text</strong>  ',
@@ -235,8 +234,8 @@ describe('UltraFast Mode - Transform Order', function (): void {
         });
     });
 
-    describe('Performance', function (): void {
-        it('maintains ultra-fast performance with Sanitize + Trim', function (): void {
+    describe('Performance', function(): void {
+        it('maintains ultra-fast performance with Sanitize + Trim', function(): void {
             $iterations = 1000;
             $start = microtime(true);
 
@@ -255,4 +254,3 @@ describe('UltraFast Mode - Transform Order', function (): void {
         });
     });
 });
-

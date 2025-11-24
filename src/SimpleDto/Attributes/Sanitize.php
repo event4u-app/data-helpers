@@ -68,9 +68,7 @@ class Sanitize implements TransformAttribute
          */
         public readonly bool $stripHtml = true,
 
-        /**
-         * Whether to decode HTML entities (default: true).
-         */
+        /** Whether to decode HTML entities (default: true). */
         public readonly bool $decodeHtmlEntities = true,
 
         /**
@@ -105,4 +103,3 @@ class Sanitize implements TransformAttribute
         );
     }
 }
-

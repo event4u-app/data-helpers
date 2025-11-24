@@ -15,9 +15,9 @@ use Error;
 use event4u\DataHelpers\Converters\YamlConverter;
 use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
+use event4u\DataHelpers\Exceptions\InvalidAttributeUsageException;
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
-use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
 use event4u\DataHelpers\SimpleDto\Attributes\CastWith;
 use event4u\DataHelpers\SimpleDto\Attributes\Computed;
 use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
@@ -40,6 +40,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
 use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Attributes\Optional as OptionalAttribute;
 use event4u\DataHelpers\SimpleDto\Attributes\RuleGroup;
+use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
 use event4u\DataHelpers\SimpleDto\Attributes\Trim;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
@@ -213,6 +214,13 @@ final class SimpleEngine
     private static array $mapOutputNameCache = [];
 
     /**
+     * Cache for ConvertEmptyToNull attributes per class.
+     *
+     * @var array<class-string, array<string, bool>>
+     */
+    private static array $convertEmptyToNullCache = [];
+
+    /**
      * Cache for DataCollectionOf attributes per class.
      *
      * @var array<class-string, array<string, class-string|null>>
@@ -376,7 +384,10 @@ final class SimpleEngine
      *     hasMapOutputName: bool,
      *     hasComputed: bool,
      *     hasLazy: bool,
+     *     hasOptional: bool,
      *     hasValidation: bool,
+     *     hasTransform: bool,
+     *     hasClassTransform: bool,
      *     hasRuleGroup: bool,
      *     hasWithMessage: bool,
      *     hasAnyArrayAttribute: bool,
@@ -1650,7 +1661,9 @@ final class SimpleEngine
                 foreach (self::$transformAttributesCache[$class][$paramName] as $transformer) { // @phpstan-ignore-line
                     $value = $transformer->transform($value, $paramName);
                 }
-            } elseif ($flags['hasClassTransform'] && is_string($value) && isset(self::$classTransformAttributesCache[$class])) {
+            } elseif ($flags['hasClassTransform'] && is_string(
+                $value
+            ) && isset(self::$classTransformAttributesCache[$class])) {
                 // Apply class-level transforms only if no property-level transform exists
                 foreach (self::$classTransformAttributesCache[$class] as $transformer) { // @phpstan-ignore-line
                     $value = $transformer->transform($value, $paramName);
@@ -1658,10 +1671,8 @@ final class SimpleEngine
             }
 
             // Step 2: Apply ConvertEmptyToNull (only if flag is set)
-            if ($flags['hasConvertEmptyToNull'] && isset(self::$convertEmptyToNullCache[$class][$paramName])) {
-                if ('' === $value) {
-                    $value = null;
-                }
+            if ($flags['hasConvertEmptyToNull'] && isset(self::$convertEmptyToNullCache[$class][$paramName]) && '' === $value) {
+                $value = null;
             }
 
             // Update transformed data
@@ -1841,7 +1852,7 @@ final class SimpleEngine
      */
     private static function sortTransformAttributes(array &$transforms): void
     {
-        usort($transforms, static function (TransformAttribute $a, TransformAttribute $b): int {
+        usort($transforms, static function(TransformAttribute $a, TransformAttribute $b): int {
             $aClass = $a::class;
             $bClass = $b::class;
 
@@ -2109,8 +2120,8 @@ final class SimpleEngine
             return $result;
         }
 
-        // Handle DTOs
-        if (is_object($value) && method_exists($value, 'toArray')) {
+        // Handle DTOs (but NOT DateTime objects, even if they have toArray() like Carbon)
+        if (is_object($value) && !($value instanceof DateTimeInterface) && method_exists($value, 'toArray')) {
             return self::convertValue($value->toArray());
         }
 
@@ -2311,7 +2322,9 @@ final class SimpleEngine
                 foreach (self::$transformAttributesCache[$class][$paramName] as $transformer) { // @phpstan-ignore-line
                     $value = $transformer->transform($value, $paramName);
                 }
-            } elseif ($flags['hasClassTransform'] && is_string($value) && isset(self::$classTransformAttributesCache[$class])) {
+            } elseif ($flags['hasClassTransform'] && is_string(
+                $value
+            ) && isset(self::$classTransformAttributesCache[$class])) {
                 // Apply class-level transforms only if no property-level transform exists
                 foreach (self::$classTransformAttributesCache[$class] as $transformer) { // @phpstan-ignore-line
                     $value = $transformer->transform($value, $paramName);
@@ -2813,9 +2826,16 @@ final class SimpleEngine
      *     hasMapOutputName: bool,
      *     hasComputed: bool,
      *     hasLazy: bool,
+     *     hasOptional: bool,
      *     hasValidation: bool,
+     *     hasTransform: bool,
+     *     hasClassTransform: bool,
+     *     hasRuleGroup: bool,
+     *     hasWithMessage: bool,
      *     hasAnyArrayAttribute: bool,
      *     hasAnyJsonAttribute: bool,
+     *     hasAutoCast: bool,
+     *     hasNoCasts: bool,
      * }
      */
     private static function getFeatureFlags(string $class): array
@@ -3343,6 +3363,9 @@ final class SimpleEngine
         foreach ($properties as $property) {
             $name = $property->getName();
 
+            // Validate that SimpleDto doesn't use LiteDto attributes
+            self::validateAttributeUsage($class, $property);
+
             // Initialize metadata for this property
             /** @var array{mapTo: string|null, mapToPath: array<int, string>|null, isHidden: bool, isHiddenFromArray: bool, isLazy: bool, hideWhenNull: bool, enumSerializeMode: string|null, dateTimeFormat: string|null, dateTimeTimezone: string|null} $propMeta */
             $propMeta = [
@@ -3514,6 +3537,11 @@ final class SimpleEngine
             return new $class();
         }
 
+        // Validate constructor parameters first
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            self::validateParameterAttributeUsage($class, $reflectionParameter);
+        }
+
         // Build constructor arguments
         $args = [];
         foreach ($constructor->getParameters() as $reflectionParameter) {
@@ -3611,7 +3639,9 @@ final class SimpleEngine
                 foreach (self::$transformAttributesCache[$class][$paramName] as $transformer) { // @phpstan-ignore-line
                     $value = $transformer->transform($value, $paramName);
                 }
-            } elseif ($flags['hasClassTransform'] && is_string($value) && isset(self::$classTransformAttributesCache[$class])) {
+            } elseif ($flags['hasClassTransform'] && is_string(
+                $value
+            ) && isset(self::$classTransformAttributesCache[$class])) {
                 // Apply class-level transforms only if no property-level transform exists
                 foreach (self::$classTransformAttributesCache[$class] as $transformer) { // @phpstan-ignore-line
                     $value = $transformer->transform($value, $paramName);
@@ -4514,5 +4544,53 @@ final class SimpleEngine
         }
 
         return $keys;
+    }
+
+    /**
+     * Validate that SimpleDto doesn't use LiteDto attributes.
+     *
+     * @param class-string $class
+     * @throws InvalidAttributeUsageException
+     */
+    private static function validateAttributeUsage(string $class, ReflectionProperty $property): void
+    {
+        $attributes = $property->getAttributes();
+
+        foreach ($attributes as $attribute) {
+            $attributeClass = $attribute->getName();
+
+            // Check if this is a LiteDto attribute
+            if (str_contains($attributeClass, 'event4u\\DataHelpers\\LiteDto\\Attributes\\')) {
+                throw InvalidAttributeUsageException::simpleDtoUsesLiteDtoAttribute(
+                    $class,
+                    $attributeClass,
+                    $property->getName()
+                );
+            }
+        }
+    }
+
+    /**
+     * Validate that SimpleDto doesn't use LiteDto attributes on constructor parameters.
+     *
+     * @param class-string $class
+     * @throws InvalidAttributeUsageException
+     */
+    private static function validateParameterAttributeUsage(string $class, ReflectionParameter $parameter): void
+    {
+        $attributes = $parameter->getAttributes();
+
+        foreach ($attributes as $attribute) {
+            $attributeClass = $attribute->getName();
+
+            // Check if this is a LiteDto attribute
+            if (str_contains($attributeClass, 'event4u\\DataHelpers\\LiteDto\\Attributes\\')) {
+                throw InvalidAttributeUsageException::simpleDtoUsesLiteDtoAttribute(
+                    $class,
+                    $attributeClass,
+                    $parameter->getName()
+                );
+            }
+        }
     }
 }

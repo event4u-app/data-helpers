@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
-use event4u\DataHelpers\SimpleDto\Attributes\Trim;
 use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
 use event4u\DataHelpers\SimpleDto\Attributes\Lowercase;
+use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
+use event4u\DataHelpers\SimpleDto\Attributes\Trim;
 use event4u\DataHelpers\SimpleDto\Attributes\Uppercase;
 
-describe('Transform Order - Edge Cases', function (): void {
-    describe('Sanitize produces empty string', function (): void {
-        it('Sanitize -> Trim -> ConvertEmptyToNull: HTML with only whitespace', function (): void {
+describe('Transform Order - Edge Cases', function(): void {
+    describe('Sanitize produces empty string', function(): void {
+        it('Sanitize -> Trim -> ConvertEmptyToNull: HTML with only whitespace', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -31,7 +31,7 @@ describe('Transform Order - Edge Cases', function (): void {
             expect($dto->text)->toBeNull();
         });
 
-        it('Sanitize -> Trim -> ConvertEmptyToNull: nested HTML with whitespace', function (): void {
+        it('Sanitize -> Trim -> ConvertEmptyToNull: nested HTML with whitespace', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -51,7 +51,7 @@ describe('Transform Order - Edge Cases', function (): void {
             expect($dto->text)->toBeNull();
         });
 
-        it('Sanitize -> ConvertEmptyToNull: without Trim, whitespace remains', function (): void {
+        it('Sanitize -> ConvertEmptyToNull: without Trim, whitespace remains', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize(normalizeWhitespace: false)]
@@ -70,8 +70,8 @@ describe('Transform Order - Edge Cases', function (): void {
         });
     });
 
-    describe('Multiple Property-Level Transforms', function (): void {
-        it('combines Sanitize + Trim + Lowercase on same property', function (): void {
+    describe('Multiple Property-Level Transforms', function(): void {
+        it('combines Sanitize + Trim + Lowercase on same property', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -91,7 +91,7 @@ describe('Transform Order - Edge Cases', function (): void {
             expect($dto->text)->toBe('hello world');
         });
 
-        it('combines Sanitize + Trim + Uppercase on same property', function (): void {
+        it('combines Sanitize + Trim + Uppercase on same property', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -111,7 +111,7 @@ describe('Transform Order - Edge Cases', function (): void {
             expect($dto->text)->toBe('HELLO WORLD');
         });
 
-        it('Trim + Lowercase without Sanitize', function (): void {
+        it('Trim + Lowercase without Sanitize', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Trim]
@@ -130,8 +130,8 @@ describe('Transform Order - Edge Cases', function (): void {
         });
     });
 
-    describe('Class-Level with Property-Level Override', function (): void {
-        it('Property-Level Sanitize overrides Class-Level Sanitize with different options', function (): void {
+    describe('Class-Level with Property-Level Override', function(): void {
+        it('Property-Level Sanitize overrides Class-Level Sanitize with different options', function(): void {
             $dtoClass = new #[Sanitize(stripHtml: true)] class ('', '') extends SimpleDto {
                 public function __construct(
                     public readonly string $text1,
@@ -151,7 +151,7 @@ describe('Transform Order - Edge Cases', function (): void {
             expect($dto->text2)->toBe('<p>World</p>');
         });
 
-        it('Property-Level Trim overrides Class-Level Trim with custom characters', function (): void {
+        it('Property-Level Trim overrides Class-Level Trim with custom characters', function(): void {
             $dtoClass = new #[Trim] class ('', '') extends SimpleDto {
                 public function __construct(
                     public readonly string $text1,
@@ -171,7 +171,7 @@ describe('Transform Order - Edge Cases', function (): void {
             expect($dto->text2)->toBe('World');
         });
 
-        it('Property-Level transforms override Class-Level completely', function (): void {
+        it('Property-Level transforms override Class-Level completely', function(): void {
             $dtoClass = new #[Sanitize] #[Trim] class ('', '') extends SimpleDto {
                 public function __construct(
                     public readonly string $text1,
@@ -192,8 +192,8 @@ describe('Transform Order - Edge Cases', function (): void {
         });
     });
 
-    describe('RTF with Transform Order', function (): void {
-        it('Sanitize converts RTF then Trim removes whitespace', function (): void {
+    describe('RTF with Transform Order', function(): void {
+        it('Sanitize converts RTF then Trim removes whitespace', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -213,7 +213,7 @@ describe('Transform Order - Edge Cases', function (): void {
             expect($dto->text)->toBe('Hello World');
         });
 
-        it('Sanitize converts RTF with only whitespace to empty after Trim', function (): void {
+        it('Sanitize converts RTF with only whitespace to empty after Trim', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -236,8 +236,8 @@ describe('Transform Order - Edge Cases', function (): void {
         });
     });
 
-    describe('Complex Whitespace Scenarios', function (): void {
-        it('Sanitize normalizes whitespace, then Trim removes leading/trailing', function (): void {
+    describe('Complex Whitespace Scenarios', function(): void {
+        it('Sanitize normalizes whitespace, then Trim removes leading/trailing', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Sanitize]
@@ -255,7 +255,7 @@ describe('Transform Order - Edge Cases', function (): void {
             expect($dto->text)->toBe('Hello World Test');
         });
 
-        it('Trim without Sanitize keeps internal whitespace', function (): void {
+        it('Trim without Sanitize keeps internal whitespace', function(): void {
             $dtoClass = new class ('') extends SimpleDto {
                 public function __construct(
                     #[Trim]
@@ -272,4 +272,3 @@ describe('Transform Order - Edge Cases', function (): void {
         });
     });
 });
-

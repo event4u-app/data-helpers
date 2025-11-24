@@ -107,10 +107,10 @@ final class TextSanitizer
 
         // Handle Unicode escapes (\u1234?)
         $text = preg_replace_callback(
-            '/\\\\u(-?[0-9]+)\??/',
-            static function (array $matches): string {
+            '/\\\\u(-?\d+)\??/',
+            static function(array $matches): string {
                 $code = (int)$matches[1];
-                if ($code < 0) {
+                if (0 > $code) {
                     $code = 65536 + $code;
                 }
                 return mb_chr($code, 'UTF-8') ?: '';
@@ -122,7 +122,7 @@ final class TextSanitizer
         // RTF uses Windows-1252 encoding for hex escapes
         $text = preg_replace_callback(
             "/\\\\'([0-9a-fA-F]{2})/",
-            static function (array $matches): string {
+            static function(array $matches): string {
                 $byte = chr((int)hexdec($matches[1]));
                 // Convert from Windows-1252 to UTF-8
                 return mb_convert_encoding($byte, 'UTF-8', 'Windows-1252');
@@ -131,7 +131,7 @@ final class TextSanitizer
         ) ?? $text;
 
         // Remove control words with parameters (\fs20, \lang1031, etc.)
-        $text = preg_replace('/\\\\[a-z]+[0-9]+\s?/', '', $text) ?? $text;
+        $text = preg_replace('/\\\\[a-z]+\d+\s?/', '', $text) ?? $text;
 
         // Remove control words without parameters (\ansi, \deff, etc.)
         $text = preg_replace('/\\\\[a-z]+\s?/', '', $text) ?? $text;
@@ -185,4 +185,3 @@ final class TextSanitizer
         return $text;
     }
 }
-
