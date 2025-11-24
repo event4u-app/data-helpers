@@ -44,11 +44,20 @@ class DataAccessor
             // Try XML (avoid double encode/decode when possible)
             libxml_use_internal_errors(true);
             $xml = simplexml_load_string($input, 'SimpleXMLElement', LIBXML_NOCDATA);
+            libxml_clear_errors();
+
             if (false !== $xml) {
                 // Convert SimpleXMLElement to array (ensure array shape for internal storage)
                 $xmlConverted = self::xmlToArray($xml);
                 $this->data = is_array($xmlConverted) ? $xmlConverted : [$xmlConverted];
 
+                return;
+            }
+
+            // If native parsing failed, try custom method for invalid XML (e.g., multiple root elements)
+            $xmlArray = $this->parseInvalidXml($input);
+            if (null !== $xmlArray) {
+                $this->data = $xmlArray;
                 return;
             }
 
@@ -1323,6 +1332,79 @@ class DataAccessor
         }
 
         return $arr;
+    }
+
+    /**
+     * Parse invalid XML (e.g., with multiple root elements) using custom method.
+     *
+     * This handles "invalid" XML strings that cannot be parsed by SimpleXML,
+     * such as strings with multiple root elements.
+     * Each root element is preserved as a top-level key in the returned array.
+     *
+     * For example:
+     * <LVDATA><LV>...</LV></LVDATA>
+     * <POSDATA><POS>...</POS></POSDATA>
+     *
+     * will return:
+     * [
+     *   'LVDATA' => ['LV' => [...]],
+     *   'POSDATA' => ['POS' => [...]]
+     * ]
+     *
+     * @param string $xmlString XML string
+     * @return array<string, mixed>|null Array if parsing succeeded, null if failed
+     */
+    private function parseInvalidXml(string $xmlString): ?array
+    {
+        // Remove null bytes (can cause parsing issues)
+        $xmlString = str_replace("\0", '', $xmlString);
+
+        // Remove XML declaration if present
+        $withoutDeclaration = preg_replace('/<\?xml[^?]*\?>\s*/', '', $xmlString);
+        if (null === $withoutDeclaration) {
+            return null;
+        }
+
+        // Remove comments
+        $withoutComments = preg_replace('/<!--.*?-->/s', '', $withoutDeclaration);
+        if (null === $withoutComments) {
+            return null;
+        }
+
+        $cleanedContent = trim($withoutComments);
+
+        // Check if it looks like XML
+        if (!str_starts_with($cleanedContent, '<')) {
+            return null;
+        }
+
+        // Wrap content in a temporary root element to make it valid XML
+        $xmlDeclaration = '<' . '?xml version="1.0" encoding="UTF-8"?' . '>';
+        $wrappedContent = $xmlDeclaration . '<root>' . $cleanedContent . '</root>';
+
+        // Try to parse the wrapped XML
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($wrappedContent, 'SimpleXMLElement', LIBXML_NOCDATA);
+        libxml_clear_errors();
+
+        if (false === $xml) {
+            return null;
+        }
+
+        // Convert to JSON and back to array to get clean structure
+        $jsonString = json_encode($xml);
+        if (false === $jsonString) {
+            return null;
+        }
+
+        $result = json_decode($jsonString, true);
+
+        if (!is_array($result)) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $result */
+        return $result;
     }
 
     /**

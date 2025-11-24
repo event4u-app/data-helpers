@@ -119,8 +119,8 @@ class UserController extends Controller
 
 // Eloquent Model Integration (automatically available)
 $user = User::find(1);
-$dto = UserDto::fromModel($user);  // From Eloquent Model
-$dto->toModel($user);              // To Eloquent Model
+$dto = UserDto::fromModel($user);     // From Eloquent Model
+$newUser = $dto->toModel(User::class); // To Eloquent Model
 // Note: Methods throw BadMethodCallException if Laravel is not installed
 ```
 
@@ -134,8 +134,7 @@ class UserController extends AbstractController
     public function create(UserDto $dto): JsonResponse
     {
         // $dto is automatically filled from request
-        $user = new User();
-        $dto->toEntity($user);
+        $user = $dto->toEntity(User::class);
         $this->entityManager->persist($user);
         return $this->json($user, 201);
     }
@@ -143,8 +142,8 @@ class UserController extends AbstractController
 
 // Doctrine Entity Integration (automatically available)
 $user = $this->entityManager->find(User::class, 1);
-$dto = UserDto::fromEntity($user);  // From Doctrine Entity
-$dto->toEntity($user);              // To Doctrine Entity
+$dto = UserDto::fromEntity($user);        // From Doctrine Entity
+$newUser = $dto->toEntity(User::class);   // To Doctrine Entity
 // Note: Methods throw BadMethodCallException if Doctrine is not installed
 ```
 

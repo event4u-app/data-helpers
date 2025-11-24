@@ -11,6 +11,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use event4u\DataHelpers\Converters\YamlConverter;
+use event4u\DataHelpers\Exceptions\InvalidAttributeUsageException;
 use event4u\DataHelpers\LiteDto;
 use event4u\DataHelpers\LiteDto\Attributes\CastWith;
 use event4u\DataHelpers\LiteDto\Attributes\ConvertEmptyToNull;
@@ -157,6 +158,14 @@ final class LiteEngine
 
         if (!$constructor) {
             return new $class();
+        }
+
+        // Step 3.5: Validate attribute usage (check all properties and constructor parameters)
+        foreach ($reflection->getProperties() as $reflectionProperty) {
+            self::validateAttributeUsage($class, $reflectionProperty);
+        }
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            self::validateParameterAttributeUsage($class, $reflectionParameter);
         }
 
         // Step 4: Build constructor arguments
@@ -1490,5 +1499,53 @@ final class LiteEngine
         }
 
         return $keys;
+    }
+
+    /**
+     * Validate that LiteDto doesn't use SimpleDto attributes.
+     *
+     * @param class-string $class
+     * @throws InvalidAttributeUsageException
+     */
+    private static function validateAttributeUsage(string $class, ReflectionProperty $property): void
+    {
+        $attributes = $property->getAttributes();
+
+        foreach ($attributes as $attribute) {
+            $attributeClass = $attribute->getName();
+
+            // Check if this is a SimpleDto attribute
+            if (str_contains($attributeClass, 'event4u\\DataHelpers\\SimpleDto\\Attributes\\')) {
+                throw InvalidAttributeUsageException::liteDtoUsesSimpleDtoAttribute(
+                    $class,
+                    $attributeClass,
+                    $property->getName()
+                );
+            }
+        }
+    }
+
+    /**
+     * Validate that LiteDto doesn't use SimpleDto attributes on constructor parameters.
+     *
+     * @param class-string $class
+     * @throws InvalidAttributeUsageException
+     */
+    private static function validateParameterAttributeUsage(string $class, ReflectionParameter $parameter): void
+    {
+        $attributes = $parameter->getAttributes();
+
+        foreach ($attributes as $attribute) {
+            $attributeClass = $attribute->getName();
+
+            // Check if this is a SimpleDto attribute
+            if (str_contains($attributeClass, 'event4u\\DataHelpers\\SimpleDto\\Attributes\\')) {
+                throw InvalidAttributeUsageException::liteDtoUsesSimpleDtoAttribute(
+                    $class,
+                    $attributeClass,
+                    $parameter->getName()
+                );
+            }
+        }
     }
 }

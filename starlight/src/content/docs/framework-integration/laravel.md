@@ -91,14 +91,13 @@ $dto = UserDto::fromModel($user);
 <!-- skip-test: requires Eloquent User model -->
 ```php
 $dto = UserDto::fromArray($data);
-$user = new User();
-$dto->toModel($user);
+$user = $dto->toModel(User::class);
 $user->save();
 ```
 
 ### Using HasModel Attribute
 
-Link your DTO to an Eloquent model:
+Link your DTO to an Eloquent model to avoid passing the class name:
 
 <!-- skip-test: requires Eloquent User model -->
 ```php
@@ -115,9 +114,10 @@ class UserDto extends SimpleDto
     ) {}
 }
 
-// No need to specify model class
+// No need to specify model class - it's resolved from the attribute
 $dto = UserDto::fromModel($user);
-$newUser = $dto->toModel();
+$newUser = $dto->toModel(); // User::class is automatically resolved
+$newUser->save();
 ```
 
 :::tip[No Manual Trait Import Needed]
@@ -138,7 +138,9 @@ The `SimpleDtoEloquentTrait` is **automatically included** in `SimpleDto`. You d
 ```php
 $user = User::find(1);
 $dto = UserDto::fromRequest($request);
-$dto->toModel($user);
+
+// Update model with DTO data
+$user->fill($dto->toArray());
 $user->save();
 ```
 

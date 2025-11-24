@@ -860,7 +860,7 @@ $flat = $profile->flatten()->toArray();
 //     'active' => true,
 // ]
 
-// unflatten() / undot()  reverse of flatten()
+// unflatten() / undot() - reverse of flatten()
 $flat = DataCollection::make([
     'user.name' => 'Alice',
     'user.address.city' => 'Berlin',
@@ -931,7 +931,7 @@ $everySecondFromSecond = $letters->nth(2, 1);
 // $everySecondFromSecond->toArray() === [1 => 'b', 3 => 'd']
 
 
-// slice()   e2 80 93 take a portion of the collection, preserving keys
+// slice() - take a portion of the collection, preserving keys
 $letters = DataCollection::make([
     10 => 'a',
     20 => 'b',

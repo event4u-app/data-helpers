@@ -788,6 +788,13 @@ describe('Collection', function(): void {
             expect($collection->min())->toBeNull();
         });
 
+        it('handles mixed null and numeric values', function(): void {
+            $collection = DataCollection::make([null, 5, null, 2]);
+
+            expect($collection->min())->toBe(2);
+        });
+    });
+
     describe('Nth', function(): void {
         it('takes every nth item with default offset', function(): void {
             $collection = DataCollection::make(['a', 'b', 'c', 'd', 'e']);
@@ -3965,10 +3972,286 @@ describe('Collection', function(): void {
                 ->distinct('age')
                 ->get();
 
-            $ages = $filtered->map(fn($item): mixed => $item['age']);
+            $ages = $filtered
+                ->map(fn($item): mixed => $item['age'])
+                ->sort()
+                ->values()
+                ->toArray();
 
-            expect($filtered->count())->toBeGreaterThan(0);
+            expect($filtered->count())->toBe(2)
+                ->and($ages)->toBe([25, 30]);
         });
     });
-});
+
+    describe('Comprehensive dot-notation and chaining edge cases', function(): void {
+        it('chains drop, select, where, sortBy and pluck on nested data', function(): void {
+            $collection = DataCollection::make([
+                'u1' => ['id' => 1, 'name' => 'Alice', 'meta' => ['active' => true, 'score' => 90]],
+                'u2' => ['id' => 2, 'name' => 'Bob', 'meta' => ['active' => false, 'score' => 50]],
+                'u3' => ['id' => 3, 'name' => 'Charlie', 'meta' => ['active' => true, 'score' => 75]],
+                'meta' => ['total' => 3],
+            ]);
+
+            $result = $collection
+                ->drop(['meta'])
+                ->select(['id', 'meta'])
+                ->where('meta.active', true)
+                ->sortBy('meta.score')
+                ->pluck('id')
+                ->values()
+                ->toArray();
+
+            expect($result)->toBe([3, 1]);
+        });
+
+        it('handles statistical operations with deep dot-notation and mixed values', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice', 'stats' => ['score' => 10]]],
+                ['user' => ['name' => 'Bob', 'stats' => ['score' => '20']]],
+                ['user' => ['name' => 'Charlie', 'stats' => ['score' => null]]],
+                ['user' => ['name' => 'Dave', 'stats' => []]],
+            ]);
+
+            expect($collection->average('user.stats.score'))->toBe(15.0)
+                ->and($collection->median('user.stats.score'))->toBe(15.0);
+
+            $maxItem = $collection->max('user.stats.score');
+            $minItem = $collection->min('user.stats.score');
+
+            expect($maxItem['user']['name'])->toBe('Bob')
+                ->and($minItem['user']['name'])->toBe('Alice');
+        });
+
+        it('filters deep nested values with where* methods and missing keys', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice', 'age' => 30]],
+                ['user' => ['name' => 'Bob', 'age' => 20]],
+                ['user' => ['name' => 'Charlie']],
+            ]);
+
+            $between = $collection->whereBetween('user.age', [21, 40]);
+            $notBetween = $collection->whereNotBetween('user.age', [21, 40]);
+            $in = $collection->whereIn('user.age', [20, 99]);
+            $notIn = $collection->whereNotIn('user.age', [20, 30]);
+            $null = $collection->whereNull('user.age');
+            $notNull = $collection->whereNotNull('user.age');
+
+            expect($between->pluck('user.name')->values()->toArray())->toBe(['Alice'])
+                ->and($notBetween->pluck('user.name')->values()->toArray())->toBe(['Bob'])
+                ->and($in->pluck('user.name')->values()->toArray())->toBe(['Bob'])
+                ->and($notIn->pluck('user.name')->values()->toArray())->toBe(['Charlie'])
+                ->and($null->pluck('user.name')->values()->toArray())->toBe(['Charlie'])
+                ->and($notNull->pluck('user.name')->values()->toArray())->toBe(['Alice', 'Bob']);
+        });
+
+        it('creates intermediate structures when mutating deep paths', function(): void {
+            $collection = DataCollection::make([]);
+
+            $collection
+                ->set('user.profile.settings.theme', 'dark')
+                ->pushTo('user.profile.tags', 'php')
+                ->merge('user.profile', ['languages' => ['de', 'en']]);
+
+            $data = $collection->toArray();
+
+            expect($data['user']['profile']['settings']['theme'])->toBe('dark')
+                ->and($data['user']['profile']['tags'])->toBe(['php'])
+                ->and($data['user']['profile']['languages'])->toBe(['de', 'en']);
+        });
+
+        it('round-trips through flatten and unflatten with three levels of nesting', function(): void {
+            $original = [
+                'user' => [
+                    'profile' => [
+                        'name' => 'Alice',
+                        'address' => ['city' => 'Berlin', 'zip' => '10115'],
+                    ],
+                ],
+            ];
+
+            $collection = DataCollection::make($original);
+
+            $roundTripped = $collection
+                ->flatten()
+                ->unflatten()
+                ->toArray();
+
+            expect($roundTripped)->toBe($original);
+        });
+
+        it('handles contains with callback, value and dot-notation key', function(): void {
+            $collection = DataCollection::make([
+                ['user' => ['name' => 'Alice', 'active' => true]],
+                ['user' => ['name' => 'Bob', 'active' => false]],
+            ]);
+
+            $containsActive = $collection->contains(
+                fn(mixed $item): bool => true === $item['user']['active']
+            ); // @phpstan-ignore argument.type
+
+            expect($containsActive)->toBeTrue()
+                ->and($collection->contains('user.name', 'Alice'))->toBeTrue()
+                ->and($collection->contains('user.name', 'Charlie'))->toBeFalse()
+                ->and($collection->contains(['user' => ['name' => 'Bob', 'active' => false]]))->toBeTrue();
+        });
+
+        it('accesses nested arrays using integer indices in dot-notation', function(): void {
+            $collection = DataCollection::make([
+                'users' => [
+                    ['name' => 'Alice'],
+                    ['name' => 'Bob'],
+                ],
+            ]);
+
+            expect($collection->get('users.0.name'))->toBe('Alice')
+                ->and($collection->get('users.1.name'))->toBe('Bob')
+                ->and($collection->get('users.2.name', 'missing'))->toBe('missing');
+        });
+    });
+
+    describe('Additional chaining and edge case variations', function(): void {
+        it('chains only, union, diff and values on simple arrays', function(): void {
+            $base = DataCollection::make([
+                'a' => 1,
+                'b' => 2,
+                'c' => 3,
+            ]);
+
+            $other = DataCollection::make([
+                'b' => 20,
+                'd' => 4,
+            ]);
+
+            $result = $base
+                ->only(['a', 'b'])
+                ->union($other)
+                ->diff([4])
+                ->values()
+                ->toArray();
+
+            expect($result)->toBe([1, 2]);
+        });
+
+        it('chains filter, nth, random, push and pop on nested arrays', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'active' => true],
+                ['id' => 2, 'active' => false],
+                ['id' => 3, 'active' => true],
+                ['id' => 4, 'active' => true],
+            ]);
+
+            $filtered = $collection->filter(
+                static fn(array $item): bool => true === $item['active']
+            );
+
+            $nth = $filtered->nth(2)->values()->toArray();
+
+            expect($nth)->toBe([
+                ['id' => 1, 'active' => true],
+                ['id' => 4, 'active' => true],
+            ]);
+
+            /** @var DataCollection<array<string, bool|int>> $random */
+            $random = $filtered->random(2);
+
+            expect($random)->toBeInstanceOf(DataCollection::class);
+            expect($random->count())->toBe(2);
+
+            $random
+                ->push(['id' => 99, 'active' => true])
+                ->pop();
+
+            expect($random)->toBeInstanceOf(DataCollection::class);
+            expect($random->count())->toBe(2);
+        });
+
+        it('chains keyBy, unique, collapse and flatten on mixed keys with nesting', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'group' => 'A', 'tags' => ['x', 'y']],
+                ['id' => 2, 'group' => 'A', 'tags' => ['y']],
+                ['id' => 3, 'group' => 'B', 'tags' => ['z']],
+            ]);
+
+            $result = $collection
+                ->keyBy('id')
+                ->unique('group')
+                ->pluck('tags')
+                ->collapse()
+                ->flatten()
+                ->values()
+                ->toArray();
+
+            sort($result);
+
+            expect($result)->toBe(['x', 'y', 'z']);
+        });
+
+        it('handles invalid whereBetween configuration gracefully', function(): void {
+            $collection = DataCollection::make([
+                ['value' => 10],
+                ['value' => 20],
+            ]);
+
+            $filtered = $collection->whereBetween('value', [10]);
+
+            expect($filtered->count())->toBe(0);
+        });
+
+        it('chains set, transform and pull on deep nested structures', function(): void {
+            $collection = DataCollection::make([
+                'user' => [
+                    'profile' => [
+                        'name' => 'Alice',
+                        'visits' => 1,
+                    ],
+                ],
+            ]);
+
+            $pulled = $collection
+                ->set('user.profile.language', 'de')
+                ->transform('user.profile.visits', static fn(mixed $v): int => (int)$v + 1)
+                ->pull('user.profile');
+
+            expect($pulled)->toBe([
+                'name' => 'Alice',
+                'visits' => 2,
+                'language' => 'de',
+            ]);
+
+            $data = $collection->toArray();
+
+            expect($data['user'])->toBe([]);
+        });
+
+        it('chains whereIn, whereNotNull, sortBy and reverse on nested structures', function(): void {
+            $collection = DataCollection::make([
+                ['id' => 1, 'user' => ['city' => 'Berlin']],
+                ['id' => 2, 'user' => ['city' => null]],
+                ['id' => 3, 'user' => ['city' => 'Munich']],
+                ['id' => 4, 'user' => []],
+            ]);
+
+            $result = $collection
+                ->whereIn('user.city', ['Berlin', 'Munich'])
+                ->whereNotNull('user.city')
+                ->sortBy('user.city')
+                ->reverse()
+                ->pluck('id')
+                ->values()
+                ->toArray();
+
+            expect($result)->toBe([3, 1]);
+        });
+
+        it('handles empty collections with various operations without errors', function(): void {
+            $collection = DataCollection::make([]);
+
+            expect($collection->average())->toBeNull()
+                ->and($collection->max())->toBeNull()
+                ->and($collection->min())->toBeNull()
+                ->and($collection->median())->toBeNull()
+                ->and($collection->pluck('any')->count())->toBe(0)
+                ->and($collection->where('any', '=', 'value')->count())->toBe(0);
+        });
+    });
 });

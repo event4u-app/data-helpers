@@ -31,6 +31,8 @@ Example: `#[Lowercase]` transforms `"USER@EXAMPLE.COM"` to `"user@example.com"` 
 | `#[Lcfirst]` | Lowercase first letter | `"John"` → `"john"` |
 | `#[CamelCase]` | Convert to camelCase | `"user_name"` → `"userName"` |
 | `#[SnakeCase]` | Convert to snake_case | `"userName"` → `"user_name"` |
+| `#[Convert]` | Convert between RTF/HTML/Text | `"{\rtf1 Hello}"` → `"Hello"` |
+| `#[Sanitize]` | Remove HTML & normalize text | `"<p>Hello</p>"` → `"Hello"` |
 | `#[Trim]` | Remove whitespace | `"  hello  "` → `"hello"` |
 | `#[Base64Encode]` | Encode to Base64 | `"hello"` → `"aGVsbG8="` |
 | `#[Base64Decode]` | Decode from Base64 | `"aGVsbG8="` → `"hello"` |
@@ -42,14 +44,15 @@ Example: `#[Lowercase]` transforms `"USER@EXAMPLE.COM"` to `"user@example.com"` 
 
 ### DateTimeFormat
 
-Format DateTime/DateTimeImmutable/Carbon objects to strings when serializing to JSON or arrays.
+Format DateTime/DateTimeImmutable/Carbon objects with custom format strings for **both input (parsing) and output (serialization)**.
 
 **Features:**
-- ✅ Formats DateTime objects with custom format string
+- ✅ **Bidirectional**: Works for both parsing (input) and formatting (output)
+- ✅ **Input**: Parses string dates using the specified format when creating DTOs
+- ✅ **Output**: Formats DateTime objects when serializing to JSON
 - ✅ Supports DateTime, DateTimeImmutable, Carbon, CarbonImmutable
 - ✅ Only applies during `toJsonArray()` / `toJson()` / `jsonSerialize()`
 - ✅ `toArray()` keeps DateTime objects unchanged
-- ✅ Can be used as parsing format when creating DTOs from strings
 
 ```php
 use event4u\DataHelpers\SimpleDto;
@@ -113,9 +116,9 @@ $json = $dto->toJson();
 | `'c'` | ISO 8601 | `2024-01-15T10:30:00+00:00` |
 | `'U'` | Unix timestamp | `1705318200` |
 
-**Parsing from Strings:**
+**Bidirectional Usage (Input & Output):**
 
-When creating DTOs from arrays with string dates, the format is used for parsing:
+The same format is used for **both parsing (input) and formatting (output)**:
 
 ```php
 use event4u\DataHelpers\SimpleDto;
@@ -124,25 +127,35 @@ use event4u\DataHelpers\SimpleDto\Attributes\DateTimeFormat;
 class EventDto extends SimpleDto
 {
     public function __construct(
-        public readonly string $title,
+        #[DateTimeFormat('d.m.Y')]
+        public readonly DateTimeImmutable $germanDate,
+
+        #[DateTimeFormat('m/d/Y')]
+        public readonly DateTimeImmutable $usDate,
 
         #[DateTimeFormat('Y-m-d H:i:s')]
-        public readonly DateTime $startDate,
-
-        #[DateTimeFormat('d.m.Y')]
-        public readonly DateTime $germanDate,
-
-        #[DateTimeFormat('c')]
-        public readonly DateTime $isoDate,
+        public readonly DateTimeImmutable $mysqlDate,
     ) {}
 }
 
+// INPUT: Parse from custom formats
 $dto = EventDto::from([
-    'title' => 'Conference',
-    'startDate' => '2024-01-15 10:30:00',  // Parsed with 'Y-m-d H:i:s'
-    'germanDate' => '15.01.2024',          // Parsed with 'd.m.Y'
-    'isoDate' => '2024-01-15T10:30:00+00:00', // Parsed with 'c'
+    'germanDate' => '15.01.2024',          // ← Parsed with 'd.m.Y'
+    'usDate' => '01/15/2024',              // ← Parsed with 'm/d/Y'
+    'mysqlDate' => '2024-01-15 10:30:00',  // ← Parsed with 'Y-m-d H:i:s'
 ]);
+
+// OUTPUT: Format to custom formats
+$json = $dto->toJson();
+// {
+//   "germanDate": "15.01.2024",          // ← Formatted with 'd.m.Y'
+//   "usDate": "01/15/2024",              // ← Formatted with 'm/d/Y'
+//   "mysqlDate": "2024-01-15 10:30:00"   // ← Formatted with 'Y-m-d H:i:s'
+// }
+
+// ROUND-TRIP: Parse JSON back to DTO
+$dto2 = EventDto::from(json_decode($json, true));
+// Works perfectly! Same formats are used for parsing
 ```
 
 **Carbon Support:**
@@ -321,11 +334,230 @@ $dto = DatabaseDto::from([
 ]);
 ```
 
+## Format Conversion
+
+### Convert
+
+Convert between different text formats: RTF (Rich Text Format), HTML, and plain text. All conversions are XSS-safe.
+
+**Syntax:**
+```php
+use event4u\DataHelpers\SimpleDto\Attributes\Convert;
+use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
+
+// Type-safe enum syntax (required)
+class Example {
+    #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
+    public string $rtfToText;
+
+    #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
+    public string $htmlToText;
+
+    #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
+    public string $textToHtml;
+}
+```
+
+**Supported Conversions:**
+- ✅ RTF → Text: Extract plain text from RTF documents
+- ✅ RTF → HTML: Convert RTF to HTML (XSS-safe)
+- ✅ HTML → Text: Strip HTML tags and decode entities
+- ✅ HTML → RTF: Convert HTML to RTF format
+- ✅ Text → HTML: Escape HTML and convert newlines to `<br>` tags
+- ✅ Text → RTF: Create RTF document from plain text
+
+**XSS Protection:**
+- All conversions sanitize input appropriately
+- Text → HTML escapes all HTML special characters
+- HTML → Text removes all HTML tags
+- RTF conversions handle special characters safely
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Convert;
+use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
+
+class DocumentDto extends SimpleDto
+{
+    public function __construct(
+        // Convert RTF to plain text
+        #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
+        public readonly string $description,
+
+        // Convert HTML to plain text
+        #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
+        public readonly string $content,
+
+        // Convert plain text to HTML (XSS-safe)
+        #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
+        public readonly string $htmlContent,
+
+        // Convert RTF to HTML
+        #[Convert(ConvertFormat::RTF, ConvertFormat::HTML)]
+        public readonly string $richContent,
+    ) {}
+}
+
+// RTF to Text
+$dto = DocumentDto::from([
+    'description' => '{\rtf1\ansi Hello\line World}',
+    // → 'Hello
+    //    World'
+]);
+
+// HTML to Text (removes tags, decodes entities)
+$dto = DocumentDto::from([
+    'content' => '<p>Hello &amp; <strong>World</strong></p>',
+    // → 'Hello & World'
+]);
+
+// Text to HTML (XSS-safe, converts newlines)
+$dto = DocumentDto::from([
+    'htmlContent' => "Line 1\nLine 2",
+    // → 'Line 1<br>Line 2'
+]);
+
+// XSS Protection
+$dto = DocumentDto::from([
+    'htmlContent' => '<script>alert("xss")</script>',
+    // → '&lt;script&gt;alert("xss")&lt;/script&gt;'
+]);
+```
+
+**Options:**
+
+```php
+// Disable newline to <br> conversion
+#[Convert(ConvertFormat::TEXT, ConvertFormat::HTML, nl2br: false)]
+public readonly string $content;
+```
+
+**RTF Support:**
+
+The RTF converter handles:
+- Font tables and formatting
+- Unicode escapes (`\u252?` → `ü`)
+- Hex escapes (`\'e4` → `ä`)
+- Line breaks (`\line`, `\par`)
+- Special characters (`\{`, `\}`, `\\`)
+
+```php
+use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
+
+class ImportDto extends SimpleDto
+{
+    public function __construct(
+        #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
+        public readonly string $description,
+    ) {}
+}
+
+$dto = ImportDto::from([
+    'description' => "{\rtf1\ansi\deff0{\fonttbl{\f0\fnil Arial;}}" .
+        "\viewkind4\uc1\pard\lang1031\fs20 Einfassungen, Gossen, Einzelabl\'e4ufe und \line Rinnen \par}"
+]);
+
+// Result: 'Einfassungen, Gossen, Einzelabläufe und
+//          Rinnen'
+```
+
+**Use Cases:**
+
+1. **Import from Rich Text Editors**: Convert RTF from desktop applications to plain text or HTML
+2. **Database Migration**: Convert legacy RTF content to modern formats
+3. **User Input Sanitization**: Convert HTML to plain text for safe storage
+4. **Display Formatting**: Convert plain text to HTML for web display
+5. **Export to Desktop Apps**: Convert HTML/Text to RTF for Word/Excel
+
 ## String Sanitization
+
+### Sanitize
+
+Remove HTML tags, decode entities, and normalize whitespace. Perfect for cleaning user input from rich text editors or HTML content.
+
+**Features:**
+- ✅ Removes all HTML tags
+- ✅ Converts RTF format to plain text
+- ✅ Decodes HTML entities (`&amp;` → `&`)
+- ✅ Normalizes whitespace (multiple spaces → single space)
+- ✅ Trims leading/trailing whitespace
+- ✅ Can be applied to individual properties or entire class
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
+
+class CommentDto extends SimpleDto
+{
+    public function __construct(
+        #[Sanitize]
+        public readonly string $content,
+
+        #[Sanitize]
+        public readonly string $title,
+    ) {}
+}
+
+$dto = CommentDto::from([
+    'content' => '<p>Hello <b>World</b>!</p>',  // → 'Hello World!'
+    'title' => '  Multiple   spaces  ',         // → 'Multiple spaces'
+]);
+```
+
+**Class-Level Sanitize:**
+
+Apply sanitization to all string properties at once:
+
+```php
+#[Sanitize]
+class UserInputDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,        // Sanitized
+        public readonly string $bio,         // Sanitized
+        public readonly int $age,            // Not sanitized (not a string)
+        public readonly ?string $website,    // Sanitized if not null
+    ) {}
+}
+
+$dto = UserInputDto::from([
+    'name' => '<script>alert("xss")</script>John',  // → 'John'
+    'bio' => '<p>Developer &amp; Designer</p>',     // → 'Developer & Designer'
+    'age' => 25,                                     // → 25 (unchanged)
+    'website' => '<a href="example.com">Link</a>',  // → 'Link'
+]);
+```
+
+**RTF Support:**
+
+Automatically converts RTF format to plain text:
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Convert;
+use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
+
+class RtfDto extends SimpleDto
+{
+    public function __construct(
+        #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
+        public readonly string $content,
+    ) {}
+}
+
+$dto = RtfDto::from([
+    'content' => '{\rtf1\ansi Hello World}',  // → 'Hello World'
+]);
+```
 
 ### Trim
 
 Remove whitespace from the beginning and end of strings.
+
+**Features:**
+- ✅ Removes leading/trailing whitespace
+- ✅ Supports custom character mask
+- ✅ Can be applied to individual properties or entire class
 
 ```php
 class FormDto extends SimpleDto
@@ -347,6 +579,30 @@ $dto = FormDto::from([
     'name' => '  John Doe  ',           // → 'John Doe'
     'description' => "\t\nHello\n\t",   // → 'Hello'
     'domain' => '...example.com...',    // → 'example.com'
+]);
+```
+
+**Class-Level Trim:**
+
+Apply trimming to all string properties at once:
+
+```php
+#[Trim]
+class FormInputDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $firstName,   // Trimmed
+        public readonly string $lastName,    // Trimmed
+        public readonly int $age,            // Not trimmed (not a string)
+        public readonly ?string $email,      // Trimmed if not null
+    ) {}
+}
+
+$dto = FormInputDto::from([
+    'firstName' => '  John  ',    // → 'John'
+    'lastName' => '  Doe  ',      // → 'Doe'
+    'age' => 25,                  // → 25 (unchanged)
+    'email' => '  test@test.com  ',  // → 'test@test.com'
 ]);
 ```
 

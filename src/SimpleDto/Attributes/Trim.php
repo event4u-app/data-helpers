@@ -13,8 +13,13 @@ use event4u\DataHelpers\SimpleDto\Contracts\TransformAttribute;
  * This attribute automatically removes whitespace from the beginning and end of string values.
  * It does not validate - it transforms the value.
  *
+ * Can be applied to:
+ * - Properties/Parameters: Trims that specific property
+ * - Class: Trims all string properties (property-level attributes take precedence)
+ *
  * Example:
  * ```php
+ * // Property-level
  * class UserDto extends SimpleDto
  * {
  *     public function __construct(
@@ -26,9 +31,20 @@ use event4u\DataHelpers\SimpleDto\Contracts\TransformAttribute;
  *         public readonly string $email,
  *     ) {}
  * }
+ *
+ * // Class-level (applies to all string properties)
+ * #[Trim]
+ * class ProductDto extends SimpleDto
+ * {
+ *     public function __construct(
+ *         public readonly string $name,        // Will be trimmed
+ *         public readonly string $description, // Will be trimmed
+ *         public readonly int $price,          // Not affected (not a string)
+ *     ) {}
+ * }
  * ```
  */
-#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER | Attribute::TARGET_CLASS)]
 class Trim implements TransformAttribute
 {
     public function __construct(
