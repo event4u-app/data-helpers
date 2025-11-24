@@ -17,6 +17,7 @@ use event4u\DataHelpers\DataMapper;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\SimpleDto;
 use event4u\DataHelpers\SimpleDto\Attributes\AutoCast;
+use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
 use event4u\DataHelpers\SimpleDto\Attributes\CastWith;
 use event4u\DataHelpers\SimpleDto\Attributes\Computed;
 use event4u\DataHelpers\SimpleDto\Attributes\ConvertEmptyToNull;
@@ -39,6 +40,7 @@ use event4u\DataHelpers\SimpleDto\Attributes\NoCasts;
 use event4u\DataHelpers\SimpleDto\Attributes\NoValidation;
 use event4u\DataHelpers\SimpleDto\Attributes\Optional as OptionalAttribute;
 use event4u\DataHelpers\SimpleDto\Attributes\RuleGroup;
+use event4u\DataHelpers\SimpleDto\Attributes\Trim;
 use event4u\DataHelpers\SimpleDto\Attributes\UltraFast;
 use event4u\DataHelpers\SimpleDto\Attributes\ValidateRequest;
 use event4u\DataHelpers\SimpleDto\Attributes\Validation\Nullable;
@@ -188,6 +190,13 @@ final class SimpleEngine
      * @var array<class-string, array<string, array<TransformAttribute>>>
      */
     private static array $transformAttributesCache = [];
+
+    /**
+     * Cache for class-level Transform attributes.
+     *
+     * @var array<class-string, array<TransformAttribute>>
+     */
+    private static array $classTransformAttributesCache = [];
 
     /**
      * Cache for MapInputName attribute per class.
@@ -1597,6 +1606,72 @@ final class SimpleEngine
     }
 
     /**
+     * Apply transforms to data for validation.
+     *
+     * This method applies the same transforms that would be applied during DTO creation,
+     * ensuring that validation is performed on the transformed values.
+     *
+     * @param class-string $class
+     * @param array<string, mixed> $data
+     * @param array{
+     *     hasTransform: bool,
+     *     hasClassTransform: bool,
+     *     hasConvertEmptyToNull: bool,
+     * } $flags
+     * @return array<string, mixed>
+     */
+    private static function applyTransformsForValidation(string $class, array $data, array $flags): array
+    {
+        $reflection = self::getReflection($class);
+        $constructor = $reflection->getConstructor();
+
+        if (!$constructor) {
+            return $data;
+        }
+
+        $transformedData = $data;
+
+        foreach ($constructor->getParameters() as $reflectionParameter) {
+            $paramName = $reflectionParameter->getName();
+
+            // Get value from data (use parameter name as key)
+            if (!array_key_exists($paramName, $transformedData)) {
+                continue;
+            }
+
+            $value = $transformedData[$paramName];
+
+            // Step 1: Apply transform attributes (only if flag is set)
+            // Property-level transforms take precedence over class-level transforms
+            $hasPropertyTransform = $flags['hasTransform'] && isset(self::$transformAttributesCache[$class][$paramName]);
+
+            if ($hasPropertyTransform) {
+                // Apply property-level transforms
+                foreach (self::$transformAttributesCache[$class][$paramName] as $transformer) { // @phpstan-ignore-line
+                    $value = $transformer->transform($value, $paramName);
+                }
+            } elseif ($flags['hasClassTransform'] && is_string($value) && isset(self::$classTransformAttributesCache[$class])) {
+                // Apply class-level transforms only if no property-level transform exists
+                foreach (self::$classTransformAttributesCache[$class] as $transformer) { // @phpstan-ignore-line
+                    $value = $transformer->transform($value, $paramName);
+                }
+            }
+
+            // Step 2: Apply ConvertEmptyToNull (only if flag is set)
+            if ($flags['hasConvertEmptyToNull'] && isset(self::$convertEmptyToNullCache[$class][$paramName])) {
+                if ('' === $value) {
+                    $value = null;
+                }
+            }
+
+            // Update transformed data
+            $transformedData[$paramName] = $value;
+        }
+
+        return $transformedData;
+    }
+
+    /**
      * Get DataCollectionOf class for parameter.
      *
      * @param class-string $class
@@ -1752,6 +1827,40 @@ final class SimpleEngine
 
         self::$hasLazyCache[$class] = $hasLazy;
         return $hasLazy;
+    }
+
+    /**
+     * Sort transform attributes by priority.
+     *
+     * Priority order:
+     * 1. Sanitize (cleans text, removes HTML, normalizes whitespace)
+     * 2. Trim (removes leading/trailing whitespace)
+     * 3. Others (alphabetically by class name)
+     *
+     * @param array<TransformAttribute> $transforms
+     */
+    private static function sortTransformAttributes(array &$transforms): void
+    {
+        usort($transforms, static function (TransformAttribute $a, TransformAttribute $b): int {
+            $aClass = $a::class;
+            $bClass = $b::class;
+
+            // Priority map: lower number = higher priority
+            $priorities = [
+                Sanitize::class => 1,
+                Trim::class => 2,
+            ];
+
+            $aPriority = $priorities[$aClass] ?? 999;
+            $bPriority = $priorities[$bClass] ?? 999;
+
+            if ($aPriority !== $bPriority) {
+                return $aPriority <=> $bPriority;
+            }
+
+            // Same priority: sort alphabetically by class name
+            return $aClass <=> $bClass;
+        });
     }
 
     /**
@@ -2192,7 +2301,25 @@ final class SimpleEngine
                 }
             }
 
-            // Step 2: Check for #[ConvertEmptyToNull] (only if flag is set)
+            // Step 2: Apply transformations (only if flag is set)
+            // Order: Sanitize -> Trim -> others (sorted by sortTransformAttributes)
+            // Property-level transforms take precedence over class-level transforms
+            $hasPropertyTransform = $flags['hasTransform'] && isset(self::$transformAttributesCache[$class][$paramName]);
+
+            if ($hasPropertyTransform) {
+                // Apply property-level transforms
+                foreach (self::$transformAttributesCache[$class][$paramName] as $transformer) { // @phpstan-ignore-line
+                    $value = $transformer->transform($value, $paramName);
+                }
+            } elseif ($flags['hasClassTransform'] && is_string($value) && isset(self::$classTransformAttributesCache[$class])) {
+                // Apply class-level transforms only if no property-level transform exists
+                foreach (self::$classTransformAttributesCache[$class] as $transformer) { // @phpstan-ignore-line
+                    $value = $transformer->transform($value, $paramName);
+                }
+            }
+
+            // Step 2.5: Check for #[ConvertEmptyToNull] (only if flag is set)
+            // Applied AFTER transforms so that Sanitize/Trim can clean the value first
             if ($flags['hasConvertEmptyToNull']) {
                 self::applyConvertEmptyToNull($class, $paramName, $reflectionParameter, $value);
             }
@@ -2725,6 +2852,7 @@ final class SimpleEngine
                 'hasConditionalValidation' => false,
                 'hasConditionalProperties' => false,
                 'hasTransform' => false,
+                'hasClassTransform' => false,
                 'hasRuleGroup' => false,
                 'hasWithMessage' => false,
                 'hasAnyArrayAttribute' => false,
@@ -2761,6 +2889,7 @@ final class SimpleEngine
             'hasConditionalValidation' => false,
             'hasConditionalProperties' => false,
             'hasTransform' => false,
+            'hasClassTransform' => false,
             'hasRuleGroup' => false,
             'hasWithMessage' => false,
             'hasAnyArrayAttribute' => false,
@@ -2793,6 +2922,23 @@ final class SimpleEngine
         // #[AutoCast] is mainly for LiteDto or explicit opt-in
         if ([] !== $reflection->getAttributes(AutoCast::class)) {
             $flags['hasAutoCast'] = true;
+        }
+
+        // Check for class-level Transform attributes (e.g., #[Sanitize], #[Trim])
+        $classTransformAttrs = $reflection->getAttributes(
+            TransformAttribute::class,
+            ReflectionAttribute::IS_INSTANCEOF
+        );
+        if ([] !== $classTransformAttrs) {
+            $flags['hasClassTransform'] = true;
+            if (!isset(self::$classTransformAttributesCache[$class])) {
+                self::$classTransformAttributesCache[$class] = [];
+                foreach ($classTransformAttrs as $attr) {
+                    self::$classTransformAttributesCache[$class][] = $attr->newInstance();
+                }
+                // Sort transforms by priority: Sanitize -> Trim -> others
+                self::sortTransformAttributes(self::$classTransformAttributesCache[$class]);
+            }
         }
 
         // Scan constructor parameters
@@ -2832,6 +2978,70 @@ final class SimpleEngine
                         self::$autoCastCache[$class] = [];
                     }
                     self::$autoCastCache[$class][$paramName] = true;
+                }
+
+                // Transform attributes - fill cache while scanning constructor parameters
+                $transformAttrs = $reflectionParameter->getAttributes(
+                    TransformAttribute::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                );
+                if ([] !== $transformAttrs) {
+                    $flags['hasTransform'] = true;
+                    if (!isset(self::$transformAttributesCache[$class])) {
+                        self::$transformAttributesCache[$class] = [];
+                    }
+                    if (!isset(self::$transformAttributesCache[$class][$paramName])) {
+                        self::$transformAttributesCache[$class][$paramName] = [];
+                        foreach ($transformAttrs as $attr) {
+                            self::$transformAttributesCache[$class][$paramName][] = $attr->newInstance();
+                        }
+                        // Sort transforms by priority: Sanitize -> Trim -> others
+                        self::sortTransformAttributes(self::$transformAttributesCache[$class][$paramName]);
+                    }
+                }
+
+                // Validation Attributes - scan and cache all validation rules from constructor parameters
+                $validationAttrs = $reflectionParameter->getAttributes(
+                    ValidationAttribute::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                );
+                if ([] !== $validationAttrs) {
+                    $flags['hasValidation'] = true;
+                    if (!isset(self::$validationRulesCache[$class])) {
+                        self::$validationRulesCache[$class] = [];
+                    }
+                    if (!isset(self::$validationRulesCache[$class][$paramName])) {
+                        self::$validationRulesCache[$class][$paramName] = [];
+                    }
+                    foreach ($validationAttrs as $attr) {
+                        $instance = $attr->newInstance();
+                        self::$validationRulesCache[$class][$paramName][] = $instance;
+
+                        // Check if this is a conditional validation attribute
+                        if ($instance instanceof ConditionalValidationAttribute) {
+                            $flags['hasConditionalValidation'] = true;
+                        }
+                    }
+                }
+
+                // Check for Nullable meta-attribute on constructor parameters
+                $nullableAttrs = $reflectionParameter->getAttributes(Nullable::class);
+                if ([] !== $nullableAttrs) {
+                    $flags['hasValidation'] = true;
+                    if (!isset(self::$validationNullableCache[$class])) {
+                        self::$validationNullableCache[$class] = [];
+                    }
+                    self::$validationNullableCache[$class][$paramName] = true;
+                }
+
+                // Check for Sometimes meta-attribute on constructor parameters
+                $sometimesAttrs = $reflectionParameter->getAttributes(Sometimes::class);
+                if ([] !== $sometimesAttrs) {
+                    $flags['hasValidation'] = true;
+                    if (!isset(self::$validationSometimesCache[$class])) {
+                        self::$validationSometimesCache[$class] = [];
+                    }
+                    self::$validationSometimesCache[$class][$paramName] = true;
                 }
             }
         }
@@ -3016,9 +3226,11 @@ final class SimpleEngine
                 }
                 if (!isset(self::$transformAttributesCache[$class][$propName])) {
                     self::$transformAttributesCache[$class][$propName] = [];
-                }
-                foreach ($transformAttrs as $attr) {
-                    self::$transformAttributesCache[$class][$propName][] = $attr->newInstance();
+                    foreach ($transformAttrs as $attr) {
+                        self::$transformAttributesCache[$class][$propName][] = $attr->newInstance();
+                    }
+                    // Sort transforms by priority: Sanitize -> Trim -> others
+                    self::sortTransformAttributes(self::$transformAttributesCache[$class][$propName]);
                 }
             }
 
@@ -3389,16 +3601,27 @@ final class SimpleEngine
                 }
             }
 
-            // Step 2: Check for #[ConvertEmptyToNull] (only if flag is set)
-            if ($flags['hasConvertEmptyToNull']) {
-                self::applyConvertEmptyToNull($class, $paramName, $reflectionParameter, $value);
-            }
+            // Step 2: Apply transformations (only if flag is set)
+            // Order: Sanitize -> Trim -> others (sorted by sortTransformAttributes)
+            // Property-level transforms take precedence over class-level transforms
+            $hasPropertyTransform = $flags['hasTransform'] && isset(self::$transformAttributesCache[$class][$paramName]);
 
-            // Step 2.5: Apply transformations (only if flag is set)
-            if ($flags['hasTransform'] && isset(self::$transformAttributesCache[$class][$paramName])) { // @phpstan-ignore-line
-                foreach (self::$transformAttributesCache[$class][$paramName] as $transformer) {
+            if ($hasPropertyTransform) {
+                // Apply property-level transforms
+                foreach (self::$transformAttributesCache[$class][$paramName] as $transformer) { // @phpstan-ignore-line
                     $value = $transformer->transform($value, $paramName);
                 }
+            } elseif ($flags['hasClassTransform'] && is_string($value) && isset(self::$classTransformAttributesCache[$class])) {
+                // Apply class-level transforms only if no property-level transform exists
+                foreach (self::$classTransformAttributesCache[$class] as $transformer) { // @phpstan-ignore-line
+                    $value = $transformer->transform($value, $paramName);
+                }
+            }
+
+            // Step 2.5: Check for #[ConvertEmptyToNull] (only if flag is set)
+            // Applied AFTER transforms so that Sanitize/Trim can clean the value first
+            if ($flags['hasConvertEmptyToNull']) {
+                self::applyConvertEmptyToNull($class, $paramName, $reflectionParameter, $value);
             }
 
             // Step 3: Apply casting (only if NOT #[NoCasts])
@@ -3638,7 +3861,13 @@ final class SimpleEngine
         // Get feature flags
         $flags = self::getFeatureFlags($class);
 
-        // Fast-Path: No validation attributes
+        // IMPORTANT: Apply transforms BEFORE validation
+        // This ensures validation is performed on the transformed values, not the raw input
+        if ($flags['hasTransform'] || $flags['hasClassTransform'] || $flags['hasConvertEmptyToNull']) {
+            $arrayData = self::applyTransformsForValidation($class, $arrayData, $flags);
+        }
+
+        // Fast-Path: No validation attributes (but transforms were already applied above)
         if (!$flags['hasValidation']) {
             return ValidationResult::success($arrayData);
         }

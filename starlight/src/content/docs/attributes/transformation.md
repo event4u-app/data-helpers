@@ -31,6 +31,7 @@ Example: `#[Lowercase]` transforms `"USER@EXAMPLE.COM"` to `"user@example.com"` 
 | `#[Lcfirst]` | Lowercase first letter | `"John"` → `"john"` |
 | `#[CamelCase]` | Convert to camelCase | `"user_name"` → `"userName"` |
 | `#[SnakeCase]` | Convert to snake_case | `"userName"` → `"user_name"` |
+| `#[Sanitize]` | Remove HTML & normalize text | `"<p>Hello</p>"` → `"Hello"` |
 | `#[Trim]` | Remove whitespace | `"  hello  "` → `"hello"` |
 | `#[Base64Encode]` | Encode to Base64 | `"hello"` → `"aGVsbG8="` |
 | `#[Base64Decode]` | Decode from Base64 | `"aGVsbG8="` → `"hello"` |
@@ -323,9 +324,81 @@ $dto = DatabaseDto::from([
 
 ## String Sanitization
 
+### Sanitize
+
+Remove HTML tags, decode entities, and normalize whitespace. Perfect for cleaning user input from rich text editors or HTML content.
+
+**Features:**
+- ✅ Removes all HTML tags
+- ✅ Converts RTF format to plain text
+- ✅ Decodes HTML entities (`&amp;` → `&`)
+- ✅ Normalizes whitespace (multiple spaces → single space)
+- ✅ Trims leading/trailing whitespace
+- ✅ Can be applied to individual properties or entire class
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
+
+class CommentDto extends SimpleDto
+{
+    public function __construct(
+        #[Sanitize]
+        public readonly string $content,
+
+        #[Sanitize]
+        public readonly string $title,
+    ) {}
+}
+
+$dto = CommentDto::from([
+    'content' => '<p>Hello <b>World</b>!</p>',  // → 'Hello World!'
+    'title' => '  Multiple   spaces  ',         // → 'Multiple spaces'
+]);
+```
+
+**Class-Level Sanitize:**
+
+Apply sanitization to all string properties at once:
+
+```php
+#[Sanitize]
+class UserInputDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $name,        // Sanitized
+        public readonly string $bio,         // Sanitized
+        public readonly int $age,            // Not sanitized (not a string)
+        public readonly ?string $website,    // Sanitized if not null
+    ) {}
+}
+
+$dto = UserInputDto::from([
+    'name' => '<script>alert("xss")</script>John',  // → 'John'
+    'bio' => '<p>Developer &amp; Designer</p>',     // → 'Developer & Designer'
+    'age' => 25,                                     // → 25 (unchanged)
+    'website' => '<a href="example.com">Link</a>',  // → 'Link'
+]);
+```
+
+**RTF Support:**
+
+Automatically converts RTF format to plain text:
+
+```php
+$dto = CommentDto::from([
+    'content' => '{\rtf1\ansi Hello World}',  // → 'Hello World'
+]);
+```
+
 ### Trim
 
 Remove whitespace from the beginning and end of strings.
+
+**Features:**
+- ✅ Removes leading/trailing whitespace
+- ✅ Supports custom character mask
+- ✅ Can be applied to individual properties or entire class
 
 ```php
 class FormDto extends SimpleDto
@@ -347,6 +420,30 @@ $dto = FormDto::from([
     'name' => '  John Doe  ',           // → 'John Doe'
     'description' => "\t\nHello\n\t",   // → 'Hello'
     'domain' => '...example.com...',    // → 'example.com'
+]);
+```
+
+**Class-Level Trim:**
+
+Apply trimming to all string properties at once:
+
+```php
+#[Trim]
+class FormInputDto extends SimpleDto
+{
+    public function __construct(
+        public readonly string $firstName,   // Trimmed
+        public readonly string $lastName,    // Trimmed
+        public readonly int $age,            // Not trimmed (not a string)
+        public readonly ?string $email,      // Trimmed if not null
+    ) {}
+}
+
+$dto = FormInputDto::from([
+    'firstName' => '  John  ',    // → 'John'
+    'lastName' => '  Doe  ',      // → 'Doe'
+    'age' => 25,                  // → 25 (unchanged)
+    'email' => '  test@test.com  ',  // → 'test@test.com'
 ]);
 ```
 

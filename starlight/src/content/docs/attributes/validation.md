@@ -20,6 +20,12 @@ SimpleDto provides 40+ validation attributes organized into categories:
 - **Conditional Validation** - RequiredIf, RequiredUnless, RequiredWith, RequiredWithout, Sometimes
 - **Callback Validation** - UniqueCallback, ExistsCallback, FileCallback (custom validation logic)
 
+:::tip[Validation After Transforms]
+**Validation is performed AFTER transform attributes are applied.** This ensures that validation rules check the final transformed values, not the raw input.
+
+Example: Input `'  <p>Hello</p>  '` (17 chars) with `#[Sanitize]` + `#[Trim]` + `#[Max(10)]` will **pass** validation because the transformed value is `'Hello'` (5 chars).
+:::
+
 ## Quick Reference Table
 
 | Attribute | Description | Example |
@@ -135,6 +141,34 @@ $dto = ProductDto::validateAndCreate([
 ]);
 ```
 
+**With Transform Attributes:**
+
+Validation is performed **after** transforms are applied:
+
+```php
+use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
+use event4u\DataHelpers\SimpleDto\Attributes\Trim;
+
+class CommentDto extends SimpleDto
+{
+    public function __construct(
+        // Transform then validate
+        #[Sanitize]
+        #[Trim]
+        #[Length(3, 100)]
+        public readonly string $content,
+    ) {}
+}
+
+// Input: '  <p>Hello World</p>  ' (23 characters with HTML and whitespace)
+// After Sanitize: 'Hello World' (11 characters)
+// After Trim: 'Hello World' (11 characters)
+// Validation: ✅ PASS (11 characters is within 3-100 range)
+$dto = CommentDto::validateAndCreate([
+    'content' => '  <p>Hello World</p>  ',
+]);
+```
+
 **Custom Error Messages:**
 
 ```php
@@ -155,6 +189,64 @@ public readonly string $username;
 // Symfony:
 // - One parameter: Generates Assert\Length(max: 10) constraint
 // - Two parameters: Generates Assert\Length(min: 3, max: 10) constraint
+```
+
+### Min and Max Attributes
+
+The `#[Min]` and `#[Max]` attributes validate minimum and maximum values/lengths:
+
+**Validation Rules:**
+- **Strings**: Character length
+- **Numbers**: Numeric value
+- **Arrays**: Number of items
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Min;
+use event4u\DataHelpers\SimpleDto\Attributes\Max;
+
+class UserDto extends SimpleDto
+{
+    public function __construct(
+        #[Min(3)]
+        #[Max(50)]
+        public readonly string $username,  // 3-50 characters
+
+        #[Min(18)]
+        #[Max(120)]
+        public readonly int $age,  // 18-120 years
+
+        #[Min(1)]
+        #[Max(10)]
+        public readonly array $tags,  // 1-10 items
+    ) {}
+}
+```
+
+**With Transform Attributes:**
+
+Validation is performed **after** transforms are applied:
+
+```php
+use event4u\DataHelpers\SimpleDto\Attributes\Sanitize;
+use event4u\DataHelpers\SimpleDto\Attributes\Trim;
+
+class FormDto extends SimpleDto
+{
+    public function __construct(
+        #[Sanitize]
+        #[Trim]
+        #[Max(100)]
+        public readonly string $description,
+    ) {}
+}
+
+// Input: '  <p>Hello World</p>  ' (23 characters with HTML and whitespace)
+// After Sanitize + Trim: 'Hello World' (11 characters)
+// Validation: ✅ PASS (11 characters is <= 100)
+$dto = FormDto::validateAndCreate([
+    'description' => '  <p>Hello World</p>  ',
+]);
 ```
 
 ## Format Validation
