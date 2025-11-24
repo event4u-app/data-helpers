@@ -31,6 +31,7 @@ Example: `#[Lowercase]` transforms `"USER@EXAMPLE.COM"` to `"user@example.com"` 
 | `#[Lcfirst]` | Lowercase first letter | `"John"` → `"john"` |
 | `#[CamelCase]` | Convert to camelCase | `"user_name"` → `"userName"` |
 | `#[SnakeCase]` | Convert to snake_case | `"userName"` → `"user_name"` |
+| `#[Convert]` | Convert between RTF/HTML/Text | `"{\rtf1 Hello}"` → `"Hello"` |
 | `#[Sanitize]` | Remove HTML & normalize text | `"<p>Hello</p>"` → `"Hello"` |
 | `#[Trim]` | Remove whitespace | `"  hello  "` → `"hello"` |
 | `#[Base64Encode]` | Encode to Base64 | `"hello"` → `"aGVsbG8="` |
@@ -321,6 +322,133 @@ $dto = DatabaseDto::from([
     'columnName' => 'user-name',  // → 'user_name'
 ]);
 ```
+
+## Format Conversion
+
+### Convert
+
+Convert between different text formats: RTF (Rich Text Format), HTML, and plain text. All conversions are XSS-safe.
+
+**Syntax:**
+```php
+use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
+
+// Type-safe enum syntax (required)
+#[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
+#[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
+#[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
+```
+
+**Supported Conversions:**
+- ✅ RTF → Text: Extract plain text from RTF documents
+- ✅ RTF → HTML: Convert RTF to HTML (XSS-safe)
+- ✅ HTML → Text: Strip HTML tags and decode entities
+- ✅ HTML → RTF: Convert HTML to RTF format
+- ✅ Text → HTML: Escape HTML and convert newlines to `<br>` tags
+- ✅ Text → RTF: Create RTF document from plain text
+
+**XSS Protection:**
+- All conversions sanitize input appropriately
+- Text → HTML escapes all HTML special characters
+- HTML → Text removes all HTML tags
+- RTF conversions handle special characters safely
+
+```php
+use event4u\DataHelpers\SimpleDto;
+use event4u\DataHelpers\SimpleDto\Attributes\Convert;
+use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
+
+class DocumentDto extends SimpleDto
+{
+    public function __construct(
+        // Convert RTF to plain text
+        #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
+        public readonly string $description,
+
+        // Convert HTML to plain text
+        #[Convert(ConvertFormat::HTML, ConvertFormat::TEXT)]
+        public readonly string $content,
+
+        // Convert plain text to HTML (XSS-safe)
+        #[Convert(ConvertFormat::TEXT, ConvertFormat::HTML)]
+        public readonly string $htmlContent,
+
+        // Convert RTF to HTML
+        #[Convert(ConvertFormat::RTF, ConvertFormat::HTML)]
+        public readonly string $richContent,
+    ) {}
+}
+
+// RTF to Text
+$dto = DocumentDto::from([
+    'description' => '{\rtf1\ansi Hello\line World}',
+    // → 'Hello
+    //    World'
+]);
+
+// HTML to Text (removes tags, decodes entities)
+$dto = DocumentDto::from([
+    'content' => '<p>Hello &amp; <strong>World</strong></p>',
+    // → 'Hello & World'
+]);
+
+// Text to HTML (XSS-safe, converts newlines)
+$dto = DocumentDto::from([
+    'htmlContent' => "Line 1\nLine 2",
+    // → 'Line 1<br>Line 2'
+]);
+
+// XSS Protection
+$dto = DocumentDto::from([
+    'htmlContent' => '<script>alert("xss")</script>',
+    // → '&lt;script&gt;alert("xss")&lt;/script&gt;'
+]);
+```
+
+**Options:**
+
+```php
+// Disable newline to <br> conversion
+#[Convert(ConvertFormat::TEXT, ConvertFormat::HTML, nl2br: false)]
+public readonly string $content;
+```
+
+**RTF Support:**
+
+The RTF converter handles:
+- Font tables and formatting
+- Unicode escapes (`\u252?` → `ü`)
+- Hex escapes (`\'e4` → `ä`)
+- Line breaks (`\line`, `\par`)
+- Special characters (`\{`, `\}`, `\\`)
+
+```php
+use event4u\DataHelpers\SimpleDto\Enums\ConvertFormat;
+
+class ImportDto extends SimpleDto
+{
+    public function __construct(
+        #[Convert(ConvertFormat::RTF, ConvertFormat::TEXT)]
+        public readonly string $description,
+    ) {}
+}
+
+$dto = ImportDto::from([
+    'description' => "{\rtf1\ansi\deff0{\fonttbl{\f0\fnil Arial;}}" .
+        "\viewkind4\uc1\pard\lang1031\fs20 Einfassungen, Gossen, Einzelabl\'e4ufe und \line Rinnen \par}"
+]);
+
+// Result: 'Einfassungen, Gossen, Einzelabläufe und
+//          Rinnen'
+```
+
+**Use Cases:**
+
+1. **Import from Rich Text Editors**: Convert RTF from desktop applications to plain text or HTML
+2. **Database Migration**: Convert legacy RTF content to modern formats
+3. **User Input Sanitization**: Convert HTML to plain text for safe storage
+4. **Display Formatting**: Convert plain text to HTML for web display
+5. **Export to Desktop Apps**: Convert HTML/Text to RTF for Word/Excel
 
 ## String Sanitization
 
