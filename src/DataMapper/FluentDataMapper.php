@@ -120,6 +120,8 @@ final class FluentDataMapper
      * Set the source data with automatic file detection.
      *
      * If the source is a string and points to an existing file, it will be loaded automatically.
+     * If the source is an XML string (detected by XML declaration or root element),
+     * it will be converted to an array immediately for consistency with sourceFile().
      *
      * @param mixed $source Source data (array, object, model, Dto, JSON, XML or file path)
      */
@@ -127,6 +129,30 @@ final class FluentDataMapper
     {
         if (is_string($source) && file_exists($source)) {
             return $this->sourceFile($source);
+        }
+
+        // Convert XML strings to arrays immediately for consistency with sourceFile()
+        // This ensures that source() and sourceFile() behave identically
+        // Only convert if it looks like XML data (not a template with {{ }})
+        if (is_string($source)) {
+            $trimmed = trim($source);
+            // Check if it's XML data (not a template with {{ }})
+            if ((str_starts_with($trimmed, '<?xml') || str_starts_with($trimmed, '<'))
+                && !str_contains($trimmed, '{{')) {
+                // Use FileLoader to convert XML for consistency with sourceFile()
+                // Create a temporary file to use FileLoader
+                // @phpstan-ignore-next-line disallowed.function (uniqid is fine for temp file names)
+                $tempFile = sys_get_temp_dir() . '/datamapper_xml_' . uniqid() . '.xml';
+                file_put_contents($tempFile, $source);
+
+                try {
+                    $source = FileLoader::loadAsArray($tempFile);
+                } finally {
+                    if (file_exists($tempFile)) {
+                        unlink($tempFile);
+                    }
+                }
+            }
         }
 
         return $this->setSource($source);

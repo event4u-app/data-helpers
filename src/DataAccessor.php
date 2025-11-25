@@ -1403,6 +1403,8 @@ class DataAccessor
             return null;
         }
 
+        // The result is wrapped in a 'root' element, so we need to unwrap it
+        // to get the actual root elements (e.g., LVDATA, POSDATA)
         /** @var array<string, mixed> $result */
         return $result;
     }

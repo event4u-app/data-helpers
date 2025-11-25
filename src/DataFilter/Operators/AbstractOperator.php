@@ -202,11 +202,13 @@ abstract class AbstractOperator implements OperatorInterface
             $path = trim(substr($actualFieldPath, 2, -2));
 
             // Parse default value if present (??  operator)
+            $hasDefaultValue = false;
             $defaultValue = null;
             if (str_contains($path, '??')) {
                 [$path, $defaultStr] = array_map('trim', explode('??', $path, 2));
                 // Remove quotes from default value if present
                 $defaultValue = trim($defaultStr, '"\'');
+                $hasDefaultValue = true;
             }
 
             // Remove filters if present
@@ -225,8 +227,8 @@ abstract class AbstractOperator implements OperatorInterface
                 $result = $accessor->get($path);
             }
 
-            // Apply default value if result is null
-            if (null === $result && null !== $defaultValue) {
+            // Apply default value if result is null and a default value was specified
+            if (null === $result && $hasDefaultValue) {
                 return $defaultValue;
             }
 
