@@ -201,6 +201,14 @@ abstract class AbstractOperator implements OperatorInterface
             // Extract path from template
             $path = trim(substr($actualFieldPath, 2, -2));
 
+            // Parse default value if present (??  operator)
+            $defaultValue = null;
+            if (str_contains($path, '??')) {
+                [$path, $defaultStr] = array_map('trim', explode('??', $path, 2));
+                // Remove quotes from default value if present
+                $defaultValue = trim($defaultStr, '"\'');
+            }
+
             // Remove filters if present
             if (str_contains($path, '|')) {
                 [$path] = explode('|', $path, 2);
@@ -215,6 +223,11 @@ abstract class AbstractOperator implements OperatorInterface
             if (null === $result && null !== $context->target) {
                 $accessor = new DataAccessor($context->target);
                 $result = $accessor->get($path);
+            }
+
+            // Apply default value if result is null
+            if (null === $result && null !== $defaultValue) {
+                return $defaultValue;
             }
 
             return $result;
@@ -255,6 +268,14 @@ abstract class AbstractOperator implements OperatorInterface
             // Extract path from template
             $path = trim(substr($value, 2, -2));
 
+            // Parse default value if present (?? operator)
+            $defaultValue = null;
+            if (str_contains($path, '??')) {
+                [$path, $defaultStr] = array_map('trim', explode('??', $path, 2));
+                // Remove quotes from default value if present
+                $defaultValue = trim($defaultStr, '"\'');
+            }
+
             // Remove filters if present
             if (str_contains($path, '|')) {
                 [$path] = explode('|', $path, 2);
@@ -280,6 +301,9 @@ abstract class AbstractOperator implements OperatorInterface
                     return $result;
                 }
             }
+
+            // Apply default value if available, otherwise return null
+            return $defaultValue;
         }
 
         // Return literal value
