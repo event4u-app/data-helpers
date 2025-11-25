@@ -105,6 +105,7 @@ final class SimpleEngine
      * Cache for ConverterMode attribute.
      *
      * @var array<class-string, bool>
+     *
      */
     private static array $converterModeCache = [];
 
