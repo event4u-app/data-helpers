@@ -2187,7 +2187,15 @@ final class FluentDataMapper
                     $paramName = $reflectionParameter->getName();
 
                     if (array_key_exists($paramName, $castedData)) {
-                        $args[] = $castedData[$paramName];
+                        $value = $castedData[$paramName];
+
+                        // If value is null, parameter is NOT nullable, and parameter has a default value, use the default
+                        // This allows DTOs to use default values when JSON contains null for non-nullable parameters
+                        if (null === $value && !$reflectionParameter->allowsNull() && $reflectionParameter->isDefaultValueAvailable()) {
+                            $args[] = $reflectionParameter->getDefaultValue();
+                        } else {
+                            $args[] = $value;
+                        }
                     } elseif ($reflectionParameter->isDefaultValueAvailable()) {
                         $args[] = $reflectionParameter->getDefaultValue();
                     } elseif ($reflectionParameter->allowsNull()) {

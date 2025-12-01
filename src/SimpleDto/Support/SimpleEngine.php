@@ -3630,6 +3630,10 @@ final class SimpleEngine
                 }
             }
 
+            // Track if the original value was explicitly null (before any casting/transformation)
+            // This is used later to decide whether to use default values for non-nullable parameters
+            $wasExplicitlyNull = $wasProvided && null === $value;
+
             // Step 2: Apply transformations (only if flag is set)
             // Order: Sanitize -> Trim -> others (sorted by sortTransformAttributes)
             // Property-level transforms take precedence over class-level transforms
@@ -3815,8 +3819,14 @@ final class SimpleEngine
 
             // Step 5: Add to args
             // If value was not provided and parameter has default value, use the default
+            // If value was EXPLICITLY null (before casting), parameter is NOT nullable, and parameter has default value, use the default
             // Otherwise use the (possibly casted) value
             if (!$wasProvided && $reflectionParameter->isDefaultValueAvailable()) {
+                $args[] = $reflectionParameter->getDefaultValue();
+            } elseif ($wasExplicitlyNull && !$reflectionParameter->allowsNull() && $reflectionParameter->isDefaultValueAvailable()) {
+                // Value was explicitly null (before any casting) but parameter is NOT nullable and default is available - use default
+                // This allows DTOs to use default values when data contains null for non-nullable parameters
+                // Note: We check $wasExplicitlyNull (original value) not $value (after casting) to avoid using defaults for invalid casted values
                 $args[] = $reflectionParameter->getDefaultValue();
             } else {
                 $args[] = $value;

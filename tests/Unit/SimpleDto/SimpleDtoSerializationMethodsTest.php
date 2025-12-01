@@ -249,9 +249,12 @@ JSON;
         it('handles empty CSV values', function(): void {
             $csv = "name,email,age\nJohn,,30";
 
-            // Empty CSV values result in null, which causes TypeError for non-nullable string
-            expect(fn(): \TestSerializationUserDto => TestSerializationUserDto::fromCsv($csv))
-                ->toThrow(TypeError::class);
+            // Empty CSV values result in null, which uses default value for non-nullable parameters
+            $dto = TestSerializationUserDto::fromCsv($csv);
+
+            expect($dto->name)->toBe('John')
+                ->and($dto->email)->toBe('')  // Uses default value '' instead of null
+                ->and($dto->age)->toBe(30);
         });
     });
 

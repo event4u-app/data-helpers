@@ -441,7 +441,13 @@ final class LiteEngine
         $sourceKey = self::getFromMapping($reflection->getName(), $name, $param);
 
         // Get value from data
-        $value = $data[$sourceKey] ?? null;
+        // Track if the key was provided (to distinguish between missing key and null value)
+        $wasProvided = array_key_exists($sourceKey, $data);
+        $value = $wasProvided ? $data[$sourceKey] : null;
+
+        // Track if the original value was explicitly null (before any casting/transformation)
+        // This is used later to decide whether to use default values for non-nullable parameters
+        $wasExplicitlyNull = $wasProvided && null === $value;
 
         // Check for #[ConvertEmptyToNull]
         if (self::shouldConvertEmptyToNull($reflection->getName(), $name, $param)) {
@@ -492,7 +498,18 @@ final class LiteEngine
         }
 
         // Handle default values
-        if (null === $value && $param->isDefaultValueAvailable()) {
+        // Priority:
+        // 1. If key was not provided and default is available -> use default
+        // 2. If key was provided with EXPLICITLY null value (before casting), parameter is NOT nullable, and default is available -> use default
+        // 3. Otherwise -> use the value (even if null)
+        if (!$wasProvided && $param->isDefaultValueAvailable()) {
+            return $param->getDefaultValue();
+        }
+
+        if ($wasExplicitlyNull && !$param->allowsNull() && $param->isDefaultValueAvailable()) {
+            // Value was explicitly null (before any casting) but parameter is NOT nullable and default is available - use default
+            // This allows DTOs to use default values when data contains null for non-nullable parameters
+            // Note: We check $wasExplicitlyNull (original value) not $value (after casting) to avoid using defaults for invalid casted values
             return $param->getDefaultValue();
         }
 
@@ -1337,6 +1354,7 @@ final class LiteEngine
         foreach ($constructor->getParameters() as $reflectionParameter) {
             $paramName = $reflectionParameter->getName();
             $value = null;
+            $wasProvided = false;
 
             // Check for #[Map] or #[MapFrom]
             $mapAttrs = $reflectionParameter->getAttributes(Map::class);
@@ -1349,16 +1367,23 @@ final class LiteEngine
                 /** @var Map $map */
                 $map = $mapAttrs[0]->newInstance();
                 $sourceKey = $map->key;
-                $value = $data[$sourceKey] ?? null;
+                $wasProvided = array_key_exists($sourceKey, $data);
+                $value = $wasProvided ? $data[$sourceKey] : null;
             } elseif ($allowMapFrom && $hasMapFrom) {
                 /** @var MapFrom $mapFrom */
                 $mapFrom = $mapFromAttrs[0]->newInstance();
                 $sourceKey = $mapFrom->source;
-                $value = $data[$sourceKey] ?? null;
+                $wasProvided = array_key_exists($sourceKey, $data);
+                $value = $wasProvided ? $data[$sourceKey] : null;
             } else {
                 // No Map/MapFrom - use parameter name
-                $value = $data[$paramName] ?? null;
+                $wasProvided = array_key_exists($paramName, $data);
+                $value = $wasProvided ? $data[$paramName] : null;
             }
+
+            // Track if the original value was explicitly null (before any casting/transformation)
+            // This is used later to decide whether to use default values for non-nullable parameters
+            $wasExplicitlyNull = $wasProvided && null === $value;
 
             // Step 2: Apply #[ConvertEmptyToNull] if present (auto-detect)
             if (self::shouldConvertEmptyToNull($class, $paramName, $reflectionParameter)) {
@@ -1403,7 +1428,21 @@ final class LiteEngine
                 }
             }
 
-            $args[] = $value;
+            // Handle default values
+            // Priority:
+            // 1. If key was not provided and default is available -> use default
+            // 2. If key was provided with EXPLICITLY null value (before casting), parameter is NOT nullable, and default is available -> use default
+            // 3. Otherwise -> use the value (even if null)
+            if (!$wasProvided && $reflectionParameter->isDefaultValueAvailable()) {
+                $args[] = $reflectionParameter->getDefaultValue();
+            } elseif ($wasExplicitlyNull && !$reflectionParameter->allowsNull() && $reflectionParameter->isDefaultValueAvailable()) {
+                // Value was explicitly null (before any casting) but parameter is NOT nullable and default is available - use default
+                // This allows DTOs to use default values when data contains null for non-nullable parameters
+                // Note: We check $wasExplicitlyNull (original value) not $value (after casting) to avoid using defaults for invalid casted values
+                $args[] = $reflectionParameter->getDefaultValue();
+            } else {
+                $args[] = $value;
+            }
         }
 
         // Create instance
