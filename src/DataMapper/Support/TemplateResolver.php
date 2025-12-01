@@ -550,13 +550,22 @@ final class TemplateResolver
     /**
      * Find the first wildcard path in a template.
      *
+     * Returns the base wildcard path (up to and including the first *) to ensure
+     * all items are retrieved, even if they don't have the specific field.
+     *
+     * Examples:
+     * - "{{ 0.positions.*.SGRAD }}" => "{{ 0.positions.* }}"
+     * - "{{ items.*.name }}" => "{{ items.* }}"
+     * - "{{ data.*.field.subfield }}" => "{{ data.* }}"
+     *
      * @param mixed $template Template to search
-     * @return string|null First wildcard path found or null
+     * @return string|null Base wildcard path found or null
      */
     private static function findWildcardPath(mixed $template): ?string
     {
         if (is_string($template) && str_contains($template, '*')) {
-            return $template;
+            // Extract the base wildcard path (up to and including the first *)
+            return self::extractBaseWildcardPath($template);
         }
 
         if (is_array($template)) {
@@ -569,6 +578,58 @@ final class TemplateResolver
         }
 
         return null;
+    }
+
+    /**
+     * Extract the base wildcard path from a template expression.
+     *
+     * Returns the path up to and including the first *, removing any fields after it.
+     * This ensures all items are retrieved, even if they don't have specific fields.
+     *
+     * Examples:
+     * - "{{ 0.positions.*.SGRAD }}" => "{{ 0.positions.* }}"
+     * - "{{ items.*.name }}" => "{{ items.* }}"
+     * - "{{ data.*.field.subfield }}" => "{{ data.* }}"
+     * - "{{ items.* }}" => "{{ items.* }}"
+     * - "{{ items.* | upper }}" => "{{ items.* }}"
+     *
+     * @param string $template Template expression with wildcard
+     * @return string Base wildcard path
+     */
+    private static function extractBaseWildcardPath(string $template): string
+    {
+        // Remove {{ }} if present
+        $path = trim($template);
+        $hasWrapper = false;
+        if (str_starts_with($path, '{{') && str_ends_with($path, '}}')) {
+            $path = trim(substr($path, 2, -2));
+            $hasWrapper = true;
+        }
+
+        // Remove filters if present (everything after |)
+        if (str_contains($path, '|')) {
+            [$path] = explode('|', $path, 2);
+            $path = trim($path);
+        }
+
+        // Remove default value if present (everything after ??)
+        if (str_contains($path, '??')) {
+            [$path] = explode('??', $path, 2);
+            $path = trim($path);
+        }
+
+        // Find the position of the first *
+        $wildcardPos = strpos($path, '*');
+        if (false === $wildcardPos) {
+            // No wildcard found, return original
+            return $hasWrapper ? '{{ ' . $path . ' }}' : $path;
+        }
+
+        // Extract everything up to and including the *
+        $basePath = substr($path, 0, $wildcardPos + 1);
+
+        // Add back the {{ }} wrapper if it was present
+        return $hasWrapper ? '{{ ' . $basePath . ' }}' : $basePath;
     }
 
     /**

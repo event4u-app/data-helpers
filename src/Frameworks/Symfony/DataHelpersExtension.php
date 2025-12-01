@@ -63,7 +63,11 @@ final class DataHelpersExtension extends Extension implements ConfigurationInter
         return __DIR__ . '/../../../recipe/config/packages/data_helpers.yaml';
     }
 
-    /** Configuration tree builder. */
+    /**
+     * Configuration tree builder.
+     *
+     * @phpstan-ignore-next-line missingType.generics
+     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('data_helpers');

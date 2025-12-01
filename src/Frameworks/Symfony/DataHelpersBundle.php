@@ -6,7 +6,6 @@ namespace event4u\DataHelpers\Frameworks\Symfony;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use function dirname;
@@ -24,7 +23,7 @@ final class DataHelpersBundle extends Bundle
         return dirname(__DIR__, 3);
     }
 
-    public function getContainerExtension(): ExtensionInterface
+    public function getContainerExtension(): DataHelpersExtension
     {
         return new DataHelpersExtension();
     }

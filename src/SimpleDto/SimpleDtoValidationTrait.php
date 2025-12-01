@@ -16,6 +16,7 @@ use ReflectionClass;
 use ReflectionNamedType;
 use RuntimeException;
 use Stringable;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
@@ -577,7 +578,7 @@ trait SimpleDtoValidationTrait
     /**
      * Get Symfony constraints from validation attributes.
      *
-     * @return array<string, object|array<object>>
+     * @return array<string, list<Constraint>|Constraint>
      */
     protected static function getSymfonyConstraints(): array
     {
@@ -592,6 +593,7 @@ trait SimpleDtoValidationTrait
             }
 
             foreach ($constructor->getParameters() as $reflectionParameter) {
+                /** @var list<Constraint> $propertyConstraints */
                 $propertyConstraints = [];
 
                 foreach ($reflectionParameter->getAttributes() as $attribute) {
@@ -600,10 +602,14 @@ trait SimpleDtoValidationTrait
 
                         if ($instance instanceof SymfonyConstraint) {
                             $constraint = $instance->constraint();
-                            $propertyConstraints = array_merge(
-                                $propertyConstraints,
-                                is_array($constraint) ? $constraint : [$constraint]
-                            );
+                            $constraintArray = is_array($constraint) ? $constraint : [$constraint];
+
+                            // Ensure all constraints are Constraint instances
+                            foreach ($constraintArray as $c) {
+                                if ($c instanceof Constraint) {
+                                    $propertyConstraints[] = $c;
+                                }
+                            }
                         }
                     } catch (Throwable) {
                         continue;

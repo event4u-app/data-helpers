@@ -131,13 +131,21 @@ final class FluentDataMapper
             return $this->sourceFile($source);
         }
 
-        // Convert XML strings to arrays immediately for consistency with sourceFile()
+        // Convert JSON and XML strings to arrays immediately for consistency with sourceFile()
         // This ensures that source() and sourceFile() behave identically
-        // Only convert if it looks like XML data (not a template with {{ }})
+        // Only convert if it looks like JSON/XML data (not a template with {{ }})
         if (is_string($source)) {
             $trimmed = trim($source);
+
+            // Check if it's JSON data (not a template with {{ }})
+            if ((str_starts_with($trimmed, '[') || str_starts_with($trimmed, '{'))
+                && !str_contains($trimmed, '{{')) {
+                // Use DataAccessor to convert JSON for consistency with sourceFile()
+                $accessor = new DataAccessor($source);
+                $source = $accessor->toArray();
+            }
             // Check if it's XML data (not a template with {{ }})
-            if ((str_starts_with($trimmed, '<?xml') || str_starts_with($trimmed, '<'))
+            elseif ((str_starts_with($trimmed, '<?xml') || str_starts_with($trimmed, '<'))
                 && !str_contains($trimmed, '{{')) {
                 // Use FileLoader to convert XML for consistency with sourceFile()
                 // Create a temporary file to use FileLoader
@@ -841,6 +849,8 @@ final class FluentDataMapper
                 $sourceNames = $this->extractSourceNamesFromTemplate($template);
 
                 // Build named sources array
+                // Note: $this->source is always an array at this point because
+                // JSON/XML strings are converted in the source() method
                 $namedSources = [];
                 foreach ($sourceNames as $sourceName) {
                     // Check if source is nested (e.g., 'products' in ['products' => [...]])
@@ -1386,6 +1396,7 @@ final class FluentDataMapper
      * Extract source names from template expressions.
      *
      * Extracts source names like 'products' from '{{ products.*.id }}'.
+     * Also supports numeric source names like '0' from '{{ 0.ID_LV }}'.
      *
      * @param array<int|string, mixed> $template
      * @return array<int, string>
@@ -1396,12 +1407,14 @@ final class FluentDataMapper
 
         foreach ($template as $key => $value) {
             // Check keys (important for WHERE clauses where template expressions are keys)
-            if (is_string($key) && preg_match('/\{\{\s*@?([a-zA-Z_]\w*)\.\*/', $key, $matches)) {
+            // Support both named sources (products) and numeric sources (0, 1, 2)
+            if (is_string($key) && preg_match('/\{\{\s*@?([a-zA-Z_]\w*|\d+)\.\*/', $key, $matches)) {
                 $sourceNames[] = $matches[1];
             }
 
             // Check values
-            if (is_string($value) && preg_match('/\{\{\s*@?([a-zA-Z_]\w*)(?:\.\*|\.[\w.]+)/', $value, $matches)) {
+            // Support both named sources (products) and numeric sources (0, 1, 2)
+            if (is_string($value) && preg_match('/\{\{\s*@?([a-zA-Z_]\w*|\d+)(?:\.\*|\.[\w.]+)/', $value, $matches)) {
                 $sourceNames[] = $matches[1];
             } elseif (is_array($value)) {
                 $sourceNames = array_merge($sourceNames, $this->extractSourceNamesFromTemplate($value));
