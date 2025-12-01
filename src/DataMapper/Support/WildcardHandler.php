@@ -12,7 +12,8 @@ class WildcardHandler
     /**
      * Normalize wildcard array results from DataAccessor.
      *
-     * Picks the first numeric segment found in the key as the index.
+     * Picks the last numeric segment found in the key as the index.
+     * This handles nested wildcards correctly (e.g., "0.positions.2" -> index 2).
      *
      * @param array<int|string,mixed> $array
      * @return array<int|string,mixed>
@@ -32,28 +33,19 @@ class WildcardHandler
             $hasDotPathKeys = true;
 
             $segments = explode('.', $key);
-            $numericCount = 0;
-            $firstNumeric = null;
+            $lastNumeric = null;
 
+            // Find the last numeric segment
             foreach ($segments as $segment) {
-                if (!is_numeric($segment)) {
-                    continue;
+                if (is_numeric($segment)) {
+                    $lastNumeric = (int)$segment;
                 }
-
-                $numericCount++;
-                if (1 < $numericCount) {
-                    unset($segments);
-
-                    return $array;
-                }
-
-                $firstNumeric = (int)$segment;
             }
 
             unset($segments);
 
-            if (null !== $firstNumeric) {
-                $result[$firstNumeric] = $value;
+            if (null !== $lastNumeric) {
+                $result[$lastNumeric] = $value;
             }
         }
 

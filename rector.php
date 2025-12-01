@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
+use \Rector\CodingStyle\Rector\String_\SimplifyQuoteEscapeRector;
 use Rector\CodeQuality\Rector\Concat\JoinStringConcatRector;
 use Rector\CodeQuality\Rector\FuncCall\SortNamedParamRector;
 use Rector\CodeQuality\Rector\Identical\SimplifyBoolIdenticalTrueRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\Switch_\SwitchTrueToIfRector;
+use Rector\CodingStyle\Rector\ClassLike\NewlineBetweenClassLikeStmtsRector;
 use Rector\CodingStyle\Rector\ClassMethod\MakeInheritedMethodVisibilitySameAsParentRector;
 use Rector\CodingStyle\Rector\FuncCall\FunctionFirstClassCallableRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
-use Rector\CodingStyle\Rector\Stmt\RemoveUselessAliasInUseStatementRector;
-use Rector\CodingStyle\Rector\String_\SymplifyQuoteEscapeRector;
+use  Rector\CodingStyle\Rector\Stmt\RemoveUselessAliasInUseStatementRector;
 use Rector\CodingStyle\Rector\String_\UseClassKeywordForClassNameResolutionRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\Assign\RemoveUnusedVariableAssignRector;
@@ -158,11 +159,12 @@ return RectorConfig::configure()
         RenameForeachValueVariableToMatchExprVariableRector::class,
         RemoveUnusedPrivateClassConstantRector::class,
         NewlineAfterStatementRector::class,
-        SymplifyQuoteEscapeRector::class,
         DisallowedEmptyRuleFixerRector::class,
         RemoveUnusedPrivateMethodRector::class,
         SortNamedParamRector::class,
         NullToStrictStringFuncCallArgRector::class,
         FunctionFirstClassCallableRector::class,
         RemoveNullArgOnNullDefaultParamRector::class,
+        NewlineBetweenClassLikeStmtsRector::class,
+        SimplifyQuoteEscapeRector::class,
     ]);
