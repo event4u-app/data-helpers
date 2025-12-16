@@ -124,6 +124,10 @@ trait SimpleDtoEloquentTrait
         if (!$model instanceof Model) {
             /** @var Model $model */
             $model = new $modelClass();
+        } else {
+            // If model was loaded from DB, sync the primary key back to DTO
+            // This ensures DTO and Model are in sync, especially important for exists=true
+            $this->syncPrimaryKeyFromModel($model, $primaryKeyName);
         }
 
         // If exists=true, sync original to ensure all fields are marked as dirty
@@ -275,5 +279,54 @@ trait SimpleDtoEloquentTrait
         // Fallback: check toArray() output
         $data = $this->toArray();
         return $data[$primaryKeyName] ?? null;
+    }
+
+    /**
+     * Sync the primary key value from a Model back to the DTO.
+     *
+     * This method finds the DTO property that maps to the Model's primary key
+     * and sets its value from the Model. This ensures the DTO and Model are in sync.
+     *
+     * @param Model $model The Model instance to sync from
+     * @param string $primaryKeyName The primary key field name from the Model
+     */
+    protected function syncPrimaryKeyFromModel(Model $model, string $primaryKeyName): void
+    {
+        $reflection = new ReflectionClass($this);
+        $primaryKeyValue = $model->getAttribute($primaryKeyName);
+
+        // Find the DTO property that maps to the primary key
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+            $propertyName = $reflectionProperty->getName();
+
+            // Check #[MapTo] attribute
+            $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
+            if (!empty($mapToAttrs)) {
+                /** @var MapTo $mapTo */
+                $mapTo = $mapToAttrs[0]->newInstance();
+                if ($mapTo->target === $primaryKeyName) {
+                    $reflectionProperty->setValue($this, $primaryKeyValue);
+                    return;
+                }
+            }
+
+            // Check #[Map] attribute
+            $mapAttrs = $reflectionProperty->getAttributes(Map::class);
+            if (!empty($mapAttrs)) {
+                /** @var Map $map */
+                $map = $mapAttrs[0]->newInstance();
+                $mapKey = is_array($map->key) ? $map->key[0] : $map->key;
+                if ($mapKey === $primaryKeyName) {
+                    $reflectionProperty->setValue($this, $primaryKeyValue);
+                    return;
+                }
+            }
+
+            // Check if property name matches primary key name
+            if ($propertyName === $primaryKeyName) {
+                $reflectionProperty->setValue($this, $primaryKeyValue);
+                return;
+            }
+        }
     }
 }
