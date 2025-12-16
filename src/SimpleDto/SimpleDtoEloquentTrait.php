@@ -126,6 +126,13 @@ trait SimpleDtoEloquentTrait
             $model = new $modelClass();
         }
 
+        // If exists=true, sync original to ensure all fields are marked as dirty
+        // This is important when the database has been updated directly (via update() query)
+        // and we want to ensure all DTO fields are saved to the database
+        if ($exists && $model instanceof Model) {
+            $model->syncOriginal();
+        }
+
         // Get DTO data and filter timestamps
         $data = $this->toArray();
         $data = static::filterEloquentTimestamps($data, $includeTimestamps);
