@@ -130,11 +130,18 @@ trait SimpleDtoEloquentTrait
             $this->syncPrimaryKeyFromModel($model, $primaryKeyName);
         }
 
-        // If exists=true, sync original to ensure all fields are marked as dirty
-        // This is important when the database has been updated directly (via update() query)
-        // and we want to ensure all DTO fields are saved to the database
+        // If exists=true, clear original attributes BEFORE fill to ensure all fields are marked as dirty
+        // This is important when:
+        // 1. The database has been updated directly (via update() query)
+        // 2. The application found an existing model but toModel() couldn't load it (no primary key in DTO)
+        // By clearing original attributes, all fields set by fill() will be marked as dirty
         if ($exists && $model instanceof Model) {
-            $model->syncOriginal();
+            // Use reflection to clear the original attributes
+            // We can't use syncOriginal() because it copies current attributes to original
+            // We need to clear original so that all filled attributes are marked as dirty
+            $reflection = new ReflectionClass($model);
+            $originalProperty = $reflection->getProperty('original');
+            $originalProperty->setValue($model, []);
         }
 
         // Get DTO data and filter timestamps

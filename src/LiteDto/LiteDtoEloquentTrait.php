@@ -123,13 +123,24 @@ trait LiteDtoEloquentTrait
         if (!$model instanceof Model) {
             /** @var Model $model */
             $model = new $modelClass();
+        } else {
+            // If model was loaded from DB, sync the primary key back to DTO
+            // This ensures DTO and Model are in sync, especially important for exists=true
+            $this->syncPrimaryKeyFromModel($model, $primaryKeyName);
         }
 
-        // If exists=true, sync original to ensure all fields are marked as dirty
-        // This is important when the database has been updated directly (via update() query)
-        // and we want to ensure all DTO fields are saved to the database
+        // If exists=true, clear original attributes BEFORE fill to ensure all fields are marked as dirty
+        // This is important when:
+        // 1. The database has been updated directly (via update() query)
+        // 2. The application found an existing model but toModel() couldn't load it (no primary key in DTO)
+        // By clearing original attributes, all fields set by fill() will be marked as dirty
         if ($exists && $model instanceof Model) {
-            $model->syncOriginal();
+            // Use reflection to clear the original attributes
+            // We can't use syncOriginal() because it copies current attributes to original
+            // We need to clear original so that all filled attributes are marked as dirty
+            $reflection = new ReflectionClass($model);
+            $originalProperty = $reflection->getProperty('original');
+            $originalProperty->setValue($model, []);
         }
 
         // Get DTO data and filter timestamps
@@ -225,5 +236,54 @@ trait LiteDtoEloquentTrait
         // Fallback: check toArray() output
         $data = $this->toArray();
         return $data[$primaryKeyName] ?? null;
+    }
+
+    /**
+     * Sync the primary key value from a Model back to the DTO.
+     *
+     * This method finds the DTO property that maps to the Model's primary key
+     * and sets its value from the Model. This ensures the DTO and Model are in sync.
+     *
+     * @param Model $model The Model instance to sync from
+     * @param string $primaryKeyName The primary key field name from the Model
+     */
+    protected function syncPrimaryKeyFromModel(Model $model, string $primaryKeyName): void
+    {
+        $reflection = new ReflectionClass($this);
+        $primaryKeyValue = $model->getAttribute($primaryKeyName);
+
+        // Find the DTO property that maps to the primary key
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+            $propertyName = $reflectionProperty->getName();
+
+            // Check #[MapTo] attribute
+            $mapToAttrs = $reflectionProperty->getAttributes(MapTo::class);
+            if (!empty($mapToAttrs)) {
+                /** @var MapTo $mapTo */
+                $mapTo = $mapToAttrs[0]->newInstance();
+                if ($mapTo->target === $primaryKeyName) {
+                    $reflectionProperty->setValue($this, $primaryKeyValue);
+                    return;
+                }
+            }
+
+            // Check #[Map] attribute
+            $mapAttrs = $reflectionProperty->getAttributes(Map::class);
+            if (!empty($mapAttrs)) {
+                /** @var Map $map */
+                $map = $mapAttrs[0]->newInstance();
+                $mapKey = is_array($map->key) ? $map->key[0] : $map->key;
+                if ($mapKey === $primaryKeyName) {
+                    $reflectionProperty->setValue($this, $primaryKeyValue);
+                    return;
+                }
+            }
+
+            // Check if property name matches primary key name
+            if ($propertyName === $primaryKeyName) {
+                $reflectionProperty->setValue($this, $primaryKeyValue);
+                return;
+            }
+        }
     }
 }
