@@ -28,6 +28,13 @@
             "number": "01.",
             "parent_id": [],
             "short_text": "Natural Stone Paving Works Test Area North",
+            "long_text": null,
+            "quantity": 0,
+            "estimated_amount": 0,
+            "measured_amount": 0,
+            "unit": null,
+            "unit_price": 0,
+            "minutes": 0,
             "type": "Standard"
         },
         {
@@ -35,12 +42,27 @@
             "number": "01.01.",
             "parent_id": "01.",
             "short_text": "Paving Works",
+            "long_text": null,
+            "quantity": 0,
+            "estimated_amount": 0,
+            "measured_amount": 0,
+            "unit": null,
+            "unit_price": 0,
+            "minutes": 0,
             "type": "Standard"
         },
         {
             "external_id": "01.01.0000",
             "number": "01.01.0000",
             "parent_id": "01.01.",
+            "short_text": null,
+            "long_text": null,
+            "quantity": 0,
+            "estimated_amount": 0,
+            "measured_amount": 0,
+            "unit": null,
+            "unit_price": 0,
+            "minutes": 0,
             "type": "Standard"
         },
         {

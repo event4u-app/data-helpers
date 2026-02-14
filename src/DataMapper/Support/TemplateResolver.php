@@ -75,11 +75,39 @@ final class TemplateResolver
                 }
             }
 
-            // Resolve non-alias values
-            $resolved = self::resolveTemplateNode($value, $sources, $skipNull, $reindexWildcard, $result);
+            // Check if this is a template-based wildcard mapping (key contains '*' and value is array)
+            // Example: 'items.*' => ['id' => '{{ items.*.id }}', 'name' => '{{ items.*.name }}']
+            $isTemplateBasedWildcardMapping = is_string($key) && str_contains($key, '*') && is_array($value);
+
+            // file_put_contents('/tmp/debug.log', "Key: $key, isTemplateBasedWildcardMapping: " . ($isTemplateBasedWildcardMapping ? 'true' : 'false') . PHP_EOL, FILE_APPEND);
+
+            if ($isTemplateBasedWildcardMapping) {
+                // For template-based wildcard mappings, we need to handle them specially
+                // to prevent skipNull from being applied to individual fields
+                assert(is_array($value)); // @phpstan-ignore-line
+                $resolved = self::resolveTemplateBasedWildcardMapping(
+                    $key,
+                    $value, // @phpstan-ignore-line argument.type
+                    $sources,
+                    $skipNull,
+                    $reindexWildcard,
+                    $result
+                );
+            } else {
+                // Resolve non-alias values normally
+                $resolved = self::resolveTemplateNode($value, $sources, $skipNull, $reindexWildcard, $result);
+            }
+
             if ($skipNull && null === $resolved) {
                 continue;
             }
+
+            // For template-based wildcard mappings, remove the '.*' suffix from the key
+            // Example: 'items.*' => 'items'
+            if ($isTemplateBasedWildcardMapping && is_string($key) && str_ends_with($key, '.*')) {
+                $key = substr($key, 0, -2);
+            }
+
             $result[$key] = $resolved;
         }
 
@@ -112,6 +140,43 @@ final class TemplateResolver
     }
 
     /**
+     * Resolve template-based wildcard mapping.
+     *
+     * Template-based wildcard mappings are patterns like:
+     *   'items.*' => [
+     *       'id' => '{{ items.*.id }}',
+     *       'name' => '{{ items.*.name }}',
+     *   ]
+     *
+     * These require special handling because skipNull should NOT be applied to individual fields,
+     * only to the entire resolved item. Otherwise, null fields would be missing from the result.
+     *
+     * @param string $wildcardKey Key with wildcard (e.g., 'items.*')
+     * @param array<string,mixed> $template Template for each item
+     * @param array<string,mixed> $sources Source data
+     * @param bool $skipNull Skip null items (not individual fields!)
+     * @param bool $reindexWildcard Reindex results
+     * @param array<string,mixed> $aliases Already resolved aliases
+     * @return array<int|string,mixed> Resolved wildcard array
+     */
+    private static function resolveTemplateBasedWildcardMapping(
+        string $wildcardKey,
+        array $template,
+        array $sources,
+        bool $skipNull,
+        bool $reindexWildcard,
+        array $aliases
+    ): array {
+        // Convert the wildcard mapping to the standard format with '*' key
+        $standardMapping = [
+            '*' => $template,
+        ];
+
+        // Use the existing resolveWildcardMapping() method
+        return self::resolveWildcardMapping($standardMapping, $sources, $skipNull, $reindexWildcard, $aliases);
+    }
+
+    /**
      * Resolve a template node recursively.
      *
      * @param array<string,mixed> $sources
@@ -138,7 +203,7 @@ final class TemplateResolver
                     // Free memory: result not needed anymore
                     unset($result);
 
-                    // Then apply skipNull and reindex
+                    // Wildcard array: iterate and resolve each item
                     $filtered = [];
                     WildcardHandler::iterateWildcardItems(
                         $normalized,
@@ -184,10 +249,32 @@ final class TemplateResolver
         // Array: recursively resolve each element
         $result = [];
         foreach ($node as $key => $value) {
-            // Pass current result as aliases for nested @references
-            // Avoid array_merge in loop - use + operator for better performance
-            $currentAliases = $result + $aliases;
-            $resolved = self::resolveTemplateNode($value, $sources, $skipNull, $reindexWildcard, $currentAliases);
+            // Check if this is a nested template-based wildcard mapping
+            // Example: 'employees.*' => ['id' => '...', 'name' => '...']
+            $isTemplateBasedWildcardMapping = is_string($key) && str_contains($key, '*') && is_array($value);
+
+            if ($isTemplateBasedWildcardMapping) {
+                // For nested template-based wildcard mappings, use the special handler
+                assert(is_array($value)); // @phpstan-ignore-line
+                $resolved = self::resolveTemplateBasedWildcardMapping(
+                    $key,
+                    $value, // @phpstan-ignore-line argument.type
+                    $sources,
+                    $skipNull,
+                    $reindexWildcard,
+                    $aliases
+                );
+
+                // Remove the '.*' suffix from the key
+                if (str_ends_with($key, '.*')) {
+                    $key = substr($key, 0, -2);
+                }
+            } else {
+                // Pass current result as aliases for nested @references
+                // Avoid array_merge in loop - use + operator for better performance
+                $currentAliases = $result + $aliases;
+                $resolved = self::resolveTemplateNode($value, $sources, $skipNull, $reindexWildcard, $currentAliases);
+            }
 
             // Skip null values if requested
             if ($skipNull && null === $resolved) {
@@ -700,8 +787,12 @@ final class TemplateResolver
             $result = [];
             foreach ($template as $key => $value) {
                 $resolved = self::resolveWildcardTemplateForIndex($value, $sources, $aliases, $index);
+                // DO NOT skip null values here! This would cause fields to be missing in the result.
+                // Example: ['id' => 1, 'name' => null] should remain as-is, not become ['id' => 1]
+                // Debug: echo "Key: $key, Resolved: " . json_encode($resolved) . PHP_EOL;
                 $result[$key] = $resolved;
             }
+
             return $result;
         }
 

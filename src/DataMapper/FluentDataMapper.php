@@ -13,6 +13,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Support\MappingFacade;
 use event4u\DataHelpers\DataMapper\Support\MappingReverser;
 use event4u\DataHelpers\DataMapper\Support\WildcardOperatorRegistry;
+use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Enums\DataMapperHook;
 use event4u\DataHelpers\Helpers\ObjectHelper;
 use event4u\DataHelpers\LiteDto;
@@ -837,9 +838,13 @@ final class FluentDataMapper
         $hasSourceAliases = is_array($this->source) && $this->hasSourceAliases($this->source);
         $hasSourceAliasReferences = $this->hasSourceAliasReferences($template);
 
-        // If template contains wildcard operators OR uses @alias syntax, we need to use mapFromTemplate()
+        // If template contains wildcard operators OR uses @alias syntax OR has template-based wildcard mappings,
+        // we need to use mapFromTemplate()
         // This includes both query-generated operators and manually added operators in template
-        if ($this->hasWildcardOperators($template) || ($hasSourceAliases && $hasSourceAliasReferences)) {
+        $hasTemplateBasedWildcardMapping = $this->hasTemplateBasedWildcardMapping($template);
+        if ($this->hasWildcardOperators(
+            $template
+        ) || ($hasSourceAliases && $hasSourceAliasReferences) || $hasTemplateBasedWildcardMapping) {
             // If source is already an array with aliases, use it directly
             if ($hasSourceAliases && $hasSourceAliasReferences) {
                 assert(is_array($this->source), 'Source must be array when using aliases');
@@ -865,10 +870,19 @@ final class FluentDataMapper
 
             // Use mapFromTemplate for wildcard operator support
             // When using queries, reindexWildcard should default to true for consistent behavior
+            // For wildcard mappings, we ALWAYS use skipNull=false to prevent index desynchronization
+            // Example: If users.*.name = ['Alice', null, 'Bob'] and users.*.age = [25, 30, 35]
+            // With skipNull=true: names=[0=>'Alice', 1=>'Bob'] and ages=[0=>25, 1=>30, 2=>35] (WRONG!)
+            // With skipNull=false: names=[0=>'Alice', 1=>null, 2=>'Bob'] and ages=[0=>25, 1=>30, 2=>35] (CORRECT!)
+            // However, for non-wildcard mappings (e.g., multi-source with @alias), we respect the user's skipNull setting
+            $useSkipNull = $this->hasWildcardOperators($template) || $hasTemplateBasedWildcardMapping
+                ? false  // Always use skipNull=false for wildcard mappings
+                : $this->getSkipNullValue();  // Respect user's setting for non-wildcard mappings
+
             $mappedArray = MappingFacade::mapFromTemplate(
                 $template, // @phpstan-ignore-line argument.type
                 $namedSources,
-                $this->getSkipNullValue(),
+                $useSkipNull,
                 $hasSourceAliases && $hasSourceAliasReferences ? $this->getReindexWildcardValue() : true
             );
 
@@ -880,18 +894,94 @@ final class FluentDataMapper
                     $simpleMapping[$key] = '{{ ' . $key . ' }}';
                 }
 
+                // Apply pipeline filters if present
+                if ([] !== $this->pipelineFilters) {
+                    $pipelineHooks = $this->buildPipelineHooks($this->pipelineFilters);
+                    $mergedHooks = $this->mergeHooksWithPipeline($hooks, $pipelineHooks);
+                } else {
+                    $mergedHooks = $hooks;
+                }
+
                 $result = MappingFacade::map(
                     $mappedArray,
                     $target,
                     $simpleMapping,
                     $this->getSkipNullValue(),
                     $this->getReindexWildcardValue(),
-                    $hooks,
+                    $mergedHooks,
                     $this->trimValues,
                     $this->caseInsensitiveReplace
                 );
             } else {
-                $result = $mappedArray;
+                // For array targets, we need to:
+                // 1. Apply pipeline filters and property filters if present
+                // 2. Nest dot-notation keys (e.g., 'project.externalProjectId' -> ['project' => ['externalProjectId' => ...]])
+                // 3. Unwrap single '*' key if present (template-based wildcard mapping)
+
+                // Check if we need to unwrap a single '*' key
+                // This happens when the template is like: '*' => ['name' => '{{ items.*.name }}']
+                // The result should be [0 => [...], 1 => [...]] not ['*' => [0 => [...], 1 => [...]]]
+                if (count($mappedArray) === 1 && isset($mappedArray['*']) && is_array($mappedArray['*'])) {
+                    $mappedArray = $mappedArray['*'];
+                }
+
+                // Check if we need to apply hooks (pipeline filters or property filters)
+                $needsHooks = [] !== $this->pipelineFilters || [] !== $this->propertyFilters;
+
+                if ($needsHooks) {
+                    // Create a simple mapping: key => {{ key }}
+                    $simpleMapping = [];
+                    foreach (array_keys($mappedArray) as $key) {
+                        $simpleMapping[$key] = '{{ ' . $key . ' }}';
+                    }
+
+                    // Apply pipeline filters if present
+                    if ([] !== $this->pipelineFilters) {
+                        $pipelineHooks = $this->buildPipelineHooks($this->pipelineFilters);
+                        $mergedHooks = $this->mergeHooksWithPipeline($hooks, $pipelineHooks);
+                    } else {
+                        $mergedHooks = $hooks;
+                    }
+
+                    // Apply hooks to the mapped array
+                    $filteredArray = MappingFacade::map(
+                        $mappedArray,
+                        [],
+                        $simpleMapping,
+                        $this->getSkipNullValue(),
+                        $this->getReindexWildcardValue(),
+                        $mergedHooks,
+                        $this->trimValues,
+                        $this->caseInsensitiveReplace
+                    );
+                } else {
+                    $filteredArray = $mappedArray;
+                }
+
+                // Nest dot-notation keys using DataMutator
+                // Example: ['project.externalProjectId' => '2075436601850'] -> ['project' => ['externalProjectId' => '2075436601850']]
+                // Only use DataMutator if there are dot-notation keys (string keys containing '.')
+                $hasDotNotationKeys = false;
+                assert(is_array($filteredArray)); // @phpstan-ignore-line
+                foreach (array_keys($filteredArray) as $key) {
+                    if (is_string($key) && str_contains($key, '.')) {
+                        $hasDotNotationKeys = true;
+                        break;
+                    }
+                }
+
+                if ($hasDotNotationKeys) {
+                    $result = [];
+                    $mutator = DataMutator::make($result);
+                    foreach ($filteredArray as $key => $value) {
+                        $mutator->set((string)$key, $value);
+                    }
+                    // Release the reference held by DataMutator to allow $result to be reassigned later
+                    unset($mutator);
+                } else {
+                    // No dot-notation keys, use the filtered array directly
+                    $result = $filteredArray;
+                }
             }
         } elseif ([] !== $this->pipelineFilters) {
             // Use pipeline with merged hooks
@@ -1393,6 +1483,31 @@ final class FluentDataMapper
     }
 
     /**
+     * Check if template contains template-based wildcard mappings.
+     *
+     * Template-based wildcard mappings are patterns like:
+     *   'items.*' => ['id' => '{{ items.*.id }}', 'name' => '{{ items.*.name }}']
+     *
+     * @param array<int|string, mixed> $template
+     */
+    private function hasTemplateBasedWildcardMapping(array $template): bool
+    {
+        foreach ($template as $key => $value) {
+            // Check if key contains '*' and value is an array
+            if (is_string($key) && str_contains($key, '*') && is_array($value)) {
+                return true;
+            }
+
+            // Recursively check nested arrays
+            if (is_array($value) && $this->hasTemplateBasedWildcardMapping($value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Extract source names from template expressions.
      *
      * Extracts source names like 'products' from '{{ products.*.id }}'.
@@ -1414,7 +1529,8 @@ final class FluentDataMapper
 
             // Check values
             // Support both named sources (products) and numeric sources (0, 1, 2)
-            if (is_string($value) && preg_match('/\{\{\s*@?([a-zA-Z_]\w*|\d+)(?:\.\*|\.[\w.]+)/', $value, $matches)) {
+            // The dot-part is optional to support expressions like {{ total }} without a path
+            if (is_string($value) && preg_match('/\{\{\s*@?([a-zA-Z_]\w*|\d+)(?:\.\*|\.[\w.]+)?/', $value, $matches)) {
                 $sourceNames[] = $matches[1];
             } elseif (is_array($value)) {
                 $sourceNames = array_merge($sourceNames, $this->extractSourceNamesFromTemplate($value));
