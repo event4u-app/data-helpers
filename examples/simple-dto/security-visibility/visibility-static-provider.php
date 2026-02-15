@@ -170,16 +170,13 @@ class UserProfileDto extends SimpleDto
         public readonly string $displayName,
 
         // Context wird automatisch von AuthContextProvider geholt!
-        #[Visible(
-            contextProvider: AuthContextProvider::class,
-            callback: [PermissionChecker::class, 'canViewEmail']
-        )]
+        #[Visible(callback: [PermissionChecker::class, 'canViewEmail'], contextProvider: AuthContextProvider::class)]
         public readonly string $email,
 
-        #[Visible(
-            contextProvider: AuthContextProvider::class,
-            callback: [PermissionChecker::class, 'canViewInternalNotes']
-        )]
+        #[Visible(callback: [
+            PermissionChecker::class,
+            'canViewInternalNotes',
+        ], contextProvider: AuthContextProvider::class)]
         public readonly string $notes,
     ) {}
 }
@@ -232,16 +229,13 @@ class OrderDto extends SimpleDto
         public readonly float $total,
 
         // Kombiniert: Context Provider + Static Callback
-        #[Visible(
-            contextProvider: AuthContextProvider::class,
-            callback: [PermissionChecker::class, 'canViewEmail']
-        )]
+        #[Visible(callback: [PermissionChecker::class, 'canViewEmail'], contextProvider: AuthContextProvider::class)]
         public readonly string $customerEmail,
 
-        #[Visible(
-            contextProvider: AuthContextProvider::class,
-            callback: [PermissionChecker::class, 'canViewInternalNotes']
-        )]
+        #[Visible(callback: [
+            PermissionChecker::class,
+            'canViewInternalNotes',
+        ], contextProvider: AuthContextProvider::class)]
         public readonly string $processingNotes,
     ) {}
 }
@@ -300,10 +294,10 @@ class ApiResponseDto extends SimpleDto
         public readonly string $title,
 
         // Verwendet API Context Provider
-        #[Visible(
-            contextProvider: ApiContextProvider::class,
-            callback: [PermissionChecker::class, 'canViewInternalNotes']
-        )]
+        #[Visible(callback: [
+            PermissionChecker::class,
+            'canViewInternalNotes',
+        ], contextProvider: ApiContextProvider::class)]
         public readonly string $debugInfo,
     ) {}
 }

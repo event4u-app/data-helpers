@@ -1299,7 +1299,6 @@ class MappingFacade
 
                         $transformFn = null;
                         if (array_key_exists((string)$sourcePath, $transforms)) {
-                            /** @var null|callable $fn */
                             $fn = $transforms[(string)$sourcePath];
                             $transformFn = $fn;
                         } elseif (array_is_list($transforms)) {

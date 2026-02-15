@@ -463,8 +463,8 @@ describe('DataMapper Property Accessor', function(): void {
 
             $value = $mapper->property('items')->getMappedValue();
 
-            // Empty wildcard arrays result in null, not empty array
-            expect($value)->toBeNull();
+            // Empty wildcard arrays result in empty array
+            expect($value)->toBe([]);
         });
 
         it('handles deeply nested paths', function(): void {

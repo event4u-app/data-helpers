@@ -121,7 +121,6 @@ describe('SimpleDtoAutoCastingTest', function(): void {
 
         it('casts float to int', function(): void {
             $dto = TestAutoCastingTypedDto::fromArray(['intProp' => 42.9]);
-            /** @var int $intProp */
             $intProp = $dto->intProp;
             expect($intProp)->toBe(42);
         });
