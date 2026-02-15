@@ -287,8 +287,6 @@ echo "4. Comments:\n";
 echo str_repeat('-', 80) . "\n";
 
 $comment1 = new CommentDto(
-    id: 1,
-    content: 'Great article! Very helpful.',
     author: new AuthorDto(
         name: 'John Doe',
         email: 'john@example.com',
@@ -301,6 +299,8 @@ $comment1 = new CommentDto(
         /** @phpstan-ignore-next-line unknown */
         bio: null,
     ),
+    id: 1,
+    content: 'Great article! Very helpful.',
     parentId: null,
     createdAt: Carbon::now()->subHours(2),
     replies: null,
@@ -309,9 +309,9 @@ $comment1 = new CommentDto(
 );
 
 $comment2 = new CommentDto(
+    author: $author,
     id: 2,
     content: 'Thanks for the feedback!',
-    author: $author,
     parentId: 1,
     createdAt: Carbon::now()->subHour(),
     replies: null,

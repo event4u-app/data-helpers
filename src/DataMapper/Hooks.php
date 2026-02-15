@@ -319,7 +319,7 @@ final class Hooks
         // Already normalized (string keys) - just normalize nested arrays
         $normalized = [];
         foreach ($hooks as $key => $value) {
-            $normalized[$key] = is_array($value) ? self::normalizeArrayKeys($value) : $value;
+            $normalized[(string)$key] = is_array($value) ? self::normalizeArrayKeys($value) : $value;
         }
 
         return $normalized;

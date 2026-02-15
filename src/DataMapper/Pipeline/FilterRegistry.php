@@ -60,7 +60,6 @@ final class FilterRegistry
             throw new InvalidArgumentException('Class ' . $filterClass . ' must implement FilterInterface');
         }
 
-        /** @var FilterInterface $instance */
         $instance = new $filterClass();
         $aliases = $instance->getAliases();
 

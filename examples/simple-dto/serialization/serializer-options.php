@@ -225,10 +225,10 @@ class OrderDto extends SimpleDto
 }
 
 $order = new OrderDto(
+    quantity: 2,
     orderId: 12345,
     productName: 'Laptop',
     productPrice: 999.99,
-    quantity: 2,
     total: 1999.98
 );
 

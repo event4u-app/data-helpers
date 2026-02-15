@@ -284,8 +284,8 @@ $category = new CategoryDto(
 $product = new ProductDto(
     id: 101,
     name: 'Wireless Headphones',
-    slug: 'wireless-headphones',
     price: 99.99,
+    slug: 'wireless-headphones',
     salePrice: 79.99,
     description: 'Premium wireless headphones with noise cancellation',
     category: $category,
@@ -333,11 +333,12 @@ echo "3. Order Processing:\n";
 echo str_repeat('-', 80) . "\n";
 
 $order = new OrderDto(
+    status: 'processing',
     id: 1001,
     orderNumber: 'ORD-2024-001',
     customer: new CustomerDto(
-        id: 1,
         name: 'John Doe',
+        id: 1,
         email: 'john@example.com',
         phone: '+1234567890',
     ),
@@ -353,18 +354,17 @@ $order = new OrderDto(
     shippingAddress: new AddressDto(
         street: '123 Main St',
         city: 'New York',
+        country: 'USA',
         state: 'NY',
         zipCode: '10001',
-        country: 'USA',
     ),
     billingAddress: new AddressDto(
         street: '123 Main St',
         city: 'New York',
+        country: 'USA',
         state: 'NY',
         zipCode: '10001',
-        country: 'USA',
     ),
-    status: 'processing',
     subtotal: 159.98,
     discount: 15.99,
     tax: 27.36,

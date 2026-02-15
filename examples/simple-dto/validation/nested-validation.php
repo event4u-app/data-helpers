@@ -168,7 +168,7 @@ echo "\n";
 echo "3. AUTO-VALIDATION WITH NESTED Dtos:\n";
 echo str_repeat('-', 60) . "\n";
 
-#[ValidateRequest(auto: true, throw: true)]
+#[ValidateRequest(throw: true, auto: true)]
 class AutoValidatedUserDto extends SimpleDto
 {
     public function __construct(

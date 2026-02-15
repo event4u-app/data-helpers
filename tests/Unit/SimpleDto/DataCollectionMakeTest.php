@@ -137,7 +137,7 @@ describe('DataCollectionMakeTest', function(): void {
             ];
 
             $collection = DtoCollection::make($data, TestDataCollectionUserDto::class);
-            /** @var array<string> $names */
+            /** @var array<int, string> $names */
             $names = [];
 
             foreach ($collection as $dto) {
@@ -145,6 +145,7 @@ describe('DataCollectionMakeTest', function(): void {
                 $names[] = $dto->name;
             }
 
+            /** @phpstan-ignore-next-line argument.unresolvableType, function.unresolvableReturnType */
             expect($names)->toBe(['John', 'Jane']);
         });
 
