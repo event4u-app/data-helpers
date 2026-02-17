@@ -190,7 +190,8 @@ trait SimpleDtoOptionalTrait
             $data['lastValidationResult'],
             $data['toArrayCache'],
             $data['toJsonCache'],
-            $data['mapperTemplate']
+            $data['mapperTemplate'],
+            $data['__propertiesWithDefaultValues']
         );
 
         $partial = [];

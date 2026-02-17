@@ -477,6 +477,7 @@ final class SimpleEngine
                 'toArrayCache',
                 'toJsonCache',
                 'mapperTemplate',
+                '__propertiesWithDefaultValues',
             ];
 
             foreach ($internalProperties as $internalProp) {
@@ -735,6 +736,7 @@ final class SimpleEngine
                 'toArrayCache',
                 'toJsonCache',
                 'mapperTemplate',
+                '__propertiesWithDefaultValues',
             ];
 
             foreach ($internalProperties as $internalProp) {
@@ -3543,8 +3545,9 @@ final class SimpleEngine
             self::validateParameterAttributeUsage($class, $reflectionParameter);
         }
 
-        // Build constructor arguments
+        // Build constructor arguments and track properties that were NOT provided (used defaults)
         $args = [];
+        $propertiesWithDefaultValues = [];
         foreach ($constructor->getParameters() as $reflectionParameter) {
             $paramName = $reflectionParameter->getName();
 
@@ -3831,10 +3834,39 @@ final class SimpleEngine
             } else {
                 $args[] = $value;
             }
+
+            // Track if this property was NOT provided (used default value)
+            if (!$wasProvided) {
+                $propertiesWithDefaultValues[$paramName] = true;
+            }
         }
 
         // Create instance
-        return $reflection->newInstanceArgs($args);
+        $instance = $reflection->newInstanceArgs($args);
+
+        // Store properties with default values using reflection
+        if ([] !== $propertiesWithDefaultValues) {
+            try {
+                // Search for property in class hierarchy (it might be in parent class)
+                $defaultValuesProp = null;
+                $currentClass = $reflection;
+                while ($currentClass) {
+                    if ($currentClass->hasProperty('__propertiesWithDefaultValues')) {
+                        $defaultValuesProp = $currentClass->getProperty('__propertiesWithDefaultValues');
+                        break;
+                    }
+                    $currentClass = $currentClass->getParentClass();
+                }
+
+                if (null !== $defaultValuesProp) {
+                    $defaultValuesProp->setValue($instance, $propertiesWithDefaultValues);
+                }
+            } catch (ReflectionException) {
+                // Property doesn't exist, skip (for backward compatibility)
+            }
+        }
+
+        return $instance;
     }
 
     /**

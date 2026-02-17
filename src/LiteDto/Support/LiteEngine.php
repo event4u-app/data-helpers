@@ -30,6 +30,7 @@ use Exception;
 use InvalidArgumentException;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
@@ -168,14 +169,48 @@ final class LiteEngine
             self::validateParameterAttributeUsage($class, $reflectionParameter);
         }
 
-        // Step 4: Build constructor arguments
+        // Step 4: Build constructor arguments and track properties that were NOT provided (used defaults)
         $args = [];
+        $propertiesWithDefaultValues = [];
         foreach ($constructor->getParameters() as $reflectionParameter) {
+            $paramName = $reflectionParameter->getName();
+            $sourceKey = self::getFromMapping($class, $paramName, $reflectionParameter);
+            $wasProvided = array_key_exists($sourceKey, $data);
+
             $args[] = self::resolveParameter($reflectionParameter, $data, $reflection);
+
+            // Track if this property was NOT provided (used default value)
+            if (!$wasProvided) {
+                $propertiesWithDefaultValues[$paramName] = true;
+            }
         }
 
         // Step 5: Create instance
-        return $reflection->newInstanceArgs($args);
+        $instance = $reflection->newInstanceArgs($args);
+
+        // Step 6: Store properties with default values using reflection
+        if ([] !== $propertiesWithDefaultValues) {
+            try {
+                // Search for property in class hierarchy (it might be in parent class)
+                $defaultValuesProp = null;
+                $currentClass = $reflection;
+                while ($currentClass) {
+                    if ($currentClass->hasProperty('__propertiesWithDefaultValues')) {
+                        $defaultValuesProp = $currentClass->getProperty('__propertiesWithDefaultValues');
+                        break;
+                    }
+                    $currentClass = $currentClass->getParentClass();
+                }
+
+                if (null !== $defaultValuesProp) {
+                    $defaultValuesProp->setValue($instance, $propertiesWithDefaultValues);
+                }
+            } catch (ReflectionException) {
+                // Property doesn't exist, skip (for backward compatibility)
+            }
+        }
+
+        return $instance;
     }
 
     /**
@@ -1510,6 +1545,7 @@ final class LiteEngine
         $internalProperties = [
             'toArrayCache',
             'toJsonCache',
+            '__propertiesWithDefaultValues',
         ];
 
         $keys = [];
