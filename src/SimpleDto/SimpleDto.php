@@ -68,6 +68,15 @@ abstract class SimpleDto implements DtoInterface, JsonSerializable, Stringable, 
 {
     use SimpleDtoTrait;
 
+    /**
+     * Track which properties were NOT provided in the input data (used default values).
+     * This allows us to detect when a property was explicitly set later by comparing
+     * the current value with the default value.
+     *
+     * @var array<string, true>
+     */
+    private array $__propertiesWithDefaultValues = [];
+
     /** Convert DTO to string (JSON representation). */
     public function __toString(): string
     {

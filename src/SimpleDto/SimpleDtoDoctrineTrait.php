@@ -80,6 +80,7 @@ trait SimpleDtoDoctrineTrait
 
         // Try to load existing entity from database if EntityManager is provided
         $entity = null;
+        $entityExistsInDb = false;
         if (null !== $entityManager && $entityManager instanceof EntityManagerInterface) {
             $identifierInfo = $this->getIdentifierFieldsAndValues($entityManager, $entityClass);
 
@@ -90,6 +91,7 @@ trait SimpleDtoDoctrineTrait
                     ? reset($identifierInfo['values'])
                     : $identifierInfo['values'];
                 $entity = static::loadExistingEntity($entityManager, $entityClass, $identifier);
+                $entityExistsInDb = null !== $entity;
             }
         }
 
@@ -99,7 +101,12 @@ trait SimpleDtoDoctrineTrait
         }
 
         // Get Dto data and filter timestamps
-        $data = $this->toArray();
+        // If entity exists in DB, only use explicitly set properties to avoid overwriting DB values with defaults
+        if ($entityExistsInDb) {
+            $data = $this->toArrayOnlyExplicitlySet();
+        } else {
+            $data = $this->toArray();
+        }
         $data = static::filterDoctrineTimestamps($data, $includeTimestamps);
 
         // Fill entity with Dto data

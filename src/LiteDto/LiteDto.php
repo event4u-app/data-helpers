@@ -12,9 +12,13 @@ use event4u\DataHelpers\DataAccessor;
 use event4u\DataHelpers\DataCollection;
 use event4u\DataHelpers\DataMutator;
 use event4u\DataHelpers\Exceptions\TypeMismatchException;
+use event4u\DataHelpers\LiteDto\Attributes\Map;
+use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 use event4u\DataHelpers\LiteDto\Support\LiteEngine;
 use JsonSerializable;
 use ReflectionClass;
+use ReflectionException;
+use ReflectionProperty;
 use Stringable;
 use UnitEnum;
 
@@ -85,6 +89,15 @@ abstract class LiteDto implements JsonSerializable, Stringable, ArrayAccess
 
     /** @var array{hash: string, data: array<string, mixed>, context: array<string, mixed>}|null */
     private ?array $toArrayCache = null;
+
+    /**
+     * Track which properties were NOT provided in the input data (used default values).
+     * This allows us to detect when a property was explicitly set later by comparing
+     * the current value with the default value.
+     *
+     * @var array<string, true>
+     */
+    private array $__propertiesWithDefaultValues = [];
 
     /**
      * Convert DTO to array.
@@ -636,5 +649,119 @@ abstract class LiteDto implements JsonSerializable, Stringable, ArrayAccess
         }
 
         return $data;
+    }
+
+    /**
+     * Get array of only explicitly set properties.
+     * This returns only properties that were provided in the input data,
+     * excluding properties that use their default values.
+     *
+     * This is useful when merging DTO data with existing database records,
+     * to avoid overwriting database values with DTO default values.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArrayOnlyExplicitlySet(): array
+    {
+        // First get the full array (with mapping and nested DTO conversion)
+        $fullArray = $this->toArray();
+
+        // Get all properties using reflection to check which were explicitly set
+        $reflection = new ReflectionClass($this);
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+
+        // Build a map of property names to output names
+        $propertyToOutputName = [];
+        foreach ($properties as $property) {
+            $propertyName = $property->getName();
+
+            // Skip internal properties
+            if ('toArrayCache' === $propertyName || '__propertiesWithDefaultValues' === $propertyName) {
+                continue;
+            }
+
+            // Get output name (check for #[Map] or #[MapTo] attributes)
+            $outputName = $propertyName;
+
+            // Check for #[Map] attribute first (bidirectional mapping)
+            $mapAttrs = $property->getAttributes(Map::class);
+            if ([] !== $mapAttrs) {
+                /** @var Attributes\Map $map */
+                $map = $mapAttrs[0]->newInstance();
+                $outputName = $map->key;
+            } else {
+                // Check for #[MapTo] attribute
+                $mapToAttrs = $property->getAttributes(MapTo::class);
+                if ([] !== $mapToAttrs) {
+                    /** @var Attributes\MapTo $mapTo */
+                    $mapTo = $mapToAttrs[0]->newInstance();
+                    $outputName = $mapTo->target;
+                }
+            }
+
+            $propertyToOutputName[$propertyName] = $outputName;
+        }
+
+        // Filter to only explicitly set properties
+        $result = [];
+        foreach ($propertyToOutputName as $propertyName => $outputName) {
+            // Only include if explicitly set
+            if (!$this->wasPropertyExplicitlySet($propertyName)) {
+                continue;
+            }
+            // Include in result if it exists in the full array
+            if (!array_key_exists($outputName, $fullArray)) {
+                continue;
+            }
+            $result[$outputName] = $fullArray[$outputName];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check if a property was explicitly set in the input data.
+     * A property is considered explicitly set if:
+     * - It was provided in the input data during construction, OR
+     * - It was NOT provided but its current value differs from the default value
+     *
+     * @param string $propertyName The property name to check
+     * @return bool True if the property was explicitly set, false otherwise
+     */
+    public function wasPropertyExplicitlySet(string $propertyName): bool
+    {
+        // If property was NOT in the default values list, it was provided during construction
+        if (!isset($this->__propertiesWithDefaultValues[$propertyName])) {
+            return true;
+        }
+
+        // Property used default value during construction
+        // Check if current value differs from default value
+        try {
+            $reflection = new ReflectionClass($this);
+            $constructor = $reflection->getConstructor();
+            if (null === $constructor) {
+                return false;
+            }
+
+            foreach ($constructor->getParameters() as $reflectionParameter) {
+                if ($reflectionParameter->getName() === $propertyName) {
+                    if (!$reflectionParameter->isDefaultValueAvailable()) {
+                        return false;
+                    }
+
+                    $defaultValue = $reflectionParameter->getDefaultValue();
+                    $currentValue = $this->$propertyName;
+
+                    // If values differ, property was explicitly set after construction
+                    return $currentValue !== $defaultValue;
+                }
+            }
+        } catch (ReflectionException) {
+            // If we can't determine, assume it wasn't explicitly set
+            return false;
+        }
+
+        return false;
     }
 }

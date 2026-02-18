@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use event4u\DataHelpers\SimpleDto;
-use event4u\DataHelpers\SimpleDto\Attributes\Map;
-use event4u\DataHelpers\SimpleDto\Attributes\MapFrom;
-use event4u\DataHelpers\SimpleDto\Attributes\MapTo;
+use event4u\DataHelpers\LiteDto;
+use event4u\DataHelpers\LiteDto\Attributes\Map;
+use event4u\DataHelpers\LiteDto\Attributes\MapFrom;
+use event4u\DataHelpers\LiteDto\Attributes\MapTo;
 
 // Test DTOs for edge cases
-class EdgeCaseUserDto extends SimpleDto
+class EdgeCaseUserLiteDto extends LiteDto
 {
     public function __construct(
         public readonly ?int $id = null,
@@ -19,7 +19,7 @@ class EdgeCaseUserDto extends SimpleDto
     ) {}
 }
 
-class EdgeCaseProfileDto extends SimpleDto
+class EdgeCaseProfileLiteDto extends LiteDto
 {
     public function __construct(
         public readonly ?int $id = null,
@@ -30,7 +30,7 @@ class EdgeCaseProfileDto extends SimpleDto
     ) {}
 }
 
-class EdgeCaseProductDto extends SimpleDto
+class EdgeCaseProductLiteDto extends LiteDto
 {
     public function __construct(
         public readonly ?int $product_id = null,
@@ -44,7 +44,7 @@ class EdgeCaseProductDto extends SimpleDto
     ) {}
 }
 
-class EdgeCaseAddressDto extends SimpleDto
+class EdgeCaseAddressLiteDto extends LiteDto
 {
     public function __construct(
         public readonly string $street = '',
@@ -53,15 +53,15 @@ class EdgeCaseAddressDto extends SimpleDto
     ) {}
 }
 
-class EdgeCaseCompanyDto extends SimpleDto
+class EdgeCaseCompanyLiteDto extends LiteDto
 {
     public function __construct(
         public readonly string $name = '',
-        public readonly ?EdgeCaseAddressDto $address = null,
+        public readonly ?EdgeCaseAddressLiteDto $address = null,
     ) {}
 }
 
-class EdgeCaseOrderItemDto extends SimpleDto
+class EdgeCaseOrderItemLiteDto extends LiteDto
 {
     public function __construct(
         public readonly string $product_name = '',
@@ -70,7 +70,7 @@ class EdgeCaseOrderItemDto extends SimpleDto
     ) {}
 }
 
-class EdgeCaseOrderDto extends SimpleDto
+class EdgeCaseOrderLiteDto extends LiteDto
 {
     public function __construct(
         public readonly string $order_number = '',
@@ -79,7 +79,7 @@ class EdgeCaseOrderDto extends SimpleDto
     ) {}
 }
 
-class EdgeCaseBasePersonDto extends SimpleDto
+class EdgeCaseBasePersonLiteDto extends LiteDto
 {
     public function __construct(
         public readonly ?int $id = null,
@@ -88,7 +88,7 @@ class EdgeCaseBasePersonDto extends SimpleDto
     ) {}
 }
 
-class EdgeCaseEmployeeDto extends EdgeCaseBasePersonDto
+class EdgeCaseEmployeeLiteDto extends EdgeCaseBasePersonLiteDto
 {
     public function __construct(
         ?int $id = null,
@@ -100,10 +100,10 @@ class EdgeCaseEmployeeDto extends EdgeCaseBasePersonDto
     }
 }
 
-describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
+describe('LiteDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
     test('Edge Case A: Only explicitly set properties are returned', function(): void {
         // Create DTO with partial data
-        $dto = EdgeCaseUserDto::from([
+        $dto = EdgeCaseUserLiteDto::from([
             'id' => 1,
             'name' => 'Jane Doe',
         ]);
@@ -121,7 +121,7 @@ describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
     });
 
     test('Edge Case A: wasPropertyExplicitlySet() detects changes', function(): void {
-        $dto = EdgeCaseUserDto::from([
+        $dto = EdgeCaseUserLiteDto::from([
             'name' => 'John',
         ]);
 
@@ -132,7 +132,7 @@ describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
 
     test('Edge Case B: Nullable properties - explicit null is included', function(): void {
         // Explicitly set bio to null
-        $dto1 = EdgeCaseProfileDto::from([
+        $dto1 = EdgeCaseProfileLiteDto::from([
             'name' => 'Alice',
             'bio' => null,
         ]);
@@ -148,7 +148,7 @@ describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
 
     test('Edge Case B: Nullable properties - not provided is excluded', function(): void {
         // Don't provide bio at all
-        $dto = EdgeCaseProfileDto::from([
+        $dto = EdgeCaseProfileLiteDto::from([
             'name' => 'Bob',
         ]);
 
@@ -161,7 +161,7 @@ describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
     });
 
     test('Edge Case C: Mapped properties use correct output names', function(): void {
-        $dto = EdgeCaseProductDto::from([
+        $dto = EdgeCaseProductLiteDto::from([
             'product_id' => 1,
             'external_sku' => 'SKU-001',
         ]);
@@ -178,7 +178,7 @@ describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
     });
 
     test('Edge Case C: wasPropertyExplicitlySet() works with mapped properties', function(): void {
-        $dto = EdgeCaseProductDto::from([
+        $dto = EdgeCaseProductLiteDto::from([
             'external_sku' => 'SKU-123',
             'product_name' => 'Widget',
         ]);
@@ -189,7 +189,7 @@ describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
     });
 
     test('Edge Case D: Nested DTOs are converted to arrays', function(): void {
-        $dto = EdgeCaseCompanyDto::from([
+        $dto = EdgeCaseCompanyLiteDto::from([
             'name' => 'Tech Corp',
             'address' => [
                 'street' => '123 Main St',
@@ -208,7 +208,7 @@ describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
     });
 
     test('Edge Case E: Collections of DTOs are converted to arrays', function(): void {
-        $dto = EdgeCaseOrderDto::from([
+        $dto = EdgeCaseOrderLiteDto::from([
             'order_number' => 'ORD-001',
             'items' => [
                 ['product_name' => 'Widget', 'quantity' => 2, 'price' => 10.00],
@@ -226,7 +226,7 @@ describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
     });
 
     test('Edge Case F: Inheritance preserves parent properties', function(): void {
-        $dto = EdgeCaseEmployeeDto::from([
+        $dto = EdgeCaseEmployeeLiteDto::from([
             'name' => 'John',
             'email' => 'john@example.com',
             'department' => 'Engineering',
@@ -245,7 +245,7 @@ describe('SimpleDto Edge Cases - toArrayOnlyExplicitlySet()', function(): void {
     });
 
     test('Edge Case F: wasPropertyExplicitlySet() works with inherited properties', function(): void {
-        $dto = EdgeCaseEmployeeDto::from([
+        $dto = EdgeCaseEmployeeLiteDto::from([
             'name' => 'Jane',
             'department' => 'Product',
         ]);

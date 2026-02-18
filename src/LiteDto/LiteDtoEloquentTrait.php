@@ -118,9 +118,10 @@ trait LiteDtoEloquentTrait
 
         // Try to load existing model from database
         $model = static::loadExistingModel($modelClass, $primaryKeyValue);
+        $modelExistsInDb = $model instanceof Model;
 
         // If no model found, create new instance
-        if (!$model instanceof Model) {
+        if (!$modelExistsInDb) {
             /** @var Model $model */
             $model = new $modelClass();
         } else {
@@ -144,7 +145,12 @@ trait LiteDtoEloquentTrait
         }
 
         // Get DTO data and filter timestamps
-        $data = $this->toArray();
+        // If model exists in DB, only use explicitly set properties to avoid overwriting DB values with defaults
+        if ($modelExistsInDb) {
+            $data = $this->toArrayOnlyExplicitlySet();
+        } else {
+            $data = $this->toArray();
+        }
         $data = static::filterEloquentTimestamps($data, $includeTimestamps);
 
         // Fill model with data (LiteDto doesn't support LaravelModelFillable attribute)
