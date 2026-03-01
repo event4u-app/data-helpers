@@ -159,6 +159,239 @@ Templates use `{{ }}` for dynamic values:
 - **Static values:** `'admin'` - Used as literal string (no `{{ }}`)
 - **Dot-notation:** `'{{ user.profile.address.street }}'` - Nested access
 - **Wildcards:** `'{{ users.*.email }}'` - Array operations
+- **Conditional expressions:** `'{{ condition ? trueValue : falseValue }}'` - Transform values based on conditions
+
+### Conditional Expressions (Transformations)
+
+Conditional expressions allow you to transform values based on conditions using ternary operators. This is useful for converting data types, categorizing values, or applying business logic during mapping.
+
+#### Basic Syntax
+
+<!-- skip-test: Syntax example only -->
+```php
+'{{ condition ? trueValue : falseValue }}'
+```
+
+#### Supported Operators
+
+- **Equality:** `==`, `!=`
+- **Comparison:** `>`, `<`, `>=`, `<=`
+
+#### Examples
+
+**Transform status to 0 or 1:**
+
+```php
+$source = [
+    'users' => [
+        ['name' => 'Alice', 'status' => 'active'],
+        ['name' => 'Bob', 'status' => 'inactive'],
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'users.*' => [
+            'name' => '{{ users.*.name }}',
+            'active' => '{{ users.*.status == "active" ? 1 : 0 }}',
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'users' => [
+//         ['name' => 'Alice', 'active' => 1],
+//         ['name' => 'Bob', 'active' => 0],
+//     ]
+// ]
+```
+
+**Age category (adult/minor):**
+
+```php
+$source = [
+    'people' => [
+        ['name' => 'Alice', 'age' => 25],
+        ['name' => 'Bob', 'age' => 17],
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'people.*' => [
+            'name' => '{{ people.*.name }}',
+            'category' => '{{ people.*.age >= 18 ? "adult" : "minor" }}',
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'people' => [
+//         ['name' => 'Alice', 'category' => 'adult'],
+//         ['name' => 'Bob', 'category' => 'minor'],
+//     ]
+// ]
+```
+
+**Price category with boolean flags:**
+
+```php
+$source = [
+    'products' => [
+        ['name' => 'Laptop', 'price' => 1200],
+        ['name' => 'Mouse', 'price' => 25],
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'products.*' => [
+            'name' => '{{ products.*.name }}',
+            'price' => '{{ products.*.price }}',
+            'expensive' => '{{ products.*.price > 100 ? true : false }}',
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'products' => [
+//         ['name' => 'Laptop', 'price' => 1200, 'expensive' => true],
+//         ['name' => 'Mouse', 'price' => 25, 'expensive' => false],
+//     ]
+// ]
+```
+
+**Multiple conditions in same template:**
+
+```php
+$source = [
+    'orders' => [
+        ['id' => 1, 'total' => 150, 'status' => 'completed'],
+        ['id' => 2, 'total' => 50, 'status' => 'pending'],
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'orders.*' => [
+            'id' => '{{ orders.*.id }}',
+            'total' => '{{ orders.*.total }}',
+            'is_completed' => '{{ orders.*.status == "completed" ? true : false }}',
+            'is_large_order' => '{{ orders.*.total >= 100 ? true : false }}',
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'orders' => [
+//         ['id' => 1, 'total' => 150, 'is_completed' => true, 'is_large_order' => true],
+//         ['id' => 2, 'total' => 50, 'is_completed' => false, 'is_large_order' => false],
+//     ]
+// ]
+```
+
+#### Value Types
+
+Conditional expressions support all common value types:
+
+- **Integers:** `{{ quantity < 10 ? 1 : 0 }}`
+- **Floats:** `{{ price >= 99.99 ? 1 : 0 }}`
+- **Strings:** `{{ status == "active" ? "Yes" : "No" }}`
+- **Booleans:** `{{ age >= 18 ? true : false }}`
+- **Null:** `{{ email != null ? 1 : 0 }}`
+
+#### String Literals
+
+You can use both single and double quotes for string literals:
+
+```php
+// Double quotes
+'status_text' => '{{ user.status == "active" ? "Yes" : "No" }}'
+
+// Single quotes
+'status_text' => "{{ user.status == 'active' ? 'Yes' : 'No' }}"
+```
+
+#### Nested Properties
+
+Conditional expressions work with nested property access:
+
+```php
+$source = [
+    'user' => [
+        'profile' => [
+            'age' => 25,
+        ],
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'adult' => '{{ user.profile.age >= 18 ? 1 : 0 }}',
+    ])
+    ->map()
+    ->getTarget();
+
+// Result: ['adult' => 1]
+```
+
+#### Working with Wildcards
+
+Conditional expressions integrate seamlessly with wildcard operators:
+
+```php
+$source = [
+    'items' => [
+        ['name' => 'Item A', 'quantity' => 10],
+        ['name' => 'Item B', 'quantity' => 5],
+        ['name' => 'Item C', 'quantity' => 15],
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'items.*' => [
+            'name' => '{{ items.*.name }}',
+            'quantity' => '{{ items.*.quantity }}',
+            'low_stock' => '{{ items.*.quantity < 10 ? 1 : 0 }}',
+            'high_stock' => '{{ items.*.quantity >= 15 ? 1 : 0 }}',
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'items' => [
+//         ['name' => 'Item A', 'quantity' => 10, 'low_stock' => 0, 'high_stock' => 0],
+//         ['name' => 'Item B', 'quantity' => 5, 'low_stock' => 1, 'high_stock' => 0],
+//         ['name' => 'Item C', 'quantity' => 15, 'low_stock' => 0, 'high_stock' => 1],
+//     ]
+// ]
+```
+
+:::tip[Use Cases]
+Conditional expressions are perfect for:
+- **Data Type Conversion** - Convert strings to integers/booleans
+- **Categorization** - Classify values into categories (adult/minor, expensive/cheap)
+- **Business Logic** - Apply rules during mapping (low stock alerts, premium users)
+- **Flag Generation** - Create boolean flags based on conditions
+- **Status Mapping** - Transform status codes to readable values
+:::
+
+:::note[Performance]
+Conditional expressions are evaluated during the mapping process and have minimal performance overhead. They are optimized for use with wildcards and large datasets.
+:::
+
+💡 **See the complete example:** Run `php examples/datamapper-conditional-expressions.php` for a comprehensive demonstration of all conditional expression features.
 
 ### Loading Data from Files
 
@@ -908,6 +1141,7 @@ The following working examples demonstrate DataMapper in action:
 
 - [**Simple Mapping**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/simple-mapping.php) - Basic template-based mapping
 - [**Template-Based Queries**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/template-based-queries.php) - WHERE/ORDER BY in templates (recommended for database-stored templates)
+- [**Conditional Expressions**](https://github.com/event4u-app/data-helpers/blob/main/examples/datamapper-conditional-expressions.php) - Transform values with ternary operators
 - [**With Hooks**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/with-hooks.php) - Using hooks for custom logic
 - [**Pipeline**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/pipeline.php) - Filter pipelines and transformations
 - [**Mapped Data Model**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/mapped-data-model.php) - Using MappedDataModel class
@@ -920,6 +1154,7 @@ All examples are fully tested and can be run directly:
 ```bash
 php examples/main-classes/data-mapper/simple-mapping.php
 php examples/main-classes/data-mapper/template-based-queries.php
+php examples/datamapper-conditional-expressions.php
 php examples/main-classes/data-mapper/with-hooks.php
 ```
 
@@ -928,6 +1163,7 @@ php examples/main-classes/data-mapper/with-hooks.php
 The functionality is thoroughly tested. Key test files:
 
 - [DataMapperTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/DataMapperTest.php) - Core functionality tests
+- [ConditionalExpressionsTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/ConditionalExpressionsTest.php) - Conditional expressions tests
 - [DataMapperHooksTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/DataMapperHooksTest.php) - Hook system tests
 - [DataMapperPipelineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/Pipeline/DataMapperPipelineTest.php) - Pipeline tests
 - [MapperQueryTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/MapperQueryTest.php) - Query integration tests

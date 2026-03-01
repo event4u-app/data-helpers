@@ -838,13 +838,14 @@ final class FluentDataMapper
         $hasSourceAliases = is_array($this->source) && $this->hasSourceAliases($this->source);
         $hasSourceAliasReferences = $this->hasSourceAliasReferences($template);
 
-        // If template contains wildcard operators OR uses @alias syntax OR has template-based wildcard mappings,
+        // If template contains wildcard operators OR uses @alias syntax OR has template-based wildcard mappings OR has conditional expressions,
         // we need to use mapFromTemplate()
         // This includes both query-generated operators and manually added operators in template
         $hasTemplateBasedWildcardMapping = $this->hasTemplateBasedWildcardMapping($template);
+        $hasConditionalExpressions = $this->hasConditionalExpressions($template);
         if ($this->hasWildcardOperators(
             $template
-        ) || ($hasSourceAliases && $hasSourceAliasReferences) || $hasTemplateBasedWildcardMapping) {
+        ) || ($hasSourceAliases && $hasSourceAliasReferences) || $hasTemplateBasedWildcardMapping || $hasConditionalExpressions) {
             // If source is already an array with aliases, use it directly
             if ($hasSourceAliases && $hasSourceAliasReferences) {
                 assert(is_array($this->source), 'Source must be array when using aliases');
@@ -1505,6 +1506,45 @@ final class FluentDataMapper
         }
 
         return false;
+    }
+
+    /**
+     * Check if template contains conditional expressions (ternary operators).
+     *
+     * Conditional expressions are patterns like:
+     *   '{{ status == "active" ? 1 : 0 }}'
+     *   '{{ age > 18 ? "adult" : "minor" }}'
+     *
+     * @param array<int|string, mixed> $template
+     */
+    private function hasConditionalExpressions(array $template): bool
+    {
+        foreach ($template as $value) {
+            // Check if value is a string with conditional expression
+            if (is_string($value) && $this->isConditionalExpression($value)) {
+                return true;
+            }
+
+            // Recursively check nested arrays
+            if (is_array($value) && $this->hasConditionalExpressions($value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Check if a string is a conditional expression. */
+    private function isConditionalExpression(string $value): bool
+    {
+        // Must be a template expression {{ ... }}
+        if (!str_contains($value, '{{') || !str_contains($value, '}}')) {
+            return false;
+        }
+
+        // Must contain ? and : (ternary operator)
+        // Simple check: if it contains both ? and : outside quotes, it's likely a conditional
+        return str_contains($value, '?') && str_contains($value, ':');
     }
 
     /**
