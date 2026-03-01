@@ -32,6 +32,11 @@ final class ExpressionEvaluator
             return $value;
         }
 
+        // Conditional expression: {{ status == "active" ? 1 : 0 }}
+        if ('conditional' === $parsed['type']) {
+            return self::evaluateConditional($parsed, $sources, $aliases);
+        }
+
         // Alias reference: @profile.fullname or @user.name or @user.name ?? 'Unknown' | upper
         if ('alias' === $parsed['type']) {
             // First try to resolve from aliases (already resolved values)
@@ -151,5 +156,164 @@ final class ExpressionEvaluator
         // Otherwise, use DataAccessor to get the nested value
         $accessor = new DataAccessor($sources[$alias]);
         return $accessor->get($subPath);
+    }
+
+    /**
+     * Evaluate a conditional expression.
+     *
+     * @param array{type: string, path: string, default: mixed, filters: array<int, string>, condition?: string, trueValue?: mixed, falseValue?: mixed} $parsed
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function evaluateConditional(array $parsed, array $sources, array $aliases): mixed
+    {
+        $condition = $parsed['condition'] ?? '';
+        $trueValue = $parsed['trueValue'] ?? null;
+        $falseValue = $parsed['falseValue'] ?? null;
+
+        // Evaluate the condition
+        $conditionResult = self::evaluateCondition($condition, $sources, $aliases);
+
+        return $conditionResult ? $trueValue : $falseValue;
+    }
+
+    /**
+     * Evaluate a condition expression.
+     *
+     * Supports:
+     * - Equality: ==, !=
+     * - Comparison: >, <, >=, <=
+     * - Logical: &&, ||
+     *
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function evaluateCondition(string $condition, array $sources, array $aliases): bool
+    {
+        // Parse the condition
+        // Support operators: ==, !=, >, <, >=, <=, &&, ||
+        $operators = ['==', '!=', '>=', '<=', '>', '<', '&&', '||'];
+
+        foreach ($operators as $operator) {
+            if (str_contains($condition, $operator)) {
+                $parts = self::splitByOperator($condition, $operator);
+
+                if (2 === count($parts)) {
+                    [$left, $right] = array_map('trim', $parts);
+
+                    // Resolve left and right values
+                    $leftValue = self::resolveValue($left, $sources, $aliases);
+                    $rightValue = self::resolveValue($right, $sources, $aliases);
+
+                    // Evaluate the operator
+                    return self::compareValues($leftValue, $rightValue, $operator);
+                }
+            }
+        }
+
+        // If no operator found, treat as boolean value
+        $value = self::resolveValue($condition, $sources, $aliases);
+        return (bool)$value;
+    }
+
+    /**
+     * Split a condition by operator, respecting quotes.
+     *
+     * @return array<int, string>
+     */
+    private static function splitByOperator(string $condition, string $operator): array
+    {
+        $parts = [];
+        $current = '';
+        $inQuotes = false;
+        $quoteChar = null;
+        $operatorLen = strlen($operator);
+
+        for ($i = 0, $len = strlen($condition); $i < $len; $i++) {
+            $char = $condition[$i];
+
+            // Handle quotes
+            if (('"' === $char || "'" === $char) && (0 === $i || '\\' !== $condition[$i - 1])) {
+                if (!$inQuotes) {
+                    $inQuotes = true;
+                    $quoteChar = $char;
+                } elseif ($char === $quoteChar) {
+                    $inQuotes = false;
+                    $quoteChar = null;
+                }
+                $current .= $char;
+                continue;
+            }
+
+            // Check for operator
+            if (!$inQuotes && substr($condition, $i, $operatorLen) === $operator) {
+                $parts[] = $current;
+                $current = '';
+                $i += $operatorLen - 1; // Skip operator
+                continue;
+            }
+
+            $current .= $char;
+        }
+
+        if ('' !== $current) {
+            $parts[] = $current;
+        }
+
+        return $parts;
+    }
+
+    /**
+     * Resolve a value from a string (can be a path, literal, or expression).
+     *
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function resolveValue(string $value, array $sources, array $aliases): mixed
+    {
+        $value = trim($value);
+
+        // String literal - remove quotes
+        if ((str_starts_with($value, "'") && str_ends_with($value, "'"))
+            || (str_starts_with($value, '"') && str_ends_with($value, '"'))
+        ) {
+            return substr($value, 1, -1);
+        }
+
+        // Number
+        if (is_numeric($value)) {
+            return str_contains($value, '.') ? (float)$value : (int)$value;
+        }
+
+        // Boolean/null keywords
+        $lower = strtolower($value);
+        if ('true' === $lower) {
+            return true;
+        }
+        if ('false' === $lower) {
+            return false;
+        }
+        if ('null' === $lower) {
+            return null;
+        }
+
+        // Otherwise, treat as a path and resolve from sources
+        return self::resolveSourcePath($value, $sources);
+    }
+
+    /** Compare two values using an operator. */
+    private static function compareValues(mixed $left, mixed $right, string $operator): bool
+    {
+        return match ($operator) {
+            '==' => $left == $right,
+            '!=' => $left != $right,
+            '>' => $left > $right,
+            '<' => $left < $right,
+            '>=' => $left >= $right,
+            '<=' => $left <= $right,
+            '&&' => $left && $right,
+            '||' => $left || $right,
+            default => false,
+        };
     }
 }

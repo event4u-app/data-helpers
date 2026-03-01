@@ -18,7 +18,7 @@ final class ExpressionParser
      *
      * Returns null if the string is not a valid {{ }} expression.
      *
-     * @return array{type: string, path: string, default: mixed, filters: array<int, string>}|null
+     * @return array{type: string, path: string, default: mixed, filters: array<int, string>, condition?: string, trueValue?: mixed, falseValue?: mixed}|null
      */
     public static function parse(string $value): ?array
     {
@@ -31,6 +31,13 @@ final class ExpressionParser
         // Template expression: {{ ... }}
         if (preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $value, $matches)) {
             $expression = trim($matches[1]);
+
+            // Check for conditional expression: {{ status == "active" ? 1 : 0 }}
+            if (self::isConditionalExpression($expression)) {
+                $result = self::parseConditionalExpression($expression);
+                $cache[$value] = $result;
+                return $result;
+            }
 
             // Check for alias reference: {{ @fullname }} or {{ @user.name ?? 'Unknown' | upper }}
             if (str_starts_with($expression, '@')) {
@@ -83,6 +90,144 @@ final class ExpressionParser
 
         $cache[$value] = null;
         return null;
+    }
+
+    /**
+     * Check if an expression is a conditional expression (ternary operator).
+     *
+     * Examples:
+     * - status == "active" ? 1 : 0
+     * - user.age > 18 ? "adult" : "minor"
+     */
+    private static function isConditionalExpression(string $expression): bool
+    {
+        // Must contain ? and : but not inside quotes
+        if (!str_contains($expression, '?') || !str_contains($expression, ':')) {
+            return false;
+        }
+
+        // Check if ? and : are outside quotes
+        $inQuotes = false;
+        $quoteChar = null;
+        $hasQuestion = false;
+        $hasColon = false;
+
+        for ($i = 0, $len = strlen($expression); $i < $len; $i++) {
+            $char = $expression[$i];
+
+            if (('"' === $char || "'" === $char) && (0 === $i || '\\' !== $expression[$i - 1])) {
+                if (!$inQuotes) {
+                    $inQuotes = true;
+                    $quoteChar = $char;
+                } elseif ($char === $quoteChar) {
+                    $inQuotes = false;
+                    $quoteChar = null;
+                }
+                continue;
+            }
+
+            if (!$inQuotes) {
+                if ('?' === $char) {
+                    $hasQuestion = true;
+                }
+                if (':' === $char) {
+                    $hasColon = true;
+                }
+            }
+        }
+
+        return $hasQuestion && $hasColon;
+    }
+
+    /**
+     * Parse a conditional expression.
+     *
+     * Format: condition ? trueValue : falseValue
+     *
+     * Examples:
+     * - status == "active" ? 1 : 0
+     * - user.age > 18 ? "adult" : "minor"
+     * - items.*.price > 100 ? "expensive" : "cheap"
+     *
+     * @return array{type: string, path: string, default: mixed, filters: array<int, string>, condition?: string, trueValue?: mixed, falseValue?: mixed}
+     */
+    private static function parseConditionalExpression(string $expression): array
+    {
+        // Split by ? and : respecting quotes
+        $parts = self::splitConditionalExpression($expression);
+
+        if (3 !== count($parts)) {
+            // Fallback: treat as regular expression
+            return [
+                'type' => 'expression',
+                'path' => $expression,
+                'default' => null,
+                'filters' => [],
+            ];
+        }
+
+        [$condition, $trueValue, $falseValue] = $parts;
+
+        return [
+            'type' => 'conditional',
+            'path' => '', // Not used for conditional expressions
+            'default' => null, // Not used for conditional expressions
+            'filters' => [], // Not used for conditional expressions
+            'condition' => trim($condition),
+            'trueValue' => self::parseValue(trim($trueValue)),
+            'falseValue' => self::parseValue(trim($falseValue)),
+        ];
+    }
+
+    /**
+     * Split conditional expression by ? and : respecting quotes.
+     *
+     * @return array<int, string>
+     */
+    private static function splitConditionalExpression(string $expression): array
+    {
+        $parts = [];
+        $current = '';
+        $inQuotes = false;
+        $quoteChar = null;
+
+        for ($i = 0, $len = strlen($expression); $i < $len; $i++) {
+            $char = $expression[$i];
+
+            // Handle quotes
+            if (('"' === $char || "'" === $char) && (0 === $i || '\\' !== $expression[$i - 1])) {
+                if (!$inQuotes) {
+                    $inQuotes = true;
+                    $quoteChar = $char;
+                } elseif ($char === $quoteChar) {
+                    $inQuotes = false;
+                    $quoteChar = null;
+                }
+                $current .= $char;
+                continue;
+            }
+
+            // Split by ? and :
+            if (!$inQuotes && ('?' === $char || ':' === $char)) {
+                $parts[] = $current;
+                $current = '';
+                continue;
+            }
+
+            $current .= $char;
+        }
+
+        if ('' !== $current) {
+            $parts[] = $current;
+        }
+
+        return $parts;
+    }
+
+    /** Parse a value (string, number, boolean, null). */
+    private static function parseValue(string $value): mixed
+    {
+        return self::parseDefaultValue($value);
     }
 
     /**
