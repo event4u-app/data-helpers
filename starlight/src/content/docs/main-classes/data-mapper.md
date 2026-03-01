@@ -535,6 +535,109 @@ Conditional expressions are evaluated during the mapping process and have minima
 - Run `php examples/datamapper-conditional-expressions.php` for ternary operator examples
 - Run `php examples/datamapper-null-coalescing-elvis.php` for `??` and `?:` examples
 
+#### Nested Expressions (Parentheses)
+
+You can use **parentheses `(...)`** to nest conditional operators and create complex fallback chains:
+
+```php
+$source = [
+    'user' => [
+        'name' => null,
+        'surname' => null,
+    ],
+];
+
+// Simple parentheses
+$result = DataMapper::source($source)
+    ->template([
+        'fullname' => '{{ user.name ?? (user.surname) }}',
+    ])
+    ->map()
+    ->getTarget();
+// Result: ['fullname' => null] (both are null)
+
+// Nested null coalescing - multiple fallbacks
+$result = DataMapper::source($source)
+    ->template([
+        'fullname' => '{{ user.name ?? (user.surname ?? "UNKNOWN") }}',
+    ])
+    ->map()
+    ->getTarget();
+// Result: ['fullname' => 'UNKNOWN']
+```
+
+**Parentheses with filters:**
+
+```php
+$source = [
+    'user' => [
+        'name' => null,
+        'surname' => 'doe',
+    ],
+];
+
+// Apply filter inside parentheses
+$result = DataMapper::source($source)
+    ->template([
+        'fullname' => '{{ user.name ?? (user.surname | upper) }}',
+    ])
+    ->map()
+    ->getTarget();
+// Result: ['fullname' => 'DOE']
+```
+
+**Complex nested expressions:**
+
+```php
+$source = [
+    'user' => [
+        'name' => null,
+        'surname' => null,
+    ],
+];
+
+// Nested operators with filters at multiple levels
+$result = DataMapper::source($source)
+    ->template([
+        'fullname' => '{{ user.name ?? (user.surname ?? "UNKNOWN" | lower) | upper }}',
+    ])
+    ->map()
+    ->getTarget();
+// Result: ['fullname' => 'UNKNOWN']
+
+// Execution order:
+// 1. user.surname ?? "UNKNOWN" → "UNKNOWN"
+// 2. "UNKNOWN" | lower → "unknown"
+// 3. user.name ?? "unknown" → "unknown" (user.name is null)
+// 4. "unknown" | upper → "UNKNOWN"
+```
+
+**Operator precedence with parentheses:**
+
+1. **Parentheses** `(...)` - Highest priority
+2. **Null Coalescing** `??`
+3. **Elvis** `?:`
+4. **Ternary** `? :`
+5. **Pipes/Filters** `|` - Lowest priority
+
+```php
+// Without parentheses - filters apply to the whole expression
+'{{ user.name ?? "default" | upper }}'
+// → (user.name ?? "default") | upper
+
+// With parentheses - filters apply only inside
+'{{ user.name ?? (user.surname | upper) }}'
+// → user.name ?? (user.surname | upper)
+```
+
+:::tip[Use Cases for Nested Expressions]
+Nested expressions are perfect for:
+- **Multiple fallback levels:** Try primary, then secondary, then default value
+- **Conditional transformations:** Apply filters only to specific fallback values
+- **Complex business logic:** Combine multiple operators for sophisticated data handling
+- **API response handling:** Handle missing data with multiple fallback strategies
+:::
+
 ### Loading Data from Files
 
 DataMapper can load data directly from JSON and XML files using `sourceFile()`:
@@ -1309,6 +1412,7 @@ The functionality is thoroughly tested. Key test files:
 - [DataMapperTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/DataMapperTest.php) - Core functionality tests
 - [ConditionalExpressionsTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/ConditionalExpressionsTest.php) - Ternary operator tests (`? :`)
 - [NullCoalescingAndElvisTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/NullCoalescingAndElvisTest.php) - Null coalescing (`??`) and Elvis (`?:`) tests
+- [NestedExpressionsTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/NestedExpressionsTest.php) - Nested expressions with parentheses tests
 - [DataMapperHooksTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/DataMapperHooksTest.php) - Hook system tests
 - [DataMapperPipelineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/Pipeline/DataMapperPipelineTest.php) - Pipeline tests
 - [MapperQueryTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/MapperQueryTest.php) - Query integration tests

@@ -67,15 +67,17 @@ describe('MappingParser', function(): void {
         });
 
         it('parses dynamic path with filter and default value', function(): void {
-            // Note: ?? after filter is treated as part of the filter, not as default operator
-            // This is current behavior - to use default with filters, put ?? before filters
+            // With the new operator precedence, filters are applied AFTER operators
+            // So: user.name ?? "UNKNOWN" | upper means:
+            // 1. Apply ?? operator: user.name ?? "UNKNOWN"
+            // 2. Then apply filter: | upper
             $result = MappingParser::parseEntry('user.name ?? "UNKNOWN" | upper');
 
             expect($result)->toBe([
                 'isStatic' => false,
                 'sourcePath' => 'user.name',
                 'filters' => ['upper'],
-                'defaultValue' => 'UNKNOWN', // Quotes are removed when ?? is before filter
+                'defaultValue' => 'UNKNOWN', // Quotes are removed by ExpressionParser
                 'hasFilters' => true,
             ]);
         });

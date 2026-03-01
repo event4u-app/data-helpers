@@ -70,19 +70,19 @@ $data = [
     'active_false' => false,
 ];
 
-$result = DataMapper::source($data)
+$result = DataMapper::source(['data' => $data])
     ->template([
         // ?? only triggers on null
-        'email_null_coalescing' => '{{ email_null ?? "default" }}',
-        'email_empty_coalescing' => '{{ email_empty ?? "default" }}',
-        'quantity_zero_coalescing' => '{{ quantity_zero ?? 10 }}',
-        'active_false_coalescing' => '{{ active_false ?? true }}',
+        'email_null_coalescing' => '{{ data.email_null ?? "default" }}',
+        'email_empty_coalescing' => '{{ data.email_empty ?? "default" }}',
+        'quantity_zero_coalescing' => '{{ data.quantity_zero ?? 10 }}',
+        'active_false_coalescing' => '{{ data.active_false ?? true }}',
 
         // ?: triggers on any falsy value (null, false, 0, "", [])
-        'email_null_elvis' => '{{ email_null ?: "default" }}',
-        'email_empty_elvis' => '{{ email_empty ?: "default" }}',
-        'quantity_zero_elvis' => '{{ quantity_zero ?: 10 }}',
-        'active_false_elvis' => '{{ active_false ?: true }}',
+        'email_null_elvis' => '{{ data.email_null ?: "default" }}',
+        'email_empty_elvis' => '{{ data.email_empty ?: "default" }}',
+        'quantity_zero_elvis' => '{{ data.quantity_zero ?: 10 }}',
+        'active_false_elvis' => '{{ data.active_false ?: true }}',
     ])
     ->skipNull(false)
     ->map()

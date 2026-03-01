@@ -64,9 +64,9 @@ final class TemplateExpressionProcessor
             $expression = trim(substr($expression, 2, -2));
         }
 
-        // Check if expression contains filters (|) or default value (??)
+        // Check if expression contains filters (|) or default value (??) or elvis (?:)
         // If either is present, use ExpressionParser for proper parsing (handles quotes, etc.)
-        if (str_contains($expression, '|') || str_contains($expression, '??')) {
+        if (str_contains($expression, '|') || str_contains($expression, '??') || str_contains($expression, '?:')) {
             // Use ExpressionParser for full parsing
             $parsed = ExpressionParser::parse('{{ ' . $expression . ' }}');
 
@@ -76,6 +76,19 @@ final class TemplateExpressionProcessor
                     'filters' => [],
                     'default' => null,
                     'hasFilters' => false,
+                ];
+                $cache[$expression] = $result;
+                return $result;
+            }
+
+            // Handle null coalescing and elvis operators
+            // For backwards compatibility, treat them as default values
+            if ('null_coalescing' === $parsed['type'] || 'elvis' === $parsed['type']) {
+                $result = [
+                    'path' => $parsed['left'] ?? '',
+                    'filters' => $parsed['filters'] ?? [],
+                    'default' => $parsed['right'] ?? null,
+                    'hasFilters' => [] !== ($parsed['filters'] ?? []),
                 ];
                 $cache[$expression] = $result;
                 return $result;

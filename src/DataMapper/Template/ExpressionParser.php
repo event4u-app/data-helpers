@@ -32,26 +32,11 @@ final class ExpressionParser
         if (preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $value, $matches)) {
             $expression = trim($matches[1]);
 
-            // Check for null coalescing expression: {{ user.email ?? "default@example.com" }}
-            if (self::isNullCoalescingExpression($expression)) {
-                $result = self::parseNullCoalescingExpression($expression);
-                $cache[$value] = $result;
-                return $result;
-            }
-
-            // Check for elvis expression: {{ user.name ?: "Anonymous" }}
-            if (self::isElvisExpression($expression)) {
-                $result = self::parseElvisExpression($expression);
-                $cache[$value] = $result;
-                return $result;
-            }
-
-            // Check for conditional expression: {{ status == "active" ? 1 : 0 }}
-            if (self::isConditionalExpression($expression)) {
-                $result = self::parseConditionalExpression($expression);
-                $cache[$value] = $result;
-                return $result;
-            }
+            // Extract parentheses first (for nested expressions)
+            // This allows: user.name ?? (user.surname ?? "UNKNOWN")
+            $extracted = self::extractParentheses($expression);
+            $expression = $extracted['expression'];
+            $parentheses = $extracted['parentheses'];
 
             // Check for alias reference: {{ @fullname }} or {{ @user.name ?? 'Unknown' | upper }}
             if (str_starts_with($expression, '@')) {
@@ -74,16 +59,76 @@ final class ExpressionParser
                     'path' => $pathWithDefault,
                     'default' => $default,
                     'filters' => $filters,
+                    'parentheses' => $parentheses,
                 ];
                 $cache[$value] = $result;
                 return $result;
             }
 
-            // Parse filters: user.email | lower | trim
-            // Split by | but respect quoted strings
+            // First, split by pipes to extract filters
+            // This allows: user.name ?? "UNKNOWN" | upper
+            // Where ?? is applied first, then the filter
             $parts = self::splitByPipe($expression);
-            $pathWithDefault = array_shift($parts) ?? '';
+            $pathWithOperators = array_shift($parts) ?? '';
             $filters = $parts;
+
+            // Now check for operators in the path part (before filters)
+            // Priority: ?? > ?: > ? :
+
+            // Check for null coalescing expression: {{ user.email ?? "default@example.com" }}
+            if (self::isNullCoalescingExpression($pathWithOperators)) {
+                $parsed = self::parseNullCoalescingExpression($pathWithOperators);
+                // Add filters to the result
+                $result = [
+                    'type' => 'null_coalescing',
+                    'path' => '',
+                    'default' => null,
+                    'filters' => $filters,
+                    'left' => $parsed['left'] ?? '',
+                    'right' => $parsed['right'] ?? null,
+                    'parentheses' => $parentheses,
+                ];
+                $cache[$value] = $result;
+                return $result;
+            }
+
+            // Check for elvis expression: {{ user.name ?: "Anonymous" }}
+            if (self::isElvisExpression($pathWithOperators)) {
+                $parsed = self::parseElvisExpression($pathWithOperators);
+                // Add filters to the result
+                $result = [
+                    'type' => 'elvis',
+                    'path' => '',
+                    'default' => null,
+                    'filters' => $filters,
+                    'left' => $parsed['left'] ?? '',
+                    'right' => $parsed['right'] ?? null,
+                    'parentheses' => $parentheses,
+                ];
+                $cache[$value] = $result;
+                return $result;
+            }
+
+            // Check for conditional expression: {{ status == "active" ? 1 : 0 }}
+            if (self::isConditionalExpression($pathWithOperators)) {
+                $parsed = self::parseConditionalExpression($pathWithOperators);
+                // Add filters to the result
+                $result = [
+                    'type' => 'conditional',
+                    'path' => '',
+                    'default' => null,
+                    'filters' => $filters,
+                    'condition' => $parsed['condition'] ?? '',
+                    'trueValue' => $parsed['trueValue'] ?? null,
+                    'falseValue' => $parsed['falseValue'] ?? null,
+                    'parentheses' => $parentheses,
+                ];
+                $cache[$value] = $result;
+                return $result;
+            }
+
+            // No operators, just path and filters
+            $pathWithDefault = $pathWithOperators;
 
             // Parse default value: user.name ?? 'Unknown'
             $default = null;
@@ -97,6 +142,7 @@ final class ExpressionParser
                 'path' => $pathWithDefault,
                 'default' => $default,
                 'filters' => $filters,
+                'parentheses' => $parentheses,
             ];
             $cache[$value] = $result;
             return $result;
@@ -587,5 +633,99 @@ final class ExpressionParser
             'null' => null,
             default => $value,
         };
+    }
+
+    /**
+     * Extract parentheses from an expression and replace them with placeholders.
+     *
+     * Returns an array with:
+     * - 'expression': The expression with parentheses replaced by placeholders
+     * - 'parentheses': Array of parsed parentheses contents
+     *
+     * @return array{expression: string, parentheses: array<int, array<string, mixed>|null>}
+     */
+    private static function extractParentheses(string $expression): array
+    {
+        $parentheses = [];
+        $placeholderIndex = 0;
+        $result = '';
+        $current = '';
+        $depth = 0;
+        $inString = false;
+        $stringChar = null;
+        $length = strlen($expression);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $expression[$i];
+            $prevChar = 0 < $i ? $expression[$i - 1] : '';
+
+            // Handle string delimiters
+            if (("'" === $char || '"' === $char) && '\\' !== $prevChar) {
+                if (!$inString) {
+                    $inString = true;
+                    $stringChar = $char;
+                } elseif ($char === $stringChar) {
+                    $inString = false;
+                    $stringChar = null;
+                }
+
+                if (0 < $depth) {
+                    $current .= $char;
+                } else {
+                    $result .= $char;
+                }
+                continue;
+            }
+
+            // Skip if we're inside a string
+            if ($inString) {
+                if (0 < $depth) {
+                    $current .= $char;
+                } else {
+                    $result .= $char;
+                }
+                continue;
+            }
+
+            // Handle opening parenthesis
+            if ('(' === $char) {
+                // Check if this is a function call (identifier before parenthesis)
+                // For now, we treat all parentheses as grouping
+                // TODO: Add function support later
+                $depth++;
+                if (1 < $depth) {
+                    $current .= $char;
+                }
+                continue;
+            }
+
+            // Handle closing parenthesis
+            if (')' === $char) {
+                $depth--;
+                if (0 < $depth) {
+                    $current .= $char;
+                } elseif (0 === $depth) {
+                    // Parse the content recursively
+                    $parsed = self::parse('{{ ' . trim($current) . ' }}');
+                    $parentheses[$placeholderIndex] = $parsed;
+                    $result .= '__PAREN_' . $placeholderIndex . '__';
+                    $placeholderIndex++;
+                    $current = '';
+                }
+                continue;
+            }
+
+            // Regular character
+            if (0 < $depth) {
+                $current .= $char;
+            } else {
+                $result .= $char;
+            }
+        }
+
+        return [
+            'expression' => $result,
+            'parentheses' => $parentheses,
+        ];
     }
 }

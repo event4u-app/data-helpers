@@ -171,7 +171,7 @@ final class ExpressionEvaluator
     /**
      * Evaluate a null coalescing expression (??).
      *
-     * @param array{type: string, path: string, default: mixed, filters: array<int, string>, left?: string, right?: mixed} $parsed
+     * @param array<string, mixed> $parsed
      * @param array<string, mixed> $sources
      * @param array<string, mixed> $aliases
      */
@@ -179,18 +179,39 @@ final class ExpressionEvaluator
     {
         $left = $parsed['left'] ?? '';
         $right = $parsed['right'] ?? null;
+        /** @var array<int, string> $filters */
+        $filters = $parsed['filters'] ?? [];
+        /** @var array<int, array<string, mixed>|null> $parentheses */
+        $parentheses = $parsed['parentheses'] ?? [];
+
+        // Resolve placeholders in left and right
+        if (is_string($left)) {
+            $left = self::resolvePlaceholders($left, $parentheses, $sources, $aliases);
+        }
+        $right = self::resolvePlaceholders($right, $parentheses, $sources, $aliases);
 
         // Resolve left value
-        $leftValue = self::resolveValue($left, $sources, $aliases);
+        if (is_string($left)) {
+            $leftValue = self::resolveValue($left, $sources, $aliases);
+        } else {
+            $leftValue = $left;
+        }
 
-        // Return left value if not null, otherwise return right value
-        return $leftValue ?? $right;
+        // Apply null coalescing
+        $result = $leftValue ?? $right;
+
+        // Apply filters if present
+        if ([] !== $filters) {
+            return FilterEngine::apply($result, $filters);
+        }
+
+        return $result;
     }
 
     /**
      * Evaluate an elvis expression (?:).
      *
-     * @param array{type: string, path: string, default: mixed, filters: array<int, string>, left?: string, right?: mixed} $parsed
+     * @param array<string, mixed> $parsed
      * @param array<string, mixed> $sources
      * @param array<string, mixed> $aliases
      */
@@ -198,18 +219,39 @@ final class ExpressionEvaluator
     {
         $left = $parsed['left'] ?? '';
         $right = $parsed['right'] ?? null;
+        /** @var array<int, string> $filters */
+        $filters = $parsed['filters'] ?? [];
+        /** @var array<int, array<string, mixed>|null> $parentheses */
+        $parentheses = $parsed['parentheses'] ?? [];
+
+        // Resolve placeholders in left and right
+        if (is_string($left)) {
+            $left = self::resolvePlaceholders($left, $parentheses, $sources, $aliases);
+        }
+        $right = self::resolvePlaceholders($right, $parentheses, $sources, $aliases);
 
         // Resolve left value
-        $leftValue = self::resolveValue($left, $sources, $aliases);
+        if (is_string($left)) {
+            $leftValue = self::resolveValue($left, $sources, $aliases);
+        } else {
+            $leftValue = $left;
+        }
 
-        // Return left value if truthy, otherwise return right value
-        return $leftValue ?: $right;
+        // Apply elvis operator
+        $result = $leftValue ?: $right;
+
+        // Apply filters if present
+        if ([] !== $filters) {
+            return FilterEngine::apply($result, $filters);
+        }
+
+        return $result;
     }
 
     /**
      * Evaluate a conditional expression.
      *
-     * @param array{type: string, path: string, default: mixed, filters: array<int, string>, condition?: string, trueValue?: mixed, falseValue?: mixed} $parsed
+     * @param array<string, mixed> $parsed
      * @param array<string, mixed> $sources
      * @param array<string, mixed> $aliases
      */
@@ -218,11 +260,34 @@ final class ExpressionEvaluator
         $condition = $parsed['condition'] ?? '';
         $trueValue = $parsed['trueValue'] ?? null;
         $falseValue = $parsed['falseValue'] ?? null;
+        /** @var array<int, string> $filters */
+        $filters = $parsed['filters'] ?? [];
+        /** @var array<int, array<string, mixed>|null> $parentheses */
+        $parentheses = $parsed['parentheses'] ?? [];
+
+        // Resolve placeholders in condition, trueValue, and falseValue
+        if (is_string($condition)) {
+            $condition = self::resolvePlaceholders($condition, $parentheses, $sources, $aliases);
+        }
+        $trueValue = self::resolvePlaceholders($trueValue, $parentheses, $sources, $aliases);
+        $falseValue = self::resolvePlaceholders($falseValue, $parentheses, $sources, $aliases);
 
         // Evaluate the condition
-        $conditionResult = self::evaluateCondition($condition, $sources, $aliases);
+        if (is_string($condition)) {
+            $conditionResult = self::evaluateCondition($condition, $sources, $aliases);
+        } else {
+            $conditionResult = (bool)$condition;
+        }
 
-        return $conditionResult ? $trueValue : $falseValue;
+        // Apply conditional
+        $result = $conditionResult ? $trueValue : $falseValue;
+
+        // Apply filters if present
+        if ([] !== $filters) {
+            return FilterEngine::apply($result, $filters);
+        }
+
+        return $result;
     }
 
     /**
@@ -363,5 +428,165 @@ final class ExpressionEvaluator
             '||' => $left || $right,
             default => false,
         };
+    }
+
+    /**
+     * Resolve parentheses placeholders in a value.
+     *
+     * Replaces __PAREN_0__, __PAREN_1__, etc. with evaluated values.
+     *
+     * @param array<int, array<string, mixed>|null> $parentheses Parsed parentheses contents
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function resolvePlaceholders(
+        mixed $value,
+        array $parentheses,
+        array $sources,
+        array $aliases
+    ): mixed {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        // Check if value contains placeholders
+        if (!str_contains($value, '__PAREN_')) {
+            return $value;
+        }
+
+        // Replace each placeholder with its evaluated value
+        foreach ($parentheses as $index => $parsed) {
+            $placeholder = '__PAREN_' . $index . '__';
+            if (str_contains($value, $placeholder)) {
+                // Evaluate the parenthesis content
+                if (null === $parsed) {
+                    $evaluated = null;
+                } else {
+                    $evaluated = self::evaluateParsed($parsed, $sources, $aliases);
+                }
+
+                // If the value is ONLY the placeholder, return the evaluated value directly
+                if ($value === $placeholder) {
+                    return $evaluated;
+                }
+
+                // Otherwise, replace the placeholder in the string
+                // Convert evaluated value to string for replacement
+                $replacement = match (true) {
+                    is_string($evaluated) => $evaluated,
+                    is_numeric($evaluated) => (string)$evaluated,
+                    is_bool($evaluated) => $evaluated ? 'true' : 'false',
+                    null === $evaluated => 'null',
+                    default => json_encode($evaluated) ?: '',
+                };
+
+                $value = str_replace($placeholder, $replacement, $value);
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Evaluate a parsed expression.
+     *
+     * This is a helper method to evaluate already-parsed expressions (e.g., from parentheses).
+     *
+     * @param array<string, mixed> $parsed
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function evaluateParsed(array $parsed, array $sources, array $aliases): mixed
+    {
+        $type = $parsed['type'] ?? 'expression';
+
+        return match ($type) {
+            'null_coalescing' => self::evaluateNullCoalescing($parsed, $sources, $aliases),
+            'elvis' => self::evaluateElvis($parsed, $sources, $aliases),
+            'conditional' => self::evaluateConditional($parsed, $sources, $aliases),
+            'alias' => self::evaluateAlias($parsed, $sources, $aliases),
+            'expression' => self::evaluateExpression($parsed, $sources, $aliases),
+            default => null,
+        };
+    }
+
+    /**
+     * Evaluate an alias expression.
+     *
+     * @param array<string, mixed> $parsed
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function evaluateAlias(array $parsed, array $sources, array $aliases): mixed
+    {
+        /** @var array<int, array<string, mixed>|null> $parentheses */
+        $parentheses = $parsed['parentheses'] ?? [];
+
+        // First try to resolve from aliases (already resolved values)
+        /** @var string $path */
+        $path = $parsed['path'] ?? '';
+        $result = self::resolveAlias($path, $aliases);
+
+        // If not found in aliases, try to resolve from sources
+        if (null === $result) {
+            $result = self::resolveSourcePath($path, $sources);
+        }
+
+        // Apply default if value is null
+        if (null === $result && null !== $parsed['default']) {
+            $default = self::resolvePlaceholders($parsed['default'], $parentheses, $sources, $aliases);
+            $result = $default;
+        }
+
+        // Apply filters
+        /** @var array<int, string> $filters */
+        $filters = $parsed['filters'] ?? [];
+        if ([] !== $filters) {
+            return TemplateExpressionProcessor::applyFilters($result, $filters);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Evaluate a regular expression.
+     *
+     * @param array<string, mixed> $parsed
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function evaluateExpression(array $parsed, array $sources, array $aliases): mixed
+    {
+        /** @var array<int, array<string, mixed>|null> $parentheses */
+        $parentheses = $parsed['parentheses'] ?? [];
+
+        /** @var string $path */
+        $path = $parsed['path'] ?? '';
+        $resolved = self::resolveSourcePath($path, $sources);
+
+        // Apply default if value is null
+        if (null === $resolved && null !== $parsed['default']) {
+            $default = self::resolvePlaceholders($parsed['default'], $parentheses, $sources, $aliases);
+            $resolved = $default;
+        }
+
+        // Apply filters using TemplateExpressionProcessor (handles wildcards correctly)
+        /** @var array<int, string> $filters */
+        $filters = $parsed['filters'] ?? [];
+        if ([] !== $filters) {
+            // Check if this is a wildcard result (array with dot-path keys or numeric keys from wildcard)
+            // If so, apply filters to each element instead of the whole array
+            if (is_array($resolved) && str_contains($path, '*')) {
+                $filtered = [];
+                foreach ($resolved as $key => $item) {
+                    $filtered[$key] = TemplateExpressionProcessor::applyFilters($item, $filters);
+                }
+                return $filtered;
+            }
+
+            return TemplateExpressionProcessor::applyFilters($resolved, $filters);
+        }
+
+        return $resolved;
     }
 }

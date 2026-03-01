@@ -25,14 +25,14 @@ describe('ExpressionParser', function(): void {
         expect($result['filters'])->toBe([]);
     });
 
-    it('parses expression with default value', function(): void {
+    it('parses null coalescing expression', function(): void {
         $result = ExpressionParser::parse("{{ user.name ?? 'Unknown' }}");
 
         expect($result)->not->toBeNull();
         assert(is_array($result));
-        expect($result['type'])->toBe('expression');
-        expect($result['path'])->toBe('user.name');
-        expect($result['default'])->toBe('Unknown');
+        expect($result['type'])->toBe('null_coalescing');
+        expect($result['left'] ?? null)->toBe('user.name');
+        expect($result['right'] ?? null)->toBe('Unknown');
     });
 
     it('parses expression with filter', function(): void {
