@@ -32,6 +32,16 @@ final class ExpressionEvaluator
             return $value;
         }
 
+        // Null coalescing expression: {{ user.email ?? "default@example.com" }}
+        if ('null_coalescing' === $parsed['type']) {
+            return self::evaluateNullCoalescing($parsed, $sources, $aliases);
+        }
+
+        // Elvis expression: {{ user.name ?: "Anonymous" }}
+        if ('elvis' === $parsed['type']) {
+            return self::evaluateElvis($parsed, $sources, $aliases);
+        }
+
         // Conditional expression: {{ status == "active" ? 1 : 0 }}
         if ('conditional' === $parsed['type']) {
             return self::evaluateConditional($parsed, $sources, $aliases);
@@ -156,6 +166,44 @@ final class ExpressionEvaluator
         // Otherwise, use DataAccessor to get the nested value
         $accessor = new DataAccessor($sources[$alias]);
         return $accessor->get($subPath);
+    }
+
+    /**
+     * Evaluate a null coalescing expression (??).
+     *
+     * @param array{type: string, path: string, default: mixed, filters: array<int, string>, left?: string, right?: mixed} $parsed
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function evaluateNullCoalescing(array $parsed, array $sources, array $aliases): mixed
+    {
+        $left = $parsed['left'] ?? '';
+        $right = $parsed['right'] ?? null;
+
+        // Resolve left value
+        $leftValue = self::resolveValue($left, $sources, $aliases);
+
+        // Return left value if not null, otherwise return right value
+        return $leftValue ?? $right;
+    }
+
+    /**
+     * Evaluate an elvis expression (?:).
+     *
+     * @param array{type: string, path: string, default: mixed, filters: array<int, string>, left?: string, right?: mixed} $parsed
+     * @param array<string, mixed> $sources
+     * @param array<string, mixed> $aliases
+     */
+    private static function evaluateElvis(array $parsed, array $sources, array $aliases): mixed
+    {
+        $left = $parsed['left'] ?? '';
+        $right = $parsed['right'] ?? null;
+
+        // Resolve left value
+        $leftValue = self::resolveValue($left, $sources, $aliases);
+
+        // Return left value if truthy, otherwise return right value
+        return $leftValue ?: $right;
     }
 
     /**

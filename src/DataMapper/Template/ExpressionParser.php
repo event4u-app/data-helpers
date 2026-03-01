@@ -18,7 +18,7 @@ final class ExpressionParser
      *
      * Returns null if the string is not a valid {{ }} expression.
      *
-     * @return array{type: string, path: string, default: mixed, filters: array<int, string>, condition?: string, trueValue?: mixed, falseValue?: mixed}|null
+     * @return array{type: string, path: string, default: mixed, filters: array<int, string>, condition?: string, trueValue?: mixed, falseValue?: mixed, left?: string, right?: mixed}|null
      */
     public static function parse(string $value): ?array
     {
@@ -31,6 +31,20 @@ final class ExpressionParser
         // Template expression: {{ ... }}
         if (preg_match('/^\{\{\s*(.+?)\s*\}\}$/', $value, $matches)) {
             $expression = trim($matches[1]);
+
+            // Check for null coalescing expression: {{ user.email ?? "default@example.com" }}
+            if (self::isNullCoalescingExpression($expression)) {
+                $result = self::parseNullCoalescingExpression($expression);
+                $cache[$value] = $result;
+                return $result;
+            }
+
+            // Check for elvis expression: {{ user.name ?: "Anonymous" }}
+            if (self::isElvisExpression($expression)) {
+                $result = self::parseElvisExpression($expression);
+                $cache[$value] = $result;
+                return $result;
+            }
 
             // Check for conditional expression: {{ status == "active" ? 1 : 0 }}
             if (self::isConditionalExpression($expression)) {
@@ -140,6 +154,86 @@ final class ExpressionParser
     }
 
     /**
+     * Check if an expression is a null coalescing expression (??).
+     *
+     * Examples:
+     * - user.email ?? "default@example.com"
+     * - product.name ?? "Unnamed Product"
+     */
+    private static function isNullCoalescingExpression(string $expression): bool
+    {
+        // Must contain ?? but not inside quotes
+        if (!str_contains($expression, '??')) {
+            return false;
+        }
+
+        // Check if ?? is outside quotes
+        $inQuotes = false;
+        $quoteChar = null;
+
+        for ($i = 0, $len = strlen($expression) - 1; $i < $len; $i++) {
+            $char = $expression[$i];
+
+            if (('"' === $char || "'" === $char) && (0 === $i || '\\' !== $expression[$i - 1])) {
+                if (!$inQuotes) {
+                    $inQuotes = true;
+                    $quoteChar = $char;
+                } elseif ($char === $quoteChar) {
+                    $inQuotes = false;
+                    $quoteChar = null;
+                }
+                continue;
+            }
+
+            if (!$inQuotes && '?' === $char && isset($expression[$i + 1]) && '?' === $expression[$i + 1]) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if an expression is an elvis expression (?:).
+     *
+     * Examples:
+     * - user.name ?: "Anonymous"
+     * - product.quantity ?: 0
+     */
+    private static function isElvisExpression(string $expression): bool
+    {
+        // Must contain ?: but not inside quotes
+        if (!str_contains($expression, '?:')) {
+            return false;
+        }
+
+        // Check if ?: is outside quotes
+        $inQuotes = false;
+        $quoteChar = null;
+
+        for ($i = 0, $len = strlen($expression) - 1; $i < $len; $i++) {
+            $char = $expression[$i];
+
+            if (('"' === $char || "'" === $char) && (0 === $i || '\\' !== $expression[$i - 1])) {
+                if (!$inQuotes) {
+                    $inQuotes = true;
+                    $quoteChar = $char;
+                } elseif ($char === $quoteChar) {
+                    $inQuotes = false;
+                    $quoteChar = null;
+                }
+                continue;
+            }
+
+            if (!$inQuotes && '?' === $char && isset($expression[$i + 1]) && ':' === $expression[$i + 1]) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Parse a conditional expression.
      *
      * Format: condition ? trueValue : falseValue
@@ -180,6 +274,82 @@ final class ExpressionParser
     }
 
     /**
+     * Parse a null coalescing expression (??).
+     *
+     * Format: left ?? right
+     *
+     * Examples:
+     * - user.email ?? "default@example.com"
+     * - product.name ?? "Unnamed Product"
+     *
+     * @return array{type: string, path: string, default: mixed, filters: array<int, string>, left?: string, right?: mixed}
+     */
+    private static function parseNullCoalescingExpression(string $expression): array
+    {
+        // Split by ?? respecting quotes
+        $parts = self::splitByOperator($expression, '??');
+
+        if (2 !== count($parts)) {
+            // Fallback: treat as regular expression
+            return [
+                'type' => 'expression',
+                'path' => $expression,
+                'default' => null,
+                'filters' => [],
+            ];
+        }
+
+        [$left, $right] = $parts;
+
+        return [
+            'type' => 'null_coalescing',
+            'path' => '', // Not used for null coalescing expressions
+            'default' => null, // Not used for null coalescing expressions
+            'filters' => [], // Not used for null coalescing expressions
+            'left' => trim($left),
+            'right' => self::parseValue(trim($right)),
+        ];
+    }
+
+    /**
+     * Parse an elvis expression (?:).
+     *
+     * Format: left ?: right
+     *
+     * Examples:
+     * - user.name ?: "Anonymous"
+     * - product.quantity ?: 0
+     *
+     * @return array{type: string, path: string, default: mixed, filters: array<int, string>, left?: string, right?: mixed}
+     */
+    private static function parseElvisExpression(string $expression): array
+    {
+        // Split by ?: respecting quotes
+        $parts = self::splitByOperator($expression, '?:');
+
+        if (2 !== count($parts)) {
+            // Fallback: treat as regular expression
+            return [
+                'type' => 'expression',
+                'path' => $expression,
+                'default' => null,
+                'filters' => [],
+            ];
+        }
+
+        [$left, $right] = $parts;
+
+        return [
+            'type' => 'elvis',
+            'path' => '', // Not used for elvis expressions
+            'default' => null, // Not used for elvis expressions
+            'filters' => [], // Not used for elvis expressions
+            'left' => trim($left),
+            'right' => self::parseValue(trim($right)),
+        ];
+    }
+
+    /**
      * Split conditional expression by ? and : respecting quotes.
      *
      * @return array<int, string>
@@ -211,6 +381,53 @@ final class ExpressionParser
             if (!$inQuotes && ('?' === $char || ':' === $char)) {
                 $parts[] = $current;
                 $current = '';
+                continue;
+            }
+
+            $current .= $char;
+        }
+
+        if ('' !== $current) {
+            $parts[] = $current;
+        }
+
+        return $parts;
+    }
+
+    /**
+     * Split expression by a specific operator respecting quotes.
+     *
+     * @return array<int, string>
+     */
+    private static function splitByOperator(string $expression, string $operator): array
+    {
+        $parts = [];
+        $current = '';
+        $inQuotes = false;
+        $quoteChar = null;
+        $operatorLen = strlen($operator);
+
+        for ($i = 0, $len = strlen($expression); $i < $len; $i++) {
+            $char = $expression[$i];
+
+            // Handle quotes
+            if (('"' === $char || "'" === $char) && (0 === $i || '\\' !== $expression[$i - 1])) {
+                if (!$inQuotes) {
+                    $inQuotes = true;
+                    $quoteChar = $char;
+                } elseif ($char === $quoteChar) {
+                    $inQuotes = false;
+                    $quoteChar = null;
+                }
+                $current .= $char;
+                continue;
+            }
+
+            // Check for operator
+            if (!$inQuotes && substr($expression, $i, $operatorLen) === $operator) {
+                $parts[] = $current;
+                $current = '';
+                $i += $operatorLen - 1; // Skip operator characters
                 continue;
             }
 
