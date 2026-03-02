@@ -1542,9 +1542,12 @@ final class FluentDataMapper
             return false;
         }
 
-        // Must contain ? and : (ternary operator)
-        // Simple check: if it contains both ? and : outside quotes, it's likely a conditional
-        return str_contains($value, '?') && str_contains($value, ':');
+        // Check for null coalescing (??), elvis (?:), or ternary (? :)
+        // Simple check: if it contains these operators, it's likely a conditional expression
+        return str_contains($value, '??') || str_contains($value, '?:') || (str_contains($value, '?') && str_contains(
+            $value,
+            ':'
+        ));
     }
 
     /**

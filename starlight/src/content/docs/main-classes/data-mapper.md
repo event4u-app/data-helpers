@@ -160,26 +160,63 @@ Templates use `{{ }}` for dynamic values:
 - **Dot-notation:** `'{{ user.profile.address.street }}'` - Nested access
 - **Wildcards:** `'{{ users.*.email }}'` - Array operations
 - **Conditional expressions:** `'{{ condition ? trueValue : falseValue }}'` - Transform values based on conditions
+- **Null coalescing:** `'{{ user.email ?? "default@example.com" }}'` - Default value for null
+- **Elvis operator:** `'{{ user.name ?: "Anonymous" }}'` - Default value for falsy values
 
 ### Conditional Expressions (Transformations)
 
-Conditional expressions allow you to transform values based on conditions using ternary operators. This is useful for converting data types, categorizing values, or applying business logic during mapping.
+Conditional expressions allow you to transform values based on conditions. DataMapper supports three types of conditional operators:
 
-#### Basic Syntax
+#### 1. Ternary Operator (`? :`)
+
+Full conditional expression with explicit condition:
 
 <!-- skip-test: Syntax example only -->
 ```php
 '{{ condition ? trueValue : falseValue }}'
 ```
 
-#### Supported Operators
-
+**Supported Operators:**
 - **Equality:** `==`, `!=`
 - **Comparison:** `>`, `<`, `>=`, `<=`
 
+#### 2. Null Coalescing Operator (`??`)
+
+Returns the left value if it's **not null**, otherwise returns the right value:
+
+<!-- skip-test: Syntax example only -->
+```php
+'{{ user.email ?? "default@example.com" }}'
+```
+
+**Behavior:**
+- ✅ Triggers only on `null`
+- ❌ Does NOT trigger on `false`, `0`, `""`, or `[]`
+
+#### 3. Elvis Operator (`?:`)
+
+Returns the left value if it's **truthy**, otherwise returns the right value:
+
+<!-- skip-test: Syntax example only -->
+```php
+'{{ user.name ?: "Anonymous" }}'
+```
+
+**Behavior:**
+- ✅ Triggers on any falsy value: `null`, `false`, `0`, `""`, `[]`
+- ❌ Does NOT trigger on truthy values like `1`, `"text"`, `[1, 2]`
+
+#### Comparison Table
+
+| Operator | Triggers on | Example | When right value? |
+|----------|-------------|---------|-------------------|
+| `??` | `null` only | `{{ email ?? "default" }}` | Only when `null` |
+| `?:` | Any falsy value | `{{ name ?: "Anonymous" }}` | When `null`, `false`, `0`, `""`, `[]` |
+| `? :` | Custom condition | `{{ age > 18 ? "adult" : "minor" }}` | When condition is false |
+
 #### Examples
 
-**Transform status to 0 or 1:**
+**Ternary Operator - Transform status to 0 or 1:**
 
 ```php
 $source = [
@@ -343,6 +380,105 @@ $result = DataMapper::source($source)
 // Result: ['adult' => 1]
 ```
 
+**Null Coalescing - Default email addresses:**
+
+```php
+$source = [
+    'users' => [
+        ['name' => 'Alice', 'email' => 'alice@example.com'],
+        ['name' => 'Bob', 'email' => null],
+        ['name' => 'Charlie'], // email missing
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'users.*' => [
+            'name' => '{{ users.*.name }}',
+            'email' => '{{ users.*.email ?? "no-email@example.com" }}',
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'users' => [
+//         ['name' => 'Alice', 'email' => 'alice@example.com'],
+//         ['name' => 'Bob', 'email' => 'no-email@example.com'],
+//         ['name' => 'Charlie', 'email' => 'no-email@example.com'],
+//     ]
+// ]
+```
+
+**Elvis Operator - Anonymous names:**
+
+```php
+$source = [
+    'users' => [
+        ['name' => 'Alice'],
+        ['name' => ''], // empty string
+        ['name' => null], // null
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'users.*' => [
+            'name' => '{{ users.*.name ?: "Anonymous" }}',
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'users' => [
+//         ['name' => 'Alice'],
+//         ['name' => 'Anonymous'],
+//         ['name' => 'Anonymous'],
+//     ]
+// ]
+```
+
+**Difference between ?? and ?::**
+
+```php
+$source = [
+    'user' => [
+        'email' => '',      // empty string
+        'quantity' => 0,    // zero
+        'active' => false,  // false
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        // ?? only triggers on null (NOT on empty string, 0, or false)
+        'email_coalescing' => '{{ user.email ?? "default@example.com" }}',
+        'quantity_coalescing' => '{{ user.quantity ?? 10 }}',
+        'active_coalescing' => '{{ user.active ?? true }}',
+
+        // ?: triggers on ANY falsy value (empty string, 0, false, null)
+        'email_elvis' => '{{ user.email ?: "default@example.com" }}',
+        'quantity_elvis' => '{{ user.quantity ?: 10 }}',
+        'active_elvis' => '{{ user.active ?: true }}',
+    ])
+    ->skipNull(false)
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'email_coalescing' => '',              // NOT replaced (not null)
+//     'quantity_coalescing' => 0,            // NOT replaced (not null)
+//     'active_coalescing' => false,          // NOT replaced (not null)
+//     'email_elvis' => 'default@example.com', // Replaced (empty string is falsy)
+//     'quantity_elvis' => 10,                // Replaced (0 is falsy)
+//     'active_elvis' => true,                // Replaced (false is falsy)
+// ]
+```
+
 #### Working with Wildcards
 
 Conditional expressions integrate seamlessly with wildcard operators:
@@ -380,18 +516,127 @@ $result = DataMapper::source($source)
 
 :::tip[Use Cases]
 Conditional expressions are perfect for:
-- **Data Type Conversion** - Convert strings to integers/booleans
-- **Categorization** - Classify values into categories (adult/minor, expensive/cheap)
-- **Business Logic** - Apply rules during mapping (low stock alerts, premium users)
-- **Flag Generation** - Create boolean flags based on conditions
-- **Status Mapping** - Transform status codes to readable values
+- **Ternary (`? :`)** - Data type conversion, categorization, business logic
+- **Null Coalescing (`??`)** - Default values for optional fields, API responses with missing data
+- **Elvis (`?:`)** - Default values for empty strings, anonymization, fallback for zero values
+- **Common scenarios:**
+  - Convert strings to integers/booleans
+  - Classify values into categories (adult/minor, expensive/cheap)
+  - Apply rules during mapping (low stock alerts, premium users)
+  - Create boolean flags based on conditions
+  - Transform status codes to readable values
 :::
 
 :::note[Performance]
 Conditional expressions are evaluated during the mapping process and have minimal performance overhead. They are optimized for use with wildcards and large datasets.
 :::
 
-💡 **See the complete example:** Run `php examples/datamapper-conditional-expressions.php` for a comprehensive demonstration of all conditional expression features.
+💡 **See the complete examples:**
+- Run `php examples/datamapper-conditional-expressions.php` for ternary operator examples
+- Run `php examples/datamapper-null-coalescing-elvis.php` for `??` and `?:` examples
+
+#### Nested Expressions (Parentheses)
+
+You can use **parentheses `(...)`** to nest conditional operators and create complex fallback chains:
+
+```php
+$source = [
+    'user' => [
+        'name' => null,
+        'surname' => null,
+    ],
+];
+
+// Simple parentheses
+$result = DataMapper::source($source)
+    ->template([
+        'fullname' => '{{ user.name ?? (user.surname) }}',
+    ])
+    ->map()
+    ->getTarget();
+// Result: ['fullname' => null] (both are null)
+
+// Nested null coalescing - multiple fallbacks
+$result = DataMapper::source($source)
+    ->template([
+        'fullname' => '{{ user.name ?? (user.surname ?? "UNKNOWN") }}',
+    ])
+    ->map()
+    ->getTarget();
+// Result: ['fullname' => 'UNKNOWN']
+```
+
+**Parentheses with filters:**
+
+```php
+$source = [
+    'user' => [
+        'name' => null,
+        'surname' => 'doe',
+    ],
+];
+
+// Apply filter inside parentheses
+$result = DataMapper::source($source)
+    ->template([
+        'fullname' => '{{ user.name ?? (user.surname | upper) }}',
+    ])
+    ->map()
+    ->getTarget();
+// Result: ['fullname' => 'DOE']
+```
+
+**Complex nested expressions:**
+
+```php
+$source = [
+    'user' => [
+        'name' => null,
+        'surname' => null,
+    ],
+];
+
+// Nested operators with filters at multiple levels
+$result = DataMapper::source($source)
+    ->template([
+        'fullname' => '{{ user.name ?? (user.surname ?? "UNKNOWN" | lower) | upper }}',
+    ])
+    ->map()
+    ->getTarget();
+// Result: ['fullname' => 'UNKNOWN']
+
+// Execution order:
+// 1. user.surname ?? "UNKNOWN" → "UNKNOWN"
+// 2. "UNKNOWN" | lower → "unknown"
+// 3. user.name ?? "unknown" → "unknown" (user.name is null)
+// 4. "unknown" | upper → "UNKNOWN"
+```
+
+**Operator precedence with parentheses:**
+
+1. **Parentheses** `(...)` - Highest priority
+2. **Null Coalescing** `??`
+3. **Elvis** `?:`
+4. **Ternary** `? :`
+5. **Pipes/Filters** `|` - Lowest priority
+
+```php
+// Without parentheses - filters apply to the whole expression
+'{{ user.name ?? "default" | upper }}'
+// → (user.name ?? "default") | upper
+
+// With parentheses - filters apply only inside
+'{{ user.name ?? (user.surname | upper) }}'
+// → user.name ?? (user.surname | upper)
+```
+
+:::tip[Use Cases for Nested Expressions]
+Nested expressions are perfect for:
+- **Multiple fallback levels:** Try primary, then secondary, then default value
+- **Conditional transformations:** Apply filters only to specific fallback values
+- **Complex business logic:** Combine multiple operators for sophisticated data handling
+- **API response handling:** Handle missing data with multiple fallback strategies
+:::
 
 ### Loading Data from Files
 
@@ -1141,7 +1386,8 @@ The following working examples demonstrate DataMapper in action:
 
 - [**Simple Mapping**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/simple-mapping.php) - Basic template-based mapping
 - [**Template-Based Queries**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/template-based-queries.php) - WHERE/ORDER BY in templates (recommended for database-stored templates)
-- [**Conditional Expressions**](https://github.com/event4u-app/data-helpers/blob/main/examples/datamapper-conditional-expressions.php) - Transform values with ternary operators
+- [**Conditional Expressions**](https://github.com/event4u-app/data-helpers/blob/main/examples/datamapper-conditional-expressions.php) - Transform values with ternary operators (`? :`)
+- [**Null Coalescing & Elvis**](https://github.com/event4u-app/data-helpers/blob/main/examples/datamapper-null-coalescing-elvis.php) - Default values with `??` and `?:` operators
 - [**With Hooks**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/with-hooks.php) - Using hooks for custom logic
 - [**Pipeline**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/pipeline.php) - Filter pipelines and transformations
 - [**Mapped Data Model**](https://github.com/event4u-app/data-helpers/blob/main/examples/main-classes/data-mapper/mapped-data-model.php) - Using MappedDataModel class
@@ -1155,6 +1401,7 @@ All examples are fully tested and can be run directly:
 php examples/main-classes/data-mapper/simple-mapping.php
 php examples/main-classes/data-mapper/template-based-queries.php
 php examples/datamapper-conditional-expressions.php
+php examples/datamapper-null-coalescing-elvis.php
 php examples/main-classes/data-mapper/with-hooks.php
 ```
 
@@ -1163,7 +1410,9 @@ php examples/main-classes/data-mapper/with-hooks.php
 The functionality is thoroughly tested. Key test files:
 
 - [DataMapperTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/DataMapperTest.php) - Core functionality tests
-- [ConditionalExpressionsTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/ConditionalExpressionsTest.php) - Conditional expressions tests
+- [ConditionalExpressionsTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/ConditionalExpressionsTest.php) - Ternary operator tests (`? :`)
+- [NullCoalescingAndElvisTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/NullCoalescingAndElvisTest.php) - Null coalescing (`??`) and Elvis (`?:`) tests
+- [NestedExpressionsTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/NestedExpressionsTest.php) - Nested expressions with parentheses tests
 - [DataMapperHooksTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/DataMapperHooksTest.php) - Hook system tests
 - [DataMapperPipelineTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/Pipeline/DataMapperPipelineTest.php) - Pipeline tests
 - [MapperQueryTest.php](https://github.com/event4u-app/data-helpers/blob/main/tests/Unit/DataMapper/MapperQueryTest.php) - Query integration tests
