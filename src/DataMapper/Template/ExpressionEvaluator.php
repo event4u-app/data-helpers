@@ -410,6 +410,17 @@ final class ExpressionEvaluator
             return null;
         }
 
+        // Check for pipe filters in the value (e.g., "equipment.*.status | LOWER")
+        // Only split if the pipe is not inside quotes
+        if (str_contains($value, '|')) {
+            $parts = ExpressionParser::splitByPipeFast($value);
+            if (1 < count($parts)) {
+                $path = trim(array_shift($parts));
+                $resolved = self::resolveSourcePath($path, $sources);
+                return FilterEngine::apply($resolved, $parts);
+            }
+        }
+
         // Otherwise, treat as a path and resolve from sources
         return self::resolveSourcePath($value, $sources);
     }
@@ -472,8 +483,10 @@ final class ExpressionEvaluator
 
                 // Otherwise, replace the placeholder in the string
                 // Convert evaluated value to string for replacement
+                // Wrap string values in quotes so resolveValue() treats them as literals
+                // when used in conditions like: (path | LOWER) == "active"
                 $replacement = match (true) {
-                    is_string($evaluated) => $evaluated,
+                    is_string($evaluated) => '"' . str_replace('"', '\\"', $evaluated) . '"',
                     is_numeric($evaluated) => (string)$evaluated,
                     is_bool($evaluated) => $evaluated ? 'true' : 'false',
                     null === $evaluated => 'null',

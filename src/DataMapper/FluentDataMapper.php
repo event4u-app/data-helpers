@@ -1573,7 +1573,12 @@ final class FluentDataMapper
             // Check values
             // Support both named sources (products) and numeric sources (0, 1, 2)
             // The dot-part is optional to support expressions like {{ total }} without a path
-            if (is_string($value) && preg_match('/\{\{\s*@?([a-zA-Z_]\w*|\d+)(?:\.\*|\.[\w.]+)?/', $value, $matches)) {
+            // Also support parenthesized expressions like {{ (user.role | upper) == "ADMIN" ? 1 : 0 }}
+            if (is_string($value) && preg_match(
+                '/\{\{\s*\(?@?([a-zA-Z_]\w*|\d+)(?:\.\*|\.[\w.]+)?/',
+                $value,
+                $matches
+            )) {
                 $sourceNames[] = $matches[1];
             } elseif (is_array($value)) {
                 $sourceNames = array_merge($sourceNames, $this->extractSourceNamesFromTemplate($value));
