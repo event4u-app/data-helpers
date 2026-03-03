@@ -12,6 +12,9 @@ The Template Expression Engine provides a powerful expression syntax that works 
 - **Transform values** using filter syntax (e.g., `| lower`, `| trim`)
 - **Provide defaults** for null/missing values (e.g., `?? 'Unknown'`)
 - **Chain multiple filters** (e.g., `| trim | lower | ucfirst`)
+- **Conditional expressions** with ternary operator (e.g., `{{ status == "active" ? 1 : 0 }}`)
+- **Membership checks** with `IN` / `NOT IN` (e.g., `{{ status IN ["a","b"] ? 1 : 0 }}`)
+- **Filtered conditions** with parentheses (e.g., `{{ (status | lower) == "active" ? 1 : 0 }}`)
 - **Reference source fields** (e.g., `{{ user.name }}`)
 - **Reference target fields** using aliases (e.g., `{{ @fieldName }}`)
 - **Use static values** (e.g., `'admin'` without `{{ }}`)
@@ -254,6 +257,70 @@ Cast values to specific types:
 **Note:** By default, boolean `false` is **not** converted to `null` unless you use the `"false"` option.
 
 **See also:** [ConvertEmptyToNull Attribute](/data-helpers/simple-dto/convert-empty-to-null/) for SimpleDto usage.
+
+## Conditional Expressions
+
+### Ternary Operator
+
+Transform values based on conditions:
+
+<!-- skip-test: Syntax example only -->
+```php
+// Equality check
+'{{ user.status == "active" ? 1 : 0 }}'
+
+// Comparison operators: ==, !=, >, <, >=, <=
+'{{ user.age >= 18 ? "adult" : "minor" }}'
+```
+
+### IN / NOT IN Operator
+
+Check if a value is contained in an array literal:
+
+<!-- skip-test: Syntax example only -->
+```php
+// IN - check membership
+'{{ status IN ["active","pending"] ? 1 : 0 }}'
+
+// NOT IN - inverse check
+'{{ status NOT IN ["Defekt","Verkauft"] ? 1 : 0 }}'
+
+// With numeric values
+'{{ category_id IN [1,3,5,7] ? 1 : 0 }}'
+
+// With null in the array
+'{{ status IN [null,"Ok"] ? 1 : 0 }}'
+```
+
+### Pipe Filters in Conditions
+
+Use **parentheses** to apply filters before comparing:
+
+<!-- skip-test: Syntax example only -->
+```php
+// Case-insensitive comparison
+'{{ (user.status | lower) == "active" ? 1 : 0 }}'
+
+// Combined with IN
+'{{ (equipment.*.status | lower) IN ["verkauft","defekt","verschrottet"] ? 1 : 0 }}'
+```
+
+:::caution[Parentheses Required]
+Filters in conditions **must** use parentheses `(path | filter)`. Without parentheses, the pipe is interpreted as a filter on the entire expression.
+:::
+
+### Null Handling
+
+String filters (`lower`, `upper`, `trim`, `ucfirst`, `ucwords`) pass `null` through unchanged:
+
+<!-- skip-test: Syntax example only -->
+```php
+// If user.status is null:
+'{{ (user.status | lower) == "active" ? 1 : 0 }}'  // → 0 (null != "active")
+'{{ (user.status | lower) == null ? 1 : 0 }}'       // → 1 (null == null)
+```
+
+For more details and examples, see [DataMapper → Conditional Expressions](/data-helpers/main-classes/data-mapper/#conditional-expressions-transformations).
 
 ## Custom Filters
 

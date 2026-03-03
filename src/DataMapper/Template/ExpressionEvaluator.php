@@ -297,12 +297,28 @@ final class ExpressionEvaluator
      * - Equality: ==, !=
      * - Comparison: >, <, >=, <=
      * - Logical: &&, ||
+     * - Membership: IN, NOT IN (with array literals like ["a","b","c"])
      *
      * @param array<string, mixed> $sources
      * @param array<string, mixed> $aliases
      */
     private static function evaluateCondition(string $condition, array $sources, array $aliases): bool
     {
+        // Check for word-based operators first (NOT IN before IN to avoid partial match)
+        foreach ([' NOT IN ' => 'NOT IN', ' IN ' => 'IN'] as $search => $operator) {
+            // Case-insensitive check for IN/NOT IN
+            $pos = stripos($condition, $search);
+            if (false !== $pos) {
+                $left = trim(substr($condition, 0, $pos));
+                $right = trim(substr($condition, $pos + strlen($search)));
+
+                $leftValue = self::resolveValue($left, $sources, $aliases);
+                $rightValue = self::resolveValue($right, $sources, $aliases);
+
+                return self::compareValues($leftValue, $rightValue, $operator);
+            }
+        }
+
         // Parse the condition
         // Support operators: ==, !=, >, <, >=, <=, &&, ||
         $operators = ['==', '!=', '>=', '<=', '>', '<', '&&', '||'];
@@ -398,6 +414,11 @@ final class ExpressionEvaluator
             return str_contains($value, '.') ? (float)$value : (int)$value;
         }
 
+        // Array literal: ["value1","value2","value3"]
+        if (str_starts_with($value, '[') && str_ends_with($value, ']')) {
+            return self::parseArrayLiteral($value);
+        }
+
         // Boolean/null keywords
         $lower = strtolower($value);
         if ('true' === $lower) {
@@ -437,7 +458,91 @@ final class ExpressionEvaluator
             '<=' => $left <= $right,
             '&&' => $left && $right,
             '||' => $left || $right,
+            'IN' => is_array($right) && in_array($left, $right, false),
+            'NOT IN' => is_array($right) && !in_array($left, $right, false),
             default => false,
+        };
+    }
+
+    /**
+     * Parse an array literal like ["value1","value2","value3"].
+     *
+     * Supports quoted strings, numbers, booleans, and null values.
+     *
+     * @return array<int, mixed>
+     */
+    private static function parseArrayLiteral(string $value): array
+    {
+        // Remove brackets
+        $inner = substr($value, 1, -1);
+        $inner = trim($inner);
+
+        if ('' === $inner) {
+            return [];
+        }
+
+        // Split by comma, respecting quotes
+        $items = [];
+        $current = '';
+        $inQuotes = false;
+        $quoteChar = null;
+
+        for ($i = 0, $len = strlen($inner); $i < $len; $i++) {
+            $char = $inner[$i];
+
+            if (('"' === $char || "'" === $char) && (0 === $i || '\\' !== $inner[$i - 1])) {
+                if (!$inQuotes) {
+                    $inQuotes = true;
+                    $quoteChar = $char;
+                } elseif ($char === $quoteChar) {
+                    $inQuotes = false;
+                    $quoteChar = null;
+                }
+                $current .= $char;
+
+                continue;
+            }
+
+            if (!$inQuotes && ',' === $char) {
+                $items[] = self::parseArrayItem(trim($current));
+                $current = '';
+
+                continue;
+            }
+
+            $current .= $char;
+        }
+
+        if ('' !== trim($current)) {
+            $items[] = self::parseArrayItem(trim($current));
+        }
+
+        return $items;
+    }
+
+    /** Parse a single array item value (string literal, number, boolean, or null). */
+    private static function parseArrayItem(string $item): mixed
+    {
+        // String literal
+        if ((str_starts_with($item, "'") && str_ends_with($item, "'"))
+            || (str_starts_with($item, '"') && str_ends_with($item, '"'))
+        ) {
+            return substr($item, 1, -1);
+        }
+
+        // Number
+        if (is_numeric($item)) {
+            return str_contains($item, '.') ? (float)$item : (int)$item;
+        }
+
+        // Boolean/null keywords
+        $lower = strtolower($item);
+
+        return match ($lower) {
+            'true' => true,
+            'false' => false,
+            'null' => null,
+            default => $item,
         };
     }
 

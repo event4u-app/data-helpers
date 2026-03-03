@@ -517,4 +517,134 @@ describe('DataMapper → Conditional Expressions', function(): void {
 
         expect($result)->toBe(['is_null' => 1]);
     });
+
+    test('it supports IN operator with array literal', function(): void {
+        $source = ['user' => ['status' => 'active']];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'is_valid' => '{{ user.status IN ["active","pending"] ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['is_valid' => 1]);
+    });
+
+    test('it supports IN operator when value is not in array', function(): void {
+        $source = ['user' => ['status' => 'blocked']];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'is_valid' => '{{ user.status IN ["active","pending"] ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['is_valid' => 0]);
+    });
+
+    test('it supports NOT IN operator', function(): void {
+        $source = ['tool' => ['status' => 'Defekt']];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'item_inactive' => '{{ tool.status NOT IN ["Ok","active",null] ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['item_inactive' => 1]);
+    });
+
+    test('it supports IN operator with filtered value and parentheses', function(): void {
+        $source = [
+            'equipment' => [
+                ['name' => 'Mixer', 'status' => 'Ok'],
+                ['name' => 'Oven', 'status' => 'Defekt'],
+                ['name' => 'Grill', 'status' => null],
+                ['name' => 'Blender', 'status' => 'Verkauft'],
+                ['name' => 'Toaster', 'status' => 'Verschrottet'],
+            ],
+        ];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'equipment.*' => [
+                    'name' => '{{ equipment.*.name }}',
+                    'item_inactive' => '{{ (equipment.*.status | lower) IN ["verkauft","defekt","verschrottet"] ? 1 : 0 }}',
+                ],
+            ])
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe([
+            'equipment' => [
+                ['name' => 'Mixer', 'item_inactive' => 0],
+                ['name' => 'Oven', 'item_inactive' => 1],
+                ['name' => 'Grill', 'item_inactive' => 0],
+                ['name' => 'Blender', 'item_inactive' => 1],
+                ['name' => 'Toaster', 'item_inactive' => 1],
+            ],
+        ]);
+    });
+
+    test('it supports IN operator with numeric values', function(): void {
+        $source = ['product' => ['category_id' => 3]];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'is_featured' => '{{ product.category_id IN [1,3,5,7] ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['is_featured' => 1]);
+    });
+
+    test('it supports IN operator with null value in source', function(): void {
+        $source = ['tool' => ['status' => null]];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'is_inactive' => '{{ tool.status IN ["defekt","verkauft"] ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['is_inactive' => 0]);
+    });
+
+    test('it supports IN operator with null in array', function(): void {
+        $source = ['tool' => ['status' => null]];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'is_ok' => '{{ tool.status IN [null,"Ok"] ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['is_ok' => 1]);
+    });
+
+    test('it supports case-insensitive IN keyword', function(): void {
+        $source = ['user' => ['role' => 'admin']];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'is_admin' => '{{ user.role in ["admin","superadmin"] ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['is_admin' => 1]);
+    });
 });

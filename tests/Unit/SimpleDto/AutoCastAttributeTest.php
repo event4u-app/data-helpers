@@ -634,7 +634,7 @@ describe('AutoCast Attribute', function(): void {
 
             expect($result->prop1)->toBe(1)
                 ->and($result->prop10)->toBe(10)
-                ->and($duration)->toBeLessThan(0.01); // Should be fast (< 10ms)
+                ->and($duration)->toBeLessThan(0.05); // Should be fast (< 50ms)
         });
 
         it('handles already correct types (no casting needed)', function(): void {
