@@ -445,4 +445,76 @@ describe('DataMapper → Conditional Expressions', function(): void {
 
         expect($result)->toBe(['label' => 'enabled']);
     });
+
+    test('it handles null value in filtered ternary condition', function(): void {
+        $source = ['user' => ['status' => null]];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'active' => '{{ (user.status | lower) == "active" ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['active' => 0]);
+    });
+
+    test('it handles null value in filtered ternary with not equal', function(): void {
+        $source = ['user' => ['status' => null]];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'not_active' => '{{ (user.status | lower) != "active" ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['not_active' => 1]);
+    });
+
+    test('it handles mixed null and non-null values in wildcard filtered ternary', function(): void {
+        $source = [
+            'equipment' => [
+                ['name' => 'Mixer', 'status' => 'Active'],
+                ['name' => 'Oven', 'status' => null],
+                ['name' => 'Grill', 'status' => 'Defekt'],
+                ['name' => 'Blender', 'status' => 'Ok'],
+            ],
+        ];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'equipment.*' => [
+                    'name' => '{{ equipment.*.name }}',
+                    'item_inactive' => '{{ (equipment.*.status | lower) == "active" ? 0 : 1 }}',
+                ],
+            ])
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe([
+            'equipment' => [
+                ['name' => 'Mixer', 'item_inactive' => 0],
+                ['name' => 'Oven', 'item_inactive' => 1],
+                ['name' => 'Grill', 'item_inactive' => 1],
+                ['name' => 'Blender', 'item_inactive' => 1],
+            ],
+        ]);
+    });
+
+    test('it handles null compared to null in filtered ternary', function(): void {
+        $source = ['user' => ['status' => null]];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'is_null' => '{{ (user.status | lower) == null ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['is_null' => 1]);
+    });
 });

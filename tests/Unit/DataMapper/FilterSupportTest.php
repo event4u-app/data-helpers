@@ -327,4 +327,86 @@ describe('Filter Support Across All Mapping Methods', function(): void {
             expect($result['names'][1])->toBe('bob');
         });
     });
+
+    describe('Null Value Handling', function(): void {
+        beforeEach(function(): void {
+            setupFilterSupport();
+        });
+
+        it('passes null through lower filter unchanged', function(): void {
+            $template = ['status' => '{{ user.status | lower }}'];
+            $sources = ['user' => ['status' => null]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['status'])->toBeNull();
+        });
+
+        it('passes null through upper filter unchanged', function(): void {
+            $template = ['status' => '{{ user.status | upper }}'];
+            $sources = ['user' => ['status' => null]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['status'])->toBeNull();
+        });
+
+        it('passes null through trim filter unchanged', function(): void {
+            $template = ['name' => '{{ user.name | trim }}'];
+            $sources = ['user' => ['name' => null]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['name'])->toBeNull();
+        });
+
+        it('passes null through ucfirst filter unchanged', function(): void {
+            $template = ['name' => '{{ user.name | ucfirst }}'];
+            $sources = ['user' => ['name' => null]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['name'])->toBeNull();
+        });
+
+        it('passes null through ucwords filter unchanged', function(): void {
+            $template = ['name' => '{{ user.name | ucwords }}'];
+            $sources = ['user' => ['name' => null]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['name'])->toBeNull();
+        });
+
+        it('passes null through chained filters unchanged', function(): void {
+            $template = ['name' => '{{ user.name | trim | lower | ucfirst }}'];
+            $sources = ['user' => ['name' => null]];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['name'])->toBeNull();
+        });
+
+        it('handles null in wildcard with filters', function(): void {
+            $sources = [
+                'items' => [
+                    ['name' => 'ACTIVE'],
+                    ['name' => null],
+                    ['name' => 'INACTIVE'],
+                ],
+            ];
+
+            $template = [
+                'items.*' => [
+                    'label' => '{{ items.*.name | lower }}',
+                ],
+            ];
+
+            $result = DataMapper::source($sources)->template($template)->skipNull(false)->map()->getTarget();
+
+            expect($result['items'][0]['label'])->toBe('active');
+            expect($result['items'][1]['label'])->toBeNull();
+            expect($result['items'][2]['label'])->toBe('inactive');
+        });
+    });
 });
