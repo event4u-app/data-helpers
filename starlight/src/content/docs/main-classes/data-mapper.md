@@ -179,6 +179,8 @@ Full conditional expression with explicit condition:
 **Supported Operators:**
 - **Equality:** `==`, `!=`
 - **Comparison:** `>`, `<`, `>=`, `<=`
+- **Membership:** `IN`, `NOT IN` (with array literals)
+- **Logical:** `&&`, `||`
 
 #### 2. Null Coalescing Operator (`??`)
 
@@ -344,6 +346,7 @@ Conditional expressions support all common value types:
 - **Strings:** `{{ status == "active" ? "Yes" : "No" }}`
 - **Booleans:** `{{ age >= 18 ? true : false }}`
 - **Null:** `{{ email != null ? 1 : 0 }}`
+- **Array literals:** `{{ status IN ["active","pending"] ? 1 : 0 }}`
 
 #### String Literals
 
@@ -514,17 +517,136 @@ $result = DataMapper::source($source)
 // ]
 ```
 
+#### IN / NOT IN Operator
+
+Check if a value is contained in an array of values:
+
+```php
+$source = [
+    'equipment' => [
+        ['name' => 'Mixer', 'status' => 'Ok'],
+        ['name' => 'Oven', 'status' => 'Defekt'],
+        ['name' => 'Grill', 'status' => null],
+        ['name' => 'Blender', 'status' => 'Verkauft'],
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'equipment.*' => [
+            'name' => '{{ equipment.*.name }}',
+            'item_inactive' => '{{ equipment.*.status IN ["Defekt","Verkauft","Verschrottet"] ? 1 : 0 }}',
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'equipment' => [
+//         ['name' => 'Mixer', 'item_inactive' => 0],
+//         ['name' => 'Oven', 'item_inactive' => 1],
+//         ['name' => 'Grill', 'item_inactive' => 0],    // null is not in the array
+//         ['name' => 'Blender', 'item_inactive' => 1],
+//     ]
+// ]
+```
+
+Array literals support strings, numbers, booleans, and `null`:
+
+<!-- skip-test: Syntax example only -->
+```php
+// String values
+'{{ status IN ["active","pending"] ? 1 : 0 }}'
+
+// Numeric values
+'{{ category_id IN [1,3,5,7] ? 1 : 0 }}'
+
+// Include null in the array
+'{{ status IN [null,"Ok"] ? 1 : 0 }}'
+
+// NOT IN - inverse check
+'{{ status NOT IN ["Defekt","Verkauft"] ? 1 : 0 }}'
+```
+
+:::note
+The `IN` and `NOT IN` keywords are **case-insensitive** — `in`, `IN`, `In` all work.
+:::
+
+#### Pipe Filters in Conditions
+
+Use **parentheses** to apply filters before comparing:
+
+```php
+$source = [
+    'equipment' => [
+        ['name' => 'Mixer', 'status' => 'Active'],
+        ['name' => 'Oven', 'status' => 'INACTIVE'],
+        ['name' => 'Grill', 'status' => null],
+    ],
+];
+
+$result = DataMapper::source($source)
+    ->template([
+        'equipment.*' => [
+            'name' => '{{ equipment.*.name }}',
+            'item_inactive' => '{{ (equipment.*.status | lower) == "active" ? 0 : 1 }}',
+        ],
+    ])
+    ->map()
+    ->getTarget();
+
+// Result:
+// [
+//     'equipment' => [
+//         ['name' => 'Mixer', 'item_inactive' => 0],    // "Active" | lower → "active" == "active"
+//         ['name' => 'Oven', 'item_inactive' => 1],     // "INACTIVE" | lower → "inactive" != "active"
+//         ['name' => 'Grill', 'item_inactive' => 1],    // null | lower → null != "active"
+//     ]
+// ]
+```
+
+Combine filters with `IN`/`NOT IN`:
+
+```php
+$template = [
+    'equipment.*' => [
+        'name' => '{{ equipment.*.name }}',
+        'item_inactive' => '{{ (equipment.*.status | lower) IN ["verkauft","defekt","verschrottet"] ? 1 : 0 }}',
+    ],
+];
+```
+
+:::caution[Parentheses Required]
+Filters in conditions **must** use parentheses: `(path | filter)`. Without parentheses, the pipe operator is interpreted as a filter on the entire expression, not as part of the condition.
+
+```php
+// ✅ Correct - parentheses around filtered value
+'{{ (user.status | lower) == "active" ? 1 : 0 }}'
+
+// ❌ Wrong - pipe is interpreted as expression filter
+'{{ user.status | lower == "active" ? 1 : 0 }}'
+```
+:::
+
+:::note[Null Handling]
+String filters like `lower`, `upper`, `trim`, `ucfirst`, and `ucwords` pass `null` values through unchanged. When `null` is compared with `==`, it only matches `null` — not empty strings or other falsy values.
+:::
+
 :::tip[Use Cases]
 Conditional expressions are perfect for:
 - **Ternary (`? :`)** - Data type conversion, categorization, business logic
+- **IN / NOT IN** - Membership checks against a list of values
 - **Null Coalescing (`??`)** - Default values for optional fields, API responses with missing data
 - **Elvis (`?:`)** - Default values for empty strings, anonymization, fallback for zero values
+- **Pipe Filters in Conditions** - Case-insensitive comparisons, trimmed comparisons
 - **Common scenarios:**
   - Convert strings to integers/booleans
   - Classify values into categories (adult/minor, expensive/cheap)
   - Apply rules during mapping (low stock alerts, premium users)
   - Create boolean flags based on conditions
   - Transform status codes to readable values
+  - Check API status values against known lists
 :::
 
 :::note[Performance]
