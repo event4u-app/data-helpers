@@ -363,4 +363,86 @@ describe('DataMapper → Conditional Expressions', function(): void {
             'active' => 1,
         ]);
     });
+
+    test('it supports pipe filters in condition with parentheses', function(): void {
+        $source = [
+            'equipment' => [
+                ['name' => 'Mixer', 'status' => 'Active'],
+                ['name' => 'Oven', 'status' => 'Inactive'],
+                ['name' => 'Grill', 'status' => 'ACTIVE'],
+            ],
+        ];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'equipment.*' => [
+                    'name' => '{{ equipment.*.name }}',
+                    'item_inactive' => '{{ (equipment.*.status | lower) == "active" ? 0 : 1 }}',
+                ],
+            ])
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe([
+            'equipment' => [
+                ['name' => 'Mixer', 'item_inactive' => 0],
+                ['name' => 'Oven', 'item_inactive' => 1],
+                ['name' => 'Grill', 'item_inactive' => 0],
+            ],
+        ]);
+    });
+
+    test('it supports upper filter in condition with parentheses', function(): void {
+        $source = [
+            'user' => [
+                'role' => 'admin',
+            ],
+        ];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'is_admin' => '{{ (user.role | upper) == "ADMIN" ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['is_admin' => 1]);
+    });
+
+    test('it supports filtered condition with not equal operator', function(): void {
+        $source = [
+            'user' => [
+                'status' => 'INACTIVE',
+            ],
+        ];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'not_active' => '{{ (user.status | lower) != "active" ? 1 : 0 }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['not_active' => 1]);
+    });
+
+    test('it supports filtered condition with string result values', function(): void {
+        $source = [
+            'user' => [
+                'status' => 'Active',
+            ],
+        ];
+
+        $result = DataMapper::source($source)
+            ->template([
+                'label' => '{{ (user.status | lower) == "active" ? "enabled" : "disabled" }}',
+            ])
+            ->skipNull(false)
+            ->map()
+            ->getTarget();
+
+        expect($result)->toBe(['label' => 'enabled']);
+    });
 });
