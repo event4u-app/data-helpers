@@ -341,7 +341,7 @@ describe('InList filter (| in)', function(): void {
         $sources = ['item' => ['type' => 'UNKNOWN']];
         $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
-        expect($result['type'])->toBeNull();
+        expect($result)->not->toHaveKey('type');
         expect(MapperExceptions::hasExceptions())->toBeTrue();
     });
 
@@ -353,7 +353,7 @@ describe('InList filter (| in)', function(): void {
         $sources = ['item' => ['type' => '']];
         $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
-        expect($result['type'])->toBeNull();
+        expect($result)->not->toHaveKey('type');
         expect(MapperExceptions::hasExceptions())->toBeTrue();
     });
 
@@ -365,7 +365,7 @@ describe('InList filter (| in)', function(): void {
         $sources = ['item' => ['type' => '']];
         $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
-        expect($result['type'])->toBeNull();
+        expect($result)->not->toHaveKey('type');
         expect(MapperExceptions::hasExceptions())->toBeFalse();
     });
 
@@ -424,7 +424,7 @@ describe('NotInList filter (| not_in)', function(): void {
         $sources = ['item' => ['status' => 'DELETED']];
         $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
-        expect($result['status'])->toBeNull();
+        expect($result)->not->toHaveKey('status');
         expect(MapperExceptions::hasExceptions())->toBeTrue();
     });
 
@@ -436,7 +436,7 @@ describe('NotInList filter (| not_in)', function(): void {
         $sources = ['item' => ['status' => '']];
         $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
-        expect($result['status'])->toBeNull();
+        expect($result)->not->toHaveKey('status');
         expect(MapperExceptions::hasExceptions())->toBeFalse();
     });
 

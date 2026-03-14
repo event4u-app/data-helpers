@@ -32,12 +32,12 @@ LiteDto is an **ultra-fast, minimalistic Data Transfer Object (Dto)** library fo
 
 | Library | Performance | Features |
 |---------|-------------|----------|
-| Plain PHP | ~0.080μs | No features, manual work |
-| Other Dtos | ~2.69μs | Minimal features, maximum speed |
-| **LiteDto #[UltraFast]** | **~2.4μs** | Minimal overhead, maximum speed |
+| Plain PHP | ~0.079μs | No features, manual work |
+| Other Dtos | ~2.67μs | Minimal features, maximum speed |
+| **LiteDto #[UltraFast]** | **~2.3μs** | Minimal overhead, maximum speed |
 | SimpleDto #[UltraFast] | ~4.7μs | Fast mode with limited features |
 
-**LiteDto #[UltraFast] is ~2x faster than SimpleDto Normal** and only **~29.4x slower than Plain PHP**!
+**LiteDto #[UltraFast] is ~2x faster than SimpleDto Normal** and only **~29.3x slower than Plain PHP**!
 <!-- LITEDTO_PERFORMANCE_END -->
 
 ## Quick Example
